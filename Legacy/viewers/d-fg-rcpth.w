@@ -59,19 +59,19 @@ DEFINE VARIABLE li-pallets      AS INTEGER NO-UNDO.
 &Scoped-define INTERNAL-TABLES fg-rcpth fg-rdtlh
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define FIELDS-IN-QUERY-Dialog-Frame fg-rcpth.i-no fg-rcpth.po-no ~
-fg-rcpth.po-line fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
-fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin ~
-fg-rdtlh.qty fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
-fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code fg-rdtlh.tot-wt ~
-fg-rdtlh.user-id fg-rcpth.pur-uom fg-rcpth.post-date ~
-fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy fg-rdtlh.enteredDT 
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame fg-rcpth.i-no fg-rdtlh.tag ~
+fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.po-no fg-rcpth.po-line ~
+fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.cost fg-rdtlh.cases ~
+fg-rdtlh.qty-case fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rcpth.pur-uom ~
+fg-rdtlh.tot-wt fg-rdtlh.stack-code fg-rdtlh.user-id fg-rcpth.post-date ~
+fg-rdtlh.cust-no fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy ~
+fg-rdtlh.enteredDT fg-rcpth.rita-code fg-rcpth.trans-date 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame fg-rcpth.i-no ~
-fg-rcpth.po-no fg-rcpth.po-line fg-rcpth.job-no fg-rcpth.job-no2 ~
-fg-rcpth.trans-date fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc ~
-fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases ~
-fg-rdtlh.qty-case fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code ~
-fg-rdtlh.tot-wt fg-rcpth.pur-uom fg-rdtlh.reject-code[1] 
+fg-rdtlh.tag fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.po-no ~
+fg-rcpth.po-line fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.cost ~
+fg-rdtlh.cases fg-rdtlh.qty-case fg-rdtlh.stacks-unit fg-rdtlh.partial ~
+fg-rcpth.pur-uom fg-rdtlh.tot-wt fg-rdtlh.stack-code fg-rdtlh.cust-no ~
+fg-rdtlh.reject-code[1] fg-rcpth.rita-code fg-rcpth.trans-date 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame fg-rcpth fg-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Dialog-Frame fg-rdtlh
@@ -85,33 +85,33 @@ fg-rdtlh.tot-wt fg-rcpth.pur-uom fg-rdtlh.reject-code[1]
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS fg-rcpth.i-no fg-rcpth.po-no fg-rcpth.po-line ~
-fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date fg-rcpth.rita-code ~
-fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.tag ~
-fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case fg-rdtlh.stacks-unit ~
-fg-rdtlh.partial fg-rdtlh.stack-code fg-rdtlh.tot-wt fg-rcpth.pur-uom ~
-fg-rdtlh.reject-code[1]  
+&Scoped-Define ENABLED-FIELDS fg-rcpth.i-no fg-rdtlh.tag fg-rcpth.job-no ~
+fg-rcpth.job-no2 fg-rcpth.po-no fg-rcpth.po-line fg-rdtlh.loc ~
+fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.cost fg-rdtlh.cases ~
+fg-rdtlh.qty-case fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rcpth.pur-uom ~
+fg-rdtlh.tot-wt fg-rdtlh.stack-code fg-rdtlh.cust-no ~
+fg-rdtlh.reject-code[1] fg-rcpth.rita-code fg-rcpth.trans-date 
 &Scoped-define ENABLED-TABLES fg-rcpth fg-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE fg-rdtlh
-&Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_OK Btn_Done ~
-Btn_Cancel RECT-21 RECT-38 
-&Scoped-Define DISPLAYED-FIELDS fg-rcpth.i-no fg-rcpth.po-no ~
-fg-rcpth.po-line fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
-fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin ~
-fg-rdtlh.qty fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
-fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code fg-rdtlh.tot-wt ~
-fg-rdtlh.user-id fg-rcpth.pur-uom fg-rcpth.post-date ~
-fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy fg-rdtlh.enteredDT 
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_OK ~
+Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 RECT-40 RECT-41 RECT-42 RECT-43 
+&Scoped-Define DISPLAYED-FIELDS fg-rcpth.i-no fg-rdtlh.tag fg-rcpth.job-no ~
+fg-rcpth.job-no2 fg-rcpth.po-no fg-rcpth.po-line fg-rdtlh.loc ~
+fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.cost fg-rdtlh.cases ~
+fg-rdtlh.qty-case fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rcpth.pur-uom ~
+fg-rdtlh.tot-wt fg-rdtlh.stack-code fg-rdtlh.user-id fg-rcpth.post-date ~
+fg-rdtlh.cust-no fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy ~
+fg-rdtlh.enteredDT fg-rcpth.rita-code fg-rcpth.trans-date 
 &Scoped-define DISPLAYED-TABLES fg-rcpth fg-rdtlh
 &Scoped-define FIRST-DISPLAYED-TABLE fg-rcpth
 &Scoped-define SECOND-DISPLAYED-TABLE fg-rdtlh
 &Scoped-Define DISPLAYED-OBJECTS fi_pallet fi_qty-pallet fi_bol-ship ~
 fi_vend-no fi_vend-name fi_BenQtyBef fi_ben-qty fi_tr-time fi_bol-no 
-&Scoped-define calendarPopup btnCalendar-1 
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-
+&Scoped-define List-3 btnCalendar-1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -129,6 +129,13 @@ FUNCTION display-bol RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-ship Dialog-Frame 
 FUNCTION display-ship RETURNS CHARACTER
     ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-fg-qty Dialog-Frame 
+FUNCTION get-fg-qty RETURNS INTEGER
+    ( /* parameter-definitions */ INPUT ip-int AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -155,269 +162,299 @@ FUNCTION get-vend-no RETURNS CHARACTER
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-fg-qty Dialog-Frame 
-FUNCTION get-fg-qty RETURNS INTEGER
-    ( /* parameter-definitions */ INPUT ip-int AS INTEGER  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 /* ***********************  Control Definitions  ********************** */
 
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-
 DEFINE BUTTON btnCalendar-1 
-    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "Cancel" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Cancel" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
-    LABEL "&Done" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Done" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "&Save" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Save" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
-DEFINE VARIABLE fi_ben-qty    AS INTEGER   FORMAT "->>>>>>9":U INITIAL 0 
-    LABEL "Bin Change" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_ben-qty AS INTEGER FORMAT "->>>>>>9":U INITIAL 0 
+     LABEL "Bin Change" 
+     VIEW-AS FILL-IN 
+     SIZE 26.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_BenQtyBef  AS INTEGER   FORMAT "->>>>>>9":U INITIAL 0 
-    LABEL "Before Qty" 
-    VIEW-AS FILL-IN 
-    SIZE 22.8 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_BenQtyBef AS INTEGER FORMAT "->>>>>>9":U INITIAL 0 
+     LABEL "Before Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 22.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_bol-no     AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Bol No" 
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_bol-no AS CHARACTER FORMAT "X(15)":U 
+     LABEL "Bol No" 
+     VIEW-AS FILL-IN 
+     SIZE 23 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_bol-ship   AS CHARACTER FORMAT "x(8)":U INITIAL 0 
-    LABEL "BOL Cust" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_bol-ship AS CHARACTER FORMAT "x(8)":U 
+     LABEL "BOL Cust" 
+     VIEW-AS FILL-IN 
+     SIZE 22.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_pallet     AS INTEGER   FORMAT "->>>>>>":U INITIAL 0 
-    LABEL "Pallets" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_pallet AS INTEGER FORMAT "->>>>>>":U INITIAL 0 
+     LABEL "Pallets" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_qty-pallet AS INTEGER   FORMAT "->>>>>>":U INITIAL 0 
-    LABEL "Qty/Pallet" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_qty-pallet AS INTEGER FORMAT "->>>>>>":U INITIAL 0 
+     LABEL "Qty/Pallet" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_tr-time    AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Tr Time" 
-    VIEW-AS FILL-IN 
-    SIZE 15.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_tr-time AS CHARACTER FORMAT "X(15)":U 
+     LABEL "Tr Time" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_vend-name  AS CHARACTER FORMAT "x(20)":U 
-    LABEL "Name" 
-    VIEW-AS FILL-IN 
-    SIZE 40 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_vend-name AS CHARACTER FORMAT "x(20)":U 
+     LABEL "Name" 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_vend-no    AS CHARACTER FORMAT "x(10)":U 
-    LABEL "Vendor" 
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_vend-no AS CHARACTER FORMAT "x(10)":U 
+     LABEL "Vendor" 
+     VIEW-AS FILL-IN 
+     SIZE 23 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 19 BY 2.38
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 19 BY 2.38
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 132 BY 16.05
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 48 BY 9.14
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-39
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 39.6 BY 11.52
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-40
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 41.6 BY 11.52
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-41
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 48 BY 4.05
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-42
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 39.6 BY 3.57
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-43
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 89 BY 3.19
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Dialog-Frame FOR 
-    fg-rcpth, 
-    fg-rdtlh SCROLLING.
+      fg-rcpth, 
+      fg-rdtlh SCROLLING.
 &ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    fg-rcpth.i-no AT ROW 2.95 COL 22 COLON-ALIGNED
-    LABEL "FG Item#" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.tag AT ROW 2.95 COL 66 COLON-ALIGNED
-    LABEL "Tag#" FORMAT "x(25)"
-    VIEW-AS FILL-IN 
-    SIZE 30 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rcpth.job-no AT ROW 4.1 COL 22 COLON-ALIGNED
-    LABEL "Job" FORMAT "x(6)"
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rcpth.job-no2 AT ROW 4.1 COL 38.4 COLON-ALIGNED NO-LABELS FORMAT ">9"
-    VIEW-AS FILL-IN 
-    SIZE 6.6 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rcpth.po-no AT ROW 4.1 COL 66 COLON-ALIGNED
-    LABEL "Vendor PO#" FORMAT "x(9)"
-    VIEW-AS FILL-IN 
-    SIZE 30 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rcpth.po-line AT ROW 4.1 COL 111 COLON-ALIGNED
-    LABEL "PO Ln" FORMAT ">99"
-    VIEW-AS FILL-IN 
-    SIZE 8.6 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.loc AT ROW 5.29 COL 66 COLON-ALIGNED FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.loc-bin AT ROW 5.29 COL 103 COLON-ALIGNED
-    LABEL "Bin" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.qty AT ROW 6.43 COL 22 COLON-ALIGNED
-    LABEL "Quantity" FORMAT "->>>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.cost AT ROW 6.43 COL 66 COLON-ALIGNED
-    LABEL "Cost" FORMAT "->>>,>>9.99<<"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.cases AT ROW 6.43 COL 103 COLON-ALIGNED
-    LABEL "Units" FORMAT "->,>>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
+     fg-rcpth.i-no AT ROW 1.71 COL 17 COLON-ALIGNED
+          LABEL "FG Item#" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rdtlh.tag AT ROW 2.91 COL 17 COLON-ALIGNED
+          LABEL "Tag#" FORMAT "x(25)"
+          VIEW-AS FILL-IN 
+          SIZE 30 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rcpth.job-no AT ROW 4.1 COL 17 COLON-ALIGNED
+          LABEL "Job" FORMAT "x(6)"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rcpth.job-no2 AT ROW 4.1 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">9"
+          VIEW-AS FILL-IN 
+          SIZE 6.6 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rcpth.po-no AT ROW 6.48 COL 17 COLON-ALIGNED
+          LABEL "Vendor PO#" FORMAT "x(9)"
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rcpth.po-line AT ROW 7.67 COL 17 COLON-ALIGNED
+          LABEL "PO Ln" FORMAT ">99"
+          VIEW-AS FILL-IN 
+          SIZE 8.6 BY 1
+          BGCOLOR 15 FONT 1
+    fg-rdtlh.stack-code AT ROW 8.86 COL 17 COLON-ALIGNED
+          LABEL "FG Lot#" FORMAT "X(20)"
+          VIEW-AS FILL-IN 
+          SIZE 30 BY 1
+          BGCOLOR 15 FONT 1
 
-    fg-rdtlh.qty-case AT ROW 7.62 COL 22 COLON-ALIGNED
-    LABEL "Qty/Unit" FORMAT "->>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1
-    fi_pallet AT ROW 7.62 COL 66 COLON-ALIGNED
-    fg-rdtlh.stacks-unit AT ROW 7.62 COL 103 COLON-ALIGNED
-    LABEL "Units/Pallet" FORMAT ">,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.partial AT ROW 8.81 COL 22 COLON-ALIGNED
-    LABEL "Partial" FORMAT "->>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1
-    fi_qty-pallet AT ROW 8.81 COL 66 COLON-ALIGNED
-    fg-rcpth.pur-uom AT ROW 8.81 COL 103 COLON-ALIGNED
-    LABEL "UOM for Cost" FORMAT "x(3)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.tot-wt AT ROW 10 COL 22 COLON-ALIGNED
-    LABEL "Lbs / 100" FORMAT ">>,>>9.99"
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.stack-code AT ROW 10 COL 66 COLON-ALIGNED
-    LABEL "FG Lot#" FORMAT "X(20)"
-    VIEW-AS FILL-IN 
-    SIZE 30 BY 1
-    BGCOLOR 15 FONT 1
+     fg-rdtlh.loc AT ROW 1.71 COL 66 COLON-ALIGNED FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rdtlh.loc-bin AT ROW 2.91 COL 66 COLON-ALIGNED
+          LABEL "Bin" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    fg-rdtlh.cases AT ROW 4.1 COL 66 COLON-ALIGNED
+          LABEL "Units" FORMAT "->,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    fg-rdtlh.qty-case AT ROW 5.29 COL 66 COLON-ALIGNED
+          LABEL "Qty/Unit" FORMAT "->>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    fg-rdtlh.partial AT ROW 6.48 COL 66 COLON-ALIGNED
+          LABEL "Partial" FORMAT "->>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+    fg-rdtlh.stacks-unit AT ROW 7.67 COL 66 COLON-ALIGNED
+          LABEL "Units/Pallet" FORMAT ">,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+
+     fg-rdtlh.qty AT ROW 8.86 COL 66 COLON-ALIGNED
+          LABEL "Quantity" FORMAT "->>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     
+     fi_pallet AT ROW 10.1 COL 66 COLON-ALIGNED
+     fi_qty-pallet AT ROW 11.29 COL 66 COLON-ALIGNED
+     
+     
+     fg-rdtlh.user-id AT ROW 10.29 COL 106 COLON-ALIGNED
+          LABEL "Posted By" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 22.8 BY 1
+          BGCOLOR 15 FONT 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
+     fg-rcpth.rita-code AT ROW 1.71 COL 122 COLON-ALIGNED
+          LABEL "TR Code" FORMAT "x(1)"
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rcpth.trans-date AT ROW 2.91 COL 107.4 COLON-ALIGNED
+          LABEL "TR Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rdtlh.cust-no AT ROW 11.1 COL 15.8 COLON-ALIGNED
+          LABEL "Customer" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 FONT 1
+
+    fg-rdtlh.cost AT ROW 13.14 COL 67 COLON-ALIGNED
+          LABEL "Cost" FORMAT "->>>,>>9.99<<"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+
+    fg-rcpth.pur-uom AT ROW 14.33 COL 67 COLON-ALIGNED
+          LABEL "UOM for Cost" FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rdtlh.tot-wt AT ROW 15.43 COL 67 COLON-ALIGNED
+          LABEL "Lbs / 100" FORMAT ">>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+
+     fi_bol-ship AT ROW 13.52 COL 16.6 COLON-ALIGNED
+     fg-rcpth.post-date AT ROW 11.48 COL 106 COLON-ALIGNED
+          LABEL "Posted" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 FONT 1
+     fi_vend-no AT ROW 5.29 COL 17 COLON-ALIGNED
+     fi_vend-name AT ROW 8.86 COL 102 COLON-ALIGNED
+     fi_BenQtyBef AT ROW 17.33 COL 17 COLON-ALIGNED
+     fi_ben-qty AT ROW 17.33 COL 57.4 COLON-ALIGNED
+    
+     fg-rdtlh.reject-code[1] AT ROW 18.48 COL 26 COLON-ALIGNED
+          LABEL "Adjustment Reason"
+          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          LIST-ITEM-PAIRS "Item 1"," Item 1"
+          DROP-DOWN-LIST
+          SIZE 58.6 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rdtlh.enteredBy AT ROW 7.67 COL 106 COLON-ALIGNED
+          LABEL "Scanned By" FORMAT "x(12)"
+          VIEW-AS FILL-IN 
+          SIZE 22.8 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rdtlh.enteredDT AT ROW 6.48 COL 103 COLON-ALIGNED NO-LABEL FORMAT "99/99/9999 HH:MM:SS.SSS"
+          VIEW-AS FILL-IN 
+          SIZE 26 BY 1
+          BGCOLOR 15 FONT 1
      
-    fg-rdtlh.user-id AT ROW 11.14 COL 22.2 COLON-ALIGNED
-    LABEL "Posted By" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 22.8 BY 1
-    BGCOLOR 15 FONT 1
-    fi_bol-ship AT ROW 11.14 COL 66 COLON-ALIGNED
-    fg-rcpth.post-date AT ROW 13.52 COL 22 COLON-ALIGNED
-    LABEL "Posted" FORMAT "99/99/9999"
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1
-    fi_vend-no AT ROW 12.33 COL 22 COLON-ALIGNED
-    fi_vend-name AT ROW 12.33 COL 66 COLON-ALIGNED
-    fi_BenQtyBef AT ROW 14.71 COL 22.2 COLON-ALIGNED
-    fi_ben-qty AT ROW 14.71 COL 66 COLON-ALIGNED
-    fg-rdtlh.cust-no AT ROW 15.91 COL 22 COLON-ALIGNED
-    LABEL "Customer" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 23 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.reject-code[1] AT ROW 15.91 COL 70.8 COLON-ALIGNED
-    LABEL "Adjustment Reason:"
-    VIEW-AS COMBO-BOX SORT INNER-LINES 5
-    LIST-ITEM-PAIRS "Item 1"," Item 1"
-    DROP-DOWN-LIST
-    SIZE 58.6 BY 1.14
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.enteredBy AT ROW 13.52 COL 66 COLON-ALIGNED
-    LABEL "Scanned By" FORMAT "x(12)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rdtlh.enteredDT AT ROW 13.52 COL 103 COLON-ALIGNED FORMAT "99/99/9999 HH:MM:SS.SSS"
-    LABEL "Scan Date/Time"
-    VIEW-AS FILL-IN 
-    SIZE 26 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rcpth.rita-code AT ROW 1.81 COL 22 COLON-ALIGNED
-    LABEL "TR!Code" FORMAT "x(1)"
-    VIEW-AS FILL-IN 
-    SIZE 4.4 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rcpth.trans-date AT ROW 1.81 COL 66 COLON-ALIGNED
-    LABEL "TR Date" FORMAT "99/99/9999"
-    VIEW-AS FILL-IN 
-    SIZE 15 BY 1
-    BGCOLOR 15 FONT 1
-    btnCalendar-1 AT ROW 1.81 COL 83
-    fi_tr-time AT ROW 1.81 COL 103.6 COLON-ALIGNED
-    fi_bol-no AT ROW 5.29 COL 22 COLON-ALIGNED
-    Btn_OK AT ROW 18.19 COL 116
-    Btn_Done AT ROW 18.48 COL 117
-    Btn_Cancel AT ROW 18.19 COL 125
-    RECT-21 AT ROW 17.95 COL 115
-    RECT-38 AT ROW 1.38 COL 2
-    SPACE(1.79) SKIP(3.47)
+     btnCalendar-1 AT ROW 2.86 COL 124.4
+     fi_tr-time AT ROW 4.1 COL 111.6 COLON-ALIGNED
+     fi_bol-no AT ROW 12.29 COL 16 COLON-ALIGNED
+     Btn_OK AT ROW 18.19 COL 116
+     Btn_Done AT ROW 18.48 COL 117
+     Btn_Cancel AT ROW 18.19 COL 125
+     "Scan Date/Time" VIEW-AS TEXT
+          SIZE 20 BY .95 AT ROW 5.33 COL 107.6 WIDGET-ID 6
+     RECT-21 AT ROW 17.95 COL 115
+     RECT-38 AT ROW 1.38 COL 2
+     RECT-39 AT ROW 1.38 COL 51.4 WIDGET-ID 2
+     RECT-40 AT ROW 1.38 COL 92 WIDGET-ID 4
+     RECT-41 AT ROW 10.81 COL 2 WIDGET-ID 8
+     RECT-42 AT ROW 13.05 COL 51.2 WIDGET-ID 10
+     RECT-43 AT ROW 16.95 COL 2 WIDGET-ID 12
+     SPACE(44.79) SKIP(0.76)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "History Item Update".
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "History Item Update".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -447,20 +484,23 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME Dialog-Frame:SCROLLABLE = FALSE
-    FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
+
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME Dialog-Frame
    3                                                                    */
 /* SETTINGS FOR FILL-IN fg-rdtlh.cases IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rdtlh.cost IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN fg-rdtlh.cust-no IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fg-rdtlh.cost IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN fg-rdtlh.reject-code[1] IN FRAME Dialog-Frame
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fg-rdtlh.enteredBy IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT   NO-ENABLE                                     */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fg-rdtlh.enteredDT IN FRAME Dialog-Frame
-   EXP-FORMAT EXP-LABEL  NO-ENABLE                                      */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fi_bol-no IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_bol-ship IN FRAME Dialog-Frame
@@ -474,6 +514,10 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fi_vend-name IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_vend-no IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fi_BenQtyBef IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fi_ben-qty IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fg-rcpth.i-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -492,7 +536,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fg-rcpth.po-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rcpth.post-date IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                        */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fg-rcpth.pur-uom IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rdtlh.qty IN FRAME Dialog-Frame
@@ -533,10 +577,11 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON CTRL-O OF FRAME Dialog-Frame
-    OR ctrl-o OF btnCalendar-1 ANYWHERE
+ON CTRL-O OF FRAME Dialog-Frame /* History Item Update */
+OR ctrl-o OF btnCalendar-1 ANYWHERE
     DO:
         DEFINE VARIABLE char-hdl AS CHARACTER.
    
@@ -545,10 +590,10 @@ ON CTRL-O OF FRAME Dialog-Frame
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME Dialog-Frame
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* History Item Update */
-    DO:
+DO:
         DEFINE VARIABLE char-val  AS CHARACTER     NO-UNDO.
         DEFINE VARIABLE hlp-recid AS RECID         NO-UNDO.
         DEFINE VARIABLE lw-focus  AS WIDGET-HANDLE NO-UNDO.
@@ -617,7 +662,7 @@ ON HELP OF FRAME Dialog-Frame /* History Item Update */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON RETURN OF FRAME Dialog-Frame /* History Item Update */
-    ANYWHERE
+ANYWHERE
     DO:
         APPLY "tab" TO SELF.
         RETURN NO-APPLY.
@@ -629,18 +674,8 @@ ON RETURN OF FRAME Dialog-Frame /* History Item Update */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* History Item Update */
-    DO:
+DO:
         APPLY "END-ERROR":U TO SELF.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fg-rcpth.trans-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.trans-date Dialog-Frame
-ON HELP OF fg-rcpth.trans-date IN FRAME Dialog-Frame /* Tr Date */
-    DO:
-        {methods/calpopup.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -650,7 +685,7 @@ ON HELP OF fg-rcpth.trans-date IN FRAME Dialog-Frame /* Tr Date */
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 Dialog-Frame
 ON CHOOSE OF btnCalendar-1 IN FRAME Dialog-Frame
-    DO:
+DO:
         {methods/btnCalendar.i fg-rcpth.trans-date}
         APPLY "entry" TO fg-rcpth.trans-date .
     END.
@@ -662,7 +697,7 @@ ON CHOOSE OF btnCalendar-1 IN FRAME Dialog-Frame
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-    DO:
+DO:
         IF AVAILABLE fg-rcpth THEN
             op-rowid = ROWID(fg-rcpth).
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
@@ -675,7 +710,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 &Scoped-define SELF-NAME Btn_Done
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Done Dialog-Frame
 ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
-    DO:
+DO:
   &IF DEFINED (adm-panel) NE 0 &THEN
         RUN dispatch IN THIS-PROCEDURE ('exit').
   &ELSE
@@ -690,7 +725,7 @@ ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
-    DO:
+DO:
         IF ip-type EQ "view" THEN 
         DO: 
             APPLY "go" TO FRAME {&FRAME-NAME}.
@@ -726,10 +761,11 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME fg-rdtlh.cases
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cases Dialog-Frame
 ON LEAVE OF fg-rdtlh.cases IN FRAME Dialog-Frame /* Units */
-    DO:
+DO:
         RUN reCalcQty.
     END.
 
@@ -739,7 +775,7 @@ ON LEAVE OF fg-rdtlh.cases IN FRAME Dialog-Frame /* Units */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cases Dialog-Frame
 ON RETURN OF fg-rdtlh.cases IN FRAME Dialog-Frame /* Units */
-    DO:
+DO:
         RUN reCalcQty.
   
     END.
@@ -749,30 +785,10 @@ ON RETURN OF fg-rdtlh.cases IN FRAME Dialog-Frame /* Units */
 
 
 &Scoped-define SELF-NAME fg-rdtlh.cost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cost Dialog-Frame
-ON LEAVE OF fg-rdtlh.cost IN FRAME Dialog-Frame /* Cost */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cost Dialog-Frame
-ON RETURN OF fg-rdtlh.cost IN FRAME Dialog-Frame /* Cost */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rdtlh.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cust-no Dialog-Frame
 ON LEAVE OF fg-rdtlh.cust-no IN FRAME Dialog-Frame /* Customer */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-cust-no NO-ERROR.
@@ -784,20 +800,10 @@ ON LEAVE OF fg-rdtlh.cust-no IN FRAME Dialog-Frame /* Customer */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cust-no Dialog-Frame
-ON RETURN OF fg-rdtlh.cust-no IN FRAME Dialog-Frame /* Customer */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rcpth.i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.i-no Dialog-Frame
 ON LEAVE OF fg-rcpth.i-no IN FRAME Dialog-Frame /* FG Item# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-i-no NO-ERROR.
@@ -809,20 +815,10 @@ ON LEAVE OF fg-rcpth.i-no IN FRAME Dialog-Frame /* FG Item# */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.i-no Dialog-Frame
-ON RETURN OF fg-rcpth.i-no IN FRAME Dialog-Frame /* FG Item# */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rcpth.job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.job-no Dialog-Frame
 ON ENTRY OF fg-rcpth.job-no IN FRAME Dialog-Frame /* Job */
-    DO:
+DO:
     /*IF fg-rcpth.rita-code:SCREEN-VALUE  NE "S" THEN DO:
       APPLY "tab" TO {&self-name}.
       RETURN NO-APPLY.
@@ -835,7 +831,7 @@ ON ENTRY OF fg-rcpth.job-no IN FRAME Dialog-Frame /* Job */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.job-no Dialog-Frame
 ON LEAVE OF fg-rcpth.job-no IN FRAME Dialog-Frame /* Job */
-    DO:
+DO:
         DEFINE VARIABLE lv-job-no AS CHARACTER NO-UNDO.
 
 
@@ -849,20 +845,10 @@ ON LEAVE OF fg-rcpth.job-no IN FRAME Dialog-Frame /* Job */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.job-no Dialog-Frame
-ON RETURN OF fg-rcpth.job-no IN FRAME Dialog-Frame /* Job */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rcpth.job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.job-no2 Dialog-Frame
-ON ENTRY OF fg-rcpth.job-no2 IN FRAME Dialog-Frame /* job2 */
-    DO:
+ON ENTRY OF fg-rcpth.job-no2 IN FRAME Dialog-Frame /* Run # */
+DO:
     /*IF fg-rcpth.rita-code:SCREEN-VALUE  NE "S" THEN DO:
       APPLY "tab" TO {&self-name}.
       RETURN NO-APPLY.
@@ -873,20 +859,10 @@ ON ENTRY OF fg-rcpth.job-no2 IN FRAME Dialog-Frame /* job2 */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.job-no2 Dialog-Frame
-ON RETURN OF fg-rcpth.job-no2 IN FRAME Dialog-Frame /* job2 */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rdtlh.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.loc Dialog-Frame
-ON LEAVE OF fg-rdtlh.loc IN FRAME Dialog-Frame /* Ware-!house */
-    DO:
+ON LEAVE OF fg-rdtlh.loc IN FRAME Dialog-Frame /* Warehouse */
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-loc NO-ERROR.
@@ -898,20 +874,10 @@ ON LEAVE OF fg-rdtlh.loc IN FRAME Dialog-Frame /* Ware-!house */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.loc Dialog-Frame
-ON RETURN OF fg-rdtlh.loc IN FRAME Dialog-Frame /* Ware-!house */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rdtlh.loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.loc-bin Dialog-Frame
 ON LEAVE OF fg-rdtlh.loc-bin IN FRAME Dialog-Frame /* Bin */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-loc-bin NO-ERROR.
@@ -923,20 +889,10 @@ ON LEAVE OF fg-rdtlh.loc-bin IN FRAME Dialog-Frame /* Bin */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.loc-bin Dialog-Frame
-ON RETURN OF fg-rdtlh.loc-bin IN FRAME Dialog-Frame /* Bin */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rdtlh.partial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.partial Dialog-Frame
 ON LEAVE OF fg-rdtlh.partial IN FRAME Dialog-Frame /* Partial */
-    DO:
+DO:
         RUN reCalcQty.
     END.
 
@@ -946,7 +902,7 @@ ON LEAVE OF fg-rdtlh.partial IN FRAME Dialog-Frame /* Partial */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.partial Dialog-Frame
 ON RETURN OF fg-rdtlh.partial IN FRAME Dialog-Frame /* Partial */
-    DO:
+DO:
         RUN reCalcQty.
    
     END.
@@ -956,52 +912,12 @@ ON RETURN OF fg-rdtlh.partial IN FRAME Dialog-Frame /* Partial */
 
 
 &Scoped-define SELF-NAME fg-rcpth.po-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.po-no Dialog-Frame
-ON RETURN OF fg-rcpth.po-no IN FRAME Dialog-Frame /* Vendor PO# */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rcpth.post-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.post-date Dialog-Frame
-ON RETURN OF fg-rcpth.post-date IN FRAME Dialog-Frame /* Posted */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rcpth.pur-uom
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.pur-uom Dialog-Frame
-ON LEAVE OF fg-rcpth.pur-uom IN FRAME Dialog-Frame /* UOM for Cost */
-    DO:
- 
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.pur-uom Dialog-Frame
-ON RETURN OF fg-rcpth.pur-uom IN FRAME Dialog-Frame /* UOM for Cost */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rdtlh.qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.qty Dialog-Frame
 ON LEAVE OF fg-rdtlh.qty IN FRAME Dialog-Frame /* Quantity */
-    DO:
+DO:
         /*   fg-rdtlh.cases:SCREEN-VALUE   =                        */
         /*       string(INTEGER(fg-rdtlh.qty:SCREEN-VALUE  ) /      */
         /*              INTEGER(fg-rdtlh.qty-case:SCREEN-VALUE  )). */
@@ -1016,7 +932,7 @@ ON LEAVE OF fg-rdtlh.qty IN FRAME Dialog-Frame /* Quantity */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.qty Dialog-Frame
 ON RETURN OF fg-rdtlh.qty IN FRAME Dialog-Frame /* Quantity */
-    DO:
+DO:
         RUN reCalcUnits.
     END.
 
@@ -1027,7 +943,7 @@ ON RETURN OF fg-rdtlh.qty IN FRAME Dialog-Frame /* Quantity */
 &Scoped-define SELF-NAME fg-rdtlh.qty-case
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.qty-case Dialog-Frame
 ON LEAVE OF fg-rdtlh.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
-    DO:
+DO:
 
         RUN reCalcQty.
     END.
@@ -1038,7 +954,7 @@ ON LEAVE OF fg-rdtlh.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.qty-case Dialog-Frame
 ON RETURN OF fg-rdtlh.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
-    DO:
+DO:
 
         RUN reCalcQty.
    
@@ -1049,31 +965,11 @@ ON RETURN OF fg-rdtlh.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
 
 
 &Scoped-define SELF-NAME fg-rcpth.rita-code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.rita-code Dialog-Frame
-ON RETURN OF fg-rcpth.rita-code IN FRAME Dialog-Frame /* TR!Code */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rdtlh.stacks-unit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.stacks-unit Dialog-Frame
-ON RETURN OF fg-rdtlh.stacks-unit IN FRAME Dialog-Frame /* Units/Pallet */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rdtlh.tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.tag Dialog-Frame
 ON LEAVE OF fg-rdtlh.tag IN FRAME Dialog-Frame /* Tag# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-tag NO-ERROR.
@@ -1089,7 +985,7 @@ ON LEAVE OF fg-rdtlh.tag IN FRAME Dialog-Frame /* Tag# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.tag Dialog-Frame
 ON RETURN OF fg-rdtlh.tag IN FRAME Dialog-Frame /* Tag# */
-    DO:
+DO:
         RUN valid-tag-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1100,21 +996,11 @@ ON RETURN OF fg-rdtlh.tag IN FRAME Dialog-Frame /* Tag# */
 
 
 &Scoped-define SELF-NAME fg-rdtlh.tot-wt
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.tot-wt Dialog-Frame
-ON RETURN OF fg-rdtlh.tot-wt IN FRAME Dialog-Frame /* Lbs / 100 */
-    DO:
-  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-rcpth.trans-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.trans-date Dialog-Frame
-ON RETURN OF fg-rcpth.trans-date IN FRAME Dialog-Frame /* TR Date */
-    DO:
-  
+ON HELP OF fg-rcpth.trans-date IN FRAME Dialog-Frame /* TR Date */
+DO:
+        {methods/calpopup.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1185,18 +1071,43 @@ RUN disable_UI.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list Dialog-Frame 
+PROCEDURE build-type-list :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hPgmReason AS HANDLE    NO-UNDO.
+    &IF DEFINED(FWD-VERSION) EQ 0 &THEN
+    DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+     
+    RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
+    RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
+    DELETE OBJECT hPgmReason.
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS = cComboList .
+    END.
+    &ENDIF
+     
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1204,7 +1115,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item Dialog-Frame 
 PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           PARAMs:  <none>
           Notes:       
@@ -1260,41 +1171,40 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY fi_pallet fi_qty-pallet fi_bol-ship fi_vend-no fi_vend-name 
-        fi_BenQtyBef fi_ben-qty fi_tr-time fi_bol-no 
-        WITH FRAME Dialog-Frame.
-    IF AVAILABLE fg-rcpth THEN 
-        DISPLAY fg-rcpth.i-no fg-rcpth.po-no fg-rcpth.po-line fg-rcpth.job-no 
-            fg-rcpth.job-no2 fg-rcpth.trans-date fg-rcpth.rita-code 
-            fg-rcpth.pur-uom fg-rcpth.post-date 
-            WITH FRAME Dialog-Frame.
-    IF AVAILABLE fg-rdtlh THEN 
-        DISPLAY fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty 
-            fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case 
-            fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code 
-            fg-rdtlh.tot-wt fg-rdtlh.user-id fg-rdtlh.reject-code[1] 
-            fg-rdtlh.enteredBy fg-rdtlh.enteredDT 
-            WITH FRAME Dialog-Frame.
-    ENABLE fg-rcpth.i-no fg-rcpth.po-no fg-rcpth.po-line fg-rcpth.job-no 
-        fg-rcpth.job-no2 fg-rcpth.trans-date fg-rcpth.rita-code 
-        fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty 
-        fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case 
-        fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code 
-        fg-rdtlh.tot-wt fg-rcpth.pur-uom   
-        fg-rdtlh.reject-code[1] btnCalendar-1  
-        Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY fi_pallet fi_qty-pallet fi_bol-ship fi_vend-no fi_vend-name 
+          fi_BenQtyBef fi_ben-qty fi_tr-time fi_bol-no 
+      WITH FRAME Dialog-Frame.
+  IF AVAILABLE fg-rcpth THEN 
+    DISPLAY fg-rcpth.i-no fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.po-no 
+          fg-rcpth.po-line fg-rcpth.pur-uom fg-rcpth.post-date 
+          fg-rcpth.rita-code fg-rcpth.trans-date 
+      WITH FRAME Dialog-Frame.
+  IF AVAILABLE fg-rdtlh THEN 
+    DISPLAY fg-rdtlh.tag fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.cost 
+          fg-rdtlh.cases fg-rdtlh.qty-case fg-rdtlh.stacks-unit fg-rdtlh.partial 
+          fg-rdtlh.tot-wt fg-rdtlh.stack-code fg-rdtlh.user-id fg-rdtlh.cust-no 
+          fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy fg-rdtlh.enteredDT 
+      WITH FRAME Dialog-Frame.
+  ENABLE fg-rcpth.i-no fg-rdtlh.tag fg-rcpth.job-no fg-rcpth.job-no2 
+         fg-rcpth.po-no fg-rcpth.po-line fg-rdtlh.loc fg-rdtlh.loc-bin 
+         fg-rdtlh.qty fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case 
+         fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rcpth.pur-uom fg-rdtlh.tot-wt 
+         fg-rdtlh.stack-code fg-rdtlh.cust-no 
+         fg-rdtlh.reject-code[1] fg-rcpth.rita-code fg-rcpth.trans-date 
+         btnCalendar-1 Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
+         RECT-40 RECT-41 RECT-42 RECT-43 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1302,7 +1212,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reCalcQty Dialog-Frame 
 PROCEDURE reCalcQty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1328,7 +1238,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reCalcUnits Dialog-Frame 
 PROCEDURE reCalcUnits :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1357,7 +1267,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-record Dialog-Frame 
 PROCEDURE update-record :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>                          
       Notes:       
@@ -1410,35 +1320,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-type-list Dialog-Frame 
-PROCEDURE build-type-list :
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hPgmReason AS HANDLE    NO-UNDO.
-    &IF DEFINED(FWD-VERSION) EQ 0 &THEN
-    DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-     
-    RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
-    RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
-    DELETE OBJECT hPgmReason.
-  
-    DO WITH FRAME {&FRAME-NAME}:
-        fg-rdtlh.reject-code[1]:LIST-ITEM-PAIRS = cComboList .
-    END.
-    &ENDIF
-     
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no Dialog-Frame 
 PROCEDURE valid-cust-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1467,7 +1351,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no Dialog-Frame 
 PROCEDURE valid-i-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1498,7 +1382,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc Dialog-Frame 
 PROCEDURE valid-loc :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1527,7 +1411,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin Dialog-Frame 
 PROCEDURE valid-loc-bin :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1558,7 +1442,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag Dialog-Frame 
 PROCEDURE valid-tag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1600,7 +1484,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag-no Dialog-Frame 
 PROCEDURE valid-tag-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1636,9 +1520,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 /* ************************  Function Implementations ***************** */
 
