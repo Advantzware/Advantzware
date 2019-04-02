@@ -432,9 +432,7 @@ DO:
 
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
 
-       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
-            RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl). 
-     
+       PUBLISH "DispOrdTot" .
        RUN reopen-query (lv-rowid).
    END.
    
@@ -906,10 +904,15 @@ END.
   RELEASE xoe-ord.
   
   RUN oe/calcordt.p (ROWID(oe-ord)).
+    RUN dispatch ('row-changed').
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+  
+    PUBLISH "DispOrdTot" .  
   FIND FIRST cust NO-LOCK
       WHERE cust.company EQ cocode
       AND cust.cust-no EQ oe-ord.cust-no
       USE-INDEX cust  NO-ERROR.
+      
   IF (oe-ordm.bill NE "N" AND ld-prev-amt NE oe-ordm.amt)
        AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
     RUN oe/creditck.p (ROWID(oe-ord), YES).
@@ -1065,11 +1068,9 @@ PROCEDURE local-delete-record :
       USE-INDEX cust  NO-ERROR.
   IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
     RUN oe/creditck.p (ROWID(oe-ord), YES).
-    
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-     RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
-
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+  
+    PUBLISH "DispOrdTot" .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1189,10 +1190,8 @@ PROCEDURE local-update-record :
   IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
       RUN oe/creditck.p (ROWID(oe-ord), YES).
         
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-     RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
-      
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+    PUBLISH "DispOrdTot" .
   IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
   RUN reopen-query(ROWID(oe-ordm)).
@@ -1348,8 +1347,7 @@ PROCEDURE pUpdateRecord :
    IF AVAIL oe-ordm THEN do:
        RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-           RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
+       PUBLISH "DispOrdTot" .
        RUN reopen-query (lv-rowid).
    END.
   
@@ -1396,8 +1394,7 @@ PROCEDURE pCopyRecord :
      
       RUN oe/d-ordm.w (ROWID(bf-oe-ordm), ROWID(oe-ord), "Copy",OUTPUT lv-rowid).
       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).     
+       PUBLISH "DispOrdTot" .     
       FOR EACH bf-oe-ordm OF oe-ord NO-LOCK
           WHERE bf-oe-ordm.company EQ oe-ord.company
             AND bf-oe-ordm.line NE 0
@@ -1454,13 +1451,14 @@ PROCEDURE pAddRecord :
   DO:
      
      RUN oe/d-ordm.w (?, ROWID(oe-ord), "add",OUTPUT lv-rowid).
-     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
+
      FIND FIRST bf-oe-ordm  NO-LOCK
           WHERE bf-oe-ordm.company EQ oe-ord.company
             AND ROWID(bf-oe-ordm) EQ  lv-rowid NO-ERROR .
-        
+     RUN oe/calcordt.p (ROWID(oe-ord)).
+     RUN dispatch ('row-changed').
+ 
+     PUBLISH "DispOrdTot" .
      IF AVAIL bf-oe-ordm THEN DO:
         RUN reopen-query (lv-rowid).
      END.
