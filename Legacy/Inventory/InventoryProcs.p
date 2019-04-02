@@ -24,6 +24,9 @@ DEFINE VARIABLE giIDTemp                   AS INTEGER. /*TESTING ONLY DELETE BEF
 
 /* ************************  Function Prototypes ********************** */
 
+FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 
+	(ipcInventoryStockID AS CHARACTER) FORWARD.
+
 FUNCTION fGetNextStockAliasID RETURNS INTEGER PRIVATE
     (  ) FORWARD.
 
@@ -94,10 +97,7 @@ PROCEDURE CreateInventoryStockFromLoadtag:
         WHERE ttInventoryStockLoadtag.inventoryStockID EQ ipcInventoryStockID
         NO-ERROR. 
     IF AVAILABLE ttInventoryStockLoadtag THEN 
-    DO:        
-        RUN pCreateStockFromLoadtag(BUFFER ttInventoryStockLoadtag, iplCreateReceipt, iplPost, OUTPUT oplCreated, OUTPUT opcMessage).
-        
-    END.
+    RUN pCreateStockFromLoadtag(BUFFER ttInventoryStockLoadtag, iplCreateReceipt, iplPost, OUTPUT oplCreated, OUTPUT opcMessage).        
     ELSE 
         ASSIGN 
             oplCreated = NO
@@ -122,7 +122,6 @@ PROCEDURE CreatePreLoadtagsFromInputsRM:
  Notes:
 ------------------------------------------------------------------------------*/
 
-
 END PROCEDURE.
 
 PROCEDURE CreatePreLoadtagsFromInputsWIP:
@@ -139,6 +138,10 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
     DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cDefaultLocation AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFound           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
 
     DEFINE BUFFER bf-job-mch FOR job-mch.
     DEFINE BUFFER bf-job-mat FOR job-mat.
@@ -205,13 +208,24 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
                 ttInventoryStockPreLoadtag.orderID     = bf-job-hdr.ord-no
                 ttInventoryStockPreLoadtag.customerID  = bf-job-hdr.cust-no
                 .
+        RUN sys/ref/nk1look.p (
+            bf-job-mch.company,"WIPTAGSDefaultLocation","L",NO,NO,"","",
+            OUTPUT cFound,OUTPUT lFound
+            ).
+        IF lFound AND cFound EQ "YES" THEN DO:
+            RUN sys/ref/nk1look.p (
+                bf-job-mch.company,"WIPTAGSDefaultLocation","C",NO,NO,"","",
+                OUTPUT cDefaultLocation,OUTPUT lFound
+                ).
+            IF lFound THEN
+            ttInventoryStockPreLoadtag.locationID = cDefaultLocation.
+        END. /* if lfound */
     END.
     ELSE 
         ASSIGN 
             oplCreated = NO
             opcMessage = "Invalid Machine or Material Inputs" 
-            .
-    
+            .    
 
 END PROCEDURE.
 
@@ -260,11 +274,34 @@ PROCEDURE CreatePrintInventory:
             ASSIGN cItemName = item.i-name.
             
         ASSIGN
-            ttPrintInventoryStock.jobNo        = inventoryStock.jobID + STRING(inventoryStock.jobID2)
+            ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
+            ttPrintInventoryStock.jobNumber    = FILL(" ",6 - LENGTH(ttPrintInventoryStock.jobNumber)) + ttPrintInventoryStock.jobNumber
+            ttPrintInventoryStock.jobRunNumber = inventoryStock.jobID2
+            ttPrintInventoryStock.jobID        = ttPrintInventoryStock.jobNumber + "-" + STRING(ttPrintInventoryStock.jobRunNumber,"99")
+            ttPrintInventoryStock.jobIDTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobID)
+            ttPrintInventoryStock.jobIDFull    = ttPrintInventoryStock.jobID + "." + STRING(inventoryStock.formNo,"99") + "." + STRING(inventoryStock.blankNo,"99")
+            ttPrintInventoryStock.jobIDFullTrimmed = LEFT-TRIM(ttPrintInventoryStock.jobIDFull) 
             ttPrintInventoryStock.customerName = cCustName
             ttPrintInventoryStock.machineName  = cMachName
             ttPrintInventoryStock.rmItemName   = cItemName.
     END.
+
+END PROCEDURE.
+
+PROCEDURE DeleteInventoryStock:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    
+    DO TRANSACTION:
+        FIND FIRST inventoryStock EXCLUSIVE-LOCK
+             WHERE inventoryStock.inventoryStockID EQ ipcInventoryStockID
+             NO-ERROR.
+        IF AVAILABLE inventoryStock THEN
+        DELETE inventoryStock.
+    END. /* do trans */
 
 END PROCEDURE.
 
@@ -739,6 +776,18 @@ PROCEDURE ValidateLoc:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 
+	(ipcInventoryStockID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN CAN-FIND(FIRST inventoryStock
+                    WHERE inventoryStock.inventoryStockID EQ ipcInventoryStockID
+                      AND inventoryStock.inventoryStatus  EQ "Created").	
+
+END FUNCTION.
 
 FUNCTION fGetNextStockAliasID RETURNS INTEGER PRIVATE
     (  ):

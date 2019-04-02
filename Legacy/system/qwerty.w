@@ -4,9 +4,9 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: touch/numeric.w
+  File: touch/sortpad.w
 
-  Description: Numeric Keypad
+  Description: Alphabetic Keyboard
 
   Input Parameters: Window Handle of Calling Procedure.
 
@@ -39,7 +39,7 @@ DEFINE VARIABLE h_touchfrm AS HANDLE NO-UNDO.
 &ELSE
 DEFINE INPUT PARAMETER h_calling_window AS HANDLE NO-UNDO.
 DEFINE INPUT PARAMETER h_touchfrm AS HANDLE NO-UNDO.
-&ENDIF
+&ENDIF  
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
@@ -65,9 +65,11 @@ IF NOT tskey-log THEN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Backspace Btn_Clear Btn_Period Btn_Eight ~
-Btn_Five Btn_Four Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Three ~
-Btn_Two Btn_Zero 
+&Scoped-Define ENABLED-OBJECTS Btn_A Btn_Tab Btn_Enter Btn_Clear Btn_Space ~
+Btn_Backspace Btn_Eight Btn_Five Btn_Four Btn_Nine Btn_B Btn_One Btn_Seven ~
+Btn_C Btn_Six Btn_D Btn_Three Btn_E Btn_Two Btn_F Btn_Zero Btn_G Btn_H ~
+Btn_I Btn_J Btn_K Btn_L Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T ~
+Btn_U Btn_V Btn_W Btn_X Btn_Y Btn_Z 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -83,19 +85,54 @@ Btn_Two Btn_Zero
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_A 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_a.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "A" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_B 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_b.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "B" 
+     SIZE 11 BY 2.38.
+
 DEFINE BUTTON Btn_Backspace 
      LABEL "BACKSPACE" 
-     SIZE 22 BY 2.38 TOOLTIP "BACKSPACE"
+     SIZE 16 BY 1.91 TOOLTIP "BACKSPACE"
      FONT 6.
+
+DEFINE BUTTON Btn_C 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_c.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "C" 
+     SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Clear 
      LABEL "CLEAR" 
-     SIZE 11 BY 2.38 TOOLTIP "CLEAR"
+     SIZE 15 BY 1.91 TOOLTIP "CLEAR"
      FONT 6.
+
+DEFINE BUTTON Btn_D 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_d.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "D" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_E 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_e.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "E" 
+     SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Eight 
      IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_8.png":U NO-FOCUS FLAT-BUTTON
      LABEL "8" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_Enter 
+     LABEL "ENTER" 
+     SIZE 16 BY 1.91 TOOLTIP "ENTER"
+     FONT 6.
+
+DEFINE BUTTON Btn_F 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_f.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "F" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Five 
@@ -108,14 +145,54 @@ DEFINE BUTTON Btn_Four
      LABEL "4" 
      SIZE 11 BY 2.38.
 
-DEFINE BUTTON Btn_Minus 
-     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_minus.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "-" 
-     SIZE 11 BY 2.38 TOOLTIP "Minus".
+DEFINE BUTTON Btn_G 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_g.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "G" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_H 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_h.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "H" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_I 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_i.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "I" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_J 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_j.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "J" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_K 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_k.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "K" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_L 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_l.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "L" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_M 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_m.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "M" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_N 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_n.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "N" 
+     SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Nine 
      IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_9.png":U NO-FOCUS FLAT-BUTTON
      LABEL "9" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_O 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_o.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "O" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_One 
@@ -123,10 +200,25 @@ DEFINE BUTTON Btn_One
      LABEL "1" 
      SIZE 11 BY 2.38.
 
-DEFINE BUTTON Btn_Period 
-     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_period.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "." 
-     SIZE 11 BY 2.38 TOOLTIP "Period".
+DEFINE BUTTON Btn_P 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_p.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "P" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_Q 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_q.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Q" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_R 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_r.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "R" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_S 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_s.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "S" 
+     SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Seven 
      IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_7.png":U NO-FOCUS FLAT-BUTTON
@@ -138,6 +230,21 @@ DEFINE BUTTON Btn_Six
      LABEL "6" 
      SIZE 11 BY 2.38.
 
+DEFINE BUTTON Btn_Space 
+     LABEL "SPACE" 
+     SIZE 55 BY 1.91 TOOLTIP "SPACE"
+     FONT 6.
+
+DEFINE BUTTON Btn_T 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_t.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "T" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_Tab 
+     LABEL "TAB" 
+     SIZE 15 BY 1.91 TOOLTIP "TAB"
+     FONT 6.
+
 DEFINE BUTTON Btn_Three 
      IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_3.png":U NO-FOCUS FLAT-BUTTON
      LABEL "3" 
@@ -146,6 +253,36 @@ DEFINE BUTTON Btn_Three
 DEFINE BUTTON Btn_Two 
      IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_2.png":U NO-FOCUS FLAT-BUTTON
      LABEL "2" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_U 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_u.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "U" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_V 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_v.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "V" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_W 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_w.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "W" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_X 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_x.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "X" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_Y 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_y.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Y" 
+     SIZE 11 BY 2.38.
+
+DEFINE BUTTON Btn_Z 
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_z.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Z" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Zero 
@@ -157,24 +294,51 @@ DEFINE BUTTON Btn_Zero
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     Btn_Backspace AT ROW 1 COL 1
-     Btn_Clear AT ROW 1 COL 23
-     Btn_Period AT ROW 10.52 COL 1
-     Btn_Eight AT ROW 8.14 COL 12
-     Btn_Five AT ROW 5.76 COL 12
-     Btn_Four AT ROW 5.76 COL 1
-     Btn_Minus AT ROW 10.52 COL 23
-     Btn_Nine AT ROW 8.14 COL 23
-     Btn_One AT ROW 3.38 COL 1
-     Btn_Seven AT ROW 8.14 COL 1
-     Btn_Six AT ROW 5.76 COL 23
-     Btn_Three AT ROW 3.38 COL 23
-     Btn_Two AT ROW 3.38 COL 12
-     Btn_Zero AT ROW 10.52 COL 12
+     Btn_A AT ROW 5.76 COL 6
+     Btn_Tab AT ROW 8.38 COL 1 WIDGET-ID 22
+     Btn_Enter AT ROW 8.38 COL 95 WIDGET-ID 24
+     Btn_Clear AT ROW 10.52 COL 1
+     Btn_Space AT ROW 10.52 COL 28
+     Btn_Backspace AT ROW 10.52 COL 95
+     Btn_Eight AT ROW 1 COL 78 WIDGET-ID 2
+     Btn_Five AT ROW 1 COL 45 WIDGET-ID 4
+     Btn_Four AT ROW 1 COL 34 WIDGET-ID 6
+     Btn_Nine AT ROW 1 COL 89 WIDGET-ID 8
+     Btn_B AT ROW 8.14 COL 61
+     Btn_One AT ROW 1 COL 1 WIDGET-ID 10
+     Btn_Seven AT ROW 1 COL 67 WIDGET-ID 12
+     Btn_C AT ROW 8.14 COL 39
+     Btn_Six AT ROW 1 COL 56 WIDGET-ID 14
+     Btn_D AT ROW 5.76 COL 28
+     Btn_Three AT ROW 1 COL 23 WIDGET-ID 16
+     Btn_E AT ROW 3.38 COL 23
+     Btn_Two AT ROW 1 COL 12 WIDGET-ID 18
+     Btn_F AT ROW 5.76 COL 39
+     Btn_Zero AT ROW 1 COL 100 WIDGET-ID 20
+     Btn_G AT ROW 5.76 COL 50
+     Btn_H AT ROW 5.76 COL 61
+     Btn_I AT ROW 3.38 COL 78
+     Btn_J AT ROW 5.76 COL 72
+     Btn_K AT ROW 5.76 COL 83
+     Btn_L AT ROW 5.76 COL 94
+     Btn_M AT ROW 8.14 COL 83
+     Btn_N AT ROW 8.14 COL 72
+     Btn_O AT ROW 3.38 COL 89
+     Btn_P AT ROW 3.38 COL 100
+     Btn_Q AT ROW 3.38 COL 1
+     Btn_R AT ROW 3.38 COL 34
+     Btn_S AT ROW 5.76 COL 17
+     Btn_T AT ROW 3.38 COL 45
+     Btn_U AT ROW 3.38 COL 67
+     Btn_V AT ROW 8.14 COL 50
+     Btn_W AT ROW 3.38 COL 12
+     Btn_X AT ROW 8.14 COL 28
+     Btn_Y AT ROW 3.38 COL 56
+     Btn_Z AT ROW 8.14 COL 17
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 33.2 BY 11.95
+         SIZE 110 BY 11.43
          BGCOLOR 0 .
 
 
@@ -194,19 +358,17 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Numeric Pad"
-         COLUMN             = 125
-         ROW                = 1.52
-         HEIGHT             = 11.95
-         WIDTH              = 33.2
-         MAX-HEIGHT         = 11.95
-         MAX-WIDTH          = 33.2
-         VIRTUAL-HEIGHT     = 11.95
-         VIRTUAL-WIDTH      = 33.2
+         TITLE              = "Keyboard"
+         HEIGHT             = 11.43
+         WIDTH              = 110
+         MAX-HEIGHT         = 33.9
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.9
+         VIRTUAL-WIDTH      = 204.8
          MIN-BUTTON         = no
          MAX-BUTTON         = no
          ALWAYS-ON-TOP      = yes
-         RESIZE             = yes
+         RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
          BGCOLOR            = ?
@@ -242,6 +404,18 @@ ASSIGN
        Btn_Clear:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "CLEAR".
 
+ASSIGN 
+       Btn_Enter:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ENTER".
+
+ASSIGN 
+       Btn_Space:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "SPACE".
+
+ASSIGN 
+       Btn_Tab:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "TAB".
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -256,7 +430,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Numeric Pad */
+ON END-ERROR OF C-Win /* Keyboard */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -269,11 +443,33 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Numeric Pad */
+ON WINDOW-CLOSE OF C-Win /* Keyboard */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_A
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_A C-Win
+ON CHOOSE OF Btn_A IN FRAME DEFAULT-FRAME /* A */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_B
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_B C-Win
+ON CHOOSE OF Btn_B IN FRAME DEFAULT-FRAME /* B */
+DO:
+  RUN Apply_Key (SELF:LABEL).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -291,6 +487,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_C
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_C C-Win
+ON CHOOSE OF Btn_C IN FRAME DEFAULT-FRAME /* C */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Clear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Clear C-Win
 ON CHOOSE OF Btn_Clear IN FRAME DEFAULT-FRAME /* CLEAR */
@@ -302,9 +509,53 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_D
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_D C-Win
+ON CHOOSE OF Btn_D IN FRAME DEFAULT-FRAME /* D */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_E
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_E C-Win
+ON CHOOSE OF Btn_E IN FRAME DEFAULT-FRAME /* E */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Eight
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Eight C-Win
 ON CHOOSE OF Btn_Eight IN FRAME DEFAULT-FRAME /* 8 */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Enter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Enter C-Win
+ON CHOOSE OF Btn_Enter IN FRAME DEFAULT-FRAME /* ENTER */
+DO:
+  RUN Apply_Key (SELF:TOOLTIP).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_F
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_F C-Win
+ON CHOOSE OF Btn_F IN FRAME DEFAULT-FRAME /* F */
 DO:
   RUN Apply_Key (SELF:LABEL).
 END.
@@ -335,9 +586,86 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Minus
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Minus C-Win
-ON CHOOSE OF Btn_Minus IN FRAME DEFAULT-FRAME /* - */
+&Scoped-define SELF-NAME Btn_G
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_G C-Win
+ON CHOOSE OF Btn_G IN FRAME DEFAULT-FRAME /* G */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_H
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_H C-Win
+ON CHOOSE OF Btn_H IN FRAME DEFAULT-FRAME /* H */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_I
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_I C-Win
+ON CHOOSE OF Btn_I IN FRAME DEFAULT-FRAME /* I */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_J
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_J C-Win
+ON CHOOSE OF Btn_J IN FRAME DEFAULT-FRAME /* J */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_K
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_K C-Win
+ON CHOOSE OF Btn_K IN FRAME DEFAULT-FRAME /* K */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_L
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_L C-Win
+ON CHOOSE OF Btn_L IN FRAME DEFAULT-FRAME /* L */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_M
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_M C-Win
+ON CHOOSE OF Btn_M IN FRAME DEFAULT-FRAME /* M */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_N
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_N C-Win
+ON CHOOSE OF Btn_N IN FRAME DEFAULT-FRAME /* N */
 DO:
   RUN Apply_Key (SELF:LABEL).
 END.
@@ -357,6 +685,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_O
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_O C-Win
+ON CHOOSE OF Btn_O IN FRAME DEFAULT-FRAME /* O */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_One
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_One C-Win
 ON CHOOSE OF Btn_One IN FRAME DEFAULT-FRAME /* 1 */
@@ -368,9 +707,42 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Period
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Period C-Win
-ON CHOOSE OF Btn_Period IN FRAME DEFAULT-FRAME /* . */
+&Scoped-define SELF-NAME Btn_P
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_P C-Win
+ON CHOOSE OF Btn_P IN FRAME DEFAULT-FRAME /* P */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Q
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Q C-Win
+ON CHOOSE OF Btn_Q IN FRAME DEFAULT-FRAME /* Q */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_R
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_R C-Win
+ON CHOOSE OF Btn_R IN FRAME DEFAULT-FRAME /* R */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_S
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_S C-Win
+ON CHOOSE OF Btn_S IN FRAME DEFAULT-FRAME /* S */
 DO:
   RUN Apply_Key (SELF:LABEL).
 END.
@@ -401,6 +773,39 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_Space
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Space C-Win
+ON CHOOSE OF Btn_Space IN FRAME DEFAULT-FRAME /* SPACE */
+DO:
+  RUN Apply_Key (SELF:TOOLTIP).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_T
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_T C-Win
+ON CHOOSE OF Btn_T IN FRAME DEFAULT-FRAME /* T */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Tab
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Tab C-Win
+ON CHOOSE OF Btn_Tab IN FRAME DEFAULT-FRAME /* TAB */
+DO:
+  RUN Apply_Key (SELF:TOOLTIP).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Three
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Three C-Win
 ON CHOOSE OF Btn_Three IN FRAME DEFAULT-FRAME /* 3 */
@@ -415,6 +820,72 @@ END.
 &Scoped-define SELF-NAME Btn_Two
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Two C-Win
 ON CHOOSE OF Btn_Two IN FRAME DEFAULT-FRAME /* 2 */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_U
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_U C-Win
+ON CHOOSE OF Btn_U IN FRAME DEFAULT-FRAME /* U */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_V
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_V C-Win
+ON CHOOSE OF Btn_V IN FRAME DEFAULT-FRAME /* V */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_W
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_W C-Win
+ON CHOOSE OF Btn_W IN FRAME DEFAULT-FRAME /* W */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_X
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_X C-Win
+ON CHOOSE OF Btn_X IN FRAME DEFAULT-FRAME /* X */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Y
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Y C-Win
+ON CHOOSE OF Btn_Y IN FRAME DEFAULT-FRAME /* Y */
+DO:
+  RUN Apply_Key (SELF:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Z
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Z C-Win
+ON CHOOSE OF Btn_Z IN FRAME DEFAULT-FRAME /* Z */
 DO:
   RUN Apply_Key (SELF:LABEL).
 END.
@@ -477,8 +948,6 @@ PROCEDURE Apply_Key :
   Parameters:  Input Keystroke Value
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  
   {touch/applykey.i}
 
 END PROCEDURE.
@@ -516,9 +985,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_Backspace Btn_Clear Btn_Period Btn_Eight Btn_Five Btn_Four 
-         Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Three Btn_Two 
-         Btn_Zero 
+  ENABLE Btn_A Btn_Tab Btn_Enter Btn_Clear Btn_Space Btn_Backspace Btn_Eight 
+         Btn_Five Btn_Four Btn_Nine Btn_B Btn_One Btn_Seven Btn_C Btn_Six Btn_D 
+         Btn_Three Btn_E Btn_Two Btn_F Btn_Zero Btn_G Btn_H Btn_I Btn_J Btn_K 
+         Btn_L Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V 
+         Btn_W Btn_X Btn_Y Btn_Z 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
