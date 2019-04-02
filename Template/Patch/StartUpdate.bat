@@ -1,10 +1,34 @@
 @ECHO OFF
+CONSOLESTATE /HIDE
 SET iniFile=..\Admin\advantzware.ini
 SET tgtDir=..\Admin\EnvAdmin
 
 :: Read advantzware.ini and set variable values
 FOR /F "tokens=1,2 delims==" %%G IN (%iniFile%) DO SET %%G=%%H
 SETLOCAL ENABLEDELAYEDEXPANSION
+
+:: Move to Admin/EnvAdmin dir
+CD ..\Admin\Envadmin
+
+:: Remove deprecated files from Admin/EnvAdmin
+DEL /Q asiLogin.* > NUL
+DEL /Q asiUpdate.* > NUL
+DEL /Q asiLogin*.* > NUL
+DEL /Q asiUpdate*.* > NUL
+DEL /Q asiLogin*.* > NUL
+DEL /Q *.bak > NUL
+DEL /Q *.e > NUL
+DEL /Q *.out > NUL
+DEL /Q *.p > NUL
+DEL /Q *-*.txt > NUL
+DEL /Q *2.txt > NUL
+DEL /Q *3.txt > NUL
+DEL /Q 7z.* > NUL
+DEL /Q convusr.* > NUL
+DEL /Q prerun*.* > NUL
+
+:: Move to Updates dir
+CD ..\..\Updates
 
 :: Copy files/dirs from Patch to "regular" directories
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
@@ -13,22 +37,29 @@ XCOPY /S /Y .\ReleaseNotes\*.* ..\Documentation\ReleaseNotes > NUL
 XCOPY /S /Y .\Structure\*.* ..\Databases\Structure > NUL
 
 :: Switch progress.cfg with .dev version
-COPY !DLCDir!\progress.cfg .\progress.cfg > NUL
-COPY !DLCDir!\progress.run .\progress.run > NUL
-COPY .\Structure\STFiles\progress.dev !DLCDir!\progress.cfg > NUL
-
+IF EXIST "!DLCDir!\progress.run" (
+    XCOPY /Y !DLCDir!\progress.run .\progress.cfg > NUL
+    XCOPY /Y .\Structure\STFiles\progress.dev !DLCDir!\progress.cfg > NUL
+) ELSE (
+    XCOPY /Y !DLCDir!\progress.cfg .\progress.cfg > NUL
+    XCOPY /Y .\Structure\STFiles\progress.dev !DLCDir!\progress.cfg > NUL
+)
+    
 :: Now move into envadmin and run the update program(s)
-cd ..\Admin\Envadmin
+CD ..\Admin\Envadmin
 CALL !DLCDir!\bin\prowin.exe -basekey INI -ininame dbms.ini -pf advantzware.pf -p asiUpdate.w  > NUL
 
 :: Switch progress.cfg back to .run version
-cd ..\..\Updates
+CD ..\..\Updates
+XCOPY /Y !DLCDir!\progress.cfg !DLCDir!\progress.dev > NUL
 XCOPY /Y .\progress.cfg !DLCDir!\progress.cfg > NUL
-XCOPY /Y .\progress.run !DLCDir!\progress.cfg > NUL
 
-:: Copy the extended update log to EnvAdmin and concatenate with current log
-COPY /Y .\UpdateLog.txt ..\Admin\EnvAdmin\UpdateLog2.txt > NUL
-COPY /Y ..\Admin\EnvAdmin\UpdateLog2.txt+..\Admin\EnvAdmin\UpdateLog.txt ..\Admin\EnvAdmin\UpdateLog3.txt > NUL
+:: Concatenate the extended and current update logs
+XCOPY /Y ..\Admin\EnvAdmin\UpdateHist.txt+..\Admin\EnvAdmin\UpdateLog.txt ..\Admin\EnvAdmin\UpdateHist1.txt > NUL
+DEL /Q ..\Admin\EnvAdmin\UpdateHist.txt > NUL
+DEL /Q ..\Admin\EnvAdmin\UpdateLog.txt > NUL
+XCOPY /Y ..\Admin\EnvAdmin\UpdateHist1.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL
+DEL /Q ..\Admin\EnvAdmin\UpdateHist1.txt > NUL
 
 :: Delete any unused/deprecated programs from dir structure
 cd ..\Desktop
@@ -39,5 +70,3 @@ cd ..\Updates
 RD /S /Q . > NUL
 DEL /S /Q *.* > NUL
 
-:: Move the (new) extended update log back to /Updates
-MOVE /Y ..\Admin\EnvAdmin\UpdateLog3.txt .\UpdateLog.txt > NUL
