@@ -140,7 +140,6 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cDefaultLocation AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFound           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
 
     DEFINE BUFFER bf-job-mch FOR job-mch.
@@ -209,17 +208,11 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
                 ttInventoryStockPreLoadtag.customerID  = bf-job-hdr.cust-no
                 .
         RUN sys/ref/nk1look.p (
-            bf-job-mch.company,"WIPTAGSDefaultLocation","L",NO,NO,"","",
-            OUTPUT cFound,OUTPUT lFound
+            bf-job-mch.company,"WIPTAGSDefaultLocation","C",NO,NO,"","",
+            OUTPUT cDefaultLocation,OUTPUT lFound
             ).
-        IF lFound AND cFound EQ "YES" THEN DO:
-            RUN sys/ref/nk1look.p (
-                bf-job-mch.company,"WIPTAGSDefaultLocation","C",NO,NO,"","",
-                OUTPUT cDefaultLocation,OUTPUT lFound
-                ).
-            IF lFound THEN
-            ttInventoryStockPreLoadtag.locationID = cDefaultLocation.
-        END. /* if lfound */
+        IF lFound THEN
+        ttInventoryStockPreLoadtag.locationID = cDefaultLocation.
     END.
     ELSE 
         ASSIGN 
