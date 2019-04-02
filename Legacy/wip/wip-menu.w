@@ -33,9 +33,13 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-/* Parameters Definitions ---                                           */
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
 DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+&ELSE
+DEFINE VARIABLE ipcCompany  AS CHARACTER NO-UNDO INITIAL "001".
+DEFINE VARIABLE ipcLocation AS CHARACTER NO-UNDO INITIAL "MAIN".
+&ENDIF
 
 /* Local Variable Definitions ---                                       */
 
@@ -74,22 +78,22 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE BUTTON btn-close 
      LABEL "C&lose" 
      SIZE 35 BY 2
-     FONT 6.
+     FONT 36.
 
 DEFINE BUTTON btn-transfer 
      LABEL "&WIP Transfer" 
      SIZE 35 BY 2
-     FONT 6.
+     FONT 36.
 
 DEFINE BUTTON btn-wipcreate 
      LABEL "&WIP Create" 
      SIZE 35 BY 2
-     FONT 6.
+     FONT 36.
 
 DEFINE BUTTON btn-wipissue 
      LABEL "&WIP Issue" 
      SIZE 35 BY 2
-     FONT 6.
+     FONT 36.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -121,13 +125,16 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "WIP"
+         TITLE              = "WIP Menu"
          HEIGHT             = 13.62
          WIDTH              = 37
          MAX-HEIGHT         = 16
          MAX-WIDTH          = 80
          VIRTUAL-HEIGHT     = 16
          VIRTUAL-WIDTH      = 80
+         CONTROL-BOX        = no
+         MIN-BUTTON         = no
+         MAX-BUTTON         = no
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -180,7 +187,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* WIP */
+ON END-ERROR OF C-Win /* WIP Menu */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -193,7 +200,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* WIP */
+ON WINDOW-CLOSE OF C-Win /* WIP Menu */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -228,6 +235,7 @@ DO:
                           INPUT 0,        /* Form number of the Job */
                           INPUT 0).       /* Blank number of the Job */
 END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

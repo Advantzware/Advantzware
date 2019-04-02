@@ -40,32 +40,36 @@ DEFINE {1} TEMP-TABLE ttInventoryStockLoadtagWIP
     .
 
 DEFINE {1} TEMP-TABLE ttPrintInventoryStock
-    FIELD inventoryStockID AS CHARACTER 
-    FIELD stockIDAlias AS CHARACTER	
-    FIELD wipItemID AS CHARACTER 
-    FIELD jobNo AS CHARACTER
-    FIELD jobID AS CHARACTER
-    FIELD jobID2 AS INTEGER
-    FIELD formNo AS INTEGER
-    FIELD blankNo AS INTEGER
-    FIELD customerID AS CHARACTER
-    FIELD customerName AS CHARACTER
-    FIELD machineID AS CHARACTER
-    FIELD machineName AS CHARACTER
-    FIELD passNo AS INTEGER
-    FIELD nextMachineID AS CHARACTER
-    FIELD nextMachineName AS CHARACTER
-    FIELD quantity AS DECIMAL
-    FIELD quantityPerSubUnit AS DECIMAL
-    FIELD quantitySubUnitsPerUnit AS INTEGER
-    FIELD quantityOfSubUnits AS INTEGER
-    FIELD quantityOfUnits AS INTEGER
-    FIELD quantityPartial AS DECIMAL
-    FIELD quantityUOM AS CHARACTER
-    FIELD copyNo AS INTEGER
-    FIELD copies AS CHARACTER
-    FIELD rmItemID AS CHARACTER
-    FIELD rmItemName AS CHARACTER.
+    FIELD inventoryStockID AS CHARACTER LABEL "InventoryStockID"
+    FIELD stockIDAlias AS CHARACTER	LABEL "WIPTag"
+    FIELD wipItemID AS CHARACTER LABEL "WIPItemID"
+    FIELD jobNumber AS CHARACTER LABEL "JobNumber"
+    FIELD jobRunNumber AS INTEGER LABEL "JobRunNumber"
+    FIELD jobID AS CHARACTER LABEL "JobID"
+    FIELD jobIDTrimmed AS CHARACTER LABEL "JobIDTrimmed"
+    FIELD jobIDFullTrimmed AS CHARACTER LABEL "JobIDFullTrimmed"
+    FIELD formNo AS INTEGER LABEL "Form"
+    FIELD blankNo AS INTEGER LABEL "Blank"
+    FIELD customerID AS CHARACTER LABEL "CustomerID"
+    FIELD customerName AS CHARACTER LABEL "CustomerName"
+    FIELD machineID AS CHARACTER LABEL "MachineID"
+    FIELD machineName AS CHARACTER LABEL "MachineName"
+    FIELD passNo AS INTEGER LABEL "Pass"
+    FIELD nextMachineID AS CHARACTER LABEL "NextMachineID"
+    FIELD nextMachineName AS CHARACTER LABEL "NextMachineName"
+    FIELD quantity AS DECIMAL LABEL "Quantity"
+    FIELD quantityPerSubUnit AS DECIMAL LABEL "QuantityPerSubUnit"
+    FIELD quantitySubUnitsPerUnit AS INTEGER LABEL "QuantitySubUnitsPerUnit"
+    FIELD quantityOfSubUnits AS INTEGER LABEL "QuantityOfSubUnits"
+    FIELD quantityOfUnits AS INTEGER LABEL "QuantityOfUnits"
+    FIELD quantityPartial AS DECIMAL LABEL "QuantityPartial"
+    FIELD quantityUOM AS CHARACTER LABEL "QuantityUOM"
+    FIELD copyNo AS INTEGER LABEL "CopyNo"
+    FIELD copies AS CHARACTER LABEL "Copies"
+    FIELD rmItemID AS CHARACTER LABEL "RMItemID"
+    FIELD rmItemName AS CHARACTER LABEL "RMItemName"
+    FIELD company AS CHARACTER LABEL "Company"
+    .
 
 DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
 DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".

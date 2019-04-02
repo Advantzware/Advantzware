@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : OutputProcs.p
     Purpose     : 
@@ -23,7 +22,6 @@ ASSIGN
 
 /* ************************  Function Prototypes ********************** */
 
-
 FUNCTION FormatForCSV RETURNS CHARACTER 
     (ipcValue AS CHARACTER) FORWARD.
     
@@ -37,20 +35,15 @@ FUNCTION FormatString RETURNS CHARACTER
     (ipcString AS CHARACTER,
     ipiCharacters AS INTEGER) FORWARD.
 
-
 /* ***************************  Main Block  *************************** */
-
-
 
 /* **********************  Internal Procedures  *********************** */
 PROCEDURE CloseOutput:
-    /*------------------------------------------------------------------------------
-     Purpose:  Closes output
-     Notes:
-    ------------------------------------------------------------------------------*/
-
+/*------------------------------------------------------------------------------
+ Purpose:  Closes output
+ Notes:
+------------------------------------------------------------------------------*/
     OUTPUT STREAM sOutput CLOSE.
-
 
 END PROCEDURE.
 
@@ -72,10 +65,10 @@ PROCEDURE GetBarDirFilePath:
 END PROCEDURE.
 
 PROCEDURE InitializeOutputXprint:
-    /*------------------------------------------------------------------------------
-     Purpose: Initialize XPrintOutput with default Font and FontSize
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Initialize XPrintOutput with default Font and FontSize
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplPreview AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplModal AS LOGICAL NO-UNDO.
@@ -99,10 +92,10 @@ PROCEDURE InitializeOutputXprint:
 END PROCEDURE.
 
 PROCEDURE InitializeOutput:
-    /*------------------------------------------------------------------------------
-     Purpose:  Initializes the stream given an output file 
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:  Initializes the stream given an output file 
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
  
     OUTPUT STREAM sOutput TO  VALUE(ipcOutputFile).
@@ -115,10 +108,10 @@ PROCEDURE printFile EXTERNAL "xPrint.dll" :
 END.
 
 PROCEDURE PrintLabelMatrixFile:
-    /*------------------------------------------------------------------------------
-     Purpose: Prints the Label Matrix File
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Prints the Label Matrix File
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcQDFFile AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDB AS CHARACTER NO-UNDO.
@@ -138,10 +131,10 @@ PROCEDURE PrintLabelMatrixFile:
 END PROCEDURE.
 
 PROCEDURE PrintXprintFile:
-    /*------------------------------------------------------------------------------
-     Purpose: Wrapper for Printing XPrint File
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper for Printing XPrint File
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcXprintFile AS CHARACTER NO-UNDO.
 
     RUN printFile(ipcXPrintFile).
@@ -149,10 +142,10 @@ PROCEDURE PrintXprintFile:
 END PROCEDURE.
 
 PROCEDURE TempTableToCSV:
-    /*------------------------------------------------------------------------------ 
-         Purpose: Exports the contents of any temp-table into CSV    
-         Notes: 
-        ------------------------------------------------------------------------------*/ 
+/*------------------------------------------------------------------------------ 
+ Purpose: Exports the contents of any temp-table into CSV    
+ Notes: 
+------------------------------------------------------------------------------*/ 
     DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
     DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
     DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
@@ -192,10 +185,10 @@ PROCEDURE TempTableToCSV:
 END PROCEDURE.
 
 PROCEDURE WriteOutput:
-    /*------------------------------------------------------------------------------
-     Purpose: Writes passed value to stream
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Writes passed value to stream
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcText AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplUnformatted AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplSkip AS LOGICAL NO-UNDO.
@@ -210,10 +203,10 @@ PROCEDURE WriteOutput:
 END PROCEDURE.
 
 PROCEDURE WriteToXprint:
-    /*------------------------------------------------------------------------------
-     Purpose: Wrapper on Write that prefixes Coordinates passed
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper on Write that prefixes Coordinates passed
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipdR AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdC AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcText AS CHARACTER NO-UNDO.
@@ -247,10 +240,10 @@ END PROCEDURE.
 
 FUNCTION FormatForCSV RETURNS CHARACTER 
     ( ipcValue AS CHARACTER ):
-    /*------------------------------------------------------------------------------
-     Purpose: Fixes the input character value and returns a CSV friendly text
-     Notes:
-    ------------------------------------------------------------------------------*/	
+/*------------------------------------------------------------------------------
+ Purpose: Fixes the input character value and returns a CSV friendly text
+ Notes:
+------------------------------------------------------------------------------*/	
     DEFINE VARIABLE cInvalidChars AS CHARACTER NO-UNDO INITIAL "~",#".
     DEFINE VARIABLE cReplaceChars AS CHARACTER NO-UNDO INITIAL "'',". 
     DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
@@ -260,17 +253,16 @@ FUNCTION FormatForCSV RETURNS CHARACTER
         ipcValue = REPLACE(ipcValue,ENTRY(iCount,cInvalidChars),ENTRY(iCount,cReplaceChars)).
     END.
     RETURN ipcValue.   
-
 		
 END FUNCTION.
 
 FUNCTION FormatNumber RETURNS CHARACTER 
     ( ipdNumber AS DECIMAL , ipiLeftDigits AS INTEGER , ipiRightDigits AS INTEGER, iplComma AS LOGICAL):
-    /*------------------------------------------------------------------------------
-     Purpose: Formats a number with left and right digits.  Handles problem when 
-     size of number doesn't fit
-     Notes:
-    ------------------------------------------------------------------------------*/    
+/*------------------------------------------------------------------------------
+ Purpose: Formats a number with left and right digits.  Handles problem when 
+ size of number doesn't fit
+ Notes:
+------------------------------------------------------------------------------*/    
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cErrorChar AS CHARACTER NO-UNDO.
@@ -298,12 +290,11 @@ END FUNCTION.
 
 FUNCTION FormatString RETURNS CHARACTER
     ( ipcString AS CHARACTER, ipiCharacters AS INTEGER ):
-    /*------------------------------------------------------------------------------
-     Purpose:  Formats string with number of characters.  If string is larger than what fits, 
-     it auto adds a "cont" string to end
-     Notes:
-    ------------------------------------------------------------------------------*/    
-
+/*------------------------------------------------------------------------------
+ Purpose:  Formats string with number of characters.  If string is larger than what fits, 
+ it auto adds a "cont" string to end
+ Notes:
+------------------------------------------------------------------------------*/    
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iLength AS INTEGER NO-UNDO.
     DEFINE VARIABLE iLengthCont AS INTEGER NO-UNDO.
@@ -320,4 +311,3 @@ FUNCTION FormatString RETURNS CHARACTER
     RETURN cReturn.
         
 END FUNCTION.
-
