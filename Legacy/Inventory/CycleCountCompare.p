@@ -66,9 +66,9 @@ DEFINE TEMP-TABLE ttCycleCountCompare
     FIELD cJobNo2                    AS CHARACTER COLUMN-LABEL "Job#2"
     FIELD cSNum                      AS CHARACTER COLUMN-LABEL "Sheet#"
     FIELD cBNum                      AS CHARACTER COLUMN-LABEL "Blank#"
-    INDEX tag cCompany cTag 
+    INDEX tag  cCompany cTag 
     INDEX item cCompany cFGItemID
-    INDEX i3 cCompany cSysLoc cSysLocBin    
+    INDEX i3   cCompany cSysLoc   cSysLocBin    
     .
     
 DEFINE TEMP-TABLE ttSnapShot
@@ -91,14 +91,14 @@ DEFINE TEMP-TABLE ttSnapShot
     FIELD cJobNo2                   AS CHARACTER COLUMN-LABEL "Job#2"
     FIELD cSNum                     AS CHARACTER COLUMN-LABEL "Sheet#"
     FIELD cBNum                     AS CHARACTER COLUMN-LABEL "Blank#"
-    INDEX tag cCompany cTag
+    INDEX tag  cCompany cTag
     INDEX ITEM cCompany cFGItemID    
     .
     
 DEFINE TEMP-TABLE ttDupTags
-    FIELD i-no LIKE fg-bin.i-no
-    FIELD tag  LIKE fg-bin.tag
-    FIELD transTypes AS char.
+    FIELD i-no       LIKE fg-bin.i-no
+    FIELD tag        LIKE fg-bin.tag
+    FIELD transTypes AS CHARACTER.
 DEFINE TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd.
 {fg/fullset.i NEW}   
 {oe/invwork.i new} 
@@ -477,14 +477,14 @@ PROCEDURE pBuildCompareTable PRIVATE:
         WHERE ttCycleCountCompare.cFGItem   GE ipcFGItemStart
         AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
-           (
-           ttCycleCountCompare.cScanLoc     GE ipcWhseStart
+        (
+        ttCycleCountCompare.cScanLoc     GE ipcWhseStart
         AND ttCycleCountCompare.cScanLoc     LE ipcWhseEnd
         AND ttCycleCountCompare.cScanLocBin  GE ipcBinStart
         AND ttCycleCountCompare.cScanLocBin  LE ipcBinEnd
-           )
+        )
         ELSE 
-           (ttCycleCountCompare.cSysLoc     GE ipcWhseStart
+        (ttCycleCountCompare.cSysLoc     GE ipcWhseStart
         AND ttCycleCountCompare.cSysLoc     LE ipcWhseEnd
         AND ttCycleCountCompare.cSysLocBin  GE ipcBinStart
         AND ttCycleCountCompare.cSysLocBin  LE ipcBinEnd)
@@ -539,8 +539,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
             AND fg-bin.tag EQ ttCycleCountCompare.cTag  
             USE-INDEX tag NO-ERROR.
         IF AVAILABLE fg-bin THEN 
-        ASSIGN
-            dCost = fg-bin.std-tot-cost * fg-bin.qty.
+            ASSIGN
+                dCost = fg-bin.std-tot-cost * fg-bin.qty.
 
         /* Calculate Cost */
         
@@ -664,8 +664,8 @@ PROCEDURE pCheckCountDups:
             lIsDups = TRUE. 
             CREATE ttDupTags.
             ASSIGN 
-                ttDupTags.i-no = fg-rctd.i-no
-                ttDupTags.tag  = fg-rctd.tag
+                ttDupTags.i-no       = fg-rctd.i-no
+                ttDupTags.tag        = fg-rctd.tag
                 ttDupTags.transTypes = fg-rctd.rita-code + "," + bf-fg-rctd.rita-code
                 .
         END.
@@ -784,36 +784,36 @@ PROCEDURE pCreateTransfers:
             fg-rctd.pur-uom = itemfg.cons-uom.
             RELEASE itemfg.
         END.  
-        /* fg-rctd job, PO must match the fg-bin to post */
-        /*
-        FIND FIRST fg-rdtlh WHERE
-            fg-rdtlh.company = fg-bin.company AND
-            fg-rdtlh.tag = lv-tag AND
-            fg-rdtlh.rita-code = "R"
-            USE-INDEX tag
-            NO-LOCK NO-ERROR.
+    /* fg-rctd job, PO must match the fg-bin to post */
+    /*
+    FIND FIRST fg-rdtlh WHERE
+        fg-rdtlh.company = fg-bin.company AND
+        fg-rdtlh.tag = lv-tag AND
+        fg-rdtlh.rita-code = "R"
+        USE-INDEX tag
+        NO-LOCK NO-ERROR.
 
-        IF AVAILABLE fg-rdtlh THEN 
+    IF AVAILABLE fg-rdtlh THEN 
+    DO:
+
+        FIND FIRST fg-rcpth NO-LOCK 
+            WHERE fg-rcpth.r-no EQ fg-rdtlh.r-no 
+            NO-ERROR.
+
+        IF AVAILABLE fg-rcpth THEN 
         DO:
 
-            FIND FIRST fg-rcpth NO-LOCK 
-                WHERE fg-rcpth.r-no EQ fg-rdtlh.r-no 
-                NO-ERROR.
-
-            IF AVAILABLE fg-rcpth THEN 
-            DO:
-
-                ASSIGN 
-                    fg-rctd.po-no   = fg-rcpth.po-no
-                    fg-rctd.po-line = MAX(fg-rcpth.po-line, 1)
-                    fg-rctd.job-no  = fg-rcpth.job-no
-                    fg-rctd.job-no2 = fg-rcpth.job-no2.
-                RELEASE fg-rcpth.
-            END.
+            ASSIGN 
+                fg-rctd.po-no   = fg-rcpth.po-no
+                fg-rctd.po-line = MAX(fg-rcpth.po-line, 1)
+                fg-rctd.job-no  = fg-rcpth.job-no
+                fg-rctd.job-no2 = fg-rcpth.job-no2.
+            RELEASE fg-rcpth.
+        END.
             
-            RELEASE fg-rdtlh.
-        END.      
-        */
+        RELEASE fg-rdtlh.
+    END.      
+    */
     END.  /* for each fg-bin*/
 
 
@@ -994,6 +994,115 @@ PROCEDURE pExportTempTable PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pGetCostMSF:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:  Should be merged with fg/rep/fg-cst1N.i
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprBinRow AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMSF AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE v-ext         AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lv-sell-price LIKE itemfg.sell-price NO-UNDO.
+    DEFINE VARIABLE lv-sell-uom   LIKE itemfg.sell-uom NO-UNDO.
+    DEFINE VARIABLE lv-case-count LIKE itemfg.case-count NO-UNDO.
+    
+    FIND FIRST fg-bin NO-LOCK
+        WHERE ROWID(fg-bin) EQ iprBinRow
+        NO-ERROR.  
+    IF NOT AVAILABLE fg-bin THEN 
+        RETURN.
+    FIND FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ fg-bin.company
+          AND itemfg.i-no    EQ fg-bin.i-no
+        NO-ERROR. 
+    IF NOT AVAILABLE itemfg THEN 
+        RETURN.
+    ASSIGN       
+        opdCost = fg-bin.std-tot-cost * ipdQty
+        .
+
+    /* Calculate Cost */
+    IF fg-bin.pur-uom EQ "CS" AND fg-bin.case-count NE 0 THEN
+        opdCost = opdCost / fg-bin.case-count.
+    ELSE
+        IF fg-bin.pur-uom EQ "L" THEN opdCost = opdCost / ipdQty.
+        ELSE 
+        DO:
+            FIND FIRST uom NO-LOCK
+                WHERE uom.uom  EQ itemfg.prod-uom
+                AND uom.mult NE 0
+                NO-ERROR.
+            IF AVAILABLE uom THEN opdCost  = opdCost / uom.mult.
+            ELSE opdCost = opdCost  / 1000.
+        END.
+
+    ASSIGN
+        lv-sell-price = itemfg.sell-price
+        lv-sell-uom   = itemfg.sell-uom
+        lv-case-count = itemfg.case-count
+        .
+
+    IF TRIM(fg-bin.job-no) NE "" THEN
+        FOR EACH job-hdr
+            WHERE job-hdr.company EQ fg-bin.company
+            AND job-hdr.job-no  EQ fg-bin.job-no
+            AND job-hdr.job-no2 EQ fg-bin.job-no2
+            AND job-hdr.i-no    EQ fg-bin.i-no
+            AND job-hdr.ord-no  NE 0
+            USE-INDEX job-no NO-LOCK,
+            FIRST oe-ordl
+            WHERE oe-ordl.company EQ job-hdr.company
+            AND oe-ordl.ord-no  EQ job-hdr.ord-no
+            AND oe-ordl.i-no    EQ job-hdr.i-no
+            AND oe-ordl.job-no  EQ job-hdr.job-no
+            AND oe-ordl.job-no2 EQ job-hdr.job-no2
+            AND (oe-ordl.pr-uom NE "CS" OR oe-ordl.cas-cnt NE 0)
+            USE-INDEX item-ord NO-LOCK
+            BY job-hdr.ord-no DESCENDING
+            :
+            ASSIGN
+                lv-sell-price = oe-ordl.price
+                lv-sell-uom   = oe-ordl.pr-uom
+                lv-case-count = oe-ordl.cas-cnt
+                .
+            LEAVE.
+        END.
+
+    /* Calculate Selling Price */
+    IF lv-sell-uom EQ "CS" AND lv-case-count NE 0 THEN
+        v-ext = (ipdQty * lv-sell-price) / lv-case-count.
+    ELSE 
+    DO:
+        FIND FIRST uom NO-LOCK
+            WHERE uom.uom  EQ lv-sell-uom
+            AND uom.mult NE 0
+            NO-ERROR
+            .
+        v-ext = ipdQty * lv-sell-price /
+            (IF AVAILABLE uom THEN uom.mult ELSE 1000).
+    END.
+
+    IF itemfg.sell-uom EQ "L" THEN
+        IF ipdQty LE 0 THEN v-ext = 0.
+        ELSE v-ext = lv-sell-price.
+          
+    ASSIGN
+        opdMSF = ipdQty * itemfg.t-sqft / 1000
+        v-ext = ROUND(v-ext,2).
+
+    IF ipdQty EQ ? THEN ipdQty = 0.
+    IF opdMSF EQ ? THEN opdMSF = 0.
+    IF opdCost EQ ? THEN opdCost = 0.
+    IF v-ext EQ ? THEN v-ext = 0.
+            
+    ipdQty        = 0.
+
+
+END PROCEDURE.
+
 PROCEDURE pGetLastTransDate PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Finds a transaction given inputs and returns the date of the latest 
@@ -1050,14 +1159,14 @@ PROCEDURE postFG:
     DEFINE INPUT  PARAMETER ipcBinStart AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
         
-    DEFINE VARIABLE lDupsExist AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lDupsExist  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lRemoveZero AS LOGICAL NO-UNDO.
     
     MESSAGE 'Remove all zero counts (all locations)?' SKIP
         VIEW-AS ALERT-BOX
         QUESTION BUTTONS YES-NO UPDATE lRemoveZero.
     IF lRemoveZero THEN 
-      RUN pRemoveZeroCounts .
+        RUN pRemoveZeroCounts .
 
     RUN pCheckCountDups (OUTPUT lDupsExist).
     IF lDupsExist THEN 
@@ -1074,7 +1183,7 @@ PROCEDURE postFG:
     RUN pPostCounts (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
         ipcBinStart, ipcBinEnd).
     MESSAGE "Posting Complete"
-    VIEW-AS ALERT-BOX.
+        VIEW-AS ALERT-BOX.
 END PROCEDURE.
 
 PROCEDURE pPostCounts:
@@ -1311,17 +1420,17 @@ PROCEDURE pRemoveMatches:
 END PROCEDURE.
 
 PROCEDURE pRemoveZeroCounts:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-FOR EACH fg-rctd EXCLUSIVE-LOCK 
-    WHERE fg-rctd.company EQ cocode
-      AND fg-rctd.rita-code EQ "C"
-      AND fg-rctd.qty EQ 0
-      :
-      DELETE fg-rctd.
-END.
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    FOR EACH fg-rctd EXCLUSIVE-LOCK 
+        WHERE fg-rctd.company EQ cocode
+        AND fg-rctd.rita-code EQ "C"
+        AND fg-rctd.qty EQ 0
+        :
+        DELETE fg-rctd.
+    END.
 
 END PROCEDURE.
 
