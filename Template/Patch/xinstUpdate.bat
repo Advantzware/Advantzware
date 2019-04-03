@@ -63,10 +63,13 @@ CLS
 
 :: Delete any unused/deprecated programs from dir structure
 cd ..\Desktop
-DEL /S /Q "ASI Update"* > NUL
-
+IF EXIST "ASI Update".* (
+    DEL /S /Q "ASI Update"* > NUL
+)
 :: Remove all programs from /Updates dir
 cd ..\Updates
 RD /S /Q . > NUL
 DEL /S /Q *.* > NUL
+
+QUIT
 
