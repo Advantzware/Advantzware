@@ -49,8 +49,7 @@ OUTPUT CLOSE.
 &SCOPED-DEFINE cFile prgrms
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
 FOR EACH {&cFile}:
-    EXPORT {&cFile}
-    EXCEPT can_run can_create can_update can_delete.
+    EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
 
