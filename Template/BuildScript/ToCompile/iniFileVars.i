@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : iniFileVars.i
     Syntax      : {iniFileVars.i}
@@ -26,7 +25,7 @@ ASSIGN cIniVarList =
     "# Environment inner structure,envAddonDir,envCustFiles,envCustomerDir,envOverrideDir,envPoDir,envProgramsDir,envResourceDir,envScheduleDir,envTemplateDir,envUserMenuDir,envUsersDir," + 
     "# Install subdirs,instAOA,instBackup,instDBMS,instEsko,instFileUtils,instLocalPrint,instRemAccess," +
     "# Updates subdirs,updAdminDir,updCompressDir,updDataDir,updDataUpdateDir,updDeskDir,updMenuDir,updProgramDir,updRelNotesDir,updSqlDir,updStructureDir," +
-    "# ASI Login Items,modeList,pgmList,envList,envVerList," +
+    "# ASI Login Items,modeList,pgmList," +
     "# Environment List,envList,envVerList," +
     "# Database List,dbList,dbVerList,dbDirList,dbPortList," +
     "# Audit DB List,audDbList,audVerList,audDirList,audPortList," +
@@ -186,20 +185,20 @@ PROCEDURE ipFindIniFile:
     ASSIGN
         cTest = ipcFileTest
         cExt = SUBSTRING(cTest,LENGTH(cTest) - 2,3).
-        
+
     /* Start guessing where the file might be */
     SEARCHBLOCK:
     DO:
         IF SEARCH(cTest) <> ? THEN DO:
             ASSIGN
-                cTest = SEARCH(cTest).
+                opcFileLoc = SEARCH(cTest).
             LEAVE SEARCHBLOCK.
         END.
         ELSE ASSIGN
             cTest = "..\advantzware." + cExt.
         IF SEARCH(cTest) <> ? THEN DO:
             ASSIGN
-                cTest = SEARCH(cTest).
+                opcFileLoc = SEARCH(cTest).
             LEAVE SEARCHBLOCK.
         END.
     
@@ -207,7 +206,7 @@ PROCEDURE ipFindIniFile:
             cTest = "N:\Admin\advantzware" + cExt.
         IF SEARCH(cTest) <> ? THEN DO:
             ASSIGN
-                cTest = SEARCH(cTest).
+                opcFileLoc = SEARCH(cTest).
             LEAVE SEARCHBLOCK.
         END.
 
@@ -217,7 +216,7 @@ PROCEDURE ipFindIniFile:
                 cTest = cEnt + ":\Admin\advantzware." + cExt.
             IF SEARCH(cTest) <> ? THEN DO:
                 ASSIGN
-                    cTest = SEARCH(cTest).
+                    opcFileLoc = SEARCH(cTest).
                 LEAVE SEARCHBLOCK.
             END.
         END.
@@ -228,7 +227,7 @@ PROCEDURE ipFindIniFile:
                 cTest = cEnt + ":\asigui\Admin\advantzware" + cExt.
             IF SEARCH(cTest) <> ? THEN DO:
                 ASSIGN
-                    cTest = SEARCH(cTest).
+                    opcFileLoc = SEARCH(cTest).
                 LEAVE SEARCHBLOCK.
             END.
         END.
@@ -239,13 +238,13 @@ PROCEDURE ipFindIniFile:
                 cTest = cEnt + ":\asi\Admin\advantzware." + cExt.
             IF SEARCH(cTest) <> ? THEN DO:
                 ASSIGN
-                    cTest = SEARCH(cTest).
+                    opcFileLoc = SEARCH(cTest).
                 LEAVE SEARCHBLOCK.
             END.
         END.
 
         ASSIGN
-            cTest = "".
+            opcFileLoc = "".
     END.
 
 
