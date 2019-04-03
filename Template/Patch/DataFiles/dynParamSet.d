@@ -1,0 +1,6 @@
+1 "System" "Company" 2.91 22 yes "" yes "201902265356602670009"
+2 "System" "Transaction Date Range" 4.71 64 yes "Transactions" yes "201902265840802670016"
+3 "System" "Machine Range" 5.71 71 yes "Machines" yes "201902266060702670027"
+4 "System" "Shift Range" 5.71 61 yes "Shifts" yes "201902266131902670045"
+5 "System" "Shift Times" 4.52 67 yes "Shift Times" yes "201902274688002670091"
+6 "System" "Audit ID" 3.1 30 yes "" yes "201903286310203436841"

@@ -59,7 +59,6 @@
 "FixTransDate.r" "FG" "IF1" "Fix Finished Goods Transaction Date (not Posted Date)" "" 900
 "fixtstme.r" "T" "TD" "Fix Total time of touchscreen machine transactions" "" 900
 "fixUserId.r" "FG" "NR" "Update all FG History User Id with ""?"" to ""ASI""" "" 900
-"fixusers.r" "SA" "NU" "Fix Users and User Records" "" 900
 "FixWip.r" "JC" "JC" "Fix Posted Work In Process" "" 900
 "fx0fgtrn.r" "FG" "IF1" "Fix Finished Goods Transfers with Wrong Quantity" "" 900
 "fxacct2.r" "GL" "GF2" "Update current year buckets" "" 900
@@ -105,7 +104,6 @@
 "PurgeOrphanSetParts.r" "FG" "IU1" "Remove Unposted Components Receipts not linked to Set" "" 900
 "PurgeTags.r" "SS" "S" "Purge SS Load Tags" "" 900
 "purgnote.r" "FG" "IF" "Purge Finished Goods Spec Notes Range" "" 900
-"r-impact.r" "GL" "GF" "GL Account Import Utiltiy" "" 900
 "r-ordpst.r" "OP" "OU3" "Order Post/Purge Deleted" "" 900
 "rctdpurg.r" "SA" "NR" "Purge FG Transactions by Type" "" 900
 "reopenyr.r" "GL" "G3" "Reopen year after closing" "" 900
@@ -155,7 +153,7 @@
 "updship#.r" "MN" "MN" "Update/Fix Ship To Number" "" 900
 "delAllFgRctd.r" "FG" "IU1" "Delete Unposted FG transactions" "Utility is used to delete FG transactions before they are posted." 900
 "module.r" "" "" "License Modules" "License File - Restricted to ASI user only" 1000
-"ImpMaster.r" "SA" "" "Import Master" "Imports are efficient" 1000
+"ImpMaster.r" "SA" "" "Import Master" "Imports are efficient" 900
 "delDupOrds.r" "OE" "" "Delete Duplicate Web Orders" "Searches orders for duplicate orders with matching PO numbers" 900
 "colorchg.r" "" "" "Progress Color Changer" "" 900
 "unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "" 900
@@ -164,4 +162,12 @@
 "autoCloseOrder.r" "" "" "Auto Close Order" "" 900
 "FGHistoryPurge.r" "FG" "" "FG History Purge/Consolidation" "This allows user to run a purge of FG History up to a date.  It will summarize all transactions up to that date and create an Inventory Count for each bin as of the date that represents all the previous transaction summary detail. 
 " 900
+"InvBolDateDiff.r" "UTIL" "" "Check and fix Invoice Bol Date Differences" "This utility provides the user the ability to view by BOL #, differences in the dates between a BOL and an Invoice.
+
+It also provides for the ability to change the date of a BOL." 900
 "CloseOrderTester.r" "OE" "" "Close Order Tester" "Tests orders to see why they are in current state" 900
+"dupfgtagloc.r" "FG" "" "Duplicate FG Tags Locator" "" 900
+"UpdARInv.r" "AR" "NM" "Utility to Fix AR Invoice Data" "Set Security Level at 1000 on Customer Servers.
+Type Invoice# and Customer Code, then Press Tab Key.
+Program will import Data to be Updated.
+Save Button Will Save Changes." 1000
