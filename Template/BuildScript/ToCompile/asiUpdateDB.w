@@ -54,6 +54,12 @@ DEF STREAM iniStream.
 DEF VAR cDbDirAlone AS CHAR NO-UNDO.
 DEF VAR cCurrDir AS CHAR NO-UNDO.
 DEF VAR cPortNo AS CHAR NO-UNDO.
+DEF VAR cPatchList AS CHARACTER NO-UNDO.
+DEF VAR cAsiDbVer AS CHARACTER NO-UNDO.
+DEF VAR cAudDbVer AS CHARACTER NO-UNDO.
+DEF VAR iPatchAudVer AS INTEGER NO-UNDO.
+DEF VAR iPatchDbVer AS INTEGER NO-UNDO.
+DEF VAR iPatchEnvVer AS INTEGER NO-UNDO.
 DEF VAR ptrToString      AS MEMPTR    NO-UNDO.
 DEF VAR intBufferSize    AS INTEGER   NO-UNDO INITIAL 256.
 DEF VAR intResult        AS INTEGER   NO-UNDO.
@@ -121,6 +127,7 @@ DEF VAR wDbVerList AS CHAR NO-UNDO.
 DEF VAR wAudDbList AS CHAR NO-UNDO.
 DEF VAR wAudPortList AS CHAR NO-UNDO.
 DEF VAR wAudDirList AS CHAR NO-UNDO.
+DEF VAR wAudVerList AS CHAR NO-UNDO.
 
 PROCEDURE GetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
     DEFINE INPUT        PARAMETER intBufferSize AS LONG.
@@ -436,7 +443,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         fiDbDir:{&SV} = ipcDir
         fiFromVer:{&SV} = STRING(ipiCurrDbVer,"99999999")
         fiToVer:{&SV} = STRING(ipiPatchDbVer,"99999999")
-        cDeltaFile = "asi" + STRING(ipiCurrDbVer,"99999999") + "_" + STRING(ipiPatchDbVer,"99999999") + ".df"
+        cDeltaFile = "asi" + STRING(ipiCurrDbVer,"99999999") + "-" + STRING(ipiPatchDbVer,"99999999") + ".df"
         fiDeltaFileName:{&SV} = cDeltaFile.
 
     IF ipiLevel LT 10 THEN APPLY 'choose' TO bProcess.
@@ -812,6 +819,8 @@ PROCEDURE ipExpandVarNames :
         iLockoutTries = IF cLockoutTries NE "" 
                         AND ASC(cLockoutTries) GE 48
                         AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0
+        wDbVerList = cDbVerList
+        wAudVerList = cAudVerList
         .
                 
 END PROCEDURE.
@@ -964,6 +973,42 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetPatchList C-Win 
+PROCEDURE ipGetPatchList :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cLine AS CHARACTER.
+    
+    ASSIGN
+        cPatchList = "".
+
+    INPUT FROM VALUE (cUpdatesDir + "\patch.mft").
+    REPEAT:
+        IMPORT 
+            cLine.
+
+        CASE ENTRY(1,cLine,"="):
+            WHEN "patchVer" THEN ASSIGN cPatchList = ENTRY(2,cLine,"=").
+            WHEN "asiDbVer" THEN ASSIGN cAsiDbVer = ENTRY(2,cLine,"=").
+            WHEN "audDbVer" THEN ASSIGN cAudDbVer = ENTRY(2,cLine,"=").
+        END CASE.
+    END.
+
+    ASSIGN
+        iPatchEnvVer = fIntVer(cPatchList)
+        iPatchDbVer  = fIntVer(cAsiDbVer)
+        iPatchAudVer  = fIntVer(cAudDbVer)
+        .
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 PROCEDURE ipStatus :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1042,10 +1087,18 @@ PROCEDURE ipUpgradeDBs :
         cThisDir = ENTRY(iListEntry,cAudDirList)
         cThisPort = ENTRY(iListEntry,cAudPortList).
 
-    IF ipiPatchDbVer LE ipiCurrDbVer THEN DO:
-        RUN ipStatus ("    Database is already upgraded.  Cancelling.").
+    IF cPrefix = "asi" 
+    AND ipiPatchDbVer LE ipiCurrDbVer THEN DO:
+        RUN ipStatus ("    ASI Database is already upgraded.  Skipping.").
         ASSIGN 
-            lSuccess = FALSE.
+            lSuccess = TRUE.
+        RETURN.
+    END.
+    IF cPrefix = "aud" 
+    AND ipiPatchAudVer LE ipiCurrAudVer THEN DO:
+        RUN ipStatus ("    Audit Database is already upgraded.  Skipping.").
+        ASSIGN 
+            lSuccess = TRUE.
         RETURN.
     END.
     
@@ -1157,12 +1210,14 @@ PROCEDURE ipUpgradeDBs :
         RETURN.
     END.
         
-    IF cPrefix EQ "asi" THEN DO: 
-        ASSIGN 
-            ENTRY(ipiEntry,wDbVerList) =  SUBSTRING(STRING(ipiPatchDbVer),1,2) + "." +
-                                            SUBSTRING(STRING(ipiPatchDbVer),3,2) + "." +
-                                            SUBSTRING(STRING(ipiPatchDbVer),5,2).
-    END.
+    IF cPrefix EQ "asi" THEN ASSIGN 
+        ENTRY(ipiEntry,wDbVerList) =  SUBSTRING(STRING(ipiPatchDbVer),1,2) + "." +
+                                      SUBSTRING(STRING(ipiPatchDbVer),3,2) + "." +
+                                      SUBSTRING(STRING(ipiPatchDbVer),5,2).
+    ELSE IF cPrefix EQ "aud" THEN ASSIGN 
+        ENTRY(ipiEntry,wAudVerList) =  SUBSTRING(STRING(ipiPatchDbVer),1,2) + "." +
+                                      SUBSTRING(STRING(ipiPatchDbVer),3,2) + "." +
+                                      SUBSTRING(STRING(ipiPatchDbVer),5,2).
 
     ASSIGN
         lSuccess = TRUE.
@@ -1185,10 +1240,8 @@ PROCEDURE ipWriteIniFile :
 
     FIND ttIniFile WHERE ttIniFile.cVarName = "dbVerList" NO-ERROR.
     ASSIGN ttIniFile.cVarValue = wDbVerList.
-    FIND ttIniFile WHERE ttIniFile.cVarName = "audDirList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = wAudDirList.
-    FIND ttIniFile WHERE ttIniFile.cVarName = "audPortList" NO-ERROR.
-    ASSIGN ttIniFile.cVarValue = wAudPortList.
+    FIND ttIniFile WHERE ttIniFile.cVarName = "audVerList" NO-ERROR.
+    ASSIGN ttIniFile.cVarValue = wAudVerList.
 
     OUTPUT TO VALUE(cIniLoc).
     FOR EACH ttIniFile BY ttIniFile.iPos:

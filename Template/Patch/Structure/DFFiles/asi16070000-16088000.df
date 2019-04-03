@@ -7023,7 +7023,6 @@ ADD FIELD "rec_key" OF "location" AS character
   INITIAL ""
   HELP "Enter Record Key Value"
   LABEL "Record Key"
-  DECIMALS 0
   ORDER 120
   MAX-WIDTH 40
 

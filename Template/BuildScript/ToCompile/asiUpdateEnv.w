@@ -2400,7 +2400,8 @@ PROCEDURE ipDataFix160880:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 160880...").
     
-    RUN ipUpdateAdvantzwarePf.
+/*    Deprecated                */
+/*    RUN ipUpdateAdvantzwarePf.*/
 
 END PROCEDURE.
 	
@@ -4636,7 +4637,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdvantzwarePf C-Win
 PROCEDURE ipUpdateAdvantzwarePf:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: This is broken, but is superseded by copying advantzware.pf during startUpdate
  Notes:
 ------------------------------------------------------------------------------*/
     DEF VAR cFileLine AS CHAR NO-UNDO.
@@ -4653,8 +4654,10 @@ PROCEDURE ipUpdateAdvantzwarePf:
             ttPfFile.ttfRawLine = cFileLine
             iLine = iLine + 1.
         IF NOT cFileLine BEGINS "#" THEN ASSIGN 
-            ttPfFile.ttfParm = ENTRY(1,cFileLine," ")
-            ttPfFile.ttfValue = ENTRY(2,cFileLine," ")
+            ttPfFile.ttfParm = ENTRY(1,cFileLine," ").
+        IF NUM-ENTRIES(cFileLine," ") GT 1 THEN  
+            ttPfFile.ttfValue = ENTRY(2,cFileLine," ").
+        IF NUM-ENTRIES(cFileLine,"#") GT 1 THEN 
             ttPfFile.ttfDesc = ENTRY(2,cFileLine,"#").
     END.
  

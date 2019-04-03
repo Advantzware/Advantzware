@@ -13,6 +13,7 @@
 DEFINE NEW GLOBAL SHARED VARIABLE cIniLoc AS CHAR NO-UNDO.
 DEF VAR cIniVarList AS CHAR NO-UNDO.
 DEF VAR cIniLine AS CHAR NO-UNDO.
+DEF VAR iLine AS INT NO-UNDO.
 
 ASSIGN cIniVarList = 
     "# Setup Variables,siteName,hostname,drive,dbDrive,topDir,mapDir,DLCDir,currVer,verDate,connectAudit,makeBackup,lockoutTries," +
@@ -31,7 +32,6 @@ ASSIGN cIniVarList =
     "# Audit DB List,audDbList,audVerList,audDirList,audPortList," +
     "# Basic DB Elements,audDbName,audDbPort,audDbStFile,prodDbName,prodDbPort,prodDbStFile,shipDbName,shipDbPort,shipDbStFile,testDbName,testDbPort,testDbStFile," +
     "# Misc Elements,adminPort,dfFileName,deltaFileName".
-
 
 /* # Setup Variables */
 DEF VAR cSitename AS CHAR INITIAL "ASI" NO-UNDO.
@@ -152,11 +152,11 @@ DEF TEMP-TABLE ttIniFile
 
 /* Create the temp-table and load var names */
 EMPTY TEMP-TABLE ttIniFile.
-DO i = 1 to NUM-ENTRIES(cIniVarList):
+DO iLine = 1 to NUM-ENTRIES(cIniVarList):
     CREATE ttIniFile.
     ASSIGN
-        ttIniFile.iPos = i
-        ttIniFile.cVarName = ENTRY(i,cIniVarList).
+        ttIniFile.iPos = iLine
+        ttIniFile.cVarName = ENTRY(iLine,cIniVarList).
 END.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -367,6 +367,7 @@ PROCEDURE ipReadIniFile:
             WHEN "audPortList" THEN ASSIGN cAudPortList = ttIniFile.cVarValue.
             WHEN "envVerList" THEN ASSIGN cEnvVerList = ttIniFile.cVarValue.
             WHEN "dbVerList" THEN ASSIGN cDbVerList = ttIniFile.cVarValue.
+            WHEN "audVerList" THEN ASSIGN cAudVerList = ttIniFile.cVarValue.
             WHEN "prodDbName" THEN ASSIGN cProdDbName = ttIniFile.cVarValue.
             WHEN "prodDbPort" THEN ASSIGN cProdDbPort = ttIniFile.cVarValue.
             WHEN "prodDbStFile" THEN ASSIGN cProdDbStFile = ttIniFile.cVarValue.
