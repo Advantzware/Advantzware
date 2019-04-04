@@ -397,8 +397,7 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
         end.
       end.
 
-      else
-      if oe-ctrl.p-ack then do:
+      else do:
         put "Total Order Value:" to 65 v-totord skip.
       end.
 

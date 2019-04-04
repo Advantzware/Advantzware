@@ -320,7 +320,7 @@ form " " to 80
                      shipto.ship-zip.
     end.
    
-    if oe-ctrl.prcom then
+    
       assign
        v-c-name    = company.name
        v-c-addr[1] = company.addr[1]

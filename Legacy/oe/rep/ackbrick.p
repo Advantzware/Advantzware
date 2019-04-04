@@ -432,9 +432,9 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
           end.
         end. /* 1 to 4 */
       end.
-      if oe-ctrl.p-ack then do:
+      
         put skip(1) "Total Order Value:" TO 60 v-totord TO 78 skip.
-      end.
+      
       assign
        v-totord = 0.
        oe-ord.ack-prnt = yes.

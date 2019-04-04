@@ -206,7 +206,7 @@ for each report   where report.term-id eq v-term-id,
 		         (if (v-page-tot modulo 34) ne 0 then .5 else 0)),0).
 
     if first-of(oe-bolh.bol-no) then do:
-	  if oe-ctrl.pr-broker and avail cust and shipto.broker then
+	  if avail cust and shipto.broker then
 	    v-coname = cust.name.
 	  
 	  else do:
