@@ -85,6 +85,7 @@ DEFINE VARIABLE iRectangleFGColor AS INTEGER   NO-UNDO INITIAL {&FGColor}.
 DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProfilerFile     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iProfileStartTime AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iSaveBgColor      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
@@ -92,6 +93,12 @@ DEFINE VARIABLE lFavorite         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE idx               AS INTEGER   NO-UNDO.
 DEFINE VARIABLE i                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hColorWidget      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iFGColor          AS INTEGER   NO-UNDO EXTENT 3.
+DEFINE VARIABLE iBGColor          AS INTEGER   NO-UNDO EXTENT 3.
+DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lUpgradeAvail AS LOGICAL NO-UNDO.
 
 ASSIGN
     g_mainmenu = THIS-PROCEDURE
@@ -125,18 +132,33 @@ cEulaFile = SEARCH("{&EulaFile}").
 &Scoped-define FRAME-NAME FRAME-USER
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo 
+&Scoped-Define ENABLED-OBJECTS imageSettings imageCompany menuLinkZoHo ~
+imageFolder imagePrinter imageScheduler 
 &Scoped-Define DISPLAYED-OBJECTS company_name loc_loc users_user_id ~
 Mnemonic 
 
 /* Custom List Definitions                                              */
-/* searchFilters,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define searchFilters menuTreeFilter btnMoveDown searchSelections ~
-btnMoveUp btnRemove btnFavorite svFavoriteText 
+/* searchFilters,List-2,List-3,List-4,List-5,colorPallet                */
+&Scoped-define searchFilters menuTreeFilter btnMoveDown btnMoveUp ~
+searchSelections btnRemove btnFavorite svFavoriteText 
+&Scoped-define colorPallet colorChoice-0 colorChoice-1 colorChoice-2 ~
+colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 ~
+colorChoice-8 colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 ~
+colorChoice-13 colorChoice-14 colorChoice-15 colorChoice-default FGColor-1 ~
+FGColor-2 FGColor-3 BGColor-1 BGColor-2 BGColor-3 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer MAINMENU 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -155,6 +177,10 @@ DEFINE SUB-MENU m_Help
 DEFINE MENU MENU-BAR-MAINMENU MENUBAR
        SUB-MENU  m_Help         LABEL "Help"          .
 
+
+/* Definitions of handles for OCX Containers                            */
+DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE company_name AS CHARACTER FORMAT "X(256)":U 
@@ -184,6 +210,18 @@ DEFINE IMAGE boxes
 DEFINE IMAGE imageCompany
      FILENAME "Graphics/32x32/office_building.png":U TRANSPARENT
      SIZE 6.4 BY 1.52 TOOLTIP "Change Company/Location".
+
+DEFINE IMAGE imageFolder
+     FILENAME "Graphics/32x32/folder.png":U TRANSPARENT
+     SIZE 6.4 BY 1.52 TOOLTIP "View User Folder".
+
+DEFINE IMAGE imagePrinter
+     FILENAME "Graphics/32x32/printer.ico":U TRANSPARENT
+     SIZE 6.4 BY 1.52 TOOLTIP "Reports".
+
+DEFINE IMAGE imageScheduler
+     FILENAME "Graphics/32x32/calendar_clock.ico":U TRANSPARENT
+     SIZE 6.4 BY 1.52 TOOLTIP "Task Scheduler".
 
 DEFINE IMAGE imageSettings
      FILENAME "Graphics/32x32/gearwheels.ico":U TRANSPARENT
@@ -243,12 +281,12 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 39 BY 1.19
+     SIZE 27 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 40 BY 1.19
+     SIZE 28 BY 1.19
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-8
@@ -430,7 +468,115 @@ DEFINE VARIABLE svMenuSize AS INTEGER
           "Small", 1,
 "Medium", 2,
 "Large", 3
-     SIZE 11 BY 5.95 TOOLTIP "Menu Size" NO-UNDO.
+     SIZE 11 BY 5.24 TOOLTIP "Menu Size" NO-UNDO.
+
+DEFINE RECTANGLE BGColor-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE BGColor-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE BGColor-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE colorChoice-0
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 0 .
+
+DEFINE RECTANGLE colorChoice-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 1 .
+
+DEFINE RECTANGLE colorChoice-10
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 10 .
+
+DEFINE RECTANGLE colorChoice-11
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 11 .
+
+DEFINE RECTANGLE colorChoice-12
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 12 .
+
+DEFINE RECTANGLE colorChoice-13
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 13 .
+
+DEFINE RECTANGLE colorChoice-14
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 14 .
+
+DEFINE RECTANGLE colorChoice-15
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 15 .
+
+DEFINE RECTANGLE colorChoice-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 2 .
+
+DEFINE RECTANGLE colorChoice-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 3 .
+
+DEFINE RECTANGLE colorChoice-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 4 .
+
+DEFINE RECTANGLE colorChoice-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 5 .
+
+DEFINE RECTANGLE colorChoice-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 6 .
+
+DEFINE RECTANGLE colorChoice-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 7 .
+
+DEFINE RECTANGLE colorChoice-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 8 .
+
+DEFINE RECTANGLE colorChoice-9
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1
+     BGCOLOR 9 .
+
+DEFINE RECTANGLE colorChoice-default
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 6 BY 1.19.
+
+DEFINE RECTANGLE FGColor-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE FGColor-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
+
+DEFINE RECTANGLE FGColor-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 6 BY 1.
 
 DEFINE RECTANGLE RECT-16
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -438,7 +584,7 @@ DEFINE RECTANGLE RECT-16
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 58 BY 6.43.
+     SIZE 58 BY 6.67.
 
 DEFINE RECTANGLE RECT-18
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -450,7 +596,7 @@ DEFINE RECTANGLE RECT-19
 
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 42 BY 21.67.
+     SIZE 42 BY 21.19.
 
 DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -463,27 +609,32 @@ DEFINE RECTANGLE RECT-22
 
 DEFINE VARIABLE copyToUser AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 40 BY 16.91 NO-UNDO.
+     SIZE 40 BY 16.43 NO-UNDO.
+
+DEFINE VARIABLE svMenuImage AS LOGICAL INITIAL no 
+     LABEL "Show Menu Images" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 22 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-USER
      company_name AT ROW 1.71 COL 13 COLON-ALIGNED NO-LABEL
-     loc_loc AT ROW 1.71 COL 76 COLON-ALIGNED NO-LABEL
-     users_user_id AT ROW 1.71 COL 117 COLON-ALIGNED NO-LABEL
+     loc_loc AT ROW 1.71 COL 73 COLON-ALIGNED NO-LABEL
+     users_user_id AT ROW 1.71 COL 106 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 68
+          SIZE 9 BY .62 AT ROW 1.71 COL 66
+     "User ID:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.71 COL 99
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
-     "User ID:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 110
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 3 WIDGET-ID 38
-     RECT-6 AT ROW 1.48 COL 101 WIDGET-ID 40
+     RECT-6 AT ROW 1.48 COL 97 WIDGET-ID 40
      RECT-7 AT ROW 1.48 COL 60 WIDGET-ID 42
      RECT-8 AT ROW 1.48 COL 141 WIDGET-ID 44
      RECT-9 AT ROW 3.29 COL 1 WIDGET-ID 46
@@ -501,109 +652,129 @@ DEFINE FRAME FRAME-USER
      menuLink-6 AT ROW 26.95 COL 83 WIDGET-ID 76
      menuLink-7 AT ROW 26.95 COL 70 WIDGET-ID 78
      menuLink-8 AT ROW 26.95 COL 57 WIDGET-ID 80
+     imageFolder AT ROW 1.24 COL 89 WIDGET-ID 86
+     imagePrinter AT ROW 1.24 COL 125 WIDGET-ID 98
+     imageScheduler AT ROW 1.24 COL 133 WIDGET-ID 102
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          BGCOLOR 15 .
 
-DEFINE FRAME searchFrame
-     BtnFavorites AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
-     btnMoveUp AT ROW 3.38 COL 1 HELP
-          "Move Favorite Up" WIDGET-ID 56
-     btnRemove AT ROW 4.57 COL 1 HELP
-          "Remove Favorite" WIDGET-ID 26
-     btnSearch AT ROW 1 COL 51 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 100 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 3.38
-         SIZE 108 BY 14.05
-         FGCOLOR 1  WIDGET-ID 600.
-
 DEFINE FRAME userSettingsFrame
-     btnCancel AT ROW 21 COL 12 HELP
+     btnCancel AT ROW 20.52 COL 12 HELP
           "Cancel" WIDGET-ID 2
-     btnLanguage-1 AT ROW 4.81 COL 6 HELP
+     btnLanguage-1 AT ROW 4.33 COL 6 HELP
           "Select this Language" WIDGET-ID 24
-     btnLanguage-2 AT ROW 6.48 COL 6 HELP
+     btnLanguage-2 AT ROW 6 COL 6 HELP
           "Select this Language" WIDGET-ID 26
-     btnLanguage-3 AT ROW 8.14 COL 6 HELP
+     btnLanguage-3 AT ROW 7.67 COL 6 HELP
           "Select this Language" WIDGET-ID 28
-     btnOK AT ROW 21 COL 3 HELP
+     btnOK AT ROW 20.52 COL 3 HELP
           "Save Changes" WIDGET-ID 4
-     btnToggle AT ROW 1.71 COL 14 HELP
+     btnToggle AT ROW 1.48 COL 14 HELP
           "Customize Menu" WIDGET-ID 80
      copyFromUser AT ROW 1.95 COL 60 COLON-ALIGNED HELP
           "Select User Account ID" NO-LABEL WIDGET-ID 52
      copyToUser AT ROW 3.86 COL 62 NO-LABEL WIDGET-ID 88
-     svLanguageList AT ROW 5.05 COL 16 HELP
+     svLanguageList AT ROW 4.33 COL 16 HELP
           "Select Language" NO-LABEL WIDGET-ID 30
-     svMenuSize AT ROW 10.76 COL 5 HELP
+     svMenuSize AT ROW 10.29 COL 5 HELP
           "Select Menu Size" NO-LABEL WIDGET-ID 34
-     cShowMnemonic AT ROW 18.14 COL 22 HELP
+     svMenuImage AT ROW 15.76 COL 5 HELP
+          "Toggle to Show Menu Images" WIDGET-ID 466
+     cShowMnemonic AT ROW 17.67 COL 22 HELP
           "Show Mnemonic" NO-LABEL WIDGET-ID 100
-     cPositionMnemonic AT ROW 19.33 COL 22 HELP
+     cPositionMnemonic AT ROW 18.86 COL 22 HELP
           "Place Mnemonic at Begin or End of Text" NO-LABEL WIDGET-ID 108
-     btnCopyToUser AT ROW 21 COL 62 HELP
+     btnCopyToUser AT ROW 20.52 COL 62 HELP
           "Copy From User to Selected User(s)" WIDGET-ID 94
-     btnActivateCueCards AT ROW 21.48 COL 27 HELP
+     btnActivateCueCards AT ROW 21 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 116
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
      " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 17.43 COL 5 WIDGET-ID 106
+          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
+          FGCOLOR 0 FONT 6
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
      "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 19.33 COL 12 WIDGET-ID 114
+          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
      "[S] Scheduling" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.52 COL 33 WIDGET-ID 54
-          FONT 6
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 18.14 COL 14 WIDGET-ID 112
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.29 COL 5 WIDGET-ID 62
-     " Language" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 4.1 COL 5 WIDGET-ID 86
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.38 COL 29 WIDGET-ID 48
-          FONT 6
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 11.24 COL 26 WIDGET-ID 42
-          FONT 6
+          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
+          FONT 33
      " Copy From User" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
-     IMAGE-1 AT ROW 11.24 COL 18 WIDGET-ID 40
-     IMAGE-2 AT ROW 13.14 COL 18 WIDGET-ID 44
-     IMAGE-3 AT ROW 15.05 COL 18 WIDGET-ID 50
-     RECT-16 AT ROW 4.33 COL 2 WIDGET-ID 56
-     RECT-17 AT ROW 10.52 COL 2 WIDGET-ID 60
-     RECT-18 AT ROW 20.76 COL 2 WIDGET-ID 64
-     IMAGE-4 AT ROW 11.24 COL 22 WIDGET-ID 74
-     IMAGE-5 AT ROW 13.14 COL 23 WIDGET-ID 76
-     IMAGE-6 AT ROW 15.05 COL 25 WIDGET-ID 78
-     RECT-19 AT ROW 1.48 COL 13 WIDGET-ID 82
-     RECT-20 AT ROW 1.48 COL 61 WIDGET-ID 92
-     RECT-21 AT ROW 17.67 COL 2 WIDGET-ID 104
-     RECT-22 AT ROW 21.24 COL 26 WIDGET-ID 118
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
+          FONT 35
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
+     " Language" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
+          FONT 37
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
+     IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
+     IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
+     IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
+     RECT-16 AT ROW 3.86 COL 2 WIDGET-ID 56
+     RECT-17 AT ROW 10.05 COL 2 WIDGET-ID 60
+     RECT-18 AT ROW 20.29 COL 2 WIDGET-ID 64
+     IMAGE-4 AT ROW 10.76 COL 21 WIDGET-ID 74
+     IMAGE-5 AT ROW 12.19 COL 22 WIDGET-ID 76
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 57 ROW 3.38
-         SIZE 103 BY 23.33
+         SIZE 103 BY 25.95
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 200.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME userSettingsFrame
+     IMAGE-6 AT ROW 13.86 COL 24 WIDGET-ID 78
+     RECT-19 AT ROW 1.24 COL 13 WIDGET-ID 82
+     RECT-20 AT ROW 1.48 COL 61 WIDGET-ID 92
+     RECT-21 AT ROW 17.19 COL 2 WIDGET-ID 104
+     RECT-22 AT ROW 20.76 COL 26 WIDGET-ID 118
+     colorChoice-0 AT ROW 23.62 COL 48 WIDGET-ID 442
+     colorChoice-1 AT ROW 23.62 COL 55 WIDGET-ID 306
+     colorChoice-2 AT ROW 23.62 COL 62 WIDGET-ID 308
+     colorChoice-3 AT ROW 23.62 COL 69 WIDGET-ID 310
+     colorChoice-4 AT ROW 23.62 COL 76 WIDGET-ID 312
+     colorChoice-5 AT ROW 23.62 COL 83 WIDGET-ID 314
+     colorChoice-6 AT ROW 23.62 COL 90 WIDGET-ID 316
+     colorChoice-7 AT ROW 23.62 COL 97 WIDGET-ID 318
+     colorChoice-8 AT ROW 24.81 COL 48 WIDGET-ID 320
+     colorChoice-9 AT ROW 24.81 COL 55 WIDGET-ID 322
+     colorChoice-10 AT ROW 24.81 COL 62 WIDGET-ID 324
+     colorChoice-11 AT ROW 24.81 COL 69 WIDGET-ID 326
+     colorChoice-12 AT ROW 24.81 COL 76 WIDGET-ID 328
+     colorChoice-13 AT ROW 24.81 COL 83 WIDGET-ID 330
+     colorChoice-14 AT ROW 24.81 COL 90 WIDGET-ID 332
+     colorChoice-15 AT ROW 24.81 COL 97 WIDGET-ID 334
+     colorChoice-default AT ROW 24.1 COL 41 WIDGET-ID 352
+     FGColor-1 AT ROW 23.62 COL 17 WIDGET-ID 338
+     FGColor-2 AT ROW 23.62 COL 24 WIDGET-ID 444
+     FGColor-3 AT ROW 23.62 COL 31 WIDGET-ID 446
+     BGColor-1 AT ROW 24.81 COL 17 WIDGET-ID 448
+     BGColor-2 AT ROW 24.81 COL 24 WIDGET-ID 450
+     BGColor-3 AT ROW 24.81 COL 31 WIDGET-ID 452
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 57 ROW 3.38
+         SIZE 103 BY 25.95
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
 
@@ -616,6 +787,38 @@ DEFINE FRAME menuTreeFrame
          AT COL 1 ROW 4.57
          SIZE 55 BY 24.91
          BGCOLOR 15  WIDGET-ID 100.
+
+DEFINE FRAME searchFrame
+     BtnFavorites AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     btnMoveDown AT ROW 5.76 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
+     btnMoveUp AT ROW 3.38 COL 1 HELP
+          "Move Favorite Up" WIDGET-ID 56
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
+     btnRemove AT ROW 4.57 COL 1 HELP
+          "Remove Favorite" WIDGET-ID 26
+     btnSearch AT ROW 1 COL 51 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
+     btnClear AT ROW 13.86 COL 100 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 3.38
+         SIZE 108 BY 14.05
+         FGCOLOR 1  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -798,6 +1001,21 @@ ASSIGN
        FRAME userSettingsFrame:HIDDEN           = TRUE
        FRAME userSettingsFrame:MOVABLE          = TRUE.
 
+/* SETTINGS FOR RECTANGLE BGColor-1 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       BGColor-1:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE BGColor-2 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       BGColor-2:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE BGColor-3 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       BGColor-3:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
 /* SETTINGS FOR BUTTON btnCopyToUser IN FRAME userSettingsFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnLanguage-1 IN FRAME userSettingsFrame
@@ -821,10 +1039,110 @@ ASSIGN
        btnToggle:PRIVATE-DATA IN FRAME userSettingsFrame     = 
                 "Customize Menu".
 
+/* SETTINGS FOR RECTANGLE colorChoice-0 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-0:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-1 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-1:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-10 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-10:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-11 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-11:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-12 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-12:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-13 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-13:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-14 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-14:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-15 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-15:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-2 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-2:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-3 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-3:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-4 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-4:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-5 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-5:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-6 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-6:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-7 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-7:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-8 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-8:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-9 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-9:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE colorChoice-default IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       colorChoice-default:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
 /* SETTINGS FOR COMBO-BOX copyFromUser IN FRAME userSettingsFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST copyToUser IN FRAME userSettingsFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE FGColor-1 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       FGColor-1:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE FGColor-2 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       FGColor-2:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
+/* SETTINGS FOR RECTANGLE FGColor-3 IN FRAME userSettingsFrame
+   NO-ENABLE 6                                                          */
+ASSIGN 
+       FGColor-3:SELECTABLE IN FRAME userSettingsFrame       = TRUE.
+
 /* SETTINGS FOR IMAGE IMAGE-1 IN FRAME userSettingsFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR IMAGE IMAGE-2 IN FRAME userSettingsFrame
@@ -890,6 +1208,28 @@ THEN MAINMENU:HIDDEN = no.
 
  
 
+
+/* **********************  Create OCX Containers  ********************** */
+
+&ANALYZE-SUSPEND _CREATE-DYNAMIC
+
+&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
+
+CREATE CONTROL-FRAME CtrlFrame ASSIGN
+       FRAME           = FRAME FRAME-USER:HANDLE
+       ROW             = 1
+       COLUMN          = 1
+       HEIGHT          = 4.76
+       WIDTH           = 20
+       WIDGET-ID       = 84
+       HIDDEN          = yes
+       SENSITIVE       = yes.
+/* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
+      CtrlFrame:MOVE-BEFORE(FRAME searchFrame:HANDLE).
+
+&ENDIF
+
+&ANALYZE-RESUME /* End of _CREATE-DYNAMIC */
 
 
 /* ************************  Control Triggers  ************************ */
@@ -1090,13 +1430,20 @@ DO:
     ASSIGN
         iLanguage = svLanguageList
         iMenuSize = svMenuSize
+        iFGColor[1] = FGColor-1:BGCOLOR
+        iFGColor[2] = FGColor-2:BGCOLOR
+        iFGColor[3] = FGColor-3:BGCOLOR
+        iBGColor[1] = BGColor-1:BGCOLOR
+        iBGColor[2] = BGColor-2:BGCOLOR
+        iBGColor[3] = BGColor-3:BGCOLOR
+        lMenuImage  = svMenuImage
         cShowMnemonic
         cPositionMnemonic
         .
     IF lToggle THEN lToggle = NO.
     HIDE FRAME userSettingsFrame.
     cLabelLanguage = ENTRY(iLanguage,cLanguageList).
-    RUN pSetUserSettings.
+    RUN pSetUserSettings (YES).
     RUN pReset.
     VIEW FRAME searchFrame.
 END.
@@ -1193,6 +1540,25 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME colorChoice-0
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL colorChoice-0 MAINMENU
+ON SELECTION OF colorChoice-0 IN FRAME userSettingsFrame
+,colorChoice-1,colorChoice-2,colorChoice-3,colorChoice-4,colorChoice-5
+,colorChoice-6,colorChoice-7,colorChoice-8,colorChoice-9,colorChoice-10
+,colorChoice-11,colorChoice-12,colorChoice-13,colorChoice-14,colorChoice-15
+,colorChoice-default
+DO:
+    IF VALID-HANDLE(hColorWidget) THEN
+    ASSIGN
+        hColorWidget:BGCOLOR = SELF:BGCOLOR
+        hColorWidget:FILLED  = TRUE
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME copyFromUser
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL copyFromUser MAINMENU
 ON VALUE-CHANGED OF copyFromUser IN FRAME userSettingsFrame
@@ -1215,6 +1581,40 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME FRAME-USER
+&Scoped-define SELF-NAME CtrlFrame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame MAINMENU OCX.Tick
+PROCEDURE CtrlFrame.PSTimer.Tick .
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  None required for OCX.
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
+    FIND FIRST taskResult NO-LOCK
+         WHERE taskResult.user-id EQ USERID("ASI")
+           AND taskResult.viewed  EQ NO
+         NO-ERROR.
+    IF AVAILABLE taskResult AND
+       SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
+        PAUSE 2 NO-MESSAGE.
+        OS-COMMAND NO-WAIT start VALUE(SEARCH(taskResult.folderFile)).
+        FIND CURRENT taskResult EXCLUSIVE-LOCK.
+        taskResult.viewed = YES.
+        RELEASE taskResult.
+    END. /* if avail */
+    FIND FIRST config NO-LOCK.
+    STATUS DEFAULT
+        "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted)
+        IN WINDOW {&WINDOW-NAME}.
+    IF PROFILER:ENABLED THEN 
+        RUN pProcessProfiler.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME searchFrame
 &Scoped-define SELF-NAME favoritesList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL favoritesList MAINMENU
@@ -1231,12 +1631,60 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME userSettingsFrame
+&Scoped-define SELF-NAME FGColor-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FGColor-1 MAINMENU
+ON SELECTION OF FGColor-1 IN FRAME userSettingsFrame
+,FGColor-2,FGColor-3,BGColor-1,BGColor-2,BGColor-3
+DO:
+    hColorWidget = SELF:HANDLE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME FRAME-USER
 &Scoped-define SELF-NAME imageCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageCompany MAINMENU
 ON MOUSE-SELECT-CLICK OF imageCompany IN FRAME FRAME-USER
 DO:
     RUN custom/comp_loc.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imageFolder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageFolder MAINMENU
+ON MOUSE-SELECT-CLICK OF imageFolder IN FRAME FRAME-USER
+DO:
+    RUN Get_Procedure IN Persistent-Handle ("userFoldr.", OUTPUT run-proc, YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imagePrinter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imagePrinter MAINMENU
+ON MOUSE-SELECT-CLICK OF imagePrinter IN FRAME FRAME-USER
+DO:
+    RUN spSetTaskFilter ("", "", "").
+    RUN Get_Procedure IN Persistent-Handle ("dynTasks.", OUTPUT run-proc, YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imageScheduler
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageScheduler MAINMENU
+ON MOUSE-SELECT-CLICK OF imageScheduler IN FRAME FRAME-USER
+DO:
+    RUN spSetParamValueID (0).
+    RUN Get_Procedure IN Persistent-Handle ("dynSched.", OUTPUT run-proc, YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1267,6 +1715,12 @@ DO:
                 svLanguageList    = iLanguage
                 cShowMnemonic     = users.showMnemonic
                 cPositionMnemonic = users.positionMnemonic
+                FGColor-1:BGCOLOR = iFGColor[1]
+                FGColor-2:BGCOLOR = iFGColor[2]
+                FGColor-3:BGCOLOR = iFGColor[3]
+                BGColor-1:BGCOLOR = iBGColor[1]
+                BGColor-2:BGCOLOR = iBGColor[2]
+                BGColor-3:BGCOLOR = iBGColor[3]
                 .
             DISPLAY svMenuSize svLanguageList cShowMnemonic cPositionMnemonic
                 WITH FRAME userSettingsFrame.
@@ -1395,7 +1849,17 @@ DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
     open-mime-resource "text/html" string(menuLinkZoHo:PRIVATE-DATA) false.
 &ELSE
+    IF lUpgradeAvail THEN DO:
+        MESSAGE 
+            "About to download and install a system update.  This" SKIP 
+            "window will now close until the update is complete."
+            VIEW-AS ALERT-BOX INFO.
     OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+        QUIT.
+    END.
+    ELSE DO:
+        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+    END.
 &ENDIF
 END.
 
@@ -1437,15 +1901,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME m_Profiler
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Profiler MAINMENU
-ON CHOOSE OF MENU-ITEM m_Profiler /* Profiler */
+ON CHOOSE OF MENU-ITEM m_Profiler /* Start/Stop Profiler */
  DO:
         RUN pOnOffProfiler.
  END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME m_SysCtrl_Usage
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_SysCtrl_Usage MAINMENU
@@ -1499,6 +1965,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svMenuImage
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svMenuImage MAINMENU
+ON VALUE-CHANGED OF svMenuImage IN FRAME userSettingsFrame /* Show Menu Images */
+DO:
+    ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svMenuSize
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svMenuSize MAINMENU
 ON VALUE-CHANGED OF svMenuSize IN FRAME userSettingsFrame
@@ -1537,7 +2014,7 @@ DO:
         MESSAGE 'Exit Advantzware?' VIEW-AS ALERT-BOX
             QUESTION BUTTONS YES-NO UPDATE closeMenu.
     IF NOT closeMenu THEN RETURN NO-APPLY.
-    RUN pSetUserSettings.
+    RUN pSetUserSettings (NO).
     RUN system/userLogOut.p (NO, 0).
     QUIT. /* kills all processes */
 END.
@@ -1609,6 +2086,44 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE control_load MAINMENU  _CONTROL-LOAD
+PROCEDURE control_load :
+/*------------------------------------------------------------------------------
+  Purpose:     Load the OCXs    
+  Parameters:  <none>
+  Notes:       Here we load, initialize and make visible the 
+               OCXs in the interface.                        
+------------------------------------------------------------------------------*/
+
+&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
+DEFINE VARIABLE UIB_S    AS LOGICAL    NO-UNDO.
+DEFINE VARIABLE OCXFile  AS CHARACTER  NO-UNDO.
+
+OCXFile = SEARCH( "mainMenu.wrx":U ).
+IF OCXFile = ? THEN
+  OCXFile = SEARCH(SUBSTRING(THIS-PROCEDURE:FILE-NAME, 1,
+                     R-INDEX(THIS-PROCEDURE:FILE-NAME, ".":U), "CHARACTER":U) + "wrx":U).
+
+IF OCXFile <> ? THEN
+DO:
+  ASSIGN
+    chCtrlFrame = CtrlFrame:COM-HANDLE
+    UIB_S = chCtrlFrame:LoadControls( OCXFile, "CtrlFrame":U)
+    CtrlFrame:NAME = "CtrlFrame":U
+  .
+  RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
+END.
+ELSE MESSAGE "mainMenu.wrx":U SKIP(1)
+             "The binary control file could not be found. The controls cannot be loaded."
+             VIEW-AS ALERT-BOX TITLE "Controls Not Loaded".
+
+&ENDIF
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI MAINMENU  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1639,22 +2154,25 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
+  RUN control_load.
   DISPLAY company_name loc_loc users_user_id Mnemonic 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
-  ENABLE imageSettings imageCompany menuLinkZoHo 
+  ENABLE imageSettings imageCompany menuLinkZoHo imageFolder imagePrinter 
+         imageScheduler 
       WITH FRAME FRAME-USER IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites menuTreeFilter btnMoveDown favoritesList searchSelections 
-         btnMoveUp btnRemove btnSearch btnFavorite 
+  ENABLE BtnFavorites menuTreeFilter btnMoveDown favoritesList btnMoveUp 
+         searchSelections btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
-  DISPLAY copyFromUser copyToUser svLanguageList svMenuSize cShowMnemonic 
-          cPositionMnemonic 
+  DISPLAY copyFromUser copyToUser svLanguageList svMenuSize svMenuImage 
+          cShowMnemonic cPositionMnemonic 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
-  ENABLE btnCancel btnOK cShowMnemonic cPositionMnemonic btnActivateCueCards 
+  ENABLE btnCancel btnOK svMenuImage cShowMnemonic cPositionMnemonic 
+         btnActivateCueCards 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-userSettingsFrame}
   DISPLAY svFocus upgradeMsg 
@@ -1674,11 +2192,13 @@ PROCEDURE pActivateCueCards :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DO TRANSACTION:
     FOR EACH xCueCard EXCLUSIVE-LOCK
         WHERE xCueCard.user_id EQ USERID("ASI")
         :
         DELETE xCueCard.
     END. /* each xcuecard */
+    END. /* do trans */
     MESSAGE
         "Cue Cards Activated"
     VIEW-AS ALERT-BOX.
@@ -1764,7 +2284,7 @@ PROCEDURE pCopyToUser :
     
     DO WITH FRAME userSettingsFrame:
         ASSIGN copyFromUser.
-        DO idx = 1 TO copyToUser:NUM-ITEMS:
+        DO idx = 1 TO copyToUser:NUM-ITEMS TRANSACTION:
             IF copyToUser:IS-SELECTED(idx) THEN DO:
                 /* prevent copy to same from to user */
                 IF copyToUser:ENTRY(idx) EQ copyFromUser THEN NEXT.
@@ -1790,15 +2310,14 @@ PROCEDURE pCopyToUser :
             END. /* if is-selected */
         END. /* do idx */
     END. /* with frame */
+    MESSAGE 
+        "Copy from User" copyFromUser "Complete."
+    VIEW-AS ALERT-BOX.
     RUN pGetCopyUsers.
     
     /* if current user, need to rebuild menu and redisplay */
     IF lCurrentUser THEN
     RUN pRebuildMenuTree.
-    
-    MESSAGE 
-        "Copy from User" copyFromUser "Complete."
-    VIEW-AS ALERT-BOX.
     
 END PROCEDURE.
 
@@ -1811,6 +2330,7 @@ PROCEDURE pGetCopyUsers :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iUserSecurityLevel AS INTEGER NO-UNDO.
     DO WITH FRAME userSettingsFrame:
         ASSIGN
             copyFromUser:LIST-ITEM-PAIRS = ?
@@ -1822,12 +2342,15 @@ PROCEDURE pGetCopyUsers :
             IF FIRST-OF(xUserMenu.user_id) THEN DO:
                 FIND FIRST users OF xUserMenu NO-LOCK NO-ERROR.
                 copyFromUser:ADD-LAST(xUserMenu.user_id
-                    + (IF AVAILABLE users THEN
-                       " - " + REPLACE(users.user_name,","," ") ELSE ""),xUserMenu.user_id)
+                    + (IF AVAILABLE users THEN " - "
+                    + REPLACE(users.user_name,","," ") ELSE ""),xUserMenu.user_id)
                     .
             END. /* first-of */
         END. /* each xusermenu */
-        FOR EACH users NO-LOCK:
+        iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
+        FOR EACH users NO-LOCK
+            WHERE users.securityLevel LE iUserSecurityLevel 
+            :            
             copyToUser:ADD-LAST(users.user_id + " - "
                 + REPLACE(users.user_name,","," "),users.user_id)
                 .
@@ -1888,6 +2411,13 @@ PROCEDURE pGetUserSettings :
         iLanguage = 1 /* english */
         iMenuSize = 1 /* small menu */
         svLanguageList:RADIO-BUTTONS IN FRAME userSettingsFrame = ",0"
+        lMenuImage  = YES
+        iFGColor[1] = 15
+        iFGColor[2] = 15
+        iFGColor[3] = 15
+        iBGColor[1] = 1
+        iBGColor[2] = 3
+        iBGColor[3] = 1
         .
     DO i = 1 TO NUM-ENTRIES(cLanguageList):
         {system/btnLanguage.i 1}
@@ -1902,6 +2432,7 @@ PROCEDURE pGetUserSettings :
         svLanguageList:RADIO-BUTTONS = cList
         svLanguageList               = iLanguage
         svMenuSize                   = iMenuSize
+        svMenuImage                  = lMenuImage
         .
     FIND FIRST users NO-LOCK
          WHERE users.user_id EQ USERID("ASI")
@@ -1911,6 +2442,13 @@ PROCEDURE pGetUserSettings :
             iMenuSize         = LOOKUP(users.menuSize,"Small,Medium,Large")
             cShowMnemonic     = users.showMnemonic
             cPositionMnemonic = users.positionMnemonic
+            lMenuImage        = users.showMenuImages
+            iFGColor[1]       = users.menuFGColor[1]
+            iFGColor[2]       = users.menuFGColor[2]
+            iFGColor[3]       = users.menuFGColor[3]
+            iBGColor[1]       = users.menuBGColor[1]
+            iBGColor[2]       = users.menuBGColor[2]
+            iBGColor[3]       = users.menuBGColor[3]
             .
         IF users.use_fonts THEN
         iEditorFont = users.widget_font[5].
@@ -1947,6 +2485,7 @@ PROCEDURE pGetUserSettings :
         svMenuSize     = iMenuSize
         svLanguageList = iLanguage
         cLabelLanguage = ENTRY(iLanguage,cLanguageList)
+        svMenuImage    = lMenuImage
         .
     IF iWinHeight LT 28.57 THEN
     iWinHeight = 28.57.
@@ -1985,10 +2524,12 @@ PROCEDURE pGetUserSettings :
                 svMenuSize:SENSITIVE        = YES
                 cShowMnemonic:SENSITIVE     = YES
                 cPositionMnemonic:SENSITIVE = YES
+                svMenuImage:SENSITIVE       = YES
                 .
+            ENABLE {&colorPallet} WITH FRAME userSettingsFrame.
             LEAVE.
         END. /* do idx */
-        IF svLanguageList:SENSITIVE EQ NO THEN 
+        IF svLanguageList:SENSITIVE EQ NO THEN DO:
         ASSIGN
             btnLanguage-1:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
             btnLanguage-2:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
@@ -1997,7 +2538,13 @@ PROCEDURE pGetUserSettings :
             svMenuSize:SENSITIVE        = CAN-DO(prgrms.can_update,USERID("ASI"))
             cShowMnemonic:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
             cPositionMnemonic:SENSITIVE = CAN-DO(prgrms.can_update,USERID("ASI"))
+                svMenuImage:SENSITIVE       = CAN-DO(prgrms.can_update,USERID("ASI"))
             .
+            IF CAN-DO(prgrms.can_update,USERID("ASI")) THEN
+            ENABLE {&colorPallet} WITH FRAME userSettingsFrame.
+            ELSE
+            DISABLE {&colorPallet} WITH FRAME userSettingsFrame.
+        END. /* if sensitive */
     END. /* if avail */
 
     FIND FIRST prgrms NO-LOCK
@@ -2041,12 +2588,10 @@ PROCEDURE pInit :
     DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lCanProfile   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lCanProfile   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAccessList   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAccessClose  AS LOGICAL NO-UNDO.
-    
+    DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO. 
+       
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
         OUTPUT cCEMenu,OUTPUT lFound
@@ -2055,10 +2600,6 @@ PROCEDURE pInit :
     RUN pMenuSize.
     
     DO WITH FRAME {&FRAME-NAME}:
-        RUN sys/ref/nk1look.p (
-            g_company,"MENUIMAGE","L",NO,NO,"","",
-            OUTPUT lMenuImage,OUTPUT lFound
-            ).
         RUN sys/ref/nk1look.p (
             g_company,"MENULINKASI","C",NO,NO,"","",
             OUTPUT cNK1Value[1],OUTPUT lFound
@@ -2177,20 +2718,22 @@ PROCEDURE pInit :
                 "",
                 OUTPUT lCanProfile 
                 ).
-             
+            MESSAGE "ipcan" lCanProfile
+            VIEW-AS ALERT-BOX.
         END. /* if valid handle */
         RUN methods/prgsecur.p ("Profiler", 
-                                "Access",
-                                NO,
-                                NO,
-                                NO,
-                                OUTPUT lCanProfile,
-                                OUTPUT lAccessClose,
-                                OUTPUT cAccessList  
-                ).
+            "Access",
+            NO,
+            NO,
+            NO,
+            OUTPUT lCanProfile,
+            OUTPUT lAccessClose,
+            OUTPUT cAccessList  
+            ).         
+        MESSAGE "ipcan" lCanProfile
+            VIEW-AS ALERT-BOX.
         IF NOT lCanProfile THEN
-           MENU-item  m_Profiler:SENSITIVE IN MENU m_help  = FALSE.   
-        
+            MENU-item  m_Profiler:SENSITIVE IN MENU m_help  = FALSE.             
         IF lAdmin AND USERID("ASI") NE "NoSweat" THEN DO:
             RUN sys/ref/nk1look.p (
                 g_company,"AsiHelpService","C",NO,NO,"","",
@@ -2201,16 +2744,12 @@ PROCEDURE pInit :
             IF hWebService:CONNECTED() THEN DO:
                 RUN Service1Soap SET hSalesSoap ON hWebService .
                 RUN HelpVersion IN hSalesSoap (OUTPUT cVersion).
-                ASSIGN
-                    cThisVer     = "{&awversion}"
-                    iLastVersion = (INTEGER(ENTRY(1,cVersion,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cVersion,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cVersion,".")))
-                    iThisVersion = (INTEGER(ENTRY(1,cThisVer,".")) * 10000) +
-                                   (INTEGER(ENTRY(2,cThisVer,".")) * 100) +
-                                   (INTEGER(ENTRY(3,cThisVer,".")))
+                cThisVer     = "{&awversion}". 
+                iLastVersion = fIntVer(cVersion).
+                iThisVersion = fIntVer(cThisVer).
                                    .
                 IF iLastVersion GT iThisVersion THEN DO:
+                    lUpgradeAvail = TRUE.
                     RUN sys/ref/nk1look.p (
                         g_company,"MENULINKUPGRADE","C",NO,NO,"","",
                         OUTPUT cNK1Value[1],OUTPUT lFound
@@ -2235,7 +2774,7 @@ PROCEDURE pInit :
                             menuLinkZoHo:SENSITIVE      = YES
                             menuLinkZoHo:STRETCH-TO-FIT = cNK1Value[4] EQ "YES"
                             menuLinkZoHo:TRANSPARENT    = cNK1Value[3] EQ "1"
-                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available"
+                            menuLinkZoHo:TOOLTIP        = "Version " + cVersion + " Upgrade Available. Click to download."
                             .
                         menuLinkZoHo:LOAD-IMAGE(SEARCH(cNK1Value[1])).
                     END. /* if avail */
@@ -2433,7 +2972,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOnOffProfiler MAINMENU
 PROCEDURE pOnOffProfiler:
     /*------------------------------------------------------------------------------
@@ -2447,6 +2985,7 @@ PROCEDURE pOnOffProfiler:
             PROFILER:PROFILING                       = FALSE                         
             PROFILER:ENABLED                         = FALSE
             company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor
+            iProfileStartTime                        = TIME                 
             . 
         PROFILER:WRITE-DATA().
         MESSAGE "Profiler has been turned off and " SKIP 
@@ -2487,8 +3026,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessClick MAINMENU 
 PROCEDURE pProcessClick :
 /*------------------------------------------------------------------------------
@@ -2523,6 +3060,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessProfiler MAINMENU
+PROCEDURE pProcessProfiler:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iProfileRunTime AS INTEGER NO-UNDO.
+    IF PROFILER:ENABLED THEN DO:
+      IF company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor THEN   
+        company_name:BGCOLOR IN FRAME frame-user = 12.
+      ELSE 
+        company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor.
+      iProfileRunTime = iProfileStartTime - TIME.
+      IF iProfileRunTime / 60 GT 20 THEN 
+        RUN pOnOffProfiler.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRebuildMenuTree MAINMENU 
 PROCEDURE pRebuildMenuTree :
@@ -2629,6 +3191,7 @@ PROCEDURE pSaveCustomMenu :
  Notes:
 ------------------------------------------------------------------------------*/
     /* remove xusermenu entry if menu option is active or no longer present */
+    DO TRANSACTION:
     FOR EACH xUserMenu
         WHERE xUserMenu.user_id EQ USERID("ASI")
         :
@@ -2654,6 +3217,7 @@ PROCEDURE pSaveCustomMenu :
             xUserMenu.prgmname = ttMenuTree.treeChild
             .
     END. /* each ttmenutree */
+    END. /* do trans */
 
 END PROCEDURE.
 
@@ -2705,8 +3269,12 @@ PROCEDURE pSetUserSettings :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplSaveAll AS LOGICAL NO-UNDO.
+    
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
+    DO TRANSACTION:
+        IF iplSaveAll THEN DO:
     FIND FIRST users EXCLUSIVE-LOCK
          WHERE users.user_id EQ USERID("ASI")
          NO-ERROR.
@@ -2715,14 +3283,24 @@ PROCEDURE pSetUserSettings :
             users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
             users.showMnemonic     = cShowMnemonic
             users.positionMnemonic = cPositionMnemonic            
+                    users.showMenuImages   = lMenuImage
+                    users.menuFGColor[1]   = iFGColor[1]
+                    users.menuFGColor[2]   = iFGColor[2]
+                    users.menuFGColor[3]   = iFGColor[3]
+                    users.menuBGColor[1]   = iBGColor[1]
+                    users.menuBGColor[2]   = iBGColor[2]
+                    users.menuBGColor[3]   = iBGColor[3]
             .
         FIND FIRST userLanguage NO-LOCK
              WHERE userLanguage.languageIdx EQ iLanguage
              NO-ERROR.
         IF AVAILABLE userLanguage THEN
-        users.userLanguage = userLanguage.userLanguage.
+                ASSIGN
+                    users.userLanguage = userLanguage.userLanguage
+                    .
         FIND CURRENT users NO-LOCK.
     END. /* avail users */
+        END. /* if save all */
 
     FIND FIRST user-print EXCLUSIVE-LOCK
          WHERE user-print.company    EQ g_company
@@ -2753,6 +3331,7 @@ PROCEDURE pSetUserSettings :
             .
     END. /* each ttmenutree */
     RELEASE user-print.
+    END. /* do trans */
     
 END PROCEDURE.
 
@@ -2927,6 +3506,38 @@ PROCEDURE Set-Comp_Loc :
     IF lFound AND cBitMap NE "" THEN boxes:LOAD-IMAGE(cBitMap).
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer MAINMENU 
+FUNCTION fIntVer RETURNS INTEGER
+  ( INPUT cVerString AS CHAR ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
+    Notes:  In the cases above, these would be 16040800 and 16071202
+            Useful for version comparisons
+------------------------------------------------------------------------------*/
+
+    DEF VAR cStrVal AS CHAR EXTENT 4 NO-UNDO.
+    DEF VAR iIntVal AS INT EXTENT 4 NO-UNDO.
+    DEF VAR iIntVer AS INT NO-UNDO.
+    ASSIGN
+        cStrVal[1] = ENTRY(1,cVerString,".")
+        cStrVal[2] = ENTRY(2,cVerString,".")
+        cStrVal[3] = IF NUM-ENTRIES(cVerString,".") GT 2 THEN ENTRY(3,cVerString,".") ELSE "0"
+        cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
+        iIntVal[1] = INT(cStrVal[1])
+        iIntVal[2] = INT(cStrVal[2])
+        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[4] = INT(cStrVal[4])
+        iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
+        NO-ERROR.
+    
+    RETURN iIntVer.   /* Function return value. */
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
