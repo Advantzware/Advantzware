@@ -401,7 +401,7 @@ v-comm = 0.
 
             END CASE.
             
-            cExcelVarValue = cVarValue.
+            cExcelVarValue = REPLACE(cVarValue,",","").
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -409,7 +409,6 @@ v-comm = 0.
       END.
       PUT UNFORMATTED cDisplay SKIP.
       IF tb_excel THEN DO:
-       cExcelDisplay = cExcelDisplay.
        PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
       END.
@@ -508,7 +507,7 @@ v-comm = 0.
                    WHEN "ttl-cst" THEN cVarValue = "".
               END CASE.
               
-              cExcelVarValue = cVarValue.
+              cExcelVarValue = REPLACE(cVarValue,",","").
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -516,7 +515,6 @@ v-comm = 0.
          END.
          PUT UNFORMATTED "       * Customer Totals *" substring(cDisplay,27,300) SKIP.
          IF tb_excel THEN DO:
-             cExcelDisplay = cExcelDisplay.
              PUT STREAM excel UNFORMATTED  
                  "Customer Totals " + substring(cExcelDisplay,3,300) SKIP.
          END.
@@ -550,7 +548,7 @@ v-comm = 0.
                    WHEN "ttl-cst" THEN cVarValue = "".
               END CASE.
               
-              cExcelVarValue = cVarValue.
+              cExcelVarValue = REPLACE(cVarValue,",","").
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -558,7 +556,6 @@ v-comm = 0.
          END.
          PUT UNFORMATTED cDisplay SKIP.
          IF tb_excel THEN DO:
-             cExcelDisplay = cExcelDisplay.
              PUT STREAM excel UNFORMATTED  
                  cExcelDisplay SKIP.
          END.
@@ -643,7 +640,7 @@ v-comm = 0.
                    WHEN "ttl-cst" THEN cVarValue = "".
               END CASE.
               
-              cExcelVarValue = cVarValue.
+              cExcelVarValue = REPLACE(cVarValue,",","").
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -651,7 +648,6 @@ v-comm = 0.
          END.
          PUT UNFORMATTED "       * SalesRep Totals *" substring(cDisplay,27,300) SKIP.
          IF tb_excel THEN DO:
-             cExcelDisplay = cExcelDisplay.
              PUT STREAM excel UNFORMATTED  
                  "SalesRep Totals " + substring(cExcelDisplay,3,300) SKIP.
          END.
@@ -737,7 +733,7 @@ v-comm = 0.
                    WHEN "ttl-cst" THEN cVarValue = "".
               END CASE.
               
-              cExcelVarValue = cVarValue.
+              cExcelVarValue = REPLACE(cVarValue,",","").
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -745,7 +741,6 @@ v-comm = 0.
          END.
          PUT UNFORMATTED "       * Grand Totals *" substring(cDisplay,24,300) SKIP.
          IF tb_excel THEN DO:
-             cExcelDisplay = cExcelDisplay.
              PUT STREAM excel UNFORMATTED  
                  "Grand Totals " + substring(cExcelDisplay,3,300) SKIP.
          END.
