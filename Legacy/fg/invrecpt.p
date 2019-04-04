@@ -296,7 +296,9 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
        oe-rel.sman[2]   = oe-ord.sman[2]
        oe-rel.sman[3]   = oe-ord.sman[3]
        oe-rel.sold-no   = oe-ord.sold-no
-       oe-rel.carrier   = oe-ord.carrier.
+       oe-rel.carrier   = oe-ord.carrier
+       oe-rel.frt-pay   = oe-ordl.frt-pay
+       oe-rel.fob-code  = oe-ord.fob-code.
 
       FIND FIRST shipto NO-LOCK
           WHERE shipto.company EQ cocode

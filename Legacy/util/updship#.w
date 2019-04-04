@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+&SCOPED-DEFINE yellowColumnsName updship#
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -52,6 +52,7 @@ ASSIGN
     cocode = g_company
     locode = g_loc.
 DEFINE VARIABLE cChar AS CHARACTER.
+DEFINE VARIABLE lCheckPro AS LOGICAL NO-UNDO .
 DEFINE TEMP-TABLE tt-oe-shipto 
     FIELD tt-recid    AS RECID
     FIELD ship-id     LIKE shipto.ship-id
@@ -61,9 +62,15 @@ DEFINE TEMP-TABLE tt-oe-shipto
     FIELD ship-state  LIKE shipto.ship-state
     FIELD ship-zip   LIKE shipto.ship-zip
     FIELD i-count     AS INTEGER
+    FIELD ship-stat   AS LOGICAL 
     FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX
     .
 DEFINE BUFFER bf-shipto FOR shipto .
+
+ IF INDEX(PROGRAM-NAME(2),"viewers/shipto.") GT 0 THEN
+     ASSIGN lCheckPro = YES .
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -77,33 +84,35 @@ DEFINE BUFFER bf-shipto FOR shipto .
 &Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&Scoped-define FRAME-NAME FRAME-A
+&Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME browse-machine
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES tt-oe-shipto
 
 /* Definitions for BROWSE browse-machine                                */
-&Scoped-define FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED tt-oe-shipto.ship-id tt-oe-shipto.ship-name tt-oe-shipto.ship-add tt-oe-shipto.ship-city tt-oe-shipto.ship-state tt-oe-shipto.ship-zip 
+&Scoped-define FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED tt-oe-shipto.ship-id tt-oe-shipto.ship-name tt-oe-shipto.ship-add tt-oe-shipto.ship-city tt-oe-shipto.ship-state tt-oe-shipto.ship-zip tt-oe-shipto.ship-stat
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browse-machine tt-oe-shipto.IS-SELECTED   
 &Scoped-define ENABLED-TABLES-IN-QUERY-browse-machine tt-oe-shipto
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-browse-machine tt-oe-shipto
 &Scoped-define SELF-NAME browse-machine
-&Scoped-define QUERY-STRING-browse-machine FOR EACH tt-oe-shipto      NO-LOCK BY tt-oe-shipto.ship-id
-&Scoped-define OPEN-QUERY-browse-machine OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-shipto      NO-LOCK BY tt-oe-shipto.ship-id.
+&Scoped-define QUERY-STRING-browse-machine FOR EACH tt-oe-shipto      NO-LOCK ~
+      ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browse-machine OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-shipto      NO-LOCK  ~
+      ~{&SORTBY-PHRASE} .
 &Scoped-define TABLES-IN-QUERY-browse-machine tt-oe-shipto
 &Scoped-define FIRST-TABLE-IN-QUERY-browse-machine tt-oe-shipto
 
 
-/* Definitions for FRAME FRAME-A                                        */
-&Scoped-define OPEN-BROWSERS-IN-QUERY-FRAME-A ~
+/* Definitions for FRAME F-Main                                        */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
     ~{&OPEN-QUERY-browse-machine}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 begin_cust browse-machine ~
 fi_ship-id rd_active tb_post-change btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust fi_ship-id rd_active ~
-tb_post-change 
+tb_post-change  fi_sortby
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -157,6 +166,11 @@ DEFINE VARIABLE tb_post-change AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 64 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_sortby    AS CHARACTER FORMAT "X(256)":U 
+    VIEW-AS FILL-IN 
+    SIZE 47 BY 1
+    BGCOLOR 14 FONT 6 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY browse-machine FOR 
@@ -168,12 +182,13 @@ DEFINE BROWSE browse-machine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browse-machine C-Win _FREEFORM
   QUERY browse-machine NO-LOCK DISPLAY
       tt-oe-shipto.IS-SELECTED COLUMN-LABEL ''  VIEW-AS TOGGLE-BOX 
-    tt-oe-shipto.ship-id FORMAT "x(8)" COLUMN-LABEL "Ship To ID" WIDTH 12
-    tt-oe-shipto.ship-name FORMAT "X(30)" COLUMN-LABEL "Ship To Name" 
-    tt-oe-shipto.ship-add FORMAT "X(40)" COLUMN-LABEL "Ship To Address"  
-    tt-oe-shipto.ship-city COLUMN-LABEL "City" 
-    tt-oe-shipto.ship-state COLUMN-LABEL "State" 
-    tt-oe-shipto.ship-zip COLUMN-LABEL "Zip" 
+    tt-oe-shipto.ship-id FORMAT "x(8)" COLUMN-LABEL "Ship To ID" WIDTH 12 LABEL-BGCOLOR 14
+    tt-oe-shipto.ship-name FORMAT "X(30)" COLUMN-LABEL "Ship To Name" LABEL-BGCOLOR 14
+    tt-oe-shipto.ship-add FORMAT "X(40)" COLUMN-LABEL "Ship To Address"  LABEL-BGCOLOR 14
+    tt-oe-shipto.ship-city COLUMN-LABEL "City" LABEL-BGCOLOR 14
+    tt-oe-shipto.ship-state COLUMN-LABEL "State" LABEL-BGCOLOR 14
+    tt-oe-shipto.ship-zip COLUMN-LABEL "Zip" LABEL-BGCOLOR 14
+    tt-oe-shipto.ship-stat COLUMN-LABEL "Inactive" FORMAT "Yes/No" LABEL-BGCOLOR 14
       ENABLE tt-oe-shipto.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -182,7 +197,7 @@ DEFINE BROWSE browse-machine
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME FRAME-A
+DEFINE FRAME F-Main
      begin_cust AT ROW 6.24 COL 50 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 10
      browse-machine AT ROW 7.76 COL 4
@@ -198,6 +213,7 @@ DEFINE FRAME FRAME-A
           BGCOLOR 11 
      RECT-17 AT ROW 4.86 COL 1
      RECT-18 AT ROW 7.52 COL 1 WIDGET-ID 20
+     fi_sortby AT ROW 3.76 COL 10 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -281,20 +297,28 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME FRAME-A
+/* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB browse-machine begin_cust FRAME-A */
+/* BROWSE-TAB browse-machine begin_cust F-Main */
 ASSIGN 
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+       btn-cancel:PRIVATE-DATA IN FRAME F-Main     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+       btn-process:PRIVATE-DATA IN FRAME F-Main     = 
                 "ribbon-button".
 
 ASSIGN 
-       tb_post-change:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_post-change:PRIVATE-DATA IN FRAME F-Main     = 
                 "parm".
+
+ASSIGN 
+    browse-machine:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+    fi_sortby:HIDDEN IN FRAME F-Main = TRUE.
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -311,7 +335,7 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE browse-machine
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-shipto
-     NO-LOCK BY tt-oe-shipto.ship-id.
+     NO-LOCK SORTBY-PHRASE .
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
@@ -350,10 +374,37 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browse-machine C-Win
+ON START-SEARCH OF browse-machine IN FRAME F-Main
+    DO:
+        RUN startSearch.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browse-machine C-Win
+ON ROW-DISPLAY OF browse-machine IN FRAME F-Main
+DO:   
+  IF AVAIL tt-oe-shipto AND tt-oe-shipto.ship-stat EQ YES THEN DO:
+      ASSIGN 
+          tt-oe-shipto.ship-id:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 3 
+          tt-oe-shipto.ship-name:BGCOLOR IN BROWSE {&BROWSE-NAME}    = 3 
+          tt-oe-shipto.ship-add:BGCOLOR IN BROWSE {&BROWSE-NAME}     = 3 
+          tt-oe-shipto.ship-city:BGCOLOR IN BROWSE {&BROWSE-NAME}    = 3 
+          tt-oe-shipto.ship-state:BGCOLOR IN BROWSE {&BROWSE-NAME}   = 3 
+          tt-oe-shipto.ship-zip:BGCOLOR IN BROWSE {&BROWSE-NAME}     = 3 
+          tt-oe-shipto.ship-stat:BGCOLOR IN BROWSE {&BROWSE-NAME}    = 3 .
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME begin_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
-ON LEAVE OF begin_cust IN FRAME FRAME-A /* Change Selected ShipTo Ids for Customer */
+ON LEAVE OF begin_cust IN FRAME F-Main /* Change Selected ShipTo Ids for Customer */
 DO:
         DO WITH FRAME {&FRAME-NAME}:
       
@@ -370,7 +421,7 @@ DO:
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
-ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
+ON CHOOSE OF btn-cancel IN FRAME F-Main /* Cancel */
 DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
@@ -381,7 +432,7 @@ DO:
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
-ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
+ON CHOOSE OF btn-process IN FRAME F-Main /* Start Process */
 DO:
         DEFINE VARIABLE v-process AS LOG NO-UNDO.
         DO WITH FRAME {&FRAME-NAME}:
@@ -438,7 +489,7 @@ DO:
 
 &Scoped-define SELF-NAME fi_ship-id
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ship-id C-Win
-ON HELP OF fi_ship-id IN FRAME FRAME-A /* To Ship To */
+ON HELP OF fi_ship-id IN FRAME F-Main /* To Ship To */
 DO:
         DEFINE VARIABLE char-val AS cha   NO-UNDO.
         DEFINE VARIABLE rec-val  AS RECID NO-UNDO.
@@ -454,7 +505,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_ship-id C-Win
-ON LEAVE OF fi_ship-id IN FRAME FRAME-A /* To Ship To */
+ON LEAVE OF fi_ship-id IN FRAME F-Main /* To Ship To */
 DO:
         DO WITH FRAME {&FRAME-NAME}:
       
@@ -468,7 +519,7 @@ DO:
 
 &Scoped-define SELF-NAME rd_active
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_active C-Win
-ON LEAVE OF rd_active IN FRAME FRAME-A
+ON LEAVE OF rd_active IN FRAME F-Main
 DO:
         ASSIGN rd_active.
     END.
@@ -478,7 +529,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_active C-Win
-ON VALUE-CHANGED OF rd_active IN FRAME FRAME-A
+ON VALUE-CHANGED OF rd_active IN FRAME F-Main
 DO:
     /*{custom/chgfont.i}*/
     END.
@@ -489,7 +540,7 @@ DO:
 
 &Scoped-define SELF-NAME tb_post-change
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_post-change C-Win
-ON VALUE-CHANGED OF tb_post-change IN FRAME FRAME-A /* Include Posted/Closed Records (Order,Release,Bol,Invoice) */
+ON VALUE-CHANGED OF tb_post-change IN FRAME F-Main /* Include Posted/Closed Records (Order,Release,Bol,Invoice) */
 DO:
   assign {&self-name}.
 END.
@@ -530,10 +581,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         APPLY "close" TO THIS-PROCEDURE.
         RETURN .
     END.
-
+    {custom/yellowColumns.i}
     RUN enable_UI.
     {methods/nowait.i}
-    {custom/usrprint.i}
+
+    IF INDEX(PROGRAM-NAME(2),"viewers/shipto.") NE 0 THEN do:
+        {custom/usrprint.i}
+    END.
 
     CLOSE QUERY browse-machine.
     RUN build-table. 
@@ -583,7 +637,8 @@ PROCEDURE build-table :
                     tt-oe-shipto.ship-add  = shipto.ship-add[1]
                     tt-oe-shipto.ship-city = shipto.ship-city  
                     tt-oe-shipto.ship-state = shipto.ship-state
-                    tt-oe-shipto.ship-zip   = shipto.ship-zip .
+                    tt-oe-shipto.ship-zip   = shipto.ship-zip 
+                    tt-oe-shipto.ship-stat =  DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO .
             END.
         END.
     END.
@@ -624,11 +679,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust fi_ship-id rd_active tb_post-change 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
+      WITH FRAME F-Main IN WINDOW C-Win.
   ENABLE RECT-17 RECT-18 begin_cust browse-machine fi_ship-id rd_active 
          tb_post-change btn-process btn-cancel 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+      WITH FRAME F-Main IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
   VIEW C-Win.
@@ -888,7 +943,13 @@ PROCEDURE run-process :
 
     MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
 
-    APPLY "close" TO THIS-PROCEDURE.
+    IF lCheckPro THEN
+        APPLY "close" TO THIS-PROCEDURE.
+    ELSE DO:
+        CLOSE QUERY browse-machine.
+        RUN build-table. 
+        OPEN QUERY browse-machine FOR EACH tt-oe-shipto  NO-LOCK BY tt-oe-shipto.ship-id.
+    END.
 
     RETURN NO-APPLY.
 /* end ---------------------------------- copr. 2001  advanced software, inc. */

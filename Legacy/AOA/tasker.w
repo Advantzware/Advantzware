@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&Scoped-define program-id tasker
+&Scoped-define program-id tasker.
 
 /* Parameters Definitions ---                                           */
 
@@ -106,7 +106,7 @@ taskEmail.recipients
 /* Definitions for BROWSE TaskBrowse                                    */
 &Scoped-define FIELDS-IN-QUERY-TaskBrowse Task.runNow Task.taskName ~
 Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.isRunning ~
-Task.taskID Task.programID Task.user-id 
+Task.taskID Task.prgmName Task.user-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-TaskBrowse 
 &Scoped-define QUERY-STRING-TaskBrowse FOR EACH Task ~
       WHERE Task.scheduled EQ YES OR Task.runNow EQ YES NO-LOCK ~
@@ -160,12 +160,12 @@ DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE showLogging AS LOGICAL INITIAL no 
+DEFINE VARIABLE showLogging AS LOGICAL 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Show Logging", Yes,
-"Hide Logging", No
-     SIZE 34 BY .9 TOOLTIP "Show/Hide Logging Panel" NO-UNDO.
+          "Show Logging", yes,
+"Hide Logging", no
+     SIZE 34 BY .91 TOOLTIP "Show/Hide Logging Panel" NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -189,7 +189,7 @@ DEFINE BROWSE AuditBrowse
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 14.29
-         TITLE "Task Logging" ROW-HEIGHT-CHARS .76.
+         TITLE "Task Logging".
 
 DEFINE BROWSE EmailBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS EmailBrowse C-Win _STRUCTURED
@@ -198,8 +198,8 @@ DEFINE BROWSE EmailBrowse
       taskEmail.recipients FORMAT "x(256)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 39 BY 14.29
-         TITLE "Pending Emails" ROW-HEIGHT-CHARS .76.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 45 BY 14.29
+         TITLE "Pending Emails".
 
 DEFINE BROWSE TaskBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS TaskBrowse C-Win _STRUCTURED
@@ -212,12 +212,12 @@ DEFINE BROWSE TaskBrowse
       Task.cLastTime FORMAT "99:99":U
       Task.isRunning FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
       Task.taskID FORMAT "->,>>>,>>9":U
-      Task.programID FORMAT "x(20)":U
+      Task.prgmName FORMAT "x(10)":U
       Task.user-id FORMAT "x(10)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 121 BY 14.29
-         TITLE "Scheduled Tasks" ROW-HEIGHT-CHARS .76.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 115 BY 14.29
+         TITLE "Tasks".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -226,7 +226,7 @@ DEFINE FRAME DEFAULT-FRAME
      TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
      showLogging AT ROW 1 COL 2 HELP
           "Show/Hide Logging" NO-LABEL WIDGET-ID 4
-     EmailBrowse AT ROW 1 COL 122 WIDGET-ID 300
+     EmailBrowse AT ROW 1 COL 116 WIDGET-ID 300
      AuditBrowse AT ROW 15.29 COL 1 WIDGET-ID 400
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -251,7 +251,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "AOA Tasker"
+         TITLE              = "Task Monitor"
          HEIGHT             = 28.57
          WIDTH              = 160
          MAX-HEIGHT         = 320
@@ -336,7 +336,7 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _FldNameList[7]   > ASI.Task.isRunning
 "Task.isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[8]   = ASI.Task.taskID
-     _FldNameList[9]   = ASI.Task.programID
+     _FldNameList[9]   = ASI.Task.prgmName
      _FldNameList[10]   = ASI.Task.user-id
      _Query            is OPENED
 */  /* BROWSE TaskBrowse */
@@ -353,15 +353,15 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
 
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
-       ROW             = 1
-       COLUMN          = 37
+       ROW             = 1.95
+       COLUMN          = 1
        HEIGHT          = 4.76
        WIDTH           = 20
        WIDGET-ID       = 2
        HIDDEN          = yes
        SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-AFTER(showLogging:HANDLE IN FRAME DEFAULT-FRAME).
+      CtrlFrame:MOVE-AFTER(EmailBrowse:HANDLE IN FRAME DEFAULT-FRAME).
 
 &ENDIF
 
@@ -372,7 +372,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* AOA Tasker */
+ON END-ERROR OF C-Win /* Task Monitor */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -385,7 +385,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* AOA Tasker */
+ON WINDOW-CLOSE OF C-Win /* Task Monitor */
 DO:
   /* This event will close the window and terminate the procedure.  */
   RUN pSaveSettings.
@@ -398,7 +398,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-RESIZED OF C-Win /* AOA Tasker */
+ON WINDOW-RESIZED OF C-Win /* Task Monitor */
 DO:
     RUN pWinReSize.
 END.
@@ -421,6 +421,11 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     RUN pTaskEmails.
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Idle".
     {&OPEN-QUERY-AuditBrowse}
+    DO TRANSACTION:
+        FIND FIRST config EXCLUSIVE-LOCK.
+        config.taskerLastExecuted = NOW.
+        FIND FIRST config NO-LOCK.
+    END. /* do trans */
 
 END PROCEDURE.
 
@@ -465,7 +470,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN pSetTaskerNK1.
+  FIND FIRST config NO-LOCK.
   RUN pRunCommand (OUTPUT cRun).
   dttOpenDateTime = NOW.
   RUN enable_UI.
@@ -699,37 +704,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetTaskerNK1 C-Win 
-PROCEDURE pSetTaskerNK1 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    FOR EACH Task NO-LOCK
-        BREAK BY Task.company
-        :
-        IF FIRST-OF(Task.company) THEN DO:
-            RUN sys/ref/nk1look.p (
-                Task.company,"Tasker","L",NO,NO,"","",
-                OUTPUT cTasker,OUTPUT lFound
-                ).
-            IF lJasperStarter AND cTasker EQ "no" THEN DO TRANSACTION:
-                FIND FIRST sys-ctrl EXCLUSIVE-LOCK
-                     WHERE sys-ctrl.company EQ Task.company
-                       AND sys-ctrl.name    EQ "Tasker"
-                     NO-ERROR.
-                IF AVAILABLE sys-ctrl THEN
-                sys-ctrl.log-fld = YES.
-            END. /* if jasper and tasker no */
-        END. /* if first-of */
-    END. /* each task */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTaskEmails C-Win 
 PROCEDURE pTaskEmails :
 /*------------------------------------------------------------------------------
@@ -749,29 +723,36 @@ PROCEDURE pTaskEmails :
         IF bTaskEmail.mustExist EQ NO OR
            SEARCH(bTaskEmail.attachment) NE ? THEN DO:
             IF bTaskEmail.recipients EQ "Cue Card Message" THEN DO:
-                FIND LAST cueCardText NO-LOCK
-                     WHERE cueCardText.cueID     EQ 0
-                       AND cueCardText.cueTextID EQ 0
-                       AND cueCardText.cueType   EQ "Message"
-                     NO-ERROR.
-                IF AVAILABLE cueCardText THEN DO:
-                    CREATE bCueCardText.
-                    BUFFER-COPY cueCardText EXCEPT rec_key TO bCueCardText
-                        ASSIGN
-                            bCueCardText.cueText     = "Submitted Run Now Request is Available"
-                                                     + CHR(10) + CHR(10) + "File: "
-                                                     + bTaskEmail.attachment
-                            bCueCardText.isActive    = YES
-                            bCueCardText.cueOrder    = cueCardText.cueOrder + 1
-                            bCueCardText.createdDate = TODAY
-                            bCueCardText.createdTime = TIME
-                            bCueCardText.createdFor  = bTaskEmail.user-id
-                            .
-                END. /* if avail */
+                IF AVAILABLE config AND config.cueCard THEN DO:
+                    FIND LAST cueCardText NO-LOCK
+                         WHERE cueCardText.cueID     EQ 0
+                           AND cueCardText.cueTextID EQ 0
+                           AND cueCardText.cueType   EQ "Message"
+                         NO-ERROR.
+                    IF AVAILABLE cueCardText THEN DO:
+                        CREATE bCueCardText.
+                        BUFFER-COPY cueCardText EXCEPT rec_key TO bCueCardText
+                            ASSIGN
+                                bCueCardText.cueText     = "Submitted Run Now Request is Available"
+                                                         + CHR(10) + CHR(10) + "File: "
+                                                         + bTaskEmail.attachment
+                                bCueCardText.isActive    = YES
+                                bCueCardText.cueOrder    = cueCardText.cueOrder + 1
+                                bCueCardText.createdDate = TODAY
+                                bCueCardText.createdTime = TIME
+                                bCueCardText.createdFor  = bTaskEmail.user-id
+                                .
+                    END. /* if avail cuecardtext */
+                END. /* if avail config and cuecard */
             END. /* if cue card message */
             ELSE DO:
                 ASSIGN
                     FILE-INFO:FILE-NAME = "AOA\TaskEmail.r" 
+                    cRunProgram = FILE-INFO:FULL-PATHNAME
+                    .
+                IF cRunProgram EQ ? THEN
+                ASSIGN
+                    FILE-INFO:FILE-NAME = "AOA\TaskEmail.p" 
                     cRunProgram = FILE-INFO:FULL-PATHNAME
                     .
                 OS-COMMAND NO-WAIT VALUE(
@@ -824,24 +805,33 @@ PROCEDURE pTasks :
           (Task.endDate   EQ ?   OR Task.endDate   GE TODAY) AND
            dttDateTime    LE NOW)) THEN DO:
             REPOSITION TaskBrowse TO ROWID rRowID.
-            DO TRANSACTION:
-                FIND FIRST bTask EXCLUSIVE-LOCK
-                     WHERE ROWID(bTask) EQ ROWID(Task).
-                bTask.isRunning = YES.
-                RELEASE bTask.
-            END. /* do trans */
             ASSIGN
-                FILE-INFO:FILE-NAME = "AOA\runTask.r"
+                FILE-INFO:FILE-NAME = IF Task.taskType EQ "Jasper" THEN "AOA\runTask.r"
+                                      ELSE "AOA/runTaskU.r" /* DataPA */
                 cRunProgram = FILE-INFO:FULL-PATHNAME
                 .
-            OS-COMMAND NO-WAIT VALUE(
-                    SUBSTITUTE(
-                        cRun,
-                        cRunProgram,
-                        "~"" + PROPATH + "+" + STRING(ROWID(Task)) + "~""
-                        )
-                    ).
-            PAUSE 2 NO-MESSAGE.
+            IF cRunProgram EQ ? THEN
+            ASSIGN
+                FILE-INFO:FILE-NAME = IF Task.taskType EQ "Jasper" THEN "AOA\runTask.p"
+                                      ELSE "AOA/runTaskU.p" /* DataPA */
+                cRunProgram = FILE-INFO:FULL-PATHNAME
+                .
+            IF cRunProgram NE ? THEN DO:
+                DO TRANSACTION:
+                    FIND FIRST bTask EXCLUSIVE-LOCK
+                         WHERE ROWID(bTask) EQ ROWID(Task).
+                    bTask.isRunning = YES.
+                    RELEASE bTask.
+                END. /* do trans */
+                OS-COMMAND NO-WAIT VALUE(
+                        SUBSTITUTE(
+                            cRun,
+                            cRunProgram,
+                            "~"" + PROPATH + "+" + STRING(ROWID(Task)) + "~""
+                            )
+                        ).
+                PAUSE 2 NO-MESSAGE.
+            END. /* if ne ? */
         END.
         GET NEXT TaskBrowse.
     END. /* do while */

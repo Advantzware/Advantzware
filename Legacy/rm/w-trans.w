@@ -339,7 +339,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-trans ( 17.14 , 146.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-updbtn.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -460,7 +460,7 @@ PROCEDURE select_add :
   def var char-hdl as cha no-undo.
   
   run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
-  run add-item in widget-handle(char-hdl).
+  run pAddRecord in widget-handle(char-hdl).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

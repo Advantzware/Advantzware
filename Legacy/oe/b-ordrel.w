@@ -713,7 +713,13 @@ ASSIGN
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
- IF oe-rel.stat NE "C" AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' THEN do:
+ DEFINE VARIABLE lCheckInquiry AS LOGICAL NO-UNDO .
+
+ RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"inquiry-rel-source", OUTPUT char-hdl) NO-ERROR.
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      lCheckInquiry = YES .
+     
+ IF oe-rel.stat NE "C" AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
      RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
      RUN reopen-query .
      RUN repo-query (ROWID(oe-rel)).
@@ -1317,7 +1323,9 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
          oe-rel.po-no     = oe-boll.po-no
          oe-rel.lot-no    = oe-boll.lot-no
          oe-rel.spare-char-1 = oe-rell.loc
-         oe-rel.qty       = lv-qty.
+         oe-rel.qty       = lv-qty
+         oe-rel.frt-pay   = oe-rell.frt-pay
+         oe-rel.fob-code  = oe-rell.fob-code.
         
         RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
         RUN set-lot-from-boll (INPUT ROWID(oe-rel), INPUT ROWID(oe-rell),
@@ -1452,7 +1460,9 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
            oe-rel.po-no     = oe-rell.po-no
            oe-rel.lot-no    = oe-rell.lot-no
            oe-rel.spare-char-1 = oe-rell.loc
-           oe-rel.qty       = lv-qty.
+           oe-rel.qty       = lv-qty
+           oe-rel.frt-pay   = oe-rell.frt-pay
+           oe-rel.fob-code  = oe-rell.fob-code.
            
           RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
           RUN oe/custxship.p (oe-rel.company,

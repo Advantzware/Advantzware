@@ -36,7 +36,7 @@ DEF VAR v-fr-tax LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
 DEF VAR v-tax-rate AS DEC NO-UNDO.
 DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
 DEF VAR lv-prev-value AS CHAR NO-UNDO.
-
+SUBSCRIBE TO "DispOrdTot" ANYWHERE.
 {oe/oe-sysct1.i NEW}
 
 &SCOPED-DEFINE proc-enable proc-enable
@@ -472,6 +472,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DispOrdTot V-table-Win
+PROCEDURE DispOrdTot:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+RUN Redisplay IN THIS-PROCEDURE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-comm V-table-Win 
 PROCEDURE hide-comm :
 /*------------------------------------------------------------------------------
@@ -678,7 +694,16 @@ PROCEDURE Redisplay :
 ------------------------------------------------------------------------------*/
 
   FIND CURRENT oe-ord NO-LOCK NO-ERROR.
-  IF AVAIL oe-ord THEN RUN dispatch ("display-fields").
+  IF AVAIL oe-ord THEN DO:
+
+      RUN dispatch ("display-fields").
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+      DO:
+        
+          RUN dispatch IN WIDGET-HANDLE(CHAR-hdl) ('row-changed:U').
+      END.      
+  END.
 
 END PROCEDURE.
 

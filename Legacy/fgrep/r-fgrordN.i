@@ -282,7 +282,7 @@ for each itemfg
 
                li = MONTH(TODAY) + 1 - MONTH(fg-rcpth.trans-date).
                IF li LT 1 THEN li = li + 12.
-               IF li GT 6 THEN li = 6.
+               IF li GT 12 THEN li = 12.
 
                IF fg-rcpth.rita-code EQ "S" THEN
                  li-hist[li] = li-hist[li] + fg-rdtlh.qty.
@@ -291,7 +291,10 @@ for each itemfg
            END.
            
            ASSIGN li-avg-hist = 0.
-           li-avg-hist = (li-hist[2] + li-hist[3] + li-hist[4] + li-hist[5] + li-hist[6]) / 5 .
+            DO j = 1 TO display_hist:
+                li-avg-hist = li-avg-hist + li-hist[j] .
+            END.
+            li-avg-hist = li-avg-hist / display_hist .
        
     if v-reord-qty gt 0 or v-prt-all then
        IF tb_history THEN DO:
@@ -345,11 +348,16 @@ for each itemfg
                           END.
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
-                          WHEN "li-hist" THEN 
-                              ASSIGN cVarValue = STRING(li-hist[1],"->>>>>9") + " "  + STRING(li-hist[2],"->>>>>9") + " "  + STRING(li-hist[3],"->>>>>9") + " "  +
-                                                 STRING(li-hist[4],"->>>>>9") + " "  + STRING(li-hist[5],"->>>>>9") + " "  + STRING(li-hist[6],"->>>>>9")
-                                     cExcelVarValue = quoter(STRING(li-hist[1],"->>>>>9")) + ","  + quoter(STRING(li-hist[2],"->>>>>9")) + ","  + quoter(STRING(li-hist[3],"->>>>>9")) + ","  +
-                                                 quoter(STRING(li-hist[4],"->>>>>9")) + ","  + quoter(STRING(li-hist[5],"->>>>>9")) + ","  + quoter(STRING(li-hist[6],"->>>>>9")).                                                    
+                          WHEN "li-hist" THEN do: 
+                              cVarValue = "" .
+                              cExcelVarValue = "" .
+                              DO j = 1 TO display_hist:
+                                  cVarValue = cVarValue + STRING(li-hist[j],"->>>>>9") + " " .
+                                  
+                                  cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9")) + "," .
+                              END.
+                          END.
+                              
                       END CASE.
                       IF cExcelVarValue = "" THEN cExcelVarValue = cVarValue.
                       cDisplay = cDisplay + cVarValue +
@@ -434,11 +442,15 @@ for each itemfg
                           END.
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
-                          WHEN "li-hist" THEN 
-                               ASSIGN cVarValue = STRING(li-hist[1],"->>>>>9") + " "  + STRING(li-hist[2],"->>>>>9") + " "  + STRING(li-hist[3],"->>>>>9") + " "  +
-                                                  STRING(li-hist[4],"->>>>>9") + " "  + STRING(li-hist[5],"->>>>>9") + " "  + STRING(li-hist[6],"->>>>>9")
-                                      cExcelVarValue = quoter(STRING(li-hist[1],"->>>>>9")) + ","  + quoter(STRING(li-hist[2],"->>>>>9")) + ","  + quoter(STRING(li-hist[3],"->>>>>9")) + ","  +
-                                                 quoter(STRING(li-hist[4],"->>>>>9")) + ","  + quoter(STRING(li-hist[5],"->>>>>9")) + ","  + quoter(STRING(li-hist[6],"->>>>>9")).
+                          WHEN "li-hist" THEN do: 
+                              cVarValue = "" .
+                              cExcelVarValue = "" .
+                              DO j = 1 TO display_hist:
+                                  cVarValue = cVarValue + STRING(li-hist[j],"->>>>>9") + " " .
+                                  
+                                  cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9")) + "," .
+                              END.
+                          END. 
                       END CASE.
                       IF cExcelVarValue = "" THEN cExcelVarValue = cVarValue.
                       cDisplay = cDisplay + cVarValue +

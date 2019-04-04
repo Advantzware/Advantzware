@@ -65,7 +65,7 @@ IF NOT tskey-log THEN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Period Btn_Backspace Btn_Clear Btn_Eight ~
+&Scoped-Define ENABLED-OBJECTS Btn_Backspace Btn_Clear Btn_Period Btn_Eight ~
 Btn_Five Btn_Four Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Three ~
 Btn_Two Btn_Zero 
 
@@ -157,9 +157,9 @@ DEFINE BUTTON Btn_Zero
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     Btn_Period AT ROW 10.52 COL 1
      Btn_Backspace AT ROW 1 COL 1
      Btn_Clear AT ROW 1 COL 23
+     Btn_Period AT ROW 10.52 COL 1
      Btn_Eight AT ROW 8.14 COL 12
      Btn_Five AT ROW 5.76 COL 12
      Btn_Four AT ROW 5.76 COL 1
@@ -203,6 +203,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 33.2
          VIRTUAL-HEIGHT     = 11.95
          VIRTUAL-WIDTH      = 33.2
+         MIN-BUTTON         = no
+         MAX-BUTTON         = no
+         ALWAYS-ON-TOP      = yes
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -513,12 +516,32 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_Period Btn_Backspace Btn_Clear Btn_Eight Btn_Five Btn_Four 
+  ENABLE Btn_Backspace Btn_Clear Btn_Period Btn_Eight Btn_Five Btn_Four 
          Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Three Btn_Two 
          Btn_Zero 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetPosition C-Win 
+PROCEDURE pSetPosition :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCol AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRow AS DECIMAL NO-UNDO.
+    
+    ASSIGN
+        {&WINDOW-NAME}:COL = ipcCol
+        {&WINDOW-NAME}:ROW = ipcRow
+        .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

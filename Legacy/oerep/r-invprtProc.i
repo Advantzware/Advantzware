@@ -1711,6 +1711,10 @@ DO:
                         IF tb_office-copy THEN RUN value(v-program) ("Office Copy",YES).
                         IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy",YES).
                     END.
+                    ELSE IF LOOKUP(v-print-fmt,"nStock,nStockLogo") > 0 THEN 
+                    DO:    
+                        RUN value(v-program) (v-print-fmt). 
+                    END.
                     ELSE RUN value(v-program). 
 
 vcInvNums = "".
@@ -2296,6 +2300,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "LancoYork" THEN
+            ASSIGN
+                v-program      = "oe/rep/invlanyork.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "Shamrock" THEN
             ASSIGN
                 v-program      = "oe/rep/invshamrock.p"
@@ -2396,9 +2405,9 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invhughs.p"  /*Hughes format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "NStock" THEN
+        WHEN "NStock" OR WHEN "NStockLogo" THEN
             ASSIGN
-                v-program      = "oe/rep/invnstok.p"  /*NStock format*/
+                v-program      = "oe/rep/invnstok.p"  /*NStock nStockLogo format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Hughes2" THEN
@@ -2869,6 +2878,11 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "LancoYork" THEN
+            ASSIGN
+                v-program      = "ar/rep/invlanyork.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "Shamrock" THEN
             ASSIGN
                 v-program      = "ar/rep/invshamrock.p"
@@ -2964,9 +2978,9 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invhughs.p"  /*Hughes format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "NStock" THEN
+        WHEN "NStock" OR WHEN "NStockLogo" THEN
             ASSIGN
-                v-program      = "ar/rep/invnstok.p"  /*NStock format*/
+                v-program      = "ar/rep/invnstok.p"  /*NStock nStockLogo format*/
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Hughes2" THEN

@@ -1444,7 +1444,7 @@ IF tb_excel THEN
            shipto.cust-no EQ oe-ordl.cust-no 
            no-error.  
 
-       cShipName = IF AVAIL shipto THEN shipto.ship-name ELSE "" .
+       cShipName = IF AVAIL shipto THEN shipto.ship-name ELSE "" .         
        
        RUN oe/rel-stat.p (tt-report.row-id, OUTPUT v-stat).
        FIND FIRST oe-rel NO-LOCK 
@@ -1518,7 +1518,7 @@ IF tb_excel THEN
                   WHEN "post-date" THEN cVarValue = IF dtPostedDate NE ? THEN STRING(dtPostedDate) ELSE ""    .
                   WHEN "weight-100" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.weight-100) ELSE "".
                   WHEN "tot-wt" THEN cVarValue =  string(itemfg.weight-100 * v-prod-qty / 100 ).
-                  WHEN "Pallet" THEN cVarValue = string(v-prod-qty / v-pallet-count).
+                  WHEN "Pallet" THEN cVarValue = string(itemfg.q-onh / v-pallet-count).                  
              END CASE.
 
              cExcelVarValue = cVarValue.

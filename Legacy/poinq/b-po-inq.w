@@ -987,11 +987,11 @@ DO:
 
   RUN windows/l-itmtyp.w (OUTPUT lv-itemtype).
   IF lv-itemtype = "RM" THEN DO:
-     RUN windows/l-itmall.w (g_company, "","", fi_i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+     RUN windows/l-itmall.w (g_company, "","", fi_i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT look-recid).
      IF char-val <> "" THEN ASSIGN fi_i-no:SCREEN-VALUE = ENTRY(1,char-val).
   END.
   ELSE DO:  /* finished good */
-     RUN windows/l-itemf2.p (g_company, "", fi_i-no:screen-value, OUTPUT char-val, OUTPUT look-recid).
+     RUN windows/l-itemf2.w (g_company, "", fi_i-no:screen-value,"", OUTPUT char-val, OUTPUT look-recid).
      IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
   END.
 
@@ -1827,6 +1827,11 @@ PROCEDURE query-first :
            sys-ctrl.char-fld = ""
            sys-ctrl.int-fld = 10.
   END.
+
+  IF sys-ctrl.date-fld NE ? THEN
+      ASSIGN
+      fi_due-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(sys-ctrl.date-fld) 
+      fi_due-date = sys-ctrl.date-fld .
 
   IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
 

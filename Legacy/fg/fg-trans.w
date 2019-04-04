@@ -351,7 +351,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-trans ( 18.10 , 146.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updsav.w':U ,
+             INPUT  'panels/p-updbtn.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,

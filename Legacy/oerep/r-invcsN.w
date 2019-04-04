@@ -59,13 +59,15 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-
+DEFINE VARIABLE dActMatCost AS DECIMAL NO-UNDO .
+{jc/rep/job-sum.i new}
+ DEFINE VARIABLE tb_exclude_prep AS LOGICAL INIT YES NO-UNDO .
 ASSIGN cTextListToSelect = "Customer Name,Invoice#,FG Item#,Job#,Mat'l Cost," +
-                           "Labor Cost,FixOH Cost,VarOH Cost,Total Cost,Sales Amt"
+                           "Labor Cost,FixOH Cost,VarOH Cost,Total Cost,Sales Amt,Act Mat'l Cost"
        cFieldListToSelect = "cust-nam,inv,i-no,job,mat-cst," +
-                            "lbr-cst,fix-oh,var-oh,ttl-cst,sal-amt"
-       cFieldLength = "30,8,15,10,11," + "11,11,11,11,15" 
-       cFieldType = "c,i,c,c,i," + "i,i,i,i,i"
+                            "lbr-cst,fix-oh,var-oh,ttl-cst,sal-amt,act-mat-cost"
+       cFieldLength = "30,8,15,10,11," + "11,11,11,11,15,13" 
+       cFieldType = "c,i,c,c,i," + "i,i,i,i,i,i"
     .
 
 {sys/inc/ttRptSel.i}
@@ -1603,6 +1605,40 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetActMatCost C-Win 
+PROCEDURE pGetActMatCost :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcJob AS CHARACTER NO-UNDO .
+DEFINE OUTPUT PARAMETER opdActCost AS DECIMAL NO-UNDO .
+
+FIND FIRST job NO-LOCK
+    WHERE job.company EQ cocode
+    AND job.job-no EQ ipcJob NO-ERROR .
+
+ IF AVAIL job THEN do:
+     {jc/rep/job-summ.i}   /***  Get the Material Information ***/
+
+          for each work-mat break by work-mat.i-no:
+             opdActCost = opdActCost + work-mat.act-cost .    
+          END.
+          FOR EACH job-farm NO-LOCK
+              WHERE job-farm.job EQ job.job :
+              /* Material grand total should include farmout */
+              opdActCost = opdActCost + job-farm.act-tot-cost.
+          END. /* if v-incl-farmout */
+ END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 /* ************************  Function Implementations ***************** */

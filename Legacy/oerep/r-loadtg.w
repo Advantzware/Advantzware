@@ -289,8 +289,8 @@ begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
 begin_date end_date rd_comps tb_dept-note tb_rel tb_over tb_16ths ~
 tb_ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels ~
 begin_form btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to ~
-end_ship-to tb_close tb_print-view RECT-7 RECT-8 RECT-11 RECT-12 begin_rel ~
-end_rel 
+end_ship-to tb_close tb_print-view begin_rel end_rel RECT-7 RECT-8 RECT-11 ~
+RECT-12 
 &Scoped-Define DISPLAYED-OBJECTS tbPartSelect loadtagFunction tb_ret ~
 tb_reprint-tag v-ord-list v-job-list begin_ord-no end_ord-no begin_job ~
 begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
@@ -354,11 +354,11 @@ DEFINE BUTTON btn-ok
 
 DEFINE VARIABLE v-job-list AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 42 BY 3.1 NO-UNDO.
+     SIZE 42 BY 2.43 NO-UNDO.
 
 DEFINE VARIABLE v-ord-list AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 42 BY 3.1 NO-UNDO.
+     SIZE 42 BY 2.43 NO-UNDO.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "From" 
@@ -398,7 +398,7 @@ DEFINE VARIABLE begin_labels AS INTEGER FORMAT ">>>>":U INITIAL 2
 DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "From Order#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_rel AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
      LABEL "From Release" 
@@ -433,7 +433,7 @@ DEFINE VARIABLE end_job2 AS INTEGER FORMAT "99":U INITIAL 99
 DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "To Order#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1 NO-UNDO.
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_rel AS INTEGER FORMAT ">>>>>>9":U INITIAL 9999999 
      LABEL "To Release" 
@@ -560,9 +560,9 @@ DEFINE VARIABLE tb_over AS LOGICAL INITIAL no
      SIZE 22 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_override-mult AS LOGICAL INITIAL no 
-     LABEL "Ignore Customer Labels per Skid" 
+     LABEL "Ignore Customer Labels/ Skid" 
      VIEW-AS TOGGLE-BOX
-     SIZE 37 BY 1 NO-UNDO.
+     SIZE 32 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_print-view AS LOGICAL INITIAL no 
      LABEL "Preview?" 
@@ -605,21 +605,21 @@ DEFINE FRAME FRAME-A
      fi_cas-lab AT ROW 3.14 COL 57 COLON-ALIGNED
      v-ord-list AT ROW 5.95 COL 8 NO-LABEL
      v-job-list AT ROW 5.95 COL 56 NO-LABEL
-     begin_ord-no AT ROW 9.14 COL 20 COLON-ALIGNED HELP
+     begin_ord-no AT ROW 8.62 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_ord-no AT ROW 9.14 COL 64 COLON-ALIGNED HELP
+     end_ord-no AT ROW 8.62 COL 64 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     begin_job AT ROW 10.1 COL 20 COLON-ALIGNED HELP
+     begin_job AT ROW 9.76 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job2 AT ROW 10.1 COL 35 COLON-ALIGNED HELP
+     begin_job2 AT ROW 9.76 COL 36 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job AT ROW 10.1 COL 64 COLON-ALIGNED HELP
+     end_job AT ROW 9.76 COL 64 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job2 AT ROW 10.1 COL 79 COLON-ALIGNED HELP
+     end_job2 AT ROW 9.76 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     begin_i-no AT ROW 11.05 COL 20 COLON-ALIGNED HELP
-          "Enter Beginning Order Number"
-     end_i-no AT ROW 11.05 COL 64 COLON-ALIGNED HELP
+     begin_i-no AT ROW 10.91 COL 20 COLON-ALIGNED HELP
+          "Enter Beginning Item Number"
+     end_i-no AT ROW 10.91 COL 64 COLON-ALIGNED HELP
           "Enter Ending Item Number"
      rd_order-sts AT ROW 13.14 COL 22.6 NO-LABEL
      rd_print AT ROW 14.81 COL 18 NO-LABEL
@@ -652,13 +652,13 @@ DEFINE FRAME FRAME-A
      begin_ship-to AT ROW 15.67 COL 61.2 COLON-ALIGNED HELP
           "Enter Beginning Release Shipto" WIDGET-ID 36
      end_ship-to AT ROW 15.67 COL 82.6 COLON-ALIGNED HELP
-          "Enter Ending Release shipto" WIDGET-ID 38
+          "Enter Ending Release Shipto" WIDGET-ID 38
      tb_close AT ROW 21.33 COL 69 WIDGET-ID 40
      tb_print-view AT ROW 21.33 COL 81.4 WIDGET-ID 42
-     begin_rel AT ROW 12.1 COL 20 COLON-ALIGNED HELP
-          "Enter Beginning Order Number" WIDGET-ID 44
-     end_rel AT ROW 12.1 COL 64 COLON-ALIGNED HELP
-          "Enter Beginning Order Number" WIDGET-ID 46
+     begin_rel AT ROW 12.05 COL 20 COLON-ALIGNED HELP
+          "Enter Beginning Release Number" WIDGET-ID 44
+     end_rel AT ROW 12.05 COL 64 COLON-ALIGNED HELP
+          "Enter Ending Release Number" WIDGET-ID 46
      "Output Options:" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 20.71 COL 4 WIDGET-ID 22
           FONT 6
@@ -1157,12 +1157,58 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
+ON VALUE-CHANGED OF begin_i-no IN FRAME FRAME-A /* From Item# */
+DO:  
+   FIND FIRST oe-ordl NO-LOCK
+       WHERE oe-ordl.company EQ cocode
+         AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
+         AND oe-ordl.i-no EQ begin_i-no:SCREEN-VALUE
+         AND oe-ordl.opened eq YES NO-ERROR .
+        IF AVAIL oe-ordl 
+          THEN do:
+           ASSIGN begin_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
+                  begin_job:SCREEN-VALUE    = oe-ordl.job-no
+                  begin_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
+                  begin_i-no:SCREEN-VALUE   = oe-ordl.i-no.
+                  RUN check-release(0) .
+        END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_labels
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_labels C-Win
 ON LEAVE OF begin_labels IN FRAME FRAME-A /* # of Labels per Skid */
 DO:
   ASSIGN begin_labels
       v-mult = begin_labels.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no C-Win
+ON VALUE-CHANGED OF begin_ord-no IN FRAME FRAME-A /* From Order# */
+DO:  
+   FIND FIRST oe-ordl NO-LOCK
+       WHERE oe-ordl.company EQ cocode
+         AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
+         AND (oe-ordl.i-no EQ begin_i-no:SCREEN-VALUE OR begin_i-no:SCREEN-VALUE EQ "" )
+         AND oe-ordl.opened eq YES NO-ERROR .
+        IF AVAIL oe-ordl 
+          THEN do:
+           ASSIGN begin_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
+                  begin_job:SCREEN-VALUE    = oe-ordl.job-no
+                  begin_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
+                  begin_i-no:SCREEN-VALUE   = oe-ordl.i-no.
+                  RUN check-release(0) .
+        END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1518,6 +1564,28 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
+ON VALUE-CHANGED OF end_i-no IN FRAME FRAME-A /* To Item# */
+DO:  
+   FIND FIRST oe-ordl NO-LOCK
+       WHERE oe-ordl.company EQ cocode
+         AND oe-ordl.ord-no EQ INT(end_ord-no:SCREEN-VALUE)
+         AND oe-ordl.i-no EQ end_i-no:SCREEN-VALUE
+         AND oe-ordl.opened eq YES NO-ERROR .
+        IF AVAIL oe-ordl 
+          THEN do:
+           ASSIGN end_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
+                  end_job:SCREEN-VALUE    = oe-ordl.job-no
+                  end_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
+                  end_i-no:SCREEN-VALUE   = oe-ordl.i-no.
+                  RUN check-release(1) .
+        END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_job
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job C-Win
 ON LEAVE OF end_job IN FRAME FRAME-A /* To Job# */
@@ -1534,96 +1602,6 @@ END.
 ON LEAVE OF end_job2 IN FRAME FRAME-A /* - */
 DO:  
    RUN leave-job-label.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME begin_ord-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no C-Win
-ON VALUE-CHANGED OF begin_ord-no IN FRAME FRAME-A /* - */
-DO:  
-   FIND FIRST oe-ordl NO-LOCK
-       WHERE oe-ordl.company EQ cocode
-         AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
-         AND (oe-ordl.i-no EQ begin_i-no:SCREEN-VALUE OR begin_i-no:SCREEN-VALUE EQ "" )
-         AND oe-ordl.opened eq YES NO-ERROR .
-        IF AVAIL oe-ordl 
-          THEN do:
-           ASSIGN begin_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
-                  begin_job:SCREEN-VALUE    = oe-ordl.job-no
-                  begin_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
-                  begin_i-no:SCREEN-VALUE   = oe-ordl.i-no.
-                  RUN check-release(0) .
-        END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_ord-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-no C-Win
-ON VALUE-CHANGED OF end_ord-no IN FRAME FRAME-A /* - */
-DO:  
-   FIND FIRST oe-ordl NO-LOCK
-       WHERE oe-ordl.company EQ cocode
-         AND oe-ordl.ord-no EQ INT(end_ord-no:SCREEN-VALUE)
-         AND (oe-ordl.i-no EQ end_i-no:SCREEN-VALUE OR end_i-no:SCREEN-VALUE EQ "" )
-         AND oe-ordl.opened eq YES NO-ERROR .
-        IF AVAIL oe-ordl 
-          THEN do:
-           ASSIGN end_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
-                  end_job:SCREEN-VALUE    = oe-ordl.job-no
-                  end_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
-                  end_i-no:SCREEN-VALUE   = oe-ordl.i-no.
-                  RUN check-release(1) .
-        END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME begin_i-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
-ON VALUE-CHANGED OF begin_i-no IN FRAME FRAME-A /* - */
-DO:  
-   FIND FIRST oe-ordl NO-LOCK
-       WHERE oe-ordl.company EQ cocode
-         AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
-         AND oe-ordl.i-no EQ begin_i-no:SCREEN-VALUE
-         AND oe-ordl.opened eq YES NO-ERROR .
-        IF AVAIL oe-ordl 
-          THEN do:
-           ASSIGN begin_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
-                  begin_job:SCREEN-VALUE    = oe-ordl.job-no
-                  begin_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
-                  begin_i-no:SCREEN-VALUE   = oe-ordl.i-no.
-                  RUN check-release(0) .
-        END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_i-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
-ON VALUE-CHANGED OF end_i-no IN FRAME FRAME-A /* - */
-DO:  
-   FIND FIRST oe-ordl NO-LOCK
-       WHERE oe-ordl.company EQ cocode
-         AND oe-ordl.ord-no EQ INT(end_ord-no:SCREEN-VALUE)
-         AND oe-ordl.i-no EQ end_i-no:SCREEN-VALUE
-         AND oe-ordl.opened eq YES NO-ERROR .
-        IF AVAIL oe-ordl 
-          THEN do:
-           ASSIGN end_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
-                  end_job:SCREEN-VALUE    = oe-ordl.job-no
-                  end_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
-                  end_i-no:SCREEN-VALUE   = oe-ordl.i-no.
-                  RUN check-release(1) .
-        END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1842,6 +1820,28 @@ DO:
         END.
     END.
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-no C-Win
+ON VALUE-CHANGED OF end_ord-no IN FRAME FRAME-A /* To Order# */
+DO:  
+   FIND FIRST oe-ordl NO-LOCK
+       WHERE oe-ordl.company EQ cocode
+         AND oe-ordl.ord-no EQ INT(end_ord-no:SCREEN-VALUE)
+         AND (oe-ordl.i-no EQ end_i-no:SCREEN-VALUE OR end_i-no:SCREEN-VALUE EQ "" )
+         AND oe-ordl.opened eq YES NO-ERROR .
+        IF AVAIL oe-ordl 
+          THEN do:
+           ASSIGN end_ord-no:SCREEN-VALUE = STRING(oe-ordl.ord-no)
+                  end_job:SCREEN-VALUE    = oe-ordl.job-no
+                  end_job2:SCREEN-VALUE   = STRING(oe-ordl.job-no2)
+                  end_i-no:SCREEN-VALUE   = oe-ordl.i-no.
+                  RUN check-release(1) .
+        END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2120,7 +2120,7 @@ END.
 
 &Scoped-define SELF-NAME tb_override-mult
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_override-mult C-Win
-ON VALUE-CHANGED OF tb_override-mult IN FRAME FRAME-A /* Ignore Customer Labels per Skid */
+ON VALUE-CHANGED OF tb_override-mult IN FRAME FRAME-A /* Ignore Customer Labels/ Skid */
 DO:
   assign {&self-name}.
 END.
@@ -2754,11 +2754,13 @@ IF scr-auto-print THEN DO:
                              OUTPUT lUserSpecific).
 
     IF lUserSpecific THEN 
-        RUN custom/lmprint.p (INPUT scr-label-file, 
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file, 
                               INPUT cDB,
                               INPUT cBarDir).
     ELSE
-        RUN custom/lmprint.p (INPUT scr-label-file,
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file,
                               INPUT "",
                               INPUT "").
 END.
@@ -2984,6 +2986,105 @@ PROCEDURE cas-lab-label-mat-file :
         END.
      END.
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-release C-Win 
+PROCEDURE check-release :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipicheck AS INTEGER NO-UNDO .
+    DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCheckRel AS LOGICAL NO-UNDO .
+    IF AVAIL oe-ordl THEN
+    FOR EACH oe-rel NO-LOCK
+        WHERE oe-rel.company EQ oe-ordl.company
+        AND oe-rel.ord-no  EQ oe-ordl.ord-no
+        AND oe-rel.i-no    EQ oe-ordl.i-no
+        AND oe-rel.line    EQ oe-ordl.line
+        USE-INDEX ord-item
+
+        BREAK BY oe-rel.rel-no
+              BY oe-rel.b-ord-no
+              BY oe-rel.po-no
+          TRANSACTION:
+
+          IF LAST-OF(oe-rel.po-no) OR oe-rel.rel-no EQ 0 THEN DO:
+              
+              FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.r-no     EQ oe-rel.link-no
+                AND oe-rell.ord-no   EQ oe-rel.ord-no
+                AND oe-rell.rel-no   EQ oe-rel.rel-no
+                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.line     EQ oe-rel.line
+                AND oe-rell.po-no    EQ oe-rel.po-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                USE-INDEX r-no NO-LOCK NO-ERROR.
+            IF NOT AVAIL oe-rell THEN
+                FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.link-no  EQ oe-rel.r-no
+                AND oe-rell.ord-no   EQ oe-rel.ord-no
+                AND oe-rell.rel-no   EQ oe-rel.rel-no
+                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.line     EQ oe-rel.line
+                AND oe-rell.po-no    EQ oe-rel.po-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                NO-LOCK NO-ERROR.
+            /* Needed because line was sometimes different between the two */
+            IF NOT AVAIL oe-rell THEN
+                FIND FIRST oe-rell
+                WHERE oe-rell.company  EQ oe-rel.company
+                AND oe-rell.ord-no   EQ oe-rel.ord-no              
+                AND oe-rell.i-no     EQ oe-rel.i-no
+                AND oe-rell.link-no  EQ oe-rel.r-no
+                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL oe-rell THEN
+                FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
+                
+ 
+            DO WITH FRAME {&FRAME-NAME}:
+                IF AVAIL oe-relh AND oe-relh.release# NE 0 THEN do:
+                    IF ipicheck EQ 0 THEN
+                        ASSIGN
+                        begin_rel:SCREEN-VALUE   = STRING(oe-relh.release#)
+                        begin_rel:SENSITIVE   = YES
+                        lCheckRel = YES .
+                    ELSE
+                        ASSIGN
+                            end_rel:SCREEN-VALUE   = STRING(oe-relh.release#)
+                            end_rel:SENSITIVE   = YES
+                            lCheckRel = YES .
+                    LEAVE .
+                END.
+            END.
+          END.
+    END.
+    IF NOT lCheckRel THEN DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            IF ipicheck EQ 0 THEN
+                ASSIGN
+                  begin_rel:SCREEN-VALUE   = ""
+                  begin_rel:SENSITIVE   = NO .
+            ELSE 
+                ASSIGN
+                  end_rel:SCREEN-VALUE   = ""
+                  end_rel:SENSITIVE   = NO .
+
+        END.
+    END.
+ 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3282,6 +3383,7 @@ PROCEDURE create-loadtag :
    loadtag.misc-char[2] = w-ord.lot
    /* gdm - 07170905  end */
    loadtag.spare-char-1 = w-ord.SSCC
+   loadtag.pallet-no    = IF AVAIL itemfg THEN itemfg.trno ELSE ""
    .
 
    /* gdm - 08260916 */
@@ -3669,7 +3771,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip,Pallet type".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -4564,8 +4666,8 @@ PROCEDURE enable_UI :
          rd_comps tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
          scr-auto-print scr-freeze-label scr-label-file begin_labels begin_form 
          btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to 
-         end_ship-to tb_close tb_print-view RECT-7 RECT-8 RECT-11 RECT-12 
-         begin_rel end_rel 
+         end_ship-to tb_close tb_print-view begin_rel end_rel RECT-7 RECT-8 
+         RECT-11 RECT-12 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -7796,51 +7898,51 @@ PROCEDURE write-loadtag-line :
         "~""  removeChars(w-ord.sold-state) "~","
         "~""  removeChars(w-ord.sold-ctry)  "~","
         "~""  removeChars(w-ord.sold-zip)   "~","
-		"~""  removeChars(w-ord.i-name) FORMAT "X(30)"  "~","
-		"~""  w-ord.due-date  "~","
-		"~""  w-ord.rel-date  "~","
-		"~""  w-ord.upc-no FORMAT "x(20)" "~","
+                "~""  removeChars(w-ord.i-name) FORMAT "X(30)"  "~","
+                "~""  w-ord.due-date  "~","
+                "~""  w-ord.rel-date  "~","
+                "~""  w-ord.upc-no FORMAT "x(20)" "~","
         "~""  w-ord.box-len FORMAT ">>>9.99<<<" "~","
-		"~""  w-ord.box-wid FORMAT ">>>9.99<<<" "~","
+                "~""  w-ord.box-wid FORMAT ">>>9.99<<<" "~","
         "~""  w-ord.box-dep FORMAT ">>>9.99<<<" "~","
-		"~""  w-ord.flute  "~","
-		"~""  w-ord.test  "~","
-		"~""  w-ord.vendor  "~","
+                "~""  w-ord.flute  "~","
+                "~""  w-ord.test  "~","
+                "~""  w-ord.vendor  "~","
         w-ord.gross-wt  ","
         w-ord.tare-wt  ","
         w-ord.net-wt  ","
         w-ord.sheet-wt  ","
-		"~""  w-ord.uom  "~","
-		"~""  removeChars(w-ord.style) "~","
-		"~""  removeChars(w-ord.style-desc) "~","
-		"~""  removeChars(w-ord.rel-lot#) "~","
-		"~""  lv-middlesex-job  "~","
-		"~""  lv-middlesex-po  "~","
-		"~""  loadtag.tag-no "~"," 
-		"~""  loadtag.partial "~","
-		"~""  w-ord.cas-no  "~","
-		"~""  removeChars(v-dept-note[1]) "~","
-		"~""  removeChars(v-dept-note[2]) "~","
-		"~""  removeChars(v-dept-note[3]) "~","
-		"~""  removeChars(v-dept-note[4]) "~","
-		"~""  removeChars(v-dept-note[5]) "~","
-		"~""  removeChars(v-dept-note[6]) "~","
-		"~""  removeChars(v-dept-note[7]) "~","
-		"~""  removeChars(v-dept-note[8]) "~","
+                "~""  w-ord.uom  "~","
+                "~""  removeChars(w-ord.style) "~","
+                "~""  removeChars(w-ord.style-desc) "~","
+                "~""  removeChars(w-ord.rel-lot#) "~","
+                "~""  lv-middlesex-job  "~","
+                "~""  lv-middlesex-po  "~","
+                "~""  loadtag.tag-no "~"," 
+                "~""  loadtag.partial "~","
+                "~""  w-ord.cas-no  "~","
+                "~""  removeChars(v-dept-note[1]) "~","
+                "~""  removeChars(v-dept-note[2]) "~","
+                "~""  removeChars(v-dept-note[3]) "~","
+                "~""  removeChars(v-dept-note[4]) "~","
+                "~""  removeChars(v-dept-note[5]) "~","
+                "~""  removeChars(v-dept-note[6]) "~","
+                "~""  removeChars(v-dept-note[7]) "~","
+                "~""  removeChars(v-dept-note[8]) "~","
         w-ord.po-no ","
-		"~""  removeChars(v-dept-note[9]) "~","
-		"~""  removeChars(v-dept-note[10]) "~","
-		"~""  removeChars(v-dept-note[11]) "~","
-		"~""  removeChars(v-dept-note[12]) "~","
-		"~""  removeChars(v-dept-note[13]) "~","
-		"~""  removeChars(v-dept-note[14]) "~","
-		"~""  removeChars(v-dept-note[15]) "~","
-		"~""  removeChars(v-dept-note[16]) "~","   
-		"~""  removeChars(v-dept-note[17]) "~","
-		"~""  removeChars(v-dept-note[18]) "~","
-		"~""  removeChars(w-ord.est-no) "~","
-		"~""  removeChars(w-ord.ord-desc1)    "~","
-		"~""  removeChars(w-ord.ord-desc2)    "~","
+                "~""  removeChars(v-dept-note[9]) "~","
+                "~""  removeChars(v-dept-note[10]) "~","
+                "~""  removeChars(v-dept-note[11]) "~","
+                "~""  removeChars(v-dept-note[12]) "~","
+                "~""  removeChars(v-dept-note[13]) "~","
+                "~""  removeChars(v-dept-note[14]) "~","
+                "~""  removeChars(v-dept-note[15]) "~","
+                "~""  removeChars(v-dept-note[16]) "~","   
+                "~""  removeChars(v-dept-note[17]) "~","
+                "~""  removeChars(v-dept-note[18]) "~","
+                "~""  removeChars(w-ord.est-no) "~","
+                "~""  removeChars(w-ord.ord-desc1)    "~","
+                "~""  removeChars(w-ord.ord-desc2)    "~","
         .
  
     IF CAN-DO("ASI,SSLABEL",v-loadtag) THEN DO:
@@ -7870,7 +7972,8 @@ PROCEDURE write-loadtag-line :
         "~"" loadtag.loc "~","
         "~"" loadtag.loc-bin "~","
         "~"" w-ord.job-qty "~","
-        "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"".
+        "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"," 
+        "~"" STRING(loadtag.pallet-no)  "~"" .
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.
@@ -7888,104 +7991,6 @@ END.
 
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-release C-Win 
-PROCEDURE check-release :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipicheck AS INTEGER NO-UNDO .
-    DEFINE VARIABLE lv-stat AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lCheckRel AS LOGICAL NO-UNDO .
-    IF AVAIL oe-ordl THEN
-    FOR EACH oe-rel NO-LOCK
-        WHERE oe-rel.company EQ oe-ordl.company
-        AND oe-rel.ord-no  EQ oe-ordl.ord-no
-        AND oe-rel.i-no    EQ oe-ordl.i-no
-        AND oe-rel.line    EQ oe-ordl.line
-        USE-INDEX ord-item
-
-        BREAK BY oe-rel.rel-no
-              BY oe-rel.b-ord-no
-              BY oe-rel.po-no
-          TRANSACTION:
-
-          IF LAST-OF(oe-rel.po-no) OR oe-rel.rel-no EQ 0 THEN DO:
-              
-              FIND FIRST oe-rell
-                WHERE oe-rell.company  EQ oe-rel.company
-                AND oe-rell.r-no     EQ oe-rel.link-no
-                AND oe-rell.ord-no   EQ oe-rel.ord-no
-                AND oe-rell.rel-no   EQ oe-rel.rel-no
-                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
-                AND oe-rell.i-no     EQ oe-rel.i-no
-                AND oe-rell.line     EQ oe-rel.line
-                AND oe-rell.po-no    EQ oe-rel.po-no
-                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
-                USE-INDEX r-no NO-LOCK NO-ERROR.
-            IF NOT AVAIL oe-rell THEN
-                FIND FIRST oe-rell
-                WHERE oe-rell.company  EQ oe-rel.company
-                AND oe-rell.link-no  EQ oe-rel.r-no
-                AND oe-rell.ord-no   EQ oe-rel.ord-no
-                AND oe-rell.rel-no   EQ oe-rel.rel-no
-                AND oe-rell.b-ord-no EQ oe-rel.b-ord-no
-                AND oe-rell.i-no     EQ oe-rel.i-no
-                AND oe-rell.line     EQ oe-rel.line
-                AND oe-rell.po-no    EQ oe-rel.po-no
-                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
-                NO-LOCK NO-ERROR.
-            /* Needed because line was sometimes different between the two */
-            IF NOT AVAIL oe-rell THEN
-                FIND FIRST oe-rell
-                WHERE oe-rell.company  EQ oe-rel.company
-                AND oe-rell.ord-no   EQ oe-rel.ord-no              
-                AND oe-rell.i-no     EQ oe-rel.i-no
-                AND oe-rell.link-no  EQ oe-rel.r-no
-                AND CAN-FIND(FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no)
-                NO-LOCK NO-ERROR.
-
-            IF AVAIL oe-rell THEN
-                FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
-                
- 
-            DO WITH FRAME {&FRAME-NAME}:
-                IF AVAIL oe-relh AND oe-relh.release# NE 0 THEN do:
-                    IF ipicheck EQ 0 THEN
-                        ASSIGN
-                        begin_rel:SCREEN-VALUE   = STRING(oe-relh.release#)
-                        begin_rel:SENSITIVE   = YES
-                        lCheckRel = YES .
-                    ELSE
-                        ASSIGN
-                            end_rel:SCREEN-VALUE   = STRING(oe-relh.release#)
-                            end_rel:SENSITIVE   = YES
-                            lCheckRel = YES .
-                    LEAVE .
-                END.
-            END.
-          END.
-    END.
-    IF NOT lCheckRel THEN DO:
-        DO WITH FRAME {&FRAME-NAME}:
-            IF ipicheck EQ 0 THEN
-                ASSIGN
-                  begin_rel:SCREEN-VALUE   = ""
-                  begin_rel:SENSITIVE   = NO .
-            ELSE 
-                ASSIGN
-                  end_rel:SCREEN-VALUE   = ""
-                  end_rel:SENSITIVE   = NO .
-
-        END.
-    END.
- 
-
-END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

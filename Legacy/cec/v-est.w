@@ -3460,6 +3460,7 @@ PROCEDURE local-cancel-record :
 
   RUN release-shared-buffers.
   DISABLE btncadlookup btndielookup WITH FRAME {&FRAME-NAME}.
+  RUN set-panel(1) .
 
 END PROCEDURE.
 
@@ -3783,6 +3784,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-panel B-table-Win 
+PROCEDURE set-panel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-switch AS INT NO-UNDO.
+
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+
+  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'btn-set-target':U,OUTPUT char-hdl).
+  IF ip-switch EQ 0 THEN 
+    RUN disable-all IN WIDGET-HANDLE(char-hdl).
+  ELSE
+    RUN enable-all IN WIDGET-HANDLE(char-hdl).
+
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -3997,6 +4022,8 @@ PROCEDURE local-update-record :
            END. /* Each oe-prmtx */
        END.
   END.
+
+  RUN set-panel(1) .
 {&methods/lValidateError.i NO}
 
 END PROCEDURE.
@@ -4296,6 +4323,8 @@ PROCEDURE proc-enable :
   RUN set-hold-values.
 
   RUN release-shared-buffers.
+
+  RUN set-panel(0) .
 
 END PROCEDURE.
 
@@ -5041,6 +5070,23 @@ IF lc-new-values = lc-previous-values THEN DO:
 END.
 ELSE
   opl-was-modified = YES.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cad-image-update V-table-Win 
+PROCEDURE cad-image-update :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAIL eb THEN do:
+        RUN est/d-cadimgupd.w(cocode,ROWID(est)) .
+        RUN local-display-fields .
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

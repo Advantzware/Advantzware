@@ -58,12 +58,14 @@ DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE cFgEmails AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iFgEmails AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {jc/jcgl-sh.i  NEW}
 {fg/fullset.i  NEW}
 {fg/fg-post3.i NEW}
-
+{Inventory/ttInventory.i "NEW SHARED"}
 {fg/fgPostBatch.i}    
 DEF TEMP-TABLE tt-line-cnt NO-UNDO
     FIELD line-rowid  AS ROWID 
@@ -947,6 +949,8 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
+
 /* Done again because g_company is not set above */
 find first sys-ctrl
     where sys-ctrl.company eq g_company
@@ -1733,6 +1737,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -2171,7 +2200,19 @@ PROCEDURE valid-job-loc-bin-tag :
                            AND fg-bin.qty > 0 NO-LOCK NO-ERROR.
     IF AVAIL fg-bin THEN  ASSIGN fg-rctd.cases:SCREEN-VALUE = 
          string(ROUND((fg-bin.qty - fg-bin.partial-count) / loadtag.qty-case,0)).   
-
+      lActiveBin EQ TRUE.
+      IF li-field# GE 3 THEN DO:
+          RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+          IF NOT lActiveBin THEN 
+              APPLY "entry" TO fg-rctd.loc IN BROWSE {&browse-name}.
+      END.
+      IF li-field# GE 4 THEN DO:
+          RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+              fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+              OUTPUT lActiveBin ).
+          IF NOT lActiveBin THEN 
+              APPLY "entry" TO fg-rctd.loc-bin IN BROWSE {&browse-name}.
+      END.
     FIND FIRST fg-bin
         WHERE fg-bin.company  EQ cocode
           AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2288,14 +2329,10 @@ PROCEDURE valid-loc-bin2 :
         lv-msg = "To Whse/Bin may not be the same as From Whse/Bin".
 
     IF lv-msg EQ "" THEN DO:
-      FIND FIRST fg-bin
-          WHERE fg-bin.company EQ cocode
-            AND fg-bin.i-no    EQ ""
-            AND fg-bin.loc     EQ fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}
-            AND fg-bin.loc-bin EQ fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name}
-        USE-INDEX co-ino NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL fg-bin THEN lv-msg = "Invalid entry, try help...".
+        RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            OUTPUT lActiveBin ).
+        IF NOT lActiveBin  THEN lv-msg = "Invalid entry, try help...".
     END.
 
     IF lv-msg NE "" THEN DO:
@@ -2327,11 +2364,8 @@ PROCEDURE valid-loc2 :
         lv-msg = "To Bin may not be spaces".
 
     IF lv-msg EQ "" THEN DO:
-      FIND FIRST loc
-          WHERE loc.company EQ cocode
-            AND loc.loc     EQ fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL loc THEN lv-msg = "Invalid entry, try help".
+        RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).          
+        IF NOT lActiveBin THEN lv-msg = "Invalid entry, try help".
     END.
 
     IF lv-msg NE "" THEN DO:

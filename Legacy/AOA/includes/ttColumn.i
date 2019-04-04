@@ -2,6 +2,7 @@
 
 DEFINE TEMP-TABLE ttColumn NO-UNDO
     FIELD ttOrder        AS INTEGER   LABEL "Order"             FORMAT ">>9"
+    FIELD ttTable        AS CHARACTER LABEL "Table"             FORMAT "x(20)"
     FIELD ttField        AS CHARACTER LABEL "Field"             FORMAT "x(20)"
     FIELD ttLabel        AS CHARACTER LABEL "Column"            FORMAT "x(30)"
     FIELD ttType         AS CHARACTER LABEL "Type"              FORMAT "x(10)"

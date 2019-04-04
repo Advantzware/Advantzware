@@ -31,6 +31,7 @@
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cust-no like itemfg.cust-no no-undo.
 def input parameter ip-cur-val as cha no-undo.
+DEFINE INPUT PARAMETER ip-vendor AS CHARACTER NO-UNDO .
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-recid as recid no-undo.
 
@@ -66,7 +67,7 @@ ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part"
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES itemfg
+&Scoped-define INTERNAL-TABLES itemfg e-itemfg-vend
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -77,12 +78,20 @@ itemfg.q-onh get-cust () @ itemfg.cust-no itemfg.cust-no ~
 get-part () @ itemfg.part-no itemfg.part-no itemfg.part-dscr1 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
-      AND itemfg.company = ip-company AND itemfg.stat EQ "A" NO-LOCK ~
+      AND itemfg.company = ip-company AND itemfg.stat EQ "A" NO-LOCK, ~
+      first e-itemfg-vend NO-LOCK ~
+        where e-itemfg-vend.company eq itemfg.company ~
+          and e-itemfg-vend.i-no    eq itemfg.i-no ~
+          and ((e-itemfg-vend.vend-no EQ ip-vendor AND rd-filter EQ 1) OR rd-filter EQ 2 ) ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
-      AND itemfg.company = ip-company AND itemfg.stat EQ "A" NO-LOCK ~
+      AND itemfg.company = ip-company AND itemfg.stat EQ "A" NO-LOCK, ~
+      first e-itemfg-vend NO-LOCK ~
+        where e-itemfg-vend.company eq itemfg.company ~
+          and e-itemfg-vend.i-no    eq itemfg.i-no ~
+          and ((e-itemfg-vend.vend-no EQ ip-vendor AND rd-filter EQ 1) OR rd-filter EQ 2 ) ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 itemfg
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 itemfg e-itemfg-vend
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 itemfg
 
 
@@ -91,9 +100,9 @@ get-part () @ itemfg.part-no itemfg.part-no itemfg.part-dscr1
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 rd-sort bt-clear lv-search bt-ok ~
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 rd-sort rd-filter bt-clear lv-search bt-ok ~
 bt-cancel RECT-1 
-&Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
+&Scoped-Define DISPLAYED-OBJECTS rd-sort rd-filter lv-search lv-label
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -148,6 +157,19 @@ DEFINE VARIABLE rd-sort AS INTEGER
 "Name", 2
      SIZE 45 BY 1 NO-UNDO.
 
+DEFINE VARIABLE rd-filter AS INTEGER 
+     LABEL "Filter By:" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "PO Vendor", 1,
+          "All Vendors", 2
+     SIZE 33 BY .95 NO-UNDO.
+
+DEFINE VARIABLE lv-label AS CHARACTER FORMAT "X(9)":U 
+     LABEL "Filter By" 
+     VIEW-AS FILL-IN 
+     SIZE 1 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 141 BY 1.43.
@@ -155,7 +177,8 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      itemfg SCROLLING.
+      itemfg,
+      e-itemfg-vend SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -181,6 +204,7 @@ DEFINE BROWSE BROWSE-1
 DEFINE FRAME Dialog-Frame
      BROWSE-1 AT ROW 1 COL 1
      rd-sort AT ROW 12.67 COL 14 NO-LABEL
+     rd-filter AT ROW 12.67 COL 99 NO-LABEL
      bt-clear AT ROW 14.1 COL 2
      lv-search AT ROW 14.1 COL 22 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 118
@@ -188,7 +212,8 @@ DEFINE FRAME Dialog-Frame
      RECT-1 AT ROW 12.43 COL 1
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 12.67 COL 4
-     SPACE(130.59) SKIP(1.56)
+     lv-label AT ROW 12.67 COL 89
+     SPACE(38.59) SKIP(1.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Finished Goods Information".
@@ -224,9 +249,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.itemfg"
+     _TblList          = "ASI.itemfg,ASI.e-itemfg-vend"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.itemfg.company = ip-company AND itemfg.stat EQ 'A'"
+     _Where[2]         = "e-itemfg-vend.company eq itemfg.company 
+                          and e-itemfg-vend.i-no eq itemfg.i-no 
+                          and ((e-itemfg-vend.vend-no NE "" AND rd-filter EQ 1) OR rd-filter EQ 2 )"
      _FldNameList[1]   > ASI.itemfg.i-no
 "itemfg.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "23" yes no no "U" "" ""
      _FldNameList[2]   = ASI.itemfg.i-name
@@ -376,6 +404,24 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rd-filter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-filter Dialog-Frame
+ON VALUE-CHANGED OF rd-filter IN FRAME Dialog-Frame
+DO:
+    /* redefined for lookup */
+    &scoped-define IAMWHAT LOOKUP   
+    ASSIGN rd-filter .     
+    assign rd-sort.
+    case rd-sort:
+        {srtord2.i 1}
+        {srtord2.i 2}
+    end.   
+    apply "entry" to {&browse-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -394,11 +440,22 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  ASSIGN rd-filter = 1 .
 
+  IF ip-vendor EQ "" THEN 
+      ASSIGN rd-filter = 2 .
+      
   &scoped-define key-phrase {&fld-name-1} >= ip-cur-val
   &scoped-define sortby-phrase {&sortby-1}
   
   RUN enable_UI.
+
+  IF ip-vendor EQ "" THEN do:
+      ASSIGN rd-filter = 2 .
+      rd-filter:HIDDEN in FRAME {&FRAME-NAME} = YES .
+      lv-label:HIDDEN in FRAME {&FRAME-NAME} = YES  .
+  END.
+
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -437,9 +494,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rd-sort lv-search 
+  DISPLAY rd-sort rd-filter lv-search lv-label
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-1 rd-sort bt-clear lv-search bt-ok bt-cancel RECT-1 
+  ENABLE BROWSE-1 rd-sort rd-filter bt-clear lv-search bt-ok bt-cancel RECT-1 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

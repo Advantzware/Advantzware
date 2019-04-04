@@ -114,12 +114,12 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 ASSIGN cTextListToSelect = "Rep,Cust#,Line Due Dt,Rel Due Dt,Cust Part#,Item Description,FG Item #," +
                            "Order#,CAD#,PO#,Order Qty,Qty OnHand,Qty Shippd,Qty ActRel," +
-                           "Qty WIP,Qty Avail,Unit,Pallet,Order Value,Ack Date,Order Start Date,Status"
+                           "Qty WIP,Qty Avail,Unit,Pallet,Order Value,Ack Date,Order Start Date,Status,CSR"
        cFieldListToSelect = "rep,cust,l-due-dt,r-due-dt,cust-prt,itm-dscr,fg-itm," +
                             "ord,cad,po,ord-qty,qty-oh,qty-shp,qty-act," +
-                            "qty-wip,qty-avl,est-unt,est-palt,ord-value,ack-date,ord-date,status"
-       cFieldLength = "3,8,11,10,15,30,20," + "6,14,10,10,10,10,10," + "10,10,5,6,15,8,16,20"
-       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c" 
+                            "qty-wip,qty-avl,est-unt,est-palt,ord-value,ack-date,ord-date,status,csr"
+       cFieldLength = "3,8,11,10,15,30,20," + "6,14,10,10,10,10,10," + "10,10,5,6,15,8,16,20,8"
+       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}

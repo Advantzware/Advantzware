@@ -591,7 +591,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         DEFINE VARIABLE ld-prev-amt LIKE oe-ordm.amt NO-UNDO.
 
         DO WITH FRAME {&FRAME-NAME}:
-            ld-prev-amt = DECIMAL(oe-ordm.amt:SCREEN-VALUE).
+            ld-prev-amt = oe-ordm.amt.
         END.
 
         IF ip-type EQ "view" THEN 

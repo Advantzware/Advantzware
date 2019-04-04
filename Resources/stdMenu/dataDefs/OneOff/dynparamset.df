@@ -1,0 +1,123 @@
+ADD TABLE "dynParamSet"
+  AREA "Data"
+  LABEL "Dynamic Parameter Set"
+  DESCRIPTION "Dynamic Parameter Set"
+  DUMP-NAME "dynparamset"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/dynParamSet.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/dynParamSet.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/dynParamSet.p" CRC "?" 
+
+ADD FIELD "paramSetID" OF "dynParamSet" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Parameter Set ID"
+  POSITION 2
+  MAX-WIDTH 4
+  COLUMN-LABEL "Set ID"
+  HELP "Enter Parameter Set ID"
+  ORDER 10
+
+ADD FIELD "setRectangle" OF "dynParamSet" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Rectangle"
+  POSITION 7
+  MAX-WIDTH 1
+  COLUMN-LABEL "Rect"
+  HELP "Toggle Rectangle Flag"
+  ORDER 60
+
+ADD FIELD "setTitle" OF "dynParamSet" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Set Title"
+  POSITION 8
+  MAX-WIDTH 40
+  HELP "Enter Parameter Set Title"
+  ORDER 70
+
+ADD FIELD "rec_key" OF "dynParamSet" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 9
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 90
+
+ADD FIELD "paramPrompt" OF "dynParamSet" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Prompt"
+  POSITION 10
+  MAX-WIDTH 1
+  HELP "Toggle Parameter Prompt"
+  ORDER 80
+
+ADD FIELD "setName" OF "dynParamSet" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Set Name"
+  POSITION 11
+  MAX-WIDTH 60
+  HELP "Enter Parameter Set Name"
+  ORDER 30
+
+ADD FIELD "setHeight" OF "dynParamSet" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Set Height"
+  POSITION 12
+  MAX-WIDTH 17
+  COLUMN-LABEL "Height"
+  HELP "Enter Set Height"
+  DECIMALS 2
+  ORDER 40
+
+ADD FIELD "setWidth" OF "dynParamSet" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "0"
+  LABEL "Set Width"
+  POSITION 13
+  MAX-WIDTH 17
+  COLUMN-LABEL "Width"
+  HELP "Enter Set Width"
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "paramSetType" OF "dynParamSet" AS character 
+  FORMAT "x(8)"
+  INITIAL "System"
+  LABEL "Type"
+  POSITION 14
+  MAX-WIDTH 16
+  HELP "Enter Parameter Set Type"
+  ORDER 20
+
+ADD INDEX "pi-dynParamSet" ON "dynParamSet" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary Index by Parameter Set ID"
+  INDEX-FIELD "paramSetID" ASCENDING 
+
+ADD INDEX "si-paramName" ON "dynParamSet" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Parameter Name"
+  INDEX-FIELD "setName" ASCENDING 
+
+ADD INDEX "si-paramSetType" ON "dynParamSet" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Parameter Set Type"
+  INDEX-FIELD "paramSetType" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "dynParamSet" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002796

@@ -2374,7 +2374,7 @@ PROCEDURE create-release :
                  IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id.   
             END.
          END.
-         RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+         RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
          ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
          FIND FIRST shipto WHERE shipto.company = cocode AND
                                   shipto.cust-no = oe-ord.cust-no  AND

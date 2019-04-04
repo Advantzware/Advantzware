@@ -1,6 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -32,7 +33,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&Scoped-define program-id userFoldr
+&Scoped-define program-id userFoldr.
 
 /* Parameters Definitions ---                                           */
 
@@ -40,17 +41,14 @@ CREATE WIDGET-POOL.
 
 {methods/defines/sortByDefs.i}
 
+DEFINE VARIABLE cFolderFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserFolder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAdmin      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
 
-DEFINE TEMP-TABLE ttFolder NO-UNDO
-    FIELD fileDateTime AS DATETIME                  LABEL "Date / Time"
-    FIELD fileType     AS CHARACTER FORMAT "x(5)"   LABEL "Type"
-    FIELD fileName     AS CHARACTER FORMAT "x(283)" LABEL "File" 
-    FIELD folderFile   AS CHARACTER
-        INDEX fileDateTime IS PRIMARY fileDateTime DESCENDING
-        INDEX fileType fileType
-        INDEX ttFile   fileName
-        .
+DEFINE BUFFER bTaskResult FOR taskResult.
+
+lAdmin = CAN-DO("ASI,NoSweat",USERID("ASI")).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -65,28 +63,37 @@ DEFINE TEMP-TABLE ttFolder NO-UNDO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME userFolderBrowse
+&Scoped-define BROWSE-NAME taskResultBrowse
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttFolder
+&Scoped-define INTERNAL-TABLES taskResult
 
-/* Definitions for BROWSE userFolderBrowse                              */
-&Scoped-define FIELDS-IN-QUERY-userFolderBrowse ttFolder.fileDateTime ttFolder.fileType ttFolder.fileName   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-userFolderBrowse   
-&Scoped-define SELF-NAME userFolderBrowse
-&Scoped-define QUERY-STRING-userFolderBrowse FOR EACH ttFolder ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-userFolderBrowse OPEN QUERY {&SELF-NAME} FOR EACH ttFolder ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-userFolderBrowse ttFolder
-&Scoped-define FIRST-TABLE-IN-QUERY-userFolderBrowse ttFolder
+/* Definitions for BROWSE taskResultBrowse                              */
+&Scoped-define FIELDS-IN-QUERY-taskResultBrowse taskResult.fileDateTime ~
+taskResult.fileType taskResult.user-id taskResult.viewed ~
+taskResult.archived taskResult.folderFile 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-taskResultBrowse 
+&Scoped-define QUERY-STRING-taskResultBrowse FOR EACH taskResult ~
+      WHERE lAdmin EQ YES ~
+OR (lAdmin EQ NO ~
+AND TaskResult.user-id EQ USERID("ASI")) NO-LOCK ~
+    ~{&SORTBY-PHRASE} INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-taskResultBrowse OPEN QUERY taskResultBrowse FOR EACH taskResult ~
+      WHERE lAdmin EQ YES ~
+OR (lAdmin EQ NO ~
+AND TaskResult.user-id EQ USERID("ASI")) NO-LOCK ~
+    ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-taskResultBrowse taskResult
+&Scoped-define FIRST-TABLE-IN-QUERY-taskResultBrowse taskResult
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
-    ~{&OPEN-QUERY-userFolderBrowse}
+    ~{&OPEN-QUERY-taskResultBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS userFolderBrowse btnView btnDelete ~
-btnRefresh 
+&Scoped-Define ENABLED-OBJECTS taskResultBrowse btnArchive btnView ~
+btnDelete btnRefresh 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -102,6 +109,11 @@ btnRefresh
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnArchive 
+     IMAGE-UP FILE "AOA/images/element_copy.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Archive" 
+     SIZE 5 BY .95 TOOLTIP "Archive to User Folder".
+
 DEFINE BUTTON btnDelete 
      IMAGE-UP FILE "AOA/images/navigate_cross.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
@@ -119,27 +131,33 @@ DEFINE BUTTON btnView
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE QUERY userFolderBrowse FOR 
-      ttFolder SCROLLING.
+DEFINE QUERY taskResultBrowse FOR 
+      taskResult SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
-DEFINE BROWSE userFolderBrowse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS userFolderBrowse C-Win _FREEFORM
-  QUERY userFolderBrowse DISPLAY
-      ttFolder.fileDateTime LABEL-BGCOLOR 14
-ttFolder.fileType LABEL-BGCOLOR 14
-ttFolder.fileName LABEL-BGCOLOR 14
+DEFINE BROWSE taskResultBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS taskResultBrowse C-Win _STRUCTURED
+  QUERY taskResultBrowse NO-LOCK DISPLAY
+      taskResult.fileDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
+            LABEL-BGCOLOR 14
+      taskResult.fileType FORMAT "x(8)":U LABEL-BGCOLOR 14
+      taskResult.user-id FORMAT "x(10)":U LABEL-BGCOLOR 14
+      taskResult.viewed FORMAT "yes/no":U LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+      taskResult.archived FORMAT "99/99/9999 HH:MM:SS.SSS":U LABEL-BGCOLOR 14
+      taskResult.folderFile FORMAT "x(256)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 160 BY 28.57
-         TITLE "User Folder" ROW-HEIGHT-CHARS .76.
+         TITLE "Task Results".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     userFolderBrowse AT ROW 1 COL 1 WIDGET-ID 200
+     taskResultBrowse AT ROW 1 COL 1 WIDGET-ID 200
+     btnArchive AT ROW 1 COL 20 HELP
+          "Click to Delete Folder File" WIDGET-ID 8
      btnView AT ROW 1 COL 14 HELP
           "Click to View Selected Folder File" WIDGET-ID 6
      btnDelete AT ROW 1 COL 8 HELP
@@ -198,9 +216,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB userFolderBrowse 1 DEFAULT-FRAME */
+/* BROWSE-TAB taskResultBrowse 1 DEFAULT-FRAME */
 ASSIGN 
-       userFolderBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+       taskResultBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -211,13 +229,27 @@ THEN C-Win:HIDDEN = no.
 
 /* Setting information for Queries and Browse Widgets fields            */
 
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE userFolderBrowse
-/* Query rebuild information for BROWSE userFolderBrowse
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttFolder ~{&SORTBY-PHRASE}.
-     _END_FREEFORM
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE taskResultBrowse
+/* Query rebuild information for BROWSE taskResultBrowse
+     _TblList          = "ASI.taskResult"
+     _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
+     _Where[1]         = "lAdmin EQ YES
+OR (lAdmin EQ NO
+AND TaskResult.user-id EQ USERID(""ASI""))"
+     _FldNameList[1]   > ASI.taskResult.fileDateTime
+"taskResult.fileDateTime" ? ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.taskResult.fileType
+"taskResult.fileType" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.taskResult.user-id
+"taskResult.user-id" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.taskResult.viewed
+"taskResult.viewed" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "?" ? ? 5 no 0 no no
+     _FldNameList[5]   > ASI.taskResult.archived
+"taskResult.archived" ? ? "datetime" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.taskResult.folderFile
+"taskResult.folderFile" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
-*/  /* BROWSE userFolderBrowse */
+*/  /* BROWSE taskResultBrowse */
 &ANALYZE-RESUME
 
  
@@ -263,20 +295,55 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnArchive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnArchive C-Win
+ON CHOOSE OF btnArchive IN FRAME DEFAULT-FRAME /* Archive */
+DO:
+    IF NOT AVAILABLE taskResult THEN
+    RETURN NO-APPLY.
+    ASSIGN
+        cFolderFile = taskResult.folderFile
+        cFolderFile = REPLACE(cFolderFile,"TaskResults","users/"
+                    + taskResult.user-id
+                    + "/Jasper")
+                    .
+    IF SEARCH(cFolderFile) EQ ? THEN DO TRANSACTION:
+        FIND CURRENT taskResult EXCLUSIVE-LOCK.
+        CREATE bTaskResult.
+        BUFFER-COPY taskResult EXCEPT rec_key TO bTaskResult.
+        ASSIGN
+            bTaskResult.folderFile = cFolderFile
+            bTaskResult.archived   = DATETIME(TODAY,TIME)
+            bTaskResult.viewed     = NO
+            taskResult.viewed      = YES
+            rRowID                 = ROWID(bTaskResult)
+            .
+        FIND CURRENT taskResult NO-LOCK.
+        OS-COPY VALUE(taskResult.folderFile) VALUE(bTaskResult.folderFile).
+        RELEASE bTaskResult.
+        {&OPEN-QUERY-taskResultBrowse}
+        REPOSITION taskResultBrowse TO ROWID rRowID.
+    END. /* if search */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnDelete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete C-Win
 ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
 DO:
-    IF NOT AVAILABLE ttFolder THEN
+    IF NOT AVAILABLE taskResult THEN
     RETURN NO-APPLY.
     MESSAGE
-        "Permanantly Remove ~"" + ttFolder.fileName + "~"" SKIP
-        "from" cUserFolder + "~"?"
+        "Permanantly Remove ~"" + taskResult.folderFile + "~"?"
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
     UPDATE lDelete AS LOGICAL.
-    IF lDelete THEN DO:
-        OS-DELETE VALUE(ttFolder.folderFile).
-        RUN pGetUserFolderFiles.
+    IF lDelete THEN DO TRANSACTION:
+        OS-DELETE VALUE(taskResult.folderFile).
+        FIND CURRENT taskResult EXCLUSIVE-LOCK.
+        DELETE taskResult.
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END. /* if delete */
 END.
@@ -289,7 +356,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRefresh C-Win
 ON CHOOSE OF btnRefresh IN FRAME DEFAULT-FRAME /* Refresh */
 DO:
-    RUN pGetUserFolderFiles.
+    RUN pSync.
     {&OPEN-QUERY-{&BROWSE-NAME}}
 END.
 
@@ -301,18 +368,30 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView C-Win
 ON CHOOSE OF btnView IN FRAME DEFAULT-FRAME /* View */
 DO:
-    IF AVAILABLE ttFolder THEN
-    OS-COMMAND NO-WAIT start VALUE(ttFolder.folderFile).
+    IF AVAILABLE TaskResult THEN DO:
+        IF SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
+            OS-COMMAND NO-WAIT start VALUE(taskResult.folderFile).
+            FIND CURRENT TaskResult EXCLUSIVE-LOCK.
+            TaskResult.viewed = YES.
+            FIND CURRENT TaskResult NO-LOCK.
+            BROWSE TaskResultBrowse:REFRESH().
+        END. /* if search */
+        ELSE
+        MESSAGE
+            "Result File: ~"" + taskResult.folderFile +
+            "~" cannot be found!"
+        VIEW-AS ALERT-BOX ERROR.
+    END. /* if avail */
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME userFolderBrowse
-&Scoped-define SELF-NAME userFolderBrowse
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL userFolderBrowse C-Win
-ON DEFAULT-ACTION OF userFolderBrowse IN FRAME DEFAULT-FRAME /* User Folder */
+&Scoped-define BROWSE-NAME taskResultBrowse
+&Scoped-define SELF-NAME taskResultBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL taskResultBrowse C-Win
+ON DEFAULT-ACTION OF taskResultBrowse IN FRAME DEFAULT-FRAME /* Task Results */
 DO:
     APPLY "CHOOSE":U TO btnView.
 END.
@@ -321,8 +400,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL userFolderBrowse C-Win
-ON START-SEARCH OF userFolderBrowse IN FRAME DEFAULT-FRAME /* User Folder */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL taskResultBrowse C-Win
+ON START-SEARCH OF taskResultBrowse IN FRAME DEFAULT-FRAME /* Task Results */
 DO:
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
@@ -364,18 +443,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   {&WINDOW-NAME}:TITLE = "~"" + USERID("ASI") + "~" " + {&WINDOW-NAME}:TITLE.
   RUN pGetSettings.
-  RUN pGetUserFolderFiles.
+  RUN pSync.
   RUN enable_UI.
   btnRefresh:MOVE-TO-TOP().
   btnDelete:MOVE-TO-TOP().
   btnView:MOVE-TO-TOP().
+  btnArchive:MOVE-TO-TOP().
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
-{methods/sortByProc.i "pByDateTime" "ttFolder.fileDateTime"}
-{methods/sortByProc.i "pByType" "ttFolder.fileType"}
-{methods/sortByProc.i "pByName" "ttFolder.fileName"}
+{methods/sortByProc.i "pByArchived" "taskResult.archived"}
+{methods/sortByProc.i "pByFileDateTime" "taskResult.fileDateTime"}
+{methods/sortByProc.i "pByFileType" "taskResult.fileType"}
+{methods/sortByProc.i "pByFolderFile" "taskResult.folderFile"}
+{methods/sortByProc.i "pByUserID" "taskResult.user-id"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -413,7 +495,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE userFolderBrowse btnView btnDelete btnRefresh 
+  ENABLE taskResultBrowse btnArchive btnView btnDelete btnRefresh 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -463,47 +545,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserFolderFiles C-Win 
-PROCEDURE pGetUserFolderFiles :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFileName    AS CHARACTER NO-UNDO FORMAT "X(256)".
-    DEFINE VARIABLE cAttrList    AS CHARACTER NO-UNDO FORMAT "X(4)".
-    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
-    
-    EMPTY TEMP-TABLE ttFolder.
-    
-    ASSIGN
-        cUserFolder  = "users/" + USERID("ASI") + "/Jasper"
-        FILE-INFO:FILE-NAME = cUserFolder
-        cUserFolder  = FILE-INFO:FULL-PATHNAME
-        BROWSE {&BROWSE-NAME}:TITLE = "User Folder ~"" + cUserFolder + "~""
-        .
-    INPUT FROM OS-DIR(cUserFolder) NO-ECHO.
-    REPEAT WITH WIDTH 500:
-        SET cFileName ^ cAttrList.
-        IF cAttrList NE "f" THEN NEXT.
-        CREATE ttFolder.
-        ASSIGN
-            ttFolder.fileName     = cFileName
-            FILE-INFO:FILE-NAME   = cUserFolder + "/" + cFileName
-            ttFolder.fileDateTime = DATETIME(FILE-INFO:FILE-CREATE-DATE,
-                                             FILE-INFO:FILE-CREATE-TIME * 1000)
-            ttFolder.fileType     = CAPS(ENTRY(NUM-ENTRIES(FILE-INFO:FILE-NAME,"."),
-                                               FILE-INFO:FILE-NAME,"."))
-            ttFolder.folderFile   = FILE-INFO:FULL-PATHNAME
-            .
-    END. /* repeat */
-    INPUT CLOSE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse C-Win 
 PROCEDURE pReopenBrowse :
 /*------------------------------------------------------------------------------
@@ -512,12 +553,16 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
+        WHEN "archived" THEN
+        RUN pByArchived.
         WHEN "fileDateTime" THEN
-        RUN pByDateTime.
+        RUN pByFileDateTime.
         WHEN "fileType" THEN
-        RUN pByType.
-        WHEN "fileName" THEN
-        RUN pByName.
+        RUN pByFileType.
+        WHEN "folderFile" THEN
+        RUN pByFolderFile.
+        WHEN "user-id" THEN
+        RUN pByUserID.
     END CASE.
 
 END PROCEDURE.
@@ -568,6 +613,25 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSync C-Win 
+PROCEDURE pSync :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO TRANSACTION:
+        FOR EACH taskResult EXCLUSIVE-LOCK:
+            IF SEARCH(taskResult.folderFile) EQ ? THEN
+            DELETE taskResult.
+        END. /* each taskresult */
+    END. /* do trans */
 
 END PROCEDURE.
 

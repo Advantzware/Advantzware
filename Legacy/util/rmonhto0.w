@@ -388,7 +388,7 @@ assign
  fitm = begin_rm-no
  titm = end_rm-no.
 
-{util/rmonhto0.i}
+{util/dev/rmonhto0.i}
 
 session:set-wait-state("").
 

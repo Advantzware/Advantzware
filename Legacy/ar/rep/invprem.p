@@ -49,7 +49,7 @@ form ar-invl.qty               format ">>>>>>9-"
 form ar-invl.ship-qty AT 1 format "->>>>9"
      ar-invl.po-no AT 9 format "x(15)"
      ar-invl.i-name    at 26   format "x(30)"
-     ar-invl.unit-pr   at 61   format "->>>9.9999"     /* ekw02240001 */
+     ar-invl.unit-pr   at 61   format "->>>9.99999"     /* ekw02240001 */
      ar-invl.amt       at 73   format "->>>9.99"
 with frame detailoe no-attr-space no-labels no-box
      no-underline down stream-io width 90.

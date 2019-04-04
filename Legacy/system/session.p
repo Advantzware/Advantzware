@@ -19,21 +19,21 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cModule             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 /* cue card variables */
+DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 
 {system/ttSysCtrlUsage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -47,7 +47,6 @@ DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Prototypes ********************** */
 
 &IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
@@ -55,6 +54,19 @@ DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCueCardActive Procedure
 FUNCTION fCueCardActive RETURNS LOGICAL 
   (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
+FUNCTION sfWebCharacters RETURNS CHARACTER 
+  (ipcWebString AS CHARACTER,
+   ipiLevel AS INTEGER,
+   ipcType AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -151,7 +163,6 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
 
 &ENDIF
 
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -175,11 +186,7 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
                                                                         */
 &ANALYZE-RESUME
 
- 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
-
 
 /* ***************************  Main Block  *************************** */
 
@@ -190,8 +197,34 @@ FIND FIRST users NO-LOCK
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
+PROCEDURE spCheckTrackUsage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
+
+    IF CAN-FIND(FIRST prgrms
+                WHERE prgrms.prgmname    EQ ipcPrgmName
+                  AND prgrms.track_usage EQ YES) THEN DO:
+        RUN spCreateAuditHdr ("TRACK","ASI",ipcPrgmName,ipcMnemonic,OUTPUT iAuditID).
+        RUN spCreateAuditDtl (iAuditID,"",0,"","",NO).
+    END. /* if lAuditRecalcQty */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-spCreateAuditDtl) = 0 &THEN
 
@@ -223,9 +256,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCreateAuditHdr) = 0 &THEN
 
@@ -259,9 +290,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCreateSysCtrlUsage) = 0 &THEN
 
@@ -358,9 +387,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spCueCardFrame) = 0 &THEN
 
@@ -379,9 +406,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetParamValueID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetParamValueID Procedure
+PROCEDURE spGetParamValueID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiParamValueID AS INTEGER NO-UNDO.
+    
+    opiParamValueID = iParamValueID.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-spGetTaskFilter) = 0 &THEN
 
@@ -391,12 +435,12 @@ PROCEDURE spGetTaskFilter:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcModule    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMnemonic  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcProgramID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcUserID    AS CHARACTER NO-UNDO.
     
     ASSIGN
-        opcModule    = cModule
+        opcMnemonic  = cMnemonic
         opcProgramID = cProgramID
         opcUserID    = cUserID
         .
@@ -406,9 +450,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSendEmail) = 0 &THEN
 
@@ -423,11 +465,7 @@ PROCEDURE spSendEmail:
     DEFINE INPUT PARAMETER ipcAttachment AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecipients AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cHost            AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cLogin           AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cMail            AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cPassword        AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cPort            AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE idx              AS INTEGER    NO-UNDO.
     DEFINE VARIABLE objOutlook       AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE objOutlookAttach AS COM-HANDLE NO-UNDO.
@@ -444,21 +482,17 @@ PROCEDURE spSendEmail:
     IF ipcAttachment EQ ?  THEN RETURN.
     IF ipcRecipients EQ "" THEN RETURN.
     
-    IF TRUE THEN DO:
-        ASSIGN
-            cHost     = "smtp.office365.com"
-            cLogin    = "wade.kaldawi@advantzware.com"
-            cPassword = "Chester1!"
-            cPort     = "587"
-            cMail     = cMail + " -host:"
-                      + cLogin + ":" + cPassword
-                      + "@" + cHost + ":" + cPort
-                      + " -starttls"
-                      + " -a:" + ipcAttachment
-                      + " ~"-subject:" + ipcSubject + "~""
-                      + " ~"-body:" + ipcBody + "~""
-                      + " -from:" + cLogin
-                      .
+    FIND FIRST config NO-LOCK.
+    IF AVAILABLE config AND config.smtpServer NE "" THEN DO:
+        cMail = cMail + " -host:"
+              + config.smtpUser + ":" + config.smtpPassword
+              + "@" + config.smtpServer + ":" + STRING(config.smtpPort)
+              + " -starttls"
+              + " -a:" + ipcAttachment
+              + " ~"-subject:" + ipcSubject + "~""
+              + " ~"-body:" + config.emailBody + "~""
+              + " -from:" + config.smtpUser
+              .
         DO idx = 1 TO NUM-ENTRIES(ipcRecipients):
             cMail = cMail + " -to:" + ENTRY(idx,ipcRecipients).
         END. /* do idx */
@@ -487,9 +521,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSetDontShowAgain) = 0 &THEN
 
@@ -521,9 +553,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spSetDismiss) = 0 &THEN
 
@@ -564,9 +594,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spNextCue) = 0 &THEN
 
@@ -938,6 +966,25 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spSetParamValueID) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetParamValueID Procedure
+PROCEDURE spSetParamValueID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiParamValueID AS INTEGER NO-UNDO.
+    
+    iParamValueID = ipiParamValueID.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spSetTaskFilter) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetTaskFilter Procedure
@@ -946,12 +993,12 @@ PROCEDURE spSetTaskFilter:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcModule    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcProgramID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID    AS CHARACTER NO-UNDO.
     
     ASSIGN
-        cModule    = ipcModule
+        cMnemonic  = ipcMnemonic
         cProgramID = ipcProgramID
         cUserID    = ipcUserID
         .
@@ -961,9 +1008,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 /* ************************  Function Implementations ***************** */
 
@@ -983,9 +1028,49 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure
+FUNCTION sfWebCharacters RETURNS CHARACTER 
+  (ipcWebString AS CHARACTER, ipiLevel AS INTEGER, ipcType AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: remove special characters with escape values
+ Notes: 1=& (ampersand)
+        2=' (single quote)
+        3=" (double quote)
+        4=< (less than)
+        5=> (greater than)
+        6=\ (back slash)
+        7=/ (forward slash)
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE cWebString AS CHARACTER NO-UNDO.
+
+    cWebString = ipcWebString.
+    IF ipiLevel GE 1 THEN
+    cWebString = REPLACE(cWebString,"~&",IF ipcType EQ "Web" THEN "~&amp;"  ELSE "").
+    IF ipiLevel GE 2 THEN
+    cWebString = REPLACE(cWebString,"~'",IF ipcType EQ "Web" THEN "~&apos;" ELSE "").
+    IF ipiLevel GE 3 THEN
+    cWebString = REPLACE(cWebString,"~"",IF ipcType EQ "Web" THEN "~&quot;" ELSE "").
+    IF ipiLevel GE 4 THEN
+    cWebString = REPLACE(cWebString,"<", IF ipcType EQ "Web" THEN "~&lt;"   ELSE "").
+    IF ipiLevel GE 5 THEN
+    cWebString = REPLACE(cWebString,">", IF ipcType EQ "Web" THEN "~&gt;"   ELSE "").
+    IF ipiLevel GE 6 THEN
+    cWebString = REPLACE(cWebString,"~\",IF ipcType EQ "Web" THEN "~\~\"    ELSE "").
+    IF ipiLevel GE 7 THEN
+    cWebString = REPLACE(cWebString,"~/",IF ipcType EQ "Web" THEN "~/~/"    ELSE "").
+
+	RETURN cWebString.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-sfClearTtSysCtrlUsage) = 0 &THEN
 
@@ -996,9 +1081,9 @@ FUNCTION sfClearTtSysCtrlUsage RETURNS LOGICAL
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-        EMPTY TEMP-TABLE ttSysCtrlUsage.
+    EMPTY TEMP-TABLE ttSysCtrlUsage.
 
-        RETURN TRUE.
+    RETURN TRUE.
 
 END FUNCTION.
 

@@ -1,0 +1,8 @@
+1 6 "FIRST" "eb" "Estimate Blanks" "" "ASI" "201901230000000000007"
+1 5 "FIRST" "ef" "Estimate Forms" "" "ASI" "201901230000000000006"
+1 4 "FIRST" "est" "Estimates" "" "ASI" "201901230000000000005"
+1 3 "FIRST" "job" "Job Header" "" "ASI" "201901230000000000004"
+1 2 "FIRST" "mach" "Machine" "" "ASI" "201901230000000000003"
+1 1 "EACH" "machtran" "Machince Transactions" "" "ASI" "201901230000000000002"
+2 2 "EACH" "AuditDtl" "Audit Detail" "" "AUDIT" ""
+2 1 "EACH" "AuditHdr" "Audit Header" "" "AUDIT" ""

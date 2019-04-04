@@ -42,6 +42,7 @@ DEF VAR op-company AS CHAR NO-UNDO.
 DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
 
 &SCOPED-DEFINE enable-period enable-period
+&SCOPED-DEFINE disable-status disable-status
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -70,11 +71,12 @@ DEFINE QUERY external_tables FOR period, company.
 &Scoped-Define ENABLED-FIELDS period.pst period.pend 
 &Scoped-define ENABLED-TABLES period
 &Scoped-define FIRST-ENABLED-TABLE period
-&Scoped-Define ENABLED-OBJECTS RECT-1 
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 RECT-1 
 &Scoped-Define DISPLAYED-FIELDS period.yr period.pnum period.pst ~
 period.pend period.pstat 
 &Scoped-define DISPLAYED-TABLES period
 &Scoped-define FIRST-DISPLAYED-TABLE period
+&Scoped-define calendarPopup btnCalendar-1 btnCalendar-2
 
 
 /* Custom List Definitions                                              */
@@ -83,6 +85,15 @@ period.pend period.pstat
 &Scoped-define ADM-ASSIGN-FIELDS period.pstat 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLastDate V-table-Win
+FUNCTION fGetLastDate RETURNS DATE PRIVATE
+  (ipdDate AS DATE) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
@@ -116,6 +127,17 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 48 BY 7.14.
 
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -132,10 +154,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 FONT 4
+     btnCalendar-1 AT ROW 4.1 COL 43.2
      period.pend AT ROW 5.29 COL 26 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 FONT 4
+     btnCalendar-2 AT ROW 5.29 COL 43.2
      period.pstat AT ROW 6.48 COL 19 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -213,6 +237,10 @@ ASSIGN
    NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN period.yr IN FRAME F-Main
    NO-ENABLE 1 EXP-FORMAT                                               */
+/* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
+   3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
+   3                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -251,6 +279,66 @@ END.
 ON ENTRY OF period.yr IN FRAME F-Main /* Year */
 DO:
   DISABLE {&ENABLED-FIELDS} WITH FRAME {&FRAME-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&Scoped-define SELF-NAME period.pst
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.pst V-table-Win
+ON HELP OF period.pst IN FRAME F-Main /*  */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME period.pend
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.pend V-table-Win
+ON HELP OF period.pend IN FRAME F-Main /*  */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME period.pend
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL period.pend V-table-Win
+ON LEAVE OF period.pend IN FRAME F-Main /*  */
+DO:
+    DEFINE VARIABLE dDate  AS DATE NO-UNDO .
+    dDate = fGetLastDate(DATE(period.pend:SCREEN-VALUE)) .
+
+   IF DATE(period.pend:SCREEN-VALUE) LT dDate THEN
+       MESSAGE "Not all days for the year are accounted for with ALL periods in the Year"
+         VIEW-AS ALERT-BOX warning  .
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 V-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i period.pst}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i period.pend}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -407,6 +495,24 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/period.i}
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-status V-table-Win /* Ticket 45012*/
+PROCEDURE disable-status :
+/*------------------------------------------------------------------------------
+  Purpose:     Override method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+
+  ASSIGN period.pstat:SCREEN-VALUE = "Yes" .
+    DISABLE period.pstat.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -510,3 +616,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Implementations ***************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetLastDate d-oeitem
+FUNCTION fGetLastDate RETURNS DATE PRIVATE
+  ( ipdDate AS DATE  ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets the Taxable flag based on inputs
+ Notes:
+------------------------------------------------------------------------------*/
+ return add-interval( date( month( ipdDate ), 1, year( ipdDate )), 1, "month" ) - 1.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

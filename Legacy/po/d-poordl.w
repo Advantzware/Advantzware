@@ -777,8 +777,8 @@ DO:
                 RUN windows/l-itmtyp.w (OUTPUT lv-itemtype).
               ELSE ASSIGN 
                 lv-itemtype = po-ordl.item-type:SCREEN-VALUE.
-              IF lv-itemtype = "RM" THEN DO:
-                RUN windows/l-itmall.w (g_company, "","", po-ordl.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+              IF lv-itemtype = "RM" THEN DO: 
+                RUN windows/l-itmall.w (g_company, "","", po-ordl.i-no:SCREEN-VALUE,po-ord.vend-no, OUTPUT char-val, OUTPUT look-recid).
                 IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:                    
                   ASSIGN lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                          po-ordl.i-name:SCREEN-VALUE = ENTRY(2,char-val).
@@ -786,7 +786,7 @@ DO:
                 END.
               END.
               ELSE DO:  /* finished good */
-                RUN windows/l-itemf2.w (g_company, "", po-ordl.i-no:screen-value, OUTPUT char-val, OUTPUT look-recid).
+                RUN windows/l-itemf2.w (g_company, "", po-ordl.i-no:screen-value,po-ord.vend-no, OUTPUT char-val, OUTPUT look-recid).
                 IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
                   ASSIGN lw-focus:SCREEN-VALUE       = ENTRY(1,char-val)
                          po-ordl.i-name:screen-value = ENTRY(2,char-val).

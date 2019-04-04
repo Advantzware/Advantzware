@@ -104,7 +104,9 @@ e-item-vend.roll-w[18] e-item-vend.roll-w[19] e-item-vend.roll-w[20] ~
 e-item-vend.roll-w[21] e-item-vend.roll-w[22] e-item-vend.roll-w[23] ~
 e-item-vend.roll-w[24] e-item-vend.roll-w[25] e-item-vend.roll-w[26] ~
 e-item-vend.roll-w[27] e-item-vend.roll-w[28] e-item-vend.roll-w[29] ~
-e-item-vend.roll-w[30] 
+e-item-vend.roll-w[30] ~
+e-item-vend.underLength e-item-vend.underLengthCost e-item-vend.underWidth ~
+e-item-vend.underWidthCost 
 &Scoped-define ENABLED-TABLES e-item-vend
 &Scoped-define FIRST-ENABLED-TABLE e-item-vend
 &Scoped-Define ENABLED-OBJECTS btn_more-breaks RECT-24 RECT-25 
@@ -129,18 +131,19 @@ e-item-vend.roll-w[16] e-item-vend.roll-w[17] e-item-vend.roll-w[18] ~
 e-item-vend.roll-w[19] e-item-vend.roll-w[20] e-item-vend.roll-w[21] ~
 e-item-vend.roll-w[22] e-item-vend.roll-w[23] e-item-vend.roll-w[24] ~
 e-item-vend.roll-w[25] e-item-vend.roll-w[26] e-item-vend.roll-w[27] ~
-e-item-vend.roll-w[28] e-item-vend.roll-w[29] e-item-vend.roll-w[30] 
+e-item-vend.roll-w[28] e-item-vend.roll-w[29] e-item-vend.roll-w[30] ~
+e-item-vend.underLength e-item-vend.underLengthCost e-item-vend.underWidth ~
+e-item-vend.underWidthCost 
 &Scoped-define DISPLAYED-TABLES e-item-vend e-item
 &Scoped-define FIRST-DISPLAYED-TABLE e-item-vend
 &Scoped-define SECOND-DISPLAYED-TABLE e-item
 &Scoped-Define DISPLAYED-OBJECTS lbl_setup lbl_roll-w ls-item-name ~
-ls-vend-name fi_width-min fi_width-cst fi_length-min fi_length-cst 
+ls-vend-name 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
 &Scoped-define ADM-CREATE-FIELDS e-item.std-uom 
-&Scoped-define ADM-ASSIGN-FIELDS e-item.std-uom fi_width-min fi_width-cst ~
-fi_length-min fi_length-cst 
+&Scoped-define ADM-ASSIGN-FIELDS e-item.std-uom 
 &Scoped-define List-3 lbl_roll-w e-item-vend.roll-w[1] ~
 e-item-vend.roll-w[2] e-item-vend.roll-w[3] e-item-vend.roll-w[4] ~
 e-item-vend.roll-w[5] e-item-vend.roll-w[6] e-item-vend.roll-w[7] ~
@@ -157,8 +160,7 @@ e-item-vend.roll-w[29] e-item-vend.roll-w[30]
 e-item-vend.setups[3] e-item-vend.setups[4] e-item-vend.setups[5] ~
 e-item-vend.setups[6] e-item-vend.setups[7] e-item-vend.setups[8] ~
 e-item-vend.setups[9] e-item-vend.setups[10] 
-&Scoped-define List-6 btn_more-breaks fi_width-min fi_width-cst ~
-fi_length-min fi_length-cst 
+&Scoped-define List-6 btn_more-breaks 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -193,26 +195,6 @@ RUN set-attribute-list (
 DEFINE BUTTON btn_more-breaks 
      LABEL "More Breaks" 
      SIZE 15 BY 1.
-
-DEFINE VARIABLE fi_length-cst AS DECIMAL FORMAT ">>,>>9.9999":U INITIAL 0 
-     LABEL "$" 
-     VIEW-AS FILL-IN 
-     SIZE 15.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_length-min AS DECIMAL FORMAT ">>9.99999":U INITIAL 0 
-     LABEL "Length" 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_width-cst AS DECIMAL FORMAT ">>,>>9.9999":U INITIAL 0 
-     LABEL "$" 
-     VIEW-AS FILL-IN 
-     SIZE 15.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_width-min AS DECIMAL FORMAT ">>9.99999":U INITIAL 0 
-     LABEL "Under Width" 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lbl_roll-w AS CHARACTER FORMAT "X(256)":U INITIAL "Valid  Estimated  Roll  Width" 
      VIEW-AS FILL-IN 
@@ -252,7 +234,7 @@ DEFINE FRAME F-Main
           LABEL "Purchased Cost UOM" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     e-item-vend.vend-item AT ROW 2.1 COL 61 COLON-ALIGNED FORMAT "x(15)" NO-LABEL
+     e-item-vend.vend-item AT ROW 2.1 COL 61 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      e-item-vend.vend-no AT ROW 3.19 COL 15 COLON-ALIGNED FORMAT "x(8)"
@@ -447,14 +429,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      btn_more-breaks AT ROW 15.48 COL 2.4 WIDGET-ID 4
-     fi_width-min AT ROW 16.48 COL 18 COLON-ALIGNED HELP
-          "Minimum width to avoid added cost at right"
-     fi_width-cst AT ROW 16.48 COL 34 COLON-ALIGNED HELP
-          "Amount to Charge per UOM when under width"
-     fi_length-min AT ROW 17.48 COL 18 COLON-ALIGNED HELP
-          "Minimum length to avoid added cost at right"
-     fi_length-cst AT ROW 17.48 COL 34 COLON-ALIGNED HELP
-          "Amount to Charge per UOM when under width"
      e-item-vend.roll-w[27] AT ROW 16.48 COL 66 COLON-ALIGNED
           LABEL "Sheet Width"
           VIEW-AS FILL-IN 
@@ -469,10 +443,24 @@ DEFINE FRAME F-Main
      e-item-vend.roll-w[30] AT ROW 17.48 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
+     e-item-vend.underLength AT ROW 17.43 COL 17 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     e-item-vend.underLengthCost AT ROW 17.43 COL 36 COLON-ALIGNED
+          LABEL "$"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     e-item-vend.underWidth AT ROW 16.48 COL 17 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     e-item-vend.underWidthCost AT ROW 16.48 COL 36 COLON-ALIGNED
+          LABEL "$"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      "Cost Per" VIEW-AS TEXT
-          SIZE 15 BY 1 AT ROW 5.05 COL 19
+          SIZE 15 BY .81 AT ROW 5.14 COL 19
      "QTY to" VIEW-AS TEXT
-          SIZE 15 BY 1 AT ROW 5.05 COL 2
+          SIZE 15 BY .81 AT ROW 5.14 COL 2
      "Min" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 15.52 COL 70
      "Max" VIEW-AS TEXT
@@ -544,14 +532,6 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btn_more-breaks IN FRAME F-Main
    6                                                                    */
-/* SETTINGS FOR FILL-IN fi_length-cst IN FRAME F-Main
-   NO-ENABLE 2 6                                                        */
-/* SETTINGS FOR FILL-IN fi_length-min IN FRAME F-Main
-   NO-ENABLE 2 6                                                        */
-/* SETTINGS FOR FILL-IN fi_width-cst IN FRAME F-Main
-   NO-ENABLE 2 6                                                        */
-/* SETTINGS FOR FILL-IN fi_width-min IN FRAME F-Main
-   NO-ENABLE 2 6                                                        */
 /* SETTINGS FOR FILL-IN e-item-vend.i-no IN FRAME F-Main
    NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN lbl_roll-w IN FRAME F-Main
@@ -666,6 +646,14 @@ ASSIGN
    5                                                                    */
 /* SETTINGS FOR FILL-IN e-item.std-uom IN FRAME F-Main
    NO-ENABLE 1 2 EXP-LABEL EXP-FORMAT                                   */
+/* SETTINGS FOR FILL-IN e-item-vend.underLength IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN e-item-vend.underLengthCost IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN e-item-vend.underWidth IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN e-item-vend.underWidthCost IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN e-item-vend.updated-date[1] IN FRAME F-Main
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN e-item-vend.vend-no IN FRAME F-Main
@@ -683,7 +671,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -757,7 +745,6 @@ DO:
     end.   
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -926,17 +913,17 @@ PROCEDURE label-display :
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     fi_width-min:HIDDEN  = YES
-     fi_length-min:HIDDEN = YES
-     fi_width-cst:HIDDEN  = YES
-     fi_length-cst:HIDDEN = YES.
+     e-item-vend.underWidth:HIDDEN  = YES
+     e-item-vend.underLength:HIDDEN  = YES
+     e-item-vend.underWidthCost:HIDDEN  = YES
+     e-item-vend.underLengthCost:HIDDEN  = YES.
 
     IF AVAIL bf-item AND bf-item.industry EQ "2" AND bf-item.mat-type EQ "B" THEN
       ASSIGN
-       fi_width-min:HIDDEN  = NO
-       fi_length-min:HIDDEN = NO
-       fi_width-cst:HIDDEN  = NO
-       fi_length-cst:HIDDEN = NO.
+     e-item-vend.underWidth:HIDDEN  = NO 
+     e-item-vend.underLength:HIDDEN  = NO 
+     e-item-vend.underWidthCost:HIDDEN  = NO 
+     e-item-vend.underLengthCost:HIDDEN  = NO.
   END.
 
 END PROCEDURE.
@@ -1126,8 +1113,6 @@ PROCEDURE local-assign-record :
             NO-ERROR.
     END.
 
-    RUN reftable-values (NO).
-
     ASSIGN
         v-copy-record = NO
         v-old-vend-no = "".
@@ -1247,15 +1232,6 @@ PROCEDURE local-create-record :
     {custom/rec_key.i e-item-vend}
  END.
 
- IF v-copy-record = NO THEN
- DO WITH FRAME {&FRAME-NAME}:
-   ASSIGN
-    fi_width-min:SCREEN-VALUE  = ""
-    fi_length-min:SCREEN-VALUE = ""
-    fi_width-cst:SCREEN-VALUE  = ""
-    fi_length-cst:SCREEN-VALUE = "".
- END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1325,8 +1301,6 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL e-item-vend THEN DO TRANSACTION:
-    IF NOT adm-new-record THEN RUN reftable-values (YES).
-
     FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-item-vend).
 
     IF e-item-vend.setup NE 0 THEN
@@ -1382,8 +1356,11 @@ PROCEDURE local-enable-fields :
   end.
 
   DO WITH FRAME {&FRAME-NAME} :
-    IF bf-item.industry EQ "2" AND bf-item.mat-type EQ "B" THEN
-       ENABLE fi_width-min fi_length-min fi_width-cst fi_length-cst.
+        IF bf-item.industry EQ "2" AND bf-item.mat-type EQ "B" THEN ASSIGN 
+            e-item-vend.underWidth:SENSITIVE  = YES
+            e-item-vend.underLength:SENSITIVE  = YES
+            e-item-vend.underWidthCost:SENSITIVE  = YES
+            e-item-vend.underLengthCost:SENSITIVE  = YES.
 
     DISABLE btn_more-breaks.
   END.
@@ -1485,7 +1462,6 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1537,36 +1513,6 @@ PROCEDURE price-change :
 
    run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
    run dispatch in widget-handle(char-hdl) ('open-query').
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
-PROCEDURE reftable-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-
-  IF AVAIL e-item-vend THEN DO:
-    IF ip-display THEN
-      ASSIGN
-       fi_width-min  = e-item-vend.underWidth / 10000
-       fi_length-min = e-item-vend.underLength / 10000
-       fi_width-cst  = e-item-vend.underWidthCost / 10000
-       fi_length-cst = e-item-vend.underLengthCost / 10000.
-    ELSE
-      ASSIGN
-       e-item-vend.underWidth = fi_width-min  * 10000
-       e-item-vend.underLength = fi_length-min * 10000
-       e-item-vend.underWidthCost = fi_width-cst  * 10000
-       e-item-vend.underLengthCost = fi_length-cst * 10000.
-  END.
 
 END PROCEDURE.
 

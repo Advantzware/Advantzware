@@ -425,7 +425,8 @@ END PROCEDURE.
 
 PROCEDURE create-order-lines.
     
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO. 
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lcChoice AS CHARACTER NO-UNDO .
   /* dependencies ...
     cocode
     xoe-ord buffer
@@ -844,12 +845,46 @@ PROCEDURE create-order-lines.
     END. /* not avail oe-ordl */
 
     IF avail xest AND v-quo-price-log AND NOT v-chose-quote THEN DO:
+      j = 0.
+       FOR EACH quotehd
+            WHERE quotehd.company EQ cocode
+            AND quotehd.loc     EQ locode
+            AND quotehd.est-no  EQ xest.est-no
+            AND quotehd.quo-date LE TODAY 
+            AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+            USE-INDEX quote NO-LOCK,
+            
+            EACH quoteitm OF quotehd
+            WHERE quoteitm.part-no  EQ oe-ordl.part-no OR
+            (quoteitm.part-no EQ eb.part-no AND eb.part-no NE "" AND v-est-type EQ 2 )
+            USE-INDEX q-line NO-LOCK,
+            EACH quoteqty OF quoteitm
+            USE-INDEX qt-qty NO-LOCK
+            
+            BY quotehd.q-no DESC
+            BY quoteqty.qty DESC:
 
-       RUN oe/getqpric.p (RECID(xest), oe-ordl.part-no, IF v-est-type EQ 2 THEN eb.part-no ELSE "",
-                          INPUT-OUTPUT oe-ordl.price,
-                          INPUT-OUTPUT oe-ordl.pr-uom,
+           j = J + 1 .
+           IF J > 1 THEN LEAVE.
+           
+           ASSIGN
+               oe-ordl.price  = quoteqty.price
+               oe-ordl.pr-uom = quoteqty.uom
+               lv-q-no        = quoteqty.q-no .
+       END.
+
+       IF j GT 1 THEN
+           RUN oe/d-quotedprices.w("",cocode,
+                          locode,
+                          oe-ordl.est-no,
+                          oe-ordl.cust-no,
+                          oe-ordl.part-no,
+                          oe-ordl.i-no,
+                          OUTPUT oe-ordl.price,
+                          OUTPUT oe-ordl.pr-uom,
+                          OUTPUT oe-ordl.qty,
                           OUTPUT lv-q-no,
-                          INPUT-OUTPUT oe-ordl.qty).
+                          OUTPUT lcChoice).
 
        IF lv-q-no NE 0 THEN DO:
         FIND CURRENT oe-ordl.

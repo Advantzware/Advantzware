@@ -335,11 +335,10 @@ DO:
         DO: /* Save */
            IF ll-auto-add-active THEN DO:
                RUN notify ('update-record':U).
-RUN notify ('update-record':U).
                RUN auto-add.
                RETURN.
            END.
-           RUN notify ('update-record':U).
+           ELSE RUN notify ('update-record':U).
         END.                              
      END.
      ELSE 
@@ -397,10 +396,12 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
 DEF VAR wid-hdl AS HANDLE NO-UNDO.
 DEF VAR lv-got-error AS LOG NO-UNDO.
 ll-auto-add-active = TRUE.
+
 /* Allow previous update to complete */
-APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} . 
-APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
-APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
+/*    This appears TO be nonsense - MYT                    */
+/*    APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} .   */
+/*    APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .*/
+/*    APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .*/
 
 /* Run auto-post */
 IF SSPostFGConTags-log THEN DO:
@@ -414,23 +415,23 @@ IF SSPostFGConTags-log THEN DO:
        RUN GET-FIRST IN WIDGET-HANDLE(char-hdl) NO-ERROR.
       RUN auto-post IN WIDGET-HANDLE(char-hdl).
   END.
-    
+
   lv-got-error = ERROR-STATUS:ERROR.
   IF lv-got-error THEN
       SSPostFGConTags-log = FALSE.
 END.        
 
 IF NOT lv-got-error  THEN DO:
-    APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} . 
-    APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
+/*        APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} .   */
+/*        APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .*/
+    ASSIGN 
+        ll-auto-add-active = FALSE.
     APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} . 
 END.
 ELSE DO:
   MESSAGE "Could not post transfer automatically. Please post manually."
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
 END.
-
-/* APPLY "choose" TO Btn-Reset IN FRAME {&FRAME-NAME} . */
 
 END PROCEDURE.
 

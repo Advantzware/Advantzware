@@ -1299,7 +1299,7 @@ PROCEDURE create-release :
                                 no-lock no-error.
             if avail shipto then assign v-ship-id = shipto.ship-id.
          end.
-         run oe/d-shipid.w (input oe-ordl.cust-no, input-output v-ship-id, INPUT-OUTPUT v-ship-from)  .
+         run oe/d-shipid.w (input oe-ordl.cust-no,INPUT oe-ordl.qty, INPUT oe-ordl.i-no, input-output v-ship-id, INPUT-OUTPUT v-ship-from)  .
          assign oe-rel.ship-id = trim(v-ship-id).
          IF v-ship-from GT "" THEN
              oe-rel.spare-char-1 = v-ship-from.

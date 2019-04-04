@@ -1196,10 +1196,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON HELP OF fi_cust-no IN FRAME F-Main
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT {&SELF-NAME}:screen-value,"", OUTPUT char-val).
-          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
-          return no-apply.
+   DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+   RUN system/openlookup.p (g_company, "cust-no", OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+          IF cMainField <> "" THEN {&SELF-NAME}:SCREEN-VALUE = cMainField.
+          RETURN NO-APPLY. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1224,10 +1226,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
 ON HELP OF fi_i-no IN FRAME F-Main
 DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-itemfg.w (INPUT g_company,"", INPUT {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-          if char-val <> "" then {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val).
-          return no-apply.
+   DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+   RUN system/openlookup.p (g_company, "i-no", OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+          IF cMainField <> "" THEN {&SELF-NAME}:SCREEN-VALUE = cMainField.
+          RETURN NO-APPLY. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2189,6 +2193,10 @@ PROCEDURE query-first :
                sys-ctrl.int-fld = 30.
   END.
 
+  IF sys-ctrl.date-fld NE ? THEN
+      ASSIGN
+      fi_ord-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(sys-ctrl.date-fld) 
+      fi_ord-date = sys-ctrl.date-fld .
 
      {&for-eachblank}
         AND oe-ordl.opened EQ YES

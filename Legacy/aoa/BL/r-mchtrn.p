@@ -40,7 +40,7 @@ FOR EACH machtran NO-LOCK
       AND machtran.shift      GE STRING(iStartShift)
       AND machtran.shift      LE STRING(iEndShift)
       AND DATETIME(machtran.start_date,machtran.start_time * 1000) GE DATETIME(dtStartMachTranDate,iShiftStartTime)
-      AND DATETIME(machtran.start_date,machtran.start_time * 1000) LE DATETIME(dtEndMachTranDate,iShiftEndTime),
+      AND DATETIME(machtran.end_date,  machtran.end_time   * 1000) LE DATETIME(dtEndMachTranDate,  iShiftEndTime),
     FIRST mach NO-LOCK
     WHERE mach.company EQ machtran.company
       AND mach.m-code  EQ machtran.machine,

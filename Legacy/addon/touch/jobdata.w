@@ -1516,7 +1516,7 @@ PROCEDURE Job_Data_Collection :
                         IF STRING(YEAR(emplogin.start_date),"9999") +
                            STRING(MONTH(emplogin.start_date),"99")  +
                            STRING(DAY(emplogin.start_date),"99")    +
-                           STRING(emplogin.start_time,"99999")     GT
+                           STRING(emplogin.start_time - 60,"99999") GT
                            STRING(YEAR(dtStartDate),"9999")         +
                            STRING(MONTH(dtStartDate),"99")          +
                            STRING(DAY(dtStartDate),"99")            +

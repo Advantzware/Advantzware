@@ -53,7 +53,6 @@ style ~
 surcharge ~
 sys-ctrl ~
 terms ~
-truck ~
 userControl
 users ~
 wiptag ~

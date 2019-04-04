@@ -1672,7 +1672,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF (v-print-fmt EQ "Packrite" OR  
         v-print-fmt EQ "Hughes" OR
-        v-print-fmt EQ "NStock") THEN
+        v-print-fmt EQ "NStock" OR 
+        v-print-fmt EQ "nStockLogo") THEN
         ASSIGN tb_setcomp:HIDDEN = NO.
     /* 20130718 JAD Task 02071304 Add Capitol to v-print-fmt */      
     IF LOOKUP(v-print-fmt,"Capitol,APC,ALLWEST,Bell,Loylang,PrestigeLLB,RFCX,Soule,SouleMed,SoulePO,LoylangJIT,LoylangBSF,Printers,Protagon,Protagon2") GT 0 THEN
@@ -1744,7 +1745,7 @@ ELSE
      tb_splitPDF:HIDDEN = YES
      tb_splitPDF:SENSITIVE = NO
      .        
-  IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" THEN
+  IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
          ASSIGN tb_qty-all:HIDDEN = NO .
      ELSE tb_qty-all:HIDDEN = YES .
 

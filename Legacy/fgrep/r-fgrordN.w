@@ -74,7 +74,7 @@ DEFINE VARIABLE cItemLoc AS CHARACTER NO-UNDO .
 ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,WHSE," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
-                           "5 MO AVG,SUGT - AVG,SUGT REORDER MSF,STOCK STATUS"
+                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STOCK STATUS"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
@@ -107,13 +107,13 @@ end_whse begin_class end_class begin_group end_group tb_inc-qoh tb_inc-cust ~
 tb_below tb_dash rd_qoh begin_as-of rd_stocked rd_pur-man rd_lot-reo ~
 lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel ~
 fi_file btn-ok btn-cancel tb_reord-by-whse tb_inactive tb_excomp RECT-6 ~
-RECT-7 RECT-30 
+RECT-7 RECT-30 display_hist 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust ~
 begin_i-no end_i-no begin_cat end_cat begin_whse end_whse begin_class ~
 end_class begin_group end_group tb_inc-qoh tb_inc-cust tb_below lbl_qoh1 ~
 rd_qoh begin_as-of lbl_stocked rd_stocked lbl_pur-man rd_pur-man ~
 lbl_lot-reo rd_lot-reo lv-ornt lines-per-page rd-dest lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file display_hist 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -138,7 +138,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY*/
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -194,6 +194,11 @@ DEFINE VARIABLE begin_group AS CHARACTER FORMAT "X(15)":U
      LABEL "Beginning Group" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE display_hist AS INTEGER FORMAT ">9" INITIAL 6 
+     LABEL "History for month" 
+     VIEW-AS FILL-IN 
+     SIZE 6.4 BY 1.
 
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Item#" 
@@ -356,69 +361,69 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 31 BY 4.52 NO-UNDO.
 
-DEFINE VARIABLE tb_below AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_below AS LOGICAL INITIAL yes 
      LABEL "Print Items Below Reorder Point Only?" 
      VIEW-AS TOGGLE-BOX
      SIZE 49 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.2 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_dash AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_dash AS LOGICAL INITIAL no 
      LABEL "Print Dashes Between Each Line?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_excomp AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_excomp AS LOGICAL INITIAL no 
      LABEL "Exclude Components" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_history AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_history AS LOGICAL INITIAL no 
      LABEL "Print 6 Month History?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_inactive AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_inactive AS LOGICAL INITIAL no 
      LABEL "Include Inactive Items" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_inc-cust AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_inc-cust AS LOGICAL INITIAL no 
      LABEL "Include Customer Owned Warehouse?" 
      VIEW-AS TOGGLE-BOX
      SIZE 44 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_inc-qoh AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_inc-qoh AS LOGICAL INITIAL yes 
      LABEL "Include Quantity On Order with Quantity On Hand?" 
      VIEW-AS TOGGLE-BOX
      SIZE 53 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_part AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_part AS LOGICAL INITIAL no 
      LABEL "Print Customer Part#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_reord-by-whse AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_reord-by-whse AS LOGICAL INITIAL no 
      LABEL "ReOrder Level by Warehouse?" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY .91 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -470,6 +475,8 @@ DEFINE FRAME FRAME-A
      lbl_lot-reo AT ROW 14.95 COL 2 COLON-ALIGNED NO-LABEL
      rd_lot-reo AT ROW 14.95 COL 13 NO-LABEL
      rd_qav-ven AT ROW 12.86 COL 56 NO-LABEL
+     display_hist AT ROW 14.1 COL 75 COLON-ALIGNED HELP
+          "displays history from the today date." WIDGET-ID 54
      rd_pri-ven-max AT ROW 13.76 COL 56 NO-LABEL
      lv-ornt AT ROW 19.24 COL 30 NO-LABEL
      lines-per-page AT ROW 19.24 COL 83 COLON-ALIGNED
@@ -494,8 +501,7 @@ DEFINE FRAME FRAME-A
      tb_reord-by-whse AT ROW 9.19 COL 57 WIDGET-ID 48
      tb_inactive AT ROW 10.1 COL 57 WIDGET-ID 50
      tb_excomp AT ROW 11 COL 57 WIDGET-ID 52
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.05 COL 3
+     
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1.05
@@ -503,6 +509,8 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 19.05 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
@@ -542,15 +550,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -570,16 +578,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_as-of:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -601,12 +599,24 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       display_hist:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
        begin_whse:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 /* SETTINGS FOR BUTTON Btn_Add IN FRAME FRAME-A
    NO-ENABLE                                                            */
@@ -793,12 +803,12 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -852,36 +862,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_cust
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
-ON HELP OF begin_cust IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_cust
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
-ON HELP OF end_cust IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &Scoped-define SELF-NAME begin_class
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_class C-Win
 ON HELP OF begin_class IN FRAME FRAME-A /* Beginning Class */
@@ -903,18 +883,35 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME   
+
 
 
 &Scoped-define SELF-NAME begin_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
-ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
+ON HELP OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
+ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
+DO: 
    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME begin_group
@@ -935,6 +932,27 @@ END.
 ON LEAVE OF begin_group IN FRAME FRAME-A /* Beginning Group */
 DO:
   ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME display_hist
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL display_hist C-Win
+ON HELP OF display_hist IN FRAME FRAME-A /* History for month */
+DO:
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL display_hist C-Win
+ON LEAVE OF display_hist IN FRAME FRAME-A /* History for month */
+DO:
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -984,7 +1002,9 @@ DO:
   END.
 
   SESSION:SET-WAIT-STATE("general").
-
+  
+  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,12"  .
+  
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT AVAIL ttCustList AND tb_cust-list THEN DO:
@@ -1179,6 +1199,20 @@ END.
 
 
 &Scoped-define SELF-NAME end_cust
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
+ON HELP OF end_cust IN FRAME FRAME-A /* Ending Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 DO:
@@ -1612,6 +1646,32 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME display_hist
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL display_hist C-Win
+ON LEAVE OF display_hist IN FRAME FRAME-A /* Beginning Class */
+DO:
+    
+  IF INTEGER(display_hist:SCREEN-VALUE) GT 12 OR INTEGER(display_hist:SCREEN-VALUE) LT 1  THEN
+      ASSIGN display_hist:SCREEN-VALUE = "12" .
+    ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME display_hist
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL display_hist C-Win
+ON VALUE-CHANGED OF display_hist IN FRAME FRAME-A /* Beginning Class */
+DO:
+    
+  IF INTEGER(display_hist:SCREEN-VALUE) GT 12 THEN
+      ASSIGN display_hist:SCREEN-VALUE = "12" .
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
 
 &UNDEFINE SELF-NAME
 
@@ -1914,7 +1974,7 @@ PROCEDURE enable_UI :
           tb_inc-qoh tb_inc-cust tb_below lbl_qoh1 rd_qoh begin_as-of 
           lbl_stocked rd_stocked lbl_pur-man rd_pur-man lbl_lot-reo rd_lot-reo 
           lv-ornt lines-per-page rd-dest lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file 
+          tb_excel tb_runExcel fi_file display_hist 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tb_cust-list btnCustList btn_SelectColumns begin_cust end_cust 
          begin_i-no end_i-no begin_cat end_cat begin_whse end_whse begin_class 
@@ -1922,7 +1982,7 @@ PROCEDURE enable_UI :
          tb_dash rd_qoh begin_as-of rd_stocked rd_pur-man rd_lot-reo lv-ornt 
          lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel 
          fi_file btn-ok btn-cancel tb_reord-by-whse tb_inactive tb_excomp 
-         RECT-6 RECT-7 RECT-30 
+         RECT-6 RECT-7 RECT-30 display_hist 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2067,7 +2127,7 @@ DEF VAR v-alloc-qty AS   INT NO-UNDO.
 DEF VAR v-stat      AS   CHAR NO-UNDO.
 
 DEF VAR li-avg-hist AS INT FORMAT "->>>>>9"  NO-UNDO.
-DEF VAR li-hist AS INT FORMAT "->>>>>9" EXTENT 6 NO-UNDO.
+DEF VAR li-hist AS INT FORMAT "->>>>>9" EXTENT 12 NO-UNDO.
 DEF VAR ls-hlbl AS CHAR FORMAT "x(48)" NO-UNDO.
 DEF VAR ls-hlbl2 AS CHAR FORMAT "x(48)" NO-UNDO.
 DEF VAR ld-fr AS DATE NO-UNDO.
@@ -2090,7 +2150,7 @@ ASSIGN
  li1   = MONTH(TODAY) + 1
  ld-to = TODAY.
 
-DO li = 1 TO 6:
+DO li = 1 TO display_hist :
   li1 = li1 - 1.
   IF li1 LT 1 THEN li1 = li1 + 12.
 
@@ -2104,7 +2164,7 @@ DO li = 1 TO 6:
    ELSE
     ls-hlbl2 = ls-hlbl2 + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2) + "," .
-END.
+END. 
 tb_history = CAN-FIND(FIRST ttRptSelected WHERE ttRptSelected.TextList = "history").
 ASSIGN
  str-tit2 = c-win:TITLE
@@ -2254,7 +2314,7 @@ DEF VAR v-alloc-qty AS   INT NO-UNDO.
 DEF VAR v-stat      AS   CHAR NO-UNDO.
 
 DEF VAR li-avg-hist AS INT FORMAT "->>>>>9"  NO-UNDO.
-DEF VAR li-hist AS INT FORMAT "->>>>>9" EXTENT 6 NO-UNDO.
+DEF VAR li-hist AS INT FORMAT "->>>>>9" EXTENT 12 NO-UNDO.
 DEF VAR ls-hlbl AS CHAR FORMAT "x(48)" NO-UNDO.
 DEF VAR ls-hlbl2 AS CHAR FORMAT "x(48)" NO-UNDO.
 DEF VAR ld-fr AS DATE NO-UNDO.
@@ -2277,7 +2337,7 @@ ASSIGN
  li1   = MONTH(TODAY) + 1
  ld-to = TODAY.
 
-DO li = 1 TO 6:
+DO li = 1 TO display_hist :
   li1 = li1 - 1.
   IF li1 LT 1 THEN li1 = li1 + 12.
 
@@ -2291,7 +2351,7 @@ DO li = 1 TO 6:
 ELSE
 ls-hlbl2 = ls-hlbl2 + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2) + "," .
-END.
+END.    
 tb_history = CAN-FIND(FIRST ttRptSelected WHERE ttRptSelected.TextList = "history").
 ASSIGN
  str-tit2 = c-win:TITLE

@@ -26,7 +26,10 @@ DEFINE INPUT PARAMETER TABLE FOR w-fg-rctd.
 FOR EACH fg-rctd NO-LOCK 
      WHERE fg-rctd.company EQ ipcCompany
        AND fg-rctd.rita-code EQ ipcRitaCode
-       AND fg-rctd.created-by EQ ipcUserCode
+       AND (
+             fg-rctd.created-by EQ ipcUserCode
+             OR fg-rctd.updated-by EQ ipcUserCode
+           )
      :
      
     CREATE w-fg-rctd.

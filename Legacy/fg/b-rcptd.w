@@ -66,6 +66,7 @@ DEF VAR trans-time          AS CHAR  NO-UNDO.
 DEF VAR v-copy-mode         AS LOG   NO-UNDO.
 DEF VAR lrMissingRow        AS ROWID NO-UNDO.
 DEF VAR gvcCurrentItem      AS CHAR  NO-UNDO.
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 
 DEF TEMP-TABLE tt-fg-rctd LIKE fg-rctd
     FIELD tt-rowid AS ROWID
@@ -75,7 +76,7 @@ DEF BUFFER b-tt FOR tt-fg-rctd.
 DEFINE TEMP-TABLE w-rowid 
     FIELD w-rowid AS CHAR
     INDEX w-rowid IS PRIMARY w-rowid.
-
+{Inventory/ttInventory.i "NEW SHARED"}
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {oe/d-selbin.i NEW}
@@ -582,7 +583,7 @@ ON HELP OF Browser-Table IN FRAME F-Main
                             END.
                             ELSE 
                             DO:
-                                RUN windows/l-itemf2.w (fg-rctd.company, "", fg-rctd.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
+                                RUN windows/l-itemf2.w (fg-rctd.company, "", fg-rctd.i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT rec-val).
                                 IF rec-val <> ? THEN 
                                 DO:
                                     FIND itemfg WHERE RECID(itemfg) = rec-val NO-LOCK.
@@ -816,10 +817,11 @@ ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
     DO:    
         DEF VAR lNegative AS LOG NO-UNDO.
         IF LASTKEY NE -1 THEN 
-        DO:    
-            IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE fg-rctd.tag THEN
+        DO: 
+            IF avail(fg-rctd) AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE fg-rctd.tag THEN DO:
                 RUN valid-tag (FOCUS, OUTPUT lNegative) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+                IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            END.
             IF lNegative THEN 
             DO:
                 IF lNegative AND INTEGER(fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN
@@ -1162,14 +1164,13 @@ ON ENTRY OF fg-rctd.i-name IN BROWSE Browser-Table /* Name/Desc */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* Whse */
     DO:
+        DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
         IF LASTKEY = -1 THEN RETURN.
 
         IF SELF:MODIFIED THEN 
         DO:
-            FIND FIRST loc WHERE loc.company = g_company
-                AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                NO-LOCK NO-ERROR.
-            IF NOT AVAIL loc THEN 
+            RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+            IF NOT lActiveBin THEN 
             DO:
                 MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
                 RETURN NO-APPLY.
@@ -1185,16 +1186,15 @@ ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* Whse */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
     DO:
+        DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
         IF LASTKEY = -1 THEN RETURN .
 
         IF SELF:MODIFIED THEN 
         DO:
-            FIND FIRST fg-bin WHERE fg-bin.company = g_company 
-                AND fg-bin.i-no = ""
-                AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                USE-INDEX co-ino NO-LOCK NO-ERROR.
-            IF NOT AVAIL fg-bin THEN 
+            RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+                fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+                OUTPUT lActiveBin ).
+            IF NOT lActiveBin THEN 
             DO:
                 MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
                 RETURN NO-APPLY.
@@ -1384,6 +1384,8 @@ ON LEAVE OF fg-rctd.stack-code IN BROWSE Browser-Table /* FG Lot# */
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
+ 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -2090,8 +2092,8 @@ PROCEDURE get-matrix :
     DO WITH FRAME {&FRAME-NAME}:
         IF AVAILABLE fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN 
         DO: /* in update mode - use screen-value */
-            IF fg-rctd.po-no:SCREEN-VALUE NE "" THEN 
-            DO: 
+            IF INTEGER(fg-rctd.po-no:SCREEN-VALUE) NE 0 THEN 
+            DO:  
                 RUN pDisplayPO(ip-first-disp).
  
             END.
@@ -2929,6 +2931,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
@@ -4548,6 +4575,7 @@ PROCEDURE validate-record :
     ------------------------------------------------------------------------------*/
     DEF VAR li-max-qty AS INT NO-UNDO.
     DEF VAR ll         AS LOG NO-UNDO.
+    DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
   
     FIND itemfg WHERE itemfg.company = cocode
         AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -4641,23 +4669,19 @@ PROCEDURE validate-record :
             END.
         END.
     END.
-  
-    FIND FIRST loc WHERE loc.company = g_company
-        AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL loc THEN 
+ 
+    RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+    IF NOT lActiveBin THEN 
     DO:
         MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO fg-rctd.loc.
         RETURN ERROR.
     END.
   
-    FIND FIRST fg-bin WHERE fg-bin.company = g_company 
-        AND fg-bin.i-no = ""
-        AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-        AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-        USE-INDEX co-ino NO-LOCK NO-ERROR.
-    IF NOT AVAIL fg-bin THEN 
+    RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        OUTPUT lActiveBin ).
+    IF NOT lActiveBin THEN 
     DO:
         MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO fg-rctd.loc-bin.

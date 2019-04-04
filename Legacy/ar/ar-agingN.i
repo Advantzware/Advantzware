@@ -88,6 +88,7 @@ DEFINE VARIABLE cBolNo AS CHARACTER NO-UNDO.
 DEF VAR cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
 DEF VAR iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cTermsCode AS CHARACTER NO-UNDO.
 
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
@@ -523,7 +524,7 @@ END.
                where terms.company = cust.company 
                AND terms.t-code = ar-inv.terms NO-ERROR .
        END.
-       ELSE RELEASE terms .
+       ELSE RELEASE terms .      
       
        ASSIGN
         cust-t[v-int] = cust-t[v-int] + ag
@@ -559,7 +560,7 @@ END.
                      WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
                      WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                      WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
-                     WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
+                     WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .                   
                      WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
                      WHEN "add2"      THEN cVarValue = STRING(cust.addr[2],"x(25)").
                      WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
@@ -725,7 +726,7 @@ END.
                          WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
                          WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                          WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
-                         WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
+                         WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .                      
                          WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
                          WHEN "add2"      THEN cVarValue = STRING(cust.addr[2],"x(25)").
                          WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
@@ -793,7 +794,7 @@ END.
                          WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
                          WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                          WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
-                         WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
+                         WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .                      
                          WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
                          WHEN "add2"      THEN cVarValue = STRING(cust.addr[2],"x(25)").
                          WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
@@ -891,7 +892,7 @@ END.
                          WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
                          WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                          WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
-                         WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
+                         WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .                      
                          WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
                          WHEN "add2"      THEN cVarValue = STRING(cust.addr[2],"x(25)").
                          WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
@@ -1021,7 +1022,7 @@ END.
                where terms.company = cust.company 
                AND terms.t-code = ar-inv.terms no-error .
        END.
-       ELSE RELEASE terms .
+       ELSE RELEASE terms .     
 
       v-neg-text = "ON ACCT".
 
@@ -1113,7 +1114,7 @@ END.
                      WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
                      WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                      WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
-                     WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
+                     WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .                    
                      WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
                      WHEN "add2"      THEN cVarValue = STRING(cust.addr[2],"x(25)").
                      WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
@@ -1229,7 +1230,7 @@ END.
                      WHEN "cust-name" THEN cVarValue = string(cust.NAME,"x(30)")  .
                      WHEN "cont"      THEN cVarValue = string(cust.contact,"x(25)") .
                      WHEN "sman"      THEN cVarValue = STRING(v-sman,"x(25)") .
-                     WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .
+                     WHEN "term"      THEN cVarValue = if avail terms then string(terms.dscr,"x(15)") else ""  .                    
                      WHEN "add1"      THEN cVarValue = STRING(cust.addr[1],"x(25)").
                      WHEN "add2"      THEN cVarValue = STRING(cust.addr[2],"x(25)").
                      WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
@@ -1289,7 +1290,7 @@ END.
         /*display skip(1) "***** CUSTOMER TOTALS" at 4 c1 to 54 cust-t[1] to 77
                 cust-t[2] to 94 cust-t[3] to 112 cust-t[4] to 131 skip(1)
             with frame a3 no-labels no-box no-attr-space stream-io width 200.*/
-           RUN total-head("****** CUSTOMER TOTALS",c1,cust-t[1],cust-t[2],
+           RUN total-head("****** CUSTOMER TOTALS","",c1,cust-t[1],cust-t[2],
                            cust-t[3],cust-t[4],cust-t[5],cust-t[6]).
         
         IF v-sep-fc THEN
@@ -1302,13 +1303,13 @@ END.
                 cust-t-pri[2] to 94 cust-t-pri[3] to 112 cust-t-pri[4] to 131 skip(1)
             with frame a4 no-labels no-box no-attr-space stream-io width 200.*/
 
-           RUN total-head("***** PRINCIPAL AMOUNT",c1-pri,cust-t-pri[1],cust-t-pri[2],
+           RUN total-head("***** PRINCIPAL AMOUNT","",c1-pri,cust-t-pri[1],cust-t-pri[2],
                            cust-t-pri[3],cust-t-pri[4],cust-t-pri[5],0).
 
            /*display skip(1) "***** FINANCE CHARGES" at 4 c1-fc to 54 cust-t-fc[1] to 77
                 cust-t-fc[2] to 94 cust-t-fc[3] to 112 cust-t-fc[4] to 131 skip(1)
             with frame a5 no-labels no-box no-attr-space stream-io width 200.*/
-           RUN total-head("****** FINANCE CHARGES",c1-fc,cust-t-fc[1],cust-t-fc[2],
+           RUN total-head("****** FINANCE CHARGES","",c1-fc,cust-t-fc[1],cust-t-fc[2],
                            cust-t-fc[3],cust-t-fc[4],cust-t-fc[5],0).
         END.
 
@@ -1317,7 +1318,7 @@ END.
       end.
       ELSE IF det-rpt = 2 THEN DO:
 
-          RUN total-head("cust.cust-no",c1,cust-t[1],cust-t[2],
+          RUN total-head("cust.cust-no",cust.terms,c1,cust-t[1],cust-t[2],
                            cust-t[3],cust-t[4],cust-t[5],cust-t[6]).
 
         /*display cust.cust-no space(2) cust.name + "  " + m3 format "x(50)" skip
@@ -1353,7 +1354,7 @@ END.
           
       if "{&sort-by}" eq "cust.sman" THEN DO:
         IF det-rpt <> 3 THEN
-            RUN total-head("****** SALESREP TOTALS",c1,sman-t[1],sman-t[2],
+            RUN total-head("****** SALESREP TOTALS","",c1,sman-t[1],sman-t[2],
                            sman-t[3],sman-t[4],0,sman-t[6]).
         /*display v-sman                  at 4    format "x(33)"
                 "TOTALS: " + v-sman                  @ v-sman
@@ -1414,7 +1415,7 @@ END.
       IF ll-mult-curr THEN DO:
         c1 = curr-t[1] + curr-t[2] + curr-t[3] + curr-t[4].
         IF NOT det-rpt = 3 THEN
-             RUN total-head("        CURRENCY TOTAL",c1,curr-t[1],curr-t[2],
+             RUN total-head("        CURRENCY TOTAL","",c1,curr-t[1],curr-t[2],
                            curr-t[3],curr-t[4],0,curr-t[6]).
         /*display fill("_",132) format "x(131)"
                 "CURRENCY TOTAL"        at 12
@@ -1432,7 +1433,7 @@ END.
                 (IF c1 NE 0 THEN (curr-t[4] / c1) * 100 ELSE 0) to 131
             with frame curr2 STREAM-IO WIDTH 200 no-labels no-box no-attr-space.*/
 
-        RUN total-head("PERCENTAGE COMPOSITION",0,(IF c1 NE 0 THEN (curr-t[1] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[2] / c1) * 100 ELSE 0),
+        RUN total-head("PERCENTAGE COMPOSITION","",0,(IF c1 NE 0 THEN (curr-t[1] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[2] / c1) * 100 ELSE 0),
                            (IF c1 NE 0 THEN (curr-t[3] / c1) * 100 ELSE 0),(IF c1 NE 0 THEN (curr-t[4] / c1) * 100 ELSE 0),0,0).
 
         IF v-export THEN DO:
@@ -1508,10 +1509,10 @@ END.
     grand-t[4] to 131 format "->,>>>,>>>,>>9.99"
     with frame grand1 no-box no-labels no-attr-space STREAM-IO WIDTH 200.*/
     
-    RUN total-head("           GRAND TOTAL",t1,grand-t[1],grand-t[2],
+    RUN total-head("           GRAND TOTAL","",t1,grand-t[1],grand-t[2],
                            grand-t[3],grand-t[4],grand-t[5],grand-t[6]).
 
-    RUN total-head("PERCENTAGE COMPOSITION",0,(IF t1 NE 0 THEN (grand-t[1] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[2] / t1) * 100 ELSE 0),
+    RUN total-head("PERCENTAGE COMPOSITION","",0,(IF t1 NE 0 THEN (grand-t[1] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[2] / t1) * 100 ELSE 0),
                            (IF t1 NE 0 THEN (grand-t[3] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[4] / t1) * 100 ELSE 0),(IF t1 NE 0 THEN (grand-t[5] / t1) * 100 ELSE 0),0).
 
   /*display SPACE(11) "PERCENTAGE COMPOSITION"
@@ -1588,7 +1589,7 @@ END.
         t1-pri = grand-t-pri[1] + grand-t-pri[2] + grand-t-pri[3] + grand-t-pri[4] + grand-t-pri[5]
         t1-fc =  grand-t-fc[1] + grand-t-fc[2] + grand-t-fc[3] + grand-t-fc[4] + + grand-t-fc[5].
 
-     RUN total-head("      PRINCIPAL AMOUNT",t1-pri,grand-t-pri[1],grand-t-pri[2],
+     RUN total-head("      PRINCIPAL AMOUNT","",t1-pri,grand-t-pri[1],grand-t-pri[2],
                            grand-t-pri[3],grand-t-pri[4],grand-t-pri[5],0).
 
      /*DISPLAY 
@@ -1599,7 +1600,7 @@ END.
        grand-t-pri[4] to 131 format "->,>>>,>>>,>>9.99"
        with frame grand-pri no-box no-labels no-attr-space STREAM-IO WIDTH 200.*/
 
-     RUN total-head("       FINANCE CHARGES",t1-fc,grand-t-fc[1],grand-t-fc[2],
+     RUN total-head("       FINANCE CHARGES","",t1-fc,grand-t-fc[1],grand-t-fc[2],
                            grand-t-fc[3],grand-t-fc[4],grand-t-fc[5],0).
 
      /*DISPLAY
@@ -1876,6 +1877,7 @@ END.
 
  PROCEDURE total-head:
      DEF INPUT PARAMETER vname AS CHAR .
+     DEFINE INPUT PARAMETER cTermCode AS CHARACTER.
      DEF INPUT PARAMETER amount AS DECIMAL.
      DEF INPUT PARAMETER vCURRENT AS DECIMAL.
      DEF INPUT PARAMETER per-day1 AS DECIMAL.
@@ -1901,7 +1903,7 @@ END.
                           ELSE cVarValue = "" .
                      END.
                      WHEN "sman"      THEN cVarValue = "" .
-                     WHEN "term"      THEN cVarValue = ""  .
+                     WHEN "term"      THEN cVarValue = STRING(cTermCode) .
                      WHEN "add1"      THEN cVarValue = "".
                      WHEN "add2"      THEN cVarValue = "".
                      WHEN "city"      THEN cVarValue = "" .

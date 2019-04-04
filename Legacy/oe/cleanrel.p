@@ -340,7 +340,9 @@ DEF BUFFER b-oe-rell FOR oe-rell.
            oe-rel.ship-i[4] = oe-relh.ship-i[4]
            oe-rel.po-no     = oe-rell.po-no
            oe-rel.lot-no    = oe-rell.lot-no
-           oe-rel.qty       = lv-qty.
+           oe-rel.qty       = lv-qty
+           oe-rel.frt-pay   = oe-rell.frt-pay
+           oe-rel.fob-code  = oe-rell.fob-code.
           
           RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
           RUN oe/custxship.p (oe-rel.company,

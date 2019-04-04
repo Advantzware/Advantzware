@@ -1509,6 +1509,7 @@ PROCEDURE create-rel :
             gv-ship-from = shipto.loc.
     END.
     RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
+        INPUT b-oe-ordl.qty, INPUT b-oe-ordl.i-no,
         INPUT-OUTPUT v-ship-id,
         INPUT-OUTPUT gv-ship-from).
 
