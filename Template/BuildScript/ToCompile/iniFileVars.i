@@ -280,6 +280,7 @@ PROCEDURE ipReadIniFile:
     FOR EACH ttIniFile WHERE
         NOT ttIniFile.cVarName BEGINS "#" AND
         NOT ttIniFile.cVarName EQ "" AND
+        NOT ttIniFile.cVarName EQ "audVerList" AND 
         ttIniFile.cVarValue = "":
         DISP 
             ttIniFile.cVarName LABEL "Name" FORMAT "x(32)" WITH WIDTH 90 

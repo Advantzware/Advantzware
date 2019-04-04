@@ -3205,6 +3205,15 @@ PROCEDURE ipLoadJasperData:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Loading Dynamic subjects...").
     
+    DISABLE TRIGGERS FOR LOAD OF dynSubject.
+    DISABLE TRIGGERS FOR LOAD OF dynSubjectTable.
+    DISABLE TRIGGERS FOR LOAD OF dynSubjectWhere.
+    DISABLE TRIGGERS FOR LOAD OF dynSubjectColumn.
+    DISABLE TRIGGERS FOR LOAD OF dynSubjectParamSet.
+    DISABLE TRIGGERS FOR LOAD OF dynParam.
+    DISABLE TRIGGERS FOR LOAD OF dynParamSet.
+    DISABLE TRIGGERS FOR LOAD OF dynParamValue.
+    
     /* Remove all records that we plan to replace */
     FOR EACH dynSubject EXCLUSIVE WHERE 
         dynSubject.subjecttype EQ "system" AND 
@@ -3248,7 +3257,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3257,7 +3268,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3266,7 +3279,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3275,7 +3290,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3284,7 +3301,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3293,7 +3312,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3302,7 +3323,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3311,7 +3334,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3320,7 +3345,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
