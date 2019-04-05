@@ -2123,6 +2123,9 @@ END.
 ON VALUE-CHANGED OF tb_override-mult IN FRAME FRAME-A /* Ignore Customer Labels/ Skid */
 DO:
   assign {&self-name}.
+  IF tb_override-mult:SCREEN-VALUE EQ "No" THEN
+      begin_labels:SENSITIVE = NO.
+  ELSE begin_labels:SENSITIVE = YES . 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2506,7 +2509,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         begin_rel:SCREEN-VALUE = ""
         end_rel:SCREEN-VALUE   = ""
         .
-
+    IF tb_override-mult:SCREEN-VALUE EQ "No" THEN
+        begin_labels:SENSITIVE = NO.
+    ELSE begin_labels:SENSITIVE = YES . 
+         
     DISABLE v-ship-id.
     ASSIGN v-ord-list:SCREEN-VALUE = "".
 
