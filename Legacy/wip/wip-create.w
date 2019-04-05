@@ -117,10 +117,10 @@ DEFINE TEMP-TABLE ttBrowseInventory
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bt-exit btnFirst btnKeyboard btnLast btnNext ~
-btnNumPad btnNumPad-1 btnNumPad-2 btnNumPad-3 btnPrevious RECT-26 ls-jobno ~
-cb-jobno2 cb-formno cb-blankno cb-machine bt-create ls-qty-per-tag ~
-ls-total-run-qty ls-num-tags br-table 
+&Scoped-Define ENABLED-OBJECTS bt-exit RECT-26 ls-jobno cb-jobno2 cb-formno ~
+cb-blankno cb-machine btnFirst bt-create ls-qty-per-tag btnKeyboard ~
+ls-total-run-qty ls-num-tags btnLast br-table btnNext btnNumPad btnNumPad-1 ~
+btnNumPad-2 btnNumPad-3 btnPrevious 
 &Scoped-Define DISPLAYED-OBJECTS ls-tag ls-jobno cb-jobno2 cb-formno ~
 cb-blankno cb-machine ls-qty-per-tag ls-total-run-qty ls-num-tags 
 
@@ -192,7 +192,7 @@ DEFINE BUTTON btnNext
 DEFINE BUTTON btnNumPad 
      IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "NumPad" 
-     SIZE 8 BY 1.9 TOOLTIP "Numeric Keypad".
+     SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btnNumPad-1 
      IMAGE-UP FILE "Graphics/24x24/numeric_keypad.gif":U NO-FOCUS FLAT-BUTTON
@@ -218,27 +218,27 @@ DEFINE VARIABLE cb-blankno AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "0" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
+     SIZE 9.8 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE cb-formno AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "0" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
+     SIZE 9.8 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE cb-jobno2 AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
+     SIZE 9.8 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE cb-machine AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
-     SIZE 37.4 BY 1.48
+     SIZE 37.4 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-jobno AS CHARACTER FORMAT "X(15)":U 
@@ -306,31 +306,37 @@ DEFINE BROWSE br-table
 DEFINE FRAME F-Main
      bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
      btnDelete AT ROW 18.86 COL 192 WIDGET-ID 116
-     btnFirst AT ROW 10.52 COL 191.8 WIDGET-ID 44
-     btnKeyboard AT ROW 3.62 COL 15 WIDGET-ID 132
-     btnLast AT ROW 27.52 COL 191.8 WIDGET-ID 46
-     btnNext AT ROW 23.14 COL 192 WIDGET-ID 42
-     btnNumPad AT ROW 2.43 COL 163 WIDGET-ID 120
-     btnNumPad-1 AT ROW 8.14 COL 64 WIDGET-ID 124
-     btnNumPad-2 AT ROW 8.14 COL 127 WIDGET-ID 126
-     btnNumPad-3 AT ROW 8.14 COL 166 WIDGET-ID 128
-     btnPrevious AT ROW 14.57 COL 192 WIDGET-ID 40
      ls-tag AT ROW 1.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 88
      ls-jobno AT ROW 3.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      cb-jobno2 AT ROW 3.71 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
      cb-formno AT ROW 3.71 COL 100.8 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      cb-blankno AT ROW 3.71 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      cb-machine AT ROW 6.24 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+     btnFirst AT ROW 10.52 COL 191.8 WIDGET-ID 44
      bt-create AT ROW 6.67 COL 174.2 WIDGET-ID 108
      ls-qty-per-tag AT ROW 8.14 COL 32.4 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+     btnKeyboard AT ROW 3.62 COL 15 WIDGET-ID 132
      ls-total-run-qty AT ROW 8.14 COL 95.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      ls-num-tags AT ROW 8.14 COL 145.8 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     btnLast AT ROW 27.52 COL 191.8 WIDGET-ID 46
      br-table AT ROW 10.52 COL 2 WIDGET-ID 200
      bt-adjust-qty AT ROW 30.52 COL 2 WIDGET-ID 110
      bt-print-selected AT ROW 30.52 COL 70 WIDGET-ID 114
+     btnNext AT ROW 23.14 COL 192 WIDGET-ID 42
      bt-print-all AT ROW 30.52 COL 137 WIDGET-ID 112
+     btnNumPad AT ROW 2.43 COL 163 WIDGET-ID 120
+     btnNumPad-1 AT ROW 8.14 COL 64 WIDGET-ID 124
+     btnNumPad-2 AT ROW 8.14 COL 127 WIDGET-ID 126
+     btnNumPad-3 AT ROW 8.14 COL 166 WIDGET-ID 128
+     btnPrevious AT ROW 14.57 COL 192 WIDGET-ID 40
      "Quantity Per Tag:" VIEW-AS TEXT
           SIZE 29.6 BY 1.33 AT ROW 8.24 COL 4 WIDGET-ID 96
+          FONT 36
+     "Form #:" VIEW-AS TEXT
+          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
+          FONT 36
+     "# Tags:" VIEW-AS TEXT
+          SIZE 13.8 BY 1.33 AT ROW 8.14 COL 133 WIDGET-ID 104
           FONT 36
      "RM or WIP Tag:" VIEW-AS TEXT
           SIZE 27 BY 1.33 AT ROW 1.71 COL 7 WIDGET-ID 86
@@ -338,23 +344,17 @@ DEFINE FRAME F-Main
      "Blank #:" VIEW-AS TEXT
           SIZE 14 BY 1.33 AT ROW 3.81 COL 115.2 WIDGET-ID 58
           FONT 36
-     "Job #:" VIEW-AS TEXT
-          SIZE 11 BY 1.33 AT ROW 3.62 COL 23 WIDGET-ID 12
-          FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
-          FONT 36
-     "(optional)" VIEW-AS TEXT
-          SIZE 16.8 BY .95 AT ROW 1.91 COL 101.2 WIDGET-ID 90
+     "Machine/Op:" VIEW-AS TEXT
+          SIZE 21.6 BY 1.33 AT ROW 6.38 COL 12 WIDGET-ID 92
           FONT 36
      "Total Run Qty:" VIEW-AS TEXT
           SIZE 24 BY 1.33 AT ROW 8.24 COL 72 WIDGET-ID 100
           FONT 36
-     "Machine/Op:" VIEW-AS TEXT
-          SIZE 21.6 BY 1.33 AT ROW 6.38 COL 12 WIDGET-ID 92
+     "(optional)" VIEW-AS TEXT
+          SIZE 16.8 BY .95 AT ROW 1.91 COL 101.2 WIDGET-ID 90
           FONT 36
-     "# Tags:" VIEW-AS TEXT
-          SIZE 13.8 BY 1.33 AT ROW 8.14 COL 133 WIDGET-ID 104
+     "Job #:" VIEW-AS TEXT
+          SIZE 11 BY 1.33 AT ROW 3.62 COL 23 WIDGET-ID 12
           FONT 36
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 118
@@ -385,9 +385,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "Create WIP"
          HEIGHT             = 32.86
          WIDTH              = 202
-         MAX-HEIGHT         = 32.9
+         MAX-HEIGHT         = 32.91
          MAX-WIDTH          = 202.2
-         VIRTUAL-HEIGHT     = 32.9
+         VIRTUAL-HEIGHT     = 32.91
          VIRTUAL-WIDTH      = 202.2
          MAX-BUTTON         = no
          RESIZE             = no
@@ -420,7 +420,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB br-table ls-num-tags F-Main */
+/* BROWSE-TAB br-table btnLast F-Main */
 ASSIGN 
        br-table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
@@ -894,14 +894,16 @@ DO:
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
-    RUN system/openlookup.p (ipcCompany, "job-no", OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
-    SELF:SCREEN-VALUE = cFoundValue.
-    APPLY "LEAVE":U TO SELF.
-    ASSIGN
-        cb-jobno2:SCREEN-VALUE  = ENTRY(3,cFieldsValue,"|")
-        cb-formno:SCREEN-VALUE  = ENTRY(4,cFieldsValue,"|")
-        cb-blankno:SCREEN-VALUE = ENTRY(5,cFieldsValue,"|")
-        .
+    RUN system/openlookup.p (ipcCompany, "job-no", 3, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+    IF recFoundRecID NE ? THEN DO:
+        SELF:SCREEN-VALUE = cFoundValue.
+        APPLY "LEAVE":U TO SELF.
+        ASSIGN
+            cb-jobno2:SCREEN-VALUE  = ENTRY(3,cFieldsValue,"|")
+            cb-formno:SCREEN-VALUE  = ENTRY(4,cFieldsValue,"|")
+            cb-blankno:SCREEN-VALUE = ENTRY(5,cFieldsValue,"|")
+            .
+    END. /* if ne ? */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -930,21 +932,35 @@ DO:
         cJobno2ListItems  = ""
         cFormnoListItems  = ""
         cBlanknoListitems = ""
-        cMachineListItems = "".
-
+        cMachineListItems = ""
+        .
     IF ls-jobno:SCREEN-VALUE = "" THEN
         RETURN.
     
     IF INDEX(SELF:SCREEN-VALUE,"-") NE 0 THEN DO:
         ASSIGN
             cJobNo   = ENTRY(1,SELF:SCREEN-VALUE,"-")
+            cJobNo   = FILL(" ",6 - LENGTH(cJobNo))+ cJobNo
             cJobNo2  = ENTRY(2,SELF:SCREEN-VALUE,"-")
             cJobNo2  = ENTRY(1,cJobNo2,".")
             cFormNo  = ENTRY(2,SELF:SCREEN-VALUE,".")
             cBlankNo = ENTRY(3,SELF:SCREEN-VALUE,".")
             SELF:SCREEN-VALUE = cJobNo
-            lParse   = YES
-            .
+            lParse   = CAN-FIND(FIRST job-mch
+                                WHERE job-mch.company  EQ ipcCompany
+                                  AND job-mch.job-no   EQ cJobNo
+                                  AND job-mch.job-no2  EQ INT(cJobNo2)
+                                  AND job-mch.frm      EQ INT(cFormNo)
+                                  AND job-mch.blank-no EQ INT(cBlankNo))
+                                  .
+        IF NOT lParse THEN DO:
+            MESSAGE
+                "Invalid Job Number"
+            VIEW-AS ALERT-BOX ERROR.
+            SELF:SCREEN-VALUE = "".
+            APPLY "ENTRY":U TO SELF.
+            RETURN NO-APPLY.
+        END. /* if not lparse */
     END. /* if index */
     
     RUN updateComboBoxes.
@@ -953,8 +969,8 @@ DO:
         cb-jobno2:SCREEN-VALUE  = ENTRY(1,cJobno2ListItems)
         cb-formno:SCREEN-VALUE  = ENTRY(1,cFormnoListItems)
         cb-blankno:SCREEN-VALUE = ENTRY(1,cBlanknoListItems)
-        cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems).
-           
+        cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
+        .           
     RUN getJobDetails(INPUT ipcCompany,
         INPUT ls-jobno:SCREEN-VALUE,
         INPUT cb-machine:SCREEN-VALUE,
@@ -1278,10 +1294,10 @@ PROCEDURE enable_UI :
   DISPLAY ls-tag ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine 
           ls-qty-per-tag ls-total-run-qty ls-num-tags 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE bt-exit btnFirst btnKeyboard btnLast btnNext btnNumPad btnNumPad-1 
-         btnNumPad-2 btnNumPad-3 btnPrevious RECT-26 ls-jobno cb-jobno2 
-         cb-formno cb-blankno cb-machine bt-create ls-qty-per-tag 
-         ls-total-run-qty ls-num-tags br-table 
+  ENABLE bt-exit RECT-26 ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine 
+         btnFirst bt-create ls-qty-per-tag btnKeyboard ls-total-run-qty 
+         ls-num-tags btnLast br-table btnNext btnNumPad btnNumPad-1 btnNumPad-2 
+         btnNumPad-3 btnPrevious 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.

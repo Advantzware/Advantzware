@@ -1199,7 +1199,7 @@ DO:
    DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
    DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
    DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
-   RUN system/openlookup.p (g_company, "cust-no", OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+   RUN system/openlookup.p (g_company, "cust-no", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
           IF cMainField <> "" THEN {&SELF-NAME}:SCREEN-VALUE = cMainField.
           RETURN NO-APPLY. 
 END.
@@ -1229,7 +1229,7 @@ DO:
    DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
    DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
    DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
-   RUN system/openlookup.p (g_company, "i-no", OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+   RUN system/openlookup.p (g_company, "i-no", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
           IF cMainField <> "" THEN {&SELF-NAME}:SCREEN-VALUE = cMainField.
           RETURN NO-APPLY. 
 END.

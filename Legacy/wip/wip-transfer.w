@@ -105,8 +105,8 @@ DEFINE TEMP-TABLE ttBrowseInventory
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS bt-exit btnKeyboard-2 btnKeyboard-3 ~
-btnNumPad btnKeyboard RECT-26 RECT-29 bt-change ls-jobno cb-jobno2 btnFirst ~
-cb-formno cb-blankno ls-tag btnLast btnNext ls-location br-table ~
+btnNumPad btnKeyboard RECT-26 btnFirst RECT-29 bt-change ls-jobno cb-jobno2 ~
+cb-formno btnLast cb-blankno ls-tag ls-location btnNext br-table ~
 btnPrevious 
 &Scoped-Define DISPLAYED-OBJECTS ls-jobno cb-jobno2 ls-order ls-cust ~
 cb-formno cb-blankno ls-item ls-tag ls-wipitemid ls-location ls-lastop 
@@ -296,35 +296,41 @@ DEFINE FRAME F-Main
      btnKeyboard-3 AT ROW 7.91 COL 60 WIDGET-ID 144
      btnNumPad AT ROW 2.67 COL 98 WIDGET-ID 138
      btnKeyboard AT ROW 3.38 COL 32 WIDGET-ID 136
+     btnFirst AT ROW 10.76 COL 192 WIDGET-ID 128
      bt-change AT ROW 1.95 COL 2 WIDGET-ID 8
      ls-jobno AT ROW 1.95 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      cb-jobno2 AT ROW 1.95 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
      ls-order AT ROW 2.67 COL 123 COLON-ALIGNED NO-LABEL WIDGET-ID 62
-     btnFirst AT ROW 10.76 COL 192 WIDGET-ID 128
      ls-cust AT ROW 2.67 COL 162.6 COLON-ALIGNED NO-LABEL WIDGET-ID 68
      cb-formno AT ROW 3.38 COL 53.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     btnLast AT ROW 27.76 COL 192 WIDGET-ID 130
      cb-blankno AT ROW 3.52 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      ls-item AT ROW 3.86 COL 123 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      ls-tag AT ROW 6.24 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      ls-wipitemid AT ROW 6.95 COL 134 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     btnLast AT ROW 27.76 COL 192 WIDGET-ID 130
-     btnNext AT ROW 23.38 COL 192.2 WIDGET-ID 132
      ls-location AT ROW 7.91 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     btnNext AT ROW 23.38 COL 192.2 WIDGET-ID 132
      ls-lastop AT ROW 8.38 COL 134 COLON-ALIGNED NO-LABEL WIDGET-ID 80
      br-table AT ROW 10.57 COL 2 WIDGET-ID 200
      bt-post AT ROW 31.05 COL 151 WIDGET-ID 38
      btnPrevious AT ROW 14.81 COL 192.2 WIDGET-ID 134
-     "Order #:" VIEW-AS TEXT
-          SIZE 13 BY .81 AT ROW 2.71 COL 112 WIDGET-ID 64
+     "WIP ID:" VIEW-AS TEXT
+          SIZE 11.6 BY .81 AT ROW 6.95 COL 124 WIDGET-ID 74
           FONT 34
-     "Tag:" VIEW-AS TEXT
-          SIZE 8.2 BY 1.19 AT ROW 6.33 COL 10.4 WIDGET-ID 22
+     "Location:" VIEW-AS TEXT
+          SIZE 16 BY 1.19 AT ROW 8.1 COL 3 WIDGET-ID 32
           FONT 36
      "Job Details" VIEW-AS TEXT
           SIZE 18.4 BY .62 AT ROW 1.67 COL 113.6 WIDGET-ID 16
           FONT 35
-     "WIP ID:" VIEW-AS TEXT
-          SIZE 11.6 BY .81 AT ROW 6.95 COL 124 WIDGET-ID 74
+     "Cust #:" VIEW-AS TEXT
+          SIZE 10.6 BY .81 AT ROW 2.71 COL 153 WIDGET-ID 66
+          FONT 34
+     "Tag:" VIEW-AS TEXT
+          SIZE 8.2 BY 1.19 AT ROW 6.33 COL 10.4 WIDGET-ID 22
+          FONT 36
+     "Order #:" VIEW-AS TEXT
+          SIZE 13 BY .81 AT ROW 2.71 COL 112 WIDGET-ID 64
           FONT 34
      "Job #:" VIEW-AS TEXT
           SIZE 11 BY .95 AT ROW 2.19 COL 30 WIDGET-ID 12
@@ -335,20 +341,14 @@ DEFINE FRAME F-Main
      "Blank #:" VIEW-AS TEXT
           SIZE 14 BY .95 AT ROW 3.67 COL 67 WIDGET-ID 58
           FONT 36
-     "Cust #:" VIEW-AS TEXT
-          SIZE 10.6 BY .81 AT ROW 2.71 COL 153 WIDGET-ID 66
-          FONT 34
-     "Location:" VIEW-AS TEXT
-          SIZE 16 BY 1.19 AT ROW 8.1 COL 3 WIDGET-ID 32
-          FONT 36
-     "Last Operation:" VIEW-AS TEXT
-          SIZE 22 BY .81 AT ROW 8.38 COL 114 WIDGET-ID 78
+     "Item #:" VIEW-AS TEXT
+          SIZE 11 BY .81 AT ROW 3.86 COL 113 WIDGET-ID 70
           FONT 34
      "Tag Details" VIEW-AS TEXT
           SIZE 19.2 BY .76 AT ROW 5.91 COL 113.8 WIDGET-ID 28
           FONT 35
-     "Item #:" VIEW-AS TEXT
-          SIZE 11 BY .81 AT ROW 3.86 COL 113 WIDGET-ID 70
+     "Last Operation:" VIEW-AS TEXT
+          SIZE 22 BY .81 AT ROW 8.38 COL 114 WIDGET-ID 78
           FONT 34
      RECT-25 AT ROW 1.95 COL 111 WIDGET-ID 14
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
@@ -683,14 +683,16 @@ DO:
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
-    RUN system/openlookup.p (ipcCompany, "job-no", OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
-    SELF:SCREEN-VALUE = cFoundValue.
-    APPLY "LEAVE":U TO SELF.
-    ASSIGN
-        cb-jobno2:SCREEN-VALUE  = ENTRY(3,cFieldsValue,"|")
-        cb-formno:SCREEN-VALUE  = ENTRY(4,cFieldsValue,"|")
-        cb-blankno:SCREEN-VALUE = ENTRY(5,cFieldsValue,"|")
-        .
+    RUN system/openlookup.p (ipcCompany, "job-no", 3, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+    IF recFoundRecID NE ? THEN DO:
+        SELF:SCREEN-VALUE = cFoundValue.
+        APPLY "LEAVE":U TO SELF.
+        ASSIGN
+            cb-jobno2:SCREEN-VALUE  = ENTRY(3,cFieldsValue,"|")
+            cb-formno:SCREEN-VALUE  = ENTRY(4,cFieldsValue,"|")
+            cb-blankno:SCREEN-VALUE = ENTRY(5,cFieldsValue,"|")
+            .
+    END. /* if ne ? */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -724,13 +726,27 @@ DO:
     IF INDEX(SELF:SCREEN-VALUE,"-") NE 0 THEN DO:
         ASSIGN
             cJobNo   = ENTRY(1,SELF:SCREEN-VALUE,"-")
+            cJobNo   = FILL(" ",6 - LENGTH(cJobNo))+ cJobNo
             cJobNo2  = ENTRY(2,SELF:SCREEN-VALUE,"-")
             cJobNo2  = ENTRY(1,cJobNo2,".")
             cFormNo  = ENTRY(2,SELF:SCREEN-VALUE,".")
             cBlankNo = ENTRY(3,SELF:SCREEN-VALUE,".")
             SELF:SCREEN-VALUE = cJobNo
-            lParse   = YES
-            .
+            lParse   = CAN-FIND(FIRST job-mch
+                                WHERE job-mch.company  EQ ipcCompany
+                                  AND job-mch.job-no   EQ cJobNo
+                                  AND job-mch.job-no2  EQ INT(cJobNo2)
+                                  AND job-mch.frm      EQ INT(cFormNo)
+                                  AND job-mch.blank-no EQ INT(cBlankNo))
+                                  .
+        IF NOT lParse THEN DO:
+            MESSAGE
+                "Invalid Job Number"
+            VIEW-AS ALERT-BOX ERROR.
+            SELF:SCREEN-VALUE = "".
+            APPLY "ENTRY":U TO SELF.
+            RETURN NO-APPLY.
+        END. /* if not lparse */
     END. /* if index */
 
     FOR EACH job-mch NO-LOCK
@@ -1007,8 +1023,8 @@ PROCEDURE enable_UI :
           ls-tag ls-wipitemid ls-location ls-lastop 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE bt-exit btnKeyboard-2 btnKeyboard-3 btnNumPad btnKeyboard RECT-26 
-         RECT-29 bt-change ls-jobno cb-jobno2 btnFirst cb-formno cb-blankno 
-         ls-tag btnLast btnNext ls-location br-table btnPrevious 
+         btnFirst RECT-29 bt-change ls-jobno cb-jobno2 cb-formno btnLast 
+         cb-blankno ls-tag ls-location btnNext br-table btnPrevious 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
