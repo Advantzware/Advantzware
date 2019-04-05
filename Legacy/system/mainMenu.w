@@ -3016,6 +3016,7 @@ PROCEDURE pOnOffProfiler:
                 PROFILER:TRACE-FILTER                    = "*"
                 iSaveBgColor                             = company_name:BGCOLOR IN FRAME frame-user
                 company_name:BGCOLOR IN FRAME frame-user = 12
+                iProfileStartTime                        = TIME 
                 .
         END.
     END. 
@@ -3074,7 +3075,8 @@ PROCEDURE pProcessProfiler:
         company_name:BGCOLOR IN FRAME frame-user = 12.
       ELSE 
         company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor.
-      iProfileRunTime = iProfileStartTime - TIME.
+      iProfileRunTime = TIME - iProfileStartTime.
+      /* If has been running for more than 20 minutes, stop it automatically */
       IF iProfileRunTime / 60 GT 20 THEN 
         RUN pOnOffProfiler.
     END.
