@@ -362,7 +362,10 @@ for each itemfg
                       IF cExcelVarValue = "" THEN cExcelVarValue = cVarValue.
                       cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".
+                      IF cTmpField EQ "li-hist" THEN
+                          cExcelDisplay = cExcelDisplay + (cExcelVarValue) + ",".
+                      ELSE
+                          cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".
 /*
                   IF cTmpfield = "li-hist" THEN DO:
                      ASSIGN cDisplay = cDisplay + STRING(li-hist[1]) + " "  + STRING(li-hist[2]) + " "  + STRING(li-hist[3]) + " "  +
@@ -383,7 +386,7 @@ for each itemfg
            PUT UNFORMATTED cDisplay SKIP.
 
            IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
-           
+          
            IF tb_excel THEN 
              PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
