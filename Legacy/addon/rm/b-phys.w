@@ -595,7 +595,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
-  RUN new-bin.
+   /* #46504 Don't change quantity when they modify the loc or bin */
+  /* RUN new-bin. */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -604,7 +605,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 DO:
-  RUN new-bin.
+  /* #46504 Don't change quantity when they modify the loc or bin */
+  /* RUN new-bin. */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1199,8 +1201,9 @@ PROCEDURE valid-loc-bin-tag :
         NO-ERROR.
 /*    IF ip-int LE 3 AND adm-new-record THEN*/
 /*    rm-rctd.qty:SCREEN-VALUE = '0'.       */
-    IF ip-int LE 3 AND adm-new-record AND AVAILABLE rm-bin THEN
-    rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty).
+/* Handled by new-bin */
+/*    IF ip-int LE 3 AND adm-new-record AND AVAILABLE rm-bin THEN
+    rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty). */
     
     IF ip-int EQ 1 OR ip-int EQ 99  THEN DO:  
         FIND FIRST loc WHERE loc.company = cocode
