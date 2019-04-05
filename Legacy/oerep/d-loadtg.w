@@ -290,6 +290,7 @@ RUN calc-total.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Loadtag Creation Detail */
 DO: 
+    APPLY "choose" TO btnCancel. /* choice window close  */
     EMPTY TEMP-TABLE w-ord .
     APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
@@ -499,7 +500,7 @@ ON 'VALUE-CHANGED' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO:
  
 END.
 ON 'LEAVE' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO: 
-  IF SELF:MODIFIED THEN DO:
+  IF LASTKEY <> -1 AND SELF:MODIFIED THEN DO:
       glTotalTagsChanged = YES.
       lcheckflgMsg = YES .
       ASSIGN w-ord.ord-qty = dec(w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1023,7 +1024,7 @@ DEFINE VARIABLE lcheckflg AS LOGICAL INITIAL YES NO-UNDO .
     END.
 
     IF lcheckflgMsg AND AVAIL w-ord AND w-ord.total-tags GT dLoadTagLimit THEN 
-      MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " of load tags?" 
+      MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " load tags?" 
       VIEW-AS ALERT-BOX QUESTION  BUTTONS YES-NO UPDATE lcheckflg  .
   
     IF NOT lcheckflg THEN do:
