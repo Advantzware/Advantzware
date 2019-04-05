@@ -2718,8 +2718,7 @@ PROCEDURE pInit :
                 "",
                 OUTPUT lCanProfile 
                 ).
-            MESSAGE "ipcan" lCanProfile
-            VIEW-AS ALERT-BOX.
+            
         END. /* if valid handle */
         RUN methods/prgsecur.p ("Profiler", 
             "Access",
