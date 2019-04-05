@@ -92,7 +92,6 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "system/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "LockMon") OR /*Lock Monitor Button*/
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "MonitorUsers") OR /*Monitor Users Button*/
-                (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "viewers/usercontrol.w" AND ipFunction EQ "Access2") OR /*NK5 User Control - Max Sessions Per User*/
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/
