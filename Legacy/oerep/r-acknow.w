@@ -721,7 +721,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_relnum C-Win
 ON VALUE-CHANGED OF begin_relnum IN FRAME FRAME-A /* Beginning Release# */
 DO:
-  RUN new-relnum.
+  /*RUN new-relnum.*/ /* not exist in file */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1023,7 +1023,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_relnum C-Win
 ON VALUE-CHANGED OF end_relnum IN FRAME FRAME-A /* Ending Release# */
 DO:
-  RUN new-relnum.
+ /* RUN new-relnum.*/  /* not exist in file */
 END.
 
 /* _UIB-CODE-BLOCK-END */
