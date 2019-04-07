@@ -201,7 +201,7 @@ ELSE DO:
 END.
         
 /* Find the .ini file containing variables and values */
-RUN ipFindIniFile ("N:\Admin\advantzware.ini",
+RUN ipFindIniFile ("..\advantzware.ini",
                    OUTPUT cIniLoc).
 
 IF cIniLoc EQ "" THEN DO:

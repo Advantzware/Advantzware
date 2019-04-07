@@ -38,8 +38,8 @@ DEF INPUT PARAMETER ipiPatchDbVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiCurrAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiPatchAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
-
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
+DEF INPUT-OUTPUT PARAMETER iopiStatus AS INT NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
@@ -170,7 +170,7 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bProcess eStatus 
+&Scoped-Define ENABLED-OBJECTS RECT-6 bProcess eStatus 
 &Scoped-Define DISPLAYED-OBJECTS fiSiteName fiHostname fiDbName fiDbDir ~
 fiPortNo fiFromVer fiToVer fiDeltaFilename eStatus 
 
@@ -246,6 +246,16 @@ DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 75 BY 1.43
+     FGCOLOR 3 .
+
+DEFINE RECTANGLE rStatusBar
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 10 BY 1.43
+     BGCOLOR 3 FGCOLOR 3 .
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -262,10 +272,12 @@ DEFINE FRAME DEFAULT-FRAME
      eStatus AT ROW 12.43 COL 3 NO-LABEL WIDGET-ID 52
      "Status:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.71 COL 3 WIDGET-ID 54
+     rStatusBar AT ROW 16.71 COL 3
+     RECT-6 AT ROW 16.71 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 79.8 BY 15.91
+         SIZE 79.8 BY 17.86
          DEFAULT-BUTTON bProcess WIDGET-ID 100.
 
 
@@ -286,7 +298,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update - Upgrade Database"
-         HEIGHT             = 15.48
+         COLUMN             = 10
+         ROW                = 5
+         HEIGHT             = 17.86
          WIDTH              = 79.8
          MAX-HEIGHT         = 39.29
          MAX-WIDTH          = 320
@@ -329,6 +343,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiSiteName IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiToVer IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE rStatusBar IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -425,7 +441,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
     ASSIGN 
         cCurrDir = GET-STRING(ptrToString,1).    
     
-    RUN ipFindIniFile ("N:\Admin\advantzware.ini",
+    RUN ipFindIniFile ("..\advantzware.ini",
                        OUTPUT cIniLoc).
     IF cIniLoc NE "" THEN DO:
         ASSIGN
@@ -444,7 +460,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         fiFromVer:{&SV} = STRING(ipiCurrDbVer,"99999999")
         fiToVer:{&SV} = STRING(ipiPatchDbVer,"99999999")
         cDeltaFile = "asi" + STRING(ipiCurrDbVer,"99999999") + "-" + STRING(ipiPatchDbVer,"99999999") + ".df"
-        fiDeltaFileName:{&SV} = cDeltaFile.
+        fiDeltaFileName:{&SV} = cDeltaFile
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
 
     IF ipiLevel LT 10 THEN APPLY 'choose' TO bProcess.
     ELSE DO:
@@ -498,7 +515,7 @@ PROCEDURE enable_UI :
   DISPLAY fiSiteName fiHostname fiDbName fiDbDir fiPortNo fiFromVer fiToVer 
           fiDeltaFilename eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE bProcess eStatus 
+  ENABLE RECT-6 bProcess eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -572,6 +589,8 @@ PROCEDURE ipBackupDBs :
     
     IF SEARCH(cBackupName) NE ? THEN DO:
         ASSIGN
+            iopiStatus = iopiStatus + 5
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75)
             lSuccess = TRUE.
         RUN ipStatus ("    Backup successful").
     END.
@@ -828,6 +847,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetPatchList C-Win 
+PROCEDURE ipGetPatchList :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cLine AS CHARACTER.
+    
+    ASSIGN
+        cPatchList = "".
+
+    INPUT FROM VALUE (cUpdatesDir + "\patch.mft").
+    REPEAT:
+        IMPORT 
+            cLine.
+
+        CASE ENTRY(1,cLine,"="):
+            WHEN "patchVer" THEN ASSIGN cPatchList = ENTRY(2,cLine,"=").
+            WHEN "asiDbVer" THEN ASSIGN cAsiDbVer = ENTRY(2,cLine,"=").
+            WHEN "audDbVer" THEN ASSIGN cAudDbVer = ENTRY(2,cLine,"=").
+        END CASE.
+    END.
+
+    ASSIGN
+        iPatchEnvVer = fIntVer(cPatchList)
+        iPatchDbVer  = fIntVer(cAsiDbVer)
+        iPatchAudVer  = fIntVer(cAudDbVer)
+        .
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipProcessRequest C-Win 
 PROCEDURE ipProcessRequest :
 /*------------------------------------------------------------------------------
@@ -838,9 +892,9 @@ PROCEDURE ipProcessRequest :
     DEF VAR iLookup AS INT NO-UNDO.
     
     RUN ipStatus ("Beginning Database Schema Update").
-	RUN ipReadAdminSvcProps.    
+        RUN ipReadAdminSvcProps.    
 
-	/* Process "regular" database (asixxxx.db) */
+    /* Process "regular" database (asixxxx.db) */
     RUN ipBackupDBs.
     IF NOT lSuccess THEN 
     DO:
@@ -973,42 +1027,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetPatchList C-Win 
-PROCEDURE ipGetPatchList :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cLine AS CHARACTER.
-    
-    ASSIGN
-        cPatchList = "".
-
-    INPUT FROM VALUE (cUpdatesDir + "\patch.mft").
-    REPEAT:
-        IMPORT 
-            cLine.
-
-        CASE ENTRY(1,cLine,"="):
-            WHEN "patchVer" THEN ASSIGN cPatchList = ENTRY(2,cLine,"=").
-            WHEN "asiDbVer" THEN ASSIGN cAsiDbVer = ENTRY(2,cLine,"=").
-            WHEN "audDbVer" THEN ASSIGN cAudDbVer = ENTRY(2,cLine,"=").
-        END CASE.
-    END.
-
-    ASSIGN
-        iPatchEnvVer = fIntVer(cPatchList)
-        iPatchDbVer  = fIntVer(cAsiDbVer)
-        iPatchAudVer  = fIntVer(cAudDbVer)
-        .
-        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 PROCEDURE ipStatus :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1091,6 +1109,8 @@ PROCEDURE ipUpgradeDBs :
     AND ipiPatchDbVer LE ipiCurrDbVer THEN DO:
         RUN ipStatus ("    ASI Database is already upgraded.  Skipping.").
         ASSIGN 
+            iopiStatus = iopiStatus + 2
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75)
             lSuccess = TRUE.
         RETURN.
     END.
@@ -1098,6 +1118,8 @@ PROCEDURE ipUpgradeDBs :
     AND ipiPatchAudVer LE ipiCurrAudVer THEN DO:
         RUN ipStatus ("    Audit Database is already upgraded.  Skipping.").
         ASSIGN 
+            iopiStatus = iopiStatus + 2
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75)
             lSuccess = TRUE.
         RETURN.
     END.
@@ -1220,6 +1242,8 @@ PROCEDURE ipUpgradeDBs :
                                       SUBSTRING(STRING(ipiPatchDbVer),5,2).
 
     ASSIGN
+        iopiStatus = iopiStatus + 2
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75)
         lSuccess = TRUE.
 
 END PROCEDURE.
