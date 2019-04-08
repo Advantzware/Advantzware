@@ -67,9 +67,9 @@ ASSIGN
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fi_endItem fiWhse fiToWhse ~
+&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse ~
 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fi_endItem fiWhse fiToWhse 
+&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiFromWhse fiToWhse 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -103,12 +103,12 @@ DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiWhse AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiFromWhse AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Warehouse" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_endItem AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U 
      LABEL "To Item" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
@@ -122,8 +122,8 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE FRAME FRAME-A
      fiFromItem AT ROW 3.81 COL 19 COLON-ALIGNED WIDGET-ID 26
-     fi_endItem AT ROW 3.86 COL 62 COLON-ALIGNED WIDGET-ID 28
-     fiWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
+     fiEndItem AT ROW 3.86 COL 62 COLON-ALIGNED WIDGET-ID 28
+     fiFromWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
      fiToWhse AT ROW 4.81 COL 62 COLON-ALIGNED WIDGET-ID 16
      btn-ok AT ROW 11 COL 22
      btn-cancel AT ROW 11 COL 54
@@ -233,6 +233,44 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-A FRAME-A
+ON HELP OF FRAME frame-a /* RM Physical Analysis  Posting */
+    DO:
+        DEFINE VARIABLE recid-val AS RECID     NO-UNDO.
+        DEFINE VARIABLE char-val  AS CHARACTER NO-UNDO. 
+        DEFINE VARIABLE ll-tag#   AS LOG       NO-UNDO.
+
+        CASE FOCUS:NAME :
+            WHEN "fiFromItem" OR 
+            WHEN  "fiEndItem" THEN 
+                DO:
+                    RUN windows/l-itmre.w (cocode,"","","R",FOCUS:SCREEN-VALUE, OUTPUT char-val, OUTPUT recid-val).
+                    FIND item WHERE RECID(item) EQ recid-val NO-LOCK NO-ERROR.
+                    IF AVAILABLE item AND item.i-no NE FOCUS:SCREEN-VALUE THEN 
+                    DO:
+                        FOCUS:SCREEN-VALUE = item.i-no.                        
+                    END.   
+                END.
+
+            WHEN "fiFromWhse" OR 
+            WHEN "fiToWhse" THEN 
+                DO:
+                    RUN windows/l-loc.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+                    FOCUS:SCREEN-VALUE = ENTRY(1, char-val).
+                END.   
+            WHEN "fiFromBin" OR 
+            WHEN "fiToBin" THEN 
+                DO:
+                    RUN windows/l-locbin.w (cocode,fiFromWhse:SCREEN-VALUE,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+                    FOCUS:SCREEN-VALUE = char-val.
+                END.
+        END CASE.
+
+        RETURN NO-APPLY.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
@@ -344,9 +382,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fi_endItem fiWhse fiToWhse 
+  DISPLAY fiFromItem fiEndItem fiFromWhse fiToWhse 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 fiFromItem fi_endItem fiWhse fiToWhse btn-ok btn-cancel 
+  ENABLE RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -403,8 +441,8 @@ SESSION:SET-WAIT-STATE ("general").
     run exportSnapshot in h     
      (input cocode,  
       input fiFromItem, 
-      input fi_endItem,  
-      input fiWhse,   
+      input fiEndItem,  
+      input fiFromWhse,   
       input fiToWhse)  .  
       
     delete object h.  
