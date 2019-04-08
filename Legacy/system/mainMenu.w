@@ -2729,8 +2729,7 @@ PROCEDURE pInit :
             OUTPUT lAccessClose,
             OUTPUT cAccessList  
             ).         
-        MESSAGE "ipcan" lCanProfile
-            VIEW-AS ALERT-BOX.
+       
         IF NOT lCanProfile THEN
             MENU-item  m_Profiler:SENSITIVE IN MENU m_help  = FALSE.             
         IF lAdmin AND USERID("ASI") NE "NoSweat" THEN DO:
