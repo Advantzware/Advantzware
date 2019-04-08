@@ -67,7 +67,7 @@ ADD FIELD "paramName" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Parameter Name"
   POSITION 13
-  MAX-WIDTH 8400
+  MAX-WIDTH 42
   COLUMN-LABEL "Name"
   HELP "Enter Parameter Name"
   EXTENT 200
@@ -78,7 +78,7 @@ ADD FIELD "paramLabel" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Parameter Label"
   POSITION 14
-  MAX-WIDTH 8400
+  MAX-WIDTH 42
   COLUMN-LABEL "Label"
   HELP "Enter Parameter Label"
   EXTENT 200
@@ -89,7 +89,7 @@ ADD FIELD "paramValue" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Parameter Value"
   POSITION 15
-  MAX-WIDTH 8400
+  MAX-WIDTH 42
   COLUMN-LABEL "Value"
   HELP "Enter Parameter Value"
   EXTENT 200
@@ -100,7 +100,7 @@ ADD FIELD "paramDataType" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Parameter Data Type"
   POSITION 16
-  MAX-WIDTH 8400
+  MAX-WIDTH 42
   COLUMN-LABEL "Attributes"
   HELP "Enter Parameter Data Type"
   EXTENT 200
@@ -111,7 +111,7 @@ ADD FIELD "paramFormat" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Parameter Format"
   POSITION 17
-  MAX-WIDTH 8400
+  MAX-WIDTH 42
   HELP "Enter Parameter Format"
   EXTENT 200
   ORDER 160
@@ -121,7 +121,7 @@ ADD FIELD "colName" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Column Name"
   POSITION 18
-  MAX-WIDTH 8400
+  MAX-WIDTH 42
   HELP "Enter Column Name"
   EXTENT 200
   ORDER 180
@@ -131,7 +131,7 @@ ADD FIELD "colFormat" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Column Format"
   POSITION 19
-  MAX-WIDTH 12400
+  MAX-WIDTH 62
   HELP "Enter Column Format"
   EXTENT 200
   ORDER 200
@@ -141,7 +141,7 @@ ADD FIELD "colLabel" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Column Label"
   POSITION 20
-  MAX-WIDTH 12400
+  MAX-WIDTH 62
   HELP "Enter Column Label"
   EXTENT 200
   ORDER 190
@@ -151,7 +151,7 @@ ADD FIELD "columnSize" OF "dynParamValue" AS decimal
   INITIAL "0"
   LABEL "Column Size"
   POSITION 21
-  MAX-WIDTH 2800
+  MAX-WIDTH 14
   COLUMN-LABEL "Size"
   HELP "Enter Column Size"
   EXTENT 200
@@ -163,7 +163,7 @@ ADD FIELD "dataType" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Data Type"
   POSITION 22
-  MAX-WIDTH 4000
+  MAX-WIDTH 20
   HELP "Enter Data Type"
   EXTENT 200
   ORDER 220
@@ -173,7 +173,7 @@ ADD FIELD "sortCol" OF "dynParamValue" AS integer
   INITIAL "0"
   LABEL "Sort Column Order"
   POSITION 23
-  MAX-WIDTH 1200
+  MAX-WIDTH 6
   COLUMN-LABEL "Sort"
   HELP "Enter Column Sort Order"
   EXTENT 200
@@ -184,7 +184,7 @@ ADD FIELD "isGroup" OF "dynParamValue" AS logical
   INITIAL "no"
   LABEL "Is Group"
   POSITION 24
-  MAX-WIDTH 1600
+  MAX-WIDTH 8
   COLUMN-LABEL "Group"
   HELP "Toggle if Is Group"
   EXTENT 200
@@ -195,7 +195,7 @@ ADD FIELD "groupLabel" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Group Label"
   POSITION 25
-  MAX-WIDTH 8400
+  MAX-WIDTH 24
   HELP "Enter Group Label"
   EXTENT 200
   ORDER 260
@@ -205,7 +205,7 @@ ADD FIELD "groupCalc" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Group Calculations"
   POSITION 26
-  MAX-WIDTH 102800
+  MAX-WIDTH 514
   HELP "Enter Group Calculations"
   EXTENT 200
   ORDER 270
@@ -215,7 +215,7 @@ ADD FIELD "isCalcField" OF "dynParamValue" AS logical
   INITIAL "no"
   LABEL "Is Calculated Field"
   POSITION 28
-  MAX-WIDTH 1600
+  MAX-WIDTH 8
   COLUMN-LABEL "Is Calc"
   HELP "Toggle if Calculated Field"
   EXTENT 200
@@ -226,7 +226,7 @@ ADD FIELD "calcProc" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Calculated Field Procedure"
   POSITION 29
-  MAX-WIDTH 8400
+  MAX-WIDTH 42
   HELP "Enter Calculated Field Procedure"
   EXTENT 200
   ORDER 290
@@ -236,7 +236,7 @@ ADD FIELD "calcParam" OF "dynParamValue" AS character
   INITIAL ""
   LABEL "Calculated Field Procedure Parameters"
   POSITION 31
-  MAX-WIDTH 24400
+  MAX-WIDTH 122
   HELP "Enter Calculated Field Procedure Parameters"
   EXTENT 200
   ORDER 300
@@ -266,7 +266,7 @@ ADD FIELD "isActive" OF "dynParamValue" AS logical
   INITIAL "yes"
   LABEL "Is Active"
   POSITION 34
-  MAX-WIDTH 1600
+  MAX-WIDTH 8
   COLUMN-LABEL "Active"
   HELP "Toggle if Is Active"
   EXTENT 200
@@ -277,7 +277,7 @@ ADD FIELD "sortDescending" OF "dynParamValue" AS logical
   INITIAL "no"
   LABEL "Descending"
   POSITION 35
-  MAX-WIDTH 1600
+  MAX-WIDTH 8
   COLUMN-LABEL "Descend"
   EXTENT 200
   ORDER 240
@@ -307,7 +307,7 @@ ADD FIELD "paramSetID" OF "dynParamValue" AS integer
   INITIAL "0"
   LABEL "Parameter Set ID"
   POSITION 42
-  MAX-WIDTH 4000
+  MAX-WIDTH 20
   COLUMN-LABEL "Set ID"
   HELP "Enter Parameter Set ID"
   EXTENT 200
@@ -318,7 +318,7 @@ ADD FIELD "isVisible" OF "dynParamValue" AS logical
   INITIAL "no"
   LABEL "Is Visible"
   POSITION 43
-  MAX-WIDTH 1600
+  MAX-WIDTH 8
   HELP "Toggle Is Visible"
   EXTENT 200
   ORDER 320
@@ -341,6 +341,15 @@ ADD FIELD "externalForm" OF "dynParamValue" AS character
   MAX-WIDTH 160
   HELP "Enter External Form"
   ORDER 110
+
+ADD FIELD "recordLimit" OF "dynParamValue" AS integer 
+  FORMAT ">>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Record Limit"
+  POSITION 47
+  MAX-WIDTH 4
+  HELP "Enter Record Limit"
+  ORDER 340
 
 ADD INDEX "pi-subjectID" ON "dynParamValue" 
   AREA "Index"
@@ -376,4 +385,4 @@ ADD INDEX "si-user-id" ON "dynParamValue"
 PSC
 cpstream=ISO8859-1
 .
-0000008420
+0000008561

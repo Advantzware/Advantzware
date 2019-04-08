@@ -1,0 +1,102 @@
+ADD TABLE "dynLookup"
+  AREA "Data"
+  LABEL "Dynamic Lookup"
+  DESCRIPTION "Dynamic Lookup"
+  DUMP-NAME "dynlookup"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/dynLookup.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/dynLookup.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/dynLookup.p" CRC "?" 
+
+ADD FIELD "prgmName" OF "dynLookup" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Program Name"
+  POSITION 2
+  MAX-WIDTH 20
+  HELP "Enter Program Name"
+  ORDER 10
+
+ADD FIELD "subjectID" OF "dynLookup" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Subject ID"
+  POSITION 3
+  MAX-WIDTH 4
+  HELP "Enter Subject ID"
+  ORDER 50
+
+ADD FIELD "user-id" OF "dynLookup" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 4
+  MAX-WIDTH 20
+  HELP "Enter User ID"
+  ORDER 60
+
+ADD FIELD "paramValueID" OF "dynLookup" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Parameter Value ID"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Value ID"
+  HELP "Enter Parameter Value ID"
+  ORDER 70
+
+ADD FIELD "fieldName" OF "dynLookup" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Field Name"
+  POSITION 6
+  MAX-WIDTH 40
+  HELP "Enter Field Name"
+  ORDER 40
+
+ADD FIELD "tableName" OF "dynLookup" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Table Name"
+  POSITION 7
+  MAX-WIDTH 40
+  HELP "Enter Table Name"
+  ORDER 30
+
+ADD FIELD "tableDB" OF "dynLookup" AS character 
+  FORMAT "x(8)"
+  INITIAL "ASI"
+  LABEL "Table DB"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter Table DB"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "dynLookup" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 9
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 80
+
+ADD INDEX "pi-dynLookup" ON "dynLookup" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary Index by Program Name, DB, Table and Field"
+  INDEX-FIELD "prgmName" ASCENDING 
+  INDEX-FIELD "tableDB" ASCENDING 
+  INDEX-FIELD "tableName" ASCENDING 
+  INDEX-FIELD "fieldName" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "dynLookup" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002253

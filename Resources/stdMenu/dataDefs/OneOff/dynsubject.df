@@ -127,6 +127,15 @@ ADD FIELD "paramAlign" OF "dynSubject" AS character
   HELP "Enter Parameter Alignment"
   ORDER 80
 
+ADD FIELD "recordLimit" OF "dynSubject" AS integer 
+  FORMAT ">>,>>>,>>9"
+  INITIAL "0"
+  LABEL "Record Limit"
+  POSITION 18
+  MAX-WIDTH 4
+  HELP "Enter Record Limit"
+  ORDER 140
+
 ADD INDEX "pi-subjectID" ON "dynSubject" 
   AREA "Index"
   UNIQUE
@@ -163,4 +172,4 @@ ADD INDEX "si-user-id" ON "dynSubject"
 PSC
 cpstream=ISO8859-1
 .
-0000003734
+0000003923
