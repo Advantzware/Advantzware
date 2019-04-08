@@ -38,6 +38,7 @@ PROCEDURE pSetDynParamValue:
                                              ELSE "User Default"
             dynParamValue.externalForm     = dynSubject.externalForm
             dynParamValue.securityLevel    = dynSubject.securityLevel
+            dynParamValue.recordLimit      = dynSubject.recordLimit
             .
         FOR EACH {1}SubjectParamSet
             WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,

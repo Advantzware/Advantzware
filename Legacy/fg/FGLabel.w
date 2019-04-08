@@ -273,16 +273,6 @@ DO:
 
 
 &Scoped-define SELF-NAME fiBeginJob-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiBeginJob-2 C-Win
-ON HELP OF fiBeginJob-2 IN FRAME FRAME-A
-DO:
- 
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fiEndItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndItem C-Win
 ON HELP OF fiEndItem IN FRAME FRAME-A /* Ending Item */
@@ -310,16 +300,6 @@ DO:
 
 
 &Scoped-define SELF-NAME fiEndJob-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndJob-2 C-Win
-ON HELP OF fiEndJob-2 IN FRAME FRAME-A
-DO:
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -414,7 +394,7 @@ PROCEDURE pLookupFGItem PRIVATE :
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
-    RUN system/openlookup.p (ipcCompany, "i-no", OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+    RUN system/openlookup.p (ipcCompany, "i-no", 0, "", 0, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
 /*    RUN windows/l-itemf2.w (ipcCompany,"", ipcInitial, "", OUTPUT cFoundValue, OUTPUT recFoundRecID).*/
     opcReturn = cFoundValue.
 
@@ -437,7 +417,7 @@ PROCEDURE pLookupJob PRIVATE :
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
-    RUN system/openlookup.p (ipcCompany, "job-no", OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+    RUN system/openlookup.p (ipcCompany, "job-no", 0, "", 0, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
 /*    RUN windows/l-itemf2.w (ipcCompany,"", ipcInitial, "", OUTPUT cFoundValue, OUTPUT recFoundRecID).*/
     opcReturn = cFoundValue.
 

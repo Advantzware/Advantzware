@@ -51,6 +51,7 @@ DEFINE VARIABLE cOutputImage  AS CHARACTER NO-UNDO INITIAL
 DEFINE VARIABLE cPrgmName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cParamTitle   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iRecordLimit  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSortMove     AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE pHandle       AS HANDLE    NO-UNDO.
@@ -69,6 +70,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD outputFormat     LIKE dynParamValue.outputFormat
     FIELD securityLevel    LIKE dynParamValue.securityLevel
     FIELD externalForm     LIKE dynParamValue.externalForm
+    FIELD recordLimit      LIKE dynParamValue.recordLimit
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
         INDEX mnemonic IS PRIMARY mnemonic paramTitle paramValueID user-id
@@ -94,7 +96,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
 &Scoped-define INTERNAL-TABLES ttDynParamValue
 
 /* Definitions for BROWSE browseParamValue                              */
-&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.mnemonic ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.externalForm   
+&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.mnemonic ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.recordLimit ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
 &Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramTitle BEGINS cParamTitle   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
@@ -108,15 +110,15 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     ~{&OPEN-QUERY-browseParamValue}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS searchBar btnOutputFormat browseParamValue ~
-btnScheduleTask btnSetExternalForm btnRunTask btnCopyTask btnDeleteTask ~
+&Scoped-Define ENABLED-OBJECTS btnSubjctAttr btnOutputFormat searchBar ~
+browseParamValue btnScheduleTask btnRunTask btnCopyTask btnDeleteTask ~
 btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
 /* taskObjects,List-2,List-3,List-4,List-5,List-6                       */
-&Scoped-define taskObjects btnOutputFormat btnScheduleTask ~
-btnSetExternalForm btnRunTask btnCopyTask btnDeleteTask 
+&Scoped-define taskObjects btnSubjctAttr btnOutputFormat btnScheduleTask ~
+btnRunTask btnCopyTask btnDeleteTask 
 &Scoped-define List-3 browseParamValue 
 &Scoped-define List-4 browseParamValue 
 
@@ -160,15 +162,15 @@ DEFINE BUTTON btnScheduleTask
      LABEL "Schedule Task" 
      SIZE 8 BY 1.91 TOOLTIP "Schedule Task".
 
-DEFINE BUTTON btnSetExternalForm 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "External Form" 
-     SIZE 8 BY 1.91 TOOLTIP "Set External Form".
-
 DEFINE BUTTON btnSortMove 
      IMAGE-UP FILE "Graphics/16x16/sort_up_down2.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "Sort/Move" 
      SIZE 4 BY .95 TOOLTIP "Toggle Sort/Move Columns".
+
+DEFINE BUTTON btnSubjctAttr 
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Subject Attributes" 
+     SIZE 8 BY 1.9 TOOLTIP "Subject Attributes".
 
 DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
@@ -222,6 +224,7 @@ ttDynParamValue.paramValueID LABEL-BGCOLOR 14
 ttDynParamValue.outputFormat
 ttDynParamValue.prgmName LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
+ttDynParamValue.recordLimit
 ttDynParamValue.externalForm
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -232,15 +235,15 @@ ttDynParamValue.externalForm
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
+     btnSubjctAttr AT ROW 21.48 COL 27 HELP
+          "Set Subject Attributes" WIDGET-ID 286
      btnOutputFormat AT ROW 19.57 COL 27 HELP
           "Run Now" WIDGET-ID 256
+     searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
      browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
      btnScheduleTask AT ROW 23.38 COL 27 HELP
           "Schedule Task" WIDGET-ID 252
-     btnSetExternalForm AT ROW 21.48 COL 27 HELP
-          "Set External Form" WIDGET-ID 286
      btnRunTask AT ROW 13.86 COL 27 HELP
           "Run Task" WIDGET-ID 250
      btnCopyTask AT ROW 15.76 COL 27 HELP
@@ -334,7 +337,7 @@ ASSIGN FRAME filterFrame:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB browseParamValue btnOutputFormat F-Main */
+/* BROWSE-TAB browseParamValue filterFrame F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 26.95
@@ -357,7 +360,7 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR BUTTON btnScheduleTask IN FRAME F-Main
    1                                                                    */
-/* SETTINGS FOR BUTTON btnSetExternalForm IN FRAME F-Main
+/* SETTINGS FOR BUTTON btnSubjctAttr IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -460,7 +463,7 @@ DO:
         ASSIGN
             btnOutputFormat:HIDDEN    = ttDynParamValue.user-id EQ "_default"
             btnDeleteTask:HIDDEN      = btnOutputFormat:HIDDEN
-            btnSetExternalForm:HIDDEN = btnOutputFormat:HIDDEN
+            btnSubjctAttr:HIDDEN = btnOutputFormat:HIDDEN
             btnScheduleTask:HIDDEN    = ttDynParamValue.paramValueID EQ 0
             .
     END. /* if avail */
@@ -545,25 +548,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSetExternalForm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSetExternalForm s-object
-ON CHOOSE OF btnSetExternalForm IN FRAME F-Main /* External Form */
-DO:
-    cExternalForm = ttDynParamValue.externalForm.
-    RUN AOA/dynExternalForm.w (INPUT-OUTPUT cExternalForm, OUTPUT lOK).
-    IF lOK THEN DO TRANSACTION:
-        FIND FIRST dynParamValue EXCLUSIVE-LOCK
-             WHERE ROWID(dynParamValue) EQ ttDynParamValue.paramValueRowID.
-        dynParamValue.externalForm = cExternalForm.
-        RELEASE dynParamValue.
-        browseParamValue:REFRESH().
-    END. /* if ok */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnSortMove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSortMove s-object
 ON CHOOSE OF btnSortMove IN FRAME F-Main /* Sort/Move */
@@ -576,6 +560,37 @@ DO:
         + IF lSortMove THEN "sort_up_down2.gif"
           ELSE "left_right_arrows.gif")
         .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSubjctAttr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSubjctAttr s-object
+ON CHOOSE OF btnSubjctAttr IN FRAME F-Main /* Subject Attributes */
+DO:
+    ASSIGN
+        cExternalForm = ttDynParamValue.externalForm
+        iRecordLimit  = ttDynParamValue.recordLimit
+        .
+    RUN AOA/dynSubjctAttr.w (
+        INPUT-OUTPUT cExternalForm,
+        INPUT-OUTPUT iRecordLimit,
+        OUTPUT lOK
+        ).
+    IF lOK THEN DO TRANSACTION:
+        FIND FIRST dynParamValue EXCLUSIVE-LOCK
+             WHERE ROWID(dynParamValue) EQ ttDynParamValue.paramValueRowID.
+        ASSIGN
+            dynParamValue.externalForm   = cExternalForm
+            dynParamValue.recordLimit    = iRecordLimit
+            ttDynParamValue.externalForm = cExternalForm
+            ttDynParamValue.recordLimit  = iRecordLimit
+            .
+        RELEASE dynParamValue.
+        browseParamValue:REFRESH().
+    END. /* if ok */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -857,6 +872,7 @@ PROCEDURE pGetParamValue :
             ttDynParamValue.outputFormat     = dynParamValue.outputFormat
             ttDynParamValue.securityLevel    = dynParamValue.securityLevel
             ttDynParamValue.externalForm     = dynParamValue.externalForm
+            ttDynParamValue.recordLimit      = dynParamValue.recordLimit
             ttDynParamValue.paramValueRowID  = ROWID(dynParamValue)
             ttDynParamValue.allData          = ttDynParamValue.mnemonic + "|"
                                              + ttDynParamValue.paramDescription + "|"
@@ -866,6 +882,7 @@ PROCEDURE pGetParamValue :
                                              + ttDynParamValue.user-id + "|"
                                              + ttDynParamValue.outputFormat + "|"
                                              + ttDynParamValue.externalForm + "|"
+                                             + STRING(ttDynParamValue.recordLimit) + "|"
                                              + STRING(ttDynParamValue.paramValueID)
                                              .
         IF NOT CAN-DO(filterTitle:LIST-ITEMS,ttDynParamValue.paramTitle) THEN

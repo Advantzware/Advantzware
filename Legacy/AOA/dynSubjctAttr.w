@@ -28,6 +28,7 @@
 /* Parameters Definitions ---                                           */
 
 DEFINE INPUT-OUTPUT PARAMETER iopcExternalForm AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiRecordLimit  AS INTEGER   NO-UNDO.
 DEFINE       OUTPUT PARAMETER oplOK            AS LOGICAL   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -47,18 +48,21 @@ DEFINE       OUTPUT PARAMETER oplOK            AS LOGICAL   NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES dynParamValue
+&Scoped-define INTERNAL-TABLES dynParamValue dynSubject
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define QUERY-STRING-Dialog-Frame FOR EACH dynParamValue SHARE-LOCK
-&Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH dynParamValue SHARE-LOCK.
-&Scoped-define TABLES-IN-QUERY-Dialog-Frame dynParamValue
+&Scoped-define QUERY-STRING-Dialog-Frame FOR EACH dynParamValue SHARE-LOCK, ~
+      EACH dynSubject OF dynParamValue SHARE-LOCK
+&Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH dynParamValue SHARE-LOCK, ~
+      EACH dynSubject OF dynParamValue SHARE-LOCK.
+&Scoped-define TABLES-IN-QUERY-Dialog-Frame dynParamValue dynSubject
 &Scoped-define FIRST-TABLE-IN-QUERY-Dialog-Frame dynParamValue
+&Scoped-define SECOND-TABLE-IN-QUERY-Dialog-Frame dynSubject
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cExternalForm btnOK btnCancel 
-&Scoped-Define DISPLAYED-OBJECTS cExternalForm 
+&Scoped-Define ENABLED-OBJECTS cExternalForm btnOK btnCancel iRecordLimit 
+&Scoped-Define DISPLAYED-OBJECTS cExternalForm iRecordLimit 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -91,6 +95,11 @@ DEFINE VARIABLE cExternalForm AS CHARACTER FORMAT "x(80)"
      VIEW-AS FILL-IN 
      SIZE 82 BY 1.
 
+DEFINE VARIABLE iRecordLimit AS INTEGER FORMAT ">>,>>>,>>9" INITIAL 0 
+     LABEL "Record Limit" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 18 BY 2.38.
@@ -98,7 +107,8 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Dialog-Frame FOR 
-      dynParamValue SCROLLING.
+      dynParamValue, 
+      dynSubject SCROLLING.
 &ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
@@ -110,6 +120,8 @@ DEFINE FRAME Dialog-Frame
           "Save"
      btnCancel AT ROW 2.91 COL 91 HELP
           "Cancel"
+     iRecordLimit AT ROW 3.14 COL 16 COLON-ALIGNED HELP
+          "Enter Record Limit" WIDGET-ID 6
      RECT-1 AT ROW 2.67 COL 82 WIDGET-ID 2
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -150,7 +162,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
 /* Query rebuild information for DIALOG-BOX Dialog-Frame
-     _TblList          = "ASI.dynParamValue"
+     _TblList          = "ASI.dynParamValue,ASI.dynSubject OF ASI.dynParamValue"
      _Options          = "SHARE-LOCK"
      _Query            is OPENED
 */  /* DIALOG-BOX Dialog-Frame */
@@ -190,7 +202,9 @@ ON CHOOSE OF btnOK IN FRAME Dialog-Frame /* OK */
 DO:
     ASSIGN
         cExternalForm
+        iRecordLimit
         iopcExternalForm = cExternalForm
+        iopiRecordLimit  = iRecordLimit
         oplOK = YES
         .
 END.
@@ -216,7 +230,10 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  cExternalForm = iopcExternalForm.
+  ASSIGN
+      cExternalForm = iopcExternalForm
+      iRecordLimit  = iopiRecordLimit
+      .
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -259,9 +276,9 @@ PROCEDURE enable_UI :
 
   {&OPEN-QUERY-Dialog-Frame}
   GET FIRST Dialog-Frame.
-  DISPLAY cExternalForm 
+  DISPLAY cExternalForm iRecordLimit 
       WITH FRAME Dialog-Frame.
-  ENABLE cExternalForm btnOK btnCancel 
+  ENABLE cExternalForm btnOK btnCancel iRecordLimit 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

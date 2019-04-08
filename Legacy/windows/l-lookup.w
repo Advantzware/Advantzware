@@ -27,10 +27,11 @@
     ip-queryString :Where clause to select specific records
     ip-outList     :List of fields for which the value is required to be 
                     returned when a row is selected in the browse
+    ip-recLimit    :Max Record Limit to prevent run away query
 
   Output Parameters:
-    op-returnFields:Pipe separated list of return field values as output 
-                    based on previous input list
+    op-returnFields:Pipe separated list of return field name and value as
+                    output based on previous input list
     op-lookupField :Single return value which is to be returned from 
                     the lookup - this will populate in the field from 
                     where the lookup was opened
@@ -48,7 +49,6 @@
 
 /* Parameters Definitions ---                                           */
 
-/* Local Variable Definitions ---                                       */
 DEFINE INPUT  PARAMETER ip-title          AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-lookupField    AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-table          AS CHARACTER NO-UNDO.
@@ -61,41 +61,42 @@ DEFINE INPUT  PARAMETER ip-filterList     AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-sortList       AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-queryString    AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-outList        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-recLimit       AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER op-returnFields   AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-lookupField    AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-recVal         AS RECID     NO-UNDO.
- 
-DEFINE VARIABLE h_query           AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_ttquery         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brquery         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_buffer          AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_ttbuffer        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brbuffer        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_tt              AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brtt            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_browser         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_dialogFrame     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_filterFrame     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_firstFilterField AS HANDLE   NO-UNDO. 
 
-DEFINE VARIABLE li-count          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE li-maxBrRows      AS INTEGER   NO-UNDO INITIAL 16.
-DEFINE VARIABLE li-pageCount      AS INTEGER   NO-UNDO INITIAL 0.
-DEFINE VARIABLE li-pageRecCount   AS INTEGER   NO-UNDO INITIAL 16.
+/* Local Variable Definitions ---                                       */
 
-/* This will come from setup later - hardcoded for now */
-DEFINE VARIABLE li-recLimit       AS INTEGER   NO-UNDO INITIAL 15000.
+DEFINE VARIABLE h_query            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_ttquery          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brquery          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_buffer           AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_ttbuffer         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brbuffer         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_tt               AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brtt             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_browser          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_dialogFrame      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_filterFrame      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_firstFilterField AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_btnOK            AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE ls-sortBy         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-sortType       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-queryString    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE li-count           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE li-maxBrRows       AS INTEGER   NO-UNDO INITIAL 30.
+DEFINE VARIABLE li-pageCount       AS INTEGER   NO-UNDO INITIAL 0.
+DEFINE VARIABLE li-pageRecCount    AS INTEGER   NO-UNDO INITIAL 30.
 
-DEFINE VARIABLE ll-filterOpen     AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-filterFirst    AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-filterFlag     AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-ttLoaded       AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-useMatches     AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-continue       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE ls-sortBy          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-sortType        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-queryString     AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE ll-filterOpen      AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-filterFirst     AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-filterFlag      AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-ttLoaded        AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-useMatches      AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-continue        AS LOGICAL   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -115,8 +116,8 @@ DEFINE VARIABLE ll-continue       AS LOGICAL   NO-UNDO.
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bt-clear ls-search bt-prev bt-next bt-ok ~
-bt-cancel br-table 
+&Scoped-Define ENABLED-OBJECTS bt-cancel bt-next bt-clear bt-ok ls-search ~
+br-table bt-prev 
 &Scoped-Define DISPLAYED-OBJECTS ls-search 
 
 /* Custom List Definitions                                              */
@@ -156,38 +157,49 @@ FUNCTION getSearchValue RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-cancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91 TOOLTIP "Cancel"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-clear 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
      LABEL "Reset" 
-     SIZE 8 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON bt-next 
+     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_down2_disabled.ico":U NO-FOCUS
      LABEL "&Next" 
-     SIZE 7 BY 1.14
+     SIZE 8 BY 1.91 TOOLTIP "Page Down"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-ok AUTO-GO 
-     LABEL "OK" 
-     SIZE 15 BY 1.14
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "OK"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-prev 
+     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_up2_disabled.ico":U NO-FOCUS
      LABEL "&Prev" 
-     SIZE 7 BY 1.14
+     SIZE 8 BY 1.91 TOOLTIP "Page Up"
      BGCOLOR 8 .
 
 DEFINE VARIABLE ls-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 38.2 BY 1.14 NO-UNDO.
+     SIZE 36 BY 1.14 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 46 BY 1.91.
 
 DEFINE BUTTON bt-filter 
      IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U
      LABEL "" 
-     SIZE 5.2 BY 1.14.
+     SIZE 5.2 BY 1.14 TOOLTIP "Toggle Column Filters".
 
 
 /* Browse definitions                                                   */
@@ -196,30 +208,34 @@ DEFINE BROWSE br-table
   
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 112 BY 14.19 ROW-HEIGHT-CHARS .62.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 97 BY 25.29 ROW-HEIGHT-CHARS .62.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     bt-clear AT ROW 1.19 COL 7 WIDGET-ID 12
-     ls-search AT ROW 1.24 COL 22 COLON-ALIGNED WIDGET-ID 6
-     bt-prev AT ROW 1.24 COL 64 WIDGET-ID 14
-     bt-next AT ROW 1.24 COL 72.2 WIDGET-ID 16
-     bt-ok AT ROW 1.24 COL 80.8
-     bt-cancel AT ROW 1.24 COL 98
+     bt-cancel AT ROW 1.24 COL 90
+     bt-next AT ROW 1.24 COL 72 WIDGET-ID 16
+     bt-clear AT ROW 1.24 COL 7 WIDGET-ID 12
+     bt-ok AT ROW 1.24 COL 81
+     ls-search AT ROW 1.62 COL 23 COLON-ALIGNED WIDGET-ID 6
      br-table AT ROW 4.52 COL 1 WIDGET-ID 200
+     bt-prev AT ROW 1.24 COL 63 WIDGET-ID 14
+     RECT-1 AT ROW 1.24 COL 16 WIDGET-ID 20
+     SPACE(36.00) SKIP(26.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 FGCOLOR 1 
          TITLE "Help Information"
-         DEFAULT-BUTTON bt-ok CANCEL-BUTTON bt-cancel WIDGET-ID 100.
+         CANCEL-BUTTON bt-cancel WIDGET-ID 100.
 
 DEFINE FRAME filter-frame
-     bt-filter AT ROW 1.1 COL 1 WIDGET-ID 2
+     bt-filter AT ROW 1 COL 1 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS THREE-D 
-         AT COL 1 ROW 1.1
-         SIZE 5.6 BY 1.28 WIDGET-ID 300.
+         AT COL 1 ROW 1.24
+         SIZE 5.6 BY 1.43
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -242,13 +258,7 @@ ASSIGN FRAME filter-frame:FRAME = FRAME Dialog-Frame:HANDLE.
 
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-
-DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
-
-ASSIGN XXTABVALXX = FRAME filter-frame:MOVE-BEFORE-TAB-ITEM (bt-clear:HANDLE IN FRAME Dialog-Frame)
-/* END-ASSIGN-TABS */.
-
-/* BROWSE-TAB br-table bt-cancel Dialog-Frame */
+/* BROWSE-TAB br-table ls-search Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -259,6 +269,8 @@ ASSIGN
 ASSIGN 
        ls-search:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME filter-frame
    UNDERLINE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -310,21 +322,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON DEFAULT-ACTION OF br-table IN FRAME Dialog-Frame
 DO:
-    DEFINE VARIABLE h_lfield   AS HANDLE NO-UNDO.
+    DEFINE VARIABLE h_lfield AS HANDLE NO-UNDO.
      
-    IF h_browser:NUM-SELECTED-ROWS > 0 AND h_brBuffer:AVAILABLE THEN DO:
+    IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
       DO li-count = 1 TO NUM-ENTRIES(ip-outList):
           h_lfield = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE.
-          IF h_lfield:DATA-TYPE = "DATE" THEN
+          op-returnFields = op-returnFields + h_lfield:NAME + "|".
+          IF h_lfield:DATA-TYPE EQ "DATE" THEN
              op-returnFields = op-returnFields + 
-                              (IF h_lfield:BUFFER-VALUE = ? THEN "" 
+                              (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
                               ELSE h_lfield:BUFFER-VALUE) + "|".
           ELSE 
              op-returnFields = op-returnFields + h_lfield:BUFFER-VALUE + "|".
       END.
       ASSIGN
           op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
-          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE.      
+          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
+          .      
     END.
   
     APPLY "WINDOW-CLOSE" TO FRAME {&FRAME-NAME}.
@@ -337,9 +351,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON START-SEARCH OF br-table IN FRAME Dialog-Frame
 DO:
-   IF INDEX(ip-sortList, h_browser:CURRENT-COLUMN:NAME) > 0 THEN DO:
-       IF ls-sortBy = h_browser:CURRENT-COLUMN:NAME THEN
-            ls-sortType = IF ls-sortType = "DESCENDING" THEN "" ELSE "DESCENDING".
+   IF INDEX(ip-sortList, h_browser:CURRENT-COLUMN:NAME) GT 0 THEN DO:
+       IF ls-sortBy EQ h_browser:CURRENT-COLUMN:NAME THEN
+            ls-sortType = IF ls-sortType EQ "DESCENDING" THEN "" ELSE "DESCENDING".
 
        ASSIGN 
           ls-sortBy = h_browser:CURRENT-COLUMN:NAME.
@@ -418,23 +432,24 @@ END.
 
 &Scoped-define SELF-NAME bt-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
-ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
+ON CHOOSE OF bt-ok IN FRAME Dialog-Frame
 DO:
-    DEFINE VARIABLE h_lfield   AS HANDLE NO-UNDO.
+    DEFINE VARIABLE h_lfield AS HANDLE NO-UNDO.
     
-    IF h_browser:NUM-SELECTED-ROWS > 0 AND h_brBuffer:AVAILABLE THEN DO:
+    IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
        DO li-count = 1 TO NUM-ENTRIES(ip-outList):
            h_lfield = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE.
-           IF h_lfield:DATA-TYPE = "DATE" THEN
+           IF h_lfield:DATA-TYPE EQ "DATE" THEN
               op-returnFields = op-returnFields + 
-                                (IF h_lfield:BUFFER-VALUE = ? THEN "" 
+                                (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
                                 ELSE h_lfield:BUFFER-VALUE) + "|".
            ELSE 
               op-returnFields = op-returnFields + h_lfield:BUFFER-VALUE + "|".
        END.
        ASSIGN
           op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
-          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE.      
+          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
+          .
     END.  
 END.
 
@@ -475,30 +490,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
 
-/* ***************************  Main Block  *************************** */
-
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    
+   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
     RUN validateParameters NO-ERROR.
     IF ERROR-STATUS:ERROR THEN DO:
         RETURN ERROR.
-    END.   
-
+    END.
     RUN init.
-
-    RUN enable_UI.
-    
-    RUN resizeWindow.
-    
+    RUN enable_UI.    
+    RUN resizeWindow.    
     IF ll-filterFirst THEN DO:
         RUN resizeFilterFrame.        
         RUN openFilterQuery.    
@@ -507,15 +514,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN buildTempTable.
         RUN openSearchQuery.
         APPLY 'ENTRY' TO ls-search IN FRAME {&FRAME-NAME}.
-    END.
-  
+    END.  
     ASSIGN 
         bt-clear:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME}  = TRUE
         ls-search:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
-        bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME}   = FALSE.
-  
-    RUN customizeBrowse.
-  
+        bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME}   = FALSE
+        .  
+    RUN customizeBrowse.  
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -538,23 +543,21 @@ PROCEDURE addBrowseCols :
     DO li-count = 1 TO h_brbuffer:NUM-FIELDS:
         h_brbuffer:BUFFER-FIELD(li-count):VALIDATE-EXPRESSION = "".
     END.
-
     DO li-count = 1 TO NUM-ENTRIES(ip-displayList):
         h_browser:ADD-LIKE-COLUMN(h_brbuffer:NAME + "." + ENTRY(li-count, ip-displayList)).
         h_colHandle = h_browser:GET-BROWSE-COLUMN(li-count):HANDLE.
-        IF INDEX(ip-sortList, ENTRY(li-count, ip-displayList)) > 0 THEN
+        IF INDEX(ip-sortList, ENTRY(li-count, ip-displayList)) GT 0 THEN
            h_colHandle:LABEL-BGCOLOR = 14. 
            
-        IF ip-widthList <> "" AND 
-           NUM-ENTRIES(ip-widthList) >= li-count AND
-           ENTRY(li-count, ip-widthList) <> "" THEN
+        IF ip-widthList NE "" AND 
+           NUM-ENTRIES(ip-widthList) GE li-count AND
+           ENTRY(li-count, ip-widthList) NE "" THEN
            h_colHandle:WIDTH-CHARS = INTEGER(ENTRY(li-count, ip-widthList)).
         
-        IF h_colHandle:DATA-TYPE = "DATE" AND
-           INDEX(ip-filterList, h_colHandle:NAME) > 0 AND 
-           h_colHandle:WIDTH-CHARS < 20 THEN
-           h_colHandle:WIDTH-CHARS = 20.
-           
+        IF h_colHandle:DATA-TYPE EQ "DATE" AND
+           INDEX(ip-filterList, h_colHandle:NAME) GT 0 AND 
+           h_colHandle:WIDTH-CHARS LT 20 THEN
+           h_colHandle:WIDTH-CHARS = 20.           
     END.
 
 END PROCEDURE.
@@ -569,32 +572,30 @@ PROCEDURE addFilterObjects :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE h_field        AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_fillin       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_combobox     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_togglebox    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_browseCol    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_calendar     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_btnClear     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_btnOK        AS HANDLE    NO-UNDO.
-      
-    DEFINE VARIABLE h_colNum       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE h_field     AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_fillin    AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_combobox  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_togglebox AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_browseCol AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_calendar  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_btnClear  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_colNum    AS INTEGER NO-UNDO.
     
-    IF ip-filterList <> "" THEN DO:
+    IF ip-filterList NE "" THEN DO:
         DO li-count = 1 TO NUM-ENTRIES(ip-filterList):
             ASSIGN 
                 h_field = h_ttbuffer:BUFFER-FIELD(ENTRY(li-count,ip-filterList))
                 h_colNum = LOOKUP(ENTRY(li-count,ip-filterList), ip-displayList)
-                h_browseCol = h_browser:GET-BROWSE-COL(h_colNum):HANDLE.
-                
+                h_browseCol = h_browser:GET-BROWSE-COL(h_colNum):HANDLE
+                .                
             IF VALID-HANDLE(h_field) THEN DO:
-                IF h_field:DATA-TYPE = "CHARACTER" OR
-                   h_field:DATA-TYPE = "INTEGER"   OR
-                   h_field:DATA-TYPE = "DECIMAL"   OR
-                   h_field:DATA-TYPE = "DATE" THEN DO:
-
+                IF h_field:DATA-TYPE EQ "CHARACTER" OR
+                   h_field:DATA-TYPE EQ "INTEGER"   OR
+                   h_field:DATA-TYPE EQ "DECIMAL"   OR
+                   h_field:DATA-TYPE EQ "DATE" THEN DO:
                    CREATE FILL-IN h_fillin
-                   ASSIGN FRAME    = h_filterFrame
+                   ASSIGN
+                       FRAME        = h_filterFrame
                        ROW          = h_browser:ROW - 1.26
                        X            = h_browseCol:X
                        SENSITIVE    = TRUE
@@ -603,13 +604,16 @@ PROCEDURE addFilterObjects :
                        FORMAT       = h_field:FORMAT
                        VISIBLE      = TRUE
                        SCREEN-VALUE = ""
-                       PRIVATE-DATA = h_field:NAME.
+                       PRIVATE-DATA = h_field:NAME
+                       TRIGGERS:
+                           ON RETURN PERSISTENT RUN applyFilter IN THIS-PROCEDURE.
+                       END TRIGGERS.
 
-                   IF h_field:DATA-TYPE = "DATE" THEN DO:
-                       h_fillin:WIDTH-CHARS = 16.
-                      
+                   IF h_field:DATA-TYPE EQ "DATE" THEN DO:
+                       h_fillin:WIDTH-CHARS = 16.                      
                        CREATE BUTTON h_calendar
-                       ASSIGN FRAME    = h_filterFrame                          
+                       ASSIGN
+                           FRAME        = h_filterFrame                          
                            ROW          = h_browser:ROW - 1.28
                            COLUMN       = h_fillin:COLUMN + h_fillin:WIDTH
                            WIDTH        = 4.6
@@ -618,18 +622,18 @@ PROCEDURE addFilterObjects :
                            VISIBLE      = TRUE
                            PRIVATE-DATA = h_field:NAME
                            TRIGGERS:
-                               ON CHOOSE PERSISTENT RUN chooseDate IN THIS-PROCEDURE ( INPUT h_calendar:PRIVATE-DATA).
-                           END TRIGGERS.            
-                           
+                               ON CHOOSE PERSISTENT RUN chooseDate IN THIS-PROCEDURE (h_calendar:PRIVATE-DATA).
+                           END TRIGGERS.           
                        h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
                    END.
                    
-                   IF li-count = 1 THEN
+                   IF li-count EQ 1 THEN
                        ASSIGN h_firstFilterField = h_fillin.
                 END.
-                ELSE IF h_field:DATA-TYPE = "LOGICAL" THEN DO:
+                ELSE IF h_field:DATA-TYPE EQ "LOGICAL" THEN DO:
                    CREATE COMBO-BOX h_combobox
-                   ASSIGN FRAME       = h_filterFrame
+                   ASSIGN
+                       FRAME           = h_filterFrame
                        ROW             = h_browser:ROW - 1.26
                        X               = h_browseCol:X
                        WIDTH-PIXELS    = h_browseCol:WIDTH-PIXELS + 4
@@ -646,10 +650,11 @@ PROCEDURE addFilterObjects :
         END.
         
         CREATE TOGGLE-BOX h_togglebox
-        ASSIGN FRAME = h_filterFrame
+        ASSIGN
+            FRAME     = h_filterFrame
             LABEL     = "Use Wildcards"
-            Y         = bt-filter:Y IN FRAME filter-frame + 4
-            COLUMN    = 40
+            Y         = bt-filter:Y IN FRAME filter-frame + 13
+            COLUMN    = 36
             SENSITIVE = TRUE
             VISIBLE   = TRUE
             TRIGGERS:
@@ -657,30 +662,36 @@ PROCEDURE addFilterObjects :
             END TRIGGERS.
            
         CREATE BUTTON h_btnClear
-        ASSIGN FRAME = h_filterFrame
+        ASSIGN
+            FRAME     = h_filterFrame
             LABEL     = "Reset"
             ROW       = bt-filter:ROW IN FRAME filter-frame
-            COLUMN    = 24
+            COLUMN    = 16
             WIDTH     = bt-cancel:WIDTH IN FRAME {&FRAME-NAME}
             HEIGHT    = bt-cancel:HEIGHT IN FRAME {&FRAME-NAME}
+            TOOLTIP   = "Reset"
             SENSITIVE = TRUE
             VISIBLE   = TRUE
             TRIGGERS:
                ON CHOOSE PERSISTENT RUN resetFilterObjects IN THIS-PROCEDURE.
             END TRIGGERS.
-  
+        h_btnClear:LOAD-IMAGE("Graphics/32x32/undo_32.ico").
+
         CREATE BUTTON h_btnOK
-        ASSIGN FRAME = h_filterFrame
+        ASSIGN
+           FRAME     = h_filterFrame
            LABEL     = "Find"
            ROW       = bt-filter:ROW IN FRAME filter-frame
            COLUMN    = 7
            WIDTH     = bt-ok:WIDTH IN FRAME {&FRAME-NAME}
            HEIGHT    = bt-ok:HEIGHT IN FRAME {&FRAME-NAME}
+           TOOLTIP   = "Find"
            SENSITIVE = TRUE
            VISIBLE   = TRUE
            TRIGGERS:
               ON CHOOSE PERSISTENT RUN openFilterQuery IN THIS-PROCEDURE.
            END TRIGGERS.
+        h_btnOK:LOAD-IMAGE("Graphics/32x32/magnifying_glass.ico").
 
         bt-ok:HANDLE:MOVE-TO-TOP().
         bt-cancel:HANDLE:MOVE-TO-TOP().
@@ -689,6 +700,20 @@ PROCEDURE addFilterObjects :
  
     END.
     CLEAR FRAME filter-frame NO-PAUSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE applyFilter Dialog-Frame 
+PROCEDURE applyFilter :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY "CHOOSE":U TO h_btnOK.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,16 +724,14 @@ PROCEDURE attachQuery :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
-------------------------------------------------------------------------------*/
-    
-    IF ip-sortList <> "" THEN
+------------------------------------------------------------------------------*/    
+    IF ip-sortList NE "" THEN
         ASSIGN 
             ls-sortBy   = ENTRY(1,ip-sortList)
-            ls-sortType = "".
-
+            ls-sortType = ""
+            .
     h_brquery:QUERY-PREPARE("FOR EACH" + " " + h_brbuffer:NAME + " " + "NO-LOCK").
-    h_brquery:QUERY-OPEN().
-                                        
+    h_brquery:QUERY-OPEN().                                        
     h_browser:QUERY = h_brquery.
 
 END PROCEDURE.
@@ -729,7 +752,7 @@ PROCEDURE buildTempTable :
     ls-queryString = "FOR EACH" + " " +
                     h_buffer:NAME + " " +
                     "NO-LOCK" + " " + 
-                    IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString. 
+                    IF ip-queryString EQ "" THEN "" ELSE "WHERE" + " " + ip-queryString. 
     h_query:QUERY-PREPARE (ls-queryString).
     h_query:QUERY-OPEN().
         
@@ -748,19 +771,19 @@ PROCEDURE buildTempTable :
         h_ttbuffer:BUFFER-COPY(h_buffer).
         
         DO li-count = 1 TO NUM-ENTRIES(ip-displayList):
-            h_field = h_buffer:BUFFER-FIELD(ENTRY(li-count, ip-displayList)):HANDLE.
-            
-                        IF h_field:DATA-TYPE = "LOGICAL" THEN 
-                        ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE, h_field:FORMAT) + "|".
-                        ELSE IF h_field:DATA-TYPE = "DATE" THEN 
-                        ls-allData = ls-allData + STRING((if h_field:BUFFER-VALUE = ? then '' else h_field:BUFFER-VALUE), h_field:FORMAT) + "|".
-                        ELSE 
-                        ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE) + "|".
+            h_field = h_buffer:BUFFER-FIELD(ENTRY(li-count, ip-displayList)):HANDLE.            
+            IF h_field:DATA-TYPE EQ "LOGICAL" THEN 
+            ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE, h_field:FORMAT) + "|".
+            ELSE IF h_field:DATA-TYPE EQ "DATE" THEN 
+            ls-allData = ls-allData + STRING((if h_field:BUFFER-VALUE EQ ? then "" ELSE h_field:BUFFER-VALUE), h_field:FORMAT) + "|".
+            ELSE 
+            ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE) + "|".
         END.
         
         ASSIGN
             h_ttbuffer:BUFFER-FIELD("allData"):BUFFER-VALUE = ls-allData
-            h_ttbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_buffer:RECID.
+            h_ttbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_buffer:RECID
+            .
         h_query:GET-NEXT().
     END.
     
@@ -779,23 +802,21 @@ PROCEDURE chooseDate :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-widget-field    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ip-widget-field AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE calendarDate AS CHARACTER NO-UNDO.
-
     DEFINE VARIABLE h_widget     AS HANDLE    NO-UNDO.
 
     RUN nosweat/popupcal2.w (OUTPUT calendarDate).
-    IF calendarDate NE '' THEN DO:
+    IF calendarDate NE "" THEN DO:
         h_widget = h_filterFrame:FIRST-CHILD:FIRST-CHILD.
         DO WHILE VALID-HANDLE(h_widget):
-            IF h_widget:TYPE = "FILL-IN" AND
-               h_widget:DATA-TYPE = "DATE" AND
-               h_widget:PRIVATE-DATA = ip-widget-field THEN DO:
+            IF h_widget:TYPE EQ "FILL-IN" AND
+               h_widget:DATA-TYPE EQ "DATE" AND
+               h_widget:PRIVATE-DATA EQ ip-widget-field THEN DO:
                 h_widget:SCREEN-VALUE = calendarDate.
                 LEAVE.
-            END.
-  
+            END.  
             h_widget = h_widget:NEXT-SIBLING.
         END.    
     END.
@@ -825,21 +846,20 @@ PROCEDURE createTempTables :
         
         ASSIGN ls-label = h_field:LABEL
                ls-format = h_field:FORMAT
-               li-lookup = 0.
-
+               li-lookup = 0
+               .
         li-lookup = LOOKUP(h_field:NAME, ip-displayList).
 
-        IF li-lookup > 0 THEN DO:
-            IF ip-labelList <> "" AND 
-               NUM-ENTRIES(ip-labelList) >= li-lookup AND
-               ENTRY(li-lookup,ip-labelList) <> "" THEN
+        IF li-lookup GT 0 THEN DO:
+            IF ip-labelList NE "" AND 
+               NUM-ENTRIES(ip-labelList) GE li-lookup AND
+               ENTRY(li-lookup,ip-labelList) NE "" THEN
                ASSIGN ls-label = ENTRY(li-lookup,ip-labelList).
 
-            IF ip-formatList <> "" AND 
-               NUM-ENTRIES(ip-formatList) >= li-lookup AND
-               ENTRY(li-lookup,ip-formatList) <> "" THEN
+            IF ip-formatList NE "" AND 
+               NUM-ENTRIES(ip-formatList) GE li-lookup AND
+               ENTRY(li-lookup,ip-formatList) NE "" THEN
                ASSIGN ls-format = ENTRY(li-lookup,ip-formatList).
-
         END.
         
         ll-success = h_tt:ADD-NEW-FIELD(h_field:NAME,
@@ -856,8 +876,7 @@ PROCEDURE createTempTables :
                                h_field:EXTENT,
                                h_field:FORMAT,
                                h_field:DEFAULT-VALUE,
-                               ls-label) NO-ERROR.
-         
+                               ls-label) NO-ERROR.         
     END.
     
     h_tt:ADD-NEW-FIELD("allData", "CHARACTER").
@@ -885,10 +904,11 @@ PROCEDURE customizeBrowse :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    h_browser:ALLOW-COLUMN-SEARCHING = TRUE.
-        
-    h_browser:BGCOLOR = 8.
-    h_browser:SENSITIVE = YES.
+    ASSIGN
+        h_browser:ALLOW-COLUMN-SEARCHING = TRUE        
+        h_browser:BGCOLOR = ?
+        h_browser:SENSITIVE = YES
+        .
     
 END PROCEDURE.
 
@@ -926,7 +946,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY ls-search 
       WITH FRAME Dialog-Frame.
-  ENABLE bt-clear ls-search bt-prev bt-next bt-ok bt-cancel 
+  ENABLE bt-cancel bt-next bt-clear bt-ok ls-search bt-prev 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -944,8 +964,7 @@ PROCEDURE init :
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/    
-    
+------------------------------------------------------------------------------*/        
     CREATE BUFFER h_buffer FOR TABLE ip-table.
 
     CREATE QUERY h_query.
@@ -955,15 +974,13 @@ PROCEDURE init :
     
     CREATE QUERY h_brquery.
      
-    h_browser = br-table:HANDLE in FRAME {&FRAME-NAME}.
-    
-    h_dialogFrame = FRAME {&FRAME-NAME}:HANDLE.
-    h_dialogFrame:TITLE = ip-title.
-
-    h_filterFrame = FRAME filter-frame:HANDLE.
-    
-    RUN validateRecordLimit(OUTPUT ll-filterFirst).
-    
+    ASSIGN
+        h_browser = br-table:HANDLE in FRAME {&FRAME-NAME}    
+        h_dialogFrame = FRAME {&FRAME-NAME}:HANDLE
+        h_dialogFrame:TITLE = ip-title
+        h_filterFrame = FRAME filter-frame:HANDLE
+        .    
+    RUN validateRecordLimit(OUTPUT ll-filterFirst).    
     RUN createTempTables.
     RUN attachQuery.
     RUN addBrowseCols.
@@ -985,10 +1002,11 @@ PROCEDURE nextPage :
         
     h_brbuffer:EMPTY-TEMP-TABLE().
 
-    li-pageCount = li-pageCount + 1.
-    li-pageRecCount = li-maxBrRows.
-    
-    bt-next:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.   
+    ASSIGN
+        li-pageCount = li-pageCount + 1
+        li-pageRecCount = li-maxBrRows    
+        bt-next:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
+        .   
     DO li-count = 1 to li-maxBrRows:
        h_ipquery:GET-NEXT().
        IF h_ipquery:QUERY-OFF-END THEN DO:
@@ -1005,6 +1023,7 @@ PROCEDURE nextPage :
     END.
     
     h_brquery:QUERY-OPEN().
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1017,18 +1036,17 @@ PROCEDURE openFilterQuery :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
     ASSIGN ls-queryString = generateFilterQuery().
                             
     h_query:QUERY-PREPARE (ls-queryString).
     h_query:QUERY-OPEN().
 
-    bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
-    
-    li-pageCount = 0.
-    
-    RUN nextPage ( INPUT h_query,
-                   INPUT h_buffer).
+    ASSIGN
+        bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
+        li-pageCount = 0
+        .    
+    RUN nextPage (h_query, h_buffer).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1046,12 +1064,12 @@ PROCEDURE openSearchQuery :
     h_ttquery:QUERY-PREPARE (ls-queryString).
     h_ttquery:QUERY-OPEN().
     
-    bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
-    
-    li-pageCount = 0.
-    
-    RUN nextPage( INPUT h_ttquery,
-                  INPUT h_ttbuffer).
+    ASSIGN
+        bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
+        li-pageCount = 0
+        .    
+    RUN nextPage (h_ttquery, h_ttbuffer).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1085,9 +1103,9 @@ PROCEDURE prevPage :
     
     ASSIGN
         li-pageRecCount = 0
-        li-pageCount = li-pageCount - 1.
-    
-    IF li-pageCount = 1 THEN
+        li-pageCount = li-pageCount - 1
+        .    
+    IF li-pageCount EQ 1 THEN
         bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
 
 END PROCEDURE.
@@ -1108,9 +1126,8 @@ PROCEDURE resetFilterObjects :
   
     h_widget = h_filterFrame:FIRST-CHILD:FIRST-CHILD.
     DO WHILE VALID-HANDLE(h_widget):
-        IF h_widget:TYPE = "COMBO-BOX" THEN
-            h_widget:SCREEN-VALUE = "1".
-  
+        IF h_widget:TYPE EQ "COMBO-BOX" THEN
+            h_widget:SCREEN-VALUE = "1".  
         h_widget = h_widget:NEXT-SIBLING.
     END.
         
@@ -1129,12 +1146,11 @@ PROCEDURE resizeFilterFrame :
 ------------------------------------------------------------------------------*/
     IF NOT ll-filterOpen THEN DO:
         ASSIGN
-            h_filterFrame:BGCOLOR        = ?
             h_filterFrame:VIRTUAL-HEIGHT = 3.24
             h_filterFrame:VIRTUAL-WIDTH  = h_browser:WIDTH
             h_filterFrame:HEIGHT = h_filterFrame:VIRTUAL-HEIGHT
-            h_filterFrame:WIDTH  = h_filterFrame:VIRTUAL-WIDTH.
-    
+            h_filterFrame:WIDTH  = h_filterFrame:VIRTUAL-WIDTH
+            .    
         IF NOT ll-filterFlag THEN DO:
             ll-filterFlag = TRUE.
             RUN addFilterObjects.
@@ -1145,12 +1161,11 @@ PROCEDURE resizeFilterFrame :
     END.
     ELSE DO:
         ASSIGN
-            h_filterFrame:BGCOLOR        = ?
             h_filterFrame:VIRTUAL-HEIGHT = 1.28
             h_filterFrame:VIRTUAL-WIDTH  = 5.6
             h_filterFrame:HEIGHT = h_filterFrame:VIRTUAL-HEIGHT
-            h_filterFrame:WIDTH  = h_filterFrame:VIRTUAL-WIDTH.
-            
+            h_filterFrame:WIDTH  = h_filterFrame:VIRTUAL-WIDTH
+            .            
         APPLY 'ENTRY' TO ls-search IN FRAME {&FRAME-NAME}.
     END.
   
@@ -1172,17 +1187,19 @@ PROCEDURE resizeWindow :
     DEFINE VARIABLE li-add-width      AS INTEGER NO-UNDO.
   
     DO li-count = 1 to h_browser:NUM-COLUMNS:
-        li-width-pixels = li-width-pixels + 
-                        h_browser:GET-BROWSE-COLUMN(li-count):WIDTH-PIXELS.
+        li-width-pixels = li-width-pixels
+                        + h_browser:GET-BROWSE-COLUMN(li-count):WIDTH-PIXELS
+                        .
     END.
 
     li-add-width = li-width-pixels + (h_browser:NUM-COLUMNS * 4) + 19 - h_browser:WIDTH-PIXELS.
-    IF li-width-pixels + (h_browser:NUM-COLUMNS * 4) + 19 > h_browser:WIDTH-PIXELS THEN
+    IF li-width-pixels + (h_browser:NUM-COLUMNS * 4) + 19 GT h_browser:WIDTH-PIXELS THEN
         ASSIGN 
             h_dialogFrame:WIDTH-PIXELS = li-width-pixels + h_browser:NUM-COLUMNS * 4 + 19 + 10
             h_browser:WIDTH-PIXELS     = li-width-pixels + h_browser:NUM-COLUMNS * 4 + 19
             bt-cancel:HANDLE:X IN FRAME {&FRAME-NAME} = bt-cancel:HANDLE:X IN FRAME {&FRAME-NAME} + li-add-width
-            bt-ok:HANDLE:X IN FRAME {&FRAME-NAME} = bt-ok:HANDLE:X IN FRAME {&FRAME-NAME} + li-add-width.
+            bt-ok:HANDLE:X IN FRAME {&FRAME-NAME} = bt-ok:HANDLE:X IN FRAME {&FRAME-NAME} + li-add-width
+            .
     ELSE
         h_browser:FIT-LAST-COLUMN = TRUE.
 
@@ -1198,6 +1215,7 @@ PROCEDURE toggleMatches :
  Notes:
 ------------------------------------------------------------------------------*/
     ASSIGN ll-useMatches = NOT ll-useMatches.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1213,26 +1231,30 @@ PROCEDURE validateParameters :
     DEFINE VARIABLE ls-fields   AS CHARACTER NO-UNDO.
     
     /* check if table input parameter is empty */
-    IF ip-table = "" THEN DO:
-        MESSAGE "DB table name not supplied"
-            VIEW-AS ALERT-BOX.
+    IF ip-table EQ "" THEN DO:
+        MESSAGE
+            "DB table name not supplied"
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.
     END.
     
     /* check if table input parameter is valid */
     FIND FIRST _file NO-LOCK
-         WHERE _file._file-name = ip-table AND
-               _file._Tbl-Type  = "T" NO-ERROR.
+         WHERE _file._file-name EQ ip-table
+           AND _file._Tbl-Type  eq "T"
+         NO-ERROR.
     IF NOT AVAIL _file THEN DO:
-        MESSAGE "Incorrect DB table " + ip-table + " passed as input parameter"
-            VIEW-AS ALERT-BOX.
+        MESSAGE
+            "Incorrect DB table " + ip-table + " passed as input parameter"
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.
     END.
     
     /* check if field list input paramater is empty */
-    IF ip-fieldList = "" THEN DO:
-        MESSAGE "Field list is not supplied"
-            VIEW-AS ALERT-BOX.
+    IF ip-fieldList EQ "" THEN DO:
+        MESSAGE
+            "Field list is not supplied"
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.
     END.
     
@@ -1240,75 +1262,84 @@ PROCEDURE validateParameters :
     ls-fields = ''.
     DO li-count = 1 TO NUM-ENTRIES(ip-fieldList):
         FIND FIRST _field NO-LOCK
-             WHERE _field._Field-Name = ENTRY(li-count,ip-fieldList)
-               AND _field._file-recid = RECID(_file) NO-ERROR.
+             WHERE _field._Field-Name EQ ENTRY(li-count,ip-fieldList)
+               AND _field._file-recid EQ RECID(_file)
+             NO-ERROR.
         IF NOT AVAILABLE _field THEN
             ls-fields = ls-fields + " " + ENTRY(li-count,ip-fieldList).    
     END.    
     
-    IF ls-fields <> "" THEN DO:
-        MESSAGE "Fields [ " + ls-fields + " ] are not available in the table " + ip-table
-            VIEW-AS ALERT-BOX.
+    IF ls-fields NE "" THEN DO:
+        MESSAGE
+            "Fields [ " + ls-fields + " ] are not available in the table " + ip-table
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.
     END.
     
     /* check if lookup field input parameter is empty */
-    IF ip-lookupField = "" THEN DO:
-        MESSAGE "Lookup field not supplied"
-            VIEW-AS ALERT-BOX.
+    IF ip-lookupField EQ "" THEN DO:
+        MESSAGE
+            "Lookup field not supplied"
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.    
     END.
     
     /* check if lookup field input parameter is available in table */
     FIND FIRST _field NO-LOCK
-         WHERE _field._Field-Name = ip-lookupField
-           AND _field._file-recid = RECID(_file) NO-ERROR.
+         WHERE _field._Field-Name EQ ip-lookupField
+           AND _field._file-recid EQ RECID(_file)
+         NO-ERROR.
     IF NOT AVAILABLE _field THEN DO:
-        MESSAGE "Lookup field [ " + ip-lookupField + " ] is not available in the table " + ip-table
-            VIEW-AS ALERT-BOX.
+        MESSAGE
+            "Lookup field [ " + ip-lookupField + " ] is not available in the table " + ip-table
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.           
     END.
 
     /* check if display list input paramater is empty */
-    IF ip-fieldList = "" THEN DO:
-        MESSAGE "Display field list not supplied"
-            VIEW-AS ALERT-BOX.
+    IF ip-fieldList EQ "" THEN DO:
+        MESSAGE
+            "Display field list not supplied"
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.
     END.
 
     /* check if display fields are available in the field list */
     DO li-count = 1 TO NUM-ENTRIES(ip-displayList):
-        IF INDEX(ip-fieldList, ENTRY(li-count,ip-displayList)) = 0 THEN
+        IF INDEX(ip-fieldList, ENTRY(li-count,ip-displayList)) EQ 0 THEN
             ls-fields = ls-fields + " " + ENTRY(li-count,ip-displayList).
     END.
 
-    IF ls-fields <> "" THEN DO:
-        MESSAGE "Display fields [ " + ls-fields + " ] are not availablle in the field list"
-            VIEW-AS ALERT-BOX.
+    IF ls-fields NE "" THEN DO:
+        MESSAGE
+            "Display fields [ " + ls-fields + " ] are not availablle in the field list"
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.
     END.
     
     /* check if sort list fields are available in the display list */
     DO li-count = 1 TO NUM-ENTRIES(ip-sortList):
-        IF INDEX(ip-displayList, ENTRY(li-count,ip-sortList)) = 0 THEN
+        IF INDEX(ip-displayList, ENTRY(li-count,ip-sortList)) EQ 0 THEN
             ls-fields = ls-fields + " " + ENTRY(li-count,ip-sortList).
     END.
 
-    IF ls-fields <> "" THEN DO:
-        MESSAGE "Sort fields [ " + ls-fields + " ] are not availablle in the display list"
-            VIEW-AS ALERT-BOX.
+    IF ls-fields NE "" THEN DO:
+        MESSAGE
+            "Sort fields [ " + ls-fields + " ] are not availablle in the display list"
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.
     END.
 
     /* check if filter fields are available in the display list */
     DO li-count = 1 TO NUM-ENTRIES(ip-filterList):
-        IF INDEX(ip-displayList, ENTRY(li-count,ip-filterList)) = 0 THEN
+        IF INDEX(ip-displayList, ENTRY(li-count,ip-filterList)) EQ 0 THEN
             ls-fields = ls-fields + " " + ENTRY(li-count,ip-filterList).
     END.
 
-    IF ls-fields <> "" THEN DO:
-        MESSAGE "Filter fields [ " + ls-fields + " ] are not availablle in the display list"
-            VIEW-AS ALERT-BOX.
+    IF ls-fields NE "" THEN DO:
+        MESSAGE
+            "Filter fields [ " + ls-fields + " ] are not availablle in the display list"
+        VIEW-AS ALERT-BOX.
         RETURN ERROR.
     END.
     
@@ -1324,23 +1355,22 @@ PROCEDURE validateRecordLimit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER ip-filterFirst   AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER ip-filterFirst AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE h_lquery        AS HANDLE NO-UNDO.    
-
+    DEFINE VARIABLE h_lquery        AS HANDLE NO-UNDO.
     DEFINE VARIABLE ls-lqueryString AS CHARACTER NO-UNDO.
     
     ls-lqueryString = "PRESELECT EACH" + " " +
                     h_buffer:NAME + " " +
                     "NO-LOCK" + " " + 
-                    IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString. 
+                    IF ip-queryString EQ "" THEN "" ELSE "WHERE" + " " + ip-queryString. 
     
     CREATE QUERY h_lquery.
     h_lquery:SET-BUFFERS(h_buffer).                
     h_lquery:QUERY-PREPARE(ls-lqueryString).
     h_lquery:QUERY-OPEN().
     
-    IF h_lquery:NUM-RESULTS > li-recLimit THEN
+    IF ip-recLimit GT 0 AND h_lquery:NUM-RESULTS GT ip-recLimit THEN
        ip-filterFirst = TRUE.
        
     DELETE OBJECT h_lquery.
@@ -1371,31 +1401,31 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
     DO WHILE VALID-HANDLE(h_widget):
         ls-datatypeString = "".
 
-        IF h_widget:TYPE = "FILL-IN"  AND 
-           h_widget:SCREEN-VALUE <> "" AND
-           h_widget:DATA-TYPE <> "DATE" THEN DO:
-            IF h_widget:DATA-TYPE = "CHARACTER" THEN
+        IF h_widget:TYPE EQ "FILL-IN"  AND 
+           h_widget:SCREEN-VALUE NE "" AND
+           h_widget:DATA-TYPE NE "DATE" THEN DO:
+            IF h_widget:DATA-TYPE EQ "CHARACTER" THEN
                 ls-datatypeString = IF ll-useMatches THEN 
                                      "MATCHES" + " " + "'*" + h_widget:SCREEN-VALUE + "*'"
                                      ELSE 
                                      "BEGINS" + " " + "'" + h_widget:SCREEN-VALUE + "'".
-            ELSE IF h_widget:DATA-TYPE = "INTEGER" THEN
+            ELSE IF h_widget:DATA-TYPE EQ "INTEGER" THEN
                 ls-datatypeString = "=" + " " + "INT" + "(" + h_widget:SCREEN-VALUE + ")".
-            ELSE IF h_widget:DATA-TYPE = "DECIMAL" THEN
+            ELSE IF h_widget:DATA-TYPE EQ "DECIMAL" THEN
                 ls-datatypeString = "=" + " " + "DECIMAL" + "(" + h_widget:SCREEN-VALUE + ")".
             
             ASSIGN
               ls-returnQueryString = ls-returnQueryString + " " + 
-                              (IF ls-returnQueryString = "" AND ip-queryString = "" THEN "WHERE" ELSE "AND") + " " +
+                              (IF ls-returnQueryString EQ "" AND ip-queryString EQ "" THEN "WHERE" ELSE "AND") + " " +
                               h_buffer:NAME + "." + h_widget:PRIVATE-DATA + " " +
                               ls-datatypeString + " ".  
         END.
-        ELSE IF h_widget:TYPE = "FILL-IN" AND h_widget:DATA-TYPE = "DATE" THEN DO:
-            IF h_widget:SCREEN-VALUE = "" THEN
+        ELSE IF h_widget:TYPE EQ "FILL-IN" AND h_widget:DATA-TYPE EQ "DATE" THEN DO:
+            IF h_widget:SCREEN-VALUE EQ "" THEN
                 ls-datatypeString = "=" + " " + "?".
             ELSE DO:                
                 ld-dateValidation = DATE(h_widget:SCREEN-VALUE) NO-ERROR.
-                IF NOT ERROR-STATUS:ERROR AND ld-dateValidation <> ? THEN
+                IF NOT ERROR-STATUS:ERROR AND ld-dateValidation NE ? THEN
                    ls-datatypeString = "=" + " " + "DATE" + "(" + h_widget:SCREEN-VALUE + ")".
                 ELSE DO:
                    h_widget = h_widget:NEXT-SIBLING.
@@ -1405,19 +1435,19 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
             
             ASSIGN
                 ls-returnQueryString = ls-returnQueryString + " " + 
-                                      (IF ls-returnQueryString = "" AND ip-queryString = "" THEN "WHERE" ELSE "AND") + " " +
+                                      (IF ls-returnQueryString EQ "" AND ip-queryString EQ "" THEN "WHERE" ELSE "AND") + " " +
                                       h_buffer:NAME + "." + h_widget:PRIVATE-DATA + " " +
                                       ls-datatypeString + " ".  
         
         END.
-        ELSE IF h_widget:TYPE = "COMBO-BOX" AND h_widget:SCREEN-VALUE <> "1" THEN DO:
+        ELSE IF h_widget:TYPE = "COMBO-BOX" AND h_widget:SCREEN-VALUE NE "1" THEN DO:
             ASSIGN 
                 ls-comboboxValue     = h_widget:SCREEN-VALUE
                 ls-returnQueryString = ls-returnQueryString + " " + 
-                                       (IF ls-returnQueryString = "" AND ip-queryString = "" THEN "WHERE" ELSE "AND") + " " +
+                                       (IF ls-returnQueryString EQ "" AND ip-queryString EQ "" THEN "WHERE" ELSE "AND") + " " +
                                        h_buffer:NAME + "." + h_widget:PRIVATE-DATA + " " +
                                        "=" + " " + 
-                                       IF ls-comboboxValue = "2" THEN "TRUE" ELSE "FALSE".
+                                       IF ls-comboboxValue EQ "2" THEN "TRUE" ELSE "FALSE".
         END.
         h_widget = h_widget:NEXT-SIBLING.
     END.
@@ -1425,7 +1455,7 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
     ls-returnQueryString = "FOR EACH" + " " + 
                     h_buffer:NAME + " " +
                     "NO-LOCK" + " " + 
-                    (IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString) + " " +                     
+                    (IF ip-queryString EQ "" THEN "" ELSE "WHERE" + " " + ip-queryString) + " " +                     
                     ls-returnQueryString + " " +
                     "BY" + " " + h_buffer:NAME + "." + ls-sortBy + " " + 
                     ls-sortType.
@@ -1449,7 +1479,7 @@ FUNCTION generateSearchQuery RETURNS CHARACTER
   
     ASSIGN ls-searchValue = getSearchValue()
            ls-returnQueryString = "FOR EACH" + " " + h_ttbuffer:NAME + " " +
-                                  (IF ls-searchValue = "" THEN "" ELSE "WHERE" + " " +
+                                  (IF ls-searchValue EQ "" THEN "" ELSE "WHERE" + " " +
                                   h_ttbuffer:NAME + "." + "allData MATCHES" + " " +
                                   ls-searchValue) + " " +
                                   "BY" + " " + h_ttbuffer:NAME + "." + ls-sortBy + " " +
@@ -1471,8 +1501,10 @@ FUNCTION getSearchValue RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE ls-searchValue    AS CHARACTER   NO-UNDO.
   
-    ls-searchValue = TRIM(REPLACE(ls-search:SCREEN-VALUE IN FRAME {&FRAME-NAME}," ", "*")).
-    ls-searchValue = IF ls-searchValue = "" THEN "" ELSE "'*" + ls-searchValue + "*'".
+    ASSIGN
+        ls-searchValue = TRIM(REPLACE(ls-search:SCREEN-VALUE IN FRAME {&FRAME-NAME}," ", "*"))
+        ls-searchValue = IF ls-searchValue EQ "" THEN "" ELSE "'*" + ls-searchValue + "*'"
+        .
   
     RETURN ls-searchValue.   /* Function return value. */
 
