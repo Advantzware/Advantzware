@@ -2794,7 +2794,7 @@ PROCEDURE local-assign-record :
                            AND itemfg.i-no    EQ set-eb.stock-no
                            AND itemfg.alloc   NE YES)).
 
-  FOR EACH b-eb
+  FOR EACH b-eb EXCLUSIVE 
       WHERE b-eb.company EQ eb.company
         AND b-eb.est-no  EQ eb.est-no
         AND ROWID(b-eb)  NE ROWID(eb):
@@ -2842,7 +2842,7 @@ PROCEDURE local-assign-record :
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
 
       IF ll-ans THEN
-      FOR EACH b-eb
+      FOR EACH b-eb EXCLUSIVE 
           WHERE b-eb.company EQ eb.company
             AND b-eb.est-no  EQ eb.est-no
             AND b-eb.eqty    EQ eb.eqty
@@ -2906,8 +2906,8 @@ PROCEDURE local-assign-record :
 
   FOR EACH b-ef OF eb NO-LOCK,
       EACH b-eb OF b-ef
-      WHERE ROWID(b-eb) NE ROWID(eb)
-      NO-LOCK:
+      WHERE ROWID(b-eb) NE ROWID(eb) 
+      EXCLUSIVE:
 
     ASSIGN
        lv-unit-2 = 0
