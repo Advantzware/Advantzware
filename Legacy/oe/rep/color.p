@@ -235,8 +235,7 @@ with frame blankl no-labels no-box no-underline stream-io width 80.
 
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
     v-fr-tax = oe-ctrl.f-tax.
-
-    if oe-ctrl.prcom then
+    
       assign
        v-c-name    = company.name
        v-c-addr[1] = company.addr[1]
@@ -244,16 +243,7 @@ with frame blankl no-labels no-box no-underline stream-io width 80.
        v-c-city    = company.city
        v-c-state   = company.state
        v-c-zip     = company.zip.
-    else
-      assign
-       v-invhead   = ""
-       v-c-name    = ""
-       v-c-addr[1] = ""
-       v-c-addr[2] = ""
-       v-c-city    = ""
-       v-c-state   = ""
-       v-c-zip     = "".
-
+    
     for each report where report.term-id eq v-term-id no-lock,
         first xinv-head where recid(xinv-head) eq report.rec-id no-lock
         break by report.key-01

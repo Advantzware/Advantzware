@@ -377,9 +377,8 @@ form " " to 80
         v-remit-to = shipto.ship-addr[1] + " " + shipto.ship-addr[2] + " " +
                      shipto.ship-city + ", " + shipto.ship-state + " " +
                      shipto.ship-zip.
-    end.
-   
-    if oe-ctrl.prcom then
+    end.   
+    
       if avail cust then
         assign
          v-c-name    = cust.name

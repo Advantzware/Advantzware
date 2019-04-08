@@ -299,7 +299,7 @@ if avail cust then do:
                  shipto.ship-zip.
 end.
 
-if oe-ctrl.prcom then 
+
   assign
    v-c-name    = company.name
    v-c-addr[1] = company.addr[1]
@@ -317,7 +317,7 @@ ASSIGN v-c-fax = ""
 
 if v-print-head then do:
   assign
-   letterhead[1] = if oe-ctrl.prcom then "=== " + v-invhead + " ===" else ""
+   letterhead[1] =  "=== " + v-invhead + " ===" 
    letterhead[2] = v-c-name
    letterhead[3] = v-c-addr[1]
    letterhead[4] = v-c-addr[2]

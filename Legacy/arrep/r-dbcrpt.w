@@ -1043,7 +1043,6 @@ ASSIGN v-lo-cust = begin_cust
 find first company where company.company eq cocode no-lock no-error.
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
 
-if avail oe-ctrl and oe-ctrl.prcom then do:
 
   assign
    letterhead[1] = ""
@@ -1061,7 +1060,7 @@ if avail oe-ctrl and oe-ctrl.prcom then do:
   do i = 1 to 5:
     {sys/inc/ctrtext.i letterhead[i] 50}.
   end.
-end.
+
 
 if v-hi-cust eq "" then v-hi-cust = "zzzzzzzz".
 

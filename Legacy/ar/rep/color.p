@@ -173,7 +173,7 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company = cocode NO-LOCK NO-ERROR.
 
 IF v-print-head THEN
 DO:
-  IF oe-ctrl.prcom THEN
+  
   ASSIGN
     letterhead[1] = "=== " + v-invhead + " ==="
     letterhead[2] =  company.name
@@ -279,15 +279,15 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   END.
   ELSE
   DISPLAY
-    v-invhead WHEN oe-ctrl.prcom
+    v-invhead 
     ar-inv.inv-date
-    company.name WHEN oe-ctrl.prcom
-    company.addr[1] WHEN oe-ctrl.prcom
+    company.name 
+    company.addr[1] 
     ar-inv.inv-no
-    company.addr[2] WHEN oe-ctrl.prcom
-    company.city WHEN oe-ctrl.prcom
-    company.state WHEN oe-ctrl.prcom
-    company.zip WHEN oe-ctrl.prcom
+    company.addr[2] 
+    company.city 
+    company.state 
+    company.zip 
     sman.sman
     ar-inv.fob-code
     ar-inv.terms-d

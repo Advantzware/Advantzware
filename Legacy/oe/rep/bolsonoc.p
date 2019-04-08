@@ -139,7 +139,7 @@ for each xreport  where xreport.term-id eq v-term-id,
 
     v-time = string(time,"hh:mm am").
 
-    if oe-ctrl.pr-broker and avail cust and shipto.broker then
+    if avail cust and shipto.broker then
       v-coname = cust.name.
 
     else v-coname = company.name.
