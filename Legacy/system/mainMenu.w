@@ -3,7 +3,7 @@
 &Scoped-define WINDOW-NAME MAINMENU
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS MAINMENU 
 /*------------------------------------------------------------------------
-
+ 
   File:              mainMenu.w
  
   Description:       Main Menu v3 (Menu Tree)
@@ -34,13 +34,13 @@ ON CTRL-P HELP.
 
 ON 'CTRL-ALT-D':U ANYWHERE
 DO:
-    RUN AOA/aoaLauncher.w PERSISTENT ("Dashboard").
+    RUN aoa/aoaLauncher.w PERSISTENT ("Dashboard").
     RETURN.
 END.
 
 ON 'CTRL-ALT-R':U ANYWHERE
 DO:
-    RUN AOA/aoaLauncher.w PERSISTENT ("Report").
+    RUN aoa/aoaLauncher.w PERSISTENT ("Report").
     RETURN.
 END.
 
@@ -85,6 +85,7 @@ DEFINE VARIABLE iRectangleFGColor AS INTEGER   NO-UNDO INITIAL {&FGColor}.
 DEFINE VARIABLE cCEMenu           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBitMap           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProfilerFile     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iProfileStartTime AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iSaveBgColor      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSearchOpen       AS LOGICAL   NO-UNDO INITIAL YES.
@@ -1427,8 +1428,8 @@ DO:
     IF DYNAMIC-FUNCTION("fCueCardActive") THEN RETURN.
 
     ASSIGN
-        iLanguage   = svLanguageList
-        iMenuSize   = svMenuSize
+        iLanguage = svLanguageList
+        iMenuSize = svMenuSize
         iFGColor[1] = FGColor-1:BGCOLOR
         iFGColor[2] = FGColor-2:BGCOLOR
         iFGColor[3] = FGColor-3:BGCOLOR
@@ -1562,7 +1563,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL copyFromUser MAINMENU
 ON VALUE-CHANGED OF copyFromUser IN FRAME userSettingsFrame
 DO:
-    ASSIGN {&SELF-NAME}.
+  ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1606,7 +1607,8 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
     STATUS DEFAULT
         "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted)
         IN WINDOW {&WINDOW-NAME}.
-
+    IF PROFILER:ENABLED THEN 
+        RUN pProcessProfiler.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1852,7 +1854,7 @@ DO:
             "About to download and install a system update.  This" SKIP 
             "window will now close until the update is complete."
             VIEW-AS ALERT-BOX INFO.
-        OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
+    OS-COMMAND NO-WAIT START VALUE(menuLinkZoHo:PRIVATE-DATA).
         QUIT.
     END.
     ELSE DO:
@@ -1903,7 +1905,7 @@ END.
 &Scoped-define SELF-NAME m_Profiler
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Profiler MAINMENU
 ON CHOOSE OF MENU-ITEM m_Profiler /* Start/Stop Profiler */
-DO:
+ DO:
         RUN pOnOffProfiler.
  END.
 
@@ -2191,11 +2193,11 @@ PROCEDURE pActivateCueCards :
  Notes:
 ------------------------------------------------------------------------------*/
     DO TRANSACTION:
-        FOR EACH xCueCard EXCLUSIVE-LOCK
-            WHERE xCueCard.user_id EQ USERID("ASI")
-            :
-            DELETE xCueCard.
-        END. /* each xcuecard */
+    FOR EACH xCueCard EXCLUSIVE-LOCK
+        WHERE xCueCard.user_id EQ USERID("ASI")
+        :
+        DELETE xCueCard.
+    END. /* each xcuecard */
     END. /* do trans */
     MESSAGE
         "Cue Cards Activated"
@@ -2316,7 +2318,7 @@ PROCEDURE pCopyToUser :
     /* if current user, need to rebuild menu and redisplay */
     IF lCurrentUser THEN
     RUN pRebuildMenuTree.
-        
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2528,16 +2530,16 @@ PROCEDURE pGetUserSettings :
             LEAVE.
         END. /* do idx */
         IF svLanguageList:SENSITIVE EQ NO THEN DO:
-            ASSIGN
-                btnLanguage-1:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
-                btnLanguage-2:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
-                btnLanguage-3:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
-                svLanguageList:SENSITIVE    = CAN-DO(prgrms.can_update,USERID("ASI"))
-                svMenuSize:SENSITIVE        = CAN-DO(prgrms.can_update,USERID("ASI"))
-                cShowMnemonic:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
-                cPositionMnemonic:SENSITIVE = CAN-DO(prgrms.can_update,USERID("ASI"))
+        ASSIGN
+            btnLanguage-1:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
+            btnLanguage-2:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
+            btnLanguage-3:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
+            svLanguageList:SENSITIVE    = CAN-DO(prgrms.can_update,USERID("ASI"))
+            svMenuSize:SENSITIVE        = CAN-DO(prgrms.can_update,USERID("ASI"))
+            cShowMnemonic:SENSITIVE     = CAN-DO(prgrms.can_update,USERID("ASI"))
+            cPositionMnemonic:SENSITIVE = CAN-DO(prgrms.can_update,USERID("ASI"))
                 svMenuImage:SENSITIVE       = CAN-DO(prgrms.can_update,USERID("ASI"))
-                .
+            .
             IF CAN-DO(prgrms.can_update,USERID("ASI")) THEN
             ENABLE {&colorPallet} WITH FRAME userSettingsFrame.
             ELSE
@@ -2586,7 +2588,10 @@ PROCEDURE pInit :
     DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cThisVer      AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE lCanProfile   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAccessList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAccessClose  AS LOGICAL   NO-UNDO. 
+       
     RUN sys/ref/nk1look.p (
         g_company,"CEMenu","C",NO,NO,"","",
         OUTPUT cCEMenu,OUTPUT lFound
@@ -2708,7 +2713,26 @@ PROCEDURE pInit :
                 "",
                 OUTPUT lSuperAdmin 
                 ).
+            RUN epCanAccess IN hPgmMstrSecur (
+                "profiler",
+                "",
+                OUTPUT lCanProfile 
+                ).
+            
         END. /* if valid handle */
+        RUN methods/prgsecur.p ("Profiler", 
+            "Access",
+            NO,
+            NO,
+            NO,
+            OUTPUT lCanProfile,
+            OUTPUT lAccessClose,
+            OUTPUT cAccessList  
+            ).         
+        MESSAGE "ipcan" lCanProfile
+            VIEW-AS ALERT-BOX.
+        IF NOT lCanProfile THEN
+            MENU-item  m_Profiler:SENSITIVE IN MENU m_help  = FALSE.             
         IF lAdmin AND USERID("ASI") NE "NoSweat" THEN DO:
             RUN sys/ref/nk1look.p (
                 g_company,"AsiHelpService","C",NO,NO,"","",
@@ -2947,9 +2971,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOnOffProfiler MAINMENU 
-PROCEDURE pOnOffProfiler :
-/*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOnOffProfiler MAINMENU
+PROCEDURE pOnOffProfiler:
+    /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -2960,6 +2984,7 @@ PROCEDURE pOnOffProfiler :
             PROFILER:PROFILING                       = FALSE                         
             PROFILER:ENABLED                         = FALSE
             company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor
+            iProfileStartTime                        = TIME                 
             . 
         PROFILER:WRITE-DATA().
         MESSAGE "Profiler has been turned off and " SKIP 
@@ -2989,14 +3014,15 @@ PROCEDURE pOnOffProfiler :
                 PROFILER:PROFILING                       = TRUE
                 PROFILER:TRACE-FILTER                    = "*"
                 iSaveBgColor                             = company_name:BGCOLOR IN FRAME frame-user
-                company_name:BGCOLOR IN FRAME frame-user = 14
+                company_name:BGCOLOR IN FRAME frame-user = 12
+                iProfileStartTime                        = TIME 
                 .
         END.
     END. 
    
 
 END PROCEDURE.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3025,7 +3051,7 @@ PROCEDURE pProcessClick :
             /* check module license first before run */
             RUN util/CheckModule.p ("ASI", ttMenuTree.treeChild, YES, OUTPUT lAccess) NO-ERROR.
             IF lAccess THEN 
-            RUN Get_Procedure IN Persistent-Handle(ttMenuTree.treeChild, OUTPUT run-proc, YES).
+            RUN Get_Procedure IN Persistent-Handle(ttMenuTree.treeChild,OUTPUT run-proc,YES).
         END. /* if program */
     END. /* if avail not ismenu */
     Mnemonic:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMnemonic.
@@ -3034,6 +3060,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessProfiler MAINMENU
+PROCEDURE pProcessProfiler:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iProfileRunTime AS INTEGER NO-UNDO.
+    IF PROFILER:ENABLED THEN DO:
+      IF company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor THEN   
+        company_name:BGCOLOR IN FRAME frame-user = 12.
+      ELSE 
+        company_name:BGCOLOR IN FRAME frame-user = iSaveBgColor.
+      iProfileRunTime = TIME - iProfileStartTime.
+      /* If has been running for more than 20 minutes, stop it automatically */
+      IF iProfileRunTime / 60 GT 20 THEN 
+        RUN pOnOffProfiler.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRebuildMenuTree MAINMENU 
 PROCEDURE pRebuildMenuTree :
@@ -3141,31 +3193,31 @@ PROCEDURE pSaveCustomMenu :
 ------------------------------------------------------------------------------*/
     /* remove xusermenu entry if menu option is active or no longer present */
     DO TRANSACTION:
-        FOR EACH xUserMenu
-            WHERE xUserMenu.user_id EQ USERID("ASI")
-            :
-            IF CAN-FIND(FIRST ttMenuTree
-                        WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname
-                          AND ttMenuTree.isActive  EQ YES) OR
-               NOT CAN-FIND(FIRST ttMenuTree
-                            WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname) THEN
-            DELETE xUserMenu.
-        END. /* each xusermenu */
-    
-        FOR EACH ttMenuTree
-            WHERE ttMenuTree.isActive EQ NO
-            :
-            IF CAN-FIND(FIRST xUserMenu
-                        WHERE xUserMenu.user_id  EQ USERID("ASI")
-                          AND xUserMenu.prgmname EQ ttMenuTree.treeChild) THEN
-            NEXT.
-            /* create entry to hide menu option from user */
-            CREATE xUserMenu.
-            ASSIGN
-                xUserMenu.user_id  = USERID("ASI")
-                xUserMenu.prgmname = ttMenuTree.treeChild
-                .
-        END. /* each ttmenutree */
+    FOR EACH xUserMenu
+        WHERE xUserMenu.user_id EQ USERID("ASI")
+        :
+        IF CAN-FIND(FIRST ttMenuTree
+                    WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname
+                      AND ttMenuTree.isActive  EQ YES) OR
+           NOT CAN-FIND(FIRST ttMenuTree
+                        WHERE ttMenuTree.treeChild EQ xUserMenu.prgmname) THEN
+        DELETE xUserMenu.
+    END. /* each xusermenu */
+
+    FOR EACH ttMenuTree
+        WHERE ttMenuTree.isActive EQ NO
+        :
+        IF CAN-FIND(FIRST xUserMenu
+                    WHERE xUserMenu.user_id  EQ USERID("ASI")
+                      AND xUserMenu.prgmname EQ ttMenuTree.treeChild) THEN
+        NEXT.
+        /* create entry to hide menu option from user */
+        CREATE xUserMenu.
+        ASSIGN
+            xUserMenu.user_id  = USERID("ASI")
+            xUserMenu.prgmname = ttMenuTree.treeChild
+            .
+    END. /* each ttmenutree */
     END. /* do trans */
 
 END PROCEDURE.
@@ -3224,14 +3276,14 @@ PROCEDURE pSetUserSettings :
     
     DO TRANSACTION:
         IF iplSaveAll THEN DO:
-            FIND FIRST users EXCLUSIVE-LOCK
-                 WHERE users.user_id EQ USERID("ASI")
-                 NO-ERROR.
-            IF AVAILABLE users THEN DO:
-                ASSIGN
-                    users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
-                    users.showMnemonic     = cShowMnemonic
-                    users.positionMnemonic = cPositionMnemonic            
+    FIND FIRST users EXCLUSIVE-LOCK
+         WHERE users.user_id EQ USERID("ASI")
+         NO-ERROR.
+    IF AVAILABLE users THEN DO:
+        ASSIGN
+            users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
+            users.showMnemonic     = cShowMnemonic
+            users.positionMnemonic = cPositionMnemonic            
                     users.showMenuImages   = lMenuImage
                     users.menuFGColor[1]   = iFGColor[1]
                     users.menuFGColor[2]   = iFGColor[2]
@@ -3239,49 +3291,49 @@ PROCEDURE pSetUserSettings :
                     users.menuBGColor[1]   = iBGColor[1]
                     users.menuBGColor[2]   = iBGColor[2]
                     users.menuBGColor[3]   = iBGColor[3]
-                    .
-                FIND FIRST userLanguage NO-LOCK
-                     WHERE userLanguage.languageIdx EQ iLanguage
-                     NO-ERROR.
-                IF AVAILABLE userLanguage THEN
+            .
+        FIND FIRST userLanguage NO-LOCK
+             WHERE userLanguage.languageIdx EQ iLanguage
+             NO-ERROR.
+        IF AVAILABLE userLanguage THEN
                 ASSIGN
                     users.userLanguage = userLanguage.userLanguage
                     .
-                FIND CURRENT users NO-LOCK.
-            END. /* avail users */
+        FIND CURRENT users NO-LOCK.
+    END. /* avail users */
         END. /* if save all */
-    
-        FIND FIRST user-print EXCLUSIVE-LOCK
-             WHERE user-print.company    EQ g_company
-               AND user-print.program-id EQ "MainMenu"
-               AND user-print.user-id    EQ USERID("ASI")
-             NO-ERROR.
-        IF NOT AVAILABLE user-print THEN DO:
-            CREATE user-print.
-            ASSIGN
-                user-print.company    = g_company
-                user-print.program-id = "MainMenu"
-                user-print.user-id    = USERID("ASI")
-                .
-        END. /* if not avail */
-        ASSIGN
-            user-print.field-value    = ""
-            user-print.field-value[1] = STRING({&WINDOW-NAME}:HEIGHT)
-            user-print.field-value[2] = STRING({&WINDOW-NAME}:WIDTH)
-            idx = 2
-            .
-        FOR EACH ttMenuTree
-            WHERE ttMenuTree.favorite EQ YES
-               BY ttMenuTree.favoriteOrder
-            :
-            ASSIGN
-                idx = idx + 1
-                user-print.field-value[idx] = ttMenuTree.treeChild
-                .
-        END. /* each ttmenutree */
-        RELEASE user-print.
-    END. /* do trans */
 
+    FIND FIRST user-print EXCLUSIVE-LOCK
+         WHERE user-print.company    EQ g_company
+           AND user-print.program-id EQ "MainMenu"
+           AND user-print.user-id    EQ USERID("ASI")
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN DO:
+        CREATE user-print.
+        ASSIGN
+            user-print.company    = g_company
+            user-print.program-id = "MainMenu"
+            user-print.user-id    = USERID("ASI")
+            .
+    END. /* if not avail */
+    ASSIGN
+        user-print.field-value    = ""
+        user-print.field-value[1] = STRING({&WINDOW-NAME}:HEIGHT)
+        user-print.field-value[2] = STRING({&WINDOW-NAME}:WIDTH)
+        idx = 2
+        .
+    FOR EACH ttMenuTree
+        WHERE ttMenuTree.favorite EQ YES
+           BY ttMenuTree.favoriteOrder
+        :
+        ASSIGN
+            idx = idx + 1
+            user-print.field-value[idx] = ttMenuTree.treeChild
+            .
+    END. /* each ttmenutree */
+    RELEASE user-print.
+    END. /* do trans */
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
