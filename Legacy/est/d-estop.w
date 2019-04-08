@@ -1341,6 +1341,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         IF ip-type EQ "add"  OR ip-type EQ "copy" THEN 
         DO:
+            adm-new-record = YES.
             APPLY "entry" TO est-op.s-num  .
         END.
     /*est-prep.s-no:HIDDEN IN FRAME {&FRAME-NAME}  = TRUE .*/
