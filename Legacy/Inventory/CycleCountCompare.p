@@ -140,11 +140,14 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcWhseStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNoCostMSF AS LOGICAL NO-UNDO.
     
     RUN pCheckBinDups (OUTPUT lBinDups ).
-    /* IF lBinDups THEN 
-         RETURN. */
-      
+    IF lBinDups THEN 
+         RETURN.
+    RUN pCheckNoCost (OUTPUT lNoCostMSF ). 
+    IF lNoCostMSF THEN 
+       RETURN.
     FOR EACH fg-bin NO-LOCK
         WHERE fg-bin.company EQ ipcCompany
         AND fg-bin.i-no GE ipcFGItemStart
@@ -237,8 +240,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
             DO:
                 iStatusCnt2 = iStatusCnt2 + iStatusCnt1.
                 iStatusCnt1 = 0.
-                STATUS DEFAULT "Build Compare " + STRING(iStatusCnt2).
                 PROCESS EVENTS.
+                STATUS DEFAULT "Build Compare " + STRING(iStatusCnt2).
+                
             END.
             
             CREATE ttCycleCountCompare.
@@ -485,8 +489,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
         DO:
             iStatusCnt2 = iStatusCnt2 + iStatusCnt1.
             iStatusCnt1 = 0.
-            STATUS DEFAULT "Build Compare " + STRING(iStatusCnt2).
             PROCESS EVENTS.
+            STATUS DEFAULT "Build Compare " + STRING(iStatusCnt2).
+            
         END.
  
         ttCycleCountCompare.cAction = fGetAction(
@@ -630,6 +635,40 @@ PROCEDURE pCheckCountDups:
             VIEW-AS ALERT-BOX.
         OS-COMMAND NO-WAIT START excel.exe VALUE("c:\tmp\dupCountTags.csv").
     END.
+END PROCEDURE.
+
+PROCEDURE pCheckNoCost:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplNoCostMSF AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lNoCost AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lNoMSF  AS LOGICAL NO-UNDO.
+ASSIGN 
+    lNoCost = FALSE 
+    lNoMSF  = FALSE
+    .
+FOR EACH fg-bin NO-LOCK 
+    WHERE fg-bin.company EQ cocode
+    :
+    FIND FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ cocode
+          AND itemfg.i-no EQ fg-bin.i-no
+        NO-ERROR.
+    IF NOT AVAILABLE itemfg THEN 
+        ASSIGN 
+            lNoCost = TRUE 
+            lNoMSF  = TRUE
+            .
+    ELSE 
+       IF itemfg.t-sqft EQ 0 THEN 
+        lNoMSF = TRUE.
+    IF fg-bin.std-tot-cost EQ 0 THEN 
+        lNoCost = TRUE.
+    oplNoCostMSF = lNoCost OR lNoMSF.
+END.
+
 END PROCEDURE.
 
 PROCEDURE pCreateTransfers:
@@ -1426,7 +1465,7 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER iplDupsInSnapshot AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInScan AS LOGICAL NO-UNDO.
     DEFINE VARIABLE setFromHistory AS LOGICAL NO-UNDO.
-        
+    PROCESS EVENTS.
     STATUS DEFAULT "Import Snapshot" .       
     RUN pImportSnapshot.
     
@@ -1434,7 +1473,7 @@ PROCEDURE reportComparison:
     RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
         ipcBinStart, ipcBinEnd, YES /* scans only */).
     gcOutputFile = ipcOutputFile.
-    
+    PROCESS EVENTS.
     STATUS DEFAULT "Exporting Report".
     RUN pExportTempTable(TEMP-TABLE ttCycleCountCompare:HANDLE, gcOutputFile, YES /* header */, iplComplete, 
         iplQtyChanged, iplSnapshotOnly, iplDupsInSnapshot, iplDupsInScan).

@@ -67,9 +67,9 @@ ASSIGN
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fi_endItem fiWhse fiToWhse ~
+&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse ~
 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fi_endItem fiWhse fiToWhse 
+&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiFromWhse fiToWhse 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -98,17 +98,17 @@ DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzz" 
      LABEL "To Warehouse" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiWhse AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiFromWhse AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Warehouse" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_endItem AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzz" 
      LABEL "To Item" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
@@ -122,8 +122,8 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE FRAME FRAME-A
      fiFromItem AT ROW 3.81 COL 19 COLON-ALIGNED WIDGET-ID 26
-     fi_endItem AT ROW 3.86 COL 62 COLON-ALIGNED WIDGET-ID 28
-     fiWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
+     fiEndItem AT ROW 3.86 COL 62 COLON-ALIGNED WIDGET-ID 28
+     fiFromWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
      fiToWhse AT ROW 4.81 COL 62 COLON-ALIGNED WIDGET-ID 16
      btn-ok AT ROW 11 COL 22
      btn-cancel AT ROW 11 COL 54
@@ -210,7 +210,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* RM Physical Inventory Initialize */
+ON END-ERROR OF C-Win /* FG Physical Inventory Initialize */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -223,7 +223,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* RM Physical Inventory Initialize */
+ON WINDOW-CLOSE OF C-Win /* FG Physical Inventory Initialize */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -262,7 +262,82 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fiEndItem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndItem C-Win
+ON HELP OF fiEndItem IN FRAME FRAME-A /* Font */
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
 
+        RUN windows/l-itemfg.w (cocode,"", {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+                {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                .
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
+
+&Scoped-define SELF-NAME fiFromItem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromItem C-Win
+ON HELP OF fiFromItem IN FRAME FRAME-A /* Font */
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+        RUN windows/l-itemfg.w (cocode,"", {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+                {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                .
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
+
+&Scoped-define SELF-NAME fiToWhse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiToWhse C-Win
+ON HELP OF fiToWhse IN FRAME FRAME-A /* Font */
+    DO:
+        DEF VAR char-val AS cha NO-UNDO.
+
+        run windows/l-loc.w (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val).
+        if char-val <> "" then 
+        do :
+            assign 
+                {&SELF-NAME}:SCREEN-VALUE = entry(1,char-val)
+                .
+
+        end. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
+
+&Scoped-define SELF-NAME fiFromWhse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromWhse C-Win
+ON HELP OF fiFromWhse IN FRAME FRAME-A /* Font */
+    DO:
+        DEF VAR char-val AS cha NO-UNDO.
+
+        run windows/l-loc.w (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val).
+        if char-val <> "" then 
+        do :
+            assign 
+            {&SELF-NAME}:SCREEN-VALUE = entry(1,char-val)
+                .
+
+        end. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -344,9 +419,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fi_endItem fiWhse fiToWhse 
+  DISPLAY fiFromItem fiEndItem fiFromWhse fiToWhse 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 fiFromItem fi_endItem fiWhse fiToWhse btn-ok btn-cancel 
+  ENABLE RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -403,8 +478,8 @@ SESSION:SET-WAIT-STATE ("general").
     run exportSnapshot in h     
      (input cocode,  
       input fiFromItem, 
-      input fi_endItem,  
-      input fiWhse,   
+      input fiEndItem,  
+      input fiFromWhse,   
       input fiToWhse)  .  
       
     delete object h.  

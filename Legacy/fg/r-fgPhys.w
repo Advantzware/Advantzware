@@ -67,10 +67,10 @@ ASSIGN
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 fiFromItem fi_endItem fiWhse ~
+&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 fiFromItem fiEndItem fiFromWhse ~
 fiToWhse fiFromBin fiToBin tb_fullReport tb_show-fo tb_show-vo tb_prep ~
 tb_excel tb_exclude_prep tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fi_endItem fiWhse fiToWhse ~
+&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiFromWhse fiToWhse ~
 fiFromBin fiToBin tb_fullReport tb_show-fo tb_show-vo tb_prep tb_excel ~
 tb_exclude_prep tb_excel2 tb_runExcel fi_file2 
 
@@ -85,7 +85,7 @@ tb_exclude_prep tb_excel2 tb_runExcel fi_file2
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -106,22 +106,22 @@ DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToBin AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiToBin AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzz" 
      LABEL "To Bin" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzz" 
      LABEL "To Warehouse" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiWhse AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiFromWhse AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Warehouse" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_endItem AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzzzzzzzzzzzz" 
      LABEL "To Item" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
@@ -140,44 +140,44 @@ DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 8.57.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL NO 
      LABEL "Include location changed?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel2 AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel2 AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_exclude_prep AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_exclude_prep AS LOGICAL INITIAL NO 
      LABEL "Include duplicates?" 
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_fullReport AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_fullReport AS LOGICAL INITIAL YES 
      LABEL "Full Report?" 
      VIEW-AS TOGGLE-BOX
      SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prep AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_prep AS LOGICAL INITIAL NO 
      LABEL "Include Qty Changed?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_show-fo AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_show-fo AS LOGICAL INITIAL NO 
      LABEL "Include not in snapshot?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_show-vo AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_show-vo AS LOGICAL INITIAL NO 
      LABEL "Include complete match?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
@@ -187,8 +187,8 @@ DEFINE VARIABLE tb_show-vo AS LOGICAL INITIAL no
 
 DEFINE FRAME FRAME-A
      fiFromItem AT ROW 3.81 COL 19 COLON-ALIGNED WIDGET-ID 26
-     fi_endItem AT ROW 3.86 COL 55 COLON-ALIGNED WIDGET-ID 28
-     fiWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
+     fiEndItem AT ROW 3.86 COL 55 COLON-ALIGNED WIDGET-ID 28
+     fiFromWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
      fiToWhse AT ROW 4.81 COL 55 COLON-ALIGNED WIDGET-ID 16
      fiFromBin AT ROW 5.76 COL 19 COLON-ALIGNED WIDGET-ID 18
      fiToBin AT ROW 5.81 COL 55 COLON-ALIGNED WIDGET-ID 20
@@ -206,12 +206,12 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 26.95 COL 54
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 22.24 COL 4
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-          BGCOLOR 2 
      "Exceptions" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 11.71 COL 18 WIDGET-ID 22
           FGCOLOR 9 
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          BGCOLOR 2 
      RECT-7 AT ROW 1.05 COL 1
      RECT-8 AT ROW 11.24 COL 1 WIDGET-ID 24
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -243,15 +243,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -320,7 +320,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -333,7 +333,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* RM Physical Analysis  Posting */
+ON END-ERROR OF C-Win /* FG Physical Analysis  Posting */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -346,7 +346,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* RM Physical Analysis  Posting */
+ON WINDOW-CLOSE OF C-Win /* FG Physical Analysis  Posting */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -377,8 +377,8 @@ DO:
   END.
         ASSIGN   fi_file2        
                  fiFromItem
-                 fi_endItem
-                 fiWhse       
+                 fiEndItem
+                 fiFromWhse       
                  fiToWhse  
                  fiFromBin  
                  fiToBin 
@@ -396,6 +396,121 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fiEndItem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndItem C-Win
+ON HELP OF fiEndItem IN FRAME FRAME-A /* Font */
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+        RUN windows/l-itemfg.w (cocode,"", {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+                {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                .
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
+
+&Scoped-define SELF-NAME fiFromItem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromItem C-Win
+ON HELP OF fiFromItem IN FRAME FRAME-A /* Font */
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+        RUN windows/l-itemfg.w (cocode,"", {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+                {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                .
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
+
+&Scoped-define SELF-NAME fiFromBin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromBin C-Win
+ON HELP OF fiFromBin IN FRAME FRAME-A /* Font */
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+        RUN windows/l-fgbin.w (cocode,fiFromWhse:SCREEN-VALUE, {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+            {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                .
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
+
+&Scoped-define SELF-NAME fiToBin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiToBin C-Win
+ON HELP OF fiToBin IN FRAME FRAME-A /* Font */
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+        RUN windows/l-fgbin.w (cocode,fiToWhse:SCREEN-VALUE, {&SELF-NAME}:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+                {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                .
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
+
+&Scoped-define SELF-NAME fiToWhse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiToWhse C-Win
+ON HELP OF fiToWhse IN FRAME FRAME-A /* Font */
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+        RUN windows/l-loc.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+                {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                .
+
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
+
+&Scoped-define SELF-NAME fiFromWhse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFromWhse C-Win
+ON HELP OF fiFromWhse IN FRAME FRAME-A /* Font */
+    DO:
+        DEFINE VARIABLE char-val AS cha NO-UNDO.
+
+        RUN windows/l-loc.w (cocode,{&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
+        IF char-val <> "" THEN 
+        DO :
+            ASSIGN 
+                {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                .
+
+        END. 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&UNDEFINE SELF-NAME
 
 &Scoped-define SELF-NAME fi_file2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file2 C-Win
@@ -595,11 +710,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fi_endItem fiWhse fiToWhse fiFromBin fiToBin tb_fullReport 
+  DISPLAY fiFromItem fiEndItem fiFromWhse fiToWhse fiFromBin fiToBin tb_fullReport 
           tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep tb_excel2 
           tb_runExcel fi_file2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 RECT-8 fiFromItem fi_endItem fiWhse fiToWhse fiFromBin fiToBin 
+  ENABLE RECT-7 RECT-8 fiFromItem fiEndItem fiFromWhse fiToWhse fiFromBin fiToBin 
          tb_fullReport tb_show-fo tb_show-vo tb_prep tb_excel tb_exclude_prep 
          tb_excel2 tb_runExcel fi_file2 btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -654,27 +769,27 @@ DEFINE VARIABLE exelHeader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE setFromHistory AS LOGICAL NO-UNDO.
 
 SESSION:SET-WAIT-STATE ("general").
-    def var h as handle.  
-    run inventory/cyclecountcompare.p persistent set h.
+    DEFINE VARIABLE h AS HANDLE.  
+    RUN inventory/cyclecountcompare.p PERSISTENT SET h.
  
-    run reportComparison in h
-        (input fi_file2,
-        input cocode,
-        input fiFromItem,
-        input fi_endItem,
-        input fiWhse,        /* st whse */
-        input fiToWhse,  /* end whse */
-        input fiFromBin,        /* start bin */
-        input fiToBin, /* end bin */
-        input yes,        /* scans only */
-        input tb_show-vo,        /* complete only */
-        input tb_prep,        /* qty changed */
-        input tb_show-fo,        /* snapshot only */
-        input tb_excel,        /* loc changed */
-        input tb_exclude_prep         /* dups in scan */
+    RUN reportComparison IN h
+        (INPUT fi_file2,
+        INPUT cocode,
+        INPUT fiFromItem,
+        INPUT fiEndItem,
+        INPUT fiFromWhse,        /* st whse */
+        INPUT fiToWhse,  /* end whse */
+        INPUT fiFromBin,        /* start bin */
+        INPUT fiToBin, /* end bin */
+        INPUT YES,        /* scans only */
+        INPUT tb_show-vo,        /* complete only */
+        INPUT tb_prep,        /* qty changed */
+        INPUT tb_show-fo,        /* snapshot only */
+        INPUT tb_excel,        /* loc changed */
+        INPUT tb_exclude_prep         /* dups in scan */
         ).
 
-    delete object h.  
+    DELETE OBJECT h.  
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   /*IF tb_runExcel THEN*/
