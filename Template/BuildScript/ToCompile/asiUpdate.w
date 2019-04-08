@@ -96,6 +96,7 @@ DEFINE VARIABLE hPreRun AS HANDLE.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE VARIABLE iAsiDbVer AS INTEGER NO-UNDO.
 DEFINE VARIABLE iAudDbVer AS INTEGER NO-UNDO.
+DEFINE VARIABLE iStatus AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCtr AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCurrAudVer AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCurrDbVer AS INTEGER NO-UNDO.
@@ -168,8 +169,8 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-4 fiUserID bCancel fiPassword ~
-slEnvList eStatus 
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-4 RECT-6 fiUserID bCancel ~
+fiPassword slEnvList eStatus 
 &Scoped-Define DISPLAYED-OBJECTS fiUserID fiPassword slEnvList ~
 fiFromVersion fiToVersion eStatus 
 
@@ -236,6 +237,16 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 78 BY 2.86.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 75 BY 1.43
+     FGCOLOR 3 .
+
+DEFINE RECTANGLE rStatusBar
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 10 BY 1.43
+     BGCOLOR 3 FGCOLOR 3 .
+
 DEFINE VARIABLE slEnvList AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      SIZE 30 BY 1.67 NO-UNDO.
@@ -256,10 +267,12 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 8 BY .62 AT ROW 11.71 COL 3 WIDGET-ID 54
      RECT-2 AT ROW 1.48 COL 2 WIDGET-ID 44
      RECT-4 AT ROW 5.52 COL 2 WIDGET-ID 48
+     rStatusBar AT ROW 16.71 COL 3
+     RECT-6 AT ROW 16.71 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 79.8 BY 15.48 WIDGET-ID 100.
+         SIZE 79.8 BY 17.86 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -279,7 +292,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update"
-         HEIGHT             = 15.48
+         COLUMN             = 10
+         ROW                = 5
+         HEIGHT             = 17.86
          WIDTH              = 79.8
          MAX-HEIGHT         = 26.67
          MAX-WIDTH          = 81
@@ -312,6 +327,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiFromVersion IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiToVersion IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE rStatusBar IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -405,7 +422,25 @@ OR CHOOSE OF bUpdate
                     RUN ipStatus("Upgrade Complete.").
                     RUN ipStatus(" ").
             
-                    IF lSuccess THEN APPLY 'close' TO THIS-PROCEDURE.
+                    IF lSuccess THEN DO:
+                        ASSIGN 
+                            cOutFile = cOutDir + "-SUCCESS.txt".
+                        RUN ipSendVerification.
+                        MESSAGE 
+                            "Congratulations! Your Advantzware update completed successfully."
+                            VIEW-AS ALERT-BOX.
+                        APPLY 'close' TO THIS-PROCEDURE.
+                    END.
+                    ELSE DO:
+                        ASSIGN 
+                            cOutFile = cOutDir + "-FAILED.txt".
+                        RUN ipSendVerification.
+                        MESSAGE 
+                            "There was an issue with update processing." SKIP 
+                            "Please contact Advantzware Support."
+                            VIEW-AS ALERT-BOX.
+                        APPLY 'close' TO THIS-PROCEDURE.
+                    END.
                 END.
         END CASE.
     END.
@@ -496,7 +531,7 @@ ON LEAVE OF slEnvList
     DO:
         RUN ipStatus("  User chose the " + SELF:{&SV} + " environment.").
     END.
-    
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -591,7 +626,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DISCONNECT VALUE (LDBNAME(ictr)).
     END. 
     
-    RUN ipFindIniFile ("N:\Admin\advantzware.ini",
+    RUN ipFindIniFile ("..\advantzware.ini",
                        OUTPUT cIniLoc).
     IF cIniLoc NE "" THEN 
         RUN ipReadIniFile.
@@ -605,8 +640,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
         iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
-        iCurrAudVer          = fIntVer(ENTRY(iIndex,cAudVerList))
-        .
+        iCurrAudVer         = fIntVer(ENTRY(iIndex,cAudVerList))
+        iStatus             = 1
+        rStatusBar:WIDTH    = MIN(75,(iStatus / 100) * 75).
 
     RUN ipGetPatchList.
 
@@ -622,10 +658,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         c7ZOutputFile  = cEnvAdmin + "\7zOutput.txt"
         c7ZErrFile     = cEnvAdmin + "\7zErrs.txt"
         cFtpInstrFile  = cEnvAdmin + "\ftpInstr.txt"
-        cOutFile = cEnvAdmin + "\" + cSiteName + "-" +
-                   STRING(YEAR(TODAY),"9999") +
-                   STRING(MONTH(TODAY),"99") +
-                   STRING(DAY(TODAY),"99") + ".txt"
         cOutDir = cSiteName + "-" +
                    STRING(YEAR(TODAY),"9999") +
                    STRING(MONTH(TODAY),"99") +
@@ -690,59 +722,10 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiUserID fiPassword slEnvList fiFromVersion fiToVersion eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-2 RECT-4 fiUserID bCancel fiPassword slEnvList eStatus 
+  ENABLE RECT-2 RECT-4 RECT-6 fiUserID bCancel fiPassword slEnvList eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBuildVerification C-Win 
-PROCEDURE ipBuildVerification :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiPhase AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cLine AS CHARACTER NO-UNDO.
-    
-    IF NOT lHeader THEN 
-    DO:
-        OUTPUT STREAM outFile TO VALUE(cOutFile).
-        OUTPUT STREAM outFile CLOSE.
-        ASSIGN
-            lHeader = TRUE.
-    END.
-    
-    CASE ipiPhase:
-        WHEN 1 THEN 
-            DO:
-                RUN ipStatus("  Building FTP Verification file").
-                OUTPUT STREAM outFile TO VALUE(cOutFile).
-                PUT STREAM outFile UNFORMATTED "Download started " + STRING(TODAY) + " at " + STRING(TIME,"HH:MM:SS") + CHR(10).
-                OUTPUT STREAM outFile CLOSE.
-            END.
-        WHEN 2 THEN 
-            DO:
-                OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
-                PUT STREAM outFile UNFORMATTED "Downloads: " + cDLList + CHR(10).
-                OUTPUT STREAM outFile CLOSE.
-            END.
-        WHEN 3 THEN 
-            DO:
-                OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
-                INPUT STREAM logFile FROM VALUE(cLogFile).
-                REPEAT:
-                    IMPORT STREAM logFile UNFORMATTED cLine.
-                    PUT STREAM outFile UNFORMATTED "  " + cLine + CHR(10).
-                END.
-                INPUT STREAM logFile CLOSE.
-                OUTPUT STREAM outFile CLOSE.
-            END.
-    END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -851,6 +834,7 @@ PROCEDURE ipProcess :
     DEFINE VARIABLE cEnvVer AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iEnv AS INTEGER NO-UNDO.
     DEFINE VARIABLE cFileToRun AS CHARACTER NO-UNDO.
+    
         
     ASSIGN 
         lSuccess = TRUE.
@@ -902,9 +886,11 @@ PROCEDURE ipProcess :
             iCurrAudVer,
             iPatchAudVer,
             iUserLevel,
-            OUTPUT lSuccess).
+            OUTPUT lSuccess,
+            INPUT-OUTPUT iStatus).
         ASSIGN
-            c-Win:VISIBLE = TRUE. 
+            c-Win:VISIBLE = TRUE
+            rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75). 
         RUN ipStatus("Return from asiUpdateDB.w").
 
         IF lSuccess THEN 
@@ -937,6 +923,9 @@ PROCEDURE ipProcess :
             QUIT.
         END.
     END.
+    ELSE ASSIGN 
+        iStatus = iStatus + 2
+        rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75).
   
     ASSIGN
         iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
@@ -1028,9 +1017,13 @@ PROCEDURE ipProcess :
         fiToVersion:{&SV},
         iUserLevel,
         lMakeBackup, /* Need backup? */
-        OUTPUT lSuccess).
+        OUTPUT lSuccess,
+        INPUT-OUTPUT iStatus).
+        
     ASSIGN
-        c-Win:VISIBLE = TRUE. 
+        c-Win:VISIBLE = TRUE
+        rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75). 
+         
     RUN ipStatus("Return from asiUpdateENV.w").
     
 END PROCEDURE.
@@ -1046,21 +1039,30 @@ PROCEDURE ipSendVerification :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cFTPxmit AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLine AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFtpCmd AS CHARACTER NO-UNDO.
+
+    OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
+    INPUT STREAM logFile FROM VALUE(cLogFile).
+    REPEAT:
+        IMPORT STREAM logFile UNFORMATTED cLine.
+        PUT STREAM outFile UNFORMATTED "  " + cLine + CHR(10).
+    END.
+    INPUT STREAM logFile CLOSE.
+    OUTPUT STREAM outFile CLOSE.
     
     ASSIGN
-        cFTPxmit = cEnvAdmin + "\FTPout.txt".
+        cFTPxmit = cEnvAdmin + "\FTPout.txt"
+        cFtpCmd = cEnvDir + "\" + slEnvList:{&SV} + "\Resources\WinSCP\winscp.com /ini=nul /log=" + 
+                  cFtpOutputFile + " /script=" + cFtpXmit.
         
     RUN ipStatus("  Building FTP Transmit file").
     RUN ipStatus("    File: " + cFTPxmit).
     RUN ipStatus("    FTP Addr: " + cIpAddress).
     
     OUTPUT STREAM sInstr TO VALUE(cFTPxmit).
-    PUT STREAM sInstr UNFORMATTED "OPEN " + cIpAddress SKIP.
-    PUT STREAM sInstr UNFORMATTED 
-        "PROMPT " SKIP.
-    PUT STREAM sInstr UNFORMATTED "USER " + cFtpUser + " " + cFtpPassword SKIP.
-    PUT STREAM sInstr UNFORMATTED 
-        "CD Results" SKIP.
+    PUT STREAM sInstr UNFORMATTED "OPEN ftp://ftpTest:TestFTP1!@34.203.15.64" SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD Results" SKIP.
     PUT STREAM sInstr UNFORMATTED "MKDIR " + cOutDir SKIP.
     PUT STREAM sInstr UNFORMATTED "CD " + cOutDir SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cOutFile SKIP.
@@ -1069,8 +1071,7 @@ PROCEDURE ipSendVerification :
     PUT STREAM sInstr UNFORMATTED "PUT " + cEnvAdmin + "\advantzware.pf" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\AdminServerPlugins.properties" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\conmgr.properties" SKIP.
-    PUT STREAM sInstr UNFORMATTED 
-        "BYE".
+    PUT STREAM sInstr UNFORMATTED "exit".
     OUTPUT STREAM sInstr CLOSE.
     
     IF SEARCH(cFtpxmit) EQ ? THEN 
@@ -1079,11 +1080,8 @@ PROCEDURE ipSendVerification :
         APPLY 'choose' TO bCancel IN FRAME {&FRAME-NAME}.
     END.
 
-    RUN ipStatus("  Starting 2d FTP session").
-    OS-COMMAND SILENT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
-
-    /* File cleanup */
-    RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
+    RUN ipStatus("  Starting FTP session").
+    OS-COMMAND SILENT VALUE(cFtpCmd).
 
 END PROCEDURE.
 
