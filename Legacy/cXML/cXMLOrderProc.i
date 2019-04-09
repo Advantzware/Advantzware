@@ -444,8 +444,13 @@ PROCEDURE genTempOrderLines:
     DEFINE VARIABLE cShipToTaxCode              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestedDeliveryDate      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.
+    DEFINE VARIABLE lNoManufacturerPart             AS LOGICAL NO-UNDO.
         
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
+    FIND FIRST ttNodes
+        WHERE ttNodes.parentName EQ 'itemID' AND ttNodes.nodeName EQ 'ManufacturerPartID' 
+        NO-ERROR.
+    lNoManufacturerPart = NOT AVAILABLE(ttNodes).
     EMPTY TEMP-TABLE ttOrdLines.
     FOR EACH ttNodes:
         IF AVAILABLE oe-ord THEN 
@@ -468,9 +473,13 @@ PROCEDURE genTempOrderLines:
                 itemDescription = TRIM(ttNodes.nodeValue).
         ELSE IF ttNodes.parentName EQ 'itemDetail' AND ttNodes.nodeName EQ 'unitOfMeasure' THEN 
                 itemUnitOfMeasure = TRIM(ttNodes.nodeValue).
-        ELSE IF ttNodes.parentName EQ 'itemDetail' AND ttNodes.nodeName EQ 'ManufacturerPartID' THEN 
+        ELSE IF (ttNodes.parentName EQ 'itemDetail' AND ttNodes.nodeName EQ 'ManufacturerPartID')
+                OR (lNoManufacturerPart AND itemSupplierPartID GT "") THEN 
         DO:
-            itemManufacturerPartID = TRIM(ttNodes.nodeValue).
+            IF ttNodes.nodeName EQ 'ManufacturerPartID' THEN 
+              itemManufacturerPartID = TRIM(ttNodes.nodeValue).
+            ELSE 
+                itemManufacturerPartID = itemSupplierPartID.
 
             FIND FIRST itemfg NO-LOCK
                 WHERE itemfg.company EQ cocode
@@ -502,8 +511,11 @@ PROCEDURE genTempOrderLines:
                 ttOrdLines.ttItemMoney                   = itemMoney                    
                 ttOrdLines.ttItemDescription             = itemDescription              
                 ttOrdLines.ttItemUnitOfMeasure           = itemUnitOfMeasure            
-                ttOrdLines.ttItemDueDate                 = ItemDueDate                 
+                ttOrdLines.ttItemDueDate                 = ItemDueDate
+                /* To make sure not processed twice */   
+                itemSupplierPartID                       = ""               
                 .                                   
+
         END.
    END.    
 END PROCEDURE.
@@ -707,6 +719,14 @@ PROCEDURE gencXMLOrder:
              WHERE ttNodes.parentName EQ 'itemDetail' 
                AND ttNodes.nodeName EQ 'ManufacturerPartID'
              NO-ERROR.
+      IF NOT AVAILABLE ttNodes THEN 
+          FIND FIRST ttNodes NO-LOCK 
+              WHERE (ttNodes.parentName EQ 'itemDetail'
+                      OR ttNodes.parentName EQ 'itemID'
+                    ) 
+              AND ttNodes.nodeName EQ 'SupplierPartID'
+              NO-ERROR.
+      
       IF NOT AVAILABLE ttNodes THEN DO:
           opcReturnValue = 'Part Number is missing from XML file' .
           RETURN.
