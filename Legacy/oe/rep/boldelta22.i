@@ -11,20 +11,20 @@ PUT
 
     "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
     "<P14><=1><R+1.5>"  
-    v-comp-addr[1] AT 6 SKIP
-    v-comp-addr[2] AT 6  SKIP
-    v-comp-addr3 AT 6 SKIP(2)    
+    v-comp-addr[1] AT 5 SKIP(1)
+    v-comp-addr[2] AT 5  SKIP(1)
+    v-comp-addr3 AT 5 SKIP 
          /*v-comp-add5 AT 8 SKIP*/
          /*lv-email AT 8*/ "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP(1)
     "<FCourier New>"
-    SPACE(30) "<P10><b>Ship To:</b>" AT 45  SKIP
-    SPACE(5) /*v-comp-name*/ v-ship-name AT 45 SKIP
-    SPACE(5) /*v-comp-addr[1]*/ v-ship-addr[1] AT 45 SKIP
-    SPACE(5) /*v-comp-addr[2]*/ v-ship-addr[2] AT 45 SKIP
-    SPACE(5) /*v-comp-addr3*/ v-ship-addr3 AT 45 SKIP
+     "<P10><b>Ship To:</b>" AT 3.5  SKIP
+    v-ship-name AT 5 SKIP
+    v-ship-addr[1] AT 5 SKIP
+    v-ship-addr[2] AT 5 SKIP
+    v-ship-addr3 AT 5 SKIP
     "<R5><C60><#3>" SKIP
     "<FArial><P14><=#3>" "<P14>" SKIP
-    "<=#3><B>BOL #: <P18>" oe-bolh.bol-no "<P14></B>" /*"<c66>Page: " +  string(PAGE-NUM - lv-pg-num,">>9") + " of " +  string(lv-tot-pg,">>9")  FORM "x(40)"*/  SKIP(1)
+    "<=#3><B><P18> BOL #:" trim(string(oe-bolh.bol-no)) "<P14></B>" /*"<c66>Page: " +  string(PAGE-NUM - lv-pg-num,">>9") + " of " +  string(lv-tot-pg,">>9")  FORM "x(40)"*/  SKIP(1)
     "<=#3><R+2>Date: " oe-bolh.bol-date  "<P10>"      SKIP
     "<=#3><R+3>" SKIP
     SKIP     
@@ -44,8 +44,8 @@ PUT
     "<R24><C63.5><FROM><R26><C63.5><LINE>" SKIP
     "<R24><C70><FROM><R26><C70><LINE>" SKIP            
     "<R24><C74.5><FROM><R26><C74.5><LINE>" SKIP 
-    "<FArial><=5> <b><C3>Order#               <c50.5> Amt Per          <c57.5>Bundles/      <c64.5>Qty Per        <c70.5># of           <c75>Total" SKIP 
-    "<FArial><=5><R+1><C3> PO#   <C15>Order Qty    <c28>Item Name / Description     <c50.5> Bundle            <c57.5>Pallet        <c64.5>Bale         <c70.5>Bales       <c75>Amount </b>" SKIP
+    "<FArial><=5> <b><C1.5>Order#               <c50.5> Amt Per          <c57.5>Bundles/      <c64.5>Qty Per        <c70.5># of           <c75>Total" SKIP 
+    "<FArial><=5><R+1><C1.5> PO#   <C17>Order Qty    <c25.5>Item Name / Description     <c50.5> Bundle            <c57.5>Pallet        <c64.5>Pallet         <c70.5>Pallet       <c75>Amount </b>" SKIP
     "<FCourier New>"                                  
     .
 

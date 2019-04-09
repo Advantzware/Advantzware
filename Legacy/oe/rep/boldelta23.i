@@ -43,9 +43,9 @@ DO:
         iTotPallet       = iTotPallet +  bf-ttboll.tot-pallet .     
         iTotShiped       = iTotShiped + bf-ttboll.qty .   
         iBundlePerPallet = iBundlePerPallet + fgBin(bf-ttboll.bol-no ,bf-ttboll.LINE) .
-        iGrandBundlePerPallet = iGrandBundlePerPallet + iBundlePerPallet  .
+        iGrandBundlePerPallet = iGrandBundlePerPallet + fgBin(bf-ttboll.bol-no ,bf-ttboll.LINE)  .
         iGrandTotPallet       = iGrandTotPallet       + iTotPallet .
-        iGrandTotShiped       = iGrandTotShiped       + iTotShiped .
+        iGrandTotShiped       = iGrandTotShiped       + bf-ttboll.qty .
      
         FIND FIRST w2 WHERE w2.cas-cnt EQ bf-ttboll.qty-case NO-ERROR.
         IF NOT AVAILABLE w2 THEN CREATE w2.
@@ -137,13 +137,13 @@ DO:
                 w2.qty WHEN i = 1 
                 w2.dscr
                 iAmtPerBundle WHEN FIRST (w2.cases) @ w2.cases
-                iBundlePerPallet 
+                iBundlePerPallet
                 WHEN FIRST (w2.cases) 
-                iQtyPerPallet 
+                iQtyPerPallet
                 WHEN FIRST (w2.cases)    
-                iTotPallet  
+                iTotPallet
                 WHEN FIRST (w2.cases)      
-                iTotShiped  
+                iTotShiped 
                 WHEN FIRST (w2.cases) @ tt-boll.qty
                 /* 1  WHEN i = 2 AND bf-ttboll.partial > 0  @ w2.cases
                  tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt */
