@@ -15,13 +15,14 @@ IF EXIST "..\..\DoNotDelete.txt" (
     )
 
 :: Check to ensure we're on the ASI server
-IF NOT !Hostname! == %computername% (
+IF /I NOT !Hostname! == %computername% (
     ECHO MSGBOX "You MUST run this program on the ASI server." > %temp%\TEMPmessage.vbs
     CALL %temp%\TEMPmessage.vbs
     DEL %temp%\TEMPmessage.vbs /f /q
     GOTO :QUIT
     )
 
+GOTO :Continue
 :: Check to ensure the user has Admiin rights
 NET SESSION >nul 2>&1
 IF NOT %errorlevel%==0 (
@@ -30,6 +31,8 @@ IF NOT %errorlevel%==0 (
     DEL %temp%\TEMPmessage.vbs /f /q
     GOTO :QUIT
     )
+
+:Continue
 
 :: Move to Admin/EnvAdmin dir
 CD ..\Admin\Envadmin

@@ -452,7 +452,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update - Programs/Data"
-         COLUMN             = 10
+         COLUMN             = 5
          ROW                = 5
          HEIGHT             = 17.91
          WIDTH              = 130
