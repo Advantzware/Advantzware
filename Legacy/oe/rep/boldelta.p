@@ -118,7 +118,7 @@ DEFINE BUFFER bff-oe-boll FOR oe-boll .
 FORM w2.job-po                      FORMAT "x(15)"
     w2.qty                          FORMAT "->>,>>>,>>>" SPACE(2)
     w2.dscr                         FORMAT "x(30)"
-    w2.cases                        FORMAT "->>>>9"
+    w2.cases                        FORMAT "->>>>9" SPACE(1)
     iBundlePerPallet                FORMAT "->>>>>9" SPACE(1)
     iQtyPerPallet                   FORMAT "->>>>>>" SPACE(1)
     iTotPallet                      FORMAT "->>>>"
