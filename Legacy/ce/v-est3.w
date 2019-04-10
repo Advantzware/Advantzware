@@ -2739,206 +2739,203 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-ef FOR ef.
-  DEF BUFFER b-eb FOR eb.
-  DEF BUFFER b-rt FOR reftable.
-  DEF BUFFER set-eb FOR eb.
+    DEF BUFFER b-ef FOR ef.
+    DEF BUFFER b-eb FOR eb.
+    DEF BUFFER b-rt FOR reftable.
+    DEF BUFFER set-eb FOR eb.
 
-  DEF VAR a AS INT NO-UNDO.
-  DEF VAR b AS INT NO-UNDO.
-  DEF VAR lv-unit-1 LIKE reftable.val EXTENT 20 NO-UNDO.
-  DEF VAR lv-unit-2 LIKE reftable.val EXTENT 20 NO-UNDO.
-  DEF VAR ll-ans AS LOG NO-UNDO.
-  DEF VAR ll-assem AS LOG INIT ? NO-UNDO.
-  DEF VAR v-side-string AS CHAR NO-UNDO.
-  DEF VAR v-side-string-2 AS CHAR NO-UNDO.
+    DEF VAR a AS INT NO-UNDO.
+    DEF VAR b AS INT NO-UNDO.
+    DEF VAR lv-unit-1 LIKE reftable.val EXTENT 20 NO-UNDO.
+    DEF VAR lv-unit-2 LIKE reftable.val EXTENT 20 NO-UNDO.
+    DEF VAR ll-ans AS LOG NO-UNDO.
+    DEF VAR ll-assem AS LOG INIT ? NO-UNDO.
+    DEF VAR v-side-string AS CHAR NO-UNDO.
+    DEF VAR v-side-string-2 AS CHAR NO-UNDO.
+    DEF VAR lv-cas-pal LIKE eb.cas-pal NO-UNDO.
+    DEF VAR lv-tr-cnt LIKE eb.tr-cnt NO-UNDO.
+    DEF VAR lv-error AS LOG NO-UNDO.
+    DEF VAR lv-side-1 AS CHAR NO-UNDO.
+    DEF VAR lv-side-2 AS CHAR NO-UNDO.
 
-  DEF VAR lv-side-1 AS CHAR NO-UNDO.
-  DEF VAR lv-side-2 AS CHAR NO-UNDO.
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN new-carrier.
+    RUN new-carrier.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  do with frame {&frame-name} :
-    assign eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
-           eb.cas-dep eb.cas-pal eb.cas-wt
-           eb.tr-no
-           eb.tr-cost eb.tr-cnt eb.tr-len eb.tr-wid eb.tr-dep
-           eb.tr-cas 
-           eb.carrier eb.carr-dscr eb.weight-m eb.dest-code
-           eb.fr-out-c eb.fr-out-m eb.chg-method
-           fi_prod-notes eb.unitNo[1] eb.unitNo[2] eb.unitNo[3] eb.unitNo[4]
-           eb.unitNo[5] eb.unitNo[6] eb.unitNo[7] eb.unitNo[8] eb.unitNo[9]
-           eb.unitNo[10] eb.unitNo[11] eb.unitNo[12] eb.unitNo[13] eb.unitNo[14]
-           eb.unitNo[15] eb.unitNo[16] eb.unitNo[17] eb.side[1] eb.side[2] 
-           eb.side[3] eb.side[4] eb.side[5] eb.side[6] eb.side[7] eb.side[8]
-           eb.side[9] eb.side[10] eb.side[11] eb.side[12] eb.side[13] eb.side[14]
-           eb.side[15] eb.side[16] eb.side[17]
-           .
-  end.
-
-  FIND FIRST set-eb
-      WHERE set-eb.company EQ eb.company
-        AND set-eb.est-no  EQ eb.est-no
-        AND set-eb.form-no EQ 0
-      NO-LOCK NO-ERROR.
-  IF AVAIL set-eb THEN
-    ll-assem = (set-eb.stock-no EQ "" AND set-eb.set-is-assembled) OR
-               (set-eb.stock-no NE "" AND
-                CAN-FIND(FIRST itemfg
-                         WHERE itemfg.company EQ set-eb.company
-                           AND itemfg.i-no    EQ set-eb.stock-no
-                           AND itemfg.alloc   NE YES)).
-
-  FOR EACH b-eb
-      WHERE b-eb.company EQ eb.company
-        AND b-eb.est-no  EQ eb.est-no
-        AND ROWID(b-eb)  NE ROWID(eb):
-
-    b-eb.chg-method = eb.chg-method.
-
-    IF ll-assem THEN
-      ASSIGN
-       b-eb.carrier   = eb.carrier
-       b-eb.carr-dscr = eb.carr-dscr
-       b-eb.dest-code = eb.dest-code.
-  END.
-
-  FIND FIRST itemfg
-      WHERE itemfg.company EQ eb.company
-        AND itemfg.i-no    EQ eb.stock-no
-        AND eb.stock-no    NE ""
-      NO-ERROR.
-  IF AVAIL itemfg THEN
-  DO:
-     itemfg.prod-notes = fi_prod-notes.
-     FIND CURRENT itemfg NO-LOCK.
-  END.
-
-  if ll-unit-calc then do:
-     def var lv-cas-pal like eb.cas-pal no-undo.
-     def var lv-tr-cnt like eb.tr-cnt no-undo.
-     def var lv-error as log no-undo.
-
-     find xest where xest.company = eb.company and
-                     xest.est-no = eb.est-no .
-     find xeb where recid(xeb) = recid(eb).                
-  END.
-
-  IF ll-unit-calc OR ll-update-pack THEN DO:
-    IF est.est-type EQ 2 AND eb.form-no NE 0               AND
-       eb.cas-no NE "" AND eb.tr-no NE "" AND NOT ll-assem AND
-       CAN-FIND(FIRST b-eb
-                WHERE b-eb.company EQ eb.company
-                  AND b-eb.est-no  EQ eb.est-no
-                  AND b-eb.form-no NE 0
-                  AND ROWID(b-eb)  NE ROWID(eb))           THEN DO:
-
-      MESSAGE "Copy this form's Packing Info to all other forms?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
-
-      IF ll-ans THEN
-      FOR EACH b-eb
-          WHERE b-eb.company EQ eb.company
-            AND b-eb.est-no  EQ eb.est-no
-            AND b-eb.eqty    EQ eb.eqty
-            AND b-eb.form-no NE 0
-            AND ROWID(b-eb)  NE ROWID(eb):
-
-        ASSIGN
-         b-eb.cas-no   = eb.cas-no
-         b-eb.cas-cost = eb.cas-cost
-         b-eb.cas-cnt  = eb.cas-cnt
-         b-eb.cas-len  = eb.cas-len
-         b-eb.cas-wid  = eb.cas-wid
-         b-eb.cas-dep  = eb.cas-dep
-         b-eb.cas-pal  = eb.cas-pal
-         b-eb.cas-wt   = eb.cas-wt
-         b-eb.tr-no    = eb.tr-no
-         b-eb.tr-cost  = eb.tr-cost
-         b-eb.tr-cnt   = eb.tr-cnt
-         b-eb.tr-len   = eb.tr-len
-         b-eb.tr-wid   = eb.tr-wid
-         b-eb.tr-dep   = eb.tr-dep.
-      END.
+    DO WITH FRAME {&frame-name} :
+        ASSIGN 
+            eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
+            eb.cas-dep eb.cas-pal eb.cas-wt
+            eb.tr-no
+            eb.tr-cost eb.tr-cnt eb.tr-len eb.tr-wid eb.tr-dep
+            eb.tr-cas 
+            eb.carrier eb.carr-dscr eb.weight-m eb.dest-code
+            eb.fr-out-c eb.fr-out-m eb.chg-method
+            fi_prod-notes eb.unitNo[1] eb.unitNo[2] eb.unitNo[3] eb.unitNo[4]
+            eb.unitNo[5] eb.unitNo[6] eb.unitNo[7] eb.unitNo[8] eb.unitNo[9]
+            eb.unitNo[10] eb.unitNo[11] eb.unitNo[12] eb.unitNo[13] eb.unitNo[14]
+            eb.unitNo[15] eb.unitNo[16] eb.unitNo[17] eb.side[1] eb.side[2] 
+            eb.side[3] eb.side[4] eb.side[5] eb.side[6] eb.side[7] eb.side[8]
+            eb.side[9] eb.side[10] eb.side[11] eb.side[12] eb.side[13] eb.side[14]
+            eb.side[15] eb.side[16] eb.side[17]
+            .
     END.
-  END.
 
-  FIND FIRST b-ef OF eb EXCLUSIVE NO-ERROR.
-  IF AVAIL b-ef THEN DO:
-    FIND FIRST b-eb OF b-ef WHERE ROWID(b-eb) NE ROWID(eb) NO-LOCK NO-ERROR.
-    IF NOT AVAIL b-eb THEN
-      ASSIGN
-       b-ef.f-col    = eb.i-col
-       b-ef.f-pass   = eb.i-pass
-       b-ef.f-coat   = eb.i-coat
-       b-ef.f-coat-p = eb.i-coat-p.
-  END.
+    FIND FIRST set-eb NO-LOCK WHERE 
+        set-eb.company EQ eb.company AND 
+        set-eb.est-no  EQ eb.est-no AND 
+        set-eb.form-no EQ 0
+        NO-ERROR.
+    IF AVAIL set-eb THEN ASSIGN 
+        ll-assem = (set-eb.stock-no EQ "" AND set-eb.set-is-assembled) OR
+                   (set-eb.stock-no NE "" AND
+                    CAN-FIND(FIRST itemfg WHERE 
+                        itemfg.company EQ set-eb.company AND 
+                        itemfg.i-no    EQ set-eb.stock-no AND 
+                        itemfg.alloc   NE YES)).
 
-  ASSIGN
-     lv-unit-1 = 0
-     lv-side-1 = ""
-     .
+    FOR EACH b-eb EXCLUSIVE WHERE 
+        b-eb.company EQ eb.company AND 
+        b-eb.est-no  EQ eb.est-no AND 
+        ROWID(b-eb)  NE ROWID(eb):
 
-  DO:
-   
-     DO a = 1 TO 17:
-        lv-unit-1[a] = eb.unitNo[a].
-     END.
+        ASSIGN 
+            b-eb.chg-method = eb.chg-method.
 
-  END.
+        IF ll-assem THEN ASSIGN
+            b-eb.carrier   = eb.carrier
+            b-eb.carr-dscr = eb.carr-dscr
+            b-eb.dest-code = eb.dest-code.
+    END.
 
+    FIND FIRST itemfg WHERE 
+        itemfg.company EQ eb.company AND 
+        itemfg.i-no    EQ eb.stock-no AND 
+        eb.stock-no    NE ""
+        NO-ERROR.
+    IF AVAIL itemfg THEN DO:
+        ASSIGN 
+            itemfg.prod-notes = fi_prod-notes.
+        FIND CURRENT itemfg NO-LOCK.
+    END.
 
-  RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
-  FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
+    IF ll-unit-calc THEN DO:
+        FIND xest WHERE 
+            xest.company = eb.company AND
+            xest.est-no = eb.est-no .
+        FIND xeb WHERE 
+            RECID(xeb) = recid(eb).                
+    END.
 
-  IF AVAIL reftable THEN DO:
-     ASSIGN
-        reftable.val[1] = f-lp-dep
-        reftable.val[2] = f-div-dep.
-     FIND CURRENT reftable NO-LOCK.
-     RELEASE reftable.
-  END.
+    IF ll-unit-calc OR ll-update-pack THEN DO:
+        IF est.est-type EQ 2 
+        AND eb.form-no NE 0
+        AND eb.cas-no NE "" 
+        AND eb.tr-no NE "" 
+        AND NOT ll-assem 
+        AND CAN-FIND(FIRST b-eb WHERE 
+                    b-eb.company EQ eb.company AND 
+                    b-eb.est-no  EQ eb.est-no AND 
+                    b-eb.form-no NE 0 AND 
+                    ROWID(b-eb)  NE ROWID(eb)) THEN DO:
 
-  FOR EACH b-ef OF eb NO-LOCK,
-      EACH b-eb OF b-ef
-      WHERE ROWID(b-eb) NE ROWID(eb)
-      NO-LOCK:
+            MESSAGE 
+                "Copy this form's Packing Info to all other forms?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
+
+            IF ll-ans THEN FOR EACH b-eb EXCLUSIVE WHERE 
+                b-eb.company EQ eb.company AND 
+                b-eb.est-no  EQ eb.est-no AND 
+                b-eb.eqty    EQ eb.eqty AND 
+                b-eb.form-no NE 0 AND 
+                ROWID(b-eb)  NE ROWID(eb):
+
+                ASSIGN
+                    b-eb.cas-no   = eb.cas-no
+                    b-eb.cas-cost = eb.cas-cost
+                    b-eb.cas-cnt  = eb.cas-cnt
+                    b-eb.cas-len  = eb.cas-len
+                    b-eb.cas-wid  = eb.cas-wid
+                    b-eb.cas-dep  = eb.cas-dep
+                    b-eb.cas-pal  = eb.cas-pal
+                    b-eb.cas-wt   = eb.cas-wt
+                    b-eb.tr-no    = eb.tr-no
+                    b-eb.tr-cost  = eb.tr-cost
+                    b-eb.tr-cnt   = eb.tr-cnt
+                    b-eb.tr-len   = eb.tr-len
+                    b-eb.tr-wid   = eb.tr-wid
+                    b-eb.tr-dep   = eb.tr-dep.
+            END.
+        END.
+    END.
+
+    FIND FIRST b-ef OF eb EXCLUSIVE 
+        NO-ERROR.
+    IF AVAIL b-ef THEN DO:
+        FIND FIRST b-eb OF b-ef WHERE 
+            ROWID(b-eb) NE ROWID(eb) 
+            NO-LOCK NO-ERROR.
+        IF NOT AVAIL b-eb THEN ASSIGN
+            b-ef.f-col    = eb.i-col
+            b-ef.f-pass   = eb.i-pass
+            b-ef.f-coat   = eb.i-coat
+            b-ef.f-coat-p = eb.i-coat-p.
+    END.
 
     ASSIGN
-       lv-unit-2 = 0
-       lv-side-2 = "".
+        lv-unit-1 = 0
+        lv-side-1 = "".
 
-    DO:
-       DO a = 1 TO 17:
-          lv-unit-2[a] = b-eb.unitNo[a].
-       END.
-
-       lv-side-2 = lv-side-2 + b-eb.side[1].
+    DO a = 1 TO 17:
+        lv-unit-1[a] = eb.unitNo[a].
     END.
 
-    DO a = 1 TO EXTENT(eb.i-code2):
-       IF eb.i-code2[a] NE "" AND lv-unit-1[a] NE 0 THEN
-       DO b = 1 TO EXTENT(b-eb.i-code2):
-          IF b-eb.i-code2[b] EQ eb.i-code2[a] AND
-             b-eb.i-ps2[b]   EQ eb.i-ps2[a]   THEN DO:
-             ASSIGN
-                lv-unit-2[b] = lv-unit-1[a]
-                SUBSTRING(lv-side-2,b,1) = SUBSTRING(lv-side-1,a,1).
-             LEAVE.
-         END.
-       END.
+    RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
+    
+    FIND reftable WHERE 
+        ROWID(reftable) EQ lv-rowid 
+        NO-ERROR.
+    IF AVAIL reftable THEN DO:
+        ASSIGN
+            reftable.val[1] = f-lp-dep
+            reftable.val[2] = f-div-dep.
+        FIND CURRENT reftable NO-LOCK.
+        RELEASE reftable.
     END.
 
-    DO a = 1 TO 20:
-      b-eb.unitNo[a] = lv-unit-2[a].
-      b-eb.side[a] = substring(lv-side-2,a,1).
-    END.
-  END.
+/* For each form on the blank that is NOT this form, make units and side match THIS form */
+/*    FOR EACH b-ef OF eb NO-LOCK,                                            */
+/*        EACH b-eb OF b-ef EXCLUSIVE WHERE                                   */
+/*            ROWID(b-eb) NE ROWID(eb):                                       */
+/*                                                                            */
+/*        ASSIGN                                                              */
+/*            lv-unit-2 = 0                                                   */
+/*            lv-side-2 = "".                                                 */
+/*                                                                            */
+/*        DO a = 1 TO 17:                                                     */
+/*            lv-unit-2[a] = b-eb.unitNo[a].                                  */
+/*        END.                                                                */
+/*        lv-side-2 = lv-side-2 + b-eb.side[1].                               */
+/*                                                                            */
+/*        DO a = 1 TO EXTENT(eb.i-code2):                                     */
+/*            IF eb.i-code2[a] NE ""                                          */
+/*            AND lv-unit-1[a] NE 0 THEN DO b = 1 TO EXTENT(b-eb.i-code2):    */
+/*                IF b-eb.i-code2[b] EQ eb.i-code2[a]                         */
+/*                AND b-eb.i-ps2[b]  EQ eb.i-ps2[a]   THEN DO:                */
+/*                    ASSIGN                                                  */
+/*                        lv-unit-2[b] = lv-unit-1[a]                         */
+/*                        SUBSTRING(lv-side-2,b,1) = SUBSTRING(lv-side-1,a,1).*/
+/*                    LEAVE.                                                  */
+/*                END.                                                        */
+/*            END.                                                            */
+/*        END.                                                                */
+/*                                                                            */
+/*        DO a = 1 TO 20:                                                     */
+/*            b-eb.unitNo[a] = lv-unit-2[a].                                  */
+/*            b-eb.side[a] = SUBSTRING(lv-side-2,a,1).                        */
+/*        END.                                                                */
+/*    END.                                                                    */
 
 END PROCEDURE.
 
