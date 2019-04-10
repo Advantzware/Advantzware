@@ -2542,6 +2542,7 @@ PROCEDURE post-finish-goods :
         INPUT NO,          /* tg-recalc-cost */
         INPUT "R",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
+        INPUT YES,
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,
