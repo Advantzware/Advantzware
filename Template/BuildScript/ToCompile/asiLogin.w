@@ -883,7 +883,7 @@ PROCEDURE ipClickOk :
         iPos = LOOKUP(cbDatabase,cDbList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
         cDbLevel = STRING(iDbLevel)
-        cDbLevel = SUBSTRING(cDbLevel,1,4)
+        cDbLevel = SUBSTRING(cDbLevel,1,6)
         iTruncLevel = INT(cDbLevel)
         no-error.
 
@@ -987,8 +987,8 @@ PROCEDURE ipConnectDb :
         CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
 
-        IF SEARCH("preRun" + STRING(iTruncLevel,"999999") + ".r") NE ? THEN
-            RUN VALUE("preRun" + STRING(iTruncLevel,"999999") + ".p") PERSISTENT SET hPreRun.
+        IF SEARCH(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".r") NE ? THEN
+            RUN VALUE(origDirectoryName + "\preRun" + STRING(iTruncLevel,"999999") + ".p") PERSISTENT SET hPreRun.
         ELSE RUN VALUE("prerun.p") PERSISTENT SET hPreRun.
     END.
 
@@ -1232,7 +1232,7 @@ PROCEDURE ipPreRun :
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
         iPos = LOOKUP(cbDatabase,cDatabaseList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
-        iTruncLevel = iDbLevel / 100
+        iTruncLevel = iDbLevel
         .
     /* Here the format for both is 16070400 */
 
