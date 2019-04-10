@@ -18,6 +18,7 @@ DEFINE INPUT  PARAMETER v-post-date AS DATE NO-UNDO.
 DEFINE INPUT  PARAMETER tg-recalc-cost AS LOGICAL NO-UNDO.
 DEFINE INPUT  PARAMETER ip-run-what AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER gv-fgemail      AS LOGICAL   NO-UNDO INIT ?. 
+DEFINE INPUT  PARAMETER iplCreateWorkGL AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER TABLE FOR w-fg-rctd.
 DEFINE INPUT PARAMETER TABLE FOR tt-fgemail. 
 DEFINE INPUT PARAMETER TABLE FOR tt-email. 
@@ -128,8 +129,10 @@ FUNCTION get-tot-rcv-qty RETURNS INTEGER
 
 /* ***************************  Main Block  *************************** */
 
-
-{fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
+IF iplCreateWorkGL THEN 
+DO:
+    {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
+END.
 RUN fg-post.
 
 

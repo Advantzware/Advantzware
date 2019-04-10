@@ -1257,6 +1257,7 @@ PROCEDURE pPostMain PRIVATE:
         INPUT NO,          /* tg-recalc-cost */
         INPUT "R",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
+        INPUT YES,        /* create work-gl */
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,

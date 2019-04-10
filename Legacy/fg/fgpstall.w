@@ -2863,6 +2863,7 @@ PROCEDURE fg-post :
       INPUT tg-recalc-cost,
       INPUT ip-run-what,
       INPUT gv-fgemail,
+      INPUT NO,   /* don't create work-gl */
       INPUT TABLE w-fg-rctd BY-reference,
       INPUT TABLE tt-fgemail BY-reference,
       INPUT TABLE tt-email BY-reference,
