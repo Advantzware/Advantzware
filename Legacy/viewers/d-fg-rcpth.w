@@ -29,8 +29,7 @@ DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
 {sys/inc/var.i new shared}
 
 ASSIGN 
-    cocode = g_company.
-ASSIGN 
+    cocode = g_company
     locode = g_loc.
 
 {sa/sa-sls01.i}
