@@ -2938,11 +2938,12 @@ oplRelFlg2 = llRelFlg2.
           IF AVAIL shipto AND v-ship-from EQ "" THEN
             v-ship-from = shipto.loc.
         END.
-        RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
-                   INPUT oe-ordl.qty, INPUT oe-ordl.i-no,
-                   INPUT-OUTPUT v-ship-id,
-                   INPUT-OUTPUT v-ship-from).
-
+        IF llOeShipFromLog THEN do:
+            RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
+                               INPUT oe-ordl.qty, INPUT oe-ordl.i-no,
+                               INPUT-OUTPUT v-ship-id,
+                               INPUT-OUTPUT v-ship-from).
+        END.
     END.
     ipcShipTo = v-ship-id.
     ipcShipFRom = v-ship-from.
