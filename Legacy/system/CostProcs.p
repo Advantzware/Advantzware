@@ -784,16 +784,18 @@ PROCEDURE GetCostForReceipt:
     IF ipcTag NE "" THEN 
     DO:
         each-fg:
-        FOR EACH b-fg-rcpth WHERE b-fg-rcpth.company   EQ ipcCompany
-            AND b-fg-rcpth.i-no      EQ ipcFGItemID
-            AND b-fg-rcpth.rita-code EQ "R"
-            USE-INDEX tran NO-LOCK  ,
-            
-            FIRST b-fg-rdtlh WHERE b-fg-rdtlh.r-no    EQ b-fg-rcpth.r-no 
-            AND b-fg-rdtlh.rita-code EQ b-fg-rcpth.rita-code
-            AND b-fg-rdtlh.tag EQ ipcTag
-            NO-LOCK
-            BY b-fg-rcpth.trans-date DESCENDING:            
+        FOR EACH b-fg-rdtlh NO-LOCK 
+            WHERE b-fg-rdtlh.company   EQ ipcCompany            
+              AND b-fg-rdtlh.tag       EQ ipcTag
+              AND b-fg-rdtlh.rita-code EQ "R"
+              AND b-fg-rdtlh.i-no      EQ ipcFGItemID
+            USE-INDEX tag 
+            ,
+            FIRST b-fg-rcpth NO-LOCK 
+                 WHERE b-fg-rcpth.r-no      EQ b-fg-rdtlh.r-no
+                   AND b-fg-rcpth.rita-code EQ b-fg-rdtlh.rita-code
+                 USE-INDEX r-no
+                 BY b-fg-rcpth.trans-date DESCENDING:            
             
             IF b-fg-rdtlh.std-tot-cost NE 0 THEN         
                 ASSIGN
