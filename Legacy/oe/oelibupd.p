@@ -757,6 +757,7 @@ PROCEDURE create-release :
                                 AND eb.form-no  NE 0
                                    NO-LOCK NO-ERROR.
                 IF AVAIL eb THEN ASSIGN v-ship-id = eb.ship-id.
+                if avail eb AND v-ship-from EQ "" then assign v-ship-from = eb.loc.
              END.
              ELSE DO:
                 FIND FIRST shipto WHERE shipto.company EQ cocode
@@ -770,9 +771,14 @@ PROCEDURE create-release :
                                          NO-LOCK NO-ERROR.
                      IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id.   
                 END.
+                IF AVAIL shipto AND v-ship-from EQ "" THEN
+                    v-ship-from = shipto.loc.
              END.
          END.
-         RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id, INPUT-OUTPUT v-ship-from)  .
+
+         IF llOeShipFromLog THEN
+             RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id, INPUT-OUTPUT v-ship-from)  .
+
          ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
          FIND FIRST shipto WHERE shipto.company = cocode AND
                                   shipto.cust-no = oe-ord.cust-no  AND

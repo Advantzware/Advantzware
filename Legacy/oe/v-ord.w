@@ -124,6 +124,7 @@ DEF NEW SHARED BUFFER xef FOR ef.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -220,6 +221,11 @@ RUN methods/prgsecur.p
      OUTPUT lCreditAccSec, /* Allowed? Yes/NO */
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+   llOeShipFromLog = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -928,6 +934,7 @@ DO:
   DEF VAR look-recid AS RECID NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEF VAR fields-val AS CHARACTER NO-UNDO .
 
 
   lw-focus = FOCUS.
@@ -982,10 +989,11 @@ DO:
               END.
          END.  
          WHEN "ship-id" THEN DO:
-              IF fi_Type:SCREEN-VALUE EQ "T" THEN
+             RUN system/openlookup.p (g_company, "ship-id", OUTPUT fields-val, OUTPUT char-val, OUTPUT look-recid).
+              /*IF fi_Type:SCREEN-VALUE EQ "T" THEN
                 RUN windows/l-shipt3.w (g_company, g_loc, oe-ord.cust-no:SCREEN-VALUE, oe-ord.ship-id:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
               ELSE
-                RUN windows/l-shipt2.w (g_company, g_loc, oe-ord.cust-no:SCREEN-VALUE, oe-ord.ship-id:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+                RUN windows/l-shipt2.w (g_company, g_loc, oe-ord.cust-no:SCREEN-VALUE, oe-ord.ship-id:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).*/
               FIND shipto WHERE RECID(shipto) EQ look-recid NO-LOCK NO-ERROR. 
               IF AVAIL shipto AND lw-focus:SCREEN-VALUE NE shipto.ship-id THEN DO:
                  ASSIGN 
@@ -2641,6 +2649,7 @@ PROCEDURE create-release :
                             AND eb.form-no  NE 0
                                NO-LOCK NO-ERROR.
             IF AVAIL eb THEN ASSIGN v-ship-id = eb.ship-id.
+            if avail eb AND v-ship-from EQ "" then assign v-ship-from = eb.loc.
          END.
          ELSE DO:
             FIND FIRST shipto NO-LOCK  
@@ -2658,8 +2667,13 @@ PROCEDURE create-release :
                                      AND shipto.cust-no EQ oe-ordl.cust-no
                                      NO-LOCK NO-ERROR.   
             IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id.
+            IF AVAIL shipto AND v-ship-from EQ "" THEN
+                v-ship-from = shipto.loc.
          END.
-         RUN oe/d-shipid.w (INPUT oe-ord.cust-no , INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+         
+         IF llOeShipFromLog THEN
+             RUN oe/d-shipid.w (INPUT oe-ord.cust-no , INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+
          ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
          FIND FIRST shipto WHERE shipto.company = cocode AND
                                   shipto.cust-no = oe-ord.cust-no  AND
