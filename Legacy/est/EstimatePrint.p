@@ -62,7 +62,7 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
 RUN pBuildSections(ipriEstHeader, ipcSectionStyle, ipcFormatStyle).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
-    RUN InitializeOutputXprint IN hdOutputProcs (ipcOutputFile, YES, YES, gcFont, 11) .
+    RUN InitializeOutputXprint IN hdOutputProcs (ipcOutputFile, YES, YES, gcFont, 11, "") .
     RUN pProcessSections.
     RUN CloseOutput IN hdOutputProcs.
     RUN PrintXprintFile IN hdOutputProcs(ipcOutputFile).
