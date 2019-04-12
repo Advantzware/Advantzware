@@ -297,7 +297,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    end_style   = ip-style
    begin_flute = ip-flute.
 
-  RUN enable_UI.
+  RUN enable_UI.  
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -616,6 +616,7 @@ PROCEDURE valid-flute :
       APPLY "entry" TO ip-focus.
       RETURN ERROR.
     END.
+    ERROR-STATUS:ERROR = FALSE.
   END.
 
 END PROCEDURE.
@@ -646,8 +647,9 @@ PROCEDURE valid-style :
       APPLY "entry" TO ip-focus.
       RETURN ERROR.
     END.
+    ERROR-STATUS:ERROR = FALSE.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
