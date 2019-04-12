@@ -24,7 +24,7 @@ PUT
     v-ship-addr3 AT 5 SKIP
     "<R5><C60><#3>" SKIP
     "<FArial><P14><=#3>" "<P14>" SKIP
-    "<=#3><B><P18> BOL #:" trim(string(oe-bolh.bol-no)) "<P14></B>" /*"<c66>Page: " +  string(PAGE-NUM - lv-pg-num,">>9") + " of " +  string(lv-tot-pg,">>9")  FORM "x(40)"*/  SKIP(1)
+    "<=#3><B><P18> BOL #:  " trim(string(oe-bolh.bol-no)) "<P14></B>" /*"<c66>Page: " +  string(PAGE-NUM - lv-pg-num,">>9") + " of " +  string(lv-tot-pg,">>9")  FORM "x(40)"*/  SKIP(1)
     "<=#3><R+2>Date: " oe-bolh.bol-date  "<P10>"      SKIP
     "<=#3><R+3>" SKIP
     SKIP     

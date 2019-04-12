@@ -433,7 +433,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
         v-last-page = PAGE-NUMBER.
 
-        IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
+        IF oe-bolh.tot-pallets NE 0 AND v-tot-palls EQ 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
 
         PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 

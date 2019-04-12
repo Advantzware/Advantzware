@@ -35,6 +35,17 @@ FOR EACH tt-boll,
             AND oe-ord.ord-no  EQ tt-boll.ord-no
             NO-LOCK NO-ERROR.
 
+            iTotShiped =  tt-boll.qty .  
+            iAmtPerBundle = oe-ordl.cas-cnt .
+            iBundlePerPallet = oe-ordl.cases-unit .
+
+             iQtyPerPallet = iAmtPerBundle * iBundlePerPallet .
+             iTotPallet = iTotShiped / iQtyPerPallet .
+             iGrandBundlePerPallet = iGrandBundlePerPallet + ( iTotPallet * iBundlePerPallet)  .
+             v-tot-palls = v-tot-palls + iTotPallet .
+             iGrandTotShiped = iGrandTotShiped + tt-boll.qty .
+
+
         IF v-printline >= 48 THEN 
         DO:
       
@@ -116,21 +127,6 @@ FOR EACH tt-boll,
 
                     ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr3.
 
-            iQtyPerPallet    = (fgBin(tt-boll.bol-no ,tt-boll.LINE) * tt-boll.qty-case) . 
-            iTotPallet       =  tt-boll.tot-pallet .     
-            iTotShiped       =  tt-boll.qty .   
-            iBundlePerPallet =  fgBin(tt-boll.bol-no ,tt-boll.LINE) .
-            iGrandBundlePerPallet = iGrandBundlePerPallet + iBundlePerPallet  .
-            iGrandTotPallet       = iGrandTotPallet       + iTotPallet .
-            iGrandTotShiped       = iGrandTotShiped       + iTotShiped .
-            
-            FIND FIRST eb  NO-LOCK 
-                WHERE eb.company EQ cocode
-                  AND eb.est-no EQ oe-ordl.est-no
-                  AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
-             iAmtPerBundle = IF AVAIL eb THEN eb.cas-cnt ELSE 0.
-             iBundlePerPallet = IF AVAIL eb THEN eb.cas-pal ELSE 0.
-             RELEASE eb .
             DISPLAY STRING(oe-ordl.ord-no)
                 WHEN i EQ 1
                 @ v-job-po
