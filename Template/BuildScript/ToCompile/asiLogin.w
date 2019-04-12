@@ -204,6 +204,10 @@ END.
 RUN ipFindIniFile ("..\advantzware.ini",
                    OUTPUT cIniLoc).
 
+ASSIGN 
+    FILE-INFO:FILE-NAME = cIniLoc
+    cIniLoc = FILE-INFO:FULL-PATHNAME.
+
 IF cIniLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.ini' file." SKIP
@@ -226,6 +230,10 @@ END.
 /* Find the .usr file containing user-level settings */
 RUN ipFindIniFile ("N:\Admin\advantzware.usr",
                    OUTPUT cUsrLoc).
+ASSIGN 
+    FILE-INFO:FILE-NAME = cUsrLoc
+    cUsrLoc = FILE-INFO:FULL-PATHNAME.
+
 IF cUsrLoc EQ "" THEN DO:
     MESSAGE
         "Unable to locate an 'advantzware.usr' file." SKIP
@@ -747,14 +755,16 @@ PROCEDURE ipChangeEnvironment :
     DEF VAR iLookup AS INT NO-UNDO.
     DEF VAR iCtr AS INT NO-UNDO.
     DEF VAR cTestList AS CHAR NO-UNDO.
+    DEF VAR iDbLevelM AS INT NO-UNDO.
+    DEF VAR iEnvLevelM AS INT NO-UNDO.
     
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
         iPos = LOOKUP(cbDatabase,cDatabaseList)
         iDbLevel = intVer(ENTRY(iPos,cDbVerList))
+        iEnvLevelM = iEnvLevel / 1000
         .
-    /* Here the format for both is 16070400 */
 
     if cSessionParam gt "" then do:
       cbDatabase = ENTRY(1,cDatabaseList).
@@ -773,7 +783,7 @@ PROCEDURE ipChangeEnvironment :
                      cTop + cEnvResourceDir + "\Addon" + "," +
                      cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
         PROPATH = preProPath + origPropath.      
-      return.
+        RETURN.
     end.
     
     CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
@@ -800,11 +810,18 @@ PROCEDURE ipChangeEnvironment :
                 cTestList = "".
             DO iCtr = 1 TO NUM-ENTRIES(cDbList):
                 ASSIGN 
-                    iDbLevel = intVer(ENTRY(iCtr,cDbVerList)).
-                IF iEnvLevel LT iDbLevel THEN NEXT.
-                IF iEnvLevel GT iDbLevel + 10000 THEN NEXT.
-                IF iEnvLevel GE iDbLevel + 1000 
-                AND CAN-DO(cDBVerList,STRING(iDbLevel + 1000)) THEN NEXT.
+                    iEnvLevelM = iEnvLevel / 1000
+                    iDbLevelM = intVer(ENTRY(iCtr,cDbVerList)) / 1000.
+                if iEnvLevelM GT 16085 THEN DO:
+                    IF iEnvLevelM LT iDbLevelM THEN NEXT.
+                    IF iEnvLevelM GT iDbLevelM THEN NEXT.
+                END.
+                ELSE DO:
+                    ASSIGN
+                        iEnvLevelM = 10 * TRUNCATE(iEnvLevelM / 10,0).        
+                    IF iEnvLevelM LT iDbLevelM THEN NEXT.
+                    IF iEnvLevelM GT iDbLevelM THEN NEXT.
+                END.
                 ASSIGN 
                     cTestList = cTestList + ENTRY(iCtr,cDbList) + ",".    
             END.
