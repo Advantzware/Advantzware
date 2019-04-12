@@ -315,6 +315,72 @@ PROCEDURE PostReceivedInventory:
     
 END PROCEDURE.
 
+PROCEDURE CreateTransactionInitialized:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates the inventoryStock
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno                   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2                  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno                  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno                 AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantityTotal           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated                 AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
+    
+    FIND FIRST job-mch NO-LOCK
+         WHERE job-mch.company  EQ ipcCompany
+           AND job-mch.job-no   EQ ipcJobno
+           AND job-mch.job-no2  EQ ipiJobno2
+           AND job-mch.m-code   EQ ipcMachine
+           AND job-mch.frm      EQ ipiFormno
+           AND job-mch.blank-no EQ ipiBlankno
+         NO-ERROR.
+    IF NOT AVAILABLE job-mch THEN
+        RETURN.
+
+    FIND FIRST job-mat NO-LOCK  
+         WHERE job-mat.company  EQ job-mch.company
+           AND job-mat.job-no   EQ job-mch.job-no
+           AND job-mat.job-no2  EQ job-mch.job-no2
+           AND job-mat.frm      EQ job-mch.frm
+         NO-ERROR.  
+    IF NOT AVAILABLE job-mat THEN
+        RETURN.
+
+    RUN CreatePreLoadtagsFromInputsWIP (
+        ROWID(job-mch),
+        ROWID(job-mat), 
+        ipdQuantityTotal,
+        ipdQuantityPerSubUnit,
+        ipiQuantitySubUnitsPerUnit,
+        ipcQuantityUOM,
+        OUTPUT oplCreated,
+        OUTPUT opcMessage
+        ).
+
+    RUN CreateInventoryLoadtagsFromPreLoadtags.
+
+    FOR EACH ttInventoryStockLoadtag:
+        ASSIGN 
+            oplCreated = NO
+            opcMessage = "". 
+        RUN CreateInventoryStockFromLoadtag (
+            ttInventoryStockLoadtag.inventoryStockID,
+            YES,
+            NO,
+            OUTPUT oplCreated,
+            OUTPUT opcMessage
+            ).
+    END.   
+
+END PROCEDURE.
+
 PROCEDURE CreateTransactionReceived:
     /*------------------------------------------------------------------------------
      Purpose: Given the Loadtag buffer, create the Stock inventory
@@ -386,6 +452,46 @@ PROCEDURE CreateTransactionConsume:
     IF iplPost THEN 
         RUN PostTransaction(iTransactionID).
     
+END PROCEDURE.
+
+PROCEDURE RebuildWIPBrowseTT:
+    /*------------------------------------------------------------------------------
+     Purpose: Rebuilds browse temp-table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotTags    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    FOR EACH inventoryStock NO-LOCK
+       WHERE inventoryStock.company   EQ ipcCompany
+         AND inventoryStock.jobID     EQ ipcJobno
+         AND inventoryStock.jobID2    EQ ipiJobno2   
+         AND (IF ipcMachine           EQ "" THEN TRUE 
+              ELSE inventoryStock.MachineID EQ ipcMachine)
+         AND inventoryStock.formNo    EQ ipiFormno   
+         AND inventoryStock.blankNo   EQ ipiBlankno
+        :
+        CREATE ttBrowseInventory.
+        BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
+        ASSIGN
+            ttBrowseinventory.locationID = inventoryStock.warehouseID +
+                                           FILL(" ", 5 - LENGTH(inventoryStock.warehouseID)) +
+                                           inventoryStock.locationID
+            opiTotTags                   = opiTotTags + 1.
+         
+        IF inventoryStock.inventoryStatus EQ gcStatusStockReceived THEN
+            opiTotOnHand = opiTotOnHand + 1.
+        
+    END.
+        
 END PROCEDURE.
 
 PROCEDURE pCreateTransactionAndReturnID PRIVATE:
@@ -765,6 +871,75 @@ PROCEDURE ValidateLoc:
         AND loc.loc     EQ ipcLoc 
         AND loc.active  EQ TRUE).
         
+
+END PROCEDURE.
+
+PROCEDURE pCanFindInventoryStock:
+    /*------------------------------------------------------------------------------
+     Purpose: Validate Inventory Stock
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStockIDAlias        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidInventoryStock AS LOGICAL   NO-UNDO.
+    
+    oplValidInventoryStock = CAN-FIND(FIRST inventoryStock NO-LOCK
+         WHERE inventoryStock.company EQ ipcCompany
+           AND inventoryStock.stockIDAlias EQ ipcStockIDAlias).        
+
+END PROCEDURE.
+
+PROCEDURE pCanFindInventoryStockLocation:
+    /*------------------------------------------------------------------------------
+     Purpose: Validate Inventory Stock Location
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStockIDAlias        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouseID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidInvStockLoc    AS LOGICAL   NO-UNDO.
+    
+    oplValidInvStockLoc = CAN-FIND(FIRST inventoryStock NO-LOCK
+         WHERE inventoryStock.company      EQ ipcCompany
+           AND inventoryStock.stockIDAlias EQ ipcStockIDAlias
+           AND inventoryStock.warehouseID  EQ ipcWarehouseID
+           AND inventoryStock.locationID   EQ ipcLocationID).        
+
+END PROCEDURE.
+
+PROCEDURE pGetInventoryStockJobDetails:
+    /*------------------------------------------------------------------------------
+     Purpose: Fetch Job details of a Inventory Stock record
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStockIDAlias        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipcJobno               AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiJobno2              AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiFormno              AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiBlankno             AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipcMachine             AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidInvStock       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage             AS CHARACTER NO-UNDO.
+    
+    FIND FIRST inventoryStock NO-LOCK
+        WHERE inventoryStock.company      EQ ipcCompany
+          AND inventoryStock.StockIDAlias EQ ipcStockIDAlias NO-ERROR.
+    
+    IF AVAILABLE inventoryStock THEN
+        ASSIGN 
+            oplValidInvStock    = TRUE
+            ipcJobno            = inventoryStock.jobID
+            ipcMachine          = inventoryStock.machineID
+            ipiJobno2           = inventoryStock.jobID2
+            ipiFormno           = inventoryStock.formNo
+            ipiBlankno          = inventoryStock.blankNo
+            .
+    ELSE
+        ASSIGN
+            oplValidInvStock    = FALSE
+            opcMessage          = "Invalid Tag".            
 
 END PROCEDURE.
 
