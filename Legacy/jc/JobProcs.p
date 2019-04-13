@@ -20,6 +20,11 @@ DEFINE VARIABLE iJobFormatLength AS INTEGER NO-UNDO INITIAL 6.
 
 /* ************************  Function Prototypes ********************** */
 
+FUNCTION fAddSpacesToString RETURNS CHARACTER 
+	( ipcString AS CHARACTER,
+         ipiFormatLength AS INTEGER,      
+         iplIsLeading AS LOGICAL ) FORWARD.
+
 /* ***************************  Main Block  *************************** */
 
 /* **********************  Internal Procedures  *********************** */
@@ -237,3 +242,28 @@ PROCEDURE GetJobHdrDetails:
                                 
 END PROCEDURE.
 
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fAddSpacesToString RETURNS CHARACTER 
+	( ipcString AS CHARACTER,
+         ipiFormatLength AS INTEGER,
+         iplIsLeading AS LOGICAL ):
+/*------------------------------------------------------------------------------
+ Purpose: Gets formatted string adding spaces
+ Notes:
+------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE result AS CHARACTER NO-UNDO.
+    
+    result = ipcString.
+    
+    IF LENGTH(ipcString) LT ipiFormatLength THEN DO:
+        IF iplIsLeading THEN
+            result = FILL (" ", ipiFormatLength - LENGTH(ipcString)) + ipcString.
+        ELSE 
+            result = ipcString + FILL (" ", ipiFormatLength - LENGTH(ipcString)).   
+    END.
+    
+    RETURN result.
+
+END FUNCTION.
