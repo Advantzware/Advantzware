@@ -130,17 +130,17 @@ DO:
             
             DISPLAY string(oe-ordl.ord-no) WHEN i = 1 @ w2.job-po
                 w2.job-po WHEN i = 2
-                w2.qty WHEN i = 1 
+                string(w2.qty) WHEN i = 1 @ cOrderQty
                 w2.dscr
-                iAmtPerBundle WHEN FIRST (w2.cases) @ w2.cases
-                iBundlePerPallet
-                WHEN FIRST (w2.cases) 
-                iQtyPerPallet
-                WHEN FIRST (w2.cases)    
-                iTotPallet
-                WHEN FIRST (w2.cases)      
-                iTotShiped
-                WHEN FIRST (w2.cases) @ tt-boll.qty
+                trim(string(iAmtPerBundle,"->>>>9")) WHEN FIRST (w2.cases) @ cW2Cases
+                trim(string(iBundlePerPallet,"->>>>>9"))
+                WHEN FIRST (w2.cases) @ cBundlePerPallet
+                trim(string(iQtyPerPallet,"->>>>>>"))
+                WHEN FIRST (w2.cases) @ cQtyPerPallet    
+                trim(string(iTotPallet,"->>>>"))
+                WHEN FIRST (w2.cases) @ cTotPallet       
+                trim(string(iTotShiped,"->>>>>>"))
+                WHEN FIRST (w2.cases) @ cBollQty
                 /* 1  WHEN i = 2 AND bf-ttboll.partial > 0  @ w2.cases
                  tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt */
                 WITH FRAME bol-mid.
@@ -187,7 +187,7 @@ DO:
                 TRIM(STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
                 @ w2.qty
                 b-itemfg.part-no                        @ w2.dscr
-                tt-boll.qty * v-part-qty                @ tt-boll.qty        
+                string(tt-boll.qty * v-part-qty)                @ cBollQty        
                 WITH FRAME bol-mid.
             DOWN {1} WITH FRAME bol-mid.
             v-printline = v-printline + 1.

@@ -63,14 +63,14 @@ FOR EACH tt-boll,
                 w2.cases   = w2.cases + tt-boll.cases.
         END.
 
-        IF tt-boll.partial NE 0 THEN 
-        DO:
-            FIND FIRST w2 WHERE w2.cas-cnt EQ tt-boll.partial NO-ERROR.
-            IF NOT AVAILABLE w2 THEN CREATE w2.
-            ASSIGN
-                w2.cas-cnt = tt-boll.partial
-                w2.cases   = w2.cases + 1.
-        END.
+        /*IF tt-boll.partial NE 0 THEN */
+        /*DO:                            */
+        /*    FIND FIRST w2 WHERE w2.cas-cnt EQ tt-boll.partial NO-ERROR.*/
+        /*    IF NOT AVAILABLE w2 THEN CREATE w2.*/
+        /*    ASSIGN                             */
+        /*        w2.cas-cnt = tt-boll.partial   */
+        /*        w2.cases   = w2.cases + 1.     */
+        /*END.*/
 
         v-lines = 0.
         FOR EACH w2 BREAK BY w2.cases:
@@ -85,13 +85,13 @@ FOR EACH tt-boll,
             IF i EQ 1 THEN
                 ASSIGN
                     v-part-dscr = oe-ordl.i-name
-                    v-job-po    = tt-boll.po-no.
+                    v-job-po    = STRING(oe-ordl.ord-no) .
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
                         v-part-dscr = oe-ordl.part-dscr1
-                        v-job-po    = STRING(oe-ordl.ord-no) .
+                        v-job-po    = tt-boll.po-no  .
     
                 ELSE
                     IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr2.
@@ -115,13 +115,13 @@ FOR EACH tt-boll,
             IF i EQ 1 THEN
                 ASSIGN
                     v-part-dscr = oe-ordl.i-name
-                    v-job-po    = tt-boll.po-no.
+                    v-job-po    =STRING(oe-ordl.ord-no)  .
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
                         v-part-dscr = oe-ordl.part-dscr1
-                        v-job-po    = STRING(oe-ordl.ord-no).
+                        v-job-po    = tt-boll.po-no .
 
                 ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr2.
 
@@ -131,17 +131,17 @@ FOR EACH tt-boll,
                 WHEN i EQ 1
                 @ v-job-po
                 v-job-po WHEN i EQ 2
-                oe-ordl.qty WHEN i EQ 1 
+                string(oe-ordl.qty) WHEN i EQ 1 @ cOrderQty
                 v-part-dscr
-                iAmtPerBundle WHEN LAST(w2.cases) @ w2.cases
-                iBundlePerPallet 
-                WHEN LAST(w2.cases)
-                iQtyPerPallet 
-                WHEN LAST(w2.cases)    
-                iTotPallet  
-                WHEN LAST(w2.cases)      
-                iTotShiped  
-                WHEN LAST(w2.cases) @ tt-boll.qty
+                trim(string(iAmtPerBundle,"->>>>9")) WHEN LAST(w2.cases) @ cW2Cases
+                trim(string(iBundlePerPallet,"->>>>>9")) 
+                WHEN LAST(w2.cases) @ cBundlePerPallet
+                trim(string(iQtyPerPallet,"->>>>>>"))
+                WHEN LAST(w2.cases) @ cQtyPerPallet  
+                trim(string(iTotPallet,"->>>>"))  
+                WHEN LAST(w2.cases) @ cTotPallet  
+                trim(string(iTotShiped,"->>>>>>")) 
+                WHEN LAST(w2.cases) @ cBollQty
                 WITH FRAME bol-mid2.
             DOWN  WITH FRAME bol-mid2.  
             
@@ -238,7 +238,7 @@ FOR EACH tt-boll,
                     STRING( oe-ordl.ord-no)
                     STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>") @ oe-ordl.qty
                      b-itemfg.part-no                       @ v-part-dscr
-                    tt-boll.qty * v-part-qty                @ tt-boll.qty        
+                     string(tt-boll.qty * v-part-qty)       @ cBollQty       
                     WITH FRAME bol-mid2.
                 DOWN {1} WITH FRAME bol-mid2.
                 v-printline = v-printline + 1.
