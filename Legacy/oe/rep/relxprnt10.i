@@ -521,17 +521,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            for each w-bin where w-bin.w-ord-col eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
-               by w-bin.w-qty[1] desc:  
-               w-bin.w-ord-col = string(w-oe-rell.ord-no). 
-               IF s-print-what-item EQ "I" THEN
-                   ASSIGN
-                   w-bin.w-units       = w-oe-rell.cases   
-                   w-bin.w-unit-count  = w-oe-rell.qty-case .
-               leave.
-           end.  
-           for each w-bin where w-bin.w-ord-col eq "" 
-               BY w-bin.w-date-time
-               by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
                w-bin.w-ord-col = v-rs. 
                leave.
