@@ -53,6 +53,7 @@ CLS
 CD ..\..\Updates
 
 :: Copy files/dirs from Patch to "regular" directories
+MKDIR ..\Documentation\DBDict > NUL
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
 XCOPY /S /Y .\DBDict\*.* ..\Documentation\DBDict > NUL
 XCOPY /S /Y .\ReleaseNotes\*.* ..\Documentation\ReleaseNotes > NUL
