@@ -1,0 +1,26 @@
+** No xoe-rell record is available. (91)
+
+
+
+
+
+BILL TO:              ATT1000           SHIP TO:              ATT1000
+     AT&T Communications Corp.               AT&T Communications Corp.
+     ATT 1000 Blvd                           ATT Blvd
+                                             Warehouse B
+     Yardley, PA                             Yardley, PA  19067
+
+OUR ORDER#
+REL# 1320
+            TO SHIP VIA                               DUE ON  12/16/2005
+CUSTOMER PO#                                         Bill     PAGE 01 OF 00
+-------------------------------------------------------------------------------
+LOC     ITEM NUMBER      PRODUCT DESCRIPTION              QUANTITY IN EACH
+------  ---------------  ------------------------------  ----------------------
+                                                          TO SHIP     SHIPPED
+                                                         ---------   --------
+
+A-100   8x8x8            RSC 8x8x8 Stock Box                 1,000    ________
+A-100   CATT10000041A    RSC 8x8x13                            500    ________
+A-100   FATT10000003A    Sealed End 10x5x8                 125,000    ________
+

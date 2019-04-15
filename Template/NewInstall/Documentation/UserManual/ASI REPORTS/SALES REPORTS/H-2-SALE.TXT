@@ -1,0 +1,23 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:55pm                                        SALES ANALYSIS - DETAIL SALES JOURNAL
+
+                                        Cust #:  - zzzzzzzz Invoice date:10/01/00 - 10/17/00
+
+                                        Invoice   Order Invoice     Quantity                  Total            Prod         Invoice
+Customer Customer Name                  Date     Number  Number    Shipped/M     Sq Ft        Sq Ft      $/MSF Code          Amount
+-------- ------------------------------ -------- ------ ------- ------------ ---------  ----------- ---------- ----- --------------
+ATT10    AT&T Corp                      10/11/00    316     148       26.000     1.762       45,819     453.96 FC         20,800.00
+                                                    316     148        0.000     0.000            0       0.00 MISC          900.00
+         ------------------------------                         ------------            -----------                  --------------
+                        CUSTOMER TOTALS                               26.000                 45,819                       21,700.00
+
+HER10    Hershey Chocolate Corp         10/16/00    317     149       25.000     1.633       40,823     241.90 FC          9,875.00
+                                                    317     149        0.000     0.000            0       0.00 MISC          900.00
+         ------------------------------                         ------------            -----------                  --------------
+                        CUSTOMER TOTALS                               25.000                 40,823                       10,775.00
+
+
+         ------------------------------                         ------------            -----------                  --------------
+                           GRAND TOTALS                               51.000                 86,642                       32,475.00
+

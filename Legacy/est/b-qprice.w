@@ -131,6 +131,7 @@ END.
     IF lv-sort-by EQ "Name"        THEN string(itemfg.i-NAME,"x(20)")                         ELSE ~
     IF lv-sort-by EQ "Cust. #"     THEN string(tt-ordl.cust-no,"x(12)")                         ELSE ~
     IF lv-sort-by EQ "part"        THEN string(tt-ordl.part-no,"x(12)")                         ELSE ~
+    IF lv-sort-by EQ "Item Status"        THEN string(itemfg.stat,"x(1)")                              ELSE ~
         ""
 
 &SCOPED-DEFINE sortby BY itemfg.i-no
@@ -185,7 +186,7 @@ DEFINE QUERY external_tables FOR cust.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-ordl.IS-SELECTED itemfg.i-no itemfg.i-name tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.cust-no tt-ordl.part-no   
+&Scoped-define FIELDS-IN-QUERY-br_table tt-ordl.IS-SELECTED itemfg.i-no itemfg.i-name tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.cust-no tt-ordl.part-no itemfg.stat   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.IS-SELECTED   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-ordl
@@ -344,7 +345,8 @@ DEFINE BROWSE br_table
       tt-ordl.qt-uom     COLUMN-LABEL "UOM"
       tt-ordl.cust-no     COLUMN-LABEL "Cust. #" LABEL-BGCOLOR 14
       tt-ordl.part-no     COLUMN-LABEL "Part" LABEL-BGCOLOR 14
-      ENABLE tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.IS-SELECTED
+      itemfg.stat         COLUMN-LABEL "Item Status"
+      ENABLE tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.IS-SELECTED 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 169 BY 16.19
@@ -1162,11 +1164,8 @@ DEF BUFFER bfCust FOR Cust.
 
   FOR EACH cust-part NO-LOCK
      WHERE cust-part.company = cocode
-       AND cust-part.cust-no = cust.cust-no, 
-           FIRST reftable WHERE reftable.reftable = "cp-lab-p"   
-                     AND reftable.company = cust-part.company
-                     AND reftable.loc = cust-part.i-no   
-                     AND reftable.code = cust-part.cust-no NO-LOCK :
+       AND cust-part.cust-no = cust.cust-no
+                      :
          FIND FIRST ASI.itemfg NO-LOCK
               WHERE itemfg.company = cocode 
                 AND itemfg.i-no EQ cust-part.i-no  
@@ -1304,7 +1303,7 @@ PROCEDURE get-row-id :
   
   RELEASE itemfg.
   DO WITH FRAME f-main:
-   ASSIGN {&DISPLAYED-OBJECTS}.
+   ASSIGN {&DISPLAYED-OBJECTS}. 
       IF AVAIL tt-ordl THEN
       FIND FIRST itemfg WHERE RECID(itemfg) EQ tt-ordl.tt-recid NO-LOCK NO-ERROR.
 
@@ -1327,11 +1326,14 @@ PROCEDURE get-row-id :
              RETURN ERROR .
          END.
      END.
+     IF itemfg.stat:SCREEN-VALUE IN BROWSE {&browse-name} EQ "I" THEN DO:
+          MESSAGE "Item status is Inactive..." VIEW-AS ALERT-BOX ERROR.
+          RETURN ERROR.
+      END.
 
       FOR EACH tt-ordl WHERE tt-ordl.IS-SELECTED  :
 
           FIND FIRST itemfg WHERE RECID(itemfg) EQ tt-ordl.tt-recid NO-LOCK NO-ERROR.
-
           IF AVAIL itemfg THEN
             ASSIGN op-rowid-list = op-rowid-list + string(ROWID(itemfg)) + ","
                    op-qty-list = op-qty-list + string(tt-ordl.e-qty) + ","

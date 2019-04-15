@@ -120,7 +120,7 @@ FOR EACH tt-boll,
             v-part-dscr
             w2.cases
             w2.cas-cnt
-            tt-boll.qty                             when last(w2.cases)
+            tt-boll.qty FORM "->>>>>>>z"          when last(w2.cases)
             tt-boll.p-c                             when last(w2.cases)        
         with frame bol-mid.
     down  with frame bol-mid.
@@ -163,14 +163,14 @@ DISPLAY  {1}
       /*oe-boll.cases*/ lv-cases-tot FORM ">>>>" /*AT 79*/  "@" 
       /*oe-boll.qty-case*/ lv-qcase-tot FORM ">>>>>Z"           
     SPACE(1)
-     lv-qty-tot FORM "->>>>>z"  WHEN lv-partial-tot = 0 SPACE(2)
+     lv-qty-tot FORM "->>>>>>>z"  WHEN lv-partial-tot = 0 SPACE(2)
      tt-boll.p-c /*v-part-comp WHEN lv-partial-tot = 0*/
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
 down {1} with frame bol-mid1.
 
 v-unit-qty = IF lv-partial-tot > 0 
                 THEN STRING(v-1,">>>>9") + " @ " + STRING(lv-partial-tot,"->>>>>z") + " " 
-                     + string(lv-qty-tot,"->>>>>z")
+                     + string(lv-qty-tot,"->>>>>>>z")
              ELSE "" /*===================="*/ .
 
 /*v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).*/
@@ -184,14 +184,14 @@ v-unit-qty = IF lv-partial-tot > 0
       "@" when lv-partial-tot gt 0
       lv-partial-tot /*oe-boll.partial*/   when lv-partial-tot gt 0 FORM "->>>>>z"  SKIP 
       "====================" AT 77 SKIP  */
-      v-unit-qty AT 68  FORM "x(25)" 
+      v-unit-qty AT 68  FORM "x(27)" 
       .
 
 v-printline = v-printline + 2.
 IF lv-partial-tot > 0 THEN /*PUT {1} "====================" AT 77 SKIP  . */
    PUT {1}
     /*  lv-cases /*v-tot-pkgs*/ AT 79 FORM ">>>" " = "
-      lv-qty-tot /*oe-boll.qty */ FORM "->>>>>z" SPACE(12) */
+      lv-qty-tot /*oe-boll.qty */ FORM "->>>>>>>z" SPACE(12) */
       tt-boll.p-c /*v-part-comp */  /*AT 91*/  /*SPACE(12)*/
      /* oe-boll.weight*/  SKIP .         
 ELSE PUT {1} SKIP.

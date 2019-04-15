@@ -372,7 +372,7 @@ for each job-hdr NO-LOCK
 
 
         if avail oe-ord then
-          if not oe-ctrl.p-fact and oe-ord.stat eq "H" then next.
+          if not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
 
         ASSIGN
            v-due-date = if avail oe-ord then oe-ord.due-date else ?

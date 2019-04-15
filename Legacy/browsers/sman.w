@@ -149,8 +149,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      sman.sman COLUMN-LABEL "Sales Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
-      sman.sname COLUMN-LABEL "Sales Rep Name" FORMAT "x(20)":U
+      sman.sman COLUMN-LABEL "SalesGrp" FORMAT "x(3)":U LABEL-BGCOLOR 14
+      sman.sname COLUMN-LABEL "SalesGrp Name" FORMAT "x(20)":U
             LABEL-BGCOLOR 14
       basisComm(sman.commbasis) @ basisComm COLUMN-LABEL "Basis" FORMAT "X(20)":U
             WIDTH 19.4 LABEL-BGCOLOR 8
@@ -264,9 +264,9 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "sman.company = gcompany"
      _FldNameList[1]   > ASI.sman.sman
-"sman.sman" "Sales Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sman.sman" "SalesGrp" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.sman.sname
-"sman.sname" "Sales Rep Name" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sman.sname" "SalesGrp Name" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
 "basisComm(sman.commbasis) @ basisComm" "Basis" "X(20)" ? ? ? ? 8 ? ? no ? no no "19.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.sman.territory

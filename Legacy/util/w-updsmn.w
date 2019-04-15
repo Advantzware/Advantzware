@@ -422,7 +422,7 @@ ASSIGN
  fcus = begin_cust
  tcus = end_cust.
 
-{util/updsmane.i}   /* task 01031417  */
+{util/dev/updsmane.i}   /* task 01031417  */
 
 SESSION:SET-WAIT-STATE("").
 

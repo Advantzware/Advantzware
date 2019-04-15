@@ -74,7 +74,7 @@
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
     RELEASE ar-invl.
 
-    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
     IF AVAIL oe-retl THEN
     find first ar-invl
@@ -204,7 +204,7 @@
         RELEASE itemfg.
         RELEASE ar-invl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         IF AVAIL oe-retl THEN DO:
           find first itemfg
@@ -278,19 +278,19 @@
             no-lock no-error.
         
         IF NOT tb_rem-cents THEN
-           ASSIGN w-data.w-amt-txt[1] = STRING(w-data.w-amt[1],"->>>,>>9.99")
-                  w-data.w-amt-txt[2] = STRING(w-data.w-amt[2],"->>>,>>9.99")
-                  w-data.w-amt-txt[3] = STRING(w-data.w-amt[3],"->>>,>>9.99")
-                  w-data.w-cost-txt[1] = STRING(w-data.w-cost[1],"->>,>>9.99")
-                  w-data.w-cost-txt[2] = STRING(w-data.w-cost[2],"->>,>>9.99")
-                  w-data.w-cost-txt[3] = STRING(w-data.w-cost[3],"->>,>>9.99").
+           ASSIGN w-data.w-amt-txt[1] = STRING(w-data.w-amt[1],"->>>>>>9.99")
+                  w-data.w-amt-txt[2] = STRING(w-data.w-amt[2],"->>>>>>9.99")
+                  w-data.w-amt-txt[3] = STRING(w-data.w-amt[3],"->>>>>>9.99")
+                  w-data.w-cost-txt[1] = STRING(w-data.w-cost[1],"->>>>>9.99")
+                  w-data.w-cost-txt[2] = STRING(w-data.w-cost[2],"->>>>>9.99")
+                  w-data.w-cost-txt[3] = STRING(w-data.w-cost[3],"->>>>>9.99").
         ELSE
-           ASSIGN w-data.w-amt-txt[1] = FILL(" ",3) + STRING(w-data.w-amt[1],"->>>,>>9")
-                  w-data.w-amt-txt[2] = FILL(" ",3) + STRING(w-data.w-amt[2],"->>>,>>9")
-                  w-data.w-amt-txt[3] = FILL(" ",3) + STRING(w-data.w-amt[3],"->>>,>>9")
-                  w-data.w-cost-txt[1] = FILL(" ",3) + STRING(w-data.w-cost[1],"->>,>>9")
-                  w-data.w-cost-txt[2] = FILL(" ",3) + STRING(w-data.w-cost[2],"->>,>>9")
-                  w-data.w-cost-txt[3] = FILL(" ",3) + STRING(w-data.w-cost[3],"->>,>>9").
+           ASSIGN w-data.w-amt-txt[1] = FILL(" ",3) + STRING(w-data.w-amt[1],"->>>>>>9")
+                  w-data.w-amt-txt[2] = FILL(" ",3) + STRING(w-data.w-amt[2],"->>>>>>9")
+                  w-data.w-amt-txt[3] = FILL(" ",3) + STRING(w-data.w-amt[3],"->>>>>>9")
+                  w-data.w-cost-txt[1] = FILL(" ",3) + STRING(w-data.w-cost[1],"->>>>>9")
+                  w-data.w-cost-txt[2] = FILL(" ",3) + STRING(w-data.w-cost[2],"->>>>>9")
+                  w-data.w-cost-txt[3] = FILL(" ",3) + STRING(w-data.w-cost[3],"->>>>>9").
 
         display tt-report.key-02
                 tt-report.key-03   
@@ -336,13 +336,13 @@
                '"' STRING(w-data.w-sqft[3],"->>>9.999")        '",'
                '"' IF NOT tb_rem-cents THEN
                       STRING(w-data.w-amt[3],"->>>,>>9.99")
-                   ELSE STRING(w-data.w-amt[3],"->>>,>>9")       '",'
+                   ELSE STRING(w-data.w-amt[3],"->>,>>>,>>9")       '",'
                '"' IF v-cst AND NOT tb_rem-cents THEN
-                      STRING(w-data.w-cost[3],"->>,>>9.99")
+                      STRING(w-data.w-cost[3],"->>,>>>,>>9.99")
                    ELSE IF v-cst AND tb_rem-cents THEN
-                      STRING(w-data.w-cost[3],"->>,>>9")
+                      STRING(w-data.w-cost[3],"->>,>>>,>>9")
                    ELSE ""                                     '",'
-               '"' IF v-cst THEN STRING(v-prof[3],"->>>9.99")
+               '"' IF v-cst THEN STRING(v-prof[3],"->>,>>>,>>9.99")
                    ELSE ""                                     '",'
                SKIP.
       end.
@@ -432,16 +432,16 @@
                    ELSE ""                                     '",'
                '"' IF v-cst THEN STRING(v-prof[2],"->>>9.99")
                    ELSE ""                                     '",'
-               '"' STRING(v-tot-sqft[3],"->>>9.999")        '",'
+               '"' STRING(v-tot-sqft[3],"->>>>9.999")        '",'
                '"' IF NOT tb_rem-cents THEN
-                      STRING(v-tot-amt[3],"->>>,>>9.99")
-                   ELSE STRING(v-tot-amt[3],"->>>,>>9")       '",'
+                      STRING(v-tot-amt[3],"->>,>>>,>>9.99")
+                   ELSE STRING(v-tot-amt[3],"->>,>>>,>>9")       '",'
                '"' IF v-cst AND NOT tb_rem-cents THEN
-                      STRING(v-tot-cost[3],"->>,>>9.99")
+                      STRING(v-tot-cost[3],"->>,>>>,>>9.99")
                    ELSE IF v-cst AND tb_rem-cents THEN
-                      STRING(v-tot-cost[3],"->>,>>9")
+                      STRING(v-tot-cost[3],"->>,>>>,>>9")
                    ELSE ""                                     '",'
-               '"' IF v-cst THEN STRING(v-prof[3],"->>>9.99")
+               '"' IF v-cst THEN STRING(v-prof[3],"->>,>>>,>>9.99")
                    ELSE ""                                     '",'
                    SKIP.
         END.
@@ -547,15 +547,15 @@
                    ELSE ""                                     '",'
                '"' STRING(v-tot-sqft[6],"->>>9.999")        '",'
                '"' IF NOT tb_rem-cents THEN
-                      STRING(v-tot-amt[6],"->>>,>>9.99")
+                      STRING(v-tot-amt[6],"->>,>>>,>>9.99")
                    ELSE
-                      STRING(v-tot-amt[6],"->>>,>>9")       '",'
+                      STRING(v-tot-amt[6],"->>,>>>,>>9")       '",'
                '"' IF v-cst AND NOT tb_rem-cents THEN
-                      STRING(v-tot-cost[6],"->>,>>9.99")
+                      STRING(v-tot-cost[6],"->>,>>>,>>9.99")
                    ELSE IF v-cst AND tb_rem-cents THEN
-                      STRING(v-tot-cost[6],"->>,>>9")
+                      STRING(v-tot-cost[6],"->>,>>>,>>9")
                    ELSE ""                                     '",'
-               '"' IF v-cst THEN STRING(v-prof[3],"->>>9.99")
+               '"' IF v-cst THEN STRING(v-prof[3],"->>,>>>,>>9.99")
                    ELSE ""                                     '",'
                    SKIP.
         END.

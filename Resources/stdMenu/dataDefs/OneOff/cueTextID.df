@@ -1,0 +1,21 @@
+ADD FIELD "cueTextID" OF "cueCardText" AS integer 
+  FORMAT ">>>>>>9"
+  INITIAL "0"
+  LABEL "Cue Text ID"
+  POSITION 36
+  MAX-WIDTH 4
+  COLUMN-LABEL "Text ID"
+  HELP "Enter Cue Text ID"
+  ORDER 35
+
+ADD INDEX "si-cueTextID" ON "cueCardText" 
+  AREA "Index"
+  UNIQUE
+  DESCRIPTION "Secondary Index by Cue Text ID"
+  INDEX-FIELD "cueTextID" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000008472

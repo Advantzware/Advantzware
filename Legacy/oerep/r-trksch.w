@@ -812,19 +812,9 @@ FOR EACH tt-report:
      ASSIGN
        bf-tt-report.is-orig   = NO
        bf-tt-report.unique-no = v-last-unique.
-     FIND FIRST reftable WHERE
-          reftable.reftable = "trp-car" AND
-          reftable.rec_key  = truck-run-print.rec_key
-          USE-INDEX rec_key
-          NO-LOCK NO-ERROR.
 
-     IF AVAIL reftable THEN
-     DO:
-        tt-report.carrier = reftable.CODE.
-        RELEASE reftable.
-     END.
-
-     ASSIGN vcTruckCode = truck-run-print.truck-code
+     ASSIGN tt-report.carrier = truck-run-print.carrier
+            vcTruckCode = truck-run-print.truck-code
             vcLoadNo    = truck-run-print.load-no
             viStop      = truck-run-print.stop-no
             v-saved-pallets = truck-run-print.spare-int-1
@@ -945,19 +935,9 @@ PROCEDURE assign-tt-report-fields :
    IF AVAIL truck-run-print THEN
    DO:
       v-first-truck = ROWID(truck-run-print).
-      FIND FIRST reftable WHERE
-           reftable.reftable = "trp-car" AND
-           reftable.rec_key  = truck-run-print.rec_key
-           USE-INDEX rec_key
-           NO-LOCK NO-ERROR.
 
-      IF AVAIL reftable THEN
-      DO:
-         tt-report.carrier = reftable.CODE.
-         RELEASE reftable.
-      END.
-
-      ASSIGN vcTruckCode = truck-run-print.truck-code
+      ASSIGN tt-report.carrier = truck-run-print.carrier
+             vcTruckCode = truck-run-print.truck-code
              vcLoadNo    = truck-run-print.load-no
              viStop      = truck-run-print.stop-no
              vdShipDate  = truck-run-print.ship-date
@@ -1321,12 +1301,12 @@ PROCEDURE generate-data :
                   v-units-per-pallet = oe-ordl.units-pallet.
             END.
             IF v-units-per-pallet = 0 THEN
-              v-units-per-pallet = itemfg.case-pal.
+              v-units-per-pallet =  IF AVAIL itemfg THEN itemfg.case-pal ELSE 0.
             IF v-units-per-pallet = 0 THEN
               v-units-per-pallet = 1.
             IF oe-boll.qty-case NE 0 THEN
                ASSIGN v-weight =  oe-boll.weight
-                      v-msf    = (oe-boll.qty * itemfg.t-sqft / 1000)
+                      v-msf    = (oe-boll.qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000)
                       v-decu   = (oe-boll.qty / oe-boll.qty-case)
                       v-dec    = (oe-boll.qty / (oe-boll.qty-case * v-units-per-pallet)).
             ELSE
@@ -1375,7 +1355,7 @@ PROCEDURE generate-data :
                  v-units-per-pallet = oe-ordl.units-pallet.
            END.
            IF v-units-per-pallet = 0 THEN
-             v-units-per-pallet = itemfg.case-pal.
+             v-units-per-pallet = IF AVAIL itemfg THEN  itemfg.case-pal ELSE 0.
            IF v-units-per-pallet = 0 THEN
              v-units-per-pallet = 1.
            ASSIGN v-tot-qty = 0
@@ -1397,8 +1377,8 @@ PROCEDURE generate-data :
                USE-INDEX ord-no NO-LOCK:
 
                IF bf-oe-rell.qty-case NE 0 THEN
-                 ASSIGN v-weight = (itemfg.weight-100 *  bf-oe-rell.qty / 100)
-                        v-msf    = (bf-oe-rell.qty * itemfg.t-sqft / 1000)
+                 ASSIGN v-weight = ((IF AVAIL itemfg THEN itemfg.weight-100 ELSE 0) *  bf-oe-rell.qty / 100)
+                        v-msf    = (bf-oe-rell.qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000)
                         v-decu   = (bf-oe-rell.qty / bf-oe-rell.qty-case)
                         v-dec    = (bf-oe-rell.qty / (bf-oe-rell.qty-case * v-units-per-pallet)).
                ELSE
@@ -1459,8 +1439,8 @@ PROCEDURE generate-data :
                 v-units-per-pallet = 1.
              */
              IF oe-rell.qty-case NE 0 THEN
-                ASSIGN v-weight = (itemfg.weight-100 *  oe-rell.qty / 100)
-                       v-msf    = (oe-rell.qty * itemfg.t-sqft / 1000)
+                ASSIGN v-weight = ((IF AVAIL itemfg THEN itemfg.weight-100 ELSE 0) *  oe-rell.qty / 100)
+                       v-msf    = (oe-rell.qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000)
                        v-decu   = (oe-rell.qty / oe-rell.qty-case)
                        v-dec    = (oe-rell.qty / (oe-rell.qty-case * v-units-per-pallet)).
              ELSE
@@ -1513,16 +1493,16 @@ PROCEDURE generate-data :
                  v-units-per-pallet = oe-ordl.units-pallet.
           END.
           IF v-units-per-pallet = 0 THEN
-                v-units-per-pallet = itemfg.case-pal.
+                v-units-per-pallet = IF AVAIL itemfg THEN itemfg.case-pal ELSE 0.
           IF v-units-per-pallet = 0 THEN
                 v-units-per-pallet = 1.
-          v-units-per-pallet = itemfg.case-pal.
+          v-units-per-pallet = IF AVAIL itemfg THEN itemfg.case-pal ELSE 0.
           IF v-units-per-pallet = 0 THEN
             v-units-per-pallet = 1.
 
           IF oe-ordl.cas-cnt NE 0 THEN
-             ASSIGN v-weight =  (itemfg.weight-100 *  v-qty / 100)
-                    v-msf    =  (v-qty * itemfg.t-sqft / 1000)
+             ASSIGN v-weight =  ((IF AVAIL itemfg THEN itemfg.weight-100 ELSE 0) *  v-qty / 100)
+                    v-msf    =  (v-qty * (IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000)
                     v-decu    = (v-qty / oe-ordl.cas-cnt)
                     v-dec    = (v-qty / (oe-ordl.cas-cnt * v-units-per-pallet)).
           ELSE

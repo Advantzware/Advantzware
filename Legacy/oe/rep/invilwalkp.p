@@ -259,7 +259,6 @@ if avail cust then do:
                  shipto.ship-zip.
 end.
 
-if oe-ctrl.prcom then
    assign
      v-c-name    = company.name
      v-c-addr[1] = company.addr[1]
@@ -457,7 +456,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   
   ELSE 
      DISPLAY
-       v-invhead when oe-ctrl.prcom
+       v-invhead when 
        ar-inv.inv-date
        v-c-name
        v-c-addr[1]
@@ -596,7 +595,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
              WITH FRAME ilwalker-comp.
           ELSE 
              DISPLAY
-               v-invhead when oe-ctrl.prcom
+               v-invhead 
                ar-inv.inv-date
                v-c-name
                v-c-addr[1]

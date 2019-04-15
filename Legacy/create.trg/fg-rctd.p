@@ -6,4 +6,8 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 ASSIGN fg-rctd.upd-date = TODAY
        fg-rctd.upd-time = TIME
-       fg-rctd.created-by = USERID("NOSWEAT").
+       fg-rctd.created-by = USERID("NOSWEAT")
+       fg-rctd.CreateInvoice = NO
+       fg-rctd.enteredBy = USERID("asi")
+       fg-rctd.enteredDT = DATETIME(TODAY, MTIME)        
+       .

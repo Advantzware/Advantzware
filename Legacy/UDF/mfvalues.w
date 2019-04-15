@@ -909,7 +909,7 @@ PROCEDURE loadWidgetData :
     RETURN "EMPTY".
   END.
   FOR EACH {&dbnm}mfgroup NO-LOCK:
-    mfgrpList = mfgrpList + {&dbnm}mfgroup.mfgroup_data + ",".
+    mfgrpList = mfgrpList + ENTRY(1,{&dbnm}mfgroup.mfgroup_data,"|") + ",".
   END.
   mfgrpList = TRIM(mfgrpList,",").
   IF NOT CAN-DO(mfgrpList,ipcGroup) THEN DO:

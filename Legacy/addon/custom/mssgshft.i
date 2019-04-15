@@ -10,13 +10,13 @@ DO WHILE TRUE:
     op-missingshift = {&file}.shift.
     RETURN.
   END.
-  IF {&file}.shift = ip-endshift THEN LEAVE.
+  IF {&file}.shift EQ ip-endshift THEN LEAVE.
   FIND NEXT {&file} NO-LOCK
-       WHERE {&file}.company = ip-company {&where}
+       WHERE {&file}.company EQ ip-company {&where}
        NO-ERROR.
   IF NOT AVAILABLE {&file} THEN
   FIND FIRST {&file} NO-LOCK
-       WHERE {&file}.company = ip-company {&where}
+       WHERE {&file}.company EQ ip-company {&where}
        NO-ERROR.
 END. /* do while */
 

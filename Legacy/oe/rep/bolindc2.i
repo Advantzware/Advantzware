@@ -92,10 +92,10 @@ DISPLAY  {1}
       /*oe-boll.cases*/ lv-cases-tot FORM ">>>>" /*AT 79*/  "@" 
       /*oe-boll.qty-case*/ lv-qcase-tot FORM ">>>>>Z"           
     SPACE(1)
-     lv-qty-tot FORM "->>>>>z"  WHEN lv-partial-tot = 0 SPACE(3)
-     lv-class FORM "x(3)" SPACE(5)
+     lv-qty-tot FORM "->>>>>>>z"  WHEN lv-partial-tot = 0 SPACE(3)
+     lv-class FORM "x(3)" SPACE(3)
      /*tt-boll.p-c /*v-part-comp WHEN lv-partial-tot = 0*/*/
-     tt-boll.weight
+     tt-boll.weight FORMAT ">>>>>>9"
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
 down {1} with frame bol-mid1.
 

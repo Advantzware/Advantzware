@@ -74,23 +74,24 @@ DEF TEMP-TABLE tt-report NO-UNDO
     FIELD shipid  AS CHAR
     FIELD release# LIKE oe-relh.release#
     FIELD row-id AS ROWID
-    FIELD qty AS INT.
+    FIELD qty AS INT
+    FIELD cShipFrom LIKE oe-rel.spare-char-1.
 
 
 ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Item Name,Cust PO#,Ordered Qty,Prod. Qty," +
                             "Shipped Qty,Job On Hand,Sell Price,UOM,Unit Count,Pallet Count,Skids,Status,Due Date," +
                             "Customer Name,Est#,Job#,CAD#,Invoice Qty,Act. Rel. Quantity,Production Balance,O/U%,Rep," +
-                            "Rep Name,Release Date,Carrier,Ship To,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
-                            "Scheduled Rel. Qty"
+                            "Rep Name,Release Date,Carrier,Ship To Code,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
+                            "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,# of Pallets"
 
        cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
                             "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
-                            "sch-rel-qty"
+                            "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet"
                             
-        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18"
-           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c"
+        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30,15,15,15,15"
+           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -113,12 +114,12 @@ ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Ite
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 RS-open-closed ~
 RS-ord-stat begin_cust-no end_cust-no begin_item end_item begin_part ~
 end_part begin_order end_order end_date begin_date begin_reldt end_reldt ~
-tb_print-del sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
-tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+begin_shipfrom end_shipfrom tb_print-del sl_avail sl_selected Btn_Add ~
+Btn_Remove btn_Up btn_down tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS RS-open-closed RS-ord-stat begin_cust-no ~
 end_cust-no begin_item end_item begin_part end_part begin_order end_order ~
-end_date begin_date begin_reldt end_reldt tb_print-del sl_avail sl_selected ~
-tb_excel tb_runExcel fi_file 
+end_date begin_date begin_reldt end_reldt begin_shipfrom end_shipfrom ~
+tb_print-del sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -196,6 +197,11 @@ DEFINE VARIABLE begin_reldt AS DATE FORMAT "99/99/9999"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_shipfrom AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Beginning Ship From WH" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
@@ -226,6 +232,11 @@ DEFINE VARIABLE end_reldt AS DATE FORMAT "99/99/9999"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE end_shipfrom AS CHARACTER FORMAT "X(5)":U INITIAL "zzzz" 
+     LABEL "Ending Ship From WH" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-order.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
@@ -237,8 +248,8 @@ DEFINE VARIABLE RS-open-closed AS CHARACTER INITIAL "Both"
      RADIO-BUTTONS 
           "Open", "Open",
 "Closed", "Closed",
-    "Both", "Both"
-     SIZE 36.6 BY .96 NO-UNDO.
+"Both", "Both"
+     SIZE 36.6 BY .95 NO-UNDO.
 
 DEFINE VARIABLE RS-ord-stat AS INTEGER INITIAL 1 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -254,7 +265,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 11.62.
+     SIZE 101 BY 13.05.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -307,40 +318,44 @@ DEFINE FRAME Dialog-Frame
           "Enter Beginning Customer Number" WIDGET-ID 108
      end_order AT ROW 7.91 COL 71 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 110
-     begin_date AT ROW 9.05 COL 28 COLON-ALIGNED HELP
-          "Enter Beginning Customer Number" WIDGET-ID 112
      end_date AT ROW 9 COL 71 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 114
+     begin_date AT ROW 9.05 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 112
      begin_reldt AT ROW 10.05 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 116
      end_reldt AT ROW 10.14 COL 71 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 118
-     tb_print-del AT ROW 11.52 COL 35.8
-     sl_avail AT ROW 13.76 COL 6.6 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 13.76 COL 62.6 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 14.24 COL 43.6 HELP
+     begin_shipfrom AT ROW 11.19 COL 28 COLON-ALIGNED HELP
+          "Enter starting ship from location." WIDGET-ID 158
+     end_shipfrom AT ROW 11.24 COL 71 COLON-ALIGNED HELP
+          "Enter ending ship from location." WIDGET-ID 160
+     tb_print-del AT ROW 12.81 COL 35.8
+     sl_avail AT ROW 15.29 COL 6.6 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 15.29 COL 62.6 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 15.76 COL 43.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 15.43 COL 43.6 HELP
+     Btn_Remove AT ROW 16.95 COL 43.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 16.62 COL 43.6 WIDGET-ID 40
-     btn_down AT ROW 17.81 COL 43.6 WIDGET-ID 42
-     tb_excel AT ROW 20.33 COL 36 WIDGET-ID 32
-     tb_runExcel AT ROW 20.33 COL 78 RIGHT-ALIGNED WIDGET-ID 34
-     fi_file AT ROW 21.29 COL 34 COLON-ALIGNED HELP
+     btn_Up AT ROW 18.14 COL 43.6 WIDGET-ID 40
+     btn_down AT ROW 19.33 COL 43.6 WIDGET-ID 42
+     tb_excel AT ROW 21.86 COL 36 WIDGET-ID 32
+     tb_runExcel AT ROW 21.86 COL 78 RIGHT-ALIGNED WIDGET-ID 34
+     fi_file AT ROW 22.81 COL 34 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 22
-     btn-ok AT ROW 23.67 COL 30 WIDGET-ID 14
-     btn-cancel AT ROW 23.67 COL 60.2 WIDGET-ID 12
+     btn-ok AT ROW 25.19 COL 30 WIDGET-ID 14
+     btn-cancel AT ROW 25.19 COL 60.2 WIDGET-ID 12
      "Order Status:" VIEW-AS TEXT
           SIZE 13.4 BY 1 AT ROW 3 COL 27 WIDGET-ID 124
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 14.29 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 12.76 COL 3 WIDGET-ID 86
-     RECT-6 AT ROW 12.67 COL 2 WIDGET-ID 30
+     RECT-6 AT ROW 14.19 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.05 COL 2 WIDGET-ID 38
-     RECT-8 AT ROW 19.57 COL 2 WIDGET-ID 84
-     SPACE(0.79) SKIP(2.37)
+     RECT-8 AT ROW 21.1 COL 2 WIDGET-ID 84
+     SPACE(0.79) SKIP(2.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Order Maintenance Excel Export" WIDGET-ID 100.
@@ -392,6 +407,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_shipfrom:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
+
+ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
@@ -413,6 +432,10 @@ ASSIGN
 
 ASSIGN 
        end_reldt:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
+
+ASSIGN 
+       end_shipfrom:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
 ASSIGN 
@@ -482,6 +505,22 @@ DEF VAR char-val AS CHAR NO-UNDO.
            end.
            return no-apply.
        end.  /* cust-no*/
+       when "begin_shipfrom" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-loc.w  (cocode,ls-cur-val, output char-val). 
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* Ship From*/
+       when "end_shipfrom" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-loc.w  (cocode,ls-cur-val, output char-val). 
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* Ship From*/
    END CASE.
 END.
 
@@ -559,6 +598,17 @@ END.
 ON LEAVE OF begin_reldt IN FRAME Dialog-Frame /* From Release Date */
 DO:
    assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom Dialog-Frame
+ON LEAVE OF begin_shipfrom IN FRAME Dialog-Frame /* From ShipTo */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -717,6 +767,17 @@ END.
 ON LEAVE OF end_reldt IN FRAME Dialog-Frame /* To Release Date */
 DO:
    assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom Dialog-Frame
+ON LEAVE OF end_shipfrom IN FRAME Dialog-Frame /* To ShipTo */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -975,14 +1036,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY RS-open-closed RS-ord-stat begin_cust-no end_cust-no begin_item 
           end_item begin_part end_part begin_order end_order end_date begin_date 
-          begin_reldt end_reldt tb_print-del sl_avail sl_selected tb_excel 
-          tb_runExcel fi_file 
+          begin_reldt end_reldt begin_shipfrom end_shipfrom tb_print-del 
+          sl_avail sl_selected tb_excel tb_runExcel fi_file 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-6 RECT-7 RECT-8 RS-open-closed RS-ord-stat begin_cust-no 
          end_cust-no begin_item end_item begin_part end_part begin_order 
-         end_order end_date begin_date begin_reldt end_reldt tb_print-del 
-         sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down tb_excel 
-         tb_runExcel fi_file btn-ok btn-cancel 
+         end_order end_date begin_date begin_reldt end_reldt begin_shipfrom 
+         end_shipfrom tb_print-del sl_avail sl_selected Btn_Add Btn_Remove 
+         btn_Up btn_down tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1111,7 +1172,11 @@ DEF VAR vshipid  AS CHAR NO-UNDO.
 DEF VAR vreldate AS CHAR NO-UNDO.
 DEF VAR vsman  AS CHAR NO-UNDO .
 DEF VAR vsname  AS CHAR NO-UNDO .
+DEFINE VARIABLE cShipFr LIKE oe-rel.spare-char-1 NO-UNDO.
 DEFINE VARIABLE dSchRelQty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cShipName AS CHARACTER NO-UNDO .
+DEFINE VARIABLE dtPostedDate AS DATE NO-UNDO .
+
 ASSIGN
    v-fcust[1]   = begin_cust-no
    v-fcust[2]   = end_cust-no
@@ -1163,8 +1228,8 @@ IF tb_excel THEN
                (NOT oe-ordl.opened AND RS-open-closed EQ "Closed")),
       FIRST oe-ord OF oe-ordl WHERE oe-ord.stat NE "W" AND
            (oe-ord.ord-date >= date(begin_date) AND oe-ord.ord-date <= date(end_date)) AND
-       ((oe-ord.stat NE "H" AND RS-ord-stat = 3) OR 
-           (oe-ord.stat EQ "H" AND RS-ord-stat = 2) OR oe-ord.stat EQ "" OR RS-ord-stat = 1)
+       ((oe-ord.stat NE "H" AND NOT oe-ord.priceHold AND RS-ord-stat = 3) OR 
+           ((oe-ord.stat EQ "H" OR oe-ord.priceHold) AND RS-ord-stat = 2) OR oe-ord.stat EQ "" OR RS-ord-stat = 1)
 /*                                 AND (oe-ord.type    NE "T" OR NOT NO) */
                           USE-INDEX ord-no NO-LOCK, 
       FIRST itemfg NO-LOCK WHERE itemfg.company EQ oe-ordl.company 
@@ -1181,40 +1246,43 @@ IF tb_excel THEN
          v-pallet-count = 0
          v-skid-count = 0
          v-cnt = v-cnt + 1
-         dSchRelQty = 0 .
+         dSchRelQty = 0 
+         dtPostedDate = ? .
 
         DEF VAR li AS INT NO-UNDO.
 
       IF AVAIL oe-ordl THEN DO:
          IF oe-ordl.job-no NE "" THEN
-            FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK WHERE fg-rcpth.company   EQ cocode
+            FOR EACH fg-rcpth FIELDS(r-no rita-code post-date) NO-LOCK WHERE fg-rcpth.company   EQ cocode
                                                                AND fg-rcpth.job-no    EQ oe-ordl.job-no
                                                                AND fg-rcpth.job-no2   EQ oe-ordl.job-no2
                                                                AND fg-rcpth.i-no      EQ oe-ordl.i-no
                                                                AND fg-rcpth.rita-code EQ "R"
                                                         USE-INDEX job,
                EACH fg-rdtlh FIELDS(qty) NO-LOCK WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-                                                   AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
+                                                   AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code by fg-rcpth.post-date:
                v-prod-qty = v-prod-qty + fg-rdtlh.qty.
+               dtPostedDate = (fg-rcpth.post-date) .
             END.
          ELSE DO:
             FOR EACH job-hdr FIELDS(job-no job-no2) WHERE job-hdr.company EQ cocode 
                                                       AND job-hdr.ord-no EQ oe-ordl.ord-no 
                                                       AND job-hdr.i-no EQ oe-ordl.i-no
                                                 USE-INDEX ord-no NO-LOCK,
-               EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK WHERE fg-rcpth.company   EQ cocode
+               EACH fg-rcpth FIELDS(r-no rita-code post-date) NO-LOCK WHERE fg-rcpth.company   EQ cocode
                                                               AND fg-rcpth.job-no    EQ job-hdr.job-no
                                                               AND fg-rcpth.job-no2   EQ job-hdr.job-no2
                                                               AND fg-rcpth.i-no      EQ oe-ordl.i-no
                                                               AND fg-rcpth.rita-code EQ "R"
                                                         USE-INDEX job,
                EACH fg-rdtlh FIELDS(qty) NO-LOCK WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-                                                   AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
+                                                   AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code by fg-rcpth.post-date:
                 v-prod-qty = v-prod-qty + fg-rdtlh.qty.
+                dtPostedDate = (fg-rcpth.post-date) .
             END.
          END.
                 IF oe-ordl.po-no-po NE 0 THEN   /* Task 05221402 */
-        FOR EACH fg-rcpth FIELDS(r-no rita-code) WHERE
+        FOR EACH fg-rcpth FIELDS(r-no rita-code post-date) WHERE
             fg-rcpth.company   EQ cocode AND
             fg-rcpth.po-no     EQ STRING(oe-ordl.po-no-po) AND
             fg-rcpth.i-no      EQ oe-ordl.i-no AND
@@ -1223,8 +1291,9 @@ IF tb_excel THEN
             EACH fg-rdtlh FIELDS(qty) WHERE
                  fg-rdtlh.r-no EQ fg-rcpth.r-no AND
                  fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-                 NO-LOCK:
+                 NO-LOCK by fg-rcpth.post-date:
                  v-prod-qty = v-prod-qty + fg-rdtlh.qty.
+                 dtPostedDate = (fg-rcpth.post-date) .
         END.
       END.
 
@@ -1254,14 +1323,16 @@ IF tb_excel THEN
              vshipid  = ""
              vreldate = "" 
              vsman     = ""
-             vsname     = "".
+             vsname     = ""
+             cShipFr = "".
 
          
          IF AVAIL oe-ordl THEN
          FOR EACH oe-rel WHERE oe-rel.company EQ cocode 
                            AND oe-rel.ord-no  EQ oe-ordl.ord-no 
                            AND oe-rel.i-no    EQ oe-ordl.i-no 
-                           AND oe-rel.line    EQ oe-ordl.LINE NO-LOCK:
+                           AND oe-rel.line    EQ oe-ordl.LINE
+                           NO-LOCK:
     
             IF AVAIL oe-rel THEN
              FIND FIRST oe-rell
@@ -1285,8 +1356,9 @@ IF tb_excel THEN
                  tt-report.i-no    = oe-rel.i-no   
                  tt-report.ord-no  = oe-rel.ord-no
                  tt-report.carrier  = oe-rel.carrier
-                 tt-report.shipid   = oe-rel.ship-id .
-                 tt-report.vdate = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date. 
+                 tt-report.shipid   = oe-rel.ship-id 
+                 tt-report.vdate = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date
+                 tt-report.cShipFrom = oe-rel.spare-char-1. 
                 
             RELEASE oe-rell .
             RELEASE oe-relh .
@@ -1305,7 +1377,8 @@ IF tb_excel THEN
                          tt-report.i-no    = oe-ordl.i-no 
                          tt-report.ord-no  = oe-ordl.ord-no
                          tt-report.carrier  = oe-ordl.carrier
-                         tt-report.shipid   = oe-ord.ship-id .
+                         tt-report.shipid   = oe-ord.ship-id
+                         tt-report.cShipFrom = oe-ord.loc .
             END.
          END.
     
@@ -1345,23 +1418,34 @@ IF tb_excel THEN
       END.
       v-fgitem =  oe-ordl.i-no.
       
-   FOR EACH tt-report /*WHERE tt-report.vdate GE begin_reldt
-       AND tt-report.vdate LE end_reldt*/ NO-LOCK BY tt-report.vdate DESC:
+   FOR EACH tt-report
+       WHERE tt-report.cShipFrom GE begin_shipfrom
+       AND tt-report.cShipFrom LE end_shipfrom NO-LOCK BY tt-report.vdate DESC:
       
        IF tb_print-del THEN  /* task 06051405 */
-           IF NOT CAN-FIND( FIRST tt-report WHERE tt-report.vdate GE begin_reldt AND tt-report.vdate LE end_reldt) THEN NEXT .
+           IF NOT CAN-FIND( FIRST tt-report WHERE tt-report.vdate GE begin_reldt AND tt-report.vdate LE end_reldt  ) THEN NEXT .
+
 
        ASSIGN
            vcarrier = tt-report.carrier
            vshipid  = tt-report.shipid
-           vreldate = string(tt-report.vdate) .
+           vreldate = string(tt-report.vdate)
+           cShipFr = tt-report.cShipFrom
+           cShipName = "" .
 
        find first carrier where carrier.company = g_company and
            carrier.carrier = vcarrier 
            no-lock no-error.
        IF AVAIL carrier THEN
            ASSIGN vcarrier = carrier.dscr .
+       find first shipto no-lock
+            where shipto.company = g_company and
+           shipto.ship-id = vshipid AND
+           shipto.cust-no EQ oe-ordl.cust-no 
+           no-error.  
 
+       cShipName = IF AVAIL shipto THEN shipto.ship-name ELSE "" .         
+       
        RUN oe/rel-stat.p (tt-report.row-id, OUTPUT v-stat).
        FIND FIRST oe-rel NO-LOCK 
            WHERE oe-rel.company EQ g_company 
@@ -1428,6 +1512,13 @@ IF tb_excel THEN
                   WHEN "v-prod-qty" THEN cVarValue = STRING(v-prod-qty) .
                   WHEN "approved-date" THEN cVarValue = IF oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE ""    .
                   WHEN "sch-rel-qty" THEN cVarValue = string(dSchRelQty).
+                  WHEN "ship-from" THEN cVarValue = string(cShipFr,"x(9)").
+                  WHEN "ship-name" THEN cVarValue = string(cShipName,"x(30)").
+
+                  WHEN "post-date" THEN cVarValue = IF dtPostedDate NE ? THEN STRING(dtPostedDate) ELSE ""    .
+                  WHEN "weight-100" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.weight-100) ELSE "".
+                  WHEN "tot-wt" THEN cVarValue =  string(itemfg.weight-100 * v-prod-qty / 100 ).
+                  WHEN "Pallet" THEN cVarValue = string(itemfg.q-onh / v-pallet-count).                  
              END CASE.
 
              cExcelVarValue = cVarValue.

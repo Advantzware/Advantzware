@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 ASSIGN cocode = g_company
        locode = g_loc.
 
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
 
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 def var ls-prev-po as cha no-undo.
@@ -477,7 +476,7 @@ DO:
 
              END.
              ELSE DO:
-                  RUN windows/l-itemf2.w (fg-rctd.company, "", fg-rctd.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
+                  RUN windows/l-itemf2.w (fg-rctd.company, "", fg-rctd.i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT rec-val).
                   IF rec-val <> ? THEN DO:
                      FIND itemfg WHERE RECID(itemfg) = rec-val NO-LOCK.
                      ASSIGN fg-rctd.i-no:SCREEN-VALUE  = itemfg.i-no

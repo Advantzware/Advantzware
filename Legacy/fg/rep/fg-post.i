@@ -11,6 +11,7 @@
       v-whse = w-fg-rctd.loc.
     
       if first(w-fg-rctd.loc) then do:
+        &IF DEFINED(NOOUTPUT) = 0 &THEN 
         view STREAM before frame r-top-before.
         IF fgpost-cha EQ "Both" THEN view STREAM before frame before.
         view STREAM before frame r-top1.
@@ -21,11 +22,14 @@
 
         PAGE STREAM before.
         PAGE STREAM after.
+        &ENDIF
       end.
       
       ELSE DO:
+        &IF DEFINED(NOOUTPUT) = 0 &THEN
         put STREAM before skip(2) "WHSE: " v-whse skip(1).
         put STREAM after  skip(2) "WHSE: " v-whse skip(1).
+        &ENDIF
       END.
     end.
     
@@ -253,7 +257,8 @@
 
 
     IF rd-ItmPo EQ 1
-      THEN DO:        
+      THEN DO:   
+       &IF DEFINED(NOOUTPUT) = 0 &THEN     
        display STREAM before
             w-fg-rctd.rct-date         WHEN FIRST-OF(w-fg-rctd.i-no)
             v-time                     WHEN FIRST-OF(w-fg-rctd.i-no)
@@ -275,8 +280,10 @@
             /* (sub-total by w-fg-rctd.i-no) */
         with frame {1}.
         down STREAM before with frame {1}.
+        &ENDIF
     END.
     ELSE DO:
+       &IF DEFINED(NOOUTPUT) = 0 &THEN
        display STREAM before
             w-fg-rctd.rct-date  when first-of(w-fg-rctd.i-no)
             v-time              WHEN FIRST-OF(w-fg-rctd.i-no)
@@ -299,11 +306,12 @@
             /* (sub-total by w-fg-rctd.i-no) */
          with frame {1}.
         down STREAM before with frame {1}.
+        &ENDIF
     END.
 
     IF tb_excel  THEN DO:
       IF rd-ItmPo EQ 1 THEN DO:
-          
+          &IF DEFINED(NOOUTPUT) = 0 &THEN
           PUT STREAM excel UNFORMATTED
             w-fg-rctd.rct-date ","
             v-time ","
@@ -321,10 +329,11 @@
                    STRING(w-fg-rctd.job-no2)) FORMAT "x(10)" "," 
             IF v-cost-sell THEN v-fg-cost  
             ELSE IF NOT v-cost-sell THEN v-fg-value  
-            ELSE 0       SKIP .
+              ELSE 0       SKIP .
+            &ENDIF
       END.
       ELSE DO:
-          
+          &IF DEFINED(NOOUTPUT) = 0 &THEN
           PUT STREAM excel UNFORMATTED
            w-fg-rctd.rct-date  ","
            v-time  ","
@@ -345,13 +354,14 @@
             IF v-cost-sell THEN v-fg-cost  
             ELSE IF NOT v-cost-sell THEN v-fg-value  
             ELSE 0       SKIP .
+            &ENDIF
       END.
     END.
 
 
     IF rd-ItmPo EQ 1
       THEN DO:    
-        
+       &IF DEFINED(NOOUTPUT) = 0 &THEN
        display STREAM after
             w-fg-rctd.rct-date  when first-of(w-fg-rctd.i-no)
             v-time              when first-of(w-fg-rctd.i-no)
@@ -373,9 +383,10 @@
                                                 
          with frame {1}.
         down STREAM before with frame {1}.
+        &ENDIF
     END.
     ELSE DO:
-    
+       &IF DEFINED(NOOUTPUT) = 0 &THEN
        display STREAM after
             w-fg-rctd.rct-date  when first-of(w-fg-rctd.i-no)
             v-time              when first-of(w-fg-rctd.i-no) 
@@ -399,7 +410,7 @@
                                                 
         with frame {1}.
        down STREAM after with frame {1}. 
-
+       &ENDIF 
     END.
 
     /*djk: get the total quantity for the partial*/
@@ -417,7 +428,7 @@
 
       IF rd-ItmPo EQ 1
         THEN DO:
-          
+         &IF DEFINED(NOOUTPUT) = 0 &THEN
          display STREAM before
                 /*w-fg-rctd.rct-date when first-of(w-fg-rctd.i-no)*/
                 /*w-fg-rctd.i-no       when first-of(w-fg-rctd.i-no)*/
@@ -438,9 +449,10 @@
                 /* (sub-total by w-fg-rctd.i-no) */
           with frame {3}.
         down STREAM before with frame {3}.
+        &ENDIF
       END.
       ELSE DO:
-      
+         &IF DEFINED(NOOUTPUT) = 0 &THEN
          display STREAM before
                 /*w-fg-rctd.rct-date when first-of(w-fg-rctd.i-no)*/
                 /*w-fg-rctd.i-no       when first-of(w-fg-rctd.i-no)*/
@@ -461,12 +473,13 @@
                 {2} TO 141 
                 /* (sub-total by w-fg-rctd.i-no) */
         with frame {3}.
-        down STREAM before with frame {3}. 
+        down STREAM before with frame {3}.
+        &ENDIF 
       END.
 
       IF tb_excel  THEN DO:
         IF rd-ItmPo EQ 1 THEN DO:
-            
+          &IF DEFINED(NOOUTPUT) = 0 &THEN
           PUT STREAM excel UNFORMATTED
            ""                ","
            ""                ","
@@ -485,9 +498,10 @@
             IF v-cost-sell THEN v-fg-cost  
             ELSE IF NOT v-cost-sell THEN v-fg-value  
             ELSE 0       SKIP .
+            &ENDIF
         END.
         ELSE DO:
-            
+          &IF DEFINED(NOOUTPUT) = 0 &THEN  
           PUT STREAM excel UNFORMATTED
            ""                ","
            ""                ","
@@ -508,11 +522,13 @@
             IF v-cost-sell THEN v-fg-cost  
             ELSE IF NOT v-cost-sell THEN v-fg-value  
             ELSE 0       SKIP .
+            &ENDIF
         END.        
       END.
 
       IF rd-ItmPo EQ 1 
         THEN DO:
+         &IF DEFINED(NOOUTPUT) = 0 &THEN
          display STREAM after
                 /*w-fg-rctd.rct-date when first-of(w-fg-rctd.i-no)*/
                 /*w-fg-rctd.i-no       when first-of(w-fg-rctd.i-no)*/
@@ -532,9 +548,10 @@
                 /* (sub-total by w-fg-rctd.i-no) */
         with frame {3}.
         down STREAM after with frame {3}.
+        &ENDIF
       END.
       ELSE DO:
-      
+          &IF DEFINED(NOOUTPUT) = 0 &THEN
           display STREAM after
                 /*w-fg-rctd.rct-date when first-of(w-fg-rctd.i-no)*/
                 /*w-fg-rctd.i-no       when first-of(w-fg-rctd.i-no)*/
@@ -556,6 +573,7 @@
                 /* (sub-total by w-fg-rctd.i-no) */
         with frame {3}.
         down STREAM after with frame {3}.
+        &ENDIF
       END.
     end.  
 
@@ -570,8 +588,10 @@
     run orig. 
 
     IF w-fg-rctd.rita-code eq "T" THEN DO:
+      &IF DEFINED(NOOUTPUT) = 0 &THEN
       put STREAM before UNFORMATTED "To:" TO 64 w-fg-rctd.tag2 "To: " to 94  w-fg-rctd.loc2 " " w-fg-rctd.loc-bin2 SKIP.
       put STREAM after UNFORMATTED "To:" TO 64 w-fg-rctd.tag2 "To: " to 94 w-fg-rctd.loc2 " " w-fg-rctd.loc-bin2 SKIP.
+      &ENDIF
     END.
 
     if v-pr-tots OR v-pr-tots2  then do:
@@ -597,7 +617,8 @@
     end.
 
     if last-of(w-fg-rctd.i-no) then do:
-      if v-pr-tots2 then do:                      
+      if v-pr-tots2 then do:
+        &IF DEFINED(NOOUTPUT) = 0 &THEN                      
         put STREAM before
             "-----------" TO 110 "------------" AT 130 skip. 
              
@@ -623,6 +644,7 @@
 
         put STREAM after
             v-tot-qty TO 110 {4} to 141 skip(1).
+        &ENDIF
       end.
       
       assign

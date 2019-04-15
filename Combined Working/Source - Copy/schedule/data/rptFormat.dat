@@ -1,8 +1,0 @@
-"" "errorException" "" no ""
-"" "jobByResource" "" no ""
-"" "pendingJobs" "" no ""
-"" "status" "" no ""
-"ASI" "dieCutting" "" no ""
-"ASI" "finishing" "" no ""
-"ASI" "printing" "" no ""
-"ASI" "sheeting" "" no ""

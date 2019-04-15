@@ -1,0 +1,101 @@
+ADD TABLE "dynSubjectParamSet"
+  AREA "Data"
+  LABEL "Dynamic Subject Parameter Sets"
+  DESCRIPTION "Dynamic Subject Parameter Sets"
+  DUMP-NAME "dynsubjectparam"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/dynSubjectParamSet.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/dynSubjectParamSet.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/dynSubjectParamSet.p" CRC "?" 
+
+ADD FIELD "subjectID" OF "dynSubjectParamSet" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Subject ID"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Enter Subject ID"
+  ORDER 10
+
+ADD FIELD "paramSetID" OF "dynSubjectParamSet" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Parameter Set ID"
+  POSITION 3
+  MAX-WIDTH 4
+  COLUMN-LABEL "Set ID"
+  HELP "Enter Parameter Set ID"
+  ORDER 30
+
+ADD FIELD "rec_key" OF "dynSubjectParamSet" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 4
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 70
+
+ADD FIELD "setRow" OF "dynSubjectParamSet" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "1"
+  LABEL "Set Row"
+  POSITION 7
+  MAX-WIDTH 17
+  COLUMN-LABEL "Row"
+  HELP "Enter Set Row"
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "setCol" OF "dynSubjectParamSet" AS decimal 
+  FORMAT ">>9.99"
+  INITIAL "1"
+  LABEL "Set Col"
+  POSITION 8
+  MAX-WIDTH 17
+  COLUMN-LABEL "Col"
+  HELP "Enter Set Column"
+  DECIMALS 2
+  ORDER 40
+
+ADD FIELD "sortOrder" OF "dynSubjectParamSet" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Sort Order"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "Enter Sort Order"
+  ORDER 20
+
+ADD FIELD "isVisible" OF "dynSubjectParamSet" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Is Visible"
+  POSITION 10
+  MAX-WIDTH 1
+  HELP "Toggle Is Visible"
+  ORDER 60
+
+ADD INDEX "pi-subjectID" ON "dynSubjectParamSet" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary Index by Subject ID"
+  INDEX-FIELD "subjectID" ASCENDING 
+  INDEX-FIELD "paramSetID" ASCENDING 
+
+ADD INDEX "si-paramSetID" ON "dynSubjectParamSet" 
+  AREA "Index"
+  DESCRIPTION "Seconday Index by Parameter Set ID"
+  INDEX-FIELD "paramSetID" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "dynSubjectParamSet" 
+  AREA "Index"
+  DESCRIPTION "Seconday Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002376

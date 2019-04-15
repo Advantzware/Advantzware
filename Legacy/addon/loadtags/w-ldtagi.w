@@ -74,7 +74,7 @@ DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-ldtagi AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_loadtag AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -308,6 +308,14 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+         RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/rmloadtag.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_loadtag ).
+       RUN set-position IN h_loadtag ( 1.00 , 85.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'loadtags/b-ldtagi.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -318,6 +326,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       /* Links to SmartObject h_loadtag. */
+       RUN add-link IN adm-broker-hdl ( h_b-ldtagi , 'loadtag-rm':U , h_loadtag ).
 
        /* Links to SmartNavBrowser h_b-ldtagi. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-ldtagi ).

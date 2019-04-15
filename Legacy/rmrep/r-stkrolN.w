@@ -57,12 +57,14 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "RM Item#,Description,Tag#,Lineal Feet,Totals Rolls" 
+ASSIGN cTextListToSelect = "RM Item#,Description,Tag#,Lineal Feet,Totals Rolls,Roll Weight," +
+                           "Roll Width,Wt/MSF,Vendor Tag #"
 
-       cFieldListToSelect = "rm-item,desc,tag,lin-ft,tot-rol" 
+       cFieldListToSelect = "rm-item,desc,tag,lin-ft,tot-rol,rol-wt," + 
+                            "rol-wid,wt-msf,vend-tag"
 
-       cFieldLength = "10,25,20,12,12"
-       cFieldType = "c,c,c,i,i" 
+       cFieldLength = "10,25,20,12,12,11," + "10,8,20"
+       cFieldType = "c,c,c,i,i,i," + "i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1396,7 +1398,9 @@ DEF VAR v-roll-tot AS INT NO-UNDO.
 def var v-first as log extent 3.
 DEF VAR v-mattype AS cha NO-UNDO.
 DEF VAR v-msf-qty AS DEC NO-UNDO.
-
+DEFINE VARIABLE dLinerFeet AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dWeight AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cVendorTag AS CHARACTER NO-UNDO .
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
 DEF VAR hField AS HANDLE NO-UNDO.
@@ -1494,23 +1498,7 @@ SESSION:SET-WAIT-STATE("general").
     display "" with frame r-top.
 
     IF tb_excel THEN PUT STREAM excel UNFORMATTED excelheader SKIP.
-/* 
-for each rm-rcpth
-         where rm-rcpth.company                 eq cocode
-           and rm-rcpth.i-no                    ge v-fitem
-           and rm-rcpth.i-no                    le v-titem
-           and rm-rcpth.trans-date              ge v-fdate
-           and rm-rcpth.trans-date              le v-tdate
-           and index(caps(v-type),rm-rcpth.rita-code) gt 0
-         use-index i-no no-lock,
 
-         each rm-rdtlh
-         where rm-rdtlh.r-no      eq rm-rcpth.r-no
-           and rm-rdtlh.rita-code eq rm-rcpth.rita-code
-           and rm-rdtlh.loc                     ge v-floc
-           and rm-rdtlh.loc                     le v-tloc
-         no-lock,
- */
  FOR EACH rm-bin WHERE rm-bin.company = cocode
                    AND rm-bin.i-no GE v-fitem
                    AND rm-bin.i-no LE v-titem
@@ -1524,31 +1512,29 @@ for each rm-rcpth
          break /*by item.procat*/  BY rm-bin.i-no BY rm-bin.tag :
 
      {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
-
-      /*RUN calc-msf (OUTPUT v-msf-qty).
-      ACCUMULATE v-msf-qty (TOTAL BY ITEM.procat).
-      */
+     
       IF rm-bin.tag <> "" THEN ASSIGN v-roll-qty = v-roll-qty + 1.
                                       v-roll-tot = v-roll-tot + 1.
 
-     /* display /*item.procat*/
-                 rm-bin.i-no LABEL "RM Item#"
-                             WHEN FIRST-OF(rm-bin.i-no)
-                 item.i-name LABEL "Description"
-                             WHEN FIRST-OF(rm-bin.i-no)
-                 rm-bin.tag  FORMAT "X(20)" LABEL "Tag#"
-                 /*v-job-no*/
-                 rm-bin.qty LABEL "Lineal Feet"
-                /* v-msf-qty LABEL "MSF"
-                 ITEM.basis-w LABEL "Weight"
-                 rm-rdtlh.loc
-                 rm-rdtlh.loc-bin                 
-                 rm-rdtlh.cost              
-                 v-value*/
-                 v-roll-qty WHEN LAST-OF(rm-bin.i-no) LABEL "Total Rolls"
-          with frame itemx.
+      dLinerFeet = rm-bin.qty . 
+      IF item.cons-uom NE "LF" THEN
+          RUN rm/convquom.p(item.cons-uom, "LF",
+                            ITEM.basis-w, ITEM.s-len,(IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
+                            dLinerFeet, OUTPUT dLinerFeet).
+      dWeight = rm-bin.qty . 
+      IF item.cons-uom NE "LB" THEN
+          RUN rm/convquom.p(item.cons-uom, "LB",
+                            ITEM.basis-w, ITEM.s-len, (IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
+                            dWeight, OUTPUT dWeight).
 
-      down with frame itemx.*/
+         ASSIGN cVendorTag = "" .
+         FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company EQ cocode
+             AND loadtag.item-type EQ YES
+             AND loadtag.tag-no EQ rm-bin.tag            
+             NO-ERROR.
+         IF AVAILABLE loadtag THEN
+             cVendorTag = loadtag.misc-char[1] .
 
          ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1562,8 +1548,12 @@ for each rm-rcpth
                          WHEN "rm-item"    THEN cVarValue = IF FIRST-OF(rm-bin.i-no) THEN string(rm-bin.i-no,"x(10)") ELSE "" .
                          WHEN "desc"   THEN cVarValue = IF FIRST-OF(rm-bin.i-no) THEN string(item.i-name,"x(25)") ELSE "".
                          WHEN "tag"   THEN cVarValue = STRING(rm-bin.tag,"x(20)").
-                         WHEN "lin-ft"  THEN cVarValue = STRING(rm-bin.qty,"->>>>>>>9.99<<") .
+                         WHEN "lin-ft"  THEN cVarValue = STRING(dLinerFeet,"->>>>>>>9.99<<") .
                          WHEN "tot-rol"   THEN cVarValue = IF LAST-OF(rm-bin.i-no) THEN STRING(v-roll-qty,"->>>,>>>,>>9") ELSE "" .
+                         WHEN "rol-wt"   THEN cVarValue = STRING(dWeight,"->>,>>9.99").
+                         WHEN "rol-wid"  THEN cVarValue = IF item.r-wid ne 0 then STRING(ITEM.r-wid,"->>,>>9.99") ELSE STRING(ITEM.s-wid,"->>,>>9.99") .
+                         WHEN "wt-msf"   THEN cVarValue = string(ITEM.basis-w,">>>>9.99")  .
+                         WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
 
                     END CASE.
 
@@ -1587,10 +1577,7 @@ for each rm-rcpth
       end.
 
       if last(rm-bin.i-no) then do:
-
-        /*display "GRAND TOTALS" @ rm-rcpth.i-no
-                v-roll-tot     @ v-roll-qty                
-              with frame itemx.*/
+        
           ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1605,6 +1592,10 @@ for each rm-rcpth
                          WHEN "tag"   THEN cVarValue = "".
                          WHEN "lin-ft"  THEN cVarValue = "" /*STRING(rm-bin.qty,"->>>>>9.99<<")*/ .
                          WHEN "tot-rol"   THEN cVarValue = STRING(v-roll-tot,"->>,>>>,>>9") .
+                         WHEN "rol-wt"   THEN cVarValue = "".
+                         WHEN "rol-wid"  THEN cVarValue = "" .
+                         WHEN "wt-msf"   THEN cVarValue = ""  .
+                         WHEN "vend-tag" THEN cVarValue = "" .
 
                     END CASE.
 

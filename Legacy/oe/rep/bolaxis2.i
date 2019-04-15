@@ -27,12 +27,12 @@
      "<R22><C14><FROM><R24><C14><LINE>" SKIP
      "<R22><C27><FROM><R24><C27><LINE>" SKIP
      /*"<R22><C36><FROM><R24><C36><LINE>" SKIP*/
-     "<R22><C57><FROM><R24><C57><LINE>" SKIP  
-     "<R22><C62><FROM><R24><C62><LINE>" SKIP
+     "<R22><C53><FROM><R24><C53><LINE>" SKIP  
+     "<R22><C59><FROM><R24><C59><LINE>" SKIP
      "<R22><C70><FROM><R24><C70><LINE>" SKIP
      "<R22><C73><FROM><R24><C73><LINE>" SKIP.
 
  PUT "<FArial><=5> Order Qty                  Customer PO# <FCourier New>" SKIP.
- PUT "<FArial><=5><R+1> Customer Part#         Axis Order#                                      Description                                     Unit/s    Quantity       P/C  Weight  <FCourier New>" SKIP(1).
+ PUT "<FArial><=5><R+1> Customer Part#         Axis Order#                                      Description                              Unit/s          Quantity        P/C  Weight  <FCourier New>" SKIP(1).
  
  v-printline = v-printline + 16.

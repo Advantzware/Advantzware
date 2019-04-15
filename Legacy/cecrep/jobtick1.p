@@ -112,7 +112,7 @@ if avail xoe-ordl then do:
       no-lock no-error.
 
   if avail xoe-ord then do:
-    if (not oe-ctrl.p-fact) and xoe-ord.stat eq "h" then return.
+    if (not oe-ctrl.p-fact) and (xoe-ord.stat eq "h" OR xoe-ord.priceHold) then return.
     
     assign
      i     = 0

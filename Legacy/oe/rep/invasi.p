@@ -394,7 +394,7 @@ form " " to 80
     end.
    
     if v-print-fmt eq "Valley" then do:
-      v-c-name = if oe-ctrl.prcom then company.name else "".
+      v-c-name = company.name .
    
       if avail shipto then
         assign
@@ -408,8 +408,7 @@ form " " to 80
         ASSIGN v-c-phone   = ""
                v-c-fax     = ""
                v-c-email   = "".
-    else    
-    if oe-ctrl.prcom then
+    else        
       assign
        v-c-name    = company.name
        v-c-addr[1] = company.addr[1]

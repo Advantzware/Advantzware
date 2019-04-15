@@ -21,8 +21,8 @@ FOR EACH tt-boll,
    
    
 
-   IF ll-consol-bolls THEN DO:
-      {oe/rep/bolprem23.i}
+   IF ll-consol-bolls THEN DO: 
+      {oe/rep/bolrfcxcons.i}
    END.
    ELSE DO:
       FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
@@ -160,15 +160,15 @@ FOR EACH tt-boll,
          RUN XMLOutput (lXMLOutput,'/BOLLine_' + STRING(XMLLineNumber),'','Row').
          /* rstark 05181205 */
          
-         DISPLAY 
+         PUT 
             v-item-part-no
-            v-ord-po-no
-            v-part-dscr
-            w2.cases
-            w2.cas-cnt
-            v-case-tot /* WHEN LAST(w2.cases) */
-         WITH FRAME bol-mid2.
-         DOWN  WITH FRAME bol-mid2. 
+           "<C14>" v-ord-po-no
+           "<C28>" v-part-dscr
+           "<C61>" w2.cases
+           "<C68>" w2.cas-cnt
+           "<C73>" v-case-tot /* WHEN LAST(w2.cases) */
+         /*WITH FRAME bol-mid2.
+         DOWN  WITH FRAME bol-mid2*/SKIP. 
 
          ASSIGN
          v-grand-total-cases  = v-grand-total-cases + w2.cases
@@ -228,12 +228,13 @@ FOR EACH tt-boll,
               RUN XMLOutput (lXMLOutput,'/BOLLine_' + STRING(XMLLineNumber),'','Row').
               /* rstark 05181205 */
                
-              DISPLAY {1}
+              PUT {1}
                 v-item-part-no
-                v-ord-po-no
-                v-part-dscr
-              WITH FRAME bol-mid2.
-              DOWN {1} WITH FRAME bol-mid2. 
+                "<C14>" v-ord-po-no
+                "<C28>" v-part-dscr
+              /*WITH FRAME bol-mid2.
+              DOWN {1} WITH FRAME bol-mid2*/. 
+              put {1} skip(1).
               v-printline = v-printline + 1.
                
             END.
@@ -273,13 +274,14 @@ FOR EACH tt-boll,
             RUN XMLOutput (lXMLOutput,'/BOLLine_' + STRING(XMLLineNumber),'','Row').
             /* rstark 05181205 */
             
-            DISPLAY {1}
+            PUT {1}
                TRIM(STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
-                                                       @ v-item-part-no
-               b-itemfg.part-no                        @ v-part-dscr
-               tt-boll.qty * v-part-qty                @ v-case-tot
-            WITH FRAME bol-mid2.
-            DOWN {1} WITH FRAME bol-mid2.
+                                                       /*@ v-item-part-no*/
+               "<C28>" b-itemfg.part-no                        /*@ v-part-dscr*/
+               "<C73>" tt-boll.qty * v-part-qty               /* @ v-case-tot*/
+           /* WITH FRAME bol-mid2.
+            DOWN {1} WITH FRAME bol-mid2*/.
+            put {1} skip(1).
     
             /* rstark 05181205 */
             XMLLineNumber = XMLLineNumber + 1.
@@ -294,12 +296,12 @@ FOR EACH tt-boll,
             /* rstark 05181205 */
             
             v-printline = v-printline + 1.
-            DISPLAY {1}
-               fg-set.part-no                          @ v-item-part-no
-               v-job-po                                @ v-ord-po-no
-               b-itemfg.i-name                         @ v-part-dscr
-            WITH FRAME bol-mid2.
-            DOWN {1} WITH FRAME bol-mid2.
+            PUT {1}
+               fg-set.part-no                          /*@ v-item-part-no*/
+               "<C14>" v-job-po                             /*   @ v-ord-po-no*/
+               "<C28>" b-itemfg.i-name                       /*  @ v-part-dscr*/
+            /*WITH FRAME bol-mid2.
+            DOWN {1} WITH FRAME bol-mid2*/.
     
             put {1} skip(1).
             v-printline = v-printline + 2.
@@ -325,10 +327,10 @@ FOR EACH tt-boll,
          
         PUT {1}  
              SKIP
-             "P.O.#:" AT 10
-             tt-boll.po-no AT 17
-             "Total" AT 34
-             v-tot-cases             FORMAT "->>,>>>,>>z"       AT 85
+             "<C14>P.O.#: " 
+             tt-boll.po-no 
+             "<C28>Total<C73>" 
+             v-tot-cases             FORMAT "->>,>>>,>>z"     
              SKIP(1).
          v-printline = v-printline + 2.
          

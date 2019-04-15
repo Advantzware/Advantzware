@@ -524,16 +524,17 @@ PROCEDURE local-initialize :
 
     IF ll-est THEN DO:
       IF ll-combo THEN
-        ASSIGN
-         tb_est-die:SENSITIVE = ip-die-no NE eb.die-no
-         tb_est-img:SENSITIVE = ip-cimage NE ef.cad-image AND
+        ASSIGN   tb_est-img:SENSITIVE = ip-cimage NE ef.cad-image AND
                                 CAN-FIND(FIRST b-ef
                                          WHERE b-ef.company EQ ef.company
                                            AND b-ef.est-no  EQ ef.est-no
-                                           AND ROWID(b-ef)  NE ROWID(ef)).
+                                           AND ROWID(b-ef)  NE ROWID(ef))
+                          .
 
       IF ll-combo OR ll-tandem THEN                       
-        tb_est-cad:SENSITIVE = ip-cad-no NE eb.cad-no.
+        ASSIGN  tb_est-die:SENSITIVE = ip-die-no NE eb.die-no
+                       tb_est-cad:SENSITIVE = ip-cad-no NE eb.cad-no
+                       .
     END.
 
     IF ll-fgp THEN

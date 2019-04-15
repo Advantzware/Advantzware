@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEF NEW SHARED VAR lNewOrd AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -83,6 +84,7 @@ DEFINE VARIABLE h_vi-poord AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-clsp2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-clspo AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-viewp AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -318,6 +320,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 77.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'poinq/b-po-inq.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -327,6 +337,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'move-columns':U , h_movecol ).
 
        /* Links to SmartNavBrowser h_b-po-inq. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-po-inq ).

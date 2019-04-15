@@ -157,7 +157,7 @@ for each report where report.term-id eq v-term-id,
          /* oe-boll.weight*/  SKIP          
       */
         SPACE(1)
-         lv-qty-tot FORM "->,>>>,>>z"  WHEN lv-partial-tot = 0 SPACE(2)
+         lv-qty-tot FORM "->>>>>>>>z"  WHEN lv-partial-tot = 0 SPACE(2)
          v-part-comp WHEN lv-partial-tot = 0
          with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
     down {1} with frame bol-mid1.
@@ -165,7 +165,7 @@ for each report where report.term-id eq v-term-id,
       
     v-unit-qty = IF lv-partial-tot > 0 
                     THEN STRING(v-1,">>>>9") + " @ " + STRING(lv-partial-tot,"->,>>>,>>z") + " " 
-                         + string(lv-qty-tot,"->,>>>,>>z")
+                         + string(lv-qty-tot,"->>>>>>>>z")
                  ELSE "" /*===================="*/ .
 
     /*v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).*/
@@ -188,7 +188,7 @@ for each report where report.term-id eq v-term-id,
        PUT {1}
         /*  lv-cases /*v-tot-pkgs*/ AT 79 FORM ">>>" " = "
           lv-qty-tot /*oe-boll.qty */ FORM "->>>>>z" SPACE(12) */
-          v-part-comp   /*AT 91*/  /*SPACE(12)*/
+          v-part-comp   AT 95  /*SPACE(12)*/
          /* oe-boll.weight*/  SKIP .         
     ELSE PUT {1} SKIP.
 

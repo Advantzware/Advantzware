@@ -86,7 +86,7 @@ ASSIGN cTextListToSelect = "Catgy,Rep,Salesrep Name,Customer,FG Item#,Customer P
        cFieldListToSelect = "cat,rep,name,cust,ino,cust-prt,dly-sf,dly-amt," +
                             "dly-cst,dly-mar,ptd-sf,ptd-amt,ptd-cst,ptd-mar," +
                             "ytd-sf,ytd-amt,ytd-cst,ytd-mar"
-       cFieldLength = "5,3,25,8,15,15,9,11," + "10,8,9,11,10,8," + "9,11,10,8"
+       cFieldLength = "5,3,25,8,15,15,9,11," + "10,8,9,11,10,8," + "9,11,11,10"
        cFieldType = "c,c,c,c,c,c,i,i," + "i,i,i,i,i,i," + "i,i,i,i" 
     .
 
@@ -1734,19 +1734,19 @@ PROCEDURE text-proc :
             ip-index-2 = ip-index + 2.
 
      IF NOT tb_rem-cents THEN
-        ASSIGN v-tot-amt-txt[ip-index] = STRING(v-tot-amt[ip-index],"->>>,>>9.99")
-               v-tot-amt-txt[ip-index-1] = STRING(v-tot-amt[ip-index-1],"->>>,>>9.99")
-               v-tot-amt-txt[ip-index-2] = STRING(v-tot-amt[ip-index-2],"->>>,>>9.99")
-               v-tot-cost-txt[ip-index] = STRING(v-tot-cost[ip-index],"->>,>>9.99")
-               v-tot-cost-txt[ip-index-1] = STRING(v-tot-cost[ip-index-1],"->>,>>9.99")
-               v-tot-cost-txt[ip-index-2] = STRING(v-tot-cost[ip-index-2],"->>,>>9.99").
+        ASSIGN v-tot-amt-txt[ip-index] = STRING(v-tot-amt[ip-index],"->>>>>>9.99")
+               v-tot-amt-txt[ip-index-1] = STRING(v-tot-amt[ip-index-1],"->>>>>>9.99")
+               v-tot-amt-txt[ip-index-2] = STRING(v-tot-amt[ip-index-2],"->>>>>>9.99")
+               v-tot-cost-txt[ip-index] = STRING(v-tot-cost[ip-index],"->>>>>>9.99")
+               v-tot-cost-txt[ip-index-1] = STRING(v-tot-cost[ip-index-1],"->>>>>>9.99")
+               v-tot-cost-txt[ip-index-2] = STRING(v-tot-cost[ip-index-2],"->>>>>>9.99").
      ELSE
-        ASSIGN v-tot-amt-txt[ip-index] = FILL(" ",3) + STRING(v-tot-amt[ip-index],"->>>,>>9")
-               v-tot-amt-txt[ip-index-1] = FILL(" ",3) + STRING(v-tot-amt[ip-index-1],"->>>,>>9")
-               v-tot-amt-txt[ip-index-2] = FILL(" ",3) + STRING(v-tot-amt[ip-index-2],"->>>,>>9")
-               v-tot-cost-txt[ip-index] = FILL(" ",3) + STRING(v-tot-cost[ip-index],"->>,>>9")
-               v-tot-cost-txt[ip-index-1] = FILL(" ",3) + STRING(v-tot-cost[ip-index-1],"->>,>>9")
-               v-tot-cost-txt[ip-index-2] = FILL(" ",3) + STRING(v-tot-cost[ip-index-2],"->>,>>9").
+        ASSIGN v-tot-amt-txt[ip-index] = FILL(" ",3) + STRING(v-tot-amt[ip-index],"->>>>>>9")
+               v-tot-amt-txt[ip-index-1] = FILL(" ",3) + STRING(v-tot-amt[ip-index-1],"->>>>>>9")
+               v-tot-amt-txt[ip-index-2] = FILL(" ",3) + STRING(v-tot-amt[ip-index-2],"->>>>>>9")
+               v-tot-cost-txt[ip-index] = FILL(" ",3) + STRING(v-tot-cost[ip-index],"->>>>>>9")
+               v-tot-cost-txt[ip-index-1] = FILL(" ",3) + STRING(v-tot-cost[ip-index-1],"->>>>>>9")
+               v-tot-cost-txt[ip-index-2] = FILL(" ",3) + STRING(v-tot-cost[ip-index-2],"->>>>>>9").
   END.
 END PROCEDURE.
 

@@ -63,11 +63,11 @@ format header
        "P.O.#" at 17 "CUSTOMER PART#" at 33 "PER" at 67 skip
        "ORDER NUMBER" at 1 "JOB#" at 17
        "PRODUCT DESCRIPTION" at 33
-       "UNIT" at 62 "UNIT" at 67 "TOTAL" at 74 skip
+       "UNIT" at 62 "UNIT" at 67 "TOTAL" at 78 skip
        "---------------" at 1 "---------------" at 17
        "----------------------------" at 33
-       "----" at 62 "------" at 67 "------" at 74 skip
-    with frame hd-top-comp no-box no-labels page-top stream-io width 80.
+       "----" at 62 "------" at 67 "---------" at 78 skip
+    with frame hd-top-comp no-box no-labels page-top stream-io width 86.
 
 form
   oe-boll.i-no format "x(15)" at 1
@@ -75,7 +75,7 @@ form
   itemfg.i-name format "x(28)" at 33
   oe-boll.cases format "->>>" to 65
   oe-boll.qty-case format "->>>>>" to 72
-  v-line-tot format "->>>>>" to 79
+  v-line-tot format "->>>>>>>>" to 81
   with frame ln-s down no-box no-labels stream-io width 90.
 
 tmpstore = fill("-",80).
@@ -140,7 +140,7 @@ for each xreport  where xreport.term-id eq v-term-id,
     end.
     v-time = string(time,"hh:mm am").
 
-    if oe-ctrl.pr-broker and avail cust and shipto.broker then
+    if avail cust and shipto.broker then
       v-coname = cust.name.
 
     else v-coname = company.name.

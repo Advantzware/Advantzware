@@ -405,15 +405,17 @@ CASE v-frt-class:
     WHEN "C" THEN v-frt-class = v-frt-class + "                                250".
 END CASE.
 
-PUT "<FBook Antiqua><R52><C1><P12><B>     Shipping Instructions: </B> <P9> " SKIP(1)
-    oe-bolh.ship-i[1] AT 7 SKIP
-    oe-bolh.ship-i[2] AT 7 SKIP
-    oe-bolh.ship-i[3] AT 7 SKIP
-    oe-bolh.ship-i[4] AT 7 SKIP
+PUT "<FBook Antiqua><R52><C1><P12><B>     Shipping Instructions: </B> <P9> " 
+    "<R53><C1>" oe-bolh.ship-i[1] AT 7 SKIP
+    "<R54><C1>" oe-bolh.ship-i[2] AT 7 SKIP
+    "<R55><C1>" oe-bolh.ship-i[3] AT 7 SKIP
+    "<R56><C1>" oe-bolh.ship-i[4] AT 7 SKIP
+    "<R58><C1>" 
     "_________________________________________________________________________________________________________________________________" SKIP
-    "<B>  Signature of Receipt </B>" SKIP
-    "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
-    "Date ____________________________________________                       Date __________________________________________" AT 23 SKIP   
+    "<R59><C1>" "<B>  Signature of Receipt </B>" SKIP
+    "<R60><C1>" "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP
+    "<R62><C1>" "Date ____________________________________________                       Date __________________________________________" AT 23 SKIP  .
+   
     /*
     "Page " AT 220 string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" SKIP
     "  ALL CLAIMS MUST BE MADE WITHIN 30 DAYS, OUR RESPONSIBILITY CEASES WHEN SHIPMENTS ARE TURNED OVER TO CARRIER."
@@ -426,13 +428,13 @@ PUT "<FBook Antiqua><R52><C1><P12><B>     Shipping Instructions: </B> <P9> " SKI
     "<C24>B.   ITEM #29285-FIBREBOARD SU OR W/FIBRE SIDE WITH OR WITHOUT TOP SAME OR OTHER MATERIALS   CLASS 150" SKIP
     "<C24>C.   ITEM #156600-BOXED PLASTIC TOPS & BTMS NESTED IN CORR CTN.            CLASS 250"
     */
-    .
+    
 
 
   v-printline = v-printline + 14.
   IF last-of(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
-
-  IF v-printline < 45 THEN PUT SKIP(60 - v-printline).
+ 
+  PAGE.
   ASSIGN
      v-printline = 0
      oe-bolh.printed = yes.

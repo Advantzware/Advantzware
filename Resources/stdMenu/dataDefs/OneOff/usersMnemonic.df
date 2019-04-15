@@ -1,0 +1,23 @@
+ADD FIELD "positionMnemonic" OF "users" AS character 
+  FORMAT "x(8)"
+  INITIAL "Begin"
+  LABEL "Position Mnemonic"
+  POSITION 47
+  MAX-WIDTH 16
+  HELP "Enter Position of Mnemonic"
+  ORDER 451
+
+ADD FIELD "showMnemonic" OF "users" AS character 
+  FORMAT "x(8)"
+  INITIAL "All"
+  LABEL "Show Mnemonic"
+  POSITION 48
+  MAX-WIDTH 16
+  HELP "Enter to Show Mnemonic"
+  ORDER 441
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000009004

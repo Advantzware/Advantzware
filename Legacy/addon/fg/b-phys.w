@@ -50,6 +50,9 @@ DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-org-cases AS INT NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+{Inventory/ttInventory.i "NEW SHARED"}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -623,12 +626,10 @@ DO:
           ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
                  fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
 
-          FIND FIRST fg-bin WHERE fg-bin.company = g_company 
-                           AND fg-bin.i-no = ""
-                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           USE-INDEX co-ino NO-LOCK NO-ERROR.
-         IF NOT AVAIL fg-bin THEN DO:
+        RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            OUTPUT lActiveBin ).
+        IF NOT lActiveBin THEN DO:
             MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO fg-rctd.loc .
             RETURN NO-APPLY.
@@ -850,6 +851,8 @@ END.
 ASSIGN
  cocode = g_company
  locode = g_loc.
+ 
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -959,7 +962,7 @@ PROCEDURE crt-transfer :
                       AND fg-bin.job-no = fg-rctd.job-no
                       AND fg-bin.job-no2 = fg-rctd.job-no2 
                       AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-                      /*AND fg-bin.qty > 0*/  NO-LOCK:
+        /*AND fg-bin.qty > 0*/  NO-LOCK:
 
      IF fg-bin.loc NE fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
         OR  fg-bin.loc-bin NE fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1230,11 +1233,15 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  fg-rctd.t-qty = ld-t-qty.
-  fg-rctd.job-no = lcJobNo.
-  fg-rctd.job-no2 = liJobNo2.
-  fg-rctd.i-no = lcINo.
-  fg-rctd.i-name = lcIName.
+  ASSIGN
+      fg-rctd.t-qty   = ld-t-qty
+      fg-rctd.job-no  = lcJobNo
+      fg-rctd.job-no2 = liJobNo2
+      fg-rctd.i-no    = lcINo
+      fg-rctd.i-name  = lcIName
+      fg-rctd.enteredBy = USERID("asi")
+      fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+      .
 
 
    FIND FIRST fg-bin 
@@ -1397,6 +1404,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1421,9 +1453,12 @@ PROCEDURE local-update-record :
   RUN valid-loc NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN valid-loc-bin NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-loc-bin NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN validTagForItem NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
  /*
   RUN valid-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1514,7 +1549,7 @@ PROCEDURE new-bin :
        fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.tag)
        lv-org-loc = fg-rctd.loc:SCREEN-VALUE
        lv-org-loc-bin = fg-rctd.loc-bin:SCREEN-VALUE 
-       /*ld-cost                                                = fg-bin.std-tot-cost*/.
+                /*ld-cost                                                = fg-bin.std-tot-cost*/.
   END.
 END PROCEDURE.
 
@@ -1839,14 +1874,14 @@ PROCEDURE valid-job-no :
 
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FIND FIRST job-hdr
-          WHERE job-hdr.company EQ fg-rctd.company
+          WHERE job-hdr.company EQ g_company
             AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job-hdr THEN DO:
 
          IF fg-rctd.i-no:SCREEN-VALUE = "" THEN DO:
-            FIND FIRST job-hdr WHERE job-hdr.company EQ fg-rctd.company
+            FIND FIRST job-hdr WHERE job-hdr.company EQ g_company
                          AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE NO-LOCK NO-ERROR.
             IF NOT AVAIL job-hdr THEN do:
                MESSAGE "Invalid Job#. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
@@ -1864,7 +1899,7 @@ PROCEDURE valid-job-no :
                               AND reftable.code     EQ STRING(job-hdr.job,"999999999")
                               AND reftable.code2    EQ fg-rctd.i-no:SCREEN-VALUE NO-ERROR.
              IF NOT AVAIL reftable THEN DO:
-                MESSAGE "Invalid Job#. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Invalid Job# for set component. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
                 RETURN ERROR.
              END.
          END. /* components */
@@ -1895,7 +1930,7 @@ PROCEDURE valid-job-no2 :
 
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FIND FIRST job-hdr
-          WHERE job-hdr.company EQ fg-rctd.company
+          WHERE job-hdr.company EQ g_company
             AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
             AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE
@@ -1938,10 +1973,8 @@ PROCEDURE valid-loc :
   IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
       RETURN.
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST loc
-                    WHERE loc.company EQ cocode
-                      AND loc.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name})
-    THEN DO:
+    RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+    IF NOT lActiveBin THEN DO: 
       MESSAGE "Invalid Warehouse, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
@@ -1962,13 +1995,10 @@ PROCEDURE valid-loc-bin :
   IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
       RETURN.
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST fg-bin
-                    WHERE fg-bin.company EQ cocode 
-                      AND fg-bin.i-no    EQ ""
-                      AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                    USE-INDEX co-ino)
-    THEN DO:
+    RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          OUTPUT lActiveBin ).
+    IF NOT lActiveBin THEN  DO:
       MESSAGE "Invalid Bin#, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
@@ -2109,21 +2139,17 @@ PROCEDURE validate-record :
      END.
   END.
   
-  FIND FIRST loc WHERE loc.company = cocode
-                        AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                        NO-LOCK NO-ERROR.
-       IF NOT AVAIL loc THEN DO:
+  RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+  IF NOT lActiveBin THEN  DO:
           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
   
-  FIND FIRST fg-bin WHERE fg-bin.company = cocode 
-                      AND fg-bin.i-no = ""
-                      AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                      USE-INDEX co-ino NO-LOCK NO-ERROR.
-  IF NOT AVAIL fg-bin THEN DO:
+  RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        OUTPUT lActiveBin ).
+  IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc-bin.
           RETURN ERROR.
@@ -2199,6 +2225,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validTagForItem B-table-Win
+PROCEDURE validTagForItem:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
+        RETURN.
+    DO WITH FRAME {&FRAME-NAME}:
+        /* If there is already a loadtag for this tag# but a different i-no, don't allow to save tag */
+        /* under a new i-no */
+        FIND FIRST loadtag WHERE loadtag.company = g_company
+            AND loadtag.ITEM-type = NO
+            AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE  IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
+        IF AVAIL loadtag AND loadtag.i-no NE fg-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name}
+            AND fg-rctd.i-no:SCREEN-VALUE GT "" THEN 
+        DO:
+            MESSAGE "Invalid Loadtag# for this item. " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO fg-rctd.tag.
+            RETURN error.
+        END.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

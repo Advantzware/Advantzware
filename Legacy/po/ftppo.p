@@ -112,7 +112,6 @@ DO:
 END.
 
 cWinScpXmlLog =ENTRY(1, ip-exp-file) + ".xml".
- 
 RUN load-config.
 
 IF poexport-int EQ 0 THEN
@@ -552,7 +551,7 @@ IF AVAIL sys-ctrl THEN DO:
           DO:
               cExec = getWinScpFile().
               IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
               OS-COMMAND NO-WAIT VALUE(cExec + " /script="+ cPoConfigDir + "\" + ttConfig.ftp-script).
                
@@ -573,7 +572,7 @@ IF AVAIL sys-ctrl THEN DO:
                 
                 cExec = getWinScpFile().
                 IF cWinScpIniFile GT "" THEN 
-                    cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                    cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
                 OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftphrms.txt").
             END.
@@ -597,7 +596,7 @@ IF AVAIL sys-ctrl THEN DO:
             DO:
                 cExec = getWinScpFile().
                 IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
                 OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftpcmdgp.txt").
             END.
@@ -608,7 +607,7 @@ IF AVAIL sys-ctrl THEN DO:
             IF sys-ctrl.char-fld EQ "PremierPkg" AND cExec NE ? AND cExec NE "" THEN DO:      
               cExec = getWinScpFile().
               IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
               OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpcc.txt").
             END.
             ELSE
@@ -622,7 +621,7 @@ IF AVAIL sys-ctrl THEN DO:
                     cExec = getWinScpFile().
                     
                     IF cWinScpIniFile GT "" THEN 
-                        cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
+                        cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
                     OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpaf.txt").
                 END.
                 ELSE
@@ -635,7 +634,7 @@ IF AVAIL sys-ctrl THEN DO:
             DO:
                 cExec = getWinScpFile().
                 IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
                 
                 OS-COMMAND VALUE(cExec + " /script="+ cPoConfigDir + "\ftpip.txt").
             END.
@@ -647,7 +646,7 @@ IF AVAIL sys-ctrl THEN DO:
             IF cExec NE ? AND cExec NE "" THEN DO:      
               cExec = getWinScpFile().
               IF cWinScpIniFile GT "" THEN 
-                  cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.    
+                  cExec = cExec + " " + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.    
                  
               OS-COMMAND SILENT VALUE(cExec + " /script="+ cPoConfigDir + "\ftpct.txt").
             END.
@@ -780,23 +779,60 @@ END PROCEDURE.
 PROCEDURE load-config:
 
   EMPTY TEMP-TABLE ttConfig.
-
-  IF SEARCH(cPoConfigDir + "\poexport.dat") NE ? THEN DO:
-
-      INPUT FROM VALUE(cPoConfigDir + "\poexport.dat").
-      REPEAT:
+  FIND FIRST ftpConfig NO-LOCK NO-ERROR.
+  IF NOT AVAILABLE ftpConfig THEN DO:
+      IF SEARCH(cPoConfigDir + "\poexport.dat") NE ? THEN DO:
+    
+          INPUT FROM VALUE(cPoConfigDir + "\poexport.dat").
+          REPEAT:
+              
+              CREATE ttConfig.
+              IMPORT ttConfig.exportFormat ttConfig.destName ttConfig.ftp-site ttConfig.ftp-user ttConfig.ftp-passwd
+                     ttConfig.ftp-mode ttConfig.ftp-dir ttConfig.ftp-software
+                     ttConfig.ftp-binary ttConfig.ftp-script ttConfig.ftp-cmd.
+        
+              IF ttConfig.exportFormat BEGINS "#" OR ttConfig.exportFormat EQ "" THEN
+                DELETE ttConfig.
+              IF AVAILABLE ttConfig THEN DO:
+                  CREATE ftpConfig.
+                  ASSIGN                            
+                      ftpConfig.partner       =    ttConfig.destName      
+                      ftpConfig.ftpCode       =    ttConfig.exportFormat  
+                      ftpConfig.ftpSite       =    ttConfig.ftp-Site      
+                      ftpConfig.ftpUser       =    ttConfig.ftp-User      
+                      ftpConfig.ftpPassword   =    ttConfig.ftp-Passwd   
+                      ftpConfig.ftpMode       =    ttConfig.ftp-Mode         
+                      ftpConfig.ftpSoftware   =    ttConfig.ftp-Software 
+                      ftpConfig.ftpDir        =    ttConfig.ftp-Dir           
+                      ftpConfig.ftpBinary     =    ttConfig.ftp-Binary     
+                      ftpConfig.ftpScript     =    ttConfig.ftp-Script     
+                      ftpConfig.ftpCommand    =    ttConfig.ftp-cmd
+                      ftpConfig.ftpDirection  =    "Out"
+                      ftpConfig.ediType       =    "PoExport"         
+                      .        
+              END.
+          END.
+          INPUT CLOSE.
           
-          CREATE ttConfig.
-          IMPORT ttConfig.exportFormat ttConfig.destName ttConfig.ftp-site ttConfig.ftp-user ttConfig.ftp-passwd
-                 ttConfig.ftp-mode ttConfig.ftp-dir ttConfig.ftp-software
-                 ttConfig.ftp-binary ttConfig.ftp-script ttConfig.ftp-cmd.
-    
-          IF ttConfig.exportFormat BEGINS "#" OR ttConfig.exportFormat EQ "" THEN
-            DELETE ttConfig.
-    
       END.
-      INPUT CLOSE.
-      
+  END.
+  ELSE DO:
+      FOR EACH ftpConfig NO-LOCK:
+          CREATE ttConfig.
+          ASSIGN                            
+              ttConfig.destName       = ftpConfig.partner
+              ttConfig.exportFormat   = ftpConfig.ftpCode
+              ttConfig.ftp-Site       = ftpConfig.ftpSite
+              ttConfig.ftp-User       = ftpConfig.ftpUser
+              ttConfig.ftp-Passwd     = ftpConfig.ftpPassword
+              ttConfig.ftp-Mode       = ftpConfig.ftpMode
+              ttConfig.ftp-Software   = ftpConfig.ftpSoftware
+              ttConfig.ftp-Dir        = ftpConfig.ftpDir
+              ttConfig.ftp-Binary     = ftpConfig.ftpBinary
+              ttConfig.ftp-Script     = ftpConfig.ftpScript
+              ttConfig.ftp-cmd        = ftpConfig.ftpCommand             
+              .
+      END.
   END.
 END PROCEDURE. /* load-config */
 

@@ -104,7 +104,7 @@
         RELEASE tt-report.
         RELEASE ar-invl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl then 
         find first ar-invl
@@ -264,7 +264,8 @@
        v-bol-no    = 0
        v-amt       = 0
        v-cost      = 0
-       v-qty       = 0.
+       v-qty       = 0
+       v-ship-id   = "".
 
       RUN custom/combasis.p (cocode, tt-report.key-01, cust.type, "", 0,
                              cust.cust-no,
@@ -317,7 +318,8 @@
          v-ord-no    = ar-invl.ord-no
          v-i-no      = ar-invl.i-no
          v-bol-no    = ar-invl.bol-no
-         v-cost      = 0.
+         v-cost      = 0
+         v-ship-id   = ar-inv.ship-id .
 
         IF ar-invl.loc NE "" THEN cWhse = ar-invl.loc.
         ELSE DO:
@@ -363,7 +365,7 @@
 
         FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl and not avail ar-invl then 
         find first ar-invl
@@ -414,7 +416,8 @@
             v-job-no    = ar-invl.job-no
             v-job-no2   = ar-invl.job-no2
             v-ord-no    = ar-invl.ord-no
-            v-i-no      = ar-invl.i-no.
+            v-i-no      = ar-invl.i-no
+            v-ship-id   = ar-inv.ship-id .
 
 
            IF AVAIL oe-retl THEN
@@ -675,6 +678,7 @@
                  WHEN "curr" THEN cVarValue = IF AVAIL cust THEN string(cust.curr-code) ELSE "".
                  WHEN "inv-date" THEN cVarValue = string(v-inv-date,"99/99/9999") .
                  WHEN "ware-house" THEN cVarValue = IF cWhse NE "" THEN cWhse ELSE "".
+                 WHEN "ship-id" THEN cVarValue = STRING(v-ship-id).
             END CASE.
             
             cExcelVarValue = cVarValue.
@@ -791,6 +795,7 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
+                 WHEN "ship-id" THEN cVarValue = "".                       
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -954,6 +959,7 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
+                 WHEN "ship-id" THEN cVarValue = "".
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -1042,6 +1048,7 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
+                 WHEN "ship-id" THEN cVarValue = "".                  
               END CASE.
               
               cExcelVarValue = cVarValue.
@@ -1178,6 +1185,7 @@
                  WHEN "curr" THEN cVarValue = "".
                  WHEN "inv-date" THEN cVarValue = "".
                  WHEN "ware-house" THEN cVarValue = "".
+                 WHEN "ship-id" THEN cVarValue = "".                   
               END CASE.
               
               cExcelVarValue = cVarValue.

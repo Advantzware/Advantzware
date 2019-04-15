@@ -523,6 +523,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Vendor PO#' THEN STRING(INT(rm-bin.po-no),"9999999999") ELSE ~
   IF sortColumn EQ 'Bin Loc' THEN rm-bin.loc-bin ELSE ~
   IF sortColumn EQ 'Tag #' THEN rm-bin.tag ELSE ~
+  IF sortColumn EQ 'Vendor Tag#' THEN fnVenTag() ELSE ~
   IF sortColumn EQ 'Quantity' THEN STRING(rm-bin.qty,'-999999.999') ELSE ~
   rm-bin.loc ~{&SORTED}
 
@@ -1219,9 +1220,9 @@ PROCEDURE openQuery:
 /* gdm - 10260911 */
 &ELSEIF '{&yellowColumnsName}' EQ 'l-est' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
-     IF sortColumn EQ 'Estimate #'      THEN eb.est-no                  ELSE ~
+     IF sortColumn EQ 'Estimate #'      THEN eb.est-no                   ELSE ~
      IF sortColumn EQ 'Customer#'       THEN STRING(eb.cust-no)          ELSE ~
-     IF sortColumn EQ 'Cust. Name'      THEN STRING(eb.ship-name)        ELSE ~
+     IF sortColumn EQ 'Cust Name'      THEN STRING(cust.name)            ELSE ~
      IF sortColumn EQ 'Item Description'THEN STRING(eb.part-dscr1)       ELSE ~
      IF sortColumn EQ 'Item Name'       THEN STRING(eb.part-dscr1)       ELSE ~
      IF sortColumn EQ 'Cust Part #'     THEN STRING(eb.part-no)          ELSE ~
@@ -1229,6 +1230,36 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>9.99')    ELSE ~
      IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>9.99')    ELSE ~
         STRING(eb.dep, '>>9.99') ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'l-est-look' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+     IF sortColumn EQ 'Estimate #'      THEN tt-eb.est-no                   ELSE ~
+     IF sortColumn EQ 'Customer#'       THEN STRING(tt-eb.cust-no)          ELSE ~
+     IF sortColumn EQ 'Cust Name'      THEN STRING(tt-eb.cust-name)         ELSE ~
+     IF sortColumn EQ 'Item Description'THEN STRING(tt-eb.part-dscr1)       ELSE ~
+     IF sortColumn EQ 'Item Name'       THEN STRING(tt-eb.part-dscr1)       ELSE ~
+     IF sortColumn EQ 'Cust Part #'     THEN STRING(tt-eb.part-no)          ELSE ~
+     IF sortColumn EQ 'Style'           THEN STRING(tt-eb.style)            ELSE ~
+     IF sortColumn EQ 'Length'          THEN STRING(tt-eb.len, '>>9.99')    ELSE ~
+     IF sortColumn EQ 'Width'           THEN STRING(tt-eb.wid, '>>9.99')    ELSE ~
+        STRING(tt-eb.dep, '>>9.99') ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'b-invitm' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+     IF sortColumn EQ 'Line'      THEN string(inv-line.line,'>>99')                ELSE ~
+     IF sortColumn EQ 'Item#'     THEN STRING(inv-line.i-no)                       ELSE ~
+     IF sortColumn EQ 'Name'      THEN STRING(inv-line.i-name)                     ELSE ~
+     IF sortColumn EQ 'Quantity'  THEN STRING(inv-line.inv-qty,'->>,>>>,>>9')      ELSE ~
+     IF sortColumn EQ 'Order#'    THEN STRING(inv-line.ord-no,'>>>>>9')            ELSE ~
+     IF sortColumn EQ 'Bol#'      THEN STRING(display-bolno())                     ELSE ~
+     IF sortColumn EQ 'Price'     THEN STRING(inv-line.price,'->>,>>>,>>9.99<<<<') ELSE ~
+     IF sortColumn EQ 'UOM'       THEN STRING(inv-line.pr-uom)                     ELSE ~
+     IF sortColumn EQ 'Total$'    THEN STRING(inv-line.t-price, '->>,>>>,>>9.99')  ELSE ~
+     IF sortColumn EQ 'Est#'      THEN STRING(inv-line.est-no)                     ELSE ~
+     IF sortColumn EQ 'Customer Lot #' THEN STRING(get-lot-no())                   ELSE ~
+     IF sortColumn EQ 'Sales Rep'      THEN STRING(inv-line.sman[1])               ELSE ~
+     IF sortColumn EQ 'Sales Rep Name' THEN STRING(inv-line.sname[1])              ELSE ~
+        STRING(inv-line.LINE, '>>99') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'l-estcst' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
@@ -1241,6 +1272,18 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>9.99')    ELSE ~
      IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>9.99')    ELSE ~
         STRING(eb.dep, '>>9.99') ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'updship#' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+     IF sortColumn EQ 'Ship To ID'      THEN tt-oe-shipto.ship-id            ELSE ~
+     IF sortColumn EQ 'Ship To Name'    THEN STRING(tt-oe-shipto.ship-name)  ELSE ~
+     IF sortColumn EQ 'Ship To Address' THEN STRING(tt-oe-shipto.ship-add)   ELSE ~
+     IF sortColumn EQ 'City'            THEN STRING(tt-oe-shipto.ship-city)  ELSE ~
+     IF sortColumn EQ 'State'           THEN STRING(tt-oe-shipto.ship-state) ELSE ~
+     IF sortColumn EQ 'Zip'             THEN STRING(tt-oe-shipto.ship-zip)   ELSE ~
+     IF sortColumn EQ 'Inactive'        THEN STRING(tt-oe-shipto.ship-stat)  ELSE ~
+        STRING(tt-oe-shipto.ship-id) ~{&SORTED}
+
 /* Ticket 20737 */
 &ELSEIF '{&yellowColumnsName}' EQ 'w-bin' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~

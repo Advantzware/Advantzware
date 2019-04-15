@@ -1,0 +1,36 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 6:34pm                                       ORDER PROCESSING - ORDERS BOOKED REPORT
+
+                                         Order Dates: 10/17/00 - 10/17/00 Salesman :  - zzz
+
+
+Due                                                                          Quantity      Total                     Order
+Date     Order# Customer Name               Item Description               Ordered/EA    Sq Ft/M      $/MSF         Amount % Profit
+-------- ------ --------------------------- ------------------------------ ---------- ---------- ---------- -------------- --------
+
+Sales rep: 001 - Saleperson #10                
+10/17/00    319 Hershey Chocolate Corp      RSC 10x10x10                        5,000     30.078     102.66       3,087.90     32.7
+                                                                                      ---------- ---------- -------------- --------
+                * REP TOTALS *                                                            30.078     102.66       3,087.90     32.7
+
+                                                                                      ---------- ---------- -------------- --------
+                ** COMPANY TOTALS **                                  1    Line Items     30.078     102.66       3,087.90     32.7
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   2
+ 6:34pm                                       ORDER PROCESSING - ORDERS BOOKED REPORT
+
+                                         Order Dates: 10/17/00 - 10/17/00 Salesman :  - zzz
+
+                           ----------- Dates Selected --------- ---------- Period to Date ----------
+Cat   Category Description         Amount      Sq Ft      $/MSF         Amount      Sq Ft      $/MSF
+----- -------------------- -------------- ---------- ---------- -------------- ---------- ----------
+                                     0.00       .000       0.00      50,000.00    173.752     287.77
+COSMT                                0.00       .000       0.00           1.00      1.216       0.82
+FC                               3,087.90     30.078     102.66      92,712.90    322.306     287.65
+                           -------------- ---------- ---------- -------------- ---------- ----------
+                                 3,087.90     30.078     102.66     142,713.90    497.274     286.99
+      Number of Days                    1                                    4
+                           --------------                       --------------
+      Average                    3,087.90                            35,678.48
+

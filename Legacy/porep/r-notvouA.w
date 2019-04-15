@@ -1161,7 +1161,7 @@ display "" with frame r-top.
               temp-po-rec.qty-to-inv = v-qty-r - v-qty-i
               temp-po-rec.whse = po-ord.loc
               temp-po-rec.cost-each = v-cost
-              temp-po-rec.amt-to-inv = /*v-amt-r -*/ v-amt-i.
+              temp-po-rec.amt-to-inv = v-amt-r - v-amt-i.
            RELEASE temp-po-rec.
          end.
       END.

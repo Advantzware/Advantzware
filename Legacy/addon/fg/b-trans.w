@@ -40,7 +40,6 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
- 
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -50,16 +49,60 @@ def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 DEF VAR lv-new-tag-number-chosen AS LOG NO-UNDO.
+DEF VAR v-post-date AS DATE INITIAL TODAY NO-UNDO.
 DEFINE VARIABLE unitsOH LIKE fg-rctd.t-qty NO-UNDO.
 DEFINE VARIABLE iLineCnt AS INTEGER     NO-UNDO.
-
+DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE cFgEmails AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFgEmails AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+{pc/pcprdd4u.i NEW}
+{fg/invrecpt.i NEW}
+{jc/jcgl-sh.i  NEW}
+{fg/fullset.i  NEW}
+{fg/fg-post3.i NEW}
+{Inventory/ttInventory.i "NEW SHARED"}
+{fg/fgPostBatch.i}    
 DEF TEMP-TABLE tt-line-cnt NO-UNDO
-  FIELD line-rowid AS ROWID 
-  FIELD line-number AS INT .
+    FIELD line-rowid  AS ROWID 
+    FIELD line-number AS INT .
+
+
+/* Existing code */
+DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+    INPUT "FgEmails",
+    INPUT "I",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cFgEmails,
+                       OUTPUT lFound).
+IF lFound THEN
+    iFgEmails = INTEGER(cFgEmails) NO-ERROR.
+lFgEmails = (IF iFgEmails EQ 1 THEN YES ELSE NO).
+
+cocode = g_company.
+locode = g_loc.
 
 DO TRANSACTION:
    {sys/inc/sstransf.i}
   END.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "SSPostFGTransfer", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPostAuto-log = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -901,9 +944,12 @@ END.
 {custom/getcmpny.i}
 {custom/getloc.i}
 {custom/yellowColumns.i}
+
 ASSIGN
  cocode = gcompany
  locode = gloc.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 /* Done again because g_company is not set above */
 find first sys-ctrl
@@ -941,6 +987,50 @@ PROCEDURE adm-row-available :
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-post B-table-Win 
+PROCEDURE auto-post :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* IF no rows are selected and this is run, it will return an error */
+    IF lPostAuto-log AND BROWSE Browser-Table:NUM-SELECTED-ROWS GT 0 THEN 
+    DO:
+        FOR EACH w-fg-rctd:
+            DELETE w-fg-rctd.
+        END.
+
+        /* Create a single workfile record for the finished good being posted */
+        CREATE w-fg-rctd.
+        BUFFER-COPY fg-rctd TO w-fg-rctd
+            ASSIGN 
+            w-fg-rctd.row-id  = ROWID(fg-rctd)
+            w-fg-rctd.has-rec = YES.        
+      ASSIGN
+          v-post-date = TODAY
+          .       
+      RUN fg/fgpostBatch.p ( 
+          INPUT v-post-date, /* Post date      */
+          INPUT NO,          /* tg-recalc-cost */
+          INPUT "R",         /* Receipts       */
+          INPUT lFgEmails,   /* Send fg emails */
+          INPUT YES,         /* Create work-gl */
+          INPUT TABLE w-fg-rctd BY-reference,
+          INPUT TABLE tt-fgemail BY-reference,
+          INPUT TABLE tt-email BY-reference,
+          INPUT TABLE tt-inv BY-reference).
+  
+  END.
+  ELSE ERROR-STATUS:ERROR = NO .
 
 END PROCEDURE.
 
@@ -1063,6 +1153,26 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-in-update B-table-Win
+PROCEDURE is-in-update:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   DEF OUTPUT PARAM op-in-update AS LOG NO-UNDO.
+
+   op-in-update = /*IF fg-rctd.tag:SENSITIVE IN BROWSE {&browse-name} THEN YES ELSE NO*/
+                  IF adm-brs-in-update OR adm-new-record THEN YES ELSE NO.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE leave-tag B-table-Win 
 PROCEDURE leave-tag :
@@ -1200,7 +1310,10 @@ PROCEDURE local-assign-record :
    fg-rctd.t-qty = (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial
    fg-rctd.tag2  = lv-tag2
    fg-rctd.job-no = lcJobNo
-   fg-rctd.job-no2 = liJobNo2.
+   fg-rctd.job-no2 = liJobNo2
+   fg-rctd.enteredBy = USERID("asi")
+   fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+   .
 
   FIND FIRST itemfg
       WHERE itemfg.company EQ cocode
@@ -1625,6 +1738,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -1688,11 +1826,13 @@ v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "")
      BROWSE {&BROWSE-NAME}:SELECT-ROW(iNumRows - 1) NO-ERROR.    
   END.
 
-  /*
-  FIND loadtag WHERE loadtag.company = g_company
-                 AND loadtag.ITEM-type = NO
-                 AND loadtag.tag-no = fg-rctd.tag2 NO-LOCK NO-ERROR.
-  */
+    /*
+    FIND loadtag WHERE loadtag.company = g_company
+                   AND loadtag.ITEM-type = NO
+                   AND loadtag.tag-no = fg-rctd.tag2 NO-LOCK NO-ERROR.
+    */
+  IF lPostAuto-log THEN
+     RUN auto-post.
   lv-new-tag-number-chosen = ?.
   /* Workaround: if tab through to row-leave, scan-next doesn't get run */
   /* so if we're not here because of p-updbar, then run it              */
@@ -1774,6 +1914,53 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
+PROCEDURE post-finish-goods:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+
+    SESSION:SET-WAIT-STATE ("general").
+    /* IF fgPostLog THEN RUN fgPostLog ('Started'). */
+
+    FOR EACH w-fg-rctd:
+        DELETE w-fg-rctd.
+    END.
+ 
+    /* Create  workfile records for the finished goods being posted */
+    RUN fg/fgRecsByUser.p (INPUT cocode, INPUT "T", INPUT USERID("ASI"), INPUT TABLE w-fg-rctd BY-reference).
+        
+    ASSIGN
+        v-post-date = TODAY
+        .       
+        
+    RUN fg/fgpostBatch.p ( 
+        INPUT v-post-date, /* Post date      */
+        INPUT NO,          /* tg-recalc-cost */
+        INPUT "T",         /* Receipts       */
+        INPUT lFgEmails,   /* Send fg emails */
+        INPUT YES,         /* create work-gl */
+        INPUT TABLE w-fg-rctd BY-reference,
+        INPUT TABLE tt-fgemail BY-reference,
+        INPUT TABLE tt-email BY-reference,
+        INPUT TABLE tt-inv BY-reference).
+            
+    SESSION:SET-WAIT-STATE ("").
+  
+    RUN dispatch IN THIS-PROCEDURE ('open-query':U).
+    
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-record B-table-Win 
 PROCEDURE post-record :
 /*------------------------------------------------------------------------------
@@ -1817,6 +2004,7 @@ PROCEDURE scan-next :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
   RUN auto-add IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.
@@ -2014,7 +2202,19 @@ PROCEDURE valid-job-loc-bin-tag :
                            AND fg-bin.qty > 0 NO-LOCK NO-ERROR.
     IF AVAIL fg-bin THEN  ASSIGN fg-rctd.cases:SCREEN-VALUE = 
          string(ROUND((fg-bin.qty - fg-bin.partial-count) / loadtag.qty-case,0)).   
-
+      lActiveBin EQ TRUE.
+      IF li-field# GE 3 THEN DO:
+          RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+          IF NOT lActiveBin THEN 
+              APPLY "entry" TO fg-rctd.loc IN BROWSE {&browse-name}.
+      END.
+      IF li-field# GE 4 THEN DO:
+          RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+              fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+              OUTPUT lActiveBin ).
+          IF NOT lActiveBin THEN 
+              APPLY "entry" TO fg-rctd.loc-bin IN BROWSE {&browse-name}.
+      END.
     FIND FIRST fg-bin
         WHERE fg-bin.company  EQ cocode
           AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2131,14 +2331,10 @@ PROCEDURE valid-loc-bin2 :
         lv-msg = "To Whse/Bin may not be the same as From Whse/Bin".
 
     IF lv-msg EQ "" THEN DO:
-      FIND FIRST fg-bin
-          WHERE fg-bin.company EQ cocode
-            AND fg-bin.i-no    EQ ""
-            AND fg-bin.loc     EQ fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}
-            AND fg-bin.loc-bin EQ fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name}
-        USE-INDEX co-ino NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL fg-bin THEN lv-msg = "Invalid entry, try help...".
+        RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            fg-rctd.loc-bin2:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            OUTPUT lActiveBin ).
+        IF NOT lActiveBin  THEN lv-msg = "Invalid entry, try help...".
     END.
 
     IF lv-msg NE "" THEN DO:
@@ -2170,11 +2366,8 @@ PROCEDURE valid-loc2 :
         lv-msg = "To Bin may not be spaces".
 
     IF lv-msg EQ "" THEN DO:
-      FIND FIRST loc
-          WHERE loc.company EQ cocode
-            AND loc.loc     EQ fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}
-          NO-LOCK NO-ERROR.
-      IF NOT AVAIL loc THEN lv-msg = "Invalid entry, try help".
+        RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc2:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).          
+        IF NOT lActiveBin THEN lv-msg = "Invalid entry, try help".
     END.
 
     IF lv-msg NE "" THEN DO:

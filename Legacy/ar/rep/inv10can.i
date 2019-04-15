@@ -42,24 +42,24 @@ PUT "<FArial><P12><=#3><R-2> <B>Invoice#: " ar-inv.inv-no "</B><P10>            
     
 PUT "<R21><C1><#4><FROM><R25><C80><RECT><||3>" SKIP
     "<R23><C1><FROM><R23><C80><LINE><||3>" SKIP    
-    "<R21><C11><FROM><R25><C11><LINE><||3>" SKIP
-    "<R21><C22><FROM><R25><C22><LINE><||3>" SKIP
-    "<R21><C38><FROM><R25><C38><LINE><||3>" SKIP
-    "<R21><C55><FROM><R25><C55><LINE><||3>" SKIP
-    "<R21><C65><FROM><R25><C65><LINE><||3>" SKIP
-    "<R21><C72><FROM><R25><C72><LINE><||3>" SKIP
+    "<R21><C10.5><FROM><R25><C10.5><LINE><||3>" SKIP
+    "<R21><C21.5><FROM><R25><C21.5><LINE><||3>" SKIP
+    "<R21><C47.5><FROM><R25><C47.5><LINE><||3>" SKIP
+    "<R21><C60.5><FROM><R25><C60.5><LINE><||3>" SKIP
+    "<R21><C69><FROM><R25><C69><LINE><||3>" SKIP
+    "<R21><C75.5><FROM><R25><C75.5><LINE><||3>" SKIP
     .
 
 v-printline = v-printline + 5.
 
 
-PUT "<FArial><=4><R+1>     Ship Date               FOB                        Expediteur                        Termes                       Representant    Palettes       BOL#" SKIP
-     "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(2)
+PUT "<FArial><=4><R+1>     Ship Date               FOB                            Expediteur                                          Termes             Representant  Palettes    BOL#" SKIP
+     "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(1)
      v-fob FORM "x(12)" SPACE(1)
-     v-shipvia FORM "x(20)" SPACE(1)
-     ar-inv.terms-d FORM "x(15)" space(4) v-salesman FORM "x(8)"
-     v-tot-pallets FORM "->>>>,>>9" 
-     lv-bol-no FORM ">>>>>>>>"
+     v-shipvia FORM "x(30)" SPACE(1)
+     ar-inv.terms-d FORM "x(15)" space(1) v-salesman FORM "x(8)"
+     v-tot-pallets FORM "->>>,>>9" SPACE(1)
+     lv-bol-no FORM ">>>>>9"
     SKIP.
 
 

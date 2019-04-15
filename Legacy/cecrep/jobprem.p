@@ -406,9 +406,9 @@ do v-local-loop = 1 to v-local-copies:
 
         display /* Line 2, 2nd row of boxes */
                 "<=#5><R+1>"
-                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
+                "W: " + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) +
                 "   " +
-                "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
+                "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
                 trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
@@ -449,8 +449,8 @@ do v-local-loop = 1 to v-local-copies:
                 w-i.i-qty when w-i.i-qty ne 0
                 "LBS" when w-i.i-dscr ne ""
                 "<=#7><R+2> Blank Size:"
-                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">,>>9.99")) WHEN AVAIL xeb 
-                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">,>>9.99")) when avail xeb 
+                "W:" TRIM(string({sys/inc/k16v.i xeb.t-wid},">>,>>9.99")) WHEN AVAIL xeb 
+                "L:" TRIM(string({sys/inc/k16v.i xeb.t-len},">>,>>9.99")) when avail xeb 
             with no-box no-labels frame i2 width 155 no-attr-space STREAM-IO.
 
          /* rstark 05181205 */
@@ -841,7 +841,7 @@ do v-local-loop = 1 to v-local-copies:
            FOR EACH xeb WHERE xeb.company = est.company
                            AND xeb.est-no = est.est-no
                            AND xeb.form-no > 0 NO-LOCK:
-               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet SKIP.
+               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet FORMAT ">>>>9.9<<<" SKIP.
                /* rstark 05181205 */
                RUN XMLOutput (lXMLOutput,'JobTicketSetComponent','','Row').
                RUN XMLOutput (lXMLOutput,'FG_Number',xeb.stock-no,'Col').

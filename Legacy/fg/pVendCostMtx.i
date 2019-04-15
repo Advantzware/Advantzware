@@ -41,7 +41,7 @@
                     END. /* do idx */
                     ASSIGN
                         dRunQty[jdx + 1] = 9999999.9
-                        dRunCost[1]      = 0
+                        dRunCost[1]      = 99999.9999
                         .
                     IF jdx GT 1 THEN
                     dSetups[1] = DECIMAL(e-itemfg-vend.spare-dec-1:SCREEN-VALUE).

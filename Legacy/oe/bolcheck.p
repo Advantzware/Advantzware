@@ -56,13 +56,13 @@ FOR EACH oe-boll NO-LOCK
           AND fg-bin.cust-no EQ oe-boll.cust-no:
       ACCUMULATE fg-bin.qty (TOTAL).
     END.
-
     IF tt-fg-bin.qty GT 0                        AND
        (ACCUM TOTAL fg-bin.qty) LT tt-fg-bin.qty THEN DO:
       CREATE w-except.
       BUFFER-COPY oe-boll TO w-except
       ASSIGN
-       w-except.bol-no = oe-bolh.bol-no.
+       w-except.bol-no = oe-bolh.bol-no
+       w-except.dOnhQty = (ACCUM TOTAL fg-bin.qty) .
     END.
   END.
 END.

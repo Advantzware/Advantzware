@@ -64,13 +64,13 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
-begin_slsmn end_slsmn begin_date end_date rd_sort tb_cost rd-dest lv-ornt ~
-lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+begin_slsmn end_slsmn begin_date end_date rd_sort tb_cost tb_Include-Item ~
+rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
-end_slsmn begin_date end_date lbl-sort rd_sort tb_cost rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file 
+end_slsmn begin_date end_date lbl-sort rd_sort tb_cost tb_Include-Item ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -192,6 +192,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
+DEFINE VARIABLE tb_Include-Item AS LOGICAL INITIAL no 
+     LABEL "Include Inactive Items?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 27 BY .95 NO-UNDO.
+
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
@@ -222,6 +227,7 @@ DEFINE FRAME FRAME-A
      lbl-sort AT ROW 6.48 COL 32 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 6.48 COL 44 NO-LABEL
      tb_cost AT ROW 7.67 COL 44
+     tb_Include-Item AT ROW 8.81 COL 44 WIDGET-ID 2
      rd-dest AT ROW 11.71 COL 4 NO-LABEL
      lv-ornt AT ROW 12.19 COL 31 NO-LABEL
      lines-per-page AT ROW 12.19 COL 84 COLON-ALIGNED
@@ -298,16 +304,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -319,6 +315,14 @@ ASSIGN
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -358,6 +362,10 @@ ASSIGN
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       tb_Include-Item:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -370,7 +378,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -644,6 +652,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_Include-Item
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Include-Item C-Win
+ON VALUE-CHANGED OF tb_Include-Item IN FRAME FRAME-A /* Include Inactive Items? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
@@ -746,12 +765,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_date end_date 
-          lbl-sort rd_sort tb_cost rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          lbl-sort rd_sort tb_cost tb_Include-Item rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
-         begin_date end_date rd_sort tb_cost rd-dest lv-ornt lines-per-page 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         begin_date end_date rd_sort tb_cost tb_Include-Item rd-dest lv-ornt 
+         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -921,7 +942,7 @@ SESSION:SET-WAIT-STATE ("general").
 if v-cst then
   v-cst-hdr = "Costs --->        Mat           DL           VO           FO".
 
-
+main:
 FOR EACH quotehd
     WHERE quotehd.company  EQ cocode
       AND quotehd.loc      EQ locode
@@ -938,6 +959,14 @@ FOR EACH quotehd
     FIRST quoteqty OF quoteitm NO-LOCK:
 
      {custom/statusMsg.i " 'Processing Estimate#:  '  + quotehd.est-no  "}
+
+  IF NOT tb_Include-Item THEN DO:
+       FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ quoteitm.company
+        AND itemfg.i-no EQ quoteitm.i-no NO-ERROR.
+
+       IF AVAIL itemfg AND itemfg.stat EQ "I" THEN NEXT main.
+  END.
 
   CREATE tt-report.
   ASSIGN

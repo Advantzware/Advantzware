@@ -1,0 +1,17 @@
+
+10/18/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+11:38am                                          BILL OF LADING  -  POSTING REPORT
+
+
+
+  Ord#      Date   BOL.#   Rel.#  Carrier  Trailer     Freight    Rate  Tot WT  Cust#       Ship#     P.O. #
+------  --------  ------  ------  -------  --------  ---------  ------  ------  --------    --------  --------
+   319  10/18/00     163    1-00    CC                    0.00    0.00    9455  HER10       HER10     101700
+
+
+               Item#            Item Name                  Whse.  Bin Loc   Tag          Cases  Qty/Case   Partial  Weight
+               ---------------  -------------------------  -----  --------  --------  --------  ---------  -------  ------
+               HER-1021         RT 5x4x8 Candy Box         MAIN   FLOOR                    100       500        0   5,635
+               HER-1022         RSC 10x10x10               MAIN   FLOOR                     10       500        0   3,820
+
+

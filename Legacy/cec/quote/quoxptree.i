@@ -11,9 +11,17 @@ FIND FIRST est WHERE est.company EQ xquo.company
 IF AVAILABLE(est) AND est.est-type EQ 6 THEN
   logSetPrinting = TRUE.
 
-FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
+main:
+FOR EACH xqitm OF xquo NO-LOCK
+     BREAK BY xqitm.part-no:
 
+    FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ xqitm.company
+        AND itemfg.i-no EQ xqitm.i-no NO-ERROR.
 
+    IF AVAIL itemfg AND cItemStatus NE "B" and
+               ((itemfg.stat NE "A" AND cItemStatus EQ "A" ) OR
+               (itemfg.stat NE "I" AND cItemStatus EQ "I")) THEN NEXT main.
 
   ASSIGN
    numfit       = 0
@@ -254,7 +262,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       
        PUT xqqty.qty FORMAT ">>>>>>>9" TO  70 
            xqqty.rels space(5)
-           xqqty.price FORM "->>,>>9.99" space(4)
+           xqqty.price FORM "->>,>>9.99<<" space(4)
            xqqty.uom.   
        
        v-line-total = v-line-total + xqqty.price.

@@ -1,0 +1,10 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:35pm                                            FINISHED GOODS STATUS REPORT
+
+Order# Item#           Description                 Order Qty Shipped Qty  OnHand Qty Date    P.O. Number      Job Number
+
+Customer Name: AT&T Corp
+
+   306 ATT Answer      RT Answering Machine           50,000           0      25,000 10/27/99                         0
+

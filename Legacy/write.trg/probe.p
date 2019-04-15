@@ -112,23 +112,6 @@ IF AVAIL est THEN DO:
   END.*/
 END.
 
-IF old-{&TABLENAME}.company  NE ""                      AND
-   old-{&TABLENAME}.est-no   NE ""                      AND
-   (old-{&TABLENAME}.company NE {&TABLENAME}.company OR
-    old-{&TABLENAME}.est-no  NE {&TABLENAME}.est-no  OR
-    old-{&TABLENAME}.line    NE {&TABLENAME}.line)      THEN
-FOR EACH reftable
-    WHERE reftable.reftable EQ "probe.per-msf"
-      AND reftable.company  EQ old-{&TABLENAME}.company
-      AND reftable.loc      EQ ""
-      AND reftable.code     EQ old-{&TABLENAME}.est-no
-      AND reftable.code2    EQ STRING(old-{&TABLENAME}.line,"9999999999"):
-  ASSIGN
-   reftable.company  = {&TABLENAME}.company
-   reftable.code     = {&TABLENAME}.est-no
-   reftable.code2    = STRING({&TABLENAME}.line,"9999999999").
-END.
-
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.

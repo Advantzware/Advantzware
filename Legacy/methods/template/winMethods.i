@@ -5,12 +5,13 @@
     File        : windows.i
     Purpose     : Smart Windows Include for Internal Procedures
 
-    Syntax      : {methods/template/windows.i}
+    Syntax      : {methods/template/winMethods.i}
 
     Description : Smart Windows Include for Internal Procedures
 
     Author(s)   : Ron Stark
-    Created     : 02/07/98
+    Created     : 2.7.1998
+    Updated     : 9.28.2018
     Notes       :
   ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -90,6 +91,10 @@ hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
 {custom/resizmx.i}
 {custom/resizrs.i}
 
+FIND FIRST company NO-LOCK WHERE company.company EQ g_company NO-ERROR .
+
+{&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " + string(company.name) + " - " + g_loc  .
+ 
 ON WINDOW-MAXIMIZED OF {&WINDOW-NAME} DO:
   RUN winReSize.
 END.
@@ -294,6 +299,35 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view Include
+PROCEDURE local-view:
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/template/local/winView.i}
+  
+  {system/runCueCard.i}
+  /* run cue card for page 1 browser (record-source) because   */
+  /* browser local-view first time executed, browser frame is  */
+  /* not realized                                              */
+  {methods/run_link.i "RECORD-SOURCE" "runCueCard"}
+  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE MF-Message Include 
 PROCEDURE MF-Message :

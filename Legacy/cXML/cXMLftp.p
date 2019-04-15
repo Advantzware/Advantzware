@@ -16,7 +16,7 @@ DEFINE VARIABLE cExec    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWinScpIniFile AS CHARACTER NO-UNDO.
 
 /* read in parameters needed for ftp */
-INPUT FROM VALUE(ipDatFile) NO-ECHO.
+INPUT FROM VALUE(SEARCH(ipDatFile)) NO-ECHO.
 IMPORT ftpURL.
 IMPORT ftpUser.
 IMPORT ftpPassword.

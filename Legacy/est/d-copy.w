@@ -469,45 +469,9 @@ PROCEDURE do-copy :
             io-eb.i-dscr2[li] = eb.i-dscr2[li]
             io-eb.i-%2[li]    = eb.i-%2[li].
          END.
-
-         IF eb.est-type LT 5 THEN
-         DO li = 0 TO 1:
-
-            v-str = "ce/v-est3.w Unit#" + TRIM(STRING(li,">")).
-
-            FIND FIRST reftable WHERE
-                 reftable.reftable EQ v-str AND
-                 reftable.company  EQ eb.company AND
-                 reftable.loc      EQ eb.est-no AND
-                 reftable.code     EQ STRING(eb.form-no,"9999999999") AND
-                 reftable.code2    EQ STRING(eb.blank-no,"9999999999")
-                 NO-LOCK NO-ERROR.
-
-            IF AVAIL reftable THEN
-            DO:
-               FIND FIRST unit-ref WHERE
-                    unit-ref.reftable EQ v-str AND
-                    unit-ref.company EQ eb.company AND
-                    unit-ref.loc EQ io-eb.est-no AND
-                    unit-ref.CODE = STRING(io-eb.form-no,"9999999999") AND
-                    unit-ref.code2 = STRING(io-eb.blank-no,"9999999999")
-                    NO-ERROR.
-
-               IF NOT AVAIL unit-ref THEN
-                  CREATE unit-ref.
-
-               BUFFER-COPY reftable EXCEPT rec_key loc CODE code2 TO unit-ref
-                  ASSIGN
-                     unit-ref.loc = io-eb.est-no
-                     unit-ref.CODE = STRING(io-eb.form-no,"9999999999")
-                     unit-ref.code2 = STRING(io-eb.blank-no,"9999999999").
-               RELEASE unit-ref.
-            END.
-            ELSE
-            DO:
-               {ce/updunit#.i io-eb li}
-            END.
-         END.
+         
+               {ce/updunit#.i io-eb}               
+         
        END.
       
        IF tb_case THEN

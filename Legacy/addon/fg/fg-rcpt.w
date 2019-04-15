@@ -22,6 +22,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE winViewPrgmName fg-rcpt
+
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ip-do-what AS CHARACTER NO-UNDO.
 
@@ -52,6 +54,13 @@ DEFINE VARIABLE lvlRecFound AS LOGICAL NO-UNDO.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &SCOPED-DEFINE FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES fg-rctd
+&Scoped-define FIRST-EXTERNAL-TABLE fg-rctd
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR fg-rctd.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -106,6 +115,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
+   External Tables: ASI.fg-rctd
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -416,6 +426,15 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "fg-rctd"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "fg-rctd"}
+
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
@@ -522,29 +541,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF lvlAutoAdd THEN DO:
-      {methods/selectTab.i 1}
-      RUN scan-next IN h_b-rcptd.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -553,9 +549,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartWindow, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "fg-rctd"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

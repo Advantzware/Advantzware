@@ -1,0 +1,13 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 6:54pm                                             MATERIAL RECONCILIATION REPORT
+
+                                    Open Jobs  Date:01/01/001 - 12/31/9999  Job #:317-00 - 317-99
+
+    JOB # CUSTOMER                          RM ITEM              QTY RCV    FG ITEM              QTY INV      DIFFERENCE
+--------- ------------------------------    --------------- ------------    --------------- ------------    ------------
+   317-00 Hershey Chocolate Corp            CCN-16                95,669    HER-1021              25,000          70,669
+
+
+          Grand Totals                                            95,669                          25,000          70,669
+

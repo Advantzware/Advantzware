@@ -48,15 +48,13 @@ def temp-table tmpfile NO-UNDO
     field setups as dec.
 
 def var lv-roll-w like e-item-vend.roll-w no-undo.
+
 {custom/gcompany.i}
 {custom/persist.i}
+{system/fSuperRunning.i}
+
 def var uom-list as cha init ["M,EA,L,CS,C"] no-undo.
 DEF VAR char-hdl AS CHAR NO-UNDO.
-
-&SCOPED-DEFINE where-adders                         ~
-    WHERE reftable.rec_key  EQ e-item-vend.rec_key  ~
-      AND reftable.reftable EQ "e-item-vend.adders" ~
-    USE-INDEX rec_key
 
 DEF VAR gTerm AS cha NO-UNDO.
 DEF VAR gNewVendor AS LOG NO-UNDO.
@@ -106,7 +104,9 @@ e-item-vend.roll-w[18] e-item-vend.roll-w[19] e-item-vend.roll-w[20] ~
 e-item-vend.roll-w[21] e-item-vend.roll-w[22] e-item-vend.roll-w[23] ~
 e-item-vend.roll-w[24] e-item-vend.roll-w[25] e-item-vend.roll-w[26] ~
 e-item-vend.roll-w[27] e-item-vend.roll-w[28] e-item-vend.roll-w[29] ~
-e-item-vend.roll-w[30] 
+e-item-vend.roll-w[30] ~
+e-item-vend.underLength e-item-vend.underLengthCost e-item-vend.underWidth ~
+e-item-vend.underWidthCost 
 &Scoped-define ENABLED-TABLES e-item-vend
 &Scoped-define FIRST-ENABLED-TABLE e-item-vend
 &Scoped-Define ENABLED-OBJECTS btn_more-breaks RECT-24 RECT-25 
@@ -131,18 +131,19 @@ e-item-vend.roll-w[16] e-item-vend.roll-w[17] e-item-vend.roll-w[18] ~
 e-item-vend.roll-w[19] e-item-vend.roll-w[20] e-item-vend.roll-w[21] ~
 e-item-vend.roll-w[22] e-item-vend.roll-w[23] e-item-vend.roll-w[24] ~
 e-item-vend.roll-w[25] e-item-vend.roll-w[26] e-item-vend.roll-w[27] ~
-e-item-vend.roll-w[28] e-item-vend.roll-w[29] e-item-vend.roll-w[30] 
+e-item-vend.roll-w[28] e-item-vend.roll-w[29] e-item-vend.roll-w[30] ~
+e-item-vend.underLength e-item-vend.underLengthCost e-item-vend.underWidth ~
+e-item-vend.underWidthCost 
 &Scoped-define DISPLAYED-TABLES e-item-vend e-item
 &Scoped-define FIRST-DISPLAYED-TABLE e-item-vend
 &Scoped-define SECOND-DISPLAYED-TABLE e-item
 &Scoped-Define DISPLAYED-OBJECTS lbl_setup lbl_roll-w ls-item-name ~
-ls-vend-name fi_width-min fi_width-cst fi_length-min fi_length-cst 
+ls-vend-name 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
 &Scoped-define ADM-CREATE-FIELDS e-item.std-uom 
-&Scoped-define ADM-ASSIGN-FIELDS e-item.std-uom fi_width-min fi_width-cst ~
-fi_length-min fi_length-cst 
+&Scoped-define ADM-ASSIGN-FIELDS e-item.std-uom 
 &Scoped-define List-3 lbl_roll-w e-item-vend.roll-w[1] ~
 e-item-vend.roll-w[2] e-item-vend.roll-w[3] e-item-vend.roll-w[4] ~
 e-item-vend.roll-w[5] e-item-vend.roll-w[6] e-item-vend.roll-w[7] ~
@@ -159,8 +160,7 @@ e-item-vend.roll-w[29] e-item-vend.roll-w[30]
 e-item-vend.setups[3] e-item-vend.setups[4] e-item-vend.setups[5] ~
 e-item-vend.setups[6] e-item-vend.setups[7] e-item-vend.setups[8] ~
 e-item-vend.setups[9] e-item-vend.setups[10] 
-&Scoped-define List-6 btn_more-breaks fi_width-min fi_width-cst ~
-fi_length-min fi_length-cst 
+&Scoped-define List-6 btn_more-breaks 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -195,26 +195,6 @@ RUN set-attribute-list (
 DEFINE BUTTON btn_more-breaks 
      LABEL "More Breaks" 
      SIZE 15 BY 1.
-
-DEFINE VARIABLE fi_length-cst AS DECIMAL FORMAT ">>,>>9.9999":U INITIAL 0 
-     LABEL "$" 
-     VIEW-AS FILL-IN 
-     SIZE 15.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_length-min AS DECIMAL FORMAT ">>9.99999":U INITIAL 0 
-     LABEL "Length" 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_width-cst AS DECIMAL FORMAT ">>,>>9.9999":U INITIAL 0 
-     LABEL "$" 
-     VIEW-AS FILL-IN 
-     SIZE 15.2 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_width-min AS DECIMAL FORMAT ">>9.99999":U INITIAL 0 
-     LABEL "Under Width" 
-     VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lbl_roll-w AS CHARACTER FORMAT "X(256)":U INITIAL "Valid  Estimated  Roll  Width" 
      VIEW-AS FILL-IN 
@@ -254,7 +234,7 @@ DEFINE FRAME F-Main
           LABEL "Purchased Cost UOM" FORMAT "x(4)"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     e-item-vend.vend-item AT ROW 2.1 COL 61 COLON-ALIGNED FORMAT "x(15)" NO-LABEL
+     e-item-vend.vend-item AT ROW 2.1 COL 61 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      e-item-vend.vend-no AT ROW 3.19 COL 15 COLON-ALIGNED FORMAT "x(8)"
@@ -449,14 +429,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      btn_more-breaks AT ROW 15.48 COL 2.4 WIDGET-ID 4
-     fi_width-min AT ROW 16.48 COL 18 COLON-ALIGNED HELP
-          "Minimum width to avoid added cost at right"
-     fi_width-cst AT ROW 16.48 COL 34 COLON-ALIGNED HELP
-          "Amount to Charge per UOM when under width"
-     fi_length-min AT ROW 17.48 COL 18 COLON-ALIGNED HELP
-          "Minimum length to avoid added cost at right"
-     fi_length-cst AT ROW 17.48 COL 34 COLON-ALIGNED HELP
-          "Amount to Charge per UOM when under width"
      e-item-vend.roll-w[27] AT ROW 16.48 COL 66 COLON-ALIGNED
           LABEL "Sheet Width"
           VIEW-AS FILL-IN 
@@ -471,10 +443,24 @@ DEFINE FRAME F-Main
      e-item-vend.roll-w[30] AT ROW 17.48 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
+     e-item-vend.underLength AT ROW 17.43 COL 17 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     e-item-vend.underLengthCost AT ROW 17.43 COL 36 COLON-ALIGNED
+          LABEL "$"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     e-item-vend.underWidth AT ROW 16.48 COL 17 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     e-item-vend.underWidthCost AT ROW 16.48 COL 36 COLON-ALIGNED
+          LABEL "$"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      "Cost Per" VIEW-AS TEXT
-          SIZE 15 BY 1 AT ROW 5.05 COL 19
+          SIZE 15 BY .81 AT ROW 5.14 COL 19
      "QTY to" VIEW-AS TEXT
-          SIZE 15 BY 1 AT ROW 5.05 COL 2
+          SIZE 15 BY .81 AT ROW 5.14 COL 2
      "Min" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 15.52 COL 70
      "Max" VIEW-AS TEXT
@@ -546,14 +532,6 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btn_more-breaks IN FRAME F-Main
    6                                                                    */
-/* SETTINGS FOR FILL-IN fi_length-cst IN FRAME F-Main
-   NO-ENABLE 2 6                                                        */
-/* SETTINGS FOR FILL-IN fi_length-min IN FRAME F-Main
-   NO-ENABLE 2 6                                                        */
-/* SETTINGS FOR FILL-IN fi_width-cst IN FRAME F-Main
-   NO-ENABLE 2 6                                                        */
-/* SETTINGS FOR FILL-IN fi_width-min IN FRAME F-Main
-   NO-ENABLE 2 6                                                        */
 /* SETTINGS FOR FILL-IN e-item-vend.i-no IN FRAME F-Main
    NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN lbl_roll-w IN FRAME F-Main
@@ -668,6 +646,14 @@ ASSIGN
    5                                                                    */
 /* SETTINGS FOR FILL-IN e-item.std-uom IN FRAME F-Main
    NO-ENABLE 1 2 EXP-LABEL EXP-FORMAT                                   */
+/* SETTINGS FOR FILL-IN e-item-vend.underLength IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN e-item-vend.underLengthCost IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN e-item-vend.underWidth IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN e-item-vend.underWidthCost IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN e-item-vend.updated-date[1] IN FRAME F-Main
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN e-item-vend.vend-no IN FRAME F-Main
@@ -685,7 +671,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -759,7 +745,6 @@ DO:
     end.   
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -928,17 +913,17 @@ PROCEDURE label-display :
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     fi_width-min:HIDDEN  = YES
-     fi_length-min:HIDDEN = YES
-     fi_width-cst:HIDDEN  = YES
-     fi_length-cst:HIDDEN = YES.
+     e-item-vend.underWidth:HIDDEN  = YES
+     e-item-vend.underLength:HIDDEN  = YES
+     e-item-vend.underWidthCost:HIDDEN  = YES
+     e-item-vend.underLengthCost:HIDDEN  = YES.
 
     IF AVAIL bf-item AND bf-item.industry EQ "2" AND bf-item.mat-type EQ "B" THEN
       ASSIGN
-       fi_width-min:HIDDEN  = NO
-       fi_length-min:HIDDEN = NO
-       fi_width-cst:HIDDEN  = NO
-       fi_length-cst:HIDDEN = NO.
+     e-item-vend.underWidth:HIDDEN  = NO 
+     e-item-vend.underLength:HIDDEN  = NO 
+     e-item-vend.underWidthCost:HIDDEN  = NO 
+     e-item-vend.underLengthCost:HIDDEN  = NO.
   END.
 
 END PROCEDURE.
@@ -952,208 +937,202 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bf-evend FOR e-item-vend.
+    DEF BUFFER bf-evend FOR e-item-vend.
+    DEF BUFFER b-e-item FOR e-item. /* Just to make sure this is the ONLY procedure that accesses this record */
 
-  def var i as int no-undo.
-  def var lv-recid as recid no-undo.
-  DEF VAR v-count AS INT NO-UNDO.
+    DISABLE TRIGGERS FOR LOAD OF bf-evend.
+    DISABLE TRIGGERS FOR LOAD OF b-e-item.  /* and we don't need triggers; we're controlling fields */
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  lv-recid = recid(e-item).
-  find first e-item where recid(e-item) = lv-recid .
+    DEF VAR i AS INT NO-UNDO.
+    DEF VAR lv-recid AS RECID NO-UNDO.
+    DEF VAR v-count AS INT NO-UNDO.
 
-  DISABLE TRIGGERS FOR LOAD OF bf-evend.
+    lv-recid = RECID(e-item).
+    FIND FIRST e-item WHERE RECID(e-item) = lv-recid .
 
-  IF TRIM(e-item-vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ "" THEN
-  FOR EACH bf-evend
-      WHERE bf-evend.company   EQ e-item.company
+    /* This ensures there's ONLY ONE blank vendor code (used in master e-item record) */
+    IF TRIM(e-item-vend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ "" THEN
+    FOR EACH bf-evend
+        WHERE bf-evend.company EQ e-item.company
         AND bf-evend.i-no      EQ e-item.i-no
         AND bf-evend.item-type EQ YES
         AND bf-evend.vend-no   EQ ""
         AND ROWID(bf-evend)    NE ROWID(e-item-vend):
-    DELETE bf-evend.
-  END.
+        DELETE bf-evend.
+    END.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN reftable-values (NO).
 
-  EMPTY TEMP-TABLE tmpfile.
-
-  do i = 1 to 26:
-     if e-item-vend.roll-w[i] <> 0 then do:
-        create tmpfile.
-        assign tmpfile.siz = e-item-vend.roll-w[i]
-               e-item-vend.roll-w[i] = 0.
-     end.
-  end.
-  i = 1.
-  for each tmpfile by tmpfile.siz :
-      assign e-item-vend.roll-w[i] = tmpfile.siz
-             i = i + 1.
-  end.
-  EMPTY TEMP-TABLE tmpfile.
-
-  IF v-copy-record THEN
-  DO:
-     FIND FIRST bf-evend
-      WHERE bf-evend.company   EQ e-item.company
+    /* This sorts the roll widths in descending order */
+    EMPTY TEMP-TABLE tmpfile.
+    DO i = 1 TO 26:
+        IF e-item-vend.roll-w[i] <> 0 THEN DO:
+            CREATE tmpfile.
+            ASSIGN 
+                tmpfile.siz = e-item-vend.roll-w[i]
+                e-item-vend.roll-w[i] = 0.
+        END.
+    END.
+    ASSIGN 
+        i = 1.
+    FOR EACH tmpfile BY tmpfile.siz :
+        ASSIGN 
+            e-item-vend.roll-w[i] = tmpfile.siz
+            i = i + 1.
+    END.
+  
+    /* If this is a copy, get the non-displayed fields from the source record */
+    IF v-copy-record THEN DO:
+        FIND FIRST bf-evend
+        WHERE bf-evend.company   EQ e-item.company
         AND bf-evend.i-no      EQ e-item.i-no
         AND bf-evend.vend-no   EQ v-old-vend-no
         AND ROWID(bf-evend)    NE ROWID(e-item-vend)
         NO-ERROR.
-     
-     IF AVAIL bf-evend THEN
-     DO: 
+        IF AVAIL bf-evend THEN DO: 
+            DO v-count = 1 TO 10:
+                e-item-vend.runQtyXtra[v-count] = bf-evend.runQtyXtra[v-count].
+                e-item-vend.runCostXtra[v-count] = bf-evend.runCostXtra[v-count].
+                e-item-vend.setupsXtra[v-count] = bf-evend.setupsXtra[v-count].
+            END.
+        END.
+    END.
+
+    /* If this is the "blank" vendor code, copy the qty/cost values to the "master" (e-item) record */
+    IF e-item-vend.vend-no EQ "" THEN  DO:    
+        FIND b-e-item EXCLUSIVE WHERE 
+            ROWID(b-e-item) EQ ROWID(e-item)
+            NO-ERROR.
+        IF NOT AVAIL b-e-item THEN DO:
+            MESSAGE 
+                "b-e-item not avail"
+                VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+/*           Just a word of explanation for this:                                              */
+/*           e-item and e-item-vend SHOULD have single fields for these elements with extent 20*/
+/*           They don't                                                                        */
+/*           run-qty and run-cost (the original fields) are still extent 10                    */
+/*           e-item has runqty and runcost (new fields with no hyphen) with extent 20          */
+/*           e-item-vend has runQtyXtra and runCostXtra with extent 10                         */
+/*           This code is designed to populate all of these properly                           */
+/*           I don't want to make a db change to correct this since we're doing a release      */
+/*           this afternoon and I'm sure there would be unintended consequences - MYT          */
         DO v-count = 1 TO 10:
-           e-item-vend.runQtyXtra[v-count] = bf-evend.runQtyXtra[v-count].
-           e-item-vend.runCostXtra[v-count] = bf-evend.runCostXtra[v-count].
-           e-item-vend.setupsXtra[v-count] = bf-evend.setupsXtra[v-count].
+            b-e-item.run-qty[v-count] = e-item-vend.run-qty[v-count].
+            b-e-item.runqty[v-count] = e-item-vend.run-qty[v-count].
+            b-e-item.runqty[v-count + 10] = e-item-vend.runQtyXtra[v-count].
+            b-e-item.run-cost[v-count] = e-item-vend.run-cost[v-count].
+            b-e-item.runcost[v-count] = e-item-vend.run-cost[v-count].
+            b-e-item.runcost[v-count + 10] = e-item-vend.runCostXtra[v-count].
         END.
+        FIND b-e-item NO-LOCK WHERE 
+            ROWID(b-e-item) EQ ROWID(e-item)
+            NO-ERROR.
+    END.
+  
+    EMPTY TEMP-TABLE tmpfile.
+    IF AVAIL e-item-vend THEN ASSIGN 
+        v-count = 20.
+    ELSE ASSIGN 
+        v-count = 10.
 
-        
-        IF e-item-vend.vend-no EQ "" THEN
-        DO:
-           FIND FIRST b-blank-vend-qty WHERE
-                b-blank-vend-qty.reftable = "blank-vend-qty" AND
-                b-blank-vend-qty.company = e-item.company and
-                    b-blank-vend-qty.CODE    = e-item.i-no
-                NO-ERROR.
+    /* Build a temp file for sorting */
+    DO i = 1 TO v-count:
+        CREATE tmpfile.
 
-           IF NOT AVAIL b-blank-vend-qty THEN
-           DO:
-              CREATE b-blank-vend-qty.
-              ASSIGN
-                 b-blank-vend-qty.reftable = "blank-vend-qty"
-                 b-blank-vend-qty.company = e-item.company
-                     b-blank-vend-qty.CODE    = e-item.i-no.
-           END.
+        IF i LE 10 THEN ASSIGN 
+            tmpfile.qty = e-item-vend.run-qty[i]
+            tmpfile.siz = e-item-vend.run-cost[i]
+            tmpfile.setups = e-item-vend.setups[i]
+            e-item-vend.run-qty[i] = 0
+            e-item-vend.run-cost[i] = 0
+            e-item-vend.setups[i] = 0.
+        ELSE ASSIGN 
+            tmpfile.qty = e-item-vend.runQtyXtra[i - 10]
+            tmpfile.siz = e-item-vend.runCostXtra[i - 10]
+            tmpfile.setups = e-item-vend.setupsXtra[i - 10]
+            e-item-vend.runQtyXtra[i - 10] = 0
+            e-item-vend.runCostXtra[i - 10] = 0
+            e-item-vend.setupsXtra[i - 10] = 0.
+    END.
+  
+    ASSIGN 
+        i = 1.
 
-           DO v-count = 1 TO 10:
-                b-blank-vend-qty.val[v-count] = e-item-vend.runQtyXtra[v-count].
-           END.
-
-           FIND FIRST b-blank-vend-cost WHERE
-                b-blank-vend-cost.reftable = "blank-vend-cost" AND
-                b-blank-vend-cost.company = e-item.company and
-                    b-blank-vend-cost.CODE    = e-item.i-no
-                NO-ERROR.
-
-           IF NOT AVAIL b-blank-vend-cost THEN
-           DO:
-              CREATE b-blank-vend-cost.
-              ASSIGN
-                 b-blank-vend-cost.reftable = "blank-vend-cost"
-                 b-blank-vend-cost.company = e-item.company
-                     b-blank-vend-cost.CODE    = e-item.i-no.
-           END.
-
-           DO v-count = 1 TO 10:
-                b-blank-vend-cost.val[v-count] = e-item-vend.runCostXtra[v-count].
-           END.
+    /* If the "master", get the e-item (using the buffer) for updating */
+    IF e-item-vend.vend-no EQ "" THEN
+    DO:
+        FIND b-e-item EXCLUSIVE WHERE 
+            ROWID(b-e-item) EQ ROWID(e-item)
+            NO-ERROR.
+        IF NOT AVAIL b-e-item THEN DO:
+            MESSAGE 
+                "b-e-item not avail"
+                VIEW-AS ALERT-BOX.
+            RETURN.
         END.
-     END.
-  END.
+    END.
 
-
-  IF AVAIL e-item-vend THEN
-     v-count = 20.
-  ELSE
-     v-count = 10.
-
-  do i = 1 to v-count:
-     create tmpfile.
-
-     IF i LE 10 THEN
-        assign tmpfile.qty = e-item-vend.run-qty[i]
-               tmpfile.siz = e-item-vend.run-cost[i]
-               tmpfile.setups = e-item-vend.setups[i]
-               e-item-vend.run-qty[i] = 0
-               e-item-vend.run-cost[i] = 0
-               e-item-vend.setups[i] = 0.
-     ELSE
-        assign tmpfile.qty = e-item-vend.runQtyXtra[i - 10]
-               tmpfile.siz = e-item-vend.runCostXtra[i - 10]
-               tmpfile.setups = e-item-vend.setupsXtra[i - 10]
-               e-item-vend.runQtyXtra[i - 10] = 0
-               e-item-vend.runCostXtra[i - 10] = 0
-               e-item-vend.setupsXtra[i - 10] = 0.
-  end.
-  i = 1.
-
-  IF e-item-vend.vend-no EQ "" THEN
-  DO:
-     FIND FIRST b-blank-vend-qty WHERE
-          b-blank-vend-qty.reftable = "blank-vend-qty" AND
-          b-blank-vend-qty.company = e-item.company AND
-          b-blank-vend-qty.CODE    = e-item.i-no
-          NO-ERROR.
-
-     FIND FIRST b-blank-vend-cost WHERE
-          b-blank-vend-cost.reftable = "blank-vend-cost" AND
-          b-blank-vend-cost.company = e-item.company AND
-          b-blank-vend-cost.CODE    = e-item.i-no
-          NO-ERROR.
-  END.
-
-  for each tmpfile by tmpfile.qty:
-      if tmpfile.qty = 0 then next.
-
-      IF i LE 10 THEN
-         assign e-item-vend.run-qty[i] = tmpfile.qty
+    FOR EACH tmpfile BY tmpfile.qty:
+        /* If all done, just skip */
+        IF tmpfile.qty = 0 THEN NEXT.
+        /* See the comment above about field names/extents */
+        IF i LE 10 THEN DO:
+            ASSIGN 
+                e-item-vend.run-qty[i] = tmpfile.qty
                 e-item-vend.run-cost[i] = tmpfile.siz
                 e-item-vend.setups[i] = tmpfile.setups.
-      ELSE
-         ASSIGN
-            e-item-vend.runQtyXtra[i - 10] = tmpfile.qty
-            e-item-vend.runCostXtra[i - 10] = tmpfile.siz
-            e-item-vend.setupsXtra[i - 10] = tmpfile.setups.
+            IF e-item-vend.vend-no EQ "" THEN ASSIGN 
+                b-e-item.run-qty[i] = e-item-vend.run-qty[i]
+                b-e-item.runqty[i] = e-item-vend.run-qty[i]
+                b-e-item.run-cost[i] = e-item-vend.run-cost[i]
+                b-e-item.runcost[i] = e-item-vend.run-cost[i].
+        END.
+        ELSE DO:
+            ASSIGN
+                e-item-vend.runQtyXtra[i - 10] = tmpfile.qty
+                e-item-vend.runCostXtra[i - 10] = tmpfile.siz
+                e-item-vend.setupsXtra[i - 10] = tmpfile.setups.
+            IF e-item-vend.vend-no EQ "" THEN ASSIGN 
+                b-e-item.runqty[i + 10] = e-item-vend.runQtyXtra[i]
+                b-e-item.runcost[i + 10] = e-item-vend.runCostXtra[i].
+        END.
+        i = i + 1.       
+    END.
 
-      IF i GT 10 AND AVAIL b-blank-vend-qty AND AVAIL b-blank-vend-cost THEN
-         ASSIGN
-            b-blank-vend-qty.val[i - 10] = tmpfile.qty
-            b-blank-vend-cost.val[i - 10] = tmpfile.siz.
+    /* If we found the master buffer exclusive, let's release it */
+    IF e-item-vend.vend-no EQ "" THEN DO:
+        DO i = 1 TO 30:
+            e-item.roll-w[i] = e-item-vend.roll-w[i].
+        END.
+        FIND b-e-item NO-LOCK WHERE 
+            ROWID(b-e-item) EQ ROWID(e-item)
+            NO-ERROR.
+    END.
 
-      i = i + 1.       
-  end.
+    ASSIGN
+        v-copy-record = NO
+        v-old-vend-no = "".
 
-  RELEASE b-blank-vend-qty.
-  RELEASE b-blank-vend-cost.
+    IF gNewVendor THEN DO:
+        CREATE report.
+        ASSIGN
+            report.term-id = gTerm
+            report.key-01  = ""
+            report.key-02  = ""
+            report.key-03  = e-item-vend.vend-no
+            report.key-04  = STRING(e-item-vend.run-qty[1])
+            report.key-05  = ""
+            report.key-06  = STRING(e-item-vend.setups[1])
+            report.rec-id  = RECID(e-item-vend).
+        RELEASE report.
+    END.
 
-  IF e-item-vend.vend-no EQ "" THEN
-     do i = 1 to 10:
-        assign e-item.run-qty[i] = e-item-vend.run-qty[i]
-               e-item.run-cost[i] = e-item-vend.run-cost[i].
-     end.
-
-  IF e-item-vend.vend-no EQ "" THEN
-  DO i = 1 TO 30:
-     e-item.roll-w[i] = e-item-vend.roll-w[i].
-  END.
-
-  FIND CURRENT e-item NO-LOCK.
-
-  ASSIGN
-     v-copy-record = NO
-     v-old-vend-no = "".
-
-  IF gNewVendor THEN DO:
-     CREATE report.
-     ASSIGN
-       report.term-id = gTerm
-       report.key-01  = ""
-       report.key-02  = ""
-       report.key-03  = e-item-vend.vend-no
-       report.key-04  = string(e-item-vend.run-qty[1])
-       report.key-05  = ""
-       report.key-06  = string(e-item-vend.setups[1])
-       report.rec-id  = recid(e-item-vend).
-       RELEASE report.
-  END.
-
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    /* Now redisplay what we changed */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
 END PROCEDURE.
 
@@ -1236,6 +1215,8 @@ PROCEDURE local-create-record :
         e-item-vend.i-no = e-item.i-no    
         e-item-vend.setup = bf-item.min-sqft
         e-item-vend.item-type = YES
+        e-item-vend.roll-w[28] = 999.000
+        e-item-vend.roll-w[30] = 999.000
         e-item-vend.vend-no = FILL(" ",100) + STRING(TIME,">>>>>>>>>>")
         bf-item.min-sqft = 0.
 
@@ -1249,15 +1230,6 @@ PROCEDURE local-create-record :
  IF e-item-vend.rec_key EQ "" THEN
  DO:
     {custom/rec_key.i e-item-vend}
- END.
-
- IF v-copy-record = NO THEN
- DO WITH FRAME {&FRAME-NAME}:
-   ASSIGN
-    fi_width-min:SCREEN-VALUE  = ""
-    fi_length-min:SCREEN-VALUE = ""
-    fi_width-cst:SCREEN-VALUE  = ""
-    fi_length-cst:SCREEN-VALUE = "".
  END.
 
 END PROCEDURE.
@@ -1329,8 +1301,6 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL e-item-vend THEN DO TRANSACTION:
-    IF NOT adm-new-record THEN RUN reftable-values (YES).
-
     FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-item-vend).
 
     IF e-item-vend.setup NE 0 THEN
@@ -1386,8 +1356,11 @@ PROCEDURE local-enable-fields :
   end.
 
   DO WITH FRAME {&FRAME-NAME} :
-    IF bf-item.industry EQ "2" AND bf-item.mat-type EQ "B" THEN
-       ENABLE fi_width-min fi_length-min fi_width-cst fi_length-cst.
+        IF bf-item.industry EQ "2" AND bf-item.mat-type EQ "B" THEN ASSIGN 
+            e-item-vend.underWidth:SENSITIVE  = YES
+            e-item-vend.underLength:SENSITIVE  = YES
+            e-item-vend.underWidthCost:SENSITIVE  = YES
+            e-item-vend.underLengthCost:SENSITIVE  = YES.
 
     DISABLE btn_more-breaks.
   END.
@@ -1412,6 +1385,21 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-vend-no (e-item-vend.vend-no:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+
+  IF e-item-vend.vend-item:SCREEN-VALUE EQ "?" THEN
+      ASSIGN e-item-vend.vend-item:SCREEN-VALUE = "" .
+
+  IF e-item-vend.roll-w[28]:SCREEN-VALUE EQ "0.0000" THEN
+      ASSIGN 
+      e-item-vend.roll-w[28]:SCREEN-VALUE = "999.000" .
+
+  IF e-item-vend.roll-w[30]:screen-value EQ "0.0000" THEN
+      ASSIGN 
+      e-item-vend.roll-w[30]:SCREEN-VALUE = "999.000" .
+
   END.
 
   RUN valid-roll-w-27 NO-ERROR.
@@ -1474,7 +1462,6 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1526,46 +1513,6 @@ PROCEDURE price-change :
 
    run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
    run dispatch in widget-handle(char-hdl) ('open-query').
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
-PROCEDURE reftable-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-
-  IF AVAIL e-item-vend THEN DO:
-    FIND FIRST reftable {&where-adders} NO-ERROR.
-    IF NOT AVAIL reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.rec_key  = e-item-vend.rec_key
-       reftable.reftable = "e-item-vend.adders"
-       reftable.company  = e-item-vend.company.
-    END.
-    IF ip-display THEN
-      ASSIGN
-       fi_width-min  = reftable.val[1] / 10000
-       fi_length-min = reftable.val[2] / 10000
-       fi_width-cst  = reftable.val[3] / 10000
-       fi_length-cst = reftable.val[4] / 10000.
-    ELSE
-      ASSIGN
-       reftable.val[1] = fi_width-min  * 10000
-       reftable.val[2] = fi_length-min * 10000
-       reftable.val[3] = fi_width-cst  * 10000
-       reftable.val[4] = fi_length-cst * 10000.
-
-    FIND CURRENT reftable NO-LOCK.
-  END.
 
 END PROCEDURE.
 

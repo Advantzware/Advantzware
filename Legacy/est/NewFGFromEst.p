@@ -84,16 +84,11 @@ PROCEDURE pCreateFGItem:
         itemfg.company    = ipbf-eb.company
         itemfg.loc        = ipbf-eb.loc
         itemfg.i-no       = ipcItemFGID
-        itemfg.i-code     = "C"
         itemfg.i-name     = ipbf-eb.part-dscr1
         itemfg.part-dscr1 = ipbf-eb.part-dscr2
-        itemfg.sell-uom   = "M"
         itemfg.part-no    = ipbf-eb.part-no
         itemfg.cust-no    = ipbf-eb.cust-no
         itemfg.cust-name  = IF AVAILABLE cust THEN cust.name ELSE ""
-        itemfg.pur-uom    = IF ipbf-eb.pur-man THEN "EA" ELSE "M"
-        itemfg.prod-uom   = IF ipbf-eb.pur-man THEN "EA" ELSE "M"
-        itemfg.stocked    = YES
         itemfg.die-no     = ipbf-eb.die-no
         itemfg.plate-no   = ipbf-eb.plate-no
         itemfg.style      = ipbf-eb.style
@@ -105,7 +100,7 @@ PROCEDURE pCreateFGItem:
                      ipbf-eb.form-no EQ 0
         itemfg.pur-man    = ipbf-eb.pur-man 
         itemfg.alloc      = ipbf-eb.set-is-assembled
-        itemfg.setupDate  = TODAY.
+        .
     
     RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
     
@@ -145,21 +140,7 @@ PROCEDURE pGetFGITem:
     DEFINE INPUT PARAMETER ipiEstType AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFGItem AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cFGFormat AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE i         AS INTEGER   NO-UNDO.
-    DEFINE BUFFER bf-eb FOR eb.
-
-    cFGFormat = fGetFGNameFormat(ipbf-eb.company).
-    IF cFGFormat = "Hughes" THEN 
-        cFGFormat = "".
-    ELSE IF cFGFormat = "Fibre" THEN 
-            cFGFormat = "". 
-    RUN fg/autofg.p (ROWID(ipbf-eb),
-        cFGFormat, 
-        ipbf-eb.procat,
-        IF ipiEstType LE 4 THEN "F" ELSE "C",
-        ipbf-eb.cust-no,
-        OUTPUT opcFGItem).
+    RUN fg/GetFGItemID.p (ROWID(ipbf-eb), "", OUTPUT opcFGItem). 
 
 END PROCEDURE.
 

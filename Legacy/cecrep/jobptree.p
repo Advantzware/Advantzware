@@ -130,6 +130,9 @@ DEFINE VARIABLE v-qa-text AS cha FORM "x(30)" INIT "6/05 Job Ticket QF-119 Rev.A
 DEFINE VARIABLE v-start-note AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-end-note AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-i AS INTEGER NO-UNDO.
+DEFINE VARIABLE dSheetPerHours AS DECIMAL NO-UNDO .
+DEFINE VARIABLE iRunHours AS INTEGER NO-UNDO .
+DEFINE VARIABLE dMinute AS DECIMAL NO-UNDO .
 
 {custom/formtext.i NEW}
 {sys/inc/notes.i}
@@ -787,18 +790,21 @@ ASSIGN
          i = 0.
 
       PUT SKIP(3)
-          "<R-3><P8>     <U>Machine Routing:</U>       <U>MR STD</U>    <U>RUN STD</U>"
-          "<P10>"  SKIP.
+          "<R-3><P8>  <U>Machine Routing:</U>    <U>MR STD</U>  <U>RUN STD</U>  <U> #/Hr</U>"
+          "<P8>"  SKIP.
       
       FOR EACH w-m BY w-m.dseq:
        RUN pConvertToHours(INPUT string(w-m.s-hr,"999.99"), OUTPUT cStdHours).
        RUN pConvertToHours(INPUT string(w-m.r-hr,"999.99"), OUTPUT cRunHours).
+       RUN pConvertToHMin(INPUT string(w-m.r-hr,"999.99"), OUTPUT iRunHours, OUTPUT dMinute ).
         ASSIGN
            i = i + 1
            v-letter = substr("UTE",i,1)
            v-lines = v-lines + 1.
+           dSheetPerHours = v-sht-qty / ( iRunHours + (dMinute / 60)) .
+        
         IF w-m.dscr <> "" THEN
-        DISPLAY "<C2>" w-m.dscr FORMAT "x(20)" "<C18>" cStdHours FORMAT "x(6)" "<C25>" cRunHours FORMAT "x(6)"   /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
+        DISPLAY "<C2><P8>" w-m.dscr FORMAT "x(20)"  cStdHours FORMAT "x(6)"  cRunHours FORMAT "x(6)"  dSheetPerHours FORMAT ">>>99.9" "<P10>"  /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
             WITH NO-BOX NO-LABELS FRAME oo1 WIDTH 150 NO-ATTR-SPACE DOWN STREAM-IO.
         
       END.
@@ -1119,7 +1125,7 @@ ASSIGN
                  xeb.company = est.company AND
                  xeb.est-no = est.est-no AND
                  xeb.form-no > 0 NO-LOCK:
-                 PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet FORMAT "->>>>>9" SKIP.
+                 PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet FORMAT "->>>>>9.9<<<" SKIP.
                  v-tmp-line = v-tmp-line + 1.
              END.
              v-tmp-line = v-tmp-line + 1.
@@ -1282,6 +1288,39 @@ PROCEDURE pConvertToHours:
 
 END PROCEDURE.
 
+PROCEDURE pConvertToHMin:
+    DEFINE INPUT PARAMETER ipdHours AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiOoutputHour AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipdOoutputMinute AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE cHours AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iHours AS INTEGER.
+    DEFINE VARIABLE dResult AS DECIMAL.
+    DEFINE VARIABLE cRoundHour AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCheckdec AS INTEGER.
+
+    ASSIGN cHours = STRING(ipdHours) .
+   
+    ASSIGN iHours =  INT( SUBSTRING(cHours,1,3)).
+     
+    cRoundHour = SUBSTRING(cHours,INDEX(cHours,".") + 1).
+
+    ASSIGN dResult = (int(cRoundHour) * 60) / 100.
+    
+    IF INDEX(string(dResult),".") > 0 THEN
+        iCheckdec = int(SUBSTRING(string(dResult),INDEX(string(dResult),".") + 1)).
+    
+    IF INDEX(string(dResult),".") > 0 THEN
+    dResult = INT( SUBSTRING(STRING(dResult),1,LENGTH(string(dResult)) - 1) ) .
+
+    IF iCheckdec GT 0 THEN
+        dResult = dResult + 1 .
+
+    ipiOoutputHour =   iHours .
+    ipdOoutputMinute = dResult .
+
+END PROCEDURE.
+
 PROCEDURE pGetpoNum:
 DEFINE INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 DEFINE INPUT PARAM ip-form-no LIKE po-ordl.s-num NO-UNDO.
@@ -1327,20 +1366,12 @@ FOR EACH job-mat
       AND INDEX("1234BPR",item.mat-type) GT 0
     NO-LOCK,
 
-    FIRST bf-job-hdr OF bf-job NO-LOCK,
+    FIRST bf-job-hdr OF bf-job NO-LOCK
 
-    FIRST reftable
-    WHERE reftable.reftable EQ "ORDERPO"
-      AND reftable.company  EQ bf-job.company
-      AND reftable.loc      EQ STRING(v-ord-no,"9999999999")
-      AND reftable.code     EQ STRING(job-mat.job,"9999999999") +
-                               STRING(job-mat.frm,"9999999999")
-      AND reftable.code2    EQ job-mat.rm-i-no
-    NO-LOCK
-    
     BY job-mat.blank-no
     BY job-mat.rm-i-no:
-  op-po-no = reftable.val[1].
+    ASSIGN 
+        op-po-no = job-mat.po-no.
   LEAVE.
 END.
 

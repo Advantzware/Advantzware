@@ -23,6 +23,8 @@ DEF VAR v-value-head AS LOG NO-UNDO.
         AND oe-ord.ord-no  EQ oe-ordl.ord-no
         AND oe-ord.cust-no GE v-fcust[1]
         AND oe-ord.cust-no LE v-fcust[2]
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+        AND ttCustList.log-fld no-lock) else true)
       NO-LOCK:
       {custom/statusMsg.i "'Processing Order # ' + string(oe-ordl.ord-no)"} 
 /*     RUN oe/cleanrel.p (ROWID(oe-ordl)). */
@@ -96,6 +98,8 @@ DEF VAR v-value-head AS LOG NO-UNDO.
         and oe-relh.deleted    eq no
         and oe-relh.cust-no    ge v-fcust[1]
         and oe-relh.cust-no    le v-fcust[2]
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-relh.cust-no
+        AND ttCustList.log-fld no-lock) else true)
         and oe-relh.ship-id    ge v-fship[1]
         and oe-relh.ship-id    le v-fship[2]
         and oe-relh.rel-date   ge v-fdate[1]

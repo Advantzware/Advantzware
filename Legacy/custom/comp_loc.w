@@ -147,8 +147,9 @@ DEFINE VARIABLE sysdate AS DATE FORMAT "99/99/9999":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 18 BY 2.38.
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 18 BY 2.38
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -190,10 +191,10 @@ DEFINE FRAME DEFAULT-FRAME
           "CANCEL Select Company/Department"
      locations AT ROW 1 COL 46 HELP
           "Select Department"
-     sysdate AT ROW 2.43 COL 90 COLON-ALIGNED HELP
-          "Enter System Date" NO-LABEL
      Btn_OK AT ROW 5.29 COL 92 HELP
           "Select Company/Department"
+     sysdate AT ROW 2.43 COL 90 COLON-ALIGNED HELP
+          "Enter System Date" NO-LABEL
      "System Date" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 1.71 COL 94
      RECT-1 AT ROW 5.05 COL 91 WIDGET-ID 2
@@ -254,8 +255,8 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB companies 1 DEFAULT-FRAME */
-/* BROWSE-TAB locations RECT-1 DEFAULT-FRAME */
+/* BROWSE-TAB companies TEXT-1 DEFAULT-FRAME */
+/* BROWSE-TAB locations Btn_Cancel DEFAULT-FRAME */
 ASSIGN 
        Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".

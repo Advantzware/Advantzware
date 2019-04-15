@@ -77,7 +77,7 @@ ASSIGN
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME BROWSE-1
 
@@ -95,6 +95,7 @@ itemfg.w-score[50] itemfg.d-score[50]
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
       AND itemfg.company EQ ip-company ~
 AND itemfg.part-no NE "" ~
+AND NOT itemfg.stat EQ "I" ~
 AND (itemfg.cust-no EQ ip-cust-no ~
 OR itemfg.cust-no EQ custX ~
 OR itemfg.i-code EQ "S") NO-LOCK ~
@@ -102,6 +103,7 @@ OR itemfg.i-code EQ "S") NO-LOCK ~
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH itemfg WHERE ~{&KEY-PHRASE} ~
       AND itemfg.company EQ ip-company ~
 AND itemfg.part-no NE "" ~
+AND NOT itemfg.stat EQ "I" ~
 AND (itemfg.cust-no EQ ip-cust-no ~
 OR itemfg.cust-no EQ custX ~
 OR itemfg.i-code EQ "S") NO-LOCK ~
@@ -159,7 +161,7 @@ DEFINE VARIABLE rd-sort AS INTEGER INITIAL 1
      SIZE 118 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 129 BY 1.43.
 
 /* Query definitions                                                    */
@@ -242,24 +244,25 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.itemfg.company EQ ip-company
 AND ASI.itemfg.part-no NE """"
+AND NOT ASI.itemfg.stat EQ ""I""
 AND (itemfg.cust-no EQ ip-cust-no
 OR itemfg.cust-no EQ custX
 OR ASI.itemfg.i-code EQ ""S"")"
      _FldNameList[1]   > ASI.itemfg.cust-no
-"itemfg.cust-no" "Customer#" ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" ""
+"itemfg.cust-no" "Customer#" ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.itemfg.part-no
-"itemfg.part-no" "Customer Part#" "x(15)" "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" ""
+"itemfg.part-no" "Customer Part#" "x(15)" "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.itemfg.i-no
-"itemfg.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" ""
+"itemfg.i-no" ? ? "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.itemfg.i-name
      _FldNameList[5]   > ASI.itemfg.style
-"itemfg.style" "Style" ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" ""
+"itemfg.style" "Style" ? "character" ? ? ? ? ? ? no ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.itemfg.l-score[50]
-"itemfg.l-score[50]" "Length" ? "decimal" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" ""
+"itemfg.l-score[50]" "Length" ? "decimal" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.itemfg.w-score[50]
-"itemfg.w-score[50]" "Width" ? "decimal" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" ""
+"itemfg.w-score[50]" "Width" ? "decimal" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.itemfg.d-score[50]
-"itemfg.d-score[50]" "Depth" ? "decimal" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" ""
+"itemfg.d-score[50]" "Depth" ? "decimal" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

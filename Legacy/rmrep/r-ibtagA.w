@@ -1180,7 +1180,9 @@ DEFINE VARIABLE lv-uom  AS CHARACTER NO-UNDO.
             AND rm-bin.loc-bin EQ tt-rm-bin.loc-bin
             AND rm-bin.tag     EQ tt-rm-bin.tag
           USE-INDEX loc-bin NO-ERROR.
-      tt-rm-bin.trans-date = DATE(SUBSTRING(rm-bin.rec_key,1,8)) NO-ERROR.
+      tt-rm-bin.trans-date = IF fg-bin.rec_key BEGINS "2" THEN
+                                DATE(SUBSTR(fg-bin.rec_key,5,4) + SUBSTRING(fg-bin.rec_key,1,4))
+                           ELSE DATE(SUBSTRING(rm-bin.rec_key,1,8)) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN tt-rm-bin.trans-date = TODAY.
     END.
   END.

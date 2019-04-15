@@ -568,7 +568,7 @@ PROCEDURE Output-to-Printer :
   output-name = "Program Master List.rpt".
   IF NOT quick-print THEN
   DO:
-    FONT-TABLE:NUM-ENTRIES = 20.
+    FONT-TABLE:NUM-ENTRIES = 99.
     SYSTEM-DIALOG FONT 10 FIXED-ONLY.
     SYSTEM-DIALOG PRINTER-SETUP UPDATE OKpressed.
     IF NOT OKpressed THEN
@@ -598,7 +598,7 @@ PROCEDURE Output-to-Printer :
   IF RETURN-VALUE = "MISSING" THEN
   RETURN.
 
-  /* Use Progress Print. Always use Font#10 in Registry (set above) */
+  /* Use Progress Print. Always use Font#99 in Registry (set above) */
   RUN 'adecomm/_osprint.p' (INPUT ?, INPUT output-name,
                             INPUT 10, INPUT 0, INPUT 0, INPUT 0, OUTPUT result).
 /*

@@ -81,7 +81,7 @@
                                         @ oe-boll.cases
                   w-qty-case            when w-qty-case ne 0
                                         @ oe-boll.qty-case format "->>>>>>"
-                  v-line-tot            when i eq j  format "->>>>>>"
+                  v-line-tot            when i eq j  format "->>>>>>>>>"
                 
               with frame ln-s.
           down with frame ln-s.
@@ -106,7 +106,7 @@
                   "         P.O.#:" @ oe-boll.i-no
                   report.key-01     @ oe-rel.po-no
                   "Total"           @ itemfg.i-name
-                  v-po-tot          @ v-line-tot format "->>>>>>"
+                  v-po-tot          @ v-line-tot format "->>>>>>>>>"
               with frame ln-s.
           down with frame ln-s.
           

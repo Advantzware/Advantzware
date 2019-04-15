@@ -34,7 +34,7 @@
        "<P10>" SKIP
    "<=#3> Customer ID             Contact"
    "<=#3><R+2> Telephone                                      Fax"
-   "<=#3><R+4> Email:  "     v-email "<FCourier New>".
+   "<=#3><R+4> Email:  "     v-email format "x(42)" "<FCourier New>".
   PUT
    "<=3><R+1> " xquo.cust-no  space(6) xquo.contact
    "<=3><R+3> " cust.area-code + cust.phone format "(999)999-9999"  space(10) cust.fax.

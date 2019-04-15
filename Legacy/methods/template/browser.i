@@ -20,9 +20,9 @@
 
 DEFINE VARIABLE current-rowid AS ROWID NO-UNDO.
 
-&IF "{&IAMWHAT}" = "" &THEN
-DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
-DEFINE VARIABLE find-auto AS LOGICAL NO-UNDO.
+&IF "{&IAMWHAT}" EQ "" &THEN
+DEFINE VARIABLE save-rowid AS ROWID   NO-UNDO.
+DEFINE VARIABLE find-auto  AS LOGICAL NO-UNDO.
 {methods/defines/hndlset.i}
 &ENDIF
 
@@ -31,9 +31,9 @@ DEFINE VARIABLE find-auto AS LOGICAL NO-UNDO.
 {custom/browser2.i}  /* YSK for table joined browser */
 {custom/resizdef.i} /* resizing widgets */
     
-DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
-DEF VAR period_pos AS INTEGER NO-UNDO.
-DEF VAR ll-order-set AS LOG NO-UNDO.
+DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
+DEFINE VARIABLE period_pos   AS INTEGER         NO-UNDO.
+DEFINE VARIABLE ll-order-set AS LOGICAL         NO-UNDO.
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -43,7 +43,8 @@ ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
   v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
-  v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
+  v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,"."))
+  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -361,10 +362,15 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue.i}
+  
+  /* first time lruncuecard is false so runCueCard does not run */
+  /* because browser frame not yet realized, window will call   */
+  /* first instance of runCueCard                               */
+  IF lRunCueCard THEN
+  RUN runCueCard.
 
   IF AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}} THEN
   APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
-
 
 END PROCEDURE.
 
@@ -417,6 +423,25 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE runCueCard Include
+PROCEDURE runCueCard:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {system/runCueCard.i}
+    /* set to yes after run, so local-view procedure can run      */
+    /* local-view cannot run first time because frame no realized */
+    lRunCueCard = YES.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus Include 
 PROCEDURE Set-Focus :

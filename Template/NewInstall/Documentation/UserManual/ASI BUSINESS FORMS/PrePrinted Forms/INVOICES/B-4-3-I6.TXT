@@ -1,0 +1,62 @@
+
+
+
+                                                                       150
+
+                                                                  10/18/00
+
+
+
+
+
+
+
+        Hershey Chocolate Corp               Hershey Chocolate Corp
+           123 Chocolate Blvd                123 Chocolate Lane
+
+           Hershey, PA  19888                Hershey, PA  19888
+
+
+
+
+
+
+     163  COMMON CARRIER      Destination      Net 30
+
+101700              10/17/00     001              HER10              319
+
+
+ 50000 50000     0 HER-1021    RT 5x4x8 Candy Box            400.0000   20000.00
+                               SBS 5 Color Process
+
+  5000  5000     0 HER-1022    RSC 10x10x10                  617.5800    3087.90
+
+                   ** Miscellaneous Items **
+
+                   PLATE
+                               Plate Charge                               300.00
+
+                   PLATE
+                               Plate Charge                               900.00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                               NonTaxable SubTotal      24287.90
+                                               Taxable SubTotal             0.00
+                                               Tax                          0.00
+ Page 1                                        Total                    24287.90
+

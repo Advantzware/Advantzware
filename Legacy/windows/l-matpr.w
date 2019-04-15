@@ -159,7 +159,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(81.39) SKIP(1.84)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Preparation Material Information".
+         TITLE "Material Type".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -319,7 +319,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  &scoped-define key-phrase {&fld-name-1} >= ip-cur-val  
+  /*&scoped-define key-phrase {&fld-name-1} >= ip-cur-val  */
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.

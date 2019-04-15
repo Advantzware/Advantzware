@@ -3424,7 +3424,7 @@ PROCEDURE local-display-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
 
-     IF v-cecscrn-char EQ "Decimal" THEN
+     IF v-cecscrn-char EQ "Decimal" THEN do:
         ASSIGN
            ef.gsh-wid:FORMAT = ">>>9.999999"
            ef.gsh-len:FORMAT = ">>>9.999999"
@@ -3436,8 +3436,8 @@ PROCEDURE local-display-fields :
            ef.trim-l:FORMAT = ">>>9.999999"
            ef.trim-d:FORMAT = ">>>9.999999"
            eb.t-wid:FORMAT = ">>>9.999999"
-           eb.t-len:FORMAT = ">>>9.999999"
-           eb.t-dep:FORMAT = ">>>9.999999"
+           eb.t-len:FORMAT = ">>>>9.999999"
+           eb.t-dep:FORMAT = ">>>>9.999999"
            ef.lsh-wid:FORMAT = ">>9.999999"
            ef.lsh-len:FORMAT = ">>9.999999"
            ef.leaf-w[1]:FORMAT = ">>9.999999"
@@ -3447,7 +3447,27 @@ PROCEDURE local-display-fields :
            ef.leaf-l[1]:FORMAT = ">>9.999999"
            ef.leaf-l[2]:FORMAT = ">>9.999999"
            ef.leaf-l[3]:FORMAT = ">>9.999999"
-           ef.leaf-l[4]:FORMAT = ">>9.999999".
+           ef.leaf-l[4]:FORMAT = ">>9.999999"
+          /* eb.t-sqin:FORMAT = ">>>>>9.99999"*/ .
+
+        IF eb.t-sqin GT 999999  THEN
+            ASSIGN
+            eb.t-sqin:FORMAT = ">>>>>>>>>9.99999" 
+            eb.t-sqin:WIDTH = 17.2 .
+        ELSE ASSIGN eb.t-sqin:FORMAT = ">>>>>9.99999" .
+     END.
+     ELSE do:
+         ASSIGN
+             eb.t-len:FORMAT = ">>>>9.99<<<"
+             eb.t-dep:FORMAT = ">>>>9.99<<<" .
+
+         IF eb.t-sqin GT 999999  THEN
+             ASSIGN
+             eb.t-sqin:FORMAT = ">>>>>>>>>9.999<<" 
+             eb.t-sqin:WIDTH = 17.2 .
+         ELSE
+             ASSIGN eb.t-sqin:FORMAT = ">>>>>9.999<<" .
+     END.
   END.
 
   assign lv-is-foam = no

@@ -45,28 +45,8 @@ for each x-eb
     tt-cust-part.qty-set = tt-cust-part.qty-set + v-part-qty.
 
     IF v-item-no EQ "" THEN
-      IF v-est-fg1 EQ "Hughes" THEN DO:
-        RUN fg/hughesfg.p (ROWID(x-eb), OUTPUT v-item-no).
-        SUBSTR(v-item-no,1,12) = SUBSTR(tmpstore,1,12).
-      END.
-      ELSE
-      IF v-est-fg1 EQ "Fibre" THEN DO:
-        RUN fg/fibre-fg.p (ROWID(x-eb), OUTPUT v-item-no).
-        SUBSTR(v-item-no,1,LENGTH(TRIM(tmpstore)) - 1) =
-            SUBSTR(tmpstore,1,LENGTH(TRIM(tmpstore)) - 1).
-      END.
-      ELSE IF NOT can-do("Manual,None,Hold",v-est-fg1)  THEN
-      do:
-              RUN fg/autofg.p ( ROWID(x-eb),
-                                  v-est-fg1, 
-                                  x-eb.procat,
-                                  IF xest.est-type LE 4 THEN "F" ELSE "C",
-                                  x-eb.cust-no,
-                                  OUTPUT v-item-no).             
-      END.
-      ELSE
-        v-item-no = x-eb.part-no.
-
+        RUN fg/GetFGItemID.p (ROWID(x-eb), tmpstore, OUTPUT v-item-no). 
+     
     IF ll-one-part THEN v-item-no = tmpstore.
 
     find first fg-set

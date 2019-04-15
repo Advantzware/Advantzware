@@ -47,7 +47,7 @@
         PUT "<=5><R13><C47><B><p7> Seal Number(S): </B>" SKIP.
         PUT "<R13.8><C57><FROM><R13.8><C73><LINE>" SKIP.
 
-        PUT "<=5><R15.3><C12><B><p7> THIRD PART FREIGHT CHARGES BILL TO </B>" SKIP.
+        PUT "<=5><R15.3><C12><B><p7> THIRD PARTY FREIGHT CHARGES BILL TO </B>" SKIP.
         PUT "<R18.8><C4.5><B><p7> Special Instructions:  </B> <C19>" v-ship-i[1]   SKIP.
         PUT "<R19.5><C4.5><B><p7> Do Not Stack </B><C19>"  v-ship-i[2]  .
         PUT  "<R20.3><p7><C19>"  v-ship-i[3] .
@@ -90,6 +90,6 @@
             "<R23><C59><FROM><R42><C59><LINE>"
             "<R23><C68><FROM><R42><C68><LINE>"
             
-           "<=6><R23.2><C15><B><p4>Kind of Package, Description of Articles, Special Marks & Exceptions "
-             "<C40><P6> # of Pallets <C47> Weight-lbs <C53> Total Qty <C59> Purchage Order# <C68> Additionel Shipper Info"  SKIP
+           "<=6><R23.2><C6><P6> Job# <C15><B><p4>Kind of Package, Description of Articles, Special Marks & Exceptions "
+             "<C40><P6> # of Pallets <C47> Weight-lbs <C53> Total Qty <C59> Purchase Order# <C68> Additional Shipper Info"  SKIP
            .

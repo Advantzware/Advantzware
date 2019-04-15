@@ -1,0 +1,133 @@
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="MasterPagePo" Codebehind="~/MasterPagepo.master.cs" %>
+<%@ Register Src="footer.ascx" TagName="Footer" TagPrefix="ft" %>
+    <%@ Register Src="header.ascx" TagName="Header" TagPrefix="hd" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<script >
+ function ordernotes()
+    {
+    var NewWindow = window.open("toporder_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");    
+    }
+    function printspec()
+    {
+        var NewWindow = window.open("topspec_list_notes.aspx","OrderListNotes","width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+    
+    function orderhelp() {
+        var NewWindow = window.open("purchase_help.aspx", "OrderHelpWindow", "width=500,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+    function printrep() {
+        var NewWindow = window.open("print_po_report.aspx", "PrintReport", "width=550,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+    function printackrep() {
+        var NewWindow = window.open("topprintorderack_report.aspx", "OrderAcknowledgementReport", "width=800,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+        
+    function topattach() {
+        var NewWindow = window.open("top_attach_po.aspx", "Attachment", "width=650,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+    function select_col() {
+        var NewWindow = window.open("show_avail_order_entry.aspx", "SelectColumnWindow", "width=600,height=500,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+    function select_ticket() {
+        var NewWindow = window.open("ticket_report.aspx", "TicketReports", "width=600,height=550,scrollbars=1,toolbars=1,statusbar=1,resizeable=1");
+    }
+</script>
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head id="Head1" runat="server">
+    <title>Untitled Page</title>
+    <LINK href="include/style.css" type="text/css" rel="stylesheet"/>
+    <LINK href="order_inquiry.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <LINK REL="stylesheet" TYPE="text/css" HREF="include/CalendarControl.css" >
+</head>
+<body>
+    <form id="form1" runat="server">
+    <hd:Header ID="Header1" runat="server" />
+    <table width="100%"><tr><td>
+    <table align="left" border="1" width="75%">
+                <tr align="left" class="topheadcolor">
+                   
+                    <td nowrap width="1px";>
+                        <a href="#" onClick="select_col(); return false"><asp:Image ID="Image5" Width="35px" runat="server" ImageUrl="~/Images/moveCol.ico" /></a>
+                    </td> 
+                    <td nowrap align="left" width="25px";>
+                        <asp:ImageButton ID="img_btn_add" runat="server" Width="35px" ImageUrl="~/Images/add.bmp" OnClick="img_btn_add_click" ToolTip="Add"  />
+                      </td>
+                                        
+                                   
+                                      
+                      <td nowrap width="25px";>
+                        <a href="#" onClick="topattach(); return false"><asp:Image ID="Image4" Width="35px" ToolTip="Attachment" runat="server" ImageUrl="~/Images/clipa.ico" /></a>                        
+                        </td>
+                        <td nowrap width="25px";>
+                        <a href="#" onClick="printrep(); return false"><asp:Image ID="Image1" Width="35px" runat="server" ImageUrl="~/Images/print-u.bmp" /></a>
+                        </td>     
+                      <td nowrap width="25px";>
+                        <a href="#" onClick="ordernotes(); return false"><asp:Image ID="img_btn_notes" Width="35px" ToolTip="Notes" runat="server" ImageUrl="~/Images/edit.ico" /></a>                        
+                        </td>
+                         <td nowrap width="25px";>
+                        <a href="#" onClick="printspec(); return false"><asp:Image ID="Image3" Width="35px" runat="server" ImageUrl="~/Images/dict.ico" /></a>
+                    </td>
+                        <td nowrap width="25px";>
+                        <a href="#" onClick="orderhelp(); return false"><asp:Image ID="img_help" Width="35px" ToolTip="Help" runat="server" ImageUrl="~/Images/help.ico" /></a>
+                        </td>
+                                          
+                      <td nowrap align="left" width="25px";>
+                        <asp:ImageButton ID="img_btn_exit" runat="server" ImageUrl="~/Images/exit-au.bmp" Width="35px" OnClick="img_btn_exit_click" ToolTip="LogOut"  />
+                    </td>
+                     <td align="left" nowrap> &nbsp;</td>
+                </tr>
+      </table></td></tr>
+    <tr><td>
+    <div>
+     <TABLE id="tblTop" cellSpacing="3" align="center" border="0" Width="100%">
+        <TR>
+          
+          <TD align=left nowrap><font size=+0><b>Purchase Order&nbsp;:</b></font></TD>
+          <TD vAlign="middle">
+            <asp:linkbutton id="LinkButton1" runat="server" OnClick="LinkButton1_Click">Back to menu</asp:linkbutton>
+          </TD>
+          <TD align="right"><font size=+0><b>Users&nbsp;&nbsp;</b></font></TD>
+          <TD vAlign="middle" align="left">Logged as&nbsp;
+            <asp:label id="lblUser" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+            <asp:linkbutton id="hlnkLogOut" runat="server" OnClick="hlnkLogOut_Click">Log out</asp:linkbutton>
+                        
+            Company:&nbsp;
+            <asp:label id="lblComp" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+          </TD>
+          
+                    
+          <TD vAlign="middle" width="20">&nbsp;</TD>
+          <td width=30>&nbsp;</td>
+        </TR>
+      </TABLE>  
+  </div>
+     </td></tr></table>
+    <div>
+    <table>
+    <tr style="background-color:Gray;">
+    <td nowrap>
+    <div  id="navigation" style="width:100%">
+		<ul nowrap>
+        <li id="lilist_po" runat="server" >
+    <asp:LinkButton ID="lnklist_po" runat="server" OnClick="list_po_Click">Browse Po</asp:LinkButton><%--<asp:ImageButton ID="list_po" runat="server" ImageUrl="~/Images/BrowsePo_0.jpg"   />--%></li>
+    <li id="liview_po" runat="server" ><asp:LinkButton ID="lnkview_po" runat="server" OnClick="view_po_Click">View Po</asp:LinkButton><%--<asp:ImageButton ID="view_po" runat="server" ImageUrl="~/Images/viewPo_ 0.jpg"  />--%></li>
+    <li id="lilist_item" runat="server" ><asp:LinkButton ID="lnk_item" runat="server" OnClick="lnk_listitem_click">List Item</asp:LinkButton><%--<asp:ImageButton ID="list_item" runat="server" ImageUrl="~/Images/list item 0.jpg"  />--%></li>
+    <li id="liview_item" runat="server" ><asp:LinkButton ID="link_view" runat="server" OnClick="lnk_viewitem_click">View Item</asp:LinkButton><%--<asp:ImageButton ID="view_item" runat="server" ImageUrl="~/Images/view item 0.jpg"  />--%></li>
+    <li id="liview_box" runat="server" ><asp:LinkButton ID="Link_box" runat="server" OnClick="lnk_box_click">Box Design</asp:LinkButton><%--<asp:ImageButton ID="view_box" runat="server" ImageUrl="~/Images/box_design_0.jpg" />--%></li></ul></div>
+    
+    </td>
+    </tr>
+    </table>
+    </div>
+    
+    <div>
+        <asp:contentplaceholder id="ContentPlaceHolder1" runat="server">
+        </asp:contentplaceholder>
+    </div>
+    <ft:Footer ID="Footer1" runat="server" />
+    </form>
+</body>
+</html>

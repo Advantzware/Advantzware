@@ -356,7 +356,7 @@ FOR EACH job-hdr NO-LOCK WHERE job-hdr.company               EQ cocode
          v-job-no2 = job-hdr.job-no2.
 
       IF AVAIL oe-ord THEN
-         IF NOT oe-ctrl.p-fact AND oe-ord.stat EQ "H" THEN 
+         IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN 
             NEXT.
 
       ASSIGN

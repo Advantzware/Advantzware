@@ -62,6 +62,7 @@ DEF VAR v-disp-adder AS CHAR FORMAT "x(18)" NO-UNDO.
 DEF VAR v-vend-i-no AS CHAR FORMAT "x(20)" NO-UNDO.
 DEFINE VARIABLE lv-Format AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE lv-Ord-Qty LIKE po-ordl.ord-qty NO-UNDO.
+DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
@@ -146,7 +147,7 @@ v-dash-line = fill ("_",80).
 IF ip-multi-faxout THEN DO:
 
   DEF VAR lv-file-name AS cha FORM "x(60)" NO-UNDO.
-  OS-CREATE-DIR VALUE("c:\temp\fax") NO-ERROR.
+  OS-CREATE-DIR VALUE("c:\temp\fax").
   INPUT FROM OS-DIR ("C:\temp\fax") NO-ECHO.
   REPEAT:
       SET lv-file-name.  
@@ -316,16 +317,9 @@ v-printline = 0.
             END.
         END.
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "POORDLDEPTH" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ STRING(po-ordl.po-no) AND
-             reftable.code     EQ STRING(po-ordl.LINE)
-             NO-LOCK NO-ERROR.
-
         ASSIGN v-wid = po-ordl.s-wid
                v-len = po-ordl.s-len
-               lv-dep = IF AVAIL reftable THEN DEC(reftable.code2)
+               lv-dep = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep
                         ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN item.case-d
                         ELSE IF AVAIL ITEM THEN ITEM.s-dep
                         ELSE 0
@@ -333,7 +327,6 @@ v-printline = 0.
                v-len2 = po-ordl.s-len
                lv-dep2 = lv-dep.
 
-        RELEASE reftable.
         
         if avail item and item.mat-type eq "B" then do:
             
@@ -429,6 +422,15 @@ v-printline = 0.
            PAGE.
            v-printline = 0.
            {po/po-pchtree.i}
+        END.
+        cMachCode = "" .
+        FOR EACH job-mch WHERE job-mch.company EQ cocode
+            AND job-mch.job-no EQ po-ordl.job-no
+            AND job-mch.job-no2 EQ po-ordl.job-no2
+            AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+
+            ASSIGN cMachCode = job-mch.m-code .
+            LEAVE.
         END.
 
         ASSIGN
@@ -570,6 +572,14 @@ v-printline = 0.
            ASSIGN
               v-line-number = v-line-number + 1
               v-printline = v-printline + 1.
+        END.
+
+        IF cMachCode NE "" then do:
+          PUT cMachCode FORMAT "x(6)" AT 24 SKIP.
+
+          ASSIGN
+          v-line-number = v-line-number + 1
+          v-printline = v-printline + 1.
         END.
     
         IF avail item and item.mat-type NE "B" then

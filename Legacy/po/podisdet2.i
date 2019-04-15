@@ -21,7 +21,7 @@
   END.
     ASSIGN
       v-basis-w = IF AVAIL item THEN item.basis-w ELSE v-basis-w
-      v-dep = IF AVAIL item THEN item.s-dep ELSE v-dep
+      v-dep = IF AVAIL item AND v-dep EQ 0 THEN item.s-dep ELSE v-dep
       v-len = DEC(po-ordl.s-len{2})
       v-wid = DEC(po-ordl.s-wid{2})
       v-ord-qty = DEC(po-ordl.ord-qty{2})

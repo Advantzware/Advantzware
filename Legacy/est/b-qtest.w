@@ -161,7 +161,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 22
       quoteqty.qty FORMAT ">>>,>>>,>>9":U WIDTH 15
       quoteqty.rels COLUMN-LABEL "R" FORMAT ">>9":U WIDTH 4
-      quoteqty.price FORMAT ">>>,>>9.9999":U WIDTH 15
+      quoteqty.price FORMAT ">>,>>>,>>9.9999":U WIDTH 19.2
       quoteqty.uom FORMAT "x(3)":U WIDTH 4
       quoteqty.quote-user COLUMN-LABEL "UserID" FORMAT "X(8)":U
             WIDTH 12
@@ -282,7 +282,7 @@ ASSIGN
      _FldNameList[7]   > asi.quoteqty.rels
 "quoteqty.rels" "R" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.quoteqty.price
-"quoteqty.price" ? ">>>,>>9.9999" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"quoteqty.price" ? ">>,>>>,>>9.9999" "decimal" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.quoteqty.uom
 "quoteqty.uom" ? ? "character" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.quoteqty.quote-user

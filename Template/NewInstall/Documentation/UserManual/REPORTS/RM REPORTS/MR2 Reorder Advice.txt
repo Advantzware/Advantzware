@@ -1,0 +1,20 @@
+
+08/14/07                                      Advanced Box Company V4.10 - Main Office                                    Page   1
+10:58am                                              RM Reordering Advice Report
+
+
+           PROD              REORDER   QUANTITY   QUANTITY   QUANTITY                                         VENDOR
+ITEM #     CAT   UOM LOC       LEVEL    ON HAND  ALLOCATED   ON ORDER       MIN ORDER           VENDOR      ITEM NUMBER
+----------------------------------------------------------------------------------------------------------------------------------
+SBS18-26.5 SBS   LF  MAIN      50.00      0.000      0.000      0.000         100.000 INTERN     SBS18-25
+SBS18-27.5 SBS   LF  MAIN      50.00      0.000      0.000      0.000         100.000 INTERN     SBS18-25
+SBS18-28.5 SBS   LF  MAIN      50.00      0.000      0.000      0.000         100.000 INTERN     SBS18-25
+SBS18-30   SBS   EA  MAIN   10000.00      0.000      0.000      0.000      20,000.000
+SBS1820x39 SBS   EA  MAIN   10000.00      0.000      0.000      0.000      20,000.000
+SBS1825x3  SBS   EA  MAIN   10000.00      0.000      0.000      0.000      20,000.000
+SBS1828x35 SBS   EA  MAIN   10000.00      0.000      0.000      1.000      20,000.000 INTERN     INTS1828x35
+SBS1832x18 SBS   EA  MAIN   10000.00      0.000      0.000      0.000      20,000.000
+SBS1834x42 SBS   EA  MAIN   10000.00      0.000      0.000      0.000      20,000.000
+SBS1850x80 SBS   EA  MAIN   10000.00      0.000      0.000      0.000      20,000.000
+SBS35.5x42 SBS   EA  MAIN       0.00  10000.000  20511.000      0.000           0.000
+

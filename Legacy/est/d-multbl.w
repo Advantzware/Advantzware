@@ -243,7 +243,10 @@ END.
 
 /* ***************************  Main Block  *************************** */
 FIND eb WHERE ROWID(eb) EQ io-rowid NO-LOCK NO-ERROR.
-IF AVAIL eb THEN FIND FIRST est OF eb NO-LOCK.
+IF AVAIL eb THEN FIND FIRST est NO-LOCK WHERE 
+    est.company EQ eb.company AND 
+    est.est-no EQ eb.est-no 
+    NO-ERROR.
 
 IF AVAIL est THEN DO:
   FRAME {&FRAME-NAME}:TITLE = TRIM(FRAME {&FRAME-NAME}:TITLE) + TRIM(est.est-no).

@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 
 DEF BUFFER bf-itemfg FOR itemfg.
 DEF BUFFER b-e-itemfg-vend FOR e-itemfg-vend.
-DEF BUFFER b-reftable-1 FOR reftable.
 
 DEF TEMP-TABLE tmpfile 
     FIELD siz AS DEC
@@ -1087,7 +1086,7 @@ DO:
     ASSIGN
         ls-vend-name = "".
     FIND FIRST vend NO-LOCK WHERE 
-        vend.company = e-itemfg.company AND 
+        vend.company = e-itemfg-vend.company AND 
         vend.vend-no = e-itemfg-vend.vend-no:SCREEN-VALUE 
         NO-ERROR.
     IF AVAIL vend THEN ASSIGN
@@ -1226,16 +1225,7 @@ PROCEDURE delete-est-matrices-proc :
 
                     DELETE b-e-itemfg-vend.
 
-                    FIND FIRST b-reftable-1 WHERE
-                        b-reftable-1.reftable EQ "e-itemfg-vend.std-uom" AND
-                        b-reftable-1.company  EQ b-e-itemfg-vend.company AND
-                        b-reftable-1.loc      EQ "" AND
-                        b-reftable-1.code     EQ b-e-itemfg-vend.est-no AND
-                        b-reftable-1.val[1]   EQ b-e-itemfg-vend.form-no AND
-                        b-reftable-1.val[2]   EQ b-e-itemfg-vend.blank-no
-                        NO-ERROR.
-                    IF AVAIL b-reftable-1 THEN
-                        DELETE b-reftable-1.
+                    
             END.
             SESSION:SET-WAIT-STATE("").
         END.
@@ -1298,11 +1288,18 @@ PROCEDURE local-assign-record :
     IF AVAIL e-itemfg THEN ASSIGN 
         lv-recid = RECID(e-itemfg).
     ELSE DO:
-        CREATE e-itemfg.
-        ASSIGN 
-            e-itemfg.company = g_company
-            e-itemfg.i-no = ""
-            lv-recid = RECID(e-itemfg).
+        FIND FIRST e-itemfg NO-LOCK 
+            WHERE e-itemfg.company EQ g_company
+            AND e-itemfg.i-no EQ ""
+            NO-ERROR.
+        IF NOT AVAILABLE e-itemfg THEN DO:    
+            CREATE e-itemfg.
+            ASSIGN 
+                e-itemfg.company = g_company
+                e-itemfg.i-no = ""
+                .
+        END.    
+        lv-recid = RECID(e-itemfg).
     END.
 
     FIND FIRST e-itemfg WHERE 
@@ -1700,6 +1697,9 @@ PROCEDURE local-update-record :
     DEF VAR char-hdl AS cha NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
+        IF e-itemfg-vend.vend-item:SCREEN-VALUE EQ "?" THEN
+            ASSIGN e-itemfg-vend.vend-item:SCREEN-VALUE = "" .
+
         RUN valid-vend-no (e-itemfg-vend.vend-no:HANDLE) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1975,38 +1975,6 @@ PROCEDURE update-est-matrices-proc :
                         b-e-itemfg-vend.blank-no = eb.blank-no.
                 END.
 
-                FIND FIRST b-reftable-1 WHERE
-                     b-reftable-1.reftable EQ "e-itemfg-vend.std-uom" AND
-                     b-reftable-1.company  EQ b-e-itemfg-vend.company AND
-                     b-reftable-1.loc      EQ "" AND
-                     b-reftable-1.code     EQ b-e-itemfg-vend.est-no AND
-                     b-reftable-1.val[1]   EQ b-e-itemfg-vend.form-no AND
-                     b-reftable-1.val[2]   EQ b-e-itemfg-vend.blank-no
-                     NO-ERROR.
-
-                IF AVAIL b-reftable-1 THEN DO:
-                    FIND FIRST e-itemfg NO-LOCK WHERE
-                        e-itemfg.company EQ b-e-itemfg-vend.company AND
-                        e-itemfg.i-no EQ b-e-itemfg-vend.i-no
-                        NO-ERROR.
-
-                    IF AVAIL e-itemfg THEN DO:
-                        ASSIGN 
-                            b-reftable-1.code2 = e-itemfg.std-uom.
-                        RELEASE e-itemfg.
-                    END.
-
-                    RELEASE b-reftable-1.
-                END.
-                ELSE DO:
-                    CREATE b-reftable-1.
-                    ASSIGN
-                        b-reftable-1.reftable = "e-itemfg-vend.std-uom"
-                        b-reftable-1.company  = b-e-itemfg-vend.company
-                        b-reftable-1.loc      = ""
-                        b-reftable-1.code     = b-e-itemfg-vend.est-no
-                        b-reftable-1.val[1]   = b-e-itemfg-vend.form-no
-                        b-reftable-1.val[2]   = b-e-itemfg-vend.blank-no.
 
                     FIND FIRST e-itemfg NO-LOCK WHERE
                         e-itemfg.company EQ b-e-itemfg-vend.company AND
@@ -2015,12 +1983,12 @@ PROCEDURE update-est-matrices-proc :
 
                     IF AVAIL e-itemfg THEN DO:
                         ASSIGN 
-                            b-reftable-1.code2 = e-itemfg.std-uom.
+                            b-e-itemfg-vend.std-uom = e-itemfg.std-uom.
                         RELEASE e-itemfg.
                     END.
-                    RELEASE b-reftable-1.
-                END.
-                RELEASE b-e-itemfg-vend.
+
+                    
+                                RELEASE b-e-itemfg-vend.
             END.
             SESSION:SET-WAIT-STATE("").
         END.
@@ -2118,13 +2086,13 @@ PROCEDURE valid-vend-no :
     lv-msg = "".
     DO WITH FRAME {&FRAME-NAME}:
         IF ip-focus:SCREEN-VALUE NE "" THEN
-            IF e-itemfg-vend.vend-no EQ "" AND NOT adm-new-record THEN ASSIGN
+            IF e-itemfg-vend.vend-no EQ "" AND NOT adm-new-record THEN
                 lv-msg = "Sorry, you cannot change the 'Blank Vendor', please use copy button".
             ELSE IF NOT CAN-FIND(FIRST vend WHERE 
-                            vend.company EQ e-itemfg.company AND 
-                            vend.vend-no EQ ip-focus:SCREEN-VALUE) THEN ASSIGN
+                            vend.company EQ e-itemfg-vend.company AND 
+                            vend.vend-no EQ ip-focus:SCREEN-VALUE) THEN 
                 lv-msg = TRIM(ip-focus:LABEL) + " " + ip-focus:SCREEN-VALUE +  " is invalid, try help".
-
+        
         IF lv-msg NE "" THEN DO:
             MESSAGE 
                 TRIM(lv-msg)

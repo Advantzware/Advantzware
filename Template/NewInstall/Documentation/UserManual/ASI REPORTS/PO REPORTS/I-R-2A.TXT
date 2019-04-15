@@ -1,0 +1,10 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:09pm                                              SCHEDULED RECEIPTS BY JOB
+
+
+JOB NO     ITEM NO          ITEM NAME                   VEND NO      P/O  P/O DATE  UOM        QTY ORDER     QTY RECEIVED  REQ DATE
+------------------------------------------------------------------------------------------------------------------------------------
+   316- 0  SBS-18           SBS 18 Pt Board             2             93  10/11/00  TON             4.45             2.50  10/12/00
+   319- 0  200 C            200 C Sheets                2             95  10/17/00  EA          5,000.00             0.00  10/18/00
+

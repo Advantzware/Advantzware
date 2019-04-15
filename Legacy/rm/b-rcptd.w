@@ -141,17 +141,17 @@ END.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rctd.r-no rm-rctd.rct-date ~
-rm-rctd.po-no rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num rm-rctd.b-num ~
-rm-rctd.i-no rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
+rm-rctd.po-no rm-rctd.po-line rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num  ~
+rm-rctd.b-num rm-rctd.i-no rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
 rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom ~
 calc-ext-cost() @ ext-cost display-dimension('W') @ lv-po-wid ~
 display-dimension('L') @ lv-po-len display-setup() @ lv-setup ~
 display-adder() @ lv-adder display-msf() @ lv-msf rm-rctd.user-id ~
-rm-rctd.tag2 
+rm-rctd.tag2 rm-rctd.enteredBy rm-rctd.enteredDT 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.rct-date ~
 rm-rctd.po-no rm-rctd.job-no rm-rctd.job-no2 rm-rctd.s-num rm-rctd.b-num ~
 rm-rctd.i-no rm-rctd.i-name rm-rctd.loc rm-rctd.loc-bin rm-rctd.tag ~
-rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.tag2 
+rm-rctd.qty rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom rm-rctd.tag2 rm-rctd.po-line 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
@@ -169,7 +169,7 @@ rm-rctd.rita-code = "R" NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 RECT-5 Browser-Table browse-order ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 RECT-5 browse-order ~
 auto_find Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
@@ -291,6 +291,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
+      rm-rctd.po-line COLUMN-LABEL "PO Ln#" FORMAT ">>9":U
       rm-rctd.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
       rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
@@ -319,6 +320,8 @@ DEFINE BROWSE Browser-Table
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
       rm-rctd.tag2 COLUMN-LABEL "Cert/Lot/Mill#" FORMAT "x(30)":U
             WIDTH 40
+      rm-rctd.enteredBy FORMAT "x(12)":U
+      rm-rctd.enteredDT FORMAT "99/99/9999 HH:MM:SS.SSS":U
   ENABLE
       rm-rctd.rct-date
       rm-rctd.po-no
@@ -417,7 +420,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table RECT-5 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -443,53 +446,57 @@ ASSIGN
      _Where[1]         = "rm-rctd.company = cocode and
 rm-rctd.rita-code = ""R"""
      _FldNameList[1]   > asi.rm-rctd.r-no
-"rm-rctd.r-no" "Seq#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"r-no" "Seq#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.rm-rctd.rct-date
-"rm-rctd.rct-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rct-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.po-no
-"rm-rctd.po-no" ? "x(6)" "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > asi.rm-rctd.job-no
-"rm-rctd.job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > asi.rm-rctd.job-no2
-"rm-rctd.job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > asi.rm-rctd.s-num
-"rm-rctd.s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > asi.rm-rctd.b-num
-"rm-rctd.b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > asi.rm-rctd.i-no
-"rm-rctd.i-no" "Item" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > asi.rm-rctd.i-name
-"rm-rctd.i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > asi.rm-rctd.loc
-"rm-rctd.loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > asi.rm-rctd.loc-bin
-"rm-rctd.loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > asi.rm-rctd.tag
-"rm-rctd.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > asi.rm-rctd.qty
-"rm-rctd.qty" "Qty" "->>>,>>>,>>9.9<<" "decimal" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > asi.rm-rctd.pur-uom
-"rm-rctd.pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > asi.rm-rctd.cost
-"rm-rctd.cost" "Cost" "->,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > asi.rm-rctd.cost-uom
-"rm-rctd.cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > "_<CALC>"
-"calc-ext-cost() @ ext-cost" "Ext.Amount" "->,>>>,>>9.99<<" ? 14 ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-no" ? "x(6)" "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.rm-rctd.po-line
+"po-line" "PO Ln#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > asi.rm-rctd.job-no
+"job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > asi.rm-rctd.job-no2
+"job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > asi.rm-rctd.s-num
+"s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > asi.rm-rctd.b-num
+"b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > asi.rm-rctd.i-no
+"i-no" "Item" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > asi.rm-rctd.i-name
+"i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > asi.rm-rctd.loc
+"loc" "Whse" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > asi.rm-rctd.loc-bin
+"loc-bin" "Bin" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > asi.rm-rctd.tag
+"tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > asi.rm-rctd.qty
+"qty" "Qty" "->>>,>>>,>>9.9<<" "decimal" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > asi.rm-rctd.pur-uom
+"pur-uom" "PUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[16]   > asi.rm-rctd.cost
+"cost" "Cost" "->,>>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[17]   > asi.rm-rctd.cost-uom
+"cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
-"display-dimension('W') @ lv-po-wid" "Width" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"calc-ext-cost() @ ext-cost" "Ext.Amount" "->,>>>,>>9.99<<" ? 14 ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
-"display-dimension('L') @ lv-po-len" "Length" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-dimension('W') @ lv-po-wid" "Width" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
-"display-setup() @ lv-setup" "Setup" ">>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-dimension('L') @ lv-po-len" "Length" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
-"display-adder() @ lv-adder" "Adder Cost/MSF" "-z,zz9.9999" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-setup() @ lv-setup" "Setup" ">>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
+"display-adder() @ lv-adder" "Adder Cost/MSF" "-z,zz9.9999" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[23]   > "_<CALC>"
 "display-msf() @ lv-msf" "MSF" "->>>>,>>9.999" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > asi.rm-rctd.user-id
-"rm-rctd.user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > asi.rm-rctd.tag2
-"rm-rctd.tag2" "Cert/Lot/Mill#" "x(30)" "character" ? ? ? ? ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[24]   > asi.rm-rctd.user-id
+"user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[25]   > asi.rm-rctd.tag2
+"tag2" "Cert/Lot/Mill#" "x(30)" "character" ? ? ? ? ? ? yes ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[26]   = asi.rm-rctd.enteredBy
+     _FldNameList[27]   = asi.rm-rctd.enteredDT
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -554,6 +561,7 @@ DO:
                             rm-rctd.i-name:screen-value IN BROWSE {&browse-name}  = ENTRY(3,char-val)
                             rm-rctd.job-no:screen-value IN BROWSE {&browse-name}  = ENTRY(4,char-val)
                             rm-rctd.job-no2:screen-value IN BROWSE {&browse-name} = ENTRY(5,char-val)
+                            rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(6,char-val)
                             .
                         FIND po-ordl WHERE po-ordl.company = rm-rctd.company AND
                             po-ordl.po-no = integer(ENTRY(1,char-val)) AND
@@ -625,7 +633,8 @@ DO:
                                 lv-focus:SCREEN-VALUE                                 = po-ordl.i-no
                                 rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.i-name
                                 rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.job-no
-                                rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.job-no2).
+                                rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.job-no2)
+                                rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.LINE).
                             RUN update-from-po-line.
                         END.
                     END.
@@ -1195,7 +1204,7 @@ DO:
         DO:
             IF {&self-name}:MODIFIED IN BROWSE {&browse-name} THEN DO:
             IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
-            DO:
+            DO:    
                 RUN find-exact-po.
 
                 FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
@@ -1373,6 +1382,15 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.qty IN BROWSE Browser-Table /* Qty */
 DO:
+         IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+            DO:
+             RUN find-exact-po.
+             FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
+
+             IF AVAILABLE po-ordl THEN 
+                 lv-rowid = ROWID(po-ordl).
+            END.
+
         IF lv-entry-qty NE DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
             RUN po-cost.
 
@@ -1854,6 +1872,7 @@ PROCEDURE create-rcptd :
 
         ASSIGN              
             rm-rctd.po-no    = STRING(po-ordl.po-no)
+            rm-rctd.po-line  = po-ordl.LINE
             rm-rctd.i-no     = po-ordl.i-no
             rm-rctd.i-name   = po-ordl.i-name
             rm-rctd.job-no   = po-ordl.job-no
@@ -2009,16 +2028,18 @@ PROCEDURE display-item :
     DO WITH FRAME {&FRAME-NAME}:
         IF AVAILABLE item THEN 
         DO:
-            ASSIGN
-                rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name
+            ASSIGN                
                 rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = item.cons-uom.
+                
+           /* Description may be overridden on PO */
+              rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}  = item.i-name       .         
             IF v-bin NE "user entered" THEN
             ASSIGN
                 rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = item.loc
                 rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = item.loc-bin.
 
             IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN
-                RUN update-from-po-line.
+               IF AVAILABLE po-ordl THEN  RUN update-from-po-line.
             ELSE
                 IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" OR
                     item.i-code EQ "R"                                         THEN 
@@ -2135,6 +2156,7 @@ PROCEDURE display-po-info :
             rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(po-ordl.b-num)
             rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name}  = po-ordl.pr-qty-uom
             rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom
+            rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(po-ordl.LINE)
             lv-setup                                               = po-ordl.setup
             ll-warned                                              = NO.
 
@@ -2292,6 +2314,19 @@ PROCEDURE find-exact-po :
     ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
+        /* A specific item name may have been selected so find with it first */
+        FIND FIRST po-ordl NO-LOCK
+            WHERE po-ordl.company   EQ rm-rctd.company
+            AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.i-name      EQ rm-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.item-type EQ YES
+            USE-INDEX item-ordno NO-ERROR.
+        IF NOT AVAILABLE po-ordl THEN 
         FIND FIRST po-ordl NO-LOCK
             WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -2301,7 +2336,7 @@ PROCEDURE find-exact-po :
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.i-no      EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.item-type EQ YES
-            USE-INDEX item-ordno NO-ERROR.
+            USE-INDEX item-ordno NO-ERROR.            
         lv-rowid = IF AVAILABLE po-ordl THEN ROWID(po-ordl) ELSE ?.
     END.
 
@@ -2371,6 +2406,8 @@ PROCEDURE get-matrix :
                     v-len = po-ordl.s-len
                     v-wid = po-ordl.s-wid
                     v-bwt = 0
+                    v-po-cuom = po-ordl.pr-uom
+                    v-po-cost = po-ordl.cost
                     dOverPer = po-ordl.over-pct
                     dPoQty = po-ordl.ord-qty  . 
                     dConsumQty =  dPoQty +  (dPoQty  * ( dOverPer / 100) ) .
@@ -2454,17 +2491,19 @@ PROCEDURE get-matrix :
 
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
                            lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
-           
-                IF lRMOverrunCost THEN do:
+                 
+                 IF v-po-cuom EQ "L" THEN
+                    ext-cost = ABSOLUTE(v-po-cost) .
+                ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
-                       ext-cost = ROUND(dConsumQty * lv-out-cost,2).
+                       ext-cost = ABSOLUTE(ROUND(dConsumQty * lv-out-cost,2)).
                    END.
                    ELSE DO:
-                    ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                    ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                    END.
                 END.
                 ELSE do:
-                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                     ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 END.   
         END.
 
@@ -2570,14 +2609,15 @@ PROCEDURE get-matrix :
                                          input v-dep,
                                          DEC(rm-rctd.qty:screen-value in browse {&browse-name}),
                                          output lv-out-qty).*/
-                 
+              
                 /* convert cost */
                 IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
                     lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
                 ELSE
                     /* gdm - 07210901 */
-                    IF v-po-cuom EQ "L" THEN
+                    IF v-po-cuom EQ "L" THEN do:
                         lv-out-cost = DEC(v-po-cost) / lv-out-qty .
+                    END.
                     ELSE
                         IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom THEN
                             lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -2598,7 +2638,7 @@ PROCEDURE get-matrix :
               
                   lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                 END. */
-
+     
                 IF lv-out-qty  EQ ? THEN lv-out-qty  = 0.
                 IF lv-out-cost EQ ? THEN lv-out-cost = 0.
 
@@ -2608,20 +2648,22 @@ PROCEDURE get-matrix :
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
                            lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                
-                
-                IF lRMOverrunCost THEN do:
+                IF v-po-cuom EQ "L" THEN
+                    ext-cost = ABSOLUTE(v-po-cost) .
+                ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
                       
-                       ext-cost = ROUND(dConsumQty * lv-out-cost,2).
+                       ext-cost = ABSOLUTE(ROUND(dConsumQty * lv-out-cost,2)).
                    END.
                    ELSE DO:
-                    ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                    ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                    END.
                 END.
                 ELSE do:
-                     ext-cost = ROUND(lv-out-qty * lv-out-cost,2).
+                     ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 END.   
-
+   
+                  ASSIGN lv-out-cost = ABSOLUTE(lv-out-cost) .
                 ASSIGN
                     rm-rctd.cost:SCREEN-VALUE     = STRING(lv-out-cost)
                     rm-rctd.cost-uom:SCREEN-VALUE = lv-cost-uom
@@ -2701,11 +2743,14 @@ PROCEDURE local-assign-record :
     /* Code placed here will execute PRIOR to standard behavior. */
     ASSIGN
         v-copy-mode       = NO
-        v-copy-mode-dec-1 = NO.
+        v-copy-mode-dec-1 = NO
+        rm-rctd.enteredBy:SCREEN-VALUE IN BROWSE {&browse-name} = USERID("asi")
+        rm-rctd.enteredDT:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DATETIME(TODAY, MTIME),"99/99/99") 
+        .
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
+    
 /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
@@ -3236,7 +3281,7 @@ PROCEDURE po-cost :
             INPUT-OUTPUT lv-cost).
 
         RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
-
+        ASSIGN lv-cost = ABSOLUTE(lv-cost) .
         rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
     END.
 

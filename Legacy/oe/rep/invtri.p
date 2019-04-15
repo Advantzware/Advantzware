@@ -451,7 +451,7 @@ ELSE lv-comp-color = "BLACK".
               v-po-no = inv-line.po-no.
 
            PUT v-po-no
-               v-ship-qty  format ">>>>>9" SPACE
+               v-ship-qty  format "->>>>9" SPACE
                inv-line.ord-no FORMAT ">>>>>9" SPACE(1)
                v-i-no  format "x(15)" SPACE(1)
                v-i-dscr  format "x(24)".

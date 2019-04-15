@@ -62,18 +62,16 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE CheckPriceHold:
+PROCEDURE CheckPriceHoldForCustShip:
     /*------------------------------------------------------------------------------
      Purpose: Checks Price Hold for passed criteria.  Adds record to ttPriceHold table.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipID   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceHoldActive AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE cPriceHoldSetting     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPriceHoldSet         AS LOGICAL   NO-UNDO.
@@ -81,29 +79,13 @@ PROCEDURE CheckPriceHold:
     DEFINE VARIABLE lQtyMatch             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lEffectiveDateAge     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iEffectiveDateAgeDays AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lQtyQuoted            AS LOGICAL   NO-UNDO.
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
 
-    RUN pGetPriceHoldCriteria(ipcCompany, 
-        OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
-    IF NOT lPriceHoldSet THEN 
-    DO:
-        ASSIGN 
-            oplPriceHold       = NO
-            opcPriceHoldReason = "OEPriceHold Not Activated"
-            .
-    END.
-    ELSE 
-    DO:
-        EMPTY TEMP-TABLE ttPriceHold.
-        RUN pAddPriceHold(0, ipcCompany, ipcFGItemID, ipcCustID, ipcShipID, ipdQuantity,
-            lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays). 
-        FIND FIRST ttPriceHold NO-LOCK NO-ERROR.
-        IF AVAILABLE ttPriceHold THEN 
-            ASSIGN
-                oplPriceHold       = ttPriceHold.lPriceHold
-                opcPriceHoldReason = ttPriceHold.cPriceHoldReason
-                .
-    END.
-
+    
+    RUN pGetPriceHoldCriteria(ipcCompany,ipcCustID,ipcShipID, OUTPUT oplPriceHoldActive, 
+        OUTPUT oplPriceHold, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays, OUTPUT lQtyQuoted).
+            
 END PROCEDURE.
 
 PROCEDURE CheckPriceHoldForOrder:
@@ -122,19 +104,21 @@ PROCEDURE CheckPriceHoldForOrder:
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
     DEFINE VARIABLE cPriceHoldSetting     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPriceHoldActive      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPriceHoldSet         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lQtyInRange           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lQtyMatch             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lEffectiveDateAge     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iEffectiveDateAgeDays AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lQtyQuoted            AS LOGICAL   NO-UNDO.
  
     FIND FIRST bf-oe-ord NO-LOCK 
         WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
         NO-ERROR.
 
-    RUN pGetPriceHoldCriteria(bf-oe-ord.company, 
-        OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays).
-    IF NOT lPriceHoldSet THEN 
+    RUN pGetPriceHoldCriteria(bf-oe-ord.company,bf-oe-ord.cust-no,bf-oe-ord.ship-id, OUTPUT lPriceHoldActive,
+        OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays, OUTPUT lQtyQuoted).
+    IF NOT lPriceHoldActive THEN 
     DO:
         ASSIGN 
             oplPriceHold       = NO
@@ -142,12 +126,21 @@ PROCEDURE CheckPriceHoldForOrder:
             .
         RETURN.
     END.
+    IF NOT lPriceHoldSet THEN 
+    DO:
+        ASSIGN 
+            oplPriceHold       = NO
+            opcPriceHoldReason = "OEPriceHold Not Configured for Customer & Ship"
+            .
+        RETURN.
+    END.
     IF AVAILABLE bf-oe-ord THEN 
     DO:
         EMPTY TEMP-TABLE ttPriceHold.
-        FOR EACH bf-oe-ordl OF bf-oe-ord NO-LOCK:
-            RUN pAddPriceHold(ROWID(bf-oe-ordl), bf-oe-ordl.company, bf-oe-ordl.i-no, bf-oe-ordl.cust-no, bf-oe-ordl.ship-id, bf-oe-ordl.qty,
-                lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays).
+        FOR EACH bf-oe-ordl OF bf-oe-ord WHERE bf-oe-ordl.i-no NE "" NO-LOCK:
+
+            RUN pAddPriceHold(ROWID(bf-oe-ordl), bf-oe-ordl.company, bf-oe-ordl.est-no, bf-oe-ordl.i-no, bf-oe-ordl.cust-no, bf-oe-ordl.ship-id, bf-oe-ordl.qty,
+                lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays, lQtyQuoted).
         END.
     END.
     FIND FIRST ttPriceHold NO-LOCK
@@ -484,7 +477,7 @@ PROCEDURE GetPriceMatrixPrice:
     
     /*Set the default starting level to the customer specific starting level*/
     IF AVAILABLE bf-cust THEN 
-        iLevelStart = MINIMUM(1, bf-cust.cust-level).
+        iLevelStart = MAXIMUM(1, bf-cust.cust-level).
     ELSE 
         iLevelStart = 1.
     
@@ -505,9 +498,13 @@ PROCEDURE GetPriceMatrixPrice:
         ELSE 
             iLevel = iLevelStart.
     END.
-            
-    RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
-
+    IF oplQtyWithinRange THEN
+        RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
+    ELSE 
+        ASSIGN 
+            oplMatrixMatchFound  = NO
+            opcMatrixMatchDetail = opcMatrixMatchDetail + " but price level " + STRING(iLevel) + " not valid."
+            .
 
 END PROCEDURE.
 
@@ -565,7 +562,8 @@ PROCEDURE GetPriceTotal:
     IF ipdQuantity EQ 0 THEN
         opdPriceTotal = 0.
     CASE ipcPriceUOM:
-        WHEN "LOT" THEN 
+        WHEN "LOT" OR 
+        WHEN "L" THEN 
             opdPriceTotal = ipdPrice * IF ipdQuantity LT 0 THEN -1 ELSE 1.
         WHEN "CS" THEN 
             DO:
@@ -648,6 +646,7 @@ PROCEDURE pAddPriceHold PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriLine AS ROWID NO-UNDO.
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
@@ -656,10 +655,13 @@ PROCEDURE pAddPriceHold PRIVATE:
     DEFINE INPUT PARAMETER iplQuantityInRange AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplEffectiveDateAge AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipiEffectiveDateAgeDays AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplQuantityQuoted AS LOGICAL NO-UNDO.
 
     DEFINE BUFFER bf-itemfg   FOR itemfg.
     DEFINE BUFFER bf-cust     FOR cust.
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    DEFINE VARIABLE lFoundQuoteForQty AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFoundAnyQuote AS LOGICAL NO-UNDO.
 
     CREATE ttPriceHold.
     ASSIGN 
@@ -669,62 +671,84 @@ PROCEDURE pAddPriceHold PRIVATE:
         ttPriceHold.cShipID   = ipcShipID
         ttPriceHold.dQuantity = ipdQuantity
         .
-
-                        
+                       
     RUN pSetBuffers(ipcCompany, ipcFGItemID, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).            
-    /*use internal procedure to find the matching matrix*/
-    IF bf-itemfg.i-code EQ "S" THEN  
-        RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
-            OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
-    ELSE 
+    IF NOT AVAILABLE bf-itemfg THEN  
     DO:
         ASSIGN 
-            ttPriceHold.lPriceHold       = NO
-            ttPriceHold.cPriceHoldDetail = ttPriceHold.cFGItemID + " ignored since it is Custom Box and not Stock"
-            ttPriceHold.cPriceHoldReason = "Not a Stock item"
+            ttPriceHold.lPriceHold       = YES
+            ttPriceHold.cPriceHoldDetail = ttPriceHold.cFGItemID + " is invalid"
+            ttPriceHold.cPriceHoldReason = "Invalid FG Item"
             .
         RETURN.
-    END.
-    IF NOT ttPriceHold.lMatrixMatch OR  NOT AVAILABLE bf-oe-prmtx THEN 
-    DO:
-        ASSIGN 
-            ttPriceHold.lPriceHold       = YES
-            ttPriceHold.cPriceHoldDetail = ttPriceHold.cMatrixMatch
-            ttPriceHold.cPriceHoldReason = "No matrix found".
-        RETURN.           
-    END.
-    IF AVAILABLE bf-oe-prmtx THEN
-        ASSIGN 
-            ttPriceHold.dtEffectiveDate = bf-oe-prmtx.eff-date.
+    END.           
+    IF ipcEstNo EQ "" THEN 
+    DO:  /*use internal procedure to find the matching matrix*/  
+        RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, 
+            OUTPUT ttPriceHold.lMatrixMatch, OUTPUT ttPriceHold.cMatrixMatch).
+        IF NOT ttPriceHold.lMatrixMatch OR  NOT AVAILABLE bf-oe-prmtx THEN 
+        DO:
+            ASSIGN 
+                ttPriceHold.lPriceHold       = YES
+                ttPriceHold.cPriceHoldDetail = ttPriceHold.cMatrixMatch
+                ttPriceHold.cPriceHoldReason = "No matrix found".
+            RETURN.           
+        END.
         
-    /*Test Effective Date Age if activated*/
-    IF NOT ttPriceHold.lPriceHold AND iplEffectiveDateAge AND (TODAY - bf-oe-prmtx.eff-date) GT ipiEffectiveDateAgeDays THEN 
-    DO:
-        ASSIGN 
-            ttPriceHold.lPriceHold           = YES
-            ttPriceHold.lEffectiveDateTooOld = YES 
-            ttPriceHold.cPriceHoldDetail     = "Effective date of " + STRING(bf-oe-prmtx.eff-date,"99/99/9999") + " older than " + STRING(ipiEffectiveDateAgeDays) + " days"
-            ttPriceHold.cPriceHoldReason     = "Eff. date too old".           .
-    END. 
-    /*Test Price Level if activated*/
-    IF NOT ttPriceHold.lPriceHold THEN 
-        RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT ttPriceHold.iQuantityLevel, OUTPUT ttPriceHold.lQuantityMatch).
-    IF NOT ttPriceHold.lPriceHold AND iplQuantityMatch AND NOT ttPriceHold.lQuantityMatch THEN 
-    DO:
-        ASSIGN 
-            ttPriceHold.lPriceHold       = YES
-            ttPriceHold.cPriceHoldDetail = "No distinct level found for quantity of " + STRING(ipdQuantity)  
-            ttPriceHold.cPriceHoldReason = "Quantity not matched".
-    END.
-    IF NOT ttPriceHold.lPriceHold AND iplQuantityInRange AND ttPriceHold.iQuantityLevel EQ 0 THEN 
-    DO:
-        ASSIGN 
-            ttPriceHold.lPriceHold          = YES
-            ttPriceHold.lQuantityOutOfRange = YES 
-            ttPriceHold.cPriceHoldDetail    = "Quantity of " + STRING(ipdQuantity) + " out of range of price matrix levels"
-            ttPriceHold.cPriceHoldReason    = "Quantity not in range".
-    END.     
+        /*Test Effective Date Age if activated*/
+        ttPriceHold.dtEffectiveDate = bf-oe-prmtx.eff-date.
+        IF NOT ttPriceHold.lPriceHold AND iplEffectiveDateAge AND (TODAY - bf-oe-prmtx.eff-date) GT ipiEffectiveDateAgeDays THEN 
+        DO:
+            ASSIGN 
+                ttPriceHold.lPriceHold           = YES
+                ttPriceHold.lEffectiveDateTooOld = YES 
+                ttPriceHold.cPriceHoldDetail     = "Price found in Matrix but Effective date of " + STRING(bf-oe-prmtx.eff-date,"99/99/9999") + " older than " + STRING(ipiEffectiveDateAgeDays) + " days"
+                ttPriceHold.cPriceHoldReason     = "Eff. date too old".           .
+        END. 
         
+        /*Test Price Level if activated*/
+        IF NOT ttPriceHold.lPriceHold THEN 
+            RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT ttPriceHold.iQuantityLevel, OUTPUT ttPriceHold.lQuantityMatch).
+            
+        IF NOT ttPriceHold.lPriceHold AND iplQuantityMatch AND NOT ttPriceHold.lQuantityMatch THEN 
+        DO:
+            ASSIGN 
+                ttPriceHold.lPriceHold       = YES
+                ttPriceHold.cPriceHoldDetail = "Price found in Matrix but no distinct price level found for quantity of " + STRING(ipdQuantity)  
+                ttPriceHold.cPriceHoldReason = "Quantity not matched".
+        END.
+        
+        IF NOT ttPriceHold.lPriceHold AND iplQuantityInRange AND ttPriceHold.iQuantityLevel EQ 0 THEN 
+        DO:
+            ASSIGN 
+                ttPriceHold.lPriceHold          = YES
+                ttPriceHold.lQuantityOutOfRange = YES 
+                ttPriceHold.cPriceHoldDetail    = "Quantity of " + STRING(ipdQuantity) + " out of range of price matrix levels"
+                ttPriceHold.cPriceHoldReason    = "Quantity not in range".
+        END.     
+            
+    END.
+    ELSE /*QtyQuoted for custom items/estimated & quoted*/
+    DO:
+        IF iplQuantityQuoted THEN 
+        DO:
+            RUN pFindQuoteForQuantity(ipcCompany, ipcEstNo, ipcFGItemID, bf-itemfg.part-no, ipdQuantity, OUTPUT lFoundAnyQuote, OUTPUT lFoundQuoteForQty).
+            IF NOT lFoundAnyQuote THEN DO: 
+                ASSIGN
+                    ttPriceHold.lPriceHold       = YES
+                    ttPriceHold.cPriceHoldDetail = "Estimate # " + ipcEstNo + " does not have a valid quote available."
+                    ttPriceHold.cPriceHoldReason = "No Quote for Estimate"
+                    .
+            END.                    
+            ELSE IF NOT lFoundQuoteForQty THEN 
+                ASSIGN 
+                    ttPriceHold.lPriceHold       = YES
+                    ttPriceHold.cPriceHoldDetail = "Not quote found for Estimate # " + ipcEstNo + ", Item # " + ttPriceHold.cFGItemID + " with Quantity " + STRING(ipdQuantity)
+                    ttPriceHold.cPriceHoldReason = "No Quote for Quantity"
+                    .
+        END.
+    END.
+    
 
 END PROCEDURE.
 
@@ -780,6 +804,45 @@ PROCEDURE pBuildLineTable PRIVATE:
         DO:
             {oe/PriceProcsLineBuilder.i &HeaderTable="inv-head" &LineTable="inv-line" &LineQuantity="inv-qty"}
         END.     
+
+END PROCEDURE.
+
+PROCEDURE pFindQuoteForQuantity PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given an item and quantity, validate that a quote exists
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAnyQuoteFound AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplQuoteFoundForQuantity AS LOGICAL NO-UNDO.
+
+    FOR EACH quotehd NO-LOCK 
+        WHERE quotehd.company EQ ipcCompany
+        AND quotehd.est-no EQ ipcEstNo
+        AND quotehd.quo-date LE TODAY 
+        AND (quotehd.expireDate GT TODAY OR quotehd.expireDate EQ ?) 
+        ,
+        EACH quoteitm OF quotehd NO-LOCK 
+        WHERE quoteitm.company EQ quotehd.company
+        AND (quoteitm.i-no EQ ipcFGItemID
+        OR quoteitm.part-no EQ ipcPartNo),
+        EACH quoteqty NO-LOCK 
+        WHERE quoteqty.company EQ quoteitm.company
+        AND quoteqty.line EQ quoteitm.line
+        AND quoteqty.loc EQ quoteitm.loc
+        AND quoteqty.q-no EQ quoteitm.q-no
+        :
+        oplAnyQuoteFound = YES.
+        IF ipdQuantity EQ quoteqty.qty THEN 
+        DO:
+            oplQuoteFoundForQuantity = YES.
+            RETURN.
+        END.
+    END.   
 
 END PROCEDURE.
 
@@ -932,15 +995,20 @@ PROCEDURE pGetPriceAtLevel PRIVATE:
     DEFINE OUTPUT PARAMETER opdPrice AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcUom AS CHARACTER NO-UNDO.
 
-    IF ipbf-oe-prmtx.meth THEN
-        ASSIGN 
-            opdPrice = ipbf-oe-prmtx.price[ipiLevel]
-            opcUom   = ipbf-oe-prmtx.uom[ipiLevel].
-    ELSE /*discount method - discount off of item price*/
-        ASSIGN 
-            opdPrice = ipdItemSellPrice - 
-            ROUND((ipdItemSellPrice * ipbf-oe-prmtx.discount[ipiLevel]) / 100, 2)
-            opcUom   = ipcItemSellPriceUom.
+    IF ipiLevel GT 0 AND ipiLevel LE EXTENT(ipbf-oe-prmtx.price) THEN 
+    DO:  /*31620 - protect against a level request out of range of the array*/
+           
+        IF ipbf-oe-prmtx.meth THEN
+            ASSIGN 
+                opdPrice = ipbf-oe-prmtx.price[ipiLevel]
+                opcUom   = ipbf-oe-prmtx.uom[ipiLevel].
+        ELSE /*discount method - discount off of item price*/
+            ASSIGN 
+                opdPrice = ipdItemSellPrice - 
+                ROUND((ipdItemSellPrice * ipbf-oe-prmtx.discount[ipiLevel]) / 100, 2)
+                opcUom   = ipcItemSellPriceUom.
+            
+    END.
 
 END PROCEDURE.
 
@@ -1000,7 +1068,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     IF ipbf-itemfg.i-code NE "S" THEN 
     DO:
         ASSIGN 
-            opcMatchDetail = "FG Item is not 'Stock'"
+            opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
             oplMatchFound  = NO 
             .
         RETURN.
@@ -1026,13 +1094,16 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         AND (opbf-oe-prmtx.eff-date LE TODAY)
         /*must not be expired*/
         AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+        /* Can't be all blank */
+        AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
+        AND opbf-oe-prmtx.custShipID EQ "")
     /*Sort the resulting data set so that actual matches take priority over blank matches*/
-        BY opbf-oe-prmtx.eff-date DESCENDING 
         BY opbf-oe-prmtx.i-no DESCENDING
         BY opbf-oe-prmtx.cust-no DESCENDING 
         BY opbf-oe-prmtx.procat DESCENDING 
         BY opbf-oe-prmtx.custype DESCENDING 
         BY opbf-oe-prmtx.custShipID DESCENDING
+        BY opbf-oe-prmtx.eff-date DESCENDING 
         :
         LEAVE.  /*After first/best match, leave*/
     END.
@@ -1102,10 +1173,10 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
         oplQtyDistinctMatch = NO 
         ipiLevelStart       = IF ipiLevelStart EQ 0 THEN 1 ELSE ipiLevelStart
         .
-       IF NOT AVAIL ipbf-oe-prmtx THEN RETURN .
+    IF NOT AVAIL ipbf-oe-prmtx THEN RETURN .
  
     /*process matrix array completely, one time*/
-    DO iLevel = ipiLevelStart TO 10: /* IF customer has higher starting level set otherwise start with 1st level*/
+    DO iLevel = ipiLevelStart TO EXTENT(ipbf-oe-prmtx.qty): /* IF customer has higher starting level set otherwise start with 1st level*/
         IF ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
         DO:
             IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
@@ -1140,33 +1211,52 @@ PROCEDURE pSetBuffers PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pGetPriceHoldCriteria PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns Price hold Criteria Settings
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcCustNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcShipId     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceHoldActive AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceCheck AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplQtyInRange AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplQtyMatch AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplEffectiveDateAge AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiEffectiveDateAgeDays AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplQtyQuoted AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cAge      AS CHARACTER NO-UNDO.
+   
+    RUN sys/ref/nk1look.p (ipcCompany, "OEPriceHold", "L", NO, NO, "", "", OUTPUT cCriteria, OUTPUT lFound).
+    oplPriceHoldActive = lFound AND cCriteria EQ "YES".
+    RUN sys/ref/nk1look.p (ipcCompany, "OEPriceHold", "C", YES, YES, ipcCustNo, ipcShipId, OUTPUT cCriteria, OUTPUT lFound).
+    
+    IF lFound AND cCriteria NE "" THEN 
+    DO: 
+        ASSIGN 
+            oplPriceCheck       = YES
+            oplQtyInRange       = LOOKUP("QtyInRange", cCriteria) GT 0
+            oplQtyMatch         = LOOKUP("QtyMatch", cCriteria) GT 0
+            oplEffectiveDateAge = LOOKUP("EffDateAge", cCriteria) GT 0
+            oplQtyQuoted        = LOOKUP("QtyQuoted", cCriteria) GT 0
+            .
+    END.
+    IF oplEffectiveDateAge THEN 
+    DO:
+        RUN sys/ref/nk1look.p (ipcCompany, "OEPriceHold", "I", YES, YES, ipcCustNo, ipcShipId, OUTPUT cAge, OUTPUT lFound).
+        IF lFound AND cAge NE "" THEN 
+            opiEffectiveDateAgeDays = INTEGER(cAge).
+        IF opiEffectiveDateAgeDays EQ 0 THEN 
+            opiEffectiveDateAgeDays = 365.
+    END.
+END PROCEDURE.
+
 
 /* ************************  Function Implementations ***************** */
-
-FUNCTION fCheckPriceHold RETURNS LOGICAL PRIVATE
-    ( ipcCompany AS CHARACTER ):
-    /*------------------------------------------------------------------------------
-     Purpose: Checks the logical value of OEPriceHold NK1
-     Notes: 
-    ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE lCheckPriceHold AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cReturn         AS CHARACTER NO-UNDO. 
-    
-    RUN sys/ref/nk1look.p (ipcCompany,
-        "OEPriceHold",
-        "L",
-        NO,
-        NO,
-        "",
-        "",
-        OUTPUT cReturn,
-        OUTPUT lFound).
-
-    lCheckPriceHold = lFound AND cReturn EQ "YES".
-    RETURN lCheckPriceHold.
-		
-END FUNCTION.
 
 FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     ( ipcCompany AS CHARACTER ):
@@ -1192,57 +1282,4 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     RETURN lUseLastPrice.
 	
 END FUNCTION.
-
-PROCEDURE pGetPriceHoldCriteria PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Returns Price hold Criteria Settings
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplPriceCheck AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplQtyInRange AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplQtyMatch AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplEffectiveDateAge AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiEffectiveDateAgeDays AS INTEGER NO-UNDO.
-
-    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cAge      AS CHARACTER NO-UNDO.
-    
-    RUN sys/ref/nk1look.p (ipcCompany,
-        "OEPriceHold",
-        "C",
-        NO,
-        NO,
-        "",
-        "",
-        OUTPUT cCriteria,
-        OUTPUT lFound).
-
-    IF lFound AND cCriteria NE "" THEN 
-    DO: 
-        ASSIGN 
-            oplPriceCheck       = YES
-            oplQtyInRange       = LOOKUP("QtyInRange",cCriteria) GT 0
-            oplQtyMatch         = LOOKUP("QtyMatch",cCriteria) GT 0
-            oplEffectiveDateAge = LOOKUP("EffDateAge",cCriteria) GT 0
-            .
-    END.
-    IF oplEffectiveDateAge THEN 
-    DO:
-        RUN sys/ref/nk1look.p (ipcCompany,
-            "OEPriceHold",
-            "I",
-            NO,
-            NO,
-            "",
-            "",
-            OUTPUT cAge,
-            OUTPUT lFound).
-        IF lFound AND cAge NE "" THEN 
-            opiEffectiveDateAgeDays = INTEGER(cAge).
-        IF opiEffectiveDateAgeDays EQ 0 THEN 
-            opiEffectiveDateAgeDays = 365.
-    END.
-END PROCEDURE.
 

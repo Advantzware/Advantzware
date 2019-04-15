@@ -142,7 +142,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 12
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 146 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 146 BY 22.86
          FONT 2.
 
 
@@ -151,15 +151,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
+     browse-order AT ROW 24.1 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 76 COLON-ALIGNED HELP
+     auto_find AT ROW 24.1 COL 76 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 133 HELP
+     Btn_Clear_Find AT ROW 24.1 COL 133 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+          SIZE 4 BY 1 AT ROW 24.1 COL 2
+     RECT-4 AT ROW 23.86 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -192,7 +192,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
+         HEIGHT             = 24.29
          WIDTH              = 146.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -474,8 +474,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
 PROCEDURE export-xl :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -494,11 +493,9 @@ PROCEDURE export-xl :
     RUN windows/user-exp.w (From-user,To-user).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGoBack B-table-Win 
 PROCEDURE ipGoBack :

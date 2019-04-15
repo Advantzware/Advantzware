@@ -192,7 +192,7 @@ DEFINE BROWSE Browser-Table
       quoteitm.style COLUMN-LABEL "Style" FORMAT "x(4)":U
       display-qty() @ quoteitm.qty
       quoteitm.qty FORMAT ">>>,>>>,>>9":U
-      quoteitm.price FORMAT ">>>,>>9.9999":U WIDTH 15.2
+      quoteitm.price FORMAT ">>,>>>,>>9.9999":U WIDTH 19.2
       display-price() @ quoteitm.price
       quoteitm.uom FORMAT "x(3)":U
       quoteitm.size FORMAT "x(30)":U
@@ -320,7 +320,7 @@ ASSIGN
      _FldNameList[7]   > ASI.quoteitm.qty
 "quoteitm.qty" ? ">>>,>>>,>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.quoteitm.price
-"quoteitm.price" ? ">>>,>>9.9999" "decimal" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"quoteitm.price" ? ">>,>>>,>>9.9999" "decimal" ? ? ? ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "display-price() @ quoteitm.price" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.quoteitm.uom
@@ -1295,6 +1295,12 @@ PROCEDURE valid-part-no :
        lv-rowid   = ?.
       RUN custom/getcpart.p (cocode, quotehd.cust-no,
                              INPUT-OUTPUT lv-part-no, INPUT-OUTPUT lv-rowid).
+      FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
+      IF AVAIL itemfg AND itemfg.stat EQ "I" THEN DO:
+          MESSAGE "Item status is Inactive..." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO quoteitm.part-no IN BROWSE {&browse-name}. 
+          RETURN ERROR.
+      END.
     END.
 
     IF NOT CAN-FIND(itemfg WHERE ROWID(itemfg) EQ lv-rowid) AND
@@ -1309,7 +1315,6 @@ PROCEDURE valid-part-no :
       APPLY "entry" TO quoteitm.part-no IN BROWSE {&browse-name}. 
       RETURN ERROR.
     END.
-    
   END.
 
 END PROCEDURE.

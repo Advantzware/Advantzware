@@ -295,15 +295,8 @@ PROCEDURE XMLOutput:
             PUT STREAM XMLOutput UNFORMATTED 
                 '<' pcLabel '>'.
         WHEN 'Col' THEN
-            IF pcValue NE '' AND pcValue NE ? THEN 
-            DO:
-                ASSIGN /* remove special characters with escape values */
-                    pcValue = REPLACE(pcValue,'~&','~&amp;')
-                    pcValue = REPLACE(pcValue,'~'','~&apos;')
-                    pcValue = REPLACE(pcValue,'"','~&quot;')
-                    pcValue = REPLACE(pcValue,'<','~&lt;')
-                    pcValue = REPLACE(pcValue,'>','~&gt;')
-                    .
+            IF pcValue NE '' AND pcValue NE ? THEN DO:
+                pcValue = DYNAMIC-FUNCTION("sfWebCharacters", pcValue, 5, "Web").
                 PUT STREAM XMLOutput UNFORMATTED 
                     '<' pcLabel '>' pcValue '</' pcLabel '>'.
             END.
@@ -442,15 +435,8 @@ PROCEDURE cXMLOutput:
             PUT STREAM cXMLOutput UNFORMATTED 
                 '<' pcLabel '>'.
         WHEN 'Col' THEN
-            IF pcValue NE '' AND pcValue NE ? THEN 
-            DO:
-                ASSIGN /* remove special characters with escape values */
-                    pcValue = REPLACE(pcValue,'~&','~&amp;')
-                    pcValue = REPLACE(pcValue,'~'','~&apos;')
-                    pcValue = REPLACE(pcValue,'"','~&quot;')
-                    pcValue = REPLACE(pcValue,'<','~&lt;')
-                    pcValue = REPLACE(pcValue,'>','~&gt;')
-                    .
+            IF pcValue NE '' AND pcValue NE ? THEN DO:
+                pcValue = DYNAMIC-FUNCTION("sfWebCharacters", pcValue, 5, "Web").
                 IF pcLabel NE '' AND pcLabel NE ? THEN
                     PUT STREAM cXMLOutput UNFORMATTED '<' pcLabel '>' pcValue '</' pcLabel '>'.
                 ELSE

@@ -1403,6 +1403,9 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-mat-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
+    IF AVAIL mat THEN
+    mat_dscr:SCREEN-VALUE = mat.dscr.
     IF LOOKUP(fi_mat-type:SCREEN-VALUE IN FRAME {&frame-name},"B,P") = 0 THEN
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE
@@ -2231,6 +2234,14 @@ PROCEDURE local-update-record :
   ELSE
       asi.item.spare-char-1:ENABLED = TRUE.
       */
+
+    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+    IF adm-new-record 
+    AND item.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+        RETURN NO-APPLY.
+    END.
+
   /* ========== validate all inputs =============*/
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.

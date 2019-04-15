@@ -37,6 +37,7 @@ DEF VAR v-lines AS INT NO-UNDO.
 def var v-rels as int.
 def var v-part              like quoteitm.part-no                        no-undo.
 def var v-board             as   char                                   no-undo.
+DEFINE VARIABLE cAddrDesc AS CHARACTER EXTENT 6 no-undo.
 def var v-last as log initial no no-undo.
 DEF VAR v-quo-date AS DATE FORM "99/99/9999" NO-UNDO.
 DEF VAR v-contact LIKE quotehd.contact NO-UNDO.

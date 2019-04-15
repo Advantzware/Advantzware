@@ -18,6 +18,7 @@
   Author: 
 
   Created: 
+  Mod-001 05/18/2018 Use of user print table in place of ref table
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -29,14 +30,32 @@ DEF INPUT PARAMETER ip-company   AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ip-cust-no   AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ip-ship-id   AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ip-shipnotes AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ip-shipnotesreckey AS CHAR NO-UNDO.
 
+
+{sys/inc/var.i new shared}
+{methods/defines/globdefs.i} /*Mod-001*/
 /* Local Variable Definitions ---                                       */
 
 DEF VAR v-ord    AS INT  FORMAT ">>>>>9"     EXTENT 2 NO-UNDO.
 DEF VAR v-date   AS DATE FORMAT "99/99/9999" EXTENT 2 NO-UNDO.
 DEF VAR v-ship-i AS CHAR FORMAT "x(60)"      EXTENT 4 NO-UNDO.
+DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO. /*Mod-001*/
+Define Variable hNotesProc as Handle NO-UNDO. 
 
 DEF BUFFER bf-shipto FOR shipto.
+    ASSIGN cocode = ip-company .
+
+/*Mod-001*/ IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
+   INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
+   INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
+v-prgmname = USERID(LDBNAME(1))  + "..".
+ELSE
+ASSIGN
+  v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1).
+  v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")). /*Mod-001*/
+
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -222,8 +241,6 @@ DO:
         v-shipnotes = TRIM(SUBSTR(v-shipnotes,INDEX(v-shipnotes,"|") + 1))
         v-ship-i[4] = TRIM(v-shipnotes).
 
-    RUN toggle-values(NO).
-
     IF tgl_BOL THEN RUN ip-upd-BOL.
 
     IF tgl_release THEN RUN ip-upd-REL.
@@ -247,6 +264,7 @@ DO:
         MESSAGE "Update Complete..."
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
+     /*Mod-001*/   RUN custom\usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
         APPLY "CHOOSE" TO Btn_Cancel IN FRAME {&FRAME-NAME}.
 
@@ -310,7 +328,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
 
-  RUN toggle-values(YES).
+  {custom/usrprint.i} /*Mod-001*/
+  ASSIGN
+      fl_ordfr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "0"
+      fl_ordto:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "999999"
+      fl_datefr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "01/01/0001"
+      fl_dateto:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "12/31/9999" . /*Mod-001 default value */
+
 
   FIND FIRST bf-shipto NO-LOCK
       WHERE bf-shipto.company EQ ip-company 
@@ -327,6 +351,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 
 END.
+IF VALID-HANDLE(hNotesProc) THEN  
+    DELETE OBJECT hNotesProc.
 RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */
@@ -400,7 +426,10 @@ PROCEDURE ip-upd-BOL :
             oe-bolh.ship-i[2] = v-ship-i[2]
             oe-bolh.ship-i[3] = v-ship-i[3]
             oe-bolh.ship-i[4] = v-ship-i[4].
-                              
+            
+        RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-bolh.rec_key).
+        
+                             
     END.
 
 
@@ -438,6 +467,8 @@ PROCEDURE ip-upd-ORDrel :
             oe-rel.ship-i[3] = v-ship-i[3] 
             oe-rel.ship-i[4] = v-ship-i[4].
             
+         RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-rel.rec_key).   
+            
     END.
 
 END PROCEDURE.
@@ -471,113 +502,14 @@ PROCEDURE ip-upd-REL :
             oe-relh.ship-i[3] = v-ship-i[3]
             oe-relh.ship-i[4] = v-ship-i[4].
 
+         RUN CopyShipNote IN hNotesProc (INPUT ip-shipnotesreckey, oe-relh.rec_key).
+
     END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+/*Mod-001*/
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE toggle-values Dialog-Frame 
-PROCEDURE toggle-values :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER ip_value AS LOG NO-UNDO.
-
-FIND FIRST reftable EXCLUSIVE-LOCK
-    WHERE reftable.reftable EQ "d-shp2nt" 
-      AND reftable.company  EQ ip-company 
-      AND reftable.loc      EQ "BOL" NO-ERROR.
-IF NOT AVAIL reftable THEN DO:
-
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "d-shp2nt"
-        reftable.company  = ip-company
-        reftable.loc      = "BOL".
-
-END.
-ELSE DO:
-
-    IF NOT ip_value 
-      THEN ASSIGN reftable.code = tgl_BOL:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-                  reftable.code = IF reftable.code EQ ""
-                                    THEN "NO" ELSE reftable.code.
-
-    ASSIGN 
-     tgl_BOL:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF reftable.code EQ ""
-                                                     THEN "NO" 
-                                                     ELSE reftable.code.
-
-END.
-    
-
-RELEASE reftable.
-
-
-FIND FIRST reftable EXCLUSIVE-LOCK
-    WHERE reftable.reftable EQ "d-shp2nt" 
-      AND reftable.company  EQ ip-company 
-      AND reftable.loc      EQ "Releases" NO-ERROR.
-IF NOT AVAIL reftable THEN DO:
-
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "d-shp2nt"
-        reftable.company  = ip-company
-        reftable.loc      = "Releases".
-
-END.
-ELSE DO:
-
-    IF NOT ip_value 
-      THEN ASSIGN reftable.code = tgl_release:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-                  reftable.code = IF reftable.code EQ ""
-                                    THEN "NO" ELSE reftable.code.
-
-    ASSIGN 
-     tgl_release:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF reftable.code EQ ""
-                                                        THEN "NO" 
-                                                        ELSE reftable.code.
-
-END.
-
-RELEASE reftable.
-
-FIND FIRST reftable EXCLUSIVE-LOCK
-    WHERE reftable.reftable EQ "d-shp2nt" 
-      AND reftable.company  EQ ip-company 
-      AND reftable.loc      EQ "Orders" NO-ERROR.
-IF NOT AVAIL reftable THEN DO:
-
-    CREATE reftable.
-    ASSIGN
-        reftable.reftable = "d-shp2nt"
-        reftable.company  = ip-company
-        reftable.loc      = "Orders".
-
-END.
-ELSE DO:
-
-    IF NOT ip_value 
-      THEN ASSIGN reftable.code = tgl_order:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-                  reftable.code = IF reftable.code EQ ""
-                                    THEN "NO" ELSE reftable.code.
-
-    ASSIGN 
-     tgl_order:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF reftable.code EQ ""
-                                                        THEN "NO" 
-                                                        ELSE reftable.code.
-
-END.
-   
-RELEASE reftable.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 

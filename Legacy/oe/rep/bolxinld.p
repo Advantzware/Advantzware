@@ -360,8 +360,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
     
                  
     PUT "<R51><C52><#8><FROM><R+4><C+30><RECT> " 
-        "<=8><R+1> Total Units         :" v-tot-cases 
-        "<=8><R+3> Total Weight        :" v-tot-wt FORM ">>,>>9.99".
+        "<=8><R+1> Total Units         :" v-tot-cases format ">>,>>>,>>9" 
+        "<=8><R+3> Total Weight        :" v-tot-wt format ">>,>>>,>>9".
                    
 
     PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " SKIP(1)
@@ -395,6 +395,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
      PAGE.   
 
      v-printline = 0.
+     v-tot-cases = 0.
   end. /* last-of (oe-bolh.bol-no) */
   oe-bolh.printed = yes.
 end. /* for each oe-bolh */

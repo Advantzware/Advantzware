@@ -28,10 +28,11 @@ DEFINE TEMP-TABLE ttAgedReceivables NO-UNDO
     FIELD periodDay1    AS DECIMAL   LABEL "Period Days 1"   FORMAT "->,>>>,>>>,>>9.99"
     FIELD periodDay2    AS DECIMAL   LABEL "Period Days 2"   FORMAT "->,>>>,>>>,>>9.99"
     FIELD periodDay3    AS DECIMAL   LABEL "Period Days 3"   FORMAT "->,>>>,>>>,>>9.99"
+    FIELD periodDay4    AS DECIMAL   LABEL "Period Days 4"   FORMAT "->,>>>,>>>,>>9.99"
     FIELD custPoNo      AS CHARACTER LABEL "Customer PoNo"   FORMAT "x(15)"
     FIELD jobNo         AS CHARACTER LABEL "Job No "         FORMAT "x(9)"
     FIELD invoiceNote   AS CHARACTER LABEL "Invoice Note"    FORMAT "x(500)"
-    FIELD collNote      AS CHARACTER LABEL "Collection Note" FORMAT "x(500)"
+    FIELD collNote      AS CHARACTER LABEL "Collection Note" FORMAT "x(500)"    
     FIELD xxSort1       AS CHARACTER LABEL "Sort 1"          FORMAT "x(100)"
     FIELD xxSort2       AS INTEGER   LABEL "Sort 2"          FORMAT ">>>>>>>>>9"
         INDEX ttAgedReceivables IS PRIMARY rowType xxSort1 xxSort2

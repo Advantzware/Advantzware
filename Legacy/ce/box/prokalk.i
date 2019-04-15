@@ -95,8 +95,9 @@ qty = est-op.num-sh *
     (IF xef.n-out-l EQ 0 THEN 1 ELSE xef.n-out-l).
 
 
-IF op-lock.val[1] EQ 1                          AND 
-    (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN 
+IF op-lock.val[1] EQ 1                          
+    AND NOT est-op.isLocked
+    AND (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN 
 DO:
     est-op.op-waste = mach.mr-waste.
 
@@ -242,7 +243,7 @@ DO:
     END.
 
 
-    IF op-lock.val[2] EQ 1 THEN
+    IF op-lock.val[2] EQ 1 AND NOT est-op.isLocked THEN
         IF LOOKUP(est-op.dept,"PR,CT") GT 0 THEN 
         DO:
             IF est-op.plates NE 0 OR est-op.fountains NE 0 THEN

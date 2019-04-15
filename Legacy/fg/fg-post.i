@@ -485,18 +485,26 @@
                          itemfg.std-lab-cost = job-hdr.std-lab-cost
                          itemfg.std-fix-cost = job-hdr.std-fix-cost
                          itemfg.std-var-cost = job-hdr.std-var-cost
-                         itemfg.total-std-cost = itemfg.std-tot-cost                         
-                         itemfg.last-cost    = itemfg.std-tot-cost.
-                  
-                 itemfg.avg-cost = /*new-total-cost*/ (/* original-total-cost */ ((itemfg.q-onh - {2}.t-qty) * itemfg.avg-cost) + (job-hdr.std-tot-cost * {2}.t-qty))  / itemfg.q-onh.
-                 FIND FIRST fg-ctrl WHERE fg-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-                 IF AVAIL fg-ctrl AND fg-ctrl.inv-meth = "A" THEN
-                     itemfg.total-std-cost = itemfg.avg-cost.
+                         .
               END.
-
           END.
-
-                               
+          ELSE DO:
+              ASSIGN
+                  itemfg.std-mat-cost = {2}.ext-cost / {2}.t-qty.
+              IF itemfg.prod-uom EQ "M" THEN ASSIGN
+                  itemfg.std-mat-cost =  itemfg.std-mat-cost * 1000.
+              ASSIGN 
+                  itemfg.std-tot-cost = itemfg.std-mat-cost.
+          END.
+          ASSIGN 
+             itemfg.total-std-cost = itemfg.std-tot-cost                         
+             itemfg.last-cost    = itemfg.std-tot-cost.
+             itemfg.avg-cost =  (((itemfg.q-onh - {2}.t-qty) * itemfg.avg-cost) + (itemfg.std-tot-cost * {2}.t-qty))  / itemfg.q-onh.
+         FIND FIRST fg-ctrl NO-LOCK  
+             WHERE fg-ctrl.company EQ itemfg.company
+             NO-ERROR.
+         IF AVAIL fg-ctrl AND fg-ctrl.inv-meth = "A" THEN
+             itemfg.total-std-cost = itemfg.avg-cost.                     
   end.  /* rita-code = "r" */
   else if {1}.rita-code eq "S" then DO:      /** SHIPPMENTS **/
   

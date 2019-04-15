@@ -97,7 +97,9 @@ DEFINE VARIABLE logSetPrinting AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE chrX           AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE logPrint       AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE intPageNum     AS INTEGER    NO-UNDO.
-
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE BUFFER bf-cust FOR cust .
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
 
@@ -114,20 +116,6 @@ IF AVAIL sys-ctrl THEN lv-comp-color = sys-ctrl.char-fld.
 ELSE lv-comp-color = "BLACK".
 
 find first company where company.company = cocode no-lock no-error.
-
-IF lv-display-comp THEN DO:
-   FIND FIRST cust WHERE cust.company = cocode AND
-                         cust.active = "X" NO-LOCK NO-ERROR.
- 
-  IF AVAIL cust THEN
-     ASSIGN v-comp-add1 = cust.addr[1]
-            v-comp-add2 = cust.addr[2]
-            v-comp-add3 = cust.city + ", " + cust.state + "  " + cust.zip
-            v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") 
-            v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
-            lv-email    = "Email:  " + cust.email 
-            lv-comp-name = cust.NAME.
-END.
 
 FIND first report where report.term-id eq v-term-id NO-LOCK NO-ERROR.
 FIND first xquo  where recid(xquo) eq report.rec-id NO-LOCK NO-ERROR.
@@ -153,9 +141,29 @@ find first est where est.company = xquo.company
         and cust.cust-no eq xquo.cust-no
       no-lock no-error.
 
-  if avail cust then
+  if avail cust THEN do:
      v-over-under = trim(string(cust.over-pct,">>9%")) + "-" +
                     trim(string(cust.under-pct,">>9%")).
+     RUN sys/ref/nk1look.p (INPUT cocode, "QUOPRINT", "L" /* Logical */, YES /* check by cust */, 
+                            INPUT YES /* use cust not vendor */, cust.cust-no /* cust */, xquo.ship-id /* ship-to*/,
+                            OUTPUT cRtnChar, OUTPUT lRecFound).
+     IF lRecFound THEN
+         lv-display-comp = LOGICAL(cRtnChar) NO-ERROR.
+  END.
+
+  IF lv-display-comp THEN DO:
+      FIND FIRST bf-cust WHERE bf-cust.company = cocode AND
+          bf-cust.active = "X" NO-LOCK NO-ERROR.
+
+      IF AVAIL bf-cust THEN
+        ASSIGN v-comp-add1 = bf-cust.addr[1]
+               v-comp-add2 = bf-cust.addr[2]
+               v-comp-add3 = bf-cust.city + ", " + cust.state + "  " + cust.zip
+               v-comp-add4 = "Phone:  " + string(bf-cust.area-code,"(999)") + string(bf-cust.phone,"999-9999") 
+               v-comp-add5 = "Fax     :  " + string(bf-cust.fax,"(999)999-9999") 
+               lv-email    = "Email:  " + bf-cust.email 
+               lv-comp-name = bf-cust.NAME.
+  END.
 
   assign
    sold[5] = trim(string(xquo.sold-no))

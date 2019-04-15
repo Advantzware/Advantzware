@@ -404,7 +404,7 @@ FOR  EACH job-hdr NO-LOCK
             cJobNo    = v-job-no + "-" + STRING(v-job-no2,"99").
 
         IF AVAILABLE oe-ord THEN
-            IF NOT oe-ctrl.p-fact AND oe-ord.stat EQ "H" THEN NEXT.
+            IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN NEXT.
 
         FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company AND
                                       cust.cust-no EQ job-hdr.cust-no NO-ERROR.
@@ -735,22 +735,7 @@ FOR  EACH job-hdr NO-LOCK
                 END.
 
                 /** BUILD INK WORK FILE **/
-                FIND FIRST reftable NO-LOCK WHERE 
-                           reftable.reftable EQ "ce/v-est3.w Unit#" AND
-                           reftable.company EQ eb.company AND
-                           reftable.loc     EQ eb.est-no AND
-                           reftable.code    EQ STRING(eb.form-no,"9999999999") AND
-                           reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                           NO-ERROR.
-
-                FIND FIRST b-rt NO-LOCK WHERE
-                           b-rt.reftable EQ "ce/v-est3.w Unit#1" AND
-                           b-rt.company  EQ b-eb.company AND
-                           b-rt.loc      EQ eb.est-no AND
-                           b-rt.code     EQ STRING(eb.form-no,"9999999999") AND
-                           b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                           NO-ERROR.
-
+                
                 FOR EACH job-mat NO-LOCK
                     WHERE job-mat.company EQ cocode
                       AND job-mat.job     EQ job-hdr.job
@@ -765,8 +750,7 @@ FOR  EACH job-hdr NO-LOCK
                     DO:
 
                         cSide = "".
-                        IF AVAIL(reftable) THEN
-                            cSide = FILL(" ",5) + SUBSTRING(reftable.dscr,i,1).
+                        cSide = FILL(" ",5) + SUBSTRING(eb.side[i],1).
                         FIND FIRST wrk-ink WHERE wrk-ink.i-code EQ eb.i-code2[i]
                                AND wrk-ink.form-no  EQ eb.form-no
                                AND wrk-ink.blank-no EQ eb.blank-no
@@ -782,36 +766,14 @@ FOR  EACH job-hdr NO-LOCK
                                 wrk-ink.blank-no = eb.blank-no
                                 wrk-ink.i-dscr   = eb.i-dscr2[i]
                                 wrk-ink.i-pass   = eb.i-ps2[i]
-                                wrk-ink.i-unit   = IF i LE 12 AND AVAILABLE reftable THEN reftable.val[i]
-                                        ELSE IF i > 12 AND AVAILABLE b-rt THEN b-rt.val[i - 12]
-                                        ELSE 1.
+                                wrk-ink.i-unit   = eb.unitNo[i].
   
   
                             /* IF AVAIL reftable THEN
                                 wrk-ink.i-side = FILL(" ",5) + SUBSTRING(reftable.dscr,i,1).*/
                             IF i LE 12 THEN 
                             DO:
-                                FIND FIRST ref-side NO-LOCK WHERE
-                                           ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-                                           ref-side.company  EQ eb.company AND
-                                           ref-side.loc      EQ eb.est-no AND
-                                           ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                                           ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                                           NO-ERROR.
-                                IF AVAILABLE ref-side THEN
-                                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i,1).
-                            END.
-                            ELSE 
-                            DO:
-                                FIND FIRST ref-side WHERE
-                                           ref-side.reftable EQ "ce/v-est3.w Unit#1"  AND
-                                           ref-side.company  EQ eb.company AND
-                                           ref-side.loc      EQ eb.est-no AND
-                                           ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                                           ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                                           NO-ERROR.
-                                IF AVAILABLE ref-side THEN
-                                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i - 12,1).
+                                wrk-ink.i-side = FILL(" ",5) + SUBSTRING(eb.side[i],1).
                             END.          
                         
                             IF wrk-ink.i-unit EQ 0 THEN
@@ -1019,7 +981,14 @@ FOR  EACH job-hdr NO-LOCK
                        AND job-mch.job-no2 EQ job.job-no2
                        AND job-mch.m-code  EQ ef.m-code 
                      NO-ERROR .
-                                            
+
+              FIND FIRST job-mat NO-LOCK
+                     WHERE job-mat.company EQ cocode
+                       AND job-mat.job     EQ job.job
+                       AND job-mat.job-no  EQ job.job-no
+                       AND job-mat.job-no2 EQ job.job-no2
+                       AND job-mat.i-no    EQ wrk-film.leaf NO-ERROR .
+                                         
                 IF FIRST(wrk-film.leaf) THEN
                     PUT "<P10>" SKIP
                         "<B> LEAF/FILM CODE  DESCRIPTION                 FORM  BLANK  APERTURE SIZE (W x L)   TOTAL LINEAL FEET   POUNDS     </B>" 
@@ -1031,8 +1000,8 @@ FOR  EACH job-hdr NO-LOCK
                     wrk-film.bnum SPACE(3)
                     STRING(wrk-film.leaf-l) + "x" + STRING(wrk-film.leaf-w)
                     FORMAT "x(23)" SPACE(10)
-                    STRING( ( wrk-film.leaf-l + 1) * (IF AVAILABLE job-mch THEN job-mch.run-qty ELSE 0) / 12)
-                    STRING((IF AVAILABLE job-mch THEN job-mch.run-qty ELSE 0) * (wrk-film.leaf-l + 1) * ( wrk-film.leaf-w + 1) /
+                    STRING( ( wrk-film.leaf-l + 1) * (IF AVAILABLE job-mat THEN job-mat.qty ELSE 0) / 12)
+                    STRING((IF AVAILABLE job-mat THEN job-mat.qty ELSE 0) * (wrk-film.leaf-l + 1) * ( wrk-film.leaf-w + 1) /
                     (IF AVAILABLE ITEM THEN ITEM.sqin-lb ELSE 0) )
                     WITH STREAM-IO WIDTH 170 NO-LABELS NO-BOX FRAME film.
 

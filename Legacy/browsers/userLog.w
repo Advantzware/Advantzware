@@ -43,7 +43,21 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
-
+DEFINE VARIABLE cReturnChar     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cLogoutFolder   AS CHARACTER NO-UNDO.
+DEFINE STREAM sLogOut.
+RUN sys/ref/nk1look.p (INPUT g_company, "UserControl", "C" /* Character*/, 
+    INPUT NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */,
+    INPUT "" /* cust */, 
+    INPUT "" /* ship-to*/,
+    OUTPUT cReturnChar, 
+    OUTPUT lRecFound).
+IF lRecFound THEN 
+    cLogoutFolder = cReturnChar  .
+IF SEARCH( cLogoutFolder) EQ ? THEN 
+    OS-CREATE-DIR VALUE( cLogoutFolder).    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -313,7 +327,6 @@ DO:
   DEFINE VARIABLE lAns AS LOGICAL     NO-UNDO.
   DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
   DEFINE VARIABLE lResult AS LOG NO-UNDO.
-
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
         RUN epCanAccess IN hPgmSecurity ("browsers/userlog.w", "", OUTPUT lResult).
     DELETE OBJECT hPgmSecurity.
@@ -335,10 +348,14 @@ DO:
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
         {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
         IF AVAIL userLog THEN DO:
+            
+          RUN system/userLogout.p (YES, userLog.sessionID).
+             
           FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
-             NO-ERROR.
+                  NO-ERROR.
           IF AVAIL bf-userLog THEN
             DELETE bf-userlog.
+             
         END. /* if avail userlog */
       END. /* do li ... */
       RUN dispatch ('open-query').

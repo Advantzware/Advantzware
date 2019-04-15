@@ -147,7 +147,7 @@ DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE tb_i-name AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1
+     SIZE 31 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_i-no AS CHARACTER FORMAT "x(15)" 
@@ -182,7 +182,7 @@ DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>9" INITIAL 0
 
 DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 8.8 BY 1
+     SIZE 9.3 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_tag-no AS CHARACTER FORMAT "X(20)" 
@@ -677,3 +677,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadtag-rm B-table-Win 
+PROCEDURE loadtag-rm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAIL loadtag THEN
+        RUN rmrep/rmloadtg4.w(INPUT YES,INPUT loadtag.tag-no)  .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

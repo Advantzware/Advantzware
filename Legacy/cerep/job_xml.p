@@ -301,7 +301,14 @@ DEFINE VARIABLE iCountLine AS INTEGER INITIAL 0 NO-UNDO.
 DEFINE BUFFER b-ef FOR ef.
 DEF VAR lv-cad-image AS cha NO-UNDO.
 DEF VAR lv-cad-image-list AS cha NO-UNDO.
-
+DEFINE VARIABLE lRecFound AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cXMlFinalDest AS CHARACTER NO-UNDO.
+RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+   cXMLFinalDest  = cRtnChar NO-ERROR.
 {XMLOutput/XMLOutput.i &XMLOutput=XMLJobTicket &Company=cocode} /* rstark 05181205 */
 
 ASSIGN
@@ -454,7 +461,7 @@ FOR EACH job-hdr NO-LOCK
             iOrder = job-hdr.ord-no.
 
         IF AVAILABLE oe-ord THEN
-            IF NOT oe-ctrl.p-fact AND oe-ord.stat EQ "H" THEN NEXT.
+            IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN NEXT.
 
         FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company AND
                                       cust.cust-no EQ job-hdr.cust-no NO-ERROR.
@@ -868,21 +875,6 @@ FOR EACH job-hdr NO-LOCK
                 END.
 
                 /** BUILD INK WORK FILE **/
-                FIND FIRST reftable NO-LOCK WHERE 
-                           reftable.reftable EQ "ce/v-est3.w Unit#" AND
-                           reftable.company EQ eb.company AND
-                           reftable.loc     EQ eb.est-no AND
-                           reftable.code    EQ STRING(eb.form-no,"9999999999") AND
-                           reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-                           NO-ERROR.
-
-                FIND FIRST b-rt NO-LOCK WHERE
-                           b-rt.reftable EQ "ce/v-est3.w Unit#1" AND
-                           b-rt.company  EQ b-eb.company AND
-                           b-rt.loc      EQ eb.est-no AND
-                           b-rt.code     EQ STRING(eb.form-no,"9999999999") AND
-                           b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-                           NO-ERROR.
 
                 FOR EACH job-mat NO-LOCK
                     WHERE job-mat.company EQ cocode
@@ -898,8 +890,7 @@ FOR EACH job-hdr NO-LOCK
                     DO:
 
                         cSide = "".
-                        IF AVAIL(reftable) THEN
-                            cSide = FILL(" ",5) + SUBSTRING(reftable.dscr,i,1).
+                        cSide = FILL(" ",5) + SUBSTRING(eb.side[i],1).
                         FIND FIRST wrk-ink WHERE wrk-ink.i-code EQ eb.i-code2[i]
                                AND wrk-ink.form-no  EQ eb.form-no
                                AND wrk-ink.blank-no EQ eb.blank-no
@@ -915,34 +906,10 @@ FOR EACH job-hdr NO-LOCK
                                 wrk-ink.blank-no = eb.blank-no
                                 wrk-ink.i-dscr   = eb.i-dscr2[i]
                                 wrk-ink.i-pass   = eb.i-ps2[i]
-                                wrk-ink.i-unit   = IF i LE 12 AND AVAILABLE reftable THEN reftable.val[i]
-                                        ELSE IF i > 12 AND AVAILABLE b-rt THEN b-rt.val[i - 12]
-                                        ELSE 1.
+                                wrk-ink.i-unit   = eb.unitNo[i].
   
-  
-                            IF i LE 12 THEN 
-                            DO:
-                                FIND FIRST ref-side NO-LOCK WHERE
-                                           ref-side.reftable EQ "ce/v-est3.w Unit#"  AND
-                                           ref-side.company  EQ eb.company AND
-                                           ref-side.loc      EQ eb.est-no AND
-                                           ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                                           ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                                           NO-ERROR.
-                                IF AVAILABLE ref-side THEN
-                                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i,1).
-                            END.
-                            ELSE 
-                            DO:
-                                FIND FIRST ref-side WHERE
-                                           ref-side.reftable EQ "ce/v-est3.w Unit#1"  AND
-                                           ref-side.company  EQ eb.company AND
-                                           ref-side.loc      EQ eb.est-no AND
-                                           ref-side.code     EQ STRING(eb.form-no,"9999999999") AND
-                                           ref-side.code2    EQ STRING(eb.blank-no,"9999999999")
-                                           NO-ERROR.
-                                IF AVAILABLE ref-side THEN
-                                    wrk-ink.i-side = FILL(" ",5) + SUBSTRING(ref-side.dscr,i - 12,1).
+                            DO:                               
+                                wrk-ink.i-side = FILL(" ",5) + SUBSTRING(eb.side[i],1).
                             END.          
                         
                             IF wrk-ink.i-unit EQ 0 THEN
@@ -1125,12 +1092,13 @@ FOR EACH job-hdr NO-LOCK
                   RUN XMLOutput (lXMLOutput,'Spoilage',dWstPrct,'Col').
                   RUN XMLOutput (lXMLOutput,'Number_Out',ef.n-out,'Col').
                   RUN XMLOutput (lXMLOutput,'Caliper',ef.cal,'Col').
+                  RUN XMLOutput (lXMLOutput,'/Printing','','Row').
 
                 x = 1.
             END. /* each wrk-sheet */  
 
             FOR EACH wrk-film NO-LOCK WHERE wrk-film.form-no EQ ef.form-no
-            /*break by wrk-sheet.form-no*/ BREAK BY wrk-film.leaf :
+                        /*break by wrk-sheet.form-no*/ BREAK BY wrk-film.leaf :
                 FIND FIRST ITEM NO-LOCK WHERE item.company EQ cocode
                                           AND item.i-no    EQ wrk-film.leaf NO-ERROR.
                 FIND FIRST job-mch NO-LOCK
@@ -1313,7 +1281,7 @@ FOR EACH job-hdr NO-LOCK
             
             iCountLine = iCountLine + 1.
             iCountLine = iCountLine + 8.
-            RUN XMLOutput (lXMLOutput,'/Printing','','Row').
+      /*      RUN XMLOutput (lXMLOutput,'/Printing','','Row'). */
 
             RUN XMLOutput (lXMLOutput,'DieCutting','','Row').
             RUN XMLOutput (lXMLOutput,'MR_Waste',iMrWaste,'Col').
@@ -1630,6 +1598,9 @@ v-first = NO.
 END. /* for first job-hdr */  
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */
- os-command silent value(XMLTemp).
+
+OS-RENAME VALUE(XMLTemp) VALUE(cXMlFinalDest).
+/* Don't show user view xml file */
+/*  os-command silent value(XMLTemp). */
   /* READ-XML( XMLTemp).*/
  

@@ -338,7 +338,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-issued ( 17.14 , 146.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'rm/vp-issue.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -349,6 +349,8 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_b-issued. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_b-issued ).
+       RUN add-link IN adm-broker-hdl ( h_b-issued , 'buttons':U , h_p-updsav-2 ).
+       RUN add-link IN adm-broker-hdl ( h_b-issued  , 'Record':U , h_p-updsav-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-line':U , h_b-issued ).
 
        /* Adjust the tab order of the smart objects. */
@@ -480,10 +482,14 @@ PROCEDURE select_add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lv-rowid AS ROWID     NO-UNDO.
+ 
+  RUN rm/d-issue.w (?, "add",OUTPUT lv-rowid).
   
   RUN get-link-handle in adm-broker-hdl(this-procedure,"add-line-target", output char-hdl).
-  run add-item in widget-handle(char-hdl).
+  RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

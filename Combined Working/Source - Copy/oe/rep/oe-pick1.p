@@ -1,9 +1,0 @@
-/* ---------------------------------------------- oe/rep/oe-pick1.p 03/98 JLF */
-/* Print oe Release/Picking tickets                                           */
-/* -------------------------------------------------------------------------- */
-DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
-    FIELD OeRelHRowID AS ROWID 
-    FIELD SessionID   AS CHARACTER
-        .
-
-{oe/rep/oe-pick.i "shipto.dest-code"}

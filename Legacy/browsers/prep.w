@@ -45,7 +45,8 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
-
+DEFINE VARIABLE cTypeInfo AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cSimon AS CHARACTER NO-UNDO .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -71,8 +72,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table prep.code prep.dscr ~
-prep.mat-type prep.mkup prep.cost prep.dfault prep.amtz prep.ml prep.uom ~
-prep.simon 
+get-type-info() @ cTypeInfo prep.mkup prep.cost prep.dfault prep.amtz prep.ml prep.uom ~
+get-simon-info() @ cSimon 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH prep WHERE ~{&KEY-PHRASE} ~
       AND prep.company = gcompany NO-LOCK ~
@@ -98,6 +99,19 @@ Btn_Clear_Find
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-type-info B-table-Win 
+FUNCTION get-type-info RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-simon-info B-table-Win 
+FUNCTION get-simon-info RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -145,15 +159,15 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       prep.code FORMAT "x(15)":U WIDTH 28.2
       prep.dscr COLUMN-LABEL "Description" FORMAT "x(20)":U WIDTH 24.2
-      prep.mat-type COLUMN-LABEL "Mat'l !Type" FORMAT "X":U WIDTH 7.2
+      get-type-info() @ cTypeInfo COLUMN-LABEL "Mat'l !Type" FORMAT "X(25)":U WIDTH 28.2
       prep.mkup FORMAT "->>9.99":U WIDTH 9.8
       prep.cost FORMAT "->>,>>9.99":U
-      prep.dfault COLUMN-LABEL "Use in all!Estimates" FORMAT "Y/N":U
-            WIDTH 14.6
+      prep.dfault COLUMN-LABEL "Always" FORMAT "Y/N":U
+            WIDTH 10.6
       prep.amtz FORMAT ">>9.99":U
-      prep.ml FORMAT "M/L":U
+      prep.ml FORMAT "Material/Labor":U
       prep.uom FORMAT "x(3)":U WIDTH 5.6
-      prep.simon FORMAT "X":U WIDTH 10
+      get-simon-info() @ cSimon COLUMN-LABEL "SIMON" FORMAT "x(13)":U WIDTH 18
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 18.1
@@ -257,19 +271,19 @@ ASSIGN
 "prep.code" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "28.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.prep.dscr
 "prep.dscr" "Description" ? "character" ? ? ? ? ? ? no ? no no "24.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.prep.mat-type
-"prep.mat-type" "Mat'l !Type" ? "character" ? ? ? ? ? ? no ? no no "7.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > "_<CALC>"
+"get-type-info() @ cTypeInfo" "Mat'l !Type" "x(25)" ? ? ? ? ? ? ? no ? no no "28" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.prep.mkup
 "prep.mkup" ? ? "decimal" ? ? ? ? ? ? no ? no no "9.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = ASI.prep.cost
      _FldNameList[6]   > ASI.prep.dfault
-"prep.dfault" "Use in all!Estimates" ? "logical" ? ? ? ? ? ? no ? no no "14.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prep.dfault" "Always" ? "logical" ? ? ? ? ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.prep.amtz
      _FldNameList[8]   = ASI.prep.ml
      _FldNameList[9]   > ASI.prep.uom
 "prep.uom" ? ? "character" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.prep.simon
-"prep.simon" ? ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > "_<CALC>"
+"get-simon-info() @ cSimon" "SIMON" "x(13)" ? ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -444,6 +458,72 @@ PROCEDURE state-changed :
       {src/adm/template/bstates.i}
   END CASE.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-type-info B-table-Win 
+FUNCTION get-type-info RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE cTypeDscr AS CHARACTER NO-UNDO .
+   IF AVAIL prep THEN
+    FIND FIRST matprep NO-LOCK
+        WHERE matprep.company eq cocode 
+          AND matprep.mat EQ prep.mat-type NO-ERROR .
+
+    IF AVAIL matprep THEN
+        ASSIGN cTypeDscr = matprep.mat + " - " + matprep.dscr  .
+
+
+  RETURN cTypeDscr.
+
+  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-simon-info B-table-Win 
+FUNCTION get-simon-info RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE cSimonDscr AS CHARACTER NO-UNDO .
+   IF AVAIL prep THEN
+   CASE prep.simon:
+            WHEN "I" THEN 
+                ASSIGN 
+                    cSimonDscr = "Integrate".
+            WHEN "M" THEN 
+                ASSIGN 
+                    cSimonDscr = "Markup". 
+            WHEN "N" THEN 
+                ASSIGN 
+                    cSimonDscr = "No Charge".
+            WHEN "O" THEN 
+                ASSIGN 
+                    cSimonDscr = "Override".
+            WHEN "S" THEN 
+                ASSIGN 
+                    cSimonDscr = "Separate Bill".
+        END CASE.
+  IF cSimonDscr EQ "" THEN
+      cSimonDscr = "Separate Bill" .
+
+  RETURN cSimonDscr.
+
+  /* Function return value. */
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

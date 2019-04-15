@@ -1,7 +1,7 @@
 /* ---------------------------------------------- ar/rep/invnstok.p */
 /* PRINT INVOICE   Xprint form for Hughes                           */
 /* ---------------------------------------------------------------- */
-
+DEFINE INPUT PARAMETER opcFormat AS CHARACTER NO-UNDO .
 {sys/inc/var.i shared}
 
 {ar/rep/invoice.i}
@@ -97,9 +97,19 @@ DEFINE VARIABLE v-comp-add3          AS cha                    FORM "x(30)" NO-U
 DEFINE VARIABLE v-comp-add4          AS cha                    FORM "x(30)" NO-UNDO.
 DEFINE VARIABLE v-invoice-with-order AS LOGICAL                NO-UNDO.
 DEFINE VARIABLE v-show-parts         AS LOGICAL                NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 {fg/fullset.i NEW}
 
+IF opcFormat EQ "nStockLogo" THEN do:
+    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+END.
 
 find first company where company.company = cocode no-lock no-error.
 find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
@@ -347,7 +357,7 @@ for each report where report.term-id eq v-term-id no-lock,
       v-i-dscr  format "x(30)" SPACE(3)
       v-enum FORM ">>9" SPACE(1)
       v-price  format ">>,>>9.99" SPACE(2)
-      v-price-head SPACE(1)
+      ar-invl.pr-qty-uom SPACE(1)
       ar-invl.amt  format "->>>,>>9.99"
       SKIP.
       

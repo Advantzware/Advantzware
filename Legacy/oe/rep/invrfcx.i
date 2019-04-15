@@ -10,14 +10,7 @@
              space(62) v-comp-add4 FORM "x(60)" "<P10>"SKIP.
 *****************************************************************************/             
 PUT
-  "<C1><R2.5><#1><R+50><C+28><IMAGE#1=" ls-full-img1 .
-
-PUT
-   "<P10><C28><R4>" v-cust-add1
-   /*"<C28><R+1>" v-cust-add2*/             /*Task# 12231307*/
-   "<C28><R+1>" v-cust-add3
-   "<C28><R+1>" v-cust-phn
-   "<C28><R+1>" v-fax-arcd "<P10>".
+  "<C1><R2.5><#1><R+12><C+40><IMAGE#1=" ls-full-img1 .
 
 PUT 
   "<=1>" SKIP

@@ -23,7 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR list-name as cha no-undo.
+DEF VAR list-name AS cha NO-UNDO.
 DEF VAR init-dir AS CHA NO-UNDO.
 DEF VAR tmp-dir AS cha NO-UNDO.
 
@@ -37,17 +37,17 @@ DEF VAR tmp-dir AS cha NO-UNDO.
 
 {sys/inc/VAR.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
 DEF TEMP-TABLE tt-rm-bin NO-UNDO LIKE rm-bin.
 
- def new shared var v-post-date as date initial today.
- def var v-cum-qty as dec extent 2 format ">>>>>9.999". 
- def NEW shared var v-avgcost as logical.
- def var save_id as recid.
- DEF var dollar-chg as dec.
+ DEF NEW SHARED VAR v-post-date AS DATE INITIAL TODAY.
+ DEF VAR v-cum-qty AS DEC EXTENT 2 FORMAT ">>>>>9.999". 
+ DEF NEW SHARED VAR v-avgcost AS LOGICAL.
+ DEF VAR save_id AS RECID.
+ DEF VAR dollar-chg AS DEC.
  DEF VAR v-postable AS LOG NO-UNDO.
  DEF VAR v-invalid AS LOG NO-UNDO.
  DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
@@ -146,7 +146,7 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 8.1.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -199,15 +199,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -244,7 +244,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -294,7 +294,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -305,100 +305,82 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  DEF VAR lv-post AS LOG NO-UNDO.
+    DEF VAR lv-post AS LOG NO-UNDO.
 
+    ASSIGN rd-dest
+        post-date.
+    SESSION:SET-WAIT-STATE ("general").
 
-  assign rd-dest
-         post-date.
+    ASSIGN rd-dest.
+    IF v-print-fmt EQ "Pacific" OR v-print-fmt EQ "Xprint" OR v-print-fmt = "southpak"
+        THEN is-xprint-form = YES.     
+    ELSE is-xprint-form = NO.
 
-  run run-report.
- DO:
-  SESSION:SET-WAIT-STATE ("general").
+    RUN run-report. 
 
-  assign rd-dest.
-  IF v-print-fmt EQ "Pacific" OR v-print-fmt EQ "Xprint" OR v-print-fmt = "southpak"
-       THEN is-xprint-form = YES.     
-  ELSE is-xprint-form = NO.
+    SESSION:SET-WAIT-STATE ("").
 
-  run run-report. 
-
-  SESSION:SET-WAIT-STATE ("").
-
-  DO:
-  SESSION:SET-WAIT-STATE ("general").
-
-  assign rd-dest.
-  IF v-print-fmt EQ "Pacific" OR v-print-fmt EQ "Xprint" OR v-print-fmt = "southpak"
-       THEN is-xprint-form = YES.     
-  ELSE is-xprint-form = NO.
-
-  run run-report. 
-
-  SESSION:SET-WAIT-STATE ("").
-
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-       when 4 then do:
+    CASE rd-dest:
+        WHEN 1 THEN RUN output-to-printer.
+        WHEN 2 THEN RUN output-to-screen.
+        WHEN 3 THEN RUN output-to-file.
+        WHEN 4 THEN 
+            DO:
            /*run output-to-fax.*/
-           {custom/asifax.i &type= ''
+                {custom/asifax.i &type= ''
                             &begin_cust= "post-date"
                             &END_cust= "post-date" 
                             &fax-subject=c-win:title
                             &fax-body=c-win:title
                             &fax-file=list-name }
-       END. 
-       when 5 then do:
-           IF is-xprint-form THEN DO:
-              {custom/asimail.i &TYPE = ''
+            END. 
+        WHEN 5 THEN 
+            DO:
+                IF is-xprint-form THEN 
+                DO:
+                    {custom/asimail.i &TYPE = ''
                              &begin_cust=''
                              &END_cust=''
                              &mail-subject=c-win:title
                              &mail-body=c-win:title
                              &mail-file=list-name }
-           END.
-           ELSE DO:
-               {custom/asimailr.i &TYPE = ''
+                END.
+                ELSE 
+                DO:
+                    {custom/asimailr.i &TYPE = ''
                                   &begin_cust=''
                                   &END_cust=''
                                   &mail-subject=c-win:title
                                   &mail-body=c-win:title
                                   &mail-file=list-name }
-           END.
-                 END.
-                 WHEN 6 THEN RUN OUTPUT-to-port.
+                END.
+            END.
+        WHEN 6 THEN RUN OUTPUT-to-port.
+    END CASE. 
 
-            end case. 
-            SESSION:SET-WAIT-STATE("").
-          END.
-END.
+    SESSION:SET-WAIT-STATE("").
 
-/*
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-  end case.  */
-  IF rd-dest > 1 OR v-postable = NO THEN
-     v-printed = YES.
+    IF rd-dest > 1 OR v-postable = NO THEN
+        v-printed = YES.
 
-  IF v-postable AND v-printed = YES THEN DO:    
-    lv-post = NO.
+    IF v-postable AND v-printed = YES THEN 
+    DO:    
+        lv-post = NO.
 
-    MESSAGE "Post Physical Count?"
+        MESSAGE "Post Physical Count?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE lv-post.
 
-    IF lv-post THEN do:
-      RUN cpost.
-      MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.     
-    END. 
-  END.
-  ELSE 
-     IF v-printed = YES THEN
-      MESSAGE "Nothing available for posting..." 
-         VIEW-AS ALERT-BOX ERROR.
+        IF lv-post THEN 
+        DO:
+            RUN cpost.
+            MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.     
+        END. 
+    END.
+    ELSE 
+        IF v-printed = YES THEN
+            MESSAGE "Nothing available for posting..." 
+                VIEW-AS ALERT-BOX ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -409,7 +391,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -467,7 +449,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL post-date C-Win
 ON LEAVE OF post-date IN FRAME FRAME-A /* Transaction Date */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 /*
   if lastkey ne -1 then do:
@@ -486,7 +468,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -497,7 +479,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -552,122 +534,129 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cpost C-Win 
 PROCEDURE cpost :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
 
-DEF BUFFER b-rm-bin FOR rm-bin.
+    DEF BUFFER b-rm-bin FOR rm-bin.
 
-def var v-temp-cost as dec format ">>>>>9.99".
-def var v-dunne     as log initial no.
-def var next_r-no like rm-rcpth.r-no.
-def var v_r-no like rm-rcpth.r-no.
-def var v-r-qty     as   dec                    no-undo.
-def var v-i-qty     as   dec                    no-undo.
-def var v-t-qty     as   dec                    no-undo.
+    DEF VAR v-temp-cost AS DEC FORMAT ">>>>>9.99".
+    DEF VAR v-dunne     AS LOG INITIAL NO.
+    DEF VAR next_r-no   LIKE rm-rcpth.r-no.
+    DEF VAR v_r-no      LIKE rm-rcpth.r-no.
+    DEF VAR v-r-qty     AS DEC NO-UNDO.
+    DEF VAR v-i-qty     AS DEC NO-UNDO.
+    DEF VAR v-t-qty     AS DEC NO-UNDO.
 
-   postit:
-  do transaction on error undo postit, leave postit:
-    for each rm-rctd
-        where rm-rctd.company   eq cocode
-          and rm-rctd.rita-code eq "C",               
-        first item
-        where item.company eq cocode
-          and item.i-no    eq rm-rctd.i-no
-        use-index i-no
+    postit:
+    DO /* TRANSACTION */ ON ERROR UNDO postit, LEAVE postit:
+        FOR EACH rm-rctd
+            WHERE rm-rctd.company   EQ cocode
+            AND rm-rctd.rita-code EQ "C",               
+            FIRST item
+            WHERE item.company EQ cocode
+            AND item.i-no    EQ rm-rctd.i-no
+            USE-INDEX i-no
 
-        break by rm-rctd.i-no
-              by rm-rctd.rct-date
-              BY rm-rctd.tag:
+            BREAK BY rm-rctd.i-no
+            BY rm-rctd.rct-date
+            BY rm-rctd.tag:
 
-      assign
-       item.last-count = 0
-       item.q-onh      = 0
-       item.last-date  = rm-rctd.rct-date.
+            ASSIGN
+                item.last-count = 0
+                item.q-onh      = 0
+                item.last-date  = rm-rctd.rct-date.
 
-                    /** Find Bin & if not available then create it **/
-        find first rm-bin
-            where rm-bin.company eq cocode
-              and rm-bin.loc     eq rm-rctd.loc
-              and rm-bin.i-no    eq rm-rctd.i-no
-              and rm-bin.loc-bin eq rm-rctd.loc-bin
-              and rm-bin.tag     eq rm-rctd.tag
-            no-error.
+            /** Find Bin & if not available then create it **/
+            FIND FIRST rm-bin
+                WHERE rm-bin.company EQ cocode
+                AND rm-bin.loc     EQ rm-rctd.loc
+                AND rm-bin.i-no    EQ rm-rctd.i-no
+                AND rm-bin.loc-bin EQ rm-rctd.loc-bin
+                AND rm-bin.tag     EQ rm-rctd.tag
+                NO-ERROR.
 
-        if not avail rm-bin then do:
-          create rm-bin.
-          assign
-           rm-bin.company = rm-rctd.company
-           rm-bin.loc     = rm-rctd.loc
-           rm-bin.loc-bin = rm-rctd.loc-bin
-           rm-bin.tag     = rm-rctd.tag
-           rm-bin.i-no    = rm-rctd.i-no
-           rm-bin.cost    = rm-rctd.cost.
-        end. /* not avail rm-bin */
+            IF NOT AVAIL rm-bin THEN 
+            DO:
+                IF rm-rctd.cost EQ 0 THEN ASSIGN  
+                    rm-rctd.cost = IF v-avgcost THEN ITEM.avg-cost ELSE ITEM.last-cost
+                    rm-rctd.cost-uom = ITEM.cons-uom.
+                CREATE rm-bin.
+                ASSIGN
+                    rm-bin.company = rm-rctd.company
+                    rm-bin.loc     = rm-rctd.loc
+                    rm-bin.loc-bin = rm-rctd.loc-bin
+                    rm-bin.tag     = rm-rctd.tag
+                    rm-bin.i-no    = rm-rctd.i-no
+                    rm-bin.cost    = rm-rctd.cost
+                    rm-bin.po-no   = INTEGER(rm-rctd.po-no)
+                    .
+            END. /* not avail rm-bin */
 
-        rm-bin.qty = rm-rctd.qty.
+            rm-bin.qty = rm-rctd.qty.
 
-        /* Update bin with any transactions after this cycle count */
-        for each rm-rcpth
-            where rm-rcpth.company    eq cocode
-              and rm-rcpth.i-no       eq item.i-no
-              and rm-rcpth.trans-date ge rm-rctd.rct-date
-            no-lock use-index i-no,
+            /* Update bin with any transactions after this cycle count */
+            FOR EACH rm-rcpth
+                WHERE rm-rcpth.company    EQ cocode
+                AND rm-rcpth.i-no       EQ item.i-no
+                AND rm-rcpth.trans-date GE rm-rctd.rct-date
+                NO-LOCK USE-INDEX i-no,
 
-            each rm-rdtlh
-            where rm-rdtlh.r-no      eq rm-rcpth.r-no
-              and rm-rdtlh.rita-code eq rm-rcpth.rita-code
-              and rm-rdtlh.loc       eq rm-bin.loc
-              and rm-rdtlh.loc-bin   eq rm-bin.loc-bin
-              and rm-rdtlh.tag       eq rm-bin.tag
-            no-lock
+                EACH rm-rdtlh
+                WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
+                AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
+                AND rm-rdtlh.loc       EQ rm-bin.loc
+                AND rm-rdtlh.loc-bin   EQ rm-bin.loc-bin
+                AND rm-rdtlh.tag       EQ rm-bin.tag
+                NO-LOCK
 
-            by rm-rcpth.trans-date
-            by rm-rcpth.r-no
-            by recid(rm-rdtlh):
+                BY rm-rcpth.trans-date
+                BY rm-rcpth.r-no
+                BY RECID(rm-rdtlh):
 
-          if rm-rcpth.trans-date eq rm-rctd.rct-date and
-             rm-rcpth.r-no       lt rm-rctd.r-no       then next. 
+                IF rm-rcpth.trans-date EQ rm-rctd.rct-date AND
+                    rm-rcpth.r-no       LT rm-rctd.r-no       THEN NEXT. 
 
-          {rm/rm-mkbin.i}
-        end.           
+                {rm/rm-mkbin.i}
+            END.           
 
-      if last-of(rm-rctd.i-no) then do:
-        v-temp-cost = 0.
+            IF LAST-OF(rm-rctd.i-no) THEN 
+            DO:
+                v-temp-cost = 0.
 
-        for each rm-bin
-            where rm-bin.company eq cocode
-              and rm-bin.i-no    eq item.i-no
-            on error undo postit, leave:
+                FOR EACH rm-bin
+                    WHERE rm-bin.company EQ cocode
+                    AND rm-bin.i-no    EQ item.i-no
+                    ON ERROR UNDO postit, LEAVE:
 
-          assign
-           item.q-onh      = item.q-onh + rm-bin.qty
-           item.last-count = item.last-count + rm-bin.qty
-           v-temp-cost     = v-temp-cost + (rm-bin.qty * rm-bin.cost).
-        end. /* each rm-bin */
+                    ASSIGN
+                        item.q-onh      = item.q-onh + rm-bin.qty
+                        item.last-count = item.last-count + rm-bin.qty
+                        v-temp-cost     = v-temp-cost + (rm-bin.qty * rm-bin.cost).
+                END. /* each rm-bin */
 
-        if item.q-onh eq 0 then item.avg-cost = 0.
+                IF item.q-onh EQ 0 THEN item.avg-cost = 0.
 
-        /** Calculate new average cost for item **/
-        else
-        if v-temp-cost gt 0 then item.avg-cost = v-temp-cost / item.q-onh.
+                /** Calculate new average cost for item **/
+                ELSE
+                    IF v-temp-cost GT 0 THEN item.avg-cost = v-temp-cost / item.q-onh.
 
-        item.q-avail = item.q-onh + item.q-ono - item.q-comm.
-      end. /* last-of rm-rctd.i-no */
+                item.q-avail = item.q-onh + item.q-ono - item.q-comm.
+            END. /* last-of rm-rctd.i-no */
 
-      {rm/rm-rctd.i rm-rcpth rm-rdtlh rm-rctd} /* Create History Records */
-     /* create rm-rcpth.
-      {rm/rm-rcpt.i rm-rcpth rm-rctd}     /* Create Header History Records */
-      CREATE rm-rdtlh.
-      {rm/rm-rdtl.i rm-rdtlh rm-rctd}   /* Create Detail History Records */
-      */
-      delete rm-rctd.
-    end. /* for each rm-rctd */
+            {rm/rm-rctd.i rm-rcpth rm-rdtlh rm-rctd} /* Create History Records */
+            /* create rm-rcpth.
+             {rm/rm-rcpt.i rm-rcpth rm-rctd}     /* Create Header History Records */
+             CREATE rm-rdtlh.
+             {rm/rm-rdtl.i rm-rdtlh rm-rctd}   /* Create Detail History Records */
+             */
+            DELETE rm-rctd.
+        END. /* for each rm-rctd */
 
-    v-dunne = true.
-  end. /* postit */
+        v-dunne = TRUE.
+    END. /* postit */
 
 END PROCEDURE.
 
@@ -802,7 +791,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -810,120 +799,91 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report PRIVATE :
-{sys/form/r-topw.f}
+    {sys/form/r-topw.f}
 
-/*  
-      form
-          rm-rctd.rct-date label "DATE"
-          rm-rctd.i-no label "ITEM"
-          rm-rctd.i-name label "DESCRIPTION"
-          rm-rctd.loc label "WHSE"
-          rm-rctd.loc-bin label "BIN"
-          rm-rctd.tag label "TAG#"
-          rm-rctd.qty format "->>>>>9.99<<" label "QUANTITY"
-          v-cum-qty[1] column-label "TOTAL  !QUANTITY "
-      WITH FRAME itemx no-box down STREAM-IO width 132.
-*/
-      form
-    tt-rm-bin.i-no    label "ITEM"
-    item.i-name    label "DESCRIPTION"
-    item.cc-code   label "CYCLE CODE"
-    tt-rm-bin.loc     label "WHSE"
-    tt-rm-bin.loc-bin label "BIN"
-    tt-rm-bin.tag     FORMAT "X(20)" label "TAG"
-    tt-rm-bin.qty     FORM "->>,>>>,>>9.99" label "BIN QTY"
-    item.cons-uom  label "UOM"
-    rm-rctd.qty    label "QTY COUNTED" format "->>>,>>9.999"
-    dollar-chg     label "VALUE CHANGE"
-    skip
-    WITH FRAME itemx no-box down STREAM-IO width 200.
+    FORM
+        tt-rm-bin.i-no    LABEL "ITEM"
+        item.i-name    LABEL "DESCRIPTION"
+        item.cc-code   LABEL "CYCLE CODE"
+        tt-rm-bin.loc     LABEL "WHSE"
+        tt-rm-bin.loc-bin LABEL "BIN"
+        tt-rm-bin.tag     FORMAT "X(20)" LABEL "TAG"
+        tt-rm-bin.qty     FORM "->>,>>>,>>9.99" LABEL "BIN QTY"
+        item.cons-uom  LABEL "UOM"
+        rm-rctd.qty    LABEL "QTY COUNTED" FORMAT "->>>,>>9.999"
+        dollar-chg     LABEL "VALUE CHANGE"
+        SKIP
+        WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 200.
 
-      SESSION:SET-WAIT-STATE("general").
-           v-postable = NO.
+    SESSION:SET-WAIT-STATE("general").
+    v-postable = NO.
 
-      assign
-       str-tit2 = c-win:title
-       {sys/inc/ctrtext.i str-tit2 112}
+    ASSIGN
+        str-tit2 = c-win:TITLE
+        {sys/inc/ctrtext.i str-tit2 112}
 
-         x = (112 - length(str-tit)) / 2
-         str-tit  = fill(" ",x) + str-tit
-         x = (112 - length(str-tit2)) / 2
-         str-tit2 = fill(" ",x) + str-tit2. 
+        x        = (112 - length(str-tit)) / 2
+        str-tit  = FILL(" ",x) + str-tit
+        x        = (112 - length(str-tit2)) / 2
+        str-tit2 = FILL(" ",x) + str-tit2. 
 
-      {sys/inc/print1.i}
+    {sys/inc/print1.i}
 
-      {sys/inc/outprint.i value(lines-per-page)}
+    {sys/inc/outprint.i value(lines-per-page)}
 
-      if td-show-parm then run show-param.
+    IF td-show-parm THEN RUN show-param.
 
-      DISPLAY "" WITH frame r-top.
+    DISPLAY "" WITH FRAME r-top.
 
-    for each rm-rctd where rm-rctd.company = cocode and
-       rm-rctd.rita-code = "C" break by rm-rctd.i-no BY rm-rctd.r-no with frame itemx:
-      find first item where item.company = rm-rctd.company and
-                   item.i-no    = rm-rctd.i-no no-lock no-error.
-
-        EMPTY TEMP-TABLE tt-rm-bin.
+    FOR EACH rm-rctd NO-LOCK WHERE 
+        rm-rctd.company = cocode AND
+        rm-rctd.rita-code = "C" BREAK BY rm-rctd.i-no BY rm-rctd.r-no WITH FRAME itemx:
+        
+        FIND FIRST item WHERE item.company = rm-rctd.company AND
+            item.i-no    = rm-rctd.i-no NO-LOCK NO-ERROR.
 
         CREATE tt-rm-bin.
 
         FIND FIRST rm-bin
             WHERE rm-bin.company = rm-rctd.company
-              AND rm-bin.loc     = rm-rctd.loc
-              AND rm-bin.loc-bin = rm-rctd.loc-bin
-              AND rm-bin.tag     = rm-rctd.tag
-              AND rm-bin.i-no    = rm-rctd.i-no
+            AND rm-bin.loc     = rm-rctd.loc
+            AND rm-bin.loc-bin = rm-rctd.loc-bin
+            AND rm-bin.tag     = rm-rctd.tag
+            AND rm-bin.i-no    = rm-rctd.i-no
             NO-LOCK NO-ERROR.
 
         IF AVAIL rm-bin THEN
-          BUFFER-COPY rm-bin EXCEPT rec_key TO tt-rm-bin.
+            BUFFER-COPY rm-bin EXCEPT rec_key TO tt-rm-bin.
         ELSE
-          BUFFER-COPY rm-rctd EXCEPT po-no rec_key TO tt-rm-bin ASSIGN tt-rm-bin.po-no = INT(rm-rctd.po-no).
+            BUFFER-COPY rm-rctd EXCEPT po-no rec_key TO tt-rm-bin ASSIGN tt-rm-bin.po-no = INT(rm-rctd.po-no).
 
-/*           ASSIGN              */
-/*            tt-rm-bin.qty = 0. */
-
-        if line-counter > 56 then page.
-        if v-avgcost then
-           dollar-chg = (rm-rctd.qty - tt-rm-bin.qty) * item.avg-cost.
-        else 
-           dollar-chg = (rm-rctd.qty - tt-rm-bin.qty) * item.last-cost.
-         display
-             tt-rm-bin.i-no    when first-of(rm-rctd.r-no)
-             item.i-name    when first-of(rm-rctd.r-no)
-             item.cc-code   when first-of(rm-rctd.r-no)
-             tt-rm-bin.loc
-             tt-rm-bin.loc-bin
-             tt-rm-bin.tag
-             tt-rm-bin.qty
-             item.cons-uom
+        IF LINE-COUNTER > 56 THEN PAGE.
+        IF v-avgcost THEN
+            dollar-chg = (rm-rctd.qty - tt-rm-bin.qty) * item.avg-cost.
+        ELSE 
+            dollar-chg = (rm-rctd.qty - tt-rm-bin.qty) * item.last-cost.
+        DISPLAY
+            tt-rm-bin.i-no    
+            WHEN FIRST-OF(rm-rctd.r-no)
+            item.i-name    
+            WHEN FIRST-OF(rm-rctd.r-no)
+            item.cc-code   
+            WHEN FIRST-OF(rm-rctd.r-no)
+            tt-rm-bin.loc
+            tt-rm-bin.loc-bin
+            tt-rm-bin.tag
+            tt-rm-bin.qty
+            item.cons-uom
              rm-rctd.qty    (sub-total by rm-rctd.i-no)
              dollar-chg     (sub-total by rm-rctd.i-no).
+        DOWN.
+        v-postable = YES.
+        v-cum-qty[1] = v-cum-qty[1] + rm-rctd.qty.
+        DELETE tt-rm-bin.     
+    END. /* each rm-rctd */
 
-         down.
-       v-postable = YES.
-       v-cum-qty[1] = v-cum-qty[1] + rm-rctd.qty.
-/*
-       if last-of(rm-rctd.i-no) then do:
-         display v-cum-qty[1].
-         put skip(1).
-         assign
-          v-cum-qty[2] = v-cum-qty[2] + v-cum-qty[1]
-          v-cum-qty[1] = 0.
-         if last(rm-rctd.i-no) then
-           put "GRAND TOTAL:" to 75
-               v-cum-qty[2]   to 96
-               skip.
-       end.
-
-       down.
- */
-    end. /* each rm-rctd */
-
-   SESSION:SET-WAIT-STATE("").  
-    /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
-
-    end procedure.
+    SESSION:SET-WAIT-STATE("").  
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -935,62 +895,62 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
+  DEF VAR parm-fld-list AS cha NO-UNDO.
+  DEF VAR parm-lbl-list AS cha NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR lv-label AS cha.
 
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
 
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 

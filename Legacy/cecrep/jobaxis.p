@@ -506,7 +506,7 @@ do v-local-loop = 1 to v-local-copies:
 
         PUT SKIP(2).
         run cecrep/jobtick3.p (recid(job-hdr),v-format,cust.terms).
-        RUN stackImage.
+        /*RUN stackImage.*/ /* ticket 30769 */
         ASSIGN v-tmp-lines = 0
                j = 0
                K = 0
@@ -693,7 +693,7 @@ do v-local-loop = 1 to v-local-copies:
            FOR EACH xeb WHERE xeb.company = est.company
                            AND xeb.est-no = est.est-no
                            AND xeb.form-no > 0 NO-LOCK:
-               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet SKIP.
+               PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.quantityPerSet format ">>>>9.9<<<" SKIP.
                v-tmp-line = v-tmp-line + 1.
            END.
            v-tmp-line = v-tmp-line + 1.

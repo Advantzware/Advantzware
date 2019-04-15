@@ -1028,7 +1028,10 @@ PROCEDURE rebuild-stds :
          UNDO, RETURN.
     END.
 
-    MESSAGE "Recalculate Job Standards? " VIEW-AS ALERT-BOX QUESTION
+    MESSAGE 
+    	"Rebuild Materials and Routing tab and" SKIP 
+    	"Recalculate job costs from estimate standards? " 
+	VIEW-AS ALERT-BOX QUESTION
         BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF ll-ans THEN DO:
       IF AVAIL job-hdr THEN lv-qty = job-hdr.qty.

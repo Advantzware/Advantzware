@@ -17,13 +17,13 @@
 
 DEFINE TEMP-TABLE ttImportGL
     FIELD Company             AS CHARACTER 
-    FIELD Location        AS CHARACTER 
-    FIELD AccountNo           AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Account #"
-    FIELD AccountDesc         AS CHARACTER FORMAT "x(50)" COLUMN-LABEL "Description"
-    FIELD AccountType         AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "Type"
+    FIELD Location            AS CHARACTER 
+    FIELD AccountNo           AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Account #" HELP "Required - Size:30"
+    FIELD AccountDesc         AS CHARACTER FORMAT "x(50)" COLUMN-LABEL "Description" HELP "Optional - Size:50"
+    FIELD AccountType         AS CHARACTER FORMAT "x(1)" COLUMN-LABEL "Type" HELP "Required - Size:1"
         .
 
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -107,13 +107,8 @@ PROCEDURE pValidate PRIVATE:
         
     END.
     IF oplValid AND iplFieldValidation THEN 
-    DO:
-        IF LOOKUP(ipbf-ttImportGL.AccountType,"A,C,E,L,R,T") EQ 0 THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote = "Invalid Account Type"
-                .
-    END.
+        RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportGL.AccountType, "A,C,E,L,R,T", OUTPUT oplValid, OUTPUT cValidNote).
+    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     
 END PROCEDURE.
 
@@ -123,10 +118,9 @@ PROCEDURE pProcessRecord PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttImportGL FOR ttImportGL.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
 
-FOR EACH ipbf-ttImportGL NO-LOCK:
-    IF ipbf-ttImportGL.AccountNo EQ "" THEN NEXT.
     FIND FIRST account EXCLUSIVE-LOCK 
         WHERE account.company EQ ipbf-ttImportGL.Company
         AND account.actnum EQ ipbf-ttImportGL.AccountNo
@@ -137,14 +131,10 @@ FOR EACH ipbf-ttImportGL NO-LOCK:
         ASSIGN
             account.company = ipbf-ttImportGL.Company
             account.actnum = ipbf-ttImportGL.AccountNo
-            . 
+            account.type = "A". 
     END.
-    ASSIGN 
-        account.dscr = ipbf-ttImportGL.AccountDesc
-        account.type = ipbf-ttImportGL.AccountType
-        .
-    
-END.
+    RUN pAssignValueC (ipbf-ttImportGL.AccountDesc, iplIgnoreBlanks, INPUT-OUTPUT account.dscr).
+    RUN pAssignValueC (ipbf-ttImportGL.AccountType, YES, INPUT-OUTPUT account.type).    
 
 END PROCEDURE.
 

@@ -98,6 +98,7 @@ DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_loadtag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_miscflds AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_oe-hold AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_optonote AS HANDLE NO-UNDO.
@@ -806,7 +807,6 @@ PROCEDURE adm-create-objects :
              h_p-ordmis , 'AFTER':U ).
     END. /* Page 4 */
     WHEN 5 THEN DO:
-
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/relnote.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -814,6 +814,13 @@ PROCEDURE adm-create-objects :
              OUTPUT h_relnote ).
        RUN set-position IN h_relnote ( 1.00 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 16.20 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/vi-ordl.w':U ,
@@ -841,7 +848,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_b-ordrel ).
        RUN set-position IN h_b-ordrel ( 9.10 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-ordrel ( 13.57 , 147.00 ) NO-ERROR.
+       RUN set-size IN h_b-ordrel ( 12.57 , 147.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -885,6 +892,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('3':U) NO-ERROR.
+
+       /* Links to SmartNavBrowser h_b-ordrel. */
+       RUN add-link IN adm-broker-hdl ( h_b-ordrel , 'move-columns':U , h_movecol-2 ).
 
        /* Links to SmartViewer h_vi-ordl. */
        RUN add-link IN adm-broker-hdl ( h_b-ordlt , 'Record':U , h_vi-ordl ).
@@ -971,6 +981,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_v-ordt. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_v-ordt ).
        RUN add-link IN adm-broker-hdl ( h_p-ordt , 'TableIO':U , h_v-ordt ).
+       RUN add-link IN adm-broker-hdl ( h_b-ordm , 'oemisc':U , h_v-ordt ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-ord-2 ,
@@ -1343,6 +1354,11 @@ PROCEDURE local-change-page :
   END.
   IF li-cur-page = 2 AND VALID-HANDLE(h_v-ord)  THEN
     RUN change-page-logic IN h_v-ord.
+
+  IF li-cur-page EQ 5 then do:
+     RUN set-buttons IN h_p-orel-2 ('initial').
+     RUN set-buttons IN h_p-obol ('initial').
+  END.
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
 
@@ -1425,7 +1441,6 @@ PROCEDURE make-buttons-insensitive :
   Parameters:  <none>
   Notes:    To ensure user does not navigate to prior order
 -------------------------------------------------------------*/
-
     IF VALID-HANDLE(h_optonote) THEN
        RUN make-insensitive IN h_optonote.
     IF VALID-HANDLE(h_smartmsg) THEN
@@ -1440,6 +1455,8 @@ PROCEDURE make-buttons-insensitive :
        RUN make-insensitive IN h_options3.
     IF VALID-HANDLE(h_movecol) THEN
        RUN make-insensitive IN h_movecol.
+    IF VALID-HANDLE(h_movecol-2) THEN
+       RUN make-insensitive IN h_movecol-2.
    RETURN.
        
 END PROCEDURE.
@@ -1453,8 +1470,6 @@ PROCEDURE make-buttons-sensitive :
   Parameters:  <none>
   Notes:   
 -------------------------------------------------------------*/
-
-
     IF VALID-HANDLE(h_optonote) THEN
        RUN make-sensitive IN h_optonote.
     IF VALID-HANDLE(h_smartmsg) THEN
@@ -1468,7 +1483,9 @@ PROCEDURE make-buttons-sensitive :
     IF VALID-HANDLE(h_options3) THEN
        RUN make-sensitive IN h_options3.
     IF VALID-HANDLE(h_movecol) THEN
-       RUN make-sensitive IN h_movecol.   
+       RUN make-sensitive IN h_movecol. 
+    IF VALID-HANDLE(h_movecol-2) THEN
+       RUN make-sensitive IN h_movecol-2.
    RETURN.
        
 END PROCEDURE.

@@ -1433,6 +1433,8 @@ PROCEDURE run-report :
 /* -------------------------------------------------oe/rep/schdrel.p 8/93 rd */
 /* Schedule Release Report                                                   */
 /* -------------------------------------------------------------------------- */
+ASSIGN cBeginCsr = ""
+       cEndCsr   = "zzzzzzzzzz" .
 
 v-comps = tb_comps.
 

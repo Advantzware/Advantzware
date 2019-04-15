@@ -530,12 +530,15 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 /*           END.                          */
 
           /* br task 12081002 */
+          
           CASE svi-print-item:
-              WHEN 1 THEN ASSIGN vc-print-item = inv-line.i-no.
-              WHEN 2 THEN ASSIGN vc-print-item = inv-line.part-no.
-              OTHERWISE ASSIGN vc-print-item = inv-line.part-no.
-          END CASE.
-          RUN addLines(4).
+            WHEN 1 THEN ASSIGN vc-print-item = inv-line.i-no.
+            WHEN 2 THEN ASSIGN vc-print-item = inv-line.part-no.
+                OTHERWISE ASSIGN vc-print-item = inv-line.part-no.
+          END.
+
+          RUN addLines(4). 
+
           PUT             
             SPACE(1)
               /* br task 12081002 - inv-line.part-no */

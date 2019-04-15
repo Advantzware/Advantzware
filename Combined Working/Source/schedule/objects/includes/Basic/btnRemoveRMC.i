@@ -1,3 +1,0 @@
-/* btnRemoveRMC.i */
-
-/* static version */

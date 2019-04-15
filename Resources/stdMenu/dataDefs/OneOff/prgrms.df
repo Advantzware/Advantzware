@@ -1,0 +1,30 @@
+ADD FIELD "menuOrder" OF "prgrms" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Menu Order"
+  POSITION 30
+  MAX-WIDTH 4
+  COLUMN-LABEL "Order"
+  HELP "Enter Menu Order"
+  ORDER 290
+
+ADD FIELD "systemType" OF "prgrms" AS character 
+  FORMAT "x(8)"
+  INITIAL "Both"
+  LABEL "System Type"
+  POSITION 31
+  MAX-WIDTH 16
+  COLUMN-LABEL "Type"
+  HELP "Enter System Type"
+  ORDER 300
+
+ADD INDEX "si-menuOrder" ON "prgrms" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Menu Order"
+  INDEX-FIELD "menuOrder" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000007605

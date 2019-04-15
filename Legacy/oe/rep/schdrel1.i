@@ -32,6 +32,8 @@ DEF VAR ld-qty-rec AS DEC FORMAT ">>>,>>>,>>9" NO-UNDO.
 DEF VAR ll-po AS LOG NO-UNDO.
 DEF VAR lv-text AS CHAR NO-UNDO.
 DEF VAR v-qty-opt AS CHAR NO-UNDO.
+DEFINE VARIABLE cBeginCsr as CHARACTER NO-UNDO .
+DEFINE VARIABLE cEndCsr as CHARACTER NO-UNDO .
 
 def workfile w-ord
   field ord-no like oe-ord.ord-no

@@ -59,7 +59,7 @@
             .
           &IF DEFINED(c) EQ 0 &THEN
           ASSIGN
-            XMLFile = '/{&XMLOutput}.' + STRING(TIME,'99999') + '.xml'
+            XMLFile = '/{&XMLOutput}.' + STRING(TIME,'99999') + STRING(RANDOM(1, 999))+ '.xml'
             XMLTemp = 'XMLOutput' + XMLFile
             .
           OUTPUT STREAM XMLOutput TO VALUE(XMLTemp).
@@ -177,13 +177,7 @@
           PUT STREAM XMLOutput UNFORMATTED '<' pcLabel '>'.
           WHEN 'Col' THEN
           IF pcValue NE '' AND pcValue NE ? THEN DO:
-            ASSIGN /* remove special characters with escape values */
-              pcValue = REPLACE(pcValue,'~&','~&amp;')
-              pcValue = REPLACE(pcValue,'~'','~&apos;')
-              pcValue = REPLACE(pcValue,'"','~&quot;')
-              pcValue = REPLACE(pcValue,'<','~&lt;')
-              pcValue = REPLACE(pcValue,'>','~&gt;')
-              .
+            pcValue = DYNAMIC-FUNCTION("sfWebCharacters", pcValue, 5, "Web").
             PUT STREAM XMLOutput UNFORMATTED '<' pcLabel '>' pcValue '</' pcLabel '>'.
           END.
           ELSE

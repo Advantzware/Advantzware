@@ -43,7 +43,6 @@ def buffer b-eb       for eb.
 def buffer b2-eb      for eb.
 def buffer b-itemfg   for itemfg.
 def buffer b-item     for item.
-def buffer b-rt       for reftable.
 
 /* Includes */
 {sys/inc/var.i shared}
@@ -1014,22 +1013,6 @@ PROCEDURE InkData :
         and b2-eb.form-no = job-hdr.frm
          by b2-eb.form-no
          by b2-eb.blank-no:
-
-    FIND FIRST reftable 
-         WHERE reftable         EQ "ce/v-est3.w Unit#"
-           AND reftable.company EQ b2-eb.company
-           AND reftable.loc     EQ b2-eb.est-no
-           AND reftable.code    EQ STRING(b2-eb.form-no,"9999999999")
-           AND reftable.code2   EQ STRING(b2-eb.blank-no,"9999999999")
-         NO-LOCK NO-ERROR.
-  
-    FIND FIRST b-rt
-         WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"
-           AND b-rt.company  EQ b2-eb.company
-           AND b-rt.loc      EQ b2-eb.est-no
-           AND b-rt.code     EQ STRING(b2-eb.form-no,"9999999999")
-           AND b-rt.code2    EQ STRING(b2-eb.blank-no,"9999999999")
-         NO-LOCK NO-ERROR.
   
     do viCount = 1 to 20:
   
@@ -1038,10 +1021,7 @@ PROCEDURE InkData :
   
       if avail tt-ink and 
                tt-ink.i-unit = 0 then
-        tt-ink.i-unit = IF viCount LE 12 AND AVAIL reftable 
-                          then reftable.val [viCount]
-                          else IF AVAIL b-rt  THEN b-rt.val [viCount - 12]
-                                              ELSE 0.
+        tt-ink.i-unit = b2-eb.unitNo[viCount].
     end.
   end.
 

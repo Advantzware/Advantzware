@@ -49,9 +49,12 @@ RUN methods/prgsecur.p
 
 &Scoped-define BUTTON-INCLUDE JOBS
 
-def temp-table tt-job field job-no like job.job-no
-                      field job-no2 like job.job-no2
-                      /*index job is primary job-no*/ .
+DEFINE TEMP-TABLE tt-job NO-UNDO
+    FIELD job-no  LIKE job.job-no
+    FIELD job-no2 LIKE job.job-no2
+    FIELD sortKey   AS CHARACTER 
+    INDEX sortKey IS PRIMARY sortKey
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -850,144 +853,63 @@ PROCEDURE Get_Jobs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF INPUT PARAM ip-sort-by AS cha NO-UNDO.
+    DEFINE INPUT PARAMETER ip-sort-by AS CHARACTER NO-UNDO.
+  
+    {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
+    {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
+    {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
+    ASSIGN
+        itemlist    = ''
+        button_item = 1
+        .    
+    DEFINE VARIABLE lv-stat           LIKE job.stat EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE i                 AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE b                 AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lv-form-completed AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSortKey          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTSShowPending    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lTSShowPending    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lNK1Found         AS LOGICAL   NO-UNDO.
 
-  {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
-  ASSIGN
-    itemlist = ''
-    button_item = 1.
-    
-  def var lv-stat like job.stat extent 2 no-undo.
-  def var i as int no-undo.
-  def var b as int no-undo.
-  DEF VAR lv-form-completed AS LOG NO-UNDO.
-  DEF BUFFER bf-jobmch FOR job-mch.
+    DEFINE BUFFER bf-jobmch FOR job-mch.
 
-  for each tt-job:
-      delete tt-job.
-  end.
+    EMPTY TEMP-TABLE tt-job.
+  
+    RUN sys/ref/nk1look.p (
+        company_code,
+        "TSShowPending",
+        "L",
+        NO,
+        NO,
+        "",
+        "",
+        OUTPUT cTSShowPending,
+        OUTPUT lNK1Found
+        ).
+    lTSShowPending = lNK1Found AND cTSShowPending EQ "YES".
 
-IF ip-sort-by = "JOB" THEN
-  do i = 1 to 2:
-     assign
-        lv-stat[1] = lv-stat[2]
-        lv-stat[2] = if i eq 1 then "C" else "Z".
+    IF ip-sort-by EQ "JOB" THEN
+    &Scoped-define sortBy
+    &Scoped-define sortKey job.job-no + STRING(job.job-no2,"99")
+    {addon/touch/Get_Jobs.i}
+    ELSE
+    &Scoped-define sortBy BY job.start-date
+    &Scoped-define sortKey ~
+IF job-mch.start-date NE ? AND ~
+   job-mch.start-date GE TODAY - 365 THEN ~
+    STRING(YEAR(job-mch.start-date),"9999") ~
+  + STRING(MONTH(job-mch.start-date),"99") ~
+  + STRING(DAY(job-mch.start-date),"99") ~
+  + STRING(job-mch.start-time,"99999") ~
+    ELSE "9999999999999" + job.job-no + STRING(job.job-no2,"99")
+    {addon/touch/Get_Jobs.i}
 
-     for each job
-         where job.company eq company_code /*'001'*/
-           and job.stat    gt lv-stat[1]
-           and job.stat    lt lv-stat[2]  
-           AND CAN-FIND(FIRST job-hdr WHERE job-hdr.company = job.company 
-                        AND job-hdr.job = job.job AND job-hdr.job-no = job.job-no
-                        AND job-hdr.job-no2 = job.job-no2)
-           no-lock
-           BREAK BY job.job-no BY job.job-no2:
-         
-        IF FIRST-OF(job.job-no2) THEN DO:
-           /* schedule machine task# 08030510*/
-           /*DEF VAR lv-sch-mach AS cha NO-UNDO.
-           DEF VAR lv-mach-list AS cha NO-UNDO.
-           FIND FIRST mach NO-LOCK WHERE mach.company = company_code
-                                     AND mach.m-code = machine_code NO-ERROR.
-           FIND FIRST reftable {&where-sch-m-code} NO-LOCK NO-ERROR.
-           lv-sch-mach = IF AVAIL reftable THEN reftable.code2 ELSE "".
-           IF lv-sch-mach <> "" THEN DO:
-              lv-mach-list = "".
-              FOR EACH reftable NO-LOCK WHERE reftable.reftable = "mach.sch-m-code"
-                                       AND reftable.company  = mach.company
-                                       AND reftable.loc      = mach.loc
-                                       AND reftable.code2     = lv-sch-mach:
-                  lv-mach-list = lv-mach-list + reftable.CODE + ",".
-              END.
-           END.
-           */
-           /* end of task 08030510*/
-           FOR each job-mch of job  NO-LOCK where (job-mch.m-code eq machine_code OR 
-                                                   LOOKUP(job-mch.m-code,machine_list) > 0)
-                  BREAK BY job-mch.frm BY job-mch.blank-no:
+    FOR EACH tt-job BY tt-job.sortKey:
+        itemlist = itemlist + tt-job.job-no + '-' + STRING(tt-job.job-no2) + '@'.
+    END.
+    itemlist = TRIM(itemlist,'@').
 
-              IF FIRST-OF(job-mch.blank-no) THEN DO:
-                 lv-form-completed = YES.
-                 FOR EACH bf-jobmch OF job NO-LOCK where (bf-jobmch.m-code eq machine_code OR 
-                                                   LOOKUP(bf-jobmch.m-code,machine_list) > 0):
-                     lv-form-completed = IF NOT bf-jobmch.run-complete THEN NO ELSE lv-form-completed.
-                 END.                 
-                 IF NOT CAN-FIND(FIRST cmpltjob WHERE cmpltjob.company = company_code
-                                  AND cmpltjob.machine = machine_code
-                                  AND cmpltjob.job_number = job-mch.job-no
-                                  AND cmpltjob.job_sub = job-mch.job-no2
-                                  AND cmpltjob.FORM_number = job-mch.frm
-                                  AND cmpltjob.blank_number = job-mch.blank-no)                    
-                    AND NOT lv-form-completed
-                 THEN DO:
-                      FIND FIRST tt-job WHERE tt-job.job-no = job.job-no
-                                          AND tt-job.job-no2 = job.job-no2 NO-ERROR.
-                      IF NOT AVAIL tt-job THEN DO: 
-                         create tt-job.
-                         assign tt-job.job-no = job.job-no
-                                tt-job.job-no2 = job.job-no2.
-                      END.
-                 END.
-              END.
-           END. /*job-mch*/
-        END. /* first-of(job-no2) */
-     end.  /* for each job */
-  end.
-
- ELSE /* start-date */
-  do i = 1 to 2:
-     assign
-        lv-stat[1] = lv-stat[2]
-        lv-stat[2] = if i eq 1 then "C" else "Z".
-
-     for each job no-lock
-         where job.company eq company_code /*'001'*/
-           and job.stat    gt lv-stat[1]
-           and job.stat    lt lv-stat[2]
-           AND CAN-FIND(FIRST job-hdr WHERE job-hdr.company = job.company 
-                        AND job-hdr.job = job.job AND job-hdr.job-no = job.job-no
-                        AND job-hdr.job-no2 = job.job-no2)
-           BREAK BY job.start-date BY job.job-no BY job.job-no2:
-         
-        IF FIRST-OF(job.job-no2) THEN DO:
-           FOR each job-mch of job  where job-mch.m-code eq machine_code NO-LOCK
-                  BREAK BY job-mch.frm BY job-mch.blank-no:
-              IF FIRST-OF(job-mch.blank-no) THEN DO:
-                 lv-form-completed = YES.
-                 FOR EACH bf-jobmch OF job NO-LOCK where (bf-jobmch.m-code eq machine_code OR 
-                                                   LOOKUP(bf-jobmch.m-code,machine_list) > 0):
-                     lv-form-completed = IF NOT bf-jobmch.run-complete THEN NO ELSE lv-form-completed.
-                 END.
-                 IF NOT CAN-FIND(FIRST cmpltjob WHERE cmpltjob.company = company_code
-                                  AND cmpltjob.machine = machine_code
-                                  AND cmpltjob.job_number = job-mch.job-no
-                                  AND cmpltjob.job_sub = job-mch.job-no2
-                                  AND cmpltjob.FORM_number = job-mch.frm
-                                  AND cmpltjob.blank_number = job-mch.blank-no)
-                    AND NOT lv-form-completed
-                 THEN DO:
-                      FIND FIRST tt-job WHERE tt-job.job-no = job.job-no
-                                          AND tt-job.job-no2 = job.job-no2 NO-ERROR.
-                      IF NOT AVAIL tt-job THEN DO: 
-                         create tt-job.
-                         assign tt-job.job-no = job.job-no
-                                tt-job.job-no2 = job.job-no2.
-                      END.
-                 END.
-              END.
-           END. /*job-mch*/
-        END. /* first-of(job-no2) */
-     end.  /* for each job */
-  end.
-
-  for each tt-job:
-      itemlist = IF itemlist = '' THEN tt-job.job-no + '-' + STRING(tt-job.job-no2)
-                 ELSE itemlist + '@' + tt-job.job-no + '-' + STRING(tt-job.job-no2).
-  end.
-
-  RUN Button_Labels (INPUT-OUTPUT button_item).
+    RUN Button_Labels (INPUT-OUTPUT button_item).
   
 END PROCEDURE.
 

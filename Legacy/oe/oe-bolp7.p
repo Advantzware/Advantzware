@@ -95,14 +95,19 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
   FIELD invHeadRowID AS ROWID
   FIELD cod AS LOGICAL
     INDEX ttblUPS IS PRIMARY UNIQUE company ord-no sold-to.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+    
            
 FUNCTION tabChar RETURNS CHARACTER (ipValue AS CHARACTER):
   RETURN IF ipValue NE '' THEN '~t' ELSE ''.
 END FUNCTION.
 
 {sys/inc/upsfile.i}
-{sys/inc/boltransfer.i}
+
 upsFile = sys-ctrl.char-fld.
+
 
 {fg/fullset.i NEW}
 
@@ -110,6 +115,7 @@ upsFile = sys-ctrl.char-fld.
 {sys/ref/relpost.i}
 
 DO TRANSACTION:
+    {sys/inc/boltransfer.i}
   {sys/inc/invdate.i}
   {sys/inc/relmerge.i}
   {sys/inc/invlotline.i}
@@ -120,6 +126,7 @@ END.
 DEF NEW SHARED VAR out-recid  AS RECID NO-UNDO.
 DEF NEW SHARED VAR relh-recid as recid no-undo.
 DEF NEW SHARED VAR v-auto     AS LOG NO-UNDO.
+
 {oe/chkordl.i NEW}
 {oe/relemail.i NEW}
 
@@ -130,7 +137,7 @@ invstatus-log = LOGICAL(v-rtn-char).
 /* Invstatus to determine invoice status when created  */
 RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", no, no, "", "", 
                       Output invstatus-char, output v-rec-found).
-
+ 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
       AND sys-ctrl.name    EQ "INVPRINT"
@@ -386,6 +393,7 @@ FOR EACH w-inv:
 END.
 
 RUN upsFile.
+DELETE OBJECT hNotesProcs.
 
 RETURN.
 

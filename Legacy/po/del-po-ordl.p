@@ -82,47 +82,33 @@ FOR EACH job NO-LOCK
       AND job-mat.frm      EQ io-po-ordl.s-num
     USE-INDEX job:
 
-  FOR EACH reftable
-      WHERE reftable.reftable EQ "ORDERPO"
-        AND reftable.company  EQ job-mat.company
-        AND reftable.loc      EQ STRING(io-po-ordl.ord-no,"9999999999")
-        AND reftable.code     EQ STRING(job-mat.job,"9999999999") +
-                                 STRING(job-mat.frm,"9999999999")
-        AND reftable.code2    EQ job-mat.rm-i-no
-        AND reftable.val[1]   EQ io-po-ordl.po-no
-      EXCLUSIVE:
-
-    FIND FIRST job-hdr
-        WHERE job-hdr.company   EQ job-mat.company
-          AND job-hdr.job-no    EQ job-mat.job-no
-          AND job-hdr.job-no2   EQ job-mat.job-no2
-          AND job-hdr.frm       EQ job-mat.frm
-          AND (job-hdr.blank-no EQ job-mat.blank-no OR job-mat.blank-no EQ 0)
+    FIND FIRST job-hdr WHERE 
+        job-hdr.company   EQ job-mat.company AND 
+        job-hdr.job-no    EQ job-mat.job-no AND 
+        job-hdr.job-no2   EQ job-mat.job-no2 AND 
+        job-hdr.frm       EQ job-mat.frm AND 
+        (job-hdr.blank-no EQ job-mat.blank-no OR job-mat.blank-no EQ 0)
         NO-LOCK NO-ERROR.
 
-    IF NOT AVAIL job-hdr THEN
-    FIND FIRST job-hdr
-        WHERE job-hdr.company   EQ job-mat.company
-          AND job-hdr.job-no    EQ job-mat.job-no
-          AND job-hdr.job-no2   EQ job-mat.job-no2
+    IF NOT AVAIL job-hdr THEN FIND FIRST job-hdr WHERE 
+        job-hdr.company   EQ job-mat.company AND 
+        job-hdr.job-no    EQ job-mat.job-no AND 
+        job-hdr.job-no2   EQ job-mat.job-no2
         NO-LOCK NO-ERROR.
 
-    IF AVAIL job-hdr AND io-po-ordl.ord-no NE 0 THEN
-    FOR EACH oe-ordl
-        WHERE oe-ordl.company  EQ job-hdr.company
-          AND oe-ordl.ord-no   EQ io-po-ordl.ord-no
-          AND oe-ordl.i-no     EQ job-hdr.i-no
-          AND oe-ordl.job-no   EQ job-hdr.job-no
-          AND oe-ordl.job-no2  EQ job-hdr.job-no2
-          AND oe-ordl.po-no-po EQ io-po-ordl.po-no
+    IF AVAIL job-hdr AND io-po-ordl.ord-no NE 0 THEN FOR EACH oe-ordl WHERE 
+        oe-ordl.company  EQ job-hdr.company AND 
+        oe-ordl.ord-no   EQ io-po-ordl.ord-no AND 
+        oe-ordl.i-no     EQ job-hdr.i-no AND 
+        oe-ordl.job-no   EQ job-hdr.job-no AND 
+        oe-ordl.job-no2  EQ job-hdr.job-no2 AND 
+        oe-ordl.po-no-po EQ io-po-ordl.po-no
         EXCLUSIVE:
-      ASSIGN
-       oe-ordl.po-no-po = 0
-       oe-ordl.vend-no  = "".
+        ASSIGN
+            oe-ordl.po-no-po = 0
+            oe-ordl.vend-no  = "".
     END.
 
-    DELETE reftable.
-  END.
 END.
 
 IF trim(io-po-ordl.job-no) = "" THEN DO:
@@ -134,15 +120,6 @@ IF trim(io-po-ordl.job-no) = "" THEN DO:
      oe-ordl.vend-no  = ""
      oe-ordl.po-no-po = 0.
 
-    FOR EACH reftable
-        WHERE reftable.reftable EQ "ORDERPO"
-          AND reftable.company  EQ io-po-ordl.company
-          AND reftable.code2    EQ io-po-ordl.i-no
-          AND reftable.val[1]   EQ io-po-ordl.po-no
-        EXCLUSIVE-LOCK:
-
-        DELETE reftable.
-    END.
   END.
 END.
 
@@ -163,11 +140,3 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FIND FIRST reftable WHERE
-     reftable.reftable EQ "POORDLDEPTH" AND
-     reftable.company  EQ io-po-ordl.company AND
-     reftable.loc      EQ STRING(io-po-ordl.po-no) AND
-     reftable.code     EQ STRING(io-po-ordl.LINE)
-     EXCLUSIVE-LOCK NO-ERROR.
-
-IF AVAIL reftable THEN DELETE reftable.

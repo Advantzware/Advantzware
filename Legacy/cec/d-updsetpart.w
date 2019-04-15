@@ -400,19 +400,19 @@ DO:
          IF eb.set-is-assembled NE ? THEN
             eb.set-is-assembled = NOT eb.set-is-assembled.
 
-         IF eb.stock-no NE "" THEN
-            FIND FIRST itemfg WHERE
+         IF eb.stock-no NE "" THEN DO:
+             FIND FIRST itemfg WHERE
                  itemfg.company EQ eb.company AND
                  itemfg.i-no    EQ eb.stock-no
-                 NO-ERROR.
+                 EXCLUSIVE-LOCK  NO-ERROR.
 
-         IF AVAIL itemfg THEN
-         DO:
-            ASSIGN
-               itemfg.alloc = rd_alloc
-               itemfg.procat = eb.procat.
-
-            FIND CURRENT itemfg NO-LOCK NO-ERROR.
+             IF AVAIL itemfg THEN
+                 DO: 
+                 ASSIGN
+                     itemfg.alloc = rd_alloc
+                     itemfg.procat = eb.procat.
+                 FIND CURRENT itemfg NO-LOCK NO-ERROR.
+                 END.
          END.
          FIND CURRENT eb NO-LOCK.
 

@@ -19,6 +19,7 @@
       when "P" then cStatDesc = "P- Partial".
       when "C" then cStatDesc = "C- Closed".
       when "U" then cStatDesc = "U- Updated".
+      when "F" then cStatDesc = "F- Fill".
     END CASE.
 
     ASSIGN opStatDesc = cStatDesc .

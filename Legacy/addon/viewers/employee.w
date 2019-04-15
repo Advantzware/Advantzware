@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -68,15 +68,14 @@ DEFINE QUERY external_tables FOR employee.
 &Scoped-Define ENABLED-FIELDS employee.first_name employee.middle_name ~
 employee.last_name employee.soc_sec employee.rate_usage employee.emp_type ~
 employee.keyboard_type employee.start_date employee.ref_no employee.actnum ~
-employee.dock-time employee.lunch_paid 
+employee.dock-time employee.lunch_paid employee.employeeImage[1] 
 &Scoped-define ENABLED-TABLES employee
 &Scoped-define FIRST-ENABLED-TABLE employee
-&Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS employee.employee employee.first_name ~
 employee.middle_name employee.last_name employee.soc_sec ~
 employee.rate_usage employee.emp_type employee.keyboard_type ~
 employee.start_date employee.ref_no employee.actnum employee.dock-time ~
-employee.lunch_paid 
+employee.lunch_paid employee.employeeImage[1] 
 &Scoped-define DISPLAYED-TABLES employee
 &Scoped-define FIRST-DISPLAYED-TABLE employee
 &Scoped-Define DISPLAYED-OBJECTS emp_type_description pass-word F1 F-2 
@@ -144,8 +143,12 @@ DEFINE VARIABLE verify-passwd AS CHARACTER FORMAT "X(12)":U
      SIZE 19 BY 1
      BGCOLOR 15 FONT 4 NO-UNDO.
 
+DEFINE IMAGE cEmployeeImage
+     FILENAME "adeicon/blank":U TRANSPARENT
+     SIZE 11 BY 2.62.
+
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 105 BY 12.14.
 
 
@@ -191,7 +194,7 @@ DEFINE FRAME F-Main
                     "Mini Alphabetic", "sortpad.":U,
 "Full Alphabetic", "alphabet.":U,
 "QWERTY Format", "keyboard.":U
-          SIZE 24 BY 3.57
+          SIZE 24 BY 3.33
           FONT 4
      employee.start_date AT ROW 6.95 COL 23 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -212,22 +215,27 @@ DEFINE FRAME F-Main
           SIZE 5.6 BY 1
           BGCOLOR 15 
      pass-word AT ROW 10.76 COL 23 COLON-ALIGNED HELP
-          "Enter Employee Password"  PASSWORD-FIELD
+          "Enter Employee Password" PASSWORD-FIELD 
      employee.lunch_paid AT ROW 10.76 COL 62
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
      verify-passwd AT ROW 11.95 COL 23 COLON-ALIGNED HELP
           "Re-enter Password for Verification"
+     employee.employeeImage[1] AT ROW 11.95 COL 53 COLON-ALIGNED WIDGET-ID 120
+          LABEL "Image" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 50 BY 1
      F1 AT ROW 5.52 COL 33 NO-LABEL
      F-2 AT ROW 6.95 COL 39 NO-LABEL
      "Rate Usage:" VIEW-AS TEXT
           SIZE 14.6 BY .81 AT ROW 4.1 COL 62
-     "Keyboard Type:" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 5.76 COL 62
      "(leave blank to auto assign employee id)" VIEW-AS TEXT
           SIZE 56 BY .62 AT ROW 1.48 COL 34
           FONT 2
+     "Keyboard Type:" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 5.76 COL 62
      RECT-1 AT ROW 1 COL 1
+     cEmployeeImage AT ROW 9.1 COL 94 WIDGET-ID 118
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -239,7 +247,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: employee
+   External Tables: ASI.employee
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -290,10 +298,14 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR IMAGE cEmployeeImage IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN employee.dock-time IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN employee.employee IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN employee.employeeImage[1] IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN employee.emp_type IN FRAME F-Main
    4                                                                    */
 /* SETTINGS FOR FILL-IN emp_type_description IN FRAME F-Main
@@ -306,6 +318,8 @@ ASSIGN
        F1:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR FILL-IN pass-word IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN employee.ref_no IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -327,13 +341,70 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME employee.employeeImage[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.employeeImage[1] V-table-Win
+ON HELP OF employee.employeeImage[1] IN FRAME F-Main /* Image */
+DO:
+    DEFINE VARIABLE cImageFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInitDir   AS CHARACTER NO-UNDO INITIAL ".\".
+    DEFINE VARIABLE lOK        AS LOGICAL   NO-UNDO.
+
+    SYSTEM-DIALOG GET-FILE cImageFile 
+        TITLE "Select Image File"
+        FILTERS "PNG Files    (*.png)" "*.png",
+                "Bitmap files (*.bmp)" "*.bmp",
+                "ICO Files    (*.ico)" "*.ico",
+                "JPG Files    (*.jpg)" "*.jpg",                 
+                "JPEG Files   (*.jpeg)" "*.jpeg",
+                "All Files    (*.*) " "*.*"
+        INITIAL-DIR cInitDir
+        MUST-EXIST
+        USE-FILENAME
+        UPDATE lOK
+        .
+    IF lOK THEN DO:
+        cEmployeeImage:LOAD-IMAGE(cImageFile) .
+        SELF:SCREEN-VALUE = REPLACE(cImageFile,cInitDir,"").
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.employeeImage[1] V-table-Win
+ON LEAVE OF employee.employeeImage[1] IN FRAME F-Main /* Image */
+DO: 
+    IF SELF:SCREEN-VALUE NE "" THEN 
+    cEmployeeImage:LOAD-IMAGE(SELF:SCREEN-VALUE) NO-ERROR.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME employee.emp_type
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.emp_type V-table-Win
+ON HELP OF employee.emp_type IN FRAME F-Main /* Employee Type */
+DO:
+  RUN lookups/emp_type.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(employee.emp_type:SCREEN-VALUE) THEN DO:
+        employee.emp_type:SCREEN-VALUE = g_lookup-var.
+         APPLY "entry" TO employee.emp_type .
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.emp_type V-table-Win
 ON LEAVE OF employee.emp_type IN FRAME F-Main /* Employee Type */
 DO:
@@ -344,7 +415,6 @@ DO:
       &error-message="Invalid Employee Type"}
    {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -380,7 +450,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -402,21 +471,6 @@ END.
 ON HELP OF employee.start_date IN FRAME F-Main /* Start Date */
 DO:
   {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME employee.emp_type
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.emp_type V-table-Win
-ON HELP OF employee.emp_type IN FRAME F-Main /* Start Date */
-DO:
-  RUN lookups/emp_type.p.
-  IF g_lookup-var NE ""                                AND
-         TRIM(g_lookup-var) NE TRIM(employee.emp_type:SCREEN-VALUE) THEN DO:
-        employee.emp_type:SCREEN-VALUE = g_lookup-var.
-         APPLY "entry" TO employee.emp_type .
-      END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -447,7 +501,6 @@ DO:
   RETURN NO-APPLY.
   {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -597,6 +650,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF AVAIL employee AND NOT adm-new-record THEN DO:
+    ASSIGN
+     pass-word  = employee.passwd .
+  END.
+
+    /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  IF employee.employeeImage[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+      cEmployeeImage:LOAD-IMAGE(employee.employeeImage[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  END.
+  ELSE DO: 
+      cEmployeeImage:LOAD-IMAGE("adeicon/blank").
+  END.
+      
+
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -628,33 +712,6 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-END PROCEDURE.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
-PROCEDURE local-display-fields :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL employee AND NOT adm-new-record THEN DO:
-    ASSIGN
-     pass-word  = employee.passwd .
-  END.
-
-    /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  
-
- 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

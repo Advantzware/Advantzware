@@ -1,0 +1,39 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:36pm                                        O R D E R   B A L A N C E   B Y   P O #
+
+                                                         By Customer By PO #
+
+Cust: ATT10    AT&T Corp
+
+PO Number       Job Number  Order FG Item #       Ord Date   Order Qty Inv Date Invoice Number Qty Shipped Release Qty Balance Due
+--------------- ---------- ------ --------------- -------- ----------- -------- -------------- ----------- ----------- -----------
+                316-00        316 ATT-1020        10/11/00      50,000 10/11/00    148              26,000                  24,000
+                                  RT 4x5x8                             10/11/00                                 24,000           0
+
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   2
+ 6:36pm                                        O R D E R   B A L A N C E   B Y   P O #
+
+                                                         By Customer By PO #
+
+Cust: HER10    Hershey Chocolate Corp
+
+PO Number       Job Number  Order FG Item #       Ord Date   Order Qty Inv Date Invoice Number Qty Shipped Release Qty Balance Due
+--------------- ---------- ------ --------------- -------- ----------- -------- -------------- ----------- ----------- -----------
+                315-00        315 Godiva          10/09/00      50,000                                                      50,000
+                                  Godiva Chocolatier
+
+                318-00        318 HER-1021        10/16/00      50,000                                                      50,000
+                                  RT 5x4x8
+
+101600                        317 Facial Box      10/16/00         500                                                         500
+                                  Facial Powder
+
+                317-00        317 HER-1021        10/16/00      75,000 10/16/00    149              25,000                  50,000
+                                  RT 5x4x8
+
+101700          319-00        319 HER-1022        10/17/00       5,000                                                       5,000
+                                  RSC 10x10x10
+
+

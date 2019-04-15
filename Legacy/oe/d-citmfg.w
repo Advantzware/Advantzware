@@ -41,6 +41,8 @@ def input param ip-est-no as cha no-undo.
 def input-output param iop-i-no as cha no-undo.
 def input-output param iop-part-no as cha no-undo.
 def input-output param iop-uom as cha no-undo.
+DEFINE INPUT-OUTPUT PARAMETER iopcLoc AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcLocBin AS CHARACTER NO-UNDO.
 
 /*def var lv-uom-list as cha init "M,EA,L,CS,C" no-undo.*/
 def var lv-uom-list as cha init "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" no-undo.
@@ -62,8 +64,9 @@ def var lv-uom-list as cha init "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" no-undo
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS ls-part-no ls-uom Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS ls-i-no ls-part-no ls-uom 
+&Scoped-Define ENABLED-OBJECTS ls-part-no ls-uom fiLoc fiLocBin Btn_OK ~
+Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS ls-i-no ls-part-no ls-uom fiLoc fiLocBin 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -88,6 +91,16 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE fiLoc AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Whse" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiLocBin AS CHARACTER FORMAT "X(10)":U 
+     LABEL "Bin" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1 NO-UNDO.
+
 DEFINE VARIABLE ls-i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "FG Item#" 
      VIEW-AS FILL-IN 
@@ -107,14 +120,16 @@ DEFINE VARIABLE ls-uom AS CHARACTER FORMAT "X(4)":U
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     ls-i-no AT ROW 2.43 COL 18 COLON-ALIGNED
-     ls-part-no AT ROW 3.86 COL 18 COLON-ALIGNED
-     ls-uom AT ROW 5.52 COL 18 COLON-ALIGNED
-     Btn_OK AT ROW 10.29 COL 15
-     Btn_Cancel AT ROW 10.29 COL 41
+     ls-i-no AT ROW 1.71 COL 17 COLON-ALIGNED
+     ls-part-no AT ROW 2.91 COL 17 COLON-ALIGNED
+     ls-uom AT ROW 4.1 COL 17 COLON-ALIGNED
+     fiLoc AT ROW 5.29 COL 17 COLON-ALIGNED WIDGET-ID 2
+     fiLocBin AT ROW 5.29 COL 36 COLON-ALIGNED WIDGET-ID 4
+     Btn_OK AT ROW 8.86 COL 18
+     Btn_Cancel AT ROW 8.86 COL 38
      "This item does not exist, would you like to add it ?" VIEW-AS TEXT
-          SIZE 58 BY 1.43 AT ROW 7.43 COL 5
-     SPACE(6.79) SKIP(3.42)
+          SIZE 58 BY 1.43 AT ROW 6.71 COL 6
+     SPACE(5.79) SKIP(2.85)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -190,7 +205,9 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 DO:
       assign iop-i-no = ""
-             iop-part-no = "".
+             iop-part-no = ""
+             iopcLoc = ""
+             iopcLocBin = "".
 
 END.
 
@@ -209,7 +226,7 @@ DO:
        ASSIGN ls-part-no:SCREEN-VALUE = ls-i-no:SCREEN-VALUE .
 
     do with frame {&frame-name} :
-       assign ls-i-no ls-part-no ls-uom.
+       assign ls-i-no ls-part-no ls-uom fiLoc fiLocBin.
     end.
     
     FIND FIRST ITEMfg WHERE itemfg.company = g_company
@@ -223,7 +240,9 @@ DO:
 
     assign iop-i-no = ls-i-no
            iop-part-no = ls-part-no
-           iop-uom = ls-uom.
+           iop-uom = ls-uom
+           iopcLoc = fiLoc
+           iopcLocBin = fiLocBin.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,6 +311,59 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fiLoc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLoc D-Dialog
+ON HELP OF fiLoc IN FRAME D-Dialog /* Cost UOM */
+DO:
+    DEF VAR cReturn AS cha NO-UNDO.
+
+    run windows/l-loc.w (g_company,fiLoc:SCREEN-VALUE, OUTPUT cReturn).
+    IF cReturn <> "" then SELF:SCREEN-VALUE  = ENTRY(1,cReturn).
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLoc D-Dialog
+ON LEAVE OF fiLoc IN FRAME D-Dialog /* Cost UOM */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiLocBin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocBin D-Dialog
+ON HELP OF fiLocBin IN FRAME D-Dialog /* Cost UOM */
+DO:
+    DEF VAR cReturn AS cha NO-UNDO.
+
+    run windows/l-locbin.w (g_company,fiLoc:SCREEN-VALUE, "", OUTPUT cReturn).
+    IF cReturn <> "" then SELF:SCREEN-VALUE  = ENTRY(1,cReturn).
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocBin D-Dialog
+ON LEAVE OF fiLocBin IN FRAME D-Dialog /* Cost UOM */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc-bin NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -301,7 +373,9 @@ END.
 /* ***************************  Main Block  *************************** */
 assign ls-i-no = iop-i-no
        ls-part-no = iop-part-no
-       ls-uom = IF ip-est-no EQ "" AND iop-uom NE "" THEN iop-uom ELSE "M".
+       ls-uom = IF ip-est-no EQ "" AND iop-uom NE "" THEN iop-uom ELSE "M"
+       fiLoc = iopcLoc
+       fiLocBin = iopcLocBin.
        
 {src/adm/template/dialogmn.i}
 
@@ -374,9 +448,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY ls-i-no ls-part-no ls-uom 
+  DISPLAY ls-i-no ls-part-no ls-uom fiLoc fiLocBin 
       WITH FRAME D-Dialog.
-  ENABLE ls-part-no ls-uom Btn_OK Btn_Cancel 
+  ENABLE ls-part-no ls-uom fiLoc fiLocBin Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -454,6 +528,60 @@ PROCEDURE valid-part-no :
     RUN sys/inc/valpart#.p (ls-part-no:SCREEN-VALUE,
                             ls-i-no:SCREEN-VALUE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc D-Dialog 
+PROCEDURE valid-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    fiLoc:SCREEN-VALUE = CAPS(fiLoc:SCREEN-VALUE).
+    FIND FIRST loc NO-LOCK 
+        WHERE loc.company EQ g_company 
+        AND loc.loc EQ fiLoc:SCREEN-VALUE
+        NO-ERROR.
+    IF NOT AVAIL loc THEN DO:
+      MESSAGE fiLoc:SCREEN-VALUE " is an invalid warehouse"
+              VIEW-AS ALERT-BOX ERROR.
+      RETURN ERROR.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc D-Dialog 
+PROCEDURE valid-loc-bin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    fiLoc:SCREEN-VALUE = CAPS(fiLoc:SCREEN-VALUE).
+    FIND FIRST fg-bin NO-LOCK 
+        WHERE fg-bin.company EQ g_company 
+        AND fg-bin.loc EQ fiLoc:SCREEN-VALUE
+        AND fg-bin.i-no EQ ""
+        AND fg-bin.loc-bin EQ fiLocBin:SCREEN-VALUE 
+        NO-ERROR.
+    IF NOT AVAIL fg-bin THEN DO:
+      MESSAGE fiLocBin:SCREEN-VALUE " is a not valid bin for warehouse " fiLoc:SCREEN-VALUE 
+              VIEW-AS ALERT-BOX ERROR.
+      RETURN ERROR.
+    END.
   END.
 
 END PROCEDURE.

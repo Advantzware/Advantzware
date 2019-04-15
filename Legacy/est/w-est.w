@@ -32,6 +32,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object05 h_p-estop
 &SCOPED-DEFINE moveRight {&h_Object05}
 
+&SCOPED-DEFINE winViewPrgmName w-est
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -710,12 +712,13 @@ PROCEDURE adm-create-objects :
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-estprp.w':U ,
+            /* INPUT  'est/vp-estprp.w':U ,*/
              INPUT  FRAME est:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-estprp ).
-       RUN set-position IN h_p-estprp ( 6.48 , 138.00 ) NO-ERROR.
+       RUN set-position IN h_p-estprp ( 6.78 , 138.00 ) NO-ERROR.
        RUN set-size IN h_p-estprp ( 6.19 , 14.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -754,6 +757,7 @@ PROCEDURE adm-create-objects :
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-estop.w':U ,
+             /*INPUT  'est/vp-estop.w':U ,*/
              INPUT  FRAME est:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -772,6 +776,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estprp ).
        RUN add-link IN adm-broker-hdl ( h_p-estprp , 'TableIO':U , h_b-estprp ).
 
+       RUN add-link IN adm-broker-hdl ( h_b-estprp , 'buttons':U , h_p-estprp ).
+       RUN add-link IN adm-broker-hdl ( h_b-estprp  , 'Record':U , h_p-estprp ).
+
        /* Links to SmartBrowser h_b-estqty. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estqty ).
        RUN add-link IN adm-broker-hdl ( h_p-estqty , 'TableIO':U , h_b-estqty ).
@@ -780,6 +787,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'route':U , h_b-estop ).
        RUN add-link IN adm-broker-hdl ( h_b-estqty , 'Record':U , h_b-estop ).
        RUN add-link IN adm-broker-hdl ( h_p-estop , 'TableIO':U , h_b-estop ).
+
+       RUN add-link IN adm-broker-hdl ( h_b-estop , 'buttons':U , h_p-estop ).
+       RUN add-link IN adm-broker-hdl ( h_b-estop  , 'Record':U , h_p-estop ).
 
     END. /* Page 6 */
     WHEN 7 THEN DO:
@@ -1391,28 +1401,6 @@ PROCEDURE local-exit :
    
    RETURN.
        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         RUN entry-to-frame IN WIDGET-HANDLE(char-hdl) .
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

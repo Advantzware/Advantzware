@@ -129,18 +129,18 @@ form w2.i-no                         format "x(15)"
      w2.job-po                       at 17 format "x(15)"
      w2.dscr                         at 33 format "x(30)"
      w2.cases                        to 70 format "->>>>"
-     icountpallet                      to 77 format "->>>>>>"
-     tt-boll.qty                     to 85 format "->>>>>>"
-     bf-ttboll.p-c                   at 92
+     icountpallet                      to 80 format "->>>>>>>>"
+     tt-boll.qty                     to 91 format "->>>>>>>>>"
+     bf-ttboll.p-c                   at 95
     with frame bol-mid down no-box no-labels stream-io width 110.
 
 form oe-ordl.i-no                         format "x(15)"
      v-job-po                       at 17 format "x(15)"
      v-part-dscr                    at 33 format "x(30)"
      w2.cases                       to 70 format "->>>9"
-     icountpallet                    to 77 format "->>>>>9"
-     tt-boll.qty                    to 85 format "->>>>>9"
-     tt-boll.p-c                    at 92
+     icountpallet                    to 80 format "->>>>>>>9"
+     tt-boll.qty                    to 91 format "->>>>>>>>9"
+     tt-boll.p-c                    at 95
     with frame bol-mid2 down no-box no-labels stream-io width 100.
 
 /* gdm - 04160923 

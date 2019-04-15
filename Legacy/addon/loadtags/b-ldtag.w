@@ -38,7 +38,10 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+{methods/defines/hndldefs.i}
 {sys/inc/VAR.i NEW SHARED}
+
+DEFINE NEW SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 DEF VAR lv-qty-onhand AS INT NO-UNDO.
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
@@ -46,8 +49,6 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 DEF VAR ll-initial AS LOG INIT YES NO-UNDO.
 DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
 DEF VAR lv-last-rowid AS ROWID NO-UNDO.
-DEF VAR char-hdl AS cha NO-UNDO.
-DEF VAR pHandle AS HANDLE NO-UNDO.
 
 DEF VAR lv-show-prev AS LOG NO-UNDO.
 DEF VAR lv-show-next AS LOG NO-UNDO.
@@ -654,6 +655,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn_go
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
+ON HELP OF tb_i-no IN FRAME F-Main /* Go */
+DO:
+
+  RUN lookups/i-no.p.
+  SELF:SCREEN-VALUE = g_lookup-var.
+  APPLY 'ENTRY':U TO SELF.
+  RETURN NO-APPLY.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn_next
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_next B-table-Win
 ON CHOOSE OF btn_next IN FRAME F-Main /* Show Next */
@@ -1201,6 +1218,27 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadTag B-table-Win 
+PROCEDURE loadTag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+  IF AVAIL loadtag THEN do:
+      RUN custom/setUserPrint.p (INPUT loadtag.company,
+                           INPUT 'r-loadtg.',
+                           INPUT 'fi_cas-lab',
+                           INPUT STRING(loadtag.tag-no)).
+      RUN Get_Procedure IN Persistent-Handle ('r-loadtg.',OUTPUT run-proc,yes).
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -32,6 +32,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
 {sys/inc/VAR.i NEW SHARED}
 
+DEFINE VARIABLE cScoreType AS CHARACTER NO-UNDO.
 DEF VAR lv-rowid1 AS ROWID NO-UNDO.
 DEF VAR lv-rowid2 AS ROWID NO-UNDO.
 def var k_frac as dec init "6.25" no-undo.
@@ -59,15 +60,13 @@ ASSIGN cocode = g_company
 &Scoped-Define ENABLED-OBJECTS RECT-30 val-1 type-1 val-2 type-2 val-3 ~
 type-3 val-4 type-4 val-5 type-5 val-6 type-6 val-7 type-7 val-8 type-8 ~
 val-9 type-9 val-10 type-10 val-11 type-11 val-12 type-12 val-13 type-13 ~
-val-14 type-14 val-15 type-15 val-16 type-16 val-17 type-17 val-18 type-18 ~
-val-19 type-19 val-20 type-20 btLenWid btn_ok 
-&Scoped-Define DISPLAYED-OBJECTS val-1 type-1 dscr-1 val-2 type-2 dscr-2 ~
-val-3 type-3 dscr-3 val-4 type-4 dscr-4 val-5 type-5 dscr-5 val-6 type-6 ~
-dscr-6 val-7 type-7 dscr-7 val-8 type-8 dscr-8 val-9 type-9 dscr-9 val-10 ~
-type-10 dscr-10 val-11 type-11 dscr-11 val-12 type-12 dscr-12 val-13 ~
-type-13 dscr-13 val-14 type-14 dscr-14 val-15 type-15 dscr-15 val-16 ~
-type-16 dscr-16 val-17 type-17 dscr-17 val-18 type-18 dscr-18 val-19 ~
-type-19 dscr-19 val-20 type-20 dscr-20 fiLenWid 
+type-14 val-14 type-15 val-15 val-16 type-16 type-17 val-17 type-18 val-18 ~
+val-19 type-19 type-20 val-20 btLenWid btn_ok 
+&Scoped-Define DISPLAYED-OBJECTS val-1 type-1 val-2 type-2 val-3 type-3 ~
+val-4 type-4 val-5 type-5 val-6 type-6 val-7 type-7 val-8 type-8 val-9 ~
+type-9 val-10 type-10 val-11 type-11 val-12 type-12 val-13 type-13 type-14 ~
+val-14 type-15 val-15 val-16 type-16 type-17 val-17 type-18 val-18 val-19 ~
+type-19 type-20 val-20 fiLenWid 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -90,170 +89,130 @@ DEFINE BUTTON btn_ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE dscr-1 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-1 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-10 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-10 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-11 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-11 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-12 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-12 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-13 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-13 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-14 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-14 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-15 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-15 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-16 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-16 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-17 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-17 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-18 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-18 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-19 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-19 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-2 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-2 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-20 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-20 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-3 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-3 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-4 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-4 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-5 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-5 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-6 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-6 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-7 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-7 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-8 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-8 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
-DEFINE VARIABLE dscr-9 AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE type-9 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     LIST-ITEM-PAIRS "Item 1","Item 1"
+     DROP-DOWN-LIST
+     SIZE 54 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiLenWid AS CHARACTER FORMAT "X(256)":U 
      LABEL "Showing" 
      VIEW-AS FILL-IN 
      SIZE 19.6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-1 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-10 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-11 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-12 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-13 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-14 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-15 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-16 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-17 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-18 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-19 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-2 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-20 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-3 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-4 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-5 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-6 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-7 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-8 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
-
-DEFINE VARIABLE type-9 AS CHARACTER FORMAT "x":U 
-     VIEW-AS FILL-IN 
-     SIZE 6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE val-1 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0 
      LABEL "1st Panel" 
@@ -357,89 +316,63 @@ DEFINE VARIABLE val-9 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0
 
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 21.91.
+     SIZE 89 BY 25.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
      val-1 AT ROW 2.19 COL 14 COLON-ALIGNED
-     type-1 AT ROW 2.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-1 AT ROW 2.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-2 AT ROW 3.19 COL 14 COLON-ALIGNED
-     type-2 AT ROW 3.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-2 AT ROW 3.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-3 AT ROW 4.19 COL 14 COLON-ALIGNED
-     type-3 AT ROW 4.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-3 AT ROW 4.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-4 AT ROW 5.19 COL 14 COLON-ALIGNED
-     type-4 AT ROW 5.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-4 AT ROW 5.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-5 AT ROW 6.19 COL 14 COLON-ALIGNED
-     type-5 AT ROW 6.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-5 AT ROW 6.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-6 AT ROW 7.19 COL 14 COLON-ALIGNED
-     type-6 AT ROW 7.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-6 AT ROW 7.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-7 AT ROW 8.19 COL 14 COLON-ALIGNED
-     type-7 AT ROW 8.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-7 AT ROW 8.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-8 AT ROW 9.19 COL 14 COLON-ALIGNED
-     type-8 AT ROW 9.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-8 AT ROW 9.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-9 AT ROW 10.19 COL 14 COLON-ALIGNED
-     type-9 AT ROW 10.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-9 AT ROW 10.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-10 AT ROW 11.19 COL 14 COLON-ALIGNED
-     type-10 AT ROW 11.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-10 AT ROW 11.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-11 AT ROW 12.19 COL 14 COLON-ALIGNED
-     type-11 AT ROW 12.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-11 AT ROW 12.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-12 AT ROW 13.19 COL 14 COLON-ALIGNED
-     type-12 AT ROW 13.19 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-12 AT ROW 13.19 COL 41 COLON-ALIGNED NO-LABEL
-     val-13 AT ROW 14.33 COL 14 COLON-ALIGNED
-     type-13 AT ROW 14.33 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-13 AT ROW 14.33 COL 41 COLON-ALIGNED NO-LABEL
-     val-14 AT ROW 15.33 COL 14 COLON-ALIGNED
-     type-14 AT ROW 15.33 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-14 AT ROW 15.33 COL 41 COLON-ALIGNED NO-LABEL
-     val-15 AT ROW 16.33 COL 14 COLON-ALIGNED
-     type-15 AT ROW 16.33 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-15 AT ROW 16.33 COL 41 COLON-ALIGNED NO-LABEL
-     val-16 AT ROW 17.43 COL 14 COLON-ALIGNED
-     type-16 AT ROW 17.43 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-16 AT ROW 17.43 COL 41 COLON-ALIGNED NO-LABEL
-     val-17 AT ROW 18.43 COL 14 COLON-ALIGNED
-     type-17 AT ROW 18.43 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-17 AT ROW 18.43 COL 41 COLON-ALIGNED NO-LABEL
-     val-18 AT ROW 19.43 COL 14 COLON-ALIGNED
-     type-18 AT ROW 19.43 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-18 AT ROW 19.43 COL 41 COLON-ALIGNED NO-LABEL
-     val-19 AT ROW 20.52 COL 14 COLON-ALIGNED
-     type-19 AT ROW 20.52 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-19 AT ROW 20.52 COL 41 COLON-ALIGNED NO-LABEL
-     val-20 AT ROW 21.52 COL 14 COLON-ALIGNED
-     type-20 AT ROW 21.52 COL 32 COLON-ALIGNED NO-LABEL
-     dscr-20 AT ROW 21.52 COL 41 COLON-ALIGNED NO-LABEL
-     fiLenWid AT ROW 23.38 COL 12 COLON-ALIGNED WIDGET-ID 4
-     btLenWid AT ROW 23.38 COL 36 WIDGET-ID 2
-    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME Dialog-Frame
-     btn_ok AT ROW 23.38 COL 55
+     type-1 AT ROW 2.19 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     val-2 AT ROW 3.38 COL 14 COLON-ALIGNED
+     type-2 AT ROW 3.38 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     val-3 AT ROW 4.57 COL 14 COLON-ALIGNED
+     type-3 AT ROW 4.57 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     val-4 AT ROW 5.76 COL 14 COLON-ALIGNED
+     type-4 AT ROW 5.76 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     val-5 AT ROW 6.95 COL 14 COLON-ALIGNED
+     type-5 AT ROW 6.95 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     val-6 AT ROW 8.14 COL 14 COLON-ALIGNED
+     type-6 AT ROW 8.14 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     val-7 AT ROW 9.33 COL 14 COLON-ALIGNED
+     type-7 AT ROW 9.33 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     val-8 AT ROW 10.52 COL 14 COLON-ALIGNED
+     type-8 AT ROW 10.52 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     val-9 AT ROW 11.71 COL 14 COLON-ALIGNED
+     type-9 AT ROW 11.71 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     val-10 AT ROW 12.91 COL 14 COLON-ALIGNED
+     type-10 AT ROW 12.91 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     val-11 AT ROW 14.1 COL 14 COLON-ALIGNED
+     type-11 AT ROW 14.1 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     val-12 AT ROW 15.29 COL 14 COLON-ALIGNED
+     type-12 AT ROW 15.29 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+     val-13 AT ROW 16.48 COL 14 COLON-ALIGNED
+     type-13 AT ROW 16.48 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     val-14 AT ROW 17.67 COL 14 COLON-ALIGNED
+     type-14 AT ROW 17.67 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     val-15 AT ROW 18.95 COL 14 COLON-ALIGNED
+     type-15 AT ROW 18.95 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     val-16 AT ROW 20.05 COL 14 COLON-ALIGNED
+     type-16 AT ROW 20.05 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     val-17 AT ROW 21.24 COL 14 COLON-ALIGNED
+     type-17 AT ROW 21.24 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     val-18 AT ROW 22.43 COL 14 COLON-ALIGNED
+     type-18 AT ROW 22.43 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 42
+     val-19 AT ROW 23.62 COL 14 COLON-ALIGNED
+     type-19 AT ROW 23.62 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 44
+     val-20 AT ROW 24.81 COL 14 COLON-ALIGNED
+     type-20 AT ROW 24.81 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     fiLenWid AT ROW 26.24 COL 10.4 COLON-ALIGNED WIDGET-ID 4
+     btLenWid AT ROW 26.24 COL 34 WIDGET-ID 2
+     btn_ok AT ROW 26.24 COL 53
      "Type" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 1.24 COL 34
+          SIZE 6 BY 1 AT ROW 1 COL 34
      "Panel Size" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 1.24 COL 16
+          SIZE 16 BY 1 AT ROW 1 COL 16
      "Description" VIEW-AS TEXT
-          SIZE 45 BY 1 AT ROW 1.24 COL 43
+          SIZE 45 BY 1 AT ROW 1 COL 43
      RECT-30 AT ROW 1 COL 1
-     SPACE(0.19) SKIP(1.94)
+     SPACE(0.19) SKIP(1.47)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -467,46 +400,6 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN dscr-1 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-10 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-11 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-12 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-13 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-14 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-15 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-16 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-17 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-18 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-19 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-2 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-20 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-3 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-4 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-5 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-6 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-7 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-8 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN dscr-9 IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiLenWid IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
@@ -532,36 +425,6 @@ ASSIGN
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME Dialog-Frame
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON HELP OF FRAME Dialog-Frame /* Panel Sizes */
-DO:
-  DEF VAR char-val AS CHAR NO-UNDO.
-  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-
-
-  lw-focus = FOCUS.
-
-  IF lw-focus:NAME BEGINS "type-" THEN DO:
-    RUN windows/l-scores.p (cocode, lw-focus:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO:
-      lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-      APPLY "value-changed" TO lw-focus.
-    END.
-  END.
-
-  ELSE
-  CASE lw-focus:NAME:
-    WHEN "" THEN DO:        
-    END.
-  END.
-
-  RETURN NO-APPLY. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Panel Sizes */
 DO:
@@ -852,426 +715,6 @@ DO:
   FIND CURRENT b-ref2 NO-LOCK.
 
   APPLY "go" TO FRAME {&FRAME-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-1 Dialog-Frame
-ON LEAVE OF type-1 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 1}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-1 Dialog-Frame
-ON VALUE-CHANGED OF type-1 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 1}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-10
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-10 Dialog-Frame
-ON LEAVE OF type-10 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 10}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-10 Dialog-Frame
-ON VALUE-CHANGED OF type-10 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 10}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-11
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-11 Dialog-Frame
-ON LEAVE OF type-11 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 11}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-11 Dialog-Frame
-ON VALUE-CHANGED OF type-11 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 11}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-12
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-12 Dialog-Frame
-ON LEAVE OF type-12 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 12}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-12 Dialog-Frame
-ON VALUE-CHANGED OF type-12 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 12}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-13
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-13 Dialog-Frame
-ON LEAVE OF type-13 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 13}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-13 Dialog-Frame
-ON VALUE-CHANGED OF type-13 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 13}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-14
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-14 Dialog-Frame
-ON LEAVE OF type-14 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 14}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-14 Dialog-Frame
-ON VALUE-CHANGED OF type-14 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 14}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-15
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-15 Dialog-Frame
-ON LEAVE OF type-15 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 15}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-15 Dialog-Frame
-ON VALUE-CHANGED OF type-15 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 15}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-16
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-16 Dialog-Frame
-ON LEAVE OF type-16 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 16}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-16 Dialog-Frame
-ON VALUE-CHANGED OF type-16 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 16}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-17
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-17 Dialog-Frame
-ON LEAVE OF type-17 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 17}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-17 Dialog-Frame
-ON VALUE-CHANGED OF type-17 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 17}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-18
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-18 Dialog-Frame
-ON LEAVE OF type-18 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 18}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-18 Dialog-Frame
-ON VALUE-CHANGED OF type-18 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 18}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-19
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-19 Dialog-Frame
-ON LEAVE OF type-19 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 19}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-19 Dialog-Frame
-ON VALUE-CHANGED OF type-19 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 19}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-2 Dialog-Frame
-ON LEAVE OF type-2 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 2}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-2 Dialog-Frame
-ON VALUE-CHANGED OF type-2 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 2}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-20
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-20 Dialog-Frame
-ON LEAVE OF type-20 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 20}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-20 Dialog-Frame
-ON VALUE-CHANGED OF type-20 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 20}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-3
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-3 Dialog-Frame
-ON LEAVE OF type-3 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 3}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-3 Dialog-Frame
-ON VALUE-CHANGED OF type-3 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 3}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-4
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-4 Dialog-Frame
-ON LEAVE OF type-4 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 4}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-4 Dialog-Frame
-ON VALUE-CHANGED OF type-4 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 4}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-5
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-5 Dialog-Frame
-ON LEAVE OF type-5 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 5}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-5 Dialog-Frame
-ON VALUE-CHANGED OF type-5 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 5}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-6
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-6 Dialog-Frame
-ON LEAVE OF type-6 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 6}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-6 Dialog-Frame
-ON VALUE-CHANGED OF type-6 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 6}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-7
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-7 Dialog-Frame
-ON LEAVE OF type-7 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 7}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-7 Dialog-Frame
-ON VALUE-CHANGED OF type-7 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 7}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-8
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-8 Dialog-Frame
-ON LEAVE OF type-8 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 8}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-8 Dialog-Frame
-ON VALUE-CHANGED OF type-8 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 8}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME type-9
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-9 Dialog-Frame
-ON LEAVE OF type-9 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-1.i 9}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL type-9 Dialog-Frame
-ON VALUE-CHANGED OF type-9 IN FRAME Dialog-Frame
-DO:
-  {cec/d-pan-2.i 9}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1584,6 +1027,39 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    cocode = g_company
    locode = g_loc.
 
+  FOR EACH scoreType NO-LOCK 
+      WHERE scoreType.company EQ cocode
+      :
+      cScoreType = cScoreType
+                 + scoreType.scoreType + " - "
+                 + scoreType.description + ","
+                 + scoreType.scoreType + ","
+                 .
+  END. /* each scoretype */
+  ASSIGN 
+    cScoreType = ",," + TRIM(cScoreType,",")
+    type-1:LIST-ITEM-PAIRS = cScoreType
+    type-2:LIST-ITEM-PAIRS = cScoreType
+    type-3:LIST-ITEM-PAIRS = cScoreType
+    type-4:LIST-ITEM-PAIRS = cScoreType
+    type-5:LIST-ITEM-PAIRS = cScoreType
+    type-6:LIST-ITEM-PAIRS = cScoreType
+    type-7:LIST-ITEM-PAIRS = cScoreType
+    type-8:LIST-ITEM-PAIRS = cScoreType
+    type-9:LIST-ITEM-PAIRS = cScoreType
+    type-10:LIST-ITEM-PAIRS = cScoreType
+    type-11:LIST-ITEM-PAIRS = cScoreType
+    type-12:LIST-ITEM-PAIRS = cScoreType
+    type-13:LIST-ITEM-PAIRS = cScoreType
+    type-14:LIST-ITEM-PAIRS = cScoreType
+    type-15:LIST-ITEM-PAIRS = cScoreType
+    type-16:LIST-ITEM-PAIRS = cScoreType
+    type-17:LIST-ITEM-PAIRS = cScoreType
+    type-18:LIST-ITEM-PAIRS = cScoreType
+    type-19:LIST-ITEM-PAIRS = cScoreType
+    type-20:LIST-ITEM-PAIRS = cScoreType
+    .
+  
   FIND po-ordl WHERE ROWID(po-ordl) EQ ip-rowid NO-LOCK NO-ERROR.
 
   IF AVAIL po-ordl THEN DO:
@@ -1687,19 +1163,17 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY val-1 type-1 dscr-1 val-2 type-2 dscr-2 val-3 type-3 dscr-3 val-4 
-          type-4 dscr-4 val-5 type-5 dscr-5 val-6 type-6 dscr-6 val-7 type-7 
-          dscr-7 val-8 type-8 dscr-8 val-9 type-9 dscr-9 val-10 type-10 dscr-10 
-          val-11 type-11 dscr-11 val-12 type-12 dscr-12 val-13 type-13 dscr-13 
-          val-14 type-14 dscr-14 val-15 type-15 dscr-15 val-16 type-16 dscr-16 
-          val-17 type-17 dscr-17 val-18 type-18 dscr-18 val-19 type-19 dscr-19 
-          val-20 type-20 dscr-20 fiLenWid 
+  DISPLAY val-1 type-1 val-2 type-2 val-3 type-3 val-4 type-4 val-5 type-5 val-6 
+          type-6 val-7 type-7 val-8 type-8 val-9 type-9 val-10 type-10 val-11 
+          type-11 val-12 type-12 val-13 type-13 type-14 val-14 type-15 val-15 
+          val-16 type-16 type-17 val-17 type-18 val-18 val-19 type-19 type-20 
+          val-20 fiLenWid 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-30 val-1 type-1 val-2 type-2 val-3 type-3 val-4 type-4 val-5 
          type-5 val-6 type-6 val-7 type-7 val-8 type-8 val-9 type-9 val-10 
-         type-10 val-11 type-11 val-12 type-12 val-13 type-13 val-14 type-14 
-         val-15 type-15 val-16 type-16 val-17 type-17 val-18 type-18 val-19 
-         type-19 val-20 type-20 btLenWid btn_ok 
+         type-10 val-11 type-11 val-12 type-12 val-13 type-13 type-14 val-14 
+         type-15 val-15 val-16 type-16 type-17 val-17 type-18 val-18 val-19 
+         type-19 type-20 val-20 btLenWid btn_ok 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

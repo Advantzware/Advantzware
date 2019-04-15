@@ -449,7 +449,9 @@ FOR EACH cust-part WHERE cust-part.company EQ ip-company AND
             (ASI.cust-part.cust-no EQ ip-cust-no OR 
              ASI.cust-part.cust-no EQ custX)  NO-LOCK, 
       FIRST itemfg WHERE itemfg.company = cust-part.company 
-  AND itemfg.i-no = cust-part.i-no NO-LOCK:
+  AND itemfg.i-no = cust-part.i-no
+  AND NOT itemfg.stat EQ "I"  
+  NO-LOCK:
 
             CREATE tt-cust-part.
             ASSIGN

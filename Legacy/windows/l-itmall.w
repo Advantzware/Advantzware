@@ -34,6 +34,7 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-industry like style.industry no-undo.
 def input parameter ip-mat-type like item.mat-type no-undo.
 def input parameter ip-cur-val as cha no-undo.
+DEFINE INPUT PARAMETER ip-vendor AS CHARACTER NO-UNDO .
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
 
@@ -66,7 +67,7 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES item
+&Scoped-define INTERNAL-TABLES ITEM e-item-vend
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -78,15 +79,24 @@ item.mat-type item.procat
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH item WHERE ~{&KEY-PHRASE} ~
       AND item.company = ip-company and ~
 (item.industry = ip-industry or ip-industry = "") ~
- NO-LOCK ~
+ NO-LOCK, ~
+    first e-item-vend NO-LOCK ~
+        where e-item-vend.company eq item.company ~
+          and e-item-vend.i-no    eq item.i-no ~
+          and ((e-item-vend.vend-no EQ ip-vendor AND rd-filter EQ 1) OR rd-filter EQ 2 ) ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH item WHERE ~{&KEY-PHRASE} ~
       AND item.company = ip-company and ~
 (item.industry = ip-industry or ip-industry = "") ~
- NO-LOCK ~
+ NO-LOCK, ~
+    first e-item-vend NO-LOCK ~
+        where e-item-vend.company eq item.company ~
+          and e-item-vend.i-no    eq item.i-no ~
+          and ((e-item-vend.vend-no EQ ip-vendor AND rd-filter EQ 1) OR rd-filter EQ 2 )  ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 item
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 ITEM e-item-vend
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 item
+&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 item
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -94,9 +104,9 @@ item.mat-type item.procat
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort bt-clear lv-search ~
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort rd-filter bt-clear lv-search ~
 bt-ok bt-cancel 
-&Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
+&Scoped-Define DISPLAYED-OBJECTS rd-sort rd-filter lv-search lv-label
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -135,16 +145,29 @@ DEFINE VARIABLE rd-sort AS INTEGER
 "Name", 2,
 "Mat'l Type", 3,
 "Category", 4
-     SIZE 77 BY .95 NO-UNDO.
+     SIZE 60 BY .95 NO-UNDO.
+
+DEFINE VARIABLE rd-filter AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "PO Vendor", 1,
+          "All Vendors", 2
+     SIZE 30 BY .95 NO-UNDO.
+
+DEFINE VARIABLE lv-label AS CHARACTER FORMAT "X(9)":U 
+     LABEL "Filter By" 
+     VIEW-AS FILL-IN 
+     SIZE 1 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 91 BY 1.43.
+     SIZE 129 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      item SCROLLING.
+      item,
+      e-item-vend SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -167,14 +190,16 @@ DEFINE BROWSE BROWSE-1
 DEFINE FRAME Dialog-Frame
      BROWSE-1 AT ROW 1 COL 1
      rd-sort AT ROW 12.67 COL 14 NO-LABEL
+     rd-filter AT ROW 12.67 COL 99 NO-LABEL
      bt-clear AT ROW 14.1 COL 2
      lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 69
      bt-cancel AT ROW 14.1 COL 81
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.91 COL 4
+     lv-label AT ROW 12.67 COL 89
      RECT-1 AT ROW 12.43 COL 1
-     SPACE(38.79) SKIP(1.51)
+     SPACE(1.79) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Raw Material Information".
@@ -213,8 +238,10 @@ ASSIGN
      _TblList          = "ASI.item"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "item.company = ip-company and
-(item.industry = ip-industry or ip-industry = """")
-"
+(item.industry = ip-industry or ip-industry = """")"
+     _Where[2]         = "e-item-vend.company eq item.company 
+                          and e-item-vend.i-no eq item.i-no 
+                          and ((e-item-vend.vend-no NE "" AND rd-filter EQ 1) OR rd-filter EQ 2 )"
      _FldNameList[1]   > ASI.item.i-no
 "item.i-no" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.item.i-name
@@ -334,7 +361,7 @@ END.
 &Scoped-define SELF-NAME rd-sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-sort Dialog-Frame
 ON VALUE-CHANGED OF rd-sort IN FRAME Dialog-Frame
-DO:
+DO: 
     /* redefined for lookup */
     &scoped-define IAMWHAT LOOKUP   
          
@@ -344,13 +371,32 @@ DO:
         {srtord2.i 2}
         {srtord2.i 3}
         {srtord2.i 4}
-    end.    
+    end.   
     apply "entry" to {&browse-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rd-filter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-filter Dialog-Frame
+ON VALUE-CHANGED OF rd-filter IN FRAME Dialog-Frame
+DO:
+    /* redefined for lookup */
+    &scoped-define IAMWHAT LOOKUP   
+    ASSIGN rd-filter .     
+    assign rd-sort.
+    case rd-sort:
+        {srtord2.i 1}
+        {srtord2.i 2}
+        {srtord2.i 3}
+        {srtord2.i 4}
+    end.   
+    apply "entry" to {&browse-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -378,12 +424,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       otherwise lv-type-dscr = "".
   end.
   frame {&frame-name}:title = "Raw Material Information ( " + lv-type-dscr + " )". 
-
+  
+  ASSIGN rd-filter = 1 .
+  IF ip-vendor EQ "" THEN
+      ASSIGN rd-filter = 2 .
+  
   &scoped-define key-phrase {&fld-name-1} >= ip-cur-val
   &scoped-define sortby-phrase {&sortby-1}
   
   RUN enable_UI.
+  IF ip-vendor EQ "" THEN do:
+      ASSIGN rd-filter = 2 .
+      rd-filter:HIDDEN in FRAME {&FRAME-NAME} = YES .
+      lv-label:HIDDEN in FRAME {&FRAME-NAME}  = YES .
+  END.
+  
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+  
 END.
 RUN disable_UI.
 
@@ -421,9 +478,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rd-sort lv-search 
+  DISPLAY rd-sort rd-filter lv-search lv-label
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-1 RECT-1 rd-sort bt-clear lv-search bt-ok bt-cancel 
+  ENABLE BROWSE-1 RECT-1 rd-sort rd-filter bt-clear lv-search bt-ok bt-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

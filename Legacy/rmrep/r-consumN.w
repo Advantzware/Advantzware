@@ -58,11 +58,11 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "CATEGORY,ITEM,DESCRIPTION,TAG#,LINEAL FEET,MSF," +
-                           "WEIGHT,COST VALUE" 
+                           "WT/MSF,COST VALUE,WIDTH,ROLL WEIGHT,VENDOR TAG #" 
        cFieldListToSelect = "cat,i-no,dscr,tag,lin-ft,msf," +
-                            "weht,cst-val"
-       cFieldLength = "8,10,15,20,13,10," + "6,14" 
-       cFieldType = "c,c,c,c,i,i," + "i,i"  
+                            "weht,cst-val,wd,roll-wt,vend-tag"
+       cFieldLength = "8,10,15,20,13,10," + "6,14,9,11,20" 
+       cFieldType = "c,c,c,c,i,i," + "i,i,i,i,c"  
     .
 
 {sys/inc/ttRptSel.i}
@@ -1382,6 +1382,8 @@ def var v-val like v-value extent 3.
 def var v-first as log extent 3.
 DEF VAR v-mattype AS cha NO-UNDO.
 DEF VAR v-msf-qty AS DEC NO-UNDO.
+DEFINE VARIABLE r-weight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dLinerFeet AS DECIMAL NO-UNDO.
 
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
@@ -1394,6 +1396,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cVendorTag AS CHARACTER NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1505,48 +1508,42 @@ END.
       assign
        v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
                   trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
-       v-value  = rm-rdtlh.cost * rm-rdtlh.qty.
-
+       v-value  = rm-rdtlh.cost * rm-rdtlh.qty .
+       
       if v-job-no begins "-" then v-job-no = "".
       RUN calc-msf (OUTPUT v-msf-qty).
+     
+      dLinerFeet = rm-rdtlh.qty . 
+      IF item.cons-uom NE "LF" THEN
+          RUN rm/convquom.p(item.cons-uom, "LF",
+                            ITEM.basis-w, ITEM.s-len,(IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
+                            dLinerFeet, OUTPUT dLinerFeet).
+      r-weight = rm-rdtlh.qty . 
+      IF item.cons-uom NE "LB" THEN
+          RUN rm/convquom.p(item.cons-uom, "LB",
+                            ITEM.basis-w, ITEM.s-len, (IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
+                            r-weight, OUTPUT r-weight).
+
 
       ACCUMULATE v-msf-qty (TOTAL BY rm-rcpth.i-no).
       ACCUMULATE v-msf-qty (TOTAL BY ITEM.procat).
-
-     /* IF rd-summary = "D" THEN
-         display item.procat
-                 rm-rcpth.i-no
-                 rm-rcpth.i-name
-                 rm-rdtlh.tag FORMAT "X(20)"
-                 /*v-job-no*/
-                 rm-rdtlh.qty LABEL "Lineal Feet"
-                 v-msf-qty LABEL "MSF"
-                 ITEM.basis-w LABEL "Weight"
-              /*   rm-rdtlh.loc
-                 rm-rdtlh.loc-bin                 
-                 rm-rdtlh.cost              */
-                 v-value LABEL "Cost Value"
-          with frame itemx.
-      down with frame itemx. */
-
+    
       assign
-       v-qty[1] = v-qty[1] + rm-rdtlh.qty
+       v-qty[1] = v-qty[1] + dLinerFeet
        v-val[1] = v-val[1] + v-value
        v-qty[2] = v-qty[2] + rm-rdtlh.qty
        v-val[2] = v-val[2] + v-value
        v-qty[3] = v-qty[3] + rm-rdtlh.qty
        v-val[3] = v-val[3] + v-value.
 
-    /*  IF  rd-summary = "D" AND tb_excel THEN 
-        PUT STREAM excel UNFORMATTED
-          item.procat ","
-          rm-rcpth.i-no ","
-          rm-rcpth.i-name ","
-          rm-rdtlh.tag ","
-          rm-rdtlh.qty ","
-          v-msf-qty ","
-          ITEM.basis-w ","
-           v-value SKIP . */
+        ASSIGN cVendorTag = "" .
+        FIND FIRST loadtag NO-LOCK
+            WHERE loadtag.company EQ cocode
+            AND loadtag.item-type EQ YES
+            AND loadtag.tag-no EQ rm-rdtlh.tag            
+            NO-ERROR.
+        IF AVAILABLE loadtag THEN
+            cVendorTag = loadtag.misc-char[1] .
 
           ASSIGN cDisplay = ""
                cTmpField = ""
@@ -1561,10 +1558,13 @@ END.
                      WHEN "i-no"     THEN cVarValue = STRING(rm-rcpth.i-no,"x(10)") .
                      WHEN "dscr"     THEN cVarValue = string(rm-rcpth.i-name,"x(15)") .
                      WHEN "tag"      THEN cVarValue = string(rm-rdtlh.tag,"x(20)") .
-                     WHEN "lin-ft"   THEN cVarValue = string(rm-rdtlh.qty,"->>>>>>>>9.99<<")  .
+                     WHEN "lin-ft"   THEN cVarValue = string(dLinerFeet,"->>>>>>>>9.99<<")  .
                      WHEN "msf"      THEN cVarValue = STRING(v-msf-qty,"->>,>>9.99").
                      WHEN "weht"     THEN cVarValue = string(ITEM.basis-w,">>9.99").
                      WHEN "cst-val"  THEN cVarValue = STRING(v-value,"->>,>>>,>>9.99") .
+                     WHEN "wd"       THEN cVarValue = STRING(ITEM.s-wid,">>,>>9.99") .
+                     WHEN "roll-wt"  THEN cVarValue = STRING(r-weight,">>,>>9.99") .
+                     WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
 
                 END CASE.
 
@@ -1581,36 +1581,7 @@ END.
         END.
 
       IF LAST-OF(rm-rcpth.i-no) AND tg-subtot-item THEN DO:
-        /*IF rd-summary <> "S" THEN
-           underline item.procat
-                   rm-rcpth.i-no
-                   rm-rcpth.i-name
-                   rm-rdtlh.qty
-                   v-msf-qty
-                   v-value
-              with frame itemx.
-         IF NOT rd-summary = "S" THEN
-             down 1 with frame itemx.
-         display ITEM.procat 
-                  rm-rcpth.i-no
-                 "Item Total"  WHEN rd-summary <> "S" @ rm-rcpth.i-name
-                  v-qty[1]       @ rm-rdtlh.qty
-                  ACCUM TOTAL BY rm-rcpth.i-no v-msf-qty @ v-msf-qty 
-                  v-val[1]       @ v-value
-              with frame itemx.
-        IF NOT rd-summary = "S" THEN
-            down 2 with frame itemx.
-        IF  rd-summary = "s" AND tb_excel THEN
-            PUT STREAM excel UNFORMATTED
-              item.procat  ","
-               rm-rcpth.i-no ","
-                ""         ","
-                ""         ","
-              v-qty[1]  ","
-              ACCUM TOTAL BY rm-rcpth.i-no v-msf-qty   ","
-              ""  ","
-              v-val[1]   ","
-              SKIP . */
+       
           PUT SKIP str-line SKIP .
           ASSIGN cDisplay = ""
                cTmpField = ""
@@ -1629,6 +1600,9 @@ END.
                      WHEN "msf"      THEN cVarValue = STRING((ACCUM TOTAL BY rm-rcpth.i-no v-msf-qty),"->>,>>9.99").
                      WHEN "weht"     THEN cVarValue = "".
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[1],"->>,>>>,>>9.99") .
+                     WHEN "wd"       THEN cVarValue = "" .
+                     WHEN "roll-wt"  THEN cVarValue = "" .
+                     WHEN "vend-tag" THEN cVarValue = "" .
 
                 END CASE.
 
@@ -1652,36 +1626,7 @@ END.
 
       if last-of(item.procat) AND (tg-subtot)
       then do:
-        /*IF rd-summary <> "S" THEN
-           underline item.procat
-                   rm-rcpth.i-no
-                   rm-rcpth.i-name
-                   rm-rdtlh.qty
-                   v-msf-qty
-                   v-value
-              with frame itemx.
-         IF NOT rd-summary = "S" THEN
-            down 1 with frame itemx.
-         display ITEM.procat WHEN rd-summary = "S"
-                 "Category Total"  WHEN rd-summary <> "S" @ rm-rcpth.i-name
-                  v-qty[2]       @ rm-rdtlh.qty
-                  ACCUM TOTAL BY ITEM.procat v-msf-qty @ v-msf-qty 
-                  v-val[2]       @ v-value
-              with frame itemx.
-         IF NOT rd-summary = "S" THEN
-            down 2 with frame itemx.
-        IF  rd-summary = "s" AND tb_excel THEN
-        PUT STREAM excel UNFORMATTED
-          item.procat  ","
-            ""         ","
-            ""         ","
-            ""         ","
-          v-qty[2]  ","
-          ACCUM TOTAL BY ITEM.procat v-msf-qty   ","
-          ""  ","
-          v-val[2]   ","
-          SKIP .*/
-
+        
           PUT SKIP str-line SKIP .
           ASSIGN cDisplay = ""
                cTmpField = ""
@@ -1700,6 +1645,9 @@ END.
                      WHEN "msf"      THEN cVarValue = STRING((ACCUM TOTAL BY ITEM.procat v-msf-qty),"->>,>>9.99").
                      WHEN "weht"     THEN cVarValue = "".
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[2],"->>,>>>,>>9.99") .
+                     WHEN "wd"       THEN cVarValue = "" .
+                     WHEN "roll-wt"  THEN cVarValue = "" .
+                     WHEN "vend-tag" THEN cVarValue = "" .
 
                 END CASE.
 
@@ -1723,20 +1671,7 @@ END.
       end.
 
       if last(item.procat) then do:
-        /*underline item.procat
-                   rm-rcpth.i-no
-                   rm-rcpth.i-name
-                   rm-rdtlh.qty
-                   v-msf-qty
-                   v-value
-              with frame itemx.
-
-        display "GRAND TOTALS" @ rm-rcpth.i-name
-                v-qty[3]       @ rm-rdtlh.qty
-                ACCUM TOTAL v-msf-qty @ v-msf-qty 
-                v-val[3]       @ v-value
-              with frame itemx.*/
-
+        
           PUT SKIP str-line SKIP .
           ASSIGN cDisplay = ""
                cTmpField = ""
@@ -1755,6 +1690,9 @@ END.
                      WHEN "msf"      THEN cVarValue = STRING((ACCUM TOTAL v-msf-qty),"->>,>>9.99").
                      WHEN "weht"     THEN cVarValue = "".
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[3],"->>,>>>,>>9.99") .
+                     WHEN "wd"       THEN cVarValue = "" .
+                     WHEN "roll-wt"  THEN cVarValue = "" .
+                     WHEN "vend-tag" THEN cVarValue = "" .
 
                 END CASE.
 

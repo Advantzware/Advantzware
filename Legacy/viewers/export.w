@@ -222,3 +222,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-button s-object 
+PROCEDURE disable-button :
+/* -----------------------------------------------------------
+  Purpose:     Receive and process 'state-changed' methods
+               (issued by 'new-state' event).
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+  btnExcel:SENSITIVE = NO.
+ END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

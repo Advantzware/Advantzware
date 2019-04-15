@@ -33,20 +33,14 @@ FOR EACH e-itemfg-vend NO-LOCK
     BREAK BY e-itemfg-vend.vend-no:
 
   IF FIRST(e-itemfg-vend.vend-no) THEN DO:
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "e-itemfg-vend.std-uom"
-          AND reftable.company  EQ e-itemfg-vend.company
-          AND reftable.loc      EQ ""
-          AND reftable.code     EQ e-itemfg-vend.est-no
-          AND reftable.val[1]   EQ e-itemfg-vend.form-no
-          AND reftable.val[2]   EQ e-itemfg-vend.blank-no
-        NO-LOCK NO-ERROR.
 
     CREATE tt-ei.
     ASSIGN
-     tt-ei.std-uom = IF AVAIL reftable THEN reftable.code2 ELSE "EA"
+     tt-ei.std-uom = IF e-itemfg-vend.std-uom <> "" THEN e-itemfg-vend.std-uom ELSE "EA"
      tt-ei.i-no    = eb.stock-no
      tt-ei.company = e-itemfg-vend.company.
+
+
 
     DO li = 1 TO 10:
        ASSIGN
@@ -102,29 +96,13 @@ FOR EACH e-item
         tt-ei.run-cost[li] = e-item.run-cost[li].
   END.
 
-  FIND FIRST b-qty WHERE
-       b-qty.reftable = "blank-vend-qty" AND
-       b-qty.company = e-item.company AND
-       b-qty.CODE    = e-item.i-no               
-       NO-LOCK NO-ERROR.
-
-  IF AVAIL b-qty THEN
-  DO:
-     FIND FIRST b-cost WHERE
-          b-cost.reftable = "blank-vend-cost" AND
-          b-cost.company = e-item.company AND
-          b-cost.CODE    = e-item.i-no
-          NO-LOCK NO-ERROR.
+  
      
      DO li = 1 TO 10:
         ASSIGN
-           tt-ei.run-qty[li + 10] = b-qty.val[li]
-           tt-ei.run-cost[li + 10] = b-cost.val[li].
-     END.
-  END.
-
-  RELEASE b-qty.
-  RELEASE b-cost.  
+           tt-ei.run-qty[li + 10] = e-item.runQty[li]
+           tt-ei.run-cost[li + 10] = e-item.runCost[li].
+     END. 
 
   FOR EACH e-item-vend OF e-item NO-LOCK:
     IF NOT CAN-FIND(FIRST tt-eiv

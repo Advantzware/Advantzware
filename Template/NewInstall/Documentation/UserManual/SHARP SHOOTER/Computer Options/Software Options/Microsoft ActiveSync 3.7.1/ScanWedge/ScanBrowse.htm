@@ -1,0 +1,172 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Browser Scan Sample</title>
+</head>
+
+<!-- JavaScript to handle form -->
+
+<SCRIPT LANGUAGE="JavaScript">
+
+<!-- Hide from non-JavaScript browsers
+
+var barcode;
+
+// Delay for a while, based on supplied value
+function Delay(DelayTime)
+{
+	// Spin in a loop to waste some time
+	for (var i = 0; i<DelayTime; i++)
+	{
+	}
+}
+
+// Display a message
+function DisplayMessage(d)
+{
+	// Display message using an alert box
+	alert(d);
+}
+
+// Set the focus to a supplied field
+function SetFocus(t)
+{
+	// Set focus to specified field
+	t.focus();
+
+	// Select all data in the specified field
+	t.select();
+}
+
+// Clear the scan field
+function ClearScanField()
+{
+	// Set scan field's value to empty
+	myform.scan.value = "";
+	
+	// Set focus to scan field
+	SetFocus(myform.scan);
+}
+
+// Clear the barcode data
+function ClearBarcodeData()
+{
+	// Clear out the barcode data
+	barcode = "";
+}
+
+// Clear everything
+function ClearButton()
+{
+	// Clear the field we scan into
+	ClearScanField();
+
+	// Clear the barcode data
+	ClearBarcodeData();
+}
+
+// Initialize for a new scan
+function InitScanner()
+{
+	// Start with focus on the scan field
+	SetFocus(myform.scan);
+
+	// Clear everything to start
+	ClearButton();
+}
+
+// Show data that came from keyboard
+function ShowKeyData()
+{
+	// Display the key entered data
+	DisplayMessage("Key Data = " + myform.scan.value);
+}
+
+// Show data that came from a barcode
+function ShowBarcodeData()
+{
+	// Delay for a while so the alert beep doesn't clip the barcode beep
+	Delay(200000);
+
+	// Display the barcode data
+	DisplayMessage("Barcode Data = " + barcode);
+}
+
+// Handle submitting entered data
+function SubmitData()
+{
+	// If we have any barcode data
+	if ( barcode == "" )
+	{
+		// Display the barcode data
+		ShowKeyData();
+	}
+	else
+	{
+		// Display the key entered data
+		ShowBarcodeData();
+	}
+
+	// Reinitialize for another scan
+	InitScanner();
+}
+
+// Check entered data to see if it from a barcode then submit it
+function CheckForScan()
+{
+	// Get index of last open brace (scan prefix) in string, if any
+	var i = myform.scan.value.lastIndexOf("{");
+
+	// Get index of first close brace (scan suffix) in string, if any
+	var j = myform.scan.value.indexOf("}");
+
+	// If there is a pair of braces and the open brace preceeds the close brace
+	if  (  ( i >= 0 ) &&  ( j >= 0 )  && ( i<j) )
+	{
+		// Get the size of the data between the open and close brace
+		var datalen = j-i-1;
+
+		// Extract it as the barcode data
+		barcode = myform.scan.value.substr(i+1,datalen);
+	}
+
+	// Submit the data
+	SubmitData();
+}
+
+//-->
+
+</SCRIPT>
+
+<body onLoad="InitScanner();">
+
+<u> 
+<p align="center"><font face="Tahoma" size="3"><b>
+ScanBrowse 3.01.02<br>
+PIE Browser Scan Sample<br>
+<br>
+</b></font>
+</u>
+
+<form method="POST" name="myform"  onsubmit="CheckForScan();">
+
+<p align="center"><font face="Tahoma" size="3"><b>
+Scan:<INPUT name="scan" width="30"></b></font></p><br>
+
+<p align="center"><font face="Tahoma" size="3"><b>
+<input type="button" value="Submit" name="Submit_Button" onClick="CheckForScan();">&nbsp;&nbsp;&nbsp;
+<input type="button" value="Clear" name="Clear_Button" onClick="ClearButton();">&nbsp;&nbsp;&nbsp;
+<! --- <input type="button" value="Exit" name="Exit_Button" onClick="ExitBrowser();">
+<br>
+
+</form>
+
+</b>
+
+</body>
+
+</html>

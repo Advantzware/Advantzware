@@ -614,6 +614,12 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   SESSION:SET-WAIT-STATE("general").
   ASSIGN {&displayed-objects}.
+  IF begin_cust EQ "" THEN DO:
+    MESSAGE "Are you sure you want to include blank customers as this will return all receipts ever received and take a long time?" 
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO TITLE "" UPDATE lChoice AS LOGICAL.
+    IF NOT lChoice THEN 
+        RETURN .
+  END.
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
@@ -2004,7 +2010,7 @@ FOR EACH tt-itemfg,
             FIND FIRST oe-ord
                 WHERE oe-ord.company EQ cocode
                   AND oe-ord.ord-no  EQ oe-ordl.ord-no
-                NO-LOCK.
+                NO-LOCK NO-ERROR.
             FOR EACH oe-rel NO-LOCK
                 WHERE oe-rel.company EQ oe-ordl.company
                   AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -2019,11 +2025,10 @@ FOR EACH tt-itemfg,
             END.
           END.
 
-          v-date = IF AVAIL oe-ordl THEN 
-                     IF vdue THEN oe-ordl.req-date
-                             ELSE oe-ord.ord-date
-                   ELSE ?.
-
+          v-date = IF AVAIL oe-ordl AND vdue THEN oe-ordl.req-date
+                             ELSE IF AVAIL oe-ord THEN oe-ord.ord-date 
+                   ELSE ?.                 
+                    
           IF fi_days-old > 0 THEN RUN calc-qoh (OUTPUT v-qty[1]).
 
           RUN first-date (ROWID(fg-bin), INPUT-OUTPUT v-frst-date).
@@ -2100,7 +2105,7 @@ FOR EACH tt-itemfg,
             FIND FIRST oe-ord
                 WHERE oe-ord.company EQ cocode
                   AND oe-ord.ord-no  EQ oe-ordl.ord-no
-                NO-LOCK.
+                NO-LOCK NO-ERROR.
             FOR EACH oe-rel NO-LOCK
                 WHERE oe-rel.company EQ oe-ordl.company
                   AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -2115,10 +2120,9 @@ FOR EACH tt-itemfg,
             END.
           END.
 
-          v-date = IF AVAIL oe-ordl THEN 
-                     IF vdue THEN oe-ordl.req-date
-                             ELSE oe-ord.ord-date
-                   ELSE ?.
+          v-date = IF AVAIL oe-ordl AND vdue THEN oe-ordl.req-date
+                             ELSE IF AVAIL oe-ord THEN oe-ord.ord-date 
+                   ELSE ?.                 
 
           IF fi_days-old > 0 THEN RUN calc-qoh (OUTPUT v-qty[1]).
 

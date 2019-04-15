@@ -66,7 +66,7 @@ format header
        "UNIT" at 62 "UNIT" at 67 "TOTAL" at 74 skip
        "---------------" at 1 "---------------" at 17
        "----------------------------" at 33
-       "----" at 62 "------" at 67 "------" at 74 skip
+       "----" at 62 "------" at 67 "---------" at 74 skip
     with frame hd-top-comp no-box no-labels page-top stream-io width 200.
 
 form
@@ -75,7 +75,7 @@ form
   itemfg.i-name format "x(28)" at 33
   oe-boll.cases format "->>>>" to 65
   oe-boll.qty-case format "->>>>>>" to 72
-  v-line-tot format "->>>>>>" to 79
+  v-line-tot format "->>>>>>>>>" to 82
   with frame ln-s down no-box no-labels stream-io width 200.
 
 def stream last-page.
@@ -142,7 +142,7 @@ for each xreport  where xreport.term-id eq v-term-id,
     end.
     v-time = string(time,"hh:mm am").
 
-    if oe-ctrl.pr-broker and avail cust and shipto.broker then
+    if avail cust and shipto.broker then
       v-coname = cust.name.
 
     else v-coname = company.name.

@@ -315,6 +315,8 @@ PROCEDURE BuildResults :
 DEFINE INPUT  PARAMETER ipcOrderNo AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lHold AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cReason AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lQtyMatchFound AS LOGICAL NO-UNDO. 
+DEFINE VARIABLE lQtyWithinMatrixRange AS LOGICAL NO-UNDO.
 
 EMPTY TEMP-TABLE ttPriceResults.
 FIND FIRST oe-ord NO-LOCK 
@@ -330,6 +332,33 @@ IF AVAILABLE oe-ord THEN DO:
         fiHold:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(lHold)
         fiReason:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cReason 
         .
+    IF NOT CAN-FIND(FIRST ttPriceHold) THEN DO:
+        FOR EACH oe-ordl NO-LOCK 
+            OF oe-ord:
+                CREATE ttPriceResults.
+                ASSIGN 
+                    ttPriceResults.cCustID = oe-ordl.cust-no
+                    ttPriceResults.cFGItemID = oe-ordl.i-no
+                    ttPriceResults.cShipID = oe-ordl.ship-id
+                    ttPriceResults.dQuantity = oe-ordl.qty
+                    ttPriceResults.riLine = ROWID(oe-ordl)
+                    ttPriceResults.dPriceOld = oe-ordl.price
+                    ttPriceResults.cPriceOldUOM = oe-ordl.pr-uom
+                .
+            RUN GetPriceMatrixPrice IN hdPriceProcs (oe-ordl.company, 
+                                                     ttPriceResults.cFGItemID, 
+                                                     ttPriceResults.cCustID, ttPriceResults.cShipID,
+                                                     ttPriceResults.dQuantity, 
+                                                     0,
+                                                     OUTPUT ttPriceResults.lMatrixMatch, 
+                                                     OUTPUT ttPriceResults.cMatrixMatch,
+                                                     INPUT-OUTPUT ttPriceResults.dPrice, 
+                                                     INPUT-OUTPUT ttPriceResults.cPriceUOM,
+                                                     OUTPUT lQtyMatchFound, 
+                                                     OUTPUT lQtyWithinMatrixRange).
+        END.
+    END.
+    ELSE 
     FOR EACH ttPriceHold NO-LOCK:
         CREATE ttPriceResults.
         BUFFER-COPY ttPriceHold TO ttPriceResults.

@@ -528,7 +528,7 @@ assign
 
 EMPTY TEMP-TABLE tt-po.
 
-{util/rm-purge.i}
+{util/dev/rm-purge.i}
 
 session:set-wait-state("").
 

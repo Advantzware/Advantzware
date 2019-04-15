@@ -49,7 +49,7 @@ if avail mstd then do:
    tmpstore = "". /* kxy-run.p checks this variable! */
 
   
-  if op-lock.val[2] EQ 1 THEN
+  if op-lock.val[2] EQ 1 AND NOT {&fil}.isLocked THEN
     IF mstd.mr-x ne 0 and mstd.mr-y ne 0 then do:
       call_id  = recid(mstd).
 
@@ -62,7 +62,7 @@ if avail mstd then do:
     else {&fil}.{&fld} = 0.
 
   
-  IF op-lock.val[1] EQ 1 THEN DO:
+  IF op-lock.val[1] EQ 1 AND NOT {&fil2}.isLocked THEN DO:
     if mstd.rs-x ne 0 and mstd.rs-y ne 0 then do:
       call_id = recid(mstd).
       run cec/kxy-run.p (recid({&fil2})).

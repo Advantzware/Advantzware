@@ -26,3 +26,4 @@ def {1} shared var s-note-mode      as   CHAR                       NO-UNDO.
 DEF {1} SHARED VAR v-prt-shp2       AS   LOG                        NO-UNDO.
 DEF {1} SHARED VAR v-terms          AS   LOG                        NO-UNDO.
 DEF {1} SHARED VAR v-termfile       AS   CHAR FORMAT "x(35)"        NO-UNDO.
+def {1} shared var cItemStatus          as   char format "!" init "B"   NO-UNDO.

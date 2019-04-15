@@ -56,7 +56,7 @@ ASSIGN cTextListToSelect = "Machine Code,Machine Description,Department(1),Depar
                             "Default,Setup D.L.,Var OH,Fixed OH,MR Total,Run D.L.,Var OH,Fixed OH,Run Total Rate,Front-To-Back(MIN),Front-To-Back(MAX),Side-To-Side(MIN WIDTH),Side-To-Side(MAX Width)," +
                             "Side-To-Side(Trim Lgth),Front-To-Back(Trim),Caliper/Depth(MIN),Caliper/Depth(Max),Run Qty(MIN),Run Qty(MAX),Slot/Score Panel(MIN),Slot/Score Panel(Max),Min Panel (Hd-Hd),Max Panel (Hd-Hd)," +
                             "Slot SIZE(MIN),Slot Size(Max),Printer Type,Washup Hrs,Color/Pass,Max # of colors,Coater on Press,MR Waste per Color,Ink Waste Lbs\MR,Lbs/Color,Tandem MR/Plate,/Fountain,MAX Num WIDTH,MAX Num on Length," +
-                            "Industry,Gang Jobs?,Plain Jobs Only,Obsolete"
+                            "Industry,Gang Jobs?,Plain Jobs Only,Inactive"
 
       cFieldListToSelect = "m-code ,m-dscr,dept[1],dept[2],dept[3],dept[4],loc,sch-m-code,d-seq,m-seq,p-type,run-spoil,mr-waste,daily-prod-hours,therm," +
                             "lab-rate[1],lab-rate[2],lab-rate[3],mrk-rate,mr-crusiz,run-crusiz,lab-drate,mr-rate,mr-varoh,mr-fixoh,mr-trate,run-rate,run-varoh,run-fixoh," +

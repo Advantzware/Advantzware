@@ -28,6 +28,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 def var char-hdl as cha no-undo.
+DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
+
 /* === vars for d-poordl.w ====*/
 {methods/prgsecdt.i}
 
@@ -429,8 +431,7 @@ DO:
       
        run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
        run reopen-query in widget-handle(char-hdl) (rowid(po-ordl)).
-      
-       RUN reopen-po-ord-query.
+       
       END.
       ELSE DO:                              /*10231304*/
           IF po-ordl.stat EQ "c" THEN
@@ -504,6 +505,22 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addItem V-table-Win
+PROCEDURE addItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY 'choose' TO btn-Add IN FRAME {&frame-name}.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :

@@ -22,7 +22,7 @@ IF AVAIL oe-boll THEN
    NO-LOCK NO-ERROR.
 IF AVAIL oe-ordl THEN DO:
   
-   RUN oe/CloseOrder(INPUT ROWID(oe-ordl),
+   RUN oe/CloseOrder.p (INPUT ROWID(oe-ordl),
                      INPUT NO,
                      OUTPUT cStatus,
                      OUTPUT cReason).

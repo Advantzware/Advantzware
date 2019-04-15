@@ -1,0 +1,103 @@
+
+*** Vendor File Field Definition ***           As of  01/04/06       Page:   1
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+vend       acc-bal         Account Balance           ->>>,>>>,>>9.99
+vend       actdscr         Acct Description          x(30)
+vend       active          Customer Status           !
+vend       actnum          Account Number            x(25)
+vend       add1            Address Line 1            x(30)
+vend       add2            address line 2            x(30)
+vend       an-edi-vend     EDI Vend                  yes/no
+vend       area-code       Area Code                 (999)
+vend       avg-pay         Avg to Pay                >>9
+vend       bk-actnum       Bank Code                 x(25)
+vend       bk-name         Bank Name                 x(30)
+vend       buyer           Buyer Code                x(3)
+vend       Buyer-n         Buyer's Name              x(30)
+vend       carrier         Carrier                   x(5)
+vend       check-memo      Check Memo                X(20)
+vend       city            City                      x(16)
+vend       code-1099       1099 Code                 XX
+vend       company         Company                   x(3)
+vend       contact         Contact                   x(15)
+vend       convert-currenc Convert Currency?         yes/no
+vend       country         Country                   x(10)
+vend       cr-hold         Vendor Hold               Yes/No
+vend       cr-lim          Credit Limit              >>>,>>>,>>9.99
+vend       cr-rating       Credit Rating             x(3)
+vend       curr-code       Currency Code             X(3)
+vend       del-zone        Delivery Zone             x(5)
+vend       disc-%          Discount%                 >>9.99%
+vend       disc-days       Days                      z9
+vend       discount        Discount PTD              >>>,>>9.99
+vend       dlast-p         Last Purchase Date        99/99/9999
+vend       fax             Fax #                     999-9999
+vend       fax-area        Area Code                 (999)
+vend       fax-country     Fax Country Prefix        X(8)
+vend       fax-prefix      Fax Prefix                x(3)
+vend       fin-chg         Finance Charges           Yes/No
+vend       fob-code        FOB Code                  x(5)
+vend       frt-actnum      Freight Account Number    x(25)
+vend       frt-pay         FR PAY CD                 x(1)
+vend       hibal           Hi Balance                ->>,>>>,>>9.99
+vend       hibal-date      Hi Balance Date           99/99/9999
+vend       Last-amt        Last Purchase Amount      ->>>,>>>,>>9.99
+vend       last-pay        Last Payment Date         99/99/9999
+vend       last-year       Last Year                 ->>>,>>>,>>9.99
+vend       lead-time       Lead Time                 >>9
+vend       loc             Warehouse                 x(5)
+vend       lpay            Last Payment              ->>,>>>,>>9.99
+vend       lpay-date       Last Pay Date             99/99/9999
+vend       lyptd-msf       LY PTD MSF                ->>>,>>>,>>9.99
+vend       lyytd-msf       LY YTD MSF                ->>>,>>>,>>9.99
+vend       msfcalc         MSF Calculation           F/C
+vend       n-purch         Number of Purchases by pe ->>>,>>>,>>9.99
+vend       name            Name                      x(30)
+vend       notes           Notes                     x(60)
+vend       num-inv         Number of Invoices        >>>>9
+vend       ord-bal         Open Orders Balance       ->>,>>>,>>9.99
+
+*** Vendor File Field Definition ***           As of  01/04/06       Page:   2
+================================================================================
+Table      Field           Label                     Format
+---------- --------------- ------------------------- -------------------------
+vend       ord-lim         Order Limit               >>,>>>,>>9.99
+vend       over-pct        Overrun Percentage        >>9.99%
+vend       phone           Phone Number              999-9999
+vend       phone-country   Phone Country Prefix      X(8)
+vend       phone-prefix    Phone Prefix              x(3)
+vend       po-export       Export Software           X(8)
+vend       Postal          Postal Code               x(11)
+vend       ptd-msf         PTD MSF                   ->>>,>>>,>>9.99
+vend       Purch           Purchases by period       ->>>,>>>,>>9.99
+vend       pytd            Prev YTD                  ->>>,>>9.99
+vend       r-add1          Address 1                 x(30)
+vend       r-add2          Address 2                 x(30)
+vend       r-city          City                      x(16)
+vend       r-country       Country                   x(10)
+vend       r-postal        Postal                    x(11)
+vend       r-state         State                     x(2)
+vend       r-zip           Zip                       xxxxx-xxxx
+vend       rec_key         Rec Key                   X(20)
+vend       remit           Remit to                  x(30)
+vend       salesrep        Sales Rep                 x(15)
+vend       ship-days       Ship Days                 >>9
+vend       soc-sec         Social Security Number    x(20)
+vend       sort            Filing Name               x(8)
+vend       st              St                        !!
+vend       stat-grp        Statement Group           X
+vend       stat-type       Statement Type            O/F
+vend       state           State                     x(2)
+vend       tax             Tax Code                  xx
+vend       tax-gr          Sales Tax Group           x(3)
+vend       tax-id          Tax Exempt No.            x(15)
+vend       terms           Terms                     x(5)
+vend       terr            Sales Territory           x(3)
+vend       type            Vendor Type               x(8)
+vend       under-pct       Underrun Percentage       >>9.99%
+vend       vend-no         Vend.#                    x(8)
+vend       ytd-msf         YTD MSF                   ->>>,>>>,>>9.99
+vend       zip             Zip                       xxxxx-xxxx
+

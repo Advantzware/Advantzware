@@ -5,6 +5,7 @@
     DEF INPUT PARAMETER ip-rcode LIKE fg-rcpth.rita-code.
     DEF INPUT PARAMETER ip-qty AS DEC.
     DEF INPUT PARAMETER ip-part AS DEC.
+    DEFINE INPUT PARAMETER ipReasonCode AS CHARACTER .
 
     {sys/inc/var.i shared}
 
@@ -64,7 +65,8 @@
         fg-rdtlh.partial      = ip-part
         fg-rdtlh.cases        = TRUNC((ip-qty - ip-part) / fg-bin.case-count,0)
         fg-rdtlh.cost         = fg-bin.std-tot-cost
-        fg-rdtlh.trans-time   = TIME.
+        fg-rdtlh.trans-time   = TIME
+        fg-rdtlh.reject-code[1] = ipReasonCode .
 
     IF fg-rdtlh.cases EQ ? THEN ASSIGN
         fg-rdtlh.cases = 0.

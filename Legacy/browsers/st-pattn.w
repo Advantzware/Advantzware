@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -141,7 +142,7 @@ DEFINE BROWSE Browser-Table
              stackPattern.strapCount stackPattern.strapCode stackPattern.strapFormula stackPattern.stackImage
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 146 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 196 BY 18.1
          FONT 2.
 
 
@@ -192,7 +193,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.57
-         WIDTH              = 148.
+         WIDTH              = 195.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -315,6 +316,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+  RUN pen-book-image-proc .  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -761,3 +763,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pen-book-image-proc B-table-Win 
+PROCEDURE pen-book-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR lSpec AS LOGICAL NO-UNDO.
+   DEF VAR char-hdl AS CHARACTER NO-UNDO.
+  
+  IF AVAIL stackPattern THEN
+      lSpec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = stackPattern.rec_key AND
+               notes.note_type <> "o").
+   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'note-link-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT lSpec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

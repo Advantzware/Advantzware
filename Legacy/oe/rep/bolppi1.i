@@ -30,8 +30,8 @@
                 "<R24><C53><FROM><R26><C53><LINE>" SKIP 
                 "<R24><C58><FROM><R26><C58><LINE>" 
                 "<R24><C70><FROM><R26><C70><LINE>" SKIP            
-                "<R24><C76><FROM><R26><C76><LINE>"
+                "<R24><C77><FROM><R26><C77><LINE>"
             "<=5> Our Part# "
-            "<=5><R+1> Your Part#       PO#               Description                  PAL Cases-Quantity  Total P/C" SKIP(1)
+            "<=5><R+1> Your Part#       PO#               Description                  PAL Cases-Quantity   Total P/C" SKIP(1)
             .
             v-printline = v-printline + 16.

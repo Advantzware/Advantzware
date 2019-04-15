@@ -51,6 +51,8 @@ assign
  locode = gloc.
 
 def var v-process as log no-undo.
+DEFINE VARIABLE cPostLst       AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE ll-secure AS LOGICAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -67,9 +69,11 @@ def var v-process as log no-undo.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 begin_seq end_seq btn-process ~
-btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_seq end_seq 
+&Scoped-Define ENABLED-OBJECTS RECT-17 begin_seq end_seq dt-from dt-to ~
+t-receipt rd_posting t-ship t-trans t-adj t-ret tgIssue tbphycount ~
+btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_seq end_seq dt-from dt-to t-receipt ~
+rd_posting t-ship t-trans t-adj t-ret tgIssue tbphycount lv-file-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -107,35 +111,108 @@ DEFINE VARIABLE begin_seq AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
+DEFINE VARIABLE dt-from AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "From Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE dt-to AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "To Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_seq AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Ending Seq#" 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-file-name AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 59.2 BY 1 NO-UNDO.
+
+DEFINE VARIABLE rd_posting AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Posted", "P",
+"Unposted", "U"
+     SIZE 28.8 BY .91 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 8.57.
+     SIZE 89 BY 13.1.
+
+DEFINE VARIABLE t-adj AS LOGICAL INITIAL no 
+     LABEL "Adjustments" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-receipt AS LOGICAL INITIAL no 
+     LABEL "Receipts" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-ret AS LOGICAL INITIAL no 
+     LABEL "Credit Returns" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-ship AS LOGICAL INITIAL no 
+     LABEL "Shipments" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-trans AS LOGICAL INITIAL no 
+     LABEL "Transfers" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE tbphycount AS LOGICAL INITIAL no 
+     LABEL "Physical count" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE tgIssue AS LOGICAL INITIAL no 
+     LABEL "Issue Farm Outs" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_seq AT ROW 9.57 COL 27 COLON-ALIGNED HELP
+     begin_seq AT ROW 6.33 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_seq AT ROW 9.57 COL 63 COLON-ALIGNED HELP
+     end_seq AT ROW 6.33 COL 63 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     btn-process AT ROW 15.29 COL 21
-     btn-cancel AT ROW 15.29 COL 53
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 5.29 COL 5
+     dt-from AT ROW 7.43 COL 27 COLON-ALIGNED HELP
+          "Enter the From Date" WIDGET-ID 2
+     dt-to AT ROW 7.43 COL 63 COLON-ALIGNED HELP
+          "Enter the To Date" WIDGET-ID 4
+     t-receipt AT ROW 9.86 COL 28.4 WIDGET-ID 38
+     rd_posting AT ROW 10 COL 55.2 NO-LABEL WIDGET-ID 46
+     t-ship AT ROW 10.71 COL 28.4 WIDGET-ID 42
+     t-trans AT ROW 11.57 COL 28.4 WIDGET-ID 44
+     t-adj AT ROW 12.48 COL 28.4 WIDGET-ID 36
+     t-ret AT ROW 13.38 COL 28.4 WIDGET-ID 40
+     tgIssue AT ROW 14.24 COL 28.4 WIDGET-ID 34
+     tbphycount AT ROW 15.1 COL 28.4 WIDGET-ID 50
+     lv-file-name AT ROW 16.43 COL 25.8 COLON-ALIGNED NO-LABEL WIDGET-ID 52
+     btn-process AT ROW 18.19 COL 21
+     btn-cancel AT ROW 18.19 COL 53
+     "Dump File:" VIEW-AS TEXT
+          SIZE 11.6 BY .62 AT ROW 16.62 COL 15 WIDGET-ID 54
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
+     "Transaction Types :" VIEW-AS TEXT
+          SIZE 20.8 BY .95 AT ROW 8.81 COL 28.6 WIDGET-ID 6
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 5.29 COL 5
      RECT-17 AT ROW 4.81 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 17.52.
+         SIZE 89.6 BY 18.91.
 
 DEFINE FRAME FRAME-B
      "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
@@ -167,8 +244,8 @@ DEFINE FRAME FRAME-B
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Purge Counts"
-         HEIGHT             = 17.71
+         TITLE              = "Purge Transactions"
+         HEIGHT             = 18.91
          WIDTH              = 90.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
@@ -205,6 +282,44 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN 
+       dt-from:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       dt-to:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR FILL-IN lv-file-name IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       t-adj:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-receipt:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-ret:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-ship:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-trans:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tbphycount:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tgIssue:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -267,6 +382,72 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME t-adj
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-adj C-Win
+ON VALUE-CHANGED OF t-adj IN FRAME FRAME-A /* Adjustments */
+DO:
+      ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME t-receipt
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-receipt C-Win
+ON VALUE-CHANGED OF t-receipt IN FRAME FRAME-A /* Receipts */
+DO:
+    ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME t-ship
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-ship C-Win
+ON VALUE-CHANGED OF t-ship IN FRAME FRAME-A /* Shipments */
+DO:
+      ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME t-trans
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-trans C-Win
+ON VALUE-CHANGED OF t-trans IN FRAME FRAME-A /* Transfers */
+DO:
+      ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbphycount
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbphycount C-Win
+ON VALUE-CHANGED OF tbphycount IN FRAME FRAME-A /* Physical count */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tgIssue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgIssue C-Win
+ON VALUE-CHANGED OF tgIssue IN FRAME FRAME-A /* Issue Farm Outs */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -301,6 +482,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   
   RUN enable_UI.
+
+   DO WITH FRAME {&FRAME-NAME}:
+   rd_posting:SCREEN-VALUE = "U" .
+   END.
   
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -343,9 +528,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_seq end_seq 
+  DISPLAY begin_seq end_seq dt-from dt-to t-receipt rd_posting t-ship t-trans 
+          t-adj t-ret tgIssue tbphycount lv-file-name 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 begin_seq end_seq btn-process btn-cancel 
+  ENABLE RECT-17 begin_seq end_seq dt-from dt-to t-receipt rd_posting t-ship 
+         t-trans t-adj t-ret tgIssue tbphycount btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -364,18 +551,33 @@ PROCEDURE run-process :
 /* def var v-post-date as date init today no-undo.  */
 DEF var v-first-seq like fg-rctd.r-no no-undo.
 DEF var v-last-seq like fg-rctd.r-no no-undo.
+DEFINE VARIABLE cFileName AS CHARACTER FORMAT "x(200)" NO-UNDO .
+DEFINE VARIABLE ctmp-dir AS CHARACTER NO-UNDO .
 
 DEF BUFFER b-fg-rctd FOR fg-rctd.
 
+ FIND FIRST users WHERE
+        users.user_id EQ USERID(ldbname(1))
+        NO-LOCK NO-ERROR.
+
+   IF AVAIL users AND users.user_program[2] NE "" THEN
+      ctmp-dir = users.user_program[2].
+   ELSE
+      ctmp-dir = "c:\tmp".
 
 IF NOT valid-seq() THEN RETURN.
 
-  
+ ASSIGN cFileName = ctmp-dir + "\RctdPurge" + STRING(TIME) + ".d" . 
+
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
    begin_seq
    end_seq.
 END.
+
+DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN {&DISPLAYED-OBJECTS}.
+  END.
 
 
 ASSIGN
@@ -383,32 +585,59 @@ ASSIGN
  v-last-seq  = end_seq
  v-process   = no.
 
-MESSAGE "Are you sure you want to delete the counts within the " +
+cPostLst   =  (IF t-receipt THEN "R," ELSE "") +
+               (IF t-ship THEN "S," ELSE "") +
+               (IF t-trans THEN "T," ELSE "") +
+               (IF t-adj THEN "A," ELSE "") +
+               (IF t-ret THEN "E," ELSE "") +
+               (IF tgIssue THEN "F," ELSE "") +
+               (IF tbphycount THEN "C" ELSE "") .
+
+IF LENGTH(cPostLst) GT 0 AND
+    SUBSTR(cPostLst,LENGTH(cPostLst),1) EQ "," THEN
+    SUBSTR(cPostLst,LENGTH(cPostLst),1) = "".
+
+MESSAGE "Are you sure you want to delete within the " +
         "selection parameters?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
 IF NOT v-process THEN RETURN.
 
+IF dt-from LE TODAY - 183 THEN do: 
+IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
+END.
+ELSE ll-secure = YES .
+ 
+  IF ll-secure THEN do:
 
-SESSION:set-wait-state("General").
+      SESSION:set-wait-state("General").
 
+      OUTPUT TO value(cFileName)  .
 
-  FOR EACH fg-rctd
-      WHERE fg-rctd.company  EQ cocode
-        AND fg-rctd.r-no   ge v-first-seq
-        AND fg-rctd.r-no   le v-last-seq AND
-            fg-rctd.rita-code = "C" EXCLUSIVE TRANSACTION:
+      FOR EACH fg-rctd
+          WHERE fg-rctd.company  EQ cocode
+            AND fg-rctd.r-no   ge v-first-seq
+            AND fg-rctd.r-no   le v-last-seq 
+            AND fg-rctd.rct-date  GE dt-from
+            AND fg-rctd.rct-date  LE dt-to
+            AND fg-rctd.rita-code NE "" 
+            AND ( (LOOKUP(fg-rctd.rita-code,cPostLst) GT 0 AND rd_posting EQ "U" ) OR
+                 (fg-rctd.rita-code EQ "P" AND rd_posting EQ "P")) EXCLUSIVE TRANSACTION:
 
-      DELETE fg-rctd.
-  END. /* for each fg-rctd */
+            EXPORT fg-rctd .
+    
+          DELETE fg-rctd.
+      END. /* for each fg-rctd */
+      
+      OUTPUT CLOSE.
+      lv-file-name:SCREEN-VALUE = cFileName .
+      SESSION:set-wait-state("").
 
+      MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
+      APPLY "close" TO THIS-PROCEDURE.
 
-SESSION:set-wait-state("").
-
-  MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-  APPLY "close" TO THIS-PROCEDURE.
-
-  RETURN.
+      RETURN.
+  END.
   
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 

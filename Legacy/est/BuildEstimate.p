@@ -25,6 +25,7 @@ DEF SHARED BUFFER xest FOR est.
 DEF SHARED BUFFER xef  FOR ef.
 DEF SHARED BUFFER xeb  FOR eb.
 DEF SHARED BUFFER xqty FOR est-qty.
+DEFINE BUFFER bf-existing-eb FOR eb.
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -60,9 +61,16 @@ FOR EACH ttInputEst NO-LOCK:
         AND est-qty.est-no EQ ef.est-no
         AND est-qty.eqty EQ ef.eqty 
         NO-ERROR.
-        
+    FIND FIRST bf-existing-eb NO-LOCK /*find existing eb from which to apply some defaults*/
+        WHERE bf-existing-eb.company EQ eb.company
+        AND bf-existing-eb.est-no EQ eb.est-no
+        AND ROWID(bf-existing-eb) NE ROWID(eb)
+        NO-ERROR. 
+     
      IF eb.eqty EQ 0 THEN 
         eb.eqty         = ttInputEst.iQuantity.
+     IF eb.eqty EQ 0 AND AVAILABLE bf-existing-eb THEN 
+        eb.eqty         = bf-existing-eb.eqty.
      ASSIGN 
         est-qty.eqty    = eb.eqty
         est.est-qty[1]  = eb.eqty
@@ -94,8 +102,20 @@ FOR EACH ttInputEst NO-LOCK:
         ef.blank-qty    = 1
         ef.trim-w       = ttInputEst.dWidthDie
         ef.trim-l       = ttInputEst.dLengthDie
-
         .
+    IF eb.sman NE "" AND eb.comm EQ 0 THEN DO:
+        FIND FIRST sman NO-LOCK 
+            WHERE sman.company EQ eb.company
+            AND sman.sman EQ eb.sman
+            NO-ERROR.
+        IF AVAILABLE sman THEN 
+            eb.comm = sman.scomm.
+    END.
+    IF eb.sman EQ "" AND AVAILABLE bf-existing-eb THEN 
+            ASSIGN  
+                eb.sman = bf-existing-eb.sman
+                eb.comm = bf-existing-eb.comm.
+    
     IF ttInputEst.cCategory NE '' THEN 
         eb.procat       = ttInputEst.cCategory.
     IF ttInputEst.iQuantityYield GT 0 THEN 
@@ -103,11 +123,16 @@ FOR EACH ttInputEst NO-LOCK:
     ELSE 
         eb.yld-qty      = eb.eqty.
         
-    FIND FIRST cust NO-LOCK 
-        WHERE cust.company EQ  eb.company 
-        AND cust.cust-no EQ ttInputEst.cCustomer
-        NO-ERROR.
-
+    IF ttInputEst.cCustomer NE "" THEN 
+        FIND FIRST cust NO-LOCK 
+            WHERE cust.company EQ  eb.company 
+            AND cust.cust-no EQ ttInputEst.cCustomer
+            NO-ERROR.
+    IF NOT AVAILABLE cust AND AVAILABLE bf-existing-eb THEN 
+        FIND FIRST cust NO-LOCK 
+            WHERE cust.company EQ  eb.company 
+            AND cust.cust-no EQ bf-existing-eb.cust-no
+            NO-ERROR.
     IF AVAILABLE cust THEN 
     DO: 
         eb.cust-no = cust.cust-no.

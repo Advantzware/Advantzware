@@ -101,6 +101,7 @@ DEFINE VARIABLE h_sys-ctrl-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_sys-ctrl-4 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_sys-form AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_sys-form-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -350,6 +351,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 77.30 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/prtsyscl.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -368,6 +377,9 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_sys-ctrl , 'export-xl':U , h_export ).
+
        /* Links to SmartNavBrowser h_sys-ctrl. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_sys-ctrl ).
        RUN add-link IN adm-broker-hdl ( h_prtsyscl , 'getInfo':U , h_sys-ctrl ).
@@ -376,6 +388,8 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_prtsyscl ,
              h_options , 'AFTER':U ).
+       /*RUN adjust-tab-order IN adm-broker-hdl ( h_movecol-3 ,
+             h_export , 'AFTER':U ).*/
        RUN adjust-tab-order IN adm-broker-hdl ( h_sys-ctrl ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */

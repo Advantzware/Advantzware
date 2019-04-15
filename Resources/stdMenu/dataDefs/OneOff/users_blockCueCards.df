@@ -1,0 +1,15 @@
+ADD FIELD "blockCueCards" OF "users" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Block Cue Cards"
+  POSITION 49
+  MAX-WIDTH 1
+  COLUMN-LABEL "Block"
+  HELP "Toggle to Block Cue Cards"
+  ORDER 461
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000009221

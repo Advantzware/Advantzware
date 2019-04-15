@@ -21,7 +21,7 @@ DISABLE TRIGGERS FOR LOAD OF po-ord.
 DISABLE TRIGGERS FOR LOAD OF po-ordl.
 
 
-IF LOOKUP({&TABLENAME}.reftable,"EST-MISC,MACH-CREW") GT 0 THEN DO:
+IF LOOKUP({&TABLENAME}.reftable,"EST-MISC") GT 0 THEN DO:
   IF {&TABLENAME}.reftable EQ "EST-MISC" THEN DO:
     lv-est-no = "".
     DO li = 1 TO LENGTH({&TABLENAME}.code):
@@ -76,7 +76,6 @@ END.
 
 ELSE
 IF {&TABLENAME}.reftable EQ "PLATE/FOUNTAIN"    OR
-   {&TABLENAME}.reftable EQ "ce/v-est3.w Unit#" OR
    {&TABLENAME}.reftable EQ "cedepth" THEN RUN update-est ({&TABLENAME}.loc).
 
 ELSE

@@ -37,6 +37,7 @@ DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+{methods/defines/hndldefs.i}
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/VAR.i NEW SHARED}
@@ -49,7 +50,6 @@ ASSIGN
 
 DEF VAR li-new-estnum LIKE  ce-ctrl.e-num NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
-DEF VAR char-hdl AS cha NO-UNDO.
 DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
 DEF VAR lv-last-rowid AS ROWID NO-UNDO.
 DEF VAR lv-frst-rowid2 AS ROWID NO-UNDO.
@@ -492,6 +492,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      vi_est-no AT ROW 1.95 COL 2 NO-LABEL
      begin_cust-no AT ROW 1.95 COL 15 COLON-ALIGNED NO-LABEL
+     begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABEL
      vi_part-no AT ROW 1.95 COL 29 COLON-ALIGNED NO-LABEL
      vi_stock-no AT ROW 1.95 COL 49 COLON-ALIGNED NO-LABEL
      vi_style AT ROW 1.95 COL 71 COLON-ALIGNED NO-LABEL
@@ -502,7 +503,6 @@ DEFINE FRAME F-Main
      vi_wid AT ROW 2.91 COL 86 COLON-ALIGNED NO-LABEL
      vi_wid-2 AT ROW 2.91 COL 103 COLON-ALIGNED NO-LABEL
      vi_cad-no AT ROW 2.91 COL 116 COLON-ALIGNED NO-LABEL
-     begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABEL
      vi_part-dscr1 AT ROW 3.14 COL 49 COLON-ALIGNED NO-LABEL
      vi_dep AT ROW 3.86 COL 86 COLON-ALIGNED NO-LABEL
      vi_dep-2 AT ROW 3.86 COL 103 COLON-ALIGNED NO-LABEL
@@ -737,6 +737,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
+ON VALUE-CHANGED OF begin_cust-no IN FRAME F-Main
+DO:
+  
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
+     begin_ship:SENSITIVE = YES.
+  END.
+  ELSE begin_ship:SENSITIVE = NO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON LEAVE OF begin_cust-no IN FRAME F-Main
@@ -748,8 +761,6 @@ DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
      begin_ship:SENSITIVE = YES.
-     APPLY "entry" TO begin_ship.
-     RETURN NO-APPLY.
   END.
   ELSE begin_ship:SENSITIVE = NO.
 END.
@@ -923,6 +934,8 @@ DO:
 
     RUN paper-clip-image-proc(INPUT est.rec_key).
 
+    RUN dept-image-proc.
+
     IF eb.stock-no NE "" THEN
     DO:
        FIND FIRST itemfg WHERE
@@ -1008,9 +1021,15 @@ DO:
          IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
              MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-         ELSE
-         MESSAGE "No Estimate Found, please update your Search Criteria."
-                VIEW-AS ALERT-BOX ERROR.
+         ELSE 
+         DO:
+             MESSAGE 
+                 "No Estimate Found, reverting to initial setup."
+                 VIEW-AS ALERT-BOX ERROR.
+             ASSIGN 
+                 lv-first-run = TRUE.
+             RUN local-open-query.
+         END.
      END.
   END.
   SESSION:SET-WAIT-STATE("").
@@ -1451,6 +1470,11 @@ PROCEDURE clearFilterValues:
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/clearFilterValues.i}
+/*
+
+    RUN local-open-query.
+    RUN dispatch ('row-changed').
+*/
 
 END PROCEDURE.
 	
@@ -1466,51 +1490,47 @@ PROCEDURE create-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR cocode AS cha NO-UNDO.
-  DEF BUFFER bf-est FOR est.
-  DEF BUFFER bb FOR eb.
-  DEF BUFFER recalc-mr FOR reftable.
+    DEF VAR cocode AS cha NO-UNDO.
+    DEF BUFFER bf-est FOR est.
+    DEF BUFFER bb FOR eb.
+    DEF BUFFER recalc-mr FOR reftable.
 
-  /*  don't use e-num any more as key index
-  find last bf-est use-index e-num no-lock no-error.
-  li-enum = if avail bf-est then bf-est.e-num else 0.
-  */
+    REPEAT:
+        FIND FIRST ce-ctrl WHERE 
+            ce-ctrl.company = gcompany AND
+            ce-ctrl.loc = gloc
+            EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
-
-  REPEAT:
+        IF AVAIL ce-ctrl THEN DO:
+            ASSIGN
+                li-new-estnum = ce-ctrl.e-num + 1
+                ce-ctrl.e-num = li-new-estnum.
+            FIND CURRENT ce-ctrl NO-LOCK.
+            LEAVE.
+        END.
+    END.
   
-  FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany AND
-                           ce-ctrl.loc = gloc
-       EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-  IF AVAIL ce-ctrl THEN
-  DO:
-     ASSIGN
-     li-new-estnum = ce-ctrl.e-num + 1
-     ce-ctrl.e-num = li-new-estnum.
-     FIND CURRENT ce-ctrl NO-LOCK.
-     LEAVE.
-  END.
-  END.
-  
-  CREATE est.  
-  ASSIGN ll-new-record = YES
-         est.est-type = 1
-         est.company = gcompany
-         est.loc = gloc
+    CREATE est.  
+    ASSIGN 
+        ll-new-record = YES
+        est.est-type = 1
+        est.company = gcompany
+        est.loc = gloc
        /*  est.e-num = li-enum + 1 */
-         est.est-no = STRING(li-new-estnum,">>>>>>>9")
-         est.form-qty = 1
-         est.est-date = TODAY
-         est.mod-date = ?
-         cocode = gcompany.      
+        est.est-no = STRING(li-new-estnum,">>>>>>>9")
+        est.form-qty = 1
+        est.est-date = TODAY
+        est.mod-date = ?
+        cocode = gcompany.      
 
-   {sys/ref/est-add.i est}     
+    {sys/ref/est-add.i est}     
 
-   RUN crt-est-childrecord.  /* create ef,eb,est-prep */
-   
-   RUN local-open-query.  
-   RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
+    RUN crt-est-childrecord.  /* create ef,eb,est-prep */
+
+    FIND CURRENT recalc-mr NO-LOCK NO-ERROR.
+       
+    RUN local-open-query.  
+    RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
 
 END PROCEDURE.
 
@@ -1717,16 +1737,15 @@ PROCEDURE export-xl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR FromEstNo AS CHAR NO-UNDO.
-DEF VAR ToEstNo AS CHAR NO-UNDO.
-
-IF est.est-no NE "" THEN
+    DEFINE VARIABLE FromEstNo AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ToEstNo   AS CHARACTER NO-UNDO.
+    
+    IF est.est-no NE "" THEN
     ASSIGN
-    FromEstNo = est.est-no
-    ToEstNo   = est.est-no . 
-
-RUN fg/EstF-exp.w (FromEstNo,ToEstNo).
-
+        FromEstNo = est.est-no
+        ToEstNo   = est.est-no
+        .    
+    RUN fg/EstC-exp.w (FromEstNo, ToEstNo, "F" /* folding */).
 
 END PROCEDURE.
 
@@ -2458,6 +2477,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-image-proc :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-spec   AS LOG       NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  
+    FIND FIRST notes WHERE notes.rec_key = est.rec_key
+        NO-LOCK NO-ERROR.
+   
+    IF AVAILABLE notes THEN
+        v-spec = TRUE.
+    ELSE v-spec = FALSE.
+
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+  
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+        RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :

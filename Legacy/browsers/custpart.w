@@ -63,29 +63,27 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES cust-part reftable
+&Scoped-define INTERNAL-TABLES cust-part
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table cust-part.cust-no cust-part.part-no cust-part.spare-char-1 reftable.code2 reftable.dscr   
+&Scoped-define FIELDS-IN-QUERY-br_table cust-part.cust-no cust-part.part-no cust-part.spare-char-1 cust-part.labelCase cust-part.labelPallet   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table cust-part.cust-no ~
 cust-part.part-no ~
 cust-part.spare-char-1 ~
-reftable.code2 ~
-reftable.dscr   
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table cust-part reftable
+cust-part.labelCase ~
+cust-part.labelPallet   
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table cust-part 
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table cust-part
-&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table reftable
+&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table 
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH cust-part WHERE cust-part.company = itemfg.company   AND cust-part.i-no = itemfg.i-no NO-LOCK, ~
-           FIRST reftable OUTER-JOIN WHERE reftable.reftable = "cp-lab-p"   AND reftable.company = cust-part.company   AND reftable.loc = cust-part.i-no   AND reftable.code = cust-part.cust-no NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH cust-part WHERE cust-part.company = itemfg.company   AND cust-part.i-no = itemfg.i-no NO-LOCK, ~
-           FIRST reftable OUTER-JOIN WHERE reftable.reftable = "cp-lab-p"   AND reftable.company = cust-part.company   AND reftable.loc = cust-part.i-no   AND reftable.code = cust-part.cust-no NO-LOCK     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table cust-part reftable
+&Scoped-define QUERY-STRING-br_table FOR EACH cust-part WHERE cust-part.company = itemfg.company   AND cust-part.i-no = itemfg.i-no NO-LOCK     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH cust-part WHERE cust-part.company = itemfg.company   AND cust-part.i-no = itemfg.i-no NO-LOCK     ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-br_table cust-part 
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table cust-part
-&Scoped-define SECOND-TABLE-IN-QUERY-br_table reftable
+&Scoped-define SECOND-TABLE-IN-QUERY-br_table 
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -153,8 +151,7 @@ RUN set-attribute-list (
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      cust-part, 
-      reftable SCROLLING.
+      cust-part SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -166,14 +163,14 @@ DEFINE BROWSE br_table
       cust-part.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
             WIDTH 23
       cust-part.spare-char-1 COLUMN-LABEL "Sls Rep" FORMAT "x(7)":U
-      reftable.code2 COLUMN-LABEL "Case Label" FORMAT "X(80)":U
-      reftable.dscr  COLUMN-LABEL "Pallet Label" FORMAT "X(50)":U
+      cust-part.labelCase COLUMN-LABEL "Case Label" FORMAT "X(80)":U
+      cust-part.labelPallet  COLUMN-LABEL "Pallet Label" FORMAT "X(50)":U
   ENABLE
       cust-part.cust-no
       cust-part.part-no
       cust-part.spare-char-1
-      reftable.code2
-      reftable.dscr
+      cust-part.labelCase
+      cust-part.labelPallet
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 57 BY 6.71
@@ -362,12 +359,12 @@ DEF VAR ll-ok AS LOG NO-UNDO.
 DEF VAR v-path AS CHAR NO-UNDO INIT 'c:\'.
 
 
-ON 'help':U OF reftable.code2 IN BROWSE {&browse-name}
+ON 'help':U OF cust-part.labelCase IN BROWSE {&browse-name}
 DO:
     
     /* gdm - 11050804 */
     
-    ASSIGN v-path = TRIM(reftable.code2).
+    ASSIGN v-path = TRIM(cust-part.labelCase).
 
     IF TRIM(v-path) EQ "" 
       THEN
@@ -404,16 +401,16 @@ DO:
 
    IF ll-ok THEN
 */   
-    ASSIGN reftable.code2:SCREEN-VALUE IN BROWSE {&browse-name} = chFile.
+    ASSIGN cust-part.labelCase:SCREEN-VALUE IN BROWSE {&browse-name} = chFile.
  
 END.
 /* gdm - 04090909 */
-ON 'help':U OF reftable.dscr IN BROWSE {&browse-name}
+ON 'help':U OF cust-part.labelPallet IN BROWSE {&browse-name}
 DO:
     
     /* gdm - 11050804 */
     
-    ASSIGN v-path = TRIM(reftable.dscr).
+    ASSIGN v-path = TRIM(cust-part.labelPallet).
 
     IF TRIM(v-path) EQ "" 
       THEN
@@ -428,7 +425,7 @@ DO:
                                 INPUT v-path,
                                 OUTPUT chFile).
 
-    ASSIGN reftable.dscr:SCREEN-VALUE IN BROWSE {&browse-name} = chFile.
+    ASSIGN cust-part.labelPallet:SCREEN-VALUE IN BROWSE {&browse-name} = chFile.
  
 END.
 /* gdm - 04090909 end */
@@ -522,14 +519,7 @@ PROCEDURE local-assign-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF NOT AVAIL reftable THEN
-     create reftable.
-
-  assign reftable.reftable = "cp-lab-p"
-         reftable.company = cust-part.company
-         reftable.loc = cust-part.i-no
-         reftable.code = cust-part.cust-no.
+  /* Code placed here will execute AFTER standard behavior.    */  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -551,13 +541,6 @@ PROCEDURE local-create-record :
   ASSIGN
    cust-part.company = itemfg.company
    cust-part.i-no    = itemfg.i-no.
-
-  create reftable.
-
-  assign reftable.reftable = "cp-lab-p"
-         reftable.company = cust-part.company
-         reftable.loc = cust-part.i-no
-         reftable.code = cust-part.cust-no.
 
 END PROCEDURE.
 
@@ -636,29 +619,6 @@ PROCEDURE local-open-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER b-cust-part FOR cust-part.
-  DEFINE BUFFER b-reftable FOR reftable.
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  FOR EACH b-cust-part fields(company i-no cust-no) WHERE
-      b-cust-part.company = itemfg.company AND
-      b-cust-part.i-no = itemfg.i-no
-      NO-LOCK:
-
-      IF NOT CAN-FIND(FIRST reftable WHERE
-         reftable.reftable = "cp-lab-p" AND
-         reftable.company = b-cust-part.company AND
-         reftable.loc = b-cust-part.i-no AND
-         reftable.code = b-cust-part.cust-no) THEN
-         DO:
-            CREATE b-reftable.
-            ASSIGN
-               b-reftable.reftable = "cp-lab-p"
-               b-reftable.company = b-cust-part.company
-               b-reftable.loc = b-cust-part.i-no
-               b-reftable.code = b-cust-part.cust-no.
-            RELEASE b-reftable.
-         END.
-  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
@@ -788,7 +748,6 @@ PROCEDURE send-records :
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "itemfg"}
   {src/adm/template/snd-list.i "cust-part"}
-  {src/adm/template/snd-list.i "reftable"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

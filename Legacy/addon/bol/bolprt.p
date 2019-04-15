@@ -448,7 +448,7 @@ FOR EACH b-report
           AND CAN-FIND(FIRST oe-ord
                        WHERE oe-ord.company EQ oe-boll.company
                          AND oe-ord.ord-no  EQ oe-boll.ord-no
-                         AND oe-ord.stat    EQ "H")
+                         AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold))
         NO-LOCK:
       NEXT build-work.
     END.

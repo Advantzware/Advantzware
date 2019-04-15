@@ -31,7 +31,10 @@ find xef where recid(xef) eq fil_id no-error.
 xef.op-lock = YES.
 find xef where recid(xef) eq fil_id no-lock no-error.
 
-run cec/com/localk.p (500, ?, NO).
+run cec/com/localk.p (500, ?, YES).  /*Changed from NO to YES for ticket 33762 - setting this to no, 
+                                       causes a reset of op-lock.val[1] and .val[2] (the user checkbox 
+                                       on the recalc to use machine standards).  Problem was that
+                                       forms 2-n used the est-op values instead of recalculating from standards*/
 
 for each est-op
     where est-op.company = xest.company

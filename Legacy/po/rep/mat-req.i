@@ -212,7 +212,7 @@ for each {1}report where {1}report.term-id eq v-term,
         and item.i-no    eq v-itm
       no-lock no-error.
 
-  if first-of({1}report.key-02) then do:
+  if first-of({1}report.key-02) or v-sort-by-size then do:
     v-qty[1] = 0.
 
     if v-itm ne "" then

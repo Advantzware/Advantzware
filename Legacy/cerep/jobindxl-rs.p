@@ -52,7 +52,6 @@ DEF BUFFER b-ef       FOR ef.
 DEF BUFFER b-job-mch  FOR job-mch.
 DEF BUFFER b-itemfg   FOR itemfg.
 DEF BUFFER b-item     FOR item.
-DEF BUFFER b-rt       FOR reftable.
 DEF BUFFER b-est-flm  FOR est-flm.
 DEF BUFFER b-prep     FOR prep.
 DEF BUFFER b-reftable FOR reftable.
@@ -1081,27 +1080,9 @@ PROCEDURE InkData :
         BY b-item.i-no:
        
     
-    FIND FIRST reftable
-        WHERE reftable EQ "ce/v-est3.w Unit#"
-          AND reftable.company EQ eb.company
-          AND reftable.loc     EQ eb.est-no
-          AND reftable.code    EQ STRING(eb.form-no,"9999999999")
-          AND reftable.code2   EQ STRING(eb.blank-no,"9999999999")
-        NO-LOCK NO-ERROR.
-
-    FIND FIRST b-rt
-        WHERE b-rt.reftable EQ "ce/v-est3.w Unit#1"
-          AND b-rt.company  EQ eb.company
-          AND b-rt.loc      EQ eb.est-no
-          AND b-rt.code     EQ STRING(eb.form-no,"9999999999")
-          AND b-rt.code2    EQ STRING(eb.blank-no,"9999999999")
-        NO-LOCK NO-ERROR.
-
+    
     DO i = 1 TO 20:
-      v-unit = IF i LE 12 AND AVAIL reftable THEN reftable.val[i]
-               ELSE
-               IF AVAIL b-rt                 THEN b-rt.val[i - 12]
-                                             ELSE 0.
+      v-unit = eb.unitNo[i].
 
       IF eb.i-code2[i] EQ b-job-mat.i-no THEN DO:
         FIND FIRST tt-ink

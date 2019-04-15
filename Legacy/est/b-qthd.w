@@ -87,7 +87,7 @@ recCount = sys-ctrl.int-fld.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table quotehd.q-no quotehd.quo-date ~
-quotehd.cust-no quotehd.contact quotehd.est-no quotehd.rfq quoteitm.part-no ~
+quotehd.cust-no quotehd.contact quotehd.est-no quotehd.expireDate quoteitm.part-no ~
 quoteitm.part-dscr1 quotehd.upd-date ~
 STRING (quotehd.upd-time,'HH:MM:SS') @ quotehd.upd-time quotehd.upd-user 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
@@ -104,7 +104,7 @@ AND (quotehd.quo-date GE fi_quo-date ~
 OR fi_quo-date EQ ?) ~
 AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
-AND quotehd.rfq BEGINS fi_rfq ~
+AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire))  ~
 ~{&useIndexPhrase} NO-LOCK, ~
       EACH quoteitm OF quotehd OUTER-JOIN  ~
       WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
@@ -125,7 +125,7 @@ AND (quotehd.quo-date GE fi_quo-date ~
 OR fi_quo-date EQ ?) ~
 AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
-AND quotehd.rfq BEGINS fi_rfq ~
+AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire)) ~
 ~{&useIndexPhrase} NO-LOCK, ~
       EACH quoteitm OF quotehd OUTER-JOIN ~
       WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
@@ -142,15 +142,15 @@ and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fi_q-no fi_quo-date fi_cust-no fi_contact ~
-fi_est-no fi_rfq fi_part-no fi_item-decr btnGO btnShowPrevious btnShowNext ~
+fi_est-no fi_part-no fi_item-decr tb_expire btnGO btnShowPrevious btnShowNext ~
 Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_q-no fi_quo-date fi_cust-no fi_contact ~
-fi_est-no fi_rfq fi_part-no fi_item-decr fi_sortby browse-order auto_find 
+fi_est-no fi_part-no fi_item-decr tb_expire fi_sortby browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* filterFields,List-2,List-3,List-4,List-5,List-6                      */
 &Scoped-define filterFields fi_q-no fi_quo-date fi_cust-no fi_contact ~
-fi_est-no fi_rfq fi_part-no fi_item-decr 
+fi_est-no fi_part-no fi_item-decr tb_expire
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -221,10 +221,10 @@ DEFINE VARIABLE fi_quo-date AS DATE FORMAT "99/99/99"
      SIZE 12.6 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_rfq AS CHARACTER FORMAT "X(10)" 
-     VIEW-AS FILL-IN 
-     SIZE 13 BY 1
-     BGCOLOR 15  NO-UNDO.
+DEFINE VARIABLE tb_expire AS LOGICAL INITIAL NO 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 10 BY .86 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      LABEL "Sorted By" 
@@ -247,7 +247,7 @@ DEFINE QUERY Browser-Table FOR
       quotehd.cust-no
       quotehd.contact
       quotehd.est-no
-      quotehd.rfq
+      quotehd.expireDate
       quotehd.upd-date
       quotehd.upd-time
       quotehd.upd-time
@@ -269,7 +269,7 @@ DEFINE BROWSE Browser-Table
       quotehd.contact FORMAT "X(15)":U LABEL-BGCOLOR 14
       quotehd.est-no COLUMN-LABEL "Estimate" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
-      quotehd.rfq FORMAT "x(10)":U LABEL-BGCOLOR 14
+      quotehd.expireDate FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       quoteitm.part-no COLUMN-LABEL "Cust Part" FORMAT "x(20)":U
             LABEL-BGCOLOR 14
       quoteitm.part-dscr1 FORMAT "x(30)":U LABEL-BGCOLOR 14
@@ -291,9 +291,9 @@ DEFINE FRAME F-Main
      fi_cust-no AT ROW 1.71 COL 24.4 NO-LABEL
      fi_contact AT ROW 1.71 COL 36 NO-LABEL
      fi_est-no AT ROW 1.71 COL 61.4 NO-LABEL
-     fi_rfq AT ROW 1.71 COL 72.6 NO-LABEL
-     fi_part-no AT ROW 1.71 COL 85.4 NO-LABEL
-     fi_item-decr AT ROW 1.71 COL 107 NO-LABEL
+     fi_part-no AT ROW 1.71 COL 72.1 NO-LABEL
+     fi_item-decr AT ROW 1.71 COL 93.8 NO-LABEL
+     tb_expire AT ROW 1.71 COL 128.8 NO-LABEL
      btnGO AT ROW 2.91 COL 2
      btnShowPrevious AT ROW 2.91 COL 14
      btnShowNext AT ROW 2.91 COL 35
@@ -316,19 +316,19 @@ DEFINE FRAME F-Main
           SIZE 10 BY .62 AT ROW 1 COL 36.4
           FGCOLOR 9 FONT 6
      "Customer Part No" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 1 COL 85.8
+          SIZE 20 BY .62 AT ROW 1 COL 72.1
           FGCOLOR 9 FONT 6
      "Customer" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1 COL 24.4
           FGCOLOR 9 FONT 6
      "Item Description" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 1 COL 108
+          SIZE 20 BY .62 AT ROW 1 COL 93.8
           FGCOLOR 9 FONT 6
      "Quote" VIEW-AS TEXT
           SIZE 7.6 BY .62 AT ROW 1 COL 1.4
           FGCOLOR 9 FONT 6
-     "RFQ" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 1 COL 73
+     "Expired" VIEW-AS TEXT
+          SIZE 17.5 BY .62 AT ROW 1 COL 125
           FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -428,7 +428,7 @@ ASSIGN
    ALIGN-L 1                                                            */
 /* SETTINGS FOR FILL-IN fi_quo-date IN FRAME F-Main
    ALIGN-L 1                                                            */
-/* SETTINGS FOR FILL-IN fi_rfq IN FRAME F-Main
+/* SETTINGS FOR FILL-IN tb_expire IN FRAME F-Main
    ALIGN-L 1                                                            */
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -459,7 +459,7 @@ AND (quotehd.quo-date GE fi_quo-date
 OR fi_quo-date EQ ?)
 AND (quotehd.est-no EQ fi_est-no
 OR fi_est-no EQ "")
-AND quotehd.rfq BEGINS fi_rfq
+AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (not tb_expire))
 ~{&useIndexPhrase}"
      _Where[2]         = "(IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no
 ELSE quoteitm.part-no BEGINS fi_part-no)
@@ -475,8 +475,8 @@ ELSE quoteitm.part-dscr1 BEGINS fi_item-decr)"
 "quotehd.contact" ? "X(15)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.quotehd.est-no
 "quotehd.est-no" "Estimate" "x(8)" "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.quotehd.rfq
-"quotehd.rfq" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.quotehd.expireDate
+"quotehd.expireDate" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.quoteitm.part-no
 "quoteitm.part-no" "Cust Part" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.quoteitm.part-dscr1
@@ -642,7 +642,7 @@ END.
 &Scoped-define SELF-NAME fi_q-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_q-no B-table-Win
 ON RETURN OF fi_q-no IN FRAME F-Main
-,fi_quo-date,fi_cust-no,fi_contact,fi_est-no,fi_rfq,fi_part-no,fi_item-decr
+,fi_quo-date,fi_cust-no,fi_contact,fi_est-no,tb_expire,fi_part-no,fi_item-decr
 DO:
   ASSIGN {&filterFields}
     q-noValue[1] = IF fi_q-no NE 0 THEN fi_q-no ELSE 0
@@ -811,7 +811,7 @@ PROCEDURE getValueFields :
     fi_cust-no = ''
     fi_contact = ''
     fi_est-no = ''
-    fi_rfq = ''
+    tb_expire = NO
     fi_part-no = ''
     fi_item-decr = ''.
   DISPLAY {&filterFields} WITH FRAME {&FRAME-NAME}.
@@ -904,7 +904,7 @@ IF sortColumn EQ 'Date' THEN STRING(YEAR(quotehd.quo-date),"9999") + ~
 IF sortColumn EQ 'Cust'             THEN quotehd.cust-no    ELSE ~
 IF sortColumn EQ 'Contact'          THEN quotehd.contact    ELSE ~
 IF sortColumn EQ 'Estimate'         THEN quotehd.est-no     ELSE ~
-IF sortColumn EQ 'RFQ'              THEN quotehd.rfq        ELSE ~
+IF sortColumn EQ 'Expiration Date'  THEN STRING(YEAR(quotehd.expireDate),"9999") + STRING(MONTH(quotehd.expireDate),"99") + STRING(DAY(quotehd.expireDate),"99")       ELSE ~
 IF sortColumn EQ 'Cust Part'        THEN quoteitm.part-no   ELSE ~
 IF sortColumn EQ 'Item Description' THEN quoteitm.part-dscr1 ELSE ~
 IF sortColumn EQ 'Updated Date'     THEN STRING(YEAR(quotehd.upd-date),"9999") + STRING(MONTH(quotehd.upd-date),"99") + STRING(DAY(quotehd.upd-date),"99")   ELSE ~
@@ -924,7 +924,7 @@ STRING(quotehd.q-no,'>>>>>9') ~{&SORTED}
               ELSE quotehd.contact MATCHES fi_contact ) ~
           AND (quotehd.quo-date GE fi_quo-date OR fi_quo-date EQ ?) ~
           AND (quotehd.est-no EQ fi_est-no OR fi_est-no EQ '') ~
-          AND quotehd.rfq BEGINS fi_rfq ~{&useIndexPhrase}, ~
+          AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire)) ~{&useIndexPhrase}, ~
         EACH quoteitm OF quotehd NO-LOCK ~
         WHERE (IF fi_part-no BEGINS '*' THEN quoteitm.part-no MATCHES fi_part-no ~
             ELSE quoteitm.part-no BEGINS fi_part-no) ~
@@ -970,7 +970,7 @@ STRING(quotehd.q-no,'>>>>>9') ~{&SORTED}
                  AND (bf-quotehd.q-no = fi_q-no OR fi_q-no = 0)
                  AND (bf-quotehd.contact BEGINS fi_contact OR fi_contact = "")
                  AND (bf-quotehd.est-no BEGINS fi_est-no OR fi_est-no = "") 
-                 AND (bf-quotehd.rfq BEGINS fi_rfq OR fi_rfq = "") NO-LOCK NO-ERROR. 
+                 AND ((bf-quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire)) NO-LOCK NO-ERROR. 
             IF AVAIL bf-quotehd THEN
                 v-cust-no = bf-quotehd.cust-no .
             ELSE v-cust-no = "".
@@ -1118,6 +1118,46 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+DEFINE VARIABLE lcCustFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcCustTo   AS CHAR NO-UNDO.
+DEFINE VARIABLE lcCategoryFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcCategoryTo   AS CHAR NO-UNDO.
+DEFINE VARIABLE lcSalesFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcSalesTo   AS CHAR NO-UNDO.
+DEFINE VARIABLE lcDateFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcDateTo   AS CHAR NO-UNDO.
+
+IF fi_cust-no NE "" THEN
+    ASSIGN
+        lcCustFrom = fi_cust-no
+        lcCustTo = fi_cust-no.
+IF fi_quo-date NE ? THEN
+    ASSIGN
+        lcDateFrom = STRING(fi_quo-date)
+        lcDateTo = lcDateFrom.
+
+    RUN est/rd-qhexp.w (lcCustFrom,
+                       lcCustTo,
+                       "",
+                       "",
+                       "",
+                       "",
+                       lcDateFrom,
+                       lcDateTo).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

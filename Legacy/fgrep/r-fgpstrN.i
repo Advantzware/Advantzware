@@ -1,5 +1,5 @@
 /*fgrep/r-fgpstrN.i*/
-
+DEFINE VARIABLE cReason AS CHARACTER NO-UNDO.
 
 ASSIGN 
           v-shipto = ""
@@ -37,8 +37,9 @@ for each tt-report where tt-report.term-id eq "" no-lock,
         hide frame r-top.
         VIEW frame r-top.
         page.
+        put SKIP "WHSE: " v-whse skip(1).
       end.
-      else put skip(3) "WHSE: " v-whse skip(1).
+      ELSE put SKIP(1) "WHSE: " v-whse skip(1).
     end.
     
     v-stnd-cost = 0.
@@ -296,6 +297,12 @@ for each tt-report where tt-report.term-id eq "" no-lock,
 	LEAVE.
         END.
 
+        ASSIGN cReason = "".
+               FIND FIRST rejct-cd NO-LOCK WHERE rejct-cd.CODE EQ fg-rdtlh.reject-code[1] NO-ERROR.
+              IF fg-rdtlh.reject-code[1] NE "" THEN
+               ASSIGN cReason = fg-rdtlh.reject-code[1] + IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN ( " - " + rejct-cd.dscr) ELSE "".
+              ELSE cReason = "".
+
    
     BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK) .
     ASSIGN cDisplay = ""
@@ -338,7 +345,7 @@ for each tt-report where tt-report.term-id eq "" no-lock,
              
 
             CASE cTmpField:               
-                /* v-qty-case lv-cost-uom v-fg-qty v-fg-cost v-fg-value  */
+                 WHEN "loc" THEN cVarValue = STRING(fg-rdtlh.loc,"x(5)"). 
                  WHEN "v-tran-type" THEN cVarValue = substring(v-tran-type,1,1).
                  WHEN "v-tag" THEN cVarValue = string(v-tag).
                  WHEN "v-rfid#" THEN cVarValue = IF AVAIL rfidtag THEN SUBSTRING(rfidtag.rfidtag,13) ELSE "".
@@ -369,9 +376,13 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                       cVarValue =  STRING(v-fg-qty - iBinQtyb,"->>>>>>>>9")  .
                  END.
                   WHEN "bol-no" THEN cVarValue = string(iBol-no,">>>>>>>")  .
+                  WHEN "Reason" THEN cVarValue =  string(cReason,"x(30)")      .
+                  WHEN "Reason-cd" THEN cVarValue = IF AVAIL fg-rdtlh AND fg-rdtlh.reject-code[1] NE "" THEN string(fg-rdtlh.reject-code[1],"x(2)") ELSE ""    .
+                  WHEN "Reason-dscr" THEN cVarValue = IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN string(rejct-cd.dscr,"x(25)") ELSE ""   .
             END CASE.
               
             cExcelVarValue = cVarValue.
+            IF cTmpField <> "loc" THEN 
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

@@ -287,7 +287,8 @@ for each xest
         AND est-op.line    LT 500
         AND est-op.m-code  GE begin_mach
         AND est-op.m-code  LE end_mach
-        AND TRIM(est-op.m-code) NE "",
+        AND TRIM(est-op.m-code) NE ""
+        AND (tb_overrideLocks OR NOT est-op.isLocked),
       FIRST b-mach NO-LOCK
       WHERE b-mach.company EQ est-op.company
         AND b-mach.m-code  EQ est-op.m-code,

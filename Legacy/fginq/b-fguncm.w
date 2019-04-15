@@ -54,6 +54,18 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE dtDateChar AS DATE NO-UNDO .
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+    RUN sys/inc/custlistform.p ("IQ2",cocode,OUTPUT ou-log, OUTPUT ou-cust-int ) .
+ END.
+
 DEF TEMP-TABLE tt-report LIKE report
     FIELD required AS INT
     FIELD variance AS INT.
@@ -61,6 +73,12 @@ DEF TEMP-TABLE tt-report LIKE report
 DEF VAR lv-save-char AS CHAR INIT "" NO-UNDO.
 
 {sa/sa-sls01.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    dtDateChar = date(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -410,6 +428,8 @@ ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-cust-user NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -519,6 +539,8 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-cust-user NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     APPLY "choose" TO btn_go.
   END.
@@ -549,8 +571,11 @@ END.
 
 /* ***************************  Main Block  *************************** */
 ASSIGN
- SESSION:DATA-ENTRY-RETURN = YES
- fi_date                   = TODAY.
+ SESSION:DATA-ENTRY-RETURN = YES .
+IF dtDateChar NE ? THEN
+    fi_date                   = dtDateChar.
+ELSE
+    fi_date                   = TODAY.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -928,6 +953,52 @@ ASSIGN last-cust = cust.cust-no . */
 RUN fginq/fgu-exp.w (fi_i-no, fi_date).
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user V-table-Win 
+PROCEDURE valid-cust-user :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR v-cust-chk AS CHAR NO-UNDO .
+    DEF VAR v-est-no AS CHAR NO-UNDO .
+  {methods/lValidateError.i YES}
+custcount = "".
+DEF VAR lActive AS LOG NO-UNDO.
+
+
+IF ou-log THEN
+    DO WITH FRAME {&FRAME-NAME}:
+
+        RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'IQ2',
+                            INPUT YES,
+                            OUTPUT lActive).
+        {sys/inc/chblankcust.i ""IQ2""}
+      
+          FIND FIRST itemfg NO-LOCK
+            WHERE itemfg.company EQ cocode
+            AND itemfg.i-no EQ fi_i-no:SCREEN-VALUE NO-ERROR.
+
+        IF AVAIL itemfg THEN DO:
+            v-cust-chk = itemfg.cust-no.
+
+            IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:   
+                MESSAGE "Customer is not on Users Customer List.  "  SKIP
+                    "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO fi_i-no .
+                RETURN ERROR.
+            END.
+        END.
+END.
+    
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

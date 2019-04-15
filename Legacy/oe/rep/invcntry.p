@@ -398,7 +398,7 @@ form v-case-line AT 5 format "x(80)" SKIP
     end.
    
     if v-print-fmt eq "Valley" then do:
-      v-c-name = if oe-ctrl.prcom then company.name else "".
+      v-c-name = company.name .
    
       if avail shipto then
         assign
@@ -412,8 +412,7 @@ form v-case-line AT 5 format "x(80)" SKIP
         ASSIGN v-c-phone   = ""
                v-c-fax     = ""
                v-c-email   = "".
-    else    
-    if oe-ctrl.prcom then
+    else        
       assign
        v-c-name    = company.name
        v-c-addr[1] = company.addr[1]

@@ -519,7 +519,7 @@ v-printline = 0.
                                   lv-reg-no = " Test: " + ITEM.reg-no.
        ELSE assign lv-flute = ""
                    lv-reg-no = "".
-        ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(10)").
+        ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(12)").
        IF lv-flute EQ "" AND lv-reg-no EQ "" THEN
               ASSIGN cFlueTest = IF dCoreDia GT 0 THEN " Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
@@ -823,11 +823,12 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
   END.
 */
   /*v-printline 46*/
-
+  
+IF AVAIL ITEM AND ITEM.industry EQ "2" OR AVAIL itemfg THEN DO:
       PUT "Grand Total MSF: " +
           TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)"
           SKIP.
-
+END.
       v-tot-sqft = 0.
       v-bot-lab[1] = "Tax        :"
                      /*vend.tax-gr + "        :       " */ + STRING(po-ord.tax,"->>>,>>9.99").

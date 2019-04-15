@@ -83,6 +83,8 @@ DEF VAR lv-prt-time AS cha NO-UNDO.
 /* gdm - 05270902 */
 DEF VAR v-size     AS CHAR FORMAT "x(15)" NO-UNDO.
 DEF VAR style-dscr AS CHAR FORMAT "x(30)" NO-UNDO.
+DEFINE TEMP-TABLE tt-oe-rel LIKE oe-rel
+    FIELD tt-rel-date LIKE oe-rel.rel-date .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "ACKHEAD" no-lock no-error.
@@ -228,9 +230,26 @@ find first company where company.company eq cocode no-lock no-error.
                 oe-ordl.LINE > 0
           no-lock:
           ln-cnt = ln-cnt + 3.
-          if /*oe-ordl.i-no ne oe-ordl.part-no or*/
-             oe-ordl.part-dscr1 ne ""        then ln-cnt = ln-cnt + 1.
-          if oe-ordl.part-dscr2 ne "" then ln-cnt = ln-cnt + 1.
+
+          ASSIGN v-pdscr1 = oe-ordl.part-dscr1
+                 v-pdscr2 = oe-ordl.part-dscr2
+                 v-pdscr3 = oe-ordl.i-no.
+            IF v-pdscr1 = "" THEN  ASSIGN v-pdscr1 = v-pdscr2
+                                          v-pdscr2 = v-pdscr3
+                                          v-pdscr3 = "".
+            IF v-pdscr1 = "" THEN  ASSIGN v-pdscr1 = v-pdscr2
+                                          v-pdscr2 = v-pdscr3
+                                          v-pdscr3 = "".
+
+          if v-pdscr2 ne "" then ln-cnt = ln-cnt + 1.
+  
+          FIND FIRST eb
+          WHERE eb.company EQ est.company
+            AND eb.est-no  EQ est.est-no
+            AND eb.part-no EQ oe-ordl.part-no
+            AND eb.form-no NE 0 NO-LOCK NO-ERROR.
+
+          IF AVAIL eb AND AVAIL est THEN  ln-cnt = ln-cnt + 4. 
 
           FOR EACH oe-rel
               WHERE oe-rel.company EQ oe-ordl.company
@@ -263,16 +282,18 @@ find first company where company.company eq cocode no-lock no-error.
               ln-cnt = ln-cnt + 1.
               
           END.
-          find first itemfg {sys/look/itemfgrlW.i}
-               and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
-          {custom/notesprt.i itemfg v-inst 4}
-          lv-is-fgnote = NO.
-          DO i = 1 TO 4:
-              IF v-inst[i] <> "" THEN ASSIGN ln-cnt = ln-cnt + 1
-                                             lv-is-fgnote = YES.
+          IF v-prntinst THEN DO:
+              find first itemfg {sys/look/itemfgrlW.i}
+                   and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
+              {custom/notesprt.i itemfg v-inst 4}
+              lv-is-fgnote = NO.
+              DO i = 1 TO 4:
+                  IF v-inst[i] <> "" THEN ASSIGN ln-cnt = ln-cnt + 1
+                                                 lv-is-fgnote = YES.
+              END.
+              IF lv-is-fgnote THEN ASSIGN ln-cnt = ln-cnt + 2
+                                          lv-is-fgnote = NO.
           END.
-          IF lv-is-fgnote THEN ASSIGN ln-cnt = ln-cnt + 2
-                                      lv-is-fgnote = NO.
 
       END.
       for each oe-ordm no-lock where oe-ordm.company eq oe-ord.company and
@@ -363,9 +384,10 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
         IF v-pdscr1 = "" THEN  ASSIGN v-pdscr1 = v-pdscr2
                                       v-pdscr2 = v-pdscr3
                                       v-pdscr3 = "".
-        IF v-pdscr1 = "" THEN ASSIGN v-pdscr1 = v-pdscr2
-                                     v-pdscr2 = v-pdscr3
-                                     v-pdscr3 = "".
+        IF v-pdscr1 = "" THEN  ASSIGN v-pdscr1 = v-pdscr2
+                                      v-pdscr2 = v-pdscr3
+                                      v-pdscr3 = "".
+        
         if v-printline ge lv-line-print then
         do:
             PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
@@ -446,31 +468,43 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
             ASSIGN v-printline = 20.          
         END.
         /* gdm - 05270902 end */
+         EMPTY TEMP-TABLE tt-oe-rel .
+         FOR EACH oe-rel
+              WHERE oe-rel.company EQ oe-ordl.company
+                AND oe-rel.ord-no  EQ oe-ordl.ord-no
+                AND oe-rel.i-no    EQ oe-ordl.i-no
+                AND oe-rel.line    EQ oe-ordl.line
+                AND ((oe-rel.link-no EQ 0 AND v-schrel) OR
+                     (oe-rel.link-no NE 0 AND v-actrel))
+              NO-LOCK BREAK BY oe-rel.link-no DESC:
+             
+             CREATE tt-oe-rel .
+             BUFFER-COPY oe-rel  TO tt-oe-rel.
 
-        FOR EACH oe-rel
-            where oe-rel.company EQ oe-ordl.company
-              AND oe-rel.ord-no  EQ oe-ordl.ord-no
-              AND oe-rel.i-no    EQ oe-ordl.i-no
-              AND oe-rel.line    EQ oe-ordl.line
-              AND ((oe-rel.link-no EQ 0 AND v-schrel) OR
-                   (oe-rel.link-no NE 0 AND v-actrel))
-            NO-LOCK BREAK BY oe-rel.link-no DESC WITH FRAME sched-rel DOWN:
+             {oe/rel-stat.i lv-stat}
+             IF AVAIL oe-rell THEN
+             FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
+             tt-oe-rel.tt-rel-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
 
-          if first-of(oe-rel.link-no) then
-            if oe-rel.link-no eq 0 then lcnt = 1.
+         END.
+
+
+        FOR EACH tt-oe-rel ,
+            FIRST  oe-rel
+            where oe-rel.company EQ tt-oe-rel.company
+              AND oe-rel.ord-no  EQ tt-oe-rel.ord-no
+              AND oe-rel.i-no    EQ tt-oe-rel.i-no
+              AND oe-rel.line    EQ tt-oe-rel.line
+              AND oe-rel.link-no  EQ tt-oe-rel.link-no
+            NO-LOCK BREAK BY tt-oe-rel.link-no DESC BY tt-oe-rel.tt-rel-date WITH FRAME sched-rel DOWN:
+
+          if first-of(tt-oe-rel.link-no) then
+            if tt-oe-rel.link-no eq 0 then lcnt = 1.
             else
-            if first(oe-rel.link-no) then lcnt = 1.
-         /*
-          if v-printline ge lv-line-print then
-          do:
-            PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
-            PAGE .
-            {oe/rep/ackunipk.i}
-            assign v-printline = 20.          
-          end.
-          */
-          if first-of(oe-rel.link-no) then do:
-            if oe-rel.link-no eq 0 then do:
+            if first(tt-oe-rel.link-no) then lcnt = 1.
+        
+          if first-of(tt-oe-rel.link-no) then do:
+            if tt-oe-rel.link-no eq 0 then do:
               if v-printline ge lv-line-print then
               do:
                  PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
@@ -482,7 +516,7 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
               v-printline = v-printline + 1.
             end.
             else
-            if first(oe-rel.link-no) then do:
+            if first(tt-oe-rel.link-no) then do:
               if v-printline ge lv-line-print then
               do:
                  PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
@@ -494,11 +528,8 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
               v-printline = v-printline + 1.  
             end.
           end.
-          
-          {oe/rel-stat.i lv-stat}
-          IF AVAIL oe-rell THEN
-          FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
-          ld-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
+         
+          ld-date = tt-oe-rel.tt-rel-date .
 
           /*put lcnt AT 46 SPACE(3) ld-date  oe-rel.qty  SKIP. */
           /*down with frame sched-rel. */
@@ -525,8 +556,11 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
                assign v-printline = 20.          
             end.
             IF AVAIL shipto THEN DO:
-                put oe-rel.po-no AT 2 shipto.ship-name AT 25 FORM "x(28)" /*lcnt AT 55 FORM ">>9" SPACE(1)*/  ld-date AT 59 (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) 
-                    SKIP .
+                put tt-oe-rel.po-no AT 2 shipto.ship-name AT 25 FORM "x(28)" /*lcnt AT 55 FORM ">>9" SPACE(1)*/  ld-date AT 59.
+                     IF tt-oe-rel.link-no EQ 0 THEN
+                         PUT tt-oe-rel.tot-qty FORMAT "->>,>>>,>>9".
+                     ELSE PUT tt-oe-rel.qty FORMAT "->>,>>>,>>9".
+                  PUT  SKIP .
                 v-printline = v-printline + 1.
               
                 IF shipto.ship-addr[1] <> "" THEN DO:
@@ -579,8 +613,12 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
                 PAGE .
                 {oe/rep/ackunipk.i}
                 assign v-printline = 20.          
-              end.
-              put oe-rel.po-no AT 2  ld-date AT 59 (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty)     SKIP .
+              end.    
+              put tt-oe-rel.po-no AT 2  ld-date AT 59.
+                  IF tt-oe-rel.link-no EQ 0 THEN
+                      PUT tt-oe-rel.tot-qty FORMAT "->>,>>>,>>9".
+                  ELSE PUT tt-oe-rel.qty FORMAT "->>,>>>,>>9".
+                     PUT SKIP .
           END.
           PUT SKIP(1).
           v-printline = v-printline + 1.

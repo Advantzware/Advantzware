@@ -63,6 +63,7 @@ DEFINE BUFFER bf-oe-rell FOR oe-rell .
    v-fcarr[1]   = begin_carr
    v-fcarr[2]   = end_carr
    v-ponum      = tb_po-no
+   lSelected  = tb_cust-list
    v-sort       = if rd_sort eq "Customer#"     then "C"  else
                   if rd_sort eq "Release Date"  then "R"  else
                   if rd_sort eq "Item#"         then "I"  else
@@ -98,6 +99,13 @@ DEFINE BUFFER bf-oe-rell FOR oe-rell .
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
             excelheader = excelHeader + ttRptSelected.TextList + ",".  
   END.
+
+  IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN v-fcust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN v-fcust[2] = ttCustList.cust-no .
+END.
 
   {sys/inc/print1.i}
 
@@ -237,6 +245,8 @@ DEFINE BUFFER bf-oe-rell FOR oe-rell .
         AND oe-ord.ord-no  EQ oe-ordl.ord-no
         AND oe-ord.cust-no GE v-fcust[1]
         AND oe-ord.cust-no LE v-fcust[2]
+        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+        AND ttCustList.log-fld no-lock) else true)
       NO-LOCK,
       
       FIRST cust

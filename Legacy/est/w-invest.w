@@ -454,7 +454,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-estprp ( 7.86 , 123.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'panels/p-estprp.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -490,10 +490,14 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_b-estprp. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estprp ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-estprp ).
+       RUN add-link IN adm-broker-hdl ( h_b-estprp , 'buttons':U , h_p-updsav ).
+       RUN add-link IN adm-broker-hdl ( h_b-estprp  , 'Record':U , h_p-updsav ).
 
        /* Links to SmartBrowser h_b-estop. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estop ).
        RUN add-link IN adm-broker-hdl ( h_p-estop , 'TableIO':U , h_b-estop ).
+       RUN add-link IN adm-broker-hdl ( h_b-estop , 'buttons':U , h_p-estop ).
+       RUN add-link IN adm-broker-hdl ( h_b-estop , 'Record':U , h_p-estop ).
 
     END. /* Page 6 */
 

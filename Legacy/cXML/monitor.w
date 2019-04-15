@@ -44,6 +44,13 @@ PROCEDURE postMonitor:
         OS-RENAME VALUE(cXMLFile) VALUE(cXMLError).
         NEXT.
       END. /* if search */
+      FILE-INFO:FILE-NAME = cXMLFile.
+      IF FILE-INFO:FILE-SIZE EQ 0 THEN DO:
+          RUN monitorActivity ('ERROR File: ' + monitorFile + ' is zero size',YES,'').
+          cXMLError = monitorImportDir + '/' + REPLACE(monitorFile,'.xml','.err').
+          OS-RENAME VALUE(cXMLFile) VALUE(cXMLError).
+          NEXT.
+      END. /*if file size is 0 */
       RUN monitorActivity ('cXML',YES,monitorFile).
 
       IF cXMLDir.cXMLName EQ 'cXMLOrder' THEN DO:
@@ -64,8 +71,12 @@ PROCEDURE postMonitor:
         IF errorStatus NE 0 THEN
         RUN monitorActivity ('ERROR: Moving ' + monitorFile,YES,'').
       END. /* success */
-      ELSE
-      RUN monitorActivity ('ERROR: ' + returnValue,YES,'').
+      ELSE DO:
+        RUN monitorActivity ('ERROR: ' + returnValue,YES,'').
+        cXMLError = monitorImportDir + '/' + REPLACE(monitorFile,'.xml','.err').
+        OS-RENAME VALUE(cXMLFile) VALUE(cXMLError).
+        NEXT.        
+      END.
     END. /* os-dir repeat */
     INPUT CLOSE.
   END. /* each cxmldir */

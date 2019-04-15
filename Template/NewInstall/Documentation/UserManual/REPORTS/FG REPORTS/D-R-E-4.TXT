@@ -1,0 +1,88 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:41pm                               COMPARISON OF SCHEDULED SHIPMENTS VS. QUANTITY ON HAND
+
+                                Open Orders  Order Date:10/01/001 - 12/31/9999  Cust #:HER10 - HER10
+                                              Item #: - zzzzzzzzzzzzzzz  Whse: - zzzzz
+
+                                                                      Required        Next        Next                       Open
+Item #           Description                   Ordered    Quantity  10/17/2000     14 Days     14 Days      Beyond         PO Qty
+                                           Bal to Ship     On Hand    Variance    Variance    Variance    Variance        Net Var
+-----------------------------------------------------------------------------------------------------------------------------------
+
+Almond Bar       Hershey Almond Bar 30 Pak     200,000      29,000     200,000           0           0           0              0
+                                               200,000                -171,000    -171,000    -171,000    -171,000       -171,000
+
+Avalon Box       RT Hersey Kiss Box             50,000      25,000      25,000           0           0           0              0
+                                                25,000                       0           0           0           0              0
+
+Candy Box        r.t. 1-1/2 x 1-1/2 x 3/4       30,000      21,000      20,000           0           0           0              0
+                                                20,000                   1,000       1,000       1,000       1,000          1,000
+
+Choc Kiss        Chocolate Kiss                100,000           0     100,000           0           0           0              0
+                                               100,000                -100,000    -100,000    -100,000    -100,000       -100,000
+
+Facial Box       Facial Powder                     500      25,000         500           0           0           0              0
+                                                   500                  24,500      24,500      24,500      24,500         24,500
+
+HER 06159802     RT 5 3/4" x 4 1/2 x 5 1/4      10,000           0      10,000           0           0           0              0
+                                                10,000                 -10,000     -10,000     -10,000     -10,000        -10,000
+
+HER 123          KL Butter Carton               96,000      52,000           0           0           0           0              0
+                                                     0                  52,000      52,000      52,000      52,000         52,000
+
+HER 3x2x5        RT 3 x 2 x 5                  250,000           0     250,000           0           0           0              0
+                                               250,000                -250,000    -250,000    -250,000    -250,000       -250,000
+
+HER 3x3x3        RT 3 x 3 x 3                  150,000           0     150,000           0           0           0              0
+                                               150,000                -150,000    -150,000    -150,000    -150,000       -150,000
+
+HER 456          KL Butter Carton              192,000    -192,000           0           0           0           0              0
+                                                     0                -192,000    -192,000    -192,000    -192,000       -192,000
+
+HER 555          RT 5 x 5 x 5                  150,000        -400     125,000           0           0           0              0
+                                               125,000                -125,400    -125,400    -125,400    -125,400       -125,400
+
+HER 6 Box        RT 3-1/4 x 2.5 x 7-1/4        100,000           0     100,000           0           0           0              0
+                                               100,000                -100,000    -100,000    -100,000    -100,000       -100,000
+
+HER-1017         RT 5x2x8                       25,000      25,000      25,000           0           0           0              0
+                                                25,000                       0           0           0           0              0
+
+HER-1021         RT 5x4x8                      125,000      25,400           0           0           0     100,000              0
+                                               100,000                  25,400      25,400      25,400     -74,600        -74,600
+
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   2
+ 7:41pm                               COMPARISON OF SCHEDULED SHIPMENTS VS. QUANTITY ON HAND
+
+                                Open Orders  Order Date:10/01/001 - 12/31/9999  Cust #:HER10 - HER10
+                                              Item #: - zzzzzzzzzzzzzzz  Whse: - zzzzz
+
+                                                                      Required        Next        Next                       Open
+Item #           Description                   Ordered    Quantity  10/17/2000     14 Days     14 Days      Beyond         PO Qty
+                                           Bal to Ship     On Hand    Variance    Variance    Variance    Variance        Net Var
+-----------------------------------------------------------------------------------------------------------------------------------
+
+HER-1022         RSC 10x10x10                    5,000           0       5,000           0           0           0              0
+                                                 5,000                  -5,000      -5,000      -5,000      -5,000         -5,000
+
+HER-KISS         Hershey Kiss                  150,000      54,600     100,000           0           0           0              0
+                                               100,000                 -45,400     -45,400     -45,400     -45,400        -45,400
+
+Hershey Bar      Heershey Chocolate Bar 40      25,000           0      25,000           0           0           0              0
+                                                25,000                 -25,000     -25,000     -25,000     -25,000        -25,000
+
+IBM-Chocolate    RT 4 x 4 x 3                   50,000      27,000      25,000           0           0           0              0
+                                                25,000                   2,000       2,000       2,000       2,000          2,000
+
+Raisinette       Raisinetts Box                100,000           0     100,000           0           0           0              0
+                                               100,000                -100,000    -100,000    -100,000    -100,000       -100,000
+
+Reese Cup        Reese Cup 20 Pack              50,000           0      50,000           0           0           0              0
+                                                50,000                 -50,000     -50,000     -50,000     -50,000        -50,000
+
+XMAS KISS        RT XMAS KISS BOX               75,000     -12,500      62,500           0           0           0         10,000
+                                                62,500                 -75,000     -75,000     -75,000     -75,000        -65,000
+
+

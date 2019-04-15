@@ -4,30 +4,13 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wImportLoad 
 /*------------------------------------------------------------------------
 
-  File: 
+  Name : wImportLoad.w
+  Desc : Load data file
 
-  Description: 
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  Author: 
-
-  Created: 
-
-------------------------------------------------------------------------*/
+  ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
-/* Create an unnamed pool to store all the widgets created 
-     by this procedure. This is a good default which assures
-     that this procedure's triggers and internal procedures 
-     will execute in this procedure's storage, and that proper
-     cleanup will occur on deletion of the procedure. */
-     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -224,7 +207,7 @@ DO:
     btnBack:Y   = 1.
     btnFinish:X = 1.
     btnFinish:Y = 1.
-    ghDataBrowse:WIDTH-PIXELS  = 50. 
+    ghDataBrowse:WIDTH-PIXELS  = 50.
     ghDataBrowse:HEIGHT-PIXELS = 100.
     tgWriteTrigger:Y = 1.
     tgWriteTrigger:X = 1.
@@ -244,7 +227,7 @@ DO:
     btnFinish:Y      = tgWriteTrigger:Y.
     btnBack:X        = btnFinish:X - btnBack:WIDTH-PIXELS - 10.
     btnBack:Y        = tgWriteTrigger:Y.
-    
+
     /* Save settings */
     RUN saveWindowPos(wImportLoad:HANDLE,"DataDigger:ImportLoad").
   END.
@@ -261,7 +244,7 @@ END.
 &Scoped-define SELF-NAME btnBack
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBack wImportLoad
 ON CHOOSE OF btnBack IN FRAME frMain /* Back */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 DO:
   polSuccess = FALSE.
   APPLY "CLOSE" TO THIS-PROCEDURE.
@@ -278,10 +261,10 @@ OR 'GO' OF FRAME frMain
 DO:
   RUN btnFinishChoose (OUTPUT polSuccess).
 
-  IF NOT polSuccess THEN 
+  IF NOT polSuccess THEN
     RETURN NO-APPLY.
-  ELSE 
-    APPLY 'close' TO THIS-PROCEDURE.  
+  ELSE
+    APPLY 'close' TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,19 +290,19 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
-ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
+ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE
 DO:
   /* Save settings */
   RUN saveWindowPos(wImportLoad:HANDLE,"DataDigger:ImportLoad").
 
   IF VALID-HANDLE(ghXmlQuery) THEN
   DO:
-    ghXmlQuery:QUERY-CLOSE. 
+    ghXmlQuery:QUERY-CLOSE.
     DELETE OBJECT ghXmlQuery.
   END.
 
@@ -354,20 +337,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnFinishChoose wImportLoad 
 PROCEDURE btnFinishChoose :
-/*------------------------------------------------------------------------
-  Name         : btnFinishChoose
-  Description  : Proceed to procedure that actually loads the data
-  ----------------------------------------------------------------------*/
+/* Proceed to procedure that actually loads the data
+  */
   DEFINE OUTPUT PARAMETER plSuccess AS LOGICAL NO-UNDO.
 
   DEFINE VARIABLE lErrorsFound AS LOGICAL NO-UNDO.
   RUN loadData(INPUT TRUE, OUTPUT lErrorsFound).
 
-  IF lErrorsFound THEN 
+  IF lErrorsFound THEN
   DO:
-    MESSAGE "Your data was loaded, but with errors" VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    MESSAGE "Your data was loaded, but with errors" VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
     ASSIGN plSuccess = NO.
-  END. 
+  END.
 
   ELSE
   DO:
@@ -381,21 +362,17 @@ END PROCEDURE. /* btnFinishChoose */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createBrowse wImportLoad 
 PROCEDURE createBrowse :
-/*------------------------------------------------------------------------
-  Name         : initializeObject
-  Description  : Setup
-  ----------------------------------------------------------------------*/
-  
+/* Create the browse
+  */
   DEFINE VARIABLE iColumnWidth AS INTEGER     NO-UNDO.
   DEFINE VARIABLE iMinWidth    AS INTEGER     NO-UNDO.
   DEFINE VARIABLE cMyFormat    AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE iPos         AS INTEGER     NO-UNDO.
-  DEFINE VARIABLE hField       AS HANDLE      NO-UNDO.
   DEFINE VARIABLE cColumnName  AS CHARACTER   NO-UNDO.
-  
-  DEFINE BUFFER bColumn FOR ttColumn. 
+
+  DEFINE BUFFER bColumn FOR ttColumn.
   DEFINE BUFFER bField FOR ttField.
-  
+
   /* Start building */
   CREATE BROWSE ghDataBrowse
     ASSIGN
@@ -408,7 +385,7 @@ PROCEDURE createBrowse :
     Y                 = 3
     WIDTH-PIXELS      = 50 /* will be handled by resize routine */
     HEIGHT-PIXELS     = 100 /* will be handled by resize routine */
-    ROW-MARKER        = TRUE
+    ROW-MARKERS       = TRUE
     SEPARATORS        = TRUE
     READ-ONLY         = FALSE
     SENSITIVE         = TRUE
@@ -417,14 +394,7 @@ PROCEDURE createBrowse :
     COLUMN-RESIZABLE  = TRUE
     COLUMN-SCROLLING  = TRUE /* scroll with whole columns at a time */
     TRIGGERS:
-/*       ON "CTRL-A"           PERSISTENT RUN dataSelectAll           IN THIS-PROCEDURE (ghDataBrowse). */
-/*       ON "CTRL-D"           PERSISTENT RUN dataSelectNone          IN THIS-PROCEDURE (ghDataBrowse). */
       ON "ROW-DISPLAY"      PERSISTENT RUN dataRowDisplay          IN THIS-PROCEDURE (ghXmlBuffer).
-/*       ON "START-SEARCH"     PERSISTENT RUN dataColumnSort          IN THIS-PROCEDURE.                */
-/*       ON "VALUE-CHANGED"    PERSISTENT RUN dataRowValueChanged     IN THIS-PROCEDURE (ghXmlBuffer).  */
-/*       ON "END"              PERSISTENT RUN dataRowJumpToEnd        IN THIS-PROCEDURE (ghXmlBuffer).  */
-/*       ON "DEFAULT-ACTION"   PERSISTENT RUN dataDoubleClick         IN THIS-PROCEDURE (ghDataBrowse). */
-/*       ON "OFF-HOME"         PERSISTENT RUN dataOffHome             IN THIS-PROCEDURE.                */
     END TRIGGERS.
 
 
@@ -433,30 +403,30 @@ PROCEDURE createBrowse :
   FOR EACH bField BY bField.iOrder:
 
     FOR EACH bColumn
-      WHERE bColumn.cTableCacheId = bField.cTableCacheId 
+      WHERE bColumn.cTableCacheId = bField.cTableCacheId
         AND bColumn.cFieldName    = bField.cFieldName
-        AND bColumn.lShow         = TRUE 
+        AND bColumn.lShow         = TRUE
          BY bColumn.iColumnNr:
-  
+
       cMyFormat = getRegistry( SUBSTITUTE("DB:&1",bColumn.cDatabase)
                              , SUBSTITUTE("&1.&2:format",bColumn.cTableName, bColumn.cFieldName)
                              ).
-      IF cMyFormat = ? THEN cMyFormat = bField.cFormat. 
-  
+      IF cMyFormat = ? THEN cMyFormat = bField.cFormat.
+
       /* Autocorrect 2-digit years in date fields */
       IF bField.cDataType = "DATE"
         AND cMyFormat MATCHES "99.99.99" THEN cMyFormat = cMyFormat + "99".
-  
+
       /* Protect against "value could not be displayed using..." errors. */
       IF (   bField.cDataType = "DECIMAL"
-          OR bField.cDataType = "RECID" 
-          OR bField.cDataType BEGINS "INT") /* Use BEGINS to cover integer / int64 and extents of both */ 
-         AND NOT cMyFormat BEGINS "HH:MM"   /* Skip time fields */ THEN 
+          OR bField.cDataType = "RECID"
+          OR bField.cDataType BEGINS "INT") /* Use BEGINS to cover integer / int64 and extents of both */
+         AND NOT cMyFormat BEGINS "HH:MM"   /* Skip time fields */ THEN
       DO:
         /* Add minus sign if needed */
-        IF INDEX(cMyFormat,"-") = 0 AND INDEX(cMyFormat,"+") = 0 THEN 
+        IF INDEX(cMyFormat,"-") = 0 AND INDEX(cMyFormat,"+") = 0 THEN
           cMyFormat = "-" + cMyFormat.
-  
+
         /* Add extra digit placeholders */
         addDigits:
         DO iPos = 1 TO LENGTH(cMyFormat):
@@ -464,38 +434,27 @@ PROCEDURE createBrowse :
           DO:
             IF iPos = 1 THEN
               cMyFormat = ">>>>>>>>>>>>>>>" + cMyFormat.
-            ELSE 
+            ELSE
               cMyFormat = SUBSTRING(cMyFormat,1,iPos - 1) + ">>>>>>>>>>>>>>>" + SUBSTRING(cMyFormat,iPos).
             LEAVE addDigits.
           END.
         END.
-      END.  
-  
-      /* Apply the format */           
-      IF NOT cMyFormat BEGINS "HH:MM" THEN
-      DO:
-        hField:FORMAT = cMyFormat NO-ERROR. 
-        IF ERROR-STATUS:ERROR THEN 
-        DO:
-          bField.cFormat = bField.cFormatOrg.
-          hField:FORMAT = bField.cFormat NO-ERROR.
-        END.
       END.
-  
+
       /* Add a calculated column for integers with time format */
       cColumnName = SUBSTITUTE("&1.&2", bColumn.cTableName, bColumn.cFullName).
-  
+
       IF (   bField.cDataType = "DECIMAL"
           OR bField.cDataType BEGINS "INT") /* use BEGINS to cover integer / int64 and extents of both */
-        AND bField.cFormat BEGINS "HH:MM" THEN 
+        AND bField.cFormat BEGINS "HH:MM" THEN
       DO:
         bColumn.hColumn = ghDataBrowse:ADD-CALC-COLUMN("character","x(8)","", cColumnName ) NO-ERROR.
       END.
       ELSE
       DO:
-        bColumn.hColumn = ghDataBrowse:ADD-LIKE-COLUMN(cColumnName).
+        bColumn.hColumn = ghDataBrowse:ADD-LIKE-COLUMN(cColumnName). 
       END.
-  
+
       bColumn.hColumn:LABEL = bColumn.cFullName.
       bColumn.hColumn:RESIZABLE = TRUE.
     END.
@@ -510,14 +469,11 @@ PROCEDURE createBrowse :
     /* Get last defined width from registry. Might have been set by user */
     iColumnWidth = INTEGER(getRegistry(SUBSTITUTE("DB:&1",bColumn.cDatabase), SUBSTITUTE("&1.&2:width", bColumn.cTableName, bColumn.cFullname)) ) NO-ERROR.
 
-    .message bColumn.cFullname iColumnWidth view-as alert-box.
-
     /* If it's not set, calculate a width. Make sure it is not wider than 300px */
     IF iColumnWidth = ? THEN iColumnWidth = MINIMUM(300, bColumn.hColumn:WIDTH-PIXELS).
 
     /* Make sure the column is at least as wide as its name */
     iMinWidth = FONT-TABLE:GET-TEXT-WIDTH-PIXELS(bColumn.cFullname,getFont("default")).
-    .message bColumn.cFullname iMinWidth view-as alert-box.
 
     /* For the combo-filters, reserve some extra space for the arrow down */
     /* And if the filter is of type COMBO, reserve some extra space for the arrow down */
@@ -532,58 +488,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dataColumnSort wImportLoad 
-PROCEDURE dataColumnSort :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /*
-    run reopenDataBrowse(self:current-column:name,?).
-  */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dataRowDisplay wImportLoad 
 PROCEDURE dataRowDisplay :
-/*------------------------------------------------------------------------
-  Name         : dataRowDisplay
-  Description  : Set the background color to another color to get 
-                 an odd/even coloring of the rows.
-                 
-  ----------------------------------------------------------------------
-  16-01-2009 pti Created
-  ----------------------------------------------------------------------*/
+/* Set the background color to another color to get an odd/even coloring of the rows.
+  */
   DEFINE INPUT PARAMETER phBrowseBuffer AS HANDLE NO-UNDO.
 
   DEFINE BUFFER bColumn FOR ttColumn.
   DEFINE BUFFER bField  FOR ttField.
-  
+
+  #Column:
   FOR EACH bColumn, bField WHERE bField.cFieldName = bColumn.cFieldName:
-    IF NOT VALID-HANDLE(bColumn.hColumn) THEN NEXT.
+    IF NOT VALID-HANDLE(bColumn.hColumn) THEN NEXT #Column.
 
     /* Alternate FG and BGcolor */
     IF phBrowseBuffer:QUERY:CURRENT-RESULT-ROW MODULO 2 = 1 THEN
-      ASSIGN 
+      ASSIGN
         bColumn.hColumn:FGCOLOR = giDataOddRowColor[1]
         bColumn.hColumn:BGCOLOR = giDataOddRowColor[2].
-    ELSE                 
-      ASSIGN 
+    ELSE
+      ASSIGN
         bColumn.hColumn:FGCOLOR = giDataEvenRowColor[1]
         bColumn.hColumn:BGCOLOR = giDataEvenRowColor[2].
-
-    /* Color may be overruled in case of error */
-    /*                                            */
-/*     IF RANDOM(1,10) > 8 THEN                                                 */
-/*       ASSIGN                                                                 */
-/*         bColumn.hColumn:FGCOLOR = giDataErrorColor[1]  /* red or similar */  */
-/*         bColumn.hColumn:BGCOLOR = giDataErrorColor[2].                       */
-    /* */
 
     IF bField.cFormat BEGINS "HH:MM" THEN
     DO:
@@ -643,11 +569,8 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideNonExistingFields wImportLoad 
 PROCEDURE hideNonExistingFields :
-/*------------------------------------------------------------------------
-  Name         : hideNonExistingFields
-  Description  : Hide non-existing fields.
-  ----------------------------------------------------------------------*/
-  
+/* Hide non-existing fields.
+  */
   DEFINE INPUT PARAMETER phBuffer AS HANDLE NO-UNDO.
 
   DEFINE BUFFER bfField  FOR ttField.
@@ -656,14 +579,15 @@ PROCEDURE hideNonExistingFields :
   /* Go thru the tt one by one and check whether the field
    * is in the XML buffer. If not, hide the field from the user
    */
+  #Column:
   FOR EACH bfField, EACH bfColumn WHERE bfColumn.cFieldName = bfField.cFieldName:
 
-    IF LOOKUP(bfField.cDataType, 'clob,blob,raw') > 0 
+    IF LOOKUP(bfField.cDataType, 'clob,blob,raw') > 0
       OR LOOKUP(bfField.cFieldName, 'RECID,ROWID') > 0 THEN
     DO:
       bfColumn.lShow = FALSE.
       bfColumn.hFilter = ?.
-      NEXT. 
+      NEXT #Column.
     END.
 
     /* Save handle to the buffer in the tt */
@@ -672,16 +596,6 @@ PROCEDURE hideNonExistingFields :
 
   END.
 
-/*   OUTPUT TO c:\temp\dd.txt.                */
-/*   FOR EACH bfColumn:                       */
-/*     EXPORT                                 */
-/*       cFieldName                           */
-/*       lShow                                */
-/*       INTEGER(hFilter).                    */
-/*   END.                                     */
-/*   OUTPUT CLOSE.                            */
-/*   OS-COMMAND NO-WAIT START c:\temp\dd.txt. */
-
 END PROCEDURE. /* hideNonExistingFields */
 
 /* _UIB-CODE-BLOCK-END */
@@ -689,18 +603,9 @@ END PROCEDURE. /* hideNonExistingFields */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wImportLoad 
 PROCEDURE initializeObject :
-/*------------------------------------------------------------------------
-  Name         : initializeObject
-  Description  : Setup
-  ----------------------------------------------------------------------*/
-  
-  DEFINE VARIABLE cExtentFormat   AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE cSetting        AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE cValueList      AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE iFieldExtent    AS INTEGER     NO-UNDO.
-  DEFINE VARIABLE iMaxFieldLength AS INTEGER     NO-UNDO.
-  DEFINE VARIABLE iValue          AS INTEGER     NO-UNDO.
-  DEFINE VARIABLE lNewRecord      AS LOGICAL     NO-UNDO.
+/* Setup
+  */
+  DEFINE VARIABLE cSetting AS CHARACTER   NO-UNDO.
 
   VIEW wImportLoad.
 
@@ -715,24 +620,19 @@ PROCEDURE initializeObject :
   giDataErrorColor[1]   = getColor("QueryError:even:fg"). /* default: yellow */
   giDataErrorColor[2]   = getColor("QueryError:even:fg"). /* default: red */
 
-  IF giDataErrorColor[1] = ? THEN giDataErrorColor[1] = 14.  
-  IF giDataErrorColor[2] = ? THEN giDataErrorColor[2] = 12.  
+  IF giDataErrorColor[1] = ? THEN giDataErrorColor[1] = 14.
+  IF giDataErrorColor[2] = ? THEN giDataErrorColor[2] = 12.
 
-  IF getRegistry("DataDigger:colors","DataRow:UseSystem") = "YES" THEN
+  IF getRegistry("DataDigger:Colors","DataRow:UseSystem") = "YES" THEN
   ASSIGN
     giDataOddRowColor[1]  = 1
     giDataOddRowColor[2]  = 24
     giDataEvenRowColor[1] = 1
     giDataEvenRowColor[2] = 15.
-  
+
   /* Maximum number OF history ON data filters */
   giMaxFilterHistory = INTEGER(getRegistry("DataDigger", "MaxFilterHistory")).
   IF giMaxFilterHistory = ? THEN giMaxFilterHistory = 10.
-  
-  /* Find out max fieldname length */
-  FOR EACH ttColumn: 
-    iMaxFieldLength = MAXIMUM(iMaxFieldLength,LENGTH(ttColumn.cFullName)).
-  END.
 
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -765,18 +665,13 @@ PROCEDURE initializeObject :
     ghXmlQuery:GET-FIRST().
     giNumRecords = ghXmlQuery:NUM-RESULTS.
 
-  END. 
+  END.
 
   /* Create the browse */
   RUN createBrowse.
-   
+
   /* Set window back to last known pos */
   RUN restoreWindowPos(wImportLoad:HANDLE, "DataDigger:ImportLoad").
-
-  /* Restore sort */
-/*   cSetting = getRegistry('DataDigger','ColumnSortRecord').                                */
-/*   IF cSetting <> ? THEN                                                                   */
-/*     ghDataBrowse:SET-SORT-ARROW(INTEGER(ENTRY(1,cSetting)), LOGICAL(ENTRY(2,cSetting)) ). */
 
   /* In read-only mode, disable FINISH button */
   IF plReadOnlyDigger THEN btnFinish:SENSITIVE = FALSE.
@@ -788,23 +683,19 @@ END PROCEDURE. /* initializeObject */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadData wImportLoad 
 PROCEDURE loadData :
-/*------------------------------------------------------------------------
-  Name         : loadData
-  Description  : Write changes to database, optionally roll back
-  ----------------------------------------------------------------------*/
-
-  DEFINE INPUT  PARAMETER plKeepData    AS LOGICAL     NO-UNDO.
-  DEFINE OUTPUT PARAMETER plErrorsFound AS LOGICAL     NO-UNDO.
+/* Write changes to database, optionally roll back
+  */
+  DEFINE INPUT  PARAMETER plKeepData    AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER plErrorsFound AS LOGICAL NO-UNDO.
 
   DEFINE VARIABLE hXmlQuery       AS HANDLE    NO-UNDO.
   DEFINE VARIABLE hXmlBuffer      AS HANDLE    NO-UNDO.
   DEFINE VARIABLE hDbBuffer       AS HANDLE    NO-UNDO.
-  DEFINE VARIABLE iRow            AS INTEGER   NO-UNDO.
   DEFINE VARIABLE iField          AS INTEGER   NO-UNDO.
   DEFINE VARIABLE lDisableTrigger AS LOGICAL   NO-UNDO.
   DEFINE VARIABLE cKeyFields      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cQuery          AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lOk          AS LOGICAL     NO-UNDO.
+  DEFINE VARIABLE lOk             AS LOGICAL   NO-UNDO.
 
   /* Disable Triggers? */
   lDisableTrigger = tgWriteTrigger:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "no".
@@ -813,7 +704,8 @@ PROCEDURE loadData :
   IF picTableName BEGINS "_" THEN
   DO:
     RUN showHelp("CannotEditVst", "").
-    APPLY "close" TO THIS-PROCEDURE. 
+    APPLY "close" TO THIS-PROCEDURE.
+    plErrorsFound = TRUE.
     RETURN.
   END.
 
@@ -824,9 +716,9 @@ PROCEDURE loadData :
   TransBlock:
   DO TRANSACTION:
 
-    /* Get list of all Primary Unique index fields 
-     * If the primary index is not unique, just give a list of unique fields 
-     * If there are no unique fields, we need a list of all fields 
+    /* Get list of all Primary Unique index fields
+     * If the primary index is not unique, just give a list of unique fields
+     * If there are no unique fields, we need a list of all fields
      */
     cKeyFields = getIndexFields(picDatabase, picTableName, "P,U").
     IF cKeyFields = "" THEN cKeyFields = getIndexFields(picDatabase, picTableName, "U").
@@ -869,30 +761,20 @@ PROCEDURE loadData :
 
       /* Find in database */
       hDbBuffer:FIND-UNIQUE(cQuery, EXCLUSIVE-LOCK) NO-ERROR.
-      
-      .message "In db:" hDbBuffer:AVAILABLE view-as alert-box.
-      
+
       /* If nothing found, then the record from the tt is a new one */
       IF NOT hDbBuffer:AVAILABLE THEN
       DO:
         hDbBuffer:BUFFER-CREATE NO-ERROR.
-
-        /* If this fails, log it */
-        IF ERROR-STATUS:ERROR THEN
-        DO:
-          /* Create failed */
-          NEXT XmlLoop.
-        END.
+        IF ERROR-STATUS:ERROR THEN NEXT XmlLoop.
 
         /* Save backup file when not a testrun */
         IF plKeepData THEN
         DO:
           RUN dumpRecord(INPUT "Create", INPUT hDbBuffer, OUTPUT lOk).
           IF NOT lOk THEN UNDO XmlLoop, NEXT XmlLoop.
-        END. 
+        END.
       END.
-
-      .message hDbBuffer:BUFFER-COMPARE(hXmlBuffer) view-as alert-box.
 
       /* Save backup file when this is not a testrun */
       IF plKeepData AND NOT hDbBuffer:NEW THEN
@@ -905,8 +787,7 @@ PROCEDURE loadData :
       hDbBuffer:BUFFER-COPY(hXmlBuffer) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN
       DO:
-        MESSAGE "Copy to database failed :(" VIEW-AS ALERT-BOX INFO.
-        /* Copy failed */
+        MESSAGE "Copy to database failed :(" VIEW-AS ALERT-BOX INFORMATION.
         NEXT XmlLoop.
       END.
 
@@ -914,11 +795,11 @@ PROCEDURE loadData :
       hXmlBuffer:BUFFER-RELEASE.
     END. /* XmlLoop */
 
-    hXmlQuery:QUERY-CLOSE. 
+    hXmlQuery:QUERY-CLOSE.
     DELETE OBJECT hXmlQuery.
     DELETE OBJECT hDbBuffer.
 
-    IF NOT plKeepData THEN UNDO TransBlock.
+    IF NOT plKeepData THEN UNDO TransBlock, LEAVE TransBlock.
     lOk = TRUE.
   END. /* transaction */
 

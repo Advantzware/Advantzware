@@ -1,5 +1,5 @@
 /* oe/rep/invxprnt.i */                     
-IF tb_print-view THEN DO:
+IF iplPrintView THEN DO:
         
         PUT  "<FArial>".
         PUT  "<C+25><#1>".

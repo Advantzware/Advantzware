@@ -147,7 +147,7 @@ if oe-ordl.est-no ne "" or
                          job-hdr.std-var-cost.
 end.   /* if oe-ordl.est-no ne "" */   /*DAR*/
 
-find first itemfg
+find first itemfg EXCLUSIVE-LOCK
     where itemfg.company eq cocode
       and itemfg.i-no    eq oe-ordl.i-no
     use-index i-no no-error.
@@ -226,7 +226,7 @@ if avail itemfg then do:
     IF NOT itemfg.spare-int-1 EQ 1 THEN   /* freeze weight flag */
        itemfg.weight-100 = 0.
 
-    find first xitemfg
+    find first xitemfg EXCLUSIVE-LOCK 
         where xitemfg.company eq cocode
           and xitemfg.i-no    eq tt-fg-set.part-no
         use-index i-no no-error.

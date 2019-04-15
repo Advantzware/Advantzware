@@ -71,6 +71,8 @@ DO j = 1 TO 2:
       WHERE quotehd.company EQ cocode
         AND quotehd.loc     EQ locode
         AND quotehd.est-no  EQ w-est-no
+        AND quotehd.quo-date LE TODAY 
+        AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
       USE-INDEX quote NO-LOCK,
 
       EACH quoteitm OF quotehd

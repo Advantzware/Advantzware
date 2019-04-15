@@ -776,6 +776,8 @@ DEF VAR v-index AS INT NO-UNDO.
               inv-head.zip          = cust.zip
               inv-head.curr-code[1] = cust.curr-code.
             
+            RUN CopyShipNote (oe-bolh.rec_key, inv-head.rec_key).
+            
             FIND FIRST usergrps WHERE
                  usergrps.usergrps = "IN"
                  NO-LOCK NO-ERROR.
@@ -1020,6 +1022,21 @@ DEF VAR v-index AS INT NO-UNDO.
 
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
 

@@ -28,25 +28,63 @@
 DEFINE VARIABLE languageList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE flagList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE transString AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTransString   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE transIdx       AS INTEGER   NO-UNDO.
 
 DEFINE TEMP-TABLE translations NO-UNDO
   FIELD idxString AS CHARACTER
   FIELD translations AS CHARACTER
     INDEX translations IS PRIMARY UNIQUE idxString.
 
-INPUT FROM VALUE(search('touch/translations.txt')) NO-ECHO.
-IMPORT UNFORMATTED languageList. /* first row is list of avail languages */
-IMPORT UNFORMATTED flagList. /* second row is list of language flag images */
-REPEAT:
-  IMPORT UNFORMATTED transString.
-  IF CAN-FIND(translations WHERE translations.idxString EQ ENTRY(1,transString)) THEN
-  NEXT. /* duplicate entry */
-  CREATE translations.
-  ASSIGN
-    translations.idxString = ENTRY(1,transString) /* make englist work key */
-    translations.translations = transString.
-END.
-INPUT CLOSE.
+/* build temp-table translations from program master */
+FOR EACH prgrms NO-LOCK
+    WHERE prgrms.menu_item EQ YES
+      AND prgrms.menuOrder GT 0
+      AND prgrms.menuLevel GT 0
+      AND prgrms.mnemonic  NE ""
+    :
+    IF CAN-FIND(FIRST translations
+                WHERE translations.idxString EQ prgrms.prgTitle) THEN
+    NEXT.
+    CREATE translations.
+    translations.idxString = prgrms.prgTitle.
+    DO transIdx = 1 TO EXTENT(prgrms.translation):
+        IF prgrms.translation[transIdx] NE "" THEN
+        translations.translations = translations.translations
+                                    + prgrms.translation[transIdx] + ","
+                                    .
+    END. /* do transidx */
+    translations.translations = TRIM(translations.translations,","). 
+END. /* each prgrms */
+/* build temp-table translations from translation table */
+FOR EACH translation NO-LOCK:
+    IF CAN-FIND(FIRST translations
+                WHERE translations.idxString EQ translation.translationKey) THEN
+    NEXT.
+    CREATE translations.
+    translations.idxString = translation.translationKey.
+    DO transIdx = 1 TO EXTENT(translation.translation):
+        IF translation.translation[transIdx] NE "" THEN
+        translations.translations = translations.translations
+                                    + translation.translation[transIdx] + ","
+                                    .
+    END. /* do transidx */
+    translations.translations = TRIM(translations.translations,","). 
+END. /* each translation */
+
+/* build list of languages and flag images */
+FOR EACH userLanguage NO-LOCK
+    BY userLanguage.languageIdx
+    :
+    ASSIGN 
+        languageList = languageList + userLanguage.langDescription + ","
+        flagList     = flagList     + userLanguage.flagImage       + ","
+        .
+END. /* each userlanguage */
+ASSIGN 
+    languageList = TRIM(languageList,",")
+    flagList     = TRIM(flagList,",")
+    .
 
 /* make list avail to other smart objects */
 &IF DEFINED(VDC) EQ 0 &THEN

@@ -91,6 +91,15 @@ DEFINE VARIABLE ll-combo-req-qty   AS LOG       NO-UNDO.
 DEFINE VARIABLE ll-fgoecost        AS LOG       NO-UNDO.
 DEFINE VARIABLE ll-recalc-cost     AS LOG       NO-UNDO.
 DEFINE VARIABLE ll-oe-program      AS LOG       NO-UNDO.
+DEFINE VARIABLE lAuditJobMch       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iAuditID           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iAuditIdx          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iSubjectID         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iParamValueID      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cUserID            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRecipients        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOutputFormat      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPriorJobMchExists AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER x-eb            FOR eb.
 DEFINE BUFFER x-job-hdr       FOR job-hdr.
@@ -222,6 +231,11 @@ IF nufile EQ ? THEN
     ASSIGN
         nufile      = YES
         ll-hold-qty = YES.
+
+RUN pGetParamValue.
+lAuditJobMch = CAN-FIND(FIRST AuditTbl
+                        WHERE AuditTbl.AuditTable  EQ "job-mch"
+                          AND AuditTbl.AuditUpdate EQ YES).
 
 mainloop:
 DO:
@@ -1161,6 +1175,7 @@ DO:
             BUFFER-COPY job-mch EXCEPT rec_key TO tt-job-mch.
             RELEASE tt-job-mch.
         END.
+        lPriorJobMchExists = CAN-FIND(FIRST tt-job-mch).
 
         RUN jc/delkids.p (ROWID(job), NO).
 
@@ -1168,6 +1183,7 @@ DO:
 
         FOR EACH xprep
             WHERE xprep.ml EQ YES
+            AND NOT CAN-DO("S,N", xprep.simon)
             ,
             FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
@@ -1548,9 +1564,45 @@ DO:
                     job-mch.sbLiveUpdate  = tt-job-mch.sbLiveUpdate
                     job-mch.anchored      = tt-job-mch.anchored
                     .
+                DELETE tt-job-mch.
             END. /* avail tt-job-mch */
+            ELSE IF lAuditJobMch AND lPriorJobMchExists THEN DO:
+                IF iAuditID EQ 0 THEN
+                RUN spCreateAuditHdr ("LOG","ASI","job-mch",job-mch.rec_key,OUTPUT iAuditID).
+                RUN spCreateAuditDtl (iAuditID,"company",iAuditIdx,job-mch.company,"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"m-code",iAuditIdx,job-mch.m-code,"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"job-no",iAuditIdx,job-mch.job-no,"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"job-no2",iAuditIdx,STRING(job-mch.job-no2),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"frm",iAuditIdx,STRING(job-mch.frm),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"blank-no",iAuditIdx,STRING(job-mch.blank-no),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"pass",iAuditIdx,STRING(job-mch.pass),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"start-date",iAuditIdx,STRING(job-mch.start-date,"99/99/9999"),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"start-time",iAuditIdx,STRING(job-mch.start-time,"hh:mm:ss am"),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"end-date",iAuditIdx,STRING(job-mch.end-date,"99/99/9999"),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"end-time",iAuditIdx,STRING(job-mch.end-time,"hh:mm:ss am"),"Job Recalc New Record",NO).
+                RUN spCreateAuditDtl (iAuditID,"est-op_rec_key",iAuditIdx,job-mch.est-op_rec_key,"Job Recalc New Record",NO).
+                iAuditIdx = iAuditIdx + 1.
+            END. /* else */
         END. /* each op */
 
+        IF lAuditJobMch AND lPriorJobMchExists THEN
+        FOR EACH tt-job-mch:
+            IF iAuditID EQ 0 THEN
+            RUN spCreateAuditHdr ("LOG","ASI","job-mch",tt-job-mch.rec_key,OUTPUT iAuditID).
+            RUN spCreateAuditDtl (iAuditID,"company",iAuditIdx,tt-job-mch.company,"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"m-code",iAuditIdx,tt-job-mch.m-code,"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"job-no",iAuditIdx,tt-job-mch.job-no,"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"job-no2",iAuditIdx,STRING(tt-job-mch.job-no2),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"frm",iAuditIdx,STRING(tt-job-mch.frm),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"blank-no",iAuditIdx,STRING(tt-job-mch.blank-no),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"pass",iAuditIdx,STRING(tt-job-mch.pass),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"start-date",iAuditIdx,STRING(tt-job-mch.start-date,"99/99/9999"),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"start-time",iAuditIdx,STRING(tt-job-mch.start-time,"hh:mm:ss am"),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"end-date",iAuditIdx,STRING(tt-job-mch.end-date,"99/99/9999"),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"end-time",iAuditIdx,STRING(tt-job-mch.end-time,"hh:mm:ss am"),"Job Recalc No Record",NO).
+            RUN spCreateAuditDtl (iAuditID,"est-op_rec_key",iAuditIdx,tt-job-mch.est-op_rec_key,"Job Recalc No Record",NO).
+            iAuditIdx = iAuditIdx + 1.
+        END. /* each tt-job-mch */
         EMPTY TEMP-TABLE tt-job-mch.
 
         z = 0.
@@ -1564,8 +1616,7 @@ DO:
                 job-mch.line = z.
         END.
 
-        FOR EACH xprep:        
-   
+        FOR EACH xprep:      
             CREATE job-prep.
             ASSIGN
                 job-prep.company  = cocode
@@ -1601,7 +1652,6 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 RELEASE oe-ord.
 
-
 IF nufile THEN 
 DO:
     IF NOT oe-ctrl.p-fact THEN
@@ -1615,7 +1665,7 @@ DO:
             FIRST oe-ord
             WHERE oe-ord.company EQ job-hdr.company
             AND oe-ord.ord-no  EQ job-hdr.ord-no
-            AND oe-ord.stat    EQ "H"
+            AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold)
             NO-LOCK:
             LEAVE.
         END.
@@ -1665,3 +1715,90 @@ DO:
     END. 
 END.
 
+/* if auditing job-mch and audit records created */
+IF lAuditJobMch AND iAuditID NE 0 THEN DO:
+    RUN pSetParamValueAuditID (iAuditID).
+    RUN pRunNow (cOutputFormat,"",YES).
+END. /* if iauditid */
+
+PROCEDURE pGetParamValue:
+    DEFINE VARIABLE cFound    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNK1Value AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
+    
+    /* check if auditing jc-calc */
+    RUN sys/ref/nk1look.p (
+        cocode,"AuditJobCalc","L",NO,NO,"","",
+        OUTPUT cFound,OUTPUT lFound
+        ).
+    IF lFound AND cFound EQ "YES" THEN DO:
+        /* get userid of dynParamValue */
+        RUN sys/ref/nk1look.p (
+            cocode,"AuditJobCalc","C",NO,NO,"","",
+            OUTPUT cUSerID,OUTPUT lFound
+            ).
+        /* get subjectid of dynParamValue */
+        RUN sys/ref/nk1look.p (
+            cocode,"AuditJobCalc","I",NO,NO,"","",
+            OUTPUT cNK1Value,OUTPUT lFound
+            ).
+        IF lFound THEN
+        iSubjectID = INTEGER(cNK1Value).
+        /* get paramvalueid of dynParamValue */
+        RUN sys/ref/nk1look.p (
+            cocode,"AuditJobCalc","D",NO,NO,"","",
+            OUTPUT cNK1Value,OUTPUT lFound
+            ).
+        IF lFound THEN
+        iParamValueID = INTEGER(cNK1Value).
+        FIND FIRST dynParamValue NO-LOCK
+             WHERE dynParamValue.subjectID    EQ iSubjectID
+               AND dynParamValue.user-id      EQ cUserID
+               AND dynParamValue.paramValueID EQ iParamValueID
+             NO-ERROR.
+        IF AVAILABLE dynParamValue THEN DO:
+            cOutputFormat = dynParamValue.outputFormat.
+            IF cOutputFormat EQ ?  OR
+               cOutputFormat EQ "" OR
+               cOutputFormat EQ "Grid" THEN
+            cOutputFormat = "PDF".
+            DO idx = 1 TO EXTENT(dynParamValue.paramName):
+                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
+                IF dynParamValue.paramName[idx] EQ "svRecipients" THEN DO:
+                    cRecipients = dynParamValue.paramValue[idx].
+                    LEAVE.
+                END. /* if svrecipients */
+            END. /* do idx */
+        END. /* if avail */
+    END. /* if found */
+END PROCEDURE.
+
+PROCEDURE pGetRecipients:
+    DEFINE OUTPUT PARAMETER opcRecipients AS CHARACTER NO-UNDO.
+    
+    opcRecipients = cRecipients.
+END PROCEDURE.
+
+/* this scoped-define exists to prevent pRunNow (found in {AOA/pRunNow.i}) */
+/* procedure from message indicating a Run Now report has been submitted   */
+&Scoped-define silentSubmitted
+{AOA/includes/pRunNow.i}
+
+PROCEDURE pSetParamValueAuditID:
+    DEFINE INPUT PARAMETER ipiAuditID AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    IF AVAILABLE dynParamValue THEN DO TRANSACTION:
+        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+        DO idx = 1 TO EXTENT(dynParamValue.paramName):
+            IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
+            IF dynParamValue.paramName[idx] EQ "auditID" THEN DO:
+                dynParamValue.paramValue[idx] = STRING(ipiAuditID).
+                LEAVE.
+            END. /* if auditid */
+        END. /* do idx */
+        FIND CURRENT dynParamValue NO-LOCK.
+    END. /* if avail */
+END PROCEDURE.

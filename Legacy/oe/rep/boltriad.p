@@ -90,15 +90,15 @@ form header
    with frame bol-top page-top no-box no-underline stream-io width 80.
 
 form v-tot-pkgs                     to 3                    /* pkgs */
-     v-ord-qty                      to 9  format "->>>>"    /* quan ord */
-     v-part-dscr                    at 11 format "x(30)"    /* desc */
-     report.key-03                  at 42 format "x(15)"    /* cust PO */
-     w2.cases                       to 60 format "->9"      /* # units */
-     w2.cas-cnt                     to 66 format "->,>>9"   /* # / unit */
-     v-bol-qty                      to 72 format "->>>>9"   /* quan ship */
-     v-part-comp                    at 74                   /* PC */
-     v-bol-wt                       to 80 format ">>>>9"    /* wgt */
-    with frame bol-mid1 down no-box no-labels stream-io width 80.
+     v-ord-qty                      to 12  format "->>>>>>>>"    /* quan ord */
+     v-part-dscr                    at 14 format "x(30)"    /* desc */
+     report.key-03                  at 45 format "x(15)"    /* cust PO */
+     w2.cases                       to 63 format "->9"      /* # units */
+     w2.cas-cnt                     to 69 format "->,>>9"   /* # / unit */
+     v-bol-qty                      to 78 format "->>>>>>>9"   /* quan ship */
+     v-part-comp                    at 81                   /* PC */
+     v-bol-wt                       to 90 format ">>>>>>9"    /* wgt */
+    with frame bol-mid1 down no-box no-labels stream-io width 90.
 
 form header
      " "

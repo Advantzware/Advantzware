@@ -18,6 +18,7 @@ DEFINE {1} VARIABLE iBlankNo                AS INTEGER   NO-UNDO.
 
 DEFINE {2} VARIABLE qtty                    AS INTEGER   EXTENT 28 FORMAT ">>,>>>,>>>" NO-UNDO.
 DEFINE {2} VARIABLE rels                    AS INTEGER   EXTENT 28 FORMAT ">>" NO-UNDO.
+DEFINE {2} VARIABLE lRunShips               AS LOGICAL   EXTENT 28 NO-UNDO.
 DEFINE {2} VARIABLE save-qty                AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE xcal                    AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE lctr                    AS INTEGER   NO-UNDO.
@@ -36,7 +37,7 @@ DEFINE {2} VARIABLE brd-w                   LIKE brd-l NO-UNDO.
 DEFINE {2} VARIABLE brd-d                   LIKE brd-l NO-UNDO.
 DEFINE {2} VARIABLE brd-sq                  AS DECIMAL   FORMAT ">>>>9.9<<<<" EXTENT 4 NO-UNDO.
 DEFINE {2} VARIABLE brd-sf                  AS DECIMAL   FORMAT ">>>>>9.9<<" EXTENT 4 NO-UNDO.
-DEFINE {2} VARIABLE brd-wu                  LIKE brd-sq NO-UNDO.
+DEFINE {2} VARIABLE brd-wu                  AS DECIMAL   FORMAT ">>>>>9.9<<<" EXTENT 4 NO-UNDO.
 DEFINE {2} VARIABLE b-wt                    AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE b-qty                   AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE b-cost                  AS DECIMAL   FORMAT ">>>,>>9.99" NO-UNDO.

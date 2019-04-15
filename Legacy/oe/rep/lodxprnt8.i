@@ -6,7 +6,7 @@ DEFINE VARIABLE cSize AS CHARACTER.
 cSize = string(itemfg.l-score[50]) + "X" + STRING(itemfg.w-score[50]) + "X" + string(itemfg.d-score[50]) .
   
 
-IF tb_print-view THEN do:                 
+IF iplPrintView THEN do:                 
 
         PUT  "<FArial>".
         PUT  "<C+25><#1>".

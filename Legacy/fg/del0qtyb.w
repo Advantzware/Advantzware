@@ -404,7 +404,7 @@ FOR EACH fg-bin
       AND fg-bin.qty     LE 0
       AND (fg-bin.qty    EQ 0 OR tb_neg-bin):
 
-  IF fg-bin.qty LT 0 THEN RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
+  IF fg-bin.qty LT 0 THEN RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0,"").
 
   DELETE fg-bin.
 END.

@@ -79,7 +79,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
-Btn-Delete Btn-Cancel btn-Import 
+Btn-Delete Btn-Cancel btn-Import btn-dedupe
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -114,6 +114,11 @@ DEFINE BUTTON Btn-Delete
      SIZE 9 BY 1.29
      FONT 4.
 
+DEFINE BUTTON btn-dedupe 
+     LABEL "&De-dupe" 
+     SIZE 9 BY 1.29 
+     FONT 4.
+
 DEFINE BUTTON btn-Import 
      LABEL "&Import" 
      SIZE 9 BY 1.29 TOOLTIP "Import ship-to data from Excel"
@@ -144,6 +149,7 @@ DEFINE FRAME Panel-Frame
      Btn-Delete AT ROW 1.29 COL 38
      Btn-Cancel AT ROW 1.29 COL 47
      btn-Import AT ROW 1.29 COL 56.2 WIDGET-ID 2
+     btn-dedupe AT ROW 1.29 COL 65.2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -281,6 +287,20 @@ DO:
    IF NOT v-can-delete THEN RETURN no-apply.
 
    RUN notify ('delete-record':U).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn-dedupe
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-dedupe C-WIn
+ON CHOOSE OF btn-dedupe IN FRAME Panel-Frame /* Import */
+DO:
+   IF NOT v-can-create THEN RETURN no-apply.
+
+   RUN notify ('pDeDupe, TABLEIO-TARGET':U).  
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */

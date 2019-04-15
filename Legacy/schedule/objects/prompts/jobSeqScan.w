@@ -71,6 +71,7 @@ DEFINE TEMP-TABLE ttResource NO-UNDO
 DEFINE TEMP-TABLE ttJob NO-UNDO
     FIELD jobType AS CHARACTER
     FIELD resource AS CHARACTER
+    FIELD altResource AS CHARACTER 
     FIELD jobSequence AS DECIMAL LABEL "Seq" FORMAT ">>>9"
     FIELD job AS CHARACTER LABEL "Job-# | .S | .B | .P" FORMAT "x(20)"
     FIELD dueDate AS DATE 
@@ -739,8 +740,11 @@ ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME
 DO:
     svJob:SCREEN-VALUE = "Mode:Save".
     RUN saveJobs.
-    IF VALID-HANDLE(iphContainer) THEN 
-    RUN buildBoard IN iphContainer (NO).
+    IF VALID-HANDLE(iphContainer) THEN DO:
+        RUN buildBoard   IN iphContainer (NO).
+        RUN bringForward IN iphContainer ("<ALL>").
+        RUN packBoard    IN iphContainer.
+    END. /* if valid-handle */
     APPLY "LEAVE":U TO svJob.
 END.
 
@@ -1160,6 +1164,7 @@ PROCEDURE createttJob :
         ASSIGN
             ttJob.jobType = "S"
             ttJob.resource = ttblJob.resource
+            ttJob.altResource = ttblJob.altResource
             ttJob.jobSequence = ttblJob.jobSequence
             ttJob.job = ttblJob.job + "."
                       + STRING(INTEGER(ttblJob.userField19)) + "."
@@ -1182,6 +1187,7 @@ PROCEDURE createttJob :
         ASSIGN
             ttJob.jobType = "P"
             ttJob.resource = pendingJob.resource
+            ttJob.altResource = pendingJob.altResource
             ttJob.jobSequence = pendingJob.jobSequence
             ttJob.job = pendingJob.job + "."
                       + STRING(INTEGER(pendingJob.userField19)) + "."
@@ -1357,7 +1363,7 @@ PROCEDURE moveJob :
                 ttJob.jobSequence = ipiMove
                 rRowID            = ROWID(ttJob)
                 .
-            RUN sequenceJobs.
+            RUN sequenceJobs (svResource).
         END. /* top or bottom */
         OTHERWISE DO:
             /* already at top */
@@ -1382,7 +1388,7 @@ PROCEDURE moveJob :
                 ttJob.jobSequence  = ttJob.jobSequence + ipiMove
                 rRowID             = ROWID(ttJob)
                 .
-            RUN sequenceJobs.
+            RUN sequenceJobs (svResource).
         END. /* otherwise */
     END CASE.
     {&OPEN-QUERY-{&BROWSE-NAME}}
@@ -1413,7 +1419,7 @@ PROCEDURE moveToPending :
             ttJob.startDate = ?
             ttJob.startTime = 0
             ttJob.endDate = ?
-            ttJOb.endTime = 0
+            ttJob.endTime = 0
             .
     END. /* each ttJob */
     ELSE DO:
@@ -1423,9 +1429,9 @@ PROCEDURE moveToPending :
             ttJob.startDate = ?
             ttJob.startTime = 0
             ttJob.endDate = ?
-            ttJOb.endTime = 0
+            ttJob.endTime = 0
             .
-        RUN sequenceJobs.
+        RUN sequenceJobs (svResource).
     END. /* else */
     lSave = YES.
     RUN getJobs (svResource).
@@ -1806,9 +1812,9 @@ PROCEDURE processScan :
                 ELSE svMode = "Insert".
                 svMode:SCREEN-VALUE = FILL(" ",25) + "Mode: " + CAPS(svMode).
             END. /* if not add and not insert */
-            IF ENTRY(1,svJOb,":") EQ "Mode" THEN DO:
+            IF ENTRY(1,svJob,":") EQ "Mode" THEN DO:
                 ASSIGN
-                    svMode = ENTRY(2,svJOb,":")
+                    svMode = ENTRY(2,svJob,":")
                     svMode:SCREEN-VALUE = FILL(" ",25) + "Mode: " + CAPS(svMode)
                     svJob = ""
                     svJob:SCREEN-VALUE = svJob
@@ -1857,7 +1863,10 @@ PROCEDURE saveJobs :
             IF ttJob.jobType EQ "P" THEN DO:
                 CREATE pendingJob.
                 BUFFER-COPY ttblJob TO pendingJob
-                    ASSIGN pendingJob.origStartTime = ttblJob.timeSpan.
+                    ASSIGN
+                        pendingJob.origStartTime = ttblJob.timeSpan
+                        pendingJob.jobLocked     = NO
+                        .
                 DELETE ttblJob.
             END. /* jobtype P */
         END. /* jobtable job */
@@ -1872,13 +1881,20 @@ PROCEDURE saveJobs :
         END. /* else if jobtype S */
         IF AVAILABLE ttblJob THEN
         ASSIGN
-            ttblJob.jobSequence = ttJob.jobSequence
-            ttblJob.startDate = ttJob.startDate
-            ttblJob.startTime = ttJob.startTime
-            ttblJob.endDate = ttJob.endDate
-            ttblJob.endTime = ttJob.endTime
+            ttblJob.resource      = ttJob.resource
+            ttblJob.altResource   = ttJob.altResource
+            ttblJob.jobSequence   = ttJob.jobSequence
+            ttblJob.startDate     = ttJob.startDate
+            ttblJob.startTime     = ttJob.startTime
+            ttblJob.endDate       = ttJob.endDate
+            ttblJob.endTime       = ttJob.endTime
             ttblJob.startDateTime = ttblJob.startDateTime
-            ttblJob.endDateTime = ttblJob.endDateTime
+            ttblJob.endDateTime   = ttblJob.endDateTime
+            ttblJob.jobLocked     = NO
+            ttblJob.origStartDate = ttblJob.startDate
+            ttblJob.origStartTime = ttblJob.startTime
+            ttblJob.origEndDate   = ttblJob.endDate
+            ttblJob.origEndTime   = ttblJob.endTime
             .
         RELEASE ttblJob.
     END. /* each ttJob */
@@ -1898,8 +1914,10 @@ PROCEDURE scheduleJob :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE rRowID AS ROWID   NO-UNDO.
-    DEFINE VARIABLE iSeq   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE rRowID        AS ROWID     NO-UNDO.
+    DEFINE VARIABLE iSeq          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cResourceList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResource     AS CHARACTER NO-UNDO.
     
     IF ipcType EQ "Insert" THEN DO:
         IF NOT AVAILABLE ttJob THEN RETURN.
@@ -1918,6 +1936,51 @@ PROCEDURE scheduleJob :
              WHERE ttJob.resource EQ svResource
                AND ttJob.job EQ svJob
              NO-ERROR.
+        IF NOT AVAILABLE ttJob THEN DO:
+            /* transfer? */
+            FOR EACH ttJob
+                WHERE ttJob.job EQ svJob,
+                FIRST mach NO-LOCK
+                WHERE mach.company EQ ipcCompany
+                  AND mach.m-code  EQ ttJob.resource
+                BY ttJob.resource:
+                /* list of resource(s) where job exists */
+                cResourceList = cResourceList
+                              + ttJob.resource
+                              + (IF AVAILABLE mach THEN " - " + mach.m-dscr ELSE "") + ","
+                              + ttJob.resource + ","
+                              .
+            END. /* each ttjob */
+            IF cResourceList NE "" THEN DO:
+                /* found job on other resource(s) */
+                ASSIGN
+                    cResourceList = TRIM(cResourceList,",")
+                    cResource     = ENTRY(1,cResourceList)
+                    .
+                /* prompt for which resource to transfer from */
+                IF NUM-ENTRIES(cResourceList) GT 1 THEN 
+                RUN {&prompts}/jobSeqScanTrans.w (cResourceList, OUTPUT cResource).
+                IF cResource EQ ? THEN RETURN. /* user canceled */
+                /* scan has leading +, remove it */
+                cResource = REPLACE(cResource,"-","").
+                FIND FIRST ttJob
+                     WHERE ttJob.resource EQ cResource
+                       AND ttJob.job EQ svJob
+                     NO-ERROR.
+                IF AVAILABLE ttJob THEN DO:
+                    /* move job to pending */
+                    ASSIGN 
+                        ttJob.resource    = svResource
+                        ttJob.altResource = svResource
+                        ttJob.jobType     = "P"
+                        rRowID            = ROWID(ttJob)
+                        .
+                    /* resequence resource where job transferred from */
+                    RUN sequenceJobs (cResource).
+                    FIND ttJob WHERE ROWID(ttJob) EQ rRowID.
+                END. /* avail ttjob */
+            END. /* cresourcelist not empty */
+        END. /* not avail */
     END. /* else */    
     IF AVAILABLE ttJob THEN DO:
         rRowID = ROWID(ttJob).
@@ -1926,7 +1989,7 @@ PROCEDURE scheduleJob :
                 ttJob.jobType = "S"
                 ttJob.jobSequence = iSeq
                 .
-            RUN sequenceJobs.
+            RUN sequenceJobs (svResource).
             RUN getJobs (svResource).
         END. /* if jobtype P */
         REPOSITION {&BROWSE-NAME} TO ROWID(rRowID).
@@ -1944,56 +2007,46 @@ PROCEDURE sequenceJobs :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcResource AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE dtStartDate AS DATE    NO-UNDO.
     DEFINE VARIABLE iStartTime  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iSeq        AS INTEGER NO-UNDO.
     
-    FIND FIRST ttJob
-         WHERE ttJob.jobType     EQ "S"
-           AND ttJob.resource    EQ svResource
-           AND ttJob.jobSequence GE 0
-         NO-ERROR.
-    IF AVAILABLE ttJob THEN DO:
+    ASSIGN
+        dtStartDate = TODAY
+        iStartTime  = TIME
+        .
+    FOR EACH ttJob
+        WHERE ttJob.jobType  EQ "S"
+          AND ttJob.resource EQ ipcResource
+          AND ttJob.jobFlag  EQ NO
+        :
+         ttJob.jobFlag = YES.
+    END. /* each ttJob */
+    
+    FOR EACH ttJob
+        WHERE ttJob.jobType  EQ "S"
+          AND ttJob.resource EQ ipcResource
+          AND ttJob.jobFlag  EQ YES
+        :
         ASSIGN
-            dtStartDate = ttJob.startDate
-            iStartTime  = ttJob.startTime
+            iSeq = iSeq + 1
+            ttJob.jobSequence = iSeq
+            ttJob.jobFlag = NO
+            ttJob.startDate = dtStartDate
+            ttJob.startTime = iStartTime
             .
-        IF dtStartDate EQ ? THEN
+        RUN newEnd (ttJob.timeSpan,ttJob.startDate,ttJob.startTime,
+                    OUTPUT ttJob.endDate, OUTPUT ttJob.endTime).
         ASSIGN
-            dtStartDate = TODAY
-            iStartTime  = TIME
+            ttJob.startDateTime = numericDateTime(ttJob.startDate,ttJob.startTime)
+            ttJob.endDateTime = numericDateTime(ttJob.endDate,ttJob.endTime)
+            dtStartDate = ttJob.endDate
+            iStartTime = ttJob.endTime
             .
-        FOR EACH ttJob
-            WHERE ttJob.jobType  EQ "S"
-              AND ttJob.resource EQ svResource
-              AND ttJob.jobFlag  EQ NO
-            :
-             ttJob.jobFlag = YES.
-        END. /* each ttJob */
-        
-        FOR EACH ttJob
-            WHERE ttJob.jobType  EQ "S"
-              AND ttJob.resource EQ svResource
-              AND ttJob.jobFlag  EQ YES
-            :
-            ASSIGN
-                iSeq = iSeq + 1
-                ttJob.jobSequence = iSeq
-                ttJob.jobFlag = NO
-                ttJob.startDate = dtStartDate
-                ttJob.startTime = iStartTime
-                .
-            RUN newEnd (ttJob.timeSpan,ttJob.startDate,ttJob.startTime,
-                        OUTPUT ttJob.endDate, OUTPUT ttJob.endTime).
-            ASSIGN
-                ttJob.startDateTime = numericDateTime(ttJob.startDate,ttJob.startTime)
-                ttJob.endDateTime = numericDateTime(ttJob.endDate,ttJob.endTime)
-                dtStartDate = ttJob.endDate
-                iStartTime = ttJob.endTime
-                .
-        END. /* each ttJob */
-        lSave = YES.
-    END. /* if avail */
+    END. /* each ttJob */
+    lSave = YES.
 
 END PROCEDURE.
 

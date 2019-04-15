@@ -21,9 +21,10 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-{custom/globdefs.i}
 
+{custom/globdefs.i}
 {sys/inc/var.i new shared}
+{system/fSuperRunning.i}
 
 assign
  cocode = g_company.

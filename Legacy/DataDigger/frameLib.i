@@ -2,18 +2,12 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Include 
 /*------------------------------------------------------------------------
-    File        : 
-    Purpose     :
 
-    Syntax      :
+        Name: frameLib.i
+        Desc: Generic code that is needed to reparent frames
 
-    Description :
-
-    Author(s)   :
-    Created     :
-    Notes       :
-  ----------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.      */
+------------------------------------------------------------------------*/
+/*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -64,7 +58,7 @@
 
 /* ***************************  Main Block  *************************** */
 
-run initFrames.
+RUN initFrames.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -74,101 +68,90 @@ run initFrames.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initFrames Include 
 PROCEDURE initFrames :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+/* Initialize frames
+        */
+        DELETE WIDGET {&WINDOW-NAME}.
+        {&WINDOW-NAME} = CURRENT-WINDOW.
 
-  DELETE WIDGET {&WINDOW-NAME}.
-  {&WINDOW-NAME} = CURRENT-WINDOW.
+        RUN reparentFrames(INPUT FRAME DEFAULT-FRAME:HANDLE, INPUT phParent).
 
-  run reparentFrames(input frame DEFAULT-FRAME:handle, input phParent).
+        RUN enable_UI.
 
-  run enable_UI.
-  
-  /* Adjust the size of the frame to the rectange (if provided) */
-  if valid-handle(phRectangle) then
-    run setFrame ( input phRectangle:x + 2
-                 , input phRectangle:y + 2             
-                 , input phRectangle:width-pixels - 4
-                 , input phRectangle:height-pixels - 4 
-                 ).  
+        /* Adjust the size of the frame to the rectange (if provided) */
+        IF VALID-HANDLE(phRectangle) THEN
+                RUN setFrame ( INPUT phRectangle:X + 2
+                                                                 , INPUT phRectangle:Y + 2
+                                                                 , INPUT phRectangle:WIDTH-PIXELS - 4
+                                                                 , INPUT phRectangle:HEIGHT-PIXELS - 4
+                                                                 ).
 
-END PROCEDURE.
+END PROCEDURE. /* initFrames */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reparentFrames Include 
 PROCEDURE reparentFrames :
-/*------------------------------------------------------------------------------
-  Name : reparentFrames
-  Desc : Reparent all frames
-------------------------------------------------------------------------------*/
+/* Reparent all frames
+  */
   DEFINE INPUT  PARAMETER phOldParent AS HANDLE NO-UNDO.
   DEFINE INPUT  PARAMETER phNewParent AS HANDLE NO-UNDO.
 
   /* Attach all frames on the main frame to the parent */
-  define variable hWidget as handle no-undo. 
+  DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
 
-  repeat:
-    hWidget = phOldParent:first-child:first-child.
-    if not valid-handle(hWidget) then leave.
-    if hWidget:type = 'FRAME' then hWidget:frame = phNewParent.
-  end.
+  #FrameLoop:
+  REPEAT:
+    hWidget = phOldParent:FIRST-CHILD:FIRST-CHILD.
+    IF NOT VALID-HANDLE(hWidget) THEN LEAVE #FrameLoop.
+    IF hWidget:TYPE = 'FRAME' THEN hWidget:FRAME = phNewParent.
+  END.
 
-end procedure. /* reparentFrames */
+END PROCEDURE. /* reparentFrames */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setFrame Include 
 PROCEDURE setFrame :
-/*------------------------------------------------------------------------------
-  Name : setFrame    
-  Desc : Position the frame to a specified location with a specified size
-------------------------------------------------------------------------------*/
+/* Position the frame to a specified location with a specified size
+        */
+        DEFINE INPUT PARAMETER piFrame-x AS INTEGER NO-UNDO.
+        DEFINE INPUT PARAMETER piFrame-y AS INTEGER NO-UNDO.
+        DEFINE INPUT PARAMETER piFrame-w AS INTEGER NO-UNDO.
+        DEFINE INPUT PARAMETER piFrame-h AS INTEGER NO-UNDO.
 
-  define input parameter piFrame-x as integer no-undo.
-  define input parameter piFrame-y as integer no-undo.
-  define input parameter piFrame-w as integer no-undo.
-  define input parameter piFrame-h as integer no-undo.
+        IF piFrame-w <> ? THEN
+        DO:
+                FRAME {&frame-name}:WIDTH-PIXELS = piFrame-w.
+                FRAME {&frame-name}:VIRTUAL-WIDTH-PIXELS  = piFrame-w.
+        END.
 
-  if piFrame-w <> ? then
-  do:
-    frame {&frame-name}:width-pixels = piFrame-w.
-    frame {&frame-name}:virtual-width-pixels  = piFrame-w.
-  end.
+        IF piFrame-h <> ? THEN
+        DO:
+                FRAME {&frame-name}:HEIGHT-PIXELS = piFrame-h.
+                FRAME {&frame-name}:VIRTUAL-HEIGHT-PIXELS = piFrame-h.
+        END.
 
-  if piFrame-h <> ? then 
-  do:
-    frame {&frame-name}:height-pixels = piFrame-h.
-    frame {&frame-name}:virtual-height-pixels = piFrame-h.
-  end.
-  
-  if piFrame-x <> ? then frame {&frame-name}:x = piFrame-x.
+        IF piFrame-x <> ? THEN FRAME {&frame-name}:X = piFrame-x.
+        IF piFrame-y <> ? THEN FRAME {&frame-name}:Y = piFrame-y.
 
-  if piFrame-y <> ? then frame {&frame-name}:y = piFrame-y.
-
-
-end procedure. /* setFrame */
+END PROCEDURE. /* setFrame */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE viewFrame Include 
 PROCEDURE viewFrame :
-/*------------------------------------------------------------------------------
-  Name : viewFrame
-  Desc : Show or hide the frame 
-------------------------------------------------------------------------------*/
-  define input parameter plView as logical no-undo.
+/* Show or hide the frame
+        */
+        DEFINE INPUT PARAMETER plView AS LOGICAL NO-UNDO.
 
-  frame {&frame-name}:hidden = not plView.
-  if plView then apply 'entry' to frame {&frame-name}.
+        FRAME {&frame-name}:HIDDEN = NOT plView.
+        IF plView THEN APPLY 'entry' TO FRAME {&frame-name}.
 
-end procedure. /* viewFrame */
+END PROCEDURE. /* viewFrame */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

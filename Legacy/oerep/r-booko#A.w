@@ -1111,7 +1111,7 @@ for each oe-ord
                                        oe-ordl.price,
                                        oe-ordl.pr-uom,
                                        itemfg.case-count,
-                                       ( IF AVAIL itemfg THEN itemfg.case-count ELSE 0),
+                                       oe-ordl.disc,
                                        OUTPUT v-ext-price).
         
 
@@ -1255,12 +1255,14 @@ for each oe-ord
 
     if oe-ord.stat eq "H" then
       put "** THIS ORDER IS ON CREDIT HOLD **" to 50 .
+    else if oe-ord.priceHold then
+      put "** THIS ORDER IS ON PRICE HOLD **" to 50 .
     else if oe-ord.stat eq "D" then
       put "** THIS ORDER IS DELETED **" to 50 .
     else if oe-ord.stat eq "C" then
       put "** THIS ORDER IS CLOSED **" to 50 .
 
-    IF tb_excel AND LOOKUP(oe-ord.stat, "H,D,C") NE 0 THEN
+    IF tb_excel AND LOOKUP(oe-ord.stat, "H,D,C") NE 0 OR oe-ord.priceHold THEN
     DO:
         CREATE ExtList.
         ASSIGN
@@ -1272,14 +1274,17 @@ for each oe-ord
           ExtList.cust-no   = oe-ord.cust-no
           ExtList.cust-name = oe-ord.cust-name.
 
-        CASE oe-ord.stat:
-            WHEN "H" THEN
-              ExtList.i-name  = "** THIS ORDER IS ON CREDIT HOLD **".
-            WHEN "D" THEN
-               ExtList.i-name = "** THIS ORDER IS DELETED **".
-            WHEN "C" THEN
-               ExtList.i-name = "** THIS ORDER IS CLOSED **".
-        END CASE.
+        IF oe-ord.priceHold THEN
+            ExtList.i-name =  "** THIS ORDER IS ON PRICE HOLD **".
+        ELSE 
+            CASE oe-ord.stat:
+                WHEN "H" THEN
+                  ExtList.i-name  = "** THIS ORDER IS ON CREDIT HOLD **".
+                WHEN "D" THEN
+                   ExtList.i-name = "** THIS ORDER IS DELETED **".
+                WHEN "C" THEN
+                   ExtList.i-name = "** THIS ORDER IS CLOSED **".
+            END CASE.
     END.
 
     put "Total Order" at 75 v-tot-ord[1] to 102 skip(1).

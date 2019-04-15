@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -950,20 +950,22 @@ DEF VAR i AS INT NO-UNDO.
     fi_shift = INT(shifts.shift) NO-ERROR.
   END.
 
-  {custom/get_time2.i
-      &field="shifts.lunch_start"
-      &hour="lunch_start_hour"
-      &minute="lunch_start_minute"
-      &second="lunch_start_second"
-      &ampm="lunch_start_ampm"
-  }
-  {custom/get_time2.i
-      &field="shifts.lunch_end"
-      &hour="lunch_end_hour"
-      &minute="lunch_end_minute"
-      &second="lunch_end_second"
-      &ampm="lunch_end_ampm"
-  }
+  IF AVAIL shifts THEN do:
+      {custom/get_time2.i
+          &field="shifts.lunch_start"
+          &hour="lunch_start_hour"
+          &minute="lunch_start_minute"
+          &second="lunch_start_second"
+          &ampm="lunch_start_ampm"
+      }
+      {custom/get_time2.i
+          &field="shifts.lunch_end"
+          &hour="lunch_end_hour"
+          &minute="lunch_end_minute"
+          &second="lunch_end_second"
+          &ampm="lunch_end_ampm"
+      }
+  END.
   DO WITH FRAME {&FRAME-NAME}:
          ASSIGN
             tgSun:SCREEN-VALUE = "NO"
@@ -981,42 +983,37 @@ DEF VAR i AS INT NO-UNDO.
             tgFri = NO
             tgSat = NO
             .
-    FIND FIRST reftable WHERE reftable.reftable EQ "ShiftDays"
-       AND reftable.CODE EQ shifts.rec_key
-    NO-LOCK NO-ERROR.
-
-    IF AVAIL reftable THEN DO:
-
+  IF AVAIL shifts THEN DO:
   ENABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
   WITH FRAME {&FRAME-NAME}.
-      DO i = 1 TO NUM-ENTRIES(reftable.code2):
+      DO i = 1 TO NUM-ENTRIES(shifts.dayList):
         CASE i:
           WHEN 1 THEN
-            ASSIGN tgSun:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgSun = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgSun:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgSun = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 2 THEN
-            ASSIGN tgMon:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgMon = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgMon:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgMon = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 3 THEN
-            ASSIGN tgTues:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgTues = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgTues:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgTues = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 4 THEN
-            ASSIGN tgWeds:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgWeds = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgWeds:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgWeds = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 5 THEN
-            ASSIGN tgThur:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgThur = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgThur:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgThur = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 6 THEN
-            ASSIGN tgFri:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgFri = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgFri:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgFri = LOGICAL(ENTRY(i, shifts.dayList)).
           WHEN 7 THEN
-            ASSIGN tgSat:SCREEN-VALUE = ENTRY(i, reftable.code2)
-                   tgSat = LOGICAL(ENTRY(i, reftable.code2)).
+            ASSIGN tgSat:SCREEN-VALUE = ENTRY(i, shifts.dayList)
+                   tgSat = LOGICAL(ENTRY(i, shifts.dayList)).
         END CASE.
       END.
 
-      rsAllOrSpecificDays = IF reftable.loc EQ "1" THEN "Specific" ELSE "All".
-    END. /* avail reftable */
+      rsAllOrSpecificDays = IF shifts.useSpecificDays EQ TRUE THEN "Specific" ELSE "All".
+    END.
     ELSE 
       rsAllOrSpecificDays = "All".
   disABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
@@ -1027,7 +1024,7 @@ DEF VAR i AS INT NO-UNDO.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+  /* Code placed here will execute AFTER standard behavior.    */ 
 
 END PROCEDURE.
 
@@ -1085,20 +1082,11 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
   END.
 
 
-  FIND FIRST reftable WHERE reftable.reftable EQ "ShiftDays"
-     AND reftable.CODE EQ shifts.rec_key
-  EXCLUSIVE-LOCK NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
-    ASSIGN 
-        reftable.reftable = "ShiftDays"
-        reftable.CODE = shifts.rec_key.
-  END.
-
-
   IF adm-new-record THEN DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN reftable.code2 =  cDaysList
-             reftable.loc = STRING(IF cUseDayListScreenValue EQ "Specific" THEN 1 ELSE 0).
+      FIND CURRENT shifts EXCLUSIVE-LOCK NO-ERROR .
+      ASSIGN shifts.dayList =  cDaysList
+             shifts.useSpecificDays = (IF cUseDayListScreenValue EQ "Specific" THEN TRUE ELSE FALSE).
+      FIND CURRENT shifts NO-LOCK NO-ERROR .
      ASSIGN
        rsAllOrSpecificDays:SCREEN-VALUE = cUseDayListScreenValue
        tgSun:SCREEN-VALUE = ENTRY(1, cDaysList)
@@ -1122,15 +1110,16 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
       RUN refresh-and-reposition IN WIDGET-HANDLE(char-hdl) (ROWID(shifts)). 
   END.
   ELSE DO:
-
-    reftable.code2 =  STRING(tgSun) + "," +
+    FIND CURRENT shifts EXCLUSIVE-LOCK NO-ERROR .
+    shifts.dayList =  STRING(tgSun) + "," +
                       STRING(tgMon) + "," +
                       STRING(tgTues) + "," +
                       STRING(tgWeds) + "," +
                       STRING(tgThur) + "," +
                       STRING(tgFri) + "," +
                       STRING(tgSat).
-    reftable.loc = STRING(IF rsAllOrSpecificDays EQ "Specific" THEN 1 ELSE 0).
+    shifts.useSpecificDays = (IF rsAllOrSpecificDays EQ "Specific" THEN TRUE ELSE FALSE).
+    FIND CURRENT shifts NO-LOCK NO-ERROR .
   END.                   
 
 

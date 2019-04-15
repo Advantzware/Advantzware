@@ -1,0 +1,29 @@
+
+06/26/08                                       Advanced Box Company V5.0 - Main Office                                    Page   1
+12:42pm                                                  GL Posting Register
+
+Run#        Account Number  Account Description           Journal      Reference                             Date            Balance
+------------------------------------------------------------------------------------------------------------------------------------
+0004130     11209-00        Accounts Receivable - Trade   CRMEM        CREDIT/DEBIT MEMO                    12/28/2007    (23,494.40)
+            20140-00        Sales Tax Payable             CRMEM        AT&T Communications Corp. 90000377   12/28/2007         27.92
+            20140-00        Sales Tax Payable             CRMEM        Hershey Foods Corporation 90000380   12/28/2007          1.20
+            20140-00        Sales Tax Payable             CRMEM        Hershey Foods Corporation 90000379   12/28/2007      1,172.23
+            20140-00        Sales Tax Payable             CRMEM        Hershey Foods Corporation 90000378   12/28/2007          0.03
+            30020-00        Sales Folding Cartons         CRMEM        Hershey Foods Corporation 90000379   12/28/2007     19,537.20
+            31100-00        Sales Boxes                   CRMEM        CB 555 90000375                      12/28/2007        300.00
+            31100-00        Sales Boxes                   CRMEM        CB 555 90000375                      12/28/2007         50.00
+            31100-00        Sales Boxes                   CRMEM        AT&T Communications Corp. 90000377   12/28/2007        465.30
+            31100-00        Sales Boxes                   CRMEM        Abbot Laboratories 90000381          12/28/2007        820.00
+            31100-00        Sales Boxes                   CRMEM        Hershey Foods Corporation 90000378   12/28/2007          0.52
+            31100-00        Sales Boxes                   CRMEM        1ST SOURCE SERVICE 90000382          12/28/2007        600.00
+            31100-00        Sales Boxes                   CRMEM        Hershey Foods Corporation 90000385   12/28/2007        500.00
+            31300-00        SALES - OTHER                 CRMEM        Hershey Foods Corporation 90000380   12/28/2007         20.00
+                                                                                                                       -------------
+                                                                                                            Total:
+                                                                                                                               0.00 
+
+                                                                                                                        ============
+                                                                                                            Grand Total:
+                                                                                                                               0.00 
+
+

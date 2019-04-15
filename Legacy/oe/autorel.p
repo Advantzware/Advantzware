@@ -101,8 +101,8 @@ if v-auto then do on endkey undo, return:
   */
 end.
 
-if v-auto and xoe-ord.stat eq "H" and oe-ctrl.p-pick eq no then do:
-   message "Can not release items for customers on Credit Hold." view-as alert-box
+if v-auto and (xoe-ord.stat eq "H" OR xoe-ord.priceHold) and oe-ctrl.p-pick eq no then do:
+   message "Can not release items for customers on Credit Hold or Price Hold." view-as alert-box
            error.
    v-auto = no.
 end.
@@ -322,8 +322,7 @@ PROCEDURE CountOrderLines:
       IF bf-itemfg.alloc = YES THEN
         NEXT.
       opiCount = opiCount + 1.
-    END.
-   
+    END.   
 END PROCEDURE.
 
 PROCEDURE DeleteIncompleteRelease:
@@ -383,7 +382,6 @@ PROCEDURE DeleteIncompleteRelease:
             RELEASE bf-oe-ordl.
         END.
     END. /*each w-rel*/
-
 END PROCEDURE.
 
 PROCEDURE PromptForIncompleteRelease:
@@ -396,24 +394,40 @@ PROCEDURE PromptForIncompleteRelease:
         "Hit YES to delete the incomplete release and try again." SKIP
         "Hit NO to continue with incomplete release." SKIP
         VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE oplAbort.
-
-
 END PROCEDURE.
-PROCEDURE LogError:
-    DEFINE VARIABLE lRelErrorLog AS LOG NO-UNDO.
 
-    lRelErrorLog = SEARCH('logs/RelError.log') NE ?.
-    IF lRelErrorLog THEN DO:
-        OUTPUT STREAM sRelErrorLog TO VALUE('logs/RelError.' +
-            STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-        PUT STREAM sRelErrorLog UNFORMATTED 
-            cRelLogData SKIP
-            iNumOrderLines " lines in order" SKIP
-            v#ofItemsReleased " lines released" SKIP
-            iNum-w-rel " lines in w-rel".
-        OUTPUT STREAM sRelErrorLog CLOSE.
-    END.
+PROCEDURE LogError:
+    DEFINE VARIABLE iAuditID     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cBeforeValue AS CHARACTER NO-UNDO.
+
+    RUN spCreateAuditHdr (
+        "LOG",          /* type  */
+        "ASI",          /* db    */
+        "oe/autorel.p", /* table */
+        "",             /* key   */
+        OUTPUT iAuditID
+        ).
+    DO idx = 1 TO 4:
+        CASE idx:
+            WHEN 1 THEN
+            cBeforeValue = cRelLogData.
+            WHEN 2 THEN
+            cBeforeValue = STRING(iNumOrderLines) + " lines in order".
+            WHEN 3 THEN
+            cBeforeValue = STRING(v#ofItemsReleased) + " lines released".
+            WHEN 4 THEN
+            cBeforeValue = STRING(iNum-w-rel) + " lines in w-rel".
+        END CASE.
+        RUN spCreateAuditDtl (
+            iAuditID,     /* audit id     */
+            "RelError",   /* field        */
+            idx,          /* extent       */
+            cBeforeValue, /* before value */
+            "",           /* after value  */
+            NO            /* index field  */
+            ).
+    END. /* do idx */
 END PROCEDURE.
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */
-

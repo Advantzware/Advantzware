@@ -104,7 +104,6 @@ PROCEDURE Display-Field :
   DO WITH FRAME {&FRAME-NAME}:
     CASE widget-name:
         {methods/dispflds/{&FIRST-EXTERNAL-TABLE}.i}
-/*      {custom/dispflds.i} */
     END CASE.
   END.
 &ENDIF
@@ -127,8 +126,8 @@ PROCEDURE local-add-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-
+    /* Code placed here will execute AFTER standard behavior.    */
+   {methods/template/local/createAfter.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,6 +258,8 @@ PROCEDURE local-view :
   {{&translationInclude}}
   &ENDIF
 
+  {system/runCueCard.i}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

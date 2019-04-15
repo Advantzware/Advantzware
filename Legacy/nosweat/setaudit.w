@@ -41,7 +41,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
+DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttTable NO-UNDO
     FIELD auditTable  AS CHARACTER FORMAT "x(20)" LABEL "Table"
@@ -425,16 +425,26 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
+RUN util/CheckModule.p ("ASI","Audit", YES, OUTPUT lContinue).
+&ELSE
+lContinue = YES.
+&ENDIF
+
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN enable_UI.
-  RUN pGetTables.
+  IF lContinue THEN DO:
+      RUN enable_UI.
+      RUN pGetTables.
+  END. /* if lcontinue */
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
+  IF NOT lContinue THEN
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */

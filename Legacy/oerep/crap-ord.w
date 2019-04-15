@@ -1144,8 +1144,8 @@ IF tb_excel THEN
            (oe-ordl.stat EQ "C" AND v-open-closed = NO) OR oe-ordl.stat EQ ""),
       FIRST oe-ord OF oe-ordl WHERE oe-ord.stat NE "W" AND
            (oe-ord.ord-date >= date(begin_date) AND oe-ord.ord-date <= date(end_date)) AND
-       ((oe-ord.stat NE "H" AND RS-ord-stat = 3) OR 
-           (oe-ord.stat EQ "H" AND RS-ord-stat = 2) OR oe-ord.stat EQ "" OR RS-ord-stat = 1)
+       ((oe-ord.stat NE "H" AND NOT oe-ord.priceHold AND RS-ord-stat = 3) OR 
+           ((oe-ord.stat EQ "H" OR oe-ord.priceHold) AND RS-ord-stat = 2) OR oe-ord.stat EQ "" OR RS-ord-stat = 1)
 /*                                 AND (oe-ord.type    NE "T" OR NOT NO) */
                           USE-INDEX ord-no NO-LOCK, 
       FIRST itemfg NO-LOCK WHERE itemfg.company EQ oe-ordl.company 

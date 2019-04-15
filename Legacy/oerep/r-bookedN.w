@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&SCOPED-DEFINE WINDOW-NAME C-Win
+&Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
@@ -25,6 +25,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
@@ -39,6 +41,8 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 ASSIGN 
  cocode = gcompany
  locode = gloc.
+
+{sys/ref/CustList.i NEW}
 
 DEFINE TEMP-TABLE w-data NO-UNDO 
   FIELD ord-no LIKE oe-ord.ord-no
@@ -58,7 +62,8 @@ DEFINE TEMP-TABLE w-data NO-UNDO
   FIELD cost AS DECIMAL
   FIELD comm AS DECIMAL LABEL "Comm %"
   FIELD margin AS DECIMAL
-  FIELD shp-qty LIKE oe-ordl.ship-qty   .
+  FIELD shp-qty LIKE oe-ordl.ship-qty  
+  FIELD cShip-from LIKE oe-rel.spare-char-1  .
 
 DEFINE TEMP-TABLE wkrecap NO-UNDO     /* recap by product category */
   FIELD procat LIKE itemfg.procat COLUMN-LABEL "Cat"
@@ -86,6 +91,7 @@ DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldLength AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 /*
 (IF {sys/inc/rptDisp.i "oe-ord.due-date"} THEN "DUE DATE " ELSE "" ) +   8
@@ -112,14 +118,15 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," +
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
-                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR,ACK. DATE"  
+                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR,ACK. DATE," +
+                            "UOM,SHIP FROM,MACHINE,INKS,PRINT SHEET#,COST/$M,TOTAL STD COST,FULL COST,ENTERED BY,STATUS,PO RECEIVED,PREV ORDER#"
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.cust-no,cust.name,w-data.procat," +
-
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,price,v-revenue,v-profit,t-tons,v-price-per-t," +
-                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct,w-data.shp-qty,csrUser_id,ack-date" 
+                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct,w-data.shp-qty,csrUser_id,ack-date," +
+                            "oe-ordl.pr-uom,Ship-from,v-mach,v-ink,print-sheet,oe-ordl.cost,oe-ordl.t-cost,full-cost,oe-ord.entered-id,status,po-recvdt,prev-order"
 
-       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10"
+       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9,30,40,20,14,14,14,10,20,11,11"
        .
 
 {sys/inc/ttRptSel.i}
@@ -136,25 +143,28 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE WINDOW 
-&SCOPED-DEFINE DB-AWARE NO 
+&Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME FRAME-A
+&Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS RECT-7 RECT-8 begin_cust-no end_cust-no ~
-begin_ord-date end_ord-date begin_slsmn end_slsmn begin_fg-cat end_fg-cat ~
+&Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 tb_cust-list btnCustList ~
+begin_cust-no end_cust-no begin_ord-date end_ord-date begin_due-date ~
+end_due-date begin_slsmn end_slsmn begin_fg-cat end_fg-cat begin_shipfrom ~
+end_shipfrom tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot ~
+tb_exclude-transfer tb_include-ordrel tb_Under% tb_Over% Btn_Def sl_avail ~
+sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
+lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
+tb_batch btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
+begin_ord-date end_ord-date lbl_sqft begin_due-date end_due-date ~
+begin_slsmn end_slsmn begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom ~
 tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer ~
-tb_Under% tb_Over% Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up ~
-btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
-tb_runExcel fi_file tb_batch btn-ok btn-cancel 
-&SCOPED-DEFINE DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ord-date ~
-end_ord-date lbl_sqft begin_slsmn end_slsmn begin_fg-cat end_fg-cat ~
-tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer ~
-tb_Under% fUnder% fOver% tb_Over% sl_avail sl_selected rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file tb_batch 
+tb_include-ordrel tb_Under% fUnder% fOver% tb_Over% sl_avail sl_selected ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+tb_excel tb_runExcel fi_file tb_batch 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -164,6 +174,20 @@ fi_file tb_batch
 
 
 /* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetInksForJob C-Win 
+FUNCTION fGetInksForJob RETURNS CHARACTER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetRoutingForJob C-Win 
+FUNCTION fGetRoutingForJob RETURNS CHARACTER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GEtFieldValue C-Win 
 FUNCTION GEtFieldValue RETURNS CHARACTER
@@ -179,13 +203,17 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
      SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnCustList 
+     LABEL "Preview" 
+     SIZE 9.8 BY .81.
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
@@ -212,6 +240,11 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_due-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Due Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_fg-cat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Product Category" 
      VIEW-AS FILL-IN 
@@ -219,6 +252,11 @@ DEFINE VARIABLE begin_fg-cat AS CHARACTER FORMAT "X(5)":U
 
 DEFINE VARIABLE begin_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Order Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE begin_shipfrom AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Beginning Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -232,6 +270,11 @@ DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE end_due-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Due Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_fg-cat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Product Category" 
      VIEW-AS FILL-IN 
@@ -239,6 +282,11 @@ DEFINE VARIABLE end_fg-cat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz"
 
 DEFINE VARIABLE end_ord-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Order Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_shipfrom AS CHARACTER FORMAT "X(5)":U INITIAL "zzzz" 
+     LABEL "Ending Ship From WH" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -306,7 +354,7 @@ DEFINE VARIABLE rd_sqft AS CHARACTER INITIAL "Square Ft"
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 11.67.
+     SIZE 94 BY 13.57.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -320,85 +368,95 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 35 BY 5.24 NO-UNDO.
 
-DEFINE VARIABLE tb_batch AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_batch AS LOGICAL INITIAL no 
      LABEL "Run In Batch Mode?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY .81
      BGCOLOR 14  NO-UNDO.
 
-DEFINE VARIABLE tb_comm AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_comm AS LOGICAL INITIAL yes 
      LABEL "Print Commission?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
+     LABEL "Use Defined Customer List" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30.8 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_exclude-set-comps AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_exclude-set-comps AS LOGICAL INITIAL no 
      LABEL "Exclude Set Components" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_exclude-transfer AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_exclude-transfer AS LOGICAL INITIAL no 
      LABEL "Exclude Transfer Releases/Orders" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_margin AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_include-ordrel AS LOGICAL INITIAL no 
+     LABEL "Include Orders with no Release?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 36 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_margin AS LOGICAL INITIAL no 
      LABEL "Print Avail Margin?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_Over% AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_Over% AS LOGICAL INITIAL no 
      LABEL "Print Order Over(%) +" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prepmisc AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_prepmisc AS LOGICAL INITIAL no 
      LABEL "Include Prep / Misc Charges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_prft AS LOGICAL INITIAL YES  
+DEFINE VARIABLE tb_prft AS LOGICAL INITIAL yes 
      LABEL "Print Profit?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_rep-tot AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_rep-tot AS LOGICAL INITIAL no 
      LABEL "Rep Sub Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_smn-no AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_smn-no AS LOGICAL INITIAL no 
      LABEL "Page By SalesRep?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_sortby AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_sortby AS LOGICAL INITIAL no 
      LABEL "Sort by Order#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_ton AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_ton AS LOGICAL INITIAL no 
      LABEL "Print $/Ton?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_Under% AS LOGICAL INITIAL NO  
+DEFINE VARIABLE tb_Under% AS LOGICAL INITIAL no 
      LABEL "Print Order Under(%) -" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO  
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -407,88 +465,99 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_cust-no AT ROW 2.43 COLUMN 30 COLON-ALIGNED HELP
+     tb_cust-list AT ROW 1.43 COL 31.8 WIDGET-ID 162
+     btnCustList AT ROW 1.52 COL 65.4 WIDGET-ID 8
+     begin_cust-no AT ROW 2.43 COL 30 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 2.43 COLUMN 73 COLON-ALIGNED HELP
+     end_cust-no AT ROW 2.43 COL 73 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_ord-date AT ROW 3.38 COLUMN 30 COLON-ALIGNED HELP
+     begin_ord-date AT ROW 3.38 COL 30 COLON-ALIGNED HELP
           "Enter Beginning Order Date"
-     end_ord-date AT ROW 3.38 COLUMN 73 COLON-ALIGNED HELP
+     end_ord-date AT ROW 3.38 COL 73 COLON-ALIGNED HELP
           "Enter Ending Order Date"
-     lbl_sqft AT ROW 3.86 COLUMN 103 COLON-ALIGNED NO-LABEL
-     begin_slsmn AT ROW 4.33 COLUMN 30 COLON-ALIGNED HELP
+     lbl_sqft AT ROW 3.86 COL 103 COLON-ALIGNED NO-LABEL
+     begin_due-date AT ROW 4.33 COL 30 COLON-ALIGNED HELP
+          "Enter Beginning Order Date" WIDGET-ID 164
+     end_due-date AT ROW 4.33 COL 73 COLON-ALIGNED HELP
+          "Enter Ending Order Date" WIDGET-ID 166
+     rd_sqft AT ROW 4.57 COL 122 NO-LABEL
+     begin_slsmn AT ROW 5.29 COL 30 COLON-ALIGNED HELP
           "Enter Beginning SalesRep Number"
-     end_slsmn AT ROW 4.33 COLUMN 73 COLON-ALIGNED HELP
+     end_slsmn AT ROW 5.29 COL 73 COLON-ALIGNED HELP
           "Enter Ending SalesRep Number"
-     rd_sqft AT ROW 4.57 COLUMN 122 NO-LABEL
-     begin_fg-cat AT ROW 5.29 COLUMN 30 COLON-ALIGNED HELP
+     tb_prft AT ROW 5.76 COL 116
+     begin_fg-cat AT ROW 6.24 COL 30 COLON-ALIGNED HELP
           "Enter Beginning Product Category"
-     end_fg-cat AT ROW 5.29 COLUMN 73 COLON-ALIGNED HELP
+     end_fg-cat AT ROW 6.24 COL 73 COLON-ALIGNED HELP
           "Enter Ending Product Category"
-     tb_prft AT ROW 5.76 COLUMN 116
-     tb_prepmisc AT ROW 6.62 COLUMN 15
-     tb_smn-no AT ROW 6.62 COLUMN 58
-     tb_ton AT ROW 6.95 COLUMN 114
-     tb_exclude-set-comps AT ROW 7.57 COLUMN 15 WIDGET-ID 4
-     tb_rep-tot AT ROW 7.71 COLUMN 58 WIDGET-ID 54
-     tb_sortby AT ROW 8.38 COLUMN 122
-     tb_exclude-transfer AT ROW 8.52 COLUMN 15 WIDGET-ID 6
-     tb_Under% AT ROW 9.57 COLUMN 15 WIDGET-ID 46
-     fUnder% AT ROW 9.57 COLUMN 38 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-     fOver% AT ROW 9.57 COLUMN 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     tb_Over% AT ROW 9.62 COLUMN 52 WIDGET-ID 52
-     tb_comm AT ROW 11.24 COLUMN 118
-     Btn_Def AT ROW 13.1 COLUMN 40 HELP
+     tb_ton AT ROW 6.95 COL 114
+     begin_shipfrom AT ROW 7.19 COL 30 COLON-ALIGNED HELP
+          "Enter starting ship from location." WIDGET-ID 158
+     end_shipfrom AT ROW 7.19 COL 73 COLON-ALIGNED HELP
+          "Enter ending ship from location." WIDGET-ID 160
+     tb_sortby AT ROW 8.38 COL 122
+     tb_prepmisc AT ROW 8.57 COL 15
+     tb_smn-no AT ROW 8.57 COL 58
+     tb_exclude-set-comps AT ROW 9.52 COL 15 WIDGET-ID 4
+     tb_rep-tot AT ROW 9.67 COL 58 WIDGET-ID 54
+     tb_exclude-transfer AT ROW 10.48 COL 15 WIDGET-ID 6
+     tb_include-ordrel AT ROW 10.57 COL 58 WIDGET-ID 6
+     tb_comm AT ROW 11.24 COL 118
+     tb_Under% AT ROW 11.52 COL 15 WIDGET-ID 46
+     fUnder% AT ROW 11.52 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     fOver% AT ROW 11.52 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     tb_Over% AT ROW 11.57 COL 52 WIDGET-ID 52
+     tb_margin AT ROW 13.86 COL 119 WIDGET-ID 2
+     Btn_Def AT ROW 15.29 COL 40 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_avail AT ROW 13.43 COLUMN 4 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 13.43 COLUMN 60 NO-LABEL WIDGET-ID 28
-     tb_margin AT ROW 13.86 COLUMN 119 WIDGET-ID 2
-     Btn_Add AT ROW 14.29 COLUMN 40 HELP
+     sl_avail AT ROW 15.62 COL 4 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 15.62 COL 60 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 16.48 COL 40 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 15.48 COLUMN 40 HELP
+     Btn_Remove AT ROW 17.67 COL 40 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 16.67 COLUMN 40 WIDGET-ID 40
-     btn_down AT ROW 17.86 COLUMN 40 WIDGET-ID 42
-     rd-dest AT ROW 19.91 COLUMN 5 NO-LABEL
-     lv-ornt AT ROW 20.62 COLUMN 31 NO-LABEL
-     lines-per-page AT ROW 20.62 COLUMN 84 COLON-ALIGNED
-     lv-font-no AT ROW 22.52 COLUMN 34 COLON-ALIGNED
-     lv-font-name AT ROW 23.48 COLUMN 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 24.67 COLUMN 30
-     tb_excel AT ROW 25.86 COLUMN 72 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.86 COLUMN 93 RIGHT-ALIGNED
-     fi_file AT ROW 26.67 COLUMN 49 COLON-ALIGNED HELP
+     btn_Up AT ROW 18.86 COL 40 WIDGET-ID 40
+     btn_down AT ROW 20.05 COL 40 WIDGET-ID 42
+     rd-dest AT ROW 22.1 COL 5 NO-LABEL
+     lv-ornt AT ROW 22.81 COL 31 NO-LABEL
+     lines-per-page AT ROW 22.81 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 24.71 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 25.67 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 26.86 COL 30
+     tb_excel AT ROW 28.05 COL 72 RIGHT-ALIGNED
+     tb_runExcel AT ROW 28.05 COL 93 RIGHT-ALIGNED
+     fi_file AT ROW 28.86 COL 49 COLON-ALIGNED HELP
           "Enter File Name"
-     tb_batch AT ROW 26.81 COLUMN 6
-     btn-ok AT ROW 28.14 COLUMN 26
-     btn-cancel AT ROW 28.14 COLUMN 56
+     tb_batch AT ROW 29 COL 6
+     btn-ok AT ROW 30.33 COL 26
+     btn-cancel AT ROW 30.33 COL 56
      "Note: Profit Includes Estimate Markups and Commissions." VIEW-AS TEXT
-          SIZE 55 BY .95 AT ROW 11.57 COLUMN 17
+          SIZE 55 BY .95 AT ROW 13.43 COL 17
           FGCOLOR 1 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.71 COLUMN 60.2 WIDGET-ID 44
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5
-          BGCOLOR 2 
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 12.71 COLUMN 4.4 WIDGET-ID 38
-     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
-          SIZE 57 BY .95 AT ROW 10.67 COLUMN 15
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.19 COLUMN 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COLUMN 1 ROW 1
-         SIZE 151.4 BY 28.62.
+         AT COL 1 ROW 1
+         SIZE 151.4 BY 31.38.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
-     RECT-7 AT ROW 1 COLUMN 1
-     RECT-8 AT ROW 18.95 COLUMN 1
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 14.91 COL 60.2 WIDGET-ID 44
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
+          BGCOLOR 2 
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 14.91 COL 4.4 WIDGET-ID 38
+     "(Prep / Misc Charges will Display 'P' or 'M' for Product Code)" VIEW-AS TEXT
+          SIZE 57 BY .95 AT ROW 12.67 COL 15
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 21.38 COL 2
+     RECT-7 AT ROW 1 COL 1
+     RECT-8 AT ROW 21.14 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COLUMN 1 ROW 1
-         SIZE 151.4 BY 28.62.
+         AT COL 1 ROW 1
+         SIZE 151.4 BY 31.38.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -508,21 +577,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Orders Booked"
-         HEIGHT             = 28.67
+         HEIGHT             = 31.38
          WIDTH              = 95
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES 
-         SCROLL-BARS        = NO 
-         STATUS-AREA        = YES 
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES 
-         THREE-D            = YES 
-         MESSAGE-AREA       = NO 
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -542,18 +611,12 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_due-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -565,11 +628,27 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_shipfrom:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_due-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -578,6 +657,10 @@ ASSIGN
 
 ASSIGN 
        end_ord-date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_shipfrom:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -614,6 +697,10 @@ ASSIGN
        tb_comm:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       tb_cust-list:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -626,6 +713,10 @@ ASSIGN
 
 ASSIGN 
        tb_exclude-transfer:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_include-ordrel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_margin IN FRAME FRAME-A
@@ -680,13 +771,13 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME C-Win
+&Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Orders Booked */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -712,7 +803,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_cust-no
+&Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
@@ -723,7 +814,18 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_fg-cat
+&Scoped-define SELF-NAME begin_due-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_due-date C-Win
+ON LEAVE OF begin_due-date IN FRAME FRAME-A /* Beginning Due Date */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_fg-cat C-Win
 ON LEAVE OF begin_fg-cat IN FRAME FRAME-A /* Beginning Product Category */
 DO:
@@ -734,7 +836,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_ord-date
+&Scoped-define SELF-NAME begin_ord-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-date C-Win
 ON LEAVE OF begin_ord-date IN FRAME FRAME-A /* Beginning Order Date */
 DO:
@@ -745,7 +847,33 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_slsmn
+&Scoped-define SELF-NAME begin_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom C-Win
+ON HELP OF begin_shipfrom IN FRAME FRAME-A /* Beginning Ship From WH */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-loc.w  (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val). 
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shipfrom C-Win
+ON LEAVE OF begin_shipfrom IN FRAME FRAME-A /* Beginning Ship From WH */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
 ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
 DO:
@@ -756,7 +884,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-cancel
+&Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
@@ -767,7 +895,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-ok
+&Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
@@ -782,6 +910,14 @@ DO:
   END.
 
   RUN GetSelectionList.
+  FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+      EMPTY TEMP-TABLE ttCustList.
+      RUN BuildCustList(INPUT cocode,
+                        INPUT tb_cust-list AND glCustListActive,
+                        INPUT begin_cust-no,
+                        INPUT END_cust-no).
+  END.
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
   CASE rd-dest:
@@ -824,7 +960,19 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Add
+&Scoped-define SELF-NAME btnCustList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList C-Win
+ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
+DO:
+  RUN CustList.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
 DO:
@@ -850,7 +998,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Def
+&Scoped-define SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
 ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
 DO:
@@ -865,7 +1013,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_down
+&Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down C-Win
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
@@ -876,7 +1024,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Remove
+&Scoped-define SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove C-Win
 ON CHOOSE OF Btn_Remove IN FRAME FRAME-A /* << Remove */
 DO:
@@ -892,7 +1040,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn_Up
+&Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up C-Win
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
@@ -903,7 +1051,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_cust-no
+&Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
@@ -914,7 +1062,18 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_fg-cat
+&Scoped-define SELF-NAME end_due-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_due-date C-Win
+ON LEAVE OF end_due-date IN FRAME FRAME-A /* Ending Due Date */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_fg-cat C-Win
 ON LEAVE OF end_fg-cat IN FRAME FRAME-A /* Ending Product Category */
 DO:
@@ -925,7 +1084,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_ord-date
+&Scoped-define SELF-NAME end_ord-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-date C-Win
 ON LEAVE OF end_ord-date IN FRAME FRAME-A /* Ending Order Date */
 DO:
@@ -936,7 +1095,33 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_slsmn
+&Scoped-define SELF-NAME end_shipfrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom C-Win
+ON HELP OF end_shipfrom IN FRAME FRAME-A /* Ending Ship From WH */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    run windows/l-loc.w  (cocode,{&SELF-NAME}:SCREEN-VALUE, output char-val). 
+    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
+                                  .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shipfrom C-Win
+ON LEAVE OF end_shipfrom IN FRAME FRAME-A /* Ending Ship From WH */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
 ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
 DO:
@@ -947,7 +1132,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_file
+&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
@@ -958,7 +1143,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lines-per-page
+&Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
@@ -969,7 +1154,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-font-no
+&Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
@@ -995,7 +1180,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-ornt
+&Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
@@ -1016,7 +1201,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd-dest
+&Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
@@ -1027,7 +1212,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd_sqft
+&Scoped-define SELF-NAME rd_sqft
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sqft C-Win
 ON VALUE-CHANGED OF rd_sqft IN FRAME FRAME-A
 DO:
@@ -1038,7 +1223,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_avail
+&Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
@@ -1077,7 +1262,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME sl_selected
+&Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected C-Win
 ON DEFAULT-ACTION OF sl_selected IN FRAME FRAME-A
 DO:
@@ -1101,7 +1286,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_comm
+&Scoped-define SELF-NAME tb_comm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_comm C-Win
 ON VALUE-CHANGED OF tb_comm IN FRAME FRAME-A /* Print Commission? */
 DO:
@@ -1112,7 +1297,20 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_excel
+&Scoped-define SELF-NAME tb_cust-list
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
+ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
+DO:
+  assign {&self-name}.
+  EMPTY TEMP-TABLE ttCustList.
+  RUN SetCustRange(INPUT tb_cust-list).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
@@ -1123,7 +1321,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_exclude-set-comps
+&Scoped-define SELF-NAME tb_exclude-set-comps
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exclude-set-comps C-Win
 ON VALUE-CHANGED OF tb_exclude-set-comps IN FRAME FRAME-A /* Exclude Set Components */
 DO:
@@ -1134,7 +1332,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_exclude-transfer
+&Scoped-define SELF-NAME tb_exclude-transfer
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exclude-transfer C-Win
 ON VALUE-CHANGED OF tb_exclude-transfer IN FRAME FRAME-A /* Exclude Transfer Releases/Orders */
 DO:
@@ -1145,7 +1343,18 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_margin
+&Scoped-define SELF-NAME tb_include-ordrel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_include-ordrel C-Win
+ON VALUE-CHANGED OF tb_include-ordrel IN FRAME FRAME-A /* Include Orders with no Release? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_margin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_margin C-Win
 ON VALUE-CHANGED OF tb_margin IN FRAME FRAME-A /* Print Avail Margin? */
 DO:
@@ -1156,7 +1365,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_Over%
+&Scoped-define SELF-NAME tb_Over%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Over% C-Win
 ON VALUE-CHANGED OF tb_Over% IN FRAME FRAME-A /* Print Order Over(%) + */
 DO:
@@ -1174,7 +1383,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_prepmisc
+&Scoped-define SELF-NAME tb_prepmisc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prepmisc C-Win
 ON VALUE-CHANGED OF tb_prepmisc IN FRAME FRAME-A /* Include Prep / Misc Charges? */
 DO:
@@ -1185,7 +1394,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_prft
+&Scoped-define SELF-NAME tb_prft
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prft C-Win
 ON VALUE-CHANGED OF tb_prft IN FRAME FRAME-A /* Print Profit? */
 DO:
@@ -1196,7 +1405,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_rep-tot
+&Scoped-define SELF-NAME tb_rep-tot
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_rep-tot C-Win
 ON VALUE-CHANGED OF tb_rep-tot IN FRAME FRAME-A /* Rep Sub Totals? */
 DO:
@@ -1207,7 +1416,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_runExcel
+&Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
@@ -1218,7 +1427,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_smn-no
+&Scoped-define SELF-NAME tb_smn-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_smn-no C-Win
 ON VALUE-CHANGED OF tb_smn-no IN FRAME FRAME-A /* Page By SalesRep? */
 DO:
@@ -1229,7 +1438,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_sortby
+&Scoped-define SELF-NAME tb_sortby
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sortby C-Win
 ON VALUE-CHANGED OF tb_sortby IN FRAME FRAME-A /* Sort by Order#? */
 DO:
@@ -1240,7 +1449,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_ton
+&Scoped-define SELF-NAME tb_ton
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ton C-Win
 ON VALUE-CHANGED OF tb_ton IN FRAME FRAME-A /* Print $/Ton? */
 DO:
@@ -1252,7 +1461,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_Under%
+&Scoped-define SELF-NAME tb_Under%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_Under% C-Win
 ON VALUE-CHANGED OF tb_Under% IN FRAME FRAME-A /* Print Order Under(%) - */
 DO:
@@ -1270,7 +1479,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME td-show-parm
+&Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
@@ -1323,12 +1532,48 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
 
+  RUN sys/inc/CustListForm.p ( "OR5",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}        
     RUN DisplaySelectionList2.    
 
     APPLY "entry" TO begin_ord-date.
   END.
+ 
+  RUN sys/ref/CustList.p (INPUT cocode,
+                          INPUT 'OR5',
+                          INPUT NO,
+                          OUTPUT glCustListActive).
+
+ {sys/inc/chblankcust.i ""OR5""}
+
+ IF ou-log THEN DO:
+      ASSIGN 
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes"
+        tb_cust-list = YES 
+        .
+      RUN SetCustRange(INPUT tb_cust-list).
+  END.
+  ELSE
+      ASSIGN
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        .
+ IF ou-log AND ou-cust-int = 0 THEN do:
+       ASSIGN 
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
+        tb_cust-list = NO
+        .
+      RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
+   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1339,6 +1584,64 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList C-Win 
+PROCEDURE BuildCustList :
+/*------------------------------------------------------------------------------
+  Purpose:     Builds the temp table of customers   
+  Parameters:  Company Code, Customer list logical and/or customer range
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iplList AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipcBeginCust AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcEndCust AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER bf-cust FOR cust.
+
+DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
+
+IF iplList THEN DO:
+    RUN sys/ref/CustList.p (INPUT ipcCompany,
+                            INPUT 'OR5',
+                            INPUT YES,
+                            OUTPUT lActive).
+END.
+ELSE DO:
+    FOR EACH bf-cust
+        WHERE bf-cust.company EQ ipcCompany
+          AND bf-cust.cust-no GE ipcBeginCust
+          AND bf-cust.cust-no LE ipcEndCust
+        NO-LOCK:
+        CREATE ttCustList.
+        ASSIGN 
+            ttCustList.cust-no = bf-cust.cust-no
+            ttCustList.log-fld = YES
+        .
+    END.
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CustList C-Win 
+PROCEDURE CustList :
+/*------------------------------------------------------------------------------
+  Purpose:  Display a UI of selected customers   
+  Parameters:  
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    RUN sys/ref/CustListManager.w(INPUT cocode,
+                                  INPUT 'OR5').
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -1482,19 +1785,22 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust-no end_cust-no begin_ord-date end_ord-date lbl_sqft 
-          begin_slsmn end_slsmn begin_fg-cat end_fg-cat tb_prepmisc tb_smn-no 
-          tb_exclude-set-comps tb_rep-tot tb_exclude-transfer tb_Under% fUnder% 
-          fOver% tb_Over% sl_avail sl_selected rd-dest lv-ornt lines-per-page 
-          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
-          tb_batch 
+  DISPLAY tb_cust-list begin_cust-no end_cust-no begin_ord-date end_ord-date 
+          lbl_sqft begin_due-date end_due-date begin_slsmn end_slsmn 
+          begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom tb_prepmisc 
+          tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer 
+          tb_include-ordrel tb_Under% fUnder% fOver% tb_Over% sl_avail 
+          sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file tb_batch 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 RECT-8 begin_cust-no end_cust-no begin_ord-date end_ord-date 
-         begin_slsmn end_slsmn begin_fg-cat end_fg-cat tb_prepmisc tb_smn-no 
-         tb_exclude-set-comps tb_rep-tot tb_exclude-transfer tb_Under% tb_Over% 
-         Btn_Def sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down 
-         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
-         tb_runExcel fi_file tb_batch btn-ok btn-cancel 
+  ENABLE RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no end_cust-no 
+         begin_ord-date end_ord-date begin_due-date end_due-date begin_slsmn 
+         end_slsmn begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom 
+         tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot 
+         tb_exclude-transfer tb_include-ordrel tb_Under% tb_Over% Btn_Def 
+         sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest 
+         lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
+         fi_file tb_batch btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1690,6 +1996,8 @@ DEFINE VARIABLE v-ton LIKE v-price-per-t EXTENT 2 NO-UNDO.
 DEFINE VARIABLE tot-sqft AS DECIMAL NO-UNDO.
 DEFINE VARIABLE tot-renv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE tot-ton AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cPrevOrder AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lOrdWithNoRel AS LOGICAL INITIAL NO NO-UNDO.
 
 DEFINE VARIABLE v-revenue LIKE oe-ordl.t-price FORMAT "->,>>>,>>9.99" NO-UNDO
   COLUMN-LABEL "Order!Amount".
@@ -1714,10 +2022,15 @@ DEFINE VARIABLE cVarValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cExcelVarValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSelected AS LOGICAL INIT YES NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER boe-ord FOR oe-ord.
 DEF BUFFER boe-ordl FOR oe-ordl.
 DEF BUFFER bcust FOR cust.
+DEFINE VARIABLE dSDueDate as DATE FORMAT "99/99/9999" INITIAL 01/01/0001 NO-UNDO.
+DEFINE VARIABLE dEDueDate LIKE dSDueDate INITIAL 12/31/9999 NO-UNDO.
+DEFINE VARIABLE c-result  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
 
 DEF BUFFER bw-data FOR w-data.
 
@@ -1742,7 +2055,11 @@ ASSIGN
  /* item-dscr  = tb_desc */
  prt-profit = tb_prft
  */
- p-m-chg    = tb_prepmisc.
+ p-m-chg    = tb_prepmisc
+ lSelected  = tb_cust-list
+ dSDueDate      = begin_due-date
+ dEDueDate      = end_due-date    
+ lOrdWithNoRel  = tb_include-ordrel .
 
 /*IF tb_margin THEN prt-profit = NO.*/
 prt-profit = CAN-DO(cSelectedlist,"% PROFIT").
@@ -1770,31 +2087,12 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 END.
 excelheader = "Sales Rep,Sales Name," + excelheader.
 
-
-
-
-/*
-ASSIGN str-tit4 = 
-      (IF {sys/inc/rptDisp.i "oe-ord.due-date"} THEN "DUE DATE " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "w-data.ord-no"} THEN     "ORDER#         " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "cust.name"} THEN    "CUSTOMER NAME " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "w-data.comm"} THEN  "COMM % " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "w-data.item-n"} THEN "ITEM DESCRIPTION " ELSE "")  +
-    (IF {sys/inc/rptDisp.i "w-data.qty"} THEN    "QTY ORDERED/EA " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "w-data.t-sqft"} THEN "T " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-price-per-m"} THEN "RFID TAG #    " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-revenue"} THEN     "TAG #         " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-profit"}  THEN     "UNITS    " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "w-data.t-tons"}  THEN "COUNT    " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-price-per-t"}  THEN "BIN       " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "lv-cost-uom"}       THEN "UOM       " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-qty"}  THEN         "TOT QTY    " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-cost"}   THEN       "TOT COST  " ELSE "" ) +
-    (IF {sys/inc/rptDisp.i "v-fg-value"}  THEN       "TOT SELL VALUE" ELSE ""  )
-  str-tit5 = ""
-
-    .
-*/
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN begin_cust-no = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN end_cust-no = ttCustList.cust-no .
+END.
 
 {sys/inc/print1.i}
 
@@ -1829,6 +2127,30 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
+PROCEDURE SetCustRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+        begin_cust-no:SENSITIVE = NOT iplChecked
+        end_cust-no:SENSITIVE = NOT iplChecked
+        begin_cust-no:VISIBLE = NOT iplChecked
+        end_cust-no:VISIBLE = NOT iplChecked
+        btnCustList:SENSITIVE = iplChecked
+       .
+  END.
 
 END PROCEDURE.
 
@@ -1906,6 +2228,78 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetInksForJob C-Win 
+FUNCTION fGetInksForJob RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
+    IF AVAIL job THEN DO:
+        IF AVAIL eb THEN
+            for each job-mat where job-mat.company eq cocode
+                and job-mat.job     eq job.job  
+                and job-mat.frm     eq eb.form-no
+                NO-LOCK ,
+                first item
+                {sys/look/itemivW.i}
+                and item.i-no eq job-mat.i-no:
+                    IF eb.est-type LE 4 THEN do:
+                        do i = 1 to 20:
+                            if eb.i-code2[i] eq job-mat.i-no then do:
+                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
+                                 dResult = dResult + job-mat.i-no + "," .
+                            end.
+                        end. /* loop i */
+                    END.
+                    ELSE do:
+                        do i = 1 to 10:
+                            if eb.i-code[i] eq job-mat.i-no then do:
+                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
+                                 dResult = dResult + job-mat.i-no + "," . 
+                            end.
+                        end. /* loop i */
+                    END.
+            END.
+    END.                
+
+    RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetRoutingForJob C-Win 
+FUNCTION fGetRoutingForJob RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
+
+    IF AVAIL job THEN DO:
+        FOR EACH job-mch WHERE job-mch.company = job.company 
+            AND job-mch.job = job.job 
+            AND job-mch.job-no = job.job-no 
+            AND job-mch.job-no2 = job.job-no2 
+            use-index line-idx NO-LOCK BREAK BY job-mch.job :
+            IF NOT LAST(job-mch.job) THEN
+                dResult = dResult + job-mch.m-code + "," .
+            ELSE dResult = dResult + job-mch.m-code .
+        END.
+    END.                
+
+    RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GEtFieldValue C-Win 
 FUNCTION GEtFieldValue RETURNS CHARACTER

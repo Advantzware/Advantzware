@@ -6,7 +6,7 @@ v-line1 = STRING(oe-bolh.bol-date,"99/99/9999") + FILL(" ",3) + STRING(v-fob,"X(
 
 PUT
   "<FArial>"  SKIP
-  "<P14><C+50><B>Freight Bill</B>" SKIP
+  "<P14><C+50><B>Bill of Lading</B>" SKIP
   "<C1><R-1><#1><R+5><C+25>" .
   PUT  "<C2><R2><#1><R+8><C+48><IMAGE#1=" ls-full-img1  SKIP.
 
@@ -19,7 +19,7 @@ PUT
   SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
   SPACE(5) v-comp-addr[2] v-ship-addr[2] AT 45 SKIP
   SPACE(5) v-comp-addr3 v-ship-addr3 AT 45 SKIP
-  "<R6><C50><#3>" SKIP
+  "<R6><C51><#3>" SKIP
   "<FArial><P14><=#3><P10>" SKIP
   "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" SKIP(1)
   SKIP
@@ -39,7 +39,7 @@ PUT
   "<R25><C56><FROM><R27><C56><LINE>" SKIP  
   "<R25><C61><FROM><R27><C61><LINE>" SKIP
   "<R25><C67><FROM><R27><C67><LINE>" SKIP            
-  "<R25><C74><FROM><R27><C74><LINE>" SKIP 
-  "<FArial><=5><R+1> Order Qty / FG#             PO# / Job#                             Description / Lot#                               Units    Count         Total          P/C" SKIP(1)
+  "<R25><C77><FROM><R27><C77><LINE>" SKIP 
+  "<FArial><=5><R+1> Order Qty / FG#             PO# / Job#                             Description / Lot#                               Units    Count                  Total       P/C" SKIP(1)
   "<FCourier New>".
   v-printline = v-printline + 17.

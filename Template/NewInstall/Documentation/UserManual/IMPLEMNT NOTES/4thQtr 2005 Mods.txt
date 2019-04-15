@@ -1,0 +1,1060 @@
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   1
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+         11020517 E Supporting BJ with conversion
+A-F-1-   10060519 E Customer NOTES to appear at top of screen
+                    When notes appear for a customer 1099 to the side of the screen.
+                    Move to the top of the screen.
+A-F-1-   10240511 E Do not allow commas in customer name or address & ship to name & addre
+                    Do not allow commas in customer name, address lines, city & ship to name & address in the custome
+                    r file.    Likewise, any other character that will be a problem when creating a TEXT file for the
+                     label software.
+                    
+                    Do not allow commas with FG item code, Item Name, Item description in Estimate and FG item code.
+                    
+                    Do not allow commas with RM item code, Item Name, Item description in Estimate and FG item code.
+                    
+                    Do not allow commas with PO item code, Item Name, Item description in Estimate and FG item code.
+                    
+                    =>
+                    Task is changed to validate and replace invalid characters(comma, quotes,#)
+                    when case tag is generated.
+A-R-1-1  11010512 E Slow since now looking at factored items.
+                    I believe that Yoosun added logic for FACTORED invoices which look at the finished goods file for
+                     a new field called Factored Invoice.    If the toggle box is not selected, then this logic shoul
+                    d not be used, hence the system should be same speed.
+A-R-1-3  12080501 E Customer/Shipto Download
+                    Copy A-R-1 print selection range but only sort by Customer and eliminate last two options regardi
+                    ng discount and detailed.   The output will go directly to excell similar to A-R-5 showing the fi
+                    le name with an extension of .csv.  Add Toggle Customer and/or Shipto Code.
+                    Cust Code, Company Name, Address1, Address2, City, State, Zip, Phone, Fax, Contact, Email, Rep, S
+                    ales Rep Name, Territory.
+                    
+                    Please note, the actual field sizes must be incresed in the Excell program by clicking the leftmo
+                    st box then DOUBLE clicking between the 1st and 2nd column.  This will expand all columns to the 
+                    maximum size.
+                    
+                    Autorun will immediately run the spreadsheet.
+A-R-1-4  12050510 E New report-Cash Flow
+                    Create New Cash Flow report (A-R-14).  Copy design of AP Cash Requirements report (V-R-2).
+                    Print screen should have 3 date options and sort by customer# or name and also
+                    sort by either due date or by the average number of days paid on the customers total screen.
+A-R-4-   10050505 E Move Name & Address over to the right 3/4 inch
+                    Move the AR Statement Name & Address over to the right 3/4 inch
+A-R-7-   11030507 E status "a" should also print "e" status customers
+                    We need to be able to select both A and E status together.
+                    Replace Range with drop down box like P-R-11.
+A-W-1-   11040512 E If invoice balance due is positive - bring in amt applied as negative
+                    When entering an accounts receivable credit/debit memo...............
+                    If invoice balance due is positive - bring in amt applied as negative
+                    If invoice balance due is negative-bring in amt applied as positive
+D-F- -   10100506 E If Date is not current Year, Prompt warning.
+                    If I type a date other that the current month and year of the computer then display warning messa
+                    ge.   "Date is not current month or year"  Continue?
+D-T- -   12060511 E Transfer to not recalc unit count.
+                    Produced 1575.    2 Units at 500 and 1 at 575.   The data collection makes this 3 @500 and 1 @75.
+                        Simply put all the balance into partial unit.
+D-U- -   10100507 E If Date is not current Year, Prompt warning.
+                    If I type a date other that the current month and year of the computer then display warning messa
+                    ge.   "Date is not current month or year"  Continue?
+D-U- -   11170502 E D-U and D-F to show Component FG Item Code for Sets
+                    When adding data collection for Sets, currently the set finished goods item appears.
+                    Add machine time for ZLM for job 2382 for form 1 or form 2.  Sheet fed machines will not have a b
+                    lank number, so the 1st item on the form would display.  The component FG item should appear rath
+                    er than the set item.    When machine time for finishing machines such as ghe gluer, then adding 
+                    the blank number in addition to the form, the item would also appear.    ie. if two blanks were o
+                    n 1 form as a combo set may be estimated, then the FG item would appear for the specific item.
+                    
+                    Or 2421
+D-U- -   12070506 E D-U and D-F  Update Button to import FG item no and name.
+                    Data collection had a bug that was not importing the item code and item name.
+                    To fix the data collection display, the UPDATE button must also import the code and name just a t
+                    he ADD button.
+E- - -   10140511 E PreSelect Whatif Quantites for Quote
+                    From Whatif Screen, utilize the Q field as the Quote YES/NO logic to transfer the quoted quantity
+                     to the quote folder.  They would like to be able to add only certain quantities to the quote fro
+                    m the whatif screen of the print folder in the estimate.  So if they had the three quantities alr
+                    eady on the screen, and they append to that to add another quantity, they want to be able to just
+                     mark that new quantity as an Y in the Q field and only that quantity would transfer to either a 
+                    new quote or an existing quote without having to delete the other quantities.
+E- - -   11180516 E PreSelect Whatif Quantites for Quote (10140511 Bug)
+                    ASI Estimate 5219.    The ITEM screen is not moving to the Quote file.  Only 1 item is moving to 
+                    the quote file.
+E- - -   11280510 E Purchased to Set Layout Board to NC
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   2
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    When the estimate folder is set to P for purchased, then the board should be NO CHARGE which woul
+                    d set the layout field called NC should be N
+E- - -   12220501 E FARM Folder should have a COPY button
+                    FARM folder V4 on corrugated and folding estimating should have a COPY button that will copy the 
+                    existing matrix displayed on the screen.     Also,  Min and Max Width and Lenght should also be a
+                    dded to each file.
+E- - -   12220503 E ESTIMATE Folder I cannot update the Purchased / Manf field
+                    Estimate  folder must be able to change the Purchased / Manf field un Update mode.
+E- - -   12220508 E Set Button should have F1 on FG item, Customer Part# and Category
+E-B- -   11220511 E New Feed type in Machine file
+                    When Feed is "A" for Assembly, this machine will calulate run hours based on the quantity of sets
+                    .  If the last operation were Assembly at 1000 per hour for form 2 and this blank required 5000 b
+                    lanks, but the qty / set were 5 for this blank, then the run speed would be based on 5000/5 divid
+                    ed by the machine run speed of 1000 or 1 hour.
+                    
+                    When Feed is "P" for Partition Assembly, this machine will calulate run hours based on the quanti
+                    ty blanks for all forms.  If the last operation were Assembly at 1000 per hour for form 2 and thi
+                    s blank required 5000 width partitions and 3000 length partitions, then the run speed would be ba
+                    sed on 8000 divided by the machine run speed of 1000 or 8 hours.
+E-B- -   11280515 E New Feed type in Machine file
+                    When Feed is "A" for Assembly, this machine will calulate run hours based on the quantity of sets
+                    .  If the last operation were Assembly at 1000 per hour for form 2 and this blank required 5000 b
+                    lanks, but the qty / set were 5 for this blank, then the run speed would be based on 5000/5 divid
+                    ed by the machine run speed of 1000 or 1 hour.
+                    
+                    When Feed is "P" for Partition Assembly, this machine will calulate run hours based on the quanti
+                    ty blanks for all forms.  If the last operation were Assembly at 1000 per hour for form 2 and thi
+                    s blank required 5000 width partitions and 3000 length partitions, then the run speed would be ba
+                    sed on 8000 divided by the machine run speed of 1000 or 8 hours.
+E-B-1-   10190504 E Both Folding & Corrugated machines
+                    When you enter a single estimate for 5000 the speed that is being pulled into the estimate is not
+                     including waste.  but if you do the same estimate as a combo, the system does bring in the speed
+                     including the waste.
+E-B-1-   10190510 E Both Folding & Corrugated machines
+                    For all die cutters, need a change over time that will calculate the amount of time for change ov
+                    er on combo's and tandems.  This will be for both corrugated and folding.
+E-B-1-   12080506 E New Run Speed Parameter called Ink Coverage
+                    New machine Matrix Standard Called INK COVERAGE.
+                    
+                     
+E-C- -   08160407 E Nesting for Corrugated to Support Scoring for Formula 2 and 3
+                    DB changes done 12/02/05.  -JLF-
+                    Add DB fields to retain score allowances for style formula 2 and style formula 3.    Therefore, t
+                    he scoring for the 2nd formula will have the allowances for each flute code.
+                    
+                    This will allow for new programming logic in the future for a corrugated plant to produce a rever
+                    se carton such as the style RTC in our corrugated style file.   Currently scoring allowances appl
+                    y only to the first formula.
+                    
+                    Just add DB fields at this time.
+E-C- -   08220510 E Layout Folder to have multiple Die Cut Passes
+                    New Layout folder that has multiple passes need option to select pass as an RC department of as a
+                     DC department.    
+E-C- -   08270308 E New Foam Logic based on Die Size       BILL WHEN FINISHED
+                    New DB Table to define each pass.  Gross Sheet Size will remain.   The net sheet size will be rep
+                    laced with multiple In and Out sheet sizes.  New fields will include the  Pass 1, Pass 2, Pass 3.
+                       Each Machine Pass will include the Sheet Size Feed In Width, Length and Depth,  Sheet Out Size
+                     Length, Width and Depth and Number Out Width, Lenght and Depth.  The system will calculate the d
+                    ie size as the current logic works, then the system will calculate the sheet size for each drop o
+                    ff sheet including the number of out on each pass.  
+                    
+                    For example, the blank size is 10 x 5  x 2. If we use a stocked sheet of 50 x 110 x 2.  
+                    The first pass would make 2 sheets 20 x 110 x2 and 1 drop off sheet of 10 x 110 x 2.   
+                    
+                    The 2nd pass would cut the 20 x 110 x 2 by the die size of 20 x 10 into 11 sheets or 44 blanks(4 
+                    up x11).  The 3rd pass would make the same cut or Sheet In of 20 x 110 x 2 by the die size of 20 
+                    x 10 into 11 sheets.  
+                    
+                    The 4th pass would cut the feed in sheet size of 10 x 110  by the 10 x 20 die into 5 sheets or 20
+                     blanks (4 up x 5).   This would leave a drop off sheet of 10 x10 which would be die cut by 10x 2
+                    0 or 1/2 die or 2 blanks. 
+                    
+                    The machine routing would utilize the number out on each pass to determine the number of sheets a
+                    nd hence the number of hours for each pass.
+                    
+E-C- -   09280511 E Print Icon on Estimate Print Folder Screen to print Quote
+                    Add print "ICON"  to Estimate Screen.
+E-C- -   10140510 E COPY Layout Data on Corrugated Estimates
+                    On the layout screen, they would like to be able to copy not only the sheet size from one form to
+                     another, but they want the adders and lables to also copy from one form to another. 
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   3
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-C- -   11230508 E New Folder called FARM which will be FG Vendor Cost Matrix
+                    Old Folder called Misc / Farm will be names to Misc / Sub
+E-C- -   11230509 E New Folder with FG Vendor Cost Matrix to Calculate Cost
+                    DB Changes done 12/01/05.  -JLF-
+                    New FARM fields for FG vendor Cost matrix.
+E-C- -   11280511 E Update of Finished Good Item code not creating new FG item
+                    Add a new set estimate.   Enter FG item code equal to customer part # then Save.  
+                    Update the FG item code with a -1 and the program should prompt to create FG item.
+                    Now add another form and make this item a set.    The FG item code is not created for the set fin
+                    ished goods item code.
+E-C- -   12090505 E Corrugated Estimate VIEW to just go to screen.
+                    The VIEW button should go straight to the screen.  Default current window to print BOX DESIGN and
+                     to print from _____  to department ZZZZZZZZZ
+E-F- -   09280512 E Print Icon on Estimate Print Folder Screen to print Quote
+                    Add print "ICON"  to Estimate Screen.
+E-F- -   11300508 E Copy Button to provide Multiple Profit Margins (Old Task# 08230508)
+                    New COPY button on the estimate print folder after highlighting a quantity.   Original task was o
+                    n Gross Profit.  Change this to Net Profit.
+E-F- -   12090506 E Folding Estimate VIEW to just go to screen.
+                    The VIEW button should go straight to the screen.  Default current window to print BOX DESIGN and
+                     to print from _____  to department ZZZZZZZZZ
+E-G- -   11070508 E Global Price Increase
+                    Add following options to the global price increase. 
+                    From FG Item   to  FG Item.    From FG Category to FG Category.
+                    Add Toggle boxes for  Purchased,  Manufactured, Stock Box,  Custom Box.
+                    If the quote has an FG item code then the system will search the following search criteria.
+                    
+                    Also, add Toggle Box called Update Price Matrix.    If this is checked, this will run the logic f
+                    or the button called UPDATE PRICE MATRIX found in the quote file.
+                    This will only update the matrix if it exists for the customer, customer type or FG item.
+                    THIS WILL NOT CREATE A NEW PRICE MATRIX.
+E-G- -   11280517 E Global Price Increase not working for 6x6x6
+                    Add Global price change from 6x6x6 to 6x6x6.     From  customer ATT1000 to ATT1000.  The price do
+                    es not change.    Please note, the customer in the FG item file is STOCK, but the customer on the
+                     quote is ATT1000.  
+                    
+                    If TOTAL folder has ATT1000 and 6x6x6 this will update the price.    However, I can create a quot
+                    e without this field, hence if the this is not available, search the FG item customer part# if th
+                    e customer is customer X.
+                    
+                    Change Global Price Change from FG Item to Customer Part#.
+                    Also, change the Quote file from FG Item # to Customer Part#
+                    
+                     We need to change this entire calculation.   First, profit markup is not the same as estimating.
+                       ie.  cost of $90/M   with price increase of 10% should equal $100.   This is multiplying by 1.
+                    1.   This should be $90 / (1- (%/100)   or $90 / .9   Then UNDO would mutilply $100 x .9.     
+                    
+                    
+                    
+E-K- -   10280511 E Estimates Notes for Last estimate.
+                    When importing FG item via part number or FG code, copy both Spec Notes andDepartment Notes and t
+                    he Layout.   When adding an item to a new estimate that existed on another estimate either a comb
+                    o or single item estimate, import the notes from the estimate that is selected to retrieve the da
+                    ta.   F1 lookup should highlight the last estimate but whatever estimate is selected will import 
+                    that estimates notes and layout.  
+                    
+                    Basically for Tandems.   If we enter an estimate for 2 items, you enter your first item, the note
+                    s will pull in as Form 1, then when you enter your 2nd item, the notes will pull in as Form 2.  N
+                    otes should pull from last estimate that was done for that item.   Just 1st Item per Form for Com
+                    bos
+                    If an item is added to an estimate with an item that has notes, the notest will be added as addit
+                    ional lines to the same department.
+                    
+                    Also, when you add an item to an estimate using the FG # or Customer Part #, we would like the la
+                    yout screen to also be copied from the last estimate that was done for that item.  
+                    
+E-Q- -   09280508 E N-K-QUOPRINT = ABOX  New quote form w/Logo
+                    Copy existing Quote in use and add new ABOX logo and make other changes.
+                    Change check out our website to visit us at www.foldingcarton.com
+                    Add address on bottom of quotation form - See customer sample. 
+                    
+                    Note: 10/28/2005 - Please make the logo smaller on quotation form.  The size should be the same s
+                    ize as the fax logo.  See customer sample for sizing. Thanks
+                    
+                    Image: aboxlogo.jpg
+E-Q- -   09280510 E Print Icon on Quote Screen to print Quote
+                    Add print "ICON"  to Quote screen.
+E-Q- -   12010503 E Southpak Price Sheet not printing FG Item Code
+                    Add FG item code to quote file field.   This field must be loaded when adding new quotes either f
+                    rom estimating or from ADD button in estimating.
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   4
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+E-R-1-0  12070504 E New Estimate Report.
+                    New Estimate Report done Output Option to Excell.   There will be no output to a printer since th
+                    ere are too many fields on the report.   Headings will be as follows:  Est#, Item Name,
+                    Board (Category), Caliper, Carton Size (L,W,D) Die Size (W,L),  #Up, # Colors, Est Quantity,
+                    Full Cost/M B4 Freight,  Total Full Cost B4 Freight,  Variable Profit Margins Before Freight  (on
+                     top of Column) 15%, 20%, 25%, 30%, 35%, 40%  (On Bottom Columns),  Selling Price Per/M B4 Freigh
+                    t  (NO DATA),  Total Gross Margin B4 Freight  (NO DATA),  Total Gross Margin B4 Freight  (NO DATA
+                    ),  Total Plate Cost (Prep = P and Included in cost/M),
+                    Total Die Cost (Prep = D and Included in cost/M) , Total Freight Cost (Included in Cost/M Only ),
+                      Delivered Selling Price  (NO DATA)
+E-R-6-   12160503 E Grand Total to Show Number of Quotes (PO#  Sheryl 1216)
+                    Add total number of quotes on the Customer Totals Line and Grand Total Line.
+G- - -   11290504 E Changed Period end dates in company file
+                    Change period end date of period 11 from 11/26/05 to 11/30/05.  They already had postings to the 
+                    period before changing.  I had them run util/fxgltper.r and also fxacctg2.r.
+                    
+                    This did not work.  Can you please log in and fix their data so the period matches the new dates.
+                      Let me know how much time & I will bill them for this
+G-F-1-   11150507 E COPY Company Toggle Box:  Copy History and Current Transactions ?
+                    Copy Company button currently only copies the master files such as machines, GL accounts, styles,
+                     box designs, etc.     Copy button will display a new toggle box that will question,
+                    Copy History Files and All Transaction Files ?    If this is yes, all the live data will also be 
+                    copied including estimates, customers, vendors, GL balances, inventory transactions, purchase ord
+                    ers and all history files.      This will be a database copy.
+                    Likewise, the delete button must delete all the same files.
+G-F-1-   11170504 E Add Comments Regarding COPY company for Rec Keys
+                    In the future, it would be nice to be able to let the customer select what files to copy.
+                    For example, they may want to copy customers, FG items, estimates,  but not history or maybe ever
+                    ything.    
+                    
+                    The code Yoosun commented out will not be used, but add COMMENTS indicating the mistakes that mus
+                    t be corrected if we approve this logic in the future.
+H-R-1-1  12160510 E Do Not Repeat Order Qty for Same Order for Same Item in Sequential Ord
+                    Sales Analysis by Cust/Item/PO report repeats the Qty Ordered field and then adds the repeated li
+                    ne on the Grand Totals.   If the same order and same item repeat due to numerous shipments, leave
+                     the additional lines blank.
+                    See sample.
+H-R-1-3  11230503 E Sales by Invoice/Cat/Shipto City
+                    See Sample.  New sales report copy form H-Z.  New fields will break our MM and YY,   Shipto City,
+                     Shipto State,   Product Category.     Add Option to Output to Excell.
+                    
+                    They need this today.  They want us to send the file and run the file and email to the corporate 
+                    office.    Lisa Brownell of P&P Cell Phone is 419-366-7676.   She will email Cynthia's email.
+I-C-2-   10030505 E Add Transfer button, Tag F1 lookup multiple selection.
+                    Add transfer button and do transfer for the item(all tags for the item).
+                    F1 on Tag# - Add multiple selection like RM physical .
+                                             add buttons for Import O/H,  Select Zero
+I-F-1-   12140516 E ARROW Keys on INVENTORY Folder
+                    Copy Logic for the Arrows Keys that appear on the VIEW folder to the INVENTORY folder.
+I-F-1-   12150507 E History File - Double Click to override transaction Date
+                    Raw materials allows the ASI user to override the transaction date in the history file.
+                    Copy this logic to the FG history file.
+I-F-1-   12220502 E VEND COST Folder should have a COPY button
+                    VEND COST Folder on Finished Goods file should have a COPY button that will copy the existing mat
+                    rix displayed on the screen.     Also,  Min and Max Width and Lenght should also be added to each
+                     file.
+I-L-6-   12220521 E FG report should have option to print "C"ycle Count Report
+                    All FG transactions codes exist on this selection screen, except the Cycle Count code.
+I-R-1-   12300503 E Add From Warehouse to Warehouse to Report
+                    Whatever range of warehouses are added to the range, the total on hand will be compared to the Re
+                    order Level.    For example, we have an item called 10x10x10 and we have 500 in Warehoue A, 500 i
+                    n Warehouse B and 500 in Warehouse C and 500 in MAIN location with a reorder level of 1000.    If
+                     I run the report for all warehouses, the item will not show on the reorder advise report because
+                     2000 on hand is greater than 1000.    If we ran this report for just MAIN then the quantity of 5
+                    00 is less than 1000 and the item would be on the reorder advise report.   Default the new fields
+                     from blank to ZZZZZZZ, but each user can save new warehouse parameters.
+I-U-1-   09160511 E FG Receipt for PO to Auto Create Invoice for multiple Items
+                    When posting FG receipts for purchased finished goods that are drop shipped and the N-K-1 FGINVRE
+                    C date is YES.    Add logic to use the character value so the current logic will be called INV/IT
+                    EM which will create a separate invoice per item received.   New character value will be called A
+                    LLITEMS, which will create a single invoice for all items for the same order together on one invo
+                    ice.   Please note, the new logic must use the customer field field called Invoice per PO must be
+                     used to determine if a single invoice for all items are if a separate invoice per unique purchas
+                    e order.
+                    
+                    SET character value to ALLITEMS
+I-U-1-   10100510 E If Date is not current Year, Prompt warning.
+                    If I type a date other that the current month and year of the computer then display warning messa
+                    ge.   "Date is not current month or year"  Continue?
+I-U-1-   12060512 E Validation on Set Qty should search Parts On Hand & Receipts Lines
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   5
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    We need to ignore the component counts when updating the set units.  Since the parts are on the r
+                    eceipt lines, but not posted , I cannot update the SET FG item on the receipt line.
+                    The message that to create the quantity per components produced.
+                    Add logic to include the components on the receipt screen when calculating how many sets can be p
+                    roduced.
+J-U- -   06200524 E Print Icon on Job Cost Screen to Print Factory Ticket
+                    Add print "ICON"  to J-U-1 Order Entry Screen to print the Job Ticket.
+J-U- -   09140403 E New Schedule Status Table  MORE Homework.
+                    DB changes done 12.2.2005 - Ron  table: sbStatus
+                    fields:
+                    sbStatus Character X(8) "Status"
+                    completed Logical Yes/No "Completed"
+                    user_id Character X(8) "User ID"
+                    statusDate Date 99.99.9999 "Date"
+                    statusTime Integer >>>>9 "Time"
+                    
+                    index: sbStatus (field sbStatus)
+J-U-1-   09300504 E Job Standards option to eliminate Updating the Routing
+                    Updating the Job Standards is overriding the dates in the machine routing that has been set by th
+                    e scheduler.     We need SMARTS to know when to update the labor or more specificallly to NOT upd
+                    ate the machine routing when the routing has been scheduled.   The start dates and times are the 
+                    critical issues.
+                    
+                    should have popup to update Materials or Labor.
+                    If the user simply update the inks in estimating, they have to rebuild the job to move the inks.
+J-U-1-   10240506 E Fountain Pen Missing
+                    Add Fountain Pen to Job File.   This is the same file as estimating, however we did work for note
+                    s to only show job notes.   In any event, the fountain pen should be there.
+J-U-1-   11290511 E Job Standards Updating the Routing (Old Task# 09300504)
+                    Updating the Job Standards is overriding the dates in the machine routing that has been set by th
+                    e scheduler.     We need SMARTS to know when to update the labor or more specificallly to update 
+                    the machine routing when the routing has been scheduled but import the existing machine times and
+                     dates.
+                    
+                    Bottom line. We should always rebuild machine standards, but import the scheduled dates.
+M-C-2-   12070519 E Raw Materials Cycle Count to Create Warehouse/Bin
+                    Raw Material cycle count to automatically create warehouse/bin/tag.
+                    The reality is that the product was moved from its original receipt, but the warehouse clerk did 
+                    not transfer the goods.  Obviously, if we use a TAG#, the cost should transfer with that tag#.
+                    
+                    Perhaps the best logic would be a PROMPT.   Bin location does not exist, which BIN/TAG was transf
+                    erred to this new location?    This should show a list of existing Warehouse/Bins, then we could 
+                    transfer the cost.
+M-F-1-   10050507 E NOTES to appear at top of screen
+                    When notes appear for an item, the system use to display NOTES EXIST for this Item.
+                    Since we added the HISTORY button, this message is hidden.  Move to the top of the screen.
+M-F-1-   12010505 E ARROW Keys on INVENTORY Folder
+                    Copy Logic for the Arrows Keys that appear on the VIEW folder to the INVENTORY folder.
+                    If this will take under 30 minutes, just do it.
+M-F-1-   12120506 E Add Yellow Column to Browser,  PO'S and Bin Folders
+                    Add Yellow Sort Column Headings to Browser,  PO'S and Bin Folders.
+M-F-1-   12120509 E Changes to RM Bin File to Update RM LoadTags
+                    RM Loadtags in Loadtag File not in sync with Advantzware.    Change Cost Button to Update Cost/Un
+                    it Count and make this logic similar to FG so that when we update the RM bin file, the loadtag is
+                     simultaneously updated.
+                    Likewise, cycle count posing and RM warehouse posting will update the bin file, hence must update
+                     the loadtag file.
+                    
+                    Ott say the Reprint is still not printing from the bin file.   Reprint RM item CPF162300 tag 8823
+                    00010000001and the count of 54 is not printing.
+M-R-4-   10270505 E Default Date to Current Date
+M-U-1-   10100508 E If Date is not current Year, Prompt warning.
+                    If I type a date other that the current month and year of the computer then display warning messa
+                    ge.   "Date is not current month or year"  Continue?
+M-U-2-   10100509 E If Date is not current Year, Prompt warning.
+                    If I type a date other that the current month and year of the computer then display warning messa
+                    ge.   "Date is not current month or year"  Continue?
+M-U-6-   11040503 E RM post form = ? prorated over multiple forms
+                    This task works in combination with task 11040501.   When N-K-AutoIssu = Yes and the JOB# 2413 is
+                     on the RM receipt, then the summarized receipt quantity must be prorated to all forms on the job
+                     quantity if the RM receipt has a job number and the job is for  tandem job, which has a PO with 
+                    multiple forms or a form defined as ?   Please note, a summarized receipt is a receipt with a ? o
+                    n the form number.
+M-U-8-   11030512 E Loadtag for ASI PO# 100404 only imports all lines with Form ?.
+                    This will work with task 11040501.
+                    New logic for M-U-8 to allow receiving PO with Form# = ? for tandem jobs.
+                    Add loadtag for PO# 100405.   This now imports all lines which is unfriendly to user which is not
+                     accurate.  The problem is the one roll may actually be used for 3 PO Lines.    ie.   Each PO lin
+                    e may only use .25 of a roll.   Ideally, they want to enter just the item and how many tags and h
+                    ave the Receipt created automatically.   
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   6
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+N- - -   10110504 E Add ECODE for Reprint BOL and Reprint Invoice.
+                    Evidently, the reprinting Posted BOL and Posted Invoice are different program then the normal BOL
+                     and Invoice printing.   Therefore, we need new email codes for those two programs.
+N- - -   10310512 E Format new logo for Vineland Packaging.
+                    Logo completed 
+                    Location of image: R:\asi9ship\rco300\images\vpc.jpg
+                    
+                    Send to Vineland and put this on their system.
+                    11/08/2005 - New logo is sent to the server.  
+N- - -   11140508 E Need fields added to ASI help desk.
+                    Need fields to be added to help desk.  Joe approved task to be done.
+                    
+                    1) Domain Name
+                    2) Data Port 
+                    3) Status Port
+                    
+                    Thanks
+                    
+N-K-1-   06200526 E N-K CloseJob.   New value called " TS" to close jobs via TS
+                    The modification for N-K-1 Closejob = TSParts/SetFG  would only apply to single item jobs
+                    When N-K-1 FGRECPT = TSPARTS.    Since sets must be received via Advantzware, hence the job will 
+                    be closed via Advantzware for sets.   When posting data from the touch screen when last operation
+                     is manually changed to Complete, then system should prompt to CLOSE the job regardless of the ov
+                    errun / underrun percentage.  This will only complete the jobs for sets when all components are c
+                    omplete and the final assembly operation is complete.  Please note, closing jobs via FG Post crea
+                    tes auto issue for materials based on quantity produced.   Therefore, closing jobs via TS must us
+                    e the quantity produced via TS to auto issue materials.
+N-K-1-   09130508 E N-K JobCardF = CentBox The SPC# Century Jobcard to print the bar code
+                    When N-K-JobcardF = CentBox, the SPC# is created.  Add logic to create SPC#.   Currently the Cent
+                    ury SPC# is a created during order entry as the Job# and the Blank#.   This becomes the bar code 
+                    number at the top of the form.   Change the logic for each item to equal the job# and form#  and 
+                    Blank# for the SPC#.   Howewer, the Bar Code number will only be the Job Number and Form#.   Also
+                    , change the SPC/ QC number to be the Job# and Form#.  Therefore, 3 items on the same sheet / die
+                     will have identical SPC/QC numbers.
+                    For example if job number is 123456-99 with two blanks on form 1 and two items on form 2.
+                    The SPC# will be 123456-99-01-01, 123456-99-01-02,  123456-99-02-01and 123456-99-02-02.
+                    The bar code will be 123456-99-01 and 123456-99-02.
+                    Please note, the QC/SPC# is now maximized at 15 characters and will not print the entire code on 
+                    the job ticket.
+                    New Logic:
+                    Form 1 Has 2 items
+                    Form 1 / Blank 1 QC# 1063-00-01-01
+                    Form 1 / Blank 2 QC# 1063-00-01-02
+                    On Factory Ticket Bar Code for form 1 will read 1063-00-01- Truncating -01 or -02 from QC #
+                    Form 2 Has 2 Items
+                    Form 2 / Blank 1 QC# 1063-00-02-03
+                    Form 2 / Blank 2 QC# 1063-00-02-04
+                    On Factory Ticket Bar Code for form 2 will read 1063-00-02 - Truncating -03 or -04 from QC #
+                    
+N-K-1-   09160502 E N-K OESHIP Character Value to Dictate Shipto Code for  2nd-99 items
+                    Add Order for ATT1000.  Leave the estimate is blank on the Header screen.   Add estimate # 5116 o
+                    n the line item screen.  This shows ATT1000 from the estimate.   Now add 2nd line for estimate 51
+                    17.     When N-K-1 is set to OESHIP,  all shiptos on the release screen should default to the shi
+                    pto from the first items release with NO prompt.  New character value called OEShipto whereby the
+                     1st item on the order will import from the estimate.   All additional items will default to the 
+                    shipto from the first item.
+                    
+                    This will be the current logic for the new character value called EstShipto, this  will import th
+                    e shipto code for each estimate and prompt to allow the user to make a change. 
+N-K-1-   09160504 E N-K RMRECPT = POPUP to import all RM PO Lines
+                    Current BLANK character value will be called ByItem.   New character value to be called POPUP and
+                     this will copy logic from FG receipts that will import all lines on the PO or select specific li
+                    nes.   After selecting the lines, the system will prompt for quantity received for each line item
+                    .   If the N-K-1 Tag# is invoked, then the tag# would import to each line item.
+N-K-1-   10030503 E N-K JobcardF = Ottpkg   New Integer Value = 1
+                    INTEGER VALUE:  This value will be used for "S"heet / Short grain layouts for certain job tickets
+                     such as Dayton and Ott.  The number 0 will print the cut to net sheet size and die size exactly 
+                    as the dimension is displayed on the estimate layout screen.   The number 1 will reverse the dime
+                    nsions on the estimate layout screen for the Ottpkg Job Ticket only when the cross grain is "S". 
+                     
+                    
+N-K-1-   10050516 E TSQTY Logical Value = YES to Validate Touch Screen Sheet Counts per Ma
+                    When Logical Value is YES, adding a machines production and waste totals via Touch Screen Data Co
+                    llection, the total quantity entered must be validated against the previous machines total quanti
+                    ty produced.    If the data collection plant person enters a total that exceeds the prior machine
+                    , then prompt,  QUANTITY / WASTE EXCEEDS PRIOR MACHINE,   PRESS IGNORE or CORRECT.   Correct will
+                     place the cursor back to the quantity field.   The touch screen must validate all posted quantit
+                    es and current data collection to validate the totals.    
+                    
+                    Please note, this logic must validate by form number and must use the number out and number up.  
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   7
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                     For example, if we slit 1000 sheets 50 x 100 into 50x50 and we print and die cut a 2 up die, the
+                    n we will glue 4000 blanks.     If a job is started on Monday and 500 sheets are slit then posted
+                    , then Tuesday another 500 sheets are slit and 50 sheets wasted, but not posted, the Printer must
+                     verify that a total of ONLY good 2000 sheets (2x1000) can be entered for the printer for both pr
+                    oduced and waste.    Therefore, if the plant enters 1950 produced and 150 waste on the printer, a
+                     message would appear "Production/Waste of 2200 exceeds 2000 via Prior Operation.    Likewise, if
+                     the diecutter produces  2000 good sheets, then the glue can only produce a total of 4000 blanks 
+                    including waste.  2000 x 2 up on the die.
+                    
+N-K-1-   10100524 E N-K QUOPRINT = Frankston to not print over%/under %
+                    Frankston quote form should not print the overrun / underrun %.   Blank out this column,
+N-K-1-   10110515 E N-K FGRECPT TSPARTS ONLY Set Components
+                    New character value called TSPARTS will generate finished goods receipts for set componets only d
+                    uring touch screen data collection.  
+N-K-1-   10130509 E N-K Relprint = Fibre to Print Components
+                    N-K-1 Relprint = Fibre.
+                    Fibre's release tickets print all the components when the set is assembled with parts, and only t
+                    he header for unassembled.  They would like it to work the following way.  
+                    Assembled -      print only the components
+                    Unassembled - print all the components
+                    Assembled with parts - print the header only.
+                     
+                    They don't want to have to choose each time, they want the system to do this automatically.
+N-K-1-   10170502 E N-K JobcardF = Ottpkg   New Integer Value = 1  (Task 10030503)
+                    Original Task#  10030503 was to reverse the dimensions when cross grain is "S"heet cross grain.  
+                       Now ALL jobs are reversed.   Only "S" jobs should reverse the Net Sheet  size only.
+                    
+                    Reprint Job 2340 for Estimate 51111 on ASI system.
+N-K-1-   10170509 E N-K Loadtag Logical Value should not be used for Reprint Toggle Box
+                    The logical value is used to Prompt to scan a CASE label.  Currently the logical value also is us
+                    ed to prompt when clicking REPRINT load tag.  This value should not be used to prompt for a tag w
+                    hen reprinting a tag#.   This prompt should always appear when clicking the REPRINT.  Logical val
+                    ue should continue to invoke Scanning the case so DO NOT TOUCH this part of the code.
+N-K-1-   10180514 E N-K POExport  Integer to Serve as Company Code (Exclude commas)
+                    Integer value to serve as the Company Code.  Fibre can set this to 77777 for testing purposes.
+                    They can then change this to 5056 when they want to go live.   The comma in the 77,777 integer va
+                    lue must be ignored when downloading the file.
+                    
+                    
+                    
+                     
+                    
+N-K-1-   10240515 E N-K INExport ContSrvc  (Copy CIT format for Invoice and CM) ($125 / Ho
+                    New N-K-1 INExport = ContSrvc and INVPrint = Contsrvc.
+                    Only create the export files when the customer field called EDI is checked.
+                    Eliminate the logic to look at the FG item field called Factored.
+                    Copy format and add the following fields to the end of the record.
+                    1) Bill of Lading number
+                    2) Line item total calculated as qty x price less discount 
+                    3) PO# for each FG item on the invoice
+                    4) Line item number manually added to the Order Line
+                    5) A field for adding notes.  Bill notes for OE invoice.  
+                    Output both Invoices and Credit memos.               ( 5 Hours for the Above in November )
+                    
+                    
+N-K-1-   10260515 E N-K-1 Jobcard = Shelby  (Copy FibreFC and make Field similar to Living
+                    Copy FibreFC ticket and call this SHELBY.  
+                    Top of ticket should print SHELBY JOB TICKET.
+                    Job Number and Customer Code will keep font size same as FibreFC.
+                    Add Overrun% and Underrun% under Req Date per Order Entry Header Page.
+                    FG item# section will become a TWO line report per FG item.
+                    FG item# section will be reordered as follows:
+                          F/B, FG Item/PO#,  #Up,  Form/Job Qty,  Name/ Description, Style, Carton Size, Count,
+                          Case Code , Due Date.   The / denotes two fields printing.
+                    FG item# section heading  Form/Job Qty will print the order quantity under job quantity. 
+                    FG item# section heading  Description will print Item Description under Item Name.
+                    FG item# section heading  Case Size will be replaced with Case Code.
+                    FG item# section heading  UPC#  will be replaced with heading Due Date =  Release  Date.
+                    Board Section to add all fields on Livington version but all forms on same page as FibreFC
+                    Board Section to Show HG for Hard Grain Yes=S, No=N.  Also reverse NetSht W/L = S
+                    Ink Section will simply show each Ink Code with grand Total for All items / Forms.
+                       Inks will not print by Form or Pass.   This will simply be used for purchasing inks.
+                    Machine Routing Toggle to Exclude Standards will continue to Print Sheets Required.
+                    Machine Routing will print double spaced lines in plac eto Material for Machine Size Data.
+                    Department Notes will print on Separate Page.
+                    Department Notes will have toggle box exactly like Spec Notes to Enter Departments to Print
+                    Print Case Labels will print like the Frankston Ticket. 
+                    
+N-K-1-   10270506 E N-K POExport = Vendor and vendor is Corrukraft
+                    PO data exported for Corrukraft should be transferred to the following location:
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   8
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    The N-K-1 POExport = Vendor and the vendor file is called Corr-U-KraftII
+                    ftp://edi.ftp.sunclipse.com/
+                    
+                     
+                    
+N-K-1-   11010517 E New Invoice Format - ABOX-XP
+                    New invoice format.  Copy CENTBOX xprint format.  Make it ABOX
+                    Include billing instructions but delete the REVISED message in bottom left hand corner.  See samp
+                    le.
+N-K-1-   11070505 E N-K JobcardF = CentBox new Column called Qty Needed
+                    Current job ticket prints a column called Qty Needed.  Change this column heading to Input.  Add 
+                    new column called Output which will be calculated by using the INPUT quantity that is currently p
+                    rinting under Qty Needed then subtract the MR sheets / blanks then multiple by the machines run s
+                    poilage percentage.    
+                    
+                    For example, a printing press now reads Qty needed as 100,000.   This column will read Input 100,
+                    000.    Assume the job file shows MR sheets as 500 and run spoilage of 5%.
+                    The Output Column  would be 100,000 - 500 X (1- 5.0% / 100)    or 99,500 x .95 = 94,525
+N-K-1-   11110514 E N-K JobcardF = Unipak.  Add Copy Approval with _________________
+                    See Sample.  Add Copy Approval to right of Qty Needed.
+                    They will handwrite note in the ________________ section.
+                    
+                    Also move logic from Task# 11070505 to show INPUT and OUTPUT for the machine operation.
+N-K-1-   11170501 E CEBrowse to Import Number of records per Integer Value
+                    First, minimize the number of quote that are retieved via E-Q by using the N-K-1 CEBrowse integer
+                     value similar to how estimating limits the number of records.    This will require a GO, NEXT an
+                    d PREV button to access the next block to quotes.
+                    Also, write new Quote Browser similar to estimating browser that provides yellow column heading a
+                    nd multiple search fields.   Search fields will be Quote#, Estimate#, Customer Code, Customer Par
+                    t#.    The quote browser accessed via the estimate already has the customer part#, but this is mi
+                    ssing from the main menu via E-Q.  Both browsers should work the same.
+N-K-1-   11170511 E N-K TSPOSTFG  Character Value To Create Set Header Receipts via Advant
+                    N-K TSPOSTFG  Create Set Header Receipts via Advantzware?
+                    TSPOSTFG - Now creates SET Header Receipts during Touch Screen.  
+                    Move this logic to Advantzware when N-K-1 FGRECEPT is AUTOPOST and the N-K-1 TSPOSTFG LOGICAL val
+                    ue is YES and the TSPOSTFG INTEGER VALUE is 1, then this logic will be invoked for Advantzware D-
+                    U and D-F.    
+                    
+                    The Integer Value of 1 will automatically create Set Header Receipts for the machine operation de
+                    fined in the character value.   When N-K-FGRECPT is AUTOPOST, then Advantzware D-U or D-F will cr
+                    eate the finished goods receipts for each components when the last operation posts the production
+                     quantity for each part / form.   The very last form must have  machine operation that will assem
+                    ble the Set Header FG item code that will create the receipt for the set.   This machine code suc
+                    h as PNASSBLY must be defined in the character value for TSPOSTFG.  The net result will be the la
+                    st two machine codes on the last form will produce finished goods receipts for the component and 
+                    then the set header item.
+                    
+                    N-K-1 TSPOSTFG Integer Value of 0 will not create FG Set Receipts.
+                    
+                    Old Task 12080401
+N-K-1-   11180527 E N-K TSPOSTFG  Character Value To Create Set Header Receipts via Advant
+                    N-K TSPOSTFG  Create Set Header Receipts via Advantzware?
+                    When Character value machine is defined, then this machine will prompt for set receipts.
+                    If character value is blank, then this will prompt for blanks for the form.
+N-K-1-   11300512 E New Job Ticket called CCC (Copy Colonial Ticket with NEW DB Fields.
+                    Task 11300512 has new DB: Fields on Packing Screen.   Machine Fill - Y/N,  Layer Pad  (New Raw Ma
+                    terial Type = _ ) W  and L to import.  Pads/Case.  999.   Divider Code,  (New Raw Material Type =
+                     / ).   W and L to import and updateable in the packing section.
+                    
+                    Change Ink Pack Screen.   Inks now show up to 20 inks.   Reduce this to 17 Inks.
+                    Move the Press Type, Ink Forms, Form Colors to the Left Side above the Inks.
+                    Expand the Case Info.  Move up to top of screen on right.  Add new fields at the bottom
+                    MachFill     Pack Code    Qty    Width   Length    Pack Note
+                    Y/N              Layer Pad      2        19          24           300x2x4    (Existing Field, Mov
+                    e Up from Pallet)
+                                          Divider            4        20          19    
+                    
+                    Modify the FG Item# section to Fit on 1 line if possible.
+                    S/B, FG Item#, Order Qty, Job Qty, Style, Carton Size, Case Size, Cases,#Up, Fill, CCCSpecRef (Ca
+                    d#), Layer Pad, Divider,  Packing Configuration (Pack Notes) 
+                    
+                    Combine Machine Data with Department Notes.
+                    Print the Machine and Machine Standards, then skip line and Indent Department Notes.
+                    
+                    New Label Printing per Order on Sample.       
+N-K-1-   12010515 E N-K CECOPY  Option to Copy Department Notes
+                    CECOPY - Allow copy Finished Goods item blank information when adding estimates? 
+                    Logical value is YES, then entering an existing customer part number or finished goods item numbe
+                    r on the first screen of the estimate will transfer all the blank information as well as ink code
+                    s and packing and delivery data from screen three.
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   9
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    
+                    Character Value options are Folding, Corrugated, Both, Neither. This dictates if
+                    the department and spec notes are copied when logical value is YES.  
+                    Folding will only copy notes during folding carton estimating module.
+                    Corrugated will only copy notes within the corrugated estimating module.
+                    Both will copy notes within the folding and corrugated estimating program.
+                    Neither will NEVER copy notes within the folding or corrugated estimating.
+N-K-1-   12060513 E N-K TSPOSTFG  Disconnect Character, Decimal and Integer Values
+                    Since we added machine feed A and P we no longer need the character value in the TSPOSTFG or the 
+                    decimal or integer value.
+N-K-1-   12060517 E Change Label If Paid by to If Received By
+                    At bottom of invoice change the label to If Received By
+N-K-1-   12150501 E N-K BolFmt = ConsBox   Copy Ott Pkg Bill of Lading (Paid on Contract)
+                    Logo to be sent by Consolidated Box.  John will reformat to fit the Ott Packaging Form.
+                    Move Page  1 of 1  from bottom on page to print under the bill of lading number.
+                    Change labels, Pal to Pallets,   Cases to Units-Quantity.  On bottom box change the following:
+                    Eliminate the Signature Box.   Eliminate Total Cases. 
+                    Eliminate the entire bottom portion of the BOL starting with ALL CLAIMS.
+                    
+                    Logo to read 
+                    Consolidated Box
+                    A division of MAS Enterprises of Ft. Lauderdale, Inc.
+                    Manufactures of Corrugated Products
+                    PO Box  26323
+                    1314 Eastport Road
+                    Jacksonville, FL  32226
+                    Office 904-356-9606
+                    Fax     904-356-5334
+N-Q-3-   10100520 E Replace FG Item to Update Part#.  Cannot Place Order for Estimate 952
+                    When adding the order for estimate 952 for item 7514 the line item screen says the the FG item ex
+                    ists for customer#/FG Item  C3595/8x6x6 Dutch.      They ran the utility N-Q-3 to change the FG i
+                    tem and every file looks perfect.  The quote file was not updated so I updated the quote via the 
+                    estimate print folder.   There is a data file somewhere that did not get updated.
+                    
+                    IP Address is 66.228.104.124
+N-R- -   10040505 E Util/checkrun.r New Menu utility (check the run# amounts vs posted amt
+                    New utility to check the run# amounts against what actually got posted to GL by date range.  If i
+                    t doesnt match then display the amounts.
+                    
+                    See julie for details
+N-R- -   10100504 E UTIL/SETESTINK.r   New Utility to move the Ink Decription to All Estim
+                    New Utility to move the ink description in the raw materials file to all estimates with that ink 
+                    code.     Please note, any manually changed ink descriptions will be over written by this utility
+                    .
+                    Provide  Option to select Estimate Ink or Real Ink and Ink code Range From  INK to INK.
+                    Also toggle box option for INK or VARNISH.
+N-R- -   10310504 E Util/Utils.r
+                    This program will run a menu that will list all the utilities that we have created and wish to pl
+                    ace on this menu.    I want ASI the ability to add and change menu's and the the name of the menu
+                     to reflex what the utility does. 
+                    
+                    For example,   add Menu called:
+                    
+                    Set Purchase UOM via PO's  (this will run Util/SetPrUom.r)
+                    Set Purchase UOM to EA for All FG & RM's (this will run util/setprUOM.r)
+                    Set FG Items Ship Method (this will run util/UpdFGShip.r)
+                    
+                    Also,  add Module and Hot Keys as fields as defined in HelpDesk.
+                    I will enter the data.   Also add Radio button to search by Module or Hot Keys.
+                    
+                    For example  I could enter CE for Cost Estimating or Hot Keys EC for Estimate Corrugated.
+                    of FG for Finished Goods or IU1 or IF1 hot keys, ets.
+                    This way BJ, Jeff or I can search by the module to limit the utiltiies to that module.
+                    
+N-R- -   11140510 E util/w-hrms-x.r  F1 Lookup to RM and Adder Codes
+                    When running the HRMS utility, import all raw material and adder codes that have not been added.
+N-R-1-   09300510 E Util/SetInk.r
+                    New utility to set inks and varnish  to set the SI/Lb and Min Lbs.
+                    Need Option by Industry Type:   Folding    or  Corrugated.
+                    Select by Material Type Ink or Varnish
+                    Select by Press Type:  Offset, Flexo, Gravure, Letterpress, Silkscreen
+                    Select by Ink Type:   Ink, Lacquer, Ultra Violet, Varnish or Coating.
+                    
+                    SHOULD BE ABLE TO SELECT ALL OPTION VIA TOGGLE BOXES.
+                    
+                    Need Option from Item code to Item Code.
+                    This will override the SI / LB and or the Min Lbs.
+N-R-1-   10060513 E UTIL/SetUnit-Pallet.r
+                    New Utility to set the number of units per pallet equal to the number of cases received per palle
+                    t.      The partial case does not count.    Therefore, for each warehouse/bin/tag#,  update the u
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:  10
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    nits / pallet = units received for that tag#. 
+                    Add From FG Item to FG Item range.
+N-R-1-   10140513 E UTIL/SETTYPE.r   Utility to set customer types
+                    Write utility for load BLANK Customer Types.
+                    From Customer to Customer and Field to ENTER the customer type.
+                    F1 will show valid customer types.    Once done, run the utility and 
+                    load customer type as "Other" into any customer type that is blank.
+N-U- -   11290508 E Add new N-Z 11 New Menu option to add Forms File database fields for F
+                    DB changes done 12/01/05 - JLF,YSK
+                    Forms File.   Customer shipto file will need ability to print special forms such as a special bil
+                    l of lading or loadag or invoice per shipto location.      Ideally, we should add a file to the s
+                    ystem that we could enter the Customer or Vendor code,   Shipto code,  Form ID,  Program Name tha
+                    t runs the form.     The concept is to have the form automatically print when the program is runn
+                    ing so that the user does not have to select a form to print.   The software will pick the form f
+                    rom this data file.
+                    
+                    Alternatively, we could add database fields, but a new file would allow flexibility for any form.
+                    
+                    
+                    DB Field:   Add Pallet Code.  Each shipto could have a unique pallet that is different from the c
+                    ustomer file.
+O-B-1-   09300502 E Print Icon on Order Invoice Screen
+                    Add print "ICON"  to Order Invoice Screen.
+O-B-1-   11210508 E When adding an invoice, make cost modifiable on invoice line
+                    They would like the ability to modify the cost on an invoice when they are adding an invoice thro
+                    ugh O-B-1.  This is so they can add an invoice for a cutting die only, and be able to look up the
+                     history of that item under O-Q-2.
+                    
+                    Can only modify cost if item is PURCHASED and No ESTIMATE number exists on the FG View Item Folde
+                    r.
+O-B-1-   11220516 E Label Changes for Weight and Freight
+                    Remove the word Invoiced on the invoice view screen.   If the freight is PREPAID, the label is mi
+                    sleading.     Total Invoice Weight should be Total Weight.   Total Freight Invoiced should read T
+                    otal Freight.
+O-B-3-   10110516 E Put page numbers on the XPrint & Xpint2 invoice format.
+                    Put page numbers on the XPrint invoice format.
+O-B-3-   11290503 E Southpak Invoice to only print the Description 1
+                    Southpak Invoice to only print Description 1.  This now prints Item name and many description lin
+                    es.   Only Description 1 will print.
+O-B-4-   10060504 E Leave invoice records if posting bombs
+                    If the Order Processing Invoice Posting does not finish or bombs, leave the invoice records that 
+                    did not post .
+O-B-4-   12090515 E Qty Zero to Ignore Cost = Zero
+                    When Invoice Quantity is ZERO, then the post program should ignore the N-K-1 Invoice Post logical
+                     value = No.    ie.  the extended cost is zero even though the cost on the item screen is > zero.
+O-B-5-   12060514 E Invoice Post to post Invoice Line#
+                    Invoice to post the sequential line number as the invoice is printed.   This would have no relati
+                    on to the order line number or the manually entered line number on the order.
+                    If multiple orders were on an invoice, every single order may be line 1.
+                    Therefore the line number sequence as the invoice printed should be posted to the invoice history
+                     so that AR reprint will reprint the same sort option.
+O-F-5-   09220507 E util/copycust.r  New Copy Order From Company to Company (No Validation
+                    This new menu option will look similar to the E-K estimate copy feature whereby the company code 
+                    and order number will be entered as the From Order# and t To Order#.    This program will simply 
+                    copy all data from one company to the next company including the identical order number of the ne
+                    xt company.     The order entry clerk must then update and save each screen to verify and invalid
+                     data such as salesman, payment terms, delivery zone, carrier code, product category, finished go
+                    od item code, customer code, shipto code, sold to code, etc.    Please note, validation of the ab
+                    ove data would require hours of additional work if required.
+                    
+                    For additional cost,  we could copy all data required.
+                    THIS WILL NOT COPY FROM SEPARATE DATABASES.    THIS WILL COPY FROM ONE COMPANY TO THE NEXT COMPAN
+                    Y WITHIN THE SAME DATABASE.
+O-P- -   07010507 E Add to BOL Screen oe-boll.tot-pallets
+                    DB Changes done 12/01/05.  -JLF-
+                    BOL line item - number of pallet field.
+                    (BOL Reprint for posted BOL does not print  # of pallet if no inventory exists for the tag).
+O-R-1-2  09200519 E Add Sort Option by Salesman and Print Range by Salesman
+                    Adding a sort by saleman OR12   (Scheduled Releases by Ship-to)
+O-S-1-   05120517 E Add Units/Pallet field to BOL Line.
+                    DB Changes done 12/02/05. 
+O-S-1-   09280514 E Print Icon on BOL Screen to Print BOL
+                    Add print "ICON"  to O-S-1 to Print BOL.
+O-S-3-   10030504 E BOL print enhancement - Sumerize like Xprint format, sort by order#
+                    Integer Value to Summarize by Item by Order# similar to Xprint.    Also, sort by Order# asending 
+                    so order 445 is first then 446, 447 etc.
+O-S-3-   11290502 E Southpak BOL to only print the Description 1
+                    Southpak BOL to only print Description 1.  This now prints Item name and many description lines. 
+                      Only Description 1 will print.
+O-T-1-   11230518 E Orders Release File Field Definitions
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:  11
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Create Output Word Document for the Order Entry File.
+                    This will be saved under K:\GUIMANUAL\FILE DEFINITIONS\Order Processing\
+O-U-1-   06200523 E Print Factory Ticket Icon on Order Entry Screen
+                    Add print "ICON"  to O-U-1 Order Entry Screen to print the Job Ticket.
+                    This will need to print from the item screen since multiple jobs may exist on a single order.
+O-U-1-   07140510 E Estimate Folder field "P"urchased to Terminate On Order Quantity to Jo
+                    The estimate folder has a field called Purch/Manf.   When adding the order for the set, all the c
+                    omponent finished goods items of the set are updated exactly the same way.   i.e. the quantity al
+                    located is updated and the quantity on order is updated.   For purchased items, only the quantity
+                     allocated for this component via order entry would continue to be updated in the finished goods 
+                    file.    When this field is Purchased then the finished goods item created for this set component
+                     would not update the quantity on order in the finished goods file for that item or component.   
+                    Once a purchase order is created for this set component item, then the on order quantity would be
+                     updated.  Likewise, FG receipts for the set item should not update the on hand or reduce the on 
+                    order quantity.
+O-U-1-   08230512 E Release screen to show if actual release is printed or not
+                    New Printed Flag in the release screen of the order and in order inquiry.  This would show the ac
+                    tual release has been printed or not.  If it has been printed they would like to be able to chang
+                    e the print status to not printed so they don't have to delete the release in order to 
+                    
+                    Also, when changing print status for a actual release from scheduled release screen, ALL items on
+                     that actual release will have their print status changed.  -JLF-
+O-U-1-   09280513 E Print Acknowledgment Icon on Order Entry Screen
+                    Add print "ICON"  to O-U-1 Order Entry Screen to print the Order Acknowledgment
+O-U-1-   09300507 E Combo Estimating Wax / Heading Default Sheet / Blank Size
+                    Label Change to Wax / Label.    Also, when adding a wax,  default size from sheet or blank size. 
+                      If entering a S/B  of 1-1   then the Spec Blank size should default to the width and length.
+                    When I enter 1-0 for estimate 5125 the sheet size will import.
+                    Update and Save on Estimate 5125 has error messages.
+O-U-1-   10120509 E CTI Export Changes
+O-U-1-   10140508 E Job Ticket ICON on Order Header
+                    Most folding plants enter the ESTIMATE number on the order header.
+                    Can you add logic to show ICON on order header if estimate is on order header.
+                    Please note, if estimate is on order headers, there can only be one estimate on the order.  
+                    
+O-U-1-   11040504 E TOTALS folder, new Freight Button to recalculate the Freight Cost
+                    New button on the TOTALS folder called FREIGHT.    This will recalculate the cost of freight base
+                    d on the calculation used in estimating and bill of lading.   The sytem will use the shipto code 
+                    for each release quantity to determine the weight, MSF and / or number of pallets for that releas
+                    e.    The total of all items releases will equal the freight amount.
+O-U-1-   11230515 E Order Entry File Field Definitions
+                    Create Output Word Document for the Order Entry File.
+                    This will be saved under K:\GUIMANUAL\FILE DEFINITIONS\Order Processing\
+O-U-1-   11290519 E LOADTAG Icon to Run O-U-7
+O-U-1-   12090501 E Eliminate Prompts when Changing Quantites
+                    When changing quantitites, the system is no longer prompting for job standards, which is fine, ho
+                    wever the job standards are not getting rebuilt when the user answers NO to not Decommitt materia
+                    ls.    The job quantity must always be recalculated and always YES to decommit.
+                    
+O-U-1-   12090504 E Rebuilding Job Standards should use RM AUTO ALLOCATE to Commit Board
+                    Whenever job standards are rebuilt, the program should look at the raw material field called AUTO
+                     ALLOCATE for real material.    This would be true for board, cases, inks, etc.
+                    Once the job quantity and materials standard MRP quantity are created the system would then COMMI
+                    TT the MRP quantity for each real mateial.  This only has to do with committing board to a job an
+                    d not ISSUES to the job.
+                    
+                    Please note, the job cost file maintenance fields are only used to make the flag Y in the job mat
+                    erial file which would then automatically ISSUE materials when the job is closed.
+O-U-1-   12290503 E Release Date to Default to Next Current Year
+                    Release date should default year based on current month.  i.e.  If the release is a month prior t
+                    o the current month, then the year should default to the next year. When adding an order in Novem
+                    ber or December of 2005 and the release is scheduled for January 15, 2006, the customer will ente
+                    r 0115, but the date now defaults to 05.    It is impossilbe to ship this January 2005.  This sho
+                    uld default to the next year.  
+O-U-1-   12300501 E Eliminate the Commission % totaling 100%
+                    Currently, when multiple salesmen are added to the order line, the total of all salesman must tot
+                    al 100%.    They would like to reduce the commission % but pay the salesman on the total sales am
+                    ount.    When the total salesmen percentage does not equal 100%,  display warning message, "Items
+                     Commission Value does not equal 100%,  Continue?   YES will allow up to 3 salesman each with 100
+                    %, whereas NO, will return the cursor to the percentage field.
+O-U-1-0  10240502 E Case label -Download the shipto customer name
+                    Add the shipto customer name to the case label download text file.
+                    Also, need to expand the shipto name and address.
+O-U-1-0  12130503 E Download Case Label Fields
+                    Download Billto Company, Name, Address1,Address2, City, State, Zip.
+                    Download Soldto Company, Name, Address1,Address2, City, State, Zip.
+                    Download Shipto Company, Name, Address1,Address2, City, State, Zip.
+                    Download Order# and Job#.
+                    Download Purchase Order#
+                    Download FG item Name, Description1 and Description2
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:  12
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    
+                    Not sure how much is there above, but shipto company, Order# and Descriptions are needed for thei
+                    r lables.  
+O-U-5-   10140502 E Artios factory changes for combo estimate like Set estimate
+                    Corrugated ticket needs a few adjustment.
+                    This should work just like a set when it comes to the board information and when you have
+                    multiple blanks on one form.  If there are multiple blanks on one form, the first form
+                    should have ths shts required and board size, and the other blanks should say see blank 1.
+                    This is exactly like a set with multiple blanks per form. Also if it is a combo, the type of set
+                    "A" or "U" should not be printing at the top of the page.
+O-U-5-   11080505 E Notes to print on factory ticket 1646
+                    This is to print on the set utilization screen only.
+                    When a note is under the department called "SH" for set header, or under the customer notes as "S
+                    H" they would like these notes to print on the set utilization form of the factory ticket only.
+O-U-5-   11100516 E Sets to print master item at top of factory ticket
+                    Folding sets to print the master item at the top of the factory ticket similar to the way corruga
+                    ted factory tickets work.
+O-U-5-   12010506 E Artios Job Card to Print 8 Inks
+                    Fibre has a press for the corrugated department with the capability to print 8 colors.  Add space
+                     on the factory tickets to accomodate 8 colors.  If necessary, you can shorten the area right bel
+                    ow the inks fields.
+                    
+O-U-7-   10050511 E New Loadtag Create Button called AUTOCOPY
+                    Copy AUTOCOPY button logic from the M-U-8 loadtag to O-U-7.   When this is clicked ON, the line e
+                    xact line will be copied when pressing the ENTER key on the Count field.
+O-U-7-   11010503 E Download Shipto Code and Company Name and Soldto Code and Address.
+                    We currently download the shipto address but we do not download the shipto Code and Company Name.
+                        Make sure we download the Shipto Code, Shipto Company Name, Shipto Address1, Adresss2, Shipto
+                     City, Shipto State, Shipto Zip, Shipto Country. Also download the 
+                    Make sure we download the Order Header Soldto Code, Soldto Company Name, Soldto Address1, Adresss
+                    2, Soldto City, Soldto State, Soldto Zip, Soldto Country.
+                    
+                    We need both sets of information when creating loadtags for brokers.
+O-U-7-   12020512 E Loadtag formats to download ORDER#
+                    Loadtag Formats to download Order# to Text file.
+O-Z-1-   11010506 E New HOTS report        **INVOICED**
+                    New Menu for new HOTS list Report.  See PDF sample.  This will be an XPRINT formatted report with
+                     the print selection options from O-R-2.
+O-Z-1-   12130502 E More HOTS report changes
+                    Hots report modification.
+                           Add Column Board Qty Received  (label - Brd Rcpt)
+                           Make all dates to show only month/day without year.
+                           Show city in ship to instead of ship id#
+P-U-1-   10050518 E PO Line to Show the Inventory Totals
+                    When addng an item on a purchase order, display the current inventory data from the raw materials
+                     inventory folder including Qty On Hand, Qty On Order, Qty Committed, Qty Available
+                    For board material, under each Qty field show the MSF for board only.
+                    
+                    For estimated material, the total quantity will be calculated for that job only since the materia
+                    l such as 200C or SBS18 could be 100's of different sizes for different job numbers.
+P-U-1-   10250518 E Add Calculated Receipt Qty in PO UOM
+                    Add PO for SBS2021 with 5000 LB at $500 TON.   Receive 2000 LF.    The PO browser shows 5000 orde
+                    rs, but 1 TON received.   Leave that quantity, however add new column just after the quantity ord
+                    ered but before the Purchased UOM.
+P-U-1-   10270402 E PO Cost to 6 decimals
+                    DB Changes done 12/01/05.  -JLF-
+                    Purchase orders allow four decimals however when we receive sheets we need five decimals to make 
+                    the invoice match the receipts otherwise we have to reverse the receipt and reenter with the 5 de
+                    cimals.  
+                    
+                    Can you put an extra decimal in the purchase order cost field or what are our options?
+                    
+P-U-1-   11040501 E PO's for Tandem Jobs to Consolidate forms
+                    Logic to summarize by item code, width, lenght and scrore allowances.  When adding a PO for Job 2
+                    413,  enter ?  on the S/B number allows selecting multiple forms will summarize all forms into a 
+                    total purchased quantity and cost.   This now becomes multiple PO lines.    .  The vendor cost wo
+                    uld be determined on the total quantity.  
+                    
+                    This logic would only require RM load tags based on 1 consolidated PO Line and receipts based on 
+                    1 PO Line.  
+                    
+                    Please note, all board codes must be updated in the job file before adding the PO.
+                    Copy feature will speed up this process.
+P-U-1-   11140512 E PO's for Tandem Jobs to Consolidate forms for STOCKED Board
+                    Add Real Roll such as SBS18-24.5 to Update the Job File via F1 Lookup on S/B code.
+                    Logic to summarize by item code, width, lenght and scrore allowances.  When adding a PO for Job 2
+                    413,  press F1 on the S/B number allows selecting multiple forms.   This now becomes multiple PO 
+                    lines.    OK will now summarize all forms into a total purchased quantity and place a ? on the Bo
+                    ard PO line.  The vendor cost would be determined on the total quantity.  This logic would only r
+                    equire RM load tags based on 1 PO Line and receipts based on 1 PO Line.
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:  13
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+P-U-1-   11290501 E Add Item to PO and enter 200C 60x80.  F1 on Customer and Enter
+                    Add new item such as 8x8x8.  Press F1 on the Customer code and type ATT1000 then press ENTER.  Th
+                    is should import the customer code, but erases the customer code.
+                    Please note, the mouse works perfectly.
+S-B- -   12140513 E Compile SB in RCO400 environment
+S-B- -   12160501 E Upload SB
+T-S- -   10110517 E Validate by Machine Code.
+                    The logic to check for duplicate times and jobs running at the same time must be by machine.
+                    We need a field to trigger this logic.    Change Label of Labor Rate 3 to Jobs / Mach.
+                    ->
+                    Use reftable, label it to Gang Jobs  Yes/No
+V-C-3-   12200501 E New check format = Oracle laser
+                    Create new laser check format.
+                    Copy ADVLASER but change page break to work with their dell printer
+V-F-1-   11230519 E Vendor File Field Definitions
+                    Create Output Word Document for the customer file.
+                    This will be saved under K:\GUIMANUAL\FILE DEFINITIONS\Accounts Payable\
+V-R-1-3  12070515 E Add a grand total line for all columns & export to excell
+                    Add a Grand total to the check register for all data columns.  
+                    Also need an  export to excell option when printing both in summary & detail
+Z- - -   11020512 E Invoice fields are blank after conversion
+                    Due Date (due-date),  Discount percent(disc-%)  and  Discount Days (disc-days)  need to be update
+                    d for all invoices in company 002(Churmac)
+Z- - -   11030518 E The Menu Letter X should prompt to Exit just like Icon.
+                    When I click the Exit door, ASI prompts Exit Advantzware.    The letter X logs out immediately.
+                    X should have the same prompt.
+Z- - -   12020501 E Support - DB Changes work
+Z- - -   12270504 E Helpdesk Report Completed by  (New Totals)
+                    Completed by Date Programmer.   Add to grand totals on the bottom left of the report.
+                    Total Tasks.  Therefore, if I run from 12-01-05 to 12-31-05 I will see the total number of tasks 
+                    for that date range.
+Z- - -   12300504 E Add reports to email codes
+                    Add A-R-5  (r-araged.r) Aged Receivables Report to email codes
+                    Add A-R-4  (r-stmt.r) A/R Statements to email codes
+

@@ -104,7 +104,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
      v-pg-num = v-pg-num + 1
      v-printline = 0.
      PAGE {1}.
-     {oe/rep/bolptree2c.i}
+     {oe/rep/bolptreebc2c.i}
   END.
 
   FOR EACH w2 BREAK BY w2.cases DESC:
@@ -160,7 +160,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
         v-pg-num = v-pg-num + 1
         v-printline = 0.
         PAGE {1}.
-        {oe/rep/bolptree2c.i}
+        {oe/rep/bolptreebc2c.i}
      END.
           
   end. /* each w2 */
@@ -191,7 +191,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        v-pg-num = v-pg-num + 1
        v-printline = 0.
        PAGE {1}.
-       {oe/rep/bolptree2.i}
+       {oe/rep/bolptreebc2c.i}
     END.
 
     display {1}
@@ -228,7 +228,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
             v-pg-num = v-pg-num + 1
             v-printline = 0.
             PAGE {1}.
-            {oe/rep/bolptree2.i}
+            {oe/rep/bolptreebc2c.i}
          END.
 
          DISPLAY {1}

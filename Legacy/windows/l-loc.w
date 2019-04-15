@@ -68,10 +68,12 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 loc.loc loc.dscr 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH loc WHERE ~{&KEY-PHRASE} ~
-      AND loc.company = ip-company NO-LOCK ~
+      AND loc.company = ip-company ~
+ AND loc.active = TRUE NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH loc WHERE ~{&KEY-PHRASE} ~
-      AND loc.company = ip-company NO-LOCK ~
+      AND loc.company = ip-company ~
+ AND loc.active = TRUE NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 loc
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 loc
@@ -124,7 +126,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
      SIZE 45 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 91 BY 1.43.
 
 /* Query definitions                                                    */
@@ -195,7 +197,8 @@ ASSIGN
 /* Query rebuild information for BROWSE BROWSE-1
      _TblList          = "ASI.loc"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ASI.loc.company = ip-company"
+     _Where[1]         = "ASI.loc.company = ip-company
+ AND ASI.loc.active = TRUE"
      _FldNameList[1]   = ASI.loc.loc
      _FldNameList[2]   = ASI.loc.dscr
      _Query            is OPENED

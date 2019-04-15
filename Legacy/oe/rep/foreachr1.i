@@ -56,7 +56,7 @@
             AND CAN-FIND(FIRST oe-ord
                          WHERE oe-ord.company EQ oe-rell.company
                            AND oe-ord.ord-no  EQ oe-rell.ord-no
-                           AND oe-ord.stat    EQ "H")
+                           AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold))
           NO-LOCK:
         NEXT foreachr.
       END.

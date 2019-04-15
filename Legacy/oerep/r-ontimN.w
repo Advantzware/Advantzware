@@ -25,6 +25,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -39,6 +41,8 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 ASSIGN
  cocode = gcompany
  locode = gloc.
+
+{sys/ref/CustList.i NEW}
 
 DEFINE VARIABLE v-program AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOG NO-UNDO.
@@ -63,6 +67,7 @@ DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,BOL Date,On-Time," +
@@ -96,11 +101,11 @@ ASSIGN cTextListToDefault  = "Customer Part#,FG Item#,Order#,Ord Date,Due Date,B
 end_i-no begin_ord-date end_ord-date begin_bol-date end_bol-date sl_avail ~
 Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
 lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel RECT-7 RECT-8 
+btn-cancel RECT-7 RECT-8 tb_cust-list btnCustList 
 &Scoped-Define DISPLAYED-OBJECTS rsCompareDate begin_cust end_cust ~
 begin_i-no end_i-no begin_ord-date end_ord-date begin_bol-date end_bol-date ~
 sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+td-show-parm tb_excel tb_runExcel fi_file tb_cust-list 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -129,7 +134,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -139,6 +144,10 @@ DEFINE BUTTON btn-cancel AUTO-END-KEY
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
      SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnCustList 
+     LABEL "Preview" 
+     SIZE 9.8 BY .81.
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
@@ -261,19 +270,24 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
+     LABEL "Use Defined Customer List" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30.8 BY .95 NO-UNDO.
+
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -282,7 +296,7 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     rsCompareDate AT ROW 7.81 COL 24 NO-LABELS WIDGET-ID 2
+     rsCompareDate AT ROW 7.81 COL 24 NO-LABEL WIDGET-ID 2
      begin_cust AT ROW 2.81 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
      end_cust AT ROW 2.81 COL 67 COLON-ALIGNED HELP
@@ -299,21 +313,21 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Order Date"
      end_bol-date AT ROW 6.38 COL 67 COLON-ALIGNED HELP
           "Enter Ending Order Date"
-     sl_avail AT ROW 10.38 COL 4.6 NO-LABELS WIDGET-ID 26
+     sl_avail AT ROW 10.38 COL 4.6 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 10.38 COL 40.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 10.38 COL 60 NO-LABELS WIDGET-ID 28
+     sl_selected AT ROW 10.38 COL 60 NO-LABEL WIDGET-ID 28
      Btn_Add AT ROW 11.38 COL 40.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
      Btn_Remove AT ROW 12.38 COL 40.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 13.43 COL 40.6 WIDGET-ID 40
      btn_down AT ROW 14.43 COL 40.6 WIDGET-ID 42
-     rd-dest AT ROW 17.19 COL 6 NO-LABELS
-     lv-ornt AT ROW 17.43 COL 30 NO-LABELS
+     rd-dest AT ROW 17.19 COL 6 NO-LABEL
+     lv-ornt AT ROW 17.43 COL 30 NO-LABEL
      lines-per-page AT ROW 17.33 COL 83 COLON-ALIGNED
      lv-font-no AT ROW 19.38 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 20.33 COL 27 COLON-ALIGNED NO-LABELS
+     lv-font-name AT ROW 20.33 COL 27 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 21.52 COL 29
      tb_excel AT ROW 21.71 COL 71 RIGHT-ALIGNED
      tb_runExcel AT ROW 21.71 COL 93 RIGHT-ALIGNED
@@ -321,6 +335,8 @@ DEFINE FRAME FRAME-A
           "Enter File Name"
      btn-ok AT ROW 24.76 COL 24
      btn-cancel AT ROW 24.76 COL 59
+     tb_cust-list AT ROW 1.81 COL 29.4 WIDGET-ID 6
+     btnCustList AT ROW 1.91 COL 63 WIDGET-ID 8
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 9.67 COL 5.4 WIDGET-ID 38
      "Output Destination" VIEW-AS TEXT
@@ -363,15 +379,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -391,16 +407,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_bol-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -416,6 +422,14 @@ ASSIGN
 ASSIGN 
        begin_ord-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_bol-date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -439,6 +453,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       tb_cust-list:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -452,12 +470,12 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -554,6 +572,14 @@ DO:
 
 SESSION:SET-WAIT-STATE("general").
   RUN GetSelectionList.
+  FIND FIRST  ttCustList NO-LOCK NO-ERROR.
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+      EMPTY TEMP-TABLE ttCustList.
+      RUN BuildCustList(INPUT cocode,
+                        INPUT tb_cust-list AND glCustListActive,
+                        INPUT begin_cust,
+                        INPUT END_cust).
+  END.
   RUN run-report. 
 
   STATUS DEFAULT "Processing Complete". 
@@ -593,6 +619,18 @@ SESSION:SET-WAIT-STATE("general").
        END. 
        WHEN 6  THEN RUN output-to-port.
   END CASE. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCustList
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList C-Win
+ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
+DO:
+  RUN CustList.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -865,6 +903,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_cust-list
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
+ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
+DO:
+  assign {&self-name}.
+  EMPTY TEMP-TABLE ttCustList.
+  RUN SetCustRange(INPUT tb_cust-list).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
@@ -928,16 +979,51 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_ord-date = TODAY
    begin_bol-date = TODAY
    lv-ornt = "L".
-RUN DisplaySelectionList.
+  RUN DisplaySelectionList.
   RUN enable_UI.
 
   {methods/nowait.i}
+  RUN sys/inc/CustListForm.p ( "OR14",cocode, 
+                               OUTPUT ou-log,
+                               OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust.
   END.
+
+  RUN sys/ref/CustList.p (INPUT cocode,
+                          INPUT 'OR14',
+                          INPUT NO,
+                          OUTPUT glCustListActive).
+
+ {sys/inc/chblankcust.i ""OR14""}
+
+ IF ou-log THEN DO:
+      ASSIGN 
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes"
+        tb_cust-list = YES 
+        .
+      RUN SetCustRange(INPUT tb_cust-list).
+  END.
+  ELSE
+      ASSIGN
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        .
+ IF ou-log AND ou-cust-int = 0 THEN do:
+       ASSIGN 
+        tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+        btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+        tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
+        tb_cust-list = NO
+        .
+      RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
+   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -948,6 +1034,64 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BuildCustList C-Win 
+PROCEDURE BuildCustList :
+/*------------------------------------------------------------------------------
+  Purpose:     Builds the temp table of customers   
+  Parameters:  Company Code, Customer list logical and/or customer range
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iplList AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipcBeginCust AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcEndCust AS CHARACTER NO-UNDO.
+
+DEFINE BUFFER bf-cust FOR cust.
+
+DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
+
+IF iplList THEN DO:
+    RUN sys/ref/CustList.p (INPUT ipcCompany,
+                            INPUT 'OR14',
+                            INPUT YES,
+                            OUTPUT lActive).
+END.
+ELSE DO:
+    FOR EACH bf-cust
+        WHERE bf-cust.company EQ ipcCompany
+          AND bf-cust.cust-no GE ipcBeginCust
+          AND bf-cust.cust-no LE ipcEndCust
+        NO-LOCK:
+        CREATE ttCustList.
+        ASSIGN 
+            ttCustList.cust-no = bf-cust.cust-no
+            ttCustList.log-fld = YES
+        .
+    END.
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CustList C-Win 
+PROCEDURE CustList :
+/*------------------------------------------------------------------------------
+  Purpose:  Display a UI of selected customers   
+  Parameters:  
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    RUN sys/ref/CustListManager.w(INPUT cocode,
+                                  INPUT 'OR14').
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -1100,13 +1244,13 @@ PROCEDURE enable_UI :
   DISPLAY rsCompareDate begin_cust end_cust begin_i-no end_i-no begin_ord-date 
           end_ord-date begin_bol-date end_bol-date sl_avail sl_selected rd-dest 
           lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+          tb_runExcel fi_file tb_cust-list 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE rsCompareDate begin_cust end_cust begin_i-no end_i-no begin_ord-date 
          end_ord-date begin_bol-date end_bol-date sl_avail Btn_Def sl_selected 
          Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page 
          lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-         RECT-7 RECT-8 
+         RECT-7 RECT-8 tb_cust-list btnCustList 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1298,6 +1442,7 @@ DEFINE VARIABLE cFieldName AS cha NO-UNDO.
 DEFINE VARIABLE str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE lSelected AS LOGICAL INIT YES NO-UNDO.
 
 {sys/form/r-top5DL.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1321,7 +1466,15 @@ ASSIGN
  v-cust[1] = begin_cust
  v-cust[2] = end_cust
  v-date[1] = begin_ord-date
- v-date[2] = end_ord-date.
+ v-date[2] = end_ord-date
+ lSelected  = tb_cust-list .
+
+IF lselected THEN DO:
+    FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
+    IF AVAIL ttCustList THEN ASSIGN v-cust[1] = ttCustList.cust-no .
+    FIND LAST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no NO-LOCK NO-ERROR .
+    IF AVAIL ttCustList THEN ASSIGN v-cust[2] = ttCustList.cust-no .
+END.
 
 {sys/inc/print1.i}
 
@@ -1370,6 +1523,8 @@ SESSION:SET-WAIT-STATE ("general").
         WHERE oe-ord.company  EQ cocode
           AND oe-ord.cust-no  GE v-cust[1]
           AND oe-ord.cust-no  LE v-cust[2]
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           AND oe-ord.ord-date GE v-date[1]
           AND oe-ord.ord-date LE v-date[2]
         USE-INDEX cust NO-LOCK,
@@ -1736,6 +1891,30 @@ PROCEDURE show-param :
   END.
 
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetCustRange C-Win 
+PROCEDURE SetCustRange :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN
+        begin_cust:SENSITIVE = NOT iplChecked
+        end_cust:SENSITIVE = NOT iplChecked
+        begin_cust:VISIBLE = NOT iplChecked
+        end_cust:VISIBLE = NOT iplChecked
+        btnCustList:SENSITIVE = iplChecked
+       .
+  END.
 
 END PROCEDURE.
 

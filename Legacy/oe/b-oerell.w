@@ -1211,8 +1211,11 @@ PROCEDURE local-assign-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */    
-
+    /* Code placed here will execute AFTER standard behavior.    */
+  ASSIGN     
+    oe-rell.enteredBy = USERID("asi")
+    oe-rell.enteredDT = DATETIME(TODAY, MTIME)
+    . 
   IF adm-new-record AND NOT adm-adding-record THEN DO:
     EMPTY TEMP-TABLE w-oe-rell.
 
@@ -1978,7 +1981,8 @@ PROCEDURE valid-ord-no :
 
     IF lv-msg EQ "" THEN
       IF oe-ord.stat EQ "H" THEN "on hold".
-
+    IF lv-msg EQ "" THEN 
+      IF oe-ord.priceHold THEN "on price hold".
     IF lv-msg EQ "" THEN
       IF LOOKUP(oe-ord.stat,ord-ok) LE 0 THEN lv-msg = "not available for release".
 

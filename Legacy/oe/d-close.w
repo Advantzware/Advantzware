@@ -475,28 +475,35 @@ PROCEDURE load-list :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-close AS LOG no-undo.
   DEF VAR v-list AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE lMaxLenExceeded AS LOGICAL NO-UNDO.
   
-  v-list = "".
-
+  ASSIGN v-list = ""
+        lMaxLenExceeded = FALSE.
   FOR EACH w-file WHERE w-file.cloze EQ ip-close,
       FIRST oe-ordl WHERE RECID(oe-ordl) EQ w-file.rec-id NO-LOCK
       BY w-file.ord-no
       BY oe-ordl.LINE:
-
-     v-list = v-list +
-              TRIM(STRING(oe-ordl.ord-no,">>>>>>>>")) +
-                FILL(" ",8 - LENGTH(TRIM(STRING(oe-ordl.ord-no,">>>>>>>>")))) + "  " +
-              "ITEM: " + TRIM(oe-ordl.i-no) + " " +
-                         TRIM(oe-ordl.i-name)                                 + "  " +
-              "ORDER QTY: " + TRIM(STRING(oe-ordl.qty,"->>>>>>>>"))           + "  " +
-              "SHIP QTY: " + TRIM(STRING(oe-ordl.ship-qty,"->>>>>>>>"))       + ",".
+          
+     /* To avoid error when string is more than 32000 bytes */
+     IF LENGTH(v-list) LT 3000 THEN 
+       v-list = v-list +
+                TRIM(STRING(oe-ordl.ord-no,">>>>>>>>")) +
+                  FILL(" ",8 - LENGTH(TRIM(STRING(oe-ordl.ord-no,">>>>>>>>")))) + "  " +
+                "ITEM: " + TRIM(oe-ordl.i-no) + " " +
+                           TRIM(oe-ordl.i-name)                                 + "  " +
+                "ORDER QTY: " + TRIM(STRING(oe-ordl.qty,"->>>>>>>>"))           + "  " +
+                "SHIP QTY: " + TRIM(STRING(oe-ordl.ship-qty,"->>>>>>>>"))       + ",".
+     ELSE 
+       lMaxLenExceeded = TRUE.
   END.
 
   IF v-list NE "" THEN
     IF SUBSTR(v-list,LENGTH(TRIM(v-list)),1) EQ "," THEN
       SUBSTR(v-list,LENGTH(TRIM(v-list)),1) = "".
-  
+  IF lMaxLenExceeded EQ TRUE THEN 
+    MESSAGE "Note: Order list is too long - some orders not listed."
+            SKIP "Please review manually."
+    VIEW-AS ALERT-BOX.
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-close THEN
       close-list:LIST-ITEMS = v-list.

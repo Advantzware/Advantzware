@@ -52,7 +52,7 @@ svEndItemNo svAllItemName svStartItemName svEndItemName svAllCustPart ~
 svStartCustPart svEndCustPart svCustList btnCustList svAllCustNo ~
 svStartCustNo svEndCustNo svAllEstimate svStartEstimate svEndEstimate ~
 svAllStyle svStartStyle svEndStyle svAllProdCategory svStartProdCategory ~
-svEndProdCategory svActive svInactive svSpecNote 
+svEndProdCategory svActive svInactive svSpecNote btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svAllItemNo svStartItemNo ~
 startItemName svEndItemNo endItemName svAllItemName svStartItemName ~
 svEndItemName svAllCustPart svStartCustPart startCustPartName svEndCustPart ~
@@ -61,7 +61,7 @@ svEndCustNo endCustName svAllEstimate svStartEstimate svEndEstimate ~
 svAllStyle svStartStyle startStyleDescription svEndStyle ~
 endStyleDescription svAllProdCategory svStartProdCategory ~
 startProdCategoryName svEndProdCategory endProdCategoryName svActive ~
-svInactive svSpecNote 
+svInactive svSpecNote svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -75,9 +75,19 @@ svInactive svSpecNote
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCustList 
      LABEL "Preview" 
      SIZE 9.8 BY .95.
+
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
 
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -194,6 +204,38 @@ DEFINE VARIABLE svStartStyle AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 77.8 BY 4.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86.8 BY 4.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86.8 BY 4.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86.8 BY 5.24.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86.8 BY 4.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86.8 BY 4.
+
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 86.8 BY 5.24.
+
+DEFINE RECTANGLE RECT-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
+
 DEFINE VARIABLE svActive AS LOGICAL INITIAL no 
      LABEL "Active" 
      VIEW-AS TOGGLE-BOX
@@ -253,71 +295,93 @@ DEFINE VARIABLE svSpecNote AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 20 COLON-ALIGNED WIDGET-ID 60
-     svAllItemNo AT ROW 2.67 COL 22 HELP
+     svCompany AT ROW 1.24 COL 176 COLON-ALIGNED WIDGET-ID 60
+     svAllItemNo AT ROW 1.48 COL 68 HELP
           "All Items?" WIDGET-ID 164
-     svStartItemNo AT ROW 3.86 COL 20 COLON-ALIGNED HELP
+     svStartItemNo AT ROW 2.67 COL 66 COLON-ALIGNED HELP
           "Enter Start Item" WIDGET-ID 168
-     startItemName AT ROW 3.86 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     svEndItemNo AT ROW 5.05 COL 20 COLON-ALIGNED HELP
+     startItemName AT ROW 2.67 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 172
+     svEndItemNo AT ROW 3.86 COL 66 COLON-ALIGNED HELP
           "Enter End Item" WIDGET-ID 166
-     endItemName AT ROW 5.05 COL 43 COLON-ALIGNED NO-LABEL WIDGET-ID 170
-     svAllItemName AT ROW 6.71 COL 22 HELP
+     endItemName AT ROW 3.86 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 170
+     svAllItemName AT ROW 6 COL 27 HELP
           "All Item Names?" WIDGET-ID 142
-     svStartItemName AT ROW 7.91 COL 20 COLON-ALIGNED HELP
+     svStartItemName AT ROW 7.19 COL 25 COLON-ALIGNED HELP
           "Enter Start Item Name" WIDGET-ID 146
-     svEndItemName AT ROW 9.1 COL 20 COLON-ALIGNED HELP
+     svEndItemName AT ROW 8.38 COL 25 COLON-ALIGNED HELP
           "Enter End Item Name" WIDGET-ID 144
-     svAllCustPart AT ROW 10.76 COL 22 HELP
+     svAllCustPart AT ROW 10.52 COL 27 HELP
           "All Customer Parts?" WIDGET-ID 158
-     svStartCustPart AT ROW 11.95 COL 20 COLON-ALIGNED HELP
+     svStartCustPart AT ROW 11.71 COL 25 COLON-ALIGNED HELP
           "Enter Start Customer Part" WIDGET-ID 162
-     startCustPartName AT ROW 11.95 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 156
-     svEndCustPart AT ROW 13.14 COL 20 COLON-ALIGNED HELP
+     startCustPartName AT ROW 11.71 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     svEndCustPart AT ROW 12.91 COL 25 COLON-ALIGNED HELP
           "Enter End Customer Part" WIDGET-ID 160
-     endCustPartName AT ROW 13.14 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 154
-     svCustList AT ROW 14.81 COL 22 WIDGET-ID 48
-     btnCustList AT ROW 14.81 COL 52 WIDGET-ID 46
-     svAllCustNo AT ROW 16 COL 22 HELP
+     endCustPartName AT ROW 12.91 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     svCustList AT ROW 15.05 COL 27 WIDGET-ID 48
+     btnCustList AT ROW 15.05 COL 57 WIDGET-ID 46
+     svAllCustNo AT ROW 16.24 COL 27 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 17.19 COL 20 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 17.43 COL 25 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 17.19 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 18.38 COL 20 COLON-ALIGNED HELP
+     startCustName AT ROW 17.43 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 18.62 COL 25 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 18.38 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svAllEstimate AT ROW 20.05 COL 22 HELP
+     endCustName AT ROW 18.62 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svAllEstimate AT ROW 6 COL 117 HELP
           "All Estimates?" WIDGET-ID 148
-     svStartEstimate AT ROW 21.24 COL 20 COLON-ALIGNED HELP
+     svStartEstimate AT ROW 7.19 COL 115 COLON-ALIGNED HELP
           "Enter Start Estimate" WIDGET-ID 152
-     svEndEstimate AT ROW 22.43 COL 20 COLON-ALIGNED HELP
+     svEndEstimate AT ROW 8.38 COL 115 COLON-ALIGNED HELP
           "Enter End Estimate" WIDGET-ID 150
-     svAllStyle AT ROW 24.1 COL 22 HELP
+     svAllStyle AT ROW 10.52 COL 117 HELP
           "All Styles?" WIDGET-ID 58
-     svStartStyle AT ROW 25.29 COL 20 COLON-ALIGNED HELP
+     svStartStyle AT ROW 11.71 COL 115 COLON-ALIGNED HELP
           "Enter Start Style" WIDGET-ID 22
-     startStyleDescription AT ROW 25.29 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     svEndStyle AT ROW 26.48 COL 20 COLON-ALIGNED HELP
+     startStyleDescription AT ROW 11.71 COL 131 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     svEndStyle AT ROW 12.91 COL 115 COLON-ALIGNED HELP
           "Enter End Style" WIDGET-ID 20
-     endStyleDescription AT ROW 26.48 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     svAllProdCategory AT ROW 28.38 COL 22 HELP
+     endStyleDescription AT ROW 12.91 COL 131 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     svAllProdCategory AT ROW 15.05 COL 117 HELP
           "All Sales Reps?" WIDGET-ID 202
-     svStartProdCategory AT ROW 29.57 COL 20 COLON-ALIGNED HELP
+     svStartProdCategory AT ROW 16.24 COL 115 COLON-ALIGNED HELP
           "Enter Start Product Category" WIDGET-ID 206
-     startProdCategoryName AT ROW 29.57 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 210
-     svEndProdCategory AT ROW 30.76 COL 20 COLON-ALIGNED HELP
+     startProdCategoryName AT ROW 16.24 COL 131 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     svEndProdCategory AT ROW 17.43 COL 115 COLON-ALIGNED HELP
           "Enter End Product Category" WIDGET-ID 204
-     endProdCategoryName AT ROW 30.76 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 208
-     svActive AT ROW 32.43 COL 22 HELP
+     endProdCategoryName AT ROW 17.43 COL 131 COLON-ALIGNED NO-LABEL WIDGET-ID 208
+     svActive AT ROW 18.62 COL 117 HELP
           "Select to Show Active Items" WIDGET-ID 88
-     svInactive AT ROW 32.43 COL 39 HELP
+     svInactive AT ROW 18.62 COL 134 HELP
           "Select to Show Inactive Items" WIDGET-ID 324
-     svSpecNote AT ROW 32.43 COL 58 HELP
+     svSpecNote AT ROW 18.62 COL 153 HELP
           "Select to Show Spec Notes" WIDGET-ID 326
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 83 BY 33.91
+         SIZE 183.4 BY 24.38.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     btnAddEmail AT ROW 22.67 COL 57 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 21 COL 63 NO-LABEL WIDGET-ID 600
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 21 COL 57 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 21.71 COL 52 WIDGET-ID 602
+     RECT-1 AT ROW 1.24 COL 54 WIDGET-ID 328
+     RECT-2 AT ROW 5.76 COL 4 WIDGET-ID 330
+     RECT-3 AT ROW 10.29 COL 4 WIDGET-ID 332
+     RECT-4 AT ROW 14.81 COL 4 WIDGET-ID 334
+     RECT-5 AT ROW 5.76 COL 94 WIDGET-ID 336
+     RECT-6 AT ROW 10.29 COL 94 WIDGET-ID 338
+     RECT-7 AT ROW 14.81 COL 94 WIDGET-ID 340
+     RECT-8 AT ROW 20.52 COL 51 WIDGET-ID 638
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 183.4 BY 24.38
          TITLE "Report Parameters".
 
 
@@ -347,8 +411,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 33.91
-         WIDTH              = 83.
+         HEIGHT             = 24.38
+         WIDTH              = 183.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -370,7 +434,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -383,6 +447,22 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endProdCategoryName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endStyleDescription IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-8 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -415,6 +495,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/Recipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCustList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCustList sObject

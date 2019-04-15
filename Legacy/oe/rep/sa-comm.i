@@ -101,7 +101,7 @@
         RELEASE tt-report.
         RELEASE ar-invl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl then 
         find first ar-invl
@@ -377,7 +377,7 @@
 
         FIND ar-invl WHERE ROWID(ar-invl) EQ tt-report.row-id NO-LOCK NO-ERROR.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         if avail oe-retl and not avail ar-invl then 
         find first ar-invl
@@ -712,7 +712,7 @@
             PUT STREAM st-excell
                 p-sman  format "x(3)" v-comma
                 tt-report.key-02 v-comma
-                cust.NAME  FORM "x(30)" v-comma
+                REPLACE(cust.name,",","")  FORM "x(30)" v-comma
                 v-tot-samt[1] v-comma
                 v-tot-camt[1] v-comma
                 v-comm      format "->>>9.99" v-comma

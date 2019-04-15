@@ -1,0 +1,54 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:34pm                                            MANUFACTURED ITEM MASTER FILE
+
+
+                                               PROD                                                 QUANTITY
+ITEM #          NAME                           CAT   UOM CUST. #  CUST NAME                          ON HAND
+--------------- ------------------------------ ----- --- -------- ------------------------------ -----------
+1012            RT Reeses Pieces Box                 M   HER10    Hershey Chocolate Corp               2,000
+  CUST PART#: 1012         DESC LINE 1: 2 x 1 X 4                      DESC LINE 2:                               
+
+Almond Bar      Hershey Almond Bar 30 Pak            M   HER10    Hershey Chocolate Corp              29,000
+  CUST PART#: Almond Bar   DESC LINE 1: SE 6 x 4 x 8                   DESC LINE 2:                               
+
+Avalon Box      RT Hersey Kiss Box                   M   HER10    Hershey Chocolate Corp              25,000
+  CUST PART#: Avalon Box   DESC LINE 1: 3 x 2 x 5                      DESC LINE 2:                               
+
+Candy Box       r.t. 1-1/2 x 1-1/2 x 3/4             M   HER10    Hershey Chocolate Corp              21,000
+  CUST PART#: candy box    DESC LINE 1:                                DESC LINE 2:                               
+
+HER 123         KL Butter Carton                     M   HER10    Hershey Chocolate Corp              52,000
+  CUST PART#: HER 123      DESC LINE 1: 2-1/2 x 2-1/2 x 5              DESC LINE 2:                               
+
+HER 456         KL Butter Carton                     M   HER10    Hershey Chocolate Corp            -192,000
+  CUST PART#: HER 456      DESC LINE 1: 2-1/2 x 2-1/2 x 5              DESC LINE 2:                               
+
+HER 555         RT 5 x 5 x 5                         M   HER10    Hershey Chocolate Corp                -400
+  CUST PART#: HER 555      DESC LINE 1:                                DESC LINE 2:                               
+
+HER-1016        RT 2x.75x6                           M   HER10    Hershey Chocolate Corp              26,000
+  CUST PART#: HER-1016     DESC LINE 1:                                DESC LINE 2:                               
+
+HER-1017        RT 5x2x8                             M   HER10    Hershey Chocolate Corp              25,000
+  CUST PART#: HER-1017     DESC LINE 1:                                DESC LINE 2:                               
+
+HER-1021        RT 5x4x8                             M   HER10    Hershey Chocolate Corp              25,400
+  CUST PART#: HER-1021     DESC LINE 1: Standard Box                   DESC LINE 2:                               
+
+HER-KISS        Hershey Kiss                         M   HER10    Hershey Chocolate Corp              54,600
+  CUST PART#: HER-KISS     DESC LINE 1: RT 3 x 5 x 2                   DESC LINE 2:                               
+
+IBM-Chocolate   RT 4 x 4 x 3                         M   HER10    Hershey Chocolate Corp              27,000
+  CUST PART#: Chocolate Ba DESC LINE 1:                                DESC LINE 2:                               
+
+Potato Chip     Potato Chip Sealed End               M   HER10    Hershey Chocolate Corp             -25,000
+  CUST PART#: Potato Chip  DESC LINE 1: SE 9.75 4-1/8 x 12 15-16       DESC LINE 2:                               
+
+SAN DIEGO       RT 3 1/8 x 3 1/8 x 3 1/8             M   HER10    Hershey Chocolate Corp              -5,000
+  CUST PART#: SAN DIEGO    DESC LINE 1: Bakery Box                     DESC LINE 2:                               
+
+XMAS KISS       RT XMAS KISS BOX                     M   HER10    Hershey Chocolate Corp             -12,500
+  CUST PART#: HER XMAS KIS DESC LINE 1: 3 x 1 x 7                      DESC LINE 2:                               
+
+

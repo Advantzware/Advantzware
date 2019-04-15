@@ -34,7 +34,11 @@ CASE ipOutputTo:
   WHEN 'Screen' THEN
   /* better to run notepad, gives all the same functionality w/o having to maintain
   RUN scr-rpt.w (ipFileName,subject,ipFont,ipOrientation). */
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" string("file:///" + ipFileName) false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe VALUE(ipFileName).
+&ENDIF
 END CASE.
 IF errorCode NE 0 THEN
 MESSAGE 'ERROR:' errorCode VIEW-AS ALERT-BOX ERROR.

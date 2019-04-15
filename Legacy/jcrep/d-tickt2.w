@@ -57,6 +57,9 @@ DEFINE VARIABLE tb_app-unprinted AS LOGICAL INITIAL NO.
 DEF NEW SHARED VAR s-prt-fgimage AS LOG NO-UNDO.
 DEF VAR is-xprint-form AS LOG NO-UNDO.
 DEF VAR ls-fax-file AS cha NO-UNDO.
+DEFINE VARIABLE lExportXML AS LOGICAL INIT NO NO-UNDO.
+DEFINE VARIABLE cReturnChar      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE XMLJobTicket-log AS LOGICAL   NO-UNDO.
 
 DEF NEW SHARED VAR s-prt-mstandard AS LOG NO-UNDO.
 DEF NEW SHARED VAR s-prt-shipto AS LOG NO-UNDO.
@@ -76,6 +79,11 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cReturnChar, OUTPUT lRecfound).
+    XMLJobTicket-log = LOGICAL(cReturnChar) NO-ERROR.
+    
 {cerep/jc-keyst.i "NEW"}
 {cerep/jc-keys2.i "NEW"}
 {cecrep/jc-prem.i "NEW"}
@@ -114,13 +122,13 @@ DEF BUFFER b-reftable-split FOR reftable.
 end_job1 end_job2 tb_fold tb_corr tb_reprint tb_box tb_fgimage spec_codes ~
 tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship tb_freeze-note ~
 TB_sample_req tb_make_hold lines-per-page rd-dest lv-ornt td-show-parm ~
-btn-ok btn-cancel 
+tb_exportXML btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job1 begin_job2 end_job1 end_job2 ~
 tb_fold tb_corr tb_reprint tb_box tb_fgimage spec_codes tb_prt-mch ~
 rd_print-speed tb_prt-shipto tb_prt-sellprc tb_prt-label tb_committed ~
 tb_prt-set-header tb_prompt-ship tb_freeze-note TB_sample_req tb_make_hold ~
 lines-per-page rd-dest lv-ornt lv-font-no lv-font-name td-show-parm ~
-v-run-speed 
+tb_exportXML v-run-speed 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -245,6 +253,11 @@ DEFINE VARIABLE tb_DC AS LOGICAL INITIAL no
      LABEL "Print &Die Cutter Card" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_exportXML AS LOGICAL INITIAL no 
+     LABEL "Export XML" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_fgimage AS LOGICAL INITIAL no 
      LABEL "Print FG Item Image?" 
@@ -377,6 +390,7 @@ DEFINE FRAME Dialog-Frame
      lv-font-no AT ROW 19.57 COL 35 COLON-ALIGNED
      lv-font-name AT ROW 20.52 COL 29 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 22.19 COL 31
+     tb_exportXML AT ROW 23.05 COL 31 WIDGET-ID 10
      btn-ok AT ROW 24.57 COL 24
      btn-cancel AT ROW 24.57 COL 58
      v-run-speed AT ROW 11 COL 15 COLON-ALIGNED NO-LABEL
@@ -1125,6 +1139,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF lookup(lv-format-f,"Interpac,Dayton,FibreFC,Livngstn,Frankstn,CentBox,Colonial,Unipak,Ottpkg,Shelby,CCC,Accord,Carded") > 0 THEN lines-per-page = 55.
      END.  
      
+     IF  XMLJobTicket-log  THEN 
+       tb_ExportXML:HIDDEN = NO.
+     ELSE 
+       tb_ExportXML:HIDDEN = YES.
+      
      IF tb_corr THEN DO:
       {sys/inc/jobcard.i "C"}
       ASSIGN
@@ -1339,13 +1358,13 @@ PROCEDURE enable_UI :
           tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header 
           tb_prompt-ship tb_freeze-note TB_sample_req tb_make_hold 
           lines-per-page rd-dest lv-ornt lv-font-no lv-font-name td-show-parm 
-          v-run-speed 
+          tb_exportXML v-run-speed 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-42 RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_fold 
          tb_corr tb_reprint tb_box tb_fgimage spec_codes tb_prt-label 
          tb_committed tb_prt-set-header tb_prompt-ship tb_freeze-note 
          TB_sample_req tb_make_hold lines-per-page rd-dest lv-ornt td-show-parm 
-         btn-ok btn-cancel 
+         tb_exportXML btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1573,7 +1592,9 @@ ASSIGN
  s-prt-fgimage = tb_fgimage
  s-prt-label = tb_prt-label
  s-committed-board-only = tb_committed 
- s-prt-set-header = tb_prt-set-header.
+ s-prt-set-header = tb_prt-set-header
+ lExportXML              = tb_ExportXML
+ .
 
 {jcrep/tickrrpt.i}
 

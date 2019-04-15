@@ -193,6 +193,7 @@ PROCEDURE pGetParamValues :
            AND user-print.program-id EQ ipcName
            AND user-print.user-id    EQ ipcUserID
            AND user-print.batch      EQ ""
+           AND user-print.prgmName   EQ ""
          NO-ERROR.
     ELSE
     FIND FIRST user-print NO-LOCK
@@ -200,6 +201,7 @@ PROCEDURE pGetParamValues :
            AND user-print.batch-seq  EQ ipiBatch
            AND user-print.program-id EQ ipcName
            AND user-print.batch      EQ "Batch"
+           AND user-print.prgmName   EQ ""
          NO-ERROR.
 
 END PROCEDURE.

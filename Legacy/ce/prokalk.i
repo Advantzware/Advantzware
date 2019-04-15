@@ -45,8 +45,9 @@
                     (if xef.n-out-l eq 0 then 1 else xef.n-out-l).
 
 
-   IF op-lock.val[1] EQ 1                          AND 
-      (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
+   IF op-lock.val[1] EQ 1
+    AND NOT est-op.isLocked                          
+    AND (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN DO:
       est-op.op-waste = mach.mr-waste.
 
       if est-op.dept eq "PR" or est-op.dept eq "CT" then 

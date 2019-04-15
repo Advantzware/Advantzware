@@ -318,7 +318,7 @@ form " " to 80
      v-invhead = ""
      end-page  = 26.
 
-    if oe-ctrl.prcom then
+    
       assign
        v-c-name    = company.name
        v-c-addr[1] = company.addr[1]

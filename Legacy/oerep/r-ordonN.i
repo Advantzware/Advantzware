@@ -5,6 +5,8 @@
         WHERE oe-ord.company  EQ cocode
           AND oe-ord.cust-no  GE v-cust[1]
           AND oe-ord.cust-no  LE v-cust[2]
+          AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq oe-ord.cust-no
+          AND ttCustList.log-fld no-lock) else true)
           AND oe-ord.ord-date GE v-date[1]
           AND oe-ord.ord-date LE v-date[2]
           AND oe-ord.user-id  GE begin_userid
@@ -35,9 +37,9 @@
         FIND FIRST itemfg WHERE itemfg.company EQ cocode 
                           AND itemfg.i-no = oe-ordl.i-no NO-LOCK NO-ERROR.
         
-        IF itemfg.stat NE "" THEN
-            IF AVAIL itemfg AND (itemfg.stat NE "A") AND NOT tb_itm-act THEN NEXT .
-
+        IF AVAIL itemfg AND itemfg.stat NE "" THEN               
+            IF (itemfg.stat NE "A") AND NOT tb_itm-act THEN NEXT .        
+        
       {oerep/r-ordo1N.i}
     END.
 
@@ -332,7 +334,11 @@
 
         IF oe-ordl.disc NE 0 THEN
            dOrdVal = ROUND(dOrdVal * (1 - (oe-ordl.disc / 100)),2).
-
+        
+        lc-result = oe-ord.stat .
+        RUN oe/getStatusDesc.p( INPUT oe-ord.stat, OUTPUT cResult) .
+        IF cResult NE "" THEN
+            lc-result  = cResult .
              
 
             ASSIGN cDisplay = ""
@@ -365,6 +371,8 @@
                    WHEN "ord-value"  THEN cVarValue =  STRING(dOrdVal,"->>>,>>>,>>9.99") .
                    WHEN "ack-date" THEN cVarValue = IF oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
                    WHEN "ord-date" THEN cVarValue = IF oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
+                   WHEN "status" THEN cVarValue = STRING(lc-result,"x(20)").
+                   WHEN "csr"    THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.csrUser_id) ELSE "". 
                   /* WHEN "bin-job"  THEN cVarValue = STRING(v-bin-job)              .
                    WHEN "whs"      THEN cVarValue = STRING(v-whs)              .
                    WHEN "bin"      THEN cVarValue = STRING(v-bin)              .
@@ -391,6 +399,7 @@
             AND tt-fg-bin.qty     GT 0
             AND (tt-fg-bin.ord-no EQ oe-ord.ord-no OR
                  SUBSTR(tt-report.key-04,1,6) EQ "")
+            AND tt-fg-bin.cust EQ ""
           NO-LOCK
           BREAK BY tt-fg-bin.job-no
                 BY tt-fg-bin.job-no2

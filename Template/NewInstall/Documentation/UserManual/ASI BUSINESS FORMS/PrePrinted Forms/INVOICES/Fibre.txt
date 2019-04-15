@@ -1,0 +1,51 @@
+C3
+
+
+                                                                        1069
+
+                                                                        12/16/05
+
+                                                                        1815
+
+
+
+  Verbal PO       001ATT1000  Our Truck      DESTINATION     2% 10, Net 30
+
+
+  AT&T Communications Corp.                        AT&T Communications Corp.
+  ATT 1000 Blvd                                    ATT Blvd
+                                                   Warehouse B
+  Yardley, PA                                      Yardley, PA  19067
+
+
+
+    1000    2455  8x8x8                              1000 C      0.85 EA      850.00
+                  RSC 8x8x8 Stock Box
+                  200 C Kraft
+                  8x8x8
+                  PO#: Verbal PO
+
+     500    2455  5239                                500 C   3250.00 M      1625.00
+                  RSC 8x8x13
+                  ECT32 PaperBoard
+                  CATT10000041A
+                  PO#: VerbalPO
+
+  125000    2455  ATT-2977                         125000 C    300.00 M     37500.00
+                  Sealed End 10x5x8
+                  5 Color + Coating
+                  FATT10000003A
+                  PO#: VerbalPO
+
+                  DIE                  Die Charge                             111.11
+
+                  PLATE                Plates                                 900.00
+
+
+
+                                                                 FREIGHT:    2805.00
+                                                                 TAXABLE:    2627.47
+
+                                                                            46418.58
+
+C3

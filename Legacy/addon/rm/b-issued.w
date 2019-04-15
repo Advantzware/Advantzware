@@ -288,12 +288,12 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14
-      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14
+      rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U LABEL-BGCOLOR 14
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rctd.rct-date COLUMN-LABEL "Issue Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U LABEL-BGCOLOR 14
+      rm-rctd.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U LABEL-BGCOLOR 14
       rm-rctd.job-no2 FORMAT "99":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
@@ -432,7 +432,7 @@ AND rm-rctd.tag NE ''"
      _FldNameList[2]   > asi.rm-rctd.tag
 "tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.rm-rctd.loc
-"loc" "Whse" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loc" "Whse" "x(13)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.loc-bin
 "loc-bin" "Bin" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.rct-date
@@ -776,8 +776,7 @@ DO:
           RETURN NO-APPLY.
        END.
     END.
-
-
+    
     /* If "scan tag only" is set, then attempt to auto-save and auto-add. */
     IF adm-new-record AND v-scanTagOnly = YES THEN DO:
 
@@ -838,7 +837,15 @@ END.
 ON LEAVE OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
   IF LASTKEY NE -1 THEN DO:
+    DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+    IF SELF:MODIFIED THEN DO:
+       IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
 
+          cLocBin = SELF:SCREEN-VALUE.
+          ASSIGN rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cLocBin,1,5)
+                 rm-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(cLocBin,6,8).
+       END.
+    END.
     RUN valid-loc-bin-tag (1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -920,9 +927,22 @@ DO:
    DEF VAR v-single-job AS LOG INIT TRUE NO-UNDO.
    DEF VAR v-job-no-2 AS INT INIT -1 NO-UNDO.
    DEF VAR v-job-no AS CHAR NO-UNDO.
+   DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO .
+   DEFINE VARIABLE iCheckIndex AS INTEGER NO-UNDO .
 
    IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN
    DO:
+       IF SELF:MODIFIED THEN DO:
+               
+               
+           IF SELF:SCREEN-VALUE NE "" THEN DO:
+               iCheckIndex = INDEX(SELF:SCREEN-VALUE,"-") .
+               cJobNo = SELF:SCREEN-VALUE.
+               IF iCheckIndex GT 0 THEN
+                   ASSIGN rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(cJobNo,1,iCheckIndex - 1)
+                   rm-rctd.job-no2:SCREEN-VALUE = SUBSTRING(cJobNo,iCheckIndex + 1,2) .
+           END.
+       END.
       ASSIGN gv-job-no = trim(rm-rctd.job-no:SCREEN-VALUE) /* stacey */
              gv-job-no2 = INTEGER(rm-rctd.job-no2:SCREEN-VALUE)
              gv-item-no = rm-rctd.i-no:SCREEN-VALUE /* stacey */
@@ -1087,7 +1107,8 @@ END.
 ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
 DO:
    IF LASTKEY NE -1 THEN DO:
-      IF INTEGER(SELF:SCREEN-VALUE) EQ 0 THEN DO:
+      IF INTEGER(SELF:SCREEN-VALUE) EQ 0 AND 
+          rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
         MESSAGE "Sheet # cannot be 0. Press F1 for help"
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
         RETURN NO-APPLY.
@@ -1962,7 +1983,10 @@ DEF VAR v-rctd-rowid AS ROWID.
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    rm-rctd.cost     = ld-std-cost
-   rm-rctd.cost-uom = ld-cost-uom.
+   rm-rctd.cost-uom = ld-cost-uom
+   rm-rctd.enteredBy = USERID("asi")
+   rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+   .
 
   IF INT(rm-rctd.po-no) NE 0 THEN
     rm-rctd.bol = STRING(lv-i-no,"x(30)") + STRING(lv-line,"999").
@@ -3347,8 +3371,9 @@ PROCEDURE valid-s-num :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-    IF INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 THEN DO:
+  DO WITH FRAME {&FRAME-NAME}:  
+    IF INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 AND 
+        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO:
       MESSAGE "Sheet # may not be 0..." VIEW-AS ALERT-BOX.
       APPLY "entry" TO rm-rctd.s-num IN BROWSE {&BROWSE-NAME}.
       RETURN ERROR.

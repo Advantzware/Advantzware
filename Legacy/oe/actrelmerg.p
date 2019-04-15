@@ -101,18 +101,6 @@ FUNCTION get-dscr RETURNS CHARACTER
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-get-fob-dscr2) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-fob-dscr2 Procedure 
-FUNCTION get-fob-dscr2 RETURNS CHARACTER
-  ( INPUT ipcRecKey AS CHARACTER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-get-merge-prompt) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-merge-prompt Procedure 
@@ -830,10 +818,9 @@ FIND FIRST bf-oe-ordl WHERE bf-oe-ordl.company EQ oe-rel.company
         /* Check that the fob desc for this oe-relh matches that of oe-rel */
         IF reft-dscr GT "" THEN
         DO:
-           FOR EACH b2-oe-rell FIELDS(rec_key) WHERE
-               b2-oe-rell.r-no EQ oe-relh.r-no
-               NO-LOCK:
-               lcFobDscr2 = get-fob-dscr2(b2-oe-rell.rec_key).
+           FOR EACH b2-oe-rell NO-LOCK WHERE
+               b2-oe-rell.r-no EQ oe-relh.r-no:
+               lcFobDscr2 = b2-oe-rell.fob-code.
                /* Find of fob description for this oe-rell */
                IF (lcFobDscr2 GT "" AND lcFobDscr2 NE reft-dscr) OR
                   (lcFobDscr2 EQ "" AND reft-dscr NE "") THEN
@@ -1111,29 +1098,6 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-get-fob-dscr2) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-fob-dscr2 Procedure 
-FUNCTION get-fob-dscr2 RETURNS CHARACTER
-  ( INPUT ipcRecKey AS CHARACTER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-   /* Find of fob dscr for this oe-relh */
-   
-   IF b2-oe-rell.rec_key <> "" THEN 
-     RETURN oe-rell.fob-code.
-   ELSE
-     RETURN "".     
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-get-merge-prompt) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-merge-prompt Procedure 

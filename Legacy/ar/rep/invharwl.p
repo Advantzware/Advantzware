@@ -12,7 +12,7 @@ def var save_id as recid.
 def var v-bot-lab    as   char format "x(63)" extent 3.
 def var v-tot-sqft   as   dec  format "->>>>>>>9.99".
 def var v-tot-wght   as   dec  format "->>>>>>>9.99".
-def var v-tot-inv    as   dec  format "->>>>>>9.99".
+def var dTotInv    as   dec  format "->>>>>>9.99".
 
 def var v-addr-info  as   char.
 def var v-cust       like inv-head.addr extent 4.
@@ -96,7 +96,7 @@ form header
      skip(2)
      v-tot-sqft                     to 42
      v-tot-wght                     to 55
-     v-tot-inv                      to 85
+     dTotInv                        to 85
      skip(1)
 
     with frame inv-bot2 page-bottom no-box no-underline stream-io width 85.
@@ -297,13 +297,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     if ar-invl.tax and avail stax then
     do i = 1 to 3:
-      if stax.tax-code[i] ne "" then do:
+      if stax.tax-code1[i] ne "" then do:
         create w-tax.
         assign
-         w-dsc      = stax.tax-dscr[i]
+         w-dsc      = stax.tax-dscr1[i]
          w-tax      = if stax.accum-tax then v-t-price
                       else ar-invl.amt
-         w-tax      = round(w-tax * (1 + (stax.tax-rate[i] / 100)),2) - w-tax
+         w-tax      = round(w-tax * (1 + (stax.tax-rate1[i] / 100)),2) - w-tax
          v-t-price  = v-t-price + w-tax
          v-t-tax[i] = v-t-tax[i] + w-tax
          v-lines    = v-lines + 1.
@@ -317,7 +317,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        w-tax     = v-t-price
        v-lines   = v-lines + 1.
     end.
-    
+    dTotInv = dTotInv + ar-invl.amt.
     v-lines = v-lines + 1.
     
     if line-counter - 1 + v-lines gt page-size + 1 then page.
@@ -370,7 +370,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   do i = 1 to 3:
     v-bot-lab[i] = if v-t-tax[i] ne 0 then
                      ("**TOTAL " +
-                      (if avail stax then string(stax.tax-dscr[i],"x(25)")
+                      (if avail stax then string(stax.tax-dscr1[i],"x(25)")
                        else fill(" ",25)) +
                       fill(" ",19) +
                       string(v-t-tax[i],"->>>>>>9.99")) else "".
@@ -379,7 +379,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   if ar-inv.t-weight ne 0 then v-tot-wght = ar-inv.t-weight.
   
   assign
-   v-tot-inv      = ar-inv.due
+   dTotInv    = dTotInv + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] 
    v-last-page    = page-number
    ar-inv.printed = yes.
 end. /* for each ar-inv */

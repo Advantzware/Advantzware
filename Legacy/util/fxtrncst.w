@@ -31,10 +31,12 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 
 assign
- cocode = gcompany
- locode = gloc.
+    cocode = gcompany
+    locode = gloc.
 
-def var v-process as log no-undo.
+def    var      v-process   as log    no-undo.
+DEFINE VARIABLE hdCostProcs AS HANDLE.
+DEFINE STREAM excel.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -51,9 +53,12 @@ def var v-process as log no-undo.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no tb_0 tb_inactive ~
-btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no tb_0 tb_inactive 
+&Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no tb_FallBack ~
+tb_Receipts tb_0 tb_inactive tb_pro-only tb_recalcCosts tb_excel ~
+tb_runExcel fi_file btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no tb_FallBack ~
+tb_Receipts tb_0 tb_inactive tb_pro-only tb_recalcCosts tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -87,32 +92,78 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 48 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\fxtrncst.csv" 
+     LABEL "If Yes, File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FGCOLOR 9 .
+
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 6.67.
+     SIZE 89 BY 11.91.
 
 DEFINE VARIABLE tb_0 AS LOGICAL INITIAL yes 
      LABEL "Fix Cost for ~"0~" in Cost and ~"?~" in Cost only" 
      VIEW-AS TOGGLE-BOX
      SIZE 47 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_FallBack AS LOGICAL INITIAL yes 
+     LABEL "Use FG Item Costs if PO, Job, or Receipt Not Found" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 55 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_inactive AS LOGICAL INITIAL no 
      LABEL "Include Inactive Items" 
      VIEW-AS TOGGLE-BOX
      SIZE 47 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_pro-only AS LOGICAL INITIAL no 
+     LABEL "Report on proposed changes only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_recalcCosts AS LOGICAL INITIAL yes 
+     LABEL "Run Recalc Costs for each FG Item" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_Receipts AS LOGICAL INITIAL no 
+     LABEL "Include Receipts without Job or PO" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 46 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes 
+     LABEL "Auto Run Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     BGCOLOR 3  NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_i-no AT ROW 6.48 COL 28 COLON-ALIGNED HELP
+     begin_i-no AT ROW 5.95 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_i-no AT ROW 7.91 COL 28 COLON-ALIGNED HELP
+     end_i-no AT ROW 7.05 COL 28 COLON-ALIGNED HELP
           "Enter Ending Item Number"
-     tb_0 AT ROW 9.33 COL 28
-     tb_inactive AT ROW 10.29 COL 28 WIDGET-ID 2
-     btn-process AT ROW 11.71 COL 21
-     btn-cancel AT ROW 11.71 COL 53
+     tb_FallBack AT ROW 8.38 COL 28 WIDGET-ID 4
+     tb_Receipts AT ROW 9.33 COL 28 WIDGET-ID 6
+     tb_0 AT ROW 10.29 COL 28
+     tb_inactive AT ROW 11.24 COL 28 WIDGET-ID 2
+     tb_pro-only AT ROW 12.24 COL 28 WIDGET-ID 14
+     tb_recalcCosts AT ROW 13.24 COL 28 WIDGET-ID 16
+     tb_excel AT ROW 14.33 COL 40.6 WIDGET-ID 10
+     tb_runExcel AT ROW 14.33 COL 82.6 RIGHT-ALIGNED WIDGET-ID 12
+     fi_file AT ROW 15.24 COL 38.6 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 8
+     btn-process AT ROW 17.1 COL 21
+     btn-cancel AT ROW 17.1 COL 53
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
@@ -122,7 +173,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 12.67.
+         SIZE 89.6 BY 17.95.
 
 DEFINE FRAME FRAME-B
      "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
@@ -155,8 +206,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Fix FG Hist Cost"
-         HEIGHT             = 12.67
-         WIDTH              = 90.2
+         HEIGHT             = 18
+         WIDTH              = 91.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
          VIRTUAL-HEIGHT     = 19.76
@@ -192,15 +243,27 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -210,7 +273,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -219,12 +282,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Fix FG Hist Cost */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -233,10 +297,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Fix FG Hist Cost */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -246,8 +310,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-    apply "close" to this-procedure.
-END.
+        apply "close" to this-procedure.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -257,19 +321,56 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-  v-process  = NO.
+        v-process  = NO.
 
 
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&displayed-objects}.
+        END.
 
-  MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
-          " for the selected parameters?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+        IF NOT tb_pro-only THEN 
+        do:
+            MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
+                " for the selected parameters?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+        END.
+        ELSE v-process = YES .
 
-  IF v-process THEN RUN run-process.
-END.
+        IF v-process THEN RUN run-process.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
+DO:
+        assign {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_excel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
+ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
+DO:
+        assign {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_runExcel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
+ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
+DO:
+        assign {&self-name}.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -289,7 +390,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -298,18 +399,20 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-  IF access-close THEN DO:
-    APPLY "close" TO THIS-PROCEDURE.
-    RETURN .
-  END.
+    RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+    IF access-close THEN 
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
 
-  RUN enable_UI.
+    RUN enable_UI.
 
-  {methods/nowait.i}
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    {methods/nowait.i}
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,9 +451,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_i-no end_i-no tb_0 tb_inactive 
+  DISPLAY begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
+          tb_pro-only tb_recalcCosts tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 begin_i-no end_i-no tb_0 tb_inactive btn-process btn-cancel 
+  ENABLE RECT-17 begin_i-no end_i-no tb_FallBack tb_Receipts tb_0 tb_inactive 
+         tb_pro-only tb_recalcCosts tb_excel tb_runExcel fi_file btn-process 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -363,251 +469,173 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-DEF VAR lv-po-no AS INT NO-UNDO.
-DEF VAR lv-cost LIKE fg-rdtlh.cost NO-UNDO EXTENT 5.
-DEF VAR lv-uom LIKE fg-rcpth.pur-uom NO-UNDO.
-DEF VAR v-len LIKE po-ordl.s-len NO-UNDO.
-DEF VAR v-wid LIKE po-ordl.s-len NO-UNDO.
-DEF VAR v-dep LIKE po-ordl.s-len NO-UNDO. 
-DEF VAR v-bwt LIKE po-ordl.s-len NO-UNDO.
-DEF VAR li AS INT NO-UNDO.
+DEF    VAR      lv-po-no       AS INT       NO-UNDO.
+    DEF    VAR      lv-cost        LIKE fg-rdtlh.cost NO-UNDO EXTENT 6.
+    DEF    VAR      lv-uom         LIKE fg-rcpth.pur-uom NO-UNDO.
+    DEF    VAR      v-len          LIKE po-ordl.s-len NO-UNDO.
+    DEF    VAR      v-wid          LIKE po-ordl.s-len NO-UNDO.
+    DEF    VAR      v-dep          LIKE po-ordl.s-len NO-UNDO. 
+    DEF    VAR      v-bwt          LIKE po-ordl.s-len NO-UNDO.
+    DEF    VAR      li             AS INT       NO-UNDO.
+    DEFINE VARIABLE iPOLine        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cSource        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSourceFound   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iCountItem     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCountTotal    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCountCompared AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE iCountChanged  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE excelheader    AS CHARACTER NO-UNDO.
 
-DEF BUFFER b-fg-bin FOR fg-bin.
+    DEF    BUFFER b-fg-bin    FOR fg-bin.
+    DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+    DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+
+    IF tb_excel THEN 
+    do:
+        OUTPUT STREAM excel TO VALUE(fi_file).
+
+        excelheader = "FG Item,Rita Code,Job#,Job2,Po#,Cost,Cost Uom,Total Std Cost,Std Fix OH Cost,Std Var OH Cost,Std Mat'l Cost,Std Labor Cost,Group,Old Cost,Old Cost Uom".
+        PUT STREAM excel UNFORMATTED 
+            '"' REPLACE(excelheader,',','","') '"' SKIP.
+    END.
 
 
-SESSION:SET-WAIT-STATE("General").
+    SESSION:SET-WAIT-STATE("General").
 
-STATUS DEFAULT "Searching...".
+    STATUS DEFAULT "Searching...".
 
-FOR EACH itemfg NO-LOCK
-    WHERE itemfg.company EQ cocode
-      AND itemfg.i-no    GE begin_i-no
-      AND itemfg.i-no    LE end_i-no
-      AND (itemfg.stat EQ 'A' OR tb_inactive) :
+    iTime = TIME.
+    FOR EACH itemfg NO-LOCK
+        WHERE itemfg.company EQ cocode
+        AND itemfg.i-no    GE begin_i-no
+        AND itemfg.i-no    LE end_i-no
+        AND (itemfg.stat EQ 'A' OR tb_inactive) :
+  
+        iCountItem = iCountItem + 1.
+        STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
 
-  STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
+        FOR EACH fg-rcpth
+            WHERE fg-rcpth.company EQ itemfg.company
+            AND fg-rcpth.i-no    EQ itemfg.i-no
+            USE-INDEX i-no,
+            EACH fg-rdtlh
+            WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
+            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+            AND (fg-rdtlh.cost EQ 0                           OR
+            fg-rdtlh.cost EQ ?                           OR
+            NOT tb_0)
+            AND INDEX("A",fg-rdtlh.rita-code) EQ 0
+            USE-INDEX rm-rdtl
 
-  FOR EACH fg-rcpth
-      WHERE fg-rcpth.company EQ itemfg.company
-        AND fg-rcpth.i-no    EQ itemfg.i-no
-      USE-INDEX i-no,
-      EACH fg-rdtlh
-      WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
-        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-        AND (fg-rdtlh.cost EQ 0                           OR
-             fg-rdtlh.cost EQ ?                           OR
-             NOT tb_0
-             /*26626 - Premier "S" transactions without Jobs not be corrected*/
-/*                                             AND      */
-/*              (INDEX("CRT",fg-rdtlh.rita-code) GT 0 OR*/
-/*               fg-rcpth.job-no NE ""))                */
-               )
-      USE-INDEX rm-rdtl
-
-      BREAK BY INT(fg-rcpth.rita-code NE "R")
+            BREAK BY INT(fg-rcpth.rita-code NE "R")
             BY INT(fg-rcpth.rita-code NE "C")
             BY fg-rcpth.trans-date
             BY fg-rdtlh.trans-time
             BY fg-rcpth.r-no
             BY fg-rdtlh.rec_key
 
-      TRANSACTION:
+            TRANSACTION:
+            ASSIGN 
+                iCountTotal = iCountTotal + 1
+                lv-cost[1]  = 0
+                lv-cost[2]  = 0
+                lv-cost[3]  = 0
+                lv-cost[4]  = 0
+                lv-cost[5]  = 0
+                lv-cost[6]  = 0
+                .  
+      
+            /*Only "fix" if the transaction has a job or po or if it is not a receipt*/
+            /*In other words, if a receipt has no po or a job, leave it alone*/   
+            IF fg-rcpth.rita-code NE "R" OR fg-rcpth.job-no NE "" OR fg-rcpth.po-no NE "" OR tb_Receipts THEN 
+            DO:   
+                iCountCompared = iCountCompared + 1.
+                RUN GetCostForFGItemHist IN hdCostProcs (fg-rcpth.company, fg-rcpth.i-no, fg-rcpth.job-no, fg-rcpth.job-no2, fg-rcpth.po-no, fg-rcpth.po-line, fg-rdtlh.tag, fg-rcpth.rita-code,
+                    OUTPUT lv-cost[1], OUTPUT lv-cost[4], OUTPUT lv-cost[3], OUTPUT lv-cost[2], OUTPUT lv-cost[5], OUTPUT lv-cost[6], OUTPUT lv-uom, OUTPUT cSource, OUTPUT lSourceFound).
+        
+                IF lv-cost[5] EQ ? THEN lv-cost[5] = 0.
+    
+                IF lv-cost[5] NE 0 AND (lSourceFound OR tb_FallBack) THEN 
+                DO:  /*if cost was found from PO or Job, lSourceFound = YES, otherwise, fall back cost of IF1 cost*/
+                    iCountChanged = iCountChanged + 1.
 
-    ASSIGN
-     v-bwt      = 0
-     v-len      = itemfg.t-len
-     v-wid      = itemfg.t-wid
-     v-dep      = 0
-     lv-uom     = itemfg.prod-uom
-     lv-cost[5] = itemfg.std-tot-cost
-     lv-cost[1] = itemfg.std-lab-cost
-     lv-cost[2] = itemfg.std-mat-cost
-     lv-cost[3] = itemfg.std-var-cost
-     lv-cost[4] = itemfg.std-fix-cost.
+                    IF NOT tb_pro-only THEN 
+                    do:
+                        ASSIGN 
+                            fg-rdtlh.spare-dec-1  = fg-rdtlh.cost /*store old cost before NY12*/
+                            fg-rdtlh.spare-char-2 = fg-rcpth.pur-uom /*store old cost uom before NY12*/
+                            fg-rdtlh.cost         = lv-cost[5]
+                            fg-rcpth.pur-uom      = lv-uom
+                            fg-rdtlh.std-tot-cost = lv-cost[5]
+                            fg-rdtlh.std-fix-cost = lv-cost[4]
+                            fg-rdtlh.std-var-cost = lv-cost[3]
+                            fg-rdtlh.std-mat-cost = lv-cost[2]
+                            fg-rdtlh.std-lab-cost = lv-cost[1]
+                            fg-rdtlh.spare-char-1 = cSource  /*Store cost source*/
+           
+                            .
+    
+                        FIND FIRST fg-rctd WHERE fg-rctd.r-no EQ fg-rcpth.r-no USE-INDEX fg-rctd NO-ERROR.
+                        IF AVAIL fg-rctd THEN  
+                            ASSIGN 
+                                fg-rctd.std-cost = lv-cost[5]
+                                fg-rctd.cost-uom = itemfg.prod-uom
+                                fg-rctd.ext-cost = fg-rctd.std-cost *
+                                (fg-rctd.t-qty / IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
+           
+                    END. /*Apply cost changes*/
+         
+                    IF tb_excel THEN 
+                    DO:
+                        EXPORT STREAM excel DELIMITER "," 
+                            fg-rcpth.i-no
+                            fg-rcpth.rita-code
+                            fg-rcpth.job-no 
+                            fg-rcpth.job-no2
+                            fg-rcpth.po-no
+                            lv-cost[5]
+                            lv-uom
+                            lv-cost[5]
+                            lv-cost[4]
+                            lv-cost[3]
+                            lv-cost[2]
+                            lv-cost[1] 
+                            cSource 
+                            ( IF tb_pro-only THEN fg-rdtlh.cost ELSE fg-rdtlh.spare-dec-1)
+                            ( IF tb_pro-only THEN fg-rcpth.pur-uom ELSE fg-rdtlh.spare-char-2) .
+                    END. /* Excel Report */
+                END.  /*Apply/record cost changes*/
+            END. /*History record eligible for processing*/
+        END. /*Each History record*/
+        IF tb_RecalcCosts THEN 
+            RUN fg/updfgcst.p (INPUT itemfg.i-no).
+    END. /*Each itemfg*/
 
-    RELEASE b-fg-bin.
-    IF fg-rcpth.rita-code EQ "T" THEN DO:
-      FIND FIRST fg-bin
-          WHERE fg-bin.company EQ fg-rcpth.company
-            AND fg-bin.i-no    EQ fg-rcpth.i-no
-            AND fg-bin.job-no  EQ fg-rcpth.job-no
-            AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-            AND fg-bin.loc     EQ fg-rdtlh.loc2
-            AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin2
-            AND fg-bin.tag     EQ fg-rdtlh.tag2
-            AND fg-bin.cust-no EQ fg-rdtlh.cust-no
-          NO-ERROR.
+    STATUS DEFAULT "".
 
-      FIND FIRST b-fg-bin NO-LOCK
-          WHERE b-fg-bin.company EQ fg-rcpth.company
-            AND b-fg-bin.i-no    EQ fg-rcpth.i-no
-            AND b-fg-bin.job-no  EQ fg-rcpth.job-no
-            AND b-fg-bin.job-no2 EQ fg-rcpth.job-no2
-            AND b-fg-bin.loc     EQ fg-rdtlh.loc
-            AND b-fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-            AND b-fg-bin.tag     EQ fg-rdtlh.tag
-            AND b-fg-bin.cust-no EQ fg-rdtlh.cust-no
-          NO-ERROR.
+    SESSION:SET-WAIT-STATE("").
 
-      IF AVAIL b-fg-bin             AND
-         b-fg-bin.std-tot-cost NE 0 AND
-         b-fg-bin.std-tot-cost NE ? THEN
-        ASSIGN 
-         lv-uom     = b-fg-bin.pur-uom
-         lv-cost[5] = b-fg-bin.std-tot-cost
-         lv-cost[1] = b-fg-bin.std-lab-cost
-         lv-cost[2] = b-fg-bin.std-mat-cost
-         lv-cost[3] = b-fg-bin.std-var-cost
-         lv-cost[4] = b-fg-bin.std-fix-cost.
+    IF tb_excel THEN 
+    DO:
+        OUTPUT STREAM excel CLOSE.
+
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
     END.
 
-    ELSE DO:
-      FIND FIRST fg-bin
-          WHERE fg-bin.company EQ fg-rcpth.company
-            AND fg-bin.i-no    EQ fg-rcpth.i-no
-            AND fg-bin.job-no  EQ fg-rcpth.job-no
-            AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-            AND fg-bin.loc     EQ fg-rdtlh.loc
-            AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
-            AND fg-bin.tag     EQ fg-rdtlh.tag
-            AND fg-bin.cust-no EQ fg-rdtlh.cust-no
-          NO-ERROR.
-      IF AVAIL fg-bin             AND
-         fg-bin.std-tot-cost NE 0 AND
-         fg-bin.std-tot-cost NE ? THEN
-        ASSIGN 
-         lv-uom     = fg-bin.pur-uom
-         lv-cost[5] = fg-bin.std-tot-cost
-         lv-cost[1] = fg-bin.std-lab-cost
-         lv-cost[2] = fg-bin.std-mat-cost
-         lv-cost[3] = fg-bin.std-var-cost
-         lv-cost[4] = fg-bin.std-fix-cost.
+    IF NOT tb_pro-only THEN 
+    do:
+        MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." SKIP(2) 
+            "Items Processed: " iCountItem SKIP 
+            "History Records Processed: " iCountTotal SKIP 
+            "History Records Qualified to Fix: " iCountCompared SKIP 
+            "History Records Changed: " iCountChanged SKIP 
+            "Total Time (seconds): " TIME - iTime
+            VIEW-AS ALERT-BOX.
+    
+        APPLY "close" TO THIS-PROCEDURE.
     END.
-
-    RELEASE po-ordl.
-
-    lv-po-no = INT(fg-rcpth.po-no) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN lv-po-no = 0.
-
-    IF lv-po-no NE 0 THEN DO:
-      FIND FIRST po-ordl
-          WHERE po-ordl.company   EQ fg-rcpth.company
-            AND po-ordl.po-no     EQ lv-po-no
-            AND po-ordl.item-type EQ NO
-            AND po-ordl.i-no      EQ fg-rcpth.i-no
-          NO-LOCK NO-ERROR.
-
-/* 26626 - Removing this find since it does not match on FG Item*/
-/*      IF NOT AVAIL po-ordl THEN                      */
-/*      FIND FIRST po-ordl                             */
-/*          WHERE po-ordl.company   EQ fg-rcpth.company*/
-/*            AND po-ordl.po-no     EQ lv-po-no        */
-/*            AND po-ordl.item-type EQ NO              */
-/*          NO-LOCK NO-ERROR.                          */
-    END.
-
-    IF itemfg.pur-man AND fg-rcpth.rita-code EQ "R" AND NOT AVAIL po-ordl THEN
-    FOR EACH po-ordl NO-LOCK
-        WHERE po-ordl.company   EQ fg-rcpth.company
-          AND po-ordl.i-no      EQ fg-rcpth.i-no
-          AND po-ordl.item-type EQ NO
-        BY po-ordl.po-no DESC:
-      LEAVE.
-    END.
-
-    IF AVAIL po-ordl THEN
-      ASSIGN
-       v-len      = po-ordl.s-len
-       v-wid      = po-ordl.s-wid
-       lv-cost[2] = po-ordl.cost
-       lv-cost[5] = po-ordl.cost
-       lv-uom     = po-ordl.pr-uom.
-
-    ELSE
-    IF TRIM(fg-rcpth.job-no) NE "" THEN DO:
-      FIND FIRST job-hdr
-          WHERE job-hdr.company EQ fg-rcpth.company
-            AND job-hdr.i-no    EQ fg-rcpth.i-no
-            AND job-hdr.job-no  EQ fg-rcpth.job-no
-            AND job-hdr.job-no2 EQ fg-rcpth.job-no2
-          NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL job-hdr THEN DO:
-        FIND FIRST job
-            WHERE job.company EQ fg-rcpth.company
-              AND job.job-no  EQ fg-rcpth.job-no
-              AND job.job-no2 EQ fg-rcpth.job-no2
-          NO-LOCK NO-ERROR.
-        IF AVAIL job THEN
-        FIND FIRST reftable
-            WHERE reftable.reftable EQ "jc/jc-calc.p"
-              AND reftable.company  EQ job.company
-              AND reftable.loc      EQ ""
-              AND reftable.code     EQ STRING(job.job,"999999999")
-              AND reftable.code2    EQ fg-rcpth.i-no
-            NO-LOCK NO-ERROR.
-      END.
-
-      IF AVAIL job-hdr AND job-hdr.std-tot-cost GT 0 THEN
-        ASSIGN
-         lv-uom     = "M"
-         lv-cost[5] = job-hdr.std-tot-cost
-         lv-cost[1] = job-hdr.std-lab-cost
-         lv-cost[2] = job-hdr.std-mat-cost
-         lv-cost[3] = job-hdr.std-var-cost
-         lv-cost[4] = job-hdr.std-fix-cost.
-      ELSE
-      IF AVAIL reftable AND reftable.val[5] GT 0 THEN
-        ASSIGN
-         lv-uom     = "M"
-         lv-cost[5] = reftable.val[5]
-         lv-cost[1] = reftable.val[1]
-         lv-cost[2] = reftable.val[2]
-         lv-cost[3] = reftable.val[3]
-         lv-cost[4] = reftable.val[4].
-    END.
-
-    IF lv-uom NE itemfg.prod-uom THEN DO li = 1 TO 5:
-      RUN custom/convcuom.p(fg-rcpth.company,
-                            lv-uom, itemfg.prod-uom,                   
-                            v-bwt, v-len, v-wid, v-dep,
-                            lv-cost[li], OUTPUT lv-cost[li]).
-    END.
-
-    IF AVAIL fg-bin THEN
-      ASSIGN
-       fg-bin.pur-uom      = itemfg.prod-uom
-       fg-bin.std-tot-cost = lv-cost[5]
-       fg-bin.std-lab-cost = lv-cost[1]
-       fg-bin.std-mat-cost = lv-cost[2]
-       fg-bin.std-var-cost = lv-cost[3]
-       fg-bin.std-fix-cost = lv-cost[4].
-
-    IF lv-cost[5] EQ ? THEN lv-cost[5] = 0.
-
-    IF lv-cost[5] NE 0 THEN DO:  
-      ASSIGN 
-       fg-rdtlh.cost    = lv-cost[5]
-       fg-rcpth.pur-uom = itemfg.prod-uom.
-
-      FIND FIRST fg-rctd WHERE fg-rctd.r-no EQ fg-rcpth.r-no USE-INDEX fg-rctd NO-ERROR.
-      IF AVAIL fg-rctd THEN  
-        ASSIGN 
-         fg-rctd.std-cost = lv-cost[5]
-         fg-rctd.cost-uom = itemfg.prod-uom
-         fg-rctd.ext-cost = fg-rctd.std-cost *
-                            (fg-rctd.t-qty / IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
-    END.
-  END.
-END.
-
-STATUS DEFAULT "".
-
-SESSION:SET-WAIT-STATE("").
-
-MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-
-APPLY "close" TO THIS-PROCEDURE.
 
 END PROCEDURE.
 

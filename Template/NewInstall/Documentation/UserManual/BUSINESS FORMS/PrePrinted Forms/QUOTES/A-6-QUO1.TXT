@@ -1,0 +1,28 @@
+ADVANCED CARTON COMPANY
+123 Anywhere Road
+Phone 215.369.1160 Fx 369.1164
+Yardley         PA 19067
+                                                                               Quote     Date     Your RFQ  Estimate
+                                                                                  63   10/17/00               1021
+
+Sold To                                     Ship To                                           Bill To
+Hershey Chocolate Corp                      SAME                                              Hershey Chocolate Corp
+123 Chocolate Lane                                                                            123 Chocolate Blvd
+
+Hershey, PA 19888                                                                             Hershey, PA 19888
+
+Salesman             Ship Via                       FOB                 Terms                Deliv. Date   Over-Under %
+Saleperson #10       COMMON CARRIER                 Prepaid         Net 30                         10.00% /  10.00%
+
+  QTY    Description                           Size / Style / Board          Colors                      Price  UOM      TOTAL
+------------------------------------------------------------------------------------------------------------------------------------
+  25000  HER-1021                              5 x 4 x 8                        5 Color, Varn            556.15  M    $13,903.75
+         RT 5x4x8                              Reverse Tuck Carton
+         Standard Box                          CCN 16 Pt
+
+                                               Plate Charge                    Time & Materials          900.00
+
+                        Quoted prices are good for 30 days, however paperboard prices are     
+                        subject to change without notice hence the quote may need to be       
+                        adjusted.                                                             
+

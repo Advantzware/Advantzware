@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+{methods/defines/hndldefs.i}
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/VAR.i NEW SHARED}
@@ -59,7 +60,6 @@ DEF VAR ll-initial AS LOG INIT YES NO-UNDO.
 DEF VAR lv-sort-by AS CHAR INIT "est-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Estimate" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
-DEF VAR char-hdl AS cha NO-UNDO.
 DEF VAR lv-est-date-entered AS LOG NO-UNDO.
 DEF VAR ll-shipto AS LOG NO-UNDO.
 
@@ -846,6 +846,23 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
+ON VALUE-CHANGED OF begin_cust-no IN FRAME F-Main
+DO:
+  /*IF LASTKEY NE -1 THEN DO:
+    APPLY "choose" TO btn_go.
+  END.
+  */
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
+     begin_ship:SENSITIVE = YES.
+  END.
+  ELSE begin_ship:SENSITIVE = NO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON LEAVE OF begin_cust-no IN FRAME F-Main
@@ -857,8 +874,6 @@ DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
      begin_ship:SENSITIVE = YES.
-     APPLY "entry" TO begin_ship.
-     RETURN NO-APPLY.
   END.
   ELSE begin_ship:SENSITIVE = NO.
 END.
@@ -1104,7 +1119,7 @@ DO:
             
      IF NOT AVAIL est THEN DO:
          IF begin_cust-no <> "" THEN DO:
-             v-cust-no =begin_cust-no  .
+             v-cust-no = begin_cust-no  .
          END.
          ELSE DO:
              FIND FIRST bf-eb WHERE bf-eb.company = cocode 
@@ -1125,9 +1140,14 @@ DO:
          IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
              MESSAGE "Customer is not on Users Customer List.  "  SKIP
               "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-         ELSE
-         MESSAGE "No Estimate Found, please update your Search Criteria."
+         ELSE DO:
+            MESSAGE 
+                "No Estimate Found, reverting to initial setup."
                 VIEW-AS ALERT-BOX ERROR.
+            assign
+                lv-first-run = true.
+            RUN local-open-query.
+         END.
      END.
   END.
 
@@ -1567,7 +1587,10 @@ PROCEDURE clearFilterValues :
  Notes:
 ------------------------------------------------------------------------------*/
     {methods/clearFilterValues.i}
-
+/*
+    RUN local-open-query.
+    RUN dispatch ('row-changed').
+*/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1850,16 +1873,15 @@ PROCEDURE export-xl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR FromEstNo AS CHAR NO-UNDO.
-DEF VAR ToEstNo AS CHAR NO-UNDO.
-
-IF est.est-no NE "" THEN
+    DEFINE VARIABLE FromEstNo AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ToEstNo   AS CHARACTER NO-UNDO.
+    
+    IF est.est-no NE "" THEN
     ASSIGN
-    FromEstNo = est.est-no
-    ToEstNo   = est.est-no . 
-
-RUN fg/EstC-exp.w (FromEstNo,ToEstNo).
-
+        FromEstNo = est.est-no
+        ToEstNo   = est.est-no
+        .    
+    RUN fg/EstC-exp.w (FromEstNo, ToEstNo, "C" /* Corrugated */).
 
 END PROCEDURE.
 
@@ -2067,6 +2089,7 @@ PROCEDURE local-initialize :
    eb.die-no:READ-ONLY IN BROWSE {&browse-name} = YES
    eb.cad-no:READ-ONLY IN BROWSE {&browse-name} = YES
    eb.plate-no:READ-ONLY IN BROWSE {&browse-name} = YES
+   eb.quantityPerSet:READ-ONLY IN BROWSE {&browse-name} = YES 
    vi_die-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "*"
    FI_moveCol = "Sort".
 

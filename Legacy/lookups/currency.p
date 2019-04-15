@@ -17,10 +17,9 @@
 " " ~
 "currency. " ~
 */
-
 &Scoped-define lookup-db ASI.
 &Scoped-define lookup-file currency
-&Scoped-define where-statement TRUE
+&Scoped-define where-statement currency.company = gcompany
 &Scoped-define return-field c-code
 &Scoped-define font 4
 &Scoped-define height-size 19
@@ -28,8 +27,8 @@
 &Scoped-define show-fields currency.c-code currency.c-desc currency.ex-rate
 &Scoped-define show-fields-yellow currency.c-code LABEL-BGCOLOR 14 currency.c-desc LABEL-BGCOLOR 14 currency.ex-rate LABEL-BGCOLOR 14
 &Scoped-define frame-title Currency Code
-&Scoped-define top-include ~{sys/inc/varasgn.i}
-&Scoped-define def-include ~{sys/inc/var.i new shared}
+&Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
+&Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname currency.
 &Scoped-define window-size 24

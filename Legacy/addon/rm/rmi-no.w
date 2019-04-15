@@ -175,7 +175,7 @@ DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEF VAR look-recid AS RECID NO-UNDO.
 
-   RUN windows/l-itmall.w (ip-company, "","", scr-rm-i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+   RUN windows/l-itmall.w (ip-company, "","", scr-rm-i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT look-recid).
    IF char-val NE "" AND ENTRY(1,char-val) NE scr-rm-i-no:SCREEN-VALUE THEN
       ASSIGN scr-rm-i-no:SCREEN-VALUE = ENTRY(1,char-val)
              scr-rm-name:SCREEN-VALUE = ENTRY(2,char-val).

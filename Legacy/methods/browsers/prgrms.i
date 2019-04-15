@@ -1,12 +1,12 @@
 /* prgrms.i
-"NOSWEAT" "prgrms"
+"ASI" "prgrms"
 "prgmname" "Program" ""
 "prgtitle" "Title" ""
 "can_run" "View ID's" ""
 "can_create" "Add ID's" ""
 "can_update" "Update ID's" ""
 "can_delete" "Delete ID's" ""
-"" "" ""
+"mnemonic" "Hotkey" ""
 "" "" ""
 "" "" ""
 "" "" ""
@@ -19,12 +19,12 @@
 
 &Global-define FLDNAME1 prgrms.prgmname
 &Global-define FORMAT-1 X(10)
-&Global-define SORTBY-1 
+&Global-define SORTBY-1 BY {&FLDNAME1}
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 Program
 &Global-define FLDNAME2 prgrms.prgtitle
 &Global-define FORMAT-2 X(30)
-&Global-define SORTBY-2 
+&Global-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Title
 &Global-define FLDNAME3 prgrms.can_run
@@ -47,10 +47,11 @@
 &Global-define SORTBY-6 
 &Global-define IDXNAME6 
 &Global-define DESCRIP6 Delete ID's
-&Global-define FLDNAME7 
-&Global-define SORTBY-7 
-&Global-define IDXNAME7 
-&Global-define DESCRIP7 
+&Global-define FLDNAME7 prgrms.mnemonic
+&Global-define FORMAT-7 X(4)
+&Global-define SORTBY-7 BY {&FLDNAME7} BY {&FLDNAME1}
+&Global-define IDXNAME7
+&Global-define DESCRIP7 Hotkey 
 &Global-define FLDNAME8 
 &Global-define SORTBY-8 
 &Global-define IDXNAME8 

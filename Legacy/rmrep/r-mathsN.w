@@ -1547,19 +1547,6 @@ SESSION:SET-WAIT-STATE ("general").
                        cExcelDisplay SKIP.
              END.
 
-      IF tb_excel THEN
-        PUT STREAM excel UNFORMATTED
-            '"' rm-rcpth.trans-date                '",' 
-            '"' REPLACE(rm-rcpth.i-no, '"', "")    '",'  
-            '"' REPLACE(rm-rcpth.po-no, '"', "")   '",'
-            '"' IF AVAIL po-ord THEN
-                   po-ord.vend-no ELSE ""          '",' 
-            '"' v-job-no                           '",'  
-            '"' v-qty               '",' 
-            '"' v-msf                              '",'
-            '"' v-stocked-qty                      '",'
-            '"' item.cons-uom                      '",'
-            SKIP. 
     end.
 
     if last-of(rm-rcpth.i-no) then do:

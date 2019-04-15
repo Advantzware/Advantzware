@@ -1,0 +1,8 @@
+UPDATE TABLE "sys-ctrl"
+  TABLE-TRIGGER "FIND" OVERRIDE PROCEDURE "find.trg/sys-ctrl.p" CRC "?"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000007796

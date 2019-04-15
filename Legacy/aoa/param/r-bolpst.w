@@ -48,16 +48,17 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svLocation svPostDate ~
-btnCalendar-1 svPostDateOption svCustList btnCustList svAllCustNo ~
-svStartCustNo svEndCustNo svStartBOLDate btnCalendar-2 svStartBOLDateOption ~
-svEndBOLDate btnCalendar-3 svEndBOLDateOption svAllBOL svStartBOL svEndBOL ~
-svAllLoc svStartLoc svEndLoc svAllLocBin svStartLocBin svEndLocBin svPost 
+btnCalendar-1 svPostDateOption svStartBOLDate btnCalendar-2 ~
+svStartBOLDateOption svEndBOLDate btnCalendar-3 svEndBOLDateOption svAllLoc ~
+svStartLoc svEndLoc svCustList btnCustList svAllCustNo svStartCustNo ~
+svEndCustNo svAllBOL svStartBOL svEndBOL svAllLocBin svStartLocBin ~
+svEndLocBin svPost btnAddEmail svRecipients 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svPostDate ~
-svPostDateOption svCustList svAllCustNo svStartCustNo startCustName ~
-svEndCustNo endCustName svStartBOLDate svStartBOLDateOption svEndBOLDate ~
-svEndBOLDateOption svAllBOL svStartBOL svEndBOL svAllLoc svStartLoc ~
-startLocName svEndLoc endLocName svAllLocBin svStartLocBin svEndLocBin ~
-svPost 
+svPostDateOption svStartBOLDate svStartBOLDateOption svEndBOLDate ~
+svEndBOLDateOption svAllLoc svStartLoc startLocName svEndLoc endLocName ~
+svCustList svAllCustNo svStartCustNo startCustName svEndCustNo endCustName ~
+svAllBOL svStartBOL svEndBOL svAllLocBin svStartLocBin svEndLocBin svPost ~
+svRecipients 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -72,6 +73,11 @@ svPost
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAddEmail 
+     IMAGE-UP FILE "AOA/images/navigate_plus.gif":U NO-FOCUS FLAT-BUTTON
+     LABEL "Email" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -109,21 +115,26 @@ DEFINE VARIABLE svStartBOLDateOption AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
+DEFINE VARIABLE svRecipients AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 70 BY 2.86
+     BGCOLOR 15 .
+
 DEFINE VARIABLE endCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 45 BY 1.
+     SIZE 40 BY 1.
 
 DEFINE VARIABLE endLocName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 45 BY 1.
+     SIZE 29 BY 1.
 
 DEFINE VARIABLE startCustName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 45 BY 1.
+     SIZE 40 BY 1.
 
 DEFINE VARIABLE startLocName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
-     SIZE 45 BY 1.
+     SIZE 29 BY 1.
 
 DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Company" 
@@ -190,10 +201,30 @@ DEFINE VARIABLE svStartLocBin AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
 
-DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 66.8 BY 5.67.
+
+DEFINE RECTANGLE RECT-2
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 66.8 BY 4.29.
+
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 75 BY 5.67.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 75 BY 4.29.
+
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 79 BY 2.86
      BGCOLOR 11 .
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 83 BY 3.57.
 
 DEFINE VARIABLE svAllBOL AS LOGICAL INITIAL yes 
      LABEL "All BOLs" 
@@ -203,7 +234,7 @@ DEFINE VARIABLE svAllBOL AS LOGICAL INITIAL yes
 DEFINE VARIABLE svAllCustNo AS LOGICAL INITIAL yes 
      LABEL "All Customers" 
      VIEW-AS TOGGLE-BOX
-     SIZE 16 BY .95 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svAllLoc AS LOGICAL INITIAL yes 
      LABEL "All Warehouses" 
@@ -218,7 +249,7 @@ DEFINE VARIABLE svAllLocBin AS LOGICAL INITIAL yes
 DEFINE VARIABLE svCustList AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
-     SIZE 29 BY .95 NO-UNDO.
+     SIZE 29 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svPost AS LOGICAL INITIAL no 
      LABEL "POST" 
@@ -229,66 +260,85 @@ DEFINE VARIABLE svPost AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 60
-     svLocation AT ROW 1.24 COL 33 COLON-ALIGNED WIDGET-ID 130
-     svPostDate AT ROW 2.91 COL 17 COLON-ALIGNED HELP
+     svCompany AT ROW 1.24 COL 121 COLON-ALIGNED WIDGET-ID 60
+     svLocation AT ROW 1.24 COL 137 COLON-ALIGNED WIDGET-ID 130
+     svPostDate AT ROW 2.91 COL 18 COLON-ALIGNED HELP
           "Enter Post Date" WIDGET-ID 274
-     btnCalendar-1 AT ROW 2.91 COL 35 WIDGET-ID 272
-     svPostDateOption AT ROW 2.91 COL 38 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 2.91 COL 36 WIDGET-ID 272
+     svPostDateOption AT ROW 2.91 COL 39 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 276
-     svCustList AT ROW 4.81 COL 19 WIDGET-ID 48
-     btnCustList AT ROW 4.81 COL 55 WIDGET-ID 46
-     svAllCustNo AT ROW 6 COL 19 HELP
-          "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 7.19 COL 17 COLON-ALIGNED HELP
-          "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 7.19 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 8.38 COL 17 COLON-ALIGNED HELP
-          "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 8.38 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svStartBOLDate AT ROW 10.29 COL 17 COLON-ALIGNED HELP
+     svStartBOLDate AT ROW 5.29 COL 18 COLON-ALIGNED HELP
           "Enter Start BOL Date" WIDGET-ID 242
-     btnCalendar-2 AT ROW 10.29 COL 35 WIDGET-ID 234
-     svStartBOLDateOption AT ROW 10.29 COL 38 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 5.29 COL 36 WIDGET-ID 234
+     svStartBOLDateOption AT ROW 5.29 COL 39 COLON-ALIGNED HELP
           "Select Start BOL Date Option" NO-LABEL WIDGET-ID 244
-     svEndBOLDate AT ROW 11.48 COL 17 COLON-ALIGNED HELP
+     svEndBOLDate AT ROW 6.48 COL 18 COLON-ALIGNED HELP
           "Enter End BOL Date" WIDGET-ID 238
-     btnCalendar-3 AT ROW 11.48 COL 35 WIDGET-ID 236
-     svEndBOLDateOption AT ROW 11.48 COL 38 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 6.48 COL 36 WIDGET-ID 236
+     svEndBOLDateOption AT ROW 6.48 COL 39 COLON-ALIGNED HELP
           "Select End BOL Date Option" NO-LABEL WIDGET-ID 240
-     svAllBOL AT ROW 13.38 COL 19 HELP
-          "All BOLs?" WIDGET-ID 318
-     svStartBOL AT ROW 14.57 COL 17 COLON-ALIGNED HELP
-          "Enter Start BOL" WIDGET-ID 322
-     svEndBOL AT ROW 15.76 COL 17 COLON-ALIGNED HELP
-          "Enter End BOL" WIDGET-ID 320
-     svAllLoc AT ROW 17.67 COL 19 HELP
+     svAllLoc AT ROW 9.1 COL 22 HELP
           "All Warehouses?" WIDGET-ID 328
-     svStartLoc AT ROW 18.86 COL 17.2 COLON-ALIGNED HELP
+     svStartLoc AT ROW 10.29 COL 20 COLON-ALIGNED HELP
           "Enter Start Warehouse" WIDGET-ID 332
-     startLocName AT ROW 18.86 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 326
-     svEndLoc AT ROW 20.05 COL 17 COLON-ALIGNED HELP
+     startLocName AT ROW 10.29 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 326
+     svEndLoc AT ROW 11.48 COL 20 COLON-ALIGNED HELP
           "Enter End Warehouse" WIDGET-ID 330
-     endLocName AT ROW 20.05 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 324
-     svAllLocBin AT ROW 21.95 COL 19 HELP
+     endLocName AT ROW 11.48 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 324
+     svCustList AT ROW 2.91 COL 89 WIDGET-ID 48
+     btnCustList AT ROW 2.91 COL 125 WIDGET-ID 46
+     svAllCustNo AT ROW 4.1 COL 89 HELP
+          "All Customers?" WIDGET-ID 56
+     svStartCustNo AT ROW 5.29 COL 87 COLON-ALIGNED HELP
+          "Enter Start Customer" WIDGET-ID 2
+     startCustName AT ROW 5.29 COL 103 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 6.48 COL 87 COLON-ALIGNED HELP
+          "Enter End Customer" WIDGET-ID 6
+     endCustName AT ROW 6.48 COL 103 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svAllBOL AT ROW 9.1 COL 90 HELP
+          "All BOLs?" WIDGET-ID 318
+     svStartBOL AT ROW 10.29 COL 88 COLON-ALIGNED HELP
+          "Enter Start BOL" WIDGET-ID 322
+     svEndBOL AT ROW 11.48 COL 88 COLON-ALIGNED HELP
+          "Enter End BOL" WIDGET-ID 320
+     svAllLocBin AT ROW 9.1 COL 114 HELP
           "All Bins?" WIDGET-ID 282
-     svStartLocBin AT ROW 23.14 COL 17 COLON-ALIGNED HELP
+     svStartLocBin AT ROW 10.29 COL 112 COLON-ALIGNED HELP
           "Enter Start Bin" WIDGET-ID 286
-     svEndLocBin AT ROW 24.33 COL 17 COLON-ALIGNED HELP
+     svEndLocBin AT ROW 11.48 COL 112 COLON-ALIGNED HELP
           "Enter End Bin" WIDGET-ID 284
-     svPost AT ROW 24.33 COL 70 HELP
+     svPost AT ROW 11.48 COL 135 HELP
           "Select to Post" WIDGET-ID 344
+     btnAddEmail AT ROW 15.52 COL 40 HELP
+          "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 13.86 COL 46 NO-LABEL WIDGET-ID 600
      "Bills of Lading MUST BE printed prior to posting!" VIEW-AS TEXT
-          SIZE 58 BY .95 AT ROW 27.43 COL 13 WIDGET-ID 336
+          SIZE 58 BY .95 AT ROW 19.1 COL 47 WIDGET-ID 336
           BGCOLOR 11 FONT 5
      "The Edit List will show all available BOL to be posted to all orders" VIEW-AS TEXT
-          SIZE 77 BY 1.19 AT ROW 26 COL 3 WIDGET-ID 338
+          SIZE 77 BY 1.19 AT ROW 17.67 COL 37 WIDGET-ID 338
           BGCOLOR 11 FGCOLOR 12 FONT 5
-     RECT-8 AT ROW 25.76 COL 2 WIDGET-ID 334
+     "Email" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 13.86 COL 40 WIDGET-ID 640
+     "Recipients:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 14.57 COL 35 WIDGET-ID 602
+     RECT-5 AT ROW 17.43 COL 36 WIDGET-ID 334
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81 BY 28.71
+         SIZE 149.2 BY 20.52.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     RECT-1 AT ROW 2.43 COL 2 WIDGET-ID 346
+     RECT-2 AT ROW 8.62 COL 2 WIDGET-ID 348
+     RECT-3 AT ROW 2.43 COL 71 WIDGET-ID 350
+     RECT-4 AT ROW 8.62 COL 71 WIDGET-ID 352
+     RECT-6 AT ROW 13.38 COL 34 WIDGET-ID 638
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 149.2 BY 20.52
          TITLE "Report Parameters".
 
 
@@ -318,8 +368,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 28.71
-         WIDTH              = 81.
+         HEIGHT             = 20.52
+         WIDTH              = 149.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -341,7 +391,7 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME                                               */
+   NOT-VISIBLE FRAME-NAME Custom                                        */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
@@ -355,7 +405,17 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endLocName IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-8 IN FRAME F-Main
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCustName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -385,6 +445,21 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnAddEmail
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddEmail sObject
+ON CHOOSE OF btnAddEmail IN FRAME F-Main /* Email */
+DO:
+    DEFINE VARIABLE cRecipients AS CHARACTER NO-UNDO.
+    
+    cRecipients = svRecipients:SCREEN-VALUE.
+    RUN AOA/Recipients.w (INPUT-OUTPUT cRecipients).
+    svRecipients:SCREEN-VALUE = cRecipients.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnCalendar-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 sObject

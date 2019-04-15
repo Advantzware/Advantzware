@@ -15,12 +15,16 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE INPUT PARAMETER ipcDBName AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcModule AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplMessage AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER oplAccess AS LOGICAL NO-UNDO.
+DEFINE INPUT  PARAMETER ipcDBName  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcModule  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplMessage AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplAccess  AS LOGICAL   NO-UNDO.
+
+DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmMstrSecur AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lAdmin        AS LOGICAL   NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -32,6 +36,17 @@ IF INDEX(ipcModule,"&") GT 0 THEN
 
 /*Initialize access*/
 oplAccess = YES.
+
+IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
+RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.
+IF VALID-HANDLE(hPgmMstrSecur) THEN
+RUN epCanAccess IN hPgmMstrSecur (
+    "util/CheckModule.p",
+    "SuperAdmin",
+    OUTPUT lAdmin 
+    ).
+IF lAdmin THEN RETURN.
+
 FIND FIRST module NO-LOCK
      WHERE module.db-name EQ ipcDBName
        AND module.module  EQ ipcModule

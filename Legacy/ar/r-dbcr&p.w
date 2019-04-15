@@ -68,7 +68,6 @@ DEFINE VARIABLE xcs-acct AS CHARACTER NO-UNDO.
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
-DEF BUFFER b-reftable2 FOR reftable.
 DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
 
 DO TRANSACTION:
@@ -968,29 +967,14 @@ postit:
           AND ar-cash.cust-no    LE end_cust
           AND ar-cash.check-date GE begin_date
           AND ar-cash.check-date LE end_date
-        /* gdm - 07130905 end */
+          AND ar-cash.printed    EQ YES
+          AND ar-cash.stat       NE "H"
           and can-find(first ar-cashl where ar-cashl.c-no eq ar-cash.c-no)
-        use-index posted,
+        use-index posted on error undo postit, leave postit:
 
-        first reftable
-        where reftable.reftable eq "AR-CASH"
-          and reftable.code     eq string(ar-cash.c-no,"9999999999")
-        use-index CODE on error undo postit, leave postit:
-
-      FIND FIRST b-reftable2 WHERE
-           b-reftable2.reftable = "ARCASHHOLD" AND
-           b-reftable2.rec_key = ar-cash.rec_key
-           USE-INDEX rec_key
-           NO-LOCK NO-ERROR.
-
-     /*skip on hold cms*/
-      IF AVAIL b-reftable2 AND b-reftable2.CODE EQ "H" THEN
-      DO:
-         RELEASE b-reftable2.
-         NEXT.
-      END.
-
-      delete reftable.
+      IF ar-cash.printed NE YES THEN NEXT.
+      IF ar-cash.stat EQ "H" THEN
+        NEXT.
 
       {ar/ar-dreg.i}
 
@@ -1071,10 +1055,7 @@ FORMAT HEADER
         AND ar-cash.check-date LE end_date
       /* gdm - 07130905 end */
         and can-find(first ar-cashl where ar-cashl.c-no eq ar-cash.c-no)
-        and can-find(first reftable
-                     where reftable.reftable eq "AR-CASH"
-                       and reftable.code     eq string(ar-cash.c-no,"9999999999")
-                     use-index code)
+        AND ar-cash.printed    EQ YES
       use-index posted
 
       break by ar-cash.cust-no
@@ -1084,20 +1065,10 @@ FORMAT HEADER
       IF LOOKUP(ar-cash.cust-no,cCustStatCheck) EQ 0 THEN
         ASSIGN cCustStatCheck = cCustStatCheck + ar-cash.cust-no + "," .
 
-    FIND FIRST reftable WHERE
-         reftable.reftable = "ARCASHHOLD" AND
-         reftable.rec_key = ar-cash.rec_key
-         USE-INDEX rec_key
-         NO-LOCK NO-ERROR.
 
-    /*skip on hold cms*/
-    IF AVAIL reftable AND reftable.CODE EQ "H" THEN
-    DO:
-      RELEASE reftable.
-      NEXT.
-    END.
+    IF ar-cash.stat EQ "H" THEN
+       NEXT.
 
-    RELEASE reftable no-error.
 
     IF can-find(FIRST ar-cashl WHERE ar-cashl.company = cocode and
                                ar-cashl.c-no = ar-cash.c-no AND
@@ -1170,11 +1141,7 @@ FORMAT HEADER
   for each ar-cashl
       where ar-cashl.company eq cocode
         and ar-cashl.posted  eq no
-        and can-find(first reftable
-                     where reftable.reftable eq "AR-CASH"
-                       and reftable.code     eq
-                                      string(ar-cashl.c-no,"9999999999")
-                     use-index code)
+        and ar-cash.printed EQ YES
       use-index inv-no
       NO-LOCK
       break by ar-cashl.actnum
@@ -1193,20 +1160,10 @@ FORMAT HEADER
                   AND ar-cash.memo USE-INDEX c-no NO-LOCK NO-ERROR.
     IF AVAILABLE ar-cash THEN
     DO:
-       FIND FIRST reftable WHERE
-            reftable.reftable = "ARCASHHOLD" AND
-            reftable.rec_key = ar-cash.rec_key
-            USE-INDEX rec_key
-            NO-LOCK NO-ERROR.
 
-       /*skip on hold cms*/
-       IF AVAIL reftable AND reftable.CODE EQ "H" THEN
-       DO:
-          RELEASE reftable.
-          NEXT.
-       END.
+    IF ar-cash.stat EQ "H" THEN
+       NEXT.
 
-       RELEASE reftable no-error.
 
        FIND cust {ar/ar-custW.i} AND cust.cust-no = ar-cash.cust-no
            NO-LOCK NO-ERROR.

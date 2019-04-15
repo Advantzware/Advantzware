@@ -616,33 +616,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-reftable C-Win 
-PROCEDURE create-reftable :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  IF AVAIL ar-cashl THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "ar-cashl.return"
-     reftable.company  = ar-cashl.company
-     reftable.loc      = ""
-     reftable.code     = STRING(ar-cashl.c-no,"9999999999")
-     reftable.code2    = STRING(ar-cashl.line,"9999999999")
-     reftable.dscr     = TRIM(SUBSTR(ar-cashl.dscr,
-                                     INDEX(ar-cashl.dscr,"OE RETURN") + 12,10))
-     reftable.val[1]   = oe-reth.r-no.
-    RELEASE reftable.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -920,10 +893,12 @@ FOR EACH oe-reth
       ar-cashl.dscr     = "CREDIT MEMO CREATED FROM OE RETURN - ITEMS"
       ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
       FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
-      STRING(oe-reth.r-no,"999999999999").
+      STRING(oe-reth.r-no,"999999999999")
+      ar-cashl.returnNote     = TRIM(SUBSTR(ar-cashl.dscr,
+                                     INDEX(ar-cashl.dscr,"OE RETURN") + 12,10))
+      ar-cashl.returnRno   = oe-reth.r-no.
 
-      RUN create-reftable.
-    END. /* Create of ar-cashl */
+          END. /* Create of ar-cashl */
     IF AVAIL(ar-invl) THEN
     v-cas-cnt = getBolCaseCnt(ROWID(ar-invl)).
     X         = 0.
@@ -1116,10 +1091,12 @@ FOR EACH oe-reth
     ar-cashl.dscr     = "CREDIT MEMO CREATED FROM OE RETURN - FREIGHT"
     ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
     FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
-    STRING(oe-reth.r-no,"999999999999").
+    STRING(oe-reth.r-no,"999999999999")
+    ar-cashl.returnNote     = TRIM(SUBSTR(ar-cashl.dscr,
+                                     INDEX(ar-cashl.dscr,"OE RETURN") + 12,10))
+    ar-cashl.returnRno   = oe-reth.r-no.
 
-    RUN create-reftable.
-  END.
+      END.
 
   IF oe-reth.tot-tax NE 0 THEN DO:
     CREATE ar-cashl.
@@ -1137,9 +1114,11 @@ FOR EACH oe-reth
     ar-cashl.dscr     = "CREDIT MEMO CREATED FROM OE RETURN - TAX"
     ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
     FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
-    STRING(oe-reth.r-no,"999999999999").
+    STRING(oe-reth.r-no,"999999999999")
+    ar-cashl.returnNote     = TRIM(SUBSTR(ar-cashl.dscr,
+                                     INDEX(ar-cashl.dscr,"OE RETURN") + 12,10))
+    ar-cashl.returnRno   = oe-reth.r-no.
 
-    RUN create-reftable.
   END.
 END. /* for each oe-reth record */
 

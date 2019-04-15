@@ -1,6 +1,0 @@
-advance
-phl20corr40
-put c:\tmp\ftpexppo.txt
-quit
-
-

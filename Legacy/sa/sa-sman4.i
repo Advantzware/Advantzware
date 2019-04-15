@@ -34,6 +34,7 @@
              b-tt-report.key-01  = if avail itemfg then "1"
                                    else
                                    if v-misc then "2" else "3"
-             b-tt-report.key-02  = v-sman-no.
+             b-tt-report.key-02  = v-sman-no
+             b-tt-report.key-09  = cust.cust-no.
           end.
           

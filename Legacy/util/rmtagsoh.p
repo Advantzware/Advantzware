@@ -54,7 +54,7 @@ FOR EACH tt-bin,
 
   cocode = rm-bin.company.
 
-  RUN rm/cre-tran.p (tt-rowid, "C", 0).
+  RUN rm/cre-tran.p (tt-rowid, "C", 0,"").
 
   IF LAST-OF(tt-i-no) THEN DO:
     FIND FIRST item NO-LOCK

@@ -67,19 +67,19 @@ DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Customer #,customer Name,Ship To #,Ship To Name,Address 1,Address 2,Contact,City,State,Zip,Phone,Fax,Tax Code,Warehouse,Bin,Carrier," +
                            "Zone,Pallet,Broker,Billable,Shipper ID,Member #,Dock #,Dock hours,Charge,Transit Days,Samples," +
-                           "Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4,Sales Rep (Ship to),Sales Rep (cust),JD EDW,Mandatory Tax," +
-                           "Area Code,Sales Rep Code (ShipTo)"
+                           "Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4,Sales Rep (Ship to),Sales Rep (cust),Export ID#,Mandatory Tax," +
+                           "Area Code,Sales Rep Code (ShipTo),Inactive"
 
       cFieldListToSelect = "cust-no,cust-name,ship-id,ship-name,ship-addr[1],ship-addr[2],contact,ship-city,ship-state,ship-zip,phone,fax,tax-code,loc,loc-bin,carrier," +
                            "dest-code,pallet,broker,bill,spare-char-4,spare-char-5,dock-loc,dock-hour,del-chg,del-time,spare-int-1," +
                            "spare-int-2,spare-int-3,spare-int-4,ship-meth,notes[1],notes[2],notes[3],notes[4],salrepship,salrepcust,jd-edw,man-tax," +
-                           "area-code,spare-char-1" .
+                           "area-code,spare-char-1,statusCode" .
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault = "Customer #,Ship To #,Ship To Name,Address 1,Address 2,City,State,Zip,Contact,Area Code,Phone,Fax,Sales Rep Code (ShipTo),Tax Code," +
                                 "Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4," +
-                                "Warehouse,Bin,Carrier,Zone,Pallet,Shipper ID,Member #,JD EDW,Dock #,Dock hours,Charge," +
-                                "Transit Days,Samples,Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Broker,Billable"
+                                "Warehouse,Bin,Carrier,Zone,Pallet,Shipper ID,Member #,Export ID#,Dock #,Dock hours,Charge," +
+                                "Transit Days,Samples,Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Broker,Billable,Mandatory Tax,Inactive"
                                 .
                                 
 /* _UIB-CODE-BLOCK-END */
@@ -1216,6 +1216,14 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
             
                   lc-return = STRING(ipb-itemfg.tax-mandatory) .                          
               
+        END.
+        WHEN "statusCode"  THEN DO:
+            IF ipb-itemfg.statusCode EQ "I" THEN
+                lc-return = "yes" .
+            ELSE lc-return = "NO" .
+        END.
+        WHEN "del-chg"  THEN DO:
+            lc-return = STRING(ipb-itemfg.del-chg,">>>.99").
         END.
 
         OTHERWISE DO:

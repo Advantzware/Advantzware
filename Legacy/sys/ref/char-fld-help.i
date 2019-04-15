@@ -83,7 +83,7 @@ ELSE IF ls-cur-val = 'GRAPHIC' THEN DO:
 
 END.
 /* gdm - 12170903 */
-ELSE IF ls-cur-val = 'BARDIR' THEN DO:
+ELSE IF (ls-cur-val = 'BARDIR' OR ls-cur-val = 'RMBARDIR') THEN DO:
    
   MESSAGE "Do you want to display Xprint Values.... "
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
@@ -99,7 +99,7 @@ ELSE IF ls-cur-val = 'BARDIR' THEN DO:
       THEN ASSIGN {&tableName}.char-fld:SCREEN-VALUE = v_chrfld. 
   END.
   ELSE DO: 
-  	RUN windows/l-typxpr.w (OUTPUT char-val).
+  	RUN windows/l-typxpr.w (INPUT ls-cur-val ,OUTPUT char-val).
   	IF char-val NE '' THEN
   	{&tableName}.char-fld:SCREEN-VALUE = char-val.
   	RETURN NO-APPLY.    

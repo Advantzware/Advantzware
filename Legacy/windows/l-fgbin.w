@@ -71,12 +71,14 @@ fg-bin.loc fg-bin.loc-bin fg-bin.tag fg-bin.cust-no fg-bin.qty
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH fg-bin WHERE ~{&KEY-PHRASE} ~
       AND fg-bin.company = ip-company ~
  AND fg-bin.i-no = "" ~
- AND (ASI.fg-bin.loc = ip-loc or ip-loc eq "") NO-LOCK ~
+ AND (ASI.fg-bin.loc = ip-loc or ip-loc eq "") ~
+ AND fg-bin.active = TRUE NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH fg-bin WHERE ~{&KEY-PHRASE} ~
       AND fg-bin.company = ip-company ~
  AND fg-bin.i-no = "" ~
- AND (ASI.fg-bin.loc = ip-loc or ip-loc eq "") NO-LOCK ~
+ AND (ASI.fg-bin.loc = ip-loc or ip-loc eq "") ~
+ AND fg-bin.active = TRUE NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 fg-bin
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 fg-bin
@@ -129,7 +131,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
      SIZE 45 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 91 BY 1.43.
 
 /* Query definitions                                                    */
@@ -207,18 +209,19 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.fg-bin.company = ip-company
  AND ASI.fg-bin.i-no = """"
- AND (ASI.fg-bin.loc = ip-loc or ip-loc eq """")"
+ AND (ASI.fg-bin.loc = ip-loc or ip-loc eq """")
+ AND ASI.fg-bin.active = TRUE"
      _FldNameList[1]   > ASI.fg-bin.job-no
-"job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"fg-bin.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-bin.job-no2
-"job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"fg-bin.job-no2" "#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = ASI.fg-bin.loc
      _FldNameList[4]   > ASI.fg-bin.loc-bin
-"loc-bin" "Bin" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"fg-bin.loc-bin" "Bin" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.fg-bin.tag
-"tag" "Tag" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"fg-bin.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.fg-bin.cust-no
-"cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" ""
+"fg-bin.cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.fg-bin.qty
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

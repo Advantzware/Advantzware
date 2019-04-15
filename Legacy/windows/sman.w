@@ -138,7 +138,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Sales Rep"
+         TITLE              = "Sales Group"
          HEIGHT             = 24
          WIDTH              = 149.2
          MAX-HEIGHT         = 320
@@ -314,7 +314,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws SalesRep|View SalesRep|Matrix|Budgets|Budgets2' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Brws SalesGrp|View SalesGrp|Matrix|Budgets|Budgets2' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.

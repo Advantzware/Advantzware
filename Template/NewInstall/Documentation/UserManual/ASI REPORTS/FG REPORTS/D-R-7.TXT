@@ -1,0 +1,17 @@
+
+10/17/00                                        ADVANCED CARTON COMPANY - Main Office                                     Page   1
+ 7:29pm                                  FINISHED GOODS -- SALES VALUE BY CUSTOMER BY TAG
+
+                                  Cust #:HER10 - HER10 Cust PO #:500 - ZZZZZZZZZ Salesman #:  - ZZZ
+CUSTOMER            JOB  TAG       P.O.      ITEM                                      QUANTITY         SELL           TOTAL
+   ID    TYPE     NUMBER NUMBER   NUMBER    NUMBER          DESCRIPTION                 ON-HAND        PRICE           VALUE
+-------- -------- ------ -------- --------- --------------- -------------------- -------------- ------------ ---------------
+HER10    HOUSE       141          July 10,  Potato Chip     Potato Chip Sealed E        -25,000       625.00      -15,625.00
+                                                                                                              --------------
+                                                                                             Item Total           -15,625.00
+
+                                                                                                              --------------
+                                                                                             Customer Total       -15,625.00
+
+                                                                                             Grand Total          -15,625.00
+

@@ -3043,15 +3043,6 @@ PROCEDURE getConfiguration :
     RUN VALUE('get' + version).
     IF version NE '{&version}' THEN /* handle version changes */
     RUN put{&version}.
-    &IF '{&Board}' NE 'Pro' &THEN
-    IF autoSize THEN DO:
-      MESSAGE 'Set Auto-Size Off?' VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        UPDATE autoSize.
-      ASSIGN
-        autoSize = NOT autoSize
-        fullBoard = YES.
-    END.
-    &ENDIF
     ASSIGN /* set opposite of initial setting, apply will toggle it back */
       capacityLoad = loadCapacity
       boardDatePrompt = NOT boardDatePrompt

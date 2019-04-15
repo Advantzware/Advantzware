@@ -1,0 +1,114 @@
+ADD TABLE "taskResult"
+  AREA "Data"
+  DESCRIPTION "Task Results Table"
+  DUMP-NAME "taskresult"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/taskResult.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/taskResult.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/taskResult.p" CRC "?" 
+
+ADD FIELD "fileDateTime" OF "taskResult" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "File Date Time"
+  POSITION 2
+  MAX-WIDTH 8
+  COLUMN-LABEL "Date Time"
+  HELP "Enter File Date Time"
+  ORDER 10
+
+ADD FIELD "fileType" OF "taskResult" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "File Type"
+  POSITION 3
+  MAX-WIDTH 16
+  COLUMN-LABEL "Type"
+  HELP "Enter File Type"
+  ORDER 20
+
+ADD FIELD "folderFile" OF "taskResult" AS character 
+  FORMAT "x(256)"
+  INITIAL ""
+  LABEL "File Name"
+  POSITION 4
+  MAX-WIDTH 512
+  HELP "Enter File Name"
+  ORDER 30
+
+ADD FIELD "user-id" OF "taskResult" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 5
+  MAX-WIDTH 20
+  HELP "Enter User ID"
+  ORDER 40
+
+ADD FIELD "archived" OF "taskResult" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Achrived"
+  POSITION 6
+  MAX-WIDTH 8
+  HELP "Enter Archived Date Time"
+  ORDER 50
+
+ADD FIELD "rec_key" OF "taskResult" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 7
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 70
+
+ADD FIELD "viewed" OF "taskResult" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Viewed"
+  POSITION 8
+  MAX-WIDTH 1
+  HELP "Toggle to Indicate Viewed"
+  ORDER 60
+
+ADD INDEX "pi-fileDateTime" ON "taskResult" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index by File Date Time"
+  INDEX-FIELD "fileDateTime" ASCENDING 
+
+ADD INDEX "si-archived" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Archived Date Time"
+  INDEX-FIELD "archived" ASCENDING 
+
+ADD INDEX "si-fileType" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by File Type"
+  INDEX-FIELD "fileType" ASCENDING 
+
+ADD INDEX "si-foldFile" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Folder File"
+  INDEX-FIELD "folderFile" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "si-user-id" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by User ID"
+  INDEX-FIELD "user-id" ASCENDING 
+
+ADD INDEX "si-viewed" ON "taskResult" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Viewed"
+  INDEX-FIELD "viewed" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002697

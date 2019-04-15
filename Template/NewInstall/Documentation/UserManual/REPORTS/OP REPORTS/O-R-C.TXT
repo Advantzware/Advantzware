@@ -1,0 +1,26 @@
+
+10/17/00                                               ADVANCED CARTON COMPANY                                            Page   1
+ 6:47pm                                       S H I P M E N T S    D U E    R E P O R T
+
+                                                         By Ship-To By Date
+
+Customer Ship-To  City            St Zip   Customer PO      Order  R# Item            Release Qty Date     T  Unit Pr    Sales Value
+-------- -------- --------------- -- ----- --------------- ------ --- --------------- ----------- -------- - -------- --------------
+ATT10    ATT10    New York        NY 19876 PO# 1020           316   1 ATT-1020             24,000 10/11/00 S     0.80      19,200.00
+ATT10    ATT10    New York        NY 19876 PO# 1020           316   1 ATT-1020             24,000 10/11/00 C     0.80      19,200.00
+                                                                                      -----------                     --------------
+                                                                           SUB TOTALS      48,000                          38,400.00
+
+HER10    HER-2    York            PA 1987  101600             317   2 HER-1021             25,000 11/16/00 I    0.395       9,875.00
+                                                                                      -----------                     --------------
+                                                                           SUB TOTALS      25,000                           9,875.00
+
+HER10    HER10    Hershey         PA 19888 101700             319   1 HER-1022              5,000 10/17/00 S   0.6176       3,087.90
+HER10    HER10    Hershey         PA 19888                    318   1 HER-1021             50,000 11/15/00 S     0.40      20,000.00
+HER10    HER10    Hershey         PA 19888 101600             317   3 HER-1021             25,000 12/16/00 I    0.395       9,875.00
+                                                                                      -----------                     --------------
+                                                                           SUB TOTALS      80,000                          32,963.00
+
+                                                                                      -----------                     --------------
+                                                                         GRAND TOTALS     153,000                          81,238.00
+

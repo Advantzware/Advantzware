@@ -1,10 +1,11 @@
 /* oe/rep/relacpi2.i */   
    
    PUT "<FArial>" SKIP
-           "<P14><C+35><B>Pick Ticket</B> " SKIP
-            "<C1><#1><R+5><C+25>" SKIP
+           "<P14><C+45><B>Pick Ticket</B> " SKIP
+            /*"<C1><#1><R+5><C+25>" SKIP*/
             "<=1>" SKIP
-           "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
+           "<P10><C3><#1><R+11><C+40>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP 
+          /* "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
            "<=1><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 
            "<P10></B>"
            "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"        
@@ -14,7 +15,7 @@
             v-comp-add3 AT 8 SKIP
             v-comp-add4 AT 8 SKIP
             v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-            lv-email AT 8 SKIP(1)
+            lv-email AT 8 SKIP(1)*/
                   "<FCourier New>"
                   "Sold To:" SPACE(30) "Ship To:"  SKIP
                   SPACE(5) cust.name shipto.ship-name AT 45 skip
@@ -51,9 +52,10 @@
                    "<R24><C49><FROM><R26><C49><LINE>" SKIP                   
                    "<R24><C51.5><FROM><R26><C51.5><LINE>" SKIP
                    "<R24><C56><FROM><R26><C56><LINE>" SKIP 
-                   "<R24><C62><FROM><R26><C62><LINE>" SKIP   
-                   "<R24><C70><FROM><R26><C70><LINE>" SKIP  
-               "<FArial><=5><R+1> Order# <C10>Item / Desc / Lot #<C28>TAG/Whs/Bin <C50>X   #Pal     #Cas<C64.2>Count<C72>Bin Qty" SKIP(1)
+                   "<R24><C61><FROM><R26><C61><LINE>" SKIP   
+                   "<R24><C67><FROM><R26><C67><LINE>" SKIP 
+                   "<R24><C72><FROM><R26><C72><LINE>" SKIP  
+               "<FArial><=5><R+1> Order# <C10>Item / Desc / Lot #<C28>TAG/Whs/Bin <C50>X   #Pal     #Cas<C62.2>Count<C67.5>Partial <C75>Bin Qty" SKIP(1)
                "<FCourier New>"          
                .
                v-printline = v-printline + 16.

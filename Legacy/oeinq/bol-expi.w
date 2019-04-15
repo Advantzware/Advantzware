@@ -458,28 +458,81 @@ DO:
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ls-cur-val AS CHAR NO-UNDO.
 DEF VAR char-val AS CHAR NO-UNDO.
+DEF VAR rec-val AS RECID NO-UNDO.
 
    lw-focus = FOCUS.
 
    case lw-focus:name :
-
-       when "begin_rm-no" then do:
-          /* ls-cur-val = lw-focus:screen-value.
-           RUN windows/l-carrie.w (cocode, locode, ls-cur-val, output char-val).
+       when "begin_cust-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-cust.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
               lw-focus:screen-value =  ENTRY(1,char-val).
            end.
-           return no-apply. */
-       end.  /* itemfg */
-       when "end_rm-no" then do:
-         /*  ls-cur-val = lw-focus:screen-value.
-           run windows/l-carrie.w (cocode, locode, ls-cur-val, output char-val).
+           return no-apply.
+       end.  /* cust-no*/ 
+
+       when "end_cust-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-cust.w (cocode,ls-cur-val, output char-val).
            if char-val <> "" then do:
               lw-focus:screen-value =  ENTRY(1,char-val).
            end.
-           return no-apply.*/
-       end.  /* itemfg*/
+           return no-apply.
+       end.  /* cust-no*/ 
 
+       when "begin_i-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-itemfg.w (cocode, "", ls-cur-val, output char-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* i-no*/
+       when "end_i-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-itemfg.w (cocode, "", ls-cur-val, output char-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* i-no*/
+
+       when "begin_ord-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           RUN windows/l-ordno2.w (INPUT cocode,"", ls-cur-val, OUTPUT char-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* ord-no*/
+
+       when "end_ord-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           RUN windows/l-ordno2.w (INPUT cocode,"", ls-cur-val, OUTPUT char-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* ord-no*/
+
+       when "begin_bol-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           RUN windows/l-bolh2.w (INPUT cocode,?,ls-cur-val,OUTPUT char-val,OUTPUT rec-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* bol-no*/
+
+       when "end_bol-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           RUN windows/l-bolh2.w (INPUT cocode,?,ls-cur-val,OUTPUT char-val,OUTPUT rec-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* bol-no*/
 END CASE.
 END.
 

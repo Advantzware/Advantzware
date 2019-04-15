@@ -4,11 +4,9 @@ for each {1}fg-rctd
       and {1}fg-rctd.rita-code eq "C"
       AND {1}fg-rctd.tag       GE TRIM(FI_beg-tag-no) 
       AND {1}fg-rctd.tag       LE TRIM(FI_end-tag-no)
-      AND ("{1}" EQ "w-" OR
-           (begin_userid LE "" AND
-            end_userid   GE "" AND
-                  (fg-rctd.created-by GE begin_userid 
-                   AND fg-rctd.created-by LE end_userid)))
+      AND ("{1}" EQ "w-" OR 
+               (fg-rctd.created-by GE begin_userid 
+                AND fg-rctd.created-by LE end_userid))
 
     break by {1}fg-rctd.i-no 
           by {1}fg-rctd.loc

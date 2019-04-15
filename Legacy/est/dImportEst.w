@@ -48,40 +48,36 @@ btn-cancel
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fConvertFileName C-Win
-FUNCTION fConvertFileName RETURNS CHARACTER 
-    (ipcFilename AS CHARACTER ) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fConvertFileName C-Win 
+FUNCTION fConvertFileName RETURNS CHARACTER
+    ( INPUT ipcfileName AS CHAR )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetDefaultImportFolder C-Win 
+FUNCTION fGetDefaultImportFolder RETURNS CHARACTER
+    (ipcCompany AS CHARACTER ) FORWARD.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetDefaultImportFolder C-Win
-FUNCTION fGetDefaultImportFolder RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetImportFormat C-Win 
+FUNCTION fGetImportFormat RETURNS CHARACTER
     ( ipcCompany AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetImportFormat C-Win
-FUNCTION fGetImportFormat RETURNS CHARACTER 
-    ( ipcCompany AS CHARACTER ) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsExcel C-Win 
+FUNCTION fIsExcel RETURNS LOGICAL
+    ( INPUT ipcfileName AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsExcel C-Win
-FUNCTION fIsExcel RETURNS LOGICAL 
-    (ipcFileName AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -91,47 +87,47 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-    LABEL "Ca&ncel" 
-    SIZE 18 BY 1.14.
+     LABEL "Ca&ncel" 
+     SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-    LABEL "&Start Process" 
-    SIZE 18 BY 1.14.
+     LABEL "&Start Process" 
+     SIZE 18 BY 1.14.
 
 DEFINE VARIABLE fcFileName AS CHARACTER FORMAT "X(256)" 
-    LABEL "Import File:" 
-    VIEW-AS FILL-IN 
-    SIZE 69 BY 1.
+     LABEL "Import File" 
+     VIEW-AS FILL-IN 
+     SIZE 69 BY 1.
 
-DEFINE VARIABLE fcMessage  AS CHARACTER FORMAT "X(256)":U 
-    VIEW-AS FILL-IN 
-    SIZE 99 BY 1 NO-UNDO.
+DEFINE VARIABLE fcMessage AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 99 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-19
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 98 BY 3.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 98 BY 3.33.
 
 DEFINE VARIABLE lHeaderRow AS LOGICAL INITIAL yes 
-    LABEL "First Row is Header" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 43 BY .81 NO-UNDO.
+     LABEL "First Row is Header" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 43 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    fcFileName AT ROW 2.67 COL 18 COLON-ALIGNED HELP
-    "Enter file name to import order"
-    lHeaderRow AT ROW 4.1 COL 20 WIDGET-ID 4
-    btn-process AT ROW 5.76 COL 27
-    btn-cancel AT ROW 5.76 COL 56
-    fcMessage AT ROW 7.67 COL 2 NO-LABEL WIDGET-ID 2
-    RECT-19 AT ROW 1.95 COL 2
+     fcFileName AT ROW 2.67 COL 18 COLON-ALIGNED HELP
+          "Enter file name to import order"
+     lHeaderRow AT ROW 4.1 COL 20 WIDGET-ID 4
+     btn-process AT ROW 5.76 COL 27
+     btn-cancel AT ROW 5.76 COL 56
+     fcMessage AT ROW 7.67 COL 2 NO-LABEL WIDGET-ID 2
+     RECT-19 AT ROW 1.95 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 101.4 BY 8.57
-    FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 101.4 BY 8.57
+         FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -148,31 +144,31 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Import Estimate"
-        HEIGHT             = 8.95
-        WIDTH              = 102
-        MAX-HEIGHT         = 26.62
-        MAX-WIDTH          = 160
-        VIRTUAL-HEIGHT     = 26.62
-        VIRTUAL-WIDTH      = 160
-        RESIZE             = yes
-        SCROLL-BARS        = no
-        STATUS-AREA        = yes
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = yes
-        THREE-D            = yes
-        FONT               = 6
-        MESSAGE-AREA       = no
-        SENSITIVE          = yes.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Import Estimate"
+         HEIGHT             = 8.95
+         WIDTH              = 102
+         MAX-HEIGHT         = 26.62
+         MAX-WIDTH          = 160
+         VIRTUAL-HEIGHT     = 26.62
+         VIRTUAL-WIDTH      = 160
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         FONT               = 6
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -187,15 +183,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    fcFileName:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       fcFileName:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN fcMessage IN FRAME FRAME-A
    NO-ENABLE ALIGN-L                                                    */
 ASSIGN 
-    fcMessage:READ-ONLY IN FRAME FRAME-A = TRUE.
+       fcMessage:READ-ONLY IN FRAME FRAME-A        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = yes.
+THEN C-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -209,7 +206,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Import Estimate */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -223,7 +220,7 @@ ON END-ERROR OF C-Win /* Import Estimate */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Import Estimate */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -236,7 +233,7 @@ ON WINDOW-CLOSE OF C-Win /* Import Estimate */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -247,7 +244,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-    DO:
+DO:
         DEFINE VARIABLE lProcess AS LOGICAL INIT NO NO-UNDO.
    
         
@@ -279,19 +276,19 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 
 &Scoped-define SELF-NAME fcFileName
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fcFileName C-Win
-ON HELP OF fcFileName IN FRAME FRAME-A /* Import File: */
-    DO:
+ON HELP OF fcFileName IN FRAME FRAME-A /* Import File */
+DO:
         DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lOK       AS LOGICAL   NO-UNDO.
         DEFINE VARIABLE cDefault  AS CHARACTER NO-UNDO.
         
-        cDefault = fGetDefaultImportFolder(ipcCompany).
-        SYSTEM-DIALOG GET-FILE cFileName 
-            TITLE "Select Image File to insert"
-            FILTERS "Excel Comma delimited Files  (*.csv)" "*.csv",
-            "Excel Files (*.xls,*.xlsx)" "*.xls,*.xlsx",
-            "All Files    (*.*) " "*.*"
-            INITIAL-DIR  cDefault
+    cDefault = fGetDefaultImportFolder(ipcCompany).
+    SYSTEM-DIALOG GET-FILE cFileName 
+        TITLE "Select File for Import"
+        FILTERS 
+        "Excel Files (*.xls,*.xlsx,*.csv)" "*.xls,*.xlsx,*.csv",
+        "All Files (*.*) " "*.*"
+        INITIAL-DIR  cDefault
             MUST-EXIST
             USE-FILENAME
             UPDATE lOK.
@@ -304,8 +301,8 @@ ON HELP OF fcFileName IN FRAME FRAME-A /* Import File: */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fcFileName C-Win
-ON LEAVE OF fcFileName IN FRAME FRAME-A /* Import File: */
-    DO:
+ON LEAVE OF fcFileName IN FRAME FRAME-A /* Import File */
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-to_ord-no NO-ERROR.
@@ -356,18 +353,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -375,30 +372,29 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY fcFileName lHeaderRow fcMessage 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-19 fcFileName lHeaderRow btn-process btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY fcFileName lHeaderRow fcMessage 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-19 fcFileName lHeaderRow btn-process btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pConvertXLStoCSV C-Win
-PROCEDURE pConvertXLStoCSV:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pConvertXLStoCSV C-Win 
+PROCEDURE pConvertXLStoCSV :
+/*------------------------------------------------------------------------------
       Purpose:     Convert an excel file to a csv format.
       Parameters:  Input - Excel file name
                    Output - Csv file name
@@ -457,15 +453,13 @@ PROCEDURE pConvertXLStoCSV:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pImport C-Win 
 PROCEDURE pImport :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -558,7 +552,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunProcess C-Win 
 PROCEDURE pRunProcess :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     Main Process
           Parameters:  <none>
           Notes:       
@@ -598,13 +592,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fConvertFileName C-Win
-FUNCTION fConvertFileName RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fConvertFileName C-Win 
+FUNCTION fConvertFileName RETURNS CHARACTER
     ( INPUT ipcfileName AS CHAR ) :
     /*------------------------------------------------------------------------------
       Purpose:  
@@ -619,14 +610,12 @@ FUNCTION fConvertFileName RETURNS CHARACTER
     RETURN cBaseFileName.   /* Function return value. */
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetDefaultImportFolder C-Win
-FUNCTION fGetDefaultImportFolder RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetDefaultImportFolder C-Win 
+FUNCTION fGetDefaultImportFolder RETURNS CHARACTER
     (ipcCompany AS CHARACTER ):
     /*------------------------------------------------------------------------------
          Purpose: Returns the character value for CEImportFormFolder NK1 
@@ -651,12 +640,12 @@ FUNCTION fGetDefaultImportFolder RETURNS CHARACTER
 
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetImportFormat C-Win
-FUNCTION fGetImportFormat RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetImportFormat C-Win 
+FUNCTION fGetImportFormat RETURNS CHARACTER
     ( ipcCompany AS CHARACTER ):
     /*------------------------------------------------------------------------------
          Purpose: Returns the format for importing forms
@@ -679,12 +668,12 @@ FUNCTION fGetImportFormat RETURNS CHARACTER
         RETURN cReturn.
     
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsExcel C-Win
-FUNCTION fIsExcel RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsExcel C-Win 
+FUNCTION fIsExcel RETURNS LOGICAL
     ( INPUT ipcfileName AS CHARACTER ) :
     /*------------------------------------------------------------------------------
       Purpose:  
@@ -700,13 +689,7 @@ FUNCTION fIsExcel RETURNS LOGICAL
     ELSE
         RETURN FALSE.   /* Function return value. */
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-
-
-
 

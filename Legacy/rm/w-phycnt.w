@@ -1,6 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -27,6 +28,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object01 h_v-phycnt
 &SCOPED-DEFINE h_Object02 h_p-updsav-2
 
+&SCOPED-DEFINE winViewPrgmName w-phycnt
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -51,6 +54,13 @@ CREATE WIDGET-POOL.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES rm-rctd
+&Scoped-define FIRST-EXTERNAL-TABLE rm-rctd
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR rm-rctd.
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -103,6 +113,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
+   External Tables: ASI.rm-rctd
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -385,6 +396,15 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "rm-rctd"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "rm-rctd"}
+
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
@@ -452,30 +472,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view W-Win 
-PROCEDURE local-view :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR char-hdl AS CHAR NO-UNDO.
-
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"focus-target",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-    RUN init-focus IN WIDGET-HANDLE(char-hdl).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_add W-Win 
 PROCEDURE select_add :
 /*------------------------------------------------------------------------------
@@ -501,9 +497,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartWindow, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "rm-rctd"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

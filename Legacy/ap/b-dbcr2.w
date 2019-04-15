@@ -51,6 +51,7 @@ DEF BUFFER bf-vend FOR vend.
 DEF VAR lv-inv-displayed AS LOG NO-UNDO.
 DEF VAR ll-inquiry AS LOG NO-UNDO.
 DEF VAR v-vend-act AS cha NO-UNDO.
+DEFINE VARIABLE dInvDate AS DATE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -84,10 +85,10 @@ DEFINE QUERY external_tables FOR ap-pay.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table ap-payl.inv-no ~
-ap-payl.due-date ap-payl.amt-due ap-payl.amt-paid ap-payl.amt-disc ~
-ap-payl.actnum display-actdscr() @ act_dscr ap-payl.rec_key 
+fInvDate() @ dInvDate ap-payl.amt-due ap-payl.amt-paid ap-payl.amt-disc ~
+ap-payl.actnum display-actdscr() @ act_dscr ap-payl.rec_key
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table ap-payl.inv-no ~
-ap-payl.due-date ap-payl.amt-due ap-payl.amt-paid ap-payl.amt-disc ~
+ap-payl.amt-due ap-payl.amt-paid ap-payl.amt-disc ~
 ap-payl.actnum 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table ap-payl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table ap-payl
@@ -124,6 +125,12 @@ FUNCTION display-actdscr RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInvDate B-table-Win 
+FUNCTION fInvDate RETURNS DATE
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -154,7 +161,6 @@ DEFINE RECTANGLE RECT-4
 DEFINE QUERY Browser-Table FOR 
       ap-payl
     FIELDS(ap-payl.inv-no
-      ap-payl.due-date
       ap-payl.amt-due
       ap-payl.amt-paid
       ap-payl.amt-disc
@@ -167,7 +173,7 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       ap-payl.inv-no FORMAT "x(12)":U WIDTH 18.2
-      ap-payl.due-date FORMAT "99/99/9999":U WIDTH 19.2
+      fInvDate() @ dInvDate COLUMN-LABEL "Invoice Date" FORMAT "99/99/9999":U WIDTH 20
       ap-payl.amt-due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
             WIDTH 20.2
       ap-payl.amt-paid COLUMN-LABEL "Credit Amount" FORMAT "->>,>>>,>>9.99":U
@@ -180,7 +186,6 @@ DEFINE BROWSE Browser-Table
       ap-payl.rec_key FORMAT "X(20)":U
   ENABLE
       ap-payl.inv-no
-      ap-payl.due-date
       ap-payl.amt-due
       ap-payl.amt-paid
       ap-payl.amt-disc
@@ -285,8 +290,8 @@ ASSIGN
      _TblOptList       = "USED,"
      _FldNameList[1]   > ASI.ap-payl.inv-no
 "ap-payl.inv-no" ? ? "character" ? ? ? ? ? ? yes ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.ap-payl.due-date
-"ap-payl.due-date" ? ? "date" ? ? ? ? ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > "_<CALC>"
+"fInvDate() @ dInvDate" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ap-payl.amt-due
 "ap-payl.amt-due" "Balance Due" ? "decimal" ? ? ? ? ? ? yes ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.ap-payl.amt-paid
@@ -423,17 +428,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME ap-payl.due-date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-payl.due-date Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF ap-payl.due-date IN BROWSE Browser-Table /* Due Date */
+/*
+&Scoped-define SELF-NAME dInvDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dInvDate Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF dInvDate IN BROWSE Browser-Table /* Due Date */
 DO:
   APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
   RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME   */
 
 
 &Scoped-define SELF-NAME ap-payl.amt-due
@@ -631,7 +636,7 @@ PROCEDURE display-apinv :
 
   IF AVAIL ap-inv THEN DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     ap-payl.due-date:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ap-inv.due-date,"99/99/9999")
+     dInvDate:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(ap-inv.inv-date,"99/99/9999")
      ap-payl.amt-due:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(ap-inv.due)
      ap-payl.inv-no:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(ap-inv.inv-no)
      ap-payl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(v-vend-act) 
@@ -1078,6 +1083,35 @@ FUNCTION display-actdscr RETURNS CHARACTER
        ELSE RETURN "". 
   END.
   RETURN "".
+
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInvDate B-table-Win 
+FUNCTION fInvDate RETURNS DATE
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dDate AS DATE NO-UNDO.
+    IF AVAIL ap-payl THEN DO:
+      FIND FIRST ap-inv
+          WHERE ap-inv.company EQ g_company 
+          AND ap-inv.posted  EQ YES
+          AND ap-inv.vend-no EQ ap-pay.vend-no
+          AND ap-inv.inv-no  EQ ap-payl.inv-no
+          NO-LOCK NO-ERROR.
+      IF AVAIL ap-inv AND ap-inv.inv-date NE ? THEN DO:
+            dDate = ap-inv.inv-date.  
+      END.
+    END.
+    RETURN dDate.
 
 
 END FUNCTION.

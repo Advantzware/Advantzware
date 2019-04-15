@@ -421,7 +421,7 @@ assign
  vzer = tb_delete0
  vneg = tb_deleteneg.
 
-{util/rm-mkbin.i}
+{util/dev/rm-mkbin.i}
 
 session:set-wait-state("").
 

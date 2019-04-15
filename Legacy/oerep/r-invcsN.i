@@ -114,7 +114,7 @@
 
         release ar-inv.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -374,7 +374,7 @@
 
         RELEASE ar-inv.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         ASSIGN
          lv-r-no = 0
@@ -528,7 +528,7 @@
               '"' v-amt[2] '",'
               SKIP.
       END.*/
-
+      RUN pGetActMatCost(v-job-no , OUTPUT dActMatCost) .
       
       ASSIGN cDisplay = ""
                     cTmpField = ""
@@ -549,7 +549,8 @@
                           WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-brdc[3],"->>>,>>9.99") ELSE "" .                            
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-brdc[4],"->>>,>>9.99") ELSE "" .         
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[5],"->>>,>>9.99") ELSE "" .     
-                          WHEN "sal-amt"     THEN cVarValue = string(v-amt[2],"->>>,>>>,>>9.99<<") .                                
+                          WHEN "sal-amt"     THEN cVarValue = string(v-amt[2],"->>>,>>>,>>9.99<<") .
+                          WHEN "act-mat-cost" THEN cVarValue = string(dActMatCost,"->,>>>,>>9.99") .
                           
                           
                      END CASE.
@@ -627,7 +628,8 @@
                           WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[13],"->>>,>>9.99") ELSE "" .                            
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[18],"->>>,>>9.99") ELSE "" .         
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[23],"->>>,>>9.99") ELSE "" .     
-                          WHEN "sal-amt"     THEN cVarValue = string(v-amt[3],"->>>,>>>,>>9.99<<") .                                
+                          WHEN "sal-amt"     THEN cVarValue = string(v-amt[3],"->>>,>>>,>>9.99<<") . 
+                          WHEN "act-mat-cost" THEN cVarValue = "" .
                           
                           
                      END CASE.
@@ -704,7 +706,8 @@
                           WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[14],"->>>,>>9.99") ELSE "" .                            
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[19],"->>>,>>9.99") ELSE "" .         
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[24],"->>>,>>9.99") ELSE "" .     
-                          WHEN "sal-amt"     THEN cVarValue = string(v-amt[4],"->>>,>>>,>>9.99<<") .                                
+                          WHEN "sal-amt"     THEN cVarValue = string(v-amt[4],"->>>,>>>,>>9.99<<") . 
+                          WHEN "act-mat-cost" THEN cVarValue = "" .
                           
                           
                      END CASE.
@@ -792,7 +795,8 @@
                           WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[15],"->>>,>>9.99") ELSE "" .                            
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[20],"->>>,>>9.99") ELSE "" .         
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[25],"->>>,>>9.99") ELSE "" .     
-                          WHEN "sal-amt"     THEN cVarValue = string(v-amt[5],"->>>,>>>,>>9.99<<") .                                
+                          WHEN "sal-amt"     THEN cVarValue = string(v-amt[5],"->>>,>>>,>>9.99<<") .  
+                          WHEN "act-mat-cost" THEN cVarValue = "" .
                           
                           
                      END CASE.

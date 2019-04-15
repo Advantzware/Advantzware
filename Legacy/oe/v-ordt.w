@@ -32,11 +32,11 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
-DEF VAR v-fr-tax LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
 DEF VAR v-tax-rate AS DEC NO-UNDO.
 DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
 DEF VAR lv-prev-value AS CHAR NO-UNDO.
-
+DEFINE VARIABLE lTaxOnFreight       LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
+SUBSCRIBE TO "DispOrdTot" ANYWHERE.
 {oe/oe-sysct1.i NEW}
 
 &SCOPED-DEFINE proc-enable proc-enable
@@ -45,9 +45,6 @@ FIND FIRST ce-ctrl
     WHERE ce-ctrl.company EQ cocode
       AND ce-ctrl.loc     EQ locode
     NO-LOCK NO-ERROR.
-
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-IF AVAIL oe-ctrl THEN v-fr-tax = oe-ctrl.f-tax.
 
 DO TRANSACTION:
    {sys/inc/fgsecur.i}
@@ -77,7 +74,7 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS oe-ord.t-weight oe-ord.t-freight ~
+&Scoped-Define ENABLED-FIELDS oe-ord.t-freight ~
 oe-ord.f-bill oe-ord.t-comm 
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
@@ -230,7 +227,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ord.t-revenue IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.t-weight IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL NO-ENABLE                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.tax IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -261,7 +258,7 @@ DO:
              (DEC(oe-ord.t-freight:SCREEN-VALUE) *
               (IF oe-ord.f-bill:SCREEN-VALUE EQ "Y" THEN 1 ELSE -1))).
         
-  IF v-fr-tax THEN
+  IF lTaxOnFreight THEN
     oe-ord.tax:SCREEN-VALUE = 
         STRING(DEC(oe-ord.tax:SCREEN-VALUE) +
                (ROUND(DEC(oe-ord.t-freight:SCREEN-VALUE) * v-frt-tax-rate / 100,2) *
@@ -321,7 +318,7 @@ DO:
                DEC(oe-ord.t-freight:SCREEN-VALUE) -
                DEC(lv-prev-value)).
         
-    IF v-fr-tax THEN
+    IF lTaxOnFreight THEN
       oe-ord.tax:SCREEN-VALUE = 
           STRING(DEC(oe-ord.tax:SCREEN-VALUE) +
                  ROUND(DEC(oe-ord.t-freight:SCREEN-VALUE) * v-frt-tax-rate / 100,2) -
@@ -472,6 +469,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DispOrdTot V-table-Win
+PROCEDURE DispOrdTot:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+RUN Redisplay IN THIS-PROCEDURE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hide-comm V-table-Win 
 PROCEDURE hide-comm :
 /*------------------------------------------------------------------------------
@@ -621,9 +634,12 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL oe-ord THEN
+  IF AVAIL oe-ord THEN do:
      RUN ar/cctaxrt.p (cocode, oe-ord.tax-gr,
                     OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
+
+     RUN oe/FrtTaxAvail.p(oe-ord.company,oe-ord.tax-gr,OUTPUT lTaxOnFreight) .
+  END.
 
 END PROCEDURE.
 
@@ -678,7 +694,16 @@ PROCEDURE Redisplay :
 ------------------------------------------------------------------------------*/
 
   FIND CURRENT oe-ord NO-LOCK NO-ERROR.
-  IF AVAIL oe-ord THEN RUN dispatch ("display-fields").
+  IF AVAIL oe-ord THEN DO:
+
+      RUN dispatch ("display-fields").
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+      DO:
+        
+          RUN dispatch IN WIDGET-HANDLE(CHAR-hdl) ('row-changed:U').
+      END.      
+  END.
 
 END PROCEDURE.
 

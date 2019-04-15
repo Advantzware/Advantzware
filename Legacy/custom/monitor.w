@@ -44,6 +44,7 @@ ASSIGN
 
 DEFINE VARIABLE labelLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 
 DEFINE STREAM monitorStrm.
 
@@ -247,7 +248,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
      application would exit. */
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
 END.
 
@@ -258,10 +259,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* {1} Monitor */
 DO:
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+ 
+  /* Must not go to the editor when started from the command line */
+  QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,8 +291,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClose C-Win
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
-       RUN system/userLogOut.p.
+  RUN system/userLogOut.p (NO, 0).
   APPLY 'CLOSE' TO THIS-PROCEDURE.
+   
+  /* Must not go to the editor when started from the command line */
+  QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -300,7 +306,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewLog C-Win
 ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View Log */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" string("file:///" + monitorImportDir + '/monitor/monitor.log') false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe VALUE(monitorImportDir + '/monitor/monitor.log').
+&ENDIF
   RETURN NO-APPLY.
 END.
 
@@ -335,6 +345,7 @@ END PROCEDURE.
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.    
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -343,8 +354,9 @@ DO:
   monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.tmp.log') IN FRAME {&FRAME-NAME}.
   OS-APPEND VALUE(monitorImportDir + '/monitor/monitor.tmp.log')
             VALUE(monitorImportDir + '/monitor/monitor.log').
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
   RUN disable_UI.
+    DELETE OBJECT hPgmSecurity.
 END.
 
 /* Best default for GUI applications is...                              */
@@ -375,7 +387,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           sys-ctrl.log-fld = NO.
       END. /* monitorsysctrl */
       ELSE DO:
-        RUN system/userLogOut.p.
+        RUN system/userLogOut.p (NO, 0).
         QUIT.
       END.
     END. /* not avail sys-ctrl */
@@ -383,14 +395,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       MESSAGE '{1} Monitor Session Cannot Be Initiated' SKIP
         'System Parameter {2} is set to NO' SKIP
         VIEW-AS ALERT-BOX WARNING.
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
       QUIT.
     END. /* not log-fld */
     IF sys-ctrl.char-fld EQ '' THEN DO:
       MESSAGE '{1} Monitor Session Cannot Be Initiated' SKIP
         'System Parameter {2} File Location Is Blank' SKIP
         VIEW-AS ALERT-BOX WARNING.
-       RUN system/userLogOut.p.
+       RUN system/userLogOut.p (NO, 0).
       QUIT.
     END. /* char-fld eq '' */
     ASSIGN

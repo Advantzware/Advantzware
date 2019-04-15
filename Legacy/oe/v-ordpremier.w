@@ -112,6 +112,7 @@ DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEF VAR OEJobHold-log AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
+DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -187,6 +188,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+   llOeShipFromLog = LOGICAL(cRtnChar) NO-ERROR.
+
 /* transaction */
 {sys/inc/f16to32.i}
 
@@ -2360,6 +2367,7 @@ PROCEDURE create-release :
                             AND eb.form-no  NE 0
                                NO-LOCK NO-ERROR.
             IF AVAIL eb THEN ASSIGN v-ship-id = eb.ship-id.
+            if avail eb AND v-ship-from EQ "" then assign v-ship-from = eb.loc.
          END.
          ELSE DO:
             FIND FIRST shipto WHERE shipto.company EQ cocode
@@ -2371,10 +2379,15 @@ PROCEDURE create-release :
                  FIND FIRST shipto WHERE shipto.company EQ cocode
                                      AND shipto.cust-no EQ oe-ordl.cust-no
                                      NO-LOCK NO-ERROR.
-                 IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id.   
+                 IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id. 
             END.
+            IF AVAIL shipto AND v-ship-from EQ "" THEN
+                v-ship-from = shipto.loc.
          END.
-         RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+
+         IF llOeShipFromLog THEN
+             RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+
          ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
          FIND FIRST shipto WHERE shipto.company = cocode AND
                                   shipto.cust-no = oe-ord.cust-no  AND
@@ -2393,6 +2406,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
+           RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
 
          IF v-ship-from GT "" THEN
              oe-rel.spare-char-1 = v-ship-from.
@@ -2443,6 +2457,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
+                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                IF adm-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:
                   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -2484,6 +2499,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
+           RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            IF adm-new-record THEN DO:                
                  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -2605,7 +2621,6 @@ ASSIGN
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = oe-ordl.i-name
  itemfg.part-dscr1 = oe-ordl.part-dscr1
  itemfg.part-dscr2 = oe-ordl.part-dscr2
@@ -2614,11 +2629,8 @@ ASSIGN
  itemfg.part-no    = oe-ordl.part-no
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
  itemfg.alloc      = v-alloc
- itemfg.stocked    = YES
- itemfg.setupDate  = TODAY.
+ .
  /* Create an itemfg-loc for the default warehouse */
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
@@ -2663,25 +2675,6 @@ END.
        END.
     END.
  END.  
-
-
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-                ELSE IF AVAIL oe-ctrl THEN
-                        IF oe-ctrl.i-code THEN "S"
-                        ELSE "C"
-                ELSE "S".
-/* ==== not yet 
-if itemfg.i-code eq "S" then do:
-  fil_id = recid(itemfg).
-  run oe/fg-item.p.
-  fil_id = recid(oe-ordl).
-  {oe/ordlfg.i}
-  display oe-ordl.i-name oe-ordl.i-no oe-ordl.price
-          oe-ordl.pr-uom oe-ordl.cas-cnt oe-ordl.part-dscr2 oe-ordl.cost
-          oe-ordl.part-no oe-ordl.part-dscr1 with frame oe-ordlf.
-end.
-*/
 
 FIND CURRENT itemfg NO-LOCK.
 
@@ -3288,10 +3281,7 @@ PROCEDURE display-cust-detail :
                         AND shipto.cust-no EQ cust.cust-no
         NO-LOCK NO-ERROR.
     IF AVAIL shipto THEN
-       ASSIGN /*oe-ord.ship-i[1]:screen-value = shipto.notes[1]
-              oe-ord.ship-i[2]:screen-value = shipto.notes[2]
-              oe-ord.ship-i[3]:screen-value = shipto.notes[3]
-              oe-ord.ship-i[4]:screen-value = shipto.notes[4]*/
+       ASSIGN
               ls-ship-i[1] = shipto.notes[1]
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
@@ -3350,7 +3340,10 @@ PROCEDURE est-from-tandem :
       oe-ord.est-no:SCREEN-VALUE = eb.est-no.
       APPLY "value-changed" TO oe-ord.est-no.
 
-      FIND FIRST xest OF eb NO-LOCK NO-ERROR.
+      FIND FIRST xest NO-LOCK WHERE 
+        xest.company EQ eb.company AND 
+        xest.est-no EQ eb.est-no 
+        NO-ERROR.
 
       FOR EACH eb OF xest EXCLUSIVE:
         eb.cust-no = oe-ord.cust-no:SCREEN-VALUE.
@@ -3375,7 +3368,10 @@ PROCEDURE est-from-tandem :
     END.
 
     ELSE DO:
-      FIND FIRST est OF eb EXCLUSIVE NO-ERROR.
+        FIND FIRST est EXCLUSIVE WHERE 
+            est.company EQ eb.company AND 
+            est.est-no EQ eb.est-no 
+            NO-ERROR.
       IF AVAIL est THEN DELETE est.
     END.
   END.
@@ -6498,6 +6494,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 

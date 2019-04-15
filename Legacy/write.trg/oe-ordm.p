@@ -43,9 +43,7 @@ FOR EACH oe-ord
   LEAVE.
 END.
 
-IF TRIM({&TABLENAME}.rec_key) NE "" THEN DO:
-  {custom/coloraud.i}
-END.
+
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

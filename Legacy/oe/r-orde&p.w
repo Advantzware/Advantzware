@@ -103,7 +103,7 @@ form HEADER
     WITH frame r-top.
 
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock.
-v-fr-tax = oe-ctrl.f-tax.
+/*v-fr-tax = oe-ctrl.f-tax.*/
 
 {sa/sa-sls01.i}
 
@@ -1052,6 +1052,9 @@ with down no-box STREAM-IO width 132 frame ordm.
       if xoe-ord.stat EQ "H" then
         put "** THIS ORDER IS ON CREDIT HOLD **" to 39.
       else
+      if xoe-ord.priceHold then
+        put "** THIS ORDER IS ON PRICE HOLD **" to 39.
+      else
       if xoe-ord.stat EQ "D" then
         put "** THIS ORDER IS DELETED **" to 39.
       else
@@ -1144,6 +1147,8 @@ with down no-box STREAM-IO width 132 frame ordm.
 
         if xoe-ord.f-bill THEN
           xoe-ord.t-revenue = xoe-ord.t-revenue + xoe-ord.t-freight.
+
+        RUN oe/FrtTaxAvail.p(xoe-ord.company,xoe-ord.tax-gr,OUTPUT v-fr-tax) .
 
         if v-fr-tax THEN
           xoe-ord.tax = xoe-ord.tax +

@@ -33,6 +33,8 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE aoaMultiplier 140
+&SCOPED-DEFINE aoaJasper 7
+&SCOPED-DEFINE aoaJasperGap 5
 
 /* Parameters Definitions ---                                           */
 
@@ -53,9 +55,10 @@ DEFINE TEMP-TABLE ttSubject NO-UNDO
     FIELD ttFormat       AS CHARACTER LABEL "Format"        FORMAT "x(20)"
     FIELD ttWidth        AS INTEGER   LABEL "Width"         FORMAT ">>>9"
     FIELD ttSize         AS INTEGER   LABEL "Size"          FORMAT ">>>>9"
+    FIELD ttJasperSize   AS INTEGER   LABEL "Jasper Size"   FORMAT ">>>>9"
+    FIELD ttJasperColumn AS INTEGER   LABEL "Jasper Column" FORMAT ">>>>9"
         INDEX ttSubject IS PRIMARY ttOrder
         .
-
 DEFINE TEMP-TABLE ttPageHeader NO-UNDO
     FIELD phOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
     FIELD phName         AS CHARACTER LABEL "Name"          FORMAT "x(30)"
@@ -67,7 +70,6 @@ DEFINE TEMP-TABLE ttPageHeader NO-UNDO
     FIELD phControlItem  AS INTEGER   LABEL "ControlItem"   FORMAT ">>9"
         INDEX ttPageHeader IS PRIMARY phOrder
         .
-
 DEFINE TEMP-TABLE ttDetail NO-UNDO
     FIELD dtOrder        AS INTEGER   LABEL "Order"         FORMAT ">>>9"
     FIELD dtName         AS CHARACTER LABEL "Name"          FORMAT "x(30)"
@@ -80,7 +82,6 @@ DEFINE TEMP-TABLE ttDetail NO-UNDO
     FIELD dtControlItem  AS INTEGER   LABEL "ControlItem"   FORMAT ">>9"
         INDEX ttDetail IS PRIMARY dtOrder
         .
-
 DEFINE TEMP-TABLE ttSection NO-UNDO
     FIELD secOrder        AS INTEGER   LABEL "Order"        FORMAT ">>>9"
     FIELD secType         AS INTEGER   LABEL "Type"         FORMAT ">9"
@@ -95,7 +96,6 @@ DEFINE TEMP-TABLE ttSection NO-UNDO
     FIELD secControlItem  AS INTEGER   LABEL "ControlItem"  FORMAT ">>9"
         INDEX ttSection IS PRIMARY secOrder
         .
-
 DEFINE TEMP-TABLE ttParameter NO-UNDO
     FIELD pOrder          AS INTEGER   LABEL "Order"        FORMAT ">>>9"
     FIELD pName           AS CHARACTER LABEL "Name"         FORMAT "x(27)"
@@ -105,7 +105,6 @@ DEFINE TEMP-TABLE ttParameter NO-UNDO
     FIELD pControlItem    AS INTEGER   LABEL "ControlItem"  FORMAT ">>9"
         INDEX ttParameter IS PRIMARY pOrder
         .
-
 DEFINE TEMP-TABLE ttAOA NO-UNDO
     FIELD module  AS CHARACTER LABEL "Module"  FORMAT "x(2)"
     FIELD aoaFile AS CHARACTER
@@ -113,6 +112,9 @@ DEFINE TEMP-TABLE ttAOA NO-UNDO
     FIELD menuID  AS CHARACTER
         INDEX aoa IS PRIMARY UNIQUE module progID
         .
+DEF VAR hAppSrvBin AS HANDLE NO-UNDO.
+
+RUN AOA\appServer\aoaBin.p PERSISTENT SET hAppSrvBin.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -206,7 +208,7 @@ ttSection ttSubject
 &Scoped-Define ENABLED-OBJECTS btnOpenRPA btnSetName btnSave btnPublish ~
 ttProgID ttPageHeader ttDetail autoSetParameters ttParameter ~
 btnOnReportStart btnGroupHeaderOnFormat btnGroupFooterOnFormat ~
-btnDetailOnFormat btnOnReportEnd btnUpdate ttSubject ttSection 
+btnDetailOnFormat btnOnReportEnd btnJasper btnUpdate ttSubject ttSection 
 &Scoped-Define DISPLAYED-OBJECTS aoaProgramID aoaReportWidth aoaRptFile ~
 aoaReportTitle autoSetParameters 
 
@@ -224,6 +226,20 @@ aoaReportTitle
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetScript C-Win 
 FUNCTION fGetScript RETURNS CHARACTER
   ( ipScriptDatFile AS CHARACTER, ipSection AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fJasperPattern C-Win 
+FUNCTION fJasperPattern RETURNS CHARACTER
+  (ipcFormat AS CHARACTER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fJasperReportSize C-Win 
+FUNCTION fJasperReportSize RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -246,6 +262,10 @@ DEFINE BUTTON btnGroupFooterOnFormat
 DEFINE BUTTON btnGroupHeaderOnFormat 
      LABEL "Group &Header OnFormat" 
      SIZE 25 BY 1.19.
+
+DEFINE BUTTON btnJasper 
+     LABEL "Generate Jasper.jrxml" 
+     SIZE 25 BY 1.14 TOOLTIP "Export to Jasper Layout".
 
 DEFINE BUTTON btnOnReportEnd 
      LABEL "OnReport&End" 
@@ -431,6 +451,7 @@ DEFINE FRAME DEFAULT-FRAME
      btnGroupFooterOnFormat AT ROW 6.24 COL 217 WIDGET-ID 24
      btnDetailOnFormat AT ROW 7.67 COL 217 WIDGET-ID 12
      btnOnReportEnd AT ROW 9.1 COL 217 WIDGET-ID 26
+     btnJasper AT ROW 22.19 COL 217 WIDGET-ID 34
      btnUpdate AT ROW 22.43 COL 2 WIDGET-ID 30
      ttSubject AT ROW 23.62 COL 1 WIDGET-ID 200
      ttSection AT ROW 23.62 COL 99 WIDGET-ID 500
@@ -615,7 +636,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDetailOnFormat C-Win
 ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Detail OnFormat */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.Detail.OnFormat.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.Detail.OnFormat.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -626,7 +651,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupFooterOnFormat C-Win
 ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Group Footer OnFormat */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.GroupFooter.OnFormat.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupFooter.OnFormat.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -637,7 +666,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGroupHeaderOnFormat C-Win
 ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Group Header OnFormat */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.GroupHeader.OnFormat.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupHeader.OnFormat.dat.
+&ENDIF
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnJasper
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnJasper C-Win
+ON CHOOSE OF btnJasper IN FRAME DEFAULT-FRAME /* Generate Jasper.jrxml */
+DO:
+    RUN pJasper.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -648,7 +692,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportEnd C-Win
 ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* OnReportEnd */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.OnReportEnd.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportEnd.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -659,7 +707,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnReportStart C-Win
 ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* OnReportStart */
 DO:
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.OnReportStart.dat" false.
+&ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportStart.dat.
+&ENDIF
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -847,7 +899,7 @@ PROCEDURE enable_UI :
   ENABLE btnOpenRPA btnSetName btnSave btnPublish ttProgID ttPageHeader 
          ttDetail autoSetParameters ttParameter btnOnReportStart 
          btnGroupHeaderOnFormat btnGroupFooterOnFormat btnDetailOnFormat 
-         btnOnReportEnd btnUpdate ttSubject ttSection 
+         btnOnReportEnd btnJasper btnUpdate ttSubject ttSection 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1058,8 +1110,9 @@ PROCEDURE pGetTempTableFields :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphTable AS HANDLE NO-UNDO.
 
-    DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iOrder  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iColumn AS INTEGER NO-UNDO.
     
     IF NOT VALID-HANDLE(iphTable) THEN RETURN.
 
@@ -1083,7 +1136,718 @@ PROCEDURE pGetTempTableFields :
             ttSubject.ttSize   = MAX(iphTable:BUFFER-FIELD(idx):WIDTH,
                               LENGTH(iphTable:BUFFER-FIELD(idx):LABEL)) * {&aoaMultiplier}
             .
+        IF ttSubject.ttField BEGINS "xx" THEN NEXT.
+        ASSIGN
+            ttSubject.ttJasperSize   = INTEGER(ttSubject.ttSize / {&aoaMultiplier} * {&aoaJasper})
+            ttSubject.ttJasperColumn = IF ttSubject.ttField BEGINS "xx" THEN 0 ELSE iColumn
+            iColumn = iColumn + ttSubject.ttJasperSize + {&aoaJasperGap}
+            .
     END. /* do idx */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasper C-Win 
+PROCEDURE pJasper :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
+
+    iSize = fJasperReportSize().
+    IF iSize EQ ? THEN RETURN.
+    RUN pJasperXMLAdapter.
+    cJasperFile = "C:\Advantzware\v16\Resources\AOA\Jasper\" + REPLACE(aoaReportTitle," ","") + ".jrxml".
+    OUTPUT TO VALUE(cJasperFile).
+    RUN pJasperReport ("Open", iSize).
+    RUN pJasperStyles.
+    RUN pJasperQueryString.
+    RUN pJasperFieldDeclarations.
+    RUN pJasperVariableDeclarations.
+    RUN pJasperGroupDeclarations.
+    RUN pJasperBackgroundBand.
+    RUN pJasterTitleBand.
+    RUN pJasperPageHeaderBand.
+    RUN pJasperColumnHeaderBand.
+    RUN pJasperDetailBand (iSize).
+    RUN pJasperColumnFooterBand.
+    RUN pJasperPageFooterBand.
+    RUN pJasperLastPageFooter.
+    RUN pJasperSummaryBand.
+    RUN pJasperReport ("Close", iSize).
+    OUTPUT CLOSE.
+    OS-COPY VALUE(cJasperFile) VALUE(REPLACE(cJasperFile,"C:\Advantzware\v16\Resources\AOA\Jasper","C:\Users\RStark\JaspersoftWorkspace\MyReports")).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperBackgroundBand C-Win 
+PROCEDURE pJasperBackgroundBand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* background band */
+    PUT UNFORMATTED
+        "    <background>" SKIP
+        "        <band splitType=~"Stretch~"/>" SKIP
+        "    </background>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperColumnFooterBand C-Win 
+PROCEDURE pJasperColumnFooterBand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* column footer band */
+    PUT UNFORMATTED
+        "    <columnFooter>" SKIP
+        "        <band height=~"" 0 "~" splitType=~"Stretch~"/>" SKIP
+        "    </columnFooter>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperColumnHeaderBand C-Win 
+PROCEDURE pJasperColumnHeaderBand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* column header band */
+    PUT UNFORMATTED
+        "    <columnHeader>" SKIP
+        "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
+        .
+    FOR EACH ttSubject
+        WHERE NOT ttSubject.ttField BEGINS "xx"
+        :
+        PUT UNFORMATTED
+            "    <staticText>" SKIP
+            "        <reportElement "
+            "x=~"" ttSubject.ttJasperColumn "~" "
+            "y=~"" 0 "~" "
+            "width=~"" ttSubject.ttJasperSize "~" "
+            "height=~"" 14 "~"/>" SKIP
+            "            <textElement"
+            .
+        IF CAN-DO("Decimal,Integer",ttSubject.ttType) THEN
+        PUT UNFORMATTED
+            " textAlignment=~"Right~""
+            .
+        PUT UNFORMATTED
+            ">" SKIP
+            "                <font isBold=~"true~" isUnderline=~"true~"/>" SKIP
+            "            </textElement>" SKIP
+            "        <text><![CDATA[" ttSubject.ttLabel "]]></text>" SKIP
+            "    </staticText>" SKIP
+            .
+        END. /* each ttsubject */
+    PUT UNFORMATTED
+        "        </band>" SKIP
+        "    </columnHeader>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperDetailBand C-Win 
+PROCEDURE pJasperDetailBand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiSize AS INTEGER NO-UNDO.
+
+    /* detail band */
+    PUT UNFORMATTED
+        "    <detail>" SKIP
+        "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
+        "            <rectangle radius=~"" 0 "~">" SKIP
+        "                <reportElement style=~"Zebra~" mode=~"Opaque~" "
+        "x=~"" 0 "~" "
+        "y=~"" 0 "~" "
+        "width=~"" ipiSize - 40 "~" "
+        "height=~"" 14 "~"/>" SKIP
+        "                <graphicElement>" SKIP
+        "                    <pen lineWidth=~"0.0~"/>" SKIP
+        "                </graphicElement>" SKIP
+        "            </rectangle>" SKIP
+        .
+    FOR EACH ttSubject
+        WHERE NOT ttSubject.ttField BEGINS "xx"
+        :
+        PUT UNFORMATTED
+            "            <textField isBlankWhenNull=~"true~""
+            .
+        IF CAN-DO("Decimal,Integer",ttSubject.ttType) THEN
+        PUT UNFORMATTED
+            " pattern=~"" fJasperPattern(ttSubject.ttFormat) "~""
+            .
+        PUT UNFORMATTED
+            ">" SKIP
+            "                <reportElement "
+            "x=~"" ttSubject.ttJasperColumn "~" "
+            "y=~"" 0 "~" "
+            "width=~"" ttSubject.ttJasperSize "~" "
+            "height=~"" 14 "~">" SKIP
+            "                    <property name=~"com.jaspersoft.studio.spreadsheet.connectionID~"/>" SKIP
+            "                </reportElement>" SKIP
+            .
+        IF CAN-DO("Decimal,Integer",ttSubject.ttType) THEN
+        PUT UNFORMATTED
+            "                <textElement textAlignment=~"Right~"/>" SKIP
+            .
+        PUT UNFORMATTED
+            "                <textFieldExpression><![CDATA[$F~{" ttSubject.ttField
+            "}]]></textFieldExpression>" SKIP
+            "            </textField>" SKIP
+            .
+    END. /* each ttsubject */
+    PUT UNFORMATTED
+        "        </band>" SKIP
+        "    </detail>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperFieldDeclarations C-Win 
+PROCEDURE pJasperFieldDeclarations :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDataType AS CHARACTER NO-UNDO.
+
+    /* field declarations */
+    FOR EACH ttSubject
+        :
+        CASE ttSubject.ttType:
+            WHEN "Character" THEN
+            cDataType = "String".
+            WHEN "Decimal" THEN
+            cDataType = "Double".
+            WHEN "Integer" THEN
+            cDataType = "Integer".
+            OTHERWISE
+            cDataType = "String".
+        END CASE.
+        PUT UNFORMATTED
+            "    <field name=~"" ttSubject.ttField "~" class=~"java.lang." cDataType "~">" SKIP
+            "        <property name=~"net.sf.jasperreports.xpath.field.expression~" value=~"" ttSubject.ttField "~"/>" SKIP
+            "        <fieldDescription><![CDATA[" ttSubject.ttField "]]></fieldDescription>" SKIP
+            "    </field>" SKIP
+            .
+    END. /* each ttsubject */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperGroupDeclarations C-Win 
+PROCEDURE pJasperGroupDeclarations :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bttSubject FOR ttSubject.
+    
+    /* groups declarations */
+    FOR EACH ttSection
+        WHERE INDEX(ttSection.secSection,"GroupFooter") NE 0,
+        FIRST ttSubject
+        WHERE ttSubject.ttField EQ ENTRY(1,ttSection.secName,"_"),
+        FIRST bttSubject
+        WHERE bttSubject.ttLabel EQ REPLACE(REPLACE(ttSection.secSection,"_GroupFooter",""),"_"," ")
+        BREAK BY ttSection.secSection
+              BY ttSubject.ttJasperColumn
+        :
+        IF FIRST-OF(ttSection.secSection) THEN
+        PUT UNFORMATTED
+            "    <group name=~"" ttSection.secSection "~">" SKIP
+            "        <groupExpression><![CDATA[$F~{" bttSubject.ttField "}]]></groupExpression>" SKIP
+            "        <groupFooter>" SKIP
+            "            <band height=~"" 20 "~" splitType=~"Stretch~">" SKIP
+            "                <staticText>" SKIP
+            "                    <reportElement "
+            "x=~"" 0 "~" "
+            "y=~"" 0 "~" "
+            "width=~"" (LENGTH(bttSubject.ttLabel) + 6) * {&aoaJasper} "~" "
+            "height=~"" 14 "~"/>" SKIP
+            "                    <textElement>" SKIP
+            "                        <font isBold=~"true~"/>" SKIP
+            "                    </textElement>" SKIP
+            "                    <text><![CDATA[** " bttSubject.ttLabel " **]]></text>" SKIP
+            "                </staticText>" SKIP
+            .
+        PUT UNFORMATTED
+            "                <textField isBlankWhenNull=~"true~" pattern=~"" fJasperPattern(ttSubject.ttFormat) "~">" SKIP
+            "                    <reportElement "
+            "x=~"" ttSubject.ttJasperColumn "~" "
+            "y=~"" 0 "~" "
+            "width=~"" ttSubject.ttJasperSize "~" "
+            "height=~"" 14 "~"/>" SKIP
+            "                    <box>" SKIP
+            "                        <topPen lineWidth=~"1.0~"/>" SKIP
+            "                    </box>" SKIP
+            "                    <textElement textAlignment=~"Right~">" SKIP
+            "                        <font isBold=~"true~"/>" SKIP
+            "                    </textElement>" SKIP
+            "                    <textFieldExpression><![CDATA[$V~{" ttSection.secName "}]]></textFieldExpression>" SKIP
+            "                </textField>" SKIP
+            .
+        IF LAST-OF(ttSection.secSection) THEN
+        PUT UNFORMATTED
+            "            </band>" SKIP
+            "        </groupFooter>" SKIP
+            "    </group>" SKIP
+            .
+    END. /* each ttsection */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperLastPageFooter C-Win 
+PROCEDURE pJasperLastPageFooter :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cParameter     AS CHARACTER NO-UNDO EXTENT 100.
+    DEFINE VARIABLE cValue         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iParameterRow  AS INTEGER   NO-UNDO INITIAL 1.
+    
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.company    EQ "001"
+           AND user-print.batch-seq  EQ 0
+           AND user-print.program-id EQ aoaProgramID
+           AND user-print.USER-ID    EQ USERID("ASI")
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN DO:
+        MESSAGE "No user-print Record Exists"
+            VIEW-AS ALERT-BOX.
+        RETURN.
+    END. /* if not avail */
+    
+    DO idx = 1 TO EXTENT(user-print.field-name):
+        IF user-print.field-name[idx] EQ "svSecure" THEN LEAVE.
+        ASSIGN
+            cParameter[iParameterRow] = IF INDEX(user-print.field-name[idx],"Sort") NE 0 THEN "Sort By"
+                ELSE IF user-print.field-label[idx] EQ ? THEN REPLACE(user-print.field-name[idx],"sv","")
+                ELSE user-print.field-label[idx]
+            cParameter[iParameterRow] = cParameter[iParameterRow] + ": @@@"
+            cValue = IF user-print.field-value[idx] NE ? THEN user-print.field-value[idx] ELSE ""
+            .
+        IF user-print.field-label[idx + 1] EQ ? AND
+           INDEX(user-print.field-name[idx + 1],"DateOption") NE 0 THEN
+        ASSIGN
+            cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + user-print.field-value[idx + 1] + ")"
+            cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, user-print.field-value[idx + 1], user-print.field-value[idx]),"99/99/9999")
+            idx = idx + 1
+            .
+        ELSE IF INDEX(user-print.field-name[idx + 1],"AMPM") NE 0 THEN
+        ASSIGN
+            cParameter[iParameterRow] = cParameter[iParameterRow] + " " + user-print.field-value[idx + 1]
+            idx = idx + 1
+            .
+        ASSIGN
+            cParameter[iParameterRow] = REPLACE(cParameter[iParameterRow],"@@@",cValue)
+            iParameterRow = iParameterRow + 1
+            .
+    END. /* do idx */
+    
+    /* last page footer band */
+    PUT UNFORMATTED
+        "    <lastPageFooter>" SKIP
+        "        <band height=~"" (iParameterRow + 2) * 14 "~" splitType=~"Stretch~">" SKIP
+        "            <rectangle>" SKIP
+        "                <reportElement mode=~"Transparent~" "
+        "x=~"" 0 "~" "
+        "y=~"" 0 "~" "
+        "width=~"" 560 "~" "
+        "height=~"" (iParameterRow - 1) * 14 "~"/>" SKIP
+        "            </rectangle>" SKIP
+        "            <staticText>" SKIP
+        "                <reportElement "
+        "x=~"" 0 "~" "
+        "y=~"" 0 "~" "
+        "width=~"" 56 "~" "
+        "height=~"" 14 "~"/>" SKIP
+        "                <textElement>" SKIP
+        "                    <font isBold=~"true~" isUnderline=~"true~"/>" SKIP
+        "                </textElement>" SKIP
+        "                <text><![CDATA[Parameters:]]></text>" SKIP
+        "            </staticText>" SKIP
+        .
+    DO idx = 1 TO iParameterRow:
+        IF cParameter[idx] NE "" THEN
+        PUT UNFORMATTED
+            "            <staticText>" SKIP
+            "                <reportElement "
+            "x=~"" 60 "~" "
+            "y=~"" (idx - 1) * 14 "~" "
+            "width=~"" 500 "~" "
+            "height=~"" 14 "~"/>" SKIP
+            "                <text><![CDATA[" cParameter[idx] "]]></text>" SKIP
+            "            </staticText>" SKIP
+            .
+    END. /* do idx */
+    RUN pJasperPageBottom (iParameterRow * 14).
+    PUT UNFORMATTED
+        "        </band>" SKIP
+        "    </lastPageFooter>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperPageBottom C-Win 
+PROCEDURE pJasperPageBottom :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiRow AS INTEGER NO-UNDO.
+
+    PUT UNFORMATTED
+        "            <textField pattern=~"MMM d, yyyy h:mm:ss a~">" SKIP
+        "                <reportElement x=~"" 0 "~" y=~"" ipiRow "~" width=~"" 180 "~" height=~"" 14 "~"/>" SKIP
+        "                <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>" SKIP
+        "            </textField>" SKIP
+        "            <staticText>" SKIP
+        "                <reportElement x=~"" 0 "~" y=~"" ipiRow + 14 "~" width=~"" 26 "~" height=~"" 14 "~"/>" SKIP
+        "                <text><![CDATA[Page:]]></text>" SKIP
+        "            </staticText>" SKIP
+        "            <textField>" SKIP
+        "                <reportElement x=~"" 30 "~" y=~"" ipiRow + 14 "~" width=~"" 100 "~" height=~"" 14 "~"/>" SKIP
+        "                <textFieldExpression><![CDATA[$V~{PAGE_NUMBER}]]></textFieldExpression>" SKIP
+        "            </textField>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperPageFooterBand C-Win 
+PROCEDURE pJasperPageFooterBand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* page footer band */
+    PUT UNFORMATTED
+        "    <pageFooter>" SKIP
+        "        <band height=~"" 30 "~" splitType=~"Stretch~">" SKIP
+        .
+    RUN pJasperPageBottom (0).
+    PUT UNFORMATTED
+        "        </band>" SKIP
+        "    </pageFooter>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperPageHeaderBand C-Win 
+PROCEDURE pJasperPageHeaderBand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* page header band */
+    PUT UNFORMATTED
+        "    <pageHeader>" SKIP
+        "        <band height=~"" 0 "~" splitType=~"Stretch~"/>" SKIP
+        "    </pageHeader>" SKIP
+        .    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperQueryString C-Win 
+PROCEDURE pJasperQueryString :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    PUT UNFORMATTED
+        "    <queryString language=~"xPath~">" SKIP
+        "        <![CDATA[/" REPLACE(aoaReportTitle," ","_")
+        "/tt" REPLACE(aoaReportTitle," ","") "]]>" SKIP
+        "    </queryString>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperReport C-Win 
+PROCEDURE pJasperReport :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSize AS INTEGER   NO-UNDO.
+
+    CASE ipcType:
+        WHEN "Open" THEN
+        PUT UNFORMATTED
+            "<?xml version=~"1.0~" encoding=~"UTF-8~"?>" SKIP
+            "<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->" SKIP
+            "<jasperReport xmlns=~"http://jasperreports.sourceforge.net/jasperreports~" "
+            "xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~" "
+            "xsi:schemaLocation=~"http://jasperreports.sourceforge.net/jasperreports "
+            "http://jasperreports.sourceforge.net/xsd/jasperreport.xsd~" "
+            "name=~"" REPLACE(aoaReportTitle," ","") "~" "
+            "pageWidth=~"" ipiSize "~" "
+            "pageHeight=~"" 612 "~" "
+            "orientation=~"Landscape~" "
+            "columnWidth=~"" ipiSize - 40 "~" "
+            "leftMargin=~"" 20 "~" "
+            "rightMargin=~"" 20 "~" "
+            "topMargin=~"" 20 "~" "
+            "bottomMargin=~"" 20 "~">" SKIP
+            "    <property name=~"com.jaspersoft.studio.data.defaultdataadapter~" "
+            "value=~"" REPLACE(aoaReportTitle," ","") "XMLAdapter.xml~"/>" SKIP
+            .
+        WHEN "Close" THEN
+        PUT UNFORMATTED
+            "</jasperReport>" SKIP
+            .
+    END CASE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperStyles C-Win 
+PROCEDURE pJasperStyles :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    PUT UNFORMATTED
+        "    <style name=~"Zebra~" mode=~"Transparent~">" SKIP
+        "        <conditionalStyle>" SKIP
+        "            <conditionExpression><![CDATA[$V~{REPORT_COUNT}%2 == 1]]></conditionExpression>" SKIP
+        "            <style backcolor=~"#FFF1D1~"/>" SKIP
+        "        </conditionalStyle>" SKIP
+        "    </style>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperSummaryBand C-Win 
+PROCEDURE pJasperSummaryBand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* summary band */
+    PUT UNFORMATTED
+        "    <summary>" SKIP
+        "        <band height=~"" 14 "~" splitType=~"Stretch~">" SKIP
+        .
+    FOR EACH ttSection
+        WHERE ttSection.secSection EQ "ReportFooter",
+        FIRST ttSubject
+        WHERE ttSubject.ttField EQ ENTRY(1,ttSection.secName,"_")
+        BREAK BY ttSection.secSection
+              BY ttSubject.ttJasperColumn
+        :
+        IF FIRST-OF(ttSection.secSection) THEN
+        PUT UNFORMATTED
+            "            <staticText>" SKIP
+            "                <reportElement "
+            "x=~"" 0 "~" "
+            "y=~"" 0 "~" "
+            "width=~"" 90 "~" "
+            "height=~"" 14 "~"/>" SKIP
+            "                <textElement>" SKIP
+            "                    <font isBold=~"true~"/>" SKIP
+            "                </textElement>" SKIP
+            "                <text><![CDATA[** Report Totals **]]></text>" SKIP
+            "            </staticText>" SKIP
+            .
+        PUT UNFORMATTED
+            "            <textField isBlankWhenNull=~"true~" pattern=~"" fJasperPattern(ttSubject.ttFormat) "~">" SKIP
+            "                <reportElement "
+            "x=~"" ttSubject.ttJasperColumn "~" "
+            "y=~"" 0 "~" "
+            "width=~"" ttSubject.ttJasperSize "~" "
+            "height=~"" 14 "~"/>" SKIP
+            "                <box>" SKIP
+            "                    <topPen lineWidth=~"1.0~"/>" SKIP
+            "                    <bottomPen lineWidth=~"1.0~"/>" SKIP
+            "                </box>" SKIP
+            "                <textElement textAlignment=~"Right~">" SKIP
+            "                    <font isBold=~"true~"/>" SKIP
+            "                </textElement>" SKIP
+            "                <textFieldExpression><![CDATA[$V~{" ttSection.secName "}]]></textFieldExpression>" SKIP
+            "            </textField>" SKIP
+            .
+    END. /* each ttsection */
+    PUT UNFORMATTED
+        "        </band>" SKIP
+        "    </summary>" SKIP
+        .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperVariableDeclarations C-Win 
+PROCEDURE pJasperVariableDeclarations :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDataType AS CHARACTER NO-UNDO.
+
+        /* variable declarations */
+    FOR EACH ttSection,
+        FIRST ttSubject
+        WHERE ttSubject.ttField EQ ENTRY(1,ttSection.secName,"_")
+        :
+        CASE ttSubject.ttType:
+            WHEN "Character" THEN
+            cDataType = "String".
+            WHEN "Decimal" THEN
+            cDataType = "Double".
+            WHEN "Integer" THEN
+            cDataType = "Integer".
+            OTHERWISE
+            cDataType = "String".
+        END CASE.
+        PUT UNFORMATTED
+            "    <variable name=~"" ttSection.secName "~" class=~"java.lang." cDataType
+            .
+        IF INDEX(ttSection.secSection,"GroupFooter") NE 0 THEN
+        PUT UNFORMATTED
+            "~" resetType=~"Group"
+            "~" resetGroup=~"" ttSection.secSection
+            .
+        PUT UNFORMATTED
+            "~" calculation=~"Sum~">" SKIP
+            "        <variableExpression><![CDATA[$F~{" ttSubject.ttField "}]]></variableExpression>" SKIP
+            "    </variable>" SKIP
+            .
+    END. /* each ttsection */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasperXMLAdapter C-Win 
+PROCEDURE pJasperXMLAdapter :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+
+    /* create xml adapter used in Jasper Studio */
+    cJasperFile = "C:\Advantzware\v16\Resources\AOA\Jasper\" + REPLACE(aoaReportTitle," ","") + "XMLAdapter.xml".
+    OUTPUT TO VALUE(cJasperFile).
+    PUT UNFORMATTED
+        "<?xml version=~"1.0~" encoding=~"ISO-8859-1~"?>" SKIP
+        "<xmlDataAdapter class=~"net.sf.jasperreports.data.xml.XmlDataAdapterImpl~">" SKIP
+        "    <name>" aoaReportTitle " XML Adapter</name>" SKIP
+        "    <dataFile xsi:type=~"repositoryDataLocation~" xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~">" SKIP
+        "        <location>" REPLACE(aoaReportTitle," ","") ".xml</location>" SKIP
+        "    </dataFile>" SKIP
+        "    <useConnection>true</useConnection>" SKIP
+        "    <namespaceAware>false</namespaceAware>" SKIP
+        "    <selectExpression/>" SKIP
+        "    <locale xsi:type=~"java:java.lang.String~" xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~" xmlns:java=~"http://java.sun.com~">en_US</locale>" SKIP
+        "    <timeZone xsi:type=~"java:java.lang.String~" xmlns:xsi=~"http://www.w3.org/2001/XMLSchema-instance~" xmlns:java=~"http://java.sun.com~">America/New_York</timeZone>" SKIP
+        "</xmlDataAdapter>" SKIP
+        .
+    OUTPUT CLOSE.
+    OS-COPY VALUE(cJasperFile) VALUE(REPLACE(cJasperFile,"C:\Advantzware\v16\Resources\AOA\Jasper","C:\Users\RStark\JaspersoftWorkspace\MyReports")).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pJasterTitleBand C-Win 
+PROCEDURE pJasterTitleBand :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* title band */
+    PUT UNFORMATTED
+        "    <title>" SKIP
+        "        <band height=~"" 40 "~" splitType=~"Stretch~">" SKIP
+        "            <staticText>" SKIP
+        "                <reportElement x=~"" 0 "~" y=~"" 0 "~" width=~"" 380 "~" height=~"" 40 "~"/>" SKIP
+        "                <textElement>" SKIP
+        "                    <font size=~"" 26 "~"/>" SKIP
+        "                </textElement>" SKIP
+        "                <text><![CDATA[" aoaReportTitle "]]></text>" SKIP
+        "            </staticText>" SKIP
+        "        </band>" SKIP
+        "    </title>" SKIP
+        .
 
 END PROCEDURE.
 
@@ -1249,6 +2013,17 @@ PROCEDURE pSetNames :
 
     FOR EACH ttSubject:
         cName = CAPS(SUBSTR(ttSubject.ttField,1,1)) + SUBSTR(ttSubject.ttField,2).
+        IF ttSubject.ttType NE "Character" THEN DO:
+            cFormat = "mm/dd/yyyy".
+            IF ttSubject.ttType NE "Date" THEN DO:
+                cFormat = fJasperPattern(ttSubject.ttFormat).
+                IF INDEX(cFormat,"-") NE 0 THEN
+                ASSIGN
+                    cFormat = REPLACE(cFormat,"-","")
+                    cFormat = cFormat + ";(" + cFormat + ")"
+                    .
+            END. /* if not date */
+        END. /* if not character */
         FIND FIRST ttPageHeader
              WHERE ttPageHeader.phOrder EQ ttSubject.ttOrder
              NO-ERROR.
@@ -1274,20 +2049,8 @@ PROCEDURE pSetNames :
                 ttDetail.dtOutputFormat = ""
                 .
             IF ttSubject.ttType NE "Character" THEN DO:
-                cFormat = "mm/dd/yyyy".
-                IF ttSubject.ttType NE "Date" THEN DO:
-                    ASSIGN
-                        ttDetail.dtAlignment = 1
-                        cFormat = REPLACE(ttSubject.ttFormat,">","#")
-                        cFormat = REPLACE(cFormat,"<","#")
-                        cFormat = REPLACE(cFormat,"9","0")
-                        .
-                    IF INDEX(cFormat,"-") NE 0 THEN
-                    ASSIGN
-                        cFormat = REPLACE(cFormat,"-","")
-                        cFormat = cFormat + ";(" + cFormat + ")"
-                        .
-                END. /* if not date */
+                IF ttSubject.ttType NE "Date" THEN
+                ttDetail.dtAlignment = 1.
                 ttDetail.dtOutputFormat = cFormat.
             END. /* if not character */
         END. /* avail ttdetail */
@@ -1524,6 +2287,39 @@ FUNCTION fGetScript RETURNS CHARACTER
     IF ipSection NE ? THEN
     cScript = REPLACE(cScript,"%",ipSection).
     RETURN cScript.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fJasperPattern C-Win 
+FUNCTION fJasperPattern RETURNS CHARACTER
+  (ipcFormat AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose: convert progress format to jasper pattern  
+    Notes: replace > with #, 9 with 0 and remove minus sign
+------------------------------------------------------------------------------*/
+    RETURN REPLACE(REPLACE(REPLACE(ipcFormat,">","#"),"9","0"),"-","").
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fJasperReportSize C-Win 
+FUNCTION fJasperReportSize RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    FIND LAST ttSubject
+         WHERE ttSubject.ttJasperSize   NE 0
+           AND ttSubject.ttJasperColumn NE 0
+         NO-ERROR.
+    IF NOT AVAILABLE ttSubject THEN RETURN ?.
+    RETURN ttSubject.ttJasperColumn + ttSubject.ttJasperSize + 100.
 
 END FUNCTION.
 

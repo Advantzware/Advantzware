@@ -1,0 +1,46 @@
+
+06/26/08                                       Advanced Box Company V5.0 - Main Office                                    Page   1
+12:21pm                                                AR Accounts by Customer
+
+
+GL Acct#                  Description                      Customer   Inv# Journal    Run# Date                    Amount
+------------------------- -------------------------------- -------- ------ -------- ------ ---------- -------------------
+11110-00                  Cash in hand                     ATT1000    1214 CASHR    004193 03/03/2008           -3,284.19
+                                                                      1345 CASHR    004193 03/03/2008             -173.59
+
+                                                                                                      -------------------
+                                                           Customer Totals                                      -3,457.78
+
+
+                                                                                                      -------------------
+                                                              Acct# Totals                                      -3,457.78
+
+
+
+11209-00                  Accounts Receivable - Trade      ATT1000    1214 CASHR    004193 03/03/2008            3,350.35
+                                                                      1345 CASHR    004193 03/03/2008              173.59
+
+                                                                                                      -------------------
+                                                           Customer Totals                                       3,523.94
+
+
+                                                                                                      -------------------
+                                                              Acct# Totals                                       3,523.94
+
+
+
+36000-00                  (Returns & Allowances)           ATT1000    1214 CRDIS    004193 03/03/2008              -66.16
+
+                                                                                                      -------------------
+                                                           Customer Totals                                         -66.16
+
+
+                                                                                                      -------------------
+                                                              Acct# Totals                                         -66.16
+
+
+
+
+                                                                                                      -------------------
+                                                              Grand Totals                                           0.00
+

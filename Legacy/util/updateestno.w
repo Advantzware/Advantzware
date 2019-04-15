@@ -372,32 +372,14 @@ PROCEDURE replace-est-proc :
 
    FOR EACH e-itemfg-vend WHERE
        e-itemfg-vend.company EQ cocode AND
-       e-itemfg-vend.est-no EQ new_est:
-
-       FOR EACH reftable WHERE
-           reftable.reftable EQ "e-itemfg-vend.std-uom" AND
-           reftable.company  EQ e-itemfg-vend.company AND
-           reftable.loc      EQ "" AND
-           reftable.code     EQ e-itemfg-vend.est-no:
-
-           DELETE reftable.
-       END.
+       e-itemfg-vend.est-no EQ new_est:       
 
        DELETE e-itemfg-vend.
    END.
 
    FOR EACH e-itemfg-vend WHERE
        e-itemfg-vend.company EQ cocode AND
-       e-itemfg-vend.est-no EQ begin_est:
-
-       FOR EACH reftable WHERE
-           reftable.reftable EQ "e-itemfg-vend.std-uom" AND
-           reftable.company  EQ e-itemfg-vend.company AND
-           reftable.loc      EQ "" AND
-           reftable.code     EQ e-itemfg-vend.est-no:
-
-           reftable.CODE = new_est.
-       END.
+       e-itemfg-vend.est-no EQ begin_est:       
 
        e-itemfg-vend.est-no = new_est.
    END.
@@ -626,30 +608,12 @@ PROCEDURE replace-est-proc :
    END.
 
    FOR EACH reftable WHERE
-       reftable.reftable EQ "gsa-fm" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ begin_est:
-
-       reftable.CODE = new_est.
-   END.
-
-   FOR EACH reftable WHERE
        reftable.reftable EQ "probe.board" AND
        reftable.company  EQ cocode AND
        reftable.loc      EQ "" AND
-       reftable.code     EQ new_est:
+       reftable.code     EQ begin_est:
 
        DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "probe.board" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ begin_est:
-
-       reftable.CODE = NEW_est.
    END.
 
    FOR EACH reftable WHERE
@@ -705,24 +669,6 @@ PROCEDURE replace-est-proc :
    END.
 
    FOR EACH reftable WHERE
-       reftable.reftable EQ "probe.per-msf" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "probe.per-msf" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ begin_est:
-
-       reftable.CODE = NEW_est.
-   END.
-
-   FOR EACH reftable WHERE
        reftable.reftable EQ "probe.per-ref" AND
        reftable.company  EQ cocode AND
        reftable.loc      EQ "" AND
@@ -757,23 +703,6 @@ PROCEDURE replace-est-proc :
 
        reftable.CODE = NEW_est.
    END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "ce/com/selwhif1.w" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "ce/com/selwhif1.w" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ begin_est:
-
-       reftable.loc = NEW_est.
-   END.
-
   
    FOR EACH reftable WHERE
        reftable.reftable EQ "est/getqty.w" AND
@@ -830,24 +759,6 @@ PROCEDURE replace-est-proc :
    END.
 
    FOR EACH reftable WHERE
-       reftable.reftable EQ "est/getqty.w2" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "est/getqty.w2" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ "" AND
-       reftable.code     EQ begin_est:
-
-       reftable.CODE = NEW_est.
-   END.
-
-   FOR EACH reftable WHERE
        reftable.reftable EQ "PLATE/FOUNTAIN" AND
        reftable.company  EQ cocode AND
        reftable.loc      EQ new_est:
@@ -857,22 +768,6 @@ PROCEDURE replace-est-proc :
 
    FOR EACH reftable WHERE
        reftable.reftable EQ "PLATE/FOUNTAIN" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ begin_est:
-
-       reftable.loc = NEW_est.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "ce/v-est3.w Unit#" AND
-       reftable.company  EQ cocode AND
-       reftable.loc      EQ new_est:
-
-       DELETE reftable.
-   END.
-
-   FOR EACH reftable WHERE
-       reftable.reftable EQ "ce/v-est3.w Unit#" AND
        reftable.company  EQ cocode AND
        reftable.loc      EQ begin_est:
 

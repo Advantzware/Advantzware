@@ -397,8 +397,16 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
   DEFINE VAR thisOne AS CHAR NO-UNDO.
   DEFINE BUFFER buff-soldto FOR soldto .
+  DEF BUFFER b-soldto FOR soldto. 
   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF soldto.cust-no EQ soldto.sold-id THEN DO:
+            MESSAGE "This is the default sold to for this customer and " SKIP
+            "cannot be deleted."
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            RETURN.
+  END. /* if cust-no eq ship-id */
+
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.

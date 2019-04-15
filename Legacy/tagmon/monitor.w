@@ -17,6 +17,7 @@ DEFINE STREAM sInputStream.
 def var scr-vend-tag as char.
 def var begin_po-no as int.
 def var scr-po-line as int.
+DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
 DEFINE VARIABLE scr-uom AS CHARACTER.
 DEFINE VARIABLE scr-item-no AS CHARACTER NO-UNDO.
 DEFINE VARIABLE scr-qty AS INTEGER NO-UNDO.
@@ -28,6 +29,7 @@ find first loc where
 
 DEF VAR v-bin AS CHAR NO-UNDO.
 DEF VAR v-loadtag AS CHAR NO-UNDO INIT "ASI". /* sys ctrl option */
+DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO. /* Keyed off of monitor folder name */
 
 FIND FIRST sys-ctrl NO-LOCK
      WHERE sys-ctrl.company EQ g_company
@@ -167,8 +169,15 @@ PROCEDURE postMonitor:
       OS-CREATE-DIR VALUE(AsnhotFolderOut-char).
         
     
-    cPathIn  = AsnHotFolderIn-char.   
-
+    cPathIn  = AsnHotFolderIn-char.
+    iPos = R-INDEX(cPathIn, "\").
+    /* format taken to be name of incoming folder to allow for more than 1 */
+    IF iPos GT 0 THEN 
+      cFormat = SUBSTRING(cPathIn, iPos + 1).
+    ELSE    
+      cFormat = cPathIn.
+    /* Execute ftp to download files */
+    RUN custom/InboundFTP.p (INPUT cFormat, INPUT "TagMon", INPUT cPathIn, INPUT  "*.dat" /* filespec */).
    
     RUN monitorActivity ('Check New Tag Files ' + monitorImportDir,YES,'').
     
@@ -178,7 +187,7 @@ PROCEDURE postMonitor:
     REPEAT:
         IMPORT monitorFile ^ attrList.
         IF attrList NE 'f' OR monitorFile BEGINS '.' OR
-       INDEX(monitorFile,'.xml') EQ 0 THEN NEXT.
+       INDEX(monitorFile,'.dat') EQ 0 THEN NEXT.
         cFullFilePath = cPathIn + "\" + monitorFile.
         
         /* Create ttHeader and ttBody from flat file */
@@ -239,8 +248,8 @@ PROCEDURE processResultFlatFile:
           ttBody.PoNumber             = SUBSTRING(cInput,    44,    6) /* was a zero at 22 */
           ttbody.poLineNumber         = SUBSTRING(cInput,    51,    2)
           ttBody.OrderNumber          = SUBSTRING(cInput,    66,    7)
-          ttBody.QuanityOnPallet      = SUBSTRING(cInput,    73,    4) 
-          ttBody.BolNumber            = SUBSTRING(cInput,    77,   10)
+          ttBody.QuanityOnPallet      = SUBSTRING(cInput,    72,    4) 
+          ttBody.BolNumber            = SUBSTRING(cInput,    76,   10)
           ttBody.TrailerID            = SUBSTRING(cInput,    87,   10)
           ttBody.NewCorOrder          = SUBSTRING(cInput,    97,   11) 
           ttBody.RecNum               = iRecNum
@@ -285,6 +294,7 @@ procedure processTemptable:
       IF FIRST-OF(ttHeader.RecNum) THEN DO:
         RUN ed/gendoc.p (RECID(edcode), ttBody.bolNumber, OUTPUT ws_eddoc_rec).
         FIND  eddoc WHERE RECID(eddoc) = ws_eddoc_rec EXCLUSIVE.
+        /*
         ASSIGN
           EDDoc.AddDate     = TODAY
           EDDoc.AddTime     = TIME
@@ -298,6 +308,7 @@ procedure processTemptable:
           EDDoc.Version     = STRING(edcode.version)
           EDDOC.partner     = edcode.partner
           .
+          */
           CREATE EdShTran.
           ASSIGN
             EDSHTran.Partner = EDCode.partner

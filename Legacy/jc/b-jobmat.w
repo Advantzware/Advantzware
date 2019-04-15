@@ -64,8 +64,6 @@ DEF VAR cItemName AS CHAR NO-UNDO.
 
 {sys/inc/rmissue.i}
 
-DEF BUFFER b-cost FOR reftable.
-DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
@@ -224,11 +222,11 @@ DEFINE BROWSE br_table
       getItemName() @ cItemName COLUMN-LABEL "Item Name" FORMAT "X(30)":U
       job-mat.std-cost FORMAT ">>>,>>9.99<<":U
       job-mat.sc-uom COLUMN-LABEL "Cost!UOM" FORMAT "x(4)":U WIDTH 7
-      job-mat.cost-m FORMAT "->>>,>>9.9999":U
+      job-mat.cost-m COLUMN-LABEL "FG Cost/M" FORMAT "->>>,>>9.9999":U
       job-mat.qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       job-mat.qty-uom COLUMN-LABEL "Qty!UOM" FORMAT "x(4)":U WIDTH 7
       job-mat.wid FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
-      job-mat.len FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
+      job-mat.len FORMAT ">>>9.99<<":U LABEL-BGCOLOR 14
       job-mat.n-up COLUMN-LABEL "#Up" FORMAT ">>9":U
       job-mat.basis-w COLUMN-LABEL "MSF!Weight" FORMAT ">>9.99":U
       job-mat.post COLUMN-LABEL "Auto!Post?" FORMAT "Y/N":U
@@ -240,7 +238,7 @@ DEFINE BROWSE br_table
       job-mat.rm-i-no
       job-mat.std-cost
       job-mat.sc-uom
-      job-mat.cost-m
+      job-mat.cost-m HELP "Cost per Thousand Finished Goods"
       job-mat.qty
       job-mat.qty-uom
       job-mat.wid
@@ -353,7 +351,7 @@ use-index seq-idx"
      _FldNameList[6]   > ASI.job-mat.sc-uom
 "job-mat.sc-uom" "Cost!UOM" "x(4)" "character" ? ? ? ? ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.job-mat.cost-m
-"job-mat.cost-m" ? "->>>,>>9.9999" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.cost-m" "FG Cost/M" "->>>,>>9.9999" "decimal" ? ? ? ? ? ? yes "Cost per Thousand Finished Goods" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.job-mat.qty
 "job-mat.qty" ? "->>>,>>>,>>9.9<<<<<" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.job-mat.qty-uom
@@ -361,7 +359,7 @@ use-index seq-idx"
      _FldNameList[10]   > ASI.job-mat.wid
 "job-mat.wid" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.job-mat.len
-"job-mat.len" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.len" ? ">>>9.99<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.job-mat.n-up
 "job-mat.n-up" "#Up" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.job-mat.basis-w
@@ -902,7 +900,6 @@ PROCEDURE check-for-commit :
         NO-LOCK NO-ERROR.
 
     op-commit = INDEX("LRAW",job.stat) GT 0                               AND
-                job-mat.post:SCREEN-VALUE IN BROWSE {&browse-name} EQ "N" AND 
                 AVAIL ITEM AND
                 (lv-allocated OR job-mat.all-flg:SCREEN-VALUE IN BROWSE {&browse-name} EQ "y").
   END.
@@ -1375,7 +1372,7 @@ PROCEDURE new-rm-i-no PRIVATE :
              END.
             
 
-             IF AVAIL b-qty THEN
+             IF AVAIL e-item THEN
              DO:
 
             
@@ -1402,26 +1399,12 @@ PROCEDURE new-rm-i-no PRIVATE :
                    tt-ei.run-cost[j] = e-item.run-cost[j].
              END.
             
-             FIND FIRST b-qty WHERE
-                  b-qty.reftable = "blank-vend-qty" AND
-                  b-qty.company = e-item.company AND
-                      b-qty.CODE    = e-item.i-no
-                  NO-LOCK NO-ERROR.
-            
-             IF AVAIL b-qty THEN
-             DO:
-                FIND FIRST b-cost WHERE
-                     b-cost.reftable = "blank-vend-cost" AND
-                     b-cost.company = e-item.company AND
-                         b-cost.CODE    = e-item.i-no
-                     NO-LOCK NO-ERROR.
-            
+                         
                 DO j = 1 TO 10:
                    ASSIGN
-                      tt-ei.run-qty[j + 10] = b-qty.val[j]
-                      tt-ei.run-cost[j + 10] = b-cost.val[j].
+                      tt-ei.run-qty[j + 10] = e-item.runQty[j]
+                      tt-ei.run-cost[j + 10] = e-item.runCost[j].
                 END.
-             END.
 
              DO j = 1 TO 20:
                 IF tt-ei.run-qty[j] GE v-qty THEN DO:

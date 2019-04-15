@@ -295,7 +295,10 @@ IF AVAIL eb THEN DO:
                                  "Component#") +
                               ": " + TRIM(eb.part-no).
 
-  FIND FIRST est OF eb NO-LOCK NO-ERROR.
+    FIND FIRST est NO-LOCK WHERE 
+        est.company EQ eb.company AND 
+        est.est-no EQ eb.est-no 
+        NO-ERROR.
 
   IF AVAIL est THEN
   DO li = 1 TO EXTENT(est.est-qty):

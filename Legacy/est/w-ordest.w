@@ -359,7 +359,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_v-est ).
        RUN set-position IN h_v-est ( 2.91 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 16.67 , 151.00 ) */
+       /* Size in UIB:  ( 16.67 , 153.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-rfqsiz.w':U ,
@@ -507,12 +507,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-estprp.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_p-estprp ).
        RUN set-position IN h_p-estprp ( 5.05 , 129.00 ) NO-ERROR.
-       RUN set-size IN h_p-estprp ( 8.10 , 20.00 ) NO-ERROR.
+       /* Size in UIB:  ( 5.76 , 14.20 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/b-estop.w':U ,
@@ -525,12 +523,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-estop.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_p-estop ).
        RUN set-position IN h_p-estop ( 13.86 , 141.00 ) NO-ERROR.
-       RUN set-size IN h_p-estop ( 7.38 , 13.80 ) NO-ERROR.
+       /* Size in UIB:  ( 7.38 , 14.20 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -542,10 +538,18 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estprp ).
        RUN add-link IN adm-broker-hdl ( h_p-estprp , 'TableIO':U , h_b-estprp ).
 
+       /* Links to SmartViewer h_p-estprp. */
+       RUN add-link IN adm-broker-hdl ( h_b-estprp , 'buttons':U , h_p-estprp ).
+       RUN add-link IN adm-broker-hdl ( h_b-estprp , 'Record':U , h_p-estprp ).
+
        /* Links to SmartBrowser h_b-estop. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_b-estop ).
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'route':U , h_b-estop ).
        RUN add-link IN adm-broker-hdl ( h_p-estop , 'TableIO':U , h_b-estop ).
+
+       /* Links to SmartViewer h_p-estop. */
+       RUN add-link IN adm-broker-hdl ( h_b-estop , 'buttons':U , h_p-estop ).
+       RUN add-link IN adm-broker-hdl ( h_b-estop , 'Record':U , h_p-estop ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-est-3 ,
@@ -573,8 +577,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-est4 ).
-       RUN set-position IN h_v-est4 ( 5.52 , 5.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.05 , 110.00 ) */
+       RUN set-position IN h_v-est4 ( 5.05 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 17.05 , 114.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updc&c.w':U ,
@@ -583,7 +587,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updc&c ).
-       RUN set-position IN h_p-updc&c ( 6.48 , 120.00 ) NO-ERROR.
+       RUN set-position IN h_p-updc&c ( 5.76 , 125.00 ) NO-ERROR.
        RUN set-size IN h_p-updc&c ( 11.67 , 24.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -591,7 +595,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navef ).
-       RUN set-position IN h_v-navef ( 21.00 , 114.00 ) NO-ERROR.
+       RUN set-position IN h_v-navef ( 22.43 , 116.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 42.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -723,7 +727,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_probe ).
        RUN set-position IN h_probe ( 5.05 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_probe ( 16.43 , 157.00 ) NO-ERROR.
+       RUN set-size IN h_probe ( 14.19 , 143.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-probe.w':U ,
@@ -804,7 +808,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_v-eitem2 ).
        RUN set-position IN h_v-eitem2 ( 5.05 , 60.00 ) NO-ERROR.
-       /* Size in UIB:  ( 15.95 , 99.00 ) */
+       /* Size in UIB:  ( 15.71 , 99.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/farmnav.w':U ,

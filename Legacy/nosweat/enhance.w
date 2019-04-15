@@ -57,18 +57,19 @@ DEFINE VARIABLE k AS INTEGER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE WINDOW
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS widget-list widget-fonts RECT-9 use_colors ~
-use_fonts RECT-4 Btn_Reset_Font Btn_Reset_FGCOLOR RECT-8 color-0 color-1 ~
-color-2 color-3 color-5 color-4 color-6 color-7 color-8 color-9 color-10 ~
-color-11 color-12 color-13 color-14 color-15 Btn_Reset_BGCOLOR color-rect ~
-color-16 color-17 color-24 color-25 color-26 color-27 color-28 color-29 ~
-color-30 color-31 color-18 color-19 color-20 color-21 color-22 color-23 ~
-RECT-10 Btn_Save Btn_Reset Btn_Cancel Btn_OK 
+&Scoped-Define ENABLED-OBJECTS RECT-9 RECT-4 RECT-8 color-0 color-1 color-2 ~
+color-3 color-5 color-4 color-6 color-7 color-8 color-9 color-10 color-11 ~
+color-12 color-13 color-14 color-15 color-rect color-16 color-17 color-24 ~
+color-25 color-26 color-27 color-28 color-29 color-30 color-31 color-18 ~
+color-19 color-20 color-21 color-22 color-23 RECT-10 widget-list ~
+widget-fonts use_colors use_fonts Btn_Reset_Font Btn_Reset_BGCOLOR ~
+Btn_Reset_FGCOLOR Btn_Save Btn_Reset Btn_Cancel Btn_OK 
 &Scoped-Define DISPLAYED-OBJECTS widget-list widget-fonts use_colors ~
 use_fonts m-example 
 
@@ -131,183 +132,183 @@ DEFINE VARIABLE m-example AS CHARACTER FORMAT "X(256)":U INITIAL "Font Text"
      SIZE 28 BY 3 NO-UNDO.
 
 DEFINE RECTANGLE color-0
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 0 .
 
 DEFINE RECTANGLE color-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 1 .
 
 DEFINE RECTANGLE color-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 10 .
 
 DEFINE RECTANGLE color-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 11 .
 
 DEFINE RECTANGLE color-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 12 .
 
 DEFINE RECTANGLE color-13
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 13 .
 
 DEFINE RECTANGLE color-14
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 14 .
 
 DEFINE RECTANGLE color-15
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 15 .
 
 DEFINE RECTANGLE color-16
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 0 .
 
 DEFINE RECTANGLE color-17
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 1 .
 
 DEFINE RECTANGLE color-18
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 10 .
 
 DEFINE RECTANGLE color-19
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 11 .
 
 DEFINE RECTANGLE color-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 2 .
 
 DEFINE RECTANGLE color-20
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 12 .
 
 DEFINE RECTANGLE color-21
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 13 .
 
 DEFINE RECTANGLE color-22
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 14 .
 
 DEFINE RECTANGLE color-23
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 15 .
 
 DEFINE RECTANGLE color-24
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 2 .
 
 DEFINE RECTANGLE color-25
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 3 .
 
 DEFINE RECTANGLE color-26
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 4 .
 
 DEFINE RECTANGLE color-27
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 5 .
 
 DEFINE RECTANGLE color-28
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 6 .
 
 DEFINE RECTANGLE color-29
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 7 .
 
 DEFINE RECTANGLE color-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 3 .
 
 DEFINE RECTANGLE color-30
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 8 .
 
 DEFINE RECTANGLE color-31
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 9 .
 
 DEFINE RECTANGLE color-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 4 .
 
 DEFINE RECTANGLE color-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 5 .
 
 DEFINE RECTANGLE color-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 6 .
 
 DEFINE RECTANGLE color-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 7 .
 
 DEFINE RECTANGLE color-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 8 .
 
 DEFINE RECTANGLE color-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE  
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
      SIZE 5.6 BY 1.24
      BGCOLOR 9 .
 
 DEFINE RECTANGLE color-rect
-     EDGE-PIXELS 8  NO-FILL 
+     EDGE-PIXELS 8  NO-FILL   
      SIZE 148.4 BY 2.67.
 
 DEFINE RECTANGLE RECT-10
-     EDGE-PIXELS 8  NO-FILL 
+     EDGE-PIXELS 8  NO-FILL   
      SIZE 72.8 BY 2.62.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 8  NO-FILL 
+     EDGE-PIXELS 8  NO-FILL   
      SIZE 33.6 BY 4.38.
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 8  NO-FILL 
+     EDGE-PIXELS 8  NO-FILL   
      SIZE 148.4 BY 2.48.
 
 DEFINE RECTANGLE RECT-9
-     EDGE-PIXELS 8  NO-FILL 
+     EDGE-PIXELS 8  NO-FILL   
      SIZE 33.6 BY 4.38.
 
 DEFINE VARIABLE widget-fonts AS CHARACTER 
@@ -316,7 +317,7 @@ DEFINE VARIABLE widget-fonts AS CHARACTER
 
 DEFINE VARIABLE widget-list AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE 
-     LIST-ITEMS "Browser","Button","Combo-Box","Dialog-Box","Editor","Fill-In","Frame","Literal","Radio-Set","Selection-List","Slider","Text","Toggle-Box" 
+     LIST-ITEMS "Browser","Button","Combo-Box","Dialog-Box","Editor","Fill-In","Frame","Literal","Radio-Set","Selection-List","Rectangle","Text","Toggle-Box" 
      SIZE 21 BY 10.57 NO-UNDO.
 
 DEFINE VARIABLE use_colors AS LOGICAL INITIAL no 
@@ -343,8 +344,8 @@ DEFINE FRAME FRAME-A
           "Use Fonts Settings Indicator"
      m-example AT ROW 7.38 COL 118 COLON-ALIGNED NO-LABEL
      Btn_Reset_Font AT ROW 11.33 COL 118.6
-     Btn_Reset_FGCOLOR AT ROW 13.33 COL 118.6
-     Btn_Reset_BGCOLOR AT ROW 17.95 COL 118.6
+     Btn_Reset_BGCOLOR AT ROW 13.38 COL 118.2
+     Btn_Reset_FGCOLOR AT ROW 18.14 COL 118.2
      Btn_Save AT ROW 23.67 COL 44.4 HELP
           "Use this function to SAVE selected settings"
      Btn_Reset AT ROW 23.67 COL 61.2 HELP
@@ -353,14 +354,16 @@ DEFINE FRAME FRAME-A
           "Use this function to CANCEL/CLOSE"
      Btn_OK AT ROW 23.67 COL 94.8 HELP
           "Use this function to SAVE selected settings and EXIT"
-     "Widget Objects" VIEW-AS TEXT
-          SIZE 21 BY 1.24 AT ROW 1 COL 2.4
+     "Available Background Colors" VIEW-AS TEXT
+          SIZE 37.8 BY 1.24 AT ROW 13.76 COL 2
      "Available Fonts" VIEW-AS TEXT
           SIZE 21 BY 1.24 AT ROW 1 COL 27.6
+     "Widget Objects" VIEW-AS TEXT
+          SIZE 21 BY 1.24 AT ROW 1 COL 2.4
+     "Available Foreground Colors" VIEW-AS TEXT
+          SIZE 37.8 BY 1.24 AT ROW 18.48 COL 2
      RECT-9 AT ROW 2.38 COL 117.2
      RECT-4 AT ROW 6.67 COL 117.2
-     "Available Foreground Colors" VIEW-AS TEXT
-          SIZE 37.8 BY 1.24 AT ROW 13.67 COL 2.4
      RECT-8 AT ROW 15.05 COL 2.4
      color-0 AT ROW 15.67 COL 10.8
      color-1 AT ROW 15.67 COL 19.2
@@ -378,8 +381,6 @@ DEFINE FRAME FRAME-A
      color-13 AT ROW 15.67 COL 120
      color-14 AT ROW 15.67 COL 128.4
      color-15 AT ROW 15.67 COL 136.8
-     "Available Background Colors" VIEW-AS TEXT
-          SIZE 37.8 BY 1.24 AT ROW 18.33 COL 2.4
      color-rect AT ROW 19.71 COL 2.4
      color-16 AT ROW 20.33 COL 10.8
      color-17 AT ROW 20.33 COL 19.2
@@ -438,20 +439,23 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT WINDOW-1:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW WINDOW-1
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
+   FRAME-NAME                                                           */
 /* SETTINGS FOR RECTANGLE color-0 IN FRAME FRAME-A
    1                                                                    */
 /* SETTINGS FOR RECTANGLE color-1 IN FRAME FRAME-A
@@ -525,7 +529,6 @@ THEN WINDOW-1:HIDDEN = no.
 &ANALYZE-RESUME
 
  
-
 
 
 
@@ -1115,7 +1118,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI WINDOW-1 _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI WINDOW-1  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -1134,8 +1137,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI WINDOW-1 _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI WINDOW-1  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -1148,14 +1150,13 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY widget-list widget-fonts use_colors use_fonts m-example 
       WITH FRAME FRAME-A IN WINDOW WINDOW-1.
-  ENABLE widget-list widget-fonts RECT-9 use_colors use_fonts RECT-4 
-         Btn_Reset_Font Btn_Reset_FGCOLOR RECT-8 color-0 color-1 color-2 
-         color-3 color-5 color-4 color-6 color-7 color-8 color-9 color-10 
-         color-11 color-12 color-13 color-14 color-15 Btn_Reset_BGCOLOR 
-         color-rect color-16 color-17 color-24 color-25 color-26 color-27 
-         color-28 color-29 color-30 color-31 color-18 color-19 color-20 
-         color-21 color-22 color-23 RECT-10 Btn_Save Btn_Reset Btn_Cancel 
-         Btn_OK 
+  ENABLE RECT-9 RECT-4 RECT-8 color-0 color-1 color-2 color-3 color-5 color-4 
+         color-6 color-7 color-8 color-9 color-10 color-11 color-12 color-13 
+         color-14 color-15 color-rect color-16 color-17 color-24 color-25 
+         color-26 color-27 color-28 color-29 color-30 color-31 color-18 
+         color-19 color-20 color-21 color-22 color-23 RECT-10 widget-list 
+         widget-fonts use_colors use_fonts Btn_Reset_Font Btn_Reset_BGCOLOR 
+         Btn_Reset_FGCOLOR Btn_Save Btn_Reset Btn_Cancel Btn_OK 
       WITH FRAME FRAME-A IN WINDOW WINDOW-1.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW WINDOW-1.
@@ -1163,7 +1164,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get_Fonts WINDOW-1 
 PROCEDURE Get_Fonts :
@@ -1193,7 +1193,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus WINDOW-1 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
@@ -1207,7 +1206,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set_Color WINDOW-1 
 PROCEDURE Set_Color :
@@ -1234,5 +1232,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

@@ -746,8 +746,20 @@ DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
      begin_ship:SENSITIVE = YES.
-     APPLY "entry" TO begin_ship.
-     RETURN NO-APPLY.
+  END.
+  ELSE begin_ship:SENSITIVE = NO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
+ON VALUE-CHANGED OF begin_cust-no IN FRAME F-Main
+DO:
+  
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
+     begin_ship:SENSITIVE = YES.
   END.
   ELSE begin_ship:SENSITIVE = NO.
 END.
@@ -1454,6 +1466,8 @@ PROCEDURE clearFilterValues:
 ------------------------------------------------------------------------------*/
     {methods/clearFilterValues.i}
 
+     RUN local-open-query.
+     RUN dispatch ('row-changed').
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

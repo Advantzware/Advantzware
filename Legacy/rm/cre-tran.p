@@ -5,6 +5,7 @@
 def input parameter ip-rowid as rowid.
 def input parameter ip-rcode like rm-rcpth.rita-code.
 def input parameter ip-qty   as dec.
+DEFINE INPUT PARAMETER ipcReasonCode AS CHARACTER NO-UNDO .
 
 {sys/inc/var.i shared}
 
@@ -43,4 +44,5 @@ assign
  rm-rdtlh.loc-bin   = rm-bin.loc-bin
  rm-rdtlh.tag       = rm-bin.tag
  rm-rdtlh.qty       = ip-qty
- rm-rdtlh.cost      = IF ip-rcode EQ "C" THEN 0 ELSE rm-bin.cost.
+ rm-rdtlh.cost      = IF ip-rcode EQ "C" THEN 0 ELSE rm-bin.cost
+ rm-rdtlh.reject-code[1] = ipcReasonCode .

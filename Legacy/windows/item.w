@@ -835,11 +835,21 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+DEF VAR lv-current-page AS INT NO-UNDO.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-attribute ('Current-Page':U).
+    ASSIGN 
+        lv-current-page = int(return-value).
+    IF VALID-HANDLE(h_vp-rmov) THEN DO:
+        IF lv-current-page EQ 4 THEN 
+            RUN ipShowBtn IN h_vp-rmov (TRUE).
+        ELSE
+            RUN ipShowBtn IN h_vp-rmov (FALSE).
+    END.
+
   {methods/winReSizePgChg.i}
 
 END PROCEDURE.

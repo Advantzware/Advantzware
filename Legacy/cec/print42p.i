@@ -347,6 +347,10 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
    t-blkqty     = 0
    v-qtty[vmcl] = qtty[vmcl].
 
+   IF vprint THEN DO:
+	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(v-qtty[vmcl]) "}
+    END.
+
   for each blk:
       delete blk.
   end.
@@ -665,21 +669,21 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                        v-hdr-depth
                        "    #On Qty/Set      Sq.Feet     Wgt/Units"
                        skip
-                   with no-box no-labels color value("blu/brown") width 80 frame aa2-0 STREAM-IO.
+                   with no-box no-labels color value("blu/brown") width 82 frame aa2-0 STREAM-IO.
 
              display "  Blank Size:"
                      brd-w[4]                           format ">>>9.99<<<"
-                     brd-l[4]                           format ">>>9.99<<<" 
+                     brd-l[4]                           format ">>>>9.99<<<" 
                      xeb.t-dep WHEN xeb.t-dep NE 0      format ">>>9.99<<<"
                      xeb.num-up                         format ">>>,>>>" 
-                     v-yld                              FORMAT ">>>,>>>"
+                     v-yld                              FORMAT ">>>>>.9<<<"
                      brd-sf[4]                              
                      "Sf/BL"
                      brd-wu[4]
                      space(0)
                      "/MBL"
                      SKIP
-                 with no-box no-labels color value("blu/brown") width 80 frame aa2-1 STREAM-IO.
+                 with no-box no-labels color value("blu/brown") width 82 frame aa2-1 STREAM-IO.
 
              IF v-yld LT 1 THEN DO WITH FRAME aa2-1:
                 v-yld:FORMAT = ">>>>9.9<<<<".
@@ -690,7 +694,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
              if not vsuthrlnd THEN DO WITH FRAME aa2-1:
                ASSIGN
                 brd-w[4]:FORMAT  = ">>>9.99"
-                brd-l[4]:FORMAT  = ">>>9.99"
+                brd-l[4]:FORMAT  = ">>>>9.99"
                 xeb.t-dep:FORMAT = ">>>9.99".
 
                display {sys/inc/k16v.i brd-w[4]} @ brd-w[4]
@@ -702,7 +706,7 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
              IF LAST(xeb.blank-no) THEN DO:
                DISPLAY " NetSht Size:"
                        brd-w[1]                            format ">>>9.99<<<"
-                       brd-l[1]                            format ">>>9.99<<<"
+                       brd-l[1]                            format ">>>>9.99<<<"
                        xef.nsh-dep WHEN xef.nsh-dep NE 0   format ">>>9.99<<<"
                        1 @ v-tot-net-on                    format ">>>,>>9"
                        SPACE(9)
@@ -724,15 +728,15 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                        brd-wu[2]
                        space(0)
                        "/MGS" SKIP
-                   with no-box no-labels color value("blu/brown") width 80 frame aa2-2 stream-io.
+                   with no-box no-labels color value("blu/brown") width 82 frame aa2-2 stream-io.
                
                if not vsuthrlnd THEN DO WITH FRAME aa2-2:
                  ASSIGN
                   brd-w[1]:FORMAT    = ">>>9.99"
-                  brd-l[1]:FORMAT    = ">>>9.99"
+                  brd-l[1]:FORMAT    = ">>>>9.99"
                   xef.nsh-dep:FORMAT = ">>>9.99"
                   brd-w[2]:FORMAT    = ">>>9.99"
-                  brd-l[2]:FORMAT    = ">>>9.99"
+                  brd-l[2]:FORMAT    = ">>>>9.99"
                   xef.gsh-dep:FORMAT = ">>>9.99".
 
                  display {sys/inc/k16v.i brd-w[1]} @ brd-w[1]
@@ -851,12 +855,12 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
       /* adders           */
       run cec/box/pr42-add.p (v-vend-list).
    
-      FIND CURRENT probe-board NO-ERROR.
+      FIND CURRENT probe NO-ERROR.
       
-      IF AVAIL probe-board THEN
-         probe-board.val[1] = probe-board.val[1] + dm-tot[5].
+      IF AVAIL probe THEN
+         probe.boardCostTotal = probe.boardCostTotal + dm-tot[5].
 
-      FIND CURRENT probe-board NO-LOCK NO-ERROR.
+      FIND CURRENT probe NO-LOCK NO-ERROR.
    
       /* i n k s          */
       run cec/box/pr42-ink.p (v-vend-no, INPUT TABLE tt-all-forms-ink).
@@ -1018,3 +1022,7 @@ hide frame ask     no-pause.
 hide frame ask1    no-pause.
 
 session:set-wait-state("").
+
+IF vprint THEN DO:
+{custom/statusMsg.i " 'Calculating Complete....  '  "}
+END.

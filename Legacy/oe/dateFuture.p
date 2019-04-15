@@ -32,7 +32,7 @@ IF lValidate THEN DO:
     IF ipdtDate GT TODAY + iFutureDays THEN DO:
         lValid = NO.
         IF iplMessage THEN 
-          MESSAGE 'Date entered ' + STRING(ipdtDate) +  ' is is more than ' + STRING(iFutureDays) +  " days into the future. " + 'Continue with this date?'
+          MESSAGE 'Date entered ' + STRING(ipdtDate) +  ' is more than ' + STRING(iFutureDays) +  " days into the future. " + 'Continue with this date?'
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue.
     END.
 END.

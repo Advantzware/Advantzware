@@ -44,6 +44,7 @@ def var lv-type-dscr as cha no-undo.
 &scoped-define fld-name-2 item.i-name
 
 &scoped-define IAMWHAT LOOKUP
+&SCOPED-DEFINE useMatches
 
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}

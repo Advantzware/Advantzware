@@ -86,7 +86,8 @@ for each job-hdr
       assign
        work-item.qty-ord = oe-ordl.qty
        work-item.price   = oe-ordl.price
-       v-uom             = oe-ordl.pr-uom.
+       v-uom             = oe-ordl.pr-uom
+       work-item.sales-rep = oe-ordl.s-man[1] .
     END.
     ELSE DO:
          assign
@@ -144,6 +145,8 @@ for each job-hdr
          est.company EQ job.company AND
          est.est-no EQ job.est-no
          NO-LOCK NO-ERROR.
+if work-item.sales-rep eq "" and avail eb then
+assign work-item.sales-rep = eb.sman .
 
 /*Task: 05071402 - calculating the received qty * the yield qty is incorrect*/
 /*     IF AVAIL eb AND AVAIL est THEN */

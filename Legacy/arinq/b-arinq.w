@@ -54,6 +54,14 @@ DEF VAR lv-sort-by AS CHAR INIT "inv-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Inv# " NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
+DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+DEF VAR lActive AS LOG NO-UNDO.
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+    RUN sys/inc/custlistform.p ("AQ1",cocode,OUTPUT ou-log, OUTPUT ou-cust-int ) .
+ END.
 
 &SCOPED-DEFINE key-phrase ar-invl.company EQ cocode AND ar-invl.posted EQ YES
 
@@ -66,18 +74,21 @@ DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
           AND ar-invl.part-no   BEGINS fi_part-no   ~
           AND ar-invl.po-no     BEGINS fi_po-no     ~
           AND ar-invl.actnum    BEGINS fi_actnum    ~
+          AND ((lookup(ar-invl.cust-no,custcount) <> 0 AND ar-invl.cust-no <> "") OR custcount = "") ~
           AND (ar-invl.inv-no   EQ     fi_inv-no OR fi_inv-no EQ 0) ~
           AND (ar-invl.bol-no   EQ     fi_bol-no OR fi_bol-no EQ 0) ~
           AND (ar-invl.ord-no   EQ     fi_ord-no OR fi_ord-no EQ 0)
 
 &SCOPED-DEFINE for-each11                           ~
     FOR EACH ar-invl                                ~
-        WHERE {&key-phrase}
+        WHERE ((lookup(ar-invl.cust-no,custcount) <> 0 AND ar-invl.cust-no <> "") OR custcount = "") AND ~
+        {&key-phrase}
 
 &SCOPED-DEFINE for-each2                     ~
     FIRST ar-inv                             ~
     WHERE ar-inv.x-no EQ ar-invl.x-no        ~
-      AND (ar-inv.inv-date GE fi_date OR fi_date = ?)        ~
+      AND (ar-inv.inv-date GE fi_bdate)        ~
+      AND (ar-inv.inv-date LE fi_edate)        ~
       AND ((ar-inv.due NE 0 AND tb_open)      ~
        OR  (ar-inv.due EQ 0 AND NOT tb_open)  ~
        OR  (ar-inv.due EQ 0 AND tb_paid)      ~
@@ -162,11 +173,13 @@ ar-invl.part-no ar-invl.ord-no ar-invl.po-no ar-invl.est-no
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table tb_open tb_paid fi_inv-no ~
-fi_cust-no fi_date fi_actnum fi_i-no fi_part-no fi_ord-no fi_po-no ~
+fi_cust-no fi_bdate btnCalendar-1 fi_edate btnCalendar-2 fi_actnum fi_i-no fi_part-no fi_ord-no fi_po-no ~
 fi_bol-no fi_est-no btn_go btn_show RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_sortBy tb_open tb_paid fi_inv-no ~
-fi_cust-no fi_date fi_actnum fi_i-no fi_part-no fi_ord-no fi_po-no ~
+fi_cust-no fi_bdate fi_edate fi_actnum fi_i-no fi_part-no fi_ord-no fi_po-no ~
 fi_bol-no fi_est-no FI_moveCol 
+
+&Scoped-define btnCalendar-1 btnCalendar-2
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -206,11 +219,27 @@ DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Inv Date" 
+DEFINE VARIABLE fi_bdate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Begin Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fi_edate AS DATE FORMAT "99/99/9999" 
+     LABEL "End Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE BUTTON btnCalendar-1 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE BUTTON btnCalendar-2 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE VARIABLE fi_est-no AS CHARACTER FORMAT "X(8)":U 
      LABEL "Est#" 
@@ -342,8 +371,11 @@ DEFINE FRAME F-Main
      tb_paid AT ROW 2.43 COL 2
      fi_inv-no AT ROW 1.24 COL 28 COLON-ALIGNED
      fi_cust-no AT ROW 1.24 COL 55 COLON-ALIGNED
-     fi_date AT ROW 1.24 COL 87 COLON-ALIGNED
-     fi_actnum AT ROW 1.24 COL 114 COLON-ALIGNED
+     fi_bdate AT ROW 1.24 COL 87 COLON-ALIGNED
+     btnCalendar-1 AT ROW 1.24 COL 105
+     fi_edate AT ROW 1.24 COL 126 COLON-ALIGNED
+     btnCalendar-2 AT ROW 1.24 COL 144
+     fi_actnum AT ROW 3.62 COL 10 COLON-ALIGNED
      fi_i-no AT ROW 2.43 COL 55 COLON-ALIGNED
      fi_part-no AT ROW 2.43 COL 87 COLON-ALIGNED
      fi_ord-no AT ROW 2.43 COL 132 COLON-ALIGNED
@@ -582,6 +614,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
+  DEF VAR v-cust-no AS CHAR NO-UNDO .
+  DEF BUFFER bf-ar-invl  FOR ar-invl .
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      tb_open
@@ -595,13 +629,47 @@ DO:
      fi_est-no
      fi_actnum
      fi_part-no
-     fi_date
+     fi_bdate
+     fi_edate
      ll-first = NO.
      IF fi_cust-no EQ "" AND fi_i-no EQ "" AND fi_po-no EQ "" AND
         fi_inv-no:SCREEN-VALUE EQ "" AND fi_ord-no:SCREEN-VALUE EQ "" AND fi_bol-no:SCREEN-VALUE EQ "" AND 
         fi_est-no:SCREEN-VALUE EQ "" AND fi_actnum:SCREEN-VALUE EQ "" AND fi_part-no EQ "" AND
-        fi_date:SCREEN-VALUE  EQ "" THEN ll-first = YES.
+        fi_bdate:SCREEN-VALUE  EQ "" AND fi_edate:SCREEN-VALUE  EQ "" THEN ll-first = YES.
+
+
     RUN dispatch ('open-query').
+
+    GET FIRST Browser-Table .
+     IF NOT AVAIL ar-invl THEN do:
+         IF fi_cust-no <> "" THEN DO:
+             v-cust-no = fi_cust-no .
+         END.
+         ELSE do:
+             
+             FIND FIRST bf-ar-invl WHERE bf-ar-invl.company = cocode
+                 AND (bf-ar-invl.cust-no BEGINS fi_cust-no OR fi_cust-no = "")
+                 AND (bf-ar-invl.i-no BEGINS fi_i-no OR fi_i-no = "")
+                 AND (bf-ar-invl.est-no BEGINS fi_est-no OR fi_est-no = "")
+                 AND (bf-ar-invl.part-no BEGINS fi_part-no OR fi_part-no = "")
+                 AND (bf-ar-invl.po-no BEGINS fi_po-no OR fi_po-no = "")
+                 AND (bf-ar-invl.actnum BEGINS fi_actnum OR fi_actnum = "")
+                 AND (bf-ar-invl.inv-no   EQ     fi_inv-no OR fi_inv-no EQ 0) 
+                 AND (bf-ar-invl.bol-no   EQ     fi_bol-no OR fi_bol-no EQ 0) 
+                 AND (bf-ar-invl.ord-no   EQ     fi_ord-no OR fi_ord-no EQ 0) NO-LOCK NO-ERROR.
+
+             IF AVAIL bf-ar-invl THEN
+                 v-cust-no = bf-ar-invl.cust-no .
+             ELSE v-cust-no = "".
+         END.
+
+         FIND FIRST cust WHERE cust.company = cocode 
+             AND cust.cust-no = v-cust-no NO-LOCK NO-ERROR.
+         IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
+             MESSAGE "Customer is not on Users Customer List.  "  SKIP
+              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+     END.
+
     APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
   END.
 END.
@@ -627,7 +695,8 @@ DO:
      fi_est-no:SCREEN-VALUE  = ""
      fi_actnum:SCREEN-VALUE  = ""
      fi_part-no:SCREEN-VALUE = ""
-     fi_date:SCREEN-VALUE    = "01/01/0001".
+     fi_bdate:SCREEN-VALUE  = "01/01/0001" 
+     fi_edate:SCREEN-VALUE  = STRING(TODAY) .
 
     APPLY "choose" TO btn_go.
   END.
@@ -695,14 +764,66 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_date B-table-Win
-ON LEAVE OF fi_date IN FRAME F-Main /* Inv Date */
+&Scoped-define SELF-NAME fi_bdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bdate B-table-Win
+ON LEAVE OF fi_bdate IN FRAME F-Main /* Inv Date */
 DO:
   /*IF LASTKEY NE -1 THEN DO:
     APPLY "choose" TO btn_go.
   END.
   */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&Scoped-define SELF-NAME fi_edate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_edate B-table-Win
+ON LEAVE OF fi_edate IN FRAME F-Main /* Inv Date */
+DO:
+  /*IF LASTKEY NE -1 THEN DO:
+    APPLY "choose" TO btn_go.
+  END.
+  */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fi_bdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_bdate B-table-Win
+ON HELP OF fi_bdate IN FRAME F-Main /*  Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-1 B-table-Win
+ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_bdate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+  &Scoped-define SELF-NAME fi_edate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_edate B-table-Win
+ON HELP OF fi_edate IN FRAME F-Main /*  Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 B-table-Win
+ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i fi_edate}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -859,6 +980,12 @@ END.
 
 {methods/browsers/setCellColumns.i}
 
+RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'AQ1',
+                            INPUT YES,
+                            OUTPUT lActive).
+{sys/inc/chblankcust.i ""AQ1""}
+
 SESSION:DATA-ENTRY-RETURN = YES.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -967,7 +1094,6 @@ PROCEDURE first-query :
   DEF VAR lv-x-no LIKE ar-invl.x-no NO-UNDO.
 
   RUN set-defaults.
-
   {&for-each11}
       USE-INDEX x-no NO-LOCK,
       {&for-each2}
@@ -1274,10 +1400,11 @@ PROCEDURE set-defaults :
          fi_est-no = ""
          fi_ord-no = 0
          fi_actnum = ""
-         fi_date = ?.
+         fi_bdate = (TODAY - 365) 
+         fi_edate = (TODAY) .
 
   DISPLAY fi_inv-no fi_cust-no fi_i-no fi_po-no
-          fi_part-no fi_bol-no fi_est-no fi_ord-no fi_actnum fi_date
+          fi_part-no fi_bol-no fi_est-no fi_ord-no fi_actnum fi_bdate fi_edate
           WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.

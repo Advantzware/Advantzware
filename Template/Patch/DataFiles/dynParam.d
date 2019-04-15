@@ -1,0 +1,8 @@
+1 "company" "System" "Company" "Character" "x(3)" "Fill-In" "" "" 1 6 5 "dynInitCompany" "" "" ? "" "201901400000000000001"
+2 "date" "System" "Date" "Date" "99/99/9999" "Fill-In" "" "" 1 16 0 "" "" "" "CALENDAR,DATEPICKLIST" "" "201902265315702670007"
+3 "time" "System" "Time" "Character" "99:99" "Fill-In" "" "0000" 1 8 0 "" "dynValTime" "" "NO:DISABLE,YES:ENABLE" "useTimes" "201902274861502670099"
+4 "description" "System" "Description" "Character" "x(256)" "Fill-In" "" "<Start Range Value>" 1 40 0 "" "" "" ? "" "201903016395202670251"
+5 "allRange" "System" "All Range" "Logical" "yes/no" "Toggle-Box" "" "yes" 1 14 0 "" "" "" ? "" "201902265340002670008"
+6 "machine" "System" "Machine" "Character" "x(6)" "Fill-In" "" "" 1 10 0 "" "dynValMachine" "" "NO:ENABLE,YES:DISABLE" "allMachines" "201902266057502670026"
+7 "shift" "System" "Shift" "Character" "X" "Fill-In" "" "" 1 4 0 "" "" "" "NO:ENABLE,YES:DISABLE" "allShifts" "201902266178502670067"
+8 "auditID" "System" "Audit ID" "Integer" ">>>>>>9" "Fill-In" "" "" 1 16 0 "" "" "" ? "" "201903286306903436840"

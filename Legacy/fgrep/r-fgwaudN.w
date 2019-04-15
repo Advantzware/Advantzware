@@ -1793,7 +1793,9 @@ FOR EACH itemfg NO-LOCK WHERE itemfg.company = cocode
     END.
    */
     IF tt-fg-bin.first-date EQ ? THEN
-       tt-fg-bin.first-date = DATE(SUBSTR(fg-bin.rec_key,1,8)).
+       tt-fg-bin.first-date = IF fg-bin.rec_key BEGINS "2" THEN
+                                 DATE(SUBSTR(fg-bin.rec_key,5,4) + SUBSTRING(fg-bin.rec_key,1,4))
+                            ELSE DATE(SUBSTR(fg-bin.rec_key,1,8)).
   END.  /* each fg-bin */
 
 

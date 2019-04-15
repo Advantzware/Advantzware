@@ -250,10 +250,10 @@ PROCEDURE build-work:
          AND CAN-FIND(FIRST oe-ord
                       WHERE oe-ord.company EQ oe-boll.company
                         AND oe-ord.ord-no  EQ oe-boll.ord-no
-                        AND oe-ord.stat    EQ "H")
+                        AND (oe-ord.stat    EQ "H" OR oe-ord.priceHold))
         NO-LOCK:
 
-      MESSAGE "Order on BOL is on hold, and BOL will not print."
+      MESSAGE "Order on BOL is on " + (IF oe-ord.stat = "H" THEN "hold" ELSE "Price hold") + ", and BOL will not print."
            VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
       NEXT build-work.
@@ -349,7 +349,7 @@ PROCEDURE post-bol:
 
       IF AVAIL oe-bolh AND oe-bolh.posted EQ NO THEN
       FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no:
-          RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
+          RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term, YES /* show msg */).
       END.
     END.
   END.

@@ -1,0 +1,214 @@
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   1
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+A-F-1-   11230513 E Customer File Field Definitions
+                    Create Output Word Document for the customer file.
+                    This will be saved under K:\GUIMANUAL\FILE DEFINITIONS\Accounts Receivable\
+A-Q-2-   01100612 E Add yellow sort bar to AR query browser screen
+                    Add yellow sort bar to AR query screen
+E- - -   12020505 E SET button to have toggle button to switch to Set, Combo, Single
+                    Set Button toggle box.
+E-C- -   01060608 E Foam Logic Changes to Layout and Routing
+                    Layout to default width and length to die size.   Routing to import from Net Sheet Size Layout.
+E-C- -   12020513 E New FARM Estimating Logic
+                    New folder called FARM ill house multiple vendor pricing for this item to be used when calculatin
+                    g the estimate.    First, when entering a "P" for purchased, the BUYOUT machine should transfer t
+                    o the estimate.    New ASI department called FO for Farm Out that will automatically route when t
+                    he item is Purchased.
+                    
+                    The estimate will pick the best price based on the estimated quantity, however a SPECIFIC  vendor
+                     and Cost may be selected on the Vendor Matrix file.   If a specific vendor / cost is selected, t
+                    hen that cost would be used when estimating and the other vendor costs would be ignored.
+                    
+                    When calcualting the estimate for PURCHASED items, only the vendor cost or vendor matrix on the F
+                    ARM folder will be used plus the cost of freight from the customer shipto file.
+                    All other material costs will be zero'd out when calculating the estimate for this component.
+                    However if a machine is added to the routing such as a GLUER, then the glue material cost will be
+                     added to the estimate.
+                    
+                    When the estimate is turned into an order and the finished goods item is created, the data will t
+                    ransfer to the FG ITEM - VENDOR COST matrix to be used on the purchase order.
+                    Need logic to automatically create the finished good item during order entry to link to the vendo
+                    r matrix previously create on estimate when no FG item existed.
+                    
+                    
+                    
+E-F- -   01090602 E COPY button on FILM Button to copy all forms
+                    Tandem and Combination estimates have a unique button called LEAF / FILM on the LAYOUT folder.   
+                    Create new logic so that the COPY button on this window will prompt from form / blank to form / b
+                    lank to copy all forms.   Currently, this will only copy one item at a time.   Also, when they co
+                    py an item, the blank dimensions convert back to the original blank dimensions rather then retain
+                    ing the dimensions entered on the popup.     
+E-F- -   01110601 E Estimate, SPEC folder, Override Button.    Popup Window not needed.
+                    Folding estimate only, click the SPEC folder, then Override Button, then Blank Width.  This shoul
+                    d just be a field, not a popup of all the panels.  Same for Blank Length.
+                    I should be able to click Blank Width and tab to Blank Length.
+E-Q- -   05130510 E Make changes to allow same quantity on quote form.
+                    See estimate 4001.   I estimated the same quantity, however each quantity has a different number 
+                    of releases.    The program has errors when creating the quote and only 1 quantity will transfer 
+                    to the quote.   
+H-B- -   01100610 E H-B Sales Analysis - Sales Journal Toggle Box to Add Bill of Lading#
+                    Report print selection called Print Bill of Lading#.      If this is checked, this will print aft
+                    er the customer name.   The customer name will be truncated by 6 digits.   Heading will Read BOL#
+                    .
+I-F-1-   01130608 E FG History update Tag#
+                    When logging in as asi,  finished goods HISTORY folder allows changing various fields.
+                    Allow changing tag# to a valid tag# from Load tag File or from previous FG receipt tag#.
+I-U-1-   11230514 E Inventory File Field Definitions
+                    Create Output Word Document for the FG Inventory File.
+                    This will be saved under K:\GUIMANUAL\FILE DEFINITIONS\Finished Goods\
+J-Q-1-   12090508 E Zero Out Standards on Replaced Material and Labor
+                    When viewing job cost inquiries that have both estimated material and REAL material, the substitu
+                    ted material and labor should not have the ESTIMATED standards in the Totals.
+                    
+                    We cannot change the job standards because the productivity reports need the standards to effecie
+                    ncy reporting.
+N-K-1-   01060601 E N-K BOLCERT character value = BRICK  migrate to Windows
+                    Add Toggle Box option on BOL print selection to print BOL Certificate of Compliance.
+N-K-1-   01090601 E N-K ProdCode  Original Task# 05190508 Update Mode to Override Field
+                    N-K-1 ProdCode.   Creates the FG  Inventory Production Code as New / Repeat.   Update mode should
+                     allow user to change this to New or Repeat.  Therefore, only creating a new item will automatica
+                    lly set the Production Code Field.
+N-K-1-   01090610 E N-K RelPost to determine the creation of Backorders
+                    Relpost dictates how the BOL is created.  Therefore, this flag should also dictate how the backor
+                    der is created.    If each release creates a separate bill of lading as when the character value 
+                    is BOL/REL then the backorder should create a separate release for each original release.   If th
+                    e character value were BOL, then the items would be grouped by shipdate and shipto location on th
+                    e release just as they were grouped together on the bill of lading.
+N-K-1-   01090619 E N-K InvPrint = ConsBox   (Part of Sales Contract)
+                    See Sample.    Move existing Xprint top heading boxes down as first box headings.
+                    Phone/Fax will not print area code.   Print Consolidated Box Logo at top.
+                    Print BOL legal text on bottom left.
+                    Quantity will be Invoice Quantity
+                    Item will be FG Item Code.   
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   2
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    Description will be Item Name from Order Entry Screen.
+N-K-1-   01100606 E New Menu called  Business Forms to retain new Image File
+                    Add Maintenance file for New Image file to House the Customer, Customer Shipto, Vendor,
+                    Business Form, etc.
+N-K-1-   01100614 E N-K POPrint = ConsBox   (Part of Sales Contract)
+                    See Sample.    Top Heading to read PURCHASE ORDER - BOARD
+N-K-1-   01120608 E N-K CEPRINT.    Print Hardcopy is Segments ?
+                    Currently, the estimate printout is printing the estiamte in segments.  The estimate analysis is 
+                    printing on the 2nd page, box design on the 3rd page.    Set this current format as the character
+                     value = Segment.    Add another option called Consolidate, which will combine the 1st page and e
+                    stimate analysis if it fits on 1 page.
+N-K-1-   01130612 E N-K FGRECPT.   Interger Value = 1 will validate Tag# during BOL
+                    SELECT Bin/Tag button to validate tag# when N-K-1 FGRecept Integer Value = 1.  This should import
+                     the warehouse / bin from the FG bin file.  This must also validate Tag#'s in the FG Bin File.   
+                    Likewise, the warehouse and bin location should transfer to the BOL line and must match the FG Bi
+                    n File.
+                    
+                    F1 on Tag# shows Progress Error.  Select tag number via F1 should also import data from FG Bin Fi
+                    le.
+N-K-1-   01160602 E CePrint = New character value = Text to print the Older DOS Format
+                    New CEPRINT character value to print the old DOS format when character value = TEXT.
+N-Q-3-   12220511 E Copy FG Item to Copy Old FG item to Customer Cross Ref.
+                    When adding an order, when the old FG item number is entered, the system will prompt, this item i
+                    s obsolete, import new FG Item Code?   This will then import the new FG Item code that was change
+                    d via the N-Q-3 utility.    This utility will store the old FG item code in the FG items TOTALs f
+                    older.  Customer Code will become ************* and the FG item will be transferred to the TOTAL 
+                    cross reference file. 
+                    
+                    Also,  Southpak says that this use to MERGE data if the new FG Item already existed.
+                    This merge logic loses the ON HAND value.    Add Recalc logic update rebuilding bins.
+N-R- -   01060612 E Add fix for notes with blank dates
+N-R- -   01120611 E Util/AddDCRec.r   Utility to create FG receipts for the last machine o
+                    Utility to search data collection for quantity produced on the last machine in the job file, then
+                     create a finished goods receipt for the unit count in the finished goods bin file with the cases
+                     per pallet from the bin file.    This data may be available on a job previously created before t
+                    he current job.
+                    
+                    Add Date Range so they can select to from January 2, 2006 to January 11, 2006.
+O-B-1-   01110602 E Invoice File to have BOL Folder
+                    Add new BOL Folder on Invoice header screen.  Also add Yellow sort option of both O-S-1 and new O
+                    -B-1 folder.
+O-B-1-   11230517 E Orders Invoice File Field Definitions
+                    Create Output Word Document for the Order Entry File.
+                    This will be saved under K:\GUIMANUAL\FILE DEFINITIONS\Order Processing\
+O-B-3-   01100608 E Fibre Invoice to print decimals.
+                    Invoice now rounds up the decimals on the print out.   Print the sell price with all digits to ri
+                    ght of the decimal on the price per line item.   The invoice total and total per line should cont
+                    inue to round up to two digits.
+O-B-4-   01090618 E Invoice Post All or Nothing
+                    Invoices must not post partial transactions.   If the post fails, nothing should post to the gene
+                    ral ledger, inventory or customer files.
+O-Q-1-   01090606 E Order Inquiry, Ship Notes Folder to have Update / Cancel Button
+                    Move logic from order entry SHIP folder to order inquiry so that the user can UPDATE notes.
+                    Likewise, add the Cancel Button.
+O-R-1-6  01110609 E Label Change Change Sort by to Sort Customer By ?
+                    Change current Label called Sort By:  to Sort Customer By:  since all options sort by customer co
+                    de First then the option selected.
+O-S-1-   11230516 E Bill of Laging File Field Definitions
+                    Create Output Word Document for the Order Entry File.
+                    This will be saved under K:\GUIMANUAL\FILE DEFINITIONS\Order Processing\
+O-S-3-   01100613 E N-K BolFmt = ConsBox   BOL Print Icon Email shows a Text file
+                    Print Icon not working and Legal Text missing.
+O-S-3-   12150505 E Add Customer Part# to Bolfmt = PremierX
+                    Add Customer Part# to Premier packaging bill of lading form.
+O-T-1-   01060604 E Add Release via O-T-1 should import PO#
+                    When adding a release manually via the O-T-1 screen, the PO# should default for the item and date
+                     of an existing release.   If the new release does not match any scheduled release for that item,
+                     then import the PO# on the line item screen.  If the PO# is blank on the line item screen, then 
+                    import the PO# from the order header.
+O-T-1-   01100622 E Add 2nd Item to Release shows Error No OE-RELL Record
+                    When adding a release manually via the O-T-1 screen, the 2nd item shows errors when typing in the
+                     Order number.    If a scheduled release does not exist, the system must create one
+O-U-1-   01090607 E Order Entry, Release folder to have new Column called Ship Quantity
+                    Current screen shows release quantity.  Add Ship Qty to right of Release quantity to reflex the q
+                    uantity shipped on that specific release.    The original release quantity should not change from
+                     the original release quantity.
+O-U-1-   01100609 E Label Change from Cases to Units
+                    Change order line screen via Update button.   Change Cases/Pallet to Units/Pallet and change Qty/
+                    Case to Qty/Unit.
+O-U-1-   01120617 E Add Order for FARM Outs not building Vendor Cost Matrix.
+01/17/2006             Advanced Software Services, Inc.              11:45 AM
+              Completed By Date & Programmer    Customer Report      Page:   3
+
+Hot Keys Task#    T Overview
+-------- -------- - -------------------------------------------------------------------------------------------------
+                    See Order 5293 and 5292.   When I add an order and error appears on E-item.
+                    No vendor cost matrix is created.   The estimated Cost matrix from the estimated item.  Hopefully
+                     we do not end up with two FG items for this estimate.  ie a blank FG item and the new FG item.
+                    
+                    Also,  order 5293 is for a set.  The components have ZERO allocated quantity.  The manufactured i
+                    tem should also have an On Order Qty but this is zero also.  The Purchased Item should not have a
+                    n On Order Qty.
+                    
+                    Lastly, if the N-K-1 OEAUTOFG is YES, this should also create a PO for the Purchased Item, which 
+                    would then update the On Order Qty.    The PO for the purchased item did not happen.
+O-U-1-   04130510 E Add Case Count, Case/Pallet, Partial to Order Line Item.
+                    DB changes done 12/01/05 - YSK,JLF
+                    Add Case Count,  Case/Pallet,  Partial to the Order Lines. 
+                    The logic for N-K-1 OECOUNT would not be needed if we had the unitization fields below.
+                    When adding orders, we should import all the fields from the estimate.   When updating the fields
+                     on the order, this would update the finished good item and estimate fields.    Please note, only
+                     the set header could be updated in the estimate unless all components are shown.
+O-U-7-   01160610 E Loadtag Creation to Default FG item to Blank
+                    When 1st accessing the Loadtag program the FG item should default to and from to blank.
+                    They periodically click the Save button and create Loadtags for all the inventory.
+                    When selecting an order number, order range or job number range will then default the FG items nu
+                    mbers.
+P-U-1-   12140508 E Delete PO Line must delete RM Tags for the PO Line
+                    If a PO Line item is deleted, then any loadtags that have been created must be deleted.
+                    If the line has receipts posted, then the PO cannot be deleted.
+P-U-3-   01060606 E PO to print Change Date and Updated when Item Updated
+                    Clients may print the PO just to review the details before sending the PO to the vendor.
+                    Under this scenario, the reprint shows the PO as a CHANGE ORDER.    
+                    Add option on Print Screen when Reprinting PO to Set as Original.   This will change the status o
+                    f the line from updated to New or Original so that the CHANGE ORDER does not appear on the purcha
+                    se order.
+P-U-3-   01100615 E Fibre PO to not print Width and Lenght for MISC materials
+                    Xprint format has logic to only print the width and length for the material types = B, W, F, C, D
+                    
+                    Same logic should apply for Fiber PO form.   MISC materials should not print the Flute, Test, but
+                     should print the Width and Length.  Only "B"oard should print Flute and Test.
+V-Q-1-   01100611 E Add yellow sort bar to AP browser query screen
+                    Add yellow sort bar to AP query screen
+

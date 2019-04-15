@@ -74,7 +74,7 @@
     {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
     RELEASE ar-invl.
 
-    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+    RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
     IF AVAIL oe-retl THEN
     find first ar-invl
@@ -211,7 +211,7 @@
         RELEASE itemfg.
         RELEASE ar-invl.
 
-        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
+        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER oe-retl).
 
         IF AVAIL oe-retl THEN DO:
           find first itemfg
@@ -285,19 +285,19 @@
             no-lock no-error.
         
         IF NOT tb_rem-cents THEN 
-           ASSIGN w-data.w-amt-txt[1] = STRING(w-data.w-amt[1],"->>>,>>9.99")
-                  w-data.w-amt-txt[2] = STRING(w-data.w-amt[2],"->>>,>>9.99")
-                  w-data.w-amt-txt[3] = STRING(w-data.w-amt[3],"->>>,>>9.99")
-                  w-data.w-cost-txt[1] = STRING(w-data.w-cost[1],"->>,>>9.99")
-                  w-data.w-cost-txt[2] = STRING(w-data.w-cost[2],"->>,>>9.99")
-                  w-data.w-cost-txt[3] = STRING(w-data.w-cost[3],"->>,>>9.99").
+           ASSIGN w-data.w-amt-txt[1] = STRING(w-data.w-amt[1],"->>>>>>9.99")
+                  w-data.w-amt-txt[2] = STRING(w-data.w-amt[2],"->>>>>>9.99")
+                  w-data.w-amt-txt[3] = STRING(w-data.w-amt[3],"->>>>>>9.99")
+                  w-data.w-cost-txt[1] = STRING(w-data.w-cost[1],"->>>>>>9.99")
+                  w-data.w-cost-txt[2] = STRING(w-data.w-cost[2],"->>>>>>9.99")
+                  w-data.w-cost-txt[3] = STRING(w-data.w-cost[3],"->>>>>>9.99").
         ELSE
-           ASSIGN w-data.w-amt-txt[1] = FILL(" ",3) + STRING(w-data.w-amt[1],"->>>,>>9")
-                  w-data.w-amt-txt[2] = FILL(" ",3) + STRING(w-data.w-amt[2],"->>>,>>9")
-                  w-data.w-amt-txt[3] = FILL(" ",3) + STRING(w-data.w-amt[3],"->>>,>>9")
-                  w-data.w-cost-txt[1] = FILL(" ",3) + STRING(w-data.w-cost[1],"->>,>>9")
-                  w-data.w-cost-txt[2] = FILL(" ",3) + STRING(w-data.w-cost[2],"->>,>>9")
-                  w-data.w-cost-txt[3] = FILL(" ",3) + STRING(w-data.w-cost[3],"->>,>>9"). 
+           ASSIGN w-data.w-amt-txt[1] = FILL(" ",3) + STRING(w-data.w-amt[1],"->>>>>>9")
+                  w-data.w-amt-txt[2] = FILL(" ",3) + STRING(w-data.w-amt[2],"->>>>>>9")
+                  w-data.w-amt-txt[3] = FILL(" ",3) + STRING(w-data.w-amt[3],"->>>>>>9")
+                  w-data.w-cost-txt[1] = FILL(" ",3) + STRING(w-data.w-cost[1],"->>>>>>9")
+                  w-data.w-cost-txt[2] = FILL(" ",3) + STRING(w-data.w-cost[2],"->>>>>>9")
+                  w-data.w-cost-txt[3] = FILL(" ",3) + STRING(w-data.w-cost[3],"->>>>>>9"). 
 
       /*  display tt-report.key-02
                 tt-report.key-03   
@@ -376,9 +376,9 @@
                          WHEN "ptd-cst"   THEN cVarValue = (IF v-cst AND NOT tb_rem-cents THEN STRING(w-data.w-cost[2],"->>,>>9.99")ELSE IF v-cst AND tb_rem-cents THEN STRING(w-data.w-cost[2],"->>,>>9") ELSE "") .   
                          WHEN "ptd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[2],"->>>9.99") ELSE "" .                                                                                                         
                          WHEN "ytd-sf"    THEN cVarValue = STRING(w-data.w-sqft[3],"->>>9.999") .                                                                                                                       
-                         WHEN "ytd-amt"   THEN cVarValue = IF NOT tb_rem-cents THEN STRING(w-data.w-amt[3],"->>>,>>9.99") ELSE STRING(w-data.w-amt[3],"->>>,>>9") .                                                     
-                         WHEN "ytd-cst"   THEN cVarValue = (IF v-cst AND NOT tb_rem-cents THEN STRING(w-data.w-cost[3],"->>,>>9.99")ELSE IF v-cst AND tb_rem-cents THEN STRING(w-data.w-cost[3],"->>,>>9") ELSE "") .   
-                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>9.99") ELSE "" .                                                                                                         
+                         WHEN "ytd-amt"   THEN cVarValue = IF NOT tb_rem-cents THEN STRING(w-data.w-amt[3],"->>>>>>9.99") ELSE STRING(w-data.w-amt[3],"->>>>>>9") .                                                     
+                         WHEN "ytd-cst"   THEN cVarValue = (IF v-cst AND NOT tb_rem-cents THEN STRING(w-data.w-cost[3],"->>>>>>9.99")ELSE IF v-cst AND tb_rem-cents THEN STRING(w-data.w-cost[3],"->>>>>>9") ELSE "") .   
+                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>>>9.99") ELSE "" .                                                                                                         
                          
                     END CASE.
                       
@@ -454,7 +454,7 @@
                          WHEN "ytd-sf"    THEN cVarValue = STRING(v-tot-sqft[3],"->>>9.999") .                                                                                                                                                                                                     
                          WHEN "ytd-amt"   THEN cVarValue = IF NOT tb_rem-cents THEN STRING(v-tot-amt-txt[3]) ELSE STRING(v-tot-amt-txt[3]) .                                                                                                                              
                          WHEN "ytd-cst"   THEN cVarValue = (IF v-cst AND NOT tb_rem-cents THEN STRING(v-tot-cost-txt[3])ELSE IF v-cst AND tb_rem-cents THEN STRING(v-tot-cost-txt[3]) ELSE "") .                                                                            
-                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>9.99") ELSE "" .                                                                                                                                                                                    
+                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>>>9.99") ELSE "" .                                                                                                                                                                                    
                          
                     END CASE.
                       
@@ -606,7 +606,7 @@
                          WHEN "ytd-sf"    THEN cVarValue = STRING(v-tot-sqft[6],"->>>9.999") .                                                                                                                                                                                                     
                          WHEN "ytd-amt"   THEN cVarValue = IF NOT tb_rem-cents THEN STRING(v-tot-amt-txt[6]) ELSE STRING(v-tot-amt-txt[6]) .                                                                                                                              
                          WHEN "ytd-cst"   THEN cVarValue = (IF v-cst AND NOT tb_rem-cents THEN STRING(v-tot-cost-txt[6])ELSE IF v-cst AND tb_rem-cents THEN STRING(v-tot-cost-txt[6]) ELSE "") .                                                                            
-                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>9.99") ELSE "" .                                                                                                                                                                                    
+                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>>>9.99") ELSE "" .                                                                                                                                                                                    
                          
                     END CASE.
                       
@@ -680,7 +680,7 @@
                          WHEN "ytd-sf"    THEN cVarValue = STRING(v-tot-sqft[8],"->>>9.999") .                                                                                                                                                                                           
                          WHEN "ytd-amt"   THEN cVarValue = IF NOT tb_rem-cents THEN STRING(v-tot-amt-txt[9]) ELSE STRING(v-tot-amt-txt[9]) .                                                                                                                    
                          WHEN "ytd-cst"   THEN cVarValue = (IF v-cst AND NOT tb_rem-cents THEN STRING(v-tot-cost-txt[9])ELSE IF v-cst AND tb_rem-cents THEN STRING(v-tot-cost-txt[9]) ELSE "") .                                                                            
-                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>9.99") ELSE "" .                                                                                                                                                                                    
+                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>>>9.99") ELSE "" .                                                                                                                                                                                    
                          
                     END CASE.
                       
@@ -763,7 +763,7 @@
                          WHEN "ytd-sf"    THEN cVarValue = STRING(v-tot-sqft[12],"->>>9.999") .                                                                                                                                                                                           
                          WHEN "ytd-amt"   THEN cVarValue = IF NOT tb_rem-cents THEN STRING(v-tot-amt-txt[12]) ELSE STRING(v-tot-amt-txt[12]) .                                                                                                                    
                          WHEN "ytd-cst"   THEN cVarValue = (IF v-cst AND NOT tb_rem-cents THEN STRING(v-tot-cost-txt[12])ELSE IF v-cst AND tb_rem-cents THEN STRING(v-tot-cost-txt[12]) ELSE "") .                                                                            
-                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>9.99") ELSE "" .                                                                                                                                                                                    
+                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>>>9.99") ELSE "" .                                                                                                                                                                                    
                          
                     END CASE.
                       
@@ -844,7 +844,7 @@
                          WHEN "ytd-sf"    THEN cVarValue = STRING(v-tot-sqft[15],"->>>9.999") .                                                                                                                                                                                           
                          WHEN "ytd-amt"   THEN cVarValue = IF NOT tb_rem-cents THEN STRING(v-tot-amt-txt[15]) ELSE STRING(v-tot-amt-txt[15]) .                                                                                                                    
                          WHEN "ytd-cst"   THEN cVarValue = (IF v-cst AND NOT tb_rem-cents THEN STRING(v-tot-cost-txt[15])ELSE IF v-cst AND tb_rem-cents THEN STRING(v-tot-cost-txt[15]) ELSE "") .                                                                            
-                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>9.99") ELSE "" .                                                                                                                                                                                    
+                         WHEN "ytd-mar"   THEN cVarValue = IF v-cst THEN STRING(v-prof[3],"->>>>>9.99") ELSE "" .                                                                                                                                                                                    
                          
                     END CASE.
                       

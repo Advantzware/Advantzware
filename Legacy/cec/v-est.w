@@ -242,7 +242,7 @@ DEFINE BUTTON btnDieLookup
 
 DEFINE BUTTON btn_fgitem 
      LABEL "" 
-     SIZE 12 BY 1.
+     SIZE 13 BY 1.
 
 DEFINE BUTTON btn_style
      LABEL "" 
@@ -269,7 +269,7 @@ DEFINE VARIABLE fi_from-est-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 11 BY 1.
 
-DEFINE VARIABLE fi_msf AS DECIMAL FORMAT "->>,>>9.999":U INITIAL 0 
+DEFINE VARIABLE fi_msf AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0 
      LABEL "MSF" 
      VIEW-AS FILL-IN 
      SIZE 15.4 BY 1 NO-UNDO.
@@ -334,14 +334,14 @@ DEFINE FRAME Corr
      eb.form-no AT ROW 1.24 COL 46.8 COLON-ALIGNED
           LABEL "Frm"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      est.form-qty AT ROW 1.24 COL 54 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      eb.blank-no AT ROW 1.24 COL 64.2 COLON-ALIGNED
           LABEL "Blk"
           VIEW-AS FILL-IN 
-          SIZE 5 BY 1
+          SIZE 4 BY 1
      fi_blank-qty AT ROW 1.24 COL 71.6 COLON-ALIGNED NO-LABEL
      est.mod-date AT ROW 1.24 COL 84.4 COLON-ALIGNED
           LABEL "Mod"
@@ -405,7 +405,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
-     eb.stock-no AT ROW 3.86 COL 124 COLON-ALIGNED
+     eb.stock-no AT ROW 3.86 COL 126 COLON-ALIGNED
           LABEL "FG Item#"
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
@@ -440,7 +440,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
      eb.sman AT ROW 8.14 COL 21 COLON-ALIGNED
-          LABEL "Sales Rep"
+          LABEL "SalesGrp"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      sman_sname AT ROW 8.14 COL 28 COLON-ALIGNED NO-LABEL
@@ -550,15 +550,15 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-wid AT ROW 16 COL 26 COLON-ALIGNED
-          LABEL "Blank Width" FORMAT ">>>9.99"
+          LABEL "Blank Width" 
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-len AT ROW 16 COL 61 COLON-ALIGNED
-          LABEL "Blank Length" FORMAT ">>>9.99"
+          LABEL "Blank Length" 
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.t-sqin AT ROW 16 COL 127 COLON-ALIGNED
-          LABEL "Blank Square Feet" FORMAT ">>>9.9999"
+          LABEL "Blank Square Feet" 
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10
@@ -566,7 +566,7 @@ DEFINE FRAME Corr
           LABEL "W"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1     
-     btn_fgitem AT ROW 3.81 COL 114 WIDGET-ID 16
+     btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 8 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 12 WIDGET-ID 16
      btn_cust AT ROW 2.67 COL 15 WIDGET-ID 16
@@ -2808,16 +2808,11 @@ assign
  itemfg.company    = cocode
  itemfg.loc        = locode
  itemfg.i-no       = v-item
- itemfg.i-code     = "C"
  itemfg.i-name     = xeb.part-dscr1
  itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.sell-uom   = "M"
  itemfg.part-no    = xeb.part-no
  itemfg.cust-no    = xeb.cust-no
  itemfg.cust-name  = if avail cust then cust.name else ""
- itemfg.pur-uom    = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.prod-uom   = IF xeb.pur-man THEN "EA" ELSE "M"
- itemfg.stocked    = yes
  itemfg.die-no     = xeb.die-no
  itemfg.plate-no   = xeb.plate-no
  itemfg.style      = xeb.style
@@ -2829,7 +2824,7 @@ assign
                      xeb.form-no eq 0
  itemfg.pur-man    = xeb.pur-man  
  itemfg.alloc      = xeb.set-is-assembled
- itemfg.setupDate  = TODAY.
+ .
 
  IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
 
@@ -3465,6 +3460,7 @@ PROCEDURE local-cancel-record :
 
   RUN release-shared-buffers.
   DISABLE btncadlookup btndielookup WITH FRAME {&FRAME-NAME}.
+  RUN set-panel(1) .
 
 END PROCEDURE.
 
@@ -3490,13 +3486,13 @@ PROCEDURE local-display-fields :
 
   IF NOT AVAIL est OR NOT AVAIL eb THEN RETURN.
 
-  DO WITH FRAME {&FRAME-NAME}:
+DO WITH FRAME {&FRAME-NAME}:
 
   ASSIGN tb-set:SENSITIVE = FALSE
          bt-new-die:SENSITIVE = FALSE
          bt-new-plate:SENSITIVE = FALSE.
 
-  IF v-cecscrn-char EQ "Decimal" THEN
+  IF v-cecscrn-char EQ "Decimal" THEN do:
      ASSIGN
         eb.len:FORMAT = ">>9.999999"
         eb.len:WIDTH = 15.2
@@ -3520,14 +3516,41 @@ PROCEDURE local-display-fields :
         eb.tuck:WIDTH = 15.2
         eb.lin-in:FORMAT = "->>9.999999"
         eb.lin-in:WIDTH = 15.2
-        eb.t-wid:FORMAT = ">>>9.999999"
+        eb.t-wid:FORMAT = ">>>>9.999999"
         eb.t-wid:WIDTH = 15.2
-        eb.t-len:FORMAT = ">>>9.999999"
+        eb.t-len:FORMAT = ">>>>9.999999"
         eb.t-len:WIDTH = 15.2
-        eb.t-sqin:FORMAT = ">>>9.999999"
+        eb.t-sqin:FORMAT = ">>>>>9.999999"
         eb.t-sqin:WIDTH = 15.2.
+     IF eb.t-sqin GT 999999  THEN
+         ASSIGN
+         eb.t-sqin:FORMAT = ">>>>>>>>>9.99999"
+         eb.t-sqin:WIDTH = 17.2 .
+     ELSE
+         ASSIGN
+             eb.t-sqin:FORMAT = ">>>>>9.999999"
+             eb.t-sqin:WIDTH = 15.2.
+
+  END.
+  ELSE do:
+      ASSIGN
+        eb.t-wid:FORMAT = ">>>>9.99<<<"
+        eb.t-wid:WIDTH = 15.2
+        eb.t-len:FORMAT = ">>>>9.99<<<"
+        eb.t-len:WIDTH = 15.2 .
+
+      IF eb.t-sqin GT 999999  THEN
+          ASSIGN
+          eb.t-sqin:FORMAT = ">>>>>>>>>9.999<<"
+          eb.t-sqin:WIDTH = 17.2 .
+      ELSE
+          ASSIGN
+              eb.t-sqin:FORMAT = ">>>>>9.999<<"
+              eb.t-sqin:WIDTH = 15.2 .
   END.
 
+END.
+  
   IF AVAIL est THEN DO TRANSACTION:
     DISABLE TRIGGERS FOR LOAD OF est.
     FOR EACH b-ef NO-LOCK
@@ -3761,6 +3784,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-panel B-table-Win 
+PROCEDURE set-panel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-switch AS INT NO-UNDO.
+
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+
+  RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'btn-set-target':U,OUTPUT char-hdl).
+  IF ip-switch EQ 0 THEN 
+    RUN disable-all IN WIDGET-HANDLE(char-hdl).
+  ELSE
+    RUN enable-all IN WIDGET-HANDLE(char-hdl).
+
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -3910,7 +3957,7 @@ PROCEDURE local-update-record :
     IF eb.ord-no NE 0 AND eb.cust-no:SCREEN-VALUE NE eb.cust-no AND
        eb.cust-no NE "" THEN
     DO:
-      MESSAGE "Cannot Change Customer."
+      MESSAGE "This estimate has order # - " + string(eb.ord-no) + " . Cannot Change Customer."
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
       APPLY "entry" TO eb.cust-no.
       RETURN NO-APPLY.
@@ -3975,6 +4022,8 @@ PROCEDURE local-update-record :
            END. /* Each oe-prmtx */
        END.
   END.
+
+  RUN set-panel(1) .
 {&methods/lValidateError.i NO}
 
 END PROCEDURE.
@@ -4275,6 +4324,8 @@ PROCEDURE proc-enable :
 
   RUN release-shared-buffers.
 
+  RUN set-panel(0) .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4504,6 +4555,7 @@ PROCEDURE update-sheet :
   /*     find xest where recid(xest) = recid(est).  */
 
   IF NOT lv-foam THEN DO:
+    RUN est/GetCERouteFromStyle.p (xef.company, xeb.style, OUTPUT xef.m-code).
     {sys/inc/ceroute1.i w id l en}
   END.
 
@@ -4901,7 +4953,7 @@ PROCEDURE valid-sman :
         NO-LOCK NO-ERROR.
 
     IF NOT AVAIL sman THEN DO:
-       MESSAGE "Invalid Sales Rep. Try help." VIEW-AS ALERT-BOX ERROR.
+       MESSAGE "Invalid SalesGrp. Try help." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO eb.sman.
        RETURN ERROR.
     END.
@@ -5018,6 +5070,23 @@ IF lc-new-values = lc-previous-values THEN DO:
 END.
 ELSE
   opl-was-modified = YES.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cad-image-update V-table-Win 
+PROCEDURE cad-image-update :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAIL eb THEN do:
+        RUN est/d-cadimgupd.w(cocode,ROWID(est)) .
+        RUN local-display-fields .
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

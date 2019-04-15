@@ -82,9 +82,18 @@ DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR cSignatureFile AS CHAR FORM "X(100)" NO-UNDO.
 
-ASSIGN ls-image1 = "images/RFC.jpg"
+/*ASSIGN ls-image1 = "images/RFC.jpg"
        FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
+
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -497,16 +506,16 @@ for each xxreport where xxreport.term-id eq v-term-id,
   IF cSignatureFile NE "" THEN
       cSignatureFile = cSignatureFile + ">".
 
-  PUT "<R52><C53><#8><FROM><R+4><C+27><RECT> " 
-      "<=8><R+1> Total Units       :" v-grand-total-cases FORM ">,>>>,>>9"
-      "<=8><R+2> Total Pallets     :" oe-bolh.tot-pal FORM ">,>>>,>>9"
-      "<=8><R+3> Total Weight      :" v-tot-wt FORM ">>,>>9.99".
+  PUT "<R52><C54.5><#8><FROM><R+4><C+25.5><RECT> " 
+      "<=8><R+1><C55> Total Units       :" v-grand-total-cases FORM ">,>>>,>>9"
+      "<=8><R+2><C55> Total Pallets     :" oe-bolh.tot-pal FORM ">,>>>,>>9"
+      "<=8><R+3><C55> Total Weight    :" v-tot-wt FORM ">>,>>9.99".
   
-  PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: <P10> " SKIP(1)
-      oe-bolh.ship-i[1] AT 7 SKIP
-      oe-bolh.ship-i[2] AT 7 SKIP
-      oe-bolh.ship-i[3] AT 7 SKIP
-      oe-bolh.ship-i[4] AT 7 "</B><P9>".
+  PUT "<FMS Sans Serif><R51><C1><P12><B> Shipping Instructions: <P10> " SKIP(1)
+      "<R52><C1>" oe-bolh.ship-i[1] AT 2 
+      "<R53><C1>" oe-bolh.ship-i[2] AT 2 
+      "<R54><C1>" oe-bolh.ship-i[3] AT 2 
+      "<R55><C1>" oe-bolh.ship-i[4] AT 2 "</B><P9>".
   
   /* rstark 05181205 */
   RUN XMLOutput (lXMLOutput,'Last',STRING(PAGE-NUM),'Page').
@@ -535,13 +544,13 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<R66.5><C50><From><C78><LINE><||3>"
       "<R67.8><C33><From><C43><LINE><||3><C50><From><C78><LINE><||3>"
   
-      "<R58><C1><P7>Subject To Section 7 of Condifions of applicable bill of lading, <C28>If charges are to be prepaid write or   <C44>If the shipment moves between two ports by a carrier by water, the law requires that"
+      "<R58><C1><P7>Subject To Section 7 of Conditions of applicable bill of lading, <C28>If charges are to be prepaid write or   <C44>If the shipment moves between two ports by a carrier by water, the law requires that"
       "<R59><C1>this shipment is to be delivered to the consignee without re-   <C28>stamp here, ""To be Prepaid.""          <C44>the bill of lading shall state whether it is carrier's or shipper's weight."
-      "<R60><C1>cource on the consignor, the consignor shall sign the follo-                                                <C44>NOTE:Where the rate is dependent on value, shippers are required to state specific-"
+      "<R60><C1>course on the consignor, the consignor shall sign the follo-                                                <C44>NOTE:Where the rate is dependent on value, shippers are required to state specific-"
       "<R61><C1>wing statement.     <C28>Received $                              <C44>ally in writing the agreed or declared value of the property. The agreed or declared"
-      "<R62><C1>The carrier shall not make delivery of this statement without<C28><P6>  to apply in prepaymeny of the charges<P7>     <C44>value of the property is hereby specifically stated by the shipper to be not exceeding."
+      "<R62><C1>The carrier shall not make delivery of this statement without<C28><P6>  to apply in prepayment of the charges<P7>     <C44>value of the property is hereby specifically stated by the shipper to be not exceeding."
       "<R63><C1>payment of freight and all other lawful charges.   <C28><P6> on the property described hereon.<P7>"
-      "<R64><C28><P6>              Agent or Cashier <P7>  <C44>  SHIPER PER ".
+      "<R64><C28><P6>              Agent or Cashier <P7>  <C44>  SHIPPER PER".
   IF cSignatureFile NE "" THEN 
       PUT "<C1><R65><#3><R+4><C+20><IMAGE#3=" cSignatureFile.
   PUT "<R68><C1><From><C27><LINE><||3><R68><C9>(Signature of consignor)"

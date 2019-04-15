@@ -78,7 +78,6 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
@@ -94,18 +93,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 2.91
-         SIZE 127 BY 1.43
-         BGCOLOR 15 .
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15 .
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 2.91
+         SIZE 127 BY 1.43
          BGCOLOR 15 .
 
 
@@ -281,20 +280,20 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartmsg.w':U ,
-             INPUT  FRAME message-frame:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_options ).
        RUN set-position IN h_options ( 1.00 , 85.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 55.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/smartmsg.w':U ,
+             INPUT  FRAME message-frame:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_smartmsg ).
+       RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
@@ -313,21 +312,13 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/f-add.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 77.20 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-updsav.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 7.67 , 132.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 6.95 , 124.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 14.52 , 16.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -443,24 +434,6 @@ PROCEDURE local-exit :
    
    RETURN.
        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Add W-Win 
-PROCEDURE Select_Add :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
-   RUN select-page(1).
-   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
-   RUN add-item IN WIDGET-HANDLE(char-hdl).
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

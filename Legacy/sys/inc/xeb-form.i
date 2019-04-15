@@ -117,17 +117,6 @@ FOR EACH notes
       AND notes.note_form_no NE 0:
   notes.note_form_no = {3}.
 END.
-   
-FOR EACH reftable
-    WHERE reftable.reftable EQ "ce/v-est3.w Unit#"
-      AND reftable.company  EQ {1}company
-      AND reftable.loc      EQ {1}est-no
-      AND reftable.code     EQ STRING({1}form-no,"9999999999")
-      AND reftable.code2    EQ STRING({2},"9999999999"):
-  ASSIGN
-   reftable.code  = STRING({3},"9999999999")
-   reftable.code2 = STRING({4},"9999999999").
-END.
 
 FOR EACH reftable
     WHERE reftable.reftable EQ "cedepth"
@@ -159,17 +148,6 @@ FOR EACH e-itemfg-vend
    e-itemfg-vend.blank-no = {4}.
 END.
 
-FOR EACH reftable WHERE
-    reftable.reftable EQ "e-itemfg-vend.std-uom" AND
-    reftable.company  EQ {1}company AND
-    reftable.loc      EQ "" AND
-    reftable.code     EQ {1}est-no AND
-    reftable.val[1]   EQ {1}form-no AND
-    reftable.val[2]   EQ {2}:
 
-    ASSIGN
-      reftable.val[1] = {3}
-      reftable.val[2] = {4}.
-END.
 
 /* end ---------------------------------- copr. 1999  advanced software, inc. */

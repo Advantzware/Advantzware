@@ -42,27 +42,22 @@ IF AVAIL ef THEN DO:
   ld-sqft = IF v-corr THEN (ld-sqft * .007)
                       ELSE (ld-sqft / 144).
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "MACH-CREW"
-	    AND reftable.company  EQ mach.company
-	    AND reftable.loc      EQ mach.loc
-	    AND reftable.code     EQ mach.m-code
-	    AND reftable.code2    EQ ip-type + "-QTY"
-	  NO-LOCK NO-ERROR.
-  IF AVAIL reftable THEN
-  DO li = 1 TO EXTENT(reftable.val):
-    IF reftable.val[li] GE ld-sqft THEN LEAVE.
-    IF li GE EXTENT(reftable.val) THEN li = li + 1.
-  END.
-
-  IF li LE EXTENT(reftable.val) THEN DO:
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "MACH-CREW"
-	      AND reftable.company  EQ mach.company
-	      AND reftable.loc      EQ mach.loc
-	      AND reftable.code     EQ mach.m-code
-	      AND reftable.code2    EQ ip-type + "-CST"
-	    NO-LOCK NO-ERROR.
-    IF AVAIL reftable THEN io-crusiz = reftable.val[li].
-  END.
+    IF ip-type = "M R" THEN DO:
+       DO li = 1 TO EXTENT(mach.mr-crusiz-qty):                    
+          IF mach.mr-crusiz-qty[li] GE ld-sqft THEN LEAVE.        
+        IF li GE EXTENT(mach.mr-crusiz-qty) THEN li = li + 1.   
+      END.                           
+      IF li LE EXTENT(mach.mr-crusiz-qty) THEN DO: 
+          ASSIGN io-crusiz = mach.mr-crusiz-cst[li].
+      END.                  
+    END. /*IF ip-type = "M R" THEN DO:*/
+    ELSE IF ip-type = "RUN" THEN DO:
+       DO li = 1 TO EXTENT(mach.run-crusiz-qty):                    
+          IF mach.run-crusiz-qty[li] GE ld-sqft THEN LEAVE.        
+        IF li GE EXTENT(mach.run-crusiz-qty) THEN li = li + 1.   
+      END.
+      IF li LE EXTENT(mach.run-crusiz-qty) THEN DO: 
+          ASSIGN io-crusiz = mach.run-crusiz-cst[li].
+      END.                                              
+    END. /*IF ip-type = "RUN" THEN DO:*/
 END.

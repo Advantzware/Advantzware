@@ -56,7 +56,6 @@ DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 
 {pc/pcprdd4u.i NEW}
 
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
 DEF VAR char-hdl AS cha NO-UNDO.
 
 DEF VAR v-out AS INT NO-UNDO.
@@ -410,7 +409,7 @@ DO:
 
             END.
             ELSE DO:
-                 RUN windows/l-itemf2.w (loadtag.company, loadtag.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT rec-val).
+                 RUN windows/l-itemf2.w (loadtag.company, loadtag.i-no:SCREEN-VALUE,"", OUTPUT char-val, OUTPUT rec-val).
                  IF rec-val <> ? THEN DO:
                     FIND itemfg WHERE RECID(itemfg) = rec-val NO-LOCK.
                     ASSIGN loadtag.i-no:SCREEN-VALUE  = itemfg.i-no
@@ -1337,7 +1336,7 @@ PROCEDURE local-update-record :
          lv-prev-job2 = "".
 
 
- /* IF g-sharpshooter THEN*/  RUN scan-next.
+  RUN scan-next.
 
 
 END PROCEDURE.

@@ -721,7 +721,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_relnum C-Win
 ON VALUE-CHANGED OF begin_relnum IN FRAME FRAME-A /* Beginning Release# */
 DO:
-  RUN new-relnum.
+  /*RUN new-relnum.*/ /* not exist in file */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1023,7 +1023,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_relnum C-Win
 ON VALUE-CHANGED OF end_relnum IN FRAME FRAME-A /* Ending Release# */
 DO:
-  RUN new-relnum.
+ /* RUN new-relnum.*/  /* not exist in file */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2904,7 +2904,10 @@ ASSIGN
  IF lAsiUser THEN DO:
      ASSIGN v-print-fmt =  run_format
          vcDefaultForm = v-print-fmt.
-     RUN SetOEAckForm(v-print-fmt).
+     IF v-ack-master THEN
+         RUN SetAckMstForm (v-print-fmt).
+     else
+         RUN SetOEAckForm(v-print-fmt).
      viDefaultLinesPerPage = lines-per-page.
   END.
 
@@ -3147,7 +3150,7 @@ PROCEDURE SetOEAckForm :
        WHEN "Century" THEN ASSIGN v-program = "oe/rep/ackcentx.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "APC" THEN ASSIGN v-program = "oe/rep/ackxapc.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Perform" THEN ASSIGN v-program = "oe/rep/ackprfrm.p" is-xprint-form = YES lines-per-page = 65.
-       WHEN "Unipak" THEN ASSIGN v-program = "oe/rep/ackunipk.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "Unipak" THEN ASSIGN v-program = "oe/rep/ackunipk.p" is-xprint-form = YES lines-per-page = 70.
        WHEN "Axis" THEN ASSIGN v-program = "oe/rep/ackaxis.p" is-xprint-form = YES lines-per-page = 68.
        WHEN "Soule" THEN ASSIGN v-program = "oe/rep/acksoule.p" is-xprint-form = YES lines-per-page = 69. /*Soule */
        WHEN "SouleUOM" THEN ASSIGN v-program = "oe/rep/acksolUom.p" is-xprint-form = YES lines-per-page = 65. /*SouleUOM */ /*12031306*/

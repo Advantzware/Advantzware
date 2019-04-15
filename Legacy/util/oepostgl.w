@@ -503,6 +503,8 @@ def var v-cas-cnt like itemfg.case-count.
 def var v-cost as dec extent 4.
 def var v-invl-pric as dec.
 def var v-tax-rate as dec extent 4.
+DEFINE VARIABLE cCostUOM AS CHARACTER.
+DEFINE VARIABLE cCostSource AS CHARACTER.
 
 FOR EACH ar-inv
     WHERE ar-inv.company EQ g_company
@@ -573,10 +575,11 @@ FOR EACH ar-inv
                          itemfg.case-count
                        else 1.
 
-          run oe/invlcost.p (ROWID(ar-invl),
+          run oe/GetCostInvl.p (ROWID(ar-invl),
                              output v-cost[1], output v-cost[2],
                              output v-cost[3], output v-cost[4],
-                             output v-u-cost, output v-t-cost).
+                             output v-u-cost, OUTPUT cCostUOM, 
+                             output v-t-cost, OUTPUT cCostSource).
 
           run oe/invposty.p (ar-inv.inv-no, ar-invl.i-no, ar-invl.inv-qty,
                              "M", v-cost[1], v-cost[2], v-cost[3], v-cost[4]).

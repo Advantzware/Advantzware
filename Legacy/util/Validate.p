@@ -26,11 +26,87 @@ PROCEDURE pIsValidCustomerID:
      Purpose:  Validates customer number
      Notes: Input 1 = customer ID
     ------------------------------------------------------------------------------*/
-    {util\Validate.i 
+    {util/dev/Validate.i 
         &ValidateTable = "cust" 
         &ValidateField = "cust-no" 
         &ValidateMessage = "Customer ID"}
 
+END PROCEDURE.
+
+PROCEDURE pIsValidCustomerType:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates customer type
+     Notes: Input 1 = customer type
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "custype" 
+        &ValidateField = "custype" 
+        &ValidateMessage = "Customer Type"}
+
+END PROCEDURE. 
+
+PROCEDURE pIsValidCarrier:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates carrier
+     Notes: Input 1 = carrier
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "carrier" 
+        &ValidateField = "carrier" 
+        &ValidateMessage = "Carrier"}
+
+END PROCEDURE. 
+
+PROCEDURE pIsValidTerr:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates carrier
+     Notes: Input 1 = carrier
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "terr" 
+        &ValidateField = "terr" 
+        &ValidateMessage = "terr"}
+
+END PROCEDURE. 
+
+PROCEDURE pIsValidDeliveryZone:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates shipto ID
+     Notes: Input 1 = customer id, input 2 = ship to id
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWith2Criteria.i 
+        &ValidateTable = "carr-mtx" 
+        &ValidateField1 = "carrier"
+        &ValidateField2 = "del-zone"  
+        &ValidateMessage = "Delivery Zone"}
+    
+
+END PROCEDURE.
+
+PROCEDURE pIsValidItemForType:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates shipto ID
+     Notes: Input 1 = customer id, input 2 = ship to id
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWith2Criteria.i 
+        &ValidateTable = "item" 
+        &ValidateField1 = "i-no"
+        &ValidateField2 = "mat-type"  
+        &ValidateMessage = "Item for Specific Type"}
+    
+
+END PROCEDURE.
+
+PROCEDURE pIsValidGLAccount:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Terms 
+     Notes: Input 1 = Terms Code
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "account" 
+        &ValidateField = "actnum" 
+        &ValidateMessage = "GL Account"}
+    
 END PROCEDURE.
 
 PROCEDURE pIsValidShiptoID:
@@ -38,7 +114,7 @@ PROCEDURE pIsValidShiptoID:
      Purpose:  Validates shipto ID
      Notes: Input 1 = customer id, input 2 = ship to id
     ------------------------------------------------------------------------------*/
-    {util\ValidateWith2Criteria.i 
+    {util/dev/ValidateWith2Criteria.i 
         &ValidateTable = "shipto" 
         &ValidateField1 = "cust-no"
         &ValidateField2 = "ship-id"  
@@ -47,12 +123,37 @@ PROCEDURE pIsValidShiptoID:
 
 END PROCEDURE.
 
+PROCEDURE pIsValidCustPartID:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Cust Part ID 
+     Notes: Input 1 = Cust Part Number
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateCustPart.i 
+        &ValidateTable = "itemfg" 
+        &ValidateField1 = "part-no" 
+        &ValidateField2 = "cust-no"
+        &ValidateMessage = "Cust Part ID"}
+
+END PROCEDURE.
+
+PROCEDURE pIsValidEstID:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Estimate No
+     Notes: Input 1 = Estimate Number
+    ------------------------------------------------------------------------------*/
+    {util/dev/VALIDATEEst.i 
+        &ValidateTable = "eb" 
+        &ValidateField = "est-no" 
+        &ValidateMessage = "Estimate Number"}
+
+END PROCEDURE.
+
 PROCEDURE pIsValidFGITemID:
     /*------------------------------------------------------------------------------
      Purpose:  Validates FG Item ID 
      Notes: Input 1 = FG Item Number
     ------------------------------------------------------------------------------*/
-    {util\Validate.i 
+    {util/dev/validate.i 
         &ValidateTable = "itemfg" 
         &ValidateField = "i-no" 
         &ValidateMessage = "FG Item ID"}
@@ -63,7 +164,7 @@ PROCEDURE pIsValidStyle:
      Purpose:  Validates Style 
      Notes: Input 1 = Style
     ------------------------------------------------------------------------------*/
-    {util\Validate.i 
+    {util/dev/validate.i 
         &ValidateTable = "style" 
         &ValidateField = "style" 
         &ValidateMessage = "Style"}
@@ -75,11 +176,10 @@ PROCEDURE pIsValidUOM:
      Purpose:  Validates UOM 
      Notes: Input 1 = UOM
     ------------------------------------------------------------------------------*/
-    {util\ValidateWithNoCompany.i 
+    {util/dev/ValidateWithNoCompany.i 
         &ValidateTable = "uom" 
         &ValidateField = "uom" 
-        &ValidateMessage = "Style"}
-        uom.
+        &ValidateMessage = "UOM"}
 
 END PROCEDURE.
 PROCEDURE pIsValidCurrency:
@@ -87,7 +187,7 @@ PROCEDURE pIsValidCurrency:
      Purpose:  Validates Currency 
      Notes: Input 1 = Currency Code
     ------------------------------------------------------------------------------*/
-    {util\Validate.i 
+    {util/dev/validate.i 
         &ValidateTable = "currency" 
         &ValidateField = "c-code" 
         &ValidateMessage = "Currency"}
@@ -99,7 +199,7 @@ PROCEDURE pIsValidFGCategory:
      Purpose:  Validates FG Category 
      Notes: Input 1 = FG Category
     ------------------------------------------------------------------------------*/
-    {util\Validate.i 
+    {util/dev/validate.i 
         &ValidateTable = "fgcat" 
         &ValidateField = "procat" 
         &ValidateMessage = "FG Product Category"}
@@ -111,7 +211,7 @@ PROCEDURE pIsValidWarehouse:
      Purpose:  Validates Warehouse/Location 
      Notes: Input 1 = Warehouse/Location
     ------------------------------------------------------------------------------*/
-    {util\Validate.i 
+    {util/dev/validate.i 
         &ValidateTable = "loc" 
         &ValidateField = "loc" 
         &ValidateMessage = "Warehouse/Location"}
@@ -124,18 +224,19 @@ PROCEDURE pIsValidFGBin:
      Purpose:  Validates FG Bin
      Notes: Input 1 = Bin location
     ------------------------------------------------------------------------------*/
-        {util\ValidateWith2Criteria.i 
+        {util/dev/ValidateWith2Criteria.i 
         &ValidateTable = "fg-bin" 
         &ValidateField1 = "loc-bin"
         &ValidateField2 = "i-no"  
         &ValidateMessage = "ShipTo ID"}
 END PROCEDURE.
+
 PROCEDURE pIsValidSalesRep:
     /*------------------------------------------------------------------------------
      Purpose:  Validates SalesRep 
      Notes: Input 1 = Sales Rep Code
     ------------------------------------------------------------------------------*/
-    {util\Validate.i 
+    {util/dev/validate.i 
         &ValidateTable = "sman" 
         &ValidateField = "sman" 
         &ValidateMessage = "Sales Rep"}
@@ -143,3 +244,93 @@ PROCEDURE pIsValidSalesRep:
 
 END PROCEDURE.
 
+PROCEDURE pIsValidState:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates State 
+     Notes: Input 1 = state
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWithNoCompany.i 
+        &ValidateTable = "state" 
+        &ValidateField = "state" 
+        &ValidateMessage = "State"}
+   
+
+END PROCEDURE.
+
+PROCEDURE pIsValidTaxGroup:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Tax Group 
+     Notes: Input 1 = Tax Group
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "stax" 
+        &ValidateField = "tax-group" 
+        &ValidateMessage = "Tax Group"}
+    
+END PROCEDURE.
+
+PROCEDURE pIsValidTerms:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Terms 
+     Notes: Input 1 = Terms Code
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "terms" 
+        &ValidateField = "t-code" 
+        &ValidateMessage = "Terms"}
+    
+END PROCEDURE.
+
+PROCEDURE pIsValidVendor:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates vendor
+     Notes: Input 1 = vendor
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "vend" 
+        &ValidateField = "vend-no" 
+        &ValidateMessage = "Vendor"}
+
+END PROCEDURE. 
+
+PROCEDURE pIsValidVendorType:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates vendor type
+     Notes: Input 1 = vendor type
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "ventype" 
+        &ValidateField = "type" 
+        &ValidateMessage = "Vendor Type"}
+
+END PROCEDURE. 
+
+PROCEDURE pIsValidFromList:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates a value based to confirm it is in a comma separated list
+     Notes: 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcField AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInputValue AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValidList AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsValid AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    oplIsValid = LOOKUP(ipcInputValue,ipcValidList) GT 0.
+    IF NOT oplIsValid THEN 
+        opcMessage = CHR(34) + ipcInputValue + CHR(34) + " for " + CHR(34) + ipcField + CHR(34) + " is not in one of " + CHR(34) + ipcValidList + CHR(34) .
+
+END PROCEDURE.
+
+PROCEDURE pIsValidUserId:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates User ID
+     Notes: Input 1 = User id
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWithNoCompany.i 
+        &ValidateTable = "users" 
+        &ValidateField = "user_id" 
+        &ValidateMessage = "User ID"}
+    
+
+END PROCEDURE. 

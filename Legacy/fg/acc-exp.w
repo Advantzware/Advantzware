@@ -122,9 +122,9 @@ FUNCTION buildHeader RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-itemfg rd-fgexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-  ( BUFFER ipb-itemfg FOR account, ipc-field AS CHAR )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-account rd-fgexp 
+FUNCTION getValue-account RETURNS CHARACTER
+  ( BUFFER ipbf-account FOR account, ipc-field AS CHAR )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -821,6 +821,8 @@ PROCEDURE run-report :
 ------------------------------------------------------------------------------*/
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
+DEFINE VARIABLE d-period$ AS DECIMAL NO-UNDO EXTENT 20.
+DEFINE VARIABLE cVarValue AS CHARACTER NO-UNDO .
 DEF BUFFER b-account FOR account.
 
 v-excelheader = buildHeader().
@@ -836,11 +838,55 @@ FOR EACH b-account WHERE b-account.company = cocode
         AND b-account.TYPE LE end_type
         NO-LOCK:
 
+      do li = 1 to 13:
+          d-period$[li] = b-account.cyr[li].
+      end.
+
+      for each period
+          where period.company eq b-account.company
+          and period.pstat   eq yes
+          no-lock,
+
+          each gltrans
+          where gltrans.company eq b-account.company
+          and gltrans.actnum  eq b-account.actnum
+          and gltrans.period  eq period.pnum
+          and gltrans.tr-date ge period.pst
+          and gltrans.tr-date le period.pend
+          no-lock:
+
+          d-period$[period.pnum] = d-period$[period.pnum] + gltrans.tr-amt.
+    end.
+
+
     v-excel-detail-lines = "".
 
     FOR EACH ttRptSelected:
-        v-excel-detail-lines = v-excel-detail-lines + 
-            appendXLLine(getValue-itemfg(BUFFER b-account,ttRptSelected.FieldList)).
+
+        IF LOOKUP(ttRptSelected.FieldList, "cyr[1],cyr[2],cyr[3],cyr[4],cyr[5],cyr[6],cyr[7],cyr[8],cyr[9],cyr[10],cyr[11],cyr[12],cyr[13]") <> 0 THEN do:
+             CASE ttRptSelected.FieldList:             
+                         WHEN "cyr[1]"    THEN cVarValue = STRING(d-period$[1]) .
+                         WHEN "cyr[2]"    THEN cVarValue = STRING(d-period$[2]).
+                         WHEN "cyr[3]"    THEN cVarValue = STRING(d-period$[3]).
+                         WHEN "cyr[4]"    THEN cVarValue = STRING(d-period$[4]) .
+                         WHEN "cyr[5]"    THEN cVarValue = STRING(d-period$[5]) .
+                         WHEN "cyr[6]"    THEN cVarValue = STRING(d-period$[6]) .
+                         WHEN "cyr[7]"    THEN cVarValue = STRING(d-period$[7]) .
+                         WHEN "cyr[8]"    THEN cVarValue = STRING(d-period$[8]) .
+                         WHEN "cyr[9]"    THEN cVarValue = STRING(d-period$[9]) .
+                         WHEN "cyr[10]"   THEN cVarValue = STRING(d-period$[10]) .
+                         WHEN "cyr[11]"   THEN cVarValue = STRING(d-period$[11]) .
+                         WHEN "cyr[12]"   THEN cVarValue = STRING(d-period$[12]) .
+                         WHEN "cyr[13]"   THEN cVarValue = STRING(d-period$[13]) .
+
+                    END CASE.
+                    
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cVarValue).
+        END.
+        ELSE do:
+            v-excel-detail-lines = v-excel-detail-lines + 
+                appendXLLine(getValue-account(BUFFER b-account,ttRptSelected.FieldList)).
+        END.
 
 
     END.
@@ -958,9 +1004,9 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-itemfg rd-fgexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-  ( BUFFER ipb-itemfg FOR account, ipc-field AS CHAR ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-account rd-fgexp 
+FUNCTION getValue-account RETURNS CHARACTER
+  ( BUFFER ipbf-account FOR account, ipc-field AS CHAR ) :
 /*------------------------------------------------------------------------------
   Purpose:  Take a buffer and field name as string and return the value
     Notes:  
@@ -971,34 +1017,34 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
 
     CASE ipc-field :
         WHEN "vTYPE"  THEN DO:
-               IF ipb-itemfg.TYPE EQ "A" THEN 
+               IF ipbf-account.TYPE EQ "A" THEN 
                     lc-return = "Asset".
-                ELSE if ipb-itemfg.TYPE EQ "C" THEN 
+                ELSE if ipbf-account.TYPE EQ "C" THEN 
                     lc-return = "Capital".
-                ELSE if ipb-itemfg.TYPE EQ "E" THEN 
+                ELSE if ipbf-account.TYPE EQ "E" THEN 
                     lc-return = "Expense".
-                ELSE if ipb-itemfg.TYPE EQ "L" THEN 
+                ELSE if ipbf-account.TYPE EQ "L" THEN 
                     lc-return = "Liability".
-                ELSE if ipb-itemfg.TYPE EQ "R" THEN 
+                ELSE if ipbf-account.TYPE EQ "R" THEN 
                     lc-return = "Revenue".
                 ELSE
                     lc-return = "Title".
         END.
         WHEN "term-disc"  THEN DO:
-            IF account.terms-discount EQ YES THEN
+            IF ipbf-account.terms-discount EQ YES THEN
                 lc-return = "Yes".
             ELSE
                 lc-return = "No".
         END.
         WHEN "dfuncTotMSFPTD"  THEN DO:
-            /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
+            /*IF g_period NE 0 THEN lc-return = STRING(ipbf-account.ptd-msf[g_period]).*/
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:
                 li-extent = INT(SUBSTRING(ipc-field,INDEX(ipc-field,"[") + 1, LENGTH(TRIM(ipc-field)) - INDEX(ipc-field,"[") - 1)).
                 ipc-field = SUBSTRING(ipc-field,1,INDEX(ipc-field,"[") - 1).
             END.
-            h-field = BUFFER ipb-itemfg:BUFFER-FIELD(ipc-field).
+            h-field = BUFFER ipbf-account:BUFFER-FIELD(ipc-field).
             IF h-field:EXTENT = 0 THEN
                 lc-return = STRING(h-field:BUFFER-VALUE /*, h-field:FORMAT*/ ).
             ELSE

@@ -1,0 +1,33 @@
+
+06/26/08                                       Advanced Box Company V5.0 - Main Office                                    Page   1
+11:36am                                                   AP Check Register
+
+
+  Check# Chk Date Invoice#     Vendor#  Name                           Due Date      Gross Amt   Discount        Net Amt
+-------- -------- ------------ -------- ------------------------------ -------- -------------- ---------- --------------
+    2133 01/23/08 111605       BROWNM   BROWN MACHINE LLC              12/15/05       1,000.00       0.00       1,000.00
+
+
+    2134 01/23/08 010407       inland   Inland Container               02/03/07       1,000.00       0.00       1,000.00
+                  1909         inland   Inland Container               09/28/06           1.00       0.00           1.00
+                  19091        inland   Inland Container               09/28/06           1.00       0.00           1.00
+                  456          inland   Inland Container               10/01/06         136.23       0.00         136.23
+-------- --------              -------- ------------------------------          -------------- ---------- --------------
+    2134 01/23/08              inland   Inland Container               10/01/06       1,138.23       0.00       1,138.23
+
+
+    2135 01/23/08 0320106      intern   INTERNATIONAL PAPER COMPANY    04/20/06         198.51       0.00         198.51
+                  092206       intern   INTERNATIONAL PAPER COMPANY    10/22/06      11,200.00       0.00      11,200.00
+                  102606       intern   INTERNATIONAL PAPER COMPANY    11/25/06       1,208.59       0.00       1,208.59
+                  12121        intern   INTERNATIONAL PAPER COMPANY    04/20/06       1,000.00       0.00       1,000.00
+                  22           intern   INTERNATIONAL PAPER COMPANY    11/06/03          50.00       0.00          50.00
+-------- --------              -------- ------------------------------          -------------- ---------- --------------
+    2135 01/23/08              intern   INTERNATIONAL PAPER COMPANY    11/06/03      13,657.10       0.00      13,657.10
+
+
+    2136 01/23/08 030207       peco     PECO                           04/01/07         565.00       0.00         565.00
+
+
+                                                                                -------------- ---------- --------------
+                                                                                     16,360.33       0.00      16,360.33
+

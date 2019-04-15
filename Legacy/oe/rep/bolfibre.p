@@ -73,37 +73,37 @@ format header
        page-number - v-last-page                format "99"
        "OF"                                  
        v-page-tot                               format "99"
-       fill("-",80)                             format "x(80)"
+       fill("-",83)                             format "x(83)"
        "QTY ORDERED"                        
        "P.O.#"                          at 17
        "PER"                            to 71
-       "P"                              at 80    
+       "P"                              at 83    
        "ITEM NUMBER"
        "JOB#"                           at 17
        "PRODUCT DESCRIPTION"            at 33
        "UNIT"                           to 64
        "UNIT"                           to 71
-       "TOTAL"                          to 78
-       "C"                              at 80
+       "TOTAL"                          to 81
+       "C"                              at 83
        "---------------"
        "---------------"                at 17
        "--------------------------"     at 33
        "----"                           to 64
        "------"                         to 71
-       "------"                         to 78
-       "-"                              at 80    
+       "---------"                      to 81
+       "-"                              at 83    
 
-    with frame bol-top page-top no-box no-underline stream-io width 85.
+    with frame bol-top page-top no-box no-underline stream-io width 88.
 
 form oe-ordl.i-no                         format "x(15)"
      w2.job-po                      at 17 format "x(15)"
      w2.part-dscr                   at 33 format "x(27)"
      w2.cases                       to 64 format "->>9"
      w2.cas-cnt                     to 70 format "->>>>9"
-     oe-boll.qty                    to 78 format "->>>>>9"
-     oe-boll.p-c                    at 80
+     oe-boll.qty                    to 81 format "->>>>>>>>9"
+     oe-boll.p-c                    at 83
 
-    with frame bol-mid down no-box no-labels stream-io width 85.
+    with frame bol-mid down no-box no-labels stream-io width 88.
 
 form header
      " "

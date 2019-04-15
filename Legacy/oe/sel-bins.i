@@ -35,7 +35,7 @@ ASSIGN
  {1}l.qty-case = IF fg-bin.case-count GT 0 THEN fg-bin.case-count
                  ELSE itemfg.case-count
  {1}l.qty      = MIN(v-qty,fg-bin.qty)
- {1}l.partial = fg-bin.partial-count  /*Bug 08291409 - partial being recalcuated*/
+ {1}l.partial = IF {1}l.qty MOD {1}l.qty-case GT 0 THEN fg-bin.partial-count ELSE 0 /*26918 partial units - don't use partials if whole units can be used*/
  {1}l.cases    = TRUNC(({1}l.qty - {1}l.partial) / {1}l.qty-case,0) 
  v-qty         = v-qty - {1}l.qty.
 
