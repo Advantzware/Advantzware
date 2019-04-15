@@ -170,11 +170,10 @@ PROCEDURE exportSnapshot:
             ttSnapShot.cJobNo     = fg-bin.job-no
             ttSnapShot.cJobNo2    = STRING(fg-bin.job-no2)
             .            
-      
-         
+               
     END.
     
-    OUTPUT STREAM sOutput TO VALUE(gcSnapshotFile).
+    OUTPUT STREAM sOutput TO VALUE(gcSnapshotFile) .
     FOR EACH ttSnapShot:
         EXPORT STREAM sOutput DELIMITER "," ttSnapShot.
     END.
@@ -404,7 +403,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
             ttCycleCountCompare.lQuantityChanged          = (ttCycleCountCompare.dScanQty NE ttCycleCountCompare.dSysQty)
             ttCycleCountCompare.iCountOfBinsForTagNonZero = iCountBins
             .
-        /*See if there are have been shipments for that tag, after the scan was done*/
+        /*See if there are have been shipments for that tag after the scan was done*/
         IF ttCycleCountCompare.lQuantityChanged AND ttCycleCountCompare.dSysQty EQ 0 THEN 
         DO:
         /* RUN pGetLastTransDate(fg-rctd.company, fg-rctd.i-no, fg-rctd.tag, "S", OUTPUT ttCycleCountCompare.dtShipDate). */
@@ -682,7 +681,10 @@ PROCEDURE pCreateTransfers:
     DEFINE VARIABLE dTransDate AS DATE      NO-UNDO.
     DEFINE VARIABLE lv-tag     AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
-    dTransDate = TODAY.
+    DEFINE VARIABLE iTransTime AS INTEGER NO-UNDO.
+    ASSIGN 
+        dTransDate = TODAY
+        iTransTime = TIME. 
 
     /* Code placed here will execute PRIOR to standard behavior. */
     iNextRno = 0.
@@ -727,8 +729,11 @@ PROCEDURE pCreateTransfers:
             AND bf-fg-rctd.rct-date GE TODAY - 14
             NO-ERROR.    
         /* The transfer should happen before the count */
-        IF AVAILABLE bf-fg-rctd THEN 
-            dTransDate = bf-fg-rctd.rct-date - 1.  
+        IF AVAILABLE bf-fg-rctd THEN
+            ASSIGN  
+                dTransDate = bf-fg-rctd.rct-date
+                iTransTime = bf-fg-rctd.trans-time - 600
+                .  
             
         FIND FIRST itemfg WHERE itemfg.company = fg-bin.company
             AND itemfg.i-no = fg-bin.i-no NO-LOCK NO-ERROR.
@@ -741,7 +746,7 @@ PROCEDURE pCreateTransfers:
             fg-rctd.rita-code  = "T"
             fg-rctd.s-num      = 0
             fg-rctd.rct-date   = dTransDate
-            fg-rctd.trans-time = TIME
+            fg-rctd.trans-time = iTransTime
             fg-rctd.qty        = fg-bin.qty
             fg-rctd.qty-case   = (fg-bin.case-count)
             fg-rctd.cases-unit = (fg-bin.cases-unit)
@@ -755,7 +760,7 @@ PROCEDURE pCreateTransfers:
             fg-rctd.loc2       = ttCycleCountCompare.cScanLoc 
             fg-rctd.loc-bin2   = ttCycleCountCompare.cScanLocBin
             fg-rctd.tag2       = ttCycleCountCompare.cTag
-            fg-rctd.updated-by = "ASI"
+            fg-rctd.updated-by = "PhysCnt"
             .
                                
         ASSIGN 
@@ -776,7 +781,7 @@ PROCEDURE pCreateTransfers:
         
         
         ASSIGN 
-            fg-rctd.user-id  = USERID("nosweat")
+            fg-rctd.user-id  = "PhysCnt"
             fg-rctd.upd-date = TODAY
             fg-rctd.upd-time = TIME.
         IF AVAILABLE itemfg THEN 
@@ -883,7 +888,7 @@ PROCEDURE pCreateZeroCount:
             fg-rctd.job-no2    = fg-bin.job-no2
             fg-rctd.tag        = fg-bin.tag
             fg-rctd.cust-no    = fg-bin.cust-no
-            fg-rctd.updated-by = USERID("ASI")
+            fg-rctd.updated-by = "PhysCnt"
             .
         
         ASSIGN 
@@ -966,7 +971,10 @@ PROCEDURE pExportTempTable PRIVATE:
     
     IF iplHeader THEN 
     DO:
-        OUTPUT STREAM sOutput to VALUE(ipcFileName). 
+        FILE-INFO:FILE-NAME = ipcFileName.
+       
+        OUTPUT STREAM sOutput to VALUE(ipcFileName).
+
         DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS: 
             PUT STREAM sOutput UNFORMATTED iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):COLUMN-LABEL + ",". 
         END. 
@@ -1477,7 +1485,7 @@ PROCEDURE reportComparison:
     STATUS DEFAULT "Exporting Report".
     RUN pExportTempTable(TEMP-TABLE ttCycleCountCompare:HANDLE, gcOutputFile, YES /* header */, iplComplete, 
         iplQtyChanged, iplSnapshotOnly, iplDupsInSnapshot, iplDupsInScan).
-    OS-COMMAND SILENT  VALUE(gcOutputFile).
+    OS-COMMAND NO-WAIT VALUE(gcOutputFile).
     STATUS DEFAULT "Done".
     
     MESSAGE 'Post Counts?' SKIP
