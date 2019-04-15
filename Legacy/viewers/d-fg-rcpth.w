@@ -21,7 +21,7 @@ SESSION:DEBUG-ALERT = FALSE.
 /* PARAMs Definitions ---                                           */
 DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-recid2 AS RECID     NO-UNDO.
-DEFINE INPUT PARAMETER ip-type   AS CHARACTER NO-UNDO .   /* add,update,view */
+DEFINE INPUT PARAMETER ip-type   AS CHARACTER NO-UNDO.   /* add,update,view */
 DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
 
 {custom/globdefs.i}
