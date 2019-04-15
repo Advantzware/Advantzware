@@ -59,6 +59,7 @@ DEFINE VARIABLE cMessage                AS         CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobno2ListItems        AS         CHARACTER NO-UNDO.
 DEFINE VARIABLE cFormnoListItems        AS         CHARACTER NO-UNDO.
 DEFINE VARIABLE cBlanknoListItems       AS         CHARACTER NO-UNDO.
+DEFINE VARIABLE cFormattedJobno         AS         CHARACTER NO-UNDO.
 DEFINE VARIABLE lSwitchJob              AS         LOGICAL   NO-UNDO.
 DEFINE VARIABLE lMoveToOnhand           AS         LOGICAL   NO-UNDO.
 DEFINE VARIABLE iTotTags                AS         INTEGER   NO-UNDO.
@@ -501,8 +502,7 @@ ON CHOOSE OF bt-change IN FRAME F-Main /* Change */
 DO:
     RUN enableJobEntry. 
     
-    ASSIGN
-        ls-tag:SCREEN-VALUE = "".
+    ls-tag:SCREEN-VALUE = "".
         
     APPLY "ENTRY" TO ls-jobno.
 END.
@@ -696,9 +696,6 @@ DO:
         cBlanknoListitems = ""
         cMessage          = "".            
     
-    IF ls-jobno:SCREEN-VALUE = "" THEN
-        RETURN.
-
     RUN JobParser IN hdJobProcs (
         SELF:SCREEN-VALUE,
         OUTPUT cJobNo,
@@ -709,8 +706,16 @@ DO:
         OUTPUT cMessage
         ).
     
+    cFormattedJobno = DYNAMIC-FUNCTION (
+                      "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, 6, TRUE
+                      ).                                  
+
     IF lParse THEN
-        SELF:SCREEN-VALUE       = cJobNo.
+        ASSIGN
+            SELF:SCREEN-VALUE = cJobNo    
+            cFormattedJobno = DYNAMIC-FUNCTION (
+                              "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                              ).
 
     IF cMessage NE "" THEN DO:
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
@@ -719,21 +724,21 @@ DO:
             
     RUN GetSecondaryJobForJob IN hdJobProcs (
         ipcCompany,
-        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        cFormattedJobno,
         INPUT-OUTPUT cJobno2ListItems
         ).
     
     DO iCount = 1 TO NUM-ENTRIES(cJobno2ListItems):
         RUN GetFormnoForJob IN hdJobProcs (
             ipcCompany,
-            ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
             INPUT-OUTPUT cFormnoListItems
             ).
     
         RUN GetBlanknoForJob IN hdJobProcs (
             ipcCompany,
-            ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            cFormattedJobno,
             INTEGER(ENTRY(iCount, cJobno2ListItems)),
             INPUT-OUTPUT cBlanknoListItems
             ).
@@ -765,14 +770,23 @@ DO:
 
     IF lParse THEN
         ASSIGN
-            cb-jobno2:SCREEN-VALUE  = cJobNo2
-            cb-formno:SCREEN-VALUE  = cFormNo
-            cb-blankno:SCREEN-VALUE = cBlankNo
+            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,cJobNo2) GT 0 THEN 
+                                          cJobNo2
+                                      ELSE
+                                          ENTRY(1,cJobno2ListItems)
+            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,cFormNo) GT 0 THEN 
+                                          cFormNo
+                                      ELSE
+                                          ENTRY(1,cFormnoListItems)
+            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,cBlankNo) GT 0 THEN 
+                                          cBlankNo
+                                      ELSE
+                                          ENTRY(1,cBlanknoListitems)
             .
                                  
     RUN ValidateJob IN hdJobProcs (
         INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE,
+        INPUT cFormattedJobno,
         INPUT "", /* Blank Machine Code */                                 
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
         INPUT INTEGER(cb-formno:SCREEN-VALUE),
@@ -790,7 +804,7 @@ DO:
     
     RUN rebuildTempTable(
         INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        INPUT cFormattedJobno,
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}).     
@@ -825,8 +839,10 @@ DO:
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
         
-    RUN tagScan(INPUT ipcCompany, 
-                INPUT SELF:SCREEN-VALUE).  
+    RUN tagScan (
+        INPUT ipcCompany, 
+        INPUT SELF:SCREEN-VALUE
+        ).  
 
     SELF:SCREEN-VALUE = "".
 END.
@@ -1029,12 +1045,13 @@ PROCEDURE jobScan :
             cb-jobno2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
             cb-formno:SCREEN-VALUE  = STRING(ipiFormno,"99")
             cb-blankno:SCREEN-VALUE = STRING(ipiBlankno,"99")
-            ls-jobno:SCREEN-VALUE   = ipcJobno.
+            ls-jobno:SCREEN-VALUE   = ipcJobno
+            cFormattedJobno         = ipcJobno.
     END.
                           
     RUN ValidateJob IN hdJobProcs (
         INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE,
+        INPUT cFormattedJobno,
         INPUT "", /* Blank Machine code */
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
         INPUT INTEGER(cb-formno:SCREEN-VALUE),
@@ -1057,7 +1074,7 @@ PROCEDURE jobScan :
     
     RUN rebuildTempTable(
         INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE,
+        INPUT cFormattedJobno,
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
         INPUT INTEGER(cb-formno:SCREEN-VALUE),
         INPUT INTEGER(cb-blankno:SCREEN-VALUE)
@@ -1114,7 +1131,7 @@ PROCEDURE onValueChangedOfJobDetails :
     
     RUN ValidateJob IN hdJobProcs (
         INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        INPUT cFormattedJobno,
         INPUT "", /* Blank Machine Code */
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
         INPUT INTEGER(cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
@@ -1132,7 +1149,7 @@ PROCEDURE onValueChangedOfJobDetails :
 
     RUN rebuildTempTable(
         INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        INPUT cFormattedJobno,
         INPUT INTEGER(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
         INPUT INTEGER(cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
         INPUT INTEGER(cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME})
@@ -1251,11 +1268,13 @@ PROCEDURE tagScan :
 
     IF lValidInv THEN DO:
         IF ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
-            RUN jobScan(INPUT ipcCompany,
-                        INPUT cJobNo,
-                        INPUT iJobNo2,
-                        INPUT iFormNo,
-                        INPUT iBlankNo).
+            RUN jobScan (
+                INPUT ipcCompany,
+                INPUT cJobNo,
+                INPUT iJobNo2,
+                INPUT iFormNo,
+                INPUT iBlankNo
+                ).
         END.
         ELSE IF ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME}   NE cJobNo OR 
                 cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}  NE STRING(iJobNo2,"99") OR
@@ -1266,18 +1285,23 @@ PROCEDURE tagScan :
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
                 TITLE "Continue?" UPDATE lSwitchJob AS LOGICAL.
             IF lSwitchJob THEN
-                RUN jobScan(INPUT ipcCompany,   
-                            INPUT cJobNo,
-                            INPUT iJobNo2,
-                            INPUT iFormNo,
-                            INPUT iBlankNo).
+                RUN jobScan (
+                    INPUT ipcCompany,   
+                    INPUT cJobNo,
+                    INPUT iJobNo2,
+                    INPUT iFormNo,
+                    INPUT iBlankNo
+                    ).
             ELSE
                 RETURN.    
         END.
         
+        cFormattedJobno = cJobNo.
+                
         FIND FIRST ttBrowseInventory NO-LOCK
-             WHERE ttBrowseInventory.company      = ipcCompany
-               AND ttBrowseInventory.stockIDAlias = ipcStockIDAlias NO-ERROR.
+             WHERE ttBrowseInventory.company         EQ ipcCompany
+               AND ttBrowseInventory.stockIDAlias    EQ ipcStockIDAlias
+               AND ttBrowseInventory.inventoryStatus NE gcStatusStockInitial NO-ERROR.
         IF AVAILABLE ttBrowseInventory THEN DO:       
             ASSIGN
                 ls-wipitemid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ttBrowseInventory.wipItemID
@@ -1306,7 +1330,8 @@ PROCEDURE tagScan :
                     INPUT  ttBrowseInventory.quantityUOM,
                     INPUT  TRUE,
                     OUTPUT lCreated,
-                    OUTPUT cMessage).
+                    OUTPUT cMessage
+                    ).
             END.
         END.
     END.
@@ -1318,7 +1343,7 @@ PROCEDURE tagScan :
 
     RUN rebuildTempTable (
         INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        INPUT cFormattedJobno,
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -1342,7 +1367,7 @@ PROCEDURE updateJobDetails :
     
     RUN GetJobHdrDetails IN hdJobProcs (
         ipcCompany,
-        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        cFormattedJobno,
         INTEGER(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
         INTEGER(cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
         OUTPUT iOrdno,
