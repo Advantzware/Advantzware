@@ -983,6 +983,10 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         RUN pUpdate-record(INPUT cPreRelDate).
 
+        /* Update Rel Qty on OT1 if update Release */
+        IF ip-type EQ "update" THEN
+            RUN pUpdateOeRellQty .
+
         /* Code placed here will execute AFTER standard behavior.    */
         v-last-shipto = oe-rel.ship-id:SCREEN-VALUE.
 
@@ -2719,6 +2723,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateOeRellQty Dialog-Frame 
+PROCEDURE pUpdateOeRellQty :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-oe-rell FOR oe-rell .
+    FIND FIRST bf-oe-rell EXCLUSIVE-LOCK
+            WHERE bf-oe-rell.company = oe-rel.company
+              AND bf-oe-rell.r-no     EQ oe-rel.link-no
+              AND bf-oe-rell.ord-no   EQ oe-rel.ord-no
+              AND bf-oe-rell.i-no     EQ oe-rel.i-no
+              AND bf-oe-rell.line     EQ oe-rel.line
+              AND bf-oe-rell.rel-no   EQ oe-rel.rel-no
+              AND bf-oe-rell.b-ord-no EQ oe-rel.b-ord-no
+              AND bf-oe-rell.po-no    EQ oe-rel.po-no
+             NO-ERROR.
+    IF NOT AVAIL bf-oe-rell THEN
+        FIND FIRST bf-oe-rell EXCLUSIVE-LOCK
+            WHERE bf-oe-rell.company = oe-rel.company
+              AND bf-oe-rell.ord-no   EQ oe-rel.ord-no
+              AND bf-oe-rell.i-no     EQ oe-rel.i-no
+              AND bf-oe-rell.line     EQ oe-rel.line
+              AND bf-oe-rell.rel-no   EQ oe-rel.rel-no
+              AND bf-oe-rell.b-ord-no EQ oe-rel.b-ord-no
+              AND bf-oe-rell.po-no    EQ oe-rel.po-no
+             NO-ERROR.
+    
+    IF AVAIL bf-oe-rell  THEN
+        ASSIGN bf-oe-rell.qty = oe-rel.qty .
+    RELEASE bf-oe-rell .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers Dialog-Frame 
 PROCEDURE release-shared-buffers :
