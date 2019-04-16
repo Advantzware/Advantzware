@@ -622,7 +622,7 @@ PROCEDURE pCheckBinDups:
         END.
     END.
 
-    OUTPUT STREAM sOutput TO c:\tmp\dupCountTags.csv.
+    OUTPUT STREAM sOutput TO c:\tmp\dupBinTags.csv.
     FOR EACH ttDupTags:
         PUT STREAM sOutput UNFORMATTED  
             '"' ttDupTags.i-no '",'
@@ -637,7 +637,7 @@ PROCEDURE pCheckBinDups:
         MESSAGE "Cannot initialize because some tags exist in more than one bin." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
-        OS-COMMAND NO-WAIT START excel.exe VALUE("c:\tmp\dupbinTags.csv").
+        OS-COMMAND NO-WAIT START excel.exe VALUE("c:\tmp\dupBinTags.csv").
     END.
 END PROCEDURE.
 
@@ -758,7 +758,7 @@ PROCEDURE pCreateTransfers:
         IF ERROR-STATUS:ERROR THEN
             MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.              
-        /* Finding a count record from within the past 2 weeks on assumption it will */
+        /* Finding a count record from within the past week on assumption it will */
         /* be part of the current physical                                           */
         FIND FIRST bf-rm-rctd NO-LOCK 
             WHERE bf-rm-rctd.company EQ  ttCycleCountCompare.cCompany
@@ -767,11 +767,11 @@ PROCEDURE pCreateTransfers:
             AND bf-rm-rctd.loc     EQ  ttCycleCountCompare.cScanLoc    
             AND bf-rm-rctd.loc-bin EQ  ttCycleCountCompare.cScanLocBin
             AND bf-rm-rctd.rita-code EQ "C"
-            AND bf-rm-rctd.rct-date GE TODAY - 14
+            AND bf-rm-rctd.rct-date GE TODAY - 7
             NO-ERROR.    
         /* The transfer should happen before the count */
-        IF AVAILABLE bf-rm-rctd THEN 
-            dTransDate = bf-rm-rctd.rct-date - 1. 
+        IF AVAILABLE bf-rm-rctd AND bf-rm-rctd.qty NE rm-bin.qty THEN 
+            dTransDate = bf-rm-rctd.rct-date. 
         FIND FIRST item WHERE item.company = rm-bin.company
             AND item.i-no = rm-bin.i-no NO-LOCK NO-ERROR.
         CREATE rm-rctd.
@@ -836,7 +836,28 @@ PROCEDURE pCreateTransfers:
             
             RELEASE rm-rdtlh.
         END.      
-     
+        IF AVAILABLE bf-rm-rctd THEN DO: 
+          IF  bf-rm-rctd.qty EQ rm-bin.qty THEN DO:
+              /* Remove the count since only the transfer is needed */
+              FIND CURRENT bf-rm-rctd EXCLUSIVE-LOCK.
+              DELETE bf-rm-rctd.
+          END.
+          ELSE DO:
+              /* Recreate the count so it occurs after the transfer */
+              RUN sys/ref/asiseq.p (INPUT rm-bin.company, INPUT "rm_rcpt_seq", OUTPUT iNextRNo) NO-ERROR.
+              IF ERROR-STATUS:ERROR THEN
+                  MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
+                      VIEW-AS ALERT-BOX INFORMATION BUTTONS OK. 
+              CREATE rm-rctd.
+              BUFFER-COPY bf-rm-rctd EXCEPT rec_key TO rm-rctd 
+                    ASSIGN rm-rctd.r-no     = iNextRno 
+                           rm-rctd.rct-date = dTransDate
+                           .
+              FIND CURRENT bf-rm-rctd EXCLUSIVE-LOCK.
+              DELETE bf-rm-rctd.
+          END.
+            
+        END. 
     END.  /* for each rm-bin*/
 
 
@@ -1304,7 +1325,7 @@ PROCEDURE pPostCounts:
             AND rm-rctd.loc-bin GE ipcBinStart
             AND rm-rctd.loc-bin LE ipcBinEnd
             AND rm-rctd.qty NE 0  
-            NO-LOCK,  
+            ,  
             FIRST item
             WHERE item.company EQ cocode
             AND item.i-no    EQ rm-rctd.i-no
@@ -1317,7 +1338,8 @@ PROCEDURE pPostCounts:
             ASSIGN
                 item.last-count = 0
                 item.q-onh      = 0
-                item.last-date  = rm-rctd.rct-date.
+                item.last-date  = rm-rctd.rct-date
+                .
 
             /** Find Bin & if not available then create it **/
             FIND FIRST rm-bin
@@ -1512,7 +1534,7 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER iplSnapshotOnly AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInSnapshot AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInScan AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE setFromHistory AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lChoosePost AS LOGICAL NO-UNDO.
         
     STATUS DEFAULT "Import Snapshot" .       
     RUN pImportSnapshot.
@@ -1525,14 +1547,14 @@ PROCEDURE reportComparison:
     STATUS DEFAULT "Exporting Report".
     RUN pExportTempTable(TEMP-TABLE ttCycleCountCompare:HANDLE, gcOutputFile, YES /* header */, iplComplete, 
         iplQtyChanged, iplSnapshotOnly, iplDupsInSnapshot, iplDupsInScan).
-    OS-COMMAND SILENT  VALUE(gcOutputFile).
+    OS-COMMAND NO-WAIT VALUE(gcOutputFile).
     STATUS DEFAULT "Done".
     
     MESSAGE 'Post Counts?' SKIP
         VIEW-AS ALERT-BOX
-        QUESTION BUTTONS YES-NO UPDATE setFromHistory.
+        QUESTION BUTTONS YES-NO UPDATE lChoosePost.
         
-    IF setFromHistory THEN 
+    IF lChoosePost THEN 
         RUN postRM (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
             ipcBinStart, ipcBinEnd). 
         
