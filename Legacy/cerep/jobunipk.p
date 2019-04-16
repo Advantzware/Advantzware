@@ -73,6 +73,7 @@ def TEMP-TABLE w-lo NO-UNDO
   field layout like v-layout.
 
 def new shared buffer xjob-hdr for job-hdr.
+DEFINE BUFFER bf-job-hdr for job-hdr.
 
 def buffer b-eb for eb.
 
@@ -452,6 +453,12 @@ for each job-hdr NO-LOCK
          v-job-no  = job-hdr.job-no
          v-job-no2 = job-hdr.job-no2.
 
+        FIND FIRST bf-job-hdr NO-LOCK
+            WHERE bf-job-hdr.company EQ job-hdr.company
+              AND bf-job-hdr.ord-no EQ job-hdr.ord-no
+              AND bf-job-hdr.job-no EQ job-hdr.job-no
+              AND bf-job-hdr.job-no2 EQ job-hdr.job-no2
+              AND bf-job-hdr.frm EQ reftable-frm-int NO-ERROR .
 
         if avail oe-ord then
           if not oe-ctrl.p-fact and (oe-ord.stat eq "H" OR oe-ord.priceHold) then next.
@@ -463,14 +470,16 @@ for each job-hdr NO-LOCK
         view frame head.*/
        
         v-shipto = "".
+        IF AVAIL bf-job-hdr THEN
         find first oe-ordl
-                where oe-ordl.company eq job-hdr.company
-                  and oe-ordl.ord-no  eq job-hdr.ord-no
-                  and oe-ordl.job-no  eq job-hdr.job-no
-                  and oe-ordl.job-no2 eq job-hdr.job-no2
-                  and oe-ordl.i-no    eq job-hdr.i-no
+                where oe-ordl.company eq bf-job-hdr.company
+                  and oe-ordl.ord-no  eq bf-job-hdr.ord-no
+                  and oe-ordl.job-no  eq bf-job-hdr.job-no
+                  and oe-ordl.job-no2 eq bf-job-hdr.job-no2
+                  and oe-ordl.i-no    eq bf-job-hdr.i-no
                 no-lock no-error.
         IF AVAIL oe-ordl THEN
+            
         find first oe-rel
             where oe-rel.company eq cocode
               and oe-rel.ord-no  eq oe-ordl.ord-no
