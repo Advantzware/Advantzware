@@ -989,11 +989,10 @@ DO:
               END.
          END.  
          WHEN "ship-id" THEN DO:
-             RUN system/openlookup.p (g_company, "ship-id", OUTPUT fields-val, OUTPUT char-val, OUTPUT look-recid).
-              /*IF fi_Type:SCREEN-VALUE EQ "T" THEN
+              IF fi_Type:SCREEN-VALUE EQ "T" THEN
                 RUN windows/l-shipt3.w (g_company, g_loc, oe-ord.cust-no:SCREEN-VALUE, oe-ord.ship-id:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
               ELSE
-                RUN windows/l-shipt2.w (g_company, g_loc, oe-ord.cust-no:SCREEN-VALUE, oe-ord.ship-id:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).*/
+                RUN windows/l-shipt2.w (g_company, g_loc, oe-ord.cust-no:SCREEN-VALUE, oe-ord.ship-id:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
               FIND shipto WHERE RECID(shipto) EQ look-recid NO-LOCK NO-ERROR. 
               IF AVAIL shipto AND lw-focus:SCREEN-VALUE NE shipto.ship-id THEN DO:
                  ASSIGN 
