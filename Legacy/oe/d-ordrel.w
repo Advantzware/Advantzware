@@ -1943,11 +1943,11 @@ PROCEDURE display-item :
 
     IF ip-type EQ "update" THEN DO:
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-        RUN epCanAccess IN hPgmSecurity ("windows/matprep.w", "", OUTPUT lResult).
+        RUN epCanAccess IN hPgmSecurity ("oe/d-ordrel.w", "", OUTPUT lResult).
         DELETE OBJECT hPgmSecurity.
         IF NOT lResult THEN 
             DO WITH FRAME {&FRAME-NAME}:
-            DISABLE oe-rel.stat .
+            DISABLE oe-rel.stat oe-rel.qty .
         END.
     END.
 
