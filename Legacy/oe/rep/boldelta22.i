@@ -24,7 +24,7 @@ PUT
     v-ship-addr3 AT 5 SKIP
     "<R5><C60><#3>" SKIP
     "<FArial><P14><=#3>" "<P14>" SKIP
-    "<=#3><B><P18> BOL #:" trim(string(oe-bolh.bol-no)) "<P14></B>" /*"<c66>Page: " +  string(PAGE-NUM - lv-pg-num,">>9") + " of " +  string(lv-tot-pg,">>9")  FORM "x(40)"*/  SKIP(1)
+    "<=#3><B><P18> BOL #:  " trim(string(oe-bolh.bol-no)) "<P14></B>" /*"<c66>Page: " +  string(PAGE-NUM - lv-pg-num,">>9") + " of " +  string(lv-tot-pg,">>9")  FORM "x(40)"*/  SKIP(1)
     "<=#3><R+2>Date: " oe-bolh.bol-date  "<P10>"      SKIP
     "<=#3><R+3>" SKIP
     SKIP     
@@ -44,8 +44,8 @@ PUT
     "<R24><C63.5><FROM><R26><C63.5><LINE>" SKIP
     "<R24><C70><FROM><R26><C70><LINE>" SKIP            
     "<R24><C74.5><FROM><R26><C74.5><LINE>" SKIP 
-    "<FArial><=5> <b><C1.5>Order#               <c50.5> Amt Per          <c57.5>Bundles/      <c64.5>Qty Per        <c70.5># of           <c75>Total" SKIP 
-    "<FArial><=5><R+1><C1.5> PO#   <C17>Order Qty    <c25.5>Item Name / Description     <c50.5> Bundle            <c57.5>Pallet        <c64.5>Pallet         <c70.5>Pallet       <c75>Amount </b>" SKIP
+    "<FArial><=5> <b><C1.5>Order#               <c50.5> Amt Per          <c57.1>Bundles/      <c64.5>Qty Per        <c70.5># of           <c75.5>Total" SKIP 
+    "<FArial><=5><R+1><C1.5> PO#   <C14>Order Qty    <c25.5>Item Name / Description     <c50.5> Bundle            <c57.1>Pallet        <c64.5>Pallet         <c70.5>Pallet       <c75.5>Amount </b>" SKIP
     "<FCourier New>"                                  
     .
 

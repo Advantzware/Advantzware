@@ -35,6 +35,17 @@ FOR EACH tt-boll,
             AND oe-ord.ord-no  EQ tt-boll.ord-no
             NO-LOCK NO-ERROR.
 
+            iTotShiped =  tt-boll.qty .  
+            iAmtPerBundle = oe-ordl.cas-cnt .
+            iBundlePerPallet = oe-ordl.cases-unit .
+
+             iQtyPerPallet = iAmtPerBundle * iBundlePerPallet .
+             iTotPallet = iTotShiped / iQtyPerPallet .
+             iGrandBundlePerPallet = iGrandBundlePerPallet + ( iTotPallet * iBundlePerPallet)  .
+             v-tot-palls = v-tot-palls + iTotPallet .
+             iGrandTotShiped = iGrandTotShiped + tt-boll.qty .
+
+
         IF v-printline >= 48 THEN 
         DO:
       
@@ -52,14 +63,14 @@ FOR EACH tt-boll,
                 w2.cases   = w2.cases + tt-boll.cases.
         END.
 
-        IF tt-boll.partial NE 0 THEN 
-        DO:
-            FIND FIRST w2 WHERE w2.cas-cnt EQ tt-boll.partial NO-ERROR.
-            IF NOT AVAILABLE w2 THEN CREATE w2.
-            ASSIGN
-                w2.cas-cnt = tt-boll.partial
-                w2.cases   = w2.cases + 1.
-        END.
+        /*IF tt-boll.partial NE 0 THEN */
+        /*DO:                            */
+        /*    FIND FIRST w2 WHERE w2.cas-cnt EQ tt-boll.partial NO-ERROR.*/
+        /*    IF NOT AVAILABLE w2 THEN CREATE w2.*/
+        /*    ASSIGN                             */
+        /*        w2.cas-cnt = tt-boll.partial   */
+        /*        w2.cases   = w2.cases + 1.     */
+        /*END.*/
 
         v-lines = 0.
         FOR EACH w2 BREAK BY w2.cases:
@@ -74,13 +85,13 @@ FOR EACH tt-boll,
             IF i EQ 1 THEN
                 ASSIGN
                     v-part-dscr = oe-ordl.i-name
-                    v-job-po    = tt-boll.po-no.
+                    v-job-po    = STRING(oe-ordl.ord-no) .
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
                         v-part-dscr = oe-ordl.part-dscr1
-                        v-job-po    = STRING(oe-ordl.ord-no) .
+                        v-job-po    = tt-boll.po-no  .
     
                 ELSE
                     IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr2.
@@ -104,48 +115,33 @@ FOR EACH tt-boll,
             IF i EQ 1 THEN
                 ASSIGN
                     v-part-dscr = oe-ordl.i-name
-                    v-job-po    = tt-boll.po-no.
+                    v-job-po    =STRING(oe-ordl.ord-no)  .
 
             ELSE
                 IF i EQ 2 THEN
                     ASSIGN
                         v-part-dscr = oe-ordl.part-dscr1
-                        v-job-po    = STRING(oe-ordl.ord-no).
+                        v-job-po    = tt-boll.po-no .
 
                 ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr2.
 
                     ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr3.
 
-            iQtyPerPallet    = (fgBin(tt-boll.bol-no ,tt-boll.LINE) * tt-boll.qty-case) . 
-            iTotPallet       =  tt-boll.tot-pallet .     
-            iTotShiped       =  tt-boll.qty .   
-            iBundlePerPallet =  fgBin(tt-boll.bol-no ,tt-boll.LINE) .
-            iGrandBundlePerPallet = iGrandBundlePerPallet + iBundlePerPallet  .
-            iGrandTotPallet       = iGrandTotPallet       + iTotPallet .
-            iGrandTotShiped       = iGrandTotShiped       + iTotShiped .
-            
-            FIND FIRST eb  NO-LOCK 
-                WHERE eb.company EQ cocode
-                  AND eb.est-no EQ oe-ordl.est-no
-                  AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
-             iAmtPerBundle = IF AVAIL eb THEN eb.cas-cnt ELSE 0.
-             iBundlePerPallet = IF AVAIL eb THEN eb.cas-pal ELSE 0.
-             RELEASE eb .
             DISPLAY STRING(oe-ordl.ord-no)
                 WHEN i EQ 1
                 @ v-job-po
                 v-job-po WHEN i EQ 2
-                oe-ordl.qty WHEN i EQ 1 
+                string(oe-ordl.qty) WHEN i EQ 1 @ cOrderQty
                 v-part-dscr
-                iAmtPerBundle WHEN LAST(w2.cases) @ w2.cases
-                iBundlePerPallet 
-                WHEN LAST(w2.cases)
-                iQtyPerPallet 
-                WHEN LAST(w2.cases)    
-                iTotPallet  
-                WHEN LAST(w2.cases)      
-                iTotShiped  
-                WHEN LAST(w2.cases) @ tt-boll.qty
+                trim(string(iAmtPerBundle,"->>>>9")) WHEN LAST(w2.cases) @ cW2Cases
+                trim(string(iBundlePerPallet,"->>>>>9")) 
+                WHEN LAST(w2.cases) @ cBundlePerPallet
+                trim(string(iQtyPerPallet,"->>>>>>"))
+                WHEN LAST(w2.cases) @ cQtyPerPallet  
+                trim(string(iTotPallet,"->>>>"))  
+                WHEN LAST(w2.cases) @ cTotPallet  
+                trim(string(iTotShiped,"->>>>>>")) 
+                WHEN LAST(w2.cases) @ cBollQty
                 WITH FRAME bol-mid2.
             DOWN  WITH FRAME bol-mid2.  
             
@@ -242,7 +238,7 @@ FOR EACH tt-boll,
                     STRING( oe-ordl.ord-no)
                     STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>") @ oe-ordl.qty
                      b-itemfg.part-no                       @ v-part-dscr
-                    tt-boll.qty * v-part-qty                @ tt-boll.qty        
+                     string(tt-boll.qty * v-part-qty)       @ cBollQty       
                     WITH FRAME bol-mid2.
                 DOWN {1} WITH FRAME bol-mid2.
                 v-printline = v-printline + 1.

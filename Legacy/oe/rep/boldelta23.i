@@ -38,15 +38,11 @@ DO:
         ASSIGN
             v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty
             i              = i + 1.
-          
-        iQtyPerPallet    = iQtyPerPallet  +  (fgBin(bf-ttboll.bol-no ,bf-ttboll.LINE) * bf-ttboll.qty-case) . 
-        iTotPallet       = iTotPallet +  bf-ttboll.tot-pallet .     
-        iTotShiped       = iTotShiped + bf-ttboll.qty .   
-        iBundlePerPallet = iBundlePerPallet + fgBin(bf-ttboll.bol-no ,bf-ttboll.LINE) .
-        iGrandBundlePerPallet = iGrandBundlePerPallet + fgBin(bf-ttboll.bol-no ,bf-ttboll.LINE)  .
-        iGrandTotPallet       = iGrandTotPallet       + iTotPallet .
-        iGrandTotShiped       = iGrandTotShiped       + bf-ttboll.qty .
-     
+
+        iTotShiped       = iTotShiped + bf-ttboll.qty .  
+        iAmtPerBundle    = oe-ordl.cas-cnt .
+        iBundlePerPallet = oe-ordl.cases-unit .
+  
         FIND FIRST w2 WHERE w2.cas-cnt EQ bf-ttboll.qty-case NO-ERROR.
         IF NOT AVAILABLE w2 THEN CREATE w2.
         ASSIGN 
@@ -124,27 +120,27 @@ DO:
         IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND NOT last(w2.cases) AND w2.cas-cnt EQ 0 THEN .
         ELSE 
         DO:      
-            FIND FIRST eb  NO-LOCK 
-                WHERE eb.company EQ cocode
-                  AND eb.est-no EQ oe-ordl.est-no
-                  AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
-             iAmtPerBundle = IF AVAIL eb THEN eb.cas-cnt ELSE 0.
-             iBundlePerPallet = IF AVAIL eb THEN eb.cas-pal ELSE 0.
-             RELEASE eb .
-
+            IF FIRST (w2.cases) THEN do:
+                iQtyPerPallet = iAmtPerBundle * iBundlePerPallet .
+                iTotPallet = (iTotShiped / iQtyPerPallet) .
+                v-tot-palls = v-tot-palls + iTotPallet .
+                iGrandTotShiped = iGrandTotShiped + iTotShiped .
+                iGrandBundlePerPallet = iGrandBundlePerPallet + ( iTotPallet * iBundlePerPallet)  .
+            END.
+            
             DISPLAY string(oe-ordl.ord-no) WHEN i = 1 @ w2.job-po
                 w2.job-po WHEN i = 2
-                w2.qty WHEN i = 1 
+                string(w2.qty) WHEN i = 1 @ cOrderQty
                 w2.dscr
-                iAmtPerBundle WHEN FIRST (w2.cases) @ w2.cases
-                iBundlePerPallet
-                WHEN FIRST (w2.cases) 
-                iQtyPerPallet
-                WHEN FIRST (w2.cases)    
-                iTotPallet
-                WHEN FIRST (w2.cases)      
-                iTotShiped 
-                WHEN FIRST (w2.cases) @ tt-boll.qty
+                trim(string(iAmtPerBundle,"->>>>9")) WHEN FIRST (w2.cases) @ cW2Cases
+                trim(string(iBundlePerPallet,"->>>>>9"))
+                WHEN FIRST (w2.cases) @ cBundlePerPallet
+                trim(string(iQtyPerPallet,"->>>>>>"))
+                WHEN FIRST (w2.cases) @ cQtyPerPallet    
+                trim(string(iTotPallet,"->>>>"))
+                WHEN FIRST (w2.cases) @ cTotPallet       
+                trim(string(iTotShiped,"->>>>>>"))
+                WHEN FIRST (w2.cases) @ cBollQty
                 /* 1  WHEN i = 2 AND bf-ttboll.partial > 0  @ w2.cases
                  tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt */
                 WITH FRAME bol-mid.
@@ -191,7 +187,7 @@ DO:
                 TRIM(STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>")) 
                 @ w2.qty
                 b-itemfg.part-no                        @ w2.dscr
-                tt-boll.qty * v-part-qty                @ tt-boll.qty        
+                string(tt-boll.qty * v-part-qty)                @ cBollQty        
                 WITH FRAME bol-mid.
             DOWN {1} WITH FRAME bol-mid.
             v-printline = v-printline + 1.
