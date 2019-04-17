@@ -34,7 +34,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
            + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,SSPostFGTransfer,FGUnderOver,FGSetAdjustReason,AdjustReason,ShipNotesExpanded,CTIDir,"
            + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal,TSShowPending,FGHistoryDate,CEUpdateCAD,"
-           + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation"
+           + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -584,6 +584,11 @@ CASE ip-nk1-value:
    WHEN "WIPTAGSDefaultLocation" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "WIP Tags Default Location",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
+  WHEN "POItemFilterDefault" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "PU1 Item Lookup - Filter By defaults to PO Vendor or All Vendor",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
