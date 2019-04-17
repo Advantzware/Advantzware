@@ -1472,18 +1472,15 @@ PROCEDURE undo-trnum :
 ------------------------------------------------------------------------------*/
 
   DO TRANSACTION: 
-    /* gdm - 11050906 */
-    REPEAT:
+      /* 47885 removed loop around find */
       FIND FIRST gl-ctrl EXCLUSIVE-LOCK
-        WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
+        WHERE gl-ctrl.company EQ cocode NO-ERROR.
       IF AVAIL gl-ctrl THEN DO:
         IF xtrnum EQ gl-ctrl.trnum THEN gl-ctrl.trnum = gl-ctrl.trnum - 1.
         FIND CURRENT gl-ctrl NO-LOCK.
         RELEASE gl-ctrl.
         LEAVE.
       END. /* IF AVAIL gl-ctrl */
-    END. /* REPEAT */
-    /* gdm - 11050906 */
   END.
 
 END PROCEDURE.
