@@ -40,7 +40,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
          AND oe-ord.ord-no  EQ tt-boll.ord-no  NO-ERROR.                  
       i = i + 1.
       
-      FIND FIRST w2 WHERE (w2.cas-cnt * w2.cases) EQ (bf-ttboll.qty-case * bf-ttboll.cases) NO-ERROR.
+      FIND FIRST w2 WHERE (w2.cas-cnt) EQ (bf-ttboll.qty-case) NO-ERROR.
       IF NOT AVAILABLE w2 THEN CREATE w2.
       ASSIGN w2.job-po = ""
              w2.i-no = ""
@@ -135,15 +135,15 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
     END.
     IF w2.qty EQ 0 AND w2.i-no EQ "" AND w2.dscr EQ "" AND /*NOT last(w2.cases)*/ w2.cases EQ 0 THEN .
     ELSE DO:    
-       ASSIGN icountpallet  = w2.cas-cnt * w2.cases .
+       ASSIGN icountpallet  = w2.cas-cnt.
        DISPLAY w2.i-no                       
            TRIM(STRING(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
             w2.job-po
             w2.dscr
             w2.unitcount @ w2.cases
-            w2.qty-sum @ icountpallet
+            icountpallet
             w2.partial @  tt-boll.partial
-            icountpallet + w2.partial /*v-tot-case-qty + w2.partial WHEN FIRST (w2.cases)*/ @ tt-boll.qty
+            (icountpallet * w2.unitcount) + w2.partial /*v-tot-case-qty + w2.partial WHEN FIRST (w2.cases)*/ @ tt-boll.qty
             bf-ttboll.p-c  WHEN AVAILABLE bf-ttboll AND first(w2.cases) @ bf-ttboll.p-c                         
            /* 1  WHEN i = 2 AND bf-ttboll.partial > 0  @ w2.cases
             tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt */
@@ -436,6 +436,6 @@ FIND FIRST oe-ordl NO-LOCK
 END. /* non consol-bol*/
 END. /* for each tt-boll */
 
-v-tot-wt = oe-bolh.tot-wt.
+/* v-tot-wt = oe-bolh.tot-wt. */
 
 /* end ---------------------------------- copr. 1998  Advanced Software, Inc. */
