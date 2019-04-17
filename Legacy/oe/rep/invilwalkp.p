@@ -456,7 +456,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   
   ELSE 
      DISPLAY
-       v-invhead when 
+       v-invhead
        ar-inv.inv-date
        v-c-name
        v-c-addr[1]
