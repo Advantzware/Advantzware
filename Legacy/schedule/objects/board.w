@@ -4498,7 +4498,7 @@ PROCEDURE timeLine :
       .
     &IF '{&Board}' EQ 'Pro' &THEN
     IF saveInterval NE 0 THEN DO: 
-      IF saveTimeInterval GT saveInterval THEN DO:
+      IF saveTimeInterval GT saveInterval AND btnSave:SENSITIVE THEN DO:
         MESSAGE 'Save Scheduler Pro?' VIEW-AS ALERT-BOX
           QUESTION BUTTONS YES-NO TITLE 'Auto Save Prompt'
           UPDATE saveNow AS LOGICAL.
@@ -4510,7 +4510,7 @@ PROCEDURE timeLine :
       saveTimeInterval = saveTimeInterval + .5.
     END. /* saveinterval ne 0 */
     accumTimeInterval = ETIME / 1000.
-    RUN displayLastSave IN containerHandle (accumTimeInterval).    
+    RUN displayLastSave IN containerHandle (accumTimeInterval).
     IF monitorInterval NE 0 THEN DO:
       IF autoMonitorInterval GT monitorInterval * 60 THEN DO:
         IF btnSave:SENSITIVE EQ NO THEN DO:
