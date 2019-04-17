@@ -900,7 +900,7 @@ FOR EACH job-hdr NO-LOCK
               PUT
                  "<P9><B>            Ord Qty         Job Qty         QC/SPC #         Pharma Code     Style            Carton Size                    Case Wt." "</B>" SKIP.  /* Style  Carton Size*/
               PUT (IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0) FORMAT "->,>>>,>>9" AT 10 
-                  job-hdr.qty FORMAT "->,>>>,>>9" AT 26
+                  (IF AVAILABLE oe-ordl THEN (oe-ordl.qty + (oe-ordl.qty * oe-ordl.over-pct / 100 )) ELSE job-hdr.qty ) FORMAT "->,>>>,>>9" AT 26
                   v-spc-no  AT 45 
                   v-upc-no  AT 62
                   eb.style FORMAT "x(8)" AT 78 SPACE(10)
