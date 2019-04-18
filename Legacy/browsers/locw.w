@@ -787,9 +787,9 @@ PROCEDURE local-initialize :
     RUN local-open-query.
 
     IF QUERY br_table:NUM-RESULTS NE ? THEN DO:  
-        BROWSE br_table:MOVE-TO-TOP().
-        BROWSE br_table:SELECT-FOCUSED-ROW().
-        BROWSE br_table:SELECT-ROW(1).
+        BROWSE br_table:MOVE-TO-TOP() NO-ERROR.
+        BROWSE br_table:SELECT-FOCUSED-ROW() NO-ERROR.
+        BROWSE br_table:SELECT-ROW(1) NO-ERROR.
     END.
     APPLY "FOCUS":U TO btnBinDetails IN FRAME {&FRAME-NAME}.
     /*
