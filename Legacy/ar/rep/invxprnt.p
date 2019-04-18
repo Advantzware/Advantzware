@@ -417,15 +417,15 @@ ELSE lv-comp-color = "BLACK".
             
             
             PUT space(1)        /*"->>>>9.9<"*/
-                v-inv-qty format  "->>>>>9" SPACE(1)
-                v-ship-qty  format "->>>>>9" SPACE(1)
+                v-inv-qty format "->>>>>>9" SPACE(1)
+                v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
                 ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->,>>9.99<<" SPACE(2)
+                v-i-no  format "x(15)" SPACE(2)
+                v-i-dscr  format "x(25)" SPACE(4)
+                v-price  format "->>>>,>>9.99" /*"->,>>9.99<<"*/ SPACE(1)
                 v-price-head SPACE(1)
-                ar-invl.amt  format "->>>,>>9.99"                
+                ar-invl.amt  format "->,>>>,>>9.99" /*"->>>,>>9.99"   */             
                 SKIP.
              v-printline = v-printline + 1.
       
@@ -436,10 +436,10 @@ ELSE lv-comp-color = "BLACK".
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) ar-invl.part-no SPACE v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(27) ar-invl.part-no SPACE(2) v-part-info SKIP.
                  ELSE
-                 IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
-                 ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
+                 IF v = 2 THEN PUT SPACE(44) v-part-info SKIP.
+                 ELSE          PUT SPACE(23) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
@@ -592,30 +592,30 @@ ELSE lv-comp-color = "BLACK".
                         ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
                            ELSE FILL(" ",5) ) +
                        fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
+                       string(v-t-tax[i],"->>>,>>9.99")) else "".
     end.
     v-inv-freight = if (ar-inv.f-bill OR (cust.frt-pay = "B" AND ar-inv.ord-no = 0))
                     THEN ar-inv.freight ELSE 0.    
                     /*ar-inv.t-inv-freight*/.
 
 IF v-bot-lab[4] <> "" THEN
-    PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+    PUT "<P10><R58><C60><#8><FROM><R+8><C+20><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>,>>9.99" .
+        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>>,>>9.99" .
 ELSE
     PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" .
+        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>>,>>9.99" .
 
     ASSIGN
        v-printline = v-printline + 6
