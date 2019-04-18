@@ -289,7 +289,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      est-op.plates AT ROW 4.57 COL 104.4 COLON-ALIGNED
-          LABEL "Plate changes" FORMAT ">>>"
+          LABEL "Plate Changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
@@ -541,7 +541,7 @@ ON LEAVE OF est-op.att-qty[3] IN FRAME Dialog-Frame /* Qty */
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
-            IF ll-import-stds THEN RUN get-stds.
+            /*IF ll-import-stds THEN RUN get-stds.*/
         END.
     END.
 
@@ -987,19 +987,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains Dialog-Frame
 ON ENTRY OF est-op.fountains IN FRAME Dialog-Frame /* Fountain Changes */
 DO:
-        DEFINE VARIABLE ll AS LOG INIT YES NO-UNDO.
-
-
-        IF lv-dept EQ "PR" THEN
-            RUN first-of-mach (est-op.m-code:SCREEN-VALUE ,
-                OUTPUT ll).
-
-        IF ll THEN 
-        DO WITH FRAME {&FRAME-NAME}:
-            APPLY "tab" TO {&self-name} .
-            RETURN NO-APPLY.
-        END.
-    END.
+       
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1042,10 +1031,7 @@ DO:
             
             IF ll-import-stds AND NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
             DO:
-                IF lv-dept EQ "PR" THEN
-                    APPLY "entry" TO est-op.plates .
-                ELSE
-                    APPLY "entry" TO est-op.att-type[1] .
+                APPLY "entry" TO est-op.plates .
                 RETURN NO-APPLY.
             END.
         END.
@@ -1177,19 +1163,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates Dialog-Frame
 ON ENTRY OF est-op.plates IN FRAME Dialog-Frame /* Plate changes */
 DO:
-        DEFINE VARIABLE ll AS LOG INIT YES NO-UNDO.
-
-
-        IF lv-dept EQ "PR" THEN
-            RUN first-of-mach (est-op.m-code:SCREEN-VALUE ,
-                OUTPUT ll).
-
-        IF ll THEN 
-        DO WITH FRAME {&FRAME-NAME}:
-            APPLY "tab" TO {&self-name} .
-            RETURN NO-APPLY.
-        END.
-    END.
+      
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1442,6 +1417,12 @@ PROCEDURE display-item :
             est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 
             est-op.n_out_div 
             WITH FRAME Dialog-Frame.
+
+        FIND FIRST mach NO-LOCK 
+            WHERE mach.company EQ est-op.company
+              AND mach.m-code EQ est-op.m-code NO-ERROR.
+        IF AVAIL mach THEN
+         lv-dept = mach.dept[1] .
     END.
 
 
