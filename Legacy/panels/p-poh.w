@@ -604,9 +604,9 @@ DO WITH FRAME Panel-Frame:
 RUN methods/prgsecur.p
     (INPUT "PoCopyButt",
      INPUT "ACCESS",
-     INPUT YES,
-     INPUT YES,
-     INPUT YES,
+     INPUT NO,
+     INPUT NO,
+     INPUT NO,
      OUTPUT v-autopo-sec,
      OUTPUT v-access-close,
      OUTPUT v-access-list).
