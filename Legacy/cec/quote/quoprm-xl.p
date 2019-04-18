@@ -169,7 +169,7 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
 
 RUN UTIL/CurrDir.p (output CurrDir).
 ASSIGN
-   chFile = CurrDir + "\Template\QuotePrem.xlt" NO-ERROR.
+   chFile = SEARCH("Template\QuotePrem.xlt") NO-ERROR.
 
    chExcelApplication:VISIBLE = TRUE.
 

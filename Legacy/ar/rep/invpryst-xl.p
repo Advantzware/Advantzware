@@ -150,7 +150,7 @@ IF LvOutputSelection = "email" THEN
 assign CurActivePrinter = SESSION:PRINTER-NAME
        AdobePrinter     = "PDFcamp Printer".
 
-vcTemplateFile   = "Template\invoice-py.xlt".
+vcTemplateFile   = SEARCH("Template\invoice-py.xlt").
 
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
@@ -181,13 +181,11 @@ DO :
   RETURN ERROR.
 END.
 
-FILE-INFO:FILE-NAME = vcTemplateFile.
-
 /* Set the Excel Template to be used. */
-ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
+ASSIGN chFile = vcTemplateFile.
   
-if search (chFile) = ? then do:
-   MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
+if SEARCH(chFile) = ? then do:
+   MESSAGE 'Template File: Template\invoice-py.xlt'
            'cannot be found. Please verify that the file exists.'
    VIEW-AS ALERT-BOX INFO BUTTONS OK.
    apply 'CLOSE':U to this-procedure.

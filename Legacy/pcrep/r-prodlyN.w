@@ -822,7 +822,7 @@ PROCEDURE InitializeExcel :
   /* Connect to the running Excel session. */
   CREATE "Excel.Application" chExcelApplication.
 
-  FILE-INFO:FILE-NAME = "template\ProdAnalysis.xlt".
+  FILE-INFO:FILE-NAME = search("template\ProdAnalysis.xlt").
 
   /* Set the Excel Template to be used. */
   ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.

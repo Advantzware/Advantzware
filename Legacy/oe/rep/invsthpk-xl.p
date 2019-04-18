@@ -176,13 +176,14 @@ DO :
   RETURN ERROR.
 END.
 
-FILE-INFO:FILE-NAME = "Template\invoice-sp.xlt".
+ASSIGN 
+    FILE-INFO:FILE-NAME = SEARCH("Template\invoice-sp.xlt").
 
 /* Set the Excel Template to be used. */
 ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
   
 if search (chFile) = ? then do:
-   MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
+   MESSAGE 'Template File: Template\invoice-sp.xlt'
            'cannot be found. Please verify that the file exists.'
    VIEW-AS ALERT-BOX INFO BUTTONS OK.
    apply 'CLOSE':U to this-procedure.

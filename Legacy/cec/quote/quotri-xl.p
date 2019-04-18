@@ -177,7 +177,7 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
 
 RUN UTIL/CurrDir.p (output CurrDir).
 
-ASSIGN chFile = CurrDir + "\Template\quote-trilake.xlt" no-error.
+ASSIGN chFile = SEARCH("Template\quote-trilake.xlt") no-error.
 
 ASSIGN
    chExcelApplication:VISIBLE = TRUE.

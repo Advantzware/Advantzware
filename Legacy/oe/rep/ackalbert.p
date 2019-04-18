@@ -826,7 +826,7 @@ PROCEDURE InitializeExcel:
       CurActivePrinter = SESSION:PRINTER-NAME
       AdobePrinter     = "PDFcamp Printer".
   
-  vcTemplateFile   = "template\ackalbert.xlt".
+  vcTemplateFile = SEARCH("template\ackalbert.xlt").
 
   /* Connect to the running Excel session. */
   CREATE "Excel.Application" chExcelApplication connect no-error.

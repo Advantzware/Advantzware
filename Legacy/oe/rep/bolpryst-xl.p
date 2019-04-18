@@ -179,7 +179,7 @@ DO :
 END.
 
 RUN UTIL/CurrDir.p (output CurrDir).
-ASSIGN chFile = CurrDir + "\Template\bol-pu.xlt" no-error.
+ASSIGN chFile = SEARCH("Template\bol-pu.xlt") no-error.
   
 chExcelApplication:VISIBLE = TRUE.
 IF LvOutputSelection = "Email" or LvOutputSelection = "Printer" THEN
@@ -565,7 +565,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     /*  end of getting total page per po */
      
      RUN UTIL/CurrDir.p (output CurrDir).
-     ASSIGN chFile = CurrDir + "\Template\bol-pu.xlt" no-error. 
+     ASSIGN chFile = SEARCH("Template\bol-pu.xlt") no-error. 
      
      ASSIGN chWorkbook =chExcelApplication:Workbooks:Open(chfile)
             chExcelApplication:ScreenUpdating = FALSE

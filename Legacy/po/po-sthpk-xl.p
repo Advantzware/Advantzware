@@ -152,13 +152,13 @@ DO :
   RETURN ERROR.
 END.
 
-FILE-INFO:FILE-NAME = "Template\po-sp.xlt".
+FILE-INFO:FILE-NAME = search("Template\po-sp.xlt").
 
 /* Set the Excel Template to be used. */
 ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
   
 if search (chFile) = ? then do:
-   MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
+   MESSAGE 'Template File: Template\po-sp.xlt'
            'cannot be found. Please verify that the file exists.'
    VIEW-AS ALERT-BOX INFO BUTTONS OK.
    apply 'CLOSE':U to this-procedure.

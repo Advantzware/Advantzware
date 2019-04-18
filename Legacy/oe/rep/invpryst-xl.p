@@ -180,7 +180,7 @@ DO :
     RETURN ERROR.
 END.
 
-FILE-INFO:FILE-NAME = "Template\invoice-py.xlt".
+FILE-INFO:FILE-NAME = SEARCH("Template\invoice-py.xlt").
 
 /* Set the Excel Template to be used. */
 ASSIGN 
@@ -188,7 +188,7 @@ ASSIGN
   
 IF SEARCH (chFile) = ? THEN 
 DO:
-    MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
+    MESSAGE 'Template File: Template\invoice-py.xlt'
         'cannot be found. Please verify that the file exists.'
         VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
     APPLY 'CLOSE':U TO THIS-PROCEDURE.

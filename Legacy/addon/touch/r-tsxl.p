@@ -18,9 +18,9 @@ INDEX pi-tsrep tt-date.
 
 DEFINE SHARED TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
+  FIELD rec_key LIKE notes.rec_key
+  FIELD note_date LIKE notes.note_date
+  FIELD note_title LIKE notes.note_title
   FIELD note_src AS CHARACTER.
 
           /* Variables for excel Automation  */
@@ -56,7 +56,7 @@ DEF VAR mypict AS COM-HANDLE.
 /*   ASSIGN CurrDir = REPLACE(CurrDir, "/addon", ""). */
 /*   ASSIGN CurrDir = REPLACE(CurrDir, "\addon", ""). */
 
-  chFile = CurrDir + "\Template\TimeSheet.xlt".
+  chFile = SEARCH("Template\TimeSheet.xlt").
 
   if chFile = ? then do:
     MESSAGE "Your Excel Template: " vcTemplateFile  skip

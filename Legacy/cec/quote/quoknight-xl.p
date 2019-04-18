@@ -203,7 +203,7 @@ RUN UTIL/CurrDir.p (output CurrDir).
    rptExcel:report-design = "template/quoteknight.jrxml" NO-ERROR.
 &ELSE
 
-chFile = CurrDir + "\Template\quotenosco.xlt" NO-ERROR.
+chFile = SEARCH("Template\quotenosco.xlt") NO-ERROR.
    
 chExcelApplication:VISIBLE = TRUE.
 &ENDIF

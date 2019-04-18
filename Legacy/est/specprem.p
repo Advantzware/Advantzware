@@ -343,7 +343,7 @@ PROCEDURE CreateExcelSheet:
     RUN GetOutputDir (OUTPUT cOutDir).
   
     ASSIGN
-        cFileName = cCurrDir + "\Template\"  + gcTemplateFile NO-ERROR.
+        cFileName = SEARCH("Template\"  + gcTemplateFile) NO-ERROR.
 
    /* Create excel object*/
     IF NOT VALID-HANDLE(ghExcel) THEN

@@ -928,12 +928,12 @@ PROCEDURE InitializeExcel :
     RETURN ERROR.
   END.
   
-  vcTemplateFile = "Template\ScheduleBoards.xlt".
+  vcTemplateFile = SEARCH("Template\ScheduleBoards.xlt").
 
-  FILE-INFO:FILE-NAME = vcTemplateFile.
-  
   /* Set the Excel Template to be used. */
-  ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
+  ASSIGN 
+    chFile = vcTemplateFile 
+    FILE-INFO:FILE-NAME = chFile NO-ERROR.
 
   if chFile = ? then do:
     MESSAGE 'Your Excel Template: Template\ScheduleBoards.xlt cannot be found.'  skip

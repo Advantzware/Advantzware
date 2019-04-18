@@ -299,7 +299,7 @@ PROCEDURE InitializeExcel:
       CurActivePrinter = SESSION:PRINTER-NAME
       AdobePrinter     = "PDFcamp Printer".
   
-  vcTemplateFile   = "template\acpi-cofc.xlt".
+  vcTemplateFile   = SEARCH("template\acpi-cofc.xlt").
 
   /* Connect to the running Excel session. */
   CREATE "Excel.Application" chExcelApplication connect no-error.
@@ -341,7 +341,7 @@ PROCEDURE InitializeExcel:
   ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
   
   if search (chFile) = ? then do:
-    MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
+    MESSAGE 'Template File: template\acpi-cofc.xlt'
             'cannot be found. Please verify that the file exists.'
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
     apply 'CLOSE':U to this-procedure.

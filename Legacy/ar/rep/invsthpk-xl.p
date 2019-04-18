@@ -149,7 +149,7 @@ IF LvOutputSelection = "email" THEN
 assign CurActivePrinter = SESSION:PRINTER-NAME
        AdobePrinter     = "PDFcamp Printer".
 
-vcTemplateFile   = "Template\invoice-sp.xlt".
+vcTemplateFile   = search("Template\invoice-sp.xlt").
 
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
@@ -186,7 +186,7 @@ FILE-INFO:FILE-NAME = vcTemplateFile.
 ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
   
 if search (chFile) = ? then do:
-   MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
+   MESSAGE 'Template File: Template\invoice-sp.xlt'
            'cannot be found. Please verify that the file exists.'
    VIEW-AS ALERT-BOX INFO BUTTONS OK.
    apply 'CLOSE':U to this-procedure.

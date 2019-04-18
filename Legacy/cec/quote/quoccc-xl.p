@@ -423,7 +423,7 @@ IF LvOutputSelection = "email" THEN
 /*         gcAdobePrinter     = "PDFcamp Printer" */
     .
   
-cTemplateFile = "template\QuoteCCC.xlt".
+cTemplateFile = search("template\QuoteCCC.xlt").
 
 /* Connect to the running Excel session. */
 CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
@@ -458,7 +458,7 @@ FILE-INFO:FILE-NAME = cTemplateFile.
 ASSIGN gcFile = search (FILE-INFO:FULL-PATHNAME) no-error.
   
 IF SEARCH (gcFile) = ? THEN DO:
-    MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
+    MESSAGE 'Template File: template\QuoteCCC.xlt'
         'cannot be found. Please verify that the file exists.'
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
     APPLY 'CLOSE':U TO THIS-PROCEDURE.

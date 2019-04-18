@@ -113,7 +113,7 @@ END.
 
   RUN UTIL/CurrDir.p (output CurrDir).
 
-  chFile = CurrDir + "\Template\TimeSheet.xlt".
+  chFile = SEARCH("Template\TimeSheet.xlt").
 
   if chFile = ? then do:
     MESSAGE "Your Excel Template: " vcTemplateFile  skip
