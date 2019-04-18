@@ -16,6 +16,7 @@ DEF  VAR acl-oth AS DEC INIT 0 NO-UNDO.
 DEF  VAR acl-lbr AS DEC INIT 0 NO-UNDO.
 DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .    
+DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
 
     put skip.
 
@@ -398,7 +399,8 @@ DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .
        v-t-est-cost = 0
        v-t-act-hrs  = 0
        v-t-act-cost = 0
-       acl-lbr = 0    .
+       acl-lbr = 0    
+       cPressMachine = "" .
 
       for each work-mch,
           first mach
@@ -408,6 +410,8 @@ DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .
           no-lock
           break by work-mch.d-seq:
 
+          IF mach.dept[1] EQ "PR" AND cPressMachine EQ "" THEN
+              cPressMachine = work-mch.m-code .
         assign
          v-mr-cost      = work-mch.mr-cost1  + work-mch.mr-cost2 +
                           work-mch.mr-cost3 
@@ -1054,8 +1058,9 @@ DEFINE VARIABLE dTotSqft AS DECIMAL NO-UNDO .
             '"' STRING(acl-brd,"->>,>>>,>>9")               '",'
             '"' STRING(acl-oth,"->>,>>>,>>9")               '",'
             '"' STRING(acl-lbr,"->>,>>>,>>9")               '",'
-            '"' STRING(v-t-prod,"->>,>>>,>>9")               '",'
-            '"' STRING(dTotSqft,">>>,>>>,>>9.99")               '",'
+            '"' STRING(v-t-prod,"->>,>>>,>>9")              '",'
+            '"' STRING(dTotSqft,">>>,>>>,>>9.99")           '",' 
+            '"' STRING(cPressMachine)                       '",'
             SKIP.     
 
       IF tb_excel2 THEN DO:
