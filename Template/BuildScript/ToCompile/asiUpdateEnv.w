@@ -2815,7 +2815,7 @@ PROCEDURE ipFixBadYears :
     DISABLE TRIGGERS FOR LOAD OF oe-relh.
     DISABLE TRIGGERS FOR LOAD OF oe-rell.
     
-    FOR EACH oe-ord WHERE (oe-ord.ord-date GT 09/01/2018 
+    FOR EACH oe-ord EXCLUSIVE WHERE (oe-ord.ord-date GT 09/01/2018 
                            OR oe-ord.ord-date LT 12/31/0100):
         /* Note: do in multiple assigns, else function only evaluates once */
         ASSIGN oe-ord.ord-date = fFixYear(oe-ord.ord-date).
@@ -2828,22 +2828,22 @@ PROCEDURE ipFixBadYears :
         ASSIGN oe-ord.entered-date = fFixYear(oe-ord.entered-date).
         ASSIGN oe-ord.updated-date = fFixYear(oe-ord.updated-date).
         ASSIGN oe-ord.closedate = fFixYear(oe-ord.closedate).
-        FOR EACH oe-ordl OF oe-ord:
+        FOR EACH oe-ordl EXCLUSIVE OF oe-ord:
             ASSIGN oe-ordl.req-date = fFixYear(oe-ordl.req-date).
             ASSIGN oe-ordl.prom-date = fFixYear(oe-ordl.prom-date).
             ASSIGN oe-ordl.upd-date = fFixYear(oe-ordl.upd-date).
             ASSIGN oe-ordl.job-start-date = fFixYear(oe-ordl.job-start-date).
         END.
-        FOR EACH oe-rel OF oe-ord:
+        FOR EACH oe-rel EXCLUSIVE OF oe-ord:
             ASSIGN oe-rel.rel-date = fFixYear(oe-rel.rel-date).
             ASSIGN oe-rel.ship-date = fFixYear(oe-rel.ship-date).
             ASSIGN oe-rel.upd-date = fFixYear(oe-rel.upd-date).
-            FOR EACH oe-relh OF oe-rel:
-                ASSIGN oe-relh.rel-date = fFixYear(oe-relh.rel-date).
-                ASSIGN oe-relh.upd-date = fFixYear(oe-relh.upd-date).
-                ASSIGN oe-relh.prt-date = fFixYear(oe-relh.prt-date).
+            FOR EACH oe-relh EXCLUSIVE OF oe-rel:
+                ASSIGN oe-relh.rel-date = IF NOT oe-relh.rel-date EQ ? THEN fFixYear(oe-relh.rel-date) ELSE ?.
+                ASSIGN oe-relh.upd-date = IF NOT oe-relh.upd-date EQ ? THEN fFixYear(oe-relh.upd-date) ELSE ?.
+                ASSIGN oe-relh.prt-date = IF NOT oe-relh.prt-date EQ ? THEN fFixYear(oe-relh.prt-date) ELSE ?.
             END.
-            FOR EACH oe-rell OF oe-rel:
+            FOR EACH oe-rell EXCLUSIVE OF oe-rel:
                 ASSIGN oe-relh.upd-date = fFixYear(oe-rell.upd-date).
             END.
         END.
