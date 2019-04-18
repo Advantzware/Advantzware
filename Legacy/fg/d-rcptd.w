@@ -3281,6 +3281,8 @@ PROCEDURE pDisplayPO PRIVATE :
             fg-rctd.ext-cost:SCREEN-VALUE = STRING(dCostExtended).
         IF iplUpdateFreight THEN 
             fg-rctd.frt-cost:SCREEN-VALUE  = STRING(dCostExtendedFreight).
+
+            fg-rctd.ext-cost:SCREEN-VALUE = STRING(decimal(fg-rctd.ext-cost:SCREEN-VALUE) + DECIMAL(fg-rctd.frt-cost:SCREEN-VALUE) ) . 
     END.
 END PROCEDURE.
 
