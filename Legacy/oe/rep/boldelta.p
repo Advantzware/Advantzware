@@ -460,6 +460,9 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
             .
 
         v-printline = v-printline + 14.
+        iGrandBundlePerPallet = 0 .
+        v-tot-palls = 0.
+        iGrandTotShiped = 0.
         IF LAST-OF(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUMBER .
 
         PAGE.
