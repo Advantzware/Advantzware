@@ -13,10 +13,10 @@ op-next# = 0.
 
 RUN oe/getNextRelNo.p (INPUT "release#", OUTPUT op-next#).
 
-FIND LAST oe-bolh
-    WHERE oe-bolh.company EQ ip-cocode
+FIND LAST oe-relh
+    WHERE oe-relh.company EQ ip-cocode
     USE-INDEX release# NO-LOCK NO-ERROR.
-IF AVAIL oe-bolh AND oe-bolh.release# GT op-next# THEN
-  op-next# = oe-bolh.release# + 1.
+IF AVAIL oe-relh AND oe-relh.release# GT op-next# THEN
+  op-next# = oe-relh.release# + 1.
 
 /* op-next# = op-next# . */
