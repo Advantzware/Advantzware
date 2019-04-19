@@ -445,7 +445,7 @@ PROCEDURE genTempOrderLines:
     DEFINE VARIABLE cRequestedDeliveryDate      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.
     DEFINE VARIABLE lNoManufacturerPart             AS LOGICAL NO-UNDO.
-        
+
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
     FIND FIRST ttNodes
         WHERE ttNodes.parentName EQ 'itemID' AND ttNodes.nodeName EQ 'ManufacturerPartID' 
@@ -473,12 +473,14 @@ PROCEDURE genTempOrderLines:
                 itemDescription = TRIM(ttNodes.nodeValue).
         ELSE IF ttNodes.parentName EQ 'itemDetail' AND ttNodes.nodeName EQ 'unitOfMeasure' THEN 
                 itemUnitOfMeasure = TRIM(ttNodes.nodeValue).
-        ELSE IF (ttNodes.parentName EQ 'itemDetail' AND ttNodes.nodeName EQ 'ManufacturerPartID')
-                OR (lNoManufacturerPart AND itemSupplierPartID GT "") THEN 
-        DO:
-            IF ttNodes.nodeName EQ 'ManufacturerPartID' THEN 
-              itemManufacturerPartID = TRIM(ttNodes.nodeValue).
-            ELSE 
+        ELSE IF (ttNodes.parentName EQ 'itemDetail' AND ttNodes.nodeName EQ 'ManufacturerPartID') THEN 
+                itemManufacturerPartID = TRIM(ttNodes.nodeValue).
+        
+        /* Orders from 3 different customers all had this node */
+        IF ttNodes.nodeName = "Distribution" AND ttNodes.parent EQ "ItemOut"  THEN DO:
+            
+            /* Manufacturer PartID not sent for Target */             
+            IF itemManufacturerPartID = "" THEN 
                 itemManufacturerPartID = itemSupplierPartID.
 
             FIND FIRST itemfg NO-LOCK
