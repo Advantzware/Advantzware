@@ -42,6 +42,7 @@ DEFINE VARIABLE poSelected         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE ll-help-run        AS LOG       NO-UNDO.  /* set on browse help, reset row-entry */
 DEFINE VARIABLE ls-prev-po         AS cha       NO-UNDO.
 DEFINE VARIABLE lv-overrun-checked AS LOG       NO-UNDO.
+DEFINE VARIABLE lv-overrun2-checked AS LOG       NO-UNDO.
 DEFINE VARIABLE lv-closed-checked  AS LOG       NO-UNDO.
 DEFINE VARIABLE lv-job-no          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-job-no2         AS CHARACTER NO-UNDO.
@@ -3339,7 +3340,7 @@ PROCEDURE pSetGlobalSettings PRIVATE :
     RUN sys/ref/nk1look.p (ipcCompany, "FGUnderOver", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glFGUnderOver = lFound AND cReturn EQ "YES".
 
-    RUN sys/ref/nk1look.p (ipcCompany, "FGUnderOver", "L", NO, NO, "", "", OUTPUT gcFGUnderOver, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipcCompany, "FGUnderOver", "C", NO, NO, "", "", OUTPUT gcFGUnderOver, OUTPUT lFound).
 
     RUN sys/ref/nk1look.p (ipcCompany, "FGPOFRT", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glFGPOFrt = lFound AND cReturn EQ "YES".
@@ -3985,21 +3986,22 @@ PROCEDURE valid-porec-qty :
           Notes:       
         ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
+        
     IF glFGUnderOver AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
-        AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun-checked  THEN
+        AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN
     DO:          
         MESSAGE "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
             "Overrun allowed for this PO line Item..."
             VIEW-AS ALERT-BOX WARNING .
-        lv-overrun-checked = YES.
+        lv-overrun2-checked = YES.
     END.
     ELSE IF glFGUnderOver AND (gcFGUnderOver EQ "UnderRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
-            AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun-checked THEN
+            AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun2-checked THEN
         DO:
             MESSAGE "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
                 "Underrun allowed for this PO line Item..."
                 VIEW-AS ALERT-BOX WARNING .
-            lv-overrun-checked = YES.
+            lv-overrun2-checked = YES.
         END.
 
 END PROCEDURE.
