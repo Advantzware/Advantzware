@@ -152,17 +152,9 @@ DO :
   RETURN ERROR.
 END.
 
-FILE-INFO:FILE-NAME = search("Template\po-sp.xlt").
-
-/* Set the Excel Template to be used. */
-ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
-  
-if search (chFile) = ? then do:
-   MESSAGE 'Template File: Template\po-sp.xlt'
-           'cannot be found. Please verify that the file exists.'
-   VIEW-AS ALERT-BOX INFO BUTTONS OK.
-   apply 'CLOSE':U to this-procedure.
-end.
+  RUN sys/ref/getFileFullPathName.p ("Template\po-sp.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
 
 ASSIGN CurrDir = SUBSTRING (chFile, 1, INDEX (chFile, "Template\po-sp.xlt") - 2)
        no-error.

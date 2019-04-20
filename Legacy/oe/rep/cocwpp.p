@@ -426,8 +426,6 @@ PROCEDURE InitializeExcel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE cTemplateFile AS CHARACTER NO-UNDO.
-
 
 /* Capture the current active printer. */
 IF LvOutputSelection = "email" THEN
@@ -436,7 +434,9 @@ IF LvOutputSelection = "email" THEN
 /*         gcAdobePrinter     = "PDFcamp Printer" */
     .
   
-cTemplateFile = SEARCH("template\WPPBOLCert.xlt").
+  RUN sys/ref/getFileFullPathName.p ("Template\WPPBOLCert.xlt", OUTPUT gcFile).
+  IF gcFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
 
 /* Connect to the running Excel session. */
 CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
@@ -465,21 +465,8 @@ IF NOT (VALID-HANDLE (gchExcelApplication)) THEN
         RETURN ERROR.
     END.
 
-FILE-INFO:FILE-NAME = cTemplateFile.
-
-/* Set the Excel Template to be used. */
-ASSIGN gcFile = search (FILE-INFO:FULL-PATHNAME) no-error.
-  
-IF SEARCH (gcFile) = ? THEN DO:
-    MESSAGE 'Template File: template\WPPBOLCert.xlt' 
-        'cannot be found. Please verify that the file exists.'
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    APPLY 'CLOSE':U TO THIS-PROCEDURE.
-END.
-
 /* Make Excel visible. */
 ASSIGN
-    gcFile = FILE-INFO:FULL-PATHNAME
     gchExcelApplication:VISIBLE = 
         IF LvOutputSelection = "Email" OR LvOutputSelection = "Printer" THEN  
             FALSE

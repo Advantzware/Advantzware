@@ -166,9 +166,9 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
      ship[5] = "SAME".
 
 
-RUN UTIL/CurrDir.p (output CurrDir).
-ASSIGN
-   chFile = SEARCH("Template\QuoteBell.xlt") NO-ERROR.
+  RUN sys/ref/getFileFullPathName.p ("Template\QuoteBell.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
 
    chExcelApplication:VISIBLE = TRUE.
 

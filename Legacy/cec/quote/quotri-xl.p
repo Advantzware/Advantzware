@@ -175,9 +175,9 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
      ship[5] = "SAME".
 
 
-RUN UTIL/CurrDir.p (output CurrDir).
-
-ASSIGN chFile = SEARCH("Template\quote-trilake.xlt") no-error.
+  RUN sys/ref/getFileFullPathName.p ("Template\Quote-trilake.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
 
 ASSIGN
    chExcelApplication:VISIBLE = TRUE.

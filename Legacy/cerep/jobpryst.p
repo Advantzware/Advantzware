@@ -1354,9 +1354,9 @@ END PROCEDURE.  /* JobReport */
 
 PROCEDURE CreateExcelSheet:
 
-  RUN UTIL/CurrDir.p (output CurrDir).
-  ASSIGN
-     cFileName = SEARCH("Template\PrystupJob.xlt") NO-ERROR.
+  RUN sys/ref/getFileFullPathName.p ("Template\PrystupJob.xlt", OUTPUT cFileName).
+  IF cFileName = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
 
    /* Create excel automation*/
   CREATE "excel.application" chExcel.

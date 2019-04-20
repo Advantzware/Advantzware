@@ -50,21 +50,9 @@ DEF VAR mypict AS COM-HANDLE.
   FIND FIRST employee NO-LOCK WHERE employee.employee = LvEmpNum NO-ERROR.
   ASSIGN LvEmpName    = employee.first_name + " " + employee.last_name.
 
-
-  RUN UTIL/CurrDir.p (output CurrDir).
-
-/*   ASSIGN CurrDir = REPLACE(CurrDir, "/addon", ""). */
-/*   ASSIGN CurrDir = REPLACE(CurrDir, "\addon", ""). */
-
-  chFile = SEARCH("Template\TimeSheet.xlt").
-
-  if chFile = ? then do:
-    MESSAGE "Your Excel Template: " vcTemplateFile  skip
-            "Please verify that the file exists."
-      VIEW-AS ALERT-BOX ERROR.
+  RUN sys/ref/getFileFullPathName.p ("Template\TimeSheet.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
       RETURN ERROR.
-  end.
-/*   MESSAGE chFile VIEW-AS ALERT-BOX. */
 
   /* Start a new session of Excel. */
   if not (valid-handle (chExcelApplication)) THEN

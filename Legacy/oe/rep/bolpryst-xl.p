@@ -140,6 +140,10 @@ define variable WshNetwork as com-handle.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEF VAR v-rel-date AS CHAR NO-UNDO .
 
+  RUN sys/ref/getFileFullPathName.p ("Template\bol-pu.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
+
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
@@ -178,9 +182,6 @@ DO :
   RETURN ERROR.
 END.
 
-RUN UTIL/CurrDir.p (output CurrDir).
-ASSIGN chFile = SEARCH("Template\bol-pu.xlt") no-error.
-  
 chExcelApplication:VISIBLE = TRUE.
 IF LvOutputSelection = "Email" or LvOutputSelection = "Printer" THEN
 chExcelApplication:VISIBLE = FALSE.
@@ -563,9 +564,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
      /* end of dup loop */
       
     /*  end of getting total page per po */
-     
-     RUN UTIL/CurrDir.p (output CurrDir).
-     ASSIGN chFile = SEARCH("Template\bol-pu.xlt") no-error. 
      
      ASSIGN chWorkbook =chExcelApplication:Workbooks:Open(chfile)
             chExcelApplication:ScreenUpdating = FALSE

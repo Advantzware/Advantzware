@@ -144,6 +144,10 @@ DEFINE VARIABLE v-lot-no         AS CHARACTER        NO-UNDO.
 
 DEFINE VARIABLE v-dir            AS CHARACTER        FORMAT "X(80)" NO-UNDO.
 
+  RUN sys/ref/getFileFullPathName.p ("Template\invoice-py.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
+
 FIND FIRST users WHERE
     users.user_id EQ USERID("NOSWEAT")
     NO-LOCK NO-ERROR.
@@ -178,20 +182,6 @@ IF NOT(VALID-HANDLE(chExcelApplication)) THEN
 DO :
     MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
     RETURN ERROR.
-END.
-
-FILE-INFO:FILE-NAME = SEARCH("Template\invoice-py.xlt").
-
-/* Set the Excel Template to be used. */
-ASSIGN 
-    chFile = SEARCH (FILE-INFO:FULL-PATHNAME) no-error.
-  
-IF SEARCH (chFile) = ? THEN 
-DO:
-    MESSAGE 'Template File: Template\invoice-py.xlt'
-        'cannot be found. Please verify that the file exists.'
-        VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-    APPLY 'CLOSE':U TO THIS-PROCEDURE.
 END.
 
 CurrDir = SUBSTRING (chFile, 1, INDEX (chFile, "Template\invoice-py.xlt") - 2)

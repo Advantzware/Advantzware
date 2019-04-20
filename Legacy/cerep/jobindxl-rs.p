@@ -1016,20 +1016,10 @@ PROCEDURE InitializeExcel :
     RETURN ERROR.
   END.
   
-/*   /* Set our current directory. */     */
-/*   RUN UTIL/CurrDir.p (output CurrDir). */
-  
-  /* Set the Excel Template to be used. */
-/*   ASSIGN chFile = CurrDir + "\Template\Indiana SheeterLS.xlt" no-error. */
-  ASSIGN 
-       chFile = SEARCH("Template\Indiana SheeterLS.xlt").
-         
-  IF chFile = ? THEN DO:
-    MESSAGE 'Template File: ' "Template\Indiana SheeterLS.xlt" 
-            'cannot be found. Please verify that the file exists.'
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    APPLY 'CLOSE':U TO THIS-PROCEDURE.
-  END.
+  RUN sys/ref/getFileFullPathName.p ("Template\Indiana SheeterLS.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
+
   /* Make Excel visible. */
   ASSIGN 
       chExcelApplication:VISIBLE = TRUE
