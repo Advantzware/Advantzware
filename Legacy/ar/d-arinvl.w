@@ -1052,6 +1052,7 @@ PROCEDURE create-item :
             ar-invl.sman[1] = IF AVAIL cust THEN cust.sman ELSE ""
             ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0
             ar-invl.actnum =  ar-ctrl.sales
+            ar-invl.inv-date = ar-inv.inv-date
                 .
 
          FIND FIRST account WHERE account.company = g_company
