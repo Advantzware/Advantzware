@@ -149,7 +149,7 @@ CASE ip-lookupField:
            /* List of fields for which sorting is enabled */
            INPUT "procat,dscr",
            /* Where clause to select specific records */
-           INPUT "fgcat.company EQ '" + ip-company + "' " ,
+           INPUT "fgcat.company EQ '" + ip-company + "' and fgcat.lActive EQ TRUE " ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
            INPUT "procat,dscr",
            /* Pipe separated list of return field values as output based on previous input list */
