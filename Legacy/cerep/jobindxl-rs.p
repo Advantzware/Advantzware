@@ -1181,9 +1181,9 @@ PROCEDURE MainLoop :
   Notes       :       
 ------------------------------------------------------------------------------*/
     DEF VAR cXLAfile AS CHAR NO-UNDO.
-    ASSIGN 
-        cXLAfile = SEARCH("template\BarCodeWizC128.xla").
-  /* Open our Excel Template. */  
+
+  RUN sys/ref/getFileFullPathName.p ("Template\BarCodeWizC128.xla", OUTPUT cXLAFile).
+
   ASSIGN chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.
 
   /*Force add-in to load that defines the bar code conversion formula*/
