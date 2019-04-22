@@ -533,7 +533,7 @@ PROCEDURE InitializeExcel :
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE cTemplateFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWorksheetTotal AS INTEGER NO-UNDO.
-
+DEFINE VARIABLE cCustomNotesTemplate AS CHARACTER NO-UNDO .
 /* Capture the current active printer. */
 IF LvOutputSelection = "email" THEN
     ASSIGN 
@@ -571,6 +571,40 @@ FOR EACH report
     LEAVE .
  END.
 
+cCustomNotesTemplate = "" .
+ IF cCertFormat EQ "CCC" THEN
+     FOR EACH report  
+     WHERE report.term-id EQ v-term-id,
+     FIRST oe-bolh 
+     WHERE RECID(oe-bolh) EQ report.rec-id NO-LOCK:
+     
+     MAIN-BLOCK:
+     FOR EACH oe-boll
+        WHERE oe-boll.company EQ cocode
+          AND oe-boll.b-no    EQ oe-bolh.b-no
+        NO-LOCK:
+          FIND FIRST oe-ordl NO-LOCK
+              WHERE oe-ordl.company EQ oe-boll.company
+              AND oe-ordl.ord-no  EQ oe-boll.ord-no
+              AND oe-ordl.i-no    EQ oe-boll.i-no
+              AND oe-ordl.line    EQ oe-boll.line
+              NO-ERROR.
+
+        IF AVAIL oe-ordl THEN 
+            FIND FIRST eb 
+            WHERE eb.company EQ oe-ordl.company 
+            AND eb.est-no EQ oe-ordl.est-no 
+            AND eb.form-no EQ oe-ordl.form-no 
+            AND eb.blank-no EQ oe-ordl.blank-no 
+            NO-LOCK NO-ERROR.
+
+        IF AVAIL eb AND eb.style EQ "FLXRLF" AND 
+            AVAIL oe-ordl AND oe-bolh.cust-no EQ "ALF1001"  THEN do:
+            ASSIGN cCustomNotesTemplate = "CustNotes-ALF1001" .
+            LEAVE MAIN-BLOCK.
+        END.
+      END.  /* FOR EACH oe-boll */
+    END.  /* FOR EACH report*/  
 
  IF cCertFormat EQ "CCC" OR cCertFormat EQ "CCC3" THEN
      cTemplateFile = SEARCH("template\CCCBOLCert.xlt"). 
@@ -582,6 +616,9 @@ FOR EACH report
      cTemplateFile = SEARCH("template\CCC5BOLCert.xlt"). 
  IF cCertFormat EQ "CCCWPP"  THEN 
      cTemplateFile = SEARCH("template\WPPBOLCert.xlt").
+
+ IF cCertFormat EQ "CCC" AND cCustomNotesTemplate EQ "CustNotes-ALF1001" THEN
+    cTemplateFile = SEARCH("template\CCCBOLCertNote.xlt").
 
 /* Connect to the running Excel session. */
 CREATE "Excel.Application" gchExcelApplication CONNECT NO-ERROR.
