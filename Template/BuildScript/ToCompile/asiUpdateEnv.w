@@ -2103,6 +2103,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160860.
     IF fIntVer(cThisEntry) LT 16088000 THEN 
         RUN ipDataFix160880.
+    IF fIntVer(cThisEntry) LT 16089000 THEN 
+        RUN ipDataFix160890.
     IF fIntVer(cThisEntry) LT 16089900 THEN
         RUN ipDataFix160899.
 
@@ -2418,6 +2420,8 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
 PROCEDURE ipDataFix160880 :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2427,6 +2431,20 @@ PROCEDURE ipDataFix160880 :
     
 /*    Deprecated                */
 /*    RUN ipUpdateAdvantzwarePf.*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+PROCEDURE ipDataFix160890 :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160890...").
+    
+    RUN ipSetFgcatStatusActive.    
 
 END PROCEDURE.
 
@@ -2800,6 +2818,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFgcatStatusActive C-Win
+PROCEDURE ipFgcatStatusActive:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF fgcat.
+    
+    FOR EACH fgcat:
+        ASSIGN 
+            lActive = TRUE.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win 
 PROCEDURE ipFixBadYears :

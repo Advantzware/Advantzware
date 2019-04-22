@@ -608,7 +608,9 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/fgcat.i}
-   fgcat.lActive = TRUE .
+   
+    ASSIGN 
+        fgcat.lActive = TRUE.
 
 END PROCEDURE.
 
