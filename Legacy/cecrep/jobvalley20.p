@@ -876,9 +876,9 @@ DO v-local-loop = 1 TO v-local-copies:
               
               "<=Start><R+3><#PageStart>"
               "<=PageStart><#PackingStart>"
-              "<=PackingStart><C+25><#PackingTR>"
+              "<=PackingStart><C+22><#PackingTR>"
               "<=PackingStart><R+10><#PackingBL>"
-              "<=PackingStart><C+25><R+10><#PackingEnd>"
+              "<=PackingStart><C+22><R+10><#PackingEnd>"
               "<=PackingTR><FROM><LINE#PackingEnd>"
               "<=PackingStart><R+1><RIGHT=C+6>Pallet: <#Pallet>"
               "<=PackingStart><R+2><RIGHT=C+6>Size: "
@@ -898,9 +898,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingStart><R+8><RIGHT=C+6>Pattern: <#PatternCode>"
               "<=PackingStart><R+9><C+1><#Pattern>"
               "<=PackingTR><#PatternImageStart>"
-              "<=PatternImageStart><C+22><#PatternImageTR>"
+              "<=PatternImageStart><C+18><#PatternImageTR>"
               "<=PatternImageStart><R+10><#PatternImageBL>"
-              "<=PatternImageStart><C+22><R+10><#PatternImageEnd>"  
+              "<=PatternImageStart><C+18><R+10><#PatternImageEnd>"  
               "<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAIL stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
               "<=PatternImageTR><FROM><LINE#PatternImageEnd><|1>"
               "<=PatternImageTR><#ShippingStart>"
@@ -964,7 +964,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ValleyImageStart><C108><#ValleyImageTR>"
               "<=ValleyImageStart><R49><#ValleyImageBL>"
               "<=ValleyImageStart><C108><R49><#ValleyImageEnd>" .
-            PUT UNFORMATTED "<#ValleyImageStart><=ValleyImageStart><C+30><R+.5><#ValleyImage><C79><R15><IMAGE#ValleyImage=" cValleyImagePath3 "><=ValleyImage>" .
+            PUT UNFORMATTED "<#ValleyImageStart><=ValleyImageStart><C+30><R+.5><#ValleyImage><C83><R15><IMAGE#ValleyImage=" cValleyImagePath3 "><=ValleyImage>" .
             PUT UNFORMATTED "<#BoxLineMeStart><=BoxLineMeStart><C74.7><#BoxLineMeTR>"
               "<=BoxLineMeStart><R4.3><#BoxLineMeBL>"
               "<=BoxLineMeStart><C74.7><R4.3><#BoxLineMeEnd>"
