@@ -57,6 +57,7 @@ DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-prv-i-no LIKE fg-rctd.i-no NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lCheckTag AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 ASSIGN
@@ -704,6 +705,9 @@ DO:
     IF AVAIL loadtag AND loadtag.po-no GT 0 THEN
         fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no).
     
+    RUN validate-tag(0) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
     RUN validate-count .
 
   END.
@@ -718,6 +722,7 @@ ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
   IF LASTKEY NE -1 THEN DO:
    lCheckCount = NO .
+   lCheckTag = NO .
   END.
 END.
 
@@ -1683,10 +1688,10 @@ PROCEDURE local-update-record :
   RUN valid-loc-bin NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
- /*
-  RUN valid-tag NO-ERROR.
+ 
+  RUN validate-tag(1) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- */
+ 
   RUN validate-count .
 
   RUN valid-cust-no NO-ERROR.
@@ -1728,6 +1733,7 @@ PROCEDURE local-update-record :
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (yes).
   ASSIGN 
     lAddMode = FALSE.
+    lCheckTag = NO .
 
 END PROCEDURE.
 
@@ -2321,6 +2327,50 @@ IF NOT lCheckCount THEN do:
     END.
    END.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-tag B-table-Win 
+PROCEDURE validate-tag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipiTag AS INTEGER NO-UNDO .
+DEFINE BUFFER bf-fg-rctd FOR fg-rctd .
+IF NOT lCheckTag THEN do:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE bf-fg-rctd.company EQ g_company 
+               AND bf-fg-rctd.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+               AND bf-fg-rctd.rita-code EQ "C"
+               AND bf-fg-rctd.tag EQ (fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}) 
+               AND ROWID(bf-fg-rctd) NE ROWID(fg-rctd)
+            NO-ERROR .
+        IF AVAIL bf-fg-rctd THEN do:
+            MESSAGE "There is already a count entry for this tag in location '" + fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} + "' with a count of '" 
+            + STRING(fg-rctd.qty-case) +  "' Are you sure? with an OK " 
+            VIEW-AS ALERT-BOX QUESTION BUTTON OK-CANCEL UPDATE ll-ans AS LOG .
+            IF NOT ll-ans  THEN do:
+              IF ipiTag EQ 0 THEN do:
+                 APPLY "entry" TO fg-rctd.tag .
+                 RETURN ERROR.  
+              END.
+              ELSE DO:
+                  RUN local-cancel-record . 
+                  RETURN ERROR .
+              END.
+            END.
+            ELSE DO:
+                lCheckTag = YES .
+            END.
+        END.
+   END.
+END.
 
 END PROCEDURE.
 
