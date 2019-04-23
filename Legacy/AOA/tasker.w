@@ -625,10 +625,10 @@ PROCEDURE pRunCommand :
     GET-KEY-VALUE SECTION 'STARTUP'
         KEY 'DLC'
         VALUE cDLC.
-    ASSIGN
-        cEXE = cDLC + "\bin\prowin{&PROCESS-ARCHITECTURE}.exe "
-        cEXE = REPLACE(cEXE,"64","")
-        .
+    cEXE = cDLC + "\bin\prowin"
+         + REPLACE("{&PROCESS-ARCHITECTURE}","64","")
+         + ".exe "
+         .
     DO idx = 1 TO NUM-ENTRIES(SESSION:STARTUP-PARAMETERS):
         cParam = ENTRY(idx,SESSION:STARTUP-PARAMETERS).
         IF cParam BEGINS "-p " THEN NEXT.
