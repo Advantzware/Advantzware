@@ -289,7 +289,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      est-op.plates AT ROW 4.57 COL 104.4 COLON-ALIGNED
-          LABEL "Plate Changes" FORMAT ">>>"
+          LABEL "Plate changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
@@ -297,6 +297,7 @@ DEFINE FRAME Dialog-Frame
           LABEL "Fountain Changes" FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
      est-op.att-type[1] AT ROW 12.29 COL 15.8 COLON-ALIGNED
           LABEL "Adder 1" FORMAT "x(5)"
           VIEW-AS FILL-IN 
@@ -541,7 +542,7 @@ ON LEAVE OF est-op.att-qty[3] IN FRAME Dialog-Frame /* Qty */
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
-            /*IF ll-import-stds THEN RUN get-stds.*/
+            IF ll-import-stds THEN RUN get-stds.
         END.
     END.
 
@@ -986,9 +987,13 @@ DO:
 &Scoped-define SELF-NAME est-op.fountains
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains Dialog-Frame
 ON ENTRY OF est-op.fountains IN FRAME Dialog-Frame /* Fountain Changes */
-DO:
-       
-END.
+DO:     
+        IF lv-dept NE "PR" THEN 
+        DO WITH FRAME {&FRAME-NAME}:
+            APPLY "tab" TO {&self-name} .
+            RETURN NO-APPLY.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1031,7 +1036,10 @@ DO:
             
             IF ll-import-stds AND NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
             DO:
-                APPLY "entry" TO est-op.plates .
+                IF lv-dept EQ "PR" THEN
+                    APPLY "entry" TO est-op.plates .
+                ELSE
+                    APPLY "entry" TO est-op.att-type[1] .
                 RETURN NO-APPLY.
             END.
         END.
@@ -1162,9 +1170,13 @@ DO:
 &Scoped-define SELF-NAME est-op.plates
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates Dialog-Frame
 ON ENTRY OF est-op.plates IN FRAME Dialog-Frame /* Plate changes */
-DO:
-      
-END.
+DO:    
+        IF lv-dept NE "PR" THEN
+        DO WITH FRAME {&FRAME-NAME}:
+            APPLY "tab" TO {&self-name} .
+            RETURN NO-APPLY.
+        END.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1420,9 +1432,9 @@ PROCEDURE display-item :
 
         FIND FIRST mach NO-LOCK 
             WHERE mach.company EQ est-op.company
-              AND mach.m-code EQ est-op.m-code NO-ERROR.
+            AND mach.m-code EQ est-op.m-code NO-ERROR.
         IF AVAIL mach THEN
-         lv-dept = mach.dept[1] .
+            lv-dept = mach.dept[1] .
     END.
 
 
@@ -1501,31 +1513,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-of-mach Dialog-Frame 
-PROCEDURE first-of-mach :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ip-m-code LIKE est-op.m-code NO-UNDO.
-    DEFINE OUTPUT PARAMETER op-first  AS   LOG           NO-UNDO.
-  
-    DEFINE BUFFER b-est-op FOR est-op.
-
-
-    op-first = AVAILABLE est-op AND
-        NOT CAN-FIND(FIRST b-est-op
-        WHERE b-est-op.company EQ est-op.company
-        AND b-est-op.est-no  EQ est-op.est-no
-        AND b-est-op.qty     EQ est-op.qty
-        AND b-est-op.m-code  EQ ip-m-code
-        AND b-est-op.line    LT est-op.line).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-n-out Dialog-Frame 
 PROCEDURE get-n-out :
