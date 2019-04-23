@@ -429,30 +429,15 @@ PROCEDURE genTempOrderLines:
     DEFINE INPUT  PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE itemLineNumber              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemQuantity                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE itemLineNumber              AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE itemSupplierPartID          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemManufacturerPartID      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemSupplierPartAuxiliaryID AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemMoney                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemDescription             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemUnitOfMeasure           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemDueDate                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount                      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iNextOrderNumber            LIKE oe-ord.ord-no NO-UNDO.
-    DEFINE VARIABLE iNextShipNo                 LIKE shipto.ship-no NO-UNDO.
-    DEFINE VARIABLE dItemQtyEach                LIKE oe-ordl.qty NO-UNDO.
-    DEFINE VARIABLE cShipToTaxCode              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestedDeliveryDate      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.
-    DEFINE VARIABLE lNoManufacturerPart             AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.    
     DEFINE VARIABLE iCurrentLineNum             AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE cNodeParentName AS CHARACTER NO-UNDO.
+    
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
-    FIND FIRST ttNodes
-        WHERE ttNodes.parentName EQ 'itemID' AND ttNodes.nodeName EQ 'ManufacturerPartID' 
-        NO-ERROR.
-    lNoManufacturerPart = NOT AVAILABLE(ttNodes).
+
     EMPTY TEMP-TABLE ttOrdLines.
     FOR EACH ttNodes:
         IF AVAILABLE oe-ord THEN 
@@ -461,7 +446,7 @@ PROCEDURE genTempOrderLines:
                  .
                                   
         IF ttNodes.parentName EQ 'itemOut' AND ttNodes.nodeName EQ 'lineNumber' THEN DO:
-            FIND FIRST ttOrdHead WHERE  NO-ERROR.
+            FIND FIRST ttOrdHead NO-ERROR.
             IF NOT AVAILABLE ttOrdHead THEN 
                 RETURN.
             itemLineNumber = TRIM(ttNodes.nodeValue).
@@ -478,7 +463,7 @@ PROCEDURE genTempOrderLines:
             END.      
             NEXT.
         END.
-        DEFINE VARIABLE cNodeParentName AS CHARACTER NO-UNDO.
+        
         cNodeParentName = ttNodes.parentName + "|" + ttNodes.nodeName.
         CASE cNodeParentName:
             WHEN 'itemOut|requestedDeliveryDate' THEN DO:
