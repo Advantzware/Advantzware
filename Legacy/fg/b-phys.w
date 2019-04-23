@@ -2352,8 +2352,8 @@ IF NOT lCheckTag THEN do:
                AND ROWID(bf-fg-rctd) NE ROWID(fg-rctd)
             NO-ERROR .
         IF AVAIL bf-fg-rctd THEN do:
-            MESSAGE "There is already a count entry for this tag in location '" + fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} + "' with a count of '" 
-            + STRING(fg-rctd.qty-case) +  "' Are you sure? with an OK " 
+            MESSAGE "There is already a count entry for this tag in location '" + bf-fg-rctd.loc + "' with a count of '" 
+            + STRING(bf-fg-rctd.qty-case) +  "' Are you sure? with an OK " 
             VIEW-AS ALERT-BOX QUESTION BUTTON OK-CANCEL UPDATE ll-ans AS LOG .
             IF NOT ll-ans  THEN do:
               IF ipiTag EQ 0 THEN do:
