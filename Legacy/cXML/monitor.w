@@ -54,7 +54,7 @@ PROCEDURE postMonitor:
       RUN monitorActivity ('cXML',YES,monitorFile).
 
       IF cXMLDir.cXMLName EQ 'cXMLOrder' THEN DO:
-        RUN gencXMLOrder (cXMLFile, OUTPUT returnValue). /* generate order */
+        RUN gencXMLOrder (cXMLFile, NO /* temptable only*/, OUTPUT returnValue). /* generate order */
       END.
       ELSE RUN cXML/ariba.p (cXMLFile,cXMLResponse,OUTPUT returnValue). /* transmit to Ariba */
 
