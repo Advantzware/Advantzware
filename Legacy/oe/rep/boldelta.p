@@ -484,7 +484,7 @@ PROCEDURE create-tt-boll.
     DEFINE INPUT PARAMETER ip-qty-case LIKE oe-boll.qty-case NO-UNDO.
     DEFINE INPUT PARAMETER ip-cases    LIKE oe-boll.cases NO-UNDO.
     DEFINE INPUT PARAMETER ip-check    AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE iCountPallet AS INTEGER NO-UNDO .
 
     IF ip-qty-case LT 0 THEN
         ASSIGN
@@ -512,8 +512,9 @@ PROCEDURE create-tt-boll.
             tt-boll.tot-pallet = 0.
     END.
 
+    iCountPallet = oe-boll.cases / tt-boll.qty-case .
     IF ip-check EQ YES THEN
-        tt-boll.tot-pallet  = tt-boll.tot-pallet + oe-boll.tot-pallet .
+        tt-boll.tot-pallet  = tt-boll.tot-pallet + (IF iCountPallet LE 0 THEN 1 ELSE iCountPallet )  .
     ASSIGN
         tt-boll.cases  = tt-boll.cases + ip-cases
         tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
