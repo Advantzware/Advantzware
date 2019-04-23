@@ -172,7 +172,7 @@ DEFINE NEW SHARED WORKFILE wrk-misc
 {custom/formtext.i NEW}     
 {custom/notesdef.i}
 DEFINE VARIABLE v-inst2 AS CHARACTER EXTENT 25 NO-UNDO.    
-DEFINE VARIABLE v-dept-inst AS CHARACTER FORM "x(80)" EXTENT 20 NO-UNDO.
+DEFINE VARIABLE v-dept-inst AS CHARACTER FORM "x(80)" EXTENT 100 NO-UNDO.
 DEFINE VARIABLE v-note-length AS INTEGER INITIAL 80 NO-UNDO.
 
 DEFINE VARIABLE v-start-date AS DATE NO-UNDO.
@@ -868,6 +868,7 @@ FOR EACH job-hdr NO-LOCK
 /*            ELSE                                                               */
 /*               ASSIGN v-cust-lot# = "".                                        */
 
+            IF AVAILABLE oe-rel THEN
               ASSIGN v-cust-lot# = oe-rel.lot-no.
 
             FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
@@ -1467,7 +1468,7 @@ FOR EACH job-hdr NO-LOCK
 
             IF LAST-OF(notes.note_code) THEN DO:           
                 
-               DO li = 1 TO 4:
+               DO li = 1 TO 100:
                   CREATE tt-formtext.
                   ASSIGN tt-line-no = li
                          tt-length  = 90.
@@ -1481,12 +1482,25 @@ FOR EACH job-hdr NO-LOCK
 
                FOR EACH tt-formtext:
                    i = i + 1.
-                   IF  i <= 4 THEN v-dept-inst[i] = tt-formtext.tt-text.      
+                   IF  i <= 100 THEN v-dept-inst[i] = tt-formtext.tt-text.      
                END.
-
+                 
                IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
-               
-               IF v-dept-inst[1] NE "" THEN 
+           
+               DO i = 1 TO 100:
+                   
+                   IF v-dept-inst[i] NE "" THEN DO:
+                       IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
+
+                       PUT 
+                         (IF AVAILABLE dept THEN (dept.CODE + " " + dept.dscr) 
+                                        ELSE (notes.note_code + " " + note_title)) 
+                                        FORMAT "x(28)" AT 1
+                          v-dept-inst[i] FORMAT "x(90)" AT 29 SKIP.
+                   END. /*IF v-dept-inst[i] NE "" THEN DO*/
+               END. /*DO i = 1 TO 19*/
+              
+             /*  IF v-dept-inst[1] NE "" THEN 
                  PUT 
                    (IF AVAILABLE dept THEN (dept.CODE + " " + dept.dscr) 
                                   ELSE (notes.note_code + " " + note_title)) 
@@ -1512,7 +1526,7 @@ FOR EACH job-hdr NO-LOCK
                    (IF AVAILABLE dept THEN (dept.CODE + " " + dept.dscr) 
                                   ELSE (notes.note_code + " " + note_title)) 
                                   FORMAT "x(28)" AT 1
-                   v-dept-inst[4] FORMAT "x(90)" AT 29 SKIP.
+                   v-dept-inst[4] FORMAT "x(90)" AT 29 SKIP. */
                
             END.  /*IF LAST-OF(notes.note_code) */ 
 
@@ -1526,11 +1540,20 @@ FOR EACH job-hdr NO-LOCK
     /*  IF v-ship <> "" THEN v-dept-inst[6] = v-ship.  /* shipto notes */ */
         IF NOT v-dept-note-printed THEN DO:
            IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
-           PUT "<B>DEPARTMENT   INSTRUCTION NOTES</B>" SKIP
-              v-dept-inst[1] FORMAT "x(128)" SKIP
+           PUT "<B>DEPARTMENT   INSTRUCTION NOTES</B>" SKIP.
+        
+           DO i = 1 TO 100:
+               IF v-dept-inst[i] NE "" THEN DO:
+                   IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
+
+                   PUT v-dept-inst[i] FORMAT "x(128)" SKIP.
+               END. /*IF v-dept-inst[i] NE "" THEN DO*/
+           END. /*DO i = 1 TO 19*/
+
+             /* v-dept-inst[1] FORMAT "x(128)" SKIP
               v-dept-inst[2] FORMAT "x(128)" SKIP
               v-dept-inst[3] FORMAT "x(128)" SKIP
-              v-dept-inst[4] FORMAT "x(128)" SKIP.
+              v-dept-inst[4] FORMAT "x(128)" SKIP.*/
         END.
         
         /* spec note */
