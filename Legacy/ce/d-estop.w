@@ -239,6 +239,7 @@ DEFINE FRAME Dialog-Frame
           LABEL "Speed" FORMAT ">>>>9"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
+          BGCOLOR 15 FONT 1
      est-op.op-spoil AT ROW 5.62 COL 61.2 COLON-ALIGNED
           LABEL "Spoil%" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
@@ -704,14 +705,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains Dialog-Frame
 ON ENTRY OF est-op.fountains IN FRAME Dialog-Frame /* Fountain Changes */
 DO:
-        DEFINE VARIABLE ll AS LOGICAL INITIAL YES NO-UNDO.
-
-
-        IF lv-dept EQ "PR" THEN
-            RUN first-of-mach (est-op.m-code:SCREEN-VALUE ,
-                OUTPUT ll).
-
-        IF ll THEN 
+        IF lv-dept NE "PR" THEN
         DO WITH FRAME {&FRAME-NAME}:
             APPLY "tab" TO {&self-name} .
             RETURN NO-APPLY.
@@ -982,15 +976,8 @@ DO:
 &Scoped-define SELF-NAME est-op.plates
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates Dialog-Frame
 ON ENTRY OF est-op.plates IN FRAME Dialog-Frame /* Plate changes */
-DO:
-        DEFINE VARIABLE ll AS LOGICAL INITIAL YES NO-UNDO.
-
-
-        IF lv-dept EQ "PR" THEN
-            RUN first-of-mach (est-op.m-code:SCREEN-VALUE ,
-                OUTPUT ll).
-
-        IF ll THEN 
+DO:     
+        IF lv-dept NE "PR" THEN
         DO WITH FRAME {&FRAME-NAME}:
             APPLY "tab" TO {&self-name} .
             RETURN NO-APPLY.
@@ -1213,6 +1200,11 @@ PROCEDURE display-item :
             est-op.op-rate[1] est-op.op-rate[2] est-op.num-col est-op.num-coat 
             est-op.plates est-op.fountains est-op.n_out_div est-op.op-pass
             WITH FRAME Dialog-Frame.
+        FIND FIRST mach NO-LOCK 
+            WHERE mach.company EQ est-op.company
+            AND mach.m-code EQ est-op.m-code NO-ERROR.
+        IF AVAIL mach THEN
+            lv-dept = mach.dept[1] .
     END.
 
 
@@ -1261,54 +1253,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-of-mach Dialog-Frame 
-PROCEDURE first-of-mach :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ip-m-code LIKE est-op.m-code NO-UNDO.
-    DEFINE OUTPUT PARAMETER op-first  AS   LOGICAL       NO-UNDO.
-  
-    DEFINE BUFFER b-est-op FOR est-op.
-    DEFINE BUFFER b-mach   FOR mach.
-    DEFINE BUFFER b2-mach  FOR mach.
-
-    DEFINE VARIABLE v-mach-found AS LOGICAL NO-UNDO.
-
-    IF NOT AVAILABLE est-op THEN
-        LEAVE.
-
-    FOR EACH b-est-op FIELDS(m-code) NO-LOCK WHERE
-        b-est-op.company EQ est-op.company AND
-        b-est-op.est-no  EQ est-op.est-no AND
-        b-est-op.qty     EQ est-op.qty AND
-        b-est-op.line    LT est-op.line
-        ,
-        FIRST b-mach FIELDS(sch-m-code) NO-LOCK WHERE
-        b-mach.company EQ est-op.company AND
-        b-mach.m-code EQ est-op.m-code
-        ,
-        FIRST b2-mach FIELDS(sch-m-code) NO-LOCK WHERE
-        b2-mach.company EQ est-op.company AND
-        b2-mach.m-code EQ b-est-op.m-code
-        :
-
-        IF b-est-op.m-code EQ ip-m-code OR
-            b-mach.sch-m-code EQ b2-mach.sch-m-code THEN
-        DO:
-            v-mach-found = YES.
-            LEAVE.
-        END.
-    END.
-
-    op-first = NOT v-mach-found.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-stds Dialog-Frame 
 PROCEDURE get-stds :
