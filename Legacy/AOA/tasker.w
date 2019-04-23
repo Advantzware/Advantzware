@@ -616,7 +616,7 @@ PROCEDURE pRunCommand :
     DEFINE OUTPUT PARAMETER opcRun AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cDLC   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cINI   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEXE   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx    AS INTEGER   NO-UNDO.
@@ -625,6 +625,10 @@ PROCEDURE pRunCommand :
     GET-KEY-VALUE SECTION 'STARTUP'
         KEY 'DLC'
         VALUE cDLC.
+    cEXE = cDLC + "\bin\prowin"
+         + REPLACE("{&PROCESS-ARCHITECTURE}","64","")
+         + ".exe "
+         .
     DO idx = 1 TO NUM-ENTRIES(SESSION:STARTUP-PARAMETERS):
         cParam = ENTRY(idx,SESSION:STARTUP-PARAMETERS).
         IF cParam BEGINS "-p " THEN NEXT.
@@ -645,7 +649,7 @@ PROCEDURE pRunCommand :
     DO idx = 1 TO NUM-DBS:
         opcRun = opcRun + REPLACE(DBPARAM(idx),","," ") + " ".
     END. /* do idx */
-    opcRun = cDLC + "\bin\prowin "
+    opcRun = cEXE
            + REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
            + "-p &1 -param &2"
            .

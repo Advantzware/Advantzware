@@ -122,7 +122,7 @@ itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2 itemfg.trNo
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tgVaried tg-Freeze-weight ~
@@ -255,6 +255,10 @@ DEFINE FRAME F-Main
           LABEL "Est#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     itemfg.trNo AT ROW 10 COL 47 COLON-ALIGNED
+          LABEL "Pallet #"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      itemfg.style AT ROW 11 COL 11 COLON-ALIGNED
           LABEL "Style"
           VIEW-AS FILL-IN 
@@ -598,6 +602,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.weight-100 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.trNo IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -635,7 +641,8 @@ DO:
         DEFINE VARIABLE char-val     AS cha           NO-UNDO.
         DEFINE VARIABLE lv-prep-type AS cha           NO-UNDO.
         DEFINE VARIABLE lw-focus     AS WIDGET-HANDLE NO-UNDO.
-
+        DEFINE VARIABLE look-recid   AS RECID NO-UNDO .
+        DEFINE VARIABLE fields-val AS CHARACTER NO-UNDO .
         lw-focus = FOCUS.
 
         CASE lw-focus:NAME :
@@ -685,11 +692,14 @@ DO:
                 END.
             WHEN "procat" THEN 
                 DO:
-                    RUN windows/l-fgcat.w (gcompany,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-                    IF char-val <> "" THEN 
-                        ASSIGN lw-focus:SCREEN-VALUE           = ENTRY(1,char-val)
-                            itemfg.procat-desc:SCREEN-VALUE = ENTRY(2,char-val)
-                            .
+                    RUN system/openlookup.p (gcompany, "procat", OUTPUT fields-val, OUTPUT char-val, OUTPUT look-recid).
+                    
+                    FIND FIRST fgcat NO-LOCK 
+                        WHERE  fgcat.company EQ gcompany 
+                          AND RECID(fgcat) EQ look-recid NO-ERROR .
+                    IF AVAIL fgcat THEN
+                        ASSIGN itemfg.procat:SCREEN-VALUE      = fgcat.procat
+                               itemfg.procat-desc:SCREEN-VALUE = fgcat.dscr .
                 END.
             WHEN "type-code" THEN 
                 DO:
@@ -1002,10 +1012,11 @@ DO:
             RETURN NO-APPLY.
         END.
 
-        FIND FIRST fgcat WHERE fgcat.company = gcompany AND
-            fgcat.procat = SELF:SCREEN-VALUE
-            NO-LOCK NO-ERROR.
-        itemfg.procat-desc:SCREEN-VALUE = IF AVAILABLE fgcat THEN fgcat.dscr ELSE "".
+       IF LASTKEY <> -1 THEN do:
+           RUN valid-pro-status NO-ERROR.
+           IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+       END.
+
         {&methods/lValidateError.i NO}
     END.
 
@@ -1468,6 +1479,7 @@ PROCEDURE enable-itemfg-field :
         DISABLE itemfg.cust-name
             itemfg.procat-desc
             itemfg.style-desc
+            itemfg.trNo
             fi_type-dscr.
 
         IF NOT adm-new-record THEN 
@@ -2030,9 +2042,11 @@ PROCEDURE local-update-record :
         END.
 
         RUN valid-type NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
 
-    
+       RUN valid-pro-status NO-ERROR.
+       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
         IF itemfg.prod-uom:VISIBLE = YES THEN 
         DO:
             IF (itemfg.i-code:SCREEN-VALUE = "S" AND can-do("EA,M",itemfg.prod-uom:SCREEN-VALUE )) OR
@@ -2842,6 +2856,36 @@ PROCEDURE valid-type :
             APPLY "entry" TO itemfg.type-code.
             RETURN ERROR.
         END.
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-pro-status V-table-Win 
+PROCEDURE valid-pro-status :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        itemfg.procat-desc:SCREEN-VALUE = "" .
+        FIND FIRST fgcat NO-LOCK 
+            WHERE  fgcat.company EQ gcompany 
+            AND fgcat.procat EQ itemfg.procat:SCREEN-VALUE NO-ERROR .
+
+        IF AVAIL fgcat AND NOT fgcat.lActive THEN DO:
+            MESSAGE "FG Category is not active, make active or select an active FG Category." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.procat.
+            RETURN ERROR.
+        END.
+        ELSE IF AVAIL fgcat THEN
+            itemfg.procat-desc:SCREEN-VALUE = IF AVAILABLE fgcat THEN fgcat.dscr ELSE "".
     END.
 
   {methods/lValidateError.i NO}

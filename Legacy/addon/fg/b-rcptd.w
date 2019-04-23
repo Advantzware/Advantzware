@@ -2542,6 +2542,7 @@ PROCEDURE post-finish-goods :
         INPUT NO,          /* tg-recalc-cost */
         INPUT "R",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
+        INPUT YES,
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,
@@ -3255,7 +3256,8 @@ PROCEDURE valid-tag :
                         AND b-fg-rdtlh.tag       EQ ip-focus:SCREEN-VALUE
                         AND b-fg-rdtlh.qty       GT 0
                         AND b-fg-rdtlh.rita-code NE "S")) THEN
-             lv-msg = "Tag# has already been used, please re-enter".
+             lv-msg = "Tag# has already been used, Negative receipts should be " + 
+                "processed using  Sharp Shooter, Finished Goods, Delete Goods program" .
         
          END. /*lv-do-what NE "Delete"*/
          ELSE IF NOT ll-set-parts THEN

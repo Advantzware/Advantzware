@@ -21,32 +21,32 @@
 &SCOPED-DEFINE aoaJasperGap 5
 &SCOPED-DEFINE noBrowseRefresh
 
-DEFINE VARIABLE aoaCompany         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE aoaProgramID       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE aoaBatchSeq        AS INTEGER   NO-UNDO.
-DEFINE VARIABLE aoaUserID          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE aoaTitle           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hAppSrv            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cSelectedColumns   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lJasperStarter     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lUseDefault        AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowParameters   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowReportHeader AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowReportFooter AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowPageHeader   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowPageFooter   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowGroupHeader  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowGroupFooter  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE aoaBatchSeq         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE aoaCompany          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaProgramID        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaTitle            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaUserID           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSelectedColumns    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hAppSrv             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hAppSrvBin          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lJasperStarter      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUseDefault         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowParameters    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowReportHeader  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowReportFooter  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowPageHeader    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowPageFooter    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowGroupHeader   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowGroupFooter   AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER jasperUserPrint FOR user-print.
 
 {AOA/includes/ttColumn.i}
 {AOA/includes/aoaProcedures.i}
+{AOA/includes/pRunBusinessLogic.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -59,7 +59,6 @@ DEFINE BUFFER jasperUserPrint FOR user-print.
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Prototypes ********************** */
 
@@ -118,7 +117,6 @@ FUNCTION fJasperReportSize RETURNS INTEGER
 
 &ENDIF
 
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -142,17 +140,12 @@ FUNCTION fJasperReportSize RETURNS INTEGER
                                                                         */
 &ANALYZE-RESUME
 
- 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
-
 
 lJasperStarter = INDEX(OS-GETENV("Path"),"jasperstarter") NE 0.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -269,8 +262,12 @@ PROCEDURE pGetUserParamValue:
                 cTable = ENTRY(1,dynParamValue.colName[idx],".")
                 cField = ENTRY(2,dynParamValue.colName[idx],".")
                 .
-            CREATE BUFFER hTable FOR TABLE cTable.
-            dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
+            IF CAN-FIND(FIRST dynSubject
+                        WHERE dynSubject.subjectID     EQ dynParamValue.subjectID
+                          AND dynSubject.businessLogic EQ "") THEN DO:
+                CREATE BUFFER hTable FOR TABLE cTable.
+                dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
+            END. /* if not business logic */
         END. /* if table.field */
         ELSE
         cField = dynParamValue.colName[idx].
@@ -308,9 +305,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-pGetUserPrint) = 0 &THEN
 
@@ -1672,11 +1667,20 @@ PROCEDURE spJasperQuery:
          WHERE dynSubject.subjectID EQ dynParamValue.subjectID
          NO-ERROR.
     IF AVAILABLE dynSubject THEN DO:
+        IF dynSubject.businessLogic EQ "" THEN
         /* create dynamic query */
         RUN AOA/dynQuery.p (
             ROWID(dynParamValue),
             dynSubject.queryStr,
             cTableName,
+            0, /* zero = no record limit */
+            OUTPUT hQuery,
+            OUTPUT lOK,
+            OUTPUT cError
+            ).
+        ELSE
+        /* run business logic */
+        RUN pRunBusinessLogic (
             OUTPUT hQuery,
             OUTPUT lOK,
             OUTPUT cError

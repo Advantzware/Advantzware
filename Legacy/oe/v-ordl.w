@@ -72,7 +72,15 @@ DEF VAR v-rel AS INT NO-UNDO.
 DEF VAR v-margin AS DEC NO-UNDO.
 DEF VAR v-ship-from AS CHAR NO-UNDO.
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
+RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+   llOeShipFromLog = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1292,14 +1300,19 @@ PROCEDURE create-release :
                             and eb.form-no  ne 0
                                no-lock no-error.
             if avail eb then assign v-ship-id = eb.ship-id.
+            if avail eb AND v-ship-from EQ "" then assign v-ship-from = eb.loc.
          end.
          else do:
             find first shipto where shipto.company eq cocode
                                 and shipto.cust-no eq oe-ordl.cust-no
                                 no-lock no-error.
             if avail shipto then assign v-ship-id = shipto.ship-id.
+            IF AVAIL shipto AND v-ship-from EQ "" THEN
+                v-ship-from = shipto.loc.
          end.
-         run oe/d-shipid.w (input oe-ordl.cust-no,INPUT oe-ordl.qty, INPUT oe-ordl.i-no, input-output v-ship-id, INPUT-OUTPUT v-ship-from)  .
+         IF llOeShipFromLog THEN
+             run oe/d-shipid.w (input oe-ordl.cust-no,INPUT oe-ordl.qty, INPUT oe-ordl.i-no, input-output v-ship-id, INPUT-OUTPUT v-ship-from)  .
+
          assign oe-rel.ship-id = trim(v-ship-id).
          IF v-ship-from GT "" THEN
              oe-rel.spare-char-1 = v-ship-from.

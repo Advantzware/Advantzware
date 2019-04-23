@@ -729,6 +729,7 @@ FORMAT wkrecap.procat
                  WHEN "status" THEN cVarValue = STRING(c-result,"x(20)") . 
                  WHEN "po-recvdt" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.poReceivedDate NE ? THEN STRING(oe-ord.poReceivedDate) ELSE "".
                  WHEN "prev-order" THEN cVarValue = STRING(cPrevOrder,"x(8)") .
+		         WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
             cExcelVarValue = cVarValue.
@@ -817,6 +818,7 @@ FORMAT wkrecap.procat
                    WHEN "status" THEN cVarValue = "" .
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
+		           WHEN "approved-date" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -898,6 +900,7 @@ FORMAT wkrecap.procat
                    WHEN "status" THEN cVarValue = "" .
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
+		           WHEN "approved-date" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -982,6 +985,7 @@ FORMAT wkrecap.procat
                 WHEN "status" THEN cVarValue = STRING(c-result,"x(20)") .
                 WHEN "po-recvdt" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.poReceivedDate NE ? THEN STRING(oe-ord.poReceivedDate) ELSE "".
                 WHEN "prev-order" THEN cVarValue = STRING(cPrevOrder,"X(8)") .
+		        WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
             END CASE.
             IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.  
             cExcelVarValue = cVarValue.
@@ -1067,6 +1071,7 @@ FORMAT wkrecap.procat
                    WHEN "status" THEN cVarValue = "" .
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "" . 
+		           WHEN "approved-date" THEN cVarValue = "" .	
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1147,6 +1152,7 @@ FORMAT wkrecap.procat
                    WHEN "status" THEN cVarValue = "" .
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
+		           WHEN "approved-date" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.

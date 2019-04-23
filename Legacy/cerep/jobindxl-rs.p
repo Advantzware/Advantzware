@@ -1016,20 +1016,10 @@ PROCEDURE InitializeExcel :
     RETURN ERROR.
   END.
   
-/*   /* Set our current directory. */     */
-/*   RUN UTIL/CurrDir.p (output CurrDir). */
-  
-  /* Set the Excel Template to be used. */
-/*   ASSIGN chFile = CurrDir + "\Template\Indiana SheeterLS.xlt" no-error. */
-  ASSIGN FILE-INFO:FILE-NAME = "Template\Indiana SheeterLS.xlt"
-         chFile = FILE-INFO:FULL-PATHNAME.
-         
-  IF SEARCH (chFile) = ? THEN DO:
-    MESSAGE 'Template File: ' "Template\Indiana SheeterLS.xlt" 
-            'cannot be found. Please verify that the file exists.'
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    APPLY 'CLOSE':U TO THIS-PROCEDURE.
-  END.
+  RUN sys/ref/getFileFullPathName.p ("Template\Indiana SheeterLS.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
+
   /* Make Excel visible. */
   ASSIGN 
       chExcelApplication:VISIBLE = TRUE
@@ -1190,12 +1180,18 @@ PROCEDURE MainLoop :
   Parameters  : None
   Notes       :       
 ------------------------------------------------------------------------------*/
+    DEF VAR cXLAfile AS CHAR NO-UNDO.
 
-  /* Open our Excel Template. */  
+  RUN sys/ref/getFileFullPathName.p ("Template\BarCodeWizC128.xla", OUTPUT cXLAFile).
+
   ASSIGN chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.
 
   /*Force add-in to load that defines the bar code conversion formula*/
-  chExcelApplication:Workbooks:OPEN("J:\Environments\Prod\Template\BarCodeWizC128.xla") NO-ERROR.
+  chExcelApplication:Workbooks:OPEN(cXLAfile) NO-ERROR.
+  
+  /* Indiana-specific possible file locations */
+  IF ERROR-STATUS:ERROR THEN
+    chExcelApplication:Workbooks:OPEN("J:\Environments\Prod\Template\BarCodeWizC128.xla") NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     chExcelApplication:Workbooks:OPEN("J:\RCode\Template\BarCodeWizC128.xla") NO-ERROR.
   IF ERROR-STATUS:ERROR THEN

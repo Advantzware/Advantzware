@@ -150,6 +150,11 @@ PROCEDURE SetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
     DEFINE RETURN PARAMETER iResult AS LONG.
 END PROCEDURE.
 
+PROCEDURE BringWindowToTop EXTERNAL "USER32.DLL":
+    DEFINE INPUT  PARAMETER intHwnd   AS LONG.
+    DEFINE RETURN PARAMETER intResult AS LONG.
+END PROCEDURE.
+
 PROCEDURE GetLastError EXTERNAL "kernel32.dll":
     DEFINE RETURN PARAMETER iReturnValue AS LONG.
 END.
@@ -620,7 +625,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEFINE VARIABLE lNeedDBWork AS LOG NO-UNDO.
     DEFINE VARIABLE lGoodNos AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lGoodList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE rc AS INTEGER NO-UNDO.
 
+    /* This window will ALWAYS be on top of other windows */
+    RUN BringWindowToTop (c-Win:hwnd, OUTPUT rc).
+    
     /* There should not be any connected DBs at this point.  If there are, disconnect */
     DO ictr = 1 TO NUM-DBS:
         DISCONNECT VALUE (LDBNAME(ictr)).

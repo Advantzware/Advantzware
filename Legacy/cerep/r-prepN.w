@@ -1271,13 +1271,13 @@ PROCEDURE run-report :
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".   
             END.
         END.
+
+        PUT UNFORMATTED cDisplay SKIP.
+        IF tb_excel THEN DO:
+            PUT STREAM excel UNFORMATTED cExcelDisplay SKIP.
+        END.  
     END.
     
-    PUT UNFORMATTED cDisplay SKIP.
-    IF tb_excel THEN DO:
-        PUT STREAM excel UNFORMATTED cExcelDisplay SKIP.
-    END.  
-
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN

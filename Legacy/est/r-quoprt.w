@@ -95,6 +95,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dQuoteValue AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cCheckLeftMarFormat AS CHARACTER INITIAL "QuoPrintVAL,quoprint 1,quoprint 2,quoprint 10,quoprint 20,xprint,quoprint 11,quoprint10-CAN" NO-UNDO .
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -2129,12 +2130,17 @@ ASSIGN
  v-boardDescription = tb_boardDescription
  s-print-2nd-dscr = tb_print-2nd-dscr
  v-prt-shp2 = tb_prt-shp2.
-
+ IF dQuoteValue EQ 0 THEN dQuoteValue = 4 .
   IF rs-act-inact:HIDDEN EQ NO THEN
      cItemStatus = SUBSTRING(rs-act-inact,1,1).
 
  IF rs_note:HIDDEN EQ NO THEN
     s-note-mode = rs_note.
+
+ IF v-program EQ "cec/quote/quoasi.p" THEN DO:  
+    MESSAGE "Format is invalid or not found - Set the proper format in NK1 - "  v-print-fmt VIEW-AS ALERT-BOX INFO.
+    RETURN.
+ END.
 
 {sys/inc/outprint.i value(lines-per-page)}
 
@@ -2357,18 +2363,18 @@ ELSE
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN do:
-            IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+            IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                 PUT  "<PRINTER?><LEFT=" + trim(string(dQuoteValue)) + "mm></PROGRESS>" FORMAT "x(50)".
             ELSE PUT  "<PRINTER?></PROGRESS>".
         END.
         WHEN 2 THEN do:
             IF NOT lBussFormModle THEN do:
-                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                     PUT "<PREVIEW><LEFT=" + trim(string(dQuoteValue)) + "mm><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
                 ELSE PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
             END.
             ELSE do:
-                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                     PUT "<PREVIEW><LEFT=" + trim(string(dQuoteValue)) + "mm></PROGRESS>" FORMAT "x(50)".     
                 ELSE PUT "<PREVIEW></PROGRESS>" FORMAT "x(50)". 
             END.
@@ -2383,6 +2389,8 @@ IF IS-xprint-form THEN DO:
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
             ELSE IF lookup(v-print-fmt,"QuoPrintVAL") > 0 THEN
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><LEFT=" + trim(string(dQuoteValue)) +  "mm><PDF-LEFT=2mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
+            ELSE IF lookup(v-print-fmt,cCheckLeftMarFormat) > 0 THEN
+                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><LEFT=" + trim(string(dQuoteValue)) +  "mm><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
             ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
         END.
     END CASE.
@@ -2422,6 +2430,13 @@ DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
 ASSIGN
    fcust = icCustNo
    tcust = icCustNo.
+
+ IF v-program EQ "cec/quote/quoasi.p" THEN DO:  
+    MESSAGE "Format is invalid or not found - Set the proper format in NK1 - "  v-print-fmt VIEW-AS ALERT-BOX INFO.
+    RETURN.
+ END.
+
+IF dQuoteValue EQ 0 THEN dQuoteValue = 4 .
 
 {sys/inc/print1.i}
 
@@ -2559,18 +2574,18 @@ ELSE
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN do:
-            IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+            IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                 PUT  "<PRINTER?><LEFT=" + string(dQuoteValue) + "mm></PROGRESS>" FORMAT "x(50)".
             ELSE PUT  "<PRINTER?></PROGRESS>" FORMAT "x(50)".
         END.
         WHEN 2 THEN do:
             IF NOT lBussFormModle THEN do:
-                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                     PUT "<PREVIEW><LEFT=" + string(dQuoteValue) + "mm><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
                 ELSE PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
             END.
             ELSE do:
-                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                     PUT "<PREVIEW><LEFT=" + string(dQuoteValue) + "mm></PROGRESS>" FORMAT "x(50)".     
                 ELSE PUT "<PREVIEW></PROGRESS>" FORMAT "x(50)". 
             END.
@@ -2585,6 +2600,8 @@ IF IS-xprint-form THEN DO:
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF lookup(v-print-fmt,"QuoPrintVAL") > 0 THEN
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><LEFT=" + string( dQuoteValue) +  "mm><PDF-LEFT=2mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
+            ELSE IF lookup(v-print-fmt,cCheckLeftMarFormat) > 0 THEN
+                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><LEFT=" + string( dQuoteValue) +  "mm><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
@@ -2744,7 +2761,7 @@ PROCEDURE SetQuoForm :
 
           ELSE
              ASSIGN
-                v-program = "ce/quote/quoasi.p"
+                v-program = "cec/quote/quoasi.p"
                 lines-per-page = IF v-log THEN 50 ELSE 56.
        END.
    END.

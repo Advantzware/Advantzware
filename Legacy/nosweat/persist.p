@@ -5,6 +5,17 @@ DEFINE SHARED     VARIABLE g_track_usage AS LOGICAL       NO-UNDO.
 DEFINE            VARIABLE phandle       AS WIDGET-HANDLE NO-UNDO.
 DEFINE            VARIABLE is-running    AS LOGICAL       NO-UNDO.
 
+PROCEDURE SetForegroundWindow EXTERNAL "USER32.DLL":
+    DEFINE INPUT  PARAMETER intHwnd   AS LONG.
+    DEFINE RETURN PARAMETER intResult AS LONG.
+END PROCEDURE.
+
+PROCEDURE FindWindowA EXTERNAL "USER32.DLL":
+    DEFINE INPUT  PARAMETER intClassName AS LONG.
+    DEFINE INPUT  PARAMETER chrCaption   AS CHARACTER.
+    DEFINE RETURN PARAMETER intHandle    AS LONG.
+END PROCEDURE.
+
 &Scoped-define IAMPERSIST yes
 
 PROCEDURE Check-Exit :
@@ -266,6 +277,10 @@ PROCEDURE Running_Procedures :
 ----------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER progname   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER is-running AS LOGICAL   NO-UNDO.
+    DEF VAR hWindowHandle AS HANDLE NO-UNDO.
+    DEF VAR intHWind AS INT NO-UNDO.
+    DEF VAR cWinTitle AS CHAR NO-UNDO.
+    DEF VAR rc AS INT NO-UNDO.
 
     DEFINE BUFFER bprgrms FOR prgrms.
 
@@ -280,9 +295,14 @@ PROCEDURE Running_Procedures :
          INDEX(progname,"listrqst.") NE 0 THEN
                 DELETE PROCEDURE phandle.
             ELSE DO:
+                ASSIGN 
+                    hWindowHandle = pHandle:CURRENT-WINDOW
+                    cWinTitle = hWindowHandle:TITLE.
                 is-running = YES.
                 RUN Set_Cursor ("").
                 RUN Set-Focus IN phandle NO-ERROR.
+                RUN findWindowA (0, cWinTitle, OUTPUT intHWind). 
+                RUN SetForeGroundWindow (intHWind, OUTPUT rc).
             END.
             RETURN.
         END.

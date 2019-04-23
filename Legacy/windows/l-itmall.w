@@ -40,6 +40,9 @@ DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lDefaultFilteras AS LOGICAL NO-UNDO .
 &scoped-define SORTBY-1 BY item.i-no
 &scoped-define SORTBY-2 BY item.i-name
 &SCOPED-DEFINE SORTBY-3 BY ITEM.mat-type
@@ -424,10 +427,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       otherwise lv-type-dscr = "".
   end.
   frame {&frame-name}:title = "Raw Material Information ( " + lv-type-dscr + " )". 
-  
-  ASSIGN rd-filter = 1 .
-  IF ip-vendor EQ "" THEN
-      ASSIGN rd-filter = 2 .
+
+ IF PROGRAM-NAME(2) MATCHES "*po/d-poordl.*" THEN do:
+     RUN sys/ref/nk1look.p (INPUT ip-company, "POItemFilterDefault", "L" /* Logical */, NO /* check by cust */, 
+                            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                            OUTPUT cRtnChar, OUTPUT lRecFound).
+     IF lRecFound THEN
+         lDefaultFilteras = LOGICAL(cRtnChar) NO-ERROR.
+     IF lDefaultFilteras THEN
+         ASSIGN rd-filter = 1 .
+     ELSE
+         rd-filter = 2.
+ END.
+ ELSE DO:
+     ASSIGN rd-filter = 2 .
+      rd-filter:HIDDEN in FRAME {&FRAME-NAME} = YES .
+ END.
   
   &scoped-define key-phrase {&fld-name-1} >= ip-cur-val
   &scoped-define sortby-phrase {&sortby-1}

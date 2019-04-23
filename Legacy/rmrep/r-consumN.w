@@ -58,11 +58,11 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "CATEGORY,ITEM,DESCRIPTION,TAG#,LINEAL FEET,MSF," +
-                           "WT/MSF,COST VALUE,WIDTH,ROLL WEIGHT" 
+                           "WT/MSF,COST VALUE,WIDTH,ROLL WEIGHT,VENDOR TAG #" 
        cFieldListToSelect = "cat,i-no,dscr,tag,lin-ft,msf," +
-                            "weht,cst-val,wd,roll-wt"
-       cFieldLength = "8,10,15,20,13,10," + "6,14,9,11" 
-       cFieldType = "c,c,c,c,i,i," + "i,i,i,i"  
+                            "weht,cst-val,wd,roll-wt,vend-tag"
+       cFieldLength = "8,10,15,20,13,10," + "6,14,9,11,20" 
+       cFieldType = "c,c,c,c,i,i," + "i,i,i,i,c"  
     .
 
 {sys/inc/ttRptSel.i}
@@ -1396,6 +1396,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cVendorTag AS CHARACTER NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1534,7 +1535,15 @@ END.
        v-val[2] = v-val[2] + v-value
        v-qty[3] = v-qty[3] + rm-rdtlh.qty
        v-val[3] = v-val[3] + v-value.
-    
+
+        ASSIGN cVendorTag = "" .
+        FIND FIRST loadtag NO-LOCK
+            WHERE loadtag.company EQ cocode
+            AND loadtag.item-type EQ YES
+            AND loadtag.tag-no EQ rm-rdtlh.tag            
+            NO-ERROR.
+        IF AVAILABLE loadtag THEN
+            cVendorTag = loadtag.misc-char[1] .
 
           ASSIGN cDisplay = ""
                cTmpField = ""
@@ -1555,6 +1564,7 @@ END.
                      WHEN "cst-val"  THEN cVarValue = STRING(v-value,"->>,>>>,>>9.99") .
                      WHEN "wd"       THEN cVarValue = STRING(ITEM.s-wid,">>,>>9.99") .
                      WHEN "roll-wt"  THEN cVarValue = STRING(r-weight,">>,>>9.99") .
+                     WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
 
                 END CASE.
 
@@ -1592,6 +1602,7 @@ END.
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[1],"->>,>>>,>>9.99") .
                      WHEN "wd"       THEN cVarValue = "" .
                      WHEN "roll-wt"  THEN cVarValue = "" .
+                     WHEN "vend-tag" THEN cVarValue = "" .
 
                 END CASE.
 
@@ -1636,6 +1647,7 @@ END.
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[2],"->>,>>>,>>9.99") .
                      WHEN "wd"       THEN cVarValue = "" .
                      WHEN "roll-wt"  THEN cVarValue = "" .
+                     WHEN "vend-tag" THEN cVarValue = "" .
 
                 END CASE.
 
@@ -1680,6 +1692,7 @@ END.
                      WHEN "cst-val"  THEN cVarValue = STRING(v-val[3],"->>,>>>,>>9.99") .
                      WHEN "wd"       THEN cVarValue = "" .
                      WHEN "roll-wt"  THEN cVarValue = "" .
+                     WHEN "vend-tag" THEN cVarValue = "" .
 
                 END CASE.
 

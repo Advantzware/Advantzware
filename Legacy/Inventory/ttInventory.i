@@ -1,6 +1,6 @@
 
 /*------------------------------------------------------------------------
-    File        : ttInventoryTag.i
+    File        : ttInventory.i
     Purpose     : 
 
     Syntax      :
@@ -69,6 +69,10 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStock
     FIELD rmItemID AS CHARACTER LABEL "RMItemID"
     FIELD rmItemName AS CHARACTER LABEL "RMItemName"
     FIELD company AS CHARACTER LABEL "Company"
+    .
+
+DEFINE {1} TEMP-TABLE ttBrowseInventory
+    LIKE ttInventoryStockLoadtagWIP
     .
 
 DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".

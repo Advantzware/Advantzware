@@ -74,7 +74,7 @@ DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table fgcat.procat fgcat.dscr ~
-fgcat.commrate = 1 @ cat-format fgcat.glacc getDscr() @ cDscr getType() @ cType /*account.dscr account.type*/ 
+fgcat.commrate = 1 @ cat-format fgcat.glacc getDscr() @ cDscr getType() @ cType fgcat.lActive /*account.dscr account.type*/ 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fgcat WHERE ~{&KEY-PHRASE} ~
   AND  fgcat.company = gcompany NO-LOCK  ~
@@ -159,7 +159,8 @@ DEFINE QUERY Browser-Table FOR
     FIELDS(fgcat.procat
       fgcat.dscr
       fgcat.commrate
-      fgcat.glacc) /*, 
+      fgcat.glacc
+      fgcat.lActive) /*, 
       account*/ SCROLLING.
 &ANALYZE-RESUME
 
@@ -174,6 +175,7 @@ DEFINE BROWSE Browser-Table
       fgcat.glacc FORMAT "x(25)":U LABEL-BGCOLOR 14
       getDscr() @ cDscr COLUMN-LABEL "GL Account Description" FORMAT "x(45)":U
       getType() @ cType COLUMN-LABEL "GL Account Type" FORMAT "x":U
+      fgcat.lActive COLUMN-LABEL "Active"
       
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -294,6 +296,8 @@ ASSIGN
 "getDscr() @ cDscr" "GL Account Description" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
 "getType() @ cType" "GL Account Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.fgcat.lActive
+"fgcat.lActive" "Active" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

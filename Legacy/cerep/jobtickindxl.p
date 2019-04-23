@@ -928,23 +928,12 @@ PROCEDURE InitializeExcel :
     RETURN ERROR.
   END.
   
-  vcTemplateFile = "Template\ScheduleBoards.xlt".
-
-  FILE-INFO:FILE-NAME = vcTemplateFile.
-  
-  /* Set the Excel Template to be used. */
-  ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
-
-  if chFile = ? then do:
-    MESSAGE 'Your Excel Template: Template\ScheduleBoards.xlt cannot be found.'  skip
-            'Please verify that the file exists.'
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    apply 'close':u to this-procedure.
-  end.
+  RUN sys/ref/getFileFullPathName.p ("Template\ScheduleBoards.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
   
   /* Make Excel visible. */
   ASSIGN
-     chFile = FILE-INFO:FULL-PATHNAME
      chExcelApplication:VISIBLE = false.
   
   /* If we are going to E-Mail or Print, hide Excel. */

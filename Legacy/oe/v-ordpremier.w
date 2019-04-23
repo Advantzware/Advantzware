@@ -112,6 +112,7 @@ DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEF VAR OEJobHold-log AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
+DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
@@ -187,6 +188,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+   llOeShipFromLog = LOGICAL(cRtnChar) NO-ERROR.
+
 /* transaction */
 {sys/inc/f16to32.i}
 
@@ -2360,6 +2367,7 @@ PROCEDURE create-release :
                             AND eb.form-no  NE 0
                                NO-LOCK NO-ERROR.
             IF AVAIL eb THEN ASSIGN v-ship-id = eb.ship-id.
+            if avail eb AND v-ship-from EQ "" then assign v-ship-from = eb.loc.
          END.
          ELSE DO:
             FIND FIRST shipto WHERE shipto.company EQ cocode
@@ -2371,10 +2379,15 @@ PROCEDURE create-release :
                  FIND FIRST shipto WHERE shipto.company EQ cocode
                                      AND shipto.cust-no EQ oe-ordl.cust-no
                                      NO-LOCK NO-ERROR.
-                 IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id.   
+                 IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id. 
             END.
+            IF AVAIL shipto AND v-ship-from EQ "" THEN
+                v-ship-from = shipto.loc.
          END.
-         RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+
+         IF llOeShipFromLog THEN
+             RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+
          ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
          FIND FIRST shipto WHERE shipto.company = cocode AND
                                   shipto.cust-no = oe-ord.cust-no  AND

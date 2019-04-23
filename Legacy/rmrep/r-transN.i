@@ -148,6 +148,14 @@
                           dShtLen     = job-mat.len .
                   END.
             cShtSize = (trim(string(dShtLen,">,>>99.99")) + " X " + trim(string(dShtWid,">,>>99.99")) ).
+            ASSIGN cVendorTag = "" .
+            FIND FIRST loadtag NO-LOCK
+                WHERE loadtag.company EQ cocode
+                AND loadtag.item-type EQ YES
+                AND loadtag.tag-no EQ rm-rdtlh.tag            
+                NO-ERROR.
+            IF AVAILABLE loadtag THEN
+                cVendorTag = loadtag.misc-char[1] .
 
           ASSIGN cDisplay = ""
              cTmpField = ""
@@ -190,6 +198,7 @@
                      WHEN "Reason-cd" THEN cVarValue = IF AVAIL rm-rdtlh AND rm-rdtlh.reject-code[1] NE "" THEN string(rm-rdtlh.reject-code[1],"x(2)") ELSE ""    .
                      WHEN "Reason-dscr" THEN cVarValue = IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN string(rejct-cd.dscr,"x(25)") ELSE ""   .
                      WHEN "sheet-size" THEN cVarValue = string(cShtSize,"x(20)")    .
+                     WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -264,6 +273,7 @@
                      WHEN "Reason-cd" THEN cVarValue = "".
                      WHEN "Reason-dscr" THEN cVarValue =  ""   .
                      WHEN "sheet-size" THEN cVarValue = ""    .
+                     WHEN "vend-tag" THEN cVarValue = "".
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -344,6 +354,7 @@
                      WHEN "Reason-cd" THEN cVarValue = "".
                      WHEN "Reason-dscr" THEN cVarValue =  ""   .
                      WHEN "sheet-size" THEN cVarValue = ""    .
+                     WHEN "vend-tag" THEN cVarValue = "".
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  
@@ -426,6 +437,7 @@
                      WHEN "Reason-cd" THEN cVarValue = "".
                      WHEN "Reason-dscr" THEN cVarValue =  ""   .
                      WHEN "sheet-size" THEN cVarValue = ""    .
+                     WHEN "vend-tag" THEN cVarValue = "".
                  END CASE.
                  
                  cExcelVarValue = cVarValue.  

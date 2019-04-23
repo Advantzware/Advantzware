@@ -1109,9 +1109,9 @@ IF NOT v-smr THEN
             CASE cTmpField:               
                  WHEN "rep" THEN cVarValue = STRING(tt-report2.key-05) .
                  WHEN "rep-name" THEN cVarValue = string(v-slsmn-hdr2) .
-                 WHEN "name" THEN cVarValue = string(item-name,"x(15)") .
+                 WHEN "name" THEN cVarValue = string(item-name,"x(30)") .
                  WHEN "cust" THEN cVarValue = STRING(v-cust-no).
-                 WHEN "custname" THEN cVarValue = IF AVAIL cust THEN STRING(cust.name,"x(15)") ELSE "".
+                 WHEN "custname" THEN cVarValue = IF AVAIL cust THEN STRING(cust.name,"x(30)") ELSE "".
                  WHEN "inv-no" THEN cVarValue = STRING(w-data.inv-no).
                  WHEN "inv-date" THEN cVarValue = STRING(v-date,"99/99/99").
                  WHEN "cust-po" THEN cVarValue = string(v-custpo,"x(15)") . 

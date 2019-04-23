@@ -113,26 +113,32 @@ DEFINE VARIABLE iGrandTotPallet       AS INTEGER   FORMAT "->>,>>>,>>9" NO-UNDO.
 DEFINE VARIABLE iGrandTotShiped       AS INTEGER   FORMAT "->>,>>>,>>9"  NO-UNDO.
 DEFINE VARIABLE iAmtPerBundle         AS INTEGER   NO-UNDO.
 DEFINE BUFFER bff-oe-boll FOR oe-boll .
+DEFINE VARIABLE cOrderQty AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cW2Cases AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cBundlePerPallet AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cQtyPerPallet AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cTotPallet AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cBollQty AS CHARACTER NO-UNDO .
 
 
-FORM w2.job-po                      FORMAT "x(15)"
-    w2.qty                          FORMAT "->>,>>>,>>>" SPACE(2)
-    w2.dscr                         FORMAT "x(30)"
-    w2.cases                        FORMAT "->>>>9"
-    iBundlePerPallet                FORMAT "->>>>>9" SPACE(1)
-    iQtyPerPallet                   FORMAT "->>>>>>" SPACE(1)
-    iTotPallet                      FORMAT "->>>>"
-    tt-boll.qty                     FORMAT "->>>>>>"
+FORM w2.job-po           FORMAT "x(15)"
+    cOrderQty            FORMAT "x(11)" SPACE(2)
+    w2.dscr              FORMAT "x(30)"
+    cW2Cases             FORMAT "x(6)" SPACE(1)
+    cBundlePerPallet     FORMAT "x(7)" SPACE(2)
+    cQtyPerPallet        FORMAT "x(7)" SPACE(1)
+    cTotPallet           FORMAT "x(5)"
+    cBollQty             FORMAT "x(7)"
     WITH FRAME bol-mid DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 150.
 
-FORM v-job-po                       FORMAT "x(15)"
-     oe-ordl.qty                    FORMAT "->>,>>>,>>>" SPACE(2)
-    v-part-dscr                     FORMAT "x(30)"
-    w2.cases                        FORMAT "->>>>9"
-    iBundlePerPallet                FORMAT "->>>>>9" SPACE(1)
-    iQtyPerPallet                   FORMAT "->>>>>>" SPACE(1)
-    iTotPallet                      FORMAT "->>>>" 
-    tt-boll.qty                     FORMAT "->>>>>>"
+FORM v-job-po         FORMAT "x(15)"
+     cOrderQty        FORMAT "x(11)" SPACE(2)
+     v-part-dscr      FORMAT "x(30)" 
+     cW2Cases         FORMAT "x(6)"  SPACE(1)
+     cBundlePerPallet FORMAT "x(7)"  SPACE(2)
+     cQtyPerPallet    FORMAT "x(7)"  
+     cTotPallet       FORMAT "x(5)" 
+     cBollQty         FORMAT "x(7)" 
     WITH FRAME bol-mid2 DOWN NO-BOX NO-LABELS STREAM-IO WIDTH 150.
 
 ASSIGN 
@@ -433,7 +439,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
         v-last-page = PAGE-NUMBER.
 
-        IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
+        IF oe-bolh.tot-pallets NE 0 AND v-tot-palls EQ 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
 
         PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
@@ -454,6 +460,9 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
             .
 
         v-printline = v-printline + 14.
+        iGrandBundlePerPallet = 0 .
+        v-tot-palls = 0.
+        iGrandTotShiped = 0.
         IF LAST-OF(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUMBER .
 
         PAGE.
@@ -475,7 +484,7 @@ PROCEDURE create-tt-boll.
     DEFINE INPUT PARAMETER ip-qty-case LIKE oe-boll.qty-case NO-UNDO.
     DEFINE INPUT PARAMETER ip-cases    LIKE oe-boll.cases NO-UNDO.
     DEFINE INPUT PARAMETER ip-check    AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE iCountPallet AS INTEGER NO-UNDO .
 
     IF ip-qty-case LT 0 THEN
         ASSIGN
@@ -503,8 +512,9 @@ PROCEDURE create-tt-boll.
             tt-boll.tot-pallet = 0.
     END.
 
+    iCountPallet = oe-boll.cases / tt-boll.qty-case .
     IF ip-check EQ YES THEN
-        tt-boll.tot-pallet  = tt-boll.tot-pallet + oe-boll.tot-pallet .
+        tt-boll.tot-pallet  = tt-boll.tot-pallet + (IF iCountPallet LE 0 THEN 1 ELSE iCountPallet )  .
     ASSIGN
         tt-boll.cases  = tt-boll.cases + ip-cases
         tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
