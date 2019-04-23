@@ -1340,6 +1340,14 @@ ON ENTRY OF fg-rctd.job-no2 IN FRAME Dialog-Frame
                 APPLY "tab" TO {&self-name} .
             RETURN NO-APPLY.
         END.
+        IF fg-rctd.po-no:SCREEN-VALUE  NE "" THEN 
+        DO:
+            IF CAN-FIND(FIRST tt-fg-rctd WHERE tt-fg-rctd.tt-rowid EQ ROWID(fg-rctd)) THEN
+                RUN update-tt.
+            ELSE
+                APPLY "tab" TO {&self-name}.
+            RETURN NO-APPLY.
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
