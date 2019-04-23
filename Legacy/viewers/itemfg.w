@@ -122,7 +122,7 @@ itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.spare-dec-2 itemfg.trNo
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tgVaried tg-Freeze-weight ~
@@ -255,6 +255,10 @@ DEFINE FRAME F-Main
           LABEL "Est#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     itemfg.trNo AT ROW 10 COL 47 COLON-ALIGNED
+          LABEL "Pallet #"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      itemfg.style AT ROW 11 COL 11 COLON-ALIGNED
           LABEL "Style"
           VIEW-AS FILL-IN 
@@ -598,6 +602,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.weight-100 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.trNo IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1473,6 +1479,7 @@ PROCEDURE enable-itemfg-field :
         DISABLE itemfg.cust-name
             itemfg.procat-desc
             itemfg.style-desc
+            itemfg.trNo
             fi_type-dscr.
 
         IF NOT adm-new-record THEN 
