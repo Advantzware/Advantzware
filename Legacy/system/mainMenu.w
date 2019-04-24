@@ -1590,11 +1590,13 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSaveErrStat AS LOGICAL NO-UNDO.
+    lSaveErrStat = ERROR-STATUS:ERROR.
     RUN spRunCueCard ("Message", cCuePrgmName, hCueWindow, hCueFrame, lCueActive).
     FIND FIRST taskResult NO-LOCK
          WHERE taskResult.user-id EQ USERID("ASI")
            AND taskResult.viewed  EQ NO
-         NO-ERROR.
+        NO-ERROR.    
     IF AVAILABLE taskResult AND
        SEARCH(taskResult.folderFile) NE ? THEN DO TRANSACTION:
         PAUSE 2 NO-MESSAGE.
@@ -1609,6 +1611,8 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
         IN WINDOW {&WINDOW-NAME}.
     IF PROFILER:ENABLED THEN 
         RUN pProcessProfiler.
+    /* Set error status to saved value since it gets reset in this procedure */
+    ERROR-STATUS:ERROR = lSaveErrStat.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
