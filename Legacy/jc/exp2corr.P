@@ -72,6 +72,7 @@ DEF VAR cocode AS CHAR NO-UNDO.
 DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cOutputDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lNetQty AS LOGICAL NO-UNDO.
 
 FOR EACH tt-job-hdr,
     first job-hdr where rowid(job-hdr) = tt-job-hdr.jobhdr-rowid:
@@ -90,8 +91,11 @@ IF SEARCH(cOutputDir) EQ ? THEN
     OS-CREATE-DIR VALUE(cOutputDir).
 IF SUBSTRING(cOutputDir, LENGTH(cOutputDir), 1) NE "\" THEN 
     cOutputDir = cOutputDir + "\".
+RUN sys/ref/nk1look.p (cocode, "JobExport", "I", NO, NO, "", "", 
+    OUTPUT cReturn, OUTPUT lrecFound).
+IF lRecfound THEN    
+    lNetQty = LOGICAL(cReturn).
     
-
 {sys/inc/f16to32.i}
     
 /*=====
@@ -331,20 +335,40 @@ SUBSTRING(download-record1,92,10) = "          "   /* download-item*/
 v-sheets = 0.
 
 /*SUBSTRING(download-record1,102,6) = string(job-hdr.qty)  /*download-quantity*/ */
-
-FIND FIRST job-mch WHERE
-     job-mch.company = job-hdr.company AND
-     job-mch.job = job-hdr.job AND
-     job-mch.job-no = job-hdr.job-no AND
-     job-mch.job-no2 = job-hdr.job-no2 AND
-     job-mch.frm = ef.form-no AND
-     job-mch.dept = "CR"
-     NO-LOCK NO-ERROR.
-
-IF AVAIL job-mch THEN
-DO:
-   v-sheets = job-mch.run-qty * ef.n-out * ef.n-out-l.
-   RELEASE job-mch.
+IF lNetQty THEN DO:
+    FOR EACH job-mat NO-LOCK 
+        WHERE job-mat.company EQ job-hdr.company
+          AND job-mat.job-no eq job-hdr.job-no
+          AND job-mat.job-no2 eq job-hdr.job-no2
+        :
+        FIND ITEM NO-LOCK 
+            WHERE item.company EQ job-hdr.company
+            AND item.i-no    EQ job-mat.rm-i-no
+            NO-ERROR.
+        IF AVAILABLE ITEM 
+           AND (item.mat-type EQ "B" OR item.mat-type eq "P") THEN 
+        DO:
+            v-sheets = job-mat.qty.
+            LEAVE.          
+        END.
+         
+    END.
+END.
+ELSE DO:
+    FIND FIRST job-mch WHERE
+         job-mch.company = job-hdr.company AND
+         job-mch.job = job-hdr.job AND
+         job-mch.job-no = job-hdr.job-no AND
+         job-mch.job-no2 = job-hdr.job-no2 AND
+         job-mch.frm = ef.form-no AND
+         job-mch.dept = "CR"
+         NO-LOCK NO-ERROR.
+    
+    IF AVAIL job-mch THEN
+    DO:
+       v-sheets = job-mch.run-qty * ef.n-out * ef.n-out-l.
+       RELEASE job-mch.
+    END.
 END.
 IF v-sheets EQ 0 THEN 
   v-sheets = job-hdr.qty.
