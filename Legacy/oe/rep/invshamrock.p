@@ -539,14 +539,14 @@ find first company where company.company eq cocode NO-LOCK.
             
             v-price-head = inv-line.pr-uom.
 
-            PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
-                v-ship-qty  format "->>>>>9" SPACE(1)
+            PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
+                v-ship-qty  format "->>>>>>9" SPACE(1)
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->>,>>9.99<<" SPACE(1)
+                v-i-no  format "x(15)" SPACE(3)
+                v-i-dscr  format "x(25)" SPACE(3)
+                v-price  format "->>>>,>>9.99" /*"->>,>>9.99<<"*/ SPACE(1)
                 v-price-head SPACE(1)
-                inv-line.t-price  format "->>>,>>9.99"                     
+                inv-line.t-price  FORMAT "->,>>>,>>9.99" /*"->>>,>>9.99"*/                     
                 SKIP.
 
             v-printline = v-printline + 1.
@@ -559,10 +559,10 @@ find first company where company.company eq cocode NO-LOCK.
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) inv-line.part-no SPACE v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(27) inv-line.part-no SPACE(3) v-part-info SKIP.
                  ELSE
-                 IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
-                 ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
+                 IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
+                 ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
@@ -726,14 +726,14 @@ find first company where company.company eq cocode NO-LOCK.
                         ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
                            ELSE FILL(" ",5) ) +
                        fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
+                       string(v-t-tax[i],"->,>>>,>>9.99")) else "".
     end.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
 
     IF v-bot-lab[4] <> "" THEN
-    PUT "<R56><C60><#8><FROM><R+8><C+22><RECT> " 
+    PUT "<P10><R56><C60><#8><FROM><R+8><C+22><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->,>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
@@ -743,7 +743,7 @@ find first company where company.company eq cocode NO-LOCK.
 ELSE
     PUT "<R56><C60><#8><FROM><R+6><C+22><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->,>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]

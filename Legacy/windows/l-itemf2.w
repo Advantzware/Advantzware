@@ -41,6 +41,9 @@ def var lv-first-time as log init yes no-undo.
 DEF VAR ll-new-file AS LOG NO-UNDO.
 DEF VAR lv-cust-no LIKE itemfg.cust-no NO-UNDO.
 DEF VAR lv-part-no LIKE itemfg.part-no NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lDefaultFilteras AS LOGICAL NO-UNDO .
 
 &scoped-define SORTBY-1 BY itemfg.i-no
 &scoped-define SORTBY-2 BY itemfg.i-name
@@ -440,10 +443,22 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  ASSIGN rd-filter = 1 .
-
-  IF ip-vendor EQ "" THEN 
+  
+  IF PROGRAM-NAME(2) MATCHES "*po/d-poordl.*" THEN do:
+      RUN sys/ref/nk1look.p (INPUT ip-company, "POItemFilterDefault", "L" /* Logical */, NO /* check by cust */, 
+                             INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                             OUTPUT cRtnChar, OUTPUT lRecFound).
+      IF lRecFound THEN
+          lDefaultFilteras = LOGICAL(cRtnChar) NO-ERROR.
+      IF lDefaultFilteras THEN
+          ASSIGN rd-filter = 1 .
+      ELSE
+          rd-filter = 2.
+  END.
+  ELSE DO:
       ASSIGN rd-filter = 2 .
+      rd-filter:HIDDEN in FRAME {&FRAME-NAME} = YES .
+  END.
       
   &scoped-define key-phrase {&fld-name-1} >= ip-cur-val
   &scoped-define sortby-phrase {&sortby-1}

@@ -563,8 +563,17 @@ PROCEDURE BuildImpTable :
           END.
      END.
     
-     /* end of import */
-    
+    /* end of import */
+    FIND FIRST ttDetail NO-LOCK 
+        WHERE ttDetail.Order# EQ iOrder#
+        NO-ERROR.
+    IF AVAILABLE ttDetail THEN 
+        FIND FIRST ttHeader 
+            WHERE ttHeader.order# EQ iOrder#
+            NO-ERROR.
+    IF AVAILABLE ttHeader THEN 
+        ttHeader.shipTo = ttDetail.ShipTo.    
+        
      /* validate customer and item */    
      FOR EACH ttHeader:
          IF CAN-FIND(cust WHERE cust.company = cocode AND cust.cust-no = ttHeader.BillTo)

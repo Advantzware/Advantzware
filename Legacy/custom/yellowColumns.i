@@ -364,8 +364,8 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Freight Cost' THEN STRING(fg-rctd.frt-cost,'999999.9999') ELSE ~
   IF sortColumn EQ 'Extended Cost' THEN STRING(fg-rctd.ext-cost,'-9999999.99') ELSE ~
   IF sortColumn EQ 'FG Lot#' THEN fg-rctd.stack-code ELSE ~
-  IF sortColumn EQ 'Created by' THEN reftable.code ELSE ~
-  IF sortColumn EQ 'Last Updated by' THEN reftable.code2 ELSE ~
+  IF sortColumn EQ 'Created by' THEN fg-rctd.created-by ELSE ~
+  IF sortColumn EQ 'Last Updated by' THEN fg-rctd.updated-by ELSE ~
   STRING(fg-rctd.r-no,'99999999') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'b-trans' &THEN

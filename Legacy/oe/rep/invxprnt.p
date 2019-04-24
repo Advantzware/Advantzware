@@ -528,14 +528,14 @@ find first company where company.company eq cocode NO-LOCK.
             
             v-price-head = inv-line.pr-uom.
 
-            PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
-                v-ship-qty  format "->>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->>,>>9.99<<" SPACE(1)
+            PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
+                v-ship-qty  format "->>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
+                v-i-no  format "x(15)" SPACE(2)
+                v-i-dscr  format "x(25)" SPACE(3)
+                v-price  FORMAT "->>>>,>>9.99" /*"->>,>>9.99<<"*/ SPACE(1)
                 v-price-head SPACE(1)
-                inv-line.t-price  format "->>>,>>9.99"                     
+                inv-line.t-price  format "->,>>>,>>9.99" /*"->>>,>>9.99"   */                  
                 SKIP.
 
             v-printline = v-printline + 1.
@@ -548,10 +548,10 @@ find first company where company.company eq cocode NO-LOCK.
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) inv-line.part-no SPACE v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(28) inv-line.part-no SPACE(2) v-part-info SKIP.
                  ELSE
-                 IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
-                 ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
+                 IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
+                 ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
@@ -621,11 +621,11 @@ find first company where company.company eq cocode NO-LOCK.
                v-printline = 0.
                {oe/rep/invxprnt.i}
             END.
-            put "** Miscellaneous Items **" at 23 skip(1).
+            put "** Miscellaneous Items **" at 27 skip(1).
             assign v-printline = v-printline + 2.
           end.
             
-          put inv-misc.charge AT 10 inv-misc.dscr inv-misc.amt  SKIP.
+          put inv-misc.charge AT 14 inv-misc.dscr inv-misc.amt  SKIP.
           ASSIGN
              v-subtot-lines = v-subtot-lines + inv-misc.amt
              v-printline = v-printline + 1.
@@ -720,7 +720,7 @@ find first company where company.company eq cocode NO-LOCK.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
 
     IF v-bot-lab[4] <> "" THEN
-    PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
+    PUT "<P10><R58><C60><#8><FROM><R+8><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 

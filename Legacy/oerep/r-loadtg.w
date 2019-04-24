@@ -3560,7 +3560,8 @@ PROCEDURE create-loadtag :
               b-po-ordl.company EQ cocode AND
               b-po-ordl.po-no EQ w-ord.po-no AND
               b-po-ordl.item-type EQ NO AND
-              b-po-ordl.i-no EQ loadtag.i-no
+              b-po-ordl.i-no EQ loadtag.i-no AND
+              b-po-ordl.LINE EQ w-ord.po-line
               NO-LOCK NO-ERROR.
 
          IF AVAIL b-po-ordl THEN
@@ -6444,6 +6445,7 @@ PROCEDURE get-set-full-qty :
             /* Always find just to get quantity */
             find first po-ordl where po-ordl.company = cocode
                                  and po-ordl.po-no   = int(b-fg-rctd.po-no)
+                                 and po-ordl.LINE   = int(b-fg-rctd.po-line)
                                  and po-ordl.i-no    = b-fg-rctd.i-no
                                  and po-ordl.job-no  = b-fg-rctd.job-no
                                  and po-ordl.job-no2 = b-fg-rctd.job-no2

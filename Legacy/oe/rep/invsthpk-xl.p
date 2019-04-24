@@ -141,6 +141,10 @@ DEFINE VARIABLE LvFirstTimePrint AS LOGICAL INIT NO NO-UNDO.
 
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 
+  RUN sys/ref/getFileFullPathName.p ("Template\invoice-sp.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
+
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
      NO-LOCK NO-ERROR.
@@ -175,18 +179,6 @@ DO :
   MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 END.
-
-FILE-INFO:FILE-NAME = "Template\invoice-sp.xlt".
-
-/* Set the Excel Template to be used. */
-ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
-  
-if search (chFile) = ? then do:
-   MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
-           'cannot be found. Please verify that the file exists.'
-   VIEW-AS ALERT-BOX INFO BUTTONS OK.
-   apply 'CLOSE':U to this-procedure.
-end.
 
 CurrDir = SUBSTRING (chFile, 1, INDEX (chFile, "Template\invoice-sp.xlt") - 2)
           no-error.

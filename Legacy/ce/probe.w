@@ -3279,7 +3279,7 @@ PROCEDURE run-whatif :
   END.
   RUN est/EstimateProcs.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
   lv-cebrowse-dir = tmp-dir.
-  
+  RUN est\CostResetHeaders.p(?,?).
   IF est.est-type >= 3 AND est.est-type <= 4 AND cerunf = "HOP" THEN RUN ce/dAskSum.w (OUTPUT gEstSummaryOnly).
   IF est.est-type EQ 4 THEN RUN ce/com/print4.p NO-ERROR.
 
@@ -3302,7 +3302,7 @@ PROCEDURE run-whatif :
 
     RUN est-summ.
   END.
-
+  RUN est\CostExportHeaders.p(est.company,TRIM(est.est-no) + "Est").
   for each est-op where est-op.company = est.company and
                         est-op.est-no = est.est-no and est-op.line > 500 
                         exclusive-lock :

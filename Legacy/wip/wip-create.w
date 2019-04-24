@@ -56,6 +56,7 @@ DEFINE INPUT PARAMETER ipiBlankno  AS INTEGER   NO-UNDO.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE hdInventoryProcs  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdOutputProcs     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdJobProcs        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdBrowseQuery     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdBrowseBuffer    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdNumericKeyBoard AS HANDLE    NO-UNDO.
@@ -68,19 +69,20 @@ DEFINE VARIABLE cMachineListItems AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cValidateJobno    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFileName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPathTemplate     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFormattedJobno   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCopies           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iTotTags          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iTotOnHand        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
-&SCOPED-DEFINE sysCtrlName "BARDIR"
+&SCOPED-DEFINE SORTBY-PHRASE BY ttBrowseInventory.lastTransTime DESCENDING
 
 {system/sysconst.i}
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
-
-DEFINE TEMP-TABLE ttBrowseInventory
-    LIKE ttInventoryStockLoadtagWIP.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -106,8 +108,8 @@ DEFINE TEMP-TABLE ttBrowseInventory
 &Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.stockIDAlias ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
-&Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br-table OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br-table OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br-table ttBrowseInventory
 &Scoped-define FIRST-TABLE-IN-QUERY-br-table ttBrowseInventory
 
@@ -463,7 +465,6 @@ THEN W-Win:HIDDEN = yes.
 /* Query rebuild information for BROWSE br-table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory
-BY ttBrowseInventory.lastTransTime DESCENDING
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -546,22 +547,12 @@ DO:
         btnDelete:SENSITIVE = AVAILABLE ttBrowseInventory AND
                               DYNAMIC-FUNCTION("fCanDeleteInventoryStock" IN hdInventoryProcs, ttBrowseInventory.inventoryStockID)
                               .
-    IF {&BROWSE-NAME}:NUM-SELECTED-ROWS EQ 1 THEN DO:
-        {&BROWSE-NAME}:FETCH-SELECTED-ROW(1).        
-        IF hdBrowseBuffer:AVAILABLE THEN DO:
-            FIND FIRST inventoryTransaction NO-LOCK
-                 WHERE inventoryTransaction.inventoryStockID EQ hdBrowseBuffer:BUFFER-FIELD("inventoryStockID"):BUFFER-VALUE
-                 NO-ERROR.
-            IF AVAILABLE inventoryTransaction THEN DO:
-                /*
-                IF inventoryTransaction.transactionStatus EQ gcStatusTransactionInitial THEN
-                bt-adjust-qty:SENSITIVE = TRUE.
-                ELSE
-                */
-                IF inventoryTransaction.transactionStatus EQ gcStatusTransactionPosted THEN
-                bt-print-selected:LABEL = "Re-Print Selected".
-            END.
-        END.
+                              
+    IF AVAILABLE ttBrowseInventory THEN DO:
+        bt-adjust-qty:SENSITIVE = (ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial).
+        
+        IF ttBrowseInventory.inventoryStatus NE gcStatusStockInitial THEN
+            bt-print-selected:LABEL = "Re-Print Selected".
     END.
 END.
 
@@ -587,56 +578,25 @@ DO:
         APPLY "ENTRY" TO ls-total-run-qty.
         RETURN.
     END.
-
-    FIND FIRST job-mch NO-LOCK
-         WHERE job-mch.company  EQ ipcCompany
-           AND job-mch.job-no   EQ ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-           AND job-mch.job-no2  EQ INT(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-           AND job-mch.m-code   EQ cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-           AND job-mch.frm      EQ INT(cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-           AND job-mch.blank-no EQ INT(cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-         NO-ERROR.
-    IF NOT AVAILABLE job-mch THEN
-        RETURN.
-
-    FIND FIRST job-mat NO-LOCK  
-         WHERE job-mat.company  EQ job-mch.company
-           AND job-mat.job-no   EQ job-mch.job-no
-           AND job-mat.job-no2 EQ job-mch.job-no2
-           AND job-mat.frm     EQ job-mch.frm
-         NO-ERROR.  
-    IF NOT AVAILABLE job-mat THEN
-        RETURN.
-  
-    RUN CreatePreLoadtagsFromInputsWIP IN hdInventoryProcs (
-        ROWID(job-mch),
-        ROWID(job-mat), 
+    
+    RUN CreateTransactionInitialized IN hdInventoryProcs (
+        ipcCompany,
+        cFormattedJobno,
+        cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
+        cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         DECIMAL(ls-total-run-qty:SCREEN-VALUE),
         DECIMAL(ls-qty-per-tag:SCREEN-VALUE),
         1,
         "EA",
-        OUTPUT lCreated,
+        OUTPUT lCreated, 
         OUTPUT cMessage
         ).
-
-    RUN CreateInventoryLoadtagsFromPreLoadtags IN hdInventoryProcs.
-
-    FOR EACH ttInventoryStockLoadtag:
-        ASSIGN 
-            lCreated = NO
-            cMessage = "". 
-        RUN CreateInventoryStockFromLoadtag IN hdInventoryProcs (
-            ttInventoryStockLoadtag.inventoryStockID,
-            YES,
-            NO,
-            OUTPUT lCreated,
-            OUTPUT cMessage
-            ).
-    END.   
-
+               
     RUN rebuildTempTable(
         ipcCompany,
-        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        cFormattedJobno,
         cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
@@ -652,11 +612,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-exit W-Win
 ON CHOOSE OF bt-exit IN FRAME F-Main
 DO:
-        IF VALID-HANDLE(hKeyboard) THEN
+    IF VALID-HANDLE(hKeyboard) THEN
         DELETE OBJECT hKeyboard.
-        APPLY "CLOSE":U TO THIS-PROCEDURE.    
-        RETURN.
-    END.
+    APPLY "CLOSE":U TO THIS-PROCEDURE.    
+    RETURN.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -666,19 +626,24 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-print-all W-Win
 ON CHOOSE OF bt-print-all IN FRAME F-Main /* Print and Receive All */
 DO: 
-        EMPTY TEMP-TABLE ttPrintInventoryStock.
+    EMPTY TEMP-TABLE ttPrintInventoryStock.
     
-        FOR EACH ttBrowseInventory
-            WHERE ttBrowseInventory.inventoryStatus = gcStatusStockInitial:
-            RUN PostReceivedInventory IN hdInventoryProcs (INPUT ipcCompany,
-                INPUT ttBrowseInventory.inventoryStockID).
+    FOR EACH ttBrowseInventory
+       WHERE ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial:
 
-            RUN CreatePrintInventory IN hdInventoryProcs (INPUT ttBrowseInventory.inventoryStockID).
-        END.
-    
-        RUN pPrintLabels.
-        
+        RUN PostReceivedInventory IN hdInventoryProcs (
+            INPUT ipcCompany,
+            INPUT ttBrowseInventory.inventoryStockID
+            ).
+
+        RUN CreatePrintInventory IN hdInventoryProcs (
+            INPUT ttBrowseInventory.inventoryStockID
+            ).
     END.
+    
+    RUN pPrintLabels.
+        
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -688,21 +653,18 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-print-selected W-Win
 ON CHOOSE OF bt-print-selected IN FRAME F-Main /* Print and Receive Selected */
 DO:
-    DEFINE VARIABLE cInventoryStatus  LIKE inventoryStock.inventoryStatus NO-UNDO.
-    DEFINE VARIABLE cInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
-
     EMPTY TEMP-TABLE ttPrintInventoryStock.
 
-    IF hdBrowseBuffer:AVAILABLE THEN DO:
-        ASSIGN 
-            cInventoryStatus  = hdBrowseBuffer:BUFFER-FIELD("inventoryStatus"):BUFFER-VALUE
-            cInventoryStockID = hdBrowseBuffer:BUFFER-FIELD("inventoryStockID"):BUFFER-VALUE.
-        
-        IF cInventoryStatus = gcStatusStockInitial THEN
-            RUN PostReceivedInventory IN hdInventoryProcs (INPUT ipcCompany,
-                INPUT cInventoryStockID).
+    IF AVAILABLE ttBrowseInventory THEN DO:
+        IF ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial THEN
+            RUN PostReceivedInventory IN hdInventoryProcs (
+                INPUT ipcCompany,
+                INPUT ttBrowseInventory.inventoryStockID
+                ).
     
-        RUN CreatePrintInventory in hdInventoryProcs (INPUT cInventoryStockID).
+        RUN CreatePrintInventory in hdInventoryProcs (
+            INPUT ttBrowseInventory.inventoryStockID
+            ).
     
         RUN pPrintLabels.
         
@@ -834,8 +796,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cb-blankno W-Win
 ON VALUE-CHANGED OF cb-blankno IN FRAME F-Main
 DO:
-        RUN onValueChangedOfJobDetails.
-    END.
+    RUN onValueChangedOfJobDetails.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -845,8 +807,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cb-formno W-Win
 ON VALUE-CHANGED OF cb-formno IN FRAME F-Main
 DO:
-        RUN onValueChangedOfJobDetails.
-    END.
+    RUN onValueChangedOfJobDetails.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -856,8 +818,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cb-jobno2 W-Win
 ON VALUE-CHANGED OF cb-jobno2 IN FRAME F-Main
 DO:
-        RUN onValueChangedOfJobDetails.
-    END.
+    RUN onValueChangedOfJobDetails.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -911,85 +873,104 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-jobno W-Win
 ON LEAVE OF ls-jobno IN FRAME F-Main
 DO:
-    DEFINE VARIABLE riJobMch AS ROWID     NO-UNDO.
-    DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobNo2  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormNo  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBlankNo AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lParse   AS LOGICAL   NO-UNDO.
- 
+    DEFINE VARIABLE cJobNo     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo2    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormNo    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBlankNo   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lParse     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidJob  AS LOGICAL   NO-UNDO.    
+    
     IF VALID-HANDLE(hKeyboard) THEN
     DELETE OBJECT hKeyboard.
     
-    IF cValidateJobno = ls-jobno:SCREEN-VALUE THEN
+    IF cValidateJobno EQ ls-jobno:SCREEN-VALUE THEN
         RETURN.
-    
+         
     RUN disableCreate.
 
     ASSIGN 
         cJobno2ListItems  = ""
         cFormnoListItems  = ""
         cBlanknoListitems = ""
-        cMachineListItems = "".
+        cMachineListItems = ""
+        cMessage          = "".
+        
+    RUN JobParser IN hdJobProcs (
+        SELF:SCREEN-VALUE,
+        OUTPUT cJobNo,
+        OUTPUT cJobNo2,
+        OUTPUT cFormNo,
+        OUTPUT cBlankNo,
+        OUTPUT lParse,
+        OUTPUT cMessage
+        ).
 
-    IF ls-jobno:SCREEN-VALUE = "" THEN
-        RETURN.
-    
-    IF INDEX(SELF:SCREEN-VALUE,"-") NE 0 THEN DO:
+    cFormattedJobno = DYNAMIC-FUNCTION (
+                      "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, 6, TRUE
+                      ).                                  
+
+    IF lParse THEN
         ASSIGN
-            cJobNo   = ENTRY(1,SELF:SCREEN-VALUE,"-")
-            cJobNo2  = ENTRY(2,SELF:SCREEN-VALUE,"-")
-            cJobNo2  = ENTRY(1,cJobNo2,".")
-            cFormNo  = ENTRY(2,SELF:SCREEN-VALUE,".")
-            cBlankNo = ENTRY(3,SELF:SCREEN-VALUE,".")
-            SELF:SCREEN-VALUE = cJobNo
-            lParse   = YES
-            .
-    END. /* if index */
-    
+            SELF:SCREEN-VALUE = cJobNo    
+            cFormattedJobno = DYNAMIC-FUNCTION (
+                              "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                              ).
+
+    IF cMessage NE "" THEN DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+                    
     RUN updateComboBoxes.
 
-    ASSIGN 
-        cb-jobno2:SCREEN-VALUE  = ENTRY(1,cJobno2ListItems)
-        cb-formno:SCREEN-VALUE  = ENTRY(1,cFormnoListItems)
-        cb-blankno:SCREEN-VALUE = ENTRY(1,cBlanknoListItems)
-        cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems).
-           
-    RUN getJobDetails(INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE,
-        INPUT cb-machine:SCREEN-VALUE,
-        INPUT cb-jobno2:SCREEN-VALUE,
-        INPUT cb-formno:SCREEN-VALUE,
-        INPUT cb-blankno:SCREEN-VALUE,
-        OUTPUT riJobMch).
-        
-    FIND FIRST job-mch WHERE ROWID(job-mch) = riJobMch NO-ERROR.
-    IF AVAILABLE job-mch THEN DO:
+    IF lParse THEN
+        ASSIGN
+            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,cJobNo2) GT 0 THEN 
+                                          cJobNo2
+                                      ELSE
+                                          ENTRY(1,cJobno2ListItems)
+            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,cFormNo) GT 0 THEN 
+                                          cFormNo
+                                      ELSE
+                                          ENTRY(1,cFormnoListItems)
+            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,cBlankNo) GT 0 THEN 
+                                          cBlankNo
+                                      ELSE
+                                          ENTRY(1,cBlanknoListitems)
+            cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
+            .
+    ELSE
         ASSIGN 
-            cb-jobno2:SCREEN-VALUE  = STRING(job-mch.job-no2)
-            cb-formno:SCREEN-VALUE  = STRING(job-mch.frm)
-            cb-blankno:SCREEN-VALUE = STRING(job-mch.blank-no)
-            cb-machine:SCREEN-VALUE = STRING(job-mch.m-code).                                                                       
-    
-        RUN enableCreate.               
-    END.
-
-    ASSIGN
-        cValidateJobno = ls-jobno:SCREEN-VALUE.
+            cb-jobno2:SCREEN-VALUE  = ENTRY(1,cJobno2ListItems)
+            cb-formno:SCREEN-VALUE  = ENTRY(1,cFormnoListItems)
+            cb-blankno:SCREEN-VALUE = ENTRY(1,cBlanknoListItems)
+            cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
+            .
+                       
+    RUN ValidateJob IN hdJobProcs (
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
+        INPUT cb-machine:SCREEN-VALUE,
+        INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+        INPUT INTEGER(cb-formno:SCREEN-VALUE),
+        INPUT INTEGER(cb-blankno:SCREEN-VALUE),
+        OUTPUT lValidJob
+        ).
+            
+    IF lValidJob THEN
+        RUN enableCreate.
+        
+    cValidateJobno = ls-jobno:SCREEN-VALUE.
                
-    RUN rebuildTempTable(INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+    RUN rebuildTempTable (
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).
     
-    IF lParse THEN
-    ASSIGN
-        cb-jobno2:SCREEN-VALUE  = cJobNo2
-        cb-formno:SCREEN-VALUE  = cFormNo
-        cb-blankno:SCREEN-VALUE = cBlankNo
-        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,15 +1020,13 @@ DO:
     IF VALID-HANDLE(hKeyboard) THEN
     DELETE OBJECT hKeyboard.
     
-    IF DECIMAL(ls-total-run-qty:SCREEN-VALUE) = 0 THEN
-        ASSIGN 
-            ls-total-run-qty:SCREEN-VALUE = ls-qty-per-tag:SCREEN-VALUE.
+    IF DECIMAL(ls-total-run-qty:SCREEN-VALUE) EQ 0 THEN
+        ls-total-run-qty:SCREEN-VALUE = ls-qty-per-tag:SCREEN-VALUE.
     
-    IF DECIMAL(ls-qty-per-tag:SCREEN-VALUE) <> 0 AND
-        DECIMAL(ls-total-run-qty:SCREEN-VALUE) <> 0 AND
-        DECIMAL(ls-qty-per-tag:SCREEN-VALUE) <= DECIMAL(ls-total-run-qty:SCREEN-VALUE) THEN 
-    DO:
-    
+    IF DECIMAL(ls-qty-per-tag:SCREEN-VALUE) NE 0 AND
+        DECIMAL(ls-total-run-qty:SCREEN-VALUE) NE 0 AND
+        DECIMAL(ls-qty-per-tag:SCREEN-VALUE) LT DECIMAL(ls-total-run-qty:SCREEN-VALUE) THEN 
+    DO:   
         ASSIGN
             ls-num-tags:SCREEN-VALUE = STRING(INTEGER(TRUNC(DECIMAL(ls-total-run-qty:SCREEN-VALUE) / DECIMAL(ls-qty-per-tag:SCREEN-VALUE),0)))
             bt-create:LABEL          = "Create All".
@@ -1064,31 +1043,19 @@ END.
 
 &Scoped-define SELF-NAME ls-tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-tag W-Win
-ON ENTRY OF ls-tag IN FRAME F-Main
-DO: 
-    /*     IF NOT VALID-HANDLE(hdNumericKeyBoard) THEN */
-    /*         RUN touch\numeric.w PERSISTENT SET hdNumericKeyBoard (THIS-PROCEDURE:HANDLE,THIS-PROCEDURE). */
-    /*    */
-    /*     field_value = ls-tag:SCREEN-VALUE. */
-    /*     h_field = ls-tag:HANDLE. */
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-tag W-Win
 ON LEAVE OF ls-tag IN FRAME F-Main
 DO:
-        RUN tagScan(SELF:SCREEN-VALUE).  
+    RUN tagScan(SELF:SCREEN-VALUE).  
     
-        RUN rebuildTempTable(INPUT ipcCompany,
-            INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-            INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
-            INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-            INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-            INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}).                   
-    END.
+    RUN rebuildTempTable(
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
+        INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
+        INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).                   
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1111,13 +1078,12 @@ END.
 ON LEAVE OF ls-total-run-qty IN FRAME F-Main
 DO:    
     IF VALID-HANDLE(hKeyboard) THEN
-    DELETE OBJECT hKeyboard.
+        DELETE OBJECT hKeyboard.
     
-    IF DECIMAL(ls-qty-per-tag:SCREEN-VALUE) <> 0 AND
-        DECIMAL(ls-total-run-qty:SCREEN-VALUE) <> 0 AND
-        DECIMAL(ls-qty-per-tag:SCREEN-VALUE) <= DECIMAL(ls-total-run-qty:SCREEN-VALUE) THEN 
-    DO:
-    
+    IF DECIMAL(ls-qty-per-tag:SCREEN-VALUE) NE 0 AND
+        DECIMAL(ls-total-run-qty:SCREEN-VALUE) NE 0 AND
+        DECIMAL(ls-qty-per-tag:SCREEN-VALUE) LT DECIMAL(ls-total-run-qty:SCREEN-VALUE) THEN 
+    DO:    
         ASSIGN
             ls-num-tags:SCREEN-VALUE = STRING(INTEGER(TRUNC(DECIMAL(ls-total-run-qty:SCREEN-VALUE) / DECIMAL(ls-qty-per-tag:SCREEN-VALUE),0)))
             bt-create:LABEL          = "Create All".
@@ -1290,42 +1256,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getJobDetails W-Win 
-PROCEDURE getJobDetails :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobno   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcMachine AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobno2  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormno  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankno AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opriJobMch AS ROWID     NO-UNDO.
-    
-    DEFINE BUFFER bf-job-mch FOR job-mch.
-    
-    FIND FIRST bf-job-mch NO-LOCK
-        WHERE bf-job-mch.company  EQ ipcCompany
-          AND bf-job-mch.job-no   EQ ipcJobno
-          AND bf-job-mch.m-code   EQ ipcMachine
-          AND bf-job-mch.job-no2  EQ ipiJobno2
-          AND bf-job-mch.frm      EQ ipiFormno
-          AND bf-job-mch.blank-no EQ ipiBlankno
-        NO-ERROR.
-    IF AVAILABLE bf-job-mch THEN
-        ASSIGN 
-            opriJobMch = ROWID(bf-job-mch).
-        
-    RELEASE bf-job-mch.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE init W-Win 
 PROCEDURE init :
 /*------------------------------------------------------------------------------
@@ -1335,7 +1265,8 @@ PROCEDURE init :
 ------------------------------------------------------------------------------*/
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
-
+    RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
+    
     FIND FIRST company NO-LOCK 
          WHERE company.company EQ ipcCompany
          NO-ERROR .
@@ -1355,12 +1286,14 @@ PROCEDURE init :
     RUN disableCreate.
 
     IF ipcJobNo NE "" THEN 
-        RUN jobScan(INPUT ipcCompany,
+        RUN jobScan (
+            INPUT ipcCompany,
             INPUT ipcJobno,
             INPUT ipcMachine,
             INPUT ipiJobno2,
             INPUT ipiFormno,
-            INPUT ipiBlankno).
+            INPUT ipiBlankno
+            ).
 
 END PROCEDURE.
 
@@ -1381,20 +1314,19 @@ PROCEDURE jobScan :
     DEFINE INPUT PARAMETER  ipiFormno   AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER  ipiBlankno  AS INTEGER   NO-UNDO.
 
-    DEFINE VARIABLE riJobMch AS ROWID NO-UNDO.
+    DEFINE VARIABLE lValidJob AS LOGICAL NO-UNDO.
 
-    RUN getJobDetails(INPUT ipcCompany,
+    RUN ValidateJob IN hdJobProcs (
+        INPUT ipcCompany,
         INPUT ipcJobno,
         INPUT ipcMachine,
         INPUT ipiJobno2,
         INPUT ipiFormno,
         INPUT ipiBlankno,
-        OUTPUT riJobMch).
-                      
-    FIND FIRST job-mch 
-        WHERE ROWID(job-mch) = riJobMch NO-ERROR.
-    
-    IF NOT AVAILABLE job-mch THEN 
+        OUTPUT lValidJob
+        ).
+        
+    IF NOT lValidJob THEN 
     DO: 
         MESSAGE "Invalid Job scan" VIEW-AS ALERT-BOX ERROR.
         APPLY "ENTRY" TO ls-jobno in FRAME {&FRAME-NAME}.
@@ -1402,7 +1334,8 @@ PROCEDURE jobScan :
     END.    
 
     ASSIGN
-        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ipcJobno.
+        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ipcJobno
+        cFormattedJobno = ipcJobno.
     
     RUN updateComboBoxes.
        
@@ -1418,17 +1351,18 @@ PROCEDURE jobScan :
             cb-machine:SCREEN-VALUE = ipcmachine.
     END.
     
-    ASSIGN 
-        cValidateJobno = ls-jobno:SCREEN-VALUE.
+    cValidateJobno = ls-jobno:SCREEN-VALUE.
                        
     RUN enableCreate.
     
-    RUN rebuildTempTable(INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+    RUN rebuildTempTable (
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}).                   
+        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).                   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1476,30 +1410,31 @@ PROCEDURE onValueChangedOfJobDetails :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE riJobMch AS ROWID NO-UNDO.
+    DEFINE VARIABLE lValidJob AS LOGICAL NO-UNDO.
     
     RUN disableCreate.
     
-    RUN getJobDetails(INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+    RUN ValidateJob IN hdJobProcs (
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        OUTPUT riJobMch).
+        INPUT INTEGER(cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+        INPUT INTEGER(cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+        INPUT INTEGER(cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+        OUTPUT lValidJob
+        ).
     
-    FIND FIRST job-mch 
-        WHERE ROWID(job-mch) = riJobMch NO-ERROR.
-              
-    IF AVAILABLE job-mch THEN
+    IF lValidJob THEN
         RUN enableCreate.
 
-    RUN rebuildTempTable(INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+    RUN rebuildTempTable(
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                        
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1581,17 +1516,20 @@ PROCEDURE pPrintLabels PRIVATE :
             "     Template file: " cPathTemplate
             VIEW-AS ALERT-BOX TITLE "Invalid Template".
     
-    RUN TempTableToCSV IN hdOutputProcs( INPUT TEMP-TABLE ttPrintInventoryStock:HANDLE,
+    RUN TempTableToCSV IN hdOutputProcs ( 
+        INPUT TEMP-TABLE ttPrintInventoryStock:HANDLE,
         INPUT cOutputFileName,
-        INPUT TRUE).
-    
-    
-    RUN rebuildTempTable(INPUT ipcCompany,
-        INPUT ls-jobno:SCREEN-VALUE   IN FRAME {&FRAME-NAME},
+        INPUT TRUE
+        ).
+        
+    RUN rebuildTempTable(
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-jobno2:SCREEN-VALUE  IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE  IN FRAME {&FRAME-NAME},
-        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+        INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).
 
     APPLY "VALUE-CHANGED" TO {&BROWSE-NAME} IN FRAME  {&FRAME-NAME}.    
 
@@ -1644,25 +1582,21 @@ PROCEDURE rebuildTempTable :
     DEFINE INPUT PARAMETER ipiJobno2  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiFormno  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiBlankno AS INTEGER   NO-UNDO.
-
-    EMPTY TEMP-TABLE ttBrowseInventory.
     
-    FOR EACH inventoryStock NO-LOCK
-        WHERE inventoryStock.company   EQ ipcCompany
-          AND inventoryStock.jobID     EQ ipcJobno
-          AND inventoryStock.jobID2    EQ ipiJobno2   
-          AND inventoryStock.formNo    EQ ipiFormno   
-          AND inventoryStock.blankNo   EQ ipiBlankno
-          AND inventoryStock.machineID EQ ipcMachine
-        :
-        CREATE ttBrowseInventory.
-        BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
-        ttBrowseinventory.locationID = inventoryStock.warehouseID + " " + inventoryStock.locationID.
-    END.
+    RUN RebuildWIPBrowseTT IN hdInventoryProcs (
+        ipcCompany,
+        ipcJobno,
+        ipcMachine,
+        ipiJobno2,
+        ipiFormno,
+        ipiBlankno,
+        OUTPUT iTotTags,
+        OUTPUT iTotOnHand
+        ).
+            
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
     
-    hdBrowseQuery:GET-FIRST().
-    IF hdBrowseBuffer:AVAILABLE THEN DO:
+    IF AVAILABLE ttBrowseInventory THEN DO:
         ASSIGN
             bt-print-all:SENSITIVE IN FRAME {&FRAME-NAME}      = TRUE
             bt-print-selected:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
@@ -1720,44 +1654,60 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tagScan W-Win 
 PROCEDURE tagScan :
 /*------------------------------------------------------------------------------
-      Purpose:     
+      Purpose: Tag scan     
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTag   AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-inventoryStock FOR inventoryStock.
+    DEFINE VARIABLE cJobNo      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachine    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobNo2     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFormNo     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lValidInv   AS LOGICAL   NO-UNDO.
     
-    IF ls-tag:SCREEN-VALUE in FRAME {&FRAME-NAME} = "" THEN
+    IF ls-tag:SCREEN-VALUE in FRAME {&FRAME-NAME} EQ "" THEN
         RETURN.
         
     ASSIGN 
-        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
+        cMessage = "".
     
     RUN disableCreate.
     
-    FIND FIRST bf-inventoryStock NO-LOCK
-        WHERE bf-inventoryStock.StockIDAlias = ipcTag NO-ERROR.
-
-    IF AVAILABLE bf-inventoryStock THEN 
+    RUN pGetInventoryStockJobDetails IN hdInventoryProcs (
+        ipcCompany,
+        ipcTag,
+        OUTPUT cJobNo,
+        OUTPUT iJobNo2,
+        OUTPUT iFormNo,
+        OUTPUT iBlankNo,
+        OUTPUT cMachine,
+        OUTPUT lValidInv,
+        OUTPUT cMessage
+        ).
+        
+    IF lValidInv THEN 
     DO:
         ASSIGN
-            ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = bf-inventoryStock.jobID.
+            ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cJobNo
+            cFormattedJobno = cJobNo
+            .
                           
         RUN updateComboBoxes.
                 
         ASSIGN 
-            cValidateJobno                                 = bf-inventoryStock.jobID
-            cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = STRING(bf-inventoryStock.jobID2,"99")
-            cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = STRING(bf-inventoryStock.formNo,"99")
-            cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(bf-inventoryStock.blankNo,"99")
-            cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME} = bf-inventoryStock.machineID
-            ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME}   = bf-inventoryStock.jobID.
+            cValidateJobno                                 = cJobNo
+            cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = STRING(iJobNo2,"99")
+            cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = STRING(iFormNo,"99")
+            cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iBlankNo,"99")
+            cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMachine
+            .
         
         RUN enableCreate.         
     END.
         
-    RELEASE bf-inventoryStock.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1769,29 +1719,43 @@ PROCEDURE updateComboBoxes :
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE BUFFER buf-job-mch FOR job-mch.
+------------------------------------------------------------------------------*/    
+    ASSIGN
+        cJobno2ListItems  = ""
+        cFormnoListItems  = ""
+        cBlanknoListItems = ""
+        cMachineListItems = "".
+        
+    RUN GetSecondaryJobForJob IN hdJobProcs (
+        ipcCompany,
+        cFormattedJobno,
+        INPUT-OUTPUT cJobno2ListItems
+        ).
     
-    FOR EACH buf-job-mch NO-LOCK
-        WHERE buf-job-mch.company = ipcCompany
-          AND buf-job-mch.job-no  = ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        BY buf-job-mch.line
-        :
-        cJobno2ListItems  = IF cJobno2ListItems = "" THEN STRING(buf-job-mch.job-no2,"99")
-        ELSE IF INDEX(cJobno2Listitems,STRING(buf-job-mch.job-no2,"99")) > 0 THEN cJobno2ListItems
-        ELSE cJobno2ListItems + "," + STRING(buf-job-mch.job-no2,"99").
-        cFormnoListItems  = IF cFormnoListItems = "" THEN STRING(buf-job-mch.frm,"99")
-        ELSE IF INDEX(cFormnoListitems,STRING(buf-job-mch.frm,"99")) > 0 THEN cFormnoListItems
-        ELSE cFormnoListItems + "," + STRING(buf-job-mch.frm,"99").
-        cBlanknoListItems = IF cBlanknoListItems = "" THEN STRING(buf-job-mch.blank-no,"99")
-        ELSE IF INDEX(cBlanknoListitems,STRING(buf-job-mch.blank-no,"99")) > 0 THEN cBlanknoListItems
-        ELSE cBlanknoListItems + "," + STRING(buf-job-mch.blank-no,"99").
-        cMachineListItems = IF cMachineListItems = "" THEN STRING(buf-job-mch.m-code)
-        ELSE IF INDEX(cMachineListItems,STRING(buf-job-mch.m-code)) > 0 THEN cMachineListItems
-        ELSE cMachineListItems + "," + STRING(buf-job-mch.m-code).           
-    END.
+    DO iCount = 1 TO NUM-ENTRIES(cJobno2ListItems):
+        RUN GetFormnoForJob IN hdJobProcs (
+            ipcCompany,
+            cFormattedJobno,
+            INTEGER(ENTRY(iCount, cJobno2ListItems)),
+            INPUT-OUTPUT cFormnoListItems
+            ).
+    
+        RUN GetBlanknoForJob IN hdJobProcs (
+            ipcCompany,
+            cFormattedJobno,
+            INTEGER(ENTRY(iCount, cJobno2ListItems)),
+            INPUT-OUTPUT cBlanknoListItems
+            ).
 
-    IF cJobno2ListItems = "" THEN
+        RUN GetOperationsForJob IN hdJobProcs (
+            ipcCompany,
+            cFormattedJobno,
+            INTEGER(ENTRY(iCount, cJobno2ListItems)),
+            INPUT-OUTPUT cMachineListItems
+            ).
+    END.
+    
+    IF cJobno2ListItems EQ "" THEN
         ASSIGN 
             cJobno2ListItems                              = "00"
             cb-jobno2:LIST-ITEMS IN FRAME {&FRAME-NAME}   = cJobno2ListItems 
@@ -1799,7 +1763,7 @@ PROCEDURE updateComboBoxes :
     ELSE
         cb-jobno2:LIST-ITEMS IN FRAME {&FRAME-NAME} = cJobno2ListItems.
  
-    IF cFormnoListItems = "" THEN
+    IF cFormnoListItems EQ "" THEN
         ASSIGN
             cFormnoListItems                              = "00"
             cb-formno:LIST-ITEMS IN FRAME {&FRAME-NAME}   = cFormnoListItems 
@@ -1807,7 +1771,7 @@ PROCEDURE updateComboBoxes :
     ELSE
         cb-formno:LIST-ITEMS IN FRAME {&FRAME-NAME} = cFormnoListItems.
 
-    IF cBlanknoListItems = "" THEN
+    IF cBlanknoListItems EQ "" THEN
         ASSIGN
             cBlanknoListItems                              = "00"
             cb-blankno:LIST-ITEMS IN FRAME {&FRAME-NAME}   = cBlanknoListItems
@@ -1815,7 +1779,7 @@ PROCEDURE updateComboBoxes :
     ELSE
         cb-blankno:LIST-ITEMS IN FRAME {&FRAME-NAME} = cBlanknoListItems.
 
-    IF cMachineListItems = "" THEN
+    IF cMachineListItems EQ "" THEN
         ASSIGN
             cMachineListItems                              = ""
             cb-machine:LIST-ITEMS IN FRAME {&FRAME-NAME}   = cMachineListItems
@@ -1823,8 +1787,6 @@ PROCEDURE updateComboBoxes :
     ELSE
         cb-machine:LIST-ITEMS IN FRAME {&FRAME-NAME} = cMachineListItems.
     
-    RELEASE buf-job-mch.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

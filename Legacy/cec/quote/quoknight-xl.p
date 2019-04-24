@@ -203,7 +203,9 @@ RUN UTIL/CurrDir.p (output CurrDir).
    rptExcel:report-design = "template/quoteknight.jrxml" NO-ERROR.
 &ELSE
 
-chFile = CurrDir + "\Template\quotenosco.xlt" NO-ERROR.
+  RUN sys/ref/getFileFullPathName.p ("Template\QuoteNosco.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
    
 chExcelApplication:VISIBLE = TRUE.
 &ENDIF

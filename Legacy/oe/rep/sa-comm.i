@@ -712,7 +712,7 @@
             PUT STREAM st-excell
                 p-sman  format "x(3)" v-comma
                 tt-report.key-02 v-comma
-                cust.NAME  FORM "x(30)" v-comma
+                REPLACE(cust.name,",","")  FORM "x(30)" v-comma
                 v-tot-samt[1] v-comma
                 v-tot-camt[1] v-comma
                 v-comm      format "->>>9.99" v-comma

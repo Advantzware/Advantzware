@@ -341,7 +341,8 @@ PROCEDURE CREATE-ar-invl.
                ar-invl.std-lab-cost = itemfg.std-lab-cost
                ar-invl.std-fix-cost = itemfg.std-fix-cost
                ar-invl.std-var-cost = itemfg.std-var-cost 
-               ar-invl.std-mat-cost = itemfg.std-mat-cost.
+               ar-invl.std-mat-cost = itemfg.std-mat-cost
+               ar-invl.inv-date     = inv-head.inv-date.
 
                if ar-invl.ord-no eq 0 then ar-invl.s-pct[1] = 100. 
 
@@ -675,7 +676,8 @@ PROCEDURE create-misc-charges.
              ar-invl.misc           = YES
              ar-invl.billable       = IF inv-misc.bill EQ "I" THEN TRUE
                                       ELSE FALSE
-             ar-invl.posted         = YES.
+             ar-invl.posted         = YES
+             ar-invl.inv-date       = inv-head.inv-date.
 
              IF NOT ar-invl.billable THEN ar-invl.amt = 0.
               

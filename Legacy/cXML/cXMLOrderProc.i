@@ -432,11 +432,13 @@ PROCEDURE genTempOrderLines:
     DEFINE VARIABLE itemLineNumber              AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE itemSupplierPartID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestedDeliveryDate      AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.    
     DEFINE VARIABLE iCurrentLineNum             AS INTEGER NO-UNDO.
     DEFINE VARIABLE cNodeParentName AS CHARACTER NO-UNDO.
     
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
+
 
     EMPTY TEMP-TABLE ttOrdLines.
     FOR EACH ttNodes:
@@ -468,6 +470,7 @@ PROCEDURE genTempOrderLines:
         CASE cNodeParentName:
             WHEN 'itemOut|requestedDeliveryDate' THEN DO:
                 cRequestedDeliveryDate = TRIM(ttNodes.nodeValue).
+
                 IF cRequestedDeliveryDate NE "" THEN
                     dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
                         ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
@@ -500,6 +503,7 @@ PROCEDURE genTempOrderLines:
                 ttOrdLines.ttItemManufacturerPartID = TRIM(ttNodes.nodeValue).
         END CASE.
         
+
    END.    
 END PROCEDURE.
 

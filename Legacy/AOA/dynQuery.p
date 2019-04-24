@@ -1,11 +1,12 @@
 /* dynQuery.p - rstark - 2.5.2019 */
 
-DEFINE INPUT  PARAMETER iprRowID     AS ROWID     NO-UNDO.
-DEFINE INPUT  PARAMETER ipcQueryStr  AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcTableName AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER ophQuery     AS HANDLE    NO-UNDO.
-DEFINE OUTPUT PARAMETER oplOK        AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcError     AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iprRowID       AS ROWID     NO-UNDO.
+DEFINE INPUT  PARAMETER ipcQueryStr    AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcTableName   AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipiRecordLimit AS INTEGER   NO-UNDO.
+DEFINE OUTPUT PARAMETER ophQuery       AS HANDLE    NO-UNDO.
+DEFINE OUTPUT PARAMETER oplOK          AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcError       AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cDate         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cParam        AS CHARACTER NO-UNDO.
@@ -17,70 +18,20 @@ DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
 
-DEFINE TEMP-TABLE ttSortBy NO-UNDO
-    FIELD ttOrder      AS INTEGER 
-    FIELD ttSortBy     AS CHARACTER 
-    FIELD ttDescending AS LOGICAL
-        INDEX ttSortBy IS PRIMARY
-            ttOrder
-            .
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
 FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID NO-ERROR.
 IF NOT AVAILABLE dynParamValue THEN RETURN.
 
-cQueryStr = ipcQueryStr.
-IF INDEX(ipcQueryStr,"[[") NE 0 THEN
-DO idx = 1 TO EXTENT(dynParamValue.paramName):
-    IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-    cParam = "[[" + dynParamValue.paramName[idx] + "]]".
-    IF INDEX(cQueryStr,cParam) NE 0 THEN
-    CASE dynParamValue.paramDataType[idx]:
-        WHEN "Character" THEN DO:
-        cQueryStr = REPLACE(cQueryStr,cParam,"~"" + dynParamValue.paramValue[idx] + "~"").
-        END.
-        WHEN "Date" THEN DO:
-            dtDate = DATE(dynParamValue.paramValue[idx]) NO-ERROR.
-            ASSIGN
-                cDate     = IF dtDate EQ ? THEN "~?" ELSE STRING(dtDate,dynParamValue.paramFormat[idx])
-                cQueryStr = REPLACE(cQueryStr,cParam,cDate)
-                .
-        END. /* date */
-        WHEN "DateTime" THEN DO:
-            dtDate = DATE(dynParamValue.paramValue[idx]) NO-ERROR.
-            ASSIGN
-                cDate     = IF dtDate EQ ? THEN "~?" ELSE STRING(dtDate,dynParamValue.paramFormat[idx])
-                cQueryStr = REPLACE(cQueryStr,cParam,cDate)
-                cQueryStr = REPLACE(cQueryStr,cParam,dynParamValue.paramValue[idx])
-                .
-        END. /* date */
-        WHEN "Decimal" OR WHEN "Integer" OR WHEN "Logical" THEN
-        cQueryStr = REPLACE(cQueryStr,cParam,dynParamValue.paramValue[idx]).
-    END CASE.
-END. /* do idx */
+/* replace [[parameter]] with parameter value */
+{AOA/includes/cQueryStr.i ipcQueryStr}
 
-EMPTY TEMP-TABLE ttSortBy.
-DO idx = 1 TO EXTENT(dynParamValue.colName):
-    IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
-    IF dynParamValue.sortCol[idx] EQ 0  THEN NEXT.
-    CREATE ttSortBy.        
-    ASSIGN 
-        ttSortBy.ttOrder      = dynParamValue.sortCol[idx]
-        ttSortBy.ttSortBy     = dynParamValue.colName[idx]
-        ttSortBy.ttDescending = dynParamValue.sortDescending[idx]
-        .
-END. /* do idx */
-
-FOR EACH ttSortBy BY ttSortBy.ttOrder:
-    cQueryStr = cQueryStr + " BY " + ttSortBy.ttSortBy
-              + IF ttSortBy.ttDescending THEN " DESCENDING" ELSE ""
-              .
-END. /* each ttSortBy */
+/* append sort by option to query */
+RUN AOA/dynSortBy.p (BUFFER dynParamValue, INPUT-OUTPUT cQueryStr).
 
 RUN pGetWhereCalcFields (INPUT-OUTPUT cQueryStr).
-/*MESSAGE                   */
-/*    "cQueryStr:" cQueryStr*/
-/*VIEW-AS ALERT-BOX.        */
+IF ipiRecordLimit NE 0 THEN
+cQueryStr = cQueryStr + " MAX-ROWS " + STRING(ipiRecordLimit).
 CREATE QUERY hQuery.
 DO idx = 1 TO NUM-ENTRIES(ipcTableName):
     CREATE BUFFER hBuffer[idx] FOR TABLE ENTRY(idx,ipcTableName).

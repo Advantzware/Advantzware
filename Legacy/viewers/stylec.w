@@ -1598,17 +1598,41 @@ PROCEDURE local-delete-record :
                       eb.style = style.style
                       NO-LOCK NO-ERROR.
   IF AVAIL eb THEN DO:
-     MESSAGE "You must remove all references to this 'Style' - " style.style " in the " SKIP
-             "database files (edtimates, quotes,etc.) before you delete it." SKIP
-             "Delete this style anyway?"
-             VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE ll-ans AS LOG.
-     IF NOT ll-ans THEN RETURN NO-APPLY.        
+     MESSAGE 
+        "This style is referenced in at least one estimate." SKIP 
+        "It cannot be deleted at this time."
+         VIEW-AS ALERT-BOX ERROR.
+     RETURN.        
   END.
 
+  FOR EACH bf-flute NO-LOCK:
+      /* IF this style/flute not used in any other company, OK to delete non-co-specific data */
+      /* This will be replaced when the STYFLU reftable project is merged, but this is a current problem */
+      IF CAN-FIND (FIRST bstyle WHERE 
+                        bstyle.company NE style.company AND 
+                        bstyle.style EQ style.style AND 
+                        bstyle.flute EQ bf-flute.code) THEN DO:
+            MESSAGE 
+                "This style/flute combination exists in multiple companies.  If you delete it," SKIP 
+                "you will need to recreate the detail data in the other company style records." SKIP 
+                "Are you sure?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lDelete AS LOG.
+            IF NOT lDelete THEN RETURN.
+      END. 
+      ELSE DO j = 1 TO 7:
+         FIND FIRST reftable EXCLUSIVE WHERE 
+            reftable.reftable = "STYFLU" AND 
+            reftable.company = style.style AND 
+            reftable.loc = bf-flute.code AND 
+            reftable.code = string(j) 
+            NO-ERROR.
+         IF AVAIL reftable THEN DELETE reftable.
+      END.
+  END.   
+
   IF NOT adm-new-record THEN DO:
-    ll-ans = NO.
     MESSAGE "Are you sure you want to delete style " style.style "?"
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans .
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF NOT ll-ans THEN RETURN NO-APPLY.
   END.
   {&methods/lValidateError.i NO}
@@ -1627,21 +1651,6 @@ PROCEDURE local-delete-record :
 
   RUN reset-browse (lv-rowid[1]).
 
-  FOR EACH bf-flute NO-LOCK:  /* used be reftable */
-      /* IF this style/flute not used in any other company, OK to delete non-co-specific data */
-      IF NOT CAN-FIND (FIRST bstyle WHERE 
-                        bstyle.company NE style.company AND 
-                        bstyle.style EQ style.style AND 
-                        bstyle.flute EQ bf-flute.code) THEN 
-      DO j = 1 TO 7:
-         FIND FIRST reftable WHERE reftable.reftable = "STYFLU"
-                               AND reftable.company = style.style
-                               AND reftable.loc = bf-flute.code
-                               AND reftable.code = string(j) 
-                               NO-ERROR.
-         IF AVAIL reftable THEN DELETE reftable.
-      END.
-  END.   
 
   FOR EACH routing-mtx OF style :
       DELETE routing-mtx.
