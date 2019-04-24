@@ -3524,6 +3524,8 @@ PROCEDURE ipLoadModules :
         DO:
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
+            ASSIGN 
+                {&tablename}.is-Used = FALSE.
         END.
     END.
     INPUT CLOSE.
