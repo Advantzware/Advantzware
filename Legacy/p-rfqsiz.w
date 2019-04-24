@@ -204,6 +204,13 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-auto-calc C-WIn
 ON CHOOSE OF btn-auto-calc IN FRAME Panel-Frame /* Auto-Calculate */
 DO:
+
+    MESSAGE
+        "The auto-calc function may change your data based upon your current standards." SKIP
+        "These changes are not reversed if you select Cancel.  Do you want to proceed?"
+        VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE lProceed AS LOG.
+     IF NOT lProceed THEN RETURN NO-APPLY.
+     
   DO WITH FRAME Panel-Frame:
      def var source-str as cha no-undo.
      RUN get-link-handle IN adm-broker-hdl 
