@@ -1400,15 +1400,14 @@ PROCEDURE create-ap-from-po :
                   AND bf-ap-invl.item-no EQ po-ordl.i-no
                 NO-LOCK NO-ERROR.
             IF NOT AVAIL bf-ap-invl THEN lSetup = YES.
-            IF lSetup THEN tt-ap-invl.amt = tt-ap-invl.amt + po-ordl.setup.
-            
-            tt-ap-invl.unit-pr = tt-ap-invl.amt / tt-ap-invl.qty.
-    
-            IF tt-ap-invl.cons-uom NE tt-ap-invl.pr-qty-uom THEN
-              RUN sys/ref/convcuom.p (tt-ap-invl.cons-uom, tt-ap-invl.pr-qty-uom,
+            IF lSetup AND po-ordl.setup NE 0 THEN DO:  /*add setup to amt and recalculate unit-pr if setup charge is included*/
+                tt-ap-invl.amt = tt-ap-invl.amt + po-ordl.setup.
+                tt-ap-invl.unit-pr = tt-ap-invl.amt / tt-ap-invl.qty.    
+                IF tt-ap-invl.cons-uom NE tt-ap-invl.pr-qty-uom THEN
+                    RUN sys/ref/convcuom.p (tt-ap-invl.cons-uom, tt-ap-invl.pr-qty-uom,
                                       v-bwt, v-len, v-wid, v-dep,
                                       tt-ap-invl.unit-pr, OUTPUT tt-ap-invl.unit-pr).
-            tt-ap-invl.unit-pr = ROUND(tt-ap-invl.unit-pr, 2).
+            END.
         END.
          if v-len eq 0 then v-len = 12.
         if v-wid eq 0 then v-wid = 12.
