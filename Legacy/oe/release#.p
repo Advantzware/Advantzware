@@ -1,22 +1,16 @@
-
+/*-----------------------------------------------------------------------------
+    File        : oe\release#.p
+    Copyright   : (c)1985-2019 Advantzware, Inc. All rights reserved.
+    Description : 
+    Author(s)   : 
+    Created     : Apr 24, 2019 7:55:04 AM
+    Notes       : 
+                  
+---------------------------------------------------------------------------*/
 DEF INPUT  PARAM ip-cocode  LIKE oe-relh.company    NO-UNDO.
 DEF OUTPUT PARAM op-next#   LIKE oe-relh.release#   NO-UNDO.
 
-
-op-next# = 0.
-/* Replace with code that reserves the number */
-/* FIND LAST oe-relh                                      */
-/*     WHERE oe-relh.company EQ ip-cocode                 */
-/*     USE-INDEX release# NO-LOCK NO-ERROR.               */
-/* IF AVAIL oe-relh AND oe-relh.release# GT op-next# THEN */
-/*   op-next# = oe-relh.release#.                         */
-
+ASSIGN 
+    op-next# = 0.
 RUN oe/getNextRelNo.p (INPUT "release#", OUTPUT op-next#).
 
-FIND LAST oe-relh
-    WHERE oe-relh.company EQ ip-cocode
-    USE-INDEX release# NO-LOCK NO-ERROR.
-IF AVAIL oe-relh AND oe-relh.release# GT op-next# THEN
-  op-next# = oe-relh.release# + 1.
-
-/* op-next# = op-next# . */

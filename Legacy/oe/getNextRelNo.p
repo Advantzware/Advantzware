@@ -1,3 +1,12 @@
+/*-----------------------------------------------------------------------------
+    File        : oe\getNextRelNo.p
+    Copyright   : (c)1985-2019 Advantzware, Inc. All rights reserved.
+    Description : 
+    Author(s)   : 
+    Created     : Apr 24, 2019 7:55:44 AM
+    Notes       : 
+                
+---------------------------------------------------------------------------*/
 /* Obtain next available r-no for release creation */
   
     DEF INPUT PARAMETER ipMode AS CHAR NO-UNDO. /* oe-rel or oe-relh */
