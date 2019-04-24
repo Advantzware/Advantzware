@@ -148,6 +148,17 @@ find first company where company.company eq cocode NO-LOCK.
     
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
 
+    RUN pPrintReportData(NO).
+    IF v-prntdupl = YES THEN RUN pPrintReportData(YES).
+
+PROCEDURE pPrintReportData :
+/*------------------------------------------------------------------------------
+  Purpose:     Duplicate with no unit price, extended price, and invoice totals.    
+  Parameters:  Company Code, Customer list logical and/or customer range
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
+
     for each report where report.term-id eq v-term-id no-lock,
         first xinv-head where recid(xinv-head) eq report.rec-id no-lock
         break by report.key-01
@@ -539,6 +550,7 @@ find first company where company.company eq cocode NO-LOCK.
             
             v-price-head = inv-line.pr-uom.
 
+          IF iplPrntDupl = NO THEN
             PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
@@ -547,6 +559,14 @@ find first company where company.company eq cocode NO-LOCK.
                 v-price  format "->>>>,>>9.99" /*"->>,>>9.99<<"*/ SPACE(1)
                 v-price-head SPACE(1)
                 inv-line.t-price  FORMAT "->,>>>,>>9.99" /*"->>>,>>9.99"*/                     
+                SKIP.
+          ELSE
+              PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
+                v-ship-qty  format "->>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(3)
+                v-i-dscr  format "x(25)" SPACE(3)
+                
                 SKIP.
 
             v-printline = v-printline + 1.
@@ -730,7 +750,8 @@ find first company where company.company eq cocode NO-LOCK.
     end.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
 
-    IF v-bot-lab[4] <> "" THEN
+IF iplPrntDupl = NO THEN do:
+  IF v-bot-lab[4] <> "" THEN
     PUT "<P10><R56><C60><#8><FROM><R+8><C+22><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORM "->,>>>,>>9.99"
@@ -740,7 +761,7 @@ find first company where company.company eq cocode NO-LOCK.
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
         "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->,>>>,>>9.99" .
-ELSE
+  ELSE
     PUT "<R56><C60><#8><FROM><R+6><C+22><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORM "->,>>>,>>9.99"
@@ -748,6 +769,7 @@ ELSE
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->,>>>,>>9.99" .
+END.
 
     PUT "<R56><C2> Please remit payment to: "
         "<R58><C2> Shamrock Packaging SHA4035"
@@ -762,3 +784,4 @@ ELSE
     end. /* each xinv-head */
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
+END PROCEDURE.
