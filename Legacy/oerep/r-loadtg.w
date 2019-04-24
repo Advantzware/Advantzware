@@ -3789,7 +3789,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip,Pallet type".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip,Pallet type,Zone".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -4098,7 +4098,8 @@ PROCEDURE create-w-ord :
              w-ord.test    = itemfg.test
              w-ord.pcs     = loadtag.qty-case
              w-ord.bundle  = loadtag.case-bundle
-             w-ord.style   = itemfg.style.
+             w-ord.style   = itemfg.style
+             w-ord.zone    = itemfg.spare-char-4.
 
       IF w-ord.style NE "" THEN
       DO:
@@ -4210,7 +4211,8 @@ PROCEDURE create-w-ord :
                 w-ord.upc-no       = itemfg.upc-no
                 w-ord.box-len      = itemfg.l-score[50]
                 w-ord.box-wid      = itemfg.w-score[50]
-                w-ord.box-dep      = itemfg.d-score[50].
+                w-ord.box-dep      = itemfg.d-score[50]
+                w-ord.zone         = itemfg.spare-char-4.
 
              FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ job-hdr.company   
@@ -4330,7 +4332,8 @@ PROCEDURE create-w-ord :
                 w-ord.pcs = itemfg.case-count
                 w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
                 w-ord.style = itemfg.style
-                w-ord.cust-part-no = itemfg.part-no .
+                w-ord.cust-part-no = itemfg.part-no 
+                w-ord.zone         = itemfg.spare-char-4.
          IF po-ordl.ord-no > 0 THEN  
              FOR EACH cust-part NO-LOCK 
                  WHERE cust-part.company EQ po-ord.company   
@@ -4425,7 +4428,8 @@ PROCEDURE create-w-ord :
                  w-ord.partial =loadtag.partial
                  w-ord.total-unit = w-ord.pcs * w-ord.bundle + w-ord.partial
                  w-ord.style        = itemfg.style
-                 w-ord.lot          = loadtag.misc-char[2].
+                 w-ord.lot          = loadtag.misc-char[2]
+                 w-ord.zone         = itemfg.spare-char-4.
 
           FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ cocode   
@@ -4506,7 +4510,8 @@ PROCEDURE CreateWOrdFromItem :
       w-ord.uom = "EA"
       w-ord.pcs = itemfg.case-count
       w-ord.bundle = itemfg.case-pall
-      w-ord.style   = itemfg.style.
+      w-ord.style   = itemfg.style
+      w-ord.zone    = itemfg.spare-char-4.
      
       FOR EACH cust-part NO-LOCK 
           WHERE cust-part.company EQ cocode   
@@ -4846,6 +4851,7 @@ PROCEDURE from-job :
             w-ord.due-date-job = IF job.due-date <> ? THEN STRING(job.due-date, "99/99/9999") ELSE "".
             w-ord.due-date-jobhdr = IF job-hdr.due-date <> ? THEN STRING(job-hdr.due-date, "99/99/9999") ELSE "".
             w-ord.job-qty      = job-hdr.qty  .
+            w-ord.zone         = itemfg.spare-char-4 .
             FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ cocode   
                AND cust-part.i-no EQ itemfg.i-no 
@@ -5200,7 +5206,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
              w-ord.test    = itemfg.test
              w-ord.pcs     = itemfg.case-count
              w-ord.bundle  = itemfg.case-pall
-             w-ord.style   = itemfg.style.
+             w-ord.style   = itemfg.style
+             w-ord.zone    = itemfg.spare-char-4.
 
           IF w-ord.style NE "" THEN
           DO:
@@ -5414,7 +5421,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
            w-ord.test    = itemfg.test
            w-ord.pcs     = itemfg.case-count
            w-ord.bundle  = itemfg.case-pall
-           w-ord.style   = itemfg.style.
+           w-ord.style   = itemfg.style
+           w-ord.zone    = itemfg.spare-char-4.
 
         IF w-ord.style NE "" THEN
         DO:
@@ -5559,7 +5567,8 @@ PROCEDURE from-po :
         w-ord.pcs = itemfg.case-count
         w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
         w-ord.style   = itemfg.style
-        w-ord.cust-part-no = itemfg.part-no .
+        w-ord.cust-part-no = itemfg.part-no 
+        w-ord.zone         = itemfg.spare-char-4.
       
     IF w-ord.ord-no > 0 THEN
        FOR EACH cust-part NO-LOCK 
@@ -8031,7 +8040,8 @@ PROCEDURE write-loadtag-line :
         "~"" loadtag.loc-bin "~","
         "~"" w-ord.job-qty "~","
         "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"," 
-        "~"" STRING(loadtag.pallet-no)  "~"" .
+        "~"" STRING(loadtag.pallet-no)  "~"," 
+        "~"" STRING(w-ord.zone)  "~"".
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.
