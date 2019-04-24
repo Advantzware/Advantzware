@@ -477,7 +477,6 @@ DEFINE FRAME F-Main
      fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiHoldType AT ROW 9.33 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -506,10 +505,6 @@ DEFINE FRAME F-Main
           LABEL "Status"
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1
-     oe-ord.spare-char-2 AT ROW 9.33 COL 108 COLON-ALIGNED WIDGET-ID 8
-          LABEL "Hold Type" FORMAT "x(2)"
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1 TOOLTIP "Order Hold Type"
      oe-ord.cust-no AT ROW 2.67 COL 10.8 COLON-ALIGNED
           LABEL "Bill To" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -591,6 +586,11 @@ DEFINE FRAME F-Main
      oe-ord.managed AT ROW 11.38 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 26 BY 1
+     oe-ord.spare-char-2 AT ROW 9.33 COL 108 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Hold Type" FORMAT "x(2)"
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1 TOOLTIP "Order Hold Type"
+     fiHoldType AT ROW 9.33 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      oe-ord.priceHold AT ROW 11 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
