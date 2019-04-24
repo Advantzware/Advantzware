@@ -2319,8 +2319,8 @@ IF NOT lCheckCount THEN do:
             EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no 
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
             AND fg-rdtlh.tag EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK: 
-            MESSAGE "Note: A count is already entered for this tag for the same date with a count of "
-                    STRING(fg-rdtlh.qty-case) VIEW-AS ALERT-BOX INFO .
+            MESSAGE "Note: A count is already entered for this tag for the same date with a quantity of "
+                    STRING(fg-rdtlh.qty) VIEW-AS ALERT-BOX INFO .
             lCheckCount = YES .
             LEAVE .
         END.
@@ -2352,8 +2352,8 @@ IF NOT lCheckTag THEN do:
                AND ROWID(bf-fg-rctd) NE ROWID(fg-rctd)
             NO-ERROR .
         IF AVAIL bf-fg-rctd THEN do:
-            MESSAGE "There is already a count entry for this tag in location '" + bf-fg-rctd.loc + "' with a count of '" 
-            + STRING(bf-fg-rctd.qty-case) +  "' Are you sure? with an OK " 
+            MESSAGE "There is already a count entry for this tag in location '" + bf-fg-rctd.loc + "' with a quantity of '" 
+            + STRING(bf-fg-rctd.t-qty) +  "'. Are you sure you want to add another count entry for this tag? " 
             VIEW-AS ALERT-BOX QUESTION BUTTON OK-CANCEL UPDATE ll-ans AS LOG .
             IF NOT ll-ans  THEN do:
               IF ipiTag EQ 0 THEN do:
