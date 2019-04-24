@@ -34,7 +34,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
            + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,SSPostFGTransfer,FGUnderOver,FGSetAdjustReason,AdjustReason,ShipNotesExpanded,CTIDir,"
            + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal,TSShowPending,FGHistoryDate,CEUpdateCAD,"
-           + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault"
+           + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault,DynAuditField,DynTaskTicker"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -586,11 +586,26 @@ CASE ip-nk1-value:
         INPUT "WIP Tags Default Location",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
-  WHEN "POItemFilterDefault" THEN
+   WHEN "POItemFilterDefault" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "PU1 Item Lookup - Filter By defaults to PO Vendor or All Vendor",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "DynAuditField" THEN DO:
+        FIND FIRST dynSubject NO-LOCK
+             WHERE dynSubject.subjectTitle EQ "Audit Field Lookup"
+             NO-ERROR.
+        RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+            INPUT "Dynamic Audit Field History",
+            INPUT "Audit Field Lookup" /* Char Value */,
+            INPUT IF AVAILABLE dynSubject THEN dynSubject.subjectID ELSE 0 /* Int value */,
+            INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
+   END. /* do dynauditfield */
+   WHEN "DynTaskTicker" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Dynamic Main Menu Task Ticker",
+        INPUT "" /* Char Value */, INPUT 1 /* Int value */,
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
 ELSE
 CASE ip-nk1-value:
