@@ -402,8 +402,8 @@ PROCEDURE genTempOrderHeader:
         ttOrdHead.ttshipToID          = getNodeValue('shipTo','AddressID')
         ttOrdHead.ttshipToName        = getNodeValue('shipTo','Name')
         ttOrdHead.ttshipToContact     = getNodeValue('shipTo','DeliverTo')
-        ttOrdHead.ttshipToAddress1    = getNodeValue('shipTo','Street|1')
-        ttOrdHead.ttshipToAddress2    = getNodeValue('shipTo','Street|2')
+        ttOrdHead.ttshipToAddress1    = shipToAddress1
+        ttOrdHead.ttshipToAddress2    = shipToAddress2
         ttOrdHead.ttshipToCity        = getNodeValue('shipTo','City')
         ttOrdHead.ttshipToState       = getNodeValue('shipTo','State')
         ttOrdHead.ttshipToZip         = getNodeValue('shipTo','PostalCode')
@@ -421,7 +421,7 @@ PROCEDURE genTempOrderHeader:
         ttOrdHead.ttDocType           = "PO"
         ttOrdHead.ttcustNo            = getCustNo(fromIdentity)
         .             
-    
+
 END PROCEDURE.
 
 PROCEDURE genTempOrderLines:
