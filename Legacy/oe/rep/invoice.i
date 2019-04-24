@@ -19,6 +19,7 @@ DEF {1} SHARED VAR v-print-dept AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-depts AS CHAR NO-UNDO.
 def {1} SHARED var dPrintFmtDec  as Decimal no-undo .
 def {1} SHARED var lPrintQtyAll  as LOGICAL no-undo .
+def {1} shared var v-prntdupl as log init No.
 
 def var v-last-page as   int no-undo.
 def var v-page-tot  as   int no-undo.

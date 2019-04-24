@@ -200,6 +200,7 @@ DEFINE VARIABLE tb_sman-copy      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE td-show-parm      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_qty-all        AS LOGICAL   INITIAL YES              .
 DEFINE VARIABLE tb_cust-list      AS LOGICAL   INITIAL NO               .
+DEFINE VARIABLE tb_prt-dupl       AS LOGICAL   INITIAL NO               .
 
 
 PROCEDURE assignSelections:
@@ -243,6 +244,7 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptbSplitPDF         AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbQtyAll           AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbCustList         AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
@@ -288,7 +290,7 @@ PROCEDURE assignSelections:
         s-print-zero-qty = tb_prt-zero-qty
         svi-print-item   = rs_no_PN        
         nsv_setcomp      = tb_setcomp
-        .
+        tb_prt-dupl      = iptb_prt-dupl.
         
         CASE rd-dest:
             WHEN 1 THEN 
@@ -349,6 +351,7 @@ PROCEDURE assignScreenValues:
     DEFINE INPUT PARAMETER ipInvoiceType                 AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iphCallingProc               AS HANDLE NO-UNDO.
     
+    
     ASSIGN 
         fi_depts-hidden            = ipfi_depts-hidden            
         tb_print-dept-screen-value = iptb_print-dept-screen-value 
@@ -370,6 +373,7 @@ PROCEDURE assignScreenValues:
         v-prgmname                 = ipPrgmname
         cInvoiceType               = ipInvoiceType
         rCurrentInvoice            = ? 
+        
         .
     EMPTY TEMP-TABLE tt-list.
 
@@ -402,7 +406,10 @@ PROCEDURE BatchMail :
         v-prntinst   = tb_prt-inst
         v-print-dept = tb_print-dept
         lPrintQtyAll = tb_qty-all
+        v-prntdupl = tb_prt-dupl
          .
+
+    ASSIGN v-prntdupl = LOGICAL(tb_print-dept-SCREEN-VALUE).
 
     IF fi_depts-HIDDEN  = NO THEN
         ASSIGN
@@ -1141,7 +1148,8 @@ PROCEDURE build-list1:
         v-prntinst     = tb_prt-inst
         v-print-dept   = tb_print-dept
         ll-consolidate = rd_sort EQ "Customer2"
-        lPrintQtyAll   = tb_qty-all.
+        lPrintQtyAll   = tb_qty-all
+        v-prntdupl = tb_prt-dupl.
       
     /* gdm - 12080807 */
     ASSIGN 
@@ -1167,6 +1175,7 @@ PROCEDURE build-list1:
             fcust = vcBegCustNo
             tcust = vcEndCustNo.
     END.
+    
     IF fi_depts-hidden = NO THEN
         ASSIGN
             v-print-dept = LOGICAL(tb_print-dept-screen-value)
@@ -1259,7 +1268,8 @@ PROCEDURE run-report :
         v-prntinst     = tb_prt-inst
         v-print-dept   = tb_print-dept
         ll-consolidate = rd_sort EQ "Customer2"
-        lPrintQtyAll   = tb_qty-all.
+        lPrintQtyAll   = tb_qty-all
+        v-prntdupl = tb_prt-dupl.
 
     /* gdm - 12080807 */
     ASSIGN 
@@ -1285,6 +1295,7 @@ PROCEDURE run-report :
             fcust = vcBegCustNo
             tcust = vcEndCustNo.
     END.
+
     IF fi_depts-hidden = NO THEN
         ASSIGN
             v-print-dept = LOGICAL(tb_print-dept-screen-value)
