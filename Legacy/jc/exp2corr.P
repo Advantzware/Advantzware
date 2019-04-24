@@ -338,15 +338,19 @@ v-sheets = 0.
 IF lNetQty THEN DO:
     FOR EACH job-mat NO-LOCK 
         WHERE job-mat.company EQ job-hdr.company
+          AND job-mat.job-no eq job-hdr.job-no
+          AND job-mat.job-no2 eq job-hdr.job-no2
         :
-         FIND ITEM NO-LOCK 
+        FIND ITEM NO-LOCK 
             WHERE item.company EQ job-hdr.company
-              AND item.i-no    EQ job-mat.rm-i-no
+            AND item.i-no    EQ job-mat.rm-i-no
             NO-ERROR.
-         IF AVAILABLE ITEM AND item.mat-type EQ "B" THEN DO:
-             v-sheets = job-mat.qty.
-             LEAVE.
-         END.
+        IF AVAILABLE ITEM 
+           AND (item.mat-type EQ "B" OR item.mat-type eq "P") THEN 
+        DO:
+            v-sheets = job-mat.qty.
+            LEAVE.          
+        END.
          
     END.
 END.
