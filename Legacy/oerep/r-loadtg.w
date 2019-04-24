@@ -268,6 +268,9 @@ DEF BUFFER bf-jobhdr FOR job-hdr.
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
     FIELD tag-no AS CHARACTER .
 
+DEFINE VARIABLE hdCostProcs AS HANDLE.
+RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3326,6 +3329,11 @@ PROCEDURE create-loadtag :
   def var v-len like po-ordl.s-len no-undo.
   def var v-wid like po-ordl.s-len no-undo.
   def var v-dep like po-ordl.s-len no-undo.
+    DEFINE VARIABLE dCostPerUOM          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostExtended        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostExtendedFreight AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO. 
+  
   DEF VAR dRFIDTag AS DEC NO-UNDO.
 /*   DEF BUFFER bf-eb FOR eb. */
   DEF BUFFER bf-itemfg FOR itemfg.
@@ -3561,42 +3569,45 @@ PROCEDURE create-loadtag :
               b-po-ordl.po-no EQ w-ord.po-no AND
               b-po-ordl.item-type EQ NO AND
               b-po-ordl.i-no EQ loadtag.i-no AND
-              b-po-ordl.LINE EQ w-ord.po-line
+              (b-po-ordl.line EQ w-ord.po-line OR w-ord.po-line EQ 0)
               NO-LOCK NO-ERROR.
 
          IF AVAIL b-po-ordl THEN
          DO:
-            /* Created task 09261318 to be used by receiving screens in addition */            
-             RUN fg/calcRcptCostFromPO.p 
-               (INPUT cocode ,
-               INPUT ROWID(b-po-ordl),
-               INPUT ROWID(fg-rctd),
-               INPUT fg-rctd.qty-case,
-               INPUT fg-rctd.cases,
-               INPUT fg-rctd.partial,
-               INPUT fg-rctd.job-no,
-               INPUT fg-rctd.job-no2,
-               INPUT fg-rctd.cost-uom,
-               INPUT fg-rctd.t-qty,
-               OUTPUT lv-use-full-qty,
-               OUTPUT lv-full-qty,
-               OUTPUT lvCalcCostUom,
-               OUTPUT lvCalcStdCost,
-               OUTPUT lvCalcExtCost,
-               OUTPUT lvCalcFrtCost,
-               OUTPUT lvSetupPerCostUom).
-
-            ASSIGN
-               fg-rctd.cost-uom = lvCalcCostUom
-               fg-rctd.std-cost = lvCalcStdCost.
-               fg-rctd.ext-cost = lvCalcExtCost.
-
-            IF fgpofrt-log THEN 
-              fg-rctd.frt-cost = lvCalcFrtCost.
-
-            ASSIGN 
-              lv-out-cost = lvCalcStdCost            
-              lv-setup-per-cost-uom = lvSetupPerCostUom.
+             IF fg-rctd.po-line EQ 0 THEN fg-rctd.po-line = 1.
+             RUN pGetCostFromPO (b-po-ordl.company, b-po-ordl.po-no, b-po-ordl.line, b-po-ordl.i-no, fg-rctd.t-qty,
+             OUTPUT fg-rctd.std-cost, OUTPUT fg-rctd.cost-uom, OUTPUT fg-rctd.ext-cost, OUTPUT fg-rctd.frt-cost).
+/*            /* Created task 09261318 to be used by receiving screens in addition */*/
+/*             RUN fg/calcRcptCostFromPO.p                                           */
+/*               (INPUT cocode ,                                                     */
+/*               INPUT ROWID(b-po-ordl),                                             */
+/*               INPUT ROWID(fg-rctd),                                               */
+/*               INPUT fg-rctd.qty-case,                                             */
+/*               INPUT fg-rctd.cases,                                                */
+/*               INPUT fg-rctd.partial,                                              */
+/*               INPUT fg-rctd.job-no,                                               */
+/*               INPUT fg-rctd.job-no2,                                              */
+/*               INPUT fg-rctd.cost-uom,                                             */
+/*               INPUT fg-rctd.t-qty,                                                */
+/*               OUTPUT lv-use-full-qty,                                             */
+/*               OUTPUT lv-full-qty,                                                 */
+/*               OUTPUT lvCalcCostUom,                                               */
+/*               OUTPUT lvCalcStdCost,                                               */
+/*               OUTPUT lvCalcExtCost,                                               */
+/*               OUTPUT lvCalcFrtCost,                                               */
+/*               OUTPUT lvSetupPerCostUom).                                          */
+/*                                                                                   */
+/*            ASSIGN                                                                 */
+/*               fg-rctd.cost-uom = lvCalcCostUom                                    */
+/*               fg-rctd.std-cost = lvCalcStdCost.                                   */
+/*               fg-rctd.ext-cost = lvCalcExtCost.                                   */
+/*                                                                                   */
+/*            IF fgpofrt-log THEN                                                    */
+/*              fg-rctd.frt-cost = lvCalcFrtCost.                                    */
+/*                                                                                   */
+/*            ASSIGN                                                                 */
+/*              lv-out-cost = lvCalcStdCost                                          */
+/*              lv-setup-per-cost-uom = lvSetupPerCostUom.                           */
 
          END.
       END. /*info from PO on Order*/
@@ -7094,6 +7105,45 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCostFromPO C-Win
+PROCEDURE pGetCostFromPO PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPONumber AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPOLine AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQty AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotalFreight AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE dCostPerEA        AS DECIMAL.
+    DEFINE VARIABLE dCostFreight      AS DECIMAL.
+    DEFINE VARIABLE dCostFreightPerEA AS DECIMAL.
+    DEFINE VARIABLE lFound            AS LOGICAL.
+    
+    RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, ipcFGItemID, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
+    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0, opdCostPerUOM).
+    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0, dCostFreight).
+    ASSIGN 
+        opdCostTotal        = ipdQty * dCostPerEA
+        opdCostTotalFreight = ipdQty * dCostFreightPerEA.
+    IF fgpofrt-log THEN 
+        opdCostTotal = opdCostTotal + opdCostTotalFreight.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-all C-Win 
 PROCEDURE post-all :
