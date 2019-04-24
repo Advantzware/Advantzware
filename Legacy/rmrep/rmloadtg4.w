@@ -121,7 +121,7 @@ DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 {rm/avgcost.i}
 
 DEF BUFFER b-company FOR company.
-
+DEFINE BUFFER bf-po-ord FOR po-ord .
 DEF TEMP-TABLE w-file NO-UNDO FIELD w-key AS ROWID.
 DEF TEMP-TABLE tt-tag NO-UNDO FIELD tt-recid AS RECID.
 DEF TEMP-TABLE ttblJob NO-UNDO
@@ -2264,10 +2264,14 @@ PROCEDURE run-report :
 
   DO i = 1 TO NUM-ENTRIES(v-po-list).
     lv-po-no = INT(ENTRY(i,v-po-list)) NO-ERROR.
-
+  
     IF NOT ERROR-STATUS:ERROR AND
-      lv-po-no NE 0 THEN
-      RUN temp-po (lv-po-no).
+      lv-po-no NE 0 THEN do:
+        RUN pValidatePo(lv-po-no) NO-ERROR .
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+        RUN temp-po (lv-po-no).
+    END.
   END. /* do i */
 
   FOR EACH w-file:
@@ -2275,10 +2279,16 @@ PROCEDURE run-report :
     IF AVAIL po-ord THEN RUN from-po.
   END. /* each w-file */
 
+  IF v-fpo-no[1] EQ v-fpo-no[2] THEN DO:
+      RUN pValidatePo(v-fpo-no[1]) NO-ERROR .
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
   FOR EACH po-ord NO-LOCK
       WHERE po-ord.company EQ cocode
         AND po-ord.po-no   GE v-fpo-no[1]
         AND po-ord.po-no   LE v-fpo-no[2]
+        AND po-ord.stat    NE "H" 
         AND (v-stat EQ "A"                         OR
              (v-stat EQ "C" AND NOT po-ord.opened) OR
              (v-stat EQ "O" AND po-ord.opened)):
@@ -2721,6 +2731,30 @@ PROCEDURE xprint-tag :
       FILE-INFO:FILE-NAME = list-name.
       RUN printfile (FILE-INFO:FILE-NAME).
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidatePo C-Win 
+PROCEDURE pValidatePo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO .
+ {methods/lValidateError.i YES}    
+    FIND FIRST bf-po-ord NO-LOCK
+        WHERE bf-po-ord.company EQ cocode
+        AND bf-po-ord.po-no EQ ipiPoNo
+        AND bf-po-ord.stat EQ "H" NO-ERROR .
+    IF AVAIL bf-po-ord THEN DO:
+        MESSAGE "PO# '" + STRING(ipiPoNo) + "' is on hold and cannot print load tags for a PO on hold"
+             VIEW-AS ALERT-BOX ERROR .
+        RETURN ERROR.
+    END.
+{methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
