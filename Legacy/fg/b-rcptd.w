@@ -107,11 +107,24 @@ DEFINE VARIABLE glFGRecpt           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE giFGRecpt           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glAverageCost       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPostSec            AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE cAccessList         AS CHARACTER   NO-UNDO .
 RUN pSetGlobalSettings(g_company).  /*Sets all of the above based on NK1 Settings*/
 
 
 DEFINE VARIABLE hdCostProcs AS HANDLE.
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+
+RUN methods/prgsecur.p
+	    (INPUT "p-fgrcpt.",
+	     INPUT "UPDATE", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lPostSec, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -495,12 +508,17 @@ ON CURSOR-DOWN OF Browser-Table IN FRAME F-Main
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
     DO:
     DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
-    
-      IF AVAILABLE fg-rctd THEN DO:
-        RUN fg/d-rcptd.w (RECID(fg-rctd),"view",ll-set-parts,lv-linker, OUTPUT lv-rowid) . 
-        RUN repo-query (lv-rowid).
-      END.
-    END.
+   IF AVAILABLE fg-rctd THEN DO:
+     IF lPostSec THEN do:
+         RUN fg/d-rcptd.w (RECID(fg-rctd),"update",ll-set-parts,lv-linker, OUTPUT lv-rowid) . 
+         RUN repo-query (lv-rowid).
+     END.
+     ELSE DO:
+         RUN fg/d-rcptd.w (RECID(fg-rctd),"view",ll-set-parts,lv-linker, OUTPUT lv-rowid) . 
+         RUN repo-query (lv-rowid).
+     END.
+   END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
