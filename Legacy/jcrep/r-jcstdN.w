@@ -61,15 +61,15 @@ ASSIGN
                            "Std Var Overhead,Std Fixed Overhead,Std Total Factory,Std Commission,Std Freight,Std Full Cost,Std Gross Profit,Std Gross Margin," +
                            "Std Net Profit,Std Net Margin,Std Sell Price,Sell Price,Booked/Std Price," +
                            "Std Net Margin(Act Price),Std Gross Margin(Act Price),Act Sell Price/MSF,Sales Group,Job Created Date,Job Start Date,Job Qty MSF (FG),Std Sell Price/MSF,Cust Type Desc,Job Status,Order Status," +
-                           "Std MR Hours,Std Run Hours,Sales Group (Order),Sales Group Name (Order)" 
+                           "Std MR Hours,Std Run Hours,Sales Group (Order),Sales Group Name (Order),Ext Std Sell Price,Ext Sell Price (Booked),Ext Std Total Factory Cost" 
     cFieldListToSelect = "job,item,item-name,category,cust-part,style,job-qty,est,form,blank,order,cust,cust-name," +
                             "calc-tm,calc-by,std-prp-mat,std-mis-mat,std-prp-lab,std-misc-lab,std-dir-mat,std-dir-lab," +
                             "std-var-over,std-fix-over,std-tot-fac,std-comm,std-frt,std-ful-cst,std-gross-prft,std-gross-mar," +
                             "std-net-prft,std-net-mar,std-sel-price,ord-itm-s-price,book-std-price," +
                             "std-net-margin-act-pr,std-gross-margin-act-pr,act-sell-pri-msf,sales-grp,job-create,job-start,job-qty-msf-fg,std-sell-price-msf,cust-type,job-stat,order-stat," +
-                            "std-mr-hrs,std-run-hrs,sales-grp-ord,sales-grp-name"
-    cFieldLength       = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,13,19,30"
-    cFieldType         = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c," + "i,i,i,c,c,c,i,i,c,c,c," + "i,i,c,c" 
+                            "std-mr-hrs,std-run-hrs,sales-grp-ord,sales-grp-name,ext-std-sel-price,ext-book-std-price,ext-std-ful-cst"
+    cFieldLength       = "9,15,25,11,15,6,13,8,4,5,7,8,30," + "23,8,17,17,14,14,19,16," + "16,18,17,14,11,13,16,16," + "14,14,14,13,16," + "25,27,19,11,16,14,16,18,20,10,12," + "12,13,19,30,18,23,26"
+    cFieldType         = "c,c,c,c,c,c,c,i,i,i,i,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c," + "c,c,c,c,c," + "i,i,i,c,c,c,i,i,c,c,c," + "i,i,c,c,i,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1560,7 +1560,7 @@ PROCEDURE run-report :
             dQtyPerSet = 1.
             
         dQtyInM = IF AVAILABLE job-hdr THEN job-hdr.qty / 1000 ELSE costHeader.quantityMaster * dQtyPerSet / 1000.
-    
+        
         IF AVAILABLE oe-ordl THEN 
         DO:
             RUN sys\ref\convptom.p (oe-ordl.pr-uom, oe-ordl.price, oe-ordl.qty, oe-ordl.cas-cnt, OUTPUT dOrdPricePerM).
@@ -1709,6 +1709,8 @@ PROCEDURE run-report :
                     cVarValue = STRING((costHeader.stdCostFreight / dQtyInM),"->>>,>>9.99").
                 WHEN "std-ful-cst"   THEN 
                     cVarValue = STRING((costHeader.stdCostFull / dQtyInM),"->,>>>,>>9.99").
+                WHEN "ext-std-ful-cst"   THEN 
+                    cVarValue = STRING((costHeader.stdCostFull / dQtyInM) * dQtyInM,"->>,>>>,>>>,>>>,>>>,>>9.99").
                 WHEN "std-gross-prft"     THEN 
                     cVarValue = STRING((costHeader.stdProfitGross / dQtyInM),"->>>>,>>>,>>9.99").
                 WHEN "std-gross-mar"  THEN 
@@ -1719,11 +1721,14 @@ PROCEDURE run-report :
                     cVarValue = IF costHeader.stdSellPrice GT 0 THEN STRING(((costHeader.stdProfitNet / costHeader.stdSellPrice) * 100),"->>>>,>>>,>>9%") ELSE "".
                 WHEN "std-sel-price"    THEN 
                     cVarValue = STRING((costHeader.stdSellPrice / dQtyInM),"->>,>>>,>>9.99").
+                WHEN "ext-std-sel-price"    THEN 
+                    cVarValue = STRING((costHeader.stdSellPrice / dQtyInM) * dQtyInM,"->>,>>>,>>>,>>9.99").
                 WHEN "ord-itm-s-price"   THEN 
                     cVarValue = STRING((dOrdPricePerM ),"->,>>>,>>9.99").
                 WHEN "book-std-price"     THEN 
                     cVarValue = IF costHeader.stdSellPrice GT 0 THEN STRING(((dOrdPricePerM / (costHeader.stdSellPrice / dQtyInM )) * 100),"->>,>>>,>>>,>>9%") ELSE "".
-
+                WHEN "ext-book-std-price"     THEN 
+                    cVarValue = STRING((dOrdPricePerM * dQtyInM),"->,>>>,>>>,>>>,>>>,>>9") .
                 WHEN "std-net-margin-act-pr" THEN 
                     cVarValue = IF dOrdPricePerM GT 0 THEN STRING((((costHeader.stdProfitNet / dQtyInM  ) / (dOrdPricePerM )) * 100),"->>>>,>>>,>>9%") ELSE "".
                 WHEN "std-gross-margin-act-pr" THEN 
@@ -1844,6 +1849,8 @@ PROCEDURE run-report :
                     cVarValue = STRING(cToTStdFrt,"->>>,>>9.99").
                 WHEN "std-ful-cst"        THEN 
                     cVarValue = "".
+                WHEN "ext-std-ful-cst"    THEN 
+                    cVarValue = "".
                 WHEN "std-gross-prft"     THEN 
                     cVarValue = "".
                 WHEN "std-gross-mar"      THEN 
@@ -1854,9 +1861,13 @@ PROCEDURE run-report :
                     cVarValue = "".
                 WHEN "std-sel-price"      THEN 
                     cVarValue = "".
+                WHEN "ext-std-sel-price"  THEN 
+                    cVarValue = "".
                 WHEN "ord-itm-s-price"    THEN 
                     cVarValue = "".
                 WHEN "book-std-price"     THEN 
+                    cVarValue = "".
+                WHEN "ext-book-std-price"     THEN 
                     cVarValue = "".
                 WHEN "std-net-margin-act-pr"   THEN 
                     cVarValue = "".
