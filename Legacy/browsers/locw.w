@@ -900,3 +900,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lcItemFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcItemTo   AS CHAR NO-UNDO.
+DEFINE VARIABLE lcLocFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcLocTo   AS CHAR NO-UNDO.
+ 
+IF AVAIL itemfg THEN
+    ASSIGN
+        lcItemFrom = itemfg.i-no
+        lcItemTo = itemfg.i-no .
+IF AVAIL w-jobs THEN
+    ASSIGN
+        lcLocFrom = w-jobs.loc
+        lcLocTo = w-jobs.loc.
+
+    RUN fg/rd-locwexp.w (lcItemFrom,
+                       lcItemTo,
+                       lcLocFrom,
+                       lcLocTo
+                       ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
