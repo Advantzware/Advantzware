@@ -33,7 +33,7 @@ DEF VAR k_frac as dec init 6.25 no-undo.
 DEF VAR ll-corr AS LOG NO-UNDO.
 DEF VAR lv-format AS CHAR NO-UNDO.
 DEFINE VARIABLE glProfit AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE hTag AS HANDLE NO-UNDO.
 /* gdm - 01270904 */
 DEF VAR v_rmcrtflg AS LOG   NO-UNDO.
 DEF BUFFER bf_item FOR ITEM.
@@ -379,6 +379,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     prep.rec_key AT ROW 18 COL 125 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 5 BY 1 NO-TAB-STOP 
      "Carton" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 13.14 COL 19
      "Die" VIEW-AS TEXT
@@ -508,6 +511,11 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.received-date IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN prep.rec_key IN FRAME F-Main
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       prep.rec_key:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR TOGGLE-BOX prep.taxable IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.uom IN FRAME F-Main
@@ -926,6 +934,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME prep.inactive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.inactive V-table-Win
+ON VALUE-CHANGED OF prep.inactive IN FRAME F-Main /* Inactive */
+DO:
+    IF SELF:SCREEN-VALUE EQ "yes" THEN 
+        RUN addTagInactive IN hTag (prep.rec_key:SCREEN-VALUE,
+                                    "prep").
+    ELSE RUN clearTagsInactive IN hTag (prep.rec_key:SCREEN-VALUE,
+                                       "prep").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME prep.last-est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.last-est-no V-table-Win
 ON VALUE-CHANGED OF prep.last-est-no IN FRAME F-Main /* Last Est. */
@@ -1010,6 +1033,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME prep.price
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.price V-table-Win
+ON LEAVE OF prep.price IN FRAME F-Main /* Price */
+DO:
+  RUN UpdateMarkup.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME prep.simon
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.simon V-table-Win
 ON return OF prep.simon IN FRAME F-Main /* SIMON */
@@ -1072,6 +1106,10 @@ END.
 
 /* ***************************  Main Block  *************************** */
 session:data-entry-return = yes.
+
+IF NOT VALID-HANDLE(hTag) THEN 
+    RUN system/tagprocs.p PERSISTENT SET hTag.
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
