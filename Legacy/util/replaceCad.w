@@ -51,10 +51,9 @@ def var v-process as log no-undo.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 fi_from_cad fi_to_cad fi_from_fil ~
-fi_to_fil btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fi_from_cad fi_to_cad fi_from_fil ~
-fi_to_fil 
+&Scoped-Define ENABLED-OBJECTS RECT-17 fi_from_cad fi_to_cad btn-process ~
+btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fi_from_cad fi_to_cad 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -83,24 +82,14 @@ DEFINE VARIABLE fi_from_cad AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_from_fil AS CHARACTER FORMAT "X(256)":U 
-     LABEL "From File#" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1 NO-UNDO.
-
 DEFINE VARIABLE fi_to_cad AS CHARACTER FORMAT "X(256)":U 
      LABEL "Change to Cad#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_to_fil AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Change to File#" 
-     VIEW-AS FILL-IN 
-     SIZE 21 BY 1 NO-UNDO.
-
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 4.76.
+     SIZE 89 BY 3.33.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -108,10 +97,8 @@ DEFINE RECTANGLE RECT-17
 DEFINE FRAME FRAME-A
      fi_from_cad AT ROW 6.24 COL 17 COLON-ALIGNED WIDGET-ID 2
      fi_to_cad AT ROW 6.24 COL 56 COLON-ALIGNED WIDGET-ID 4
-     fi_from_fil AT ROW 7.67 COL 17 COLON-ALIGNED WIDGET-ID 6
-     fi_to_fil AT ROW 7.67 COL 56 COLON-ALIGNED WIDGET-ID 8
-     btn-process AT ROW 10.52 COL 21
-     btn-cancel AT ROW 10.52 COL 53
+     btn-process AT ROW 8.62 COL 21
+     btn-cancel AT ROW 8.62 COL 53
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
      "" VIEW-AS TEXT
@@ -121,7 +108,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 11.67.
+         SIZE 89.6 BY 9.33.
 
 DEFINE FRAME FRAME-B
      "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
@@ -153,8 +140,8 @@ DEFINE FRAME FRAME-B
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Replace Cad# and File#"
-         HEIGHT             = 11.86
+         TITLE              = "Replace Cad#"
+         HEIGHT             = 9.38
          WIDTH              = 90.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
@@ -191,15 +178,13 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
@@ -209,7 +194,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -217,7 +202,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Replace Cad# and File# */
+ON END-ERROR OF C-Win /* Replace Cad# */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -230,7 +215,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Replace Cad# and File# */
+ON WINDOW-CLOSE OF C-Win /* Replace Cad# */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -261,7 +246,6 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) SKIP 
           " for the selected parameters?" SKIP
           " From Cad# begins with " fi_from_cad " replace with " (IF fi_to_cad <> "" THEN fi_to_cad ELSE "<SPACE>") SKIP
-          " From File# begins with " fi_from_fil " replace with " (IF fi_to_fil <> "" THEN fi_to_fil ELSE "<SPACE>") SKIP
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
   IF v-process THEN RUN run-process.
@@ -282,31 +266,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_from_fil
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_from_fil C-Win
-ON LEAVE OF fi_from_fil IN FRAME FRAME-A /* From File# */
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fi_to_cad
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_to_cad C-Win
 ON LEAVE OF fi_to_cad IN FRAME FRAME-A /* Change to Cad# */
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_to_fil
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_to_fil C-Win
-ON LEAVE OF fi_to_fil IN FRAME FRAME-A /* Change to File# */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -389,10 +351,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_from_cad fi_to_cad fi_from_fil fi_to_fil 
+  DISPLAY fi_from_cad fi_to_cad 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 fi_from_cad fi_to_cad fi_from_fil fi_to_fil btn-process 
-         btn-cancel 
+  ENABLE RECT-17 fi_from_cad fi_to_cad btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -411,9 +372,7 @@ def var j AS INTE NO-UNDO.
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
     fi_from_cad
-    fi_to_cad
-    fi_from_fil
-    fi_to_fil.
+    fi_to_cad.
 END.
 
 SESSION:SET-WAIT-STATE("General").
@@ -427,14 +386,6 @@ IF fi_from_cad NE "" THEN FOR EACH prep EXCLUSIVE WHERE
     ASSIGN 
         i = i + 1 
         prep.cadNo = fi_to_cad.
-END.
-
-IF fi_from_fil NE "" THEN FOR EACH prep EXCLUSIVE WHERE 
-    prep.company EQ cocode AND 
-    prep.fileNo EQ fi_from_fil:
-    ASSIGN 
-        j = j + 1
-        prep.fileNo  = fi_to_fil.
 END.
 
 
