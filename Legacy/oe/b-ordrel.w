@@ -891,6 +891,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
 
+/* ***************************  Main Block  *************************** */
 SESSION:DATA-ENTRY-RETURN = YES.
 {sys/inc/f3help.i}
 {sys/inc/oeinq.i}
@@ -904,9 +905,11 @@ SESSION:DATA-ENTRY-RETURN = YES.
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 
- RUN-PROC = "sbo/oerel-recalc-act.p".
-{methods/smartrun.i}
-   lr-rel-lib = phandle.    
+    RUN-PROC = "sbo/oerel-recalc-act.p".
+    IF NOT VALID-HANDLE(lr-rel-lib)  THEN DO:
+       RUN-PROC = "sbo/oerel-recalc-act.p".
+       RUN VALUE(RUN-PROC) PERSISTENT SET lr-rel-lib.
+    END.
 lv-cust-x = "".
 
 
@@ -1568,11 +1571,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
           
       IF NOT VALID-HANDLE(lr-rel-lib)  THEN DO:
          RUN-PROC = "sbo/oerel-recalc-act.p".
-
-          lr-rel-lib = phandle. 
-         RUN VALUE(RUN-PROC) PERSISTENT SET phandle.
-         lr-rel-lib = phandle. 
-
+         RUN VALUE(RUN-PROC) PERSISTENT SET lr-rel-lib.
       END.
 
       IF AVAIL tt-report AND AVAIL oe-rel AND VALID-HANDLE(lr-rel-lib) THEN DO:

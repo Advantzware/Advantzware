@@ -295,14 +295,16 @@ PROCEDURE Running_Procedures :
          INDEX(progname,"listrqst.") NE 0 THEN
                 DELETE PROCEDURE phandle.
             ELSE DO:
-                ASSIGN 
-                    hWindowHandle = pHandle:CURRENT-WINDOW
-                    cWinTitle = hWindowHandle:TITLE.
                 is-running = YES.
                 RUN Set_Cursor ("").
                 RUN Set-Focus IN phandle NO-ERROR.
-                RUN findWindowA (0, cWinTitle, OUTPUT intHWind). 
-                RUN SetForeGroundWindow (intHWind, OUTPUT rc).
+                IF pHandle:TYPE EQ "Window" THEN DO:
+                    ASSIGN 
+                        hWindowHandle = pHandle:CURRENT-WINDOW
+                        cWinTitle = hWindowHandle:TITLE.
+                    RUN findWindowA (0, cWinTitle, OUTPUT intHWind). 
+                    RUN SetForeGroundWindow (intHWind, OUTPUT rc).
+                END.
             END.
             RETURN.
         END.
