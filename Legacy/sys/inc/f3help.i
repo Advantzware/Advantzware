@@ -4,7 +4,12 @@
 DEFINE VARIABLE cHelpField AS CHARACTER NO-UNDO.
 &ENDIF
 
-ON f3 OF FRAME {&frame-name}
+ON CTRL-F OF FRAME {&FRAME-NAME}
+DO:
+    {methods/ctrl-f.i}
+END.
+
+ON F3 OF FRAME {&frame-name}
     ANYWHERE
     DO:
         DEFINE VARIABLE ls-prog-name AS cha NO-UNDO.   
