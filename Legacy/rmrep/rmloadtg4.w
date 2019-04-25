@@ -67,6 +67,8 @@ DEF TEMP-TABLE tt-po NO-UNDO
 DEF VAR lines-per-page AS INT NO-UNDO.
 DEF VAR v-overrun AS DEC NO-UNDO.
 DEF VAR v-mch-cod     AS CHAR INIT " " NO-UNDO.
+DEFINE VARIABLE cFirstInternalMach AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFirstMachPress AS CHARACTER NO-UNDO .
 DEF var save_id AS RECID.
 
 DEF var time_stamp AS ch.
@@ -1810,7 +1812,9 @@ Vendor Item #,~
 Vendor Name,~
 Vendor,~
 Zip Code,~
-First Machine' SKIP.
+First Machine,~
+First Internal Machine,~
+First Press' SKIP.
 
 END PROCEDURE.
 
@@ -1826,16 +1830,32 @@ PROCEDURE outputTagLine :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipQty AS INTEGER NO-UNDO.
 
-  ASSIGN v-mch-cod = "" .
+  ASSIGN v-mch-cod = ""
+         cFirstMachPress = "" 
+         cFirstInternalMach = "" .
+
+  Main-Loop-Mach:
   FOR EACH job-mch WHERE job-mch.company EQ cocode
           AND job-mch.job-no EQ w-po.job-no
           AND job-mch.job-no2 EQ w-po.job-no2
-          AND job-mch.frm EQ w-po.s-num use-index line-idx NO-LOCK:
+          AND job-mch.frm EQ w-po.s-num use-index line-idx NO-LOCK :
 
-          ASSIGN v-mch-cod = job-mch.m-code .
-          LEAVE.
+          IF v-mch-cod EQ "" THEN
+              ASSIGN v-mch-cod = job-mch.m-code .
+
+          FIND FIRST mach NO-LOCK
+                WHERE mach.company EQ cocode
+                AND mach.m-code EQ job-mch.m-code NO-ERROR  .
+
+          IF AVAIL mach AND mach.dept[1] EQ "PR" AND cFirstMachPress EQ "" THEN
+              ASSIGN cFirstMachPress = job-mch.m-code .
+
+          IF AVAIL mach AND mach.dept[1] BEGINS "F" THEN NEXT Main-Loop-Mach .
+
+          IF cFirstInternalMach EQ "" THEN
+              ASSIGN cFirstInternalMach = job-mch.m-code .
    END.
-
+  
   PUT UNFORMATTED
     '"' removeChars(loadtag.tag-no)
     '","' w-po.acknowledge
@@ -1931,7 +1951,9 @@ PROCEDURE outputTagLine :
     '","' removeChars(w-po.vend-name)
     '","' w-po.vend-no
     '","' w-po.zip
-    '","' removeChars(v-mch-cod)
+    '","' removeChars(v-mch-cod)   
+    '","' removeChars(cFirstInternalMach)
+    '","' removeChars(cFirstMachPress)
     '"' SKIP.
 
 END PROCEDURE.

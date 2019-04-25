@@ -111,6 +111,7 @@ DEF VAR v-out-qty AS DEC NO-UNDO.
 DEFINE VAR v-ord-no AS CHAR NO-UNDO.
 DEF VAR v-vend-no AS CHAR NO-UNDO.
 DEF VAR v-curr-dscr AS CHAR NO-UNDO.
+DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
 DEFINE BUFFER buf-vend FOR vend.
 DEFINE BUFFER buf-cust FOR cust.
 
@@ -348,6 +349,24 @@ find first company where company.company eq cocode NO-LOCK.
           end. /* v-shtsiz */        
           
         end. /* avail item and item.mat-type eq "B" */
+
+        cMachCode = "" .
+        lPrintMach = NO .
+        Main-Loop-Mach:
+        FOR EACH job-mch WHERE job-mch.company EQ cocode
+            AND job-mch.job-no EQ po-ordl.job-no
+            AND job-mch.job-no2 EQ po-ordl.job-no2
+            AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+
+            FIND FIRST mach NO-LOCK
+                WHERE mach.company EQ cocode
+                AND mach.m-code EQ job-mch.m-code NO-ERROR  .
+            
+            IF AVAIL mach AND mach.dept[1] BEGINS "F" THEN NEXT Main-Loop-Mach .
+
+            ASSIGN cMachCode = job-mch.m-code .
+            LEAVE.
+        END.
        
         v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
@@ -475,9 +494,13 @@ find first company where company.company eq cocode NO-LOCK.
         
         IF TRIM(v-lstloc) NE "" THEN
            PUT v-lstloc AT 7 FORM "x(15)".
-
-        PUT po-ordl.dscr[1] AT 25  FORM "x(30)" .
-            /*v-adder[2] FORM "x(8)" SPACE(1)*/
+        IF po-ordl.dscr[1] NE "" THEN
+            PUT po-ordl.dscr[1] AT 25  FORM "x(30)" .
+        ELSE do:
+            PUT cMachCode AT 25  FORM "x(30)" .  
+            lPrintMach = YES .
+        END.
+        
             
         ASSIGN
            v-printline = v-printline + 1
@@ -493,6 +516,14 @@ find first company where company.company eq cocode NO-LOCK.
           v-line-number = v-line-number + 1
           v-printline = v-printline + 1.
         end.
+
+        IF NOT lPrintMach THEN DO:
+            PUT cMachCode AT 25  FORM "x(30)" .  
+            lPrintMach = YES .
+       ASSIGN
+           v-line-number = v-line-number + 1
+           v-printline = v-printline + 1.
+        END.
     
         /*if po-ordl.dscr[2] ne "" OR v-adder[4] <> "" then do:
           put " " v-adder[4] AT 56 skip.
