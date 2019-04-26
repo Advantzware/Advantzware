@@ -1,12 +1,12 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME phyC-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS phyC-Win 
+&Scoped-define WINDOW-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
+  File: wip-menu.w
 
-  Description: 
+  Description: Menu for the Work In Process tasks
 
   Input Parameters:
       <none>
@@ -14,9 +14,9 @@
   Output Parameters:
       <none>
 
-  Author: 
+  Author: Porandla Mithun
 
-  Created: 
+  Created: 03/24/2019
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -33,12 +33,10 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE VARIABLE ipcCompany  AS CHARACTER NO-UNDO INITIAL "001".
+DEFINE VARIABLE ipcLocation AS CHARACTER NO-UNDO INITIAL "MAIN".
 
 /* Local Variable Definitions ---                                       */
-
-
-{methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -55,8 +53,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-rm RECT-11 btn-fg btn-bol btn-tag ~
-btn-wip btn-phyCnt btn-close 
+&Scoped-Define ENABLED-OBJECTS btnCount btnCountLoc btn-close 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -69,64 +66,35 @@ btn-wip btn-phyCnt btn-close
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR phyC-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-bol 
-     LABEL "&Bill of Lading" 
-     SIZE 35 BY 2
-     FONT 6.
-
 DEFINE BUTTON btn-close 
      LABEL "C&lose" 
      SIZE 35 BY 2
-     FONT 6.
+     FONT 36.
 
-DEFINE BUTTON btn-fg 
-     LABEL "&Finished Goods" 
+DEFINE BUTTON btnCount 
+     LABEL "Scan By Tag" 
      SIZE 35 BY 2
-     FONT 6.
+     FONT 36.
 
-DEFINE BUTTON btn-phyCnt 
-     LABEL "New Physical Count Scan" 
+DEFINE BUTTON btnCountLoc 
+     LABEL "Scan By Location" 
      SIZE 35 BY 2
-     FONT 6.
-
-DEFINE BUTTON btn-rm 
-     LABEL "&Material" 
-     SIZE 35 BY 2
-     FONT 6.
-
-DEFINE BUTTON btn-tag 
-     LABEL "L&abel Menu" 
-     SIZE 35 BY 2
-     FONT 6.
-
-DEFINE BUTTON btn-wip 
-     LABEL "&Work In Process" 
-     SIZE 35 BY 2
-     FONT 6.
-
-DEFINE RECTANGLE RECT-11
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 37 BY 13.1.
+     FONT 36.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btn-rm AT ROW 1.24 COL 2
-     btn-fg AT ROW 3.38 COL 2
-     btn-bol AT ROW 5.52 COL 2
-     btn-tag AT ROW 7.67 COL 2
-     btn-wip AT ROW 9.81 COL 2 WIDGET-ID 2
-     btn-phyCnt AT ROW 11.95 COL 2 WIDGET-ID 4
-     btn-close AT ROW 14.29 COL 2
-     RECT-11 AT ROW 1 COL 1
+     btnCount AT ROW 1.48 COL 2.4 WIDGET-ID 2
+     btnCountLoc AT ROW 3.62 COL 2.4 WIDGET-ID 8
+     btn-close AT ROW 11.95 COL 2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 37.2 BY 15.57.
+         SIZE 37 BY 13.62 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -143,15 +111,18 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW phyC-Win ASSIGN
+  CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Sharp Shooter Menu"
-         HEIGHT             = 15.57
-         WIDTH              = 37.2
-         MAX-HEIGHT         = 16.43
+         TITLE              = "Physical Count Scan Menu"
+         HEIGHT             = 13.62
+         WIDTH              = 37
+         MAX-HEIGHT         = 16
          MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 16.43
+         VIRTUAL-HEIGHT     = 16
          VIRTUAL-WIDTH      = 80
+         CONTROL-BOX        = no
+         MIN-BUTTON         = no
+         MAX-BUTTON         = no
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -170,40 +141,24 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW phyC-Win
+/* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-ASSIGN 
-       btn-bol:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
 ASSIGN 
        btn-close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-fg:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btnCount:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-phyCnt:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btnCountLoc:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-ASSIGN 
-       btn-rm:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-tag:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-wip:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(phyC-Win)
-THEN phyC-Win:HIDDEN = no.
+IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -214,9 +169,9 @@ THEN phyC-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME phyC-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL phyC-Win phyC-Win
-ON END-ERROR OF phyC-Win /* Sharp Shooter Menu */
+&Scoped-define SELF-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON END-ERROR OF C-Win /* Physical Count Scan Menu */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -228,10 +183,9 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL phyC-Win phyC-Win
-ON WINDOW-CLOSE OF phyC-Win /* Sharp Shooter Menu */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON WINDOW-CLOSE OF C-Win /* Physical Count Scan Menu */
 DO:
-    RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -241,19 +195,8 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-bol
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-bol phyC-Win
-ON CHOOSE OF btn-bol IN FRAME DEFAULT-FRAME /* Bill of Lading */
-DO:
-   RUN addon/bol/boltrans.w.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btn-close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-close phyC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-close C-Win
 ON CHOOSE OF btn-close IN FRAME DEFAULT-FRAME /* Close */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
@@ -265,55 +208,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-fg
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-fg phyC-Win
-ON CHOOSE OF btn-fg IN FRAME DEFAULT-FRAME /* Finished Goods */
-DO:
-   RUN addon/fg/fgtransa.w.
+&Scoped-define SELF-NAME btnCount
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCount C-Win
+ON CHOOSE OF btnCount IN FRAME DEFAULT-FRAME /* Scan By Tag */
+DO:   
+   RUN inventory\phy-count.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-phyCnt
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-phyCnt phyC-Win
-ON CHOOSE OF btn-phyCnt IN FRAME DEFAULT-FRAME /* New Physical Count Scan */
+&Scoped-define SELF-NAME btnCountLoc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCountLoc C-Win
+ON CHOOSE OF btnCountLoc IN FRAME DEFAULT-FRAME /* Scan By Location */
 DO:
-   RUN inventory/phy-menu.w.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-rm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rm phyC-Win
-ON CHOOSE OF btn-rm IN FRAME DEFAULT-FRAME /* Material */
-DO:
-   RUN addon/rm/rmtransa.w.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-tag phyC-Win
-ON CHOOSE OF btn-tag IN FRAME DEFAULT-FRAME /* Label Menu */
-DO:
-   RUN addon/loadtags/ldtagtrs.w.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btn-wip
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wip phyC-Win
-ON CHOOSE OF btn-wip IN FRAME DEFAULT-FRAME /* Work In Process */
-DO:
-   RUN wip/wip-menu.w(g_company, g_loc).
+   RUN inventory/phy-countLoc.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,7 +232,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK phyC-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
 
 /* ***************************  Main Block  *************************** */
@@ -344,15 +254,9 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  ASSIGN
-    {&WINDOW-NAME}:X = 20
-    {&WINDOW-NAME}:Y = 20.
   RUN enable_UI.
-  {methods/nowait.i}
-  APPLY "entry" TO btn-rm.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
-       WAIT-FOR CLOSE OF THIS-PROCEDURE.
-
+    WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,7 +265,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI phyC-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -372,15 +276,15 @@ PROCEDURE disable_UI :
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
   /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(phyC-Win)
-  THEN DELETE WIDGET phyC-Win.
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI phyC-Win  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -391,10 +295,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btn-rm RECT-11 btn-fg btn-bol btn-tag btn-wip btn-phyCnt btn-close 
-      WITH FRAME DEFAULT-FRAME IN WINDOW phyC-Win.
+  ENABLE btnCount btnCountLoc btn-close 
+      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW phyC-Win.
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
