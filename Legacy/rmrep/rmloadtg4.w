@@ -120,6 +120,7 @@ def var copy_count      as int no-undo initial 2.
 def var n               as int no-undo initial 0.
 DEF VAR v-avgcost AS LOG NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdJobProcs AS HANDLE    NO-UNDO.
 {rm/avgcost.i}
 
 DEF BUFFER b-company FOR company.
@@ -145,7 +146,7 @@ DEFINE TEMP-TABLE tt-po-print LIKE w-po
     FIELD vend-tag AS CHARACTER.
 
 tmpstore = FILL("_",50).
-
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 DO TRANSACTION:
    /*{sys/inc/bardir.i}*/
 END.
@@ -1832,29 +1833,11 @@ PROCEDURE outputTagLine :
 
   ASSIGN v-mch-cod = ""
          cFirstMachPress = "" 
-         cFirstInternalMach = "" .
+         cFirstInternalMach = "" . 
 
-  Main-Loop-Mach:
-  FOR EACH job-mch WHERE job-mch.company EQ cocode
-          AND job-mch.job-no EQ w-po.job-no
-          AND job-mch.job-no2 EQ w-po.job-no2
-          AND job-mch.frm EQ w-po.s-num use-index line-idx NO-LOCK :
-
-          IF v-mch-cod EQ "" THEN
-              ASSIGN v-mch-cod = job-mch.m-code .
-
-          FIND FIRST mach NO-LOCK
-                WHERE mach.company EQ cocode
-                AND mach.m-code EQ job-mch.m-code NO-ERROR  .
-
-          IF AVAIL mach AND mach.dept[1] EQ "PR" AND cFirstMachPress EQ "" THEN
-              ASSIGN cFirstMachPress = job-mch.m-code .
-
-          IF AVAIL mach AND mach.dept[1] BEGINS "F" THEN NEXT Main-Loop-Mach .
-
-          IF cFirstInternalMach EQ "" THEN
-              ASSIGN cFirstInternalMach = job-mch.m-code .
-   END.
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"First", INPUT-OUTPUT v-mch-cod).
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"Press", INPUT-OUTPUT cFirstMachPress).
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"Internal", INPUT-OUTPUT cFirstInternalMach).
   
   PUT UNFORMATTED
     '"' removeChars(loadtag.tag-no)

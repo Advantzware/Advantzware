@@ -123,7 +123,8 @@ v-dash-line = fill ("_",80).
 
 {po/po-print.f}
 {ce/msfcalc.i}
-
+DEFINE VARIABLE hdJobProcs AS HANDLE    NO-UNDO.
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 assign v-hdr = "VEND ITEM".
        
        
@@ -352,22 +353,9 @@ find first company where company.company eq cocode NO-LOCK.
 
         cMachCode = "" .
         lPrintMach = NO .
-        Main-Loop-Mach:
-        FOR EACH job-mch WHERE job-mch.company EQ cocode
-            AND job-mch.job-no EQ po-ordl.job-no
-            AND job-mch.job-no2 EQ po-ordl.job-no2
-            AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
 
-            FIND FIRST mach NO-LOCK
-                WHERE mach.company EQ cocode
-                AND mach.m-code EQ job-mch.m-code NO-ERROR  .
-            
-            IF AVAIL mach AND mach.dept[1] BEGINS "F" THEN NEXT Main-Loop-Mach .
-
-            ASSIGN cMachCode = job-mch.m-code .
-            LEAVE.
-        END.
-       
+        RUN GetOperation IN hdJobProcs (cocode, po-ordl.job-no, INTEGER(po-ordl.job-no2),INTEGER(po-ordl.s-num),"Internal", INPUT-OUTPUT cMachCode).
+        
         v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
                     ELSE "").
@@ -517,7 +505,7 @@ find first company where company.company eq cocode NO-LOCK.
           v-printline = v-printline + 1.
         end.
 
-        IF NOT lPrintMach THEN DO:
+        IF NOT lPrintMach AND cMachCode NE "" THEN DO:
             PUT cMachCode AT 25  FORM "x(30)" .  
             lPrintMach = YES .
        ASSIGN
