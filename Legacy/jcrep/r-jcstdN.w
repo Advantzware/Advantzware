@@ -1710,7 +1710,7 @@ PROCEDURE run-report :
                 WHEN "std-ful-cst"   THEN 
                     cVarValue = STRING((costHeader.stdCostFull / dQtyInM),"->,>>>,>>9.99").
                 WHEN "ext-std-ful-cst"   THEN 
-                    cVarValue = STRING((costHeader.stdCostFull / dQtyInM) * dQtyInM,"->>,>>>,>>>,>>>,>>>,>>9.99").
+                    cVarValue = STRING(costHeader.stdCostFull,"->>,>>>,>>>,>>>,>>>,>>9.99").
                 WHEN "std-gross-prft"     THEN 
                     cVarValue = STRING((costHeader.stdProfitGross / dQtyInM),"->>>>,>>>,>>9.99").
                 WHEN "std-gross-mar"  THEN 
@@ -1722,7 +1722,7 @@ PROCEDURE run-report :
                 WHEN "std-sel-price"    THEN 
                     cVarValue = STRING((costHeader.stdSellPrice / dQtyInM),"->>,>>>,>>9.99").
                 WHEN "ext-std-sel-price"    THEN 
-                    cVarValue = STRING((costHeader.stdSellPrice / dQtyInM) * dQtyInM,"->>,>>>,>>>,>>9.99").
+                    cVarValue = STRING(costHeader.stdSellPrice,"->>,>>>,>>>,>>9.99").
                 WHEN "ord-itm-s-price"   THEN 
                     cVarValue = STRING((dOrdPricePerM ),"->,>>>,>>9.99").
                 WHEN "book-std-price"     THEN 
