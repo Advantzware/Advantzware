@@ -3,9 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 DEF VAR ll-{2}-set-hdr AS LOG NO-UNDO.
-DEF VAR ll-{2}-zero-bin AS LOG NO-UNDO.
 
-ll-{2}-zero-bin = YES.
 ll-{2}-set-hdr = AVAIL oe-ordl AND CAN-FIND(FIRST b-oe-ordl {sys/inc/ordlcomp.i b-oe-ordl oe-ordl}).
 IF NOT AVAIL fg-bin THEN DO:
   ASSIGN
@@ -211,7 +209,6 @@ IF v-bol-qty GT 0                              OR
                   AND sys-ctrl.name    EQ "BOLPOST"
                   AND sys-ctrl.log-fld EQ YES) THEN DO:    
     fg-bin.qty = fg-bin.qty - v-bol-qty.
-    ll-{2}-zero-bin = YES.
 
 END.
  
