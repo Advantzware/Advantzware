@@ -67,6 +67,8 @@ DEF TEMP-TABLE tt-po NO-UNDO
 DEF VAR lines-per-page AS INT NO-UNDO.
 DEF VAR v-overrun AS DEC NO-UNDO.
 DEF VAR v-mch-cod     AS CHAR INIT " " NO-UNDO.
+DEFINE VARIABLE cFirstInternalMach AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFirstMachPress AS CHARACTER NO-UNDO .
 DEF var save_id AS RECID.
 
 DEF var time_stamp AS ch.
@@ -118,6 +120,7 @@ def var copy_count      as int no-undo initial 2.
 def var n               as int no-undo initial 0.
 DEF VAR v-avgcost AS LOG NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdJobProcs AS HANDLE    NO-UNDO.
 {rm/avgcost.i}
 
 DEF BUFFER b-company FOR company.
@@ -143,7 +146,7 @@ DEFINE TEMP-TABLE tt-po-print LIKE w-po
     FIELD vend-tag AS CHARACTER.
 
 tmpstore = FILL("_",50).
-
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 DO TRANSACTION:
    /*{sys/inc/bardir.i}*/
 END.
@@ -1810,7 +1813,9 @@ Vendor Item #,~
 Vendor Name,~
 Vendor,~
 Zip Code,~
-First Machine' SKIP.
+First Machine,~
+First Internal Machine,~
+First Press' SKIP.
 
 END PROCEDURE.
 
@@ -1826,16 +1831,14 @@ PROCEDURE outputTagLine :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipQty AS INTEGER NO-UNDO.
 
-  ASSIGN v-mch-cod = "" .
-  FOR EACH job-mch WHERE job-mch.company EQ cocode
-          AND job-mch.job-no EQ w-po.job-no
-          AND job-mch.job-no2 EQ w-po.job-no2
-          AND job-mch.frm EQ w-po.s-num use-index line-idx NO-LOCK:
+  ASSIGN v-mch-cod = ""
+         cFirstMachPress = "" 
+         cFirstInternalMach = "" . 
 
-          ASSIGN v-mch-cod = job-mch.m-code .
-          LEAVE.
-   END.
-
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"First", INPUT-OUTPUT v-mch-cod).
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"Press", INPUT-OUTPUT cFirstMachPress).
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"Internal", INPUT-OUTPUT cFirstInternalMach).
+  
   PUT UNFORMATTED
     '"' removeChars(loadtag.tag-no)
     '","' w-po.acknowledge
@@ -1931,7 +1934,9 @@ PROCEDURE outputTagLine :
     '","' removeChars(w-po.vend-name)
     '","' w-po.vend-no
     '","' w-po.zip
-    '","' removeChars(v-mch-cod)
+    '","' removeChars(v-mch-cod)   
+    '","' removeChars(cFirstInternalMach)
+    '","' removeChars(cFirstMachPress)
     '"' SKIP.
 
 END PROCEDURE.

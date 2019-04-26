@@ -130,6 +130,51 @@ PROCEDURE GetOperationsForJob:
     RELEASE buf-job-mch.
 END PROCEDURE.
 
+PROCEDURE GetOperation:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipifrm          AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiType         AS CHARACTER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER buf-job-mch FOR job-mch.
+    Main-Loop-Mach:
+    FOR EACH buf-job-mch NO-LOCK
+        WHERE buf-job-mch.company EQ ipcCompany
+          AND buf-job-mch.job-no  EQ ipcJobno
+          AND buf-job-mch.job-no2 EQ ipiJobno2
+          AND buf-job-mch.frm EQ ipifrm use-index line-idx  :
+        
+        IF ipiType EQ "First" AND opcMachineList EQ "" THEN do:
+            opcMachineList = buf-job-mch.m-code .
+            LEAVE .
+        END.
+
+        FIND FIRST mach NO-LOCK
+                WHERE mach.company EQ ipcCompany
+                AND mach.m-code EQ buf-job-mch.m-code NO-ERROR  .
+
+          IF AVAIL mach AND mach.dept[1] EQ "PR" AND ipiType EQ "Press" AND opcMachineList EQ "" THEN do:
+              ASSIGN opcMachineList = buf-job-mch.m-code .
+              LEAVE .
+          END.
+
+          IF AVAIL mach AND mach.dept[1] BEGINS "F" AND ipiType EQ "Internal" THEN NEXT Main-Loop-Mach .
+
+          IF opcMachineList EQ "" AND ipiType EQ "Internal" THEN do:
+              ASSIGN opcMachineList = buf-job-mch.m-code .
+              LEAVE .
+          END.
+    END.
+
+    RELEASE buf-job-mch.
+END PROCEDURE.
+
 PROCEDURE JobParser:
     /*------------------------------------------------------------------------------
      Purpose: Parses the job given in XXXXX-99.99.99 format 
