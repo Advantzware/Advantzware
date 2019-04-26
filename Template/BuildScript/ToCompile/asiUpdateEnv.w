@@ -4980,7 +4980,7 @@ PROCEDURE ipUpdateNK1s :
             sys-ctrl.log-fld = TRUE.
     END.
     
-        /* Upgrade Button */
+    /* Upgrade Button */
     RUN ipStatus ("  MenuLinkUpdate").
     FOR EACH  sys-ctrl WHERE
         sys-ctrl.name EQ "MenuLinkUpgrade":
@@ -5032,6 +5032,17 @@ PROCEDURE ipUpdateNK1s :
         ASSIGN
             sys-ctrl.log-fld = TRUE
             sys-ctrl.securityLevelUser = 1000.
+    END.
+    
+    /* 48200 - Deprecate KEEPFROZEN */
+    RUN ipStatus ("  KEEPFROZEN").
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "FGKEEPZEROBIN":
+        DELETE sys-ctrl.
+    END.
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "RMKEEPZEROBIN":
+        DELETE sys-ctrl.
     END.
     
     ASSIGN 
