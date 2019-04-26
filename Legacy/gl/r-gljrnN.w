@@ -1543,9 +1543,8 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
-  cFileName =   SUBSTRING(fi_file,1,INDEX(fi_file,".") - 1) .
-  cFileName = cFileName + "_" + STRING(year(TODAY)) + STRING(MONTH(TODAY)) + STRING(DAY(TODAY)) + "_" + STRING(TIME) + ".csv" .
-
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+  
 ASSIGN tot-deb-t  = 0 
        tot-cred-t = 0 .
 DEF VAR cslist AS cha NO-UNDO.
