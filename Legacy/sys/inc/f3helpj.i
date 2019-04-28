@@ -1,4 +1,5 @@
 /* sys/inc/f3helpw.i for window/menu */
+DEFINE SHARED VARIABLE g_helpcomp AS CHARACTER NO-UNDO.
 
 ON CTRL-F OF FRAME {&FRAME-NAME}
     DO:
