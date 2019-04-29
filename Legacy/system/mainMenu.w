@@ -66,8 +66,6 @@ END.
 /* System Constant Values */
 {system/sysconst.i}
 
-DEFINE NEW SHARED VARIABLE g_helpcomp AS CHARACTER NO-UNDO.
-
 DEFINE VARIABLE closeMenu         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEulaFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lEulaAccepted     AS LOGICAL   NO-UNDO.
@@ -3516,7 +3514,6 @@ PROCEDURE Set-Comp_Loc :
             company_name
             loc_loc
             g_company                 = ipcCompany
-            g_helpcomp = g_company
             g_loc                     = ipcLoc
             .
     END.
