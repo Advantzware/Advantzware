@@ -3,8 +3,6 @@
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
 
-DEFINE SHARED VARIABLE g_helpcomp AS CHARACTER NO-UNDO.
-
 DEFINE VARIABLE cFrameDB    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFrameField AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFrameFile  AS CHARACTER NO-UNDO.
