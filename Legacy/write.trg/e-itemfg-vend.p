@@ -48,11 +48,7 @@ IF {&TABLENAME}.company NE ""     AND
 END.
 
 {custom/e-itemfg-edit.i {&TABLENAME}}
-MESSAGE PROGRAM-NAME(2) SKIP 
-PROGRAM-NAME(3) SKIP  
-PROGRAM-NAME(4) SKIP 
-PROGRAM-NAME(5)
-VIEW-AS ALERT-BOX. 
+ 
 ASSIGN 
     {&TABLENAME}.updated-date = TODAY 
     {&TABLENAME}.updated-id = USERID("asi")
