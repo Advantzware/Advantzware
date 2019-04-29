@@ -36,14 +36,12 @@ FOR EACH tt-boll,
             NO-LOCK NO-ERROR.
 
             iTotShiped =  tt-boll.qty .  
-            iAmtPerBundle = tt-boll.cases .
-            iBundlePerPallet = tt-boll.qty-case .
+            iAmtPerBundle = oe-ordl.cas-cnt .
+            iBundlePerPallet = oe-ordl.cases-unit .
 
              iQtyPerPallet = iAmtPerBundle * iBundlePerPallet .
-             iTotPallet = tt-boll.cases / tt-boll.qty-case .
-             IF iTotPallet LE 0 THEN
-                 ASSIGN iTotPallet = 1 .
-             iGrandBundlePerPallet = iGrandBundlePerPallet + (iAmtPerBundle)  .
+             iTotPallet = iTotShiped / iQtyPerPallet .
+	         iGrandBundlePerPallet = iGrandBundlePerPallet + ( iTotPallet * iBundlePerPallet)  .
              v-tot-palls = v-tot-palls + iTotPallet .
              iGrandTotShiped = iGrandTotShiped + tt-boll.qty .
 
