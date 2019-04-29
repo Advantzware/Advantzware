@@ -31,6 +31,7 @@ DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
 
+{methods/defines/globdefs.i}
 {system/ttSysCtrlUsage.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -60,7 +61,6 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
@@ -542,6 +542,28 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spGetCompany) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetCompany Procedure
+PROCEDURE spGetCompany:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHAR NO-UNDO.
+    
+    ASSIGN 
+        opcCompany = g_company.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spGetLookupTitle) = 0 &THEN
 
@@ -1188,7 +1210,6 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure

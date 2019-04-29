@@ -6,14 +6,21 @@ DEFINE VARIABLE cCtrlFUserID     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCtrlFResponse   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCtrlFRunAudit   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE rCtrlFRowID      AS ROWID     NO-UNDO.
+DEFINE VARIABLE hSession         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
+
 
 IF FRAME-DB EQ "" AND FRAME-FILE EQ "" THEN
     MESSAGE
         "Widget Object: ~"" + FRAME-FIELD + "~""
         VIEW-AS ALERT-BOX TITLE "CTRL-F Object View".
 ELSE DO:
+    IF NOT VALID-HANDLE(hSession) THEN 
+        RUN system/session.p PERSISTENT SET hSession.
+    RUN spGetCompany IN hSession (OUTPUT cCompany).
+        
     RUN spDynAuditField (
-        g_company,
+        cCompany,
         FRAME-DB,
         FRAME-FILE,
         FRAME-FIELD,
