@@ -9,16 +9,11 @@ DEF VAR v-count AS INT NO-UNDO.
 {methods/triggers/write.i}
 
 {custom/e-item-edit.i {&TABLENAME}}
-    
-DO v-count = 1 TO 10:
-
-   IF old-{&TABLENAME}.run-qty[v-count] NE {&TABLENAME}.run-qty[v-count] OR
-      old-{&TABLENAME}.run-cost[v-count] NE {&TABLENAME}.run-cost[v-count] OR
-      old-{&TABLENAME}.setups[v-count] NE {&TABLENAME}.setups[v-count] THEN
-      DO:
-         ASSIGN
-            e-item-vend.updated-id[1] = USERID("NOSWEAT")
-            e-item-vend.updated-date[1] = TODAY.
-         LEAVE.
-      END.
-END.
+MESSAGE PROGRAM-NAME(2) SKIP 
+PROGRAM-NAME(3) SKIP  
+PROGRAM-NAME(4) SKIP 
+PROGRAM-NAME(5)
+VIEW-AS ALERT-BOX.    
+ASSIGN
+    {&TABLENAME}.updated-id[1]   = USERID("NOSWEAT")
+    {&TABLENAME}.updated-date[1] = TODAY.
