@@ -779,7 +779,10 @@ PROCEDURE GetCostForReceipt:
     
     DEFINE BUFFER b-fg-rcpth FOR fg-rcpth.
     DEFINE BUFFER b-fg-rdtlh FOR fg-rdtlh.
-        
+    
+    DEFINE VARIABLE dCostFreight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iPOLine AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cSource AS CHARACTER NO-UNDO.        
     
     IF ipcTag NE "" THEN 
     DO:
@@ -797,21 +800,32 @@ PROCEDURE GetCostForReceipt:
                  USE-INDEX r-no
                  BY b-fg-rcpth.trans-date DESCENDING:            
             
-            IF b-fg-rdtlh.std-tot-cost NE 0 THEN         
+            IF b-fg-rdtlh.std-tot-cost NE 0 THEN DO:   /*if cost properly propagated to history transactions*/  
                 ASSIGN
                     opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
                     opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
                     opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
                     opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
-                    opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost    
+                    opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost
+                    oplFound           = YES 
+                    opcCostUOM         = b-fg-rcpth.pur-uom    
                     .
-            ELSE 
+            END.
+            ELSE DO: /*otherwise get cost detail from sources*/
                 ASSIGN 
-                    opdCostPerUOMTotal = b-fg-rdtlh.cost.    
-            ASSIGN 
-                opcCostUOM         = b-fg-rcpth.pur-uom
-                oplFound           = YES
-                .
+                    opdCostPerUOMTotal = b-fg-rdtlh.cost.
+                 IF b-fg-rcpth.job-no NE "" THEN DO:
+                     RUN GetCostForJob(b-fg-rcpth.company, b-fg-rcpth.i-no, b-fg-rcpth.job-no, b-fg-rcpth.job-no2, 
+                        OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplFound).
+                 END.
+                 IF opdCostPerUOMTotal EQ 0 AND INTEGER(b-fg-rcpth.po-no) GT 0 THEN DO:
+                    iPoLine = MAXIMUM(b-fg-rcpth.po-line, 1).
+                    RUN GetCostForPOLine(b-fg-rcpth.company, INTEGER(b-fg-rcpth.po-no), iPoLine, b-fg-rcpth.i-no,
+                    OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT oplFound).
+                    ASSIGN 
+                        opdCostPerUOMDM = opdCostPerUOMTotal.
+                END.           
+            END.    
             LEAVE each-fg. 
         END. /* each fg-rcp */
     END.
