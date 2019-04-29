@@ -84,34 +84,7 @@ DEF VAR gNewVendor AS LOG NO-UNDO.
 DEFINE QUERY external_tables FOR e-item-vend, e-item.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS e-item-vend.vend-item e-item-vend.vend-no ~
-e-item-vend.updated-date[1] e-item-vend.run-qty[1] e-item-vend.run-cost[1] ~
-e-item-vend.setups[1] e-item-vend.run-qty[2] e-item-vend.run-cost[2] ~
-e-item-vend.setups[2] e-item-vend.run-qty[3] e-item-vend.run-cost[3] ~
-e-item-vend.setups[3] e-item-vend.run-qty[4] e-item-vend.run-cost[4] ~
-e-item-vend.setups[4] e-item-vend.run-qty[5] e-item-vend.run-cost[5] ~
-e-item-vend.setups[5] e-item-vend.run-qty[6] e-item-vend.run-cost[6] ~
-e-item-vend.setups[6] e-item-vend.run-qty[7] e-item-vend.run-cost[7] ~
-e-item-vend.setups[7] e-item-vend.run-qty[8] e-item-vend.run-cost[8] ~
-e-item-vend.setups[8] e-item-vend.run-qty[9] e-item-vend.run-cost[9] ~
-e-item-vend.setups[9] e-item-vend.run-qty[10] e-item-vend.run-cost[10] ~
-e-item-vend.setups[10] e-item-vend.roll-w[1] e-item-vend.roll-w[2] ~
-e-item-vend.roll-w[3] e-item-vend.roll-w[4] e-item-vend.roll-w[5] ~
-e-item-vend.roll-w[6] e-item-vend.roll-w[7] e-item-vend.roll-w[8] ~
-e-item-vend.roll-w[9] e-item-vend.roll-w[10] e-item-vend.roll-w[11] ~
-e-item-vend.roll-w[12] e-item-vend.roll-w[13] e-item-vend.roll-w[14] ~
-e-item-vend.roll-w[15] e-item-vend.roll-w[16] e-item-vend.roll-w[17] ~
-e-item-vend.roll-w[18] e-item-vend.roll-w[19] e-item-vend.roll-w[20] ~
-e-item-vend.roll-w[21] e-item-vend.roll-w[22] e-item-vend.roll-w[23] ~
-e-item-vend.roll-w[24] e-item-vend.roll-w[25] e-item-vend.roll-w[26] ~
-e-item-vend.roll-w[27] e-item-vend.roll-w[28] e-item-vend.roll-w[29] ~
-e-item-vend.roll-w[30] ~
-e-item-vend.underLength e-item-vend.underLengthCost e-item-vend.underWidth ~
-e-item-vend.underWidthCost 
-&Scoped-define ENABLED-TABLES e-item-vend
-&Scoped-define FIRST-ENABLED-TABLE e-item-vend
-&Scoped-Define ENABLED-OBJECTS btn_more-breaks RECT-24 RECT-25 
-&Scoped-Define DISPLAYED-FIELDS e-item-vend.i-no e-item.std-uom ~
-e-item-vend.vend-item e-item-vend.vend-no e-item-vend.updated-date[1] ~
+e-item-vend.updated-date[1] e-item-vend.updated-id[1] ~
 e-item-vend.run-qty[1] e-item-vend.run-cost[1] e-item-vend.setups[1] ~
 e-item-vend.run-qty[2] e-item-vend.run-cost[2] e-item-vend.setups[2] ~
 e-item-vend.run-qty[3] e-item-vend.run-cost[3] e-item-vend.setups[3] ~
@@ -122,23 +95,50 @@ e-item-vend.run-qty[7] e-item-vend.run-cost[7] e-item-vend.setups[7] ~
 e-item-vend.run-qty[8] e-item-vend.run-cost[8] e-item-vend.setups[8] ~
 e-item-vend.run-qty[9] e-item-vend.run-cost[9] e-item-vend.setups[9] ~
 e-item-vend.run-qty[10] e-item-vend.run-cost[10] e-item-vend.setups[10] ~
-e-item-vend.roll-w[1] e-item-vend.roll-w[2] e-item-vend.roll-w[3] ~
-e-item-vend.roll-w[4] e-item-vend.roll-w[5] e-item-vend.roll-w[6] ~
-e-item-vend.roll-w[7] e-item-vend.roll-w[8] e-item-vend.roll-w[9] ~
-e-item-vend.roll-w[10] e-item-vend.roll-w[11] e-item-vend.roll-w[12] ~
-e-item-vend.roll-w[13] e-item-vend.roll-w[14] e-item-vend.roll-w[15] ~
-e-item-vend.roll-w[16] e-item-vend.roll-w[17] e-item-vend.roll-w[18] ~
-e-item-vend.roll-w[19] e-item-vend.roll-w[20] e-item-vend.roll-w[21] ~
-e-item-vend.roll-w[22] e-item-vend.roll-w[23] e-item-vend.roll-w[24] ~
-e-item-vend.roll-w[25] e-item-vend.roll-w[26] e-item-vend.roll-w[27] ~
-e-item-vend.roll-w[28] e-item-vend.roll-w[29] e-item-vend.roll-w[30] ~
-e-item-vend.underLength e-item-vend.underLengthCost e-item-vend.underWidth ~
-e-item-vend.underWidthCost 
+e-item-vend.underWidth e-item-vend.underWidthCost e-item-vend.underLength ~
+e-item-vend.underLengthCost e-item-vend.roll-w[1] e-item-vend.roll-w[2] ~
+e-item-vend.roll-w[3] e-item-vend.roll-w[4] e-item-vend.roll-w[5] ~
+e-item-vend.roll-w[6] e-item-vend.roll-w[7] e-item-vend.roll-w[8] ~
+e-item-vend.roll-w[9] e-item-vend.roll-w[10] e-item-vend.roll-w[11] ~
+e-item-vend.roll-w[12] e-item-vend.roll-w[13] e-item-vend.roll-w[14] ~
+e-item-vend.roll-w[15] e-item-vend.roll-w[16] e-item-vend.roll-w[17] ~
+e-item-vend.roll-w[18] e-item-vend.roll-w[19] e-item-vend.roll-w[20] ~
+e-item-vend.roll-w[21] e-item-vend.roll-w[22] e-item-vend.roll-w[23] ~
+e-item-vend.roll-w[24] e-item-vend.roll-w[25] e-item-vend.roll-w[26] ~
+e-item-vend.roll-w[27] e-item-vend.roll-w[28] e-item-vend.roll-w[29] ~
+e-item-vend.roll-w[30] 
+&Scoped-define ENABLED-TABLES e-item-vend
+&Scoped-define FIRST-ENABLED-TABLE e-item-vend
+&Scoped-Define ENABLED-OBJECTS btn_more-breaks RECT-24 RECT-25 
+&Scoped-Define DISPLAYED-FIELDS e-item-vend.i-no e-item.std-uom ~
+e-item-vend.vend-item e-item-vend.vend-no e-item-vend.updated-date[1] ~
+e-item-vend.updated-id[1] e-item-vend.run-qty[1] e-item-vend.run-cost[1] ~
+e-item-vend.setups[1] e-item-vend.run-qty[2] e-item-vend.run-cost[2] ~
+e-item-vend.setups[2] e-item-vend.run-qty[3] e-item-vend.run-cost[3] ~
+e-item-vend.setups[3] e-item-vend.run-qty[4] e-item-vend.run-cost[4] ~
+e-item-vend.setups[4] e-item-vend.run-qty[5] e-item-vend.run-cost[5] ~
+e-item-vend.setups[5] e-item-vend.run-qty[6] e-item-vend.run-cost[6] ~
+e-item-vend.setups[6] e-item-vend.run-qty[7] e-item-vend.run-cost[7] ~
+e-item-vend.setups[7] e-item-vend.run-qty[8] e-item-vend.run-cost[8] ~
+e-item-vend.setups[8] e-item-vend.run-qty[9] e-item-vend.run-cost[9] ~
+e-item-vend.setups[9] e-item-vend.run-qty[10] e-item-vend.run-cost[10] ~
+e-item-vend.setups[10] e-item-vend.underWidth e-item-vend.underWidthCost ~
+e-item-vend.underLength e-item-vend.underLengthCost e-item-vend.roll-w[1] ~
+e-item-vend.roll-w[2] e-item-vend.roll-w[3] e-item-vend.roll-w[4] ~
+e-item-vend.roll-w[5] e-item-vend.roll-w[6] e-item-vend.roll-w[7] ~
+e-item-vend.roll-w[8] e-item-vend.roll-w[9] e-item-vend.roll-w[10] ~
+e-item-vend.roll-w[11] e-item-vend.roll-w[12] e-item-vend.roll-w[13] ~
+e-item-vend.roll-w[14] e-item-vend.roll-w[15] e-item-vend.roll-w[16] ~
+e-item-vend.roll-w[17] e-item-vend.roll-w[18] e-item-vend.roll-w[19] ~
+e-item-vend.roll-w[20] e-item-vend.roll-w[21] e-item-vend.roll-w[22] ~
+e-item-vend.roll-w[23] e-item-vend.roll-w[24] e-item-vend.roll-w[25] ~
+e-item-vend.roll-w[26] e-item-vend.roll-w[27] e-item-vend.roll-w[28] ~
+e-item-vend.roll-w[29] e-item-vend.roll-w[30] 
 &Scoped-define DISPLAYED-TABLES e-item-vend e-item
 &Scoped-define FIRST-DISPLAYED-TABLE e-item-vend
 &Scoped-define SECOND-DISPLAYED-TABLE e-item
-&Scoped-Define DISPLAYED-OBJECTS lbl_setup lbl_roll-w ls-item-name ~
-ls-vend-name 
+&Scoped-Define DISPLAYED-OBJECTS ls-item-name ls-vend-name lbl_setup ~
+lbl_roll-w 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -202,7 +202,7 @@ DEFINE VARIABLE lbl_roll-w AS CHARACTER FORMAT "X(256)":U INITIAL "Valid  Estima
 
 DEFINE VARIABLE lbl_setup AS CHARACTER FORMAT "X(256)":U INITIAL "Setup $" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1 NO-UNDO.
+     SIZE 11 BY .76 NO-UNDO.
 
 DEFINE VARIABLE ls-item-name AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -224,8 +224,6 @@ DEFINE RECTANGLE RECT-25
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     lbl_setup AT ROW 5.05 COL 34 COLON-ALIGNED NO-LABEL
-     lbl_roll-w AT ROW 5.05 COL 53 COLON-ALIGNED NO-LABEL
      e-item-vend.i-no AT ROW 1 COL 15 COLON-ALIGNED FORMAT "x(10)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -241,11 +239,16 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ls-vend-name AT ROW 3.19 COL 31.2 COLON-ALIGNED NO-LABEL
-     e-item-vend.updated-date[1] AT ROW 4.19 COL 16.8 COLON-ALIGNED HELP
+     e-item-vend.updated-date[1] AT ROW 4.19 COL 15.2 COLON-ALIGNED HELP
           "Enter the cost update date." WIDGET-ID 2
-          LABEL "Cost Updated"
+          LABEL "Updated"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+     e-item-vend.updated-id[1] AT ROW 4.19 COL 33.2 COLON-ALIGNED WIDGET-ID 12
+          LABEL "by"
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
+     lbl_setup AT ROW 5.29 COL 34 COLON-ALIGNED NO-LABEL
      e-item-vend.run-qty[1] AT ROW 6 COL 2 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
@@ -303,9 +306,6 @@ DEFINE FRAME F-Main
      e-item-vend.run-qty[7] AT ROW 11.71 COL 2 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     e-item-vend.run-cost[7] AT ROW 11.71 COL 17 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -313,6 +313,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     e-item-vend.run-cost[7] AT ROW 11.71 COL 17 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
      e-item-vend.setups[7] AT ROW 11.71 COL 34 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
@@ -343,6 +346,22 @@ DEFINE FRAME F-Main
      e-item-vend.setups[10] AT ROW 14.57 COL 34 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     btn_more-breaks AT ROW 15.48 COL 2.4 WIDGET-ID 4
+     e-item-vend.underWidth AT ROW 16.48 COL 17 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     e-item-vend.underWidthCost AT ROW 16.48 COL 36 COLON-ALIGNED
+          LABEL "$"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     e-item-vend.underLength AT ROW 17.43 COL 17 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     e-item-vend.underLengthCost AT ROW 17.43 COL 36 COLON-ALIGNED
+          LABEL "$"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     lbl_roll-w AT ROW 5.05 COL 53 COLON-ALIGNED NO-LABEL
      e-item-vend.roll-w[1] AT ROW 6.24 COL 52 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -370,6 +389,13 @@ DEFINE FRAME F-Main
      e-item-vend.roll-w[9] AT ROW 13.86 COL 52 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      e-item-vend.roll-w[10] AT ROW 6.71 COL 64 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -388,13 +414,6 @@ DEFINE FRAME F-Main
      e-item-vend.roll-w[15] AT ROW 11.48 COL 64 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      e-item-vend.roll-w[16] AT ROW 12.43 COL 64 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -428,7 +447,6 @@ DEFINE FRAME F-Main
      e-item-vend.roll-w[26] AT ROW 13.86 COL 76 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     btn_more-breaks AT ROW 15.48 COL 2.4 WIDGET-ID 4
      e-item-vend.roll-w[27] AT ROW 16.48 COL 66 COLON-ALIGNED
           LABEL "Sheet Width"
           VIEW-AS FILL-IN 
@@ -443,31 +461,24 @@ DEFINE FRAME F-Main
      e-item-vend.roll-w[30] AT ROW 17.48 COL 78 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     e-item-vend.underLength AT ROW 17.43 COL 17 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-item-vend.underLengthCost AT ROW 17.43 COL 36 COLON-ALIGNED
-          LABEL "$"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     e-item-vend.underWidth AT ROW 16.48 COL 17 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     e-item-vend.underWidthCost AT ROW 16.48 COL 36 COLON-ALIGNED
-          LABEL "$"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
      "Cost Per" VIEW-AS TEXT
-          SIZE 15 BY .81 AT ROW 5.14 COL 19
-     "QTY to" VIEW-AS TEXT
-          SIZE 15 BY .81 AT ROW 5.14 COL 2
+          SIZE 15 BY .67 AT ROW 5.29 COL 19
      "Min" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 15.52 COL 70
+          SIZE 5 BY .62 AT ROW 15.81 COL 68.8
      "Max" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 15.52 COL 82
+          SIZE 5 BY .62 AT ROW 15.81 COL 80.8
      "Vendor Item No:" VIEW-AS TEXT
           SIZE 28 BY .62 AT ROW 1.24 COL 63.2 WIDGET-ID 10
+     "QTY to" VIEW-AS TEXT
+          SIZE 15 BY .81 AT ROW 5.14 COL 2
      RECT-24 AT ROW 1 COL 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      RECT-25 AT ROW 4.81 COL 52
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -646,16 +657,14 @@ ASSIGN
    5                                                                    */
 /* SETTINGS FOR FILL-IN e-item.std-uom IN FRAME F-Main
    NO-ENABLE 1 2 EXP-LABEL EXP-FORMAT                                   */
-/* SETTINGS FOR FILL-IN e-item-vend.underLength IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN e-item-vend.underLengthCost IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN e-item-vend.underWidth IN FRAME F-Main
-   NO-ENABLE                                                            */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN e-item-vend.underWidthCost IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN e-item-vend.updated-date[1] IN FRAME F-Main
    EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-item-vend.updated-id[1] IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN e-item-vend.vend-no IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -940,7 +949,7 @@ PROCEDURE local-assign-record :
     DEF BUFFER bf-evend FOR e-item-vend.
     DEF BUFFER b-e-item FOR e-item. /* Just to make sure this is the ONLY procedure that accesses this record */
 
-    DISABLE TRIGGERS FOR LOAD OF bf-evend.
+/*    DISABLE TRIGGERS FOR LOAD OF bf-evend.  In order to fire write trigger for ticket 38640 */
     DISABLE TRIGGERS FOR LOAD OF b-e-item.  /* and we don't need triggers; we're controlling fields */
 
     DEF VAR i AS INT NO-UNDO.
@@ -1294,27 +1303,8 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-eiv FOR e-item-vend.
-
-  DEF VAR li AS INT NO-UNDO.
-
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL e-item-vend THEN DO TRANSACTION:
-    FIND b-eiv WHERE ROWID(b-eiv) EQ ROWID(e-item-vend).
-
-    IF e-item-vend.setup NE 0 THEN
-      ASSIGN
-       b-eiv.setups[1] = e-item-vend.setup
-       b-eiv.setup     = 0.
-
-    IF e-item-vend.vend-no EQ "" AND AVAIL e-item THEN
-    DO li = 1 TO 30:
-      b-eiv.roll-w[li] = e-item.roll-w[li].
-    END.
-
-    FIND CURRENT e-item-vend NO-LOCK.
-  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .

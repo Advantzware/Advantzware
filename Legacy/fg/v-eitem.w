@@ -95,19 +95,20 @@ tb_sel-04 tb_sel-05 tb_sel-06 tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 ~
 RECT-24 RECT-26 
 &Scoped-Define DISPLAYED-FIELDS e-itemfg-vend.i-no e-itemfg.std-uom ~
 e-itemfg-vend.vend-item e-itemfg-vend.cust-no e-itemfg-vend.vend-no ~
+e-itemfg-vend.updated-id[1] e-itemfg-vend.updated-date[1] ~
 e-itemfg-vend.spare-dec-1 e-itemfg-vend.roll-w[27] e-itemfg-vend.roll-w[28] ~
 e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] 
 &Scoped-define DISPLAYED-TABLES e-itemfg-vend e-itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE e-itemfg-vend
 &Scoped-define SECOND-DISPLAYED-TABLE e-itemfg
 &Scoped-Define DISPLAYED-OBJECTS ls-item-name ls-item-dscr ls-vend-name ~
-tb_sel tb_sel-01 tb_sel-02 tb_sel-03 tb_sel-04 tb_sel-05 tb_sel-06 ~
-tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 fi_oh-markup qty-label run-qty-01 ~
-run-cost-01 setups-01 run-qty-02 run-cost-02 setups-02 run-qty-03 ~
-run-cost-03 setups-03 run-qty-04 run-cost-04 setups-04 run-qty-05 ~
-run-cost-05 setups-05 run-qty-06 run-cost-06 setups-06 run-qty-07 ~
-run-cost-07 setups-07 run-qty-08 run-cost-08 setups-08 run-qty-09 ~
-run-cost-09 setups-09 run-qty-10 run-cost-10 setups-10 
+qty-label tb_sel run-qty-01 run-cost-01 setups-01 tb_sel-01 run-qty-02 ~
+run-cost-02 setups-02 tb_sel-02 run-qty-03 run-cost-03 setups-03 tb_sel-03 ~
+run-qty-04 run-cost-04 setups-04 tb_sel-04 run-qty-05 run-cost-05 setups-05 ~
+tb_sel-05 run-qty-06 run-cost-06 setups-06 tb_sel-06 run-qty-07 run-cost-07 ~
+setups-07 tb_sel-07 run-qty-08 run-cost-08 setups-08 tb_sel-08 run-qty-09 ~
+run-cost-09 setups-09 tb_sel-09 run-qty-10 run-cost-10 setups-10 tb_sel-10 ~
+fi_oh-markup 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,farmFields,DISPLAY-FIELD,List-5,List-6 */
@@ -317,7 +318,7 @@ DEFINE VARIABLE tb_sel-01 AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_sel-02 AS LOGICAL INITIAL no 
      LABEL "" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23 BY 1 NO-UNDO.
+     SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_sel-03 AS LOGICAL INITIAL no 
      LABEL "" 
@@ -383,58 +384,47 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ls-vend-name AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL
-     tb_sel AT ROW 6 COL 53
-     tb_sel-01 AT ROW 6.95 COL 53
-     tb_sel-02 AT ROW 7.91 COL 53
-     tb_sel-03 AT ROW 8.86 COL 53
-     tb_sel-04 AT ROW 9.81 COL 53
-     tb_sel-05 AT ROW 10.76 COL 53
-     tb_sel-06 AT ROW 11.71 COL 53
-     tb_sel-07 AT ROW 12.67 COL 53
-     tb_sel-08 AT ROW 13.62 COL 53
-     tb_sel-09 AT ROW 14.57 COL 53
-     tb_sel-10 AT ROW 15.52 COL 53
-     e-itemfg-vend.spare-dec-1 AT ROW 13.62 COL 81 COLON-ALIGNED HELP
-          ""
-          LABEL "Min. Charge"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     fi_oh-markup AT ROW 14.81 COL 81 COLON-ALIGNED
-     e-itemfg-vend.roll-w[27] AT ROW 17.43 COL 17 COLON-ALIGNED HELP
-          "Enter Sheet Width Minimum"
-          LABEL "Sheet Width"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     e-itemfg-vend.roll-w[28] AT ROW 17.43 COL 31.2 COLON-ALIGNED HELP
-          "Enter Sheet Width Maximum" NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     e-itemfg-vend.roll-w[29] AT ROW 17.43 COL 55.4 COLON-ALIGNED HELP
-          "Enter Sheet Length Minimum"
-          LABEL "Length"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     e-itemfg-vend.roll-w[30] AT ROW 17.43 COL 69.6 COLON-ALIGNED HELP
-          "Enter Sheet Length Maximum" NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
      qty-label AT ROW 6 COL 2.2 NO-LABEL
+     btnShowVendCostMtx AT ROW 6.05 COL 15 WIDGET-ID 68
+     tb_sel AT ROW 6 COL 53
      run-qty-01 AT ROW 7.05 COL 2.4 NO-LABEL WIDGET-ID 28
      run-cost-01 AT ROW 7.05 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      setups-01 AT ROW 7.05 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     tb_sel-01 AT ROW 6.95 COL 53
      run-qty-02 AT ROW 8 COL 2.4 NO-LABEL WIDGET-ID 30
      run-cost-02 AT ROW 8 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      setups-02 AT ROW 8 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     tb_sel-02 AT ROW 7.91 COL 53
      run-qty-03 AT ROW 8.95 COL 2.4 NO-LABEL WIDGET-ID 32
      run-cost-03 AT ROW 8.95 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      setups-03 AT ROW 8.95 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 52
+     tb_sel-03 AT ROW 8.86 COL 53
      run-qty-04 AT ROW 9.91 COL 2.4 NO-LABEL WIDGET-ID 34
      run-cost-04 AT ROW 9.91 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      setups-04 AT ROW 9.91 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     tb_sel-04 AT ROW 9.81 COL 53
      run-qty-05 AT ROW 10.86 COL 2.4 NO-LABEL WIDGET-ID 36
      run-cost-05 AT ROW 10.86 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      setups-05 AT ROW 10.86 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     tb_sel-05 AT ROW 10.76 COL 53
      run-qty-06 AT ROW 11.81 COL 2.4 NO-LABEL WIDGET-ID 38
+     run-cost-06 AT ROW 11.81 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     setups-06 AT ROW 11.81 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     tb_sel-06 AT ROW 11.71 COL 53
+     run-qty-07 AT ROW 12.76 COL 2.4 NO-LABEL WIDGET-ID 40
+     run-cost-07 AT ROW 12.76 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     setups-07 AT ROW 12.76 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 60
+     tb_sel-07 AT ROW 12.67 COL 53
+     run-qty-08 AT ROW 13.71 COL 2.4 NO-LABEL WIDGET-ID 42
+     run-cost-08 AT ROW 13.71 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     setups-08 AT ROW 13.71 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+     tb_sel-08 AT ROW 13.62 COL 53
+     run-qty-09 AT ROW 14.67 COL 2.4 NO-LABEL WIDGET-ID 44
+     run-cost-09 AT ROW 14.67 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     setups-09 AT ROW 14.67 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 64
+     tb_sel-09 AT ROW 14.57 COL 53
+     run-qty-10 AT ROW 15.62 COL 2.4 NO-LABEL WIDGET-ID 46
+     run-cost-10 AT ROW 15.62 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -442,35 +432,54 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     run-cost-06 AT ROW 11.81 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     setups-06 AT ROW 11.81 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 58
-     run-qty-07 AT ROW 12.76 COL 2.4 NO-LABEL WIDGET-ID 40
-     run-cost-07 AT ROW 12.76 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     setups-07 AT ROW 12.76 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 60
-     run-qty-08 AT ROW 13.71 COL 2.4 NO-LABEL WIDGET-ID 42
-     run-cost-08 AT ROW 13.71 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     setups-08 AT ROW 13.71 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 62
-     run-qty-09 AT ROW 14.67 COL 2.4 NO-LABEL WIDGET-ID 44
-     run-cost-09 AT ROW 14.67 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-     setups-09 AT ROW 14.67 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 64
-     run-qty-10 AT ROW 15.62 COL 2.4 NO-LABEL WIDGET-ID 46
-     run-cost-10 AT ROW 15.62 COL 16.4 COLON-ALIGNED NO-LABEL WIDGET-ID 26
      setups-10 AT ROW 15.62 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 66
-     btnShowVendCostMtx AT ROW 6.05 COL 15 WIDGET-ID 68
+     tb_sel-10 AT ROW 15.52 COL 53
+     e-itemfg-vend.updated-id[1] AT ROW 8.05 COL 81 COLON-ALIGNED WIDGET-ID 70
+          LABEL "Updated By"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     e-itemfg-vend.updated-date[1] AT ROW 9 COL 81 COLON-ALIGNED WIDGET-ID 72
+          LABEL "On"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     e-itemfg-vend.spare-dec-1 AT ROW 10.48 COL 81.2 COLON-ALIGNED HELP
+          ""
+          LABEL "Min. Charge"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     fi_oh-markup AT ROW 11.67 COL 81.2 COLON-ALIGNED
+     e-itemfg-vend.roll-w[27] AT ROW 13.62 COL 67.4 COLON-ALIGNED HELP
+          "Enter Sheet Width Minimum"
+          LABEL "Width"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[28] AT ROW 13.62 COL 81.6 COLON-ALIGNED HELP
+          "Enter Sheet Width Maximum" NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[29] AT ROW 15.52 COL 67.4 COLON-ALIGNED HELP
+          "Enter Sheet Length Minimum"
+          LABEL "Length"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     e-itemfg-vend.roll-w[30] AT ROW 15.52 COL 81.6 COLON-ALIGNED HELP
+          "Enter Sheet Length Maximum" NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      "Cost Per" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 6 COL 20
      "Min" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 16.71 COL 57
+          SIZE 5 BY .62 AT ROW 14.81 COL 69.6
      "Max" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 16.71 COL 69
+          SIZE 5 BY .62 AT ROW 14.81 COL 83.6
      "Setup $" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 6 COL 37
      "Purchased" VIEW-AS TEXT
           SIZE 13 BY .95 AT ROW 2.67 COL 2
      "Min" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 16.71 COL 22
+          SIZE 5 BY .62 AT ROW 12.91 COL 70
      "Max" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 16.71 COL 34
+          SIZE 5 BY .62 AT ROW 12.91 COL 83.8
      RECT-24 AT ROW 1 COL 1
      RECT-26 AT ROW 6.95 COL 2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -623,6 +632,16 @@ ASSIGN
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN e-itemfg.std-uom IN FRAME F-Main
    NO-ENABLE 1 2 EXP-LABEL                                              */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.updated-date[1] IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+ASSIGN 
+       e-itemfg-vend.updated-date[1]:READ-ONLY IN FRAME F-Main        = TRUE.
+
+/* SETTINGS FOR FILL-IN e-itemfg-vend.updated-id[1] IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+ASSIGN 
+       e-itemfg-vend.updated-id[1]:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* SETTINGS FOR FILL-IN e-itemfg-vend.vend-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
