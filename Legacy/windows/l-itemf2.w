@@ -342,11 +342,8 @@ ON CHOOSE OF bt-clear IN FRAME Dialog-Frame /* Clear Find */
 DO:
     assign lv-search:screen-value = "".
            lv-search = "".
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.
-    apply "entry" to {&browse-name}.
+    
+  RUN pSearchData .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -378,10 +375,8 @@ DO:
            lv-search.
     &scoped-define IAMWHAT Search
     &scoped-define where-statement begins lv-search
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.      
+    
+    RUN pSearchData .
     
 END.
 
@@ -397,11 +392,8 @@ DO:
     &scoped-define IAMWHAT LOOKUP   
          
     assign rd-sort.
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.    
-    apply "entry" to {&browse-name}.
+    
+    RUN pSearchData .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,11 +407,8 @@ DO:
     &scoped-define IAMWHAT LOOKUP   
     ASSIGN rd-filter .     
     assign rd-sort.
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.   
-    apply "entry" to {&browse-name}.
+    
+    RUN pSearchData .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,6 +459,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       rd-filter:HIDDEN in FRAME {&FRAME-NAME} = YES .
       lv-label:HIDDEN in FRAME {&FRAME-NAME} = YES  .
   END.
+  APPLY "value-changed" TO rd-sort.
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -544,6 +534,61 @@ PROCEDURE get-cust-part :
        lv-cust-no = ip-cust-no.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSearchData Dialog-Frame 
+PROCEDURE pSearchData :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+       IF rd-filter EQ 1 THEN do:
+            case rd-sort:
+            {srtord2.i 1}
+            {srtord2.i 2}
+            END.
+      END.
+      ELSE IF rd-filter EQ 2 THEN do:
+           
+       IF rd-sort EQ 1 THEN do:
+        OPEN QUERY {&browse-name}
+          FOR EACH itemfg WHERE {&KEY-PHRASE}
+              and itemfg.company = ip-company AND itemfg.stat EQ "A"
+              AND itemfg.i-no BEGINS lv-search  
+              AND itemfg.i-no NE "" NO-LOCK,
+              first e-itemfg-vend NO-LOCK 
+              where e-itemfg-vend.company eq itemfg.company 
+              and e-itemfg-vend.i-no    eq itemfg.i-no 
+              and e-itemfg-vend.vend-no EQ ip-vendor  OUTER-JOIN
+              {&sortby-1}.
+          END.
+          ELSE IF rd-sort EQ 2 THEN do:
+              OPEN QUERY {&browse-name}
+              FOR EACH itemfg WHERE {&KEY-PHRASE}
+              and itemfg.company = ip-company AND itemfg.stat EQ "A"
+              AND itemfg.i-name BEGINS lv-search  
+              AND itemfg.i-no NE ""    NO-LOCK,
+              first e-itemfg-vend NO-LOCK 
+              where e-itemfg-vend.company eq itemfg.company 
+              and e-itemfg-vend.i-no    eq itemfg.i-no 
+              and e-itemfg-vend.vend-no EQ ip-vendor  OUTER-JOIN
+              {&sortby-2}.
+          END.
+
+          IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN DO:
+              MESSAGE "Record not found beginning with '" + lv-search + "' !!!"
+                  VIEW-AS ALERT-BOX.
+              APPLY "ENTRY" TO {&BROWSE-NAME}.
+          END.
+      END. /* all po */
+
+     apply "entry" to {&browse-name}.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
