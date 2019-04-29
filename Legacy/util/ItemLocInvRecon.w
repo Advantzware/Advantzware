@@ -19,6 +19,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEF STREAM outStream.
+DEF VAR cOutFile AS CHAR INITIAL "c:\tmp\ItemLocInvRec.csv" NO-UNDO.
+
 DEF VAR tONH AS DECIMAL FORMAT "->>,>>>,>>9.999" NO-UNDO.
 DEF VAR tONO AS DECIMAL FORMAT "->>,>>>,>>9.999" NO-UNDO.
 DEF VAR tALL AS DECIMAL FORMAT "->>,>>>,>>9.999" NO-UNDO.
@@ -31,11 +34,6 @@ DEF VAR tORD AS DECIMAL FORMAT "->>,>>>,>>9.999" NO-UNDO.
 DEF VAR tPRD AS DECIMAL FORMAT "->>,>>>,>>9.999" NO-UNDO.
 DEF VAR tREL AS DECIMAL FORMAT "->>,>>>,>>9.999" NO-UNDO.
 
-DEF VAR chExcelApplication  AS COM-HANDLE   NO-UNDO.
-DEF VAR chWorkbook          AS COM-HANDLE   NO-UNDO.
-DEF VAR chWorksheet         AS COM-HANDLE   NO-UNDO.
-DEF VAR iLineNo AS INT.
-DEF VAR iMaxLines AS INT INITIAL 1.
 DEF VAR iCtr AS INT.
 
 DEF TEMP-TABLE ttLocTots
@@ -330,7 +328,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   
   ASSIGN 
     eDesc:SCREEN-VALUE IN FRAME frame-a =
-    "This utility will generate an Excel spreadsheet comparing FG Item record quantities with the total quantities by Warehouse. " +
+    "This utility will generate a .csv file comparing FG Item record quantities with the total quantities by Warehouse. " +
     "This report may take a significant amount of time to run, depending on the number of companies and items you choose to reconcile.".
 
   WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -391,18 +389,9 @@ PROCEDURE pCloseExcel :
  Notes:
 ------------------------------------------------------------------------------*/
     STATUS DEFAULT "Finishing Data and Opening".
-    
-    chWorksheet:range("F1:O" + STRING(iLineNo + 1)):HorizontalAlignment = 4.
-    chWorksheet:range("A1:E" + STRING(iLineNo + 1)):HorizontalAlignment = 2.
-    chWorksheet:range("F2:O" + STRING(iLineNo + 1)):NumberFormat = "#,###,###,##0.00#".
-    chWorkSheet:COLUMNS("A:O"):AutoFit.
-    chExcelApplication:VISIBLE = TRUE.
-
-    RELEASE OBJECT chWorksheet        NO-ERROR.
-    RELEASE OBJECT chWorkBook         NO-ERROR.
-    RELEASE OBJECT chExcelApplication NO-ERROR.
-
-
+    OUTPUT STREAM outStream CLOSE.
+    OS-COMMAND NO-WAIT VALUE(cOutFile).
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,50 +403,12 @@ PROCEDURE pCreateExcel :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-STATUS DEFAULT "Creating Excel Application".
-
-CREATE "Excel.Application" chExcelApplication.
-
 /* Set pages and label rows */                    
-ASSIGN 
-    iLineNo = 1
-    chWorkbook = chExcelApplication:Workbooks:Add()
-    chWorksheet = chExcelApplication:Sheets:Item(1)
-    chWorksheet:range("A1"):VALUE = "Company"
-    chWorksheet:range("B1"):VALUE = "Item No"
-    chWorksheet:range("C1"):VALUE = "Name"
-    chWorksheet:range("D1"):VALUE = "Whse"
-    chWorksheet:range("E1"):VALUE = "Bin"
-    chWorksheet:range("F1"):VALUE = "On Hand"
-    chWorksheet:range("G1"):VALUE = "On Order"
-    chWorksheet:range("H1"):VALUE = "Allocated"
-    chWorksheet:range("I1"):VALUE = "Available"
-    chWorksheet:range("J1"):VALUE = "Calc.Avail"
-    chWorksheet:range("K1"):VALUE = "Backordered"
-    chWorksheet:range("L1"):VALUE = "Committed"
-    chWorksheet:range("M1"):VALUE = "Ordered"
-    chWorksheet:range("N1"):VALUE = "Produced"
-    chWorksheet:range("O1"):VALUE = "Released"
-    chWorksheet:range("A1" + ":O1"):Font:Bold = TRUE
-    chWorksheet:NAME = "ItemLocInvRec"
-    chWorksheet:PageSetup:LeftHeader = "Item Location Inventory Reconciliation" + chr(10) + "UserId: " + 
-                            entry(1,userid(LDBNAME(1)),"@") + " | DB: " + DBNAME.
-    chWorksheet:PageSetup:LeftFooter = "(c) 1985-2019, Advantzware, Inc.".                    
-    chWorksheet:PageSetup:RightHeader = "Company Range: " + fromCompany:SCREEN-VALUE IN FRAME frame-a + "-" + toCompany:SCREEN-VALUE + CHR(10) +
-                                        "Item Range: " + fromItem:SCREEN-VALUE + "-" + toItem:SCREEN-VALUE.
-    chWorksheet:PageSetup:FirstPageNumber = 1.
-    chWorksheet:PageSetup:RightFooter = "Print Date: " +
-                                            STRING(MONTH(TODAY),"99") + "/" +
-                                            STRING(DAY(TODAY),"99") + "/" +
-                                            STRING(YEAR(TODAY),"9999") + CHR(10) +
-                                        "Page: &P".
-    chWorksheet:PageSetup:PrintTitleRows = "A1:O1".
-    chWorksheet:PageSetup:PrintGridlines = TRUE.
-    chWorksheet:PageSetup:ORIENTATION = 2.
-    chWorksheet:PageSetup:Zoom = FALSE.
-    chWorksheet:PageSetup:FitToPagesWide = 1.
-    chWorksheet:PageSetup:FitToPagesTall = 1000000.
 
+OUTPUT STREAM outstream TO VALUE(cOutFile).
+
+PUT STREAM outstream UNFORMATTED 
+    "Company,Item No,Name,Whse,Bin,On Hand,On Order,Allocated,Available,Calc.Avail,Backordered,Committed,Ordered,Produced,Released" + CHR(10).
 
 END PROCEDURE.
 
@@ -486,53 +437,29 @@ PROCEDURE pExcelLine :
     DEF INPUT PARAMETER colN AS CHAR NO-UNDO.
     DEF INPUT PARAMETER colO AS CHAR NO-UNDO.
 
-    STATUS DEFAULT "Writing Data for Company " + company.company + ", Item: " + itemfg.i-no + ", Whse: " + colD.
-
-    ASSIGN
-        iLineNo = iLineNo + 1.
-    
-    ASSIGN
-        chWorksheet:range("A" + STRING(iLineNo)):VALUE = colA
-        chWorksheet:range("B" + STRING(iLineNo)):VALUE = colB 
-        chWorksheet:range("C" + STRING(iLineNo)):VALUE = colC 
-        chWorksheet:range("D" + STRING(iLineNo)):VALUE = colD 
-        chWorksheet:range("E" + STRING(iLineNo)):VALUE = colE 
-        chWorksheet:range("F" + STRING(iLineNo)):VALUE = colF 
-        chWorksheet:range("G" + STRING(iLineNo)):VALUE = colG 
-        chWorksheet:range("H" + STRING(iLineNo)):VALUE = colH 
-        chWorksheet:range("I" + STRING(iLineNo)):VALUE = colI 
-        chWorksheet:range("J" + STRING(iLineNo)):VALUE = colJ 
-        chWorksheet:range("K" + STRING(iLineNo)):VALUE = colK 
-        chWorksheet:range("L" + STRING(iLineNo)):VALUE = colL 
-        chWorksheet:range("M" + STRING(iLineNo)):VALUE = colM 
-        chWorksheet:range("N" + STRING(iLineNo)):VALUE = colN 
-        chWorksheet:range("O" + STRING(iLineNo)):VALUE = colO 
-        .
+    PUT STREAM outStream UNFORMATTED 
+        colA + "," +
+        colB + "," +
+        colC + "," +
+        colD + "," +
+        colE + "," +
+        colF + "," +
+        colG + "," +
+        colH + "," +
+        colI + "," +
+        colJ + "," +
+        colK + "," +
+        colL + "," +
+        colM + "," +
+        colN + "," +
+        colO + "," +
+        CHR(10).
         
     IF colD EQ "Item Tot" THEN DO:
-        IF DECIMAL(colF) NE itemfg.q-onh THEN ASSIGN 
-            chWorksheet:range("F" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colG) NE itemfg.q-ono THEN ASSIGN 
-            chWorksheet:range("G" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colH) NE itemfg.q-alloc THEN ASSIGN 
-            chWorksheet:range("H" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colI) NE itemfg.q-avail THEN ASSIGN 
-            chWorksheet:range("I" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colJ) NE (itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc) THEN ASSIGN 
-            chWorksheet:range("J" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colK) NE itemfg.q-back THEN ASSIGN 
-            chWorksheet:range("K" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colL) NE itemfg.q-comm THEN ASSIGN 
-            chWorksheet:range("L" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colM) NE itemfg.q-ord THEN ASSIGN 
-            chWorksheet:range("M" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colN) NE itemfg.q-prod THEN ASSIGN 
-            chWorksheet:range("N" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        IF DECIMAL(colO) NE itemfg.q-rel THEN ASSIGN 
-            chWorksheet:range("O" + STRING(iLineNo)):Interior:ColorIndex = 36.
-        ASSIGN 
-            iLineNo = iLineNo + 1.
+    PUT STREAM outStream UNFORMATTED 
+        CHR(10).
     END. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
