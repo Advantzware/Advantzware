@@ -1156,6 +1156,15 @@ PROCEDURE fgbin-help :
       RUN new-bin.
     END.  */
 
+    FIND FIRST fg-bin WHERE fg-bin.company eq cocode AND
+                      ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
+    IF AVAIL fg-bin THEN
+        ASSIGN fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.tag.
+
+    lCheckTag = NO.
+    RUN validate-tag(0) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
     FIND FIRST tt-selected NO-LOCK NO-ERROR.
     IF AVAIL tt-selected THEN DO:
        lv-date = DATE(fg-rctd.rct-date:SCREEN-VALUE IN BROWSE {&browse-name}).
