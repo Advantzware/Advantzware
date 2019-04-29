@@ -1485,12 +1485,12 @@ FOR EACH job-hdr NO-LOCK
                    IF  i <= 100 THEN v-dept-inst[i] = tt-formtext.tt-text.      
                END.
                  
-               IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
+               /*IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.*/
            
                DO i = 1 TO 100:
                    
                    IF v-dept-inst[i] NE "" THEN DO:
-                       IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
+                       IF PAGE-SIZE - LINE-COUNTER < 2 THEN PAGE.
 
                        PUT 
                          (IF AVAILABLE dept THEN (dept.CODE + " " + dept.dscr) 
@@ -1539,12 +1539,12 @@ FOR EACH job-hdr NO-LOCK
 
     /*  IF v-ship <> "" THEN v-dept-inst[6] = v-ship.  /* shipto notes */ */
         IF NOT v-dept-note-printed THEN DO:
-           IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
+           /*IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.*/
            PUT "<B>DEPARTMENT   INSTRUCTION NOTES</B>" SKIP.
         
            DO i = 1 TO 100:
                IF v-dept-inst[i] NE "" THEN DO:
-                   IF PAGE-SIZE - LINE-COUNTER < 11 THEN PAGE.
+                   IF PAGE-SIZE - LINE-COUNTER < 2 THEN PAGE.
 
                    PUT v-dept-inst[i] FORMAT "x(128)" SKIP.
                END. /*IF v-dept-inst[i] NE "" THEN DO*/
