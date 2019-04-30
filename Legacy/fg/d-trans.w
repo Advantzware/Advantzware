@@ -531,6 +531,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
     DO:
         DEFINE VARIABLE lv-tag2 LIKE fg-rctd.tag2 NO-UNDO.
         DEFINE VARIABLE ld      AS DECIMAL NO-UNDO.
+        DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
 
         IF ip-type EQ "view" THEN 
         DO: 
@@ -552,7 +553,11 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         RUN valid-tag NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+        
+        fg-rctd.tag2:SCREEN-VALUE = fg-rctd.tag:SCREEN-VALUE.
+        RUN valid-tag2 (OUTPUT lValidateResult) NO-ERROR.
+        IF NOT lValidateResult THEN 
+            RETURN NO-APPLY.
   
         DO TRANSACTION:
             lv-tag2 = fg-rctd.tag2:SCREEN-VALUE .
@@ -851,6 +856,7 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* From!Tag */
 
             RUN valid-job-loc-bin-tag NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            fg-rctd.tag2:SCREEN-VALUE = fg-rctd.tag:SCREEN-VALUE.
         END.
     END.
 
@@ -1526,4 +1532,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag2 Dialog-Frame
+PROCEDURE valid-tag2:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplValidTag2 AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lValidTag2 AS LOGICAL NO-UNDO.
+
+    lValidTag2 = TRUE.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF fg-rctd.tag:SCREEN-VALUE GT "" 
+           AND fg-rctd.tag2:SCREEN-VALUE EQ "" THEN         
+        DO:
+            MESSAGE 'The "To" tag number is blank.  Please re-enter the "From" tag number' SKIP                
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY 'entry' TO fg-rctd.tag .
+            lValidTag2 = FALSE.            
+        END.
+           
+        oplValidTag2 = lValidTag2.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
