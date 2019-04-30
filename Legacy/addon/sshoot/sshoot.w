@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME phyC-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS phyC-Win 
+&Scoped-define WINDOW-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
   File: 
@@ -55,7 +55,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-rm RECT-11 btn-fg btn-bol btn-tag ~
+&Scoped-Define ENABLED-OBJECTS RECT-11 btn-rm btn-fg btn-bol btn-tag ~
 btn-wip btn-phyCnt btn-close 
 
 /* Custom List Definitions                                              */
@@ -69,7 +69,7 @@ btn-wip btn-phyCnt btn-close
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR phyC-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-bol 
@@ -143,7 +143,7 @@ DEFINE FRAME DEFAULT-FRAME
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW phyC-Win ASSIGN
+  CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Sharp Shooter Menu"
          HEIGHT             = 15.57
@@ -170,7 +170,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW phyC-Win
+/* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
@@ -202,8 +202,8 @@ ASSIGN
        btn-wip:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(phyC-Win)
-THEN phyC-Win:HIDDEN = no.
+IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -214,9 +214,9 @@ THEN phyC-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME phyC-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL phyC-Win phyC-Win
-ON END-ERROR OF phyC-Win /* Sharp Shooter Menu */
+&Scoped-define SELF-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON END-ERROR OF C-Win /* Sharp Shooter Menu */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -228,8 +228,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL phyC-Win phyC-Win
-ON WINDOW-CLOSE OF phyC-Win /* Sharp Shooter Menu */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON WINDOW-CLOSE OF C-Win /* Sharp Shooter Menu */
 DO:
     RUN system/userLogOut.p (NO, 0).
   /* This event will close the window and terminate the procedure.  */
@@ -242,7 +242,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-bol
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-bol phyC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-bol C-Win
 ON CHOOSE OF btn-bol IN FRAME DEFAULT-FRAME /* Bill of Lading */
 DO:
    RUN addon/bol/boltrans.w.
@@ -253,7 +253,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-close phyC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-close C-Win
 ON CHOOSE OF btn-close IN FRAME DEFAULT-FRAME /* Close */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
@@ -266,7 +266,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-fg
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-fg phyC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-fg C-Win
 ON CHOOSE OF btn-fg IN FRAME DEFAULT-FRAME /* Finished Goods */
 DO:
    RUN addon/fg/fgtransa.w.
@@ -277,7 +277,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-phyCnt
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-phyCnt phyC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-phyCnt C-Win
 ON CHOOSE OF btn-phyCnt IN FRAME DEFAULT-FRAME /* New Physical Count Scan */
 DO:
    RUN inventory/phy-menu.w.
@@ -288,7 +288,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-rm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rm phyC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rm C-Win
 ON CHOOSE OF btn-rm IN FRAME DEFAULT-FRAME /* Material */
 DO:
    RUN addon/rm/rmtransa.w.
@@ -299,7 +299,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-tag phyC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-tag C-Win
 ON CHOOSE OF btn-tag IN FRAME DEFAULT-FRAME /* Label Menu */
 DO:
    RUN addon/loadtags/ldtagtrs.w.
@@ -310,7 +310,7 @@ END.
 
 
 &Scoped-define SELF-NAME btn-wip
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wip phyC-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wip C-Win
 ON CHOOSE OF btn-wip IN FRAME DEFAULT-FRAME /* Work In Process */
 DO:
    RUN wip/wip-menu.w(g_company, g_loc).
@@ -322,7 +322,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK phyC-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
 
 /* ***************************  Main Block  *************************** */
@@ -361,7 +361,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI phyC-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -372,15 +372,15 @@ PROCEDURE disable_UI :
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
   /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(phyC-Win)
-  THEN DELETE WIDGET phyC-Win.
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI phyC-Win  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -391,10 +391,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btn-rm RECT-11 btn-fg btn-bol btn-tag btn-wip btn-phyCnt btn-close 
-      WITH FRAME DEFAULT-FRAME IN WINDOW phyC-Win.
+  ENABLE RECT-11 btn-rm btn-fg btn-bol btn-tag btn-wip btn-phyCnt btn-close 
+      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW phyC-Win.
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
