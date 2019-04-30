@@ -90,6 +90,8 @@ DEFINE VARIABLE v-rec-found     AS LOG       NO-UNDO.
 
 DEFINE VARIABLE tb_splitPDF     AS LOG       NO-UNDO.
 DEFINE VARIABLE rCurrentInvoice AS ROWID     NO-UNDO.
+DEFINE VARIABLE cCopyPdfFile    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCopyPdfFile    AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER save-line    FOR reftable.
 DEFINE BUFFER b1-cust      FOR cust.
@@ -133,6 +135,18 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvPrint", "D" /* Logical */, NO /* check 
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     dPrintFmtDec = DECIMAL(cRtnChar) NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cCopyPdfFile = cRtnChar . 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCopyPdfFile = logical(cRtnChar) NO-ERROR .
 
 /* Build a Table to keep sequence of pdf files */
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
@@ -1672,6 +1686,12 @@ DO:
 
     END CASE.
 
+    IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN DO:
+        IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
+            PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Inv_" + vcInvNums + ".pdf>" FORM "x(180)".
+        END.
+    END.
+
     PUT "</PROGRESS>".
 END. /* Is Xprint form */
 
@@ -1806,6 +1826,12 @@ PROCEDURE SendMail-1:
         ELSE
             IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN DO:
                 RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                
+                IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN DO:
+                    IF rd-dest EQ 5 THEN DO:
+                        OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Inv_" + vcInvNums + ".pdf").
+                     END.
+                 END.
                   
               /* Fix for incorrect file name during batch emailing */    
               IF cActualPDF NE lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN 
