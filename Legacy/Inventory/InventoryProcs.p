@@ -30,6 +30,9 @@ FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL
 FUNCTION fGetNextStockAliasID RETURNS INTEGER PRIVATE
     (  ) FORWARD.
 
+FUNCTION fGetNextSnapshotID RETURNS INTEGER PRIVATE
+    (  ) FORWARD.
+
 FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER,
     ipcUniquePrefix AS CHARACTER) FORWARD.
@@ -43,6 +46,13 @@ FUNCTION fGetNextTransactionID RETURNS INTEGER PRIVATE
 FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
     (ipcFullText AS CHARACTER,
     ipiStartChar AS INTEGER) FORWARD.
+
+FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER PRIVATE
+    (ipcCompany AS CHARACTER,
+     ipcInventoryStockID AS CHARACTER,
+     ipdQuantity AS DECIMAL,
+     ipcWarehouseID AS CHARACTER,
+     ipcLocationID AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
@@ -69,12 +79,21 @@ PROCEDURE CheckInventoryStockIDAlias:
             opcInventoryStockID = inventoryStockAlias.inventoryStockID
             opcStockIDAlias     = inventoryStockAlias.stockIDAlias
             . 
-    ELSE 
-        ASSIGN
-            opcInventoryStockID = ipcLookupID
-            opcStockIDAlias     = ""
-            . 
-    
+    ELSE DO:
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company     EQ ipcCompany
+               AND loadtag.tag-no      EQ ipcLookupID NO-ERROR.
+        IF AVAILABLE loadtag THEN
+            ASSIGN
+                opcInventoryStockID = ""
+                opcStockIDAlias     = ipcLookupID
+                .
+        ELSE       
+            ASSIGN
+                opcInventoryStockID = ipcLookupID
+                opcStockIDAlias     = ""
+                . 
+    END.
 
 END PROCEDURE.
 
@@ -107,11 +126,82 @@ PROCEDURE CreateInventoryStockFromLoadtag:
 
 END PROCEDURE.
 
-PROCEDURE CreatePreLoadtagsFromInputsFG:
+PROCEDURE CreateInventoryStockFromInputsFG:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFgBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSnapshotID AS INTEGER   NO-UNDO.  
+    DEFINE OUTPUT PARAMETER oplCreated    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    
+    FIND FIRST bf-fg-bin NO-LOCK 
+        WHERE ROWID(bf-fg-bin) EQ ipriFgBin
+        NO-ERROR.
+    IF AVAILABLE bf-fg-bin THEN 
+    DO: 
+
+        CREATE inventoryStockSnapshot.
+        ASSIGN
+            inventoryStockSnapshot.inventoryStockID        = fGetNextStockID(gcItemTypeFG)
+            inventoryStockSnapshot.company                 = bf-fg-bin.company
+            inventoryStockSnapshot.jobID                   = bf-fg-bin.job-no
+            inventoryStockSnapshot.jobID2                  = bf-fg-bin.job-no2
+            inventoryStockSnapshot.inventoryStatus         = gcStatusSnapshotNotScanned
+            inventoryStockSnapshot.itemType                = gcItemTypeFG
+            inventoryStockSnapshot.fgItemID                = bf-fg-bin.i-no
+            inventoryStockSnapshot.warehouseID             = bf-fg-bin.loc
+            inventoryStockSnapshot.locationID              = bf-fg-bin.loc-bin
+            inventoryStockSnapshot.orderID                 = bf-fg-bin.ord-no
+            inventoryStockSnapshot.customerID              = bf-fg-bin.cust-no
+            inventoryStockSnapshot.dimEachUOM              = "IN"
+            inventoryStockSnapshot.quantityUOM             = bf-fg-bin.pur-uom
+            inventoryStockSnapshot.costStandardPerUOM      = bf-fg-bin.std-tot-cost
+            inventoryStockSnapshot.quantity                = bf-fg-bin.qty
+            inventoryStockSnapshot.quantityPerSubUnit      = bf-fg-bin.qty
+            inventoryStockSnapshot.lastTransTime           = NOW
+            inventoryStockSnapshot.createdTime             = NOW
+            inventoryStockSnapshot.lastTransBy             = USERID("asi")
+            inventoryStockSnapshot.createdBy               = USERID("asi")
+            inventoryStockSnapshot.inventorySnapshotID     = ipiSnapshotID
+            inventoryStockSnapshot.sourceID                = inventoryStockSnapshot.inventoryStockID
+            inventoryStockSnapshot.sourceType              = gcSourceTypeSnapshot
+            inventoryStockSnapshot.primaryID               = inventoryStockSnapshot.fgItemID
+            inventoryStockSnapshot.stockIDAlias            = bf-fg-bin.tag
+            oplCreated                                     = TRUE
+            opcMessage                                     = "Inventory Stock Created for " + inventoryStockSnapshot.inventoryStockID
+            .
+            
+                    
+        FIND FIRST bf-itemfg NO-LOCK 
+             WHERE bf-itemfg.company EQ bf-fg-bin.company
+               AND bf-itemfg.i-no    EQ bf-fg-bin.i-no
+               NO-ERROR.
+        IF AVAILABLE bf-itemfg THEN 
+            ASSIGN 
+                inventoryStockSnapshot.basisWeight    = bf-itemfg.weight-100
+                inventoryStockSnapshot.basisWeightUOM = "LBS/100"
+                .
+                        
+        IF bf-fg-bin.tag NE "" THEN 
+            RUN CreateStockIDAlias (
+                inventoryStockSnapshot.company, 
+                inventoryStockSnapshot.inventoryStockID,
+                inventoryStockSnapshot.primaryID, 
+                bf-fg-bin.tag,
+                OUTPUT oplCreated, 
+                OUTPUT opcMessage
+                ). 
+    END.
+    ELSE 
+        ASSIGN 
+            oplCreated = NO
+            opcMessage = "Invalid Finished Good" 
+            .    
 
 
 END PROCEDURE.
@@ -298,6 +388,24 @@ PROCEDURE DeleteInventoryStock:
 
 END PROCEDURE.
 
+PROCEDURE DeleteInventoryTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiTransactionID AS INTEGER NO-UNDO.
+    
+    DO TRANSACTION:
+        FIND FIRST inventoryTransaction EXCLUSIVE-LOCK
+             WHERE inventoryTransaction.inventoryTransactionID EQ ipiTransactionID
+             NO-ERROR.
+        IF AVAILABLE inventoryTransaction THEN
+            DELETE inventoryTransaction.
+    END. /* do trans */
+
+END PROCEDURE.
+
+
 PROCEDURE PostReceivedInventory:
     /*------------------------------------------------------------------------------
      Purpose: Change status of inventory stock from pending to posted.
@@ -432,6 +540,48 @@ PROCEDURE CreateTransactionTransfer:
 
 END PROCEDURE.
 
+PROCEDURE CreateTransactionCompare:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper function to create a compare transaction
+     Notes: 0 quantity transaction
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStockIDAlias     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQuantityUOM      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouseID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPost             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iTransactionID AS INTEGER NO-UNDO.
+    
+    FIND FIRST inventoryTransaction EXCLUSIVE-LOCK
+         WHERE inventoryTransaction.company      = ipcCompany 
+           AND inventoryTransaction.stockIDAlias = ipcStockIDAlias NO-ERROR.
+           
+    IF AVAILABLE inventoryTransaction THEN DO:
+        ASSIGN
+            inventoryTransaction.quantityChange         = ipdQuantity
+            inventoryTransaction.quantityUOM            = ipcQuantityUOM
+            inventoryTransaction.warehouseID            = ipcWarehouseID
+            inventoryTransaction.locationID             = ipcLocationID
+            inventoryTransaction.scannedTime            = NOW
+            inventoryTransaction.scannedBy              = USERID("asi")
+            oplCreated                                  = TRUE
+            opcMessage                                  = "Transaction Updated"
+            .
+            
+        RETURN.       
+    END.
+           
+    RUN pCreateTransactionAndReturnID(ipcCompany, ipcStockIDAlias, gcTransactionTypeCompare, ipdQuantity, ipcQuantityUOM, ipcWarehouseID, ipcLocationID, 
+        OUTPUT iTransactionID, OUTPUT oplCreated, OUTPUT opcMessage).    
+            
+             
+END PROCEDURE.
+
 PROCEDURE CreateTransactionConsume:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper function to create an Issue/Consume transaction
@@ -451,6 +601,57 @@ PROCEDURE CreateTransactionConsume:
         OUTPUT iTransactionID, OUTPUT oplCreated, OUTPUT opcMessage).
     IF iplPost THEN 
         RUN PostTransaction(iTransactionID).
+    
+END PROCEDURE.
+
+PROCEDURE GenerateSnapshotRecords:
+    /*------------------------------------------------------------------------------
+     Purpose: Generate Snapshot records
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcType       AS CHARACTER NO-UNDO. /* FG, RM, WIP */
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iInventorySnapshotID  AS INTEGER   NO-UNDO.
+    
+    IF ipcType EQ "FG" THEN DO:
+        IF CAN-FIND ( FIRST fg-bin NO-LOCK
+                      WHERE fg-bin.company    EQ ipcCompany
+                        AND fg-bin.loc        EQ ipcWarehouse
+                        AND fg-bin.loc-bin    EQ ipcLocation
+                        AND fg-bin.qty        NE 0
+                        AND fg-bin.tag        NE "" ) THEN
+            RUN pCreateSnapshotAndReturnID (
+                ipcCompany,
+                gcSnapshotTypeCount,
+                ipcWarehouse,
+                ipcLocation,
+                gcSourceTypeSnapshot,
+                gcItemTypeFG,
+                OUTPUT iInventorySnapshotID,
+                OUTPUT oplCreated,
+                OUTPUT opcMessage
+                ).
+            
+
+        FOR EACH fg-bin NO-LOCK
+            WHERE fg-bin.company    EQ ipcCompany
+              AND fg-bin.loc        EQ ipcWarehouse
+              AND fg-bin.loc-bin    EQ ipcLocation
+              AND fg-bin.qty        NE 0
+              AND fg-bin.tag        NE "":
+            RUN CreateInventoryStockFromInputsFG (
+                ROWID(fg-bin),
+                iInventorySnapshotID,
+                OUTPUT oplCreated,
+                OUTPUT opcMessage
+                ).
+        END.
+    END.
     
 END PROCEDURE.
 
@@ -519,6 +720,8 @@ PROCEDURE pCreateTransactionAndReturnID PRIVATE:
         inventoryTransaction.company                = ipcCompany
         inventoryTransaction.createdBy              = USERID("asi")
         inventoryTransaction.createdTime            = NOW
+        inventoryTransaction.scannedBy              = USERID("asi")
+        inventoryTransaction.scannedTime            = NOW
         inventoryTransaction.quantityChange         = ipdQuantityChange
         inventoryTransaction.quantityUOM            = ipcQuantityUOM
         inventoryTransaction.warehouseID            = ipcWarehouseID
@@ -532,6 +735,39 @@ PROCEDURE pCreateTransactionAndReturnID PRIVATE:
     
     RELEASE inventoryTransaction.
 
+END PROCEDURE.
+
+PROCEDURE pCreateSnapshotAndReturnID PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSnapshotType    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcInventoryStatus AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemType        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiSnapshotID      AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+        
+    CREATE inventorySnapshot.
+    ASSIGN 
+        inventorySnapshot.inventorySnapshotID  = fGetNextSnapshotID()
+        inventorySnapshot.snapshotType         = ipcSnapshotType
+        inventorySnapshot.itemType             = ipcItemType
+        inventorySnapshot.company              = ipcCompany
+        inventorySnapshot.warehouseID          = ipcWarehouse
+        inventorySnapshot.locationID           = ipcLocation
+        inventorySnapshot.inventoryStockStatus = ipcInventoryStatus
+        inventorySnapshot.snapshotUser         = USERID("asi")
+        inventorySnapshot.snapshotTime         = NOW
+        oplCreated                             = YES
+        opcMessage                             = "Snapshot Created. ID: " + STRING(inventorySnapshot.inventorySnapshotID)
+        opiSnapshotID                          = inventorySnapshot.inventorySnapshotID
+        .
+    
 END PROCEDURE.
 
 PROCEDURE pAddQuantity PRIVATE:
@@ -639,9 +875,9 @@ PROCEDURE CreateStockIDAlias:
     DEFINE BUFFER bf-inventoryStockAlias FOR inventoryStockAlias.
     
     FIND FIRST bf-inventoryStockAlias NO-LOCK 
-        WHERE bf-inventoryStockAlias.company EQ ipcCompany 
-        AND bf-inventoryStockAlias.stockIDAlias EQ ipcAlias
-        NO-ERROR.
+         WHERE bf-inventoryStockAlias.company      EQ ipcCompany 
+           AND bf-inventoryStockAlias.stockIDAlias EQ ipcAlias
+           NO-ERROR.
     
     IF NOT AVAILABLE bf-inventoryStockAlias THEN 
     DO:
@@ -874,6 +1110,53 @@ PROCEDURE ValidateLoc:
 
 END PROCEDURE.
 
+PROCEDURE LocationParser:
+/*------------------------------------------------------------------------------
+ Purpose: Location parser
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcLocationID  AS CHARACTER NO-UNDO.    
+    
+    ASSIGN    
+        opcWarehouseID = SUBSTRING(ipcLocation, 1, 5)
+        opcLocationID  = SUBSTRING(ipcLocation, 6)
+        .
+     
+END PROCEDURE.
+
+PROCEDURE GetWarehouseList:
+/*------------------------------------------------------------------------------
+ Purpose: Get the list of warehouse in a string for a given company
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplActiveOnly         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcWarehouseListItems AS CHARACTER NO-UNDO.
+    
+    FOR EACH loc NO-LOCK
+        WHERE (IF ipcCompany EQ "" THEN
+                   TRUE
+               ELSE
+                   loc.company = ipcCompany)
+          AND (IF iplActiveOnly THEN 
+                   loc.active = TRUE
+               ELSE 
+                   TRUE)      
+        BY loc.loc:
+        opcWarehouseListItems = IF opcWarehouseListItems = "" THEN 
+                                    loc.loc
+                                ELSE IF INDEX(opcWarehouseListItems ,loc.loc) GT 0 THEN 
+                                    opcWarehouseListItems
+                                ELSE
+                                    opcWarehouseListItems + "," + loc.loc
+                                .    
+        
+    END.
+     
+END PROCEDURE.
+
 PROCEDURE pCanFindInventoryStock:
     /*------------------------------------------------------------------------------
      Purpose: Validate Inventory Stock
@@ -969,6 +1252,18 @@ FUNCTION fGetNextStockAliasID RETURNS INTEGER PRIVATE
 		
 END FUNCTION.
 
+FUNCTION fGetNextSnapshotID RETURNS INTEGER PRIVATE
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the next snapshot ID
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    
+    giIDTemp = NEXT-VALUE(snapshotid_seq).
+    RETURN giIDTemp.
+		
+END FUNCTION.
+
 FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
     ( ipcCompany AS CHARACTER , ipcUniquePrefix AS CHARACTER ):
 
@@ -1011,10 +1306,10 @@ FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
         NO-ERROR.
     iLastAlias = (IF AVAILABLE inventoryStockAlias THEN fGetNumberSuffix(inventoryStockAlias.stockIDAlias, iStartChar) ELSE 0) + 1.
     iNextTag = MAX(iLastFGTag, iLastRMTag, iLastAlias).
-    
+
     cAlias = ipcUniquePrefix + FILL(" ", giLengthUniquePrefix - iStartChar + 1).
     cAlias = cAlias + STRING(iNextTag, FILL("9",giLengthAlias - LENGTH(cAlias))).
-    
+
     RETURN cAlias.
 
 		
@@ -1059,5 +1354,52 @@ FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
     RETURN iNumberSuffix.
 
 	
+END FUNCTION.
+
+FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER
+    (ipcCompany AS CHARACTER , ipcStockIDAlias AS CHARACTER , ipdQuantity AS DECIMAL , ipcWarehouseID AS CHARACTER , ipcLocationID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Gets the compare status
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE opcStatus                   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lLocationChanged            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQuantityChanged            AS LOGICAL   NO-UNDO.
+    
+    opcStatus = gcStatusSnapshotTagNotFound.
+
+    FIND FIRST inventoryStockSnapshot NO-LOCK
+         WHERE inventoryStockSnapshot.company      EQ ipcCompany
+           AND inventoryStockSnapshot.stockIDAlias EQ ipcStockIDAlias NO-ERROR.
+
+    IF AVAILABLE inventoryStockSnapshot THEN DO:
+        IF ipdQuantity NE inventoryStockSnapshot.quantity THEN
+            ASSIGN
+                lQuantityChanged = TRUE
+                opcStatus        = gcStatusSnapshotQtyChange.
+        
+        IF ipcWarehouseID NE inventoryStockSnapshot.warehouseID OR
+           ipcLocationID  NE inventoryStockSnapshot.locationID THEN
+            ASSIGN
+                lLocationChanged = TRUE
+                opcStatus        = gcStatusSnapshotLocChange.
+           
+        IF lLocationChanged AND lQuantityChanged THEN
+            opcStatus = gcStatusSnapshotQtyAndLocChange.
+            
+        IF NOT lLocationChanged AND NOT lQuantityChanged THEN
+            opcStatus = gcStatusSnapshotCompleteMatch.    
+    END.
+    
+    FIND FIRST inventoryTransaction NO-LOCK
+         WHERE inventoryTransaction.company         EQ ipcCompany
+           AND inventoryTransaction.stockIDAlias    EQ ipcStockIDAlias
+           AND inventoryTransaction.transactionType EQ gcTransactionTypeCompare NO-ERROR.
+    IF AVAILABLE inventoryTransaction and inventoryTransaction.quantityChange EQ 0 THEN 
+        opcStatus = gcStatusSnapshotNotScannedConf.
+        
+    RETURN opcStatus.
+
 END FUNCTION.
 
