@@ -2185,6 +2185,7 @@ PROCEDURE run-report :
   DEF VAR lv-how-many-tags AS INT NO-UNDO.
   DEF VAR v-b-wpo-created AS LOG NO-UNDO.
   DEFINE VARIABLE choice2 AS LOGICAL  INIT YES  NO-UNDO.
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
 
   SESSION:SET-WAIT-STATE ("general").
 
@@ -2267,8 +2268,8 @@ PROCEDURE run-report :
   
     IF NOT ERROR-STATUS:ERROR AND
       lv-po-no NE 0 THEN do:
-        RUN pValidatePo(lv-po-no) NO-ERROR .
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        RUN pValidatePo(lv-po-no ,OUTPUT lCheckError) NO-ERROR .
+        IF lCheckError THEN RETURN NO-APPLY.
 
         RUN temp-po (lv-po-no).
     END.
@@ -2280,8 +2281,8 @@ PROCEDURE run-report :
   END. /* each w-file */
 
   IF v-fpo-no[1] EQ v-fpo-no[2] THEN DO:
-      RUN pValidatePo(v-fpo-no[1]) NO-ERROR .
-      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+      RUN pValidatePo(v-fpo-no[1], OUTPUT lCheckError) NO-ERROR .
+      IF lCheckError THEN RETURN NO-APPLY.
   END.
 
   FOR EACH po-ord NO-LOCK
@@ -2744,6 +2745,7 @@ PROCEDURE pValidatePo :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO .
+    DEFINE OUTPUT PARAMETER oplCheckError AS LOGICAL NO-UNDO .
  {methods/lValidateError.i YES}    
     FIND FIRST bf-po-ord NO-LOCK
         WHERE bf-po-ord.company EQ cocode
@@ -2752,7 +2754,7 @@ PROCEDURE pValidatePo :
     IF AVAIL bf-po-ord THEN DO:
         MESSAGE "PO# '" + STRING(ipiPoNo) + "' is on hold and cannot print load tags for a PO on hold"
              VIEW-AS ALERT-BOX ERROR .
-        RETURN ERROR.
+        oplCheckError = YES .
     END.
 {methods/lValidateError.i NO}
 END PROCEDURE.
