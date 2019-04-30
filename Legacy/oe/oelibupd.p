@@ -1950,6 +1950,7 @@ PROCEDURE lib-create-record :
   g_company = ip-company.
   locode = ip-loc.
   g_loc = ip-loc.
+  RUN spSetCompany (g_company).
   DEF BUFFER bf-orig-ord FOR oe-ord.
   DEF BUFFER b-oe-ordl FOR oe-ordl.
   

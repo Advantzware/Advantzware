@@ -20,6 +20,8 @@ ASSIGN
   gcompany  = ip-co-code
   g_company = ip-co-code.
 
+RUN spSetCompany (g_company).
+
 /*add new NK1 to v-std-list first, then add it to the "When" clause below */
 v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopup,AgeDays,OEFGADD,HighBalDays,"
            + "oeShipFrom,SSFGSCAN,Paperless,FGSetAssembly,AutoFGIssue,CustomerList,SSLoadtag,ChkFmtACH,"

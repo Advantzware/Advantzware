@@ -19,6 +19,7 @@
 
 /* ***************************  Definitions  ************************** */
 
+DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
@@ -31,7 +32,6 @@ DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
 
-{methods/defines/globdefs.i}
 {system/ttSysCtrlUsage.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -199,6 +199,25 @@ FIND FIRST users NO-LOCK
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pSetCompany) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompany Procedure
+PROCEDURE pSetCompany:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    cCompany = ipcCompany.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
@@ -551,19 +570,16 @@ PROCEDURE spGetCompany:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcCompany AS CHAR NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
     
-    ASSIGN 
-        opcCompany = g_company.
+    opcCompany = cCompany.
 
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spGetLookupTitle) = 0 &THEN
 
@@ -585,9 +601,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-spGetParamValueID) = 0 &THEN
 
