@@ -175,7 +175,7 @@ DEFINE NEW SHARED WORKFILE wrk-misc
 {custom/formtext.i NEW}     
 {custom/notesdef.i}
 DEFINE VARIABLE v-inst2          AS CHARACTER     EXTENT 25 NO-UNDO.    
-DEFINE VARIABLE v-dept-inst      AS CHARACTER     FORMAT "x(80)" EXTENT 20 NO-UNDO.
+DEFINE VARIABLE v-dept-inst      AS CHARACTER     FORMAT "x(80)" EXTENT 100 NO-UNDO.
 DEFINE VARIABLE v-note-length    AS INTEGER INITIAL 80 NO-UNDO.
 
 DEFINE VARIABLE v-start-date     AS DATE    NO-UNDO.
@@ -1543,7 +1543,7 @@ DO:
             FIND FIRST dept NO-LOCK WHERE dept.CODE EQ notes.note_code NO-ERROR.
             lv-text = (IF AVAILABLE dept THEN dept.dscr ELSE notes.note_code) + "     " + 
                 notes.note_title + " " + notes.note_text + CHR(10).
-            DO li = 1 TO 4:
+            DO li = 1 TO 100:
                 CREATE tt-formtext.
                 ASSIGN 
                     tt-line-no = li
@@ -1554,19 +1554,28 @@ DO:
             v-dept-inst = "".
             FOR EACH tt-formtext:
                 i = i + 1.
-                IF  i LE 4 THEN v-dept-inst[i] = tt-formtext.tt-text.      
+                IF  i LE 100 THEN v-dept-inst[i] = tt-formtext.tt-text.      
             END.
-            IF PAGE-SIZE - LINE-COUNTER LT 11 THEN PAGE.
+            
+            IF PAGE-SIZE - LINE-COUNTER LT 2 THEN PAGE.
             IF FIRST(notes.note_code) THEN PUT "<B> DEPARTMENT   INSTRUCTION NOTES</B>" SKIP.
 
-            IF v-dept-inst[1] NE "" THEN
+            DO i = 1 TO 100:
+                   IF v-dept-inst[i] NE "" THEN DO:
+                       IF PAGE-SIZE - LINE-COUNTER < 2 THEN PAGE.
+                       IF v-dept-inst[i] NE "" THEN
+                           PUT " " v-dept-inst[i] FORMAT "x(128)" SKIP.
+                   END. /*IF v-dept-inst[i] NE "" THEN DO*/
+            END. /*DO i = 1 TO 19*/
+
+           /* IF v-dept-inst[1] NE "" THEN
                 PUT " " v-dept-inst[1] FORMAT "x(128)" SKIP.
             IF v-dept-inst[2] NE "" THEN
                 PUT " " v-dept-inst[2] FORMAT "x(128)" SKIP.
             IF v-dept-inst[3] NE "" THEN
                 PUT " " v-dept-inst[3] FORMAT "x(128)" SKIP.
             IF v-dept-inst[4] NE "" THEN
-                PUT " " v-dept-inst[4] FORMAT "x(128)" SKIP.
+                PUT " " v-dept-inst[4] FORMAT "x(128)" SKIP.*/
                
         END. /* first-of(notes.note_code) */
         v-dept-note-printed = YES.
@@ -1577,16 +1586,23 @@ DO:
 
     IF NOT v-dept-note-printed THEN 
     DO:
-        IF PAGE-SIZE - LINE-COUNTER LT 11 THEN PAGE.
+        IF PAGE-SIZE - LINE-COUNTER LT 2 THEN PAGE.
         PUT "<B> DEPARTMENT   INSTRUCTION NOTES</B>" SKIP.
-        IF v-dept-inst[1] NE "" THEN
+        DO i = 1 TO 100:
+            IF v-dept-inst[i] NE "" THEN DO:
+                IF PAGE-SIZE - LINE-COUNTER < 2 THEN PAGE.
+                IF v-dept-inst[i] NE "" THEN
+                    PUT " " v-dept-inst[i] FORMAT "x(128)" SKIP.
+            END. /*IF v-dept-inst[i] NE "" THEN DO*/
+        END. /*DO i = 1 TO 100*/
+        /*IF v-dept-inst[1] NE "" THEN
             PUT " " v-dept-inst[1] FORMAT "x(128)" SKIP.
         IF v-dept-inst[2] NE "" THEN
             PUT " " v-dept-inst[2] FORMAT "x(128)" SKIP.
         IF v-dept-inst[3] NE "" THEN
             PUT " " v-dept-inst[3] FORMAT "x(128)" SKIP.
         IF v-dept-inst[4] NE "" THEN
-            PUT " " v-dept-inst[4] FORMAT "x(128)" SKIP.
+            PUT " " v-dept-inst[4] FORMAT "x(128)" SKIP.*/
     END.
 
     /* spec note */
