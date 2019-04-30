@@ -1,0 +1,20 @@
+  FIELD createDT LIKE validationTest.createDT VALIDATE ~
+  FIELD createUser LIKE validationTest.createUser VALIDATE ~
+  FIELD defaultResult LIKE validationTest.defaultResult VALIDATE ~
+  FIELD defaultResultDesc LIKE validationTest.defaultResultDesc VALIDATE ~
+  FIELD failResult LIKE validationTest.failResult VALIDATE ~
+  FIELD failResultDesc LIKE validationTest.failResultDesc VALIDATE ~
+  FIELD passResult LIKE validationTest.passResult VALIDATE ~
+  FIELD passResultDesc LIKE validationTest.passResultDesc VALIDATE ~
+  FIELD rec_key LIKE validationTest.rec_key VALIDATE ~
+  FIELD resultType LIKE validationTest.resultType VALIDATE ~
+  FIELD returnValue LIKE validationTest.returnValue VALIDATE ~
+  FIELD testDesc LIKE validationTest.testDesc VALIDATE ~
+  FIELD testField LIKE validationTest.testField VALIDATE ~
+  FIELD testName LIKE validationTest.testName VALIDATE ~
+  FIELD testProcedure LIKE validationTest.testProcedure VALIDATE ~
+  FIELD testRequired LIKE validationTest.testRequired VALIDATE ~
+  FIELD testTable LIKE validationTest.testTable VALIDATE ~
+  FIELD testType LIKE validationTest.testType VALIDATE ~
+  FIELD updateDT LIKE validationTest.updateDT VALIDATE ~
+  FIELD updateUser LIKE validationTest.updateUser VALIDATE 

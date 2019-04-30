@@ -60,6 +60,30 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME oe-ctrl
+&Scoped-define BROWSE-NAME BROWSE-2
+
+/* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES test
+
+/* Definitions for BROWSE BROWSE-2                                      */
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 test.testName test.testRequired ~
+test.defaultResult test.testDesc 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 test.testRequired 
+&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 test
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 test
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH test ~
+      WHERE test.testType = "Validate" ~
+ AND test.testTable = "oe-ord" NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY BROWSE-2 FOR EACH test ~
+      WHERE test.testType = "Validate" ~
+ AND test.testTable = "oe-ord" NO-LOCK INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-BROWSE-2 test
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 test
+
+
+/* Definitions for FRAME oe-ctrl                                        */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-oe-ctrl ~
+    ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close RECT-15 RECT-17 ~
@@ -77,6 +101,7 @@ oe-ctrl.p-pick oe-ctrl.p-sep
 &Scoped-define List-1 tgCreateSSBol n-ord oe-ctrl.n-bol oe-ctrl.prep-comm ~
 oe-ctrl.prep-chrg oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep ~
 fNextRFIDNum 
+&Scoped-define List-2 BROWSE-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -114,26 +139,49 @@ DEFINE RECTANGLE RECT-15
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 2.91.
+     SIZE 42 BY 2.62.
 
 DEFINE RECTANGLE RECT-18
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 5.24.
+     SIZE 47 BY 5.24.
 
 DEFINE RECTANGLE RECT-19
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 2.14.
+     SIZE 42 BY 1.91.
 
 DEFINE VARIABLE tgCreateSSBol AS LOGICAL INITIAL no 
      LABEL "Allow Creating of BOL in Sharp Shooter" 
      VIEW-AS TOGGLE-BOX
-     SIZE 45 BY .81 NO-UNDO.
+     SIZE 42 BY .81 NO-UNDO.
+
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY BROWSE-2 FOR 
+      test SCROLLING.
+&ANALYZE-RESUME
+
+/* Browse definitions                                                   */
+DEFINE BROWSE BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 C-Win _STRUCTURED
+  QUERY BROWSE-2 NO-LOCK DISPLAY
+      test.testName COLUMN-LABEL "Criteria" FORMAT "x(24)":U WIDTH 19.2
+      test.testRequired FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
+      test.defaultResult COLUMN-LABEL "Default" FORMAT "x(16)":U
+            WIDTH 11.8
+      test.testDesc COLUMN-LABEL "Description" FORMAT "x(60)":U
+            WIDTH 42.4
+  ENABLE
+      test.testRequired
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 89 BY 7.38 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME oe-ctrl
-     tgCreateSSBol AT ROW 11 COL 20 WIDGET-ID 8
+     BROWSE-2 AT ROW 13.38 COL 4
+     tgCreateSSBol AT ROW 10.81 COL 6 WIDGET-ID 8
      ar-ctrl.last-inv AT ROW 1.24 COL 35 COLON-ALIGNED
           LABEL "Last Invoice Number"
           VIEW-AS FILL-IN 
@@ -148,48 +196,51 @@ DEFINE FRAME oe-ctrl
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.prep-comm AT ROW 18 COL 19.8
+     oe-ctrl.prep-comm AT ROW 7.62 COL 52.8
           LABEL "Pay Commissions on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 39 BY .81
-     oe-ctrl.prep-chrg AT ROW 19 COL 19.8
+     oe-ctrl.prep-chrg AT ROW 8.62 COL 52.8
           LABEL "Charge Tax on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.p-fact AT ROW 8 COL 20
+     oe-ctrl.p-fact AT ROW 7.81 COL 6
           LABEL "Allow Factory Ticket Printing"
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
-     oe-ctrl.p-bol AT ROW 9 COL 20
+     oe-ctrl.p-bol AT ROW 8.81 COL 6
           LABEL "Allow Bill of Lading Printing"
           VIEW-AS TOGGLE-BOX
           SIZE 35 BY .81
-     oe-ctrl.p-pick AT ROW 10 COL 20
+     oe-ctrl.p-pick AT ROW 9.81 COL 6
           LABEL "Allow Releases and Release Ticket Printing"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.p-sep AT ROW 14.48 COL 20.2
+     oe-ctrl.p-sep AT ROW 10.76 COL 53
           LABEL "Print Seperate Invoice per Release"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     Btn_Update AT ROW 21.62 COL 49.8 HELP
+     Btn_Update AT ROW 21.52 COL 61 HELP
           "Update/Save System Configurations"
-     Btn_Close AT ROW 21.62 COL 65.8 HELP
+     Btn_Close AT ROW 21.52 COL 77 HELP
           "Cancel Update or Close Window"
      fNextRFIDNum AT ROW 4.76 COL 35 COLON-ALIGNED WIDGET-ID 6
      "Company Control" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 16.86 COL 19.8
+          SIZE 22.2 BY .62 AT ROW 6.48 COL 52.8
           FGCOLOR 9 FONT 6
      "Order Credit or Price Hold Control" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 6.67 COL 18
+          SIZE 39 BY .62 AT ROW 6.48 COL 4
           FGCOLOR 9 FONT 6
      "Print Operations" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 13.24 COL 18.2
+          SIZE 19 BY .62 AT ROW 9.81 COL 51.2
           FGCOLOR 9 FONT 6
-     RECT-15 AT ROW 21.33 COL 48.8
-     RECT-17 AT ROW 17.57 COL 18
-     RECT-18 AT ROW 7.38 COL 18
-     RECT-19 AT ROW 13.95 COL 18
+     "Order Status Tests" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 12.67 COL 4
+          FGCOLOR 9 FONT 6
+     RECT-15 AT ROW 21.24 COL 60
+     RECT-17 AT ROW 7.19 COL 51
+     RECT-18 AT ROW 7.19 COL 4
+     RECT-19 AT ROW 10.52 COL 51
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -213,7 +264,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Order Processing Control"
-         HEIGHT             = 23.38
+         HEIGHT             = 22.48
          WIDTH              = 94.8
          MAX-HEIGHT         = 23.38
          MAX-WIDTH          = 120.8
@@ -247,6 +298,9 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME oe-ctrl
    FRAME-NAME Custom                                                    */
+/* BROWSE-TAB BROWSE-2 1 oe-ctrl */
+/* SETTINGS FOR BROWSE BROWSE-2 IN FRAME oe-ctrl
+   NO-ENABLE 2                                                          */
 ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME oe-ctrl     = 
                 "ribbon-button".
@@ -285,6 +339,24 @@ THEN C-Win:HIDDEN = no.
 
 
 /* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
+/* Query rebuild information for BROWSE BROWSE-2
+     _TblList          = "asi.test"
+     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _Where[1]         = "asi.test.testType = ""Validate""
+ AND asi.test.testTable = ""oe-ord"""
+     _FldNameList[1]   > asi.test.testName
+"test.testName" "Criteria" ? "character" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > asi.test.testRequired
+"test.testRequired" ? ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[3]   > asi.test.defaultResult
+"test.defaultResult" "Default" ? "character" ? ? ? ? ? ? no ? no no "11.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > asi.test.testDesc
+"test.testDesc" "Description" ? "character" ? ? ? ? ? ? no ? no no "42.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Query            is OPENED
+*/  /* BROWSE BROWSE-2 */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME oe-ctrl
 /* Query rebuild information for FRAME oe-ctrl
@@ -359,7 +431,7 @@ DO:
   IF {&SELF-NAME}:LABEL = "&Update" THEN
   DO WITH FRAME {&FRAME-NAME}:
     tgCreateSSBol:SCREEN-VALUE = (IF oe-ctrl.spare-int-1 EQ 1 THEN "YES" ELSE "NO").
-    ENABLE {&LIST-1}.
+    ENABLE {&LIST-1} {&list-2}.
     RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "order_seq", OUTPUT giCurrOrd) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
       MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
@@ -440,6 +512,7 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME BROWSE-2
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
