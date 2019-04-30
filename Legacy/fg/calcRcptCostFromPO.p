@@ -65,6 +65,7 @@ ASSIGN
 
 
  g_company = cocode.
+ RUN spSetCompany (g_company).
  lv-setup-included = NO.
  lv-ord-qty = b-po-ordl.ord-qty.
  lv-ord-uom = b-po-ordl.pr-qty-uom.
