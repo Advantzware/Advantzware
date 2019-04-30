@@ -128,7 +128,7 @@ for each report where report.term-id eq v-term-id NO-LOCK,
            fg-rctd.job-no2 EQ oe-ordl.job-no2
            NO-LOCK
            USE-INDEX i-no
-           BY fg-rctd.rct-date:
+           BY fg-rctd.rct-date DESC:
       
            v-manuf-date = fg-rctd.rct-date.
            LEAVE.
@@ -142,7 +142,7 @@ for each report where report.term-id eq v-term-id NO-LOCK,
               fg-rctd.rita-code EQ "R"
               NO-LOCK
               USE-INDEX i-no
-              BY fg-rctd.rct-date:
+              BY fg-rctd.rct-date DESC:
       
               v-manuf-date = fg-rctd.rct-date.
               LEAVE.
