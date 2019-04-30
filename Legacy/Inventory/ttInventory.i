@@ -81,9 +81,13 @@ DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
     FIELD stockIDAlias           AS CHARACTER
     FIELD itemID                 AS CHARACTER
     FIELD quantity               AS DECIMAL
+    FIELD origQuantity           AS DECIMAL
     FIELD locationID             AS CHARACTER
     FIELD warehouseID            AS CHARACTER
     FIELD location               AS CHARACTER
+    FIELD origLocationID         AS CHARACTER
+    FIELD origWarehouseID        AS CHARACTER
+    FIELD origLocation           AS CHARACTER
     FIELD inventoryStatus        AS CHARACTER
     FIELD itemType               AS CHARACTER
     FIELD customerID             AS CHARACTER
@@ -114,6 +118,7 @@ DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER INITIAL "On-Hand".
 DEFINE VARIABLE gcStatusStockConsumed      AS CHARACTER INITIAL "Consumed".
 
 DEFINE VARIABLE gcStatusSnapshotNotScanned      AS CHARACTER INITIAL "Not Scanned".
+DEFINE VARIABLE gcStatusSnapshotNotScannedConf  AS CHARACTER INITIAL "Not Scanned - Confirmed".
 DEFINE VARIABLE gcStatusSnapshotCompleteMatch   AS CHARACTER INITIAL "Complete Match".
 DEFINE VARIABLE gcStatusSnapshotLocChange       AS CHARACTER INITIAL "Location Change".
 DEFINE VARIABLE gcStatusSnapshotQtyChange       AS CHARACTER INITIAL "Quantity Change".

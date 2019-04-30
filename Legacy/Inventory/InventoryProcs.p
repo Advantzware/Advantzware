@@ -79,12 +79,21 @@ PROCEDURE CheckInventoryStockIDAlias:
             opcInventoryStockID = inventoryStockAlias.inventoryStockID
             opcStockIDAlias     = inventoryStockAlias.stockIDAlias
             . 
-    ELSE 
-        ASSIGN
-            opcInventoryStockID = ipcLookupID
-            opcStockIDAlias     = ""
-            . 
-    
+    ELSE DO:
+        FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company     EQ ipcCompany
+               AND loadtag.tag-no      EQ ipcLookupID NO-ERROR.
+        IF AVAILABLE loadtag THEN
+            ASSIGN
+                opcInventoryStockID = ""
+                opcStockIDAlias     = ipcLookupID
+                .
+        ELSE       
+            ASSIGN
+                opcInventoryStockID = ipcLookupID
+                opcStockIDAlias     = ""
+                . 
+    END.
 
 END PROCEDURE.
 
@@ -378,6 +387,24 @@ PROCEDURE DeleteInventoryStock:
     END. /* do trans */
 
 END PROCEDURE.
+
+PROCEDURE DeleteInventoryTransaction:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiTransactionID AS INTEGER NO-UNDO.
+    
+    DO TRANSACTION:
+        FIND FIRST inventoryTransaction EXCLUSIVE-LOCK
+             WHERE inventoryTransaction.inventoryTransactionID EQ ipiTransactionID
+             NO-ERROR.
+        IF AVAILABLE inventoryTransaction THEN
+            DELETE inventoryTransaction.
+    END. /* do trans */
+
+END PROCEDURE.
+
 
 PROCEDURE PostReceivedInventory:
     /*------------------------------------------------------------------------------
@@ -1340,7 +1367,7 @@ FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER
     DEFINE VARIABLE lLocationChanged            AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lQuantityChanged            AS LOGICAL   NO-UNDO.
     
-    opcStatus = "Tag Not Found".
+    opcStatus = gcStatusSnapshotTagNotFound.
 
     FIND FIRST inventoryStockSnapshot NO-LOCK
          WHERE inventoryStockSnapshot.company      EQ ipcCompany
@@ -1350,21 +1377,28 @@ FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER
         IF ipdQuantity NE inventoryStockSnapshot.quantity THEN
             ASSIGN
                 lQuantityChanged = TRUE
-                opcStatus        = "Quantity Change".
+                opcStatus        = gcStatusSnapshotQtyChange.
         
         IF ipcWarehouseID NE inventoryStockSnapshot.warehouseID OR
            ipcLocationID  NE inventoryStockSnapshot.locationID THEN
             ASSIGN
                 lLocationChanged = TRUE
-                opcStatus        = "Location Change".
+                opcStatus        = gcStatusSnapshotLocChange.
            
         IF lLocationChanged AND lQuantityChanged THEN
-            opcStatus = "Quantity and Location Change".
+            opcStatus = gcStatusSnapshotQtyAndLocChange.
             
         IF NOT lLocationChanged AND NOT lQuantityChanged THEN
-            opcStatus = "Complete Match".    
+            opcStatus = gcStatusSnapshotCompleteMatch.    
     END.
     
+    FIND FIRST inventoryTransaction NO-LOCK
+         WHERE inventoryTransaction.company         EQ ipcCompany
+           AND inventoryTransaction.stockIDAlias    EQ ipcStockIDAlias
+           AND inventoryTransaction.transactionType EQ gcTransactionTypeCompare NO-ERROR.
+    IF AVAILABLE inventoryTransaction and inventoryTransaction.quantityChange EQ 0 THEN 
+        opcStatus = gcStatusSnapshotNotScannedConf.
+        
     RETURN opcStatus.
 
 END FUNCTION.
