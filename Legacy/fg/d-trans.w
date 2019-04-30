@@ -553,7 +553,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         RUN valid-tag NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+        
+        fg-rctd.tag2:SCREEN-VALUE = fg-rctd.tag:SCREEN-VALUE.
         RUN valid-tag2 (OUTPUT lValidateResult) NO-ERROR.
         IF NOT lValidateResult THEN 
             RETURN NO-APPLY.
