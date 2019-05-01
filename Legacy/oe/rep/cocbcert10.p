@@ -120,33 +120,28 @@ for each report where report.term-id eq v-term-id NO-LOCK,
     if trim(v-ship-addr3) eq "," then v-ship-addr3 = "".
       
        {oe\rep\cocbcert10.i}
+        
+        FOR EACH fg-rcpth FIELDS(r-no rita-code post-date) NO-LOCK
+              WHERE fg-rcpth.company  EQ cocode AND
+                   fg-rcpth.job-no    EQ oe-ordl.job-no AND
+                   fg-rcpth.job-no2   EQ oe-ordl.job-no2 AND
+                   fg-rcpth.i-no      EQ oe-ordl.i-no AND
+                   fg-rcpth.rita-code EQ "R" BY fg-rcpth.post-date DESC :
 
-       FOR EACH fg-rctd FIELDS(rct-date) WHERE
-           fg-rctd.company EQ cocode AND
-           fg-rctd.i-no EQ oe-ordl.i-no AND
-           fg-rctd.job-no EQ oe-ordl.job-no AND
-           fg-rctd.job-no2 EQ oe-ordl.job-no2
-           NO-LOCK
-           USE-INDEX i-no
-           BY fg-rctd.rct-date DESC:
-      
-           v-manuf-date = fg-rctd.rct-date.
-           LEAVE.
-       END.
-      
-       IF v-manuf-date EQ 12/31/2999 THEN
-          FOR EACH fg-rctd WHERE
-              fg-rctd.company EQ cocode AND
-              fg-rctd.i-no EQ oe-ordl.i-no AND
-              fg-rctd.po-no EQ STRING(oe-ordl.po-no-po) AND
-              fg-rctd.rita-code EQ "R"
-              NO-LOCK
-              USE-INDEX i-no
-              BY fg-rctd.rct-date DESC:
-      
-              v-manuf-date = fg-rctd.rct-date.
-              LEAVE.
-          END.
+                   v-manuf-date = fg-rcpth.post-date .
+                   LEAVE.
+        END.
+
+        IF oe-ordl.po-no-po NE 0 AND v-manuf-date EQ 12/31/2999 THEN
+        FOR EACH fg-rcpth FIELDS(r-no rita-code post-date) NO-LOCK
+              WHERE fg-rcpth.company   EQ cocode AND
+                   fg-rcpth.po-no     EQ string(oe-ordl.po-no-po) AND
+                   fg-rcpth.i-no      EQ oe-ordl.i-no AND
+                   fg-rcpth.rita-code EQ "R" BY fg-rcpth.post-date DESC :
+          
+                   v-manuf-date = fg-rcpth.post-date .
+                   LEAVE.
+        END.
          
        IF AVAIL oe-ordl THEN
        DO:
@@ -297,32 +292,36 @@ ELSE DO:
       
        {oe\rep\cocbcert10.i}
 
-       FOR EACH fg-rctd FIELDS(rct-date) WHERE
-           fg-rctd.company EQ cocode AND
-           fg-rctd.i-no EQ oe-ordl.i-no AND
-           fg-rctd.job-no EQ oe-ordl.job-no AND
-           fg-rctd.job-no2 EQ oe-ordl.job-no2
-           NO-LOCK
-           USE-INDEX i-no
-           BY fg-rctd.rct-date:
-      
-           v-manuf-date = fg-rctd.rct-date.
-           LEAVE.
-       END.
-      
-       IF v-manuf-date EQ 12/31/2999 THEN
-          FOR EACH fg-rctd WHERE
-              fg-rctd.company EQ cocode AND
-              fg-rctd.i-no EQ oe-ordl.i-no AND
-              fg-rctd.po-no EQ STRING(oe-ordl.po-no-po) AND
-              fg-rctd.rita-code EQ "R"
-              NO-LOCK
-              USE-INDEX i-no
-              BY fg-rctd.rct-date:
-      
-              v-manuf-date = fg-rctd.rct-date.
-              LEAVE.
-          END.
+       
+        FOR EACH fg-rcpth FIELDS(r-no rita-code post-date) NO-LOCK
+              WHERE fg-rcpth.company  EQ cocode AND
+                   fg-rcpth.job-no    EQ oe-ordl.job-no AND
+                   fg-rcpth.job-no2   EQ oe-ordl.job-no2 AND
+                   fg-rcpth.i-no      EQ oe-ordl.i-no AND
+                   fg-rcpth.rita-code EQ "R"  ,
+              EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
+                          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code 
+                          AND fg-rdtlh.tag EQ oe-boll.tag NO-LOCK
+               BY fg-rcpth.post-date DESC :
+          
+                   v-manuf-date = fg-rcpth.post-date .
+                   LEAVE.
+        END.
+
+        IF oe-ordl.po-no-po NE 0 AND v-manuf-date EQ 12/31/2999 THEN
+        FOR EACH fg-rcpth FIELDS(r-no rita-code post-date) NO-LOCK
+              WHERE fg-rcpth.company   EQ cocode AND
+                   fg-rcpth.po-no     EQ string(oe-ordl.po-no-po) AND
+                   fg-rcpth.i-no      EQ oe-ordl.i-no AND
+                   fg-rcpth.rita-code EQ "R" ,
+               EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
+                          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code 
+                          AND fg-rdtlh.tag EQ oe-boll.tag NO-LOCK
+               BY fg-rcpth.post-date DESC :
+          
+                   v-manuf-date = fg-rcpth.post-date .
+                   LEAVE.
+        END.
          
        IF AVAIL oe-ordl THEN
        DO:
