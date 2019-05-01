@@ -1729,7 +1729,7 @@ PROCEDURE local-assign-record :
      eb.cas-pal = eb.stacks * eb.tr-cas
      eb.tr-cnt  = eb.cas-cnt * eb.cas-pal.
    
-     {cec/UpdFgEc.i}
+     RUN cec/UpdFgEc.p(INPUT eb.company, INPUT ROWID(eb)) .
 
     DISPLAY eb.cas-pal eb.tr-cnt WITH FRAME {&FRAME-NAME}.
   END.
