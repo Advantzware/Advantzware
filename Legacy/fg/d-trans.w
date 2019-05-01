@@ -1534,6 +1534,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag2 Dialog-Frame 
 PROCEDURE valid-tag2 :
 /*------------------------------------------------------------------------------
