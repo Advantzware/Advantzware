@@ -1259,7 +1259,7 @@ FUNCTION fGetNextSnapshotID RETURNS INTEGER PRIVATE
      Notes:
     ------------------------------------------------------------------------------*/	
     
-    giIDTemp = NEXT-VALUE(snapshotid_seq).
+    giIDTemp = giIDTemp + 1. //NEXT-VALUE(snapshotid_seq).
     RETURN giIDTemp.
 		
 END FUNCTION.
