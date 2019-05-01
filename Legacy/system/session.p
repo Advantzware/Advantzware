@@ -200,25 +200,6 @@ FIND FIRST users NO-LOCK
 
 /* **********************  Internal Procedures  *********************** */
 
-&IF DEFINED(EXCLUDE-pSetCompany) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompany Procedure
-PROCEDURE pSetCompany:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    
-    cCompany = ipcCompany.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
@@ -452,8 +433,6 @@ PROCEDURE spDynAuditField:
     DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lResults   AS LOGICAL   NO-UNDO.
     
-    DEFINE BUFFER bDynParamValue FOR dynParamValue.
-
     FIND FIRST AuditHdr NO-LOCK
          WHERE AuditHdr.AuditDB    EQ ipcFrameDB
            AND AuditHdr.AuditTable EQ ipcFrameFile
@@ -480,36 +459,13 @@ PROCEDURE spDynAuditField:
                 iSubjectID = INTEGER(cSubjectID).
                 IF iSubjectID NE 0 AND
                    CAN-FIND(FIRST dynSubject
-                            WHERE dynSubject.subjectID EQ iSubjectID) THEN
-                DO TRANSACTION:
-                    FIND FIRST dynParamValue EXCLUSIVE-LOCK
-                         WHERE dynParamValue.subjectID    EQ iSubjectID
-                           AND dynParamValue.user-id      EQ USERID("ASI")
-                           AND dynParamValue.paramValueID EQ 0
-                         NO-ERROR.
-                    IF NOT AVAILABLE dynParamValue THEN DO:
-                        FIND FIRST bDynParamValue EXCLUSIVE-LOCK
-                             WHERE bDynParamValue.subjectID    EQ iSubjectID
-                               AND bDynParamValue.user-id      EQ "_default"
-                               AND bDynParamValue.paramValueID EQ 0
-                             NO-ERROR.
-                        IF AVAILABLE bDynParamValue THEN DO:
-                            CREATE dynParamValue.
-                            BUFFER-COPY bDynParamValue TO dynParamValue
-                                ASSIGN
-                                    dynParamValue.user-id          = USERID("ASI")
-                                    dynParamValue.paramDescription = "User Default"
-                                    dynParamValue.outputFormat     = "Grid"
-                                    .
-                        END. /* if avail */
-                        ELSE
-                        opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
-                    END. /* if not avail */
+                            WHERE dynSubject.subjectID EQ iSubjectID) THEN DO:
+                    RUN spGetDynParamValue (iSubjectID, OUTPUT oprRowID, OUTPUT opcErrorMsg).
                     IF AVAILABLE dynParamValue THEN DO:
-                        IF lResults THEN DO:
+                        IF lResults THEN DO TRANSACTION:
+                            FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
                             ASSIGN
                                 oplRunAudit  = YES
-                                oprRowID     = ROWID(dynParamValue)
                                 cLookupTitle = "Audit Field History for Database: " + ipcFrameDB
                                              + " - Table: " + ipcFrameFile
                                              + " - Field: " + ipcFrameField
@@ -531,7 +487,7 @@ PROCEDURE spDynAuditField:
                     END. /* if avail */
                     ELSE
                     opcErrorMsg = "User Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
-                END. /* do trans */
+                END. /* if can-find */
                 ELSE
                 opcErrorMsg = "Invalid Dynamic Subject ~""
                             + STRING(iSubjectID)
@@ -573,6 +529,54 @@ PROCEDURE spGetCompany:
     DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
     
     opcCompany = cCompany.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spGetDynParamValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetDynParamValue Procedure
+PROCEDURE spGetDynParamValue:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiSubjectID AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oprRowID     AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcErrorMsg  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bDynParamValue FOR dynParamValue.
+    
+    FIND FIRST dynParamValue NO-LOCK
+         WHERE dynParamValue.subjectID    EQ ipiSubjectID
+           AND dynParamValue.user-id      EQ USERID("ASI")
+           AND dynParamValue.paramValueID EQ 0
+         NO-ERROR.
+    IF NOT AVAILABLE dynParamValue THEN DO:
+        FIND FIRST bDynParamValue EXCLUSIVE-LOCK
+             WHERE bDynParamValue.subjectID    EQ ipiSubjectID
+               AND bDynParamValue.user-id      EQ "_default"
+               AND bDynParamValue.paramValueID EQ 0
+             NO-ERROR.
+        IF AVAILABLE bDynParamValue THEN DO TRANSACTION:
+            CREATE dynParamValue.
+            BUFFER-COPY bDynParamValue TO dynParamValue
+                ASSIGN
+                    dynParamValue.user-id          = USERID("ASI")
+                    dynParamValue.paramDescription = "User Default"
+                    dynParamValue.outputFormat     = "Grid"
+                    oprRowID                       = ROWID(dynParamValue)
+                    .
+        END. /* if avail */
+        ELSE
+        opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
+    END. /* if not avail */
+    ELSE
+    oprRowID = ROWID(dynParamValue).
 
 END PROCEDURE.
 	
@@ -745,6 +749,25 @@ PROCEDURE spSetDontShowAgain:
 
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pSetCompany) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompany Procedure
+PROCEDURE spSetCompany:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    cCompany = ipcCompany.
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
