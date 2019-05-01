@@ -119,158 +119,159 @@ fg-rctd.updated-by
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCalendar-1 
-    IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
-    LABEL "" 
-    SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "Cancel" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Cancel" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
-    LABEL "&Done" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Done" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "&Save" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Save" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE VARIABLE fi_tr-time AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Tr Time" 
-    VIEW-AS FILL-IN 
-    SIZE 17.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     LABEL "Tr Time" 
+     VIEW-AS FILL-IN 
+     SIZE 17.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 19 BY 2.38
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 19 BY 2.38
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 133.8 BY 11.71
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 133.8 BY 11.71
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Dialog-Frame FOR 
-    fg-rctd SCROLLING.
+      fg-rctd SCROLLING.
 &ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    fg-rctd.r-no AT ROW 1.24 COL 29.8 COLON-ALIGNED
-    LABEL "Seq#" FORMAT ">>>>>>>9"
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.rct-date AT ROW 2.43 COL 29.8 COLON-ALIGNED
-    LABEL "Transfer Date" FORMAT "99/99/9999"
-    VIEW-AS FILL-IN 
-    SIZE 17.2 BY 1
-    BGCOLOR 15 FONT 1
-    btnCalendar-1 AT ROW 2.43 COL 49
-    fi_tr-time AT ROW 3.62 COL 29.8 COLON-ALIGNED
-    fg-rctd.i-no AT ROW 4.76 COL 29.8 COLON-ALIGNED
-    LABEL "Item No" FORMAT "x(15)"
-    VIEW-AS FILL-IN 
-    SIZE 31.2 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.i-name AT ROW 5.91 COL 29.8 COLON-ALIGNED
-    LABEL "Name/Desc" FORMAT "x(30)"
-    VIEW-AS FILL-IN 
-    SIZE 31.2 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.job-no AT ROW 7.19 COL 29.8 COLON-ALIGNED
-    LABEL "Job#" FORMAT "x(6)"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
+     fg-rctd.r-no AT ROW 1.24 COL 29.8 COLON-ALIGNED
+          LABEL "Seq#" FORMAT ">>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.rct-date AT ROW 2.43 COL 29.8 COLON-ALIGNED
+          LABEL "Transfer Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 17.2 BY 1
+          BGCOLOR 15 FONT 1
+     btnCalendar-1 AT ROW 2.43 COL 49
+     fi_tr-time AT ROW 3.62 COL 29.8 COLON-ALIGNED
+     fg-rctd.i-no AT ROW 4.76 COL 29.8 COLON-ALIGNED
+          LABEL "Item No" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 31.2 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.i-name AT ROW 5.91 COL 29.8 COLON-ALIGNED
+          LABEL "Name/Desc" FORMAT "x(30)"
+          VIEW-AS FILL-IN 
+          SIZE 31.2 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.job-no AT ROW 7.19 COL 29.8 COLON-ALIGNED
+          LABEL "Job#" FORMAT "x(6)"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
     fg-rctd.job-no2 AT ROW 7.19 COL 49.2 COLON-ALIGNED NO-LABELS FORMAT "99"
-    VIEW-AS FILL-IN 
-    SIZE 4.8 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.loc AT ROW 8.48 COL 29.8 COLON-ALIGNED
-    LABEL "From Whs" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 19 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.loc-bin AT ROW 9.76 COL 29.8 COLON-ALIGNED
-    LABEL "From Bin" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 18.6 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.created-by AT ROW 11.1 COL 29.8 COLON-ALIGNED
-    LABEL "Created By" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 18.6 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.tag AT ROW 1.24 COL 85.4 COLON-ALIGNED FORMAT "x(20)"
-    VIEW-AS FILL-IN 
-    SIZE 28.6 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.cust-no AT ROW 2.43 COL 85.4 COLON-ALIGNED
-    LABEL "Customer#" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.cases AT ROW 3.62 COL 85.4 COLON-ALIGNED
-    LABEL "Units" FORMAT ">>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.qty-case AT ROW 4.76 COL 85.4 COLON-ALIGNED
-    LABEL "Qty/Unit" FORMAT ">>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.partial AT ROW 5.91 COL 85.4 COLON-ALIGNED
-    LABEL "Partial" FORMAT ">>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.loc2 AT ROW 7.19 COL 85.4 COLON-ALIGNED
-    LABEL "To Whse" FORMAT "x(5)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.loc-bin2 AT ROW 8.48 COL 85.4 COLON-ALIGNED
-    LABEL "To Bin" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.tag2 AT ROW 9.76 COL 85.4 COLON-ALIGNED
-    LABEL "To Tag" FORMAT "x(20)"
-    VIEW-AS FILL-IN 
-    SIZE 28.6 BY 1
-    BGCOLOR 15 FONT 1
-    fg-rctd.updated-by AT ROW 11.1 COL 85.4 COLON-ALIGNED
-    LABEL "Last Updated By" FORMAT "x(8)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
+          VIEW-AS FILL-IN 
+          SIZE 4.8 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.loc AT ROW 8.48 COL 29.8 COLON-ALIGNED
+          LABEL "From Whs" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.loc-bin AT ROW 9.76 COL 29.8 COLON-ALIGNED
+          LABEL "From Bin" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 18.6 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.created-by AT ROW 11.1 COL 29.8 COLON-ALIGNED
+          LABEL "Created By" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 18.6 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.tag AT ROW 1.24 COL 85.4 COLON-ALIGNED
+          LABEL "From Tag" FORMAT "x(20)"
+          VIEW-AS FILL-IN 
+          SIZE 28.6 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.cust-no AT ROW 2.43 COL 85.4 COLON-ALIGNED
+          LABEL "Customer#" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.cases AT ROW 3.62 COL 85.4 COLON-ALIGNED
+          LABEL "Units" FORMAT ">>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.qty-case AT ROW 4.76 COL 85.4 COLON-ALIGNED
+          LABEL "Qty/Unit" FORMAT ">>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.partial AT ROW 5.91 COL 85.4 COLON-ALIGNED
+          LABEL "Partial" FORMAT ">>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.loc2 AT ROW 7.19 COL 85.4 COLON-ALIGNED
+          LABEL "To Whse" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.loc-bin2 AT ROW 8.48 COL 85.4 COLON-ALIGNED
+          LABEL "To Bin" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.tag2 AT ROW 9.76 COL 85.4 COLON-ALIGNED
+          LABEL "To Tag" FORMAT "x(20)"
+          VIEW-AS FILL-IN 
+          SIZE 28.6 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.updated-by AT ROW 11.1 COL 85.4 COLON-ALIGNED
+          LABEL "Last Updated By" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-    Btn_OK AT ROW 13.24 COL 116
-    Btn_Done AT ROW 13.52 COL 117
-    Btn_Cancel AT ROW 13.24 COL 125
-    RECT-21 AT ROW 13 COL 115
-    RECT-38 AT ROW 1 COL 1
+     Btn_OK AT ROW 13.24 COL 116
+     Btn_Done AT ROW 13.52 COL 117
+     Btn_Cancel AT ROW 13.24 COL 125
+     RECT-21 AT ROW 13 COL 115
+     RECT-38 AT ROW 1 COL 1
     SPACE(0.99) SKIP(3.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "Finished Goods Warehouse Transaction Transfer Update".
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "Finished Goods Warehouse Transaction Transfer Update".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -300,8 +301,8 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME Dialog-Frame:SCROLLABLE = FALSE
-    FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME Dialog-Frame
    3                                                                    */
@@ -338,7 +339,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fg-rctd.rct-date IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.tag IN FRAME Dialog-Frame
-   EXP-FORMAT                                                           */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.tag2 IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fg-rctd.updated-by IN FRAME Dialog-Frame
@@ -367,7 +368,7 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction Transfers Update */
-    DO:
+DO:
         DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
 
         IF NOT AVAILABLE fg-rctd THEN FIND fg-rctd WHERE RECID(fg-rctd) = lv-recid NO-LOCK NO-ERROR. 
@@ -451,7 +452,7 @@ ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction Transfers Update */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON RETURN OF FRAME Dialog-Frame /* Warehouse Transaction Transfers Update */
-    ANYWHERE
+ANYWHERE
     DO:
         APPLY "tab" TO SELF.
         RETURN NO-APPLY.
@@ -463,7 +464,7 @@ ON RETURN OF FRAME Dialog-Frame /* Warehouse Transaction Transfers Update */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Warehouse Transaction Transfers Update */
-    DO:
+DO:
         DISABLE TRIGGERS FOR LOAD OF fg-rctd .
     
         IF AVAILABLE fg-rctd THEN
@@ -488,7 +489,7 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Warehouse Transaction Transfers Update 
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-    DO:
+DO:
         DISABLE TRIGGERS FOR LOAD OF fg-rctd .
     
         IF AVAILABLE fg-rctd THEN
@@ -511,7 +512,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 &Scoped-define SELF-NAME Btn_Done
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Done Dialog-Frame
 ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
-    DO:
+DO:
         IF AVAILABLE fg-rctd THEN
             ASSIGN op-rowid = ROWID(fg-rctd) .
   &IF DEFINED (adm-panel) NE 0 &THEN
@@ -528,7 +529,7 @@ ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
-    DO:
+DO:
         DEFINE VARIABLE lv-tag2 LIKE fg-rctd.tag2 NO-UNDO.
         DEFINE VARIABLE ld      AS DECIMAL NO-UNDO.
         DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
@@ -635,7 +636,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 &Scoped-define SELF-NAME fg-rctd.cases
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cases Dialog-Frame
 ON LEAVE OF fg-rctd.cases IN FRAME Dialog-Frame /* Units */
-    DO:
+DO:
         DEFINE BUFFER b-loadtag FOR loadtag.
 
         IF LASTKEY NE -1 THEN 
@@ -670,7 +671,7 @@ ON LEAVE OF fg-rctd.cases IN FRAME Dialog-Frame /* Units */
 &Scoped-define SELF-NAME fg-rctd.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cust-no Dialog-Frame
 ON LEAVE OF fg-rctd.cust-no IN FRAME Dialog-Frame /* Customer# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-job-loc-bin-tag NO-ERROR.
@@ -685,7 +686,7 @@ ON LEAVE OF fg-rctd.cust-no IN FRAME Dialog-Frame /* Customer# */
 &Scoped-define SELF-NAME fg-rctd.i-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-name Dialog-Frame
 ON ENTRY OF fg-rctd.i-name IN FRAME Dialog-Frame /* Name/Desc */
-    DO:
+DO:
         APPLY "tab" TO {&self-name} .
         RETURN NO-APPLY.
     END.
@@ -697,7 +698,7 @@ ON ENTRY OF fg-rctd.i-name IN FRAME Dialog-Frame /* Name/Desc */
 &Scoped-define SELF-NAME fg-rctd.i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
 ON LEAVE OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:      
             lv-new-tag-number-chosen = ?.
@@ -713,7 +714,7 @@ ON LEAVE OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
 ON VALUE-CHANGED OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
-    DO:
+DO:
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ cocode
             AND itemfg.i-no    BEGINS {&self-name}:SCREEN-VALUE 
@@ -729,7 +730,7 @@ ON VALUE-CHANGED OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
 &Scoped-define SELF-NAME fg-rctd.job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no Dialog-Frame
 ON LEAVE OF fg-rctd.job-no IN FRAME Dialog-Frame /* Job# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-job-loc-bin-tag NO-ERROR.
@@ -744,7 +745,7 @@ ON LEAVE OF fg-rctd.job-no IN FRAME Dialog-Frame /* Job# */
 &Scoped-define SELF-NAME fg-rctd.job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Dialog-Frame
 ON LEAVE OF fg-rctd.job-no2 IN FRAME Dialog-Frame
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-job-loc-bin-tag NO-ERROR.
@@ -759,7 +760,7 @@ ON LEAVE OF fg-rctd.job-no2 IN FRAME Dialog-Frame
 &Scoped-define SELF-NAME fg-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Dialog-Frame
 ON LEAVE OF fg-rctd.loc IN FRAME Dialog-Frame /* From!Whs */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-job-loc-bin-tag NO-ERROR.
@@ -774,7 +775,7 @@ ON LEAVE OF fg-rctd.loc IN FRAME Dialog-Frame /* From!Whs */
 &Scoped-define SELF-NAME fg-rctd.loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc-bin Dialog-Frame
 ON LEAVE OF fg-rctd.loc-bin IN FRAME Dialog-Frame /* From!Bin */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-job-loc-bin-tag NO-ERROR.
@@ -789,7 +790,7 @@ ON LEAVE OF fg-rctd.loc-bin IN FRAME Dialog-Frame /* From!Bin */
 &Scoped-define SELF-NAME fg-rctd.loc-bin2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc-bin2 Dialog-Frame
 ON LEAVE OF fg-rctd.loc-bin2 IN FRAME Dialog-Frame /* To!Bin */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-loc-bin2 NO-ERROR.
@@ -804,7 +805,7 @@ ON LEAVE OF fg-rctd.loc-bin2 IN FRAME Dialog-Frame /* To!Bin */
 &Scoped-define SELF-NAME fg-rctd.loc2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc2 Dialog-Frame
 ON LEAVE OF fg-rctd.loc2 IN FRAME Dialog-Frame /* To!Whse */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF fg-rctd.loc2:SCREEN-VALUE  EQ ""  THEN
@@ -821,7 +822,7 @@ ON LEAVE OF fg-rctd.loc2 IN FRAME Dialog-Frame /* To!Whse */
 &Scoped-define SELF-NAME fg-rctd.partial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.partial Dialog-Frame
 ON LEAVE OF fg-rctd.partial IN FRAME Dialog-Frame /* Partial */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-job-loc-bin-tag NO-ERROR.
@@ -836,7 +837,7 @@ ON LEAVE OF fg-rctd.partial IN FRAME Dialog-Frame /* Partial */
 &Scoped-define SELF-NAME fg-rctd.qty-case
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.qty-case Dialog-Frame
 ON ENTRY OF fg-rctd.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
-    DO:
+DO:
         APPLY "tab" TO {&self-name} .
         RETURN NO-APPLY.
     END.
@@ -848,7 +849,7 @@ ON ENTRY OF fg-rctd.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
 &Scoped-define SELF-NAME fg-rctd.tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Dialog-Frame
 ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* From!Tag */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-tag NO-ERROR.
@@ -866,7 +867,7 @@ ON LEAVE OF fg-rctd.tag IN FRAME Dialog-Frame /* From!Tag */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Dialog-Frame
 ON VALUE-CHANGED OF fg-rctd.tag IN FRAME Dialog-Frame /* From!Tag */
-    DO:
+DO:
         RUN new-tag.
     END.
 
@@ -877,7 +878,7 @@ ON VALUE-CHANGED OF fg-rctd.tag IN FRAME Dialog-Frame /* From!Tag */
 &Scoped-define SELF-NAME fg-rctd.tag2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag2 Dialog-Frame
 ON ENTRY OF fg-rctd.tag2 IN FRAME Dialog-Frame /* To!Tag */
-    DO:
+DO:
         APPLY "tab" TO {&self-name} .
         RETURN NO-APPLY.
     END.
@@ -948,7 +949,7 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item Dialog-Frame 
 PROCEDURE create-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           PARAMs:  <none>
           Notes:       
@@ -1004,16 +1005,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1021,7 +1022,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item Dialog-Frame 
 PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           PARAMs:  <none>
           Notes:       
@@ -1056,32 +1057,32 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY fi_tr-time 
-        WITH FRAME Dialog-Frame.
-    IF AVAILABLE fg-rctd THEN 
-        DISPLAY fg-rctd.r-no fg-rctd.rct-date fg-rctd.i-no fg-rctd.i-name 
-            fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin 
-            fg-rctd.created-by fg-rctd.tag fg-rctd.cust-no fg-rctd.cases 
-            fg-rctd.qty-case fg-rctd.partial fg-rctd.loc2 fg-rctd.loc-bin2 
-            fg-rctd.tag2 fg-rctd.updated-by 
-            WITH FRAME Dialog-Frame.
-    ENABLE fg-rctd.rct-date btnCalendar-1 fg-rctd.i-no fg-rctd.i-name 
-        fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin fg-rctd.tag 
-        fg-rctd.cust-no fg-rctd.cases fg-rctd.qty-case fg-rctd.partial 
-        fg-rctd.loc2 fg-rctd.loc-bin2 Btn_OK Btn_Done Btn_Cancel RECT-21 
-        RECT-38 
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY fi_tr-time 
+      WITH FRAME Dialog-Frame.
+  IF AVAILABLE fg-rctd THEN 
+    DISPLAY fg-rctd.r-no fg-rctd.rct-date fg-rctd.i-no fg-rctd.i-name 
+          fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin 
+          fg-rctd.created-by fg-rctd.tag fg-rctd.cust-no fg-rctd.cases 
+          fg-rctd.qty-case fg-rctd.partial fg-rctd.loc2 fg-rctd.loc-bin2 
+          fg-rctd.tag2 fg-rctd.updated-by 
+      WITH FRAME Dialog-Frame.
+  ENABLE fg-rctd.rct-date btnCalendar-1 fg-rctd.i-no fg-rctd.i-name 
+         fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin fg-rctd.tag 
+         fg-rctd.cust-no fg-rctd.cases fg-rctd.qty-case fg-rctd.partial 
+         fg-rctd.loc2 fg-rctd.loc-bin2 Btn_OK Btn_Done Btn_Cancel RECT-21 
+         RECT-38 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1089,7 +1090,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE fgbin-help Dialog-Frame 
 PROCEDURE fgbin-help :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1135,8 +1136,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame
-PROCEDURE local-exit:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
+PROCEDURE local-exit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1153,13 +1154,13 @@ PROCEDURE local-exit:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-bin Dialog-Frame 
 PROCEDURE new-bin :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1202,7 +1203,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-tag Dialog-Frame 
 PROCEDURE new-tag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1244,7 +1245,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no Dialog-Frame 
 PROCEDURE valid-i-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1276,7 +1277,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-loc-bin-tag Dialog-Frame 
 PROCEDURE valid-job-loc-bin-tag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1399,7 +1400,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc-bin2 Dialog-Frame 
 PROCEDURE valid-loc-bin2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1443,7 +1444,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc2 Dialog-Frame 
 PROCEDURE valid-loc2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1492,7 +1493,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag Dialog-Frame 
 PROCEDURE valid-tag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1533,8 +1534,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag2 Dialog-Frame
-PROCEDURE valid-tag2:
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag2 Dialog-Frame 
+PROCEDURE valid-tag2 :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1557,7 +1559,7 @@ DEFINE VARIABLE lValidTag2 AS LOGICAL NO-UNDO.
     END.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
