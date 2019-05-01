@@ -107,7 +107,7 @@ for each est-prep
 
   if taxit then oe-ordm.tax = true.
   IF PrepTax-log THEN 
-     ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+     ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
             .
   assign
    oe-ordm.dscr = est-prep.dscr
@@ -174,8 +174,8 @@ for each ef OF xeb no-lock:
 
       if taxit then oe-ordm.tax = true.
       IF PrepTax-log THEN 
-         ASSIGN oe-ordm.tax = TRUE
-                oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+         ASSIGN oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id).
+                oe-ordm.spare-char-1 = oe-ord.tax-gr.
                 .
 
       IF ceprepprice-chr EQ "Profit" THEN
@@ -333,7 +333,7 @@ PROCEDURE update-prep.
     END.
   END.
 
-  IF NOT oe-ctrl.prep-comm THEN oe-ordm.s-comm[1] = 0.
+  IF NOT prep.commisionable THEN oe-ordm.s-comm[1] = 0.
 
   FIND FIRST cust
       WHERE cust.company eq cocode
@@ -360,6 +360,13 @@ FUNCTION fGetTaxable RETURNS LOGICAL
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
     RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    FIND FIRST prep NO-LOCK WHERE 
+        prep.company EQ oe-ord.company AND 
+        prep.code    EQ oe-ordm.charge
+        NO-ERROR.
+    IF AVAIL prep THEN ASSIGN 
+        lTaxable = prep.taxable.    
+
     RETURN lTaxable.
 
 

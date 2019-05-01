@@ -991,13 +991,6 @@ PROCEDURE local-create-record :
    oe-ordm.s-pct[3]  = oe-ord.s-pct[3]
    oe-ordm.s-comm[3] = oe-ord.s-comm[3] .
 
-  IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ NO THEN DO:             /*Task# 11271302*/  
-      ASSIGN
-          oe-ordm.s-comm[1] = 0
-          oe-ordm.s-comm[2] = 0     
-          oe-ordm.s-comm[3] = 0.
-  END.
-
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = oe-ord.company NO-LOCK NO-ERROR.
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.

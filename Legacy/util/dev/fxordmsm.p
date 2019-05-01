@@ -1,8 +1,7 @@
 
 FOR EACH company NO-LOCK,
     FIRST oe-ctrl NO-LOCK
-    WHERE oe-ctrl.company   EQ company.company
-      AND oe-ctrl.prep-comm EQ NO,
+    WHERE oe-ctrl.company   EQ company.company,
     EACH  oe-ordm no-lock
     WHERE oe-ordm.company  EQ oe-ctrl.company
       AND oe-ordm.s-man[1] EQ "":
@@ -27,10 +26,14 @@ FOR EACH company NO-LOCK,
         AND eb.est-no    EQ est-prep.est-no
         AND eb.form-no   EQ est-prep.s-num
         AND (eb.blank-no EQ est-prep.b-num OR est-prep.b-num EQ 0):
-
-    ASSIGN
-     oe-ordm.s-man[1] = eb.sman
-     oe-ordm.s-pct[1] = 100.
+        
+      FIND FIRST prep NO-LOCK WHERE 
+        prep.company EQ oe-ordm.company and
+        prep.code EQ oe-ordm.charge
+        NO-ERROR.
+      IF prep.commisionable THEN ASSIGN
+        oe-ordm.s-man[1] = eb.sman
+        oe-ordm.s-pct[1] = 100.
     LEAVE.
   END.
 

@@ -145,12 +145,11 @@ IF AVAIL inv-head THEN DO:
      inv-head.t-inv-rev  = inv-head.t-inv-rev + inv-misc.amt
      inv-head.t-inv-cost = inv-head.t-inv-cost + inv-misc.cost.
 
-    IF oe-ctrl.prep-comm THEN DO:
       FIND FIRST prep NO-LOCK
           WHERE prep.company EQ inv-misc.company
             AND prep.code    EQ inv-misc.charge
           NO-ERROR.
-      DO k = 1 TO 3:
+      IF prep.commisionable THEN DO k = 1 TO 3:
         IF inv-misc.s-man[k] NE "" THEN DO:
 	      RUN custom/combasis.p (inv-head.company, inv-misc.s-man[k],
                                  (IF AVAIL cust THEN cust.type ELSE ""),
@@ -163,7 +162,6 @@ IF AVAIL inv-head THEN DO:
 			                       (inv-misc.s-pct[k] / 100) * (inv-misc.s-comm[k] / 100),2).
         END.
       END.
-    END.
   END.
 
   IF inv-head.f-bill THEN DO:

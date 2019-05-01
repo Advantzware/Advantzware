@@ -256,12 +256,6 @@ PROCEDURE pGetTaxableMisc PRIVATE:
         ASSIGN 
             lTaxableShipTo = ipbf-shipto.tax-mandatory
             .
-    FIND FIRST oe-ctrl NO-LOCK 
-        WHERE oe-ctrl.company EQ ipbf-cust.company
-        NO-ERROR.
-    IF AVAILABLE oe-ctrl THEN 
-        lTaxMiscFromControl = oe-ctrl.prep-chrg.
-
     IF AVAILABLE ipbf-shipto THEN 
         oplTaxable = lTaxableShipTo AND lTaxMiscFromControl.
     ELSE 

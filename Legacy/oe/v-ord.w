@@ -2532,7 +2532,7 @@ PROCEDURE create-misc :
                 oe-ordm.bill  = "Y".
 
          IF PrepTax-log THEN 
-            ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+            ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
                    .  
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                             OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).

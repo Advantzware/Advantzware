@@ -1690,6 +1690,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPrepItems C-Win
+PROCEDURE ipConvertPrepItems:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Converting advantzware.usr file...").
+
+    DISABLE TRIGGERS FOR LOAD OF prep.
+    
+    FOR EACH oe-ctrl NO-LOCK:
+        FOR EACH prep EXCLUSIVE WHERE 
+            prep.company EQ oe-ctrl.company:
+            ASSIGN 
+                prep.taxable = oe-ctrl.prep-chrg
+                prep.commisionable = oe-ctrl.prep-comm.
+        END.
+    END.
+    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertUsrFile C-Win 
 PROCEDURE ipConvertUsrFile :
 /*---------------------------------------------------------------------------*/
@@ -2444,7 +2472,8 @@ PROCEDURE ipDataFix160890 :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 160890...").
     
-    RUN ipSetFgcatStatusActive.    
+    RUN ipSetFgcatStatusActive.  
+    RUN ipConvertPrepItems.  
 
 END PROCEDURE.
 
