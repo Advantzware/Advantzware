@@ -10,7 +10,7 @@ DO idx = 1 TO EXTENT(dynParamValue.paramName):
     IF INDEX(cQueryStr,cParam) NE 0 THEN
     CASE dynParamValue.paramDataType[idx]:
         WHEN "Character" THEN DO:
-        cQueryStr = REPLACE(cQueryStr,cParam,"~"" + dynParamValue.paramValue[idx] + "~"").
+        cQueryStr = REPLACE(cQueryStr,cParam,"~"" + REPLACE(dynParamValue.paramValue[idx],"~"","~~~"") + "~"").
         END.
         WHEN "Date" THEN DO:
             dtDate = DATE(dynParamValue.paramValue[idx]) NO-ERROR.

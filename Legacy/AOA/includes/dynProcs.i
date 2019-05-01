@@ -264,7 +264,7 @@ PROCEDURE pRunQuery:
         ROWID(dynParamValue),
         queryStr,
         cTableName,
-        IF ipcType EQ "Grid" THEN 100 ELSE 0,
+        IF ipcType EQ "Grid" THEN 2500 ELSE 0,
         OUTPUT hQuery,
         OUTPUT lOK,
         OUTPUT cError

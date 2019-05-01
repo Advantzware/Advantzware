@@ -34,7 +34,7 @@ ELSE DO:
             dynParamValue.user-id,
             dynParamValue.prgmName,
             dynParamValue.paramValueID,
-            NO /* suppress parameters */
+            NO /* show parameters */
             ).
     END. /* if run audit */
     ELSE DO:

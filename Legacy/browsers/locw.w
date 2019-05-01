@@ -449,9 +449,15 @@ END.
 ON CHOOSE OF btnAllocated IN FRAME F-Main /* View Allocated */
 DO:
     IF itemfg.q-alloc NE 0 THEN
+    RUN AOA/dynGrid.p (13,
+        "company^" + itemfg.company +
+        "|fgItem^" + itemfg.i-no
+        ).
+    /*
     RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
     IF VALID-HANDLE(h_w-inqord) THEN
     RUN adm-initialize IN h_w-inqord.
+    */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,7 +492,13 @@ DO:
                               AND job.job-no2 EQ job-hdr.job-no2)
              NO-ERROR.
         IF AVAILABLE job-hdr THEN 
+        RUN AOA/dynGrid.p (15,
+            "company^" + itemfg.company +
+            "|fgItem^" + itemfg.i-no
+            ).
+            /*
             RUN jc/w-inqjob.w (ROWID(itemfg), YES).
+            */
         ELSE DO:
             FIND FIRST fg-set NO-LOCK
                  WHERE fg-set.company EQ itemfg.company
@@ -519,7 +531,13 @@ DO:
                           AND po-ord.po-no   EQ po-ordl.po-no)
          NO-ERROR.
     IF AVAILABLE po-ordl THEN
+    RUN AOA/dynGrid.p (14,
+        "company^" + itemfg.company +
+        "|fgItem^" + itemfg.i-no
+        ).
+    /*
     RUN po/w-inqpo.w (ROWID(itemfg), YES).
+    */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -751,6 +769,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lcItemFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcItemTo   AS CHAR NO-UNDO.
+DEFINE VARIABLE lcLocFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcLocTo   AS CHAR NO-UNDO.
+ 
+IF AVAIL itemfg THEN
+    ASSIGN
+        lcItemFrom = itemfg.i-no
+        lcItemTo = itemfg.i-no .
+IF AVAIL w-jobs THEN
+    ASSIGN
+        lcLocFrom = w-jobs.loc
+        lcLocTo = w-jobs.loc.
+
+    RUN fg/rd-locwexp.w (lcItemFrom,
+                       lcItemTo,
+                       lcLocFrom,
+                       lcLocTo
+                       ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterLocMain B-table-Win 
 PROCEDURE filterLocMain :
 /*------------------------------------------------------------------------------
@@ -895,38 +945,6 @@ PROCEDURE state-changed :
          or add new cases. */
     {src/adm/template/bstates.i}
     END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE lcItemFrom AS CHAR NO-UNDO.
-DEFINE VARIABLE lcItemTo   AS CHAR NO-UNDO.
-DEFINE VARIABLE lcLocFrom AS CHAR NO-UNDO.
-DEFINE VARIABLE lcLocTo   AS CHAR NO-UNDO.
- 
-IF AVAIL itemfg THEN
-    ASSIGN
-        lcItemFrom = itemfg.i-no
-        lcItemTo = itemfg.i-no .
-IF AVAIL w-jobs THEN
-    ASSIGN
-        lcLocFrom = w-jobs.loc
-        lcLocTo = w-jobs.loc.
-
-    RUN fg/rd-locwexp.w (lcItemFrom,
-                       lcItemTo,
-                       lcLocFrom,
-                       lcLocTo
-                       ).
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
