@@ -4010,7 +4010,9 @@ ASSIGN
            itemfg.isaset     = xeb.form-no EQ 0
            itemfg.procat     = xeb.procat
            itemfg.alloc      = xeb.set-is-assembled
-           itemfg.pur-man    = xeb.pur-man.
+           itemfg.pur-man    = xeb.pur-man
+           itemfg.trno       = xeb.tr-no 
+           itemfg.spare-char-4 = xeb.dest-code.
 
     /*IF xeb.pur-man THEN itemfg.pur-uom = "EA".*/
 

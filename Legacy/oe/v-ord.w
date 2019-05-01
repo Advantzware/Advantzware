@@ -2937,7 +2937,9 @@ END.
            itemfg.spc-no     = xeb.spc-no
            itemfg.isaset     = xeb.form-no EQ 0
            itemfg.pur-man    = xeb.pur-man
-           itemfg.alloc      = xeb.set-is-assembled.
+           itemfg.alloc      = xeb.set-is-assembled
+           itemfg.trno       = xeb.tr-no 
+           itemfg.spare-char-4 = xeb.dest-code .
 
     IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
     {oe/fgfreighta.i xeb}  
