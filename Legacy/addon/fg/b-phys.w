@@ -850,7 +850,7 @@ END.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.po-no IN BROWSE Browser-Table
+ON VALUE-CHANGED OF fg-rctd.po-no IN BROWSE Browser-Table
 DO:
     IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
         RUN pNewPoLine .
