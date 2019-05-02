@@ -281,7 +281,7 @@ DEFINE VARIABLE rd_inv-meth AS LOGICAL
      RADIO-BUTTONS 
           "BOL", no,
 "PO", yes,
-"Group by Date", ?
+"User Select", ?
      SIZE 46 BY .81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
