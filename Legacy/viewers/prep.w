@@ -91,7 +91,7 @@ DEFINE QUERY external_tables FOR prep.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS prep.dscr prep.inactive prep.ml prep.fgcat ~
 prep.dfault prep.cost prep.mkup prep.price prep.amtz prep.taxable ~
-prep.commisionable prep.loc prep.loc-bin prep.i-no prep.vend-no ~
+prep.commissionable prep.loc prep.loc-bin prep.i-no prep.vend-no ~
 prep.mat-type prep.actnum prep.cost-type prep.simon prep.cust-no ~
 prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.cadNo ~
@@ -101,7 +101,7 @@ prep.carton-l prep.die-l prep.wood-type prep.carton-d prep.disposal-date
 &Scoped-define FIRST-ENABLED-TABLE prep
 &Scoped-Define DISPLAYED-FIELDS prep.code prep.dscr prep.inactive prep.ml ~
 prep.fgcat prep.dfault prep.cost prep.mkup prep.price prep.amtz ~
-prep.taxable prep.commisionable prep.loc prep.loc-bin prep.i-no ~
+prep.taxable prep.commissionable prep.loc prep.loc-bin prep.i-no ~
 prep.vend-no prep.uom prep.mat-type prep.actnum prep.cost-type prep.simon ~
 prep.cust-no prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.cadNo ~
@@ -219,7 +219,7 @@ DEFINE FRAME F-Main
           LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
-     prep.commisionable AT ROW 3.86 COL 113
+     prep.commissionable AT ROW 3.86 COL 113
           LABEL "Commission"
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY 1
@@ -455,7 +455,7 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.code IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
-/* SETTINGS FOR TOGGLE-BOX prep.commisionable IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX prep.commissionable IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.cost-type IN FRAME F-Main
    4                                                                    */

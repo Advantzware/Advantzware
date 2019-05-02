@@ -114,13 +114,19 @@ ASSIGN
 
 {oe/oe-sysct1.i NEW}
         
+  def var PrepTax-log like sys-ctrl.log-fld no-undo.
+def var PrepTax-cha like sys-ctrl.char-fld no-undo.
+
+assign
+ PrepTax-log = true
+ PrepTax-cha = "".
+  
   DO TRANSACTION:
     {sys/inc/oedate.i}
     {sys/inc/oecomb.i}
     {sys/inc/job#.i}
     {sys/inc/graphic.i}
     {sys/inc/oeestcom.i}
-    {sys/inc/OEPrepTaxCode.i}
     {sys/inc/oeship.i}
   END.
 

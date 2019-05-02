@@ -31,7 +31,7 @@ FOR EACH company NO-LOCK,
         prep.company EQ oe-ordm.company and
         prep.code EQ oe-ordm.charge
         NO-ERROR.
-      IF prep.commisionable THEN ASSIGN
+      IF prep.commissionable THEN ASSIGN
         oe-ordm.s-man[1] = eb.sman
         oe-ordm.s-pct[1] = 100.
     LEAVE.

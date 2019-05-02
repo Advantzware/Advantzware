@@ -1441,7 +1441,7 @@ PROCEDURE update-total :
             AND prep.code    EQ inv-misc.charge
           NO-LOCK NO-ERROR.
       IF AVAIL prep
-      AND prep.commisionable THEN 
+      AND prep.commissionable THEN 
       DO k = 1 TO 3:
         IF inv-misc.s-man[k] NE "" THEN DO:
               RUN custom/combasis.p (xinv-head.company, inv-misc.s-man[k],

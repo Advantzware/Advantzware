@@ -43,9 +43,12 @@ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 {oe/d-selmis.i NEW}
 {sys/inc/ceprepprice.i}
 
-DO TRANSACTION:
-    {sys/inc/OEPrepTaxCode.i}
-END.
+def var PrepTax-log like sys-ctrl.log-fld no-undo.
+def var PrepTax-cha like sys-ctrl.char-fld no-undo.
+
+assign
+ PrepTax-log = true
+ PrepTax-cha = "".
  
 
 DEFINE VARIABLE lv-new-recid    AS RECID     NO-UNDO.
@@ -1484,7 +1487,7 @@ PROCEDURE new-comm :
             AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
             NO-LOCK NO-ERROR.
 
-        IF AVAILABLE prep AND prep.commisionable THEN 
+        IF AVAILABLE prep AND prep.commissionable THEN 
         DO:             /*Task# 11271302*/
         
             DO v-li = 1 TO IF ip-int EQ 0 THEN 3 ELSE ip-int:
@@ -1555,7 +1558,7 @@ PROCEDURE new-s-man :
                             WHERE prep.company EQ oe-ord.company 
                             AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
                             NO-LOCK NO-ERROR.
-                        IF AVAILABLE prep AND prep.commisionable THEN        /*Task# 11271302*/
+                        IF AVAILABLE prep AND prep.commissionable THEN        /*Task# 11271302*/
                             oe-ordm.s-comm[3]:SCREEN-VALUE = STRING(sman.scomm).
                     END.
 
@@ -1572,7 +1575,7 @@ PROCEDURE new-s-man :
                                 WHERE prep.company EQ oe-ord.company 
                                 AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
                                 NO-LOCK NO-ERROR.
-                            IF AVAILABLE prep AND prep.commisionable THEN        /*Task# 11271302*/
+                            IF AVAILABLE prep AND prep.commissionable THEN        /*Task# 11271302*/
                                 oe-ordm.s-comm[2]:SCREEN-VALUE = STRING(sman.scomm).
                         END.
 
@@ -1589,7 +1592,7 @@ PROCEDURE new-s-man :
                             AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
                             NO-LOCK NO-ERROR.
                             
-                            IF AVAILABLE prep AND prep.commisionable THEN        /*Task# 11271302*/
+                            IF AVAILABLE prep AND prep.commissionable THEN        /*Task# 11271302*/
                                 oe-ordm.s-comm[1]:SCREEN-VALUE = STRING(sman.scomm).
                         END.
 

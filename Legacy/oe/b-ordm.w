@@ -40,9 +40,12 @@ assign cocode = g_company
 {oe/d-selmis.i NEW}
 {sys/inc/ceprepprice.i}
 
-DO TRANSACTION:
-{sys/inc/OEPrepTaxCode.i}
-END.
+def var PrepTax-log like sys-ctrl.log-fld no-undo.
+def var PrepTax-cha like sys-ctrl.char-fld no-undo.
+
+assign
+ PrepTax-log = true
+ PrepTax-cha = "".
  
 
 DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.

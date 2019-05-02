@@ -26,9 +26,12 @@ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 {sys/inc/ceprep.i}
 {sys/inc/ceprepprice.i}
 
-DO TRANSACTION:
-  {sys/inc/OEPrepTaxCode.i}
-END.
+def var PrepTax-log like sys-ctrl.log-fld no-undo.
+def var PrepTax-cha like sys-ctrl.char-fld no-undo.
+
+assign
+ PrepTax-log = true
+ PrepTax-cha = "".
 
 
 
@@ -333,7 +336,7 @@ PROCEDURE update-prep.
     END.
   END.
 
-  IF NOT prep.commisionable THEN oe-ordm.s-comm[1] = 0.
+  IF NOT prep.commissionable THEN oe-ordm.s-comm[1] = 0.
 
   FIND FIRST cust
       WHERE cust.company eq cocode
