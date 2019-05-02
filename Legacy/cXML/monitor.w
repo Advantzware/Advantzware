@@ -18,7 +18,13 @@ PROCEDURE postMonitor:
   DEFINE VARIABLE cXMLProcessed AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cXMLResponse AS CHARACTER NO-UNDO.
   DEFINE VARIABLE returnValue AS CHARACTER NO-UNDO.
-
+  /* Run every 30 seconds */
+  iCountDown = iCountDown - 1.
+  IF iCountDown GT 0 THEN 
+      RETURN.
+  ELSE 
+      iCountDown = 30.
+      
   FOR EACH cXMLDir:
     monitorImportDir = cXMLDir.cXMLDir.
     
