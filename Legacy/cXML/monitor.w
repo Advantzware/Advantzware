@@ -18,7 +18,8 @@ PROCEDURE postMonitor:
   DEFINE VARIABLE cXMLProcessed AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cXMLResponse AS CHARACTER NO-UNDO.
   DEFINE VARIABLE returnValue AS CHARACTER NO-UNDO.
-
+   
+     
   FOR EACH cXMLDir:
     monitorImportDir = cXMLDir.cXMLDir.
     

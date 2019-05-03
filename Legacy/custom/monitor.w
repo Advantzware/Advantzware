@@ -409,6 +409,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       monitorImportDir:SCREEN-VALUE = sys-ctrl.char-fld
       monitorImportDir.
   &ENDIF
+  &IF DEFINED(TIMEINTERVAL) &THEN
+  chCtrlFrame:PSTimer:Interval = {&TIMEINTERVAL} * 1000.
+  &ENDIF
   RUN monitorActivity ('{1} Monitor Started',YES,'').
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.

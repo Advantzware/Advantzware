@@ -45,3 +45,4 @@ FOR EACH sys-ctrl NO-LOCK
     cXMLDir.cXMLDir  = sys-ctrl.char-fld
     .
 END. /* each sys-ctrl */
+&GLOBAL-DEFINE TIMEINTERVAL 60
