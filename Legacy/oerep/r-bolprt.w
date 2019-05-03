@@ -113,11 +113,26 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE NEW SHARED VAR v-print-unassembled AS LOG NO-UNDO.
+DEFINE VARIABLE cCopyPdfFile    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCopyPdfFile    AS LOGICAL   NO-UNDO.
+
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLSavePDF", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cCopyPdfFile = cRtnChar . 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLSavePDF", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCopyPdfFile = logical(cRtnChar) NO-ERROR .
 
 
 DEF VAR lv-prt-bypass     AS LOG NO-UNDO.  /* bypass window's printer driver */
@@ -3384,6 +3399,14 @@ PROCEDURE output-to-mail :
            list-name NE ''
           THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
           ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
+
+          IF tb_posted AND lCopyPdfFile THEN DO:
+              IF rd-dest EQ 5 THEN DO:          
+                  IF v-s-bol EQ v-e-bol THEN
+                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf").
+                  ELSE OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + "_To_" + STRING(v-e-bol) + ".pdf").
+              END.
+          END.
       END.
 
       if vcMailMode = 'Customer1' then RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
@@ -3827,6 +3850,14 @@ PROCEDURE run-packing-list :
               ELSE  PUT "<PREVIEW><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
+
+      IF tb_posted AND lCopyPdfFile THEN DO:
+          IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
+              IF v-s-bol EQ v-e-bol THEN
+                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
+          END.
+      END.
   END.
 
   IF lv-run-bol = "YES" THEN DO:
@@ -4003,6 +4034,13 @@ PROCEDURE run-report :
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
+      IF tb_posted AND lCopyPdfFile THEN DO:
+          IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:  
+              IF v-s-bol EQ v-e-bol THEN
+                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
+        END.
+      END.
   END.
 
   IF lv-run-bol = "YES" THEN DO:
@@ -4250,6 +4288,14 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
             ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
+
+    IF tb_posted AND lCopyPdfFile THEN DO:
+          IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
+              IF v-s-bol EQ v-e-bol THEN
+                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
+          END.
+    END.
 END.
 
 IF lv-run-commercial = "YES" THEN DO:

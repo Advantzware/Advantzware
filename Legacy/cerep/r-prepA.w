@@ -810,7 +810,6 @@ FOR EACH prep WHERE prep.company = g_company
                prep.cost-type COLUMN-LABEL 'C!Type'
                prep.actnum 
                prep.cadNo COLUMN-LABEL 'Cad #' FORMAT "x(15)"
-               prep.fileNo COLUMN-LABEL 'File #' FORMAT "x(15)"              
            WITH STREAM-IO FRAME prep-det DOWN WIDTH 230 NO-BOX.
 
        /* gdm - 10130803 */
@@ -834,7 +833,6 @@ FOR EACH prep WHERE prep.company = g_company
               '"' prep.cost-type     '",'
               '"' prep.actnum        '",'
               '"' prep.cadNo         '",'
-              '"' prep.fileNo        '"'
              SKIP.
       END.          
       ELSE DO:

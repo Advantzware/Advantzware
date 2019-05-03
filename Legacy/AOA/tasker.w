@@ -626,7 +626,7 @@ PROCEDURE pRunCommand :
         KEY 'DLC'
         VALUE cDLC.
     cEXE = cDLC + "\bin\prowin"
-         + REPLACE("{&PROCESS-ARCHITECTURE}","64","")
+         + REPLACE(STRING(PROCESS-ARCHITECTURE),"64","")
          + ".exe "
          .
     DO idx = 1 TO NUM-ENTRIES(SESSION:STARTUP-PARAMETERS):

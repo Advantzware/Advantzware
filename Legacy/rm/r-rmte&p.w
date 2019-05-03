@@ -168,11 +168,8 @@ RUN methods/prgsecur.p
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
      
-RUN sys/ref/nk1look.p (INPUT cocode, "RMKEEPZEROBIN", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    RmKeepZeroBin-log = LOGICAL(cRtnChar) NO-ERROR.
+ASSIGN 
+    RmKeepZeroBin-log = YES.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "RMTagValidation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,

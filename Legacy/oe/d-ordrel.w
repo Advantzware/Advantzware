@@ -877,7 +877,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN
             RUN valid-colonial-date NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
+
         RUN valid-freight-pay NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -979,6 +979,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             DO WITH FRAME {&FRAME-NAME}:
                 ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
             END.
+            IF tt-report.frt-pay EQ ? THEN 
+                tt-report.frt-pay = "".
         END.
 
         RUN pUpdate-record(INPUT cPreRelDate).
@@ -2591,7 +2593,8 @@ PROCEDURE pUpdate-record :
         oe-rel.lot-no   = tt-report.lot-no:SCREEN-VALUE
         oe-rel.frt-pay  = tt-report.frt-pay:SCREEN-VALUE
         oe-rel.fob-code = tt-report.flute:SCREEN-VALUE.
-
+    IF oe-rel.frt-pay = ? THEN 
+        oe-rel.frt-pay = "".
  
 
     ASSIGN 

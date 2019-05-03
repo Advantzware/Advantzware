@@ -1970,7 +1970,7 @@ PROCEDURE local-assign-record :
          FOR EACH e-item WHERE e-item.company = cocode AND
                                e-item.i-no = bf-item.i-no:
              CREATE bf-e-item.
-             BUFFER-COPY e-item EXCEPT e-item.i-no TO bf-e-item.
+             BUFFER-COPY e-item EXCEPT e-item.i-no e-item.rec_key TO bf-e-item.
              ASSIGN bf-e-item.i-no = item.i-no.                  
          END.                             
          FOR EACH e-item-vend WHERE e-item-vend.company = cocode AND
@@ -1980,7 +1980,7 @@ PROCEDURE local-assign-record :
          FOR EACH e-item-vend WHERE e-item-vend.company = cocode AND
                                     e-item-vend.i-no = bf-item.i-no:
              CREATE bf-e-vend.
-             BUFFER-COPY e-item-vend EXCEPT e-item-vend.i-no TO bf-e-vend.
+             BUFFER-COPY e-item-vend EXCEPT e-item-vend.i-no e-item-vend.rec_key TO bf-e-vend.
              ASSIGN bf-e-vend.i-no      = item.i-no
                     bf-e-vend.item-type = YES.                  
          END.

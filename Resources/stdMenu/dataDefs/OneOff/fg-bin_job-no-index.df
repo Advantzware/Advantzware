@@ -1,0 +1,14 @@
+ADD INDEX "job-no" ON "fg-bin" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by company, i-no, job-no, job-no2 and tag"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "i-no" ASCENDING 
+  INDEX-FIELD "job-no" ASCENDING 
+  INDEX-FIELD "job-no2" ASCENDING 
+  INDEX-FIELD "tag" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000011424

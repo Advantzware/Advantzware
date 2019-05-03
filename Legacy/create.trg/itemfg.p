@@ -57,6 +57,8 @@ ASSIGN
     {&TABLENAME}.stat         = "A"
     {&TABLENAME}.exempt-disc  = NO
     {&TABLENAME}.setupDate    = TODAY
+    {&TABLENAME}.setupBy      = USERID(LDBNAME(1))
+    {&TABLENAME}.stackHeight  = 1
     .
 
 IF {&TABLENAME}.def-loc     EQ "" AND

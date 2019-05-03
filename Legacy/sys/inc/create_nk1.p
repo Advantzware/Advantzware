@@ -20,6 +20,8 @@ ASSIGN
   gcompany  = ip-co-code
   g_company = ip-co-code.
 
+RUN spSetCompany (g_company).
+
 /*add new NK1 to v-std-list first, then add it to the "When" clause below */
 v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopup,AgeDays,OEFGADD,HighBalDays,"
            + "oeShipFrom,SSFGSCAN,Paperless,FGSetAssembly,AutoFGIssue,CustomerList,SSLoadtag,ChkFmtACH,"
@@ -27,14 +29,15 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
            + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
            + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
-           + "KiwiT,BusinessFormModal,LoadTagXprintImage,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,"
+           + "KiwiT,BusinessFormModal,LoadTagXprintImage,CEGotoCalc,PrePressHotFolderIn,"
            + "PrePressHotFolderOut,METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,"
            + "ImportFolder,ImportLog,TagFormat,FgItemHideCalcFields,VendCostMatrix,RelSkipRecalc,RMAllowAdd,CECostSave,RMOverrunCostProtection,"
            + "SSBOLPassword,BOLImageFooter,InvAddDate,POFGDims,OEPriceHold,POConfigDir,EDILogs,AutoLogout,AutoLogoutLocal,RMTagValidation,"
            + "MenuLink1,MenuLink2,MenuLink3,MenuLink4,MenuLink5,MenuLink6,MenuLink7,MenuLink8,MenuLinkASI,MenuLinkZoHo,MenuLinkUpgrade,"
            + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,SSPostFGTransfer,FGUnderOver,FGSetAdjustReason,AdjustReason,ShipNotesExpanded,CTIDir,"
            + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal,TSShowPending,FGHistoryDate,CEUpdateCAD,"
-           + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault"
+           + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault,DynAuditField,DynTaskTicker,InvoiceSavePDF,BOLSavePDF,"
+           + "FGBinInquiry,CEAutoCalcMessage" 
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -290,16 +293,6 @@ CASE ip-nk1-value:
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                            INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 
-    WHEN "FGKEEPZEROBIN" THEN 
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-                           INPUT "Keep zero FG bins?",
-                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
-    WHEN "RMKEEPZEROBIN" THEN 
-    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-                           INPUT "Keep zero RM bins?",
-                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
-                           INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CEGotoCalc" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Use enhanced GOTO Screen from Estimate?",
@@ -586,10 +579,45 @@ CASE ip-nk1-value:
         INPUT "WIP Tags Default Location",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
-  WHEN "POItemFilterDefault" THEN
+   WHEN "POItemFilterDefault" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "PU1 Item Lookup - Filter By defaults to PO Vendor or All Vendor",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "DynAuditField" THEN DO:
+        FIND FIRST dynSubject NO-LOCK
+             WHERE dynSubject.subjectTitle EQ "Audit Field Lookup"
+             NO-ERROR.
+        RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+            INPUT "Dynamic Audit Field History",
+            INPUT "Audit Field Lookup" /* Char Value */,
+            INPUT IF AVAILABLE dynSubject THEN dynSubject.subjectID ELSE 0 /* Int value */,
+            INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
+   END. /* do dynauditfield */
+   WHEN "DynTaskTicker" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Dynamic Main Menu Task Ticker",
+        INPUT "" /* Char Value */, INPUT 1 /* Int value */,
+        INPUT YES /* Logical value */, INPUT 0 /* dec value*/). 
+   WHEN "InvoiceSavePDF" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Posting invoice Pdf fils Save Path",
+        INPUT "" /* Char Value */, INPUT 1 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
+    WHEN "BOLSavePDF" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Posting Bol Pdf fils Save Path",
+        INPUT "" /* Char Value */, INPUT 1 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "FGBinInquiry" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "FG Bin Inquiry Uses Dynamic Subject",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "CEAutoCalcMessage" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Activate Estimate Auto-Calc warning",
+        INPUT "" /* Char Value */, INPUT 1 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
 ELSE
@@ -711,7 +739,6 @@ CASE ip-nk1-value:
     WHEN "oeinq" THEN DO: {sys\inc\oeinq.i} END.
     WHEN "oeprep" THEN DO: /* {sys\inc\oeprep.i} oepre-ch */ END.
     WHEN "oepreppo" THEN DO: {sys\inc\oepreppo.i} END.
-    WHEN "oepreptaxcode" THEN DO: {sys\inc\oepreptaxcode.i} END.
     WHEN "oepricecheck" THEN DO: {sys\inc\oepricecheck.i} END.
     WHEN "oereleas" THEN DO: {sys\inc\oereleas.i} END.
     WHEN "oereleasepopup" THEN DO: {sys\inc\oereleasepop.i} END.

@@ -861,10 +861,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         NO-LOCK NO-ERROR.
     v-year = IF AVAIL period THEN period.yr ELSE YEAR(TODAY).
 
-    IF AVAIL oe-ctrl AND NOT oe-ctrl.prep-comm THEN
-      ASSIGN
-       tb_prep:SCREEN-VALUE = "NO"
-       tb_prep:SENSITIVE    = NO.
     ASSIGN
        tb_detailed:HIDDEN = TRUE 
        tb_prep:HIDDEN = TRUE
@@ -1793,7 +1789,7 @@ FOR EACH tt-comm-calc,
          tt-comm-calc.ordl-sell-price = tt-comm-calc.ordl-sell-price * tt-comm-calc.qty
          tt-comm-calc.pr-uom  = ar-invl.pr-qty-uom.  
 
-      IF ar-invl.misc AND NOT oe-ctrl.prep-comm THEN v-slsc[1] = 0.
+      IF ar-invl.misc AND AVAILABLE prep AND NOT prep.commissionable THEN v-slsc[1] = 0.
    END. 
    ELSE
       IF tt-comm-calc.inv-type EQ "ar-cashl" THEN
