@@ -74,10 +74,8 @@ DEFINE VARIABLE cSimon AS CHARACTER NO-UNDO .
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table prep.code prep.dscr ~
 get-type-info() @ cTypeInfo prep.mkup prep.cost prep.dfault prep.amtz ~
-prep.ml prep.uom get-simon-info() @ cSimon prep.taxable 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table prep.taxable 
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table prep
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table prep
+prep.ml prep.uom prep.simon get-simon-info() @ cSimon prep.taxable 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH prep WHERE ~{&KEY-PHRASE} ~
       AND prep.company = gcompany NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -155,6 +153,7 @@ DEFINE QUERY Browser-Table FOR
       prep.amtz
       prep.ml
       prep.uom
+      prep.simon
       prep.taxable) SCROLLING.
 &ANALYZE-RESUME
 
@@ -172,11 +171,9 @@ DEFINE BROWSE Browser-Table
       prep.amtz FORMAT ">>9.99":U
       prep.ml FORMAT "M/L":U
       prep.uom FORMAT "x(3)":U WIDTH 5.6
-      get-simon-info() @ cSimon COLUMN-LABEL "SIMON" FORMAT "x(13)":U
-            WIDTH 18
-      prep.taxable COLUMN-LABEL "Taxable" FORMAT "yes/no":U
-  ENABLE
-      prep.taxable
+      prep.simon FORMAT "X":U
+      get-simon-info() @ cSimon
+      prep.taxable FORMAT "yes/no":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 18.1
@@ -255,7 +252,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -263,6 +260,9 @@ ASSIGN
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2".
+
+ASSIGN 
+       prep.simon:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -291,10 +291,11 @@ ASSIGN
      _FldNameList[8]   = ASI.prep.ml
      _FldNameList[9]   > ASI.prep.uom
 "uom" ? ? "character" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > "_<CALC>"
-"get-simon-info() @ cSimon" "SIMON" "x(13)" ? ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.prep.taxable
-"taxable" "Taxable" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > ASI.prep.simon
+"simon" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > "_<CALC>"
+"get-simon-info() @ cSimon" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   = ASI.prep.taxable
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
