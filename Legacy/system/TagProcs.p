@@ -14,6 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
     DEFINE VARIABLE gTypeInactive AS CHARACTER NO-UNDO INIT "I".
+    DEFINE VARIABLE gTypeHold AS CHARACTER NO-UNDO INIT "H".
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -103,6 +104,32 @@ PROCEDURE AddTagInactive:
                                       "",
                                       "",
                                       cNote).
+END PROCEDURE.
+
+PROCEDURE ClearTagsByRecKey:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+
+    FOR EACH tag EXCLUSIVE-LOCK WHERE 
+        tag.linkRecKey EQ ipcLinkRecKey:
+        DELETE tag.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE ClearTagsHold:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+
+    RUN ClearTagsOfType(ipcLInkRecKey,gTypeHold).
+
+
 END PROCEDURE.
 
 PROCEDURE ClearTagsInactive:

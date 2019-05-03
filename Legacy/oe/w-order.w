@@ -40,6 +40,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE NEW SHARED VARIABLE spOeValidate AS HANDLE NO-UNDO.
+
 &scoped-define item_spec  FGITEM 
 def var li-prev-page as int init 1 no-undo.
 def var li-cur-page as int init 1 no-undo.
@@ -233,7 +235,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
 ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
-/* END-ASSIGN-TABS */.
+    /* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
