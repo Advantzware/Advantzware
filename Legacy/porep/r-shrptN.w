@@ -1620,12 +1620,16 @@ DISPLAY "" WITH FRAME r-top.
        RUN sys/ref/convquom.p(po-ordl.cons-uom, lv-uom,
                               v-bwt, v-len, v-wid, v-dep,
                               po-ordl.ord-qty, OUTPUT v-ord-qty).
-
+    FIND FIRST job-hdr NO-LOCK
+        WHERE job-hdr.company EQ cocode
+          AND job-hdr.job-no  EQ po-ordl.job-no
+          AND job-hdr.job-no2 EQ po-ordl.job-no2
+        NO-ERROR.
+    IF AVAILABLE job-hdr THEN 
         FIND FIRST  job-mch NO-LOCK 
             WHERE job-mch.company EQ cocode
-                AND job-mch.job-no EQ po-ordl.job-no
-                AND job-mch.job-no2 EQ po-ordl.job-no2
-                AND job-mch.frm EQ po-ordl.s-num USE-INDEX line-idx NO-ERROR.        
+                AND job-mch.job EQ job-hdr.job                
+                AND job-mch.frm EQ po-ordl.s-num USE-INDEX seq-idx NO-ERROR.        
 
     /*IF po-ordl.ord-qty - v-qty GT 0 THEN DO:*/
     IF v-ord-qty - v-qty GT 0 THEN DO:
