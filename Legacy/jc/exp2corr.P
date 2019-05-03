@@ -94,7 +94,7 @@ IF SUBSTRING(cOutputDir, LENGTH(cOutputDir), 1) NE "\" THEN
 RUN sys/ref/nk1look.p (cocode, "JobExport", "I", NO, NO, "", "", 
     OUTPUT cReturn, OUTPUT lrecFound).
 IF lRecfound THEN    
-    lNetQty = LOGICAL(cReturn).
+    lNetQty = cReturn EQ '1'.
     
 {sys/inc/f16to32.i}
     
