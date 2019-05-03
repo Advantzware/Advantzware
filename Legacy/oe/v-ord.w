@@ -154,12 +154,6 @@ ASSIGN
 
 {oe/oe-sysct1.i NEW}
 {sys/ref/CustList.i NEW}        
-def var PrepTax-log like sys-ctrl.log-fld no-undo.
-def var PrepTax-cha like sys-ctrl.char-fld no-undo.
-
-assign
- PrepTax-log = true
- PrepTax-cha = "".
 
   DO TRANSACTION:
     {sys/inc/oedate.i}
@@ -345,7 +339,8 @@ FUNCTION fBuildAddress RETURNS CHARACTER
 FUNCTION fGetTaxable RETURNS LOGICAL
   ( ipcCompany AS CHARACTER,
    ipcCust AS CHARACTER,
-   ipcShipto AS CHARACTER) FORWARD.
+   ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2533,11 +2528,11 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id)
+                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
 
-         IF PrepTax-log THEN 
+         IF oe-ordm.tax THEN 
             ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
                    .  
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
@@ -7046,14 +7041,15 @@ END FUNCTION.
 FUNCTION fGetTaxable RETURNS LOGICAL
   ( ipcCompany AS CHARACTER,
    ipcCust AS CHARACTER,
-   ipcShipto AS CHARACTER):
+   ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

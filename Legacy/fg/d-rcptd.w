@@ -1735,6 +1735,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
     
     IF ip-type EQ "copy" THEN lv-item-recid = ip-recid.
+    IF ip-type EQ "add" THEN adm-adding-record = YES.
 
     IF ip-recid EQ ? THEN 
     DO:

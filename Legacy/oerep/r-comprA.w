@@ -1789,7 +1789,7 @@ FOR EACH tt-comm-calc,
          tt-comm-calc.ordl-sell-price = tt-comm-calc.ordl-sell-price * tt-comm-calc.qty
          tt-comm-calc.pr-uom  = ar-invl.pr-qty-uom.  
 
-      IF ar-invl.misc THEN v-slsc[1] = 0.
+      IF ar-invl.misc AND AVAILABLE prep AND NOT prep.commissionable THEN v-slsc[1] = 0.
    END. 
    ELSE
       IF tt-comm-calc.inv-type EQ "ar-cashl" THEN

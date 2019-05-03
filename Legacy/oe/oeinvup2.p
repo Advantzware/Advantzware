@@ -149,7 +149,7 @@ IF AVAIL inv-head THEN DO:
           WHERE prep.company EQ inv-misc.company
             AND prep.code    EQ inv-misc.charge
           NO-ERROR.
-      IF prep.commissionable THEN DO k = 1 TO 3:
+      IF AVAILABLE prep AND prep.commissionable THEN DO k = 1 TO 3:
         IF inv-misc.s-man[k] NE "" THEN DO:
 	      RUN custom/combasis.p (inv-head.company, inv-misc.s-man[k],
                                  (IF AVAIL cust THEN cust.type ELSE ""),
