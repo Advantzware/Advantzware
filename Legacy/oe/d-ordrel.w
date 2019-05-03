@@ -1877,6 +1877,11 @@ PROCEDURE create-report-record-1 :
         tt-report.lot-no  = oe-rel.lot-no
         tt-report.frt-pay = oe-rel.frt-pay
         tt-report.flute   = oe-rel.fob-code.
+      
+      IF tt-report.frt-pay EQ "" OR tt-report.frt-pay EQ ? THEN do:
+          IF AVAIL oe-ord THEN
+              tt-report.frt-pay = oe-ord.frt-pay.
+      END.
 
     ASSIGN 
         tt-report.price = oe-rel.sell-price

@@ -2948,6 +2948,14 @@ PROCEDURE create-report-record-1 :
           tt-report.frt-pay = oe-rel.frt-pay
           tt-report.flute   = oe-rel.fob-code.
 
+    IF tt-report.frt-pay EQ "" OR tt-report.frt-pay EQ ? THEN do:
+        IF AVAIL oe-ordl THEN
+            FIND FIRST oe-ord OF oe-ordl NO-LOCK NO-ERROR.
+
+        IF AVAIL oe-ord THEN
+           tt-report.frt-pay = oe-ord.frt-pay.
+    END.
+
      ASSIGN tt-report.price = oe-rel.sell-price
             tt-report.whsed = oe-rel.zeroPrice > 0 .
       
