@@ -1123,7 +1123,8 @@ PROCEDURE hold-invoice :
 
                        FOR EACH oe-ordl NO-LOCK 
                            WHERE oe-ordl.company EQ inv-head.company
-                           AND oe-ordl.ord-no EQ bf-line-2.ord-no :
+                           AND oe-ordl.ord-no    EQ bf-line-2.ord-no 
+                           AND oe-ordl.po-no     EQ bf-line-2.po-no:
 
                       
                            dAllowableUnderrun = oe-ordl.qty * (1 - (oe-ordl.under-pct / 100)) .
@@ -1138,7 +1139,8 @@ PROCEDURE hold-invoice :
                        IF lcheckflg THEN
                            FOR FIRST bf-line WHERE
                            bf-line.company     EQ inv-head.company AND
-                           bf-line.ord-no      EQ bf-line-2.ord-no,
+                           bf-line.ord-no      EQ bf-line-2.ord-no AND
+                           bf-line.po-no       EQ bf-line-2.po-no,
                            EACH bf-head WHERE
                            bf-head.r-no    EQ bf-line.r-no AND
                            bf-head.stat    EQ "H":
