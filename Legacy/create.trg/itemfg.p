@@ -58,6 +58,7 @@ ASSIGN
     {&TABLENAME}.exempt-disc  = NO
     {&TABLENAME}.setupDate    = TODAY
     {&TABLENAME}.setupBy      = USERID(LDBNAME(1))
+    {&TABLENAME}.stackHeight  = 1
     .
 
 IF {&TABLENAME}.def-loc     EQ "" AND
@@ -108,7 +109,6 @@ IF AVAILABLE b-{&TABLENAME} THEN DO:
         {&TABLENAME}.alloc          = b-{&TABLENAME}.alloc
         {&TABLENAME}.stat           = b-{&TABLENAME}.stat
         {&TABLENAME}.ship-meth      = b-{&TABLENAME}.ship-meth
-        {&TABLENAME}.stackHeight    = b-{&TABLENAME}.stackHeight
         .
     IF b-{&TABLENAME}.cust-no NE "" THEN
     {&TABLENAME}.cust-no = b-{&TABLENAME}.cust-no. 

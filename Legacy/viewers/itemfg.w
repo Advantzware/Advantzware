@@ -406,7 +406,7 @@ DEFINE FRAME F-Main
      itemfg.stackHeight AT ROW 13.86 COL 85 COLON-ALIGNED
           LABEL "Stack Height" FORMAT "->>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 19 BY 1 
+          SIZE 11.6 BY 1 
      itemfg.spare-dec-2 AT ROW 15.00 COL 124.6 COLON-ALIGNED WIDGET-ID 4
           LABEL "C/in/Pallet" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -1330,6 +1330,22 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME itemfg.stackHeight
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.stackHeight V-table-Win
+ON LEAVE OF itemfg.stackHeight IN FRAME F-Main /* Stack Height */
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+            IF INTEGER(itemfg.stackHeight:SCREEN-VALUE) GT 4 OR INTEGER(itemfg.stackHeight:SCREEN-VALUE) LT 1 THEN do:
+                MESSAGE "Stack Height should be 1 to 4..." VIEW-AS ALERT-BOX INFO .
+                itemfg.stackHeight:SCREEN-VALUE = "1" .
+                RETURN NO-APPLY .
+            END.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME itemfg.type-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.type-code V-table-Win
@@ -1811,6 +1827,9 @@ PROCEDURE local-assign-record :
         itemfg.taxable      = tb_taxable
         itemfg.modifiedBy  = USERID(LDBNAME(1))
         itemfg.modifiedDate  = date(TODAY) .
+    
+    IF itemfg.stackHeight GT 4 OR itemfg.stackHeight LT 1 THEN
+        itemfg.stackHeight = 1 .
 
     /* btr - refresh the screen */
     RUN local-display-fields.
@@ -1860,7 +1879,7 @@ PROCEDURE local-create-record :
         itemfg.pur-uom   = lv-puruom
         /* gdm - 11190901 */
         itemfg.ship-meth = v-shpmet
-         
+        itemfg.stackHeight = 1 
         .
 
     DO WITH FRAME {&FRAME-NAME}:
