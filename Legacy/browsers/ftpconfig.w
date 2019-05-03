@@ -67,11 +67,11 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table ftpConfig.ftpDeleteFile ~
-ftpConfig.ftpBinary ftpConfig.ftpCommand ftpConfig.ftpSoftware ~
-ftpConfig.ftpScript ftpConfig.ftpMode ftpConfig.ftpDirection ~
-ftpConfig.ftpDir ftpConfig.ftpPassword ftpConfig.ftpUser ftpConfig.ftpSite ~
-ftpConfig.partner ftpConfig.ftpCode ftpConfig.ediType 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table ftpConfig.ediType ~
+ftpConfig.ftpCode ftpConfig.partner ftpConfig.ftpSite ftpConfig.ftpUser ~
+ftpConfig.ftpPassword ftpConfig.ftpDir ftpConfig.ftpCommand ~
+ftpConfig.ftpSoftware ftpConfig.ftpScript ftpConfig.ftpMode ~
+ftpConfig.ftpDirection ftpConfig.ftpBinary ftpConfig.ftpDeleteFile 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH ftpConfig WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -124,40 +124,40 @@ DEFINE RECTANGLE RECT-4
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       ftpConfig
-    FIELDS(ftpConfig.ftpDeleteFile
-      ftpConfig.ftpBinary
+    FIELDS(ftpConfig.ediType
+      ftpConfig.ftpCode
+      ftpConfig.partner
+      ftpConfig.ftpSite
+      ftpConfig.ftpUser
+      ftpConfig.ftpPassword
+      ftpConfig.ftpDir
       ftpConfig.ftpCommand
       ftpConfig.ftpSoftware
       ftpConfig.ftpScript
       ftpConfig.ftpMode
       ftpConfig.ftpDirection
-      ftpConfig.ftpDir
-      ftpConfig.ftpPassword
-      ftpConfig.ftpUser
-      ftpConfig.ftpSite
-      ftpConfig.partner
-      ftpConfig.ftpCode
-      ftpConfig.ediType) SCROLLING.
+      ftpConfig.ftpBinary
+      ftpConfig.ftpDeleteFile) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ftpConfig.ftpDeleteFile FORMAT "yes/no":U
-      ftpConfig.ftpBinary FORMAT "x(8)":U
+      ftpConfig.ediType FORMAT "x(8)":U
+      ftpConfig.ftpCode FORMAT "x(20)":U
+      ftpConfig.partner FORMAT "x(15)":U
+      ftpConfig.ftpSite FORMAT "x(50)":U
+      ftpConfig.ftpUser FORMAT "x(20)":U
+      ftpConfig.ftpPassword FORMAT "x(30)":U
+      ftpConfig.ftpDir FORMAT "x(30)":U
       ftpConfig.ftpCommand FORMAT "x(8)":U
       ftpConfig.ftpSoftware FORMAT "x(25)":U
       ftpConfig.ftpScript FORMAT "x(12)":U
       ftpConfig.ftpMode FORMAT "x(8)":U
       ftpConfig.ftpDirection FORMAT "x(8)":U
-      ftpConfig.ftpDir FORMAT "x(30)":U
-      ftpConfig.ftpPassword FORMAT "x(30)":U
-      ftpConfig.ftpUser FORMAT "x(20)":U
-      ftpConfig.ftpSite FORMAT "x(50)":U
-      ftpConfig.partner FORMAT "x(15)":U
-      ftpConfig.ftpCode FORMAT "x(20)":U
-      ftpConfig.ediType FORMAT "x(8)":U
+      ftpConfig.ftpBinary FORMAT "x(8)":U
+      ftpConfig.ftpDeleteFile FORMAT "yes/no":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
@@ -241,6 +241,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
+                "2".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -252,20 +256,20 @@ ASSIGN
      _TblList          = "asi.ftpConfig"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = asi.ftpConfig.ftpDeleteFile
-     _FldNameList[2]   = asi.ftpConfig.ftpBinary
-     _FldNameList[3]   = asi.ftpConfig.ftpCommand
-     _FldNameList[4]   = asi.ftpConfig.ftpSoftware
-     _FldNameList[5]   = asi.ftpConfig.ftpScript
-     _FldNameList[6]   = asi.ftpConfig.ftpMode
-     _FldNameList[7]   = asi.ftpConfig.ftpDirection
-     _FldNameList[8]   = asi.ftpConfig.ftpDir
-     _FldNameList[9]   = asi.ftpConfig.ftpPassword
-     _FldNameList[10]   = asi.ftpConfig.ftpUser
-     _FldNameList[11]   = asi.ftpConfig.ftpSite
-     _FldNameList[12]   = asi.ftpConfig.partner
-     _FldNameList[13]   = asi.ftpConfig.ftpCode
-     _FldNameList[14]   = asi.ftpConfig.ediType
+     _FldNameList[1]   = asi.ftpConfig.ediType
+     _FldNameList[2]   = asi.ftpConfig.ftpCode
+     _FldNameList[3]   = asi.ftpConfig.partner
+     _FldNameList[4]   = asi.ftpConfig.ftpSite
+     _FldNameList[5]   = asi.ftpConfig.ftpUser
+     _FldNameList[6]   = asi.ftpConfig.ftpPassword
+     _FldNameList[7]   = asi.ftpConfig.ftpDir
+     _FldNameList[8]   = asi.ftpConfig.ftpCommand
+     _FldNameList[9]   = asi.ftpConfig.ftpSoftware
+     _FldNameList[10]   = asi.ftpConfig.ftpScript
+     _FldNameList[11]   = asi.ftpConfig.ftpMode
+     _FldNameList[12]   = asi.ftpConfig.ftpDirection
+     _FldNameList[13]   = asi.ftpConfig.ftpBinary
+     _FldNameList[14]   = asi.ftpConfig.ftpDeleteFile
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
