@@ -47,6 +47,7 @@ CREATE WIDGET-POOL.
 {sys/inc/varasgn.i}
 DEFINE VARIABLE cTypeInfo AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cSimon AS CHARACTER NO-UNDO .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -60,7 +61,7 @@ DEFINE VARIABLE cSimon AS CHARACTER NO-UNDO .
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -72,9 +73,11 @@ DEFINE VARIABLE cSimon AS CHARACTER NO-UNDO .
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table prep.code prep.dscr ~
-get-type-info() @ cTypeInfo prep.mkup prep.cost prep.dfault prep.amtz prep.ml prep.uom ~
-get-simon-info() @ cSimon 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
+get-type-info() @ cTypeInfo prep.mkup prep.cost prep.dfault prep.amtz ~
+prep.ml prep.uom get-simon-info() @ cSimon prep.taxable 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table prep.taxable 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table prep
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table prep
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH prep WHERE ~{&KEY-PHRASE} ~
       AND prep.company = gcompany NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -99,12 +102,7 @@ Btn_Clear_Find
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-type-info B-table-Win 
-FUNCTION get-type-info RETURNS CHARACTER
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+/* ************************  Function Prototypes ********************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-simon-info B-table-Win 
 FUNCTION get-simon-info RETURNS CHARACTER
@@ -112,6 +110,14 @@ FUNCTION get-simon-info RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-type-info B-table-Win 
+FUNCTION get-type-info RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -143,14 +149,13 @@ DEFINE QUERY Browser-Table FOR
       prep
     FIELDS(prep.code
       prep.dscr
-      prep.mat-type
       prep.mkup
       prep.cost
       prep.dfault
       prep.amtz
       prep.ml
       prep.uom
-      prep.simon) SCROLLING.
+      prep.taxable) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -159,15 +164,19 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       prep.code FORMAT "x(15)":U WIDTH 28.2
       prep.dscr COLUMN-LABEL "Description" FORMAT "x(20)":U WIDTH 24.2
-      get-type-info() @ cTypeInfo COLUMN-LABEL "Mat'l !Type" FORMAT "X(25)":U WIDTH 28.2
-      prep.mkup FORMAT "->>9.99":U WIDTH 9.8
+      get-type-info() @ cTypeInfo COLUMN-LABEL "Mat'l !Type" FORMAT "x(25)":U
+            WIDTH 28
+      prep.mkup FORMAT ">>9.99":U WIDTH 9.8
       prep.cost FORMAT "->>,>>9.99":U
-      prep.dfault COLUMN-LABEL "Always" FORMAT "Y/N":U
-            WIDTH 10.6
+      prep.dfault COLUMN-LABEL "Always" FORMAT "Y/N":U WIDTH 10.6
       prep.amtz FORMAT ">>9.99":U
-      prep.ml FORMAT "Material/Labor":U
+      prep.ml FORMAT "M/L":U
       prep.uom FORMAT "x(3)":U WIDTH 5.6
-      get-simon-info() @ cSimon COLUMN-LABEL "SIMON" FORMAT "x(13)":U WIDTH 18
+      get-simon-info() @ cSimon COLUMN-LABEL "SIMON" FORMAT "x(13)":U
+            WIDTH 18
+      prep.taxable COLUMN-LABEL "Taxable" FORMAT "yes/no":U
+  ENABLE
+      prep.taxable
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 18.1
@@ -245,7 +254,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -268,22 +277,24 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "prep.company = gcompany"
      _FldNameList[1]   > ASI.prep.code
-"prep.code" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "28.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"code" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "28.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.prep.dscr
-"prep.dscr" "Description" ? "character" ? ? ? ? ? ? no ? no no "24.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dscr" "Description" ? "character" ? ? ? ? ? ? no ? no no "24.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
 "get-type-info() @ cTypeInfo" "Mat'l !Type" "x(25)" ? ? ? ? ? ? ? no ? no no "28" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.prep.mkup
-"prep.mkup" ? ? "decimal" ? ? ? ? ? ? no ? no no "9.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"mkup" ? ? "decimal" ? ? ? ? ? ? no ? no no "9.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = ASI.prep.cost
      _FldNameList[6]   > ASI.prep.dfault
-"prep.dfault" "Always" ? "logical" ? ? ? ? ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dfault" "Always" ? "logical" ? ? ? ? ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.prep.amtz
      _FldNameList[8]   = ASI.prep.ml
      _FldNameList[9]   > ASI.prep.uom
-"prep.uom" ? ? "character" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"uom" ? ? "character" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
 "get-simon-info() @ cSimon" "SIMON" "x(13)" ? ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.prep.taxable
+"taxable" "Taxable" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -464,32 +475,6 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-type-info B-table-Win 
-FUNCTION get-type-info RETURNS CHARACTER
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
- DEFINE VARIABLE cTypeDscr AS CHARACTER NO-UNDO .
-   IF AVAIL prep THEN
-    FIND FIRST matprep NO-LOCK
-        WHERE matprep.company eq cocode 
-          AND matprep.mat EQ prep.mat-type NO-ERROR .
-
-    IF AVAIL matprep THEN
-        ASSIGN cTypeDscr = matprep.mat + " - " + matprep.dscr  .
-
-
-  RETURN cTypeDscr.
-
-  /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-simon-info B-table-Win 
 FUNCTION get-simon-info RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
@@ -520,6 +505,32 @@ FUNCTION get-simon-info RETURNS CHARACTER
       cSimonDscr = "Separate Bill" .
 
   RETURN cSimonDscr.
+
+  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-type-info B-table-Win 
+FUNCTION get-type-info RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE cTypeDscr AS CHARACTER NO-UNDO .
+   IF AVAIL prep THEN
+    FIND FIRST matprep NO-LOCK
+        WHERE matprep.company eq cocode 
+          AND matprep.mat EQ prep.mat-type NO-ERROR .
+
+    IF AVAIL matprep THEN
+        ASSIGN cTypeDscr = matprep.mat + " - " + matprep.dscr  .
+
+
+  RETURN cTypeDscr.
 
   /* Function return value. */
 

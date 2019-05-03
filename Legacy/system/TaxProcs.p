@@ -80,6 +80,7 @@ PROCEDURE GetTaxableMisc:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPrepCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplTaxable AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-cust   FOR cust.
@@ -87,7 +88,7 @@ PROCEDURE GetTaxableMisc:
     
     RUN pSetCustBuffer(ipcCompany, ipcCustID, BUFFER bf-cust).
     RUN pSetShipToBuffer(ipcCompany, ipcCustID, ipcShipID, BUFFER bf-shipto).
-    RUN pGetTaxableMisc(BUFFER bf-cust, BUFFER bf-shipto, OUTPUT oplTaxable).
+    RUN pGetTaxableMisc(BUFFER bf-cust, BUFFER bf-shipto, ipcPrepCode, OUTPUT oplTaxable).
     
 END PROCEDURE.
 
@@ -241,11 +242,12 @@ PROCEDURE pGetTaxableMisc PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-cust   FOR cust.
     DEFINE PARAMETER BUFFER ipbf-shipto FOR shipto.
+    DEFINE INPUT PARAMETER ipcPrepCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplTaxable AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE lTaxableCust   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lTaxableShipTo AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lTaxMiscFromControl AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lTaxablePrep   AS LOGICAL NO-UNDO.
     
     IF NOT AVAILABLE ipbf-cust THEN RETURN.
     ASSIGN 
@@ -256,16 +258,17 @@ PROCEDURE pGetTaxableMisc PRIVATE:
         ASSIGN 
             lTaxableShipTo = ipbf-shipto.tax-mandatory
             .
-    FIND FIRST oe-ctrl NO-LOCK 
-        WHERE oe-ctrl.company EQ ipbf-cust.company
+    FIND FIRST prep NO-LOCK 
+        WHERE prep.company EQ ipbf-cust.company
+        AND prep.code EQ ipcPrepCode
         NO-ERROR.
-    IF AVAILABLE oe-ctrl THEN 
-        lTaxMiscFromControl = oe-ctrl.prep-chrg.
-
+    IF AVAILABLE prep THEN 
+        lTaxablePrep = prep.taxable.
+        
     IF AVAILABLE ipbf-shipto THEN 
-        oplTaxable = lTaxableShipTo AND lTaxMiscFromControl.
+        oplTaxable = lTaxableShipTo AND lTaxablePrep.
     ELSE 
-        oplTaxable = lTaxableCust AND lTaxMiscFromControl.
+        oplTaxable = lTaxableCust AND lTaxablePrep.
     
 
 END PROCEDURE.

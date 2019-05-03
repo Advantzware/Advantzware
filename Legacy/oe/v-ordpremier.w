@@ -120,6 +120,8 @@ IF llRecFound THEN
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
@@ -148,13 +150,13 @@ ASSIGN
 
 {oe/oe-sysct1.i NEW}
 {sys/ref/CustList.i NEW}        
+
   DO TRANSACTION:
     {sys/inc/oedate.i}
     {sys/inc/oecomb.i}
     {sys/inc/job#.i}
     {sys/inc/graphic.i}
     {sys/inc/oeestcom.i}
-    {sys/inc/OEPrepTaxCode.i}
     {sys/inc/shiptorep.i}
     {sys/inc/custlistform.i ""OU1"" }
   END.
@@ -295,6 +297,19 @@ RUN set-attribute-list (
 &ANALYZE-RESUME
 
 /* ************************  Function Prototypes ********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxable V-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-colonial-rel-date V-table-Win 
 FUNCTION get-colonial-rel-date RETURNS DATE
@@ -2245,14 +2260,14 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> ""
+                oe-ordm.tax = fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
-                oe-ordm.bill  = "Y".
+                oe-ordm.bill  = "Y"
+                .
 
-         IF PrepTax-log THEN 
-            ASSIGN oe-ordm.tax = TRUE
-                   oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
-                   .  
+           IF oe-ordm.tax THEN 
+                   oe-ordm.spare-char-1 = oe-ord.tax-gr.
+                     
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                             OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
 
@@ -6517,6 +6532,29 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxable V-table-Win
+FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER,
+   ipcCust AS CHARACTER,
+   ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    RETURN lTaxable.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-colonial-rel-date V-table-Win 
 FUNCTION get-colonial-rel-date RETURNS DATE
