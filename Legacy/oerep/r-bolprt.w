@@ -3400,7 +3400,7 @@ PROCEDURE output-to-mail :
           THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
           ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
 
-          IF tb_posted AND lCopyPdfFile THEN DO:
+          IF (tb_posted OR tb_post-bol) AND lCopyPdfFile THEN DO:
               IF rd-dest EQ 5 THEN DO:          
                   IF v-s-bol EQ v-e-bol THEN
                       OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "\Bol_" + string(v-s-bol) + ".pdf").
@@ -3793,7 +3793,7 @@ PROCEDURE run-packing-list :
 
   {sys/inc/outprint.i value(lines-per-page)}
 
-  IF tb_posted AND lCopyPdfFile  THEN lBussFormModle = YES .
+  IF (tb_posted OR tb_post-bol) AND lCopyPdfFile  THEN lBussFormModle = YES .
 
   IF IS-xprint-form THEN DO:
 
@@ -3853,7 +3853,7 @@ PROCEDURE run-packing-list :
           END.
       END CASE.
 
-      IF tb_posted AND lCopyPdfFile THEN DO:
+      IF (tb_posted OR tb_post-bol) AND lCopyPdfFile THEN DO:
           IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
               IF v-s-bol EQ v-e-bol THEN
                   PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
@@ -3982,7 +3982,7 @@ PROCEDURE run-report :
 
   {sys/inc/outprint.i value(lines-per-page)}
 
-  IF tb_posted AND lCopyPdfFile THEN lBussFormModle = YES .
+  IF (tb_posted OR tb_post-bol) AND lCopyPdfFile THEN lBussFormModle = YES .
 
   IF IS-xprint-form THEN DO:
 
@@ -4038,7 +4038,7 @@ PROCEDURE run-report :
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
-      IF tb_posted AND lCopyPdfFile THEN DO:
+      IF (tb_posted OR tb_post-bol) AND lCopyPdfFile THEN DO:
           IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:  
               IF v-s-bol EQ v-e-bol THEN
                   PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
@@ -4232,7 +4232,7 @@ FOR EACH oe-bolh
 end.
 
 v-lines-per-page = lines-per-page.
-IF tb_posted AND lCopyPdfFile THEN lBussFormModle = YES .
+IF (tb_posted OR tb_post-bol) AND lCopyPdfFile THEN lBussFormModle = YES .
 /*
 IF rd-dest = 2 AND is-xprint-form THEN PUT "<PREVIEW>".   
 ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
@@ -4294,7 +4294,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         END.
     END CASE.
 
-    IF tb_posted AND lCopyPdfFile THEN DO:
+    IF (tb_posted OR tb_post-bol) AND lCopyPdfFile THEN DO:
           IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
               IF v-s-bol EQ v-e-bol THEN
                   PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
