@@ -12,7 +12,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: 
+  File: phy-countLoc.w
 
   Description: Physical Count Scan By Location
 
@@ -94,10 +94,11 @@ DEFINE VARIABLE scFilterAllTags          AS CHARACTER NO-UNDO INITIAL "3".
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDelete RECT-28 fiLocation btChange ~
-rsFilter btSubmit fiBin cbWarehouse fiTag br-table btnKeyboard-4 ~
-btnKeyboard-1 btnKeyboard-3 btnNumPad btFirst btLast bt-exit btNext ~
-btPrevious 
+&Scoped-Define ENABLED-OBJECTS btDelete RECT-28 rcNotScanned btnKeyboard-4 ~
+btnKeyboard-1 rcNotScannedConf rcCompleteMatch btnKeyboard-3 ~
+rcLocationChange rcQuantityChange rcQuantityLocationChange btnNumPad ~
+rcTagNotFound btFirst fiLocation btChange rsFilter btLast btSubmit fiBin ~
+bt-exit cbWarehouse fiTag btNext br-table btPrevious 
 &Scoped-Define DISPLAYED-OBJECTS fiLocation rsFilter fiBin cbWarehouse ~
 fiTag fiItemNo 
 
@@ -226,6 +227,41 @@ DEFINE VARIABLE rsFilter AS CHARACTER INITIAL "3"
      SIZE 43 BY 3.33
      FONT 37 NO-UNDO.
 
+DEFINE RECTANGLE rcCompleteMatch
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcLocationChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcNotScanned
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcNotScannedConf
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcQuantityChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcQuantityLocationChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcTagNotFound
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 10 BY 2.38
@@ -233,7 +269,7 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 80.2 BY 3.62
+     SIZE 80.2 BY 2.86
      FGCOLOR 1 .
 
 DEFINE RECTANGLE RECT-28
@@ -267,48 +303,84 @@ ttPhysicalBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(25)"
 
 DEFINE FRAME F-Main
      btDelete AT ROW 19.57 COL 192 WIDGET-ID 116
+     btnKeyboard-4 AT ROW 6.33 COL 85 WIDGET-ID 142
+     btnKeyboard-1 AT ROW 1.57 COL 91.2 WIDGET-ID 144
+     btnKeyboard-3 AT ROW 3.52 COL 108.8 WIDGET-ID 158
+     btnNumPad AT ROW 6.48 COL 97 WIDGET-ID 120
+     btFirst AT ROW 11.52 COL 192 WIDGET-ID 128
      fiLocation AT ROW 1.62 COL 48.2 COLON-ALIGNED NO-LABEL WIDGET-ID 34
      btChange AT ROW 1.71 COL 3 WIDGET-ID 164
      rsFilter AT ROW 1.71 COL 147.8 NO-LABEL WIDGET-ID 166
+     btLast AT ROW 28.24 COL 192 WIDGET-ID 130
      btSubmit AT ROW 3.29 COL 118.2 WIDGET-ID 178
      fiBin AT ROW 3.62 COL 78.2 COLON-ALIGNED NO-LABEL WIDGET-ID 160
+     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
      cbWarehouse AT ROW 3.67 COL 50.6 COLON-ALIGNED NO-LABEL WIDGET-ID 172
-     fiTag AT ROW 7.33 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-     fiItemNo AT ROW 8.05 COL 118 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     fiTag AT ROW 6.38 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     fiItemNo AT ROW 6.86 COL 118 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     btNext AT ROW 24.86 COL 192.2 WIDGET-ID 132
      br-table AT ROW 11.48 COL 2 WIDGET-ID 200
+     btPrevious AT ROW 14.76 COL 192.2 WIDGET-ID 134
      btAdjustQty AT ROW 30.95 COL 2 WIDGET-ID 110
      btConfirmNotScanned AT ROW 31 COL 70.4 WIDGET-ID 174
      btConfirmAllNotScanned AT ROW 31 COL 136 WIDGET-ID 176
-     btnKeyboard-4 AT ROW 7.29 COL 85 WIDGET-ID 142
-     btnKeyboard-1 AT ROW 1.57 COL 91.2 WIDGET-ID 144
-     btnKeyboard-3 AT ROW 3.52 COL 108.8 WIDGET-ID 158
-     btnNumPad AT ROW 7.43 COL 97 WIDGET-ID 120
-     btFirst AT ROW 11.52 COL 192 WIDGET-ID 128
-     btLast AT ROW 28.24 COL 192 WIDGET-ID 130
-     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
-     btNext AT ROW 24.86 COL 192.2 WIDGET-ID 132
-     btPrevious AT ROW 14.76 COL 192.2 WIDGET-ID 134
-     "Location:" VIEW-AS TEXT
-          SIZE 14 BY 1.19 AT ROW 1.71 COL 35 WIDGET-ID 32
-          FGCOLOR 1 FONT 36
-     "Item:" VIEW-AS TEXT
-          SIZE 7.2 BY .81 AT ROW 8.1 COL 112.6 WIDGET-ID 150
-          FGCOLOR 1 FONT 34
-     "Warehouse:" VIEW-AS TEXT
-          SIZE 17.8 BY 1.19 AT ROW 3.67 COL 34.6 WIDGET-ID 156
-          FGCOLOR 1 FONT 36
+     "Tag Not Found" VIEW-AS TEXT
+          SIZE 19.2 BY .81 AT ROW 10.52 COL 6.8 WIDGET-ID 196
+          FONT 35
+     "Quantity and Location Change" VIEW-AS TEXT
+          SIZE 41.6 BY .81 AT ROW 9.43 COL 157.4 WIDGET-ID 192
+          FONT 35
+     "Tag:" VIEW-AS TEXT
+          SIZE 8.2 BY 1.19 AT ROW 6.48 COL 10.4 WIDGET-ID 22
+          BGCOLOR 15 FGCOLOR 1 FONT 36
+     "Tag Details" VIEW-AS TEXT
+          SIZE 16.2 BY .76 AT ROW 6.05 COL 113.8 WIDGET-ID 28
+          FGCOLOR 1 FONT 35
      "Bin:" VIEW-AS TEXT
           SIZE 6.4 BY 1.19 AT ROW 3.67 COL 73.8 WIDGET-ID 162
           FGCOLOR 1 FONT 36
-     "Tag Details" VIEW-AS TEXT
-          SIZE 16.2 BY .76 AT ROW 7 COL 113.8 WIDGET-ID 28
-          FGCOLOR 1 FONT 35
-     "Tag:" VIEW-AS TEXT
-          SIZE 8.2 BY 1.19 AT ROW 7.43 COL 10.4 WIDGET-ID 22
-          BGCOLOR 15 FGCOLOR 1 FONT 36
-     RECT-27 AT ROW 7.43 COL 109.6 WIDGET-ID 26
-     RECT-2 AT ROW 7.19 COL 96 WIDGET-ID 146
+     "Warehouse:" VIEW-AS TEXT
+          SIZE 17.8 BY 1.19 AT ROW 3.67 COL 34.6 WIDGET-ID 156
+          FGCOLOR 1 FONT 36
+     "Item:" VIEW-AS TEXT
+          SIZE 7.2 BY .81 AT ROW 6.91 COL 112.6 WIDGET-ID 150
+          FGCOLOR 1 FONT 34
+     "Not Scanned" VIEW-AS TEXT
+          SIZE 17.2 BY .62 AT ROW 9.48 COL 6.8 WIDGET-ID 206
+          FONT 35
+     "Complete Match" VIEW-AS TEXT
+          SIZE 22.2 BY .81 AT ROW 9.48 COL 68.8 WIDGET-ID 180
+          FONT 35
+     "Location Change" VIEW-AS TEXT
+          SIZE 23.2 BY .81 AT ROW 9.48 COL 98.8 WIDGET-ID 184
+          FONT 35
+     "Quantity Change" VIEW-AS TEXT
+          SIZE 23 BY .81 AT ROW 9.43 COL 128 WIDGET-ID 188
+          FONT 35
+     "Location:" VIEW-AS TEXT
+          SIZE 14 BY 1.19 AT ROW 1.71 COL 35 WIDGET-ID 32
+          FGCOLOR 1 FONT 36
+     "Not Scanned - Confirmed" VIEW-AS TEXT
+          SIZE 33 BY .62 AT ROW 9.48 COL 29 WIDGET-ID 204
+          FONT 35
+     RECT-27 AT ROW 6.48 COL 109.6 WIDGET-ID 26
+     RECT-2 AT ROW 6.24 COL 96 WIDGET-ID 146
      RECT-28 AT ROW 5.91 COL 3.4 WIDGET-ID 170
+     rcNotScanned AT ROW 9.48 COL 2.6 WIDGET-ID 200
+     rcNotScannedConf AT ROW 9.48 COL 24.8 WIDGET-ID 202
+     rcCompleteMatch AT ROW 9.48 COL 64.6 WIDGET-ID 198
+     rcLocationChange AT ROW 9.48 COL 94.6 WIDGET-ID 182
+     rcQuantityChange AT ROW 9.48 COL 123.8 WIDGET-ID 186
+     rcQuantityLocationChange AT ROW 9.48 COL 153.2 WIDGET-ID 190
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 204.8 BY 33
+         BGCOLOR 15  WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     rcTagNotFound AT ROW 10.57 COL 2.6 WIDGET-ID 194
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -368,7 +440,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB br-table fiItemNo F-Main */
+/* BROWSE-TAB br-table btNext F-Main */
 /* SETTINGS FOR BUTTON btAdjustQty IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btConfirmAllNotScanned IN FRAME F-Main
@@ -386,6 +458,34 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fiItemNo IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       rcCompleteMatch:PRIVATE-DATA IN FRAME F-Main     = 
+                "Complete Match".
+
+ASSIGN 
+       rcLocationChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Location Change".
+
+ASSIGN 
+       rcNotScanned:PRIVATE-DATA IN FRAME F-Main     = 
+                "Not Scanned".
+
+ASSIGN 
+       rcNotScannedConf:PRIVATE-DATA IN FRAME F-Main     = 
+                "Not Scanned - Confirmed".
+
+ASSIGN 
+       rcQuantityChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Quantity Change".
+
+ASSIGN 
+       rcQuantityLocationChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Quantity and Location Change".
+
+ASSIGN 
+       rcTagNotFound:PRIVATE-DATA IN FRAME F-Main     = 
+                "Tag Not Found".
+
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-27 IN FRAME F-Main
@@ -480,8 +580,7 @@ DO:
         btAdjustQty:SENSITIVE         = AVAILABLE ttPhysicalBrowseInventory
         btConfirmNotScanned:SENSITIVE = AVAILABLE ttPhysicalBrowseInventory AND ttPhysicalBrowseInventory.inventoryStatus EQ gcStatusSnapshotNotScanned
         btDelete:SENSITIVE            = AVAILABLE ttPhysicalBrowseInventory AND ttPhysicalBrowseInventory.inventoryStatus NE gcStatusSnapshotNotScanned
-        .
-        
+        .        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -786,8 +885,7 @@ DO:
         ).
 
     IF cMessage NE "" THEN
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-             
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.             
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -929,9 +1027,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiLocation rsFilter fiBin cbWarehouse fiTag fiItemNo 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btDelete RECT-28 fiLocation btChange rsFilter btSubmit fiBin 
-         cbWarehouse fiTag br-table btnKeyboard-4 btnKeyboard-1 btnKeyboard-3 
-         btnNumPad btFirst btLast bt-exit btNext btPrevious 
+  ENABLE btDelete RECT-28 rcNotScanned btnKeyboard-4 btnKeyboard-1 
+         rcNotScannedConf rcCompleteMatch btnKeyboard-3 rcLocationChange 
+         rcQuantityChange rcQuantityLocationChange btnNumPad rcTagNotFound 
+         btFirst fiLocation btChange rsFilter btLast btSubmit fiBin bt-exit 
+         cbWarehouse fiTag btNext br-table btPrevious 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -958,31 +1058,16 @@ PROCEDURE init :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - {&awversion}" + " - " 
                          + STRING(company.name) + " - " + ipcLocation.
+
     RUN pEnableContext.
         
-    RUN GenerateSnapshotRecords IN hdInventoryProcs (
-        "FG",              /* Item Type */
-        "001",             /* Company */
-        "MAIN",            /* Warehouse */
-        "A-103",           /* Location */
-        OUTPUT lCreated,
-        OUTPUT cMessage
-        ).
-    
-    RUN GenerateSnapshotRecords IN hdInventoryProcs (
-        "FG",              /* Item Type */
-        "001",             /* Company */
-        "MAIN",            /* Warehouse */
-        "A-201",           /* Location */
-        OUTPUT lCreated,
-        OUTPUT cMessage
-        ).
-
     RUN GetWarehouseList IN hdInventoryProcs (
         "", /* Company. Pass empty if needed list of all warehouses across all companies are required */
         TRUE, /* Active location only */        
         OUTPUT cWarehouseListItems
         ).
+    
+    RUN pAddLegend.
         
     cbWarehouse:LIST-ITEMS IN FRAME {&FRAME-NAME} = cWarehouseListItems.
     
@@ -1022,6 +1107,51 @@ PROCEDURE local-exit :
    
    RETURN.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddLegend W-Win 
+PROCEDURE pAddLegend :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        rcNotScanned:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcNotScanned:PRIVATE-DATA
+                               )
+        rcNotScannedConf:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcNotScannedConf:PRIVATE-DATA
+                               )
+        rcCompleteMatch:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcCompleteMatch:PRIVATE-DATA
+                               )
+        rcLocationChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcLocationChange:PRIVATE-DATA
+                               )
+        rcQuantityChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcQuantityChange:PRIVATE-DATA
+                               )
+        rcQuantityLocationChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcQuantityLocationChange:PRIVATE-DATA
+                               )
+        rcTagNotFound:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcTagNotFound:PRIVATE-DATA
+                               )
+        .                       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1104,8 +1234,7 @@ PROCEDURE pConfirmNotScanned :
         0, /* Zeroing out */
         OUTPUT lCreated,
         OUTPUT cMessage
-        ).
-        
+        ).        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

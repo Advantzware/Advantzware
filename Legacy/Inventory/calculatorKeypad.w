@@ -24,14 +24,15 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE VARIABLE dPrevValue   AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE cOperation   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lEmptyResult AS LOGICAL   NO-UNDO INITIAL FALSE.
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER oplValueReturned AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdValue         AS DECIMAL    NO-UNDO.
+
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE dPrevValue   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cOperation   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lEmptyResult AS LOGICAL   NO-UNDO INITIAL FALSE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

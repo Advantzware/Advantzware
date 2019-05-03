@@ -90,9 +90,11 @@ DEFINE VARIABLE cColumnHandles        AS CHARACTER NO-UNDO.
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDelete fiTag fiLocation btSubmit ~
-cbWarehouse fiBin br-table btAdjustQty btnNumPad btFirst btLast btNext ~
-btPrevious bt-exit btnKeyboard-2 btnKeyboard-3 
+&Scoped-Define ENABLED-OBJECTS btDelete btnNumPad btFirst btLast btNext ~
+btPrevious bt-exit rcNotScanned btnKeyboard-2 rcNotScannedConf ~
+rcCompleteMatch btnKeyboard-3 rcLocationChange rcQuantityChange ~
+rcQuantityLocationChange rcTagNotFound fiTag fiLocation btSubmit ~
+cbWarehouse fiBin br-table btAdjustQty 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiItemno fiItemType fiLocation ~
 fiCustno cbWarehouse fiBin fiTagMessage 
 
@@ -207,6 +209,41 @@ DEFINE VARIABLE fiTagMessage AS CHARACTER FORMAT "X(256)":U
      SIZE 47 BY 1
      FGCOLOR 12 FONT 35 NO-UNDO.
 
+DEFINE RECTANGLE rcCompleteMatch
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcLocationChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcNotScanned
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcNotScannedConf
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcQuantityChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcQuantityLocationChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcTagNotFound
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 10 BY 2.38
@@ -236,14 +273,22 @@ ttPhysicalBrowseInventory.origLocation WIDTH 26 COLUMN-LABEL "Original Location"
 ttPhysicalBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(25)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 188 BY 22.86
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 188 BY 20.48
          FONT 36 ROW-HEIGHT-CHARS 1.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btDelete AT ROW 18.19 COL 192 WIDGET-ID 116
+     btDelete AT ROW 19 COL 192 WIDGET-ID 116
+     btnNumPad AT ROW 2.19 COL 97 WIDGET-ID 120
+     btFirst AT ROW 10 COL 192 WIDGET-ID 128
+     btLast AT ROW 28.24 COL 192 WIDGET-ID 130
+     btNext AT ROW 23.62 COL 192.2 WIDGET-ID 132
+     btPrevious AT ROW 14.38 COL 192.2 WIDGET-ID 134
+     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
+     btnKeyboard-2 AT ROW 2.05 COL 85 WIDGET-ID 142
+     btnKeyboard-3 AT ROW 3.81 COL 66.2 WIDGET-ID 144
      fiTag AT ROW 2.1 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiItemno AT ROW 2.91 COL 119 COLON-ALIGNED NO-LABEL WIDGET-ID 76
      fiItemType AT ROW 2.91 COL 175 COLON-ALIGNED NO-LABEL WIDGET-ID 148
@@ -253,42 +298,70 @@ DEFINE FRAME F-Main
      cbWarehouse AT ROW 5.76 COL 23 COLON-ALIGNED NO-LABEL WIDGET-ID 154
      fiBin AT ROW 5.76 COL 53.6 COLON-ALIGNED NO-LABEL WIDGET-ID 164
      fiTagMessage AT ROW 5.76 COL 109.4 COLON-ALIGNED NO-LABEL WIDGET-ID 162
-     br-table AT ROW 7.67 COL 2 WIDGET-ID 200
+     br-table AT ROW 10.05 COL 2 WIDGET-ID 200
      btAdjustQty AT ROW 30.95 COL 2 WIDGET-ID 110
-     btnNumPad AT ROW 2.19 COL 97 WIDGET-ID 120
-     btFirst AT ROW 7.71 COL 192 WIDGET-ID 128
-     btLast AT ROW 28.24 COL 192 WIDGET-ID 130
-     btNext AT ROW 23.38 COL 192.2 WIDGET-ID 132
-     btPrevious AT ROW 12.1 COL 192.2 WIDGET-ID 134
-     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
-     btnKeyboard-2 AT ROW 2.05 COL 85 WIDGET-ID 142
-     btnKeyboard-3 AT ROW 3.81 COL 66.2 WIDGET-ID 144
-     "Item Type:" VIEW-AS TEXT
-          SIZE 13 BY .81 AT ROW 2.95 COL 163.2 WIDGET-ID 150
-          FGCOLOR 1 FONT 34
-     "Warehouse:" VIEW-AS TEXT
-          SIZE 17.4 BY 1.19 AT ROW 5.76 COL 6.6 WIDGET-ID 152
-          FGCOLOR 1 FONT 36
-     "Bin:" VIEW-AS TEXT
-          SIZE 6.8 BY 1.19 AT ROW 5.81 COL 48.4 WIDGET-ID 158
-          FGCOLOR 1 FONT 36
-     "Tag Details" VIEW-AS TEXT
-          SIZE 16.2 BY .76 AT ROW 1.76 COL 113.8 WIDGET-ID 28
-          FGCOLOR 1 FONT 35
-     "Location Scan:" VIEW-AS TEXT
-          SIZE 21 BY 1.19 AT ROW 3.95 COL 3 WIDGET-ID 32
-          FGCOLOR 1 FONT 36
      "Tag:" VIEW-AS TEXT
           SIZE 8.2 BY 1.19 AT ROW 2.19 COL 10.4 WIDGET-ID 22
           BGCOLOR 15 FGCOLOR 1 FONT 36
      "Customer #:" VIEW-AS TEXT
           SIZE 16 BY .81 AT ROW 4.29 COL 111.2 WIDGET-ID 78
           FGCOLOR 1 FONT 34
+     "Tag Not Found" VIEW-AS TEXT
+          SIZE 19.2 BY .81 AT ROW 8.86 COL 6.8 WIDGET-ID 196
+          FONT 35
+     "Not Scanned - Confirmed" VIEW-AS TEXT
+          SIZE 33 BY .62 AT ROW 7.81 COL 29 WIDGET-ID 176
+          FONT 35
+     "Location Scan:" VIEW-AS TEXT
+          SIZE 21 BY 1.19 AT ROW 3.95 COL 3 WIDGET-ID 32
+          FGCOLOR 1 FONT 36
+     "Quantity Change" VIEW-AS TEXT
+          SIZE 23 BY .81 AT ROW 7.76 COL 128 WIDGET-ID 188
+          FONT 35
+     "Bin:" VIEW-AS TEXT
+          SIZE 6.8 BY 1.19 AT ROW 5.81 COL 48.4 WIDGET-ID 158
+          FGCOLOR 1 FONT 36
+     "Location Change" VIEW-AS TEXT
+          SIZE 23.2 BY .81 AT ROW 7.81 COL 98.8 WIDGET-ID 184
+          FONT 35
+     "Item Type:" VIEW-AS TEXT
+          SIZE 13 BY .81 AT ROW 2.95 COL 163.2 WIDGET-ID 150
+          FGCOLOR 1 FONT 34
+     "Complete Match" VIEW-AS TEXT
+          SIZE 22.2 BY .81 AT ROW 7.81 COL 68.8 WIDGET-ID 180
+          FONT 35
      "Item #:" VIEW-AS TEXT
           SIZE 10 BY .81 AT ROW 2.95 COL 110.6 WIDGET-ID 74
           FGCOLOR 1 FONT 34
+     "Tag Details" VIEW-AS TEXT
+          SIZE 16.2 BY .76 AT ROW 1.76 COL 113.8 WIDGET-ID 28
+          FGCOLOR 1 FONT 35
+     "Not Scanned" VIEW-AS TEXT
+          SIZE 17.2 BY .62 AT ROW 7.81 COL 6.8 WIDGET-ID 172
+          FONT 35
+     "Warehouse:" VIEW-AS TEXT
+          SIZE 17.4 BY 1.19 AT ROW 5.76 COL 6.6 WIDGET-ID 152
+          FGCOLOR 1 FONT 36
+     "Quantity and Location Change" VIEW-AS TEXT
+          SIZE 41.6 BY .81 AT ROW 7.76 COL 157.4 WIDGET-ID 192
+          FONT 35
      RECT-27 AT ROW 2.19 COL 109.6 WIDGET-ID 26
      RECT-2 AT ROW 1.95 COL 96 WIDGET-ID 146
+     rcNotScanned AT ROW 7.81 COL 2.6 WIDGET-ID 166
+     rcNotScannedConf AT ROW 7.81 COL 24.8 WIDGET-ID 174
+     rcCompleteMatch AT ROW 7.81 COL 64.6 WIDGET-ID 178
+     rcLocationChange AT ROW 7.81 COL 94.6 WIDGET-ID 182
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 204 BY 36.19
+         BGCOLOR 15  WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     rcQuantityChange AT ROW 7.81 COL 123.8 WIDGET-ID 186
+     rcQuantityLocationChange AT ROW 7.81 COL 153.2 WIDGET-ID 190
+     rcTagNotFound AT ROW 8.91 COL 2.6 WIDGET-ID 194
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -363,6 +436,34 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiTagMessage IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       rcCompleteMatch:PRIVATE-DATA IN FRAME F-Main     = 
+                "Complete Match".
+
+ASSIGN 
+       rcLocationChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Location Change".
+
+ASSIGN 
+       rcNotScanned:PRIVATE-DATA IN FRAME F-Main     = 
+                "Not Scanned".
+
+ASSIGN 
+       rcNotScannedConf:PRIVATE-DATA IN FRAME F-Main     = 
+                "Not Scanned - Confirmed".
+
+ASSIGN 
+       rcQuantityChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Quantity Change".
+
+ASSIGN 
+       rcQuantityLocationChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Quantity and Location Change".
+
+ASSIGN 
+       rcTagNotFound:PRIVATE-DATA IN FRAME F-Main     = 
+                "Tag Not Found".
+
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-27 IN FRAME F-Main
@@ -617,8 +718,7 @@ DO:
         INPUT fiTag:SCREEN-VALUE
         ).
                         
-    {&OPEN-BROWSERS-IN-QUERY-F-Main}
-             
+    {&OPEN-BROWSERS-IN-QUERY-F-Main}             
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -674,8 +774,7 @@ DO:
         INPUT cWarehouseID,
         INPUT cLocationID,
         INPUT fiTag:SCREEN-VALUE
-        ).        
-                
+        ).                        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -800,9 +899,11 @@ PROCEDURE enable_UI :
   DISPLAY fiTag fiItemno fiItemType fiLocation fiCustno cbWarehouse fiBin 
           fiTagMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btDelete fiTag fiLocation btSubmit cbWarehouse fiBin br-table 
-         btAdjustQty btnNumPad btFirst btLast btNext btPrevious bt-exit 
-         btnKeyboard-2 btnKeyboard-3 
+  ENABLE btDelete btnNumPad btFirst btLast btNext btPrevious bt-exit 
+         rcNotScanned btnKeyboard-2 rcNotScannedConf rcCompleteMatch 
+         btnKeyboard-3 rcLocationChange rcQuantityChange 
+         rcQuantityLocationChange rcTagNotFound fiTag fiLocation btSubmit 
+         cbWarehouse fiBin br-table btAdjustQty 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -829,24 +930,7 @@ PROCEDURE init :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - {&awversion}" + " - " 
                          + STRING(company.name) + " - " + ipcLocation.
-    
-    RUN GenerateSnapshotRecords IN hdInventoryProcs (
-        "FG",              /* Item Type */
-        "001",             /* Company */
-        "MAIN",            /* Warehouse */
-        "A-103",           /* Location */
-        OUTPUT lCreated,
-        OUTPUT cMessage
-        ).
-    
-    RUN GenerateSnapshotRecords IN hdInventoryProcs (
-        "FG",              /* Item Type */
-        "001",             /* Company */
-        "MAIN",            /* Warehouse */
-        "A-201",           /* Location */
-        OUTPUT lCreated,
-        OUTPUT cMessage
-        ).
+    RUN pAddLegend.
 
     RUN GetWarehouseList IN hdInventoryProcs (
         "",   /* Company. Pass empty if needed list of all warehouses across all companies are required */
@@ -858,12 +942,12 @@ PROCEDURE init :
     
     RUN BuildPhyScanBrowseFromTransactionUser IN hdInventoryProcs (
         ipcCompany,
-        USERID("asi"),           /* User ID */
+        USERID(gcDBUser),           /* User ID */
         gcTransactionTypeCompare /* Compare Transaction Type */
         ).
             
     RUN pStoreColHandles.
-            
+                
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
 END PROCEDURE.
 
@@ -900,6 +984,51 @@ PROCEDURE local-exit :
    
    RETURN.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddLegend W-Win 
+PROCEDURE pAddLegend :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        rcNotScanned:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcNotScanned:PRIVATE-DATA
+                               )
+        rcNotScannedConf:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcNotScannedConf:PRIVATE-DATA
+                               )
+        rcCompleteMatch:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcCompleteMatch:PRIVATE-DATA
+                               )
+        rcLocationChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcLocationChange:PRIVATE-DATA
+                               )
+        rcQuantityChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcQuantityChange:PRIVATE-DATA
+                               )
+        rcQuantityLocationChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcQuantityLocationChange:PRIVATE-DATA
+                               )
+        rcTagNotFound:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcTagNotFound:PRIVATE-DATA
+                               )
+        .                       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1120,8 +1249,7 @@ PROCEDURE pSubmitScan :
             cbWarehouse:SCREEN-VALUE     = ttPhysicalBrowseInventory.warehouseID
             fiBin:SCREEN-VALUE           = ttPhysicalBrowseInventory.locationID
             fiTagMessage:SCREEN-VALUE    = ""
-            .
-                  
+            .                  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1177,8 +1305,7 @@ PROCEDURE pTagScan :
             cbWarehouse:SCREEN-VALUE     = ttPhysicalBrowseInventory.warehouseID
             fiBin:SCREEN-VALUE           = ttPhysicalBrowseInventory.locationID
             fiTagMessage:SCREEN-VALUE    = ""
-            .
-        
+            .        
     END.
     ELSE IF AVAILABLE inventoryStockSnapshot THEN DO:
         ASSIGN
@@ -1196,7 +1323,6 @@ PROCEDURE pTagScan :
             cbWarehouse:SCREEN-VALUE     = inventoryStockSnapshot.warehouseID
             fiBin:SCREEN-VALUE           = inventoryStockSnapshot.locationID
             .
-
     END. 
     ELSE DO:        
         FIND FIRST loadtag NO-LOCK
@@ -1219,7 +1345,6 @@ PROCEDURE pTagScan :
             cbWarehouse:SCREEN-VALUE     = loadtag.loc
             fiBin:SCREEN-VALUE           = loadtag.loc-bin
             .
-
     END.
 END PROCEDURE.
 

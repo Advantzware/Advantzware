@@ -9,7 +9,8 @@
   Description: Menu for the Physical Scan count tasks
 
   Input Parameters:
-      <none>
+      ipcCompany   : Company Code
+      ipcLocation  : Lcoation code
 
   Output Parameters:
       <none>
