@@ -86,7 +86,8 @@ DEFINE VARIABLE rs-choice AS CHARACTER
      RADIO-BUTTONS 
           "This Invoice Only", "This Invoice",
 "All Invoices for First Finished Good Item", "FG",
-"All Invoices for This Customer", "Customer"
+"All Invoices for This Customer", "Customer",
+"All Invoices for This PO#", "Po"
      SIZE 51 BY 4.48 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
