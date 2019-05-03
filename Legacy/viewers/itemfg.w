@@ -107,7 +107,7 @@ itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.spare-dec-2 ~
 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom ~
 itemfg.trNo itemfg.spare-char-4 itemfg.designID itemfg.modifiedBy  ~
-itemfg.modifiedDate itemfg.stackHeight 
+itemfg.modifiedDate itemfg.stackHeight itemfg.sizeL itemfg.sizeW itemfg.sizeH
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
@@ -126,7 +126,8 @@ itemfg.prod-notes itemfg.std-mat-cost itemfg.std-lab-cost ~
 itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
 itemfg.spare-dec-2 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost ~
 itemfg.prod-uom itemfg.spare-char-4 itemfg.designID itemfg.setupBy ~
-itemfg.modifiedBy itemfg.modifiedDate itemfg.stackHeight 
+itemfg.modifiedBy itemfg.modifiedDate itemfg.stackHeight itemfg.sizeL ~
+itemfg.sizeW itemfg.sizeH
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tg-Freeze-weight ~
@@ -406,7 +407,19 @@ DEFINE FRAME F-Main
      itemfg.stackHeight AT ROW 13.86 COL 85 COLON-ALIGNED
           LABEL "Stack Height" FORMAT "->>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1 
+          SIZE 5 BY 1 
+     itemfg.sizeL AT ROW 13.86 COL 113 COLON-ALIGNED
+          NO-LABEL FORMAT ">>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 6.6 BY 1
+     itemfg.sizeW AT ROW 13.86 COL 123.40 COLON-ALIGNED
+          NO-LABEL FORMAT ">>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 6.6 BY 1
+     itemfg.sizeH AT ROW 13.86 COL 134.20 COLON-ALIGNED
+          NO-LABEL FORMAT ">>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 6.6 BY 1
      itemfg.spare-dec-2 AT ROW 15.00 COL 124.6 COLON-ALIGNED WIDGET-ID 4
           LABEL "C/in/Pallet" FORMAT "->>>>>>>9.99"
           VIEW-AS FILL-IN 
@@ -465,7 +478,11 @@ DEFINE FRAME F-Main
      "Ship Method:" VIEW-AS TEXT
           SIZE 15 BY .95 AT ROW 4 COL 70
      "Pallet Size:" VIEW-AS TEXT
-          SIZE 12 BY .95 AT ROW 13.86 COL 108
+          SIZE 12.6 BY .95 AT ROW 13.86 COL 101.20
+     "x" VIEW-AS TEXT
+          SIZE 2 BY .95 AT ROW 13.86 COL 122.60
+     "x" VIEW-AS TEXT
+          SIZE 2 BY .95 AT ROW 13.86 COL 133.60
      RECT-10 AT ROW 16.33 COL 69
      RECT-8 AT ROW 9.52 COL 2
      RECT-9 AT ROW 5.29 COL 69
@@ -504,7 +521,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 20.10
+         HEIGHT             = 20.80
          WIDTH              = 145.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -637,6 +654,12 @@ ASSIGN
  NO-ENABLE  EXP-LABEL EXP-FORMAT                                          */
 /* SETTINGS FOR FILL-IN itemfg.stackHeight IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.sizeL IN FRAME F-Main
+   NO-ENABLE  EXP-LABEL EXP-FORMAT                                          */
+/* SETTINGS FOR FILL-IN itemfg.sizeW IN FRAME F-Main
+   NO-ENABLE  EXP-LABEL EXP-FORMAT                                          */
+/* SETTINGS FOR FILL-IN itemfg.sizeH IN FRAME F-Main
+   NO-ENABLE  EXP-LABEL EXP-FORMAT                                          */
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1359,8 +1382,7 @@ DO:
     END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
+&ANALYZE-RESUME  
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.type-code V-table-Win
 ON VALUE-CHANGED OF itemfg.type-code IN FRAME F-Main /* Type Code */
