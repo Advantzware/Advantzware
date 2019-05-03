@@ -50,17 +50,17 @@ DEFINE BUFFER bfFtpConfig FOR ftpConfig.
 {sys/inc/var.i NEW SHARED}
 
 cocode = g_company.
-RUN sys/ref/nk1look.p (INPUT cocode,  "InboundConfig", "C" /* Character*/, 
-    INPUT NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */,
-    INPUT "" /* cust */, 
-    INPUT "" /* ship-to*/,
-    OUTPUT cReturnChar, 
-    OUTPUT lRecFound).
-IF lRecFound THEN 
-    cConfigFile = cReturnChar  .
-ELSE
-  RETURN.
+/*RUN sys/ref/nk1look.p (INPUT cocode,  "InboundConfig", "C" /* Character*/,*/
+/*    INPUT NO /* check by cust */,                                         */
+/*    INPUT YES /* use cust not vendor */,                                  */
+/*    INPUT "" /* cust */,                                                  */
+/*    INPUT "" /* ship-to*/,                                                */
+/*    OUTPUT cReturnChar,                                                   */
+/*    OUTPUT lRecFound).                                                    */
+/*IF lRecFound THEN                                                         */
+/*    cConfigFile = cReturnChar  .                                          */
+/*ELSE                                                                      */
+/*  RETURN.                                                                 */
     
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -353,7 +353,6 @@ FUNCTION fGetFtpIni RETURNS CHARACTER
         IF cFtpIniFile NE ? THEN 
           cIniResult = cFtpIniFile.
 		RETURN cIniResult.
-		
 END FUNCTION.
 
 FUNCTION fGetLocalChgDirCmd RETURNS CHARACTER 
@@ -373,7 +372,6 @@ FUNCTION fGetLocalChgDirCmd RETURNS CHARACTER
     END CASE.
     
     RETURN cCmd.
-		
 END FUNCTION.
 
 FUNCTION fGetOpenCmd RETURNS CHARACTER 
@@ -393,7 +391,6 @@ FUNCTION fGetOpenCmd RETURNS CHARACTER
     END CASE.
     
     RETURN cCmd.
-		
 END FUNCTION.
 
 FUNCTION fGetPrepCmd1 RETURNS CHARACTER 
@@ -413,7 +410,6 @@ FUNCTION fGetPrepCmd1 RETURNS CHARACTER
     END CASE.
     
     RETURN cCmd.
-		
 END FUNCTION.
 
 FUNCTION fGetPrepCmd2 RETURNS CHARACTER 
@@ -433,7 +429,6 @@ FUNCTION fGetPrepCmd2 RETURNS CHARACTER
     END CASE.
     
     RETURN cCmd.
-		
 END FUNCTION.
 
 FUNCTION fGetRmtChgDirCmd RETURNS CHARACTER 
@@ -442,7 +437,6 @@ FUNCTION fGetRmtChgDirCmd RETURNS CHARACTER
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/	
-
     DEF VAR cCmd AS CHAR NO-UNDO.
     
     CASE ipcSoftware:
@@ -451,10 +445,7 @@ FUNCTION fGetRmtChgDirCmd RETURNS CHARACTER
         WHEN "FTP" THEN 
             cCmd = IF ipcChDir GT "" THEN  "cd " + ipcChDir ELSE "". 
     END CASE.
-    
     RETURN cCmd.
-
-		
 END FUNCTION.
 
 FUNCTION fGetWinScpExe RETURNS CHARACTER 
@@ -502,7 +493,6 @@ DEFINE VARIABLE cWinScpIniFile AS CHARACTER NO-UNDO.
         FILE-INFO:FILE-NAME = cWinScpIniFile.
         cWinScpIniFile = " /ini=" + FILE-INFO:FULL-PATHNAME.
     END.
-    
 END FUNCTION.
 
 FUNCTION fSetCmdLine RETURNS CHARACTER 
@@ -511,14 +501,13 @@ FUNCTION fSetCmdLine RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/	
-
 	DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+	
     CREATE ttScriptLines.
     ASSIGN ttScriptLines.scriptLineNum  = ipiLine
            ttScriptLines.scriptLineText = ipcCmd
            .
     RETURN cResult.
-		
 END FUNCTION.
 
 /* ***************************  Main Block  *************************** */
@@ -598,11 +587,8 @@ PROCEDURE pCreateScriptRecords:
         iLineNumber = iLineNumber + 10.
         fSetCmdLine(iLineNumber, cExitCmd).
         
-    END. /* WinScp */
-
-   
+    END. /* WinScp */   
 END PROCEDURE.
-
 
 PROCEDURE pGetConfigValues:
     DEFINE INPUT PARAMETER ipcFormat   AS CHARACTER NO-UNDO.
@@ -649,7 +635,6 @@ PROCEDURE pGetConfigValues:
     END.
     ELSE
         lConfigBased = FALSE.
-
 END PROCEDURE. /* set-config-based */
 
 PROCEDURE pExecuteCommand:
@@ -707,6 +692,8 @@ PROCEDURE pSimpleFtp:
     DEFINE VARIABLE cCommandFile AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFullCmd     AS CHARACTER NO-UNDO.
     
+    EMPTY TEMP-TABLE ttScriptLines.
+    
     RUN pCreateScriptRecords (ipcFtpURL,
         ipcFtpUser,
         ipcFtpPassword,
@@ -722,8 +709,6 @@ PROCEDURE pSimpleFtp:
     cCommandFile = ipcFtpScriptDir + "\" + ipcFtpScript.
     RUN pWriteToFile (INPUT cCommandFile).
     RUN pExecuteCommand (iplSilent, ipcFtpSoftware, cCommandFile, YES /* run cmd */, OUTPUT cFullCmd).
-
-
 END PROCEDURE.
 
 PROCEDURE pWriteToFile:
@@ -740,8 +725,6 @@ PROCEDURE pWriteToFile:
     END.
     
     OUTPUT CLOSE.
-
-
 END PROCEDURE.
 
 PROCEDURE pExecFtp:
