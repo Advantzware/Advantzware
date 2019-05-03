@@ -1614,6 +1614,8 @@ DO:
         tb_collate-hidden EQ NO AND tb_collate THEN
         PUT "<COLLATE=YES,ALWAYS>".
 
+    IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN lBussFormModle = YES . 
+
     CASE rd-dest :
 
         WHEN 1 THEN do: 
@@ -1688,7 +1690,7 @@ DO:
 
     IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN DO:
         IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
-            PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Inv_" + vcInvNums + ".pdf>" FORM "x(180)".
+            PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Inv_" + vcInvNums + ".pdf>" FORM "x(180)".
         END.
     END.
 
@@ -1829,7 +1831,7 @@ PROCEDURE SendMail-1:
                 
                 IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN DO:
                     IF rd-dest EQ 5 THEN DO:
-                        OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Inv_" + vcInvNums + ".pdf").
+                        OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "\Inv_" + vcInvNums + ".pdf").
                      END.
                  END.
                   

@@ -3403,8 +3403,8 @@ PROCEDURE output-to-mail :
           IF tb_posted AND lCopyPdfFile THEN DO:
               IF rd-dest EQ 5 THEN DO:          
                   IF v-s-bol EQ v-e-bol THEN
-                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf").
-                  ELSE OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + "_To_" + STRING(v-e-bol) + ".pdf").
+                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "\Bol_" + string(v-s-bol) + ".pdf").
+                  ELSE OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "\Bol_" + string(v-s-bol) + "_To_" + STRING(v-e-bol) + ".pdf").
               END.
           END.
       END.
@@ -3793,6 +3793,8 @@ PROCEDURE run-packing-list :
 
   {sys/inc/outprint.i value(lines-per-page)}
 
+  IF tb_posted AND lCopyPdfFile  THEN lBussFormModle = YES .
+
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
@@ -3854,8 +3856,8 @@ PROCEDURE run-packing-list :
       IF tb_posted AND lCopyPdfFile THEN DO:
           IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
               IF v-s-bol EQ v-e-bol THEN
-                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
-              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
+                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
           END.
       END.
   END.
@@ -3980,6 +3982,8 @@ PROCEDURE run-report :
 
   {sys/inc/outprint.i value(lines-per-page)}
 
+  IF tb_posted AND lCopyPdfFile THEN lBussFormModle = YES .
+
   IF IS-xprint-form THEN DO:
 
       CASE rd-dest:
@@ -4037,8 +4041,8 @@ PROCEDURE run-report :
       IF tb_posted AND lCopyPdfFile THEN DO:
           IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:  
               IF v-s-bol EQ v-e-bol THEN
-                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
-              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
+                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
         END.
       END.
   END.
@@ -4228,6 +4232,7 @@ FOR EACH oe-bolh
 end.
 
 v-lines-per-page = lines-per-page.
+IF tb_posted AND lCopyPdfFile THEN lBussFormModle = YES .
 /*
 IF rd-dest = 2 AND is-xprint-form THEN PUT "<PREVIEW>".   
 ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
@@ -4292,8 +4297,8 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
     IF tb_posted AND lCopyPdfFile THEN DO:
           IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
               IF v-s-bol EQ v-e-bol THEN
-                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
-              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
+                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "\Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".
           END.
     END.
 END.
