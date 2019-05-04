@@ -175,7 +175,7 @@ DEFINE VARIABLE uom_dscr AS CHARACTER FORMAT "x(30)"
 
 DEFINE FRAME F-Main
      prep.code AT ROW 1.48 COL 13 COLON-ALIGNED
-          LABEL "Prep Code" FORMAT "X(15)"
+          LABEL "Prep Code" FORMAT "X(20)"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 FONT 4
