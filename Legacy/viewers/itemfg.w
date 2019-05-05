@@ -103,10 +103,11 @@ itemfg.sell-uom itemfg.curr-code[1] itemfg.procat itemfg.procat-desc ~
 itemfg.type-code itemfg.def-loc itemfg.def-loc-bin itemfg.case-count ~
 itemfg.case-pall itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr ~
 itemfg.class itemfg.cc-code itemfg.prod-code itemfg.prod-notes itemfg.trNo ~
-itemfg.spare-char-4 itemfg.stackHeight itemfg.std-mat-cost ~
-itemfg.std-lab-cost itemfg.std-var-cost itemfg.std-fix-cost ~
-itemfg.spare-dec-1 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost ~
-itemfg.prod-uom itemfg.palletVolume 
+itemfg.spare-char-4 itemfg.stackHeight itemfg.unitLength itemfg.unitWidth ~
+itemfg.unitHeight itemfg.std-mat-cost itemfg.std-lab-cost ~
+itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
+itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom ~
+itemfg.palletVolume 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
@@ -658,7 +659,7 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN itemfg.upc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN itemfg.weight-100 IN FRAME F-Main
+/* SETTINGS FOR FILL-IN itemfg.unitLength IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1432,7 +1433,8 @@ DO TRANSACTION:
     {sys/inc/fgsecur.i}
     {sys/inc/custlistform.i ""IF1"" }
 END.
-
+ 
+ 
 SESSION:DATA-ENTRY-RETURN = YES.
 
 RUN sys/ref/nk1Look.p(INPUT cocode,
