@@ -2,14 +2,14 @@
 # @command      powershell.exe -ExecutionPolicy Bypass -File "%EXTENSION_PATH%" -sessionUrl "!S" -localPath "!^!" -remotePath "!/!" -pause -sessionLogPath "%SessionLogPath%"
 # @description  Compares checksums of the selected local and remote file
 # @flag         RemoteFiles
-# @version      3
+# @version      4
 # @homepage     https://winscp.net/eng/docs/library_example_verify_file_checksum
 # @require      WinSCP 5.8.4
 # @option       SessionLogPath -config sessionlogfile
 # @optionspage  https://winscp.net/eng/docs/library_example_verify_file_checksum#options
  
 param (
-    # Use Generate URL function to obtain a value for -sessionUrl parameter.
+    # Use Generate Session URL function to obtain a value for -sessionUrl parameter.
     $sessionUrl = "sftp://user:mypassword;fingerprint=ssh-rsa-xx-xx-xx@example.com/",
     [Parameter(Mandatory = $True)]
     $localPath,
@@ -51,7 +51,8 @@ try
         Write-Host $remotePath
  
         # Calculate remote file checksum
-        $remoteChecksum = [System.BitConverter]::ToString($session.CalculateFileChecksum("sha-1", $remotePath))
+        $remoteChecksum =
+            [System.BitConverter]::ToString($session.CalculateFileChecksum("sha-1", $remotePath))
         Write-Host $remoteChecksum
     }
     finally
@@ -72,9 +73,9 @@ try
         $result = 1
     }
 }
-catch [Exception]
+catch
 {
-    Write-Host ("Error: {0}" -f $_.Exception.Message)
+    Write-Host "Error: $($_.Exception.Message)"
     $result = 1
 }
  

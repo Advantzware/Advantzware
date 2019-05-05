@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asitest168       PROGRESS
+          asi       PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -43,10 +43,6 @@ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 {oe/d-selmis.i NEW}
 {sys/inc/ceprepprice.i}
 
-DO TRANSACTION:
-    {sys/inc/OEPrepTaxCode.i}
-END.
- 
 
 DEFINE VARIABLE lv-new-recid    AS RECID     NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL   NO-UNDO.
@@ -139,7 +135,8 @@ oe-ordm.form-no oe-ordm.blank-no
 FUNCTION fGetTaxableMisc RETURNS LOGICAL 
   ( ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER) FORWARD.
+    ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1179,27 +1176,23 @@ PROCEDURE create-item :
         oe-ordm.s-pct[3]  = oe-ord.s-pct[3]
         oe-ordm.s-comm[3] = oe-ord.s-comm[3] .
 
-    IF AVAILABLE oe-ctrl AND oe-ctrl.prep-comm EQ NO THEN 
-    DO:             /*Task# 11271302*/  
-        ASSIGN
-            oe-ordm.s-comm[1] = 0
-            oe-ordm.s-comm[2] = 0     
-            oe-ordm.s-comm[3] = 0.
-    END.
-
     FIND FIRST ar-ctrl WHERE ar-ctrl.company = oe-ord.company NO-LOCK NO-ERROR.
     IF AVAILABLE ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
     FIND FIRST cust OF oe-ord NO-LOCK.
 
-    FIND FIRST oe-ctrl NO-LOCK
-        WHERE oe-ctrl.company = oe-ord.company
-        NO-ERROR.
-   
-    IF AVAILABLE oe-ctrl AND oe-ctrl.prep-chrg THEN
-        ASSIGN oe-ordm.spare-char-1 = IF AVAILABLE shipto AND shipto.tax-code NE "" THEN shipto.tax-code
-                                    ELSE IF AVAILABLE cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
-                                    ELSE oe-ord.tax-gr
-               oe-ordm.tax          = fGetTaxableMisc(cocode, oe-ord.cust-no, oe-ord.ship-id) .
+    FIND FIRST prep NO-LOCK 
+            WHERE prep.company EQ oe-ord.company 
+            AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+            NO-ERROR.
+    IF AVAILABLE prep AND NOT prep.commissionable THEN
+        ASSIGN 
+            oe-ordm.s-comm[1] = 0 
+            oe-ordm.s-comm[2] = 0
+            oe-ordm.s-comm[3] = 0
+            .
+        
+    ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr
+           oe-ordm.tax          = fGetTaxableMisc(cocode, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge:SCREEN-VALUE IN FRAME {&FRAME-NAME}) .
   
     i = 0 .
     FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -1457,10 +1450,7 @@ PROCEDURE new-charge :
                 WHERE shipto.company EQ cocode
                 AND shipto.cust-no EQ oe-ord.cust-no
                 NO-ERROR.
-            IF AVAILABLE oe-ctrl AND oe-ctrl.prep-chrg THEN
-                ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = IF AVAILABLE shipto AND shipto.tax-code NE "" THEN shipto.tax-code
-                                                    ELSE IF AVAILABLE cust AND cust.spare-char-1 <> "" THEN cust.spare-char-1 
-                                                    ELSE oe-ord.tax-gr
+            ASSIGN oe-ordm.spare-char-1:SCREEN-VALUE = oe-ord.tax-gr
                     .
 
             FIND FIRST account
@@ -1498,7 +1488,7 @@ PROCEDURE new-comm :
             AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
             NO-LOCK NO-ERROR.
 
-        IF AVAILABLE oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN 
+        IF AVAILABLE prep AND prep.commissionable THEN 
         DO:             /*Task# 11271302*/
         
             DO v-li = 1 TO IF ip-int EQ 0 THEN 3 ELSE ip-int:
@@ -1565,7 +1555,11 @@ PROCEDURE new-s-man :
                         oe-ordm.s-pct[3]:SCREEN-VALUE = "100".
                     IF DECIMAL(oe-ordm.s-comm[3]:SCREEN-VALUE) EQ 0 THEN 
                     DO:
-                        IF AVAILABLE oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
+                        FIND FIRST prep
+                            WHERE prep.company EQ oe-ord.company 
+                            AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
+                            NO-LOCK NO-ERROR.
+                        IF AVAILABLE prep AND prep.commissionable THEN        /*Task# 11271302*/
                             oe-ordm.s-comm[3]:SCREEN-VALUE = STRING(sman.scomm).
                     END.
 
@@ -1578,7 +1572,11 @@ PROCEDURE new-s-man :
                             oe-ordm.s-pct[2]:SCREEN-VALUE = "100".
                         IF DECIMAL(oe-ordm.s-comm[2]:SCREEN-VALUE) EQ 0 THEN 
                         DO:
-                            IF AVAILABLE oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
+                            FIND FIRST prep
+                                WHERE prep.company EQ oe-ord.company 
+                                AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
+                                NO-LOCK NO-ERROR.
+                            IF AVAILABLE prep AND prep.commissionable THEN        /*Task# 11271302*/
                                 oe-ordm.s-comm[2]:SCREEN-VALUE = STRING(sman.scomm).
                         END.
 
@@ -1590,7 +1588,12 @@ PROCEDURE new-s-man :
                             oe-ordm.s-pct[1]:SCREEN-VALUE = "100".
                         IF DECIMAL(oe-ordm.s-comm[1]:SCREEN-VALUE) EQ 0 THEN 
                         DO:
-                            IF AVAILABLE oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN        /*Task# 11271302*/
+                            FIND FIRST prep
+                            WHERE prep.company EQ oe-ord.company 
+                            AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
+                            NO-LOCK NO-ERROR.
+                            
+                            IF AVAILABLE prep AND prep.commissionable THEN        /*Task# 11271302*/
                                 oe-ordm.s-comm[1]:SCREEN-VALUE = STRING(sman.scomm).
                         END.
 
@@ -1719,6 +1722,9 @@ PROCEDURE valid-charge :
             RETURN ERROR.
         END.
     END.
+    
+    ASSIGN 
+        oe-ordm.tax:SCREEN-VALUE = STRING(prep.taxable).
 
 END PROCEDURE.
 
@@ -2044,15 +2050,15 @@ END PROCEDURE.
 FUNCTION fGetTaxableMisc RETURNS LOGICAL 
   ( ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER):
+    ipcShipto AS CHARACTER, 
+    ipcPrepCode AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
-    RETURN lTaxable.
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
 
 END FUNCTION.
 	

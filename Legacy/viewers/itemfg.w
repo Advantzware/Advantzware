@@ -652,14 +652,14 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.type-code IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.unitHeight IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN itemfg.unitLength IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN itemfg.unitWidth IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN itemfg.upc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN itemfg.weight-100 IN FRAME F-Main
+/* SETTINGS FOR FILL-IN itemfg.unitLength IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

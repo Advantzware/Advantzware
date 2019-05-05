@@ -91,7 +91,7 @@ DEFINE QUERY external_tables FOR prep.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS prep.dscr prep.inactive prep.ml prep.fgcat ~
 prep.dfault prep.cost prep.mkup prep.price prep.amtz prep.taxable ~
-prep.commisionable prep.loc prep.loc-bin prep.i-no prep.vend-no ~
+prep.commissionable prep.loc prep.loc-bin prep.i-no prep.vend-no ~
 prep.mat-type prep.actnum prep.cost-type prep.simon prep.cust-no ~
 prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.cadNo ~
@@ -99,10 +99,9 @@ prep.cad-image prep.carton-w prep.die-w prep.box-style prep.prep-date ~
 prep.carton-l prep.die-l prep.wood-type prep.carton-d prep.disposal-date 
 &Scoped-define ENABLED-TABLES prep
 &Scoped-define FIRST-ENABLED-TABLE prep
-&Scoped-Define ENABLED-OBJECTS imgFolder 
 &Scoped-Define DISPLAYED-FIELDS prep.code prep.dscr prep.inactive prep.ml ~
 prep.fgcat prep.dfault prep.cost prep.mkup prep.price prep.amtz ~
-prep.taxable prep.commisionable prep.loc prep.loc-bin prep.i-no ~
+prep.taxable prep.commissionable prep.loc prep.loc-bin prep.i-no ~
 prep.vend-no prep.uom prep.mat-type prep.actnum prep.cost-type prep.simon ~
 prep.cust-no prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.cadNo ~
@@ -171,16 +170,12 @@ DEFINE VARIABLE uom_dscr AS CHARACTER FORMAT "x(30)"
      SIZE 38 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE IMAGE imgFolder
-     FILENAME "images/folder1.bmp":U
-     SIZE 5 BY .95 TOOLTIP "Select an image file from the filesystem".
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      prep.code AT ROW 1.48 COL 13 COLON-ALIGNED
-          LABEL "Prep Code" FORMAT "X(15)"
+          LABEL "Prep Code" FORMAT "X(20)"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 FONT 4
@@ -224,7 +219,7 @@ DEFINE FRAME F-Main
           LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
-     prep.commisionable AT ROW 3.86 COL 113
+     prep.commissionable AT ROW 3.86 COL 113
           LABEL "Commission"
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY 1
@@ -382,13 +377,6 @@ DEFINE FRAME F-Main
      prep.rec_key AT ROW 18 COL 125 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1 NO-TAB-STOP 
-     "Carton" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 13.14 COL 19
-     "Die" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 13.14 COL 35
-     "%" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 8.62 COL 124
-     imgFolder AT ROW 12.19 COL 123
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -467,7 +455,7 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.code IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
-/* SETTINGS FOR TOGGLE-BOX prep.commisionable IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX prep.commissionable IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.cost-type IN FRAME F-Main
    4                                                                    */
@@ -708,6 +696,33 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME prep.cad-image
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.cad-image V-table-Win
+ON F1 OF prep.cad-image IN FRAME F-Main /* Image */
+DO:
+    DEF VAR cFileName AS CHAR NO-UNDO.
+    DEF VAR OKpressed AS LOG NO-UNDO.
+    
+    IF prep.cad-image:SCREEN-VALUE IN FRAME F-main NE "" THEN ASSIGN 
+        cFileName = prep.cad-image:SCREEN-VALUE.
+    ELSE ASSIGN 
+        cFileName = prep.cad-image:SCREEN-VALUE.
+        
+    SYSTEM-DIALOG GET-FILE cFileName
+        TITLE "Select an image for this CAD File..."
+        FILTERS "Image Files"   "*.bmp,*.jpg,*.png,*.pdf"
+        MUST-EXIST 
+        USE-FILENAME 
+        UPDATE OKpressed.
+    IF OKpressed EQ TRUE THEN ASSIGN 
+        prep.cad-image:SCREEN-VALUE = cFileName.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME prep.carton-d
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.carton-d V-table-Win
 ON LEAVE OF prep.carton-d IN FRAME F-Main /* Depth */
@@ -904,30 +919,6 @@ DO:
          UPDATE v_rmcrtflg.      
 
    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME imgFolder
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgFolder V-table-Win
-ON mouse-select-click OF imgFolder IN FRAME F-Main
-DO:
-    DEF VAR cFileName AS CHAR NO-UNDO.
-    DEF VAR OKpressed AS LOG NO-UNDO.
-    
-    IF prep.cad-image:SCREEN-VALUE IN FRAME F-main NE "" THEN ASSIGN 
-        cFileName = prep.cad-image:SCREEN-VALUE.
-    
-    SYSTEM-DIALOG GET-FILE cFileName
-        TITLE "Select an image for this Prep Item..."
-        FILTERS "Image Files"   "*.bmp,*.jpg,*.png,*.pdf"
-        MUST-EXIST 
-        USE-FILENAME 
-        UPDATE OKpressed.
-    IF OKpressed EQ TRUE THEN ASSIGN 
-        prep.cad-image:SCREEN-VALUE = cFileName.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1379,8 +1370,7 @@ PROCEDURE local-cancel-record :
 
     ASSIGN prep.last-job-no:SENSITIVE = NO
            prep.last-job-no2:SENSITIVE = NO
-           prep.cadNo:SENSITIVE = FALSE
-           imgFolder:SENSITIVE = false.
+           prep.cadNo:SENSITIVE = FALSE.
   END.
 END PROCEDURE.
 
@@ -1554,8 +1544,7 @@ PROCEDURE local-enable :
     ASSIGN
      prep.last-job-no:SENSITIVE = NO
      prep.last-job-no2:SENSITIVE = NO
-     prep.cadNo:SENSITIVE = FALSE
-     imgFolder:SENSITIVE = TRUE.
+     prep.cadNo:SENSITIVE = FALSE.
 
   END.
 
