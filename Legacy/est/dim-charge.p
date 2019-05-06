@@ -10,9 +10,9 @@ FIND FIRST e-item-vend NO-LOCK
     NO-ERROR.
 
 IF AVAIL e-item-vend THEN DO:
-  IF ip-wid LT e-item-vend.underWidth / 10000 THEN
-    io-dec = io-dec + (e-item-vend.underWidthCost / 10000).
+  IF ip-wid LT e-item-vend.underWidth  THEN
+    io-dec = io-dec + (e-item-vend.underWidthCost ).
 
-  IF ip-len LT e-item-vend.underLength / 10000 THEN
-    io-dec = io-dec + (e-item-vend.underLengthCost / 10000).
+  IF ip-len LT e-item-vend.underLength THEN
+    io-dec = io-dec + (e-item-vend.underLengthCost ).
 END.

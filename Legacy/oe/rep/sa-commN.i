@@ -347,8 +347,8 @@
               
         END.
 
-        IF ar-invl.misc AND NOT oe-ctrl.prep-comm THEN v-slsc[1] = 0.
-
+        IF ar-invl.misc AND AVAILABLE prep AND NOT prep.commissionable THEN v-slsc[1] = 0.
+        
         RUN custom/combasis.p (cocode, tt-report.key-01, cust.type,
                                (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
                                cust.cust-no,
@@ -477,12 +477,13 @@
              v-amt = v-amt * ld-inv-pct.
            END.
           
+           IF ar-invl.misc AND AVAILABLE prep AND NOT prep.commissionable THEN v-slsc[1] = 0.
+
            RUN custom/combasis.p (cocode, tt-report.key-01, cust.type,
                                   (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
                                   cust.cust-no,
                                    OUTPUT v-basis).
           
-           IF ar-invl.misc AND NOT oe-ctrl.prep-comm THEN v-slsc[1] = 0.
         END.
 
         ELSE DO:

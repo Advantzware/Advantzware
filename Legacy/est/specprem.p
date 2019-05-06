@@ -342,8 +342,9 @@ PROCEDURE CreateExcelSheet:
     RUN util/CurrDir.p (OUTPUT cCurrDir).
     RUN GetOutputDir (OUTPUT cOutDir).
   
-    ASSIGN
-        cFileName = cCurrDir + "\Template\"  + gcTemplateFile NO-ERROR.
+  RUN sys/ref/getFileFullPathName.p ("Template\SpecPremTemplate.xltx", OUTPUT cFileName).
+  IF cFileName = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
 
    /* Create excel object*/
     IF NOT VALID-HANDLE(ghExcel) THEN

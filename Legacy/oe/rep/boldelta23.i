@@ -40,9 +40,9 @@ DO:
             i              = i + 1.
 
         iTotShiped       = iTotShiped + bf-ttboll.qty .  
-        iAmtPerBundle    = oe-ordl.cas-cnt .
+        iAmtPerBundle    = oe-ordl.cas-cnt  .
         iBundlePerPallet = oe-ordl.cases-unit .
-  
+        
         FIND FIRST w2 WHERE w2.cas-cnt EQ bf-ttboll.qty-case NO-ERROR.
         IF NOT AVAILABLE w2 THEN CREATE w2.
         ASSIGN 
@@ -122,8 +122,9 @@ DO:
         DO:      
             IF FIRST (w2.cases) THEN do:
                 iQtyPerPallet = iAmtPerBundle * iBundlePerPallet .
-                iTotPallet = (iTotShiped / iQtyPerPallet) .
+                iTotPallet = (iTotShiped / iQtyPerPallet)  .
                 v-tot-palls = v-tot-palls + iTotPallet .
+                
                 iGrandTotShiped = iGrandTotShiped + iTotShiped .
                 iGrandBundlePerPallet = iGrandBundlePerPallet + ( iTotPallet * iBundlePerPallet)  .
             END.

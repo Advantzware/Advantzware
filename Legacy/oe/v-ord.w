@@ -154,13 +154,13 @@ ASSIGN
 
 {oe/oe-sysct1.i NEW}
 {sys/ref/CustList.i NEW}        
+
   DO TRANSACTION:
     {sys/inc/oedate.i}
     {sys/inc/oecomb.i}
     {sys/inc/job#.i}
     {sys/inc/graphic.i}
     {sys/inc/oeestcom.i}
-    {sys/inc/OEPrepTaxCode.i}
     {sys/inc/shiptorep.i}
     {sys/inc/custlistform.i ""OU1"" }
   END.
@@ -339,7 +339,8 @@ FUNCTION fBuildAddress RETURNS CHARACTER
 FUNCTION fGetTaxable RETURNS LOGICAL
   ( ipcCompany AS CHARACTER,
    ipcCust AS CHARACTER,
-   ipcShipto AS CHARACTER) FORWARD.
+   ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -477,7 +478,6 @@ DEFINE FRAME F-Main
      fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiHoldType AT ROW 9.33 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -506,10 +506,6 @@ DEFINE FRAME F-Main
           LABEL "Status"
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1
-     oe-ord.spare-char-2 AT ROW 9.33 COL 108 COLON-ALIGNED WIDGET-ID 8
-          LABEL "Hold Type" FORMAT "x(2)"
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1 TOOLTIP "Order Hold Type"
      oe-ord.cust-no AT ROW 2.67 COL 10.8 COLON-ALIGNED
           LABEL "Bill To" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -591,6 +587,11 @@ DEFINE FRAME F-Main
      oe-ord.managed AT ROW 11.38 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 26 BY 1
+     oe-ord.spare-char-2 AT ROW 9.33 COL 108 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Hold Type" FORMAT "x(2)"
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1 TOOLTIP "Order Hold Type"
+     fiHoldType AT ROW 9.33 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      oe-ord.priceHold AT ROW 11 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
@@ -2527,12 +2528,12 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id)
+                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
 
-         IF PrepTax-log THEN 
-            ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+         IF oe-ordm.tax THEN 
+            ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
                    .  
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                             OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
@@ -2937,7 +2938,9 @@ END.
            itemfg.spc-no     = xeb.spc-no
            itemfg.isaset     = xeb.form-no EQ 0
            itemfg.pur-man    = xeb.pur-man
-           itemfg.alloc      = xeb.set-is-assembled.
+           itemfg.alloc      = xeb.set-is-assembled
+           itemfg.trno       = xeb.tr-no 
+           itemfg.spare-char-4 = xeb.dest-code .
 
     IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
     {oe/fgfreighta.i xeb}  
@@ -7040,14 +7043,15 @@ END FUNCTION.
 FUNCTION fGetTaxable RETURNS LOGICAL
   ( ipcCompany AS CHARACTER,
    ipcCust AS CHARACTER,
-   ipcShipto AS CHARACTER):
+   ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

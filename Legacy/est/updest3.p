@@ -100,6 +100,7 @@ DO:
                 itemfg.case-count = eb.cas-cnt
                 itemfg.case-pall = eb.cas-pal
                 itemfg.trno = eb.tr-no
+                itemfg.spare-char-4 = eb.dest-code 
                 .
     END.
         

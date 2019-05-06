@@ -90,6 +90,8 @@ DEFINE VARIABLE v-rec-found     AS LOG       NO-UNDO.
 
 DEFINE VARIABLE tb_splitPDF     AS LOG       NO-UNDO.
 DEFINE VARIABLE rCurrentInvoice AS ROWID     NO-UNDO.
+DEFINE VARIABLE cCopyPdfFile    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCopyPdfFile    AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER save-line    FOR reftable.
 DEFINE BUFFER b1-cust      FOR cust.
@@ -133,6 +135,18 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvPrint", "D" /* Logical */, NO /* check 
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     dPrintFmtDec = DECIMAL(cRtnChar) NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cCopyPdfFile = cRtnChar . 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCopyPdfFile = logical(cRtnChar) NO-ERROR .
 
 /* Build a Table to keep sequence of pdf files */
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
@@ -200,6 +214,7 @@ DEFINE VARIABLE tb_sman-copy      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE td-show-parm      AS LOGICAL   INITIAL NO               .
 DEFINE VARIABLE tb_qty-all        AS LOGICAL   INITIAL YES              .
 DEFINE VARIABLE tb_cust-list      AS LOGICAL   INITIAL NO               .
+DEFINE VARIABLE tb_prt-dupl       AS LOGICAL   INITIAL NO               .
 
 
 PROCEDURE assignSelections:
@@ -243,6 +258,7 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptbSplitPDF         AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbQtyAll           AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbCustList         AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
@@ -288,7 +304,7 @@ PROCEDURE assignSelections:
         s-print-zero-qty = tb_prt-zero-qty
         svi-print-item   = rs_no_PN        
         nsv_setcomp      = tb_setcomp
-        .
+        tb_prt-dupl      = iptb_prt-dupl.
         
         CASE rd-dest:
             WHEN 1 THEN 
@@ -349,6 +365,7 @@ PROCEDURE assignScreenValues:
     DEFINE INPUT PARAMETER ipInvoiceType                 AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iphCallingProc               AS HANDLE NO-UNDO.
     
+    
     ASSIGN 
         fi_depts-hidden            = ipfi_depts-hidden            
         tb_print-dept-screen-value = iptb_print-dept-screen-value 
@@ -370,6 +387,7 @@ PROCEDURE assignScreenValues:
         v-prgmname                 = ipPrgmname
         cInvoiceType               = ipInvoiceType
         rCurrentInvoice            = ? 
+        
         .
     EMPTY TEMP-TABLE tt-list.
 
@@ -402,7 +420,10 @@ PROCEDURE BatchMail :
         v-prntinst   = tb_prt-inst
         v-print-dept = tb_print-dept
         lPrintQtyAll = tb_qty-all
+        v-prntdupl = tb_prt-dupl
          .
+
+    ASSIGN v-prntdupl = LOGICAL(tb_print-dept-SCREEN-VALUE).
 
     IF fi_depts-HIDDEN  = NO THEN
         ASSIGN
@@ -1141,7 +1162,8 @@ PROCEDURE build-list1:
         v-prntinst     = tb_prt-inst
         v-print-dept   = tb_print-dept
         ll-consolidate = rd_sort EQ "Customer2"
-        lPrintQtyAll   = tb_qty-all.
+        lPrintQtyAll   = tb_qty-all
+        v-prntdupl = tb_prt-dupl.
       
     /* gdm - 12080807 */
     ASSIGN 
@@ -1167,6 +1189,7 @@ PROCEDURE build-list1:
             fcust = vcBegCustNo
             tcust = vcEndCustNo.
     END.
+    
     IF fi_depts-hidden = NO THEN
         ASSIGN
             v-print-dept = LOGICAL(tb_print-dept-screen-value)
@@ -1259,7 +1282,8 @@ PROCEDURE run-report :
         v-prntinst     = tb_prt-inst
         v-print-dept   = tb_print-dept
         ll-consolidate = rd_sort EQ "Customer2"
-        lPrintQtyAll   = tb_qty-all.
+        lPrintQtyAll   = tb_qty-all
+        v-prntdupl = tb_prt-dupl.
 
     /* gdm - 12080807 */
     ASSIGN 
@@ -1285,6 +1309,7 @@ PROCEDURE run-report :
             fcust = vcBegCustNo
             tcust = vcEndCustNo.
     END.
+
     IF fi_depts-hidden = NO THEN
         ASSIGN
             v-print-dept = LOGICAL(tb_print-dept-screen-value)
@@ -1661,6 +1686,12 @@ DO:
 
     END CASE.
 
+    IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN DO:
+        IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
+            PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Inv_" + vcInvNums + ".pdf>" FORM "x(180)".
+        END.
+    END.
+
     PUT "</PROGRESS>".
 END. /* Is Xprint form */
 
@@ -1795,6 +1826,12 @@ PROCEDURE SendMail-1:
         ELSE
             IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN DO:
                 RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                
+                IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN DO:
+                    IF rd-dest EQ 5 THEN DO:
+                        OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Inv_" + vcInvNums + ".pdf").
+                     END.
+                 END.
                   
               /* Fix for incorrect file name during batch emailing */    
               IF cActualPDF NE lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN 

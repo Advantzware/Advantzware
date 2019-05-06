@@ -1690,6 +1690,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPrepItems C-Win
+PROCEDURE ipConvertPrepItems:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Converting advantzware.usr file...").
+
+    DISABLE TRIGGERS FOR LOAD OF prep.
+    
+    FOR EACH oe-ctrl NO-LOCK:
+        FOR EACH prep EXCLUSIVE WHERE 
+            prep.company EQ oe-ctrl.company:
+            ASSIGN 
+                prep.taxable = oe-ctrl.prep-chrg
+                prep.commisionable = oe-ctrl.prep-comm.
+        END.
+    END.
+    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertUsrFile C-Win 
 PROCEDURE ipConvertUsrFile :
 /*---------------------------------------------------------------------------*/
@@ -2103,6 +2131,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160860.
     IF fIntVer(cThisEntry) LT 16088000 THEN 
         RUN ipDataFix160880.
+    IF fIntVer(cThisEntry) LT 16089000 THEN 
+        RUN ipDataFix160890.
     IF fIntVer(cThisEntry) LT 16089900 THEN
         RUN ipDataFix160899.
 
@@ -2418,6 +2448,8 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
 PROCEDURE ipDataFix160880 :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2427,6 +2459,21 @@ PROCEDURE ipDataFix160880 :
     
 /*    Deprecated                */
 /*    RUN ipUpdateAdvantzwarePf.*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+PROCEDURE ipDataFix160890 :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160890...").
+    
+    RUN ipSetFgcatStatusActive.  
+    RUN ipConvertPrepItems.  
 
 END PROCEDURE.
 
@@ -2800,6 +2847,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFgcatStatusActive C-Win
+PROCEDURE ipFgcatStatusActive:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF fgcat.
+    
+    FOR EACH fgcat:
+        ASSIGN 
+            lActive = TRUE.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win 
 PROCEDURE ipFixBadYears :
@@ -3485,6 +3553,8 @@ PROCEDURE ipLoadModules :
         DO:
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
+            ASSIGN 
+                {&tablename}.is-Used = FALSE.
         END.
     END.
     INPUT CLOSE.
@@ -4939,7 +5009,7 @@ PROCEDURE ipUpdateNK1s :
             sys-ctrl.log-fld = TRUE.
     END.
     
-        /* Upgrade Button */
+    /* Upgrade Button */
     RUN ipStatus ("  MenuLinkUpdate").
     FOR EACH  sys-ctrl WHERE
         sys-ctrl.name EQ "MenuLinkUpgrade":
@@ -4991,6 +5061,17 @@ PROCEDURE ipUpdateNK1s :
         ASSIGN
             sys-ctrl.log-fld = TRUE
             sys-ctrl.securityLevelUser = 1000.
+    END.
+    
+    /* 48200 - Deprecate KEEPFROZEN */
+    RUN ipStatus ("  KEEPFROZEN").
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "FGKEEPZEROBIN":
+        DELETE sys-ctrl.
+    END.
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "RMKEEPZEROBIN":
+        DELETE sys-ctrl.
     END.
     
     ASSIGN 

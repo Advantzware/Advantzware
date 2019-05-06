@@ -41,7 +41,7 @@ FOR EACH tt-boll,
 
              iQtyPerPallet = iAmtPerBundle * iBundlePerPallet .
              iTotPallet = iTotShiped / iQtyPerPallet .
-             iGrandBundlePerPallet = iGrandBundlePerPallet + ( iTotPallet * iBundlePerPallet)  .
+	         iGrandBundlePerPallet = iGrandBundlePerPallet + ( iTotPallet * iBundlePerPallet)  .
              v-tot-palls = v-tot-palls + iTotPallet .
              iGrandTotShiped = iGrandTotShiped + tt-boll.qty .
 

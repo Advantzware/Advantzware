@@ -75,11 +75,57 @@ DEFINE {1} TEMP-TABLE ttBrowseInventory
     LIKE ttInventoryStockLoadtagWIP
     .
 
+DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
+    FIELD company                AS CHARACTER
+    FIELD inventoryStockID       AS CHARACTER
+    FIELD stockIDAlias           AS CHARACTER
+    FIELD itemID                 AS CHARACTER
+    FIELD quantity               AS DECIMAL
+    FIELD origQuantity           AS DECIMAL
+    FIELD locationID             AS CHARACTER
+    FIELD warehouseID            AS CHARACTER
+    FIELD location               AS CHARACTER
+    FIELD origLocationID         AS CHARACTER
+    FIELD origWarehouseID        AS CHARACTER
+    FIELD origLocation           AS CHARACTER
+    FIELD inventoryStatus        AS CHARACTER
+    FIELD itemType               AS CHARACTER
+    FIELD customerID             AS CHARACTER
+    FIELD lastTransTime          AS DATETIME
+    .
+    
+DEFINE {1} TEMP-TABLE inventoryStockSnapshot
+    LIKE inventoryStock
+    FIELD inventorySnapshotID AS INTEGER 
+    .    
+
+DEFINE {1} TEMP-TABLE inventorySnapshot
+    FIELD inventorySnapshotID    AS INTEGER
+    FIELD snapshotType           AS CHARACTER
+    FIELD itemType               AS CHARACTER
+    FIELD company                AS CHARACTER
+    FIELD warehouseID            AS CHARACTER
+    FIELD locationID             AS CHARACTER
+    FIELD inventoryStockStatus   AS CHARACTER
+    FIELD snapshotUser           AS CHARACTER
+    FIELD snapshotTime           AS DATETIME
+    .
+	    
 DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
 DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
 DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Created".
 DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER INITIAL "On-Hand".
 DEFINE VARIABLE gcStatusStockConsumed      AS CHARACTER INITIAL "Consumed".
+
+DEFINE VARIABLE gcStatusSnapshotNotScanned      AS CHARACTER INITIAL "Not Scanned".
+DEFINE VARIABLE gcStatusSnapshotNotScannedConf  AS CHARACTER INITIAL "Not Scanned - Confirmed".
+DEFINE VARIABLE gcStatusSnapshotCompleteMatch   AS CHARACTER INITIAL "Complete Match".
+DEFINE VARIABLE gcStatusSnapshotLocChange       AS CHARACTER INITIAL "Location Change".
+DEFINE VARIABLE gcStatusSnapshotQtyChange       AS CHARACTER INITIAL "Quantity Change".
+DEFINE VARIABLE gcStatusSnapshotQtyAndLocChange AS CHARACTER INITIAL "Quantity and Location Change".
+DEFINE VARIABLE gcStatusSnapshotTagNotFound     AS CHARACTER INITIAL "Tag Not Found".
+
+DEFINE VARIABLE gcSourceTypeSnapshot       AS CHARACTER INITIAL "Snapshot".
 
 DEFINE VARIABLE gcStatusTransactionInitial AS CHARACTER INITIAL "Pending".
 DEFINE VARIABLE gcStatusTransactionPosted  AS CHARACTER INITIAL "Posted".
@@ -88,6 +134,11 @@ DEFINE VARIABLE gcTransactionTypeReceive   AS CHARACTER INITIAL "R".
 DEFINE VARIABLE gcTransactionTypeTransfer  AS CHARACTER INITIAL "T".
 DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER INITIAL "I".
 DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER INITIAL "S".
+DEFINE VARIABLE gcTransactionTypeCompare   AS CHARACTER INITIAL "C".
+
+DEFINE VARIABLE gcSnapshotTypeCount        AS CHARACTER INITIAL "C". /* Count */
+DEFINE VARIABLE gcSnapshotTypeCapture      AS CHARACTER INITIAL "R". /* Report Capture */
+DEFINE VARIABLE gcSnapshotTypeArchive      AS CHARACTER INITIAL "A". /* Archive */
 
 DEFINE VARIABLE gcItemTypeWIP              AS CHARACTER INITIAL "WP".
 DEFINE VARIABLE gcItemTypeFG               AS CHARACTER INITIAL "FG".

@@ -94,6 +94,10 @@ DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF BUFFER xitemfg FOR itemfg.
 DEF VAR lv-comp-unit AS INT NO-UNDO.
+DEFINE VARIABLE iQtyToFullfill AS INTEGER NO-UNDO.
+DEFINE VARIABLE iNumTagsToFullfill AS INTEGER NO-UNDO.
+DEFINE VARIABLE iNumExtraTags AS INTEGER NO-UNDO.
+DEFINE VARIABLE iQtySelectedTags AS INTEGER NO-UNDO.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
 ASSIGN tmpstore = fill("-",130).
@@ -268,12 +272,52 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 by w-oe-rell.po-no:
 
         v-rel-qty = v-rel-qty + w-oe-rell.qty.
-        
+        IF w-oe-rell.tag GT "" THEN 
+          iQtySelectedTags = iQtySelectedTags + w-oe-rell.qty.
+           
         if last-of(w-oe-rell.po-no) then do:
           for each w-bin:
             delete w-bin.
           end.
-        
+          IF w-oe-rell.link-no NE 0 THEN
+              FIND oe-rel NO-LOCK
+                  WHERE oe-rel.r-no EQ w-oe-rell.link-no
+                  AND oe-rel.company  EQ w-oe-rell.company
+                  AND oe-rel.link-no  EQ w-oe-rell.r-no
+                  AND oe-rel.ord-no   EQ w-oe-rell.ord-no
+                  AND oe-rel.i-no     EQ w-oe-rell.i-no
+                  AND oe-rel.line     EQ w-oe-rell.line
+                  AND oe-rel.rel-no   EQ w-oe-rell.rel-no
+                  AND oe-rel.b-ord-no EQ w-oe-rell.b-ord-no
+                  AND oe-rel.po-no    EQ w-oe-rell.po-no
+                  USE-INDEX seq-no NO-ERROR.
+
+          IF NOT AVAIL oe-rel THEN
+              FIND FIRST oe-rel NO-LOCK
+                  WHERE oe-rel.company  EQ w-oe-rell.company
+                  AND oe-rel.link-no  EQ w-oe-rell.r-no
+                  AND oe-rel.ord-no   EQ w-oe-rell.ord-no
+                  AND oe-rel.i-no     EQ w-oe-rell.i-no
+                  AND oe-rel.line     EQ w-oe-rell.line
+                  AND oe-rel.rel-no   EQ w-oe-rell.rel-no
+                  AND oe-rel.b-ord-no EQ w-oe-rell.b-ord-no
+                  AND oe-rel.po-no    EQ w-oe-rell.po-no
+                  USE-INDEX link NO-ERROR.
+          IF NOT AVAIL oe-rel THEN
+              FIND FIRST oe-rel NO-LOCK
+                  WHERE oe-rel.company  EQ w-oe-rell.company
+                  AND oe-rel.ord-no   EQ w-oe-rell.ord-no
+                  AND oe-rel.i-no     EQ w-oe-rell.i-no
+                  AND oe-rel.line     EQ w-oe-rell.line
+                  AND oe-rel.rel-no   EQ w-oe-rell.rel-no
+                  AND oe-rel.b-ord-no EQ w-oe-rell.b-ord-no
+                  AND oe-rel.po-no    EQ w-oe-rell.po-no
+                  USE-INDEX ord-item NO-ERROR.    
+          IF AVAILABLE oe-rel THEN 
+            iQtyToFullfill = oe-rel.qty - iQtySelectedTags.
+          ELSE
+            iQtyToFullfill = 0.
+
           i = 0.
 
           for each fg-bin
@@ -354,12 +398,31 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               v-qty = 0.
             end.
           end.
+          
+          /* Calc extra tags needed to fulfill the scheduled release quantity */
+          iNumTagsToFullfill = 0 . 
+          IF iQtyToFullfill GT 0 THEN DO:
+              QTYTOFULLFILL:
+              for each b-w-bin BREAK BY b-w-bin.w-x DESC BY b-w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
+                    IF NOT b-w-bin.w-x THEN DO:
+                        ASSIGN iQtyToFullfill = iQtyToFullFill - b-w-bin.w-qty[1]
+                               iNumTagsToFullfill = iNumTagsToFullfill + 1 
+                               .
+                        IF iQtyToFullfill LE 0 THEN 
+                           LEAVE QTYTOFULLFILL.
+                    END.
+    
+              END.   
+          END.
 
-          j = 0 . 
+          /* 5 extra tags requested by customer */       
+          ASSIGN iNumExtraTags = 5 + iNumTagsToFullfill
+                 j = 0 
+                 . 
           for each b-w-bin BREAK BY b-w-bin.w-x DESC BY b-w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
                 IF NOT b-w-bin.w-x THEN
                     j = j + 1 .
-                IF j GT 5 THEN
+                IF j GT iNumExtraTags THEN
                     DELETE b-w-bin .
           END.
           

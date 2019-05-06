@@ -111,16 +111,9 @@ END.
     v-dthr[6] = IpdtHr6
     v-dthr[7] = IpdtHr7.
 
-  RUN UTIL/CurrDir.p (output CurrDir).
-
-  chFile = CurrDir + "\Template\TimeSheet.xlt".
-
-  if chFile = ? then do:
-    MESSAGE "Your Excel Template: " vcTemplateFile  skip
-            "Please verify that the file exists."
-      VIEW-AS ALERT-BOX ERROR.
+  RUN sys/ref/getFileFullPathName.p ("Template\TimeSheet.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
       RETURN ERROR.
-  end.
   
   /* Start a new session of Excel. */
   if not (valid-handle (chExcelApplication)) THEN

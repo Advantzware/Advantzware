@@ -455,6 +455,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN enable_UI.
     DO WITH FRAME {&FRAME-NAME}:
+        begin_userid:SCREEN-VALUE = USERID(LDBNAME(1)) .
+        end_userid:SCREEN-VALUE = USERID(LDBNAME(1)) .
+
+        FIND FIRST users NO-LOCK WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR .
+
+        IF AVAIL users AND users.securitylevel LT 900 THEN
+            ASSIGN 
+            begin_userid:SENSITIVE = NO 
+            end_userid:SENSITIVE = NO .
+    
         APPLY "entry" TO begin_date.
     END.
   

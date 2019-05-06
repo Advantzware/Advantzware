@@ -581,7 +581,8 @@ PROCEDURE bill-finance :
        ar-invl.unit-pr    = ar-inv.net
        ar-invl.pr-qty-uom = "EA"
        ar-invl.amt        = ar-inv.net
-       ar-invl.actnum     = ar-ctrl.onac.
+       ar-invl.actnum     = ar-ctrl.onac
+       ar-invl.inv-date   = ar-inv.inv-date.
 
     end.
   END.

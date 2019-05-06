@@ -18,9 +18,9 @@ INDEX pi-tsrep tt-date.
 
 DEFINE SHARED TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
+  FIELD rec_key LIKE notes.rec_key
+  FIELD note_date LIKE notes.note_date
+  FIELD note_title LIKE notes.note_title
   FIELD note_src AS CHARACTER.
 
           /* Variables for excel Automation  */
@@ -50,21 +50,9 @@ DEF VAR mypict AS COM-HANDLE.
   FIND FIRST employee NO-LOCK WHERE employee.employee = LvEmpNum NO-ERROR.
   ASSIGN LvEmpName    = employee.first_name + " " + employee.last_name.
 
-
-  RUN UTIL/CurrDir.p (output CurrDir).
-
-/*   ASSIGN CurrDir = REPLACE(CurrDir, "/addon", ""). */
-/*   ASSIGN CurrDir = REPLACE(CurrDir, "\addon", ""). */
-
-  chFile = CurrDir + "\Template\TimeSheet.xlt".
-
-  if chFile = ? then do:
-    MESSAGE "Your Excel Template: " vcTemplateFile  skip
-            "Please verify that the file exists."
-      VIEW-AS ALERT-BOX ERROR.
+  RUN sys/ref/getFileFullPathName.p ("Template\TimeSheet.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
       RETURN ERROR.
-  end.
-/*   MESSAGE chFile VIEW-AS ALERT-BOX. */
 
   /* Start a new session of Excel. */
   if not (valid-handle (chExcelApplication)) THEN

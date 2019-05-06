@@ -2020,8 +2020,6 @@ PROCEDURE PREPCADFILE:
         
         IF prep.cadNo EQ "" THEN ASSIGN 
             prep.cadNo = reftable.code.
-        IF prep.fileNo EQ "" THEN ASSIGN 
-            prep.fileNo = reftable.code2.
         ASSIGN 
             iProcessCount = iProcessCount + 1.
 

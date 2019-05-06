@@ -1498,7 +1498,7 @@ PROCEDURE local-assign-record :
          for each e-item where e-item.company = cocode and
                                e-item.i-no = bf-item.i-no:
              create bf-e-item.
-             buffer-copy e-item except e-item.i-no to bf-e-item.
+             buffer-copy e-item except e-item.i-no e-item.rec_key to bf-e-item.
              assign bf-e-item.i-no = item.i-no.                  
          end.                             
          for each e-item-vend where e-item-vend.company = cocode and
@@ -1508,7 +1508,7 @@ PROCEDURE local-assign-record :
          for each e-item-vend where e-item-vend.company = cocode and
                                     e-item-vend.i-no = bf-item.i-no:
              create bf-e-vend.
-             buffer-copy e-item-vend except e-item-vend.i-no to bf-e-vend.
+             buffer-copy e-item-vend except e-item-vend.i-no e-item-vend.rec_key to bf-e-vend.
              assign bf-e-vend.i-no      = item.i-no
                     bf-e-vend.item-type = yes.
          end.

@@ -62,11 +62,10 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 &Scoped-define FRAME-NAME oe-ctrl
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close RECT-15 RECT-17 ~
-RECT-18 RECT-19 
+&Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close RECT-15 RECT-18 ~
+RECT-19 
 &Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv oe-ctrl.n-bol ~
-oe-ctrl.prep-comm oe-ctrl.prep-chrg oe-ctrl.p-fact oe-ctrl.p-bol ~
-oe-ctrl.p-pick oe-ctrl.p-sep 
+oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep 
 &Scoped-define DISPLAYED-TABLES ar-ctrl oe-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-ctrl
 &Scoped-define SECOND-DISPLAYED-TABLE oe-ctrl
@@ -74,9 +73,8 @@ oe-ctrl.p-pick oe-ctrl.p-sep
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 tgCreateSSBol n-ord oe-ctrl.n-bol oe-ctrl.prep-comm ~
-oe-ctrl.prep-chrg oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep ~
-fNextRFIDNum 
+&Scoped-define List-1 tgCreateSSBol n-ord oe-ctrl.n-bol oe-ctrl.p-fact ~
+oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep fNextRFIDNum 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -112,10 +110,6 @@ DEFINE RECTANGLE RECT-15
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 33 BY 1.67.
 
-DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 2.91.
-
 DEFINE RECTANGLE RECT-18
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 57 BY 5.24.
@@ -148,14 +142,6 @@ DEFINE FRAME oe-ctrl
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.prep-comm AT ROW 18 COL 19.8
-          LABEL "Pay Commissions on Prep Charges"
-          VIEW-AS TOGGLE-BOX
-          SIZE 39 BY .81
-     oe-ctrl.prep-chrg AT ROW 19 COL 19.8
-          LABEL "Charge Tax on Prep Charges"
-          VIEW-AS TOGGLE-BOX
-          SIZE 37 BY .81
      oe-ctrl.p-fact AT ROW 8 COL 20
           LABEL "Allow Factory Ticket Printing"
           VIEW-AS TOGGLE-BOX
@@ -177,9 +163,6 @@ DEFINE FRAME oe-ctrl
      Btn_Close AT ROW 21.62 COL 65.8 HELP
           "Cancel Update or Close Window"
      fNextRFIDNum AT ROW 4.76 COL 35 COLON-ALIGNED WIDGET-ID 6
-     "Company Control" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 16.86 COL 19.8
-          FGCOLOR 9 FONT 6
      "Order Credit or Price Hold Control" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 6.67 COL 18
           FGCOLOR 9 FONT 6
@@ -187,7 +170,6 @@ DEFINE FRAME oe-ctrl
           SIZE 19 BY .62 AT ROW 13.24 COL 18.2
           FGCOLOR 9 FONT 6
      RECT-15 AT ROW 21.33 COL 48.8
-     RECT-17 AT ROW 17.57 COL 18
      RECT-18 AT ROW 7.38 COL 18
      RECT-19 AT ROW 13.95 COL 18
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -270,10 +252,6 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-pick IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-sep IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-chrg IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-comm IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX tgCreateSSBol IN FRAME oe-ctrl
    NO-ENABLE 1                                                          */
@@ -548,10 +526,10 @@ PROCEDURE enable_UI :
     DISPLAY ar-ctrl.last-inv 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   IF AVAILABLE oe-ctrl THEN 
-    DISPLAY oe-ctrl.n-bol oe-ctrl.prep-comm oe-ctrl.prep-chrg oe-ctrl.p-fact 
-          oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep 
+    DISPLAY oe-ctrl.n-bol oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick 
+          oe-ctrl.p-sep 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
-  ENABLE n-ord Btn_Update Btn_Close RECT-15 RECT-17 RECT-18 RECT-19 
+  ENABLE n-ord Btn_Update Btn_Close RECT-15 RECT-18 RECT-19 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-oe-ctrl}
   VIEW C-Win.

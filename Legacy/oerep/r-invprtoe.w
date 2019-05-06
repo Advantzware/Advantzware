@@ -399,6 +399,11 @@ DEFINE VARIABLE tb_prt-inst AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_prt-dupl AS LOGICAL INITIAL NO 
+     LABEL "Print Duplicate $0.00 Invoice?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_prt-zero-qty AS LOGICAL INITIAL yes 
      LABEL "Print if Inv/Ship Qty = 0?" 
      VIEW-AS TOGGLE-BOX
@@ -463,6 +468,7 @@ DEFINE FRAME FRAME-A
      tbPostedAR AT ROW 8.38 COL 28.2 WIDGET-ID 24
      tb_setcomp AT ROW 8.43 COL 59.2 WIDGET-ID 2
      tb_prt-inst AT ROW 9.1 COL 49 RIGHT-ALIGNED
+     tb_prt-dupl AT ROW 9.95 COL 59.2 RIGHT-ALIGNED
      tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
      fi_depts AT ROW 9.95 COL 48.4 COLON-ALIGNED HELP
           "Enter Departments separated by commas" NO-LABEL
@@ -703,6 +709,13 @@ ASSIGN
        tb_print-dept:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR TOGGLE-BOX tb_prt-dupl IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE ALIGN-R                                         */
+ASSIGN 
+       tb_prt-dupl:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_prt-dupl:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_prt-inst IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -856,6 +869,7 @@ DO:
                 tb_cust-copy tb_office-copy tb_sman-copy
             /* gdm - 12080817 */ tb_setcomp tbPostedAR
                 .
+            ASSIGN tb_prt-dupl = LOGICAL(tb_prt-dupl:SCREEN-VALUE).
             IF begin_bol:SENSITIVE THEN 
                 ASSIGN begin_bol end_bol.
 
@@ -967,7 +981,6 @@ DO:
              IF AVAIL ttCustList THEN ASSIGN end_cust = ttCustList.cust-no .
          END.
 
-            
        
         RUN assignScreenValues
             (fi_depts:HIDDEN           ,
@@ -987,7 +1000,7 @@ DO:
             cActualPdf                ,
             vcDefaultForm             ,
             v-prgmname                ,
-            ipcInvoiceType            ,
+            ipcInvoiceType      ,
             THIS-PROCEDURE:HANDLE).
         
         RUN assignSelections
@@ -1029,7 +1042,8 @@ DO:
             tbPostedAR         ,
             tb_splitPDF        ,
             tb_qty-all         ,
-            tb_cust-list
+            tb_cust-list       ,
+            tb_prt-dupl        
             ).
 
         IF begin_bol EQ end_bol THEN 
@@ -1488,6 +1502,15 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_prt-dupl
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-dupl C-Win
+ON VALUE-CHANGED OF tb_prt-dupl IN FRAME FRAME-A /* Print Duplicate $0.00 invoice? */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME tb_prt-inst
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-inst C-Win
@@ -1669,6 +1692,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             tb_print-dept:SENSITIVE = YES
             fi_depts:HIDDEN         = NO
             fi_depts:SENSITIVE      = YES.
+
+    IF v-print-fmt EQ "Shamrock" THEN
+        ASSIGN tb_prt-dupl:HIDDEN    = NO
+            tb_prt-dupl:SENSITIVE = YES.
 
     IF (v-print-fmt EQ "Packrite" OR  
         v-print-fmt EQ "Hughes" OR

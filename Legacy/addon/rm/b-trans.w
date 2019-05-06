@@ -1266,7 +1266,7 @@ PROCEDURE valid-loc-bin-tag :
       ASSIGN
        rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.loc)
        rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.loc-bin)
-       rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.qty)
+       rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(rm-bin.qty)
        rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.tag)
        rm-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name} = CAPS(rm-bin.tag).
 
