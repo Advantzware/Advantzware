@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 
 {custom/gcompany.i}
 {custom/getcmpny.i}
+{sys/ref/sys-ctrl.i}
 
 DEF VAR giCurrOrd AS INT NO-UNDO.
 
@@ -66,18 +67,16 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 &Scoped-define INTERNAL-TABLES sys-ctrl
 
 /* Definitions for BROWSE brHoldTests                                   */
-&Scoped-define FIELDS-IN-QUERY-brHoldTests sys-ctrl.module sys-ctrl.name ~
-sys-ctrl.descrip sys-ctrl.log-fld sys-ctrl.log-fld_Descrip 
+&Scoped-define FIELDS-IN-QUERY-brHoldTests sys-ctrl.name sys-ctrl.descrip ~
+sys-ctrl.log-fld sys-ctrl.char-fld 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brHoldTests sys-ctrl.log-fld ~
-sys-ctrl.log-fld_Descrip 
+sys-ctrl.char-fld 
 &Scoped-define ENABLED-TABLES-IN-QUERY-brHoldTests sys-ctrl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-brHoldTests sys-ctrl
 &Scoped-define QUERY-STRING-brHoldTests FOR EACH sys-ctrl ~
-      WHERE sys-ctrl.module = "VAL" ~
- AND sys-ctrl.char-fld = "oe-ord" NO-LOCK INDEXED-REPOSITION
+      WHERE sys-ctrl.module = "VAL" NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-brHoldTests OPEN QUERY brHoldTests FOR EACH sys-ctrl ~
-      WHERE sys-ctrl.module = "VAL" ~
- AND sys-ctrl.char-fld = "oe-ord" NO-LOCK INDEXED-REPOSITION.
+      WHERE sys-ctrl.module = "VAL" NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-brHoldTests sys-ctrl
 &Scoped-define FIRST-TABLE-IN-QUERY-brHoldTests sys-ctrl
 
@@ -156,20 +155,20 @@ DEFINE QUERY brHoldTests FOR
 DEFINE BROWSE brHoldTests
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brHoldTests C-Win _STRUCTURED
   QUERY brHoldTests NO-LOCK DISPLAY
-      sys-ctrl.module COLUMN-LABEL "Type" FORMAT "x(5)":U WIDTH 7.2
-      sys-ctrl.name FORMAT "x(16)":U WIDTH 17.2
-      sys-ctrl.descrip FORMAT "x(40)":U WIDTH 42.2
-      sys-ctrl.log-fld COLUMN-LABEL "Req'd" FORMAT "yes/no":U VIEW-AS TOGGLE-BOX
-      sys-ctrl.log-fld_Descrip COLUMN-LABEL "Action" FORMAT "x(30)":U
-            WIDTH 8.2 VIEW-AS COMBO-BOX INNER-LINES 5
-                      LIST-ITEMS "HOLD","<none>" 
+      sys-ctrl.name FORMAT "x(16)":U WIDTH 16.2
+      sys-ctrl.descrip FORMAT "x(40)":U WIDTH 45.2
+      sys-ctrl.log-fld COLUMN-LABEL "Req'd" FORMAT "yes/no":U WIDTH 7.2
+            VIEW-AS TOGGLE-BOX
+      sys-ctrl.char-fld COLUMN-LABEL "Action" FORMAT "x(8)":U WIDTH 12.4
+            VIEW-AS COMBO-BOX INNER-LINES 5
+                      LIST-ITEMS "HOLD" 
                       DROP-DOWN-LIST 
   ENABLE
       sys-ctrl.log-fld
-      sys-ctrl.log-fld_Descrip
+      sys-ctrl.char-fld
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 88 BY 10.71 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 88 BY 10.71 ROW-HEIGHT-CHARS .81 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -317,18 +316,15 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE brHoldTests
      _TblList          = "asi.sys-ctrl"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _Where[1]         = "asi.sys-ctrl.module = ""VAL""
- AND asi.sys-ctrl.char-fld = ""oe-ord"""
-     _FldNameList[1]   > asi.sys-ctrl.module
-"module" "Type" ? "character" ? ? ? ? ? ? no ? no no "7.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > asi.sys-ctrl.name
-"name" ? "x(16)" "character" ? ? ? ? ? ? no ? no no "17.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > asi.sys-ctrl.descrip
-"descrip" ? ? "character" ? ? ? ? ? ? no ? no no "42.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > asi.sys-ctrl.log-fld
-"log-fld" "Req'd" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
-     _FldNameList[5]   > asi.sys-ctrl.log-fld_Descrip
-"log-fld_Descrip" "Action" ? "character" ? ? ? ? ? ? yes ? no no "8.2" yes no no "U" "" "" "DROP-DOWN-LIST" "," "HOLD,<none>" ? 5 no 0 no no
+     _Where[1]         = "asi.sys-ctrl.module = ""VAL"""
+     _FldNameList[1]   > asi.sys-ctrl.name
+"name" ? "x(16)" "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > asi.sys-ctrl.descrip
+"descrip" ? ? "character" ? ? ? ? ? ? no ? no no "45.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > asi.sys-ctrl.log-fld
+"log-fld" "Req'd" ? "logical" ? ? ? ? ? ? yes ? no no "7.2" yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[4]   > asi.sys-ctrl.char-fld
+"char-fld" "Action" ? "character" ? ? ? ? ? ? yes ? no no "12.4" yes no no "U" "" "" "DROP-DOWN-LIST" "," "HOLD" ? 5 no 0 no no
      _Query            is OPENED
 */  /* BROWSE brHoldTests */
 &ANALYZE-RESUME
@@ -366,6 +362,25 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME brHoldTests
+&Scoped-define SELF-NAME brHoldTests
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brHoldTests C-Win
+ON ROW-ENTRY OF brHoldTests IN FRAME oe-ctrl
+DO:
+    DEF VAR cTestName AS CHAR NO-UNDO.
+    DEF VAR iTestPos AS INT NO-UNDO.
+    
+    ASSIGN
+        cTestName = sys-ctrl.name:SCREEN-VALUE IN BROWSE brHoldTests
+        iTestPos = LOOKUP(cTestName,name-fld-list) 
+        sys-ctrl.char-fld:LIST-ITEMS = str-init[iTestPos].
+        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -489,7 +504,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME brHoldTests
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 

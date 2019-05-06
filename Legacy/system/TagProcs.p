@@ -37,40 +37,28 @@ PROCEDURE AddTag:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLinkTable AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTagGroup AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTagType AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTagName AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTagValue AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipclinkField AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLinkValue AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNote AS CHARACTER NO-UNDO.
 
     FIND FIRST tag EXCLUSIVE WHERE  
         tag.linkReckey  EQ ipcLinkRecKey AND 
         tag.linkTable   EQ ipcLinkTable AND 
-        tag.tagGroup    EQ ipcTagGroup AND 
         tag.tagType     EQ ipcTagType AND 
-        tag.tagName     EQ ipcTagName
+        tag.description EQ ipcDescription 
         NO-ERROR.
     IF NOT AVAIL tag THEN DO: 
         CREATE tag.
         ASSIGN 
             tag.linkReckey  = ipcLinkRecKey
             tag.linkTable   = ipcLinkTable
-            tag.tagGroup    = ipcTagGroup
             tag.tagType     = ipcTagType
-            tag.tagName     = ipcTagName.
-        /* Allow create trigger to populate other fields */
+            tag.description = ipcDescription.
     END.
-    ELSE ASSIGN 
-        tag.description = ipcDescription
-        tag.tagValue    = ipcTagValue
-        tag.linkField   = ipcLinkField
-        tag.linkValue   = ipcLinkValue
-        tag.note        = ipcNote.
-        /* Allow write trigger to populate other fields */
-    
+    ASSIGN 
+        tag.note[1]        = ipcNote.
+    RELEASE tag.
+        
 END PROCEDURE.
 
 PROCEDURE AddTagInactive:
@@ -89,20 +77,12 @@ PROCEDURE AddTagInactive:
     FIND FIRST tag NO-LOCK WHERE 
         tag.rec_key EQ ipcLinkRecKey and
         tag.linkTable EQ ipcLinkTable AND 
-        tag.tagType = "Inactive" AND 
-        tag.tagName = "Inactive" AND 
-        tag.tagValue = "Y"
+        tag.tagType = "Inactive" 
         NO-ERROR.
     IF NOT AVAIL tag THEN RUN AddTag (ipcLinkRecKey,
                                       ipcLinkTable,
-                                      "",
-                                      "Inactive",
                                       "Inactive",
                                       "Record is INACTIVE",
-                                      "",
-                                      "Y",
-                                      "",
-                                      "",
                                       cNote).
 END PROCEDURE.
 
@@ -154,7 +134,7 @@ PROCEDURE ClearTagsByName:
 
     FOR EACH tag EXCLUSIVE-LOCK WHERE 
         tag.linkRecKey EQ ipcLinkRecKey AND 
-        tag.tagName EQ ipcTagName:
+        tag.description EQ ipcTagName:
         DELETE tag.
     END.
 

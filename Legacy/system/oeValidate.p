@@ -21,6 +21,7 @@ FUNCTION fSetTag RETURNS LOGICAL
 	( ipcTestProc AS CHARACTER,
         ipcRecKey AS CHARACTER,
         ipcLinkTable AS CHARACTER, 
+        ipcTagType AS CHARACTER,
         iplError AS LOG,
         ipcMessage AS CHAR ) FORWARD.
 
@@ -46,14 +47,14 @@ PROCEDURE HoldCheck:
     IF CAN-FIND(FIRST tag WHERE  
                 tag.linkReckey  EQ ipcRecKey AND 
                 tag.linkTable   EQ ipcLinkTable AND 
-                tag.tagGroup    EQ "HoldStatus" AND 
+/*                tag.tagGroup    EQ "HoldStatus" AND*/
                 tag.tagType     EQ "Validate") 
     AND NOT CAN-FIND(FIRST tag WHERE  
                 tag.linkReckey  EQ ipcRecKey AND 
                 tag.linkTable   EQ ipcLinkTable AND 
-                tag.tagGroup    EQ "HoldStatus" AND 
-                tag.tagType     EQ "Validate" AND  
-                tag.tagName     EQ "ManualRelease") 
+/*                tag.tagGroup    EQ "HoldStatus" AND*/
+                tag.tagType     EQ "Validate" /* AND */  
+/*                tag.tagName     EQ "ManualRelease")*/)
     THEN ASSIGN 
         oplError = TRUE 
         opcMessage = "Order is on HOLD".
@@ -260,9 +261,7 @@ PROCEDURE ReleaseCheck:
     FIND FIRST tag NO-LOCK WHERE  
         tag.linkReckey  EQ ipcRecKey AND 
         tag.linkTable   EQ ipcLinkTable AND 
-        tag.tagGroup    EQ "HoldStatus" AND 
-        tag.tagType     EQ "Validate" AND  
-        tag.tagName     EQ "ManualRelease"
+        tag.tagType     EQ "Release"  
         NO-ERROR. 
     IF AVAIL tag THEN ASSIGN 
             oplError = TRUE 
@@ -325,26 +324,9 @@ PROCEDURE pValidate:
         /* Note: this can be expanded if other tables need to be tested */
     END CASE. 
         
-    IF ipcTestProc NE "ALL" THEN DO: /* Individual Test requested */
-        /* Can convert test name to proc name if needed */
-        IF CAN-DO(THIS-PROCEDURE:INTERNAL-ENTRIES,ipcTestProc) THEN ASSIGN 
-            cTestProc = ipcTestProc.
-        ELSE DO:
-            ASSIGN 
-                oplError = TRUE
-                opcMessage = "Unable to locate this test in system/oeValidate.p".
-            RETURN.
-        END.   
-        RUN VALUE(cTestProc) IN THIS-PROCEDURE (BUFFER boe-ord, OUTPUT lError, OUTPUT cMessage).
-        ASSIGN 
-            oplError = lError
-            opcMessage = cMessage.
-        IF lError THEN lTag = fSetTag(ipcTestProc,ipcRecKey,ipcLinkTable,oplError,opcMessage).
-    END.
-    ELSE DO:
+    IF ipcTestProc EQ "ALL" THEN DO:
         FOR EACH sys-ctrl NO-LOCK WHERE    /* ALL tests requested */ 
             sys-ctrl.module EQ "VAL" AND 
-            sys-ctrl.char-fld EQ ipcLinkTable AND 
             sys-ctrl.log-fld EQ TRUE:
             ASSIGN 
                 cTestProc = "p" + sys-ctrl.name.
@@ -352,11 +334,14 @@ PROCEDURE pValidate:
             ASSIGN 
                 oplError = IF NOT oplError THEN lError ELSE oplError
                 opcMessage = IF lError THEN opcMessage + "   " + cMessage + chr(10) ELSE opcMessage. 
-            IF lError THEN lTag = fSetTag(SUBSTRING(cTestProc,2),ipcRecKey,ipcLinkTable,lError,cMessage).
+            IF lError THEN DO:
+                lTag = fSetTag(sys-ctrl.name,ipcRecKey,ipcLinkTable,sys-ctrl.char-fld,lError,cMessage).
+            END.
         END.
         ASSIGN 
             opcMessage = TRIM(opcMessage,CHR(10)).
     END.
+    
 END PROCEDURE.
 
 PROCEDURE pValidShipTo:
@@ -424,32 +409,24 @@ FUNCTION fSetTag RETURNS LOGICAL
 	( ipcTestProc AS CHARACTER,
 	  ipcRecKey AS CHARACTER, 
 	  ipcLinkTable AS CHARACTER, 
+	  ipcTagType AS CHARACTER,
 	  iplError AS LOG,
 	  ipcMessage AS CHAR ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/	
-
     /* Set/Clear Hold tags on record where appropriate (test is defined in sys-ctrl table) */
-    IF CAN-FIND(FIRST sys-ctrl WHERE 
-        sys-ctrl.module EQ "VAL" AND 
-        sys-ctrl.name EQ ipcTestProc AND
-        sys-ctrl.char-fld EQ ipcLinkTable AND 
-        sys-ctrl.log-fld EQ TRUE) THEN DO:
-        IF iplError EQ TRUE THEN RUN addTag IN hTagProcs (ipcRecKey,
+    IF iplError EQ TRUE THEN DO:
+        RUN addTag IN hTagProcs (ipcRecKey,
                 ipcLinkTable,
-                "HoldStatus",
-                "Validate",
+                "Hold",
                 ipcTestProc,
-                ipcMessage,
-                "N",
-                "stat",
-                "H",
-                "").
-        ELSE RUN clearTagsByName IN hTagProcs (ipcRecKey,
-                ipcTestProc).
-    END. 
+                ipcMessage).
+    END.
+    ELSE DO: 
+            RUN clearTagsByName IN hTagProcs (ipcRecKey,ipcTestProc).
+    END.
     RETURN TRUE.
 		
 END FUNCTION.

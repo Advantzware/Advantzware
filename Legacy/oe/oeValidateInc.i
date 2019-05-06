@@ -19,7 +19,7 @@
 
 
 /* ***************************  Main Block  *************************** */
-DEF SHARED VAR spOeValidate AS HANDLE NO-UNDO.
+DEF NEW GLOBAL SHARED VAR spOeValidate AS HANDLE NO-UNDO.
 DEF VAR lHoldError AS LOG NO-UNDO.
 DEF VAR cErrMessage AS CHAR NO-UNDO.
 DEF VAR cHoldMessage AS CHAR NO-UNDO.

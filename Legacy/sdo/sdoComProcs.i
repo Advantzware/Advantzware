@@ -53,43 +53,9 @@ PROCEDURE initializeObject :
   Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
-IF {&initQuery} <> "" THEN
-    DYNAMIC-FUNCTION('setQueryWhere':U IN THIS-PROCEDURE, {&initQuery}).
-IF {&initSort} <> "" THEN
-    DYNAMIC-FUNCTION('setQuerySort':U IN THIS-PROCEDURE, {&initSort}).
-IF {&lLarge} = TRUE THEN DO:
-    {set RowsToBatch 80}.
-    {set RebuildOnRepos TRUE}.
-END.
-IF AVAIL {&cTable} THEN ASSIGN
-    rFileRowid = ROWID({&cTable}).
     
   RUN SUPER.
   
-&IF "{&lJump}" = "TRUE" &THEN 
-    ASSIGN
-        cKeyValue1 = (cInitVal[LOOKUP("{&keyField1}",cCondition) + 1]).
-    IF AVAIL {&cTable} 
-    AND rFileRowid <> ? THEN
-        RUN moveIt IN THIS-PROCEDURE (rFileRowid).
-    ELSE IF xFocus#:NAME = "{&keyField1}" THEN DO:
-        FIND FIRST bTable WHERE
-            {&byEntity}
-            STRING(bTable.{&keyField1}) >= string(xFocus#:SCREEN-VALUE)
-            NO-LOCK NO-ERROR.
-        IF AVAIL bTable THEN
-            RUN moveIt IN THIS-PROCEDURE (ROWID(bTable)).
-    END.    
-    ELSE IF cKeyValue1 <> "" THEN DO:
-        FIND FIRST bTable WHERE
-            {&byEntity}
-            STRING(bTable.{&keyField1}) = cKeyValue1
-            NO-LOCK NO-ERROR.
-        IF AVAIL bTable THEN
-            RUN moveIt IN THIS-PROCEDURE (ROWID(bTable)).
-    END.
-&ENDIF
-
     
 END PROCEDURE.
 
@@ -113,7 +79,7 @@ PROCEDURE zChgQry :
     DEF INPUT PARAMETER ipQueryString AS CHAR NO-UNDO.
     DEF VAR cQueryWhere AS CHAR NO-UNDO.
     DEF VAR cQuerySort AS CHAR NO-UNDO.
-
+MESSAGE ipQueryString VIEW-AS ALERT-BOX.
     IF NUM-ENTRIES(ipQueryString, "|") > 1 THEN DO:
         ASSIGN
             cQueryWhere = ENTRY(1,ipQueryString, "|")

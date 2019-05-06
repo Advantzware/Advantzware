@@ -1414,7 +1414,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
 ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
 DO:
-    RUN oe/dShowHoldReason.w (INPUT oe-ord.rec_key).
+    RUN sys/ref/dlgTagVwr.w (oe-ord.rec_key,"HOLD","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5564,6 +5564,8 @@ PROCEDURE local-update-record :
 
     RUN releaseCheck IN spOeValidate ("", "oe-ord", oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
     IF NOT lHoldError THEN DO: /* There is NOT a manual release tag */
+        RUN clearTagsOfType (oe-ord.rec_key,"HOLD").
+        RUN clearTagsOfType (oe-ord.rec_key,"INFO").
         RUN pValidate IN spOeValidate ("ALL", "oe-ord", oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
         IF lHoldError THEN 
         DO:
