@@ -74,12 +74,12 @@ DEFINE VARIABLE cItemLoc AS CHARACTER NO-UNDO .
 ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,WHSE," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
-                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS"
+                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS,ESTIMATE ROUTING"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
-                            "mo-avg,sug-avg,msf-reord,itemfg.stat"
-       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6"  .
+                            "mo-avg,sug-avg,msf-reord,itemfg.stat,est-rout"
+       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,30"  .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
@@ -127,6 +127,13 @@ lv-font-name td-show-parm tb_excel tb_runExcel fi_file display_hist
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetFieldValue C-Win 
 FUNCTION GetFieldValue RETURNS CHARACTER
   ( hipField AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetRoutingForJob C-Win 
+FUNCTION fGetRoutingForJob RETURNS CHARACTER
+  ( ipEst AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1003,7 +1010,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   
-  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6"  .
+  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,30"  .
   
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -2145,6 +2152,7 @@ DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2332,6 +2340,7 @@ DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2567,6 +2576,33 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
   RETURN STRING(hipField:BUFFER-VALUE).
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetRoutingForJob C-Win 
+FUNCTION fGetRoutingForJob RETURNS CHARACTER
+  ( ipEst AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
+
+    IF ipEst NE "" THEN DO:
+        FOR EACH est-op NO-LOCK
+            WHERE est-op.company = cocode 
+            AND est-op.est-no = ipEst 
+            AND est-op.line < 500  BREAK BY est-op.est-no :
+            IF NOT LAST( est-op.est-no) THEN
+                dResult = dResult + est-op.m-code + "," .
+            ELSE dResult = dResult + est-op.m-code .
+        END.
+    END.                
+
+    RETURN dResult.
 
 END FUNCTION.
 

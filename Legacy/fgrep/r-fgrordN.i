@@ -45,6 +45,7 @@ for each itemfg
        v-whse-bin-found = NO
        v-qty-onh = 0
        v-sales-rep = "".
+       cMachine = "" .
 
        /*Added for premier mod 08291201*/
     FIND FIRST cust WHERE cust.company = itemfg.company
@@ -295,6 +296,8 @@ for each itemfg
                 li-avg-hist = li-avg-hist + li-hist[j] .
             END.
             li-avg-hist = li-avg-hist / display_hist .
+
+            cMachine = fGetRoutingForJob(INPUT itemfg.est-no ) .
        
     if v-reord-qty gt 0 or v-prt-all then
        IF tb_history THEN DO:
@@ -347,6 +350,8 @@ for each itemfg
                                  cExcelVarValue = "".
                           END.
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
+                              cExcelVarValue = "".
+                          WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
                               cExcelVarValue = "".
                           WHEN "li-hist" THEN do: 
                               cVarValue = "" .
@@ -444,6 +449,8 @@ for each itemfg
                                     cExcelVarValue = "".
                           END.
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
+                              cExcelVarValue = "".
+                          WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
                               cExcelVarValue = "".
                           WHEN "li-hist" THEN do: 
                               cVarValue = "" .
