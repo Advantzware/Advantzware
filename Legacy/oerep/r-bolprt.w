@@ -3545,6 +3545,8 @@ PROCEDURE pdfArchive:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE reportKey10 AS LOGICAL NO-UNDO.
+    PROCESS EVENTS.
+    STATUS DEFAULT "Creating PDF files for archive".
       {sa/sa-sls01.i}
     FOR EACH ttPdfBOLs,
       FIRST oe-bolh NO-LOCK WHERE recid(oe-bolh) EQ ttPdfBOLs.rec-id
@@ -3591,7 +3593,8 @@ PROCEDURE pdfArchive:
         END. /* If lCopyPdfFile */
 
     END. /* each ttpdf */
-
+    PROCESS EVENTS.
+    STATUS DEFAULT "Create PDF files complete".
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -4173,7 +4176,7 @@ PROCEDURE run-report :
                 NO-ERROR.
 
             IF AVAILABLE oe-bolh THEN 
-            PUT "<PREVIEW=NO><PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(oe-bolh.bol-no) + ".pdf>" FORM "x(180)".
+            PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(oe-bolh.bol-no) + ".pdf><PRINT=NO>" FORM "x(180)".
               
         END.
     END.

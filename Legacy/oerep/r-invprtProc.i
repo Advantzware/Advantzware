@@ -529,7 +529,10 @@ PROCEDURE BatchMail :
     /*              VIEW-AS ALERT-BOX WARNING BUTTONS OK.                                                    */
 
     END.*/
-
+    IF tb_pdfOnly THEN DO:
+        PROCESS EVENTS.
+        STATUS DEFAULT "Create PDF files complete".
+    END.
 END PROCEDURE.
 
 PROCEDURE bolValidate:
@@ -1644,48 +1647,104 @@ DO:
             END.
         WHEN 5 THEN 
             DO:
-                IF vcInvNums = "0" OR vcInvNums = "0-0" THEN 
-                    vcInvNums = STRING(RANDOM(1, 1000)).
-                IF v-print-fmt EQ "CentBox" THEN
-                DO:
-
-                    IF NOT tb_BatchMail-CHECKED THEN
-                        PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(3 + dPrintFmtDec)) + "mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
-                    ELSE 
-                        PUT "<PREVIEW=PDF><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(3 + dPrintFmtDec)) + "mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
-                    cActualPDF = lv-pdf-file + vcInvNums  + ".pdf".
-                END.
-                ELSE IF v-print-fmt EQ "Southpak-XL" OR v-print-fmt EQ "PrystupExcel" THEN DO:
-                    IF dPrintFmtDec > 0 THEN
-                        PUT "<PDF=DIRECT><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
-                    ELSE
-                        PUT "<PDF=DIRECT><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
-                        cActualPDF = list-name + ".pdf".
-                END.
-                ELSE IF v-print-fmt EQ "Protagon" OR v-print-fmt = "Protagon2" THEN DO:
-                    PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
-                    cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
-                END.
-                ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
-                    PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
-                    cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
-                END.
-                ELSE DO:
-                    IF "{&head}" EQ "ar-inv" THEN DO:
+                IF NOT tb_PdfOnly THEN DO:
+                    IF vcInvNums = "0" OR vcInvNums = "0-0" THEN 
+                        vcInvNums = STRING(RANDOM(1, 1000)).
+                    IF v-print-fmt EQ "CentBox" THEN
+                    DO:
+    
+                        IF NOT tb_BatchMail-CHECKED THEN
+                            PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(3 + dPrintFmtDec)) + "mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                        ELSE 
+                            PUT "<PREVIEW=PDF><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(3 + dPrintFmtDec)) + "mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                        cActualPDF = lv-pdf-file + vcInvNums  + ".pdf".
+                    END.
+                    ELSE IF v-print-fmt EQ "Southpak-XL" OR v-print-fmt EQ "PrystupExcel" THEN DO:
                         IF dPrintFmtDec > 0 THEN
-                            PUT "<PREVIEW><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                            PUT "<PDF=DIRECT><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
                         ELSE
-                            PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
-
+                            PUT "<PDF=DIRECT><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+                            cActualPDF = list-name + ".pdf".
+                    END.
+                    ELSE IF v-print-fmt EQ "Protagon" OR v-print-fmt = "Protagon2" THEN DO:
+                        PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                        cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
+                    END.
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
+                        PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                        cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
                     ELSE DO:
-                        IF dPrintFmtDec > 0 THEN
-                            PUT "<PDF=DIRECT><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
-                        ELSE 
-                            PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
-                        
+                        IF "{&head}" EQ "ar-inv" THEN DO:
+                            IF dPrintFmtDec > 0 THEN
+                                PUT "<PREVIEW><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                            ELSE
+                                PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+    
+                        END.
+                        ELSE DO:
+                            IF dPrintFmtDec > 0 THEN
+                                PUT "<PDF=DIRECT><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                            ELSE 
+                                PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                            
+                        END.
+                            cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
+                END. /* tb_PdfOnly = no */ 
+                ELSE DO:
+                    /*tb_PdfOnly - No preview, PRINT=NO */
+                    PROCESS EVENTS.
+                    STATUS DEFAULT "Creating PDF files for archive".
+                    IF vcInvNums = "0" OR vcInvNums = "0-0" THEN 
+                        vcInvNums = STRING(RANDOM(1, 1000)).
+                    IF v-print-fmt EQ "CentBox" THEN
+                    DO:
+    
+                        IF NOT tb_BatchMail-CHECKED THEN
+                            PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(3 + dPrintFmtDec)) + "mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                        ELSE 
+                            PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(3 + dPrintFmtDec)) + "mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                        cActualPDF = lv-pdf-file + vcInvNums  + ".pdf".
+                    END.
+                    ELSE IF v-print-fmt EQ "Southpak-XL" OR v-print-fmt EQ "PrystupExcel" THEN 
+                    DO:
+                        IF dPrintFmtDec > 0 THEN
+                            PUT "<PDF=DIRECT><PRINT=NO><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+                        ELSE
+                            PUT "<PDF=DIRECT><PRINT=NO><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
+                        cActualPDF = list-name + ".pdf".
+                    END.
+                    ELSE IF v-print-fmt EQ "Protagon" OR v-print-fmt = "Protagon2" THEN 
+                    DO:
+                        PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
+                    END.
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
+                    DO:
+                        PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                        cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
+                    END.
+                    ELSE 
+                    DO:
+                    IF "{&head}" EQ "ar-inv" THEN 
+                    DO:
+                        IF dPrintFmtDec > 0 THEN
+                            PUT "<PDF=DIRECT><PRINT=NO><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                        ELSE
+                            PUT "<PDF=DIRECT><PRINT=NO><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+
+                        END.
+                        ELSE 
+                        DO:
+                            IF dPrintFmtDec > 0 THEN
+                                PUT "<PDF=DIRECT><PRINT=NO><PDF-LEFT=" + trim(STRING(dPrintFmtDec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                            ELSE 
+                                PUT "<PDF=DIRECT><PRINT=NO><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                
+                        END.
+                        cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
+                    END.
                 END.
             END.
 
