@@ -107,7 +107,8 @@ form
 with frame beeler no-labels no-box no-underline down stream-io width 90.
 
 form
-  inv-misc.charge at 5 space(2) inv-misc.dscr
+  inv-misc.po-no at 5 space(2)
+  inv-misc.charge space(2) inv-misc.dscr
   inv-misc.amt to 80 format "->>,>>9.99"
   skip(1)
 with frame detailm no-labels no-box no-underline down stream-io width 90.
@@ -456,7 +457,7 @@ with frame totals-comp2 no-labels no-box no-underline stream-io width 90.
 
             end.
 
-            display inv-misc.charge inv-misc.dscr inv-misc.amt.
+            display inv-misc.po-no inv-misc.charge inv-misc.dscr inv-misc.amt.
             down.
 
             assign v-tot-lines = v-tot-lines + inv-misc.amt

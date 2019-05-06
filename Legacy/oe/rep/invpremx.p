@@ -843,8 +843,8 @@ END.
             /* rstark 05181205 */
 
           end.
-
-            put inv-misc.charge AT 17 inv-misc.dscr inv-misc.amt AT 85 SKIP.
+                 
+            PUT inv-misc.po-no AT 2 inv-misc.charge AT 17 inv-misc.dscr inv-misc.amt AT 85 SKIP.
 
             /* rstark 05181205 */
             XMLLineNumber = XMLLineNumber + 1.
