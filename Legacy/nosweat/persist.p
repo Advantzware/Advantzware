@@ -5,17 +5,6 @@ DEFINE SHARED     VARIABLE g_track_usage AS LOGICAL       NO-UNDO.
 DEFINE            VARIABLE phandle       AS WIDGET-HANDLE NO-UNDO.
 DEFINE            VARIABLE is-running    AS LOGICAL       NO-UNDO.
 
-PROCEDURE SetForegroundWindow EXTERNAL "USER32.DLL":
-    DEFINE INPUT  PARAMETER intHwnd   AS LONG.
-    DEFINE RETURN PARAMETER intResult AS LONG.
-END PROCEDURE.
-
-PROCEDURE FindWindowA EXTERNAL "USER32.DLL":
-    DEFINE INPUT  PARAMETER intClassName AS LONG.
-    DEFINE INPUT  PARAMETER chrCaption   AS CHARACTER.
-    DEFINE RETURN PARAMETER intHandle    AS LONG.
-END PROCEDURE.
-
 &Scoped-define IAMPERSIST yes
 
 PROCEDURE Check-Exit :
@@ -159,6 +148,7 @@ PROCEDURE Get_Procedure :
     DEFINE INPUT  PARAMETER run-now   AS LOGICAL.
     
     DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
+    DEF VAR lDummy AS LOG NO-UNDO.
 
     IF INDEX(proc-name,"..") NE 0 OR INDEX(proc-name,".") = 0 THEN
         RETURN.
@@ -216,28 +206,26 @@ PROCEDURE Get_Procedure :
                     ELSE IF INDEX(run-proc,"Jasper.") NE 0 THEN
                         {methods/smartrun.i (buf-prgrms.subjectID,USERID('ASI'),buf-prgrms.prgmName,0,YES)}
                     ELSE
-                    {methods/smartrun.i}
+                        {methods/smartrun.i}
                 END.
-                ELSE
-                    IF proc-name= "about." THEN
-                        RUN VALUE(run-proc) (PROGRAM-NAME(2)).
-                    ELSE
-                        IF proc-name= "help." AND INDEX(PROGRAM-NAME(2),"mainmenu") NE 0 THEN
-                            RUN VALUE(run-proc) ("mainmenu.",0).
-                        ELSE IF INDEX(run-proc,"Jasper.") NE 0 THEN
-                             RUN VALUE(run-proc) (buf-prgrms.subjectID,USERID('ASI'),buf-prgrms.prgmName,0,YES).
-                             ELSE RUN VALUE(run-proc).
+                ELSE IF proc-name= "about." THEN
+                    RUN VALUE(run-proc) (PROGRAM-NAME(2)).
+                ELSE IF proc-name= "help." AND INDEX(PROGRAM-NAME(2),"mainmenu") NE 0 THEN
+                    RUN VALUE(run-proc) ("mainmenu.",0).
+                ELSE IF INDEX(run-proc,"Jasper.") NE 0 THEN
+                    RUN VALUE(run-proc) (buf-prgrms.subjectID,USERID('ASI'),buf-prgrms.prgmName,0,YES).
+                ELSE RUN VALUE(run-proc).
+                RUN running_procedures(run-proc, OUTPUT lDummy).
                 run-proc = "".
             END.
         END.
     END.
-    ELSE
-        IF NOT SESSION:BATCH-MODE THEN DO:
-            RUN Set_Cursor ("").
-            MESSAGE "Program :" proc-name SKIP(1)
+    ELSE IF NOT SESSION:BATCH-MODE THEN DO:
+        RUN Set_Cursor ("").
+        MESSAGE "Program :" proc-name SKIP(1)
                 "Program Master Record Does Not Exist - Contact Systems Manager" 
                 VIEW-AS ALERT-BOX ERROR.
-        END.
+    END.
  
 END PROCEDURE.
 
@@ -281,7 +269,7 @@ PROCEDURE Running_Procedures :
     DEF VAR intHWind AS INT NO-UNDO.
     DEF VAR cWinTitle AS CHAR NO-UNDO.
     DEF VAR rc AS INT NO-UNDO.
-
+    DEF VAR lDummy AS LOG NO-UNDO.
     DEFINE BUFFER bprgrms FOR prgrms.
 
     ASSIGN
@@ -291,18 +279,21 @@ PROCEDURE Running_Procedures :
     DO WHILE VALID-HANDLE(phandle):
         IF INDEX(phandle:FILE-NAME,progname) NE 0 THEN DO:
             IF INDEX(progname,"notes.") NE 0 OR
-         INDEX(progname,"mfvalues.") NE 0 OR
-         INDEX(progname,"listrqst.") NE 0 THEN
+            INDEX(progname,"mfvalues.") NE 0 OR
+            INDEX(progname,"listrqst.") NE 0 THEN
                 DELETE PROCEDURE phandle.
             ELSE DO:
-                ASSIGN 
-                    hWindowHandle = pHandle:CURRENT-WINDOW
-                    cWinTitle = hWindowHandle:TITLE.
                 is-running = YES.
                 RUN Set_Cursor ("").
                 RUN Set-Focus IN phandle NO-ERROR.
-                RUN findWindowA (0, cWinTitle, OUTPUT intHWind). 
-                RUN SetForeGroundWindow (intHWind, OUTPUT rc).
+                IF pHandle:TYPE EQ "Procedure" THEN DO:
+                    ASSIGN 
+                        hWindowHandle = pHandle:CURRENT-WINDOW
+                        cWinTitle = hWindowHandle:TITLE.
+                    IF hWindowHandle:WINDOW-STATE EQ 2 THEN ASSIGN 
+                        hWindowHandle:WINDOW-STATE = 3.
+                    lDummy = hWindowHandle:MOVE-TO-TOP().
+                END.
             END.
             RETURN.
         END.
