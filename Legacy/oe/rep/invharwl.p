@@ -249,7 +249,8 @@ for each report where report.term-id eq v-term-id no-lock,
   assign
    v-t-tax    = 0
    v-tot-sqft = 0
-   v-tot-wght = 0.
+   v-tot-wght = 0
+   dTotInv    = 0 .
   
   for each inv-line
       where inv-line.r-no eq inv-head.r-no
