@@ -83,7 +83,8 @@ DEF TEMP-TABLE tt-post NO-UNDO
 
 DEF TEMP-TABLE tt-packslip NO-UNDO
     FIELD b-no AS INT.
-
+    
+DEFINE TEMP-TABLE ttPdfBOLs LIKE report.
 
 def var v-print-fmt     as char NO-UNDO.
 DEF VAR v-print-fmt-int AS INT  NO-UNDO.
@@ -133,7 +134,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BOLSavePDF", "L" /* Logical */, NO /* chec
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lCopyPdfFile = logical(cRtnChar) NO-ERROR .
-
+IF SUBSTRING(cCopyPdfFile, length(cCopyPdfFile), 1) NE "\" THEN 
+  cCopyPdfFile = cCopyPdfFile + "\".
 
 DEF VAR lv-prt-bypass     AS LOG NO-UNDO.  /* bypass window's printer driver */
 DEF VAR lv-run-bol        AS char no-undo.
@@ -1210,7 +1212,8 @@ DO:
                  "Please verify transmission in your SENT folder."
                  VIEW-AS ALERT-BOX INFO BUTTONS OK.
    END.
-
+   IF lCopyPdfFile THEN 
+      RUN pdfArchive.
    SESSION:SET-WAIT-STATE ("").
 
    IF tb_barcode:CHECKED THEN
@@ -3534,6 +3537,68 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdfArchive C-Win
+PROCEDURE pdfArchive:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE reportKey10 AS LOGICAL NO-UNDO.
+      {sa/sa-sls01.i}
+    FOR EACH ttPdfBOLs,
+      FIRST oe-bolh NO-LOCK WHERE recid(oe-bolh) EQ ttPdfBOLs.rec-id
+          :
+
+        IF lCopyPDFFile THEN 
+        DO:
+
+            v-term-id = v-term.
+            FIND FIRST sys-ctrl-shipto WHERE
+                sys-ctrl-shipto.company      EQ oe-bolh.company AND
+                sys-ctrl-shipto.name         EQ "BOLFMT" AND
+                sys-ctrl-shipto.cust-vend    EQ YES AND
+                sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no AND
+                sys-ctrl-shipto.ship-id      EQ oe-bolh.ship-id
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL sys-ctrl-shipto THEN
+                FIND FIRST sys-ctrl-shipto WHERE
+                    sys-ctrl-shipto.company      EQ oe-bolh.company AND
+                    sys-ctrl-shipto.name         EQ "BOLFMT" AND
+                    sys-ctrl-shipto.cust-vend    EQ YES AND
+                    sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no AND
+                    sys-ctrl-shipto.ship-id      EQ ''
+                    NO-LOCK NO-ERROR.
+            reportKey10     = oe-bolh.printed.
+            CREATE report.
+            ASSIGN 
+                report.term-id = "BOLPDF" + USERID("asi")
+                report.key-01  = oe-bolh.cust-no
+                report.key-02  = oe-bolh.ship-id
+                report.rec-id  = RECID(oe-bolh)
+                report.key-09  = STRING(oe-bolh.printed,"REVISED/ORIGINAL")
+                report.key-10  = STRING(reportKey10) /* 05291402 */
+                report.key-03  = IF AVAIL sys-ctrl-shipto AND  NOT sys-ctrl-shipto.log-fld THEN "C" /*commercial invoice only*/
+                            ELSE IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN "B" /*commercial invoice and bol both*/
+                ELSE "N" /*BOL only*/ 
+                report.key-04  = IF AVAIL sys-ctrl-shipto THEN sys-ctrl-shipto.char-fld ELSE "".
+     
+            lv-run-bol = "YES".
+            RUN run-report("",NO,YES).
+    
+            RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").            
+                
+        END. /* If lCopyPdfFile */
+
+    END. /* each ttpdf */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-bol C-Win 
 PROCEDURE post-bol :
 /*------------------------------------------------------------------------------
@@ -4152,7 +4217,10 @@ PROCEDURE run-report :
   ASSIGN td-pck-lst = NO .
 
   for each report where report.term-id eq v-term-id:
-            
+      IF NOT iplPdfOnly AND lCopyPdfFile THEN DO:
+          CREATE ttPdfBOLs.
+          BUFFER-COPY report TO ttPdfBOLs.
+      END.
       IF asnsps-log THEN RUN oe/oe856gen.p (report.rec-id, yes,yes).
       
       delete report.

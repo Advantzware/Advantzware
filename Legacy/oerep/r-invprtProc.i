@@ -89,6 +89,7 @@ DEFINE VARIABLE vcBOLSignDir    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-rec-found     AS LOG       NO-UNDO.
 
 DEFINE VARIABLE tb_splitPDF     AS LOG       NO-UNDO.
+DEFINE VARIABLE tb_PDFOnly      AS LOGICAL   NO-UNDO. /* No email */
 DEFINE VARIABLE rCurrentInvoice AS ROWID     NO-UNDO.
 DEFINE VARIABLE cCopyPdfFile    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCopyPdfFile    AS LOGICAL   NO-UNDO.
@@ -141,7 +142,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "C" /* Logical */, NO /* 
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cCopyPdfFile = cRtnChar . 
-
+IF SUBSTRING(cCopyPdfFile, length(cCopyPdfFile), 1) NE "\" THEN 
+    cCopyPdfFile = cCopyPdfFile + "\".
 RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -259,6 +261,7 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptbQtyAll           AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptbCustList         AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptb_prt-dupl        AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptbPdfOnly          AS LOGICAL INITIAL NO               .
     
     ASSIGN
         begin_bol         = ipbegin_bol        
@@ -304,7 +307,9 @@ PROCEDURE assignSelections:
         s-print-zero-qty = tb_prt-zero-qty
         svi-print-item   = rs_no_PN        
         nsv_setcomp      = tb_setcomp
-        tb_prt-dupl      = iptb_prt-dupl.
+        tb_prt-dupl      = iptb_prt-dupl
+        tb_PdfOnly       = iptbPdfOnly
+        .
         
         CASE rd-dest:
             WHEN 1 THEN 
@@ -1685,13 +1690,13 @@ DO:
             END.
 
     END CASE.
-
+    /*
     IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN DO:
         IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:
             PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Inv_" + vcInvNums + ".pdf>" FORM "x(180)".
         END.
     END.
-
+    */
     PUT "</PROGRESS>".
 END. /* Is Xprint form */
 
@@ -1826,20 +1831,20 @@ PROCEDURE SendMail-1:
         ELSE
             IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN DO:
                 RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                
-                IF "{&head}" EQ "ar-inv" AND lCopyPdfFile THEN DO:
-                    IF rd-dest EQ 5 THEN DO:
-                        OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Inv_" + vcInvNums + ".pdf").
-                     END.
-                 END.
-                  
+
               /* Fix for incorrect file name during batch emailing */    
               IF cActualPDF NE lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN 
               DO:
                   OS-COPY VALUE(cActualPDF) VALUE(lv-pdf-file).
                   OS-DELETE VALUE(cActualPDF).           
               END.
-                  
+                 
+              IF "{&head}" EQ "ar-inv" AND lCopyPdfFile AND tb_PdfOnly THEN DO:
+                  IF rd-dest EQ 5 THEN DO:
+                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Inv_" + vcInvNums + ".pdf").
+                   END.
+              END.
+                                  
                 list-name = lv-pdf-file.
             END.
             ELSE
@@ -1885,7 +1890,7 @@ PROCEDURE SendMail-1:
         RETURN. 
     END.
 
-    IF NOT lSupressEmail THEN
+    IF NOT lSupressEmail AND NOT tb_PdfOnly THEN
         RUN custom/xpmail2.p   (INPUT   icRecType,
             INPUT   'R-INVPRT.',
             INPUT   list-name,
