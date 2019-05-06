@@ -1397,24 +1397,6 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME itemfg.unitLength
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.unitLength V-table-Win
-ON LEAVE OF itemfg.unitLength IN FRAME F-Main /* Pallet (L) */
-OR LEAVE OF itemfg.unitWidth
-OR LEAVE OF itemfg.unitHeight
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        ASSIGN 
-            itemfg.palletVolume:SCREEN-VALUE = STRING(DECIMAL(itemfg.unitLength:SCREEN-VALUE) *
-                                                      DECIMAL(itemfg.unitWidth:SCREEN-VALUE) *
-                                                      DECIMAL(itemfg.unitHeight:SCREEN-VALUE)).        
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
