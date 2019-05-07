@@ -1212,7 +1212,7 @@ DO:
                  "Please verify transmission in your SENT folder."
                  VIEW-AS ALERT-BOX INFO BUTTONS OK.
    END.
-   IF lCopyPdfFile THEN 
+   IF lCopyPdfFile AND tb_posted THEN 
       RUN pdfArchive.
    SESSION:SET-WAIT-STATE ("").
 
