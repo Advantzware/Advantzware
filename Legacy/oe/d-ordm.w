@@ -1515,6 +1515,13 @@ PROCEDURE new-comm :
                 END.
             END.
         END.  /*IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN do:  */           /*Task# 11271302*/
+        ELSE
+            ASSIGN 
+                oe-ordm.s-comm[1]:SCREEN-VALUE = '0'
+                oe-ordm.s-comm[2]:SCREEN-VALUE = '0'
+                oe-ordm.s-comm[3]:SCREEN-VALUE = '0'
+                . 
+            
     END.
 
   

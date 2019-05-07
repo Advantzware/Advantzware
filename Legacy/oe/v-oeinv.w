@@ -46,6 +46,7 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEFINE VARIABLE ll-new-shipto AS LOGICAL  INIT NO  NO-UNDO.
 DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
+DEFINE BUFFER bff-head FOR inv-head.
 
 &SCOPED-DEFINE other-enable enable-other
 
@@ -1102,8 +1103,10 @@ PROCEDURE hold-invoice :
                  MAIN-INV:
                  FOR EACH bf-line-2 WHERE
                      bf-line-2.company EQ inv-head.company AND
-                     bf-line-2.po-no    EQ fi_PO:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-                     NO-LOCK BREAK BY bf-line-2.ord-no :
+                     bf-line-2.po-no    EQ fi_PO:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-LOCK, 
+                     FIRST bff-head NO-LOCK
+                       WHERE bff-head.r-no    EQ bf-line-2.r-no AND
+                             bff-head.stat    EQ "H" BREAK BY bf-line-2.ord-no :
                     
                       IF FIRST-OF(bf-line-2.ord-no) THEN do:
                        lcheckflg = YES .
@@ -1135,9 +1138,9 @@ PROCEDURE hold-invoice :
                                BUTTONS YES-NO UPDATE lcheckflg  .
                               LEAVE.
                        END.
-
+                    
                        IF lcheckflg THEN
-                           FOR FIRST bf-line WHERE
+                           FOR EACH bf-line WHERE
                            bf-line.company     EQ inv-head.company AND
                            bf-line.ord-no      EQ bf-line-2.ord-no AND
                            bf-line.po-no       EQ bf-line-2.po-no,

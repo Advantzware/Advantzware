@@ -35,7 +35,8 @@ FUNCTION pgmStack RETURNS CHAR
 
 cPgmStack = pgmStack().
 v-recalc-if1 = INDEX(cPgmStack,"fg/d-recost.w") > 0
-OR INDEX(cPgmStack,"fg/fgpstall.w") > 0.
+OR INDEX(cPgmStack,"fg/fgpstall.w") > 0
+OR INDEX(cPgmStack,"util/fxtrncst") > 0.
 
 DISABLE TRIGGERS FOR LOAD OF itemfg.
     

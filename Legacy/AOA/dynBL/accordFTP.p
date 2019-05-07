@@ -11,14 +11,18 @@
 
 /* Local Variable Definitions ---                                       */
 
+{methods/defines/globdefs.i &NEW="NEW GLOBAL"}
+
 DEFINE VARIABLE hFTP AS HANDLE NO-UNDO.
 
 DEFINE TEMP-TABLE ttTempTable NO-UNDO
-    FIELD tempField AS CHARACTER
+    FIELD taskFile AS CHARACTER FORMAT "x(60)" LABEL "Task File"
+    FIELD ftpFile  AS CHARACTER FORMAT "x(60)" LABEL "FTP File"
     .
 RUN system/ftpProcs.p PERSISTENT SET hFTP.
 
-{AOA/includes/dynRunBusinessLogicDefs.i}
+&Scoped-define subjectID 5012
+{AOA/includes/subjectID{&subjectID}Defs.i}
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -29,13 +33,16 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cFTPFile       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPassword      AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bTaskResult FOR taskResult.
+    
+    g_company = cCompany.
     OS-CREATE-DIR "ftpTasks".
     FOR EACH ftpConfig NO-LOCK
         WHERE ftpConfig.ediType      EQ "Generic"
           AND ftpConfig.ftpDirection EQ "OUT"
           AND ftpConfig.partner      EQ "AB"
         :
-        FOR EACH taskResult EXCLUSIVE-LOCK
+        FOR EACH taskResult NO-LOCK
             WHERE (INDEX(taskResult.folderFile,"InventoryInquiryBL") NE 0
               AND  ftpConfig.ftpCode EQ "846")
                OR (INDEX(taskResult.folderFile,"ProductionScheduleBL") NE 0
@@ -55,14 +62,26 @@ PROCEDURE pBusinessLogic:
                     cFTPFile       = "ftpTasks/AB_US_CSV_IB_" + ftpConfig.ftpCode + "_"
                                    + cDateTimeStamp + ".csv"
                                    .
-                OS-RENAME VALUE(taskResult.folderFile) VALUE(cFTPFile).
+                CREATE ttTempTable.
                 ASSIGN
-                    taskResult.folderFile = cFTPFile
-                    FILE-INFO:FILE-NAME   = SEARCH(taskResult.folderFile)
-                    cFile                 = REPLACE(taskResult.folderFile,"ftpTasks/","")
-                    cFolder               = REPLACE(FILE-INFO:FULL-PATHNAME,cFile,"")
-                    cPassword             = REPLACE(ftpConfig.ftpPassword,"@","%40") 
+                    ttTempTable.taskFile = taskResult.folderFile
+                    ttTempTable.ftpFile  = cFTPFile
                     .
+                OS-RENAME VALUE(taskResult.folderFile) VALUE(cFTPFile).
+                /* do this because the FTP call might lag and leave taskResult
+                   in a transaction lock state, so we update and get out */
+                DO TRANSACTION:
+                    FIND FIRST bTaskResult EXCLUSIVE-LOCK
+                         WHERE ROWID(bTaskResult) EQ ROWID(taskResult).
+                    ASSIGN
+                        bTaskResult.folderFile = cFTPFile
+                        FILE-INFO:FILE-NAME    = SEARCH(bTaskResult.folderFile)
+                        cFile                  = REPLACE(bTaskResult.folderFile,"ftpTasks/","")
+                        cFolder                = REPLACE(FILE-INFO:FULL-PATHNAME,cFile,"")
+                        cPassword              = REPLACE(ftpConfig.ftpPassword,"@","%40") 
+                        .
+                    FIND CURRENT bTaskResult NO-LOCK.
+                END. /* do trans */
                 RUN pSimpleFTP IN hFTP (
                     ftpConfig.ftpSite,
                     ftpConfig.ftpUser,
@@ -76,13 +95,9 @@ PROCEDURE pBusinessLogic:
                     ftpConfig.ftpBinary,
                     cFolder,
                     cFile,
-                    YES
+                    YES /* run silent */
                     ).
             END. /* if search */
         END. /* each taskresult */
     END. /* each ftpconfig */
-END PROCEDURE.
-
-PROCEDURE pAssignParamVariables:
-    /* dummy procedure holder - do not delete this procedure */
 END PROCEDURE.
