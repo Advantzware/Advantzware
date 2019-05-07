@@ -61,12 +61,15 @@ CREATE WIDGET-POOL.
 &Scoped-define INTERNAL-TABLES rowObject
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tagType groupCode statusCode ~
-description linkTable Note1 Note2 Note3 Note4 Note5 ownerUser createDT ~
-createUser updateDT updateUser linkRecKey rec_key 
+&Scoped-define FIELDS-IN-QUERY-br_table rowObject.tagType ~
+rowObject.groupCode rowObject.description rowObject.Note1 ~
+rowObject.statusCode rowObject.linkTable rowObject.Note2 rowObject.Note3 ~
+rowObject.Note4 rowObject.Note5 rowObject.ownerUser rowObject.createDT ~
+rowObject.createUser rowObject.updateDT rowObject.updateUser ~
+rowObject.linkRecKey rowObject.rec_key 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
-&Scoped-define QUERY-STRING-br_table FOR EACH rowObject
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH rowObject.
+&Scoped-define QUERY-STRING-br_table FOR EACH rowObject NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH rowObject NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-br_table rowObject
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table rowObject
 
@@ -102,26 +105,26 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table bTable _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      tagType FORMAT "x(8)":U
-      groupCode FORMAT "x(8)":U
-      statusCode FORMAT "x(8)":U
-      description FORMAT "x(60)":U
-      linkTable FORMAT "x(24)":U
-      Note1 FORMAT "x(60)":U
-      Note2 FORMAT "x(60)":U
-      Note3 FORMAT "x(60)":U
-      Note4 FORMAT "x(60)":U
-      Note5 FORMAT "x(60)":U
-      ownerUser FORMAT "x(12)":U
-      createDT FORMAT "99/99/9999 HH:MM:SS.SSS":U
-      createUser FORMAT "x(12)":U
-      updateDT FORMAT "99/99/9999 HH:MM:SS.SSS":U
-      updateUser FORMAT "x(12)":U
-      linkRecKey FORMAT "x(21)":U
-      rec_key FORMAT "X(21)":U
+      rowObject.tagType FORMAT "x(8)":U
+      rowObject.groupCode FORMAT "x(8)":U
+      rowObject.description FORMAT "x(60)":U WIDTH 26.6
+      rowObject.Note1 FORMAT "x(60)":U
+      rowObject.statusCode FORMAT "x(8)":U
+      rowObject.linkTable FORMAT "x(24)":U
+      rowObject.Note2 FORMAT "x(60)":U
+      rowObject.Note3 FORMAT "x(60)":U
+      rowObject.Note4 FORMAT "x(60)":U
+      rowObject.Note5 FORMAT "x(60)":U
+      rowObject.ownerUser FORMAT "x(12)":U
+      rowObject.createDT FORMAT "99/99/9999 HH:MM:SS.SSS":U
+      rowObject.createUser FORMAT "x(12)":U
+      rowObject.updateDT FORMAT "99/99/9999 HH:MM:SS.SSS":U
+      rowObject.updateUser FORMAT "x(12)":U
+      rowObject.linkRecKey FORMAT "x(21)":U
+      rowObject.rec_key FORMAT "X(21)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 66 BY 6.67 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 95 BY 8.33 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -160,8 +163,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW bTable ASSIGN
-         HEIGHT             = 6.86
-         WIDTH              = 66.
+         HEIGHT             = 8.38
+         WIDTH              = 95.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -199,12 +202,14 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _TblList          = "rowObject"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _FldNameList[1]   = _<SDO>.rowObject.tagType
+     _FldNameList[1]   > _<SDO>.rowObject.tagType
+"rowObject.tagType" ? ? "character" ? ? ? ? ? ? no "?" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = _<SDO>.rowObject.groupCode
-     _FldNameList[3]   = _<SDO>.rowObject.statusCode
-     _FldNameList[4]   = _<SDO>.rowObject.description
-     _FldNameList[5]   = _<SDO>.rowObject.linkTable
-     _FldNameList[6]   = _<SDO>.rowObject.Note1
+     _FldNameList[3]   > _<SDO>.rowObject.description
+"rowObject.description" ? ? "character" ? ? ? ? ? ? no "?" no no "26.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   = _<SDO>.rowObject.Note1
+     _FldNameList[5]   = _<SDO>.rowObject.statusCode
+     _FldNameList[6]   = _<SDO>.rowObject.linkTable
      _FldNameList[7]   = _<SDO>.rowObject.Note2
      _FldNameList[8]   = _<SDO>.rowObject.Note3
      _FldNameList[9]   = _<SDO>.rowObject.Note4

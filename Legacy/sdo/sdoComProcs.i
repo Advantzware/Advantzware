@@ -79,7 +79,7 @@ PROCEDURE zChgQry :
     DEF INPUT PARAMETER ipQueryString AS CHAR NO-UNDO.
     DEF VAR cQueryWhere AS CHAR NO-UNDO.
     DEF VAR cQuerySort AS CHAR NO-UNDO.
-MESSAGE ipQueryString VIEW-AS ALERT-BOX.
+
     IF NUM-ENTRIES(ipQueryString, "|") > 1 THEN DO:
         ASSIGN
             cQueryWhere = ENTRY(1,ipQueryString, "|")

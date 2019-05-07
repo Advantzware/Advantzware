@@ -1414,7 +1414,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
 ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
 DO:
-    RUN sys/ref/dlgTagVwr.w (oe-ord.rec_key,"HOLD","").
+    RUN sys/ref/dlgTagVwr.w (oe-ord.rec_key,"","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5265,10 +5265,8 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-    IF oe-ord.stat:SCREEN-VALUE IN FRAME {&frame-name} NE "H" THEN ASSIGN 
-        imgHoldRsn:VISIBLE = FALSE.
-    ELSE ASSIGN 
-        imgHoldRsn:VISIBLE = TRUE.
+    ASSIGN 
+        imgHoldRsn:VISIBLE IN FRAME {&frame-name} = oe-ord.stat:SCREEN-VALUE = "H".
          
   
   DO WITH FRAME {&FRAME-NAME}:
@@ -5559,24 +5557,37 @@ PROCEDURE local-update-record :
   CREATE old-oe-ord.
   BUFFER-COPY oe-ord TO old-oe-ord.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-    RUN releaseCheck IN spOeValidate ("", "oe-ord", oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
-    IF NOT lHoldError THEN DO: /* There is NOT a manual release tag */
-        RUN clearTagsOfType (oe-ord.rec_key,"HOLD").
-        RUN clearTagsOfType (oe-ord.rec_key,"INFO").
-        RUN pValidate IN spOeValidate ("ALL", "oe-ord", oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
-        IF lHoldError THEN 
-        DO:
+    RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).
+    IF lHoldError                                                   /* ValidateALL has reported an error */
+    AND NOT DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) THEN DO:    /* BUT there is a manual release tag */
+        MESSAGE 
+            "This order would be placed on hold due to the following:" SKIP 
+            cErrMessage SKIP 
+            "but the order has been MANUALLY RELEASED." SKIP(1)
+            "Press YES to continue with the order RELEASED." SKIP 
+            "Press NO to remove the release flag and continue" SKIP 
+            "with the order ON HOLD."
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lRelease AS LOG.
+        
+        IF NOT lRelease THEN DO: /* User said remove release tag */
+            RUN removeManualRelease IN spOeValidate (oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
             FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
             ASSIGN 
                 bf-oe-ord.stat = "H".
             FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-            MESSAGE 
-                "Order placed on hold due to:" + CHR(10) + cErrMessage
-                VIEW-AS ALERT-BOX.
-        END. 
+        END.
+    END.
+    ELSE IF lHoldError THEN DO:    
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+        ASSIGN 
+            bf-oe-ord.stat = "H".
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
+        MESSAGE 
+            "Order placed on hold due to:" + CHR(10) + cErrMessage
+            VIEW-AS ALERT-BOX.
     END.
   
   /* If hold status needs to be changed on line items,

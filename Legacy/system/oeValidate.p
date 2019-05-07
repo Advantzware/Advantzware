@@ -1,7 +1,7 @@
 /*-----------------------------------------------------------------------------
     File        : oe/spValidate.p
     Copyright   : (c)1985-2019 Advantzware, Inc. All rights reserved.
-    Description : Performs all validations for OE module
+    Description : Performs all validations for OE module auto-hold processing
     Author(s)   : MYT
     Created     : Apr 23, 2019 3:18:57 PM
     Notes       : Run as a persistent procedure to access these routines
@@ -18,12 +18,11 @@
 
 
 FUNCTION fSetTag RETURNS LOGICAL 
-	( ipcTestProc AS CHARACTER,
-        ipcRecKey AS CHARACTER,
-        ipcLinkTable AS CHARACTER, 
-        ipcTagType AS CHARACTER,
-        iplError AS LOG,
-        ipcMessage AS CHAR ) FORWARD.
+    ( ipcRecKey AS CHARACTER,
+    ipcLinkTable AS CHARACTER,
+    ipcGroup AS CHARACTER,
+    ipcTestProc AS CHARACTER,
+    ipcMessage AS CHARACTER ) FORWARD.
 
 
 /* ***************************  Main Block  *************************** */
@@ -33,66 +32,7 @@ RUN system/tagprocs.p PERSISTENT SET hTagProcs.
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE HoldCheck:
-    /*------------------------------------------------------------------------------
-     Purpose:   Tests order for existence of hold tag without manual release tag
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcTestProc AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcLinkTable AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKey AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    IF CAN-FIND(FIRST tag WHERE  
-                tag.linkReckey  EQ ipcRecKey AND 
-                tag.linkTable   EQ ipcLinkTable AND 
-/*                tag.tagGroup    EQ "HoldStatus" AND*/
-                tag.tagType     EQ "Validate") 
-    AND NOT CAN-FIND(FIRST tag WHERE  
-                tag.linkReckey  EQ ipcRecKey AND 
-                tag.linkTable   EQ ipcLinkTable AND 
-/*                tag.tagGroup    EQ "HoldStatus" AND*/
-                tag.tagType     EQ "Validate" /* AND */  
-/*                tag.tagName     EQ "ManualRelease")*/)
-    THEN ASSIGN 
-        oplError = TRUE 
-        opcMessage = "Order is on HOLD".
-    ELSE ASSIGN 
-        oplError = FALSE 
-        opcMessage = "Order is NOT on hold".
-    
-END PROCEDURE.
-
-PROCEDURE ManualRelease:
-/*------------------------------------------------------------------------------
- Purpose:   Applies manual release tag to held order
- Notes:
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcTestProc AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcLinkTable AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKey AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-
-    RUN addTag IN hTagProcs (ipcRecKey,
-        ipcLinkTable,
-        "HoldStatus",
-        "Validate",
-        "ManualRelease",
-        "Manual Release by " + USERID("asi") + " on " + STRING(DATE(TODAY)),
-        "N",
-        "stat",
-        "H",
-        "").
-
-    ASSIGN 
-        oplError = FALSE 
-        opcMessage = "Manual Release applied".        
-        
-END PROCEDURE.
-
-PROCEDURE pCreditHold:
+PROCEDURE pCreditHold PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:   Runs "standard" credit check procedure and formats for validation output
  Notes:
@@ -123,7 +63,8 @@ PROCEDURE pCreditHold:
     
 END PROCEDURE.
 
-PROCEDURE pCustomerPN:
+
+PROCEDURE pCustomerPN PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:   Tests for a valid customer part number on each line
  Notes:     "Valid" means itemfg assigned to customer for this part-no and not Inactive 
@@ -158,7 +99,8 @@ PROCEDURE pCustomerPN:
 
 END PROCEDURE.
 
-PROCEDURE pCustomerPO:
+
+PROCEDURE pCustomerPO PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:   Verifies a customer PO has been entered on the order header
  Notes:
@@ -173,7 +115,8 @@ PROCEDURE pCustomerPO:
 
 END PROCEDURE.
 
-PROCEDURE pPriceGtCost:
+
+PROCEDURE pPriceGtCost PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:   Verifies that price > cost for each line on order
  Notes:
@@ -201,7 +144,8 @@ PROCEDURE pPriceGtCost:
 
 END PROCEDURE.
 
-PROCEDURE pPriceHold:
+
+PROCEDURE pPriceHold PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:   Runs "standard" price check for order and formats results
  Notes:
@@ -221,7 +165,8 @@ PROCEDURE pPriceHold:
         
 END PROCEDURE.
 
-PROCEDURE pUniquePO:
+
+PROCEDURE pUniquePO PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:   Verifies that the PO entered for this order has not been used on other orders for this customer
  Notes:
@@ -247,44 +192,82 @@ PROCEDURE pUniquePO:
 END PROCEDURE.
 
 
-PROCEDURE ReleaseCheck:
+PROCEDURE pValidShipTo PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose:   Tests order for existence of hold tag without manual release tag
-     Notes:
+     Purpose:   Determines if a valid ShipTo record exists for this customer
+     Notes:     Since oe-ord is created on ADD button, we can depend on rec_key availability
     ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcTestProc AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcLinkTable AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKey AS CHAR NO-UNDO.
+    DEF PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+
+    DEF BUFFER bcust FOR cust.
+    DEF BUFFER bshipto FOR shipto.
     
-    FIND FIRST tag NO-LOCK WHERE  
-        tag.linkReckey  EQ ipcRecKey AND 
-        tag.linkTable   EQ ipcLinkTable AND 
-        tag.tagType     EQ "Release"  
-        NO-ERROR. 
-    IF AVAIL tag THEN ASSIGN 
+    FIND FIRST bcust NO-LOCK WHERE 
+        bcust.company EQ ipboe-ord.company AND 
+        bcust.cust-no EQ ipboe-ord.cust-no  
+        NO-ERROR.
+    IF NOT AVAIL bcust THEN ASSIGN 
             oplError = TRUE 
-            opcMessage = tag.description.
-    ELSE ASSIGN 
-            oplError = FALSE 
-            opcMessage = "No manual release for this order".
+            opcMessage = "Unable to locate a customer for this order.". 
+    ELSE 
+    DO:
+        FIND FIRST bshipto NO-LOCK WHERE 
+            bshipto.company EQ ipboe-ord.company AND 
+            bshipto.cust-no EQ ipboe-ord.cust-no AND 
+            bshipto.ship-id EQ ipboe-ord.ship-id
+            NO-ERROR.
+        IF NOT AVAIL bshipto THEN ASSIGN 
+                oplError = TRUE 
+                opcMessage = "Unable to locate shipto record " + ipboe-ord.ship-id + " for customer " + bcust.cust-no.
+    END. 
     
 END PROCEDURE.
 
-PROCEDURE RemoveRelease:
+
+PROCEDURE pValidUoM PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:   Verifies that UoM on each line is not blank and can be found in UoM table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF PARAMETER BUFFER ipboe-ord FOR oe-ord.
+    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+
+    DEF BUFFER boe-ordl FOR oe-ordl.
+    
+    DEF VAR cBadLines AS CHAR NO-UNDO.
+
+    FOR EACH boe-ordl NO-LOCK WHERE 
+        boe-ordl.company EQ ipboe-ord.company AND 
+        boe-ordl.ord-no EQ ipboe-ord.ord-no:
+        IF boe-ordl.pr-uom EQ "" THEN ASSIGN 
+                cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+        ELSE IF NOT CAN-FIND(FIRST uom WHERE uom.uom EQ boe-ordl.pr-uom) THEN ASSIGN 
+                    cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+    END.
+    IF cBadLines NE "" THEN ASSIGN 
+            cBadLines = TRIM(cBadLines,",")
+            oplError = TRUE 
+            opcMessage = "Unable to locate valid UoM for line" + 
+                     IF NUM-ENTRIES(cBadLines) GT 1 THEN ("s " + cBadLines)
+                     ELSE (" " + cBadLines).
+
+END PROCEDURE.
+
+
+PROCEDURE removeManualRelease:
 /*------------------------------------------------------------------------------
  Purpose:   Removes manual release tag from order
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcTestProc AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcLinkTable AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcRecKey AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
 
-    RUN clearTagsByName IN hTagProcs (ipcRecKey,
-        "ManualRelease").
+    RUN clearTagsOfType IN hTagProcs (ipcRecKey,
+                                      "Release").
         
     ASSIGN 
         oplError = FALSE 
@@ -292,21 +275,40 @@ PROCEDURE RemoveRelease:
 
 END PROCEDURE.
 
-PROCEDURE pValidate:
+
+PROCEDURE setManualRelease:
+/*------------------------------------------------------------------------------
+ Purpose:   Removes manual release tag from order
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcRecKey AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+
+    RUN addTagRelease IN hTagProcs (ipcRecKey).
+        
+    ASSIGN 
+        oplError = FALSE 
+        opcMessage = "Order manually released".        
+
+END PROCEDURE.
+
+
+PROCEDURE validateSingle:
 /*------------------------------------------------------------------------------
  Purpose:   Entry point to all validation procs in this procedure
  Notes:     Syntax is
-            RUN Validate IN hspValidate (
-                INPUT testName or "ALL"
-                INPUT tablename
+            RUN ValidateSingle IN hspValidate (
                 INPUT rec_key to test
+                INPUT tablename
+                INPUT testName
                 OUTPUT logical error (yes/no)
                 OUTPUT error message to display
                 ).
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcTestProc AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcLinkTable AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcRecKey AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcLinkTable AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcTestName AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
     
@@ -324,109 +326,114 @@ PROCEDURE pValidate:
         /* Note: this can be expanded if other tables need to be tested */
     END CASE. 
         
-    IF ipcTestProc EQ "ALL" THEN DO:
-        FOR EACH sys-ctrl NO-LOCK WHERE    /* ALL tests requested */ 
-            sys-ctrl.module EQ "VAL" AND 
-            sys-ctrl.log-fld EQ TRUE:
-            ASSIGN 
-                cTestProc = "p" + sys-ctrl.name.
-            RUN VALUE(cTestProc) IN THIS-PROCEDURE (BUFFER boe-ord, OUTPUT lError, OUTPUT cMessage).
-            ASSIGN 
-                oplError = IF NOT oplError THEN lError ELSE oplError
-                opcMessage = IF lError THEN opcMessage + "   " + cMessage + chr(10) ELSE opcMessage. 
-            IF lError THEN DO:
-                lTag = fSetTag(sys-ctrl.name,ipcRecKey,ipcLinkTable,sys-ctrl.char-fld,lError,cMessage).
-            END.
-        END.
+    FIND FIRST sys-ctrl NO-LOCK WHERE    /* one test only */ 
+        sys-ctrl.module EQ "VAL" AND
+        sys-ctrl.name EQ ipcTestName
+        NO-ERROR.
+    IF NOT AVAIL sys-ctrl THEN FIND FIRST sys-ctrl NO-LOCK WHERE    /* did the test name have a 'p' prefix? */ 
+        sys-ctrl.module EQ "VAL" AND
+        sys-ctrl.name EQ SUBSTRING(ipcTestName,2)
+        NO-ERROR.      
+    IF NOT AVAIL sys-ctrl THEN DO:
         ASSIGN 
-            opcMessage = TRIM(opcMessage,CHR(10)).
+            oplError = TRUE 
+            opcMessage = "Unable to locate a test with name " + ipcTestName.
+        RETURN.
+    END.
+    ASSIGN 
+        cTestProc = "p" + sys-ctrl.name.
+    IF NOT CAN-DO(THIS-PROCEDURE:INTERNAL-ENTRIES,cTestProc) THEN DO:
+        ASSIGN 
+            oplError = TRUE 
+            opcMessage = "Unable to locate a test procedure with name " + cTestProc.
+        RETURN.
+    END.
+        
+    RUN clearTagsByTestName IN hTagProcs (ipcRecKey, ipcTestName).
+    
+    RUN VALUE(cTestProc) IN THIS-PROCEDURE (BUFFER boe-ord, OUTPUT lError, OUTPUT cMessage).
+    ASSIGN 
+        oplError = lError
+        opcMessage = cMessage. 
+    IF lError THEN DO:
+        lTag = fSetTag(ipcRecKey,"oe-ord",sys-ctrl.char-fld,sys-ctrl.name,cMessage).
     END.
     
 END PROCEDURE.
 
-PROCEDURE pValidShipTo:
-/*------------------------------------------------------------------------------
- Purpose:   Determines if a valid ShipTo record exists for this customer
- Notes:     Since oe-ord is created on ADD button, we can depend on rec_key availability
-------------------------------------------------------------------------------*/
-    DEF PARAMETER BUFFER ipboe-ord FOR oe-ord.
+
+PROCEDURE validateAll:
+    /*------------------------------------------------------------------------------
+     Purpose:   Entry point to all validation procs in this procedure
+     Notes:     Syntax is
+                RUN Validate IN hspValidate (
+                    INPUT testName or "ALL"
+                    INPUT tablename
+                    INPUT rec_key to test
+                    OUTPUT logical error (yes/no)
+                    OUTPUT error message to display
+                    ).
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcRecKey AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcLinkTable AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-
-    DEF BUFFER bcust FOR cust.
-    DEF BUFFER bshipto FOR shipto.
     
-    FIND FIRST bcust NO-LOCK WHERE 
-        bcust.company EQ ipboe-ord.company AND 
-        bcust.cust-no EQ ipboe-ord.cust-no  
-        NO-ERROR.
-    IF NOT AVAIL bcust THEN ASSIGN 
-        oplError = TRUE 
-        opcMessage = "Unable to locate a customer for this order.". 
-    ELSE DO:
-        FIND FIRST bshipto OF bcust NO-LOCK NO-ERROR.
-        IF NOT AVAIL bshipto THEN ASSIGN 
-            oplError = TRUE 
-            opcMessage = "Unable TO locate a shipto record for customer " + bcust.cust-no.
-    END. 
-    
-END PROCEDURE.
-
-PROCEDURE pValidUoM:
-/*------------------------------------------------------------------------------
- Purpose:   Verifies that UoM on each line is not blank and can be found in UoM table
- Notes:
-------------------------------------------------------------------------------*/
-    DEF PARAMETER BUFFER ipboe-ord FOR oe-ord.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-
+    DEF BUFFER boe-ord FOR oe-ord.
     DEF BUFFER boe-ordl FOR oe-ordl.
     
-    DEF VAR cBadLines AS CHAR NO-UNDO.
-
-    FOR EACH boe-ordl NO-LOCK WHERE 
-        boe-ordl.company EQ ipboe-ord.company AND 
-        boe-ordl.ord-no EQ ipboe-ord.ord-no:
-        IF boe-ordl.pr-uom EQ "" THEN ASSIGN 
-            cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
-        ELSE IF NOT CAN-FIND(FIRST uom WHERE uom.uom EQ boe-ordl.pr-uom) THEN ASSIGN 
-            cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+    DEF VAR cTestProc AS CHAR NO-UNDO.
+    DEF VAR lError AS LOG NO-UNDO.
+    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEF VAR lTag AS LOG NO-UNDO.
+    
+    CASE ipcLinkTable:
+        WHEN "oe-ord" THEN 
+            FIND FIRST boe-ord NO-LOCK WHERE boe-ord.rec_key EQ ipcRecKey NO-ERROR.
+        WHEN "oe-ordl" THEN 
+            FIND FIRST boe-ordl NO-LOCK WHERE boe-ordl.rec_key EQ ipcRecKey NO-ERROR.
+    /* Note: this can be expanded if other tables need to be tested */
+    END CASE. 
+        
+    RUN clearTagsHold IN hTagProcs (ipcRecKey).
+    FOR EACH sys-ctrl NO-LOCK WHERE    /* ALL tests requested */ 
+        sys-ctrl.module EQ "VAL" AND 
+        sys-ctrl.log-fld EQ TRUE:
+        ASSIGN 
+            cTestProc = "p" + sys-ctrl.name.
+        RUN VALUE(cTestProc) IN THIS-PROCEDURE (BUFFER boe-ord, OUTPUT lError, OUTPUT cMessage).
+        IF lError THEN DO:
+            lTag = fSetTag(ipcRecKey,"oe-ord",sys-ctrl.char-fld,sys-ctrl.name,cMessage).
+        END.
+        IF sys-ctrl.char-fld EQ "INFO" THEN ASSIGN 
+            lError = FALSE.
+        ASSIGN 
+            oplError = IF NOT oplError THEN lError ELSE oplError
+            opcMessage = IF lError THEN opcMessage + "   " + cMessage + chr(10) ELSE opcMessage. 
     END.
-    IF cBadLines NE "" THEN ASSIGN 
-        cBadLines = TRIM(cBadLines,",")
-        oplError = TRUE 
-        opcMessage = "Unable to locate valid UoM for line" + 
-                     IF NUM-ENTRIES(cBadLines) GT 1 THEN ("s " + cBadLines)
-                     ELSE (" " + cBadLines).
-
+    ASSIGN 
+        opcMessage = TRIM(opcMessage,CHR(10)).
+    
 END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fSetTag RETURNS LOGICAL 
-	( ipcTestProc AS CHARACTER,
-	  ipcRecKey AS CHARACTER, 
-	  ipcLinkTable AS CHARACTER, 
-	  ipcTagType AS CHARACTER,
-	  iplError AS LOG,
-	  ipcMessage AS CHAR ):
+	( ipcRecKey AS CHARACTER,
+	  ipcLinkTable AS CHARACTER,
+	  ipcGroup AS CHARACTER,
+	  ipcTestProc AS CHARACTER,
+	  ipcMessage AS CHARACTER ):
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose:   Set Hold tags on record where appropriate (test is defined in sys-ctrl table)
  Notes:
 ------------------------------------------------------------------------------*/	
-    /* Set/Clear Hold tags on record where appropriate (test is defined in sys-ctrl table) */
-    IF iplError EQ TRUE THEN DO:
-        RUN addTag IN hTagProcs (ipcRecKey,
-                ipcLinkTable,
-                "Hold",
-                ipcTestProc,
-                ipcMessage).
-    END.
-    ELSE DO: 
-            RUN clearTagsByName IN hTagProcs (ipcRecKey,ipcTestProc).
-    END.
+    RUN addTagHold IN hTagProcs (ipcRecKey,
+                                 ipcLinkTable,
+                                 ipcGroup,
+                                 ipcTestProc,
+                                 ipcMessage).
     RETURN TRUE.
 		
 END FUNCTION.
