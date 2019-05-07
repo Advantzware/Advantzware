@@ -213,7 +213,7 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN constructObject (
-             INPUT  'n:/repository/legacy/sdo/sdotag.wDB-AWARE':U ,
+             INPUT  'sdo/sdotag.wDB-AWARE':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'AppServiceASInfoASUsePrompt?CacheDuration0CheckCurrentChangedyesDestroyStatelessyesDisconnectAppServernoServerOperatingModeNONEShareDatanoUpdateFromSourcenoForeignFieldsObjectNamesdotagOpenOnInityesPromptColumns(NONE)PromptOnDeleteyesRowsToBatch200RebuildOnReposnoToggleDataTargetsyes':U ,
              OUTPUT h_sdotag ).
@@ -221,7 +221,7 @@ PROCEDURE adm-create-objects :
        /* Size in AB:  ( 1.86 , 10.80 ) */
 
        RUN constructObject (
-             INPUT  'n:/repository/legacy/browsers/brwtag.w':U ,
+             INPUT  'browsers/brwtag.w':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_brwtag ).
@@ -229,7 +229,7 @@ PROCEDURE adm-create-objects :
        RUN resizeObject IN h_brwtag ( 6.67 , 110.00 ) NO-ERROR.
 
        RUN constructObject (
-             INPUT  'n:/repository/legacy/viewers/vwrtag.w':U ,
+             INPUT  'viewers/vwrtag.w':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_vwrtag-2 ).
