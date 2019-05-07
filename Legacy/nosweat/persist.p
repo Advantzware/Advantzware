@@ -5,16 +5,6 @@ DEFINE SHARED     VARIABLE g_track_usage AS LOGICAL       NO-UNDO.
 DEFINE            VARIABLE phandle       AS WIDGET-HANDLE NO-UNDO.
 DEFINE            VARIABLE is-running    AS LOGICAL       NO-UNDO.
 
-PROCEDURE SetForegroundWindow EXTERNAL "USER32.DLL":
-    DEFINE INPUT  PARAMETER intHwnd   AS LONG.
-    DEFINE RETURN PARAMETER intResult AS LONG.
-END PROCEDURE.
-
-PROCEDURE FindWindowA EXTERNAL "USER32.DLL":
-    DEFINE INPUT  PARAMETER intClassName AS LONG.
-    DEFINE INPUT  PARAMETER chrCaption   AS CHARACTER.
-    DEFINE RETURN PARAMETER intHandle    AS LONG.
-END PROCEDURE.
 
 &Scoped-define IAMPERSIST yes
 
@@ -298,12 +288,20 @@ PROCEDURE Running_Procedures :
                 RUN Set_Cursor ("").
                 RUN Set-Focus IN phandle NO-ERROR.
                 IF pHandle:TYPE EQ "Procedure" THEN DO:
+                    /* There are two procs (OU1 items tab and OU1 releases tab 
+                       that cause this to fail, because they are run as procedures, but
+                       don't have window handles.  This prevents attempting to find a 
+                       window-handle if there is not one */
                     ASSIGN 
+                        ERROR-STATUS:ERROR = FALSE.
+                    ASSIGN  
                         hWindowHandle = pHandle:CURRENT-WINDOW
-                        cWinTitle = hWindowHandle:TITLE.
-                    IF hWindowHandle:WINDOW-STATE EQ 2 THEN ASSIGN 
-                        hWindowHandle:WINDOW-STATE = 3.
-                    lDummy = hWindowHandle:MOVE-TO-TOP().
+                        cWinTitle = hWindowHandle:TITLE NO-ERROR.
+                    IF NOT ERROR-STATUS:ERROR THEN DO:
+                        IF hWindowHandle:WINDOW-STATE EQ 2 THEN ASSIGN 
+                            hWindowHandle:WINDOW-STATE = 3.
+                        lDummy = hWindowHandle:MOVE-TO-TOP().
+                    END.
                 END.
             END.
             RETURN.
