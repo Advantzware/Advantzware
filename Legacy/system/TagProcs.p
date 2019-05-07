@@ -17,6 +17,8 @@ DEFINE VARIABLE gTypeInactive AS CHARACTER NO-UNDO INIT "INACTIVE".
 DEFINE VARIABLE gTypeHold AS CHARACTER NO-UNDO INIT "HOLD".
 DEFINE VARIABLE gTypeRelease AS CHARACTER NO-UNDO INIT "RELEASE".
 DEFINE VARIABLE iCtr AS INTEGER NO-UNDO.
+DEFINE VARIABLE cNote LIKE tag.note.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -44,9 +46,8 @@ PROCEDURE addTagHold:
     DEFINE INPUT PARAMETER ipcTestProc AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cNote LIKE tag.note.
-
     ASSIGN 
+        cNote = ""
         cNote[1] = ipcMessage.
 
     FIND FIRST tag NO-LOCK WHERE 
@@ -74,9 +75,8 @@ PROCEDURE addTagInactive:
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLinkTable AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cNote LIKE tag.note.
-
     ASSIGN 
+        cNote = ""
         cNote[1] = "Inactive " + ipcLinkTable.
 
     FIND FIRST tag NO-LOCK WHERE 
@@ -101,6 +101,9 @@ PROCEDURE addTagRelease:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
 
+    ASSIGN 
+        cNote = "".
+
     FIND FIRST tag NO-LOCK WHERE 
         tag.linkRecKey  EQ ipcLinkRecKey AND 
         tag.tagType     EQ gTypeRelease 
@@ -112,7 +115,7 @@ PROCEDURE addTagRelease:
                                        "",
                                        "",
                                        "",
-                                       "").
+                                       cNote).
                                        
 END PROCEDURE.
 
