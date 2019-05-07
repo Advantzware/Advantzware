@@ -17,6 +17,11 @@ DEF BUFFER b-oe-rel FOR oe-rel.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li-next-ordno AS INT NO-UNDO.
 
+DEF VAR lHoldError AS LOG NO-UNDO.
+DEF VAR cErrMessage AS CHAR NO-UNDO.
+DEF VAR spOeValidate AS HANDLE NO-UNDO.
+RUN system/oeValidate.p PERSISTENT SET spOeValidate.
+
 DISABLE TRIGGERS FOR LOAD OF oe-rel.
 DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
 
@@ -143,6 +148,12 @@ FOR EACH oe-rel
   END.
 END.
 
+RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).
+IF lHoldError
+AND DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) THEN ASSIGN 
+    oe-ord.stat = "H".
+
+    
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.

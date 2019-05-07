@@ -233,8 +233,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   
   for each ar-invl
       where ar-invl.x-no eq ar-inv.x-no
-      by ar-invl.misc
-      by ar-invl.i-no:
+    BREAK by ar-invl.misc
+          by ar-invl.i-no:
       
     find first oe-ordl
         where oe-ordl.company eq cocode
@@ -317,6 +317,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        w-tax     = v-t-price
        v-lines   = v-lines + 1.
     end.
+
+    IF FIRST-OF(ar-inv.inv-no) AND FIRST(ar-invl.misc) THEN do:
+        HIDE frame inv-bot2 .
+        view frame inv-bot1.
+        dTotInv    = 0 . 
+    END.
+
     dTotInv = dTotInv + ar-invl.amt.
     v-lines = v-lines + 1.
     

@@ -462,7 +462,8 @@ PROCEDURE spDynAuditField:
                             WHERE dynSubject.subjectID EQ iSubjectID) THEN DO:
                     RUN spGetDynParamValue (iSubjectID, OUTPUT oprRowID, OUTPUT opcErrorMsg).
                     IF AVAILABLE dynParamValue THEN DO:
-                        IF lResults THEN DO TRANSACTION:
+                        IF lResults THEN
+                        DO TRANSACTION:
                             FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
                             ASSIGN
                                 oplRunAudit  = YES
@@ -481,6 +482,7 @@ PROCEDURE spDynAuditField:
                                     dynParamValue.paramValue[idx] = ipcFrameField.
                                 END CASE.
                             END. /* do idx */
+                            FIND CURRENT dynParamValue NO-LOCK.
                         END. /* if results exist */
                         ELSE
                         opcErrorMsg = "No Audit Field History Exists".
@@ -557,12 +559,13 @@ PROCEDURE spGetDynParamValue:
            AND dynParamValue.paramValueID EQ 0
          NO-ERROR.
     IF NOT AVAILABLE dynParamValue THEN DO:
-        FIND FIRST bDynParamValue EXCLUSIVE-LOCK
+        FIND FIRST bDynParamValue NO-LOCK
              WHERE bDynParamValue.subjectID    EQ ipiSubjectID
                AND bDynParamValue.user-id      EQ "_default"
                AND bDynParamValue.paramValueID EQ 0
              NO-ERROR.
-        IF AVAILABLE bDynParamValue THEN DO TRANSACTION:
+        IF AVAILABLE bDynParamValue THEN
+        DO TRANSACTION:
             CREATE dynParamValue.
             BUFFER-COPY bDynParamValue TO dynParamValue
                 ASSIGN
@@ -571,6 +574,7 @@ PROCEDURE spGetDynParamValue:
                     dynParamValue.outputFormat     = "Grid"
                     oprRowID                       = ROWID(dynParamValue)
                     .
+            FIND CURRENT dynParamValue NO-LOCK.
         END. /* if avail */
         ELSE
         opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
@@ -803,6 +807,7 @@ PROCEDURE spSetDismiss:
             xCueCard.cueType   = bCueCard.cueType
             xCueCard.cueTextID = bCueCardText.cueTextID
             .
+        RELEASE xCueCard.
     END. /* each bcuecardtext */
     iCueOrder = 99999.
     RUN spNextCue (iphWidget).
@@ -962,6 +967,7 @@ default_LeftDown,default_Left,information,default_SidebarCollapse,default_Sideba
                     xCueCard.cueType   = cueCard.cueType
                     xCueCard.cueTextID = cueCardText.cueTextID
                     .
+                RELEASE xCueCard.
                 NEXT.
             END. /* if securitylevel */
             /* calculate the cue card screen position */
@@ -1443,4 +1449,3 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-
