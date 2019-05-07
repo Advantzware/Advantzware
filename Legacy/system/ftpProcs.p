@@ -132,7 +132,7 @@ FUNCTION fNK1ConfigFolder RETURNS CHARACTER
     DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-    RUN sys/ref/nk1look.p (INPUT cocode,  "POConfigDir", "C" /* Character*/, 
+    RUN sys/ref/nk1look.p (INPUT ipcCompany,  "POConfigDir", "C" /* Character*/, 
         INPUT NO /* check by cust */, 
         INPUT YES /* use cust not vendor */,
         INPUT "" /* cust */, 
@@ -143,6 +143,7 @@ FUNCTION fNK1ConfigFolder RETURNS CHARACTER
         cPoConfigDir = cReturnChar  .
     ELSE 
         cPoConfigDir  = ".\custfiles\EDIFiles\POs".
+    cPoConfigDir = TRIM(cPoConfigDir, "\").
     cResult = cPoConfigDir.
     RETURN cResult.
 		
@@ -338,8 +339,9 @@ FUNCTION fGetFtpIni RETURNS CHARACTER
         DEFINE VARIABLE cFtpIniFile AS CHARACTER NO-UNDO.
         CASE ipcSoftware:
             WHEN "WinScp" THEN DO:
-                
-                cFtpIniFile = SEARCH("winScp\winscp.ini").
+            
+                cFtpIniFile = SEARCH(fNK1ConfigFolder(cocode) + "\winscp.ini").
+
                 IF cFtpIniFile EQ ? THEN 
                     cFtpIniFile = "".
                 ELSE 

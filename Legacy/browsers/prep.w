@@ -161,7 +161,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      prep.code FORMAT "x(15)":U WIDTH 28.2
+      prep.code FORMAT "x(20)":U WIDTH 28.2
       prep.dscr COLUMN-LABEL "Description" FORMAT "x(20)":U WIDTH 24.2
       get-type-info() @ cTypeInfo COLUMN-LABEL "Mat'l !Type" FORMAT "x(25)":U
             WIDTH 28
@@ -277,7 +277,7 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "prep.company = gcompany"
      _FldNameList[1]   > ASI.prep.code
-"code" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "28.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"code" ? "x(20)" "character" ? ? ? ? ? ? no ? no no "28.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.prep.dscr
 "dscr" "Description" ? "character" ? ? ? ? ? ? no ? no no "24.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
