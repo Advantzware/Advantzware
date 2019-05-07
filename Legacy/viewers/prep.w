@@ -932,8 +932,7 @@ DO:
     IF SELF:SCREEN-VALUE EQ "yes" THEN 
         RUN addTagInactive IN hTag (prep.rec_key:SCREEN-VALUE,
                                     "prep").
-    ELSE RUN clearTagsInactive IN hTag (prep.rec_key:SCREEN-VALUE,
-                                       "prep").
+    ELSE RUN clearTagsInactive IN hTag (prep.rec_key:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
