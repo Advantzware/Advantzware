@@ -82,7 +82,8 @@ PROCEDURE pCustomerPN PRIVATE:
 
     FOR EACH boe-ordl NO-LOCK WHERE 
         boe-ordl.company EQ ipboe-ord.company AND 
-        boe-ordl.ord-no EQ ipboe-ord.ord-no:
+        boe-ordl.ord-no EQ ipboe-ord.ord-no AND 
+        boe-ordl.line NE 0:
         FIND FIRST bitemfg NO-LOCK WHERE
             bitemfg.company EQ boe-ordl.company AND 
             bitemfg.cust-no EQ boe-ordl.cust-no AND 
@@ -132,7 +133,8 @@ PROCEDURE pPriceGtCost PRIVATE:
 
     FOR EACH boe-ordl NO-LOCK WHERE 
         boe-ordl.company EQ ipboe-ord.company AND 
-        boe-ordl.ord-no EQ ipboe-ord.ord-no:
+        boe-ordl.ord-no EQ ipboe-ord.ord-no AND 
+        boe-ordl.line NE 0:
         IF boe-ordl.t-price LT boe-ordl.t-cost THEN ASSIGN 
             cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
     END.
@@ -243,7 +245,8 @@ PROCEDURE pValidUoM PRIVATE:
 
     FOR EACH boe-ordl NO-LOCK WHERE 
         boe-ordl.company EQ ipboe-ord.company AND 
-        boe-ordl.ord-no EQ ipboe-ord.ord-no:
+        boe-ordl.ord-no EQ ipboe-ord.ord-no AND 
+        boe-ordl.line NE 0:
         IF boe-ordl.pr-uom EQ "" THEN ASSIGN 
                 cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
         ELSE IF NOT CAN-FIND(FIRST uom WHERE uom.uom EQ boe-ordl.pr-uom) THEN ASSIGN 
