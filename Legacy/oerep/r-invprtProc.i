@@ -142,7 +142,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "C" /* Logical */, NO /* 
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cCopyPdfFile = cRtnChar . 
-IF SUBSTRING(cCopyPdfFile, length(cCopyPdfFile), 1) NE "\" THEN 
+IF cCopyPdfFile GT "" AND SUBSTRING(cCopyPdfFile, length(cCopyPdfFile), 1) NE "\" THEN 
     cCopyPdfFile = cCopyPdfFile + "\".
 RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
