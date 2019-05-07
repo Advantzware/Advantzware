@@ -148,12 +148,10 @@ FOR EACH oe-rel
   END.
 END.
 
-RUN pValidate IN spOeValidate ("ALL", "oe-ord", oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
-IF lHoldError THEN DO: 
-    RUN releaseCheck IN spOeValidate ("", "oe-ord", oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
-    IF NOT lHoldError THEN ASSIGN  /* There is NOT a manual release tag */
-        oe-ord.stat = "H".
-END.
+RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).
+IF lHoldError
+AND DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) THEN ASSIGN 
+    oe-ord.stat = "H".
 
     
 /* Clear out any error-status from find with no-error that is false */

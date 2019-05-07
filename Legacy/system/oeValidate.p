@@ -26,8 +26,10 @@ FUNCTION fSetTag RETURNS LOGICAL
 
 
 /* ***************************  Main Block  *************************** */
-RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-RUN system/tagprocs.p PERSISTENT SET hTagProcs.
+IF NOT VALID-HANDLE(hdPriceProcs) THEN 
+    RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
+IF NOT VALID-HANDLE(hTagProcs) THEN 
+    RUN system/tagprocs.p PERSISTENT SET hTagProcs.
 
 
 /* **********************  Internal Procedures  *********************** */
