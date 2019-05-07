@@ -17,6 +17,11 @@ DEF BUFFER b-oe-rel FOR oe-rel.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li-next-ordno AS INT NO-UNDO.
 
+DEF VAR lHoldError AS LOG NO-UNDO.
+DEF VAR cErrMessage AS CHAR NO-UNDO.
+DEF VAR spOeValidate AS HANDLE NO-UNDO.
+RUN system/oeValidate.p PERSISTENT SET spOeValidate.
+
 DISABLE TRIGGERS FOR LOAD OF oe-rel.
 DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
 
@@ -143,6 +148,14 @@ FOR EACH oe-rel
   END.
 END.
 
+RUN pValidate IN spOeValidate ("ALL", "oe-ord", oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
+IF lHoldError THEN DO: 
+    RUN releaseCheck IN spOeValidate ("", "oe-ord", oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
+    IF NOT lHoldError THEN ASSIGN  /* There is NOT a manual release tag */
+        oe-ord.stat = "H".
+END.
+
+    
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.
