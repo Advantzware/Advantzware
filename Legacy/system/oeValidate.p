@@ -87,6 +87,7 @@ PROCEDURE pCustomerPN PRIVATE:
         FIND FIRST bitemfg NO-LOCK WHERE
             bitemfg.company EQ boe-ordl.company AND 
             bitemfg.cust-no EQ boe-ordl.cust-no AND 
+            bitemfg.i-no EQ boe-ordl.i-no AND 
             bitemfg.part-no EQ boe-ordl.part-no AND 
             bitemfg.stat NE "I"
             NO-ERROR.

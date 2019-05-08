@@ -5579,6 +5579,13 @@ PROCEDURE local-update-record :
                 bf-oe-ord.stat = "H".
             FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
         END.
+        ELSE 
+        DO:
+            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+            ASSIGN 
+                bf-oe-ord.stat = "N".
+            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
+        END.
     END.
     ELSE IF lHoldError THEN DO:    
         FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
@@ -5588,6 +5595,12 @@ PROCEDURE local-update-record :
         MESSAGE 
             "Order placed on hold due to:" + CHR(10) + cErrMessage
             VIEW-AS ALERT-BOX.
+    END.
+    ELSE DO:    
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+        ASSIGN 
+            bf-oe-ord.stat = "N".
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
     END.
   
   /* If hold status needs to be changed on line items,
