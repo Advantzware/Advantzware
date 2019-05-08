@@ -5266,7 +5266,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
     ASSIGN 
-        imgHoldRsn:VISIBLE IN FRAME {&frame-name} = oe-ord.stat:SCREEN-VALUE = "H".
+        imgHoldRsn:VISIBLE IN FRAME {&frame-name} = TRUE.
          
   
   DO WITH FRAME {&FRAME-NAME}:
@@ -5561,8 +5561,8 @@ PROCEDURE local-update-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
     RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).
-    IF lHoldError                                                   /* ValidateALL has reported an error */
-    AND NOT DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) THEN DO:    /* BUT there is a manual release tag */
+    IF lHoldError                                                       /* ValidateALL has reported an error */
+    AND (DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) NE TRUE) THEN DO:  /* BUT there is a manual release tag */
         MESSAGE 
             "This order would be placed on hold due to the following:" SKIP 
             cErrMessage SKIP 
@@ -5579,6 +5579,13 @@ PROCEDURE local-update-record :
                 bf-oe-ord.stat = "H".
             FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
         END.
+        ELSE 
+        DO:
+            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+            ASSIGN 
+                bf-oe-ord.stat = "N".
+            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
+        END.
     END.
     ELSE IF lHoldError THEN DO:    
         FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
@@ -5588,6 +5595,12 @@ PROCEDURE local-update-record :
         MESSAGE 
             "Order placed on hold due to:" + CHR(10) + cErrMessage
             VIEW-AS ALERT-BOX.
+    END.
+    ELSE DO:    
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+        ASSIGN 
+            bf-oe-ord.stat = "N".
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
     END.
   
   /* If hold status needs to be changed on line items,
