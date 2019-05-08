@@ -130,6 +130,36 @@ PROCEDURE GetOperationsForJob:
     RELEASE buf-job-mch.
 END PROCEDURE.
 
+PROCEDURE GetRMItemsForJob:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno      AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRMListItems  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER buf-job-mat FOR job-mat.
+    
+    FOR EACH buf-job-mat NO-LOCK
+        WHERE buf-job-mat.company  EQ ipcCompany
+          AND buf-job-mat.job-no   EQ ipcJobno
+          AND buf-job-mat.job-no2  EQ ipiJobno2
+          AND buf-job-mat.frm      EQ ipiFormno
+          AND buf-job-mat.blank-no EQ ipiBlankno
+        BY buf-job-mat.line
+        :
+        opcRMListItems = IF opcRMListItems EQ "" THEN STRING(buf-job-mat.i-no)
+                         ELSE IF INDEX(opcRMListItems,STRING(buf-job-mat.i-no)) GT 0 THEN opcRMListItems
+                         ELSE opcRMListItems + "," + STRING(buf-job-mat.i-no).           
+    END.
+
+    RELEASE buf-job-mat.
+END PROCEDURE.
+
 PROCEDURE GetOperation:
     /*------------------------------------------------------------------------------
      Purpose: Returns machine code list for a given jobID
