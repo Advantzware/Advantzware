@@ -135,19 +135,19 @@ RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
 &Scoped-define INTERNAL-TABLES fg-rctd
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&Scoped-define FIELDS-IN-QUERY-Dialog-Frame fg-rctd.r-no fg-rctd.rct-date ~
-fg-rctd.i-no fg-rctd.i-name fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc ~
-fg-rctd.loc-bin fg-rctd.created-by fg-rctd.tag fg-rctd.stack-code ~
-fg-rctd.cases fg-rctd.qty-case fg-rctd.partial fg-rctd.cases-unit ~
-fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.updated-by fg-rctd.po-no ~
-fg-rctd.po-line fg-rctd.t-qty fg-rctd.frt-cost fg-rctd.ext-cost ~
-fg-rctd.tot-wt 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame fg-rctd.rct-date ~
-fg-rctd.i-no fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc ~
-fg-rctd.loc-bin fg-rctd.tag fg-rctd.stack-code fg-rctd.cases ~
-fg-rctd.qty-case fg-rctd.partial fg-rctd.cases-unit fg-rctd.std-cost ~
-fg-rctd.cost-uom fg-rctd.po-no fg-rctd.po-line fg-rctd.frt-cost ~
-fg-rctd.ext-cost 
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame fg-rctd.i-no fg-rctd.i-name ~
+fg-rctd.tag fg-rctd.stack-code fg-rctd.rct-date fg-rctd.job-no ~
+fg-rctd.job-no2 fg-rctd.po-no fg-rctd.po-line fg-rctd.cases ~
+fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.t-qty ~
+fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost ~
+fg-rctd.tot-wt fg-rctd.loc fg-rctd.loc-bin fg-rctd.created-by fg-rctd.r-no ~
+fg-rctd.updated-by 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame fg-rctd.i-no ~
+fg-rctd.tag fg-rctd.stack-code fg-rctd.rct-date fg-rctd.job-no ~
+fg-rctd.job-no2 fg-rctd.po-no fg-rctd.po-line fg-rctd.cases ~
+fg-rctd.qty-case fg-rctd.cases-unit fg-rctd.partial fg-rctd.std-cost ~
+fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.loc ~
+fg-rctd.loc-bin 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame fg-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame fg-rctd
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame fg-rctd
@@ -155,21 +155,22 @@ fg-rctd.ext-cost
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS fg-rctd.rct-date fg-rctd.i-no ~
-fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin fg-rctd.tag ~
-fg-rctd.stack-code fg-rctd.cases fg-rctd.qty-case fg-rctd.partial ~
-fg-rctd.cases-unit fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.po-no ~
-fg-rctd.po-line fg-rctd.frt-cost fg-rctd.ext-cost 
+&Scoped-Define ENABLED-FIELDS fg-rctd.i-no fg-rctd.tag fg-rctd.stack-code ~
+fg-rctd.rct-date fg-rctd.job-no fg-rctd.job-no2 fg-rctd.po-no ~
+fg-rctd.po-line fg-rctd.cases fg-rctd.qty-case fg-rctd.cases-unit ~
+fg-rctd.partial fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.frt-cost ~
+fg-rctd.ext-cost fg-rctd.loc fg-rctd.loc-bin 
 &Scoped-define ENABLED-TABLES fg-rctd
 &Scoped-define FIRST-ENABLED-TABLE fg-rctd
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 Btn_OK Btn_Done Btn_Cancel ~
 RECT-21 RECT-38 RECT-39 RECT-40 RECT-41 RECT-42 RECT-43 
-&Scoped-Define DISPLAYED-FIELDS fg-rctd.r-no fg-rctd.rct-date fg-rctd.i-no ~
-fg-rctd.i-name fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin ~
-fg-rctd.created-by fg-rctd.tag fg-rctd.stack-code fg-rctd.cases ~
-fg-rctd.qty-case fg-rctd.partial fg-rctd.cases-unit fg-rctd.std-cost ~
-fg-rctd.cost-uom fg-rctd.updated-by fg-rctd.po-no fg-rctd.po-line ~
-fg-rctd.t-qty fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.tot-wt 
+&Scoped-Define DISPLAYED-FIELDS fg-rctd.i-no fg-rctd.i-name fg-rctd.tag ~
+fg-rctd.stack-code fg-rctd.rct-date fg-rctd.job-no fg-rctd.job-no2 ~
+fg-rctd.po-no fg-rctd.po-line fg-rctd.cases fg-rctd.qty-case ~
+fg-rctd.cases-unit fg-rctd.partial fg-rctd.t-qty fg-rctd.std-cost ~
+fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.tot-wt ~
+fg-rctd.loc fg-rctd.loc-bin fg-rctd.created-by fg-rctd.r-no ~
+fg-rctd.updated-by 
 &Scoped-define DISPLAYED-TABLES fg-rctd
 &Scoped-define FIRST-DISPLAYED-TABLE fg-rctd
 &Scoped-Define DISPLAYED-OBJECTS fi_tr-time 
@@ -220,7 +221,7 @@ DEFINE BUTTON Btn_OK
      BGCOLOR 8 .
 
 DEFINE VARIABLE fi_tr-time AS CHARACTER FORMAT "X(15)":U 
-     LABEL "Tr Time" 
+     LABEL "Receipt Time" 
      VIEW-AS FILL-IN 
      SIZE 23.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
@@ -252,7 +253,7 @@ DEFINE RECTANGLE RECT-41
 
 DEFINE RECTANGLE RECT-42
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 46 BY 3.38
+     SIZE 46 BY 6.43
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-43
@@ -269,18 +270,14 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fg-rctd.i-no AT ROW 1.38 COL 17.6 COLON-ALIGNED
-          LABEL "Item No" FORMAT "x(15)"
+     fg-rctd.rct-date AT ROW 1.29 COL 17.6 COLON-ALIGNED
+          LABEL "Receipt Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
-          SIZE 31.2 BY 1
+          SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.i-name AT ROW 2.52 COL 17.6 COLON-ALIGNED
-          LABEL "Name/Desc" FORMAT "x(30)"
-          VIEW-AS FILL-IN 
-          SIZE 31.2 BY 1
-          BGCOLOR 15 FONT 1
-    fg-rctd.tag AT ROW 3.62 COL 17.6 COLON-ALIGNED FORMAT "x(20)"
-    LABEL "Tag" 
+    btnCalendar-1 AT ROW 1.29 COL 39.6
+    fg-rctd.tag AT ROW 3.62 COL 17.6 COLON-ALIGNED
+          LABEL "Tag" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
@@ -290,128 +287,138 @@ DEFINE FRAME Dialog-Frame
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
 
-     fg-rctd.rct-date AT ROW 1.38 COL 72.4 COLON-ALIGNED
-          LABEL "Receipt Date" FORMAT "99/99/9999"
-          VIEW-AS FILL-IN 
-          SIZE 19 BY 1
-          BGCOLOR 15 FONT 1
-     btnCalendar-1 AT ROW 1.38 COL 93.4
-     fi_tr-time AT ROW 12.62 COL 72.4 COLON-ALIGNED
-     fg-rctd.job-no AT ROW 2.52 COL 72.4 COLON-ALIGNED
-          LABEL "Job#" FORMAT "x(6)"
-          VIEW-AS FILL-IN 
-          SIZE 19 BY 1
-          BGCOLOR 15 FONT 1
-    fg-rctd.job-no2 AT ROW 2.52 COL 91.6 COLON-ALIGNED NO-LABELS FORMAT "99"
-          VIEW-AS FILL-IN 
-          SIZE 4.8 BY 1
-          BGCOLOR 15 FONT 1
-     fg-rctd.po-no AT ROW 3.62 COL 72.4 COLON-ALIGNED
+    fg-rctd.po-no AT ROW 1.43 COL 72.4 COLON-ALIGNED
           LABEL "PO #" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 23.8 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.po-line AT ROW 4.71 COL 72.4 COLON-ALIGNED
+     fg-rctd.po-line AT ROW 2.57 COL 72.4 COLON-ALIGNED
           LABEL "PO Ln#" FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.cases AT ROW 6.52 COL 17.6 COLON-ALIGNED
+
+    fg-rctd.job-no AT ROW 3.76 COL 72.4 COLON-ALIGNED
+          LABEL "Job#" FORMAT "x(6)"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.job-no2 AT ROW 3.76 COL 91.6 COLON-ALIGNED NO-LABEL FORMAT "99"
+          VIEW-AS FILL-IN 
+          SIZE 4.8 BY 1
+          BGCOLOR 15 FONT 1
+
+
+     fg-rctd.i-no AT ROW 6.62 COL 17.6 COLON-ALIGNED
+          LABEL "Item No" FORMAT "x(15)"
+          VIEW-AS FILL-IN 
+          SIZE 31.2 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.i-name AT ROW 7.76 COL 17.6 COLON-ALIGNED
+          LABEL "Name/Desc" FORMAT "x(30)"
+          VIEW-AS FILL-IN 
+          SIZE 31.2 BY 1
+          BGCOLOR 15 FONT 1
+
+    fg-rctd.loc AT ROW 9.05 COL 17.6 COLON-ALIGNED
+          LABEL "Whse" FORMAT "x(5)"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     fg-rctd.loc-bin AT ROW 10.19 COL 17.6 COLON-ALIGNED
+          LABEL "Bin" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 1
+     
+     
+     
+     fi_tr-time AT ROW 2.48 COL 17.6 COLON-ALIGNED
+     
+     
+     fg-rctd.cases AT ROW 6.48 COL 72.4 COLON-ALIGNED
           LABEL "Units" FORMAT "->>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.qty-case AT ROW 7.62 COL 17.6 COLON-ALIGNED
+     fg-rctd.qty-case AT ROW 7.57 COL 72.4 COLON-ALIGNED
           LABEL "Unit Count" FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.cases-unit AT ROW 8.76 COL 17.6 COLON-ALIGNED
+     fg-rctd.cases-unit AT ROW 8.71 COL 72.4 COLON-ALIGNED
           LABEL "Units/Skid" FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.partial AT ROW 9.91 COL 17.6 COLON-ALIGNED
+     fg-rctd.partial AT ROW 9.86 COL 72.4 COLON-ALIGNED
           LABEL "Partial" FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.t-qty AT ROW 11.05 COL 17.6 COLON-ALIGNED
+     fg-rctd.t-qty AT ROW 11 COL 72.4 COLON-ALIGNED
           LABEL "Total Qty" FORMAT "->>>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
           BGCOLOR 15 FONT 1
-    
-     fg-rctd.std-cost AT ROW 6.52 COL 72.4 COLON-ALIGNED
-          LABEL "Cost/Uom" FORMAT ">,>>>,>>9.99<<<<"
+     fg-rctd.std-cost AT ROW 12.76 COL 20.8 COLON-ALIGNED
+          LABEL "Cost/UOM" FORMAT ">,>>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.cost-uom AT ROW 7.62 COL 72.4 COLON-ALIGNED
-          LABEL "Cost/UOM" FORMAT "x(3)"
+     fg-rctd.cost-uom AT ROW 13.86 COL 20.8 COLON-ALIGNED
+          LABEL "UOM" FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 17.2 BY 1
           BGCOLOR 15 FONT 1
-     
-    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME Dialog-Frame
-     
-     fg-rctd.frt-cost AT ROW 8.76 COL 72.4 COLON-ALIGNED
+     fg-rctd.frt-cost AT ROW 15 COL 20.8 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT ">>>,>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.ext-cost AT ROW 9.91 COL 72.4 COLON-ALIGNED
+     fg-rctd.ext-cost AT ROW 16.14 COL 20.8 COLON-ALIGNED
           LABEL "Extended Cost" FORMAT "->,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.tot-wt AT ROW 11.05 COL 72.4 COLON-ALIGNED
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME Dialog-Frame
+     fg-rctd.tot-wt AT ROW 17.29 COL 20.8 COLON-ALIGNED
           LABEL "Total Weight" FORMAT ">>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.loc AT ROW 12.91 COL 17.4 COLON-ALIGNED
-          LABEL "From Whs" FORMAT "x(5)"
-          VIEW-AS FILL-IN 
-          SIZE 19 BY 1
-          BGCOLOR 15 FONT 1
-     fg-rctd.loc-bin AT ROW 14.05 COL 17.4 COLON-ALIGNED
-          LABEL "From Bin" FORMAT "x(8)"
-          VIEW-AS FILL-IN 
-          SIZE 19 BY 1
-          BGCOLOR 15 FONT 1
-     fg-rctd.created-by AT ROW 13.71 COL 72.4 COLON-ALIGNED
+     
+     fg-rctd.created-by AT ROW 12.95 COL 72.4 COLON-ALIGNED
           LABEL "Created By" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 23.8 BY 1
           BGCOLOR 15 FONT 1
-     
-     fg-rctd.r-no AT ROW 15.91 COL 72.4 COLON-ALIGNED
+     fg-rctd.r-no AT ROW 15.14 COL 72.4 COLON-ALIGNED
           LABEL "Seq#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fg-rctd.updated-by AT ROW 14.81 COL 72.4 COLON-ALIGNED
+     fg-rctd.updated-by AT ROW 14.05 COL 72.4 COLON-ALIGNED
           LABEL "Last Updated By" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 23.8 BY 1
           BGCOLOR 15 FONT 1
      Btn_OK AT ROW 18.05 COL 87.2
-    Btn_Done AT ROW 18.34 COL 88.2
+     Btn_Done AT ROW 18.33 COL 88.2
      Btn_Cancel AT ROW 18.05 COL 96.2
-    RECT-21 AT ROW 17.82 COL 86.2
+     RECT-21 AT ROW 17.81 COL 86.2
      RECT-38 AT ROW 1.1 COL 2.4
      RECT-39 AT ROW 1.1 COL 55 WIDGET-ID 2
      RECT-40 AT ROW 6.29 COL 2.4 WIDGET-ID 4
      RECT-41 AT ROW 6.29 COL 55 WIDGET-ID 6
      RECT-42 AT ROW 12.43 COL 2.4 WIDGET-ID 8
      RECT-43 AT ROW 12.43 COL 52.2 WIDGET-ID 10
-    SPACE(1.59) SKIP(3.37)
+     SPACE(1.59) SKIP(3.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -454,10 +461,16 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.cases-unit IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN fg-rctd.cost-uom IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.created-by IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+/* SETTINGS FOR FILL-IN fg-rctd.ext-cost IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fi_tr-time IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fg-rctd.frt-cost IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.i-name IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fg-rctd.i-no IN FRAME Dialog-Frame
@@ -484,23 +497,16 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.stack-code IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN fg-rctd.std-cost IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.t-qty IN FRAME Dialog-Frame
-   NO-ENABLE EXP-FORMAT  EXP-LABEL                                      */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fg-rctd.tag IN FRAME Dialog-Frame
-   EXP-FORMAT  EXP-LABEL                                                */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN fg-rctd.tot-wt IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fg-rctd.updated-by IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
-/* SETTINGS FOR FILL-IN fg-rctd.std-cost IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */ 
-/* SETTINGS FOR FILL-IN fg-rctd.cost-uom IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */ 
-/* SETTINGS FOR FILL-IN fg-rctd.frt-cost IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */ 
-/* SETTINGS FOR FILL-IN fg-rctd.ext-cost IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
-
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1129,7 +1135,7 @@ DO:
 
 &Scoped-define SELF-NAME fg-rctd.cost-uom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cost-uom Dialog-Frame
-ON ENTRY OF fg-rctd.cost-uom IN FRAME Dialog-Frame /* Cost/UOM */
+ON ENTRY OF fg-rctd.cost-uom IN FRAME Dialog-Frame /* UOM */
 DO:
         IF LASTKEY NE -1                                                      AND
             (ip-set-parts OR
@@ -1148,7 +1154,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cost-uom Dialog-Frame
-ON LEAVE OF fg-rctd.cost-uom IN FRAME Dialog-Frame /* Cost/UOM */
+ON LEAVE OF fg-rctd.cost-uom IN FRAME Dialog-Frame /* UOM */
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -1283,6 +1289,9 @@ DO:
         RUN valid-i-no (FOCUS) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+       IF  INTEGER(fg-rctd.po-no:SCREEN-VALUE ) EQ 0 AND AVAIL itemfg THEN
+           RUN pDisplayFG(BUFFER itemfg).
+
         /*IF SELF:MODIFIED THEN*/ 
         IF adm-new-record THEN
             RUN get-def-values.
@@ -1408,7 +1417,7 @@ DO:
 
 &Scoped-define SELF-NAME fg-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Dialog-Frame
-ON LEAVE OF fg-rctd.loc IN FRAME Dialog-Frame /* From Whs */
+ON LEAVE OF fg-rctd.loc IN FRAME Dialog-Frame /* Whse */
 DO:
         DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
         IF LASTKEY = -1 THEN RETURN.
@@ -1430,7 +1439,7 @@ DO:
 
 &Scoped-define SELF-NAME fg-rctd.loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc-bin Dialog-Frame
-ON LEAVE OF fg-rctd.loc-bin IN FRAME Dialog-Frame /* From Bin */
+ON LEAVE OF fg-rctd.loc-bin IN FRAME Dialog-Frame /* Bin */
 DO:
         DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
         IF LASTKEY = -1 THEN RETURN .
@@ -1659,7 +1668,7 @@ DO:
 
 &Scoped-define SELF-NAME fg-rctd.std-cost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.std-cost Dialog-Frame
-ON ENTRY OF fg-rctd.std-cost IN FRAME Dialog-Frame /* Cost/Uom */
+ON ENTRY OF fg-rctd.std-cost IN FRAME Dialog-Frame /* Cost/UOM */
 DO:
         IF LASTKEY NE -1                                                      AND
             (ip-set-parts OR
@@ -1678,7 +1687,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.std-cost Dialog-Frame
-ON LEAVE OF fg-rctd.std-cost IN FRAME Dialog-Frame /* Cost/Uom */
+ON LEAVE OF fg-rctd.std-cost IN FRAME Dialog-Frame /* Cost/UOM */
 DO:
         RUN get-matrix (NO).
     END.
@@ -2281,18 +2290,18 @@ PROCEDURE enable_UI :
   DISPLAY fi_tr-time 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE fg-rctd THEN 
-        DISPLAY fg-rctd.r-no fg-rctd.rct-date fg-rctd.i-no fg-rctd.i-name 
-            fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin 
-            fg-rctd.created-by fg-rctd.tag fg-rctd.stack-code fg-rctd.cases 
-            fg-rctd.qty-case fg-rctd.partial fg-rctd.cases-unit fg-rctd.std-cost 
-            fg-rctd.cost-uom fg-rctd.updated-by fg-rctd.po-no fg-rctd.po-line 
-            fg-rctd.t-qty fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.tot-wt 
+    DISPLAY fg-rctd.i-no fg-rctd.i-name fg-rctd.tag fg-rctd.stack-code 
+          fg-rctd.rct-date fg-rctd.job-no fg-rctd.job-no2 fg-rctd.po-no 
+          fg-rctd.po-line fg-rctd.cases fg-rctd.qty-case fg-rctd.cases-unit 
+          fg-rctd.partial fg-rctd.t-qty fg-rctd.std-cost fg-rctd.cost-uom 
+          fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.tot-wt fg-rctd.loc 
+          fg-rctd.loc-bin fg-rctd.created-by fg-rctd.r-no fg-rctd.updated-by 
       WITH FRAME Dialog-Frame.
-    ENABLE fg-rctd.rct-date btnCalendar-1 fg-rctd.i-no 
-        fg-rctd.job-no fg-rctd.job-no2 fg-rctd.loc fg-rctd.loc-bin fg-rctd.tag 
-        fg-rctd.stack-code fg-rctd.cases fg-rctd.qty-case fg-rctd.partial 
-        fg-rctd.cases-unit fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.po-no 
-        fg-rctd.po-line fg-rctd.frt-cost fg-rctd.ext-cost Btn_OK Btn_Done 
+  ENABLE fg-rctd.i-no fg-rctd.tag fg-rctd.stack-code fg-rctd.rct-date 
+         btnCalendar-1 fg-rctd.job-no fg-rctd.job-no2 fg-rctd.po-no 
+         fg-rctd.po-line fg-rctd.cases fg-rctd.qty-case fg-rctd.cases-unit 
+         fg-rctd.partial fg-rctd.std-cost fg-rctd.cost-uom fg-rctd.frt-cost 
+         fg-rctd.ext-cost fg-rctd.loc fg-rctd.loc-bin Btn_OK Btn_Done 
          Btn_Cancel RECT-21 RECT-38 RECT-39 RECT-40 RECT-41 RECT-42 RECT-43 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -3270,7 +3279,8 @@ PROCEDURE pDisplayFG PRIVATE :
             fg-rctd.loc:SCREEN-VALUE      = ipbf-itemfg.def-loc
             fg-rctd.loc-bin:SCREEN-VALUE  = ipbf-itemfg.def-loc-bin
             fg-rctd.std-cost:SCREEN-VALUE = IF glAverageCost THEN STRING(ipbf-itemfg.avg-cost) ELSE STRING(ipbf-itemfg.last-cost)
-            fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  .
+            fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom 
+            fg-rctd.qty-case:SCREEN-VALUE = string(ipbf-itemfg.case-count)      .
     END.
     
 END PROCEDURE.
