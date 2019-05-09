@@ -5265,9 +5265,10 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+    /*
     ASSIGN 
         imgHoldRsn:VISIBLE IN FRAME {&frame-name} = TRUE.
-         
+    */     
   
   DO WITH FRAME {&FRAME-NAME}:
       ASSIGN oe-ord.spare-char-2:TOOLTIP =  getOrdStatDescr(oe-ord.spare-char-2:SCREEN-VALUE).      
