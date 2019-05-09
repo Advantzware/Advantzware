@@ -1910,9 +1910,10 @@ PROCEDURE create-from-po :
                     tt-fg-rctd.loc      = itemfg.def-loc
                     tt-fg-rctd.loc-bin  = itemfg.def-loc-bin
                     tt-fg-rctd.qty-case = itemfg.case-count
-                    .            
+                    .     
+            IF tt-fg-rctd.qty-case LE 0 THEN tt-fg-rctd.qty-case = MAX(tt-fg-rctd.t-qty,1).       
             ASSIGN
-                li                 = tt-fg-rctd.t-qty / tt-fg-rctd.qty-case
+                li                 = TRUNCATE(tt-fg-rctd.t-qty / tt-fg-rctd.qty-case, 0)
                 tt-fg-rctd.cases   = li
                 tt-fg-rctd.partial = tt-fg-rctd.t-qty - (li * tt-fg-rctd.qty-case)
                 .
