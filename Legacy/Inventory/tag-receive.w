@@ -152,7 +152,7 @@ DEFINE VARIABLE fiID AS CHARACTER FORMAT "X(256)":U
      SIZE 50.8 BY 1
      BGCOLOR 15 FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiItemType AS CHARACTER FORMAT "X(256)":U INITIAL "WIP ID:" 
+DEFINE VARIABLE fiItemType AS CHARACTER FORMAT "X(256)":U INITIAL "WP ID:" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1
      BGCOLOR 15 FONT 35 NO-UNDO.
@@ -258,7 +258,7 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Recieve Inventory"
+         TITLE              = "Receive Inventory"
          HEIGHT             = 32.86
          WIDTH              = 202
          MAX-HEIGHT         = 36.57
@@ -343,7 +343,7 @@ BY ttBrowseInventory.lastTransTime DESCENDING.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Recieve Inventory */
+ON END-ERROR OF W-Win /* Receive Inventory */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -356,7 +356,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Recieve Inventory */
+ON WINDOW-CLOSE OF W-Win /* Receive Inventory */
 DO:
     IF VALID-HANDLE(hdInventoryProcs) THEN
         DELETE OBJECT hdInventoryProcs.
