@@ -2215,8 +2215,7 @@ PROCEDURE pCreateNewRel :
                               else*/ v-carrier
             oe-rel.r-no         = v-nxt-r-no
             oe-rel.spare-char-1 = v-shipfrom
-            oe-rel.fob-code     = oe-ord.fob-code
-            oe-rel.frt-pay      = oe-ord.frt-pay .                                                                                                              .
+            .                                                                                                              .
 
         IF oereleas-cha EQ "LastShip" THEN
             oe-rel.rel-date = oe-ord.last-date.
