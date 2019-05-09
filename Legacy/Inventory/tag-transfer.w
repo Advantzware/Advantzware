@@ -17,7 +17,8 @@
   Description: from cntnrwin.w - ADM SmartWindow Template
 
   Input Parameters:
-      <none>
+        ipcComapny  : Company Code
+        ipcLocation : Location
 
   Output Parameters:
       <none>
