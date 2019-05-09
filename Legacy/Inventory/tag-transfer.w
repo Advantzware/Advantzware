@@ -89,11 +89,11 @@ DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btKeyboard-1 RECT-27 fiTag fiLocation ~
-btKeyboard-2 btSubmit fiBin cbWarehouse btKeyboard-3 br-table btExit ~
-btFirst btLast btNext btPrevious btnNumPad 
+&Scoped-Define ENABLED-OBJECTS btLocationLookup btKeyboard-1 RECT-27 fiTag ~
+fiLocation btSubmit fiBin cbWarehouse br-table btKeyboard-2 btKeyboard-3 ~
+btExit btFirst btLast btNext btPrevious btnNumPad 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiItemType fiID fiLocation fiLastOp ~
-fiBin cbWarehouse 
+fiBin cbWarehouse fiMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -138,6 +138,11 @@ DEFINE BUTTON btLast
      IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U NO-FOCUS
      LABEL "Last" 
      SIZE 9.6 BY 2.29 TOOLTIP "Last".
+
+DEFINE BUTTON btLocationLookup 
+     IMAGE-UP FILE "Graphics/32x32/binocular2.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Location Lookup" 
+     SIZE 7.6 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btNext 
      IMAGE-UP FILE "Graphics/32x32/navigate_down.ico":U NO-FOCUS
@@ -195,6 +200,11 @@ DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U
      SIZE 47 BY 1.38
      FONT 37 NO-UNDO.
 
+DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 71 BY 1
+     FGCOLOR 12 FONT 35 NO-UNDO.
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 63 BY 1.38
@@ -243,30 +253,32 @@ DEFINE BROWSE br-table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btLocationLookup AT ROW 3.76 COL 78.4 WIDGET-ID 178
      btKeyboard-1 AT ROW 2 COL 86 WIDGET-ID 142
      fiTag AT ROW 2.1 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiItemType AT ROW 2.76 COL 121.2 NO-LABEL WIDGET-ID 162
      fiID AT ROW 2.76 COL 132 COLON-ALIGNED NO-LABEL WIDGET-ID 62
      fiLocation AT ROW 3.86 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 158
-     btKeyboard-2 AT ROW 3.76 COL 70.2 WIDGET-ID 156
      fiLastOp AT ROW 3.91 COL 141.8 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      btSubmit AT ROW 5.48 COL 90.8 WIDGET-ID 174
      fiBin AT ROW 5.62 COL 49.2 COLON-ALIGNED NO-LABEL WIDGET-ID 168
      cbWarehouse AT ROW 5.67 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 164
-     btKeyboard-3 AT ROW 5.52 COL 82.4 WIDGET-ID 172
+     fiMessage AT ROW 5.76 COL 118 COLON-ALIGNED NO-LABEL WIDGET-ID 176
      br-table AT ROW 7.67 COL 2 WIDGET-ID 200
      btPost AT ROW 31.05 COL 151 WIDGET-ID 38
+     btKeyboard-2 AT ROW 3.76 COL 70.2 WIDGET-ID 156
+     btKeyboard-3 AT ROW 5.52 COL 82.4 WIDGET-ID 172
      btExit AT ROW 2 COL 192 WIDGET-ID 84
      btFirst AT ROW 7.62 COL 192 WIDGET-ID 128
      btLast AT ROW 28.29 COL 192 WIDGET-ID 130
      btNext AT ROW 23.91 COL 192.2 WIDGET-ID 132
      btPrevious AT ROW 11.67 COL 192.2 WIDGET-ID 134
      btnNumPad AT ROW 2.05 COL 98 WIDGET-ID 138
-     "Warehouse:" VIEW-AS TEXT
-          SIZE 18.2 BY 1.19 AT ROW 5.71 COL 2.8 WIDGET-ID 166
-          BGCOLOR 15 FGCOLOR 1 FONT 36
      "Tag:" VIEW-AS TEXT
           SIZE 6.8 BY 1.19 AT ROW 2.24 COL 13.4 WIDGET-ID 22
+          BGCOLOR 15 FGCOLOR 1 FONT 36
+     "Warehouse:" VIEW-AS TEXT
+          SIZE 18.2 BY 1.19 AT ROW 5.71 COL 2.8 WIDGET-ID 166
           BGCOLOR 15 FGCOLOR 1 FONT 36
      "Location:" VIEW-AS TEXT
           SIZE 14.2 BY 1.19 AT ROW 3.95 COL 7 WIDGET-ID 160
@@ -343,7 +355,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB br-table btKeyboard-3 F-Main */
+/* BROWSE-TAB br-table fiMessage F-Main */
 ASSIGN 
        btKeyboard-1:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -352,6 +364,9 @@ ASSIGN
 
 ASSIGN 
        btKeyboard-3:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       btLocationLookup:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR BUTTON btPost IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -363,6 +378,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fiItemType IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiLastOp IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiMessage IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -496,6 +513,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btLocationLookup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btLocationLookup W-Win
+ON CHOOSE OF btLocationLookup IN FRAME F-Main /* Location Lookup */
+DO:
+    APPLY "HELP":U TO fiLocation.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btNext
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btNext W-Win
 ON CHOOSE OF btNext IN FRAME F-Main /* Next */
@@ -593,10 +621,37 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
+ON HELP OF fiLocation IN FRAME F-Main
+DO:
+    DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
+    RUN system/openlookup.p (
+        ipcCompany, 
+        "loc",  /* Job No lookup ID */
+        OUTPUT cFieldsValue, 
+        OUTPUT cFoundValue, 
+        OUTPUT recFoundRecID
+        ).
+    
+    IF cFoundValue NE "" THEN DO:
+        SELF:SCREEN-VALUE = ENTRY(2,cFieldsValue,"|") +
+                            FILL(" ", 5 - LENGTH(ENTRY(2,cFieldsValue,"|"))) +
+                            ENTRY(3,cFieldsValue,"|").
+        APPLY "LEAVE" TO SELF.
+    END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON LEAVE OF fiLocation IN FRAME F-Main
 DO:
     IF VALID-HANDLE(hKeyboard) THEN
-    DELETE OBJECT hKeyboard.
+        DELETE OBJECT hKeyboard.
 
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
@@ -738,11 +793,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTag fiItemType fiID fiLocation fiLastOp fiBin cbWarehouse 
+  DISPLAY fiTag fiItemType fiID fiLocation fiLastOp fiBin cbWarehouse fiMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btKeyboard-1 RECT-27 fiTag fiLocation btKeyboard-2 btSubmit fiBin 
-         cbWarehouse btKeyboard-3 br-table btExit btFirst btLast btNext 
-         btPrevious btnNumPad 
+  ENABLE btLocationLookup btKeyboard-1 RECT-27 fiTag fiLocation btSubmit fiBin 
+         cbWarehouse br-table btKeyboard-2 btKeyboard-3 btExit btFirst btLast 
+         btNext btPrevious btnNumPad 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -858,6 +913,8 @@ PROCEDURE pSubmitScan :
         
     DO WITH FRAME {&FRAME-NAME}:
     END.
+    
+    fiMessage:SCREEN-VALUE = "".
         
     IF ipcTag EQ "" THEN DO:
         MESSAGE "Blank Tag" VIEW-AS ALERT-BOX ERROR.
@@ -918,8 +975,9 @@ PROCEDURE pSubmitScan :
     IF AVAILABLE ttInventoryStockDetails THEN DO:
         IF ttInventoryStockDetails.warehouseID EQ ipcWarehouseID AND
            ttInventoryStockDetails.locationID  EQ ipcLocationID THEN DO:
-            MESSAGE "Scanned location is same as existing"
-                VIEW-AS ALERT-BOX ERROR.
+/*             MESSAGE "Scanned location is same as existing" */
+/*                 VIEW-AS ALERT-BOX ERROR. */
+            fiMessage:SCREEN-VALUE = "** Scanned location is same as existing".
             RETURN.
         END.
 

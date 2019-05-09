@@ -166,10 +166,10 @@ PROCEDURE CreateInventoryStockFromInputsFG:
             inventoryStockSnapshot.costStandardPerUOM      = bf-fg-bin.std-tot-cost
             inventoryStockSnapshot.quantity                = bf-fg-bin.qty
             inventoryStockSnapshot.quantityPerSubUnit      = bf-fg-bin.qty
-            inventoryStockSnapshot.lastTransTime           = NOW
             inventoryStockSnapshot.createdTime             = NOW
-            inventoryStockSnapshot.lastTransBy             = USERID("asi")
-            inventoryStockSnapshot.createdBy               = USERID("asi")
+            inventoryStockSnapshot.lastTransBy             = USERID(gcDBUser)
+            inventoryStockSnapshot.lastTransTime           = inventoryStockSnapshot.createdTime
+            inventoryStockSnapshot.createdBy               = USERID(gcDBUser)
             inventoryStockSnapshot.inventorySnapshotID     = ipiSnapshotID
             inventoryStockSnapshot.sourceID                = inventoryStockSnapshot.inventoryStockID
             inventoryStockSnapshot.sourceType              = gcSourceTypeSnapshot
@@ -270,7 +270,7 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
             ttInventoryStockPreLoadtag.quantitySubUnitsPerUnit = ipiQuantitySubUnitsPerUnit
             ttInventoryStockPreLoadtag.quantityPerSubUnit      = ipdQuantityPerSubUnit
             ttInventoryStockPreLoadtag.lastTransTime           = NOW
-            ttInventoryStockPreLoadtag.lastTransBy             = USERID("asi").
+            ttInventoryStockPreLoadtag.lastTransBy             = USERID(gcDBUser).
         RUN pGetWIPID(BUFFER ttInventoryStockPreLoadtag, OUTPUT ttInventoryStockPreLoadtag.wipItemID).
         ttInventoryStockPreLoadtag.primaryID = ttInventoryStockPreLoadtag.wipItemID.
         RUN pRecalcQuantityUnits(ipdQuantityTotal, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantityPerSubUnit, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantitySubUnitsPerUnit, 
@@ -571,7 +571,7 @@ PROCEDURE CreateTransactionCompare:
             inventoryTransaction.warehouseID            = ipcWarehouseID
             inventoryTransaction.locationID             = ipcLocationID
             inventoryTransaction.scannedTime            = NOW
-            inventoryTransaction.scannedBy              = USERID("asi")
+            inventoryTransaction.scannedBy              = USERID(gcDBUser)
             oplCreated                                  = TRUE
             opcMessage                                  = "Transaction Updated"
             .
@@ -621,7 +621,7 @@ PROCEDURE GenerateSnapshotRecords:
     
     DEFINE VARIABLE iInventorySnapshotID  AS INTEGER   NO-UNDO.
     
-    IF ipcType EQ "FG" THEN DO:
+    IF ipcType EQ gcItemTypeFG THEN DO:
         IF CAN-FIND ( FIRST fg-bin NO-LOCK
                       WHERE fg-bin.company    EQ ipcCompany
                         AND fg-bin.loc        EQ ipcWarehouse
@@ -840,9 +840,9 @@ PROCEDURE BuildPhyScanBrowseFromTransactionLocation:
                 IF AVAILABLE loadtag THEN
                     ASSIGN
                         ttPhysicalBrowseInventory.itemType = IF loadtag.item-type THEN
-                                                                 "RM"
+                                                                 gcItemTypeRM
                                                              ELSE
-                                                                 "FM"
+                                                                 gcItemTypeFG
                         ttPhysicalBrowseInventory.itemID   = loadtag.i-no
                         .
                 
@@ -917,9 +917,9 @@ PROCEDURE BuildPhyScanBrowseFromTransactionUser:
                 IF AVAILABLE loadtag THEN
                     ASSIGN
                         ttPhysicalBrowseInventory.itemType = IF loadtag.item-type THEN
-                                                                 "RM"
+                                                                 gcItemTypeRM
                                                              ELSE
-                                                                 "FM"
+                                                                 gcItemTypeFG
                         ttPhysicalBrowseInventory.itemID   = loadtag.i-no
                         .
                 
@@ -1174,9 +1174,9 @@ PROCEDURE pCreateTransactionAndReturnID PRIVATE:
         opiInventoryTransactionID                   = inventoryTransaction.inventoryTransactionID
         inventoryTransaction.transactionType        = ipcTransactionType
         inventoryTransaction.company                = ipcCompany
-        inventoryTransaction.createdBy              = USERID("asi")
+        inventoryTransaction.createdBy              = USERID(gcDBUser)
         inventoryTransaction.createdTime            = NOW
-        inventoryTransaction.scannedBy              = USERID("asi")
+        inventoryTransaction.scannedBy              = USERID(gcDBUser)
         inventoryTransaction.scannedTime            = inventoryTransaction.createdTime
         inventoryTransaction.quantityChange         = ipdQuantityChange
         inventoryTransaction.quantityUOM            = ipcQuantityUOM
@@ -1217,7 +1217,7 @@ PROCEDURE pCreateSnapshotAndReturnID PRIVATE:
         inventorySnapshot.warehouseID          = ipcWarehouse
         inventorySnapshot.locationID           = ipcLocation
         inventorySnapshot.inventoryStockStatus = ipcInventoryStatus
-        inventorySnapshot.snapshotUser         = USERID("asi")
+        inventorySnapshot.snapshotUser         = USERID(gcDBUser)
         inventorySnapshot.snapshotTime         = NOW
         oplCreated                             = YES
         opcMessage                             = "Snapshot Created. ID: " + STRING(inventorySnapshot.inventorySnapshotID)
@@ -1431,7 +1431,7 @@ PROCEDURE PostTransaction:
             WHEN gcTransactionTypeTransfer THEN 
                 DO:
                     ASSIGN 
-                        inventoryStock.lastTransBy   = USERID("asi")
+                        inventoryStock.lastTransBy   = USERID(gcDBUser)
                         inventoryStock.lastTransTime = NOW
                         .           
                 END.
@@ -1441,7 +1441,7 @@ PROCEDURE PostTransaction:
                     IF inventoryStock.quantity EQ 0 THEN 
                     DO: 
                         ASSIGN 
-                            inventoryStock.consumedBy   = USERID("asi")
+                            inventoryStock.consumedBy   = USERID(gcDBUser)
                             inventoryStock.consumedTime = NOW
                             inventoryStock.inventoryStatus = gcStatusStockConsumed.
                     END.
@@ -1453,7 +1453,7 @@ PROCEDURE PostTransaction:
         END CASE. 
         ASSIGN 
             inventoryTransaction.transactionStatus = gcStatusTransactionPosted
-            inventoryTransaction.postedBy          = USERID("asi")
+            inventoryTransaction.postedBy          = USERID(gcDBUser)
             inventoryTransaction.postedTime        = NOW
             .
     END.
