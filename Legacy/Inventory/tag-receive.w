@@ -12,9 +12,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: 
+  File: tag-receive.w
 
-  Description: from cntnrwin.w - ADM SmartWindow Template
+  Description: Receive RM/FG/WIP Inventory
 
   Input Parameters:
       <none>
@@ -679,7 +679,7 @@ PROCEDURE pSubmitScan :
                 ipcCompany,
                 ttInventoryStockDetails.inventoryStockID
                 ).
-            
+
             FIND FIRST ttBrowseInventory
                  WHERE ttBrowseInventory.stockIDAlias EQ ipcTag NO-ERROR.
             IF NOT AVAILABLE ttBrowseInventory THEN DO:
@@ -689,9 +689,10 @@ PROCEDURE pSubmitScan :
             
             ASSIGN
                 ttBrowseinventory.inventoryStatus = gcStatusStockReceived
+                ttBrowseinventory.quantity        = ttInventoryStockDetails.quantityOriginal
                 ttBrowseinventory.locationID      = ttInventoryStockDetails.warehouseID +
                                                     FILL(" ", 5 - LENGTH(ttInventoryStockDetails.warehouseID)) +
-                                                    ttInventoryStockDetails.locationID
+                                                    ttInventoryStockDetails.locationID                                                    
                 .
         END.
         ELSE
