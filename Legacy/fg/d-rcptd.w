@@ -1913,7 +1913,7 @@ PROCEDURE create-from-po :
                     .     
             IF tt-fg-rctd.qty-case LE 0 THEN tt-fg-rctd.qty-case = MAX(tt-fg-rctd.t-qty,1).       
             ASSIGN
-                li                 = TRUNCATE(tt-fg-rctd.t-qty / tt-fg-rctd.qty-case, 0)
+                li                 = TRUNCATE(tt-fg-rctd.t-qty / tt-fg-rctd.qty-case, 0
                 tt-fg-rctd.cases   = li
                 tt-fg-rctd.partial = tt-fg-rctd.t-qty - (li * tt-fg-rctd.qty-case)
                 .
