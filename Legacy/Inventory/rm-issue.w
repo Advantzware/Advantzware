@@ -112,7 +112,8 @@ DEFINE VARIABLE iCount                  AS         INTEGER   NO-UNDO.
 cbJobNo2 cbFormNo cbBlankNo cbRMItem br-table btKeyboard-1 btExit btFirst ~
 btLast btNext btPrevious btnNumPad 
 &Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 fiOrder fiCust cbFormNo ~
-cbBlankNo fiItem cbRMItem fiRMItemID fiTag fiSize fiUOM fiMessage 
+cbBlankNo fiItem cbRMItem fiMessage fiRMItemID fiTag fiSize fiUOM ~
+fiMessage2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -227,6 +228,11 @@ DEFINE VARIABLE fiJobNo AS CHARACTER FORMAT "X(15)":U
 
 DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
+     SIZE 83 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiMessage2 AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
      SIZE 101 BY 1.38
      FONT 37 NO-UNDO.
 
@@ -315,13 +321,14 @@ DEFINE FRAME F-Main
      cbBlankNo AT ROW 3.52 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      fiItem AT ROW 3.86 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      cbRMItem AT ROW 5.29 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 152
+     fiMessage AT ROW 5.52 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 158
      fiRMItemID AT ROW 8.29 COL 122.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
      fiTag AT ROW 8.52 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiSize AT ROW 9.71 COL 120.2 COLON-ALIGNED NO-LABEL WIDGET-ID 80
      fiUOM AT ROW 9.71 COL 150.6 COLON-ALIGNED NO-LABEL WIDGET-ID 148
      br-table AT ROW 11.71 COL 2 WIDGET-ID 200
      btPost AT ROW 31.05 COL 151 WIDGET-ID 38
-     fiMessage AT ROW 31.24 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 86
+     fiMessage2 AT ROW 31.24 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 86
      btKeyboard-1 AT ROW 1.91 COL 75 WIDGET-ID 136
      btKeyboard-2 AT ROW 8.43 COL 99 WIDGET-ID 142
      btExit AT ROW 1.95 COL 192 WIDGET-ID 84
@@ -330,21 +337,18 @@ DEFINE FRAME F-Main
      btNext AT ROW 23.91 COL 192.2 WIDGET-ID 132
      btPrevious AT ROW 15.71 COL 192.2 WIDGET-ID 134
      btnNumPad AT ROW 2.67 COL 98 WIDGET-ID 138
-     "Job #:" VIEW-AS TEXT
-          SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
-          FONT 36
-     "Blank #:" VIEW-AS TEXT
-          SIZE 14 BY .95 AT ROW 3.71 COL 68 WIDGET-ID 58
-          FONT 36
-     "RM ID:" VIEW-AS TEXT
-          SIZE 10 BY .81 AT ROW 8.38 COL 114 WIDGET-ID 74
-          FONT 34
-     "Item #:" VIEW-AS TEXT
-          SIZE 12 BY .81 AT ROW 3.95 COL 113 WIDGET-ID 70
-          FONT 34
      "Job Details" VIEW-AS TEXT
           SIZE 18.4 BY .62 AT ROW 1.67 COL 115.2 WIDGET-ID 16
           FONT 35
+     "RM ID:" VIEW-AS TEXT
+          SIZE 10 BY .81 AT ROW 8.38 COL 114 WIDGET-ID 74
+          FONT 34
+     "Blank #:" VIEW-AS TEXT
+          SIZE 14 BY .95 AT ROW 3.71 COL 68 WIDGET-ID 58
+          FONT 36
+     "Job #:" VIEW-AS TEXT
+          SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
+          FONT 36
      "Cust #:" VIEW-AS TEXT
           SIZE 11.6 BY .81 AT ROW 2.71 COL 153 WIDGET-ID 66
           FONT 34
@@ -354,21 +358,24 @@ DEFINE FRAME F-Main
      "Tag:" VIEW-AS TEXT
           SIZE 8.2 BY 1.19 AT ROW 8.62 COL 10 WIDGET-ID 22
           FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 14.6 BY .95 AT ROW 3.71 COL 42 WIDGET-ID 48
-          FONT 36
-     "Order #:" VIEW-AS TEXT
-          SIZE 13 BY .81 AT ROW 2.71 COL 112 WIDGET-ID 64
+     "Tag Details" VIEW-AS TEXT
+          SIZE 19.2 BY .76 AT ROW 7.24 COL 113.8 WIDGET-ID 28
+          FONT 35
+     "Size :" VIEW-AS TEXT
+          SIZE 8 BY .81 AT ROW 9.76 COL 114 WIDGET-ID 78
           FONT 34
      "RM Item:" VIEW-AS TEXT
           SIZE 14 BY .95 AT ROW 5.43 COL 28 WIDGET-ID 154
           FONT 36
-     "Size :" VIEW-AS TEXT
-          SIZE 8 BY .81 AT ROW 9.76 COL 114 WIDGET-ID 78
+     "Order #:" VIEW-AS TEXT
+          SIZE 13 BY .81 AT ROW 2.71 COL 112 WIDGET-ID 64
           FONT 34
-     "Tag Details" VIEW-AS TEXT
-          SIZE 19.2 BY .76 AT ROW 7.24 COL 113.8 WIDGET-ID 28
-          FONT 35
+     "Form #:" VIEW-AS TEXT
+          SIZE 14.6 BY .95 AT ROW 3.71 COL 42 WIDGET-ID 48
+          FONT 36
+     "Item #:" VIEW-AS TEXT
+          SIZE 12 BY .81 AT ROW 3.95 COL 113 WIDGET-ID 70
+          FONT 34
      RECT-2 AT ROW 2.43 COL 97 WIDGET-ID 140
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 126
      RECT-25 AT ROW 1.95 COL 111 WIDGET-ID 14
@@ -453,6 +460,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fiItem IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiMessage IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiMessage2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiOrder IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -792,8 +801,11 @@ DO:
         ).
 
     IF cMessage NE "" THEN DO:
-        MESSAGE cMessage
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pUpdateMessageText (
+            cMessage,    /* Message Text */
+            TRUE,        /* Error */
+            FALSE        /* Alert-box*/
+            ).
         RETURN.
     END.
     
@@ -1027,7 +1039,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiJobNo cbJobNo2 fiOrder fiCust cbFormNo cbBlankNo fiItem cbRMItem 
-          fiRMItemID fiTag fiSize fiUOM fiMessage 
+          fiMessage fiRMItemID fiTag fiSize fiUOM fiMessage2 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btJobLookup RECT-27 RECT-28 btChange fiJobNo cbJobNo2 cbFormNo 
          cbBlankNo cbRMItem br-table btKeyboard-1 btExit btFirst btLast btNext 
@@ -1157,8 +1169,11 @@ PROCEDURE pInit :
             ).
 
     IF NOT lSuccess THEN DO:
-        MESSAGE cMessage 
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pUpdateMessageText (
+            cMessage,    /* Message Text */
+            TRUE,        /* Error */
+            FALSE        /* Alert-box*/
+            ).
         RETURN.
     END.              
 END PROCEDURE.
@@ -1279,10 +1294,7 @@ PROCEDURE pOnValueChangedOfJobDetails :
         INTEGER(cbBlankNo:SCREEN-VALUE),
         OUTPUT lValidJob
         ).
-                                    
-    IF lValidJob THEN DO:       
-    END.
-    
+
     RUN pUpdateJobDetails.
     
     RUN pUpdateRMItemList (
@@ -1323,7 +1335,7 @@ PROCEDURE pRebuildBrowse :
         OUTPUT iTotOnHand
         ).
     
-    fiMessage:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RM tags for Job: Total: " + STRING(iTotTags) + " Remaining On-Hand: " + STRING(iTotOnHand).
+    fiMessage2:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RM tags for Job: Total: " + STRING(iTotTags) + " Remaining On-Hand: " + STRING(iTotOnHand).
     
     {&OPEN-BROWSERS-IN-QUERY-F-Main}    
 END PROCEDURE.
@@ -1353,8 +1365,10 @@ PROCEDURE pTagScan :
     END.
     
     ASSIGN
-        fiTag:SCREEN-VALUE = ipcTag
-        cMessage = "".
+        fiTag:SCREEN-VALUE     = ipcTag
+        fiMessage:SCREEN-VALUE = ""
+        cMessage               = ""
+        .
   
     RUN pGetInventoryStockDetails IN hdInventoryProcs (
         ipcCompany,
@@ -1398,8 +1412,11 @@ PROCEDURE pTagScan :
                     ).
                 
                 IF NOT lSuccess THEN DO:
-                    MESSAGE cMessage 
-                        VIEW-AS ALERT-BOX ERROR.
+                    RUN pUpdateMessageText (
+                        cMessage,    /* Message Text */
+                        TRUE,        /* Error */
+                        FALSE        /* Alert-box*/
+                    ).
                     RETURN.
                 END.                    
             END.
@@ -1420,7 +1437,7 @@ PROCEDURE pTagScan :
                 MESSAGE "Tag is already consumed. Do you want to move the tag to On-hand?"
                     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
                     TITLE "Continue?" UPDATE lMoveToOnhand AS LOGICAL.
-                IF lMoveToOnhand THEN
+                IF lMoveToOnhand THEN DO:
                     RUN CreateTransactionReceived IN hdInventoryProcs (
                         ipcCompany,
                         ttInventoryStockDetails.inventoryStockID,
@@ -1428,6 +1445,14 @@ PROCEDURE pTagScan :
                         OUTPUT lCreated,
                         OUTPUT cMessage
                         ).
+
+                    cMessage = "Tag moved to On-hand status.".
+                    RUN pUpdateMessageText (
+                        cMessage,    /* Message Text */
+                        FALSE,       /* Error */
+                        FALSE        /* Alert-box*/
+                        ).               
+                END.         
                 ELSE
                     RETURN.
             END.
@@ -1441,12 +1466,23 @@ PROCEDURE pTagScan :
                     OUTPUT lCreated,
                     OUTPUT cMessage
                     ).
+
+                cMessage = "Tag moved to Consumed status.".
+                RUN pUpdateMessageText (
+                    cMessage,    /* Message Text */
+                    FALSE,       /* Error */
+                    FALSE        /* Alert-box*/
+                    ).                        
             END.
         END.
     END.
     ELSE DO:
-        MESSAGE "Invalid tag"
-            VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Invalid Tag".
+        RUN pUpdateMessageText (
+            cMessage,    /* Message Text */
+            TRUE,        /* Error */
+            FALSE        /* Alert-box*/
+            ).
         RETURN.
     END.
   
@@ -1490,6 +1526,43 @@ PROCEDURE pUpdateJobDetails :
         fiOrder:SCREEN-VALUE = STRING(iOrdno)
         fiCust:SCREEN-VALUE  = STRING(cCustno)
         fiItem:SCREEN-VALUE  = STRING(cIno). 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateMessageText W-Win 
+PROCEDURE pUpdateMessageText :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplError    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplAlertBox AS LOGICAL   NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    fiMessage:SCREEN-VALUE = "".
+
+    IF iplAlertBox THEN DO:
+        MESSAGE ipcMessage
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+
+    ASSIGN
+        fiMessage:SCREEN-VALUE = ipcMessage
+        fiMessage:FGCOLOR      = 2   /* Green */
+        .
+
+    IF iplError THEN
+        ASSIGN
+            fiMessage:SCREEN-VALUE = "**" + ipcMessage
+            fiMessage:FGCOLOR      = 12  /* Red */
+            .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
