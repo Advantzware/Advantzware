@@ -344,7 +344,7 @@ if v-print-fmt eq "BlueRidg" then
    v-c-email = "".
    
 if v-print-fmt eq "Valley" then do:
-  v-c-name = if oe-ctrl.prcom then company.name else "".
+  v-c-name = company.name .
    
   if avail shipto then
     assign
@@ -355,8 +355,7 @@ if v-print-fmt eq "Valley" then do:
      v-c-zip     = shipto.ship-zip.
 end.
    
-else    
-if oe-ctrl.prcom then
+else  
   if v-print-fmt eq "P&P" and avail cust then
     assign
      v-c-name    = cust.name
@@ -380,7 +379,7 @@ if oe-ctrl.prcom then
 
 if v-print-head then do:
   assign
-   letterhead[1] = if oe-ctrl.prcom then "=== " + v-invhead + " ===" else ""
+   letterhead[1] = "=== " + v-invhead + " ===" 
    letterhead[2] = v-c-name
    letterhead[3] = v-c-addr[1]
    letterhead[4] = v-c-addr[2]
@@ -553,7 +552,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   ELSE do:
       if v-print-fmt eq "express" then do:
           DISPLAY
-            v-invhead WHEN oe-ctrl.prcom
+            v-invhead 
             ar-inv.inv-date
             ar-inv.inv-no
             sman.sman when avail sman
@@ -576,7 +575,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       end.
       else do:
           DISPLAY
-            v-invhead when oe-ctrl.prcom
+            v-invhead 
             ar-inv.inv-date
             v-c-name
             v-c-addr[1]

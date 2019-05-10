@@ -95,6 +95,19 @@ DEF VAR li-qty-pal AS INT NO-UNDO.
 DEF VAR lc-pass-loc AS CHAR NO-UNDO.
 DEF VAR lv-show-zero-bins AS LOG NO-UNDO.
 DEF VAR lv-show-tag-no AS CHAR NO-UNDO.
+DEFINE VARIABLE lAccessPro AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+
+RUN methods/prgsecur.p
+	    (INPUT "fgijob.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAccessPro, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 /*-sort-by = NOT oeinq.*/
 
 &SCOPED-DEFINE for-each1    ~
@@ -1161,16 +1174,18 @@ PROCEDURE update-cost :
     
     IF NOT AVAILABLE w-job THEN RETURN.
 
-    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-    RUN epCanAccess IN hPgmSecurity ("viewers/p-fg-bj-l.w", "", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-    IF lResult THEN
-        ASSIGN ll-secure = YES.
-  
-    IF NOT ll-secure THEN DO:  
-        RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
-        IF NOT ll-secure THEN RETURN.
-    END.  
+    /*RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.                    */
+    /*RUN epCanAccess IN hPgmSecurity ("viewers/p-fg-bj-l.w", "", OUTPUT lResult).*/
+    /*DELETE OBJECT hPgmSecurity.                                                 */
+    /*IF lResult THEN                                                             */
+    /*    ASSIGN ll-secure = YES.                                                 */
+    /*                                                                            */
+    /*IF NOT ll-secure THEN DO:                                                   */
+    /*    RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure).                           */
+    /*    IF NOT ll-secure THEN RETURN.                                           */
+    /*END.                                                                        */    
+
+    IF NOT lAccessPro THEN RETURN .
  
   FOR EACH hold-job:
     DELETE hold-job.

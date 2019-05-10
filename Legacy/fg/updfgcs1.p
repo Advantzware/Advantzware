@@ -35,7 +35,8 @@ FUNCTION pgmStack RETURNS CHAR
 
 cPgmStack = pgmStack().
 v-recalc-if1 = INDEX(cPgmStack,"fg/d-recost.w") > 0
-OR INDEX(cPgmStack,"fg/fgpstall.w") > 0.
+OR INDEX(cPgmStack,"fg/fgpstall.w") > 0
+OR INDEX(cPgmStack,"util/fxtrncst") > 0.
 
 DISABLE TRIGGERS FOR LOAD OF itemfg.
     
@@ -113,20 +114,24 @@ DISABLE TRIGGERS FOR LOAD OF itemfg.
     
     ELSE DO:
       IF ip-recalc THEN
-      FOR EACH fg-bin
-        WHERE fg-bin.company EQ itemfg.company
-        AND fg-bin.i-no    EQ itemfg.i-no:
-        
+      FOR EACH fg-bin NO-LOCK
+          WHERE fg-bin.company EQ itemfg.company
+            AND fg-bin.i-no    EQ itemfg.i-no
+          :        
         IF fg-bin.job-no NE "" THEN
         RUN oe/fgbincst.p (ROWID(fg-bin)).
         ELSE DO:
-          ASSIGN
-          fg-bin.std-tot-cost = 0
-          fg-bin.std-lab-cost = 0
-          fg-bin.std-mat-cost = 0
-          fg-bin.std-var-cost = 0
-          fg-bin.std-fix-cost = 0.
-          
+          DO TRANSACTION:
+              FIND CURRENT fg-bin EXCLUSIVE-LOCK.
+              ASSIGN
+                  fg-bin.std-tot-cost = 0
+                  fg-bin.std-lab-cost = 0
+                  fg-bin.std-mat-cost = 0
+                  fg-bin.std-var-cost = 0
+                  fg-bin.std-fix-cost = 0
+                  .
+              FIND CURRENT fg-bin NO-LOCK.
+          END. /* do trans */
           RUN fg/upfgbinc.p (ROWID(fg-bin)).
         END.
       END.

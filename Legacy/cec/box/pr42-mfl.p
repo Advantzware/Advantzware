@@ -148,7 +148,8 @@ do with no-box no-labels frame med1  stream-io :
       w-brd.cost-m = v-qty
       w-brd.qty-uom = "EA"
       w-brd.sc-uom = b-uom
-      mfl$ = mfl$ / qty * mqty.
+/*      mfl$ = mfl$ / qty * mqty*/
+      .
 
    if v-add-to-est then do:
      assign
@@ -319,7 +320,7 @@ if v-add-to-est AND
 
          IF AVAIL est-op THEN
          DO:
-            gqty = xef.adh-sqin * est-op.num-sh / item.sqin-lb.
+            gqty = xef.adh-sqin * tot-qty / item.sqin-lb.
             RELEASE est-op.
          END.
          ELSE
@@ -415,7 +416,7 @@ if v-add-to-est AND
 
          IF AVAIL est-op THEN
          DO:
-            gqty = xef.gsh-wid * xef.gsh-len * est-op.num-sh / item.sqin-lb.
+            gqty = xef.gsh-wid * xef.gsh-len * tot-qty / item.sqin-lb.
             RELEASE est-op.
          END.
          ELSE

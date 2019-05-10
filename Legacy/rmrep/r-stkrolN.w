@@ -58,13 +58,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "RM Item#,Description,Tag#,Lineal Feet,Totals Rolls,Roll Weight," +
-                           "Roll Width,Wt/MSF"
+                           "Roll Width,Wt/MSF,Vendor Tag #"
 
        cFieldListToSelect = "rm-item,desc,tag,lin-ft,tot-rol,rol-wt," + 
-                            "rol-wid,wt-msf"
+                            "rol-wid,wt-msf,vend-tag"
 
-       cFieldLength = "10,25,20,12,12,11," + "10,8"
-       cFieldType = "c,c,c,i,i,i," + "i,i" 
+       cFieldLength = "10,25,20,12,12,11," + "10,8,20"
+       cFieldType = "c,c,c,i,i,i," + "i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1400,7 +1400,7 @@ DEF VAR v-mattype AS cha NO-UNDO.
 DEF VAR v-msf-qty AS DEC NO-UNDO.
 DEFINE VARIABLE dLinerFeet AS DECIMAL NO-UNDO .
 DEFINE VARIABLE dWeight AS DECIMAL NO-UNDO .
-
+DEFINE VARIABLE cVendorTag AS CHARACTER NO-UNDO .
 DEF VAR cDisplay AS cha NO-UNDO.
 DEF VAR cExcelDisplay AS cha NO-UNDO.
 DEF VAR hField AS HANDLE NO-UNDO.
@@ -1526,7 +1526,15 @@ SESSION:SET-WAIT-STATE("general").
           RUN rm/convquom.p(item.cons-uom, "LB",
                             ITEM.basis-w, ITEM.s-len, (IF item.r-wid ne 0 then item.r-wid else item.s-wid), ITEM.s-dep,
                             dWeight, OUTPUT dWeight).
-     
+
+         ASSIGN cVendorTag = "" .
+         FIND FIRST loadtag NO-LOCK
+             WHERE loadtag.company EQ cocode
+             AND loadtag.item-type EQ YES
+             AND loadtag.tag-no EQ rm-bin.tag            
+             NO-ERROR.
+         IF AVAILABLE loadtag THEN
+             cVendorTag = loadtag.misc-char[1] .
 
          ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1545,6 +1553,7 @@ SESSION:SET-WAIT-STATE("general").
                          WHEN "rol-wt"   THEN cVarValue = STRING(dWeight,"->>,>>9.99").
                          WHEN "rol-wid"  THEN cVarValue = IF item.r-wid ne 0 then STRING(ITEM.r-wid,"->>,>>9.99") ELSE STRING(ITEM.s-wid,"->>,>>9.99") .
                          WHEN "wt-msf"   THEN cVarValue = string(ITEM.basis-w,">>>>9.99")  .
+                         WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
 
                     END CASE.
 
@@ -1586,6 +1595,7 @@ SESSION:SET-WAIT-STATE("general").
                          WHEN "rol-wt"   THEN cVarValue = "".
                          WHEN "rol-wid"  THEN cVarValue = "" .
                          WHEN "wt-msf"   THEN cVarValue = ""  .
+                         WHEN "vend-tag" THEN cVarValue = "" .
 
                     END CASE.
 

@@ -647,7 +647,6 @@ END.
 /* ***************************  Main Block  *************************** */
 {custom/getcmpny.i}
 {custom/getloc.i}
-    {sys/inc/f3help.i}
 session:data-entry-return = true.  /* return key will be like tab key */
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          

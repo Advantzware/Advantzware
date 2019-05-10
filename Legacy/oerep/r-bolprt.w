@@ -83,7 +83,8 @@ DEF TEMP-TABLE tt-post NO-UNDO
 
 DEF TEMP-TABLE tt-packslip NO-UNDO
     FIELD b-no AS INT.
-
+    
+DEFINE TEMP-TABLE ttPdfBOLs LIKE report.
 
 def var v-print-fmt     as char NO-UNDO.
 DEF VAR v-print-fmt-int AS INT  NO-UNDO.
@@ -113,12 +114,28 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE NEW SHARED VAR v-print-unassembled AS LOG NO-UNDO.
+DEFINE VARIABLE cCopyPdfFile    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCopyPdfFile    AS LOGICAL   NO-UNDO.
+
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLSavePDF", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cCopyPdfFile = cRtnChar . 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BOLSavePDF", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCopyPdfFile = logical(cRtnChar) NO-ERROR .
+IF cCopyPdfFile GT "" AND SUBSTRING(cCopyPdfFile, length(cCopyPdfFile), 1) NE "\" THEN 
+  cCopyPdfFile = cCopyPdfFile + "\".
 
 DEF VAR lv-prt-bypass     AS LOG NO-UNDO.  /* bypass window's printer driver */
 DEF VAR lv-run-bol        AS char no-undo.
@@ -1021,7 +1038,7 @@ DO:
                       END.
 
                       RUN SetVariables.
-                      RUN run-report(b-oe-bolh.cust-no,YES).
+                      RUN run-report(b-oe-bolh.cust-no,YES,NO).
                       RUN GenerateReport(b-oe-bolh.cust-no,YES).
 
                       IF v-print-fmt EQ "Badger"  OR v-print-fmt EQ "BadgerSoldTo" THEN DO:
@@ -1055,7 +1072,7 @@ DO:
 
          RUN SetBolForm(v-print-fmt).
          RUN SetVariables.
-         RUN run-report("",NO).
+         RUN run-report("",NO,NO).
          RUN GenerateReport(begin_cust,NO).
 
          IF v-print-fmt EQ "Badger"  OR v-print-fmt EQ "BadgerSoldTo" THEN DO:
@@ -1196,6 +1213,9 @@ DO:
                  VIEW-AS ALERT-BOX INFO BUTTONS OK.
    END.
 
+   IF lCopyPdfFile AND tb_posted THEN 
+
+      RUN pdfArchive.
    SESSION:SET-WAIT-STATE ("").
 
    IF tb_barcode:CHECKED THEN
@@ -1528,8 +1548,8 @@ DO:
   IF tb_posted THEN do:
      ASSIGN tb_reprint = YES
             END_bol#:SCREEN-VALUE = begin_bol#:SCREEN-VALUE
-          /*  END_ord#:SCREEN-VALUE = begin_ord#:SCREEN-VALUE
-            END_cust:SCREEN-VALUE = begin_cust:SCREEN-VALUE*/.
+                /*  END_ord#:SCREEN-VALUE = begin_ord#:SCREEN-VALUE
+                  END_cust:SCREEN-VALUE = begin_cust:SCREEN-VALUE*/.
      DISP tb_reprint     WITH FRAME {&FRAME-NAME}.
   END.
 END.
@@ -2724,8 +2744,8 @@ PROCEDURE create-reorder :
  FOR EACH fg-bin FIELDS(qty)
          WHERE fg-bin.company EQ itemfg.company
            AND fg-bin.i-no    EQ itemfg.i-no
-           /*AND fg-bin.loc     GE begin_whse
-           AND fg-bin.loc     LE end_whse*/ NO-LOCK:
+        /*AND fg-bin.loc     GE begin_whse
+        AND fg-bin.loc     LE end_whse*/ NO-LOCK:
       v-qty-onh = v-qty-onh + fg-bin.qty.
  END.
 
@@ -3384,6 +3404,14 @@ PROCEDURE output-to-mail :
            list-name NE ''
           THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
           ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
+
+/*          IF tb_posted AND lCopyPdfFile THEN DO:                                                                                      */
+/*              IF rd-dest EQ 5 THEN DO:                                                                                                */
+/*                  IF v-s-bol EQ v-e-bol THEN                                                                                          */
+/*                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf").                            */
+/*                  ELSE OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + "_To_" + STRING(v-e-bol) + ".pdf").*/
+/*              END.                                                                                                                    */
+/*          END.                                                                                                                        */
       END.
 
       if vcMailMode = 'Customer1' then RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
@@ -3511,6 +3539,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdfArchive C-Win
+PROCEDURE pdfArchive:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE reportKey10 AS LOGICAL NO-UNDO.
+    PROCESS EVENTS.
+    STATUS DEFAULT "Creating PDF files for archive".
+      {sa/sa-sls01.i}
+    FOR EACH ttPdfBOLs,
+      FIRST oe-bolh NO-LOCK WHERE recid(oe-bolh) EQ ttPdfBOLs.rec-id
+          :
+
+        IF lCopyPDFFile THEN 
+        DO:
+
+            v-term-id = v-term.
+            FIND FIRST sys-ctrl-shipto WHERE
+                sys-ctrl-shipto.company      EQ oe-bolh.company AND
+                sys-ctrl-shipto.name         EQ "BOLFMT" AND
+                sys-ctrl-shipto.cust-vend    EQ YES AND
+                sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no AND
+                sys-ctrl-shipto.ship-id      EQ oe-bolh.ship-id
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL sys-ctrl-shipto THEN
+                FIND FIRST sys-ctrl-shipto WHERE
+                    sys-ctrl-shipto.company      EQ oe-bolh.company AND
+                    sys-ctrl-shipto.name         EQ "BOLFMT" AND
+                    sys-ctrl-shipto.cust-vend    EQ YES AND
+                    sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no AND
+                    sys-ctrl-shipto.ship-id      EQ ''
+                    NO-LOCK NO-ERROR.
+            reportKey10     = oe-bolh.printed.
+            CREATE report.
+            ASSIGN 
+                report.term-id = "BOLPDF" + USERID("asi")
+                report.key-01  = oe-bolh.cust-no
+                report.key-02  = oe-bolh.ship-id
+                report.rec-id  = RECID(oe-bolh)
+                report.key-09  = STRING(oe-bolh.printed,"REVISED/ORIGINAL")
+                report.key-10  = STRING(reportKey10) /* 05291402 */
+                report.key-03  = IF AVAIL sys-ctrl-shipto AND  NOT sys-ctrl-shipto.log-fld THEN "C" /*commercial invoice only*/
+                            ELSE IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN "B" /*commercial invoice and bol both*/
+                ELSE "N" /*BOL only*/ 
+                report.key-04  = IF AVAIL sys-ctrl-shipto THEN sys-ctrl-shipto.char-fld ELSE "".
+     
+            lv-run-bol = "YES".
+            RUN run-report("",NO,YES).
+    
+            RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").            
+                
+        END. /* If lCopyPdfFile */
+
+    END. /* each ttpdf */
+    PROCESS EVENTS.
+    STATUS DEFAULT "Create PDF files complete".
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-bol C-Win 
 PROCEDURE post-bol :
 /*------------------------------------------------------------------------------
@@ -3522,6 +3615,7 @@ PROCEDURE post-bol :
   DEFINE VARIABLE trailerNo AS CHARACTER NO-UNDO.
   DEFINE VARIABLE outFile AS CHARACTER NO-UNDO.
   DEFINE VARIABLE d-out   AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE reportKey10 AS LOGICAL NO-UNDO.
   DEF BUFFER bf-oe-ord FOR oe-ord.
   DEF BUFFER bf-oe-ordl FOR oe-ordl.
   {sa/sa-sls01.i}
@@ -3623,7 +3717,7 @@ PROCEDURE post-bol :
           NO-WAIT NO-ERROR.
 
       IF AVAIL oe-bolh THEN DO:
-
+                
         FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no:
 
           FIND FIRST oe-ordl NO-LOCK
@@ -3651,6 +3745,56 @@ PROCEDURE post-bol :
       END.
       */
   END.
+
+ FOR EACH tt-post TRANSACTION:
+
+    RELEASE oe-bolh.
+    DO WHILE NOT AVAIL oe-bolh:
+      FIND FIRST oe-bolh EXCLUSIVE WHERE ROWID(oe-bolh) EQ tt-post.row-id
+          NO-WAIT NO-ERROR.
+
+      IF AVAIL oe-bolh THEN DO:
+        IF lCopyPDFFile THEN DO:
+
+            v-term-id = v-term.
+            FIND FIRST sys-ctrl-shipto WHERE
+                sys-ctrl-shipto.company      EQ oe-bolh.company AND
+                sys-ctrl-shipto.name         EQ "BOLFMT" AND
+                sys-ctrl-shipto.cust-vend    EQ YES AND
+                sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no AND
+                sys-ctrl-shipto.ship-id      EQ oe-bolh.ship-id
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL sys-ctrl-shipto THEN
+                FIND FIRST sys-ctrl-shipto WHERE
+                    sys-ctrl-shipto.company      EQ oe-bolh.company AND
+                    sys-ctrl-shipto.name         EQ "BOLFMT" AND
+                    sys-ctrl-shipto.cust-vend    EQ YES AND
+                    sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no AND
+                    sys-ctrl-shipto.ship-id      EQ ''
+                    NO-LOCK NO-ERROR.
+            reportKey10     = oe-bolh.printed.
+            CREATE report.
+            ASSIGN 
+                report.term-id = "BOLPDF" + USERID("asi")
+                report.key-01  = oe-bolh.cust-no
+                report.key-02  = oe-bolh.ship-id
+                report.rec-id  = RECID(oe-bolh)
+                report.key-09  = STRING(oe-bolh.printed,"REVISED/ORIGINAL")
+                report.key-10  = STRING(reportKey10) /* 05291402 */
+                report.key-03  = IF AVAIL sys-ctrl-shipto AND  NOT sys-ctrl-shipto.log-fld THEN "C" /*commercial invoice only*/
+                                    ELSE IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN "B" /*commercial invoice and bol both*/
+                ELSE "N" /*BOL only*/ 
+                report.key-04  = IF AVAIL sys-ctrl-shipto THEN sys-ctrl-shipto.char-fld ELSE "".
+             
+            lv-run-bol = "YES".
+            RUN run-report("",NO,YES).
+            
+            RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").            
+                        
+        END. /* If lCopyPdfFile */
+      end. /* avail */
+    END. /* do while not avail */
+  END. /* do trans */
 
   IF v-EDIBOLPost-log THEN
   FOR EACH sys-ctrl-shipto NO-LOCK
@@ -3827,6 +3971,14 @@ PROCEDURE run-packing-list :
               ELSE  PUT "<PREVIEW><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
+
+/*      IF tb_posted AND lCopyPdfFile THEN DO:                                                                                        */
+/*          IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:                                                                                  */
+/*              IF v-s-bol EQ v-e-bol THEN                                                                                            */
+/*                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".                             */
+/*              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".*/
+/*          END.                                                                                                                      */
+/*      END.                                                                                                                          */
   END.
 
   IF lv-run-bol = "YES" THEN DO:
@@ -3887,6 +4039,7 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
   DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-sys-ctrl-ship-to AS LOG NO-UNDO.
+  DEFINE INPUT  PARAMETER iplPdfOnly AS LOGICAL NO-UNDO.
   {sys/form/r-top.i}
 
   assign
@@ -3909,11 +4062,12 @@ PROCEDURE run-report :
     v-print-unassembled = tb_print-unassemble-component 
     v-footer            = tb_footer
     lPerBolLine         = tb_per-bol-line.
-
+  IF iplPDFOnly THEN 
+      lv-run-bol = "YES".
   IF ip-sys-ctrl-ship-to THEN
      ASSIGN
         v-s-cust = ip-cust-no
-        v-e-cust = ip-cust-no.
+          v-e-cust = ip-cust-no.
   ELSE
      ASSIGN 
         v-s-cust = begin_cust
@@ -3940,8 +4094,15 @@ PROCEDURE run-report :
   {sa/sa-sls01.i}
 
   v-term-id = v-term.
-
-  run build-work ('').
+  /* If iplPdfONly, report records already created */
+  IF NOT iplPdfOnly THEN 
+      run build-work ('').
+  ELSE DO:
+      FOR EACH report EXCLUSIVE-LOCK 
+        WHERE report.term-id EQ "BOLPDF" + USERID("asi"):
+            report.term-id = v-term-id .
+      END.
+  END.
   FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
   IF NOT AVAIL report THEN LEAVE.
 
@@ -3949,7 +4110,7 @@ PROCEDURE run-report :
 
   {sys/inc/outprint.i value(lines-per-page)}
 
-  IF IS-xprint-form THEN DO:
+  IF IS-xprint-form AND NOT iplPdfONly THEN DO:
 
       CASE rd-dest:
           WHEN 1 THEN do: 
@@ -4003,16 +4164,39 @@ PROCEDURE run-report :
               ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
+
   END.
 
+    IF iplPdfOnly THEN 
+    DO:
+        IF rd-dest EQ 1 OR rd-dest EQ 2 OR rd-dest EQ 3 THEN 
+        DO:  
+
+            FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
+            FIND FIRST oe-bolh NO-LOCK 
+                WHERE RECID(oe-bolh)  =  report.rec-id 
+                NO-ERROR.
+
+            IF AVAILABLE oe-bolh THEN 
+            PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(oe-bolh.bol-no) + ".pdf><PRINT=NO>" FORM "x(180)".
+              
+        END.
+    END.
+
   IF lv-run-bol = "YES" THEN DO:
-    ASSIGN
-      lXMLOutput = rd-dest EQ iXMLOutput /* rstark 05181205 */
-      clXMLOutput = YES /* rstark 05291402 */
-      .
+      IF NOT iplPdfONly THEN 
+         ASSIGN
+             lXMLOutput = rd-dest EQ iXMLOutput /* rstark 05181205 */
+             clXMLOutput = YES /* rstark 05291402 */             
+             . 
+      ELSE 
+          ASSIGN
+              lXMLOutput  = NO
+              clXMLOutput = NO              
+              .
       IF v-print-fmt = "1/2 Page" AND rd-dest = 6 THEN DO:
           PUT CONTROL CHR(27) CHR(67) CHR(44).
-          RUN VALUE(v-program). 
+              RUN VALUE(v-program).
           PUT CONTROL CHR(18).
       END.
       ELSE DO:
@@ -4038,7 +4222,10 @@ PROCEDURE run-report :
   ASSIGN td-pck-lst = NO .
 
   for each report where report.term-id eq v-term-id:
-            
+      IF NOT iplPdfOnly AND lCopyPdfFile THEN DO:
+          CREATE ttPdfBOLs.
+          BUFFER-COPY report TO ttPdfBOLs.
+      END.
       IF asnsps-log THEN RUN oe/oe856gen.p (report.rec-id, yes,yes).
       
       delete report.
@@ -4046,7 +4233,8 @@ PROCEDURE run-report :
 
   OUTPUT CLOSE.
 
-  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+  IF NOT iplPdfONly THEN 
+     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
   SESSION:SET-WAIT-STATE ("").
 
@@ -4250,6 +4438,14 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
             ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
+
+/*    IF tb_posted AND lCopyPdfFile THEN DO:                                                                                          */
+/*          IF rd-dest EQ 1 OR rd-dest EQ 2 THEN DO:                                                                                  */
+/*              IF v-s-bol EQ v-e-bol THEN                                                                                            */
+/*                  PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf>" FORM "x(180)".                             */
+/*              ELSE PUT "<PDF-OUTPUT=" + cCopyPdfFile + "Bol_" + string(v-s-bol) + "_to_" + string(v-e-bol) +  ".pdf>" FORM "x(200)".*/
+/*          END.                                                                                                                      */
+/*    END.                                                                                                                            */
 END.
 
 IF lv-run-commercial = "YES" THEN DO:
@@ -4399,7 +4595,7 @@ PROCEDURE run-report-mail :
 
       IF v-print-fmt = "1/2 Page" AND rd-dest = 6 THEN DO:
           PUT CONTROL CHR(27) CHR(67) CHR(44). 
-          RUN value(v-program). 
+              RUN value(v-program).
           PUT CONTROL CHR(18).
       END.
 
@@ -4414,7 +4610,7 @@ PROCEDURE run-report-mail :
          ELSE IF v-program EQ "oe/rep/coclanyork.p" THEN
             RUN oe/rep/coclanyork.p (?).
          ELSE
-            RUN value(v-program).
+                RUN value(v-program).
       END.
     END.
 

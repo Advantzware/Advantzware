@@ -15,7 +15,7 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE VARIABLE gdMultiplierForSquareFoot AS DECIMAL NO-UNDO.
-DEFINE VARIABLE glIncludeFreight AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glIncludeFreight          AS LOGICAL NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -43,10 +43,10 @@ FUNCTION fConvertCurrency RETURNS DECIMAL PRIVATE
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE GetCostForFGItemHist:
-/*------------------------------------------------------------------------------
- Purpose: Returns costs for a given FGHist rowid 
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Returns costs for a given FGHist rowid 
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFGItemID             AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcJobNo                AS CHARACTER NO-UNDO.
@@ -65,64 +65,91 @@ PROCEDURE GetCostForFGItemHist:
     DEFINE OUTPUT PARAMETER opcCostSource           AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSourceFound          AS LOGICAL   NO-UNDO.
          
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE iPoLine AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMTotalDef AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMDLDef AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMFODef AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMVODef AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMDMDef AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE cCostUOMDef      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iPoLine             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMTotalDef AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMDLDef    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMFODef    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMVODef    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMDMDef    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCostUOMDef         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostFreightRct     AS DECIMAL   NO-UNDO.
+    
+   
+    
+    DEFINE BUFFER bfrcpt-fg-rcpth FOR fg-rcpth.
+    DEFINE BUFFER bfrcpt-fg-rdtlh FOR fg-rdtlh.
             
     RUN GetCostForFGItem(ipcCompany, ipcFGItemID,
         OUTPUT dCostPerUOMTotalDef, OUTPUT dCostPerUOMDLDef, OUTPUT dCostPerUOMFODef, OUTPUT dCostPerUOMVODef, OUTPUT dCostPerUOMDMDef, OUTPUT cCostUOMDef, OUTPUT lFound).
-    IF NOT lFound THEN DO:
+    IF NOT lFound THEN 
+    DO:
         opcCostSource = "Invalid Item: " + ipcFGItemID.
         RETURN.
     END. 
-    IF ipcJobNo NE "" THEN DO:
+    IF ipcJobNo NE "" THEN 
+    DO:
         RUN GetCostForJob(ipcCompany, ipcFGItemID, ipcJobNo, ipiJobNo2, 
             OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplSourceFound).
         opcCostSource = "Job: " + ipcJobNo + "-" + STRING(ipiJobNo2,"99").
         IF NOT oplSourceFound OR opdCostPerUOMTotal EQ 0 THEN 
             ASSIGN 
-                opcCostSource = opcCostSource + " not found or 0. "
+                opcCostSource  = opcCostSource + " not found or 0. "
                 oplSourceFound = NO.
     END.
-    IF opdCostPerUOMTotal EQ 0 AND ipiPONo GT 0 THEN DO:
+    IF opdCostPerUOMTotal EQ 0 AND ipiPONo GT 0 THEN 
+    DO:
         iPoLine = MAXIMUM(ipiPoLine, 1).
         RUN GetCostForPOLine(ipcCompany, ipiPoNo, iPoLine, ipcFGItemID,
             OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT opdCostPerUOMFreight, OUTPUT oplSourceFound).
-        ASSIGN 
-            opdCostPerUOMDM = opdCostPerUOMTotal            
-            opcCostSource = "PO: " + STRING(ipiPoNo,"999999") + "-" + STRING(iPoLine)
-            .
+        IF oplSourceFound THEN 
+        DO:
+            ASSIGN 
+                opdCostPerUOMDM = opdCostPerUOMTotal            
+                opcCostSource   = "PO: " + STRING(ipiPoNo,"999999") + "-" + STRING(iPoLine)
+                .
+            IF glIncludeFreight AND opdCostPerUOMTotal NE 0 THEN 
+            DO:  /*NK1 POFRT - find original receipt where freight override exists and add it to cost uom*/
+                RUN pGetReceiptBuffers(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, BUFFER bfrcpt-fg-rcpth, BUFFER bfrcpt-fg-rdtlh).
+                IF AVAILABLE bfrcpt-fg-rdtlh AND AVAILABLE bfrcpt-fg-rcpth THEN DO:
+                    /*Calculate Freight in EA*/
+                    dCostFreightRct = bfrcpt-fg-rdtlh.frt-cost / bfrcpt-fg-rdtlh.qty.  
+                     /*Convert EA cost of freight to cost UOM*/
+                    dCostFreightRct = fConvert("EA", opcCostUOM, 0, 0, 0, 0, dCostFreightRct) .
+                    /*Add Freight in like UOM cost*/
+                    opdCostPerUOMTotal = opdCostPerUOMTotal + dCostFreightRct.                        .  
+                END.
+            END.
+        END.
         IF NOT oplSourceFound OR opdCostPerUOMTotal EQ 0 THEN 
             ASSIGN 
-                opcCostSource = opcCostSource + " not found or 0. "
+                opcCostSource  = opcCostSource + " not found or 0. "
                 oplSourceFound = NO.
     END.
-    IF opdCostPerUOMTotal EQ 0 AND ipcTag NE "" THEN DO:
+    IF opdCostPerUOMTotal EQ 0 AND ipcTag NE "" THEN 
+    DO:
         RUN GetCostForReceipt(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, 
             OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplSourceFound).
-         opcCostSource = "Receipt for tag: " + ipcTag.
-         IF NOT lFound OR opdCostPerUOMTotal EQ 0 THEN 
+        opcCostSource = "Receipt for tag: " + ipcTag.
+        IF NOT lFound OR opdCostPerUOMTotal EQ 0 THEN 
             ASSIGN 
-                opcCostSource = opcCostSource + " not found or 0. "
+                opcCostSource  = opcCostSource + " not found or 0. "
                 oplSourceFound = NO.
     END.
-    IF opdCostPerUOMTotal EQ 0 THEN DO:
+    IF opdCostPerUOMTotal EQ 0 THEN 
+    DO:
         ASSIGN 
-            opcCostSource = opcCostSource + "Item Fallback: " + ipcFGItemID
+            opcCostSource      = opcCostSource + "Item Fallback: " + ipcFGItemID
             opdCostPerUOMTotal = dCostPerUOMTotalDef
-            opdCostPerUOMDL = dCostPerUOMDLDef
-            opdCostPerUOMFO = dCostPerUOMFODef
-            opdCostPerUOMVO = dCostPerUOMVODef
-            opdCostPerUOMDM = dCostPerUOMDMDef
-            opcCostUOM = cCostUOMDef
+            opdCostPerUOMDL    = dCostPerUOMDLDef
+            opdCostPerUOMFO    = dCostPerUOMFODef
+            opdCostPerUOMVO    = dCostPerUOMVODef
+            opdCostPerUOMDM    = dCostPerUOMDMDef
+            opcCostUOM         = cCostUOMDef
             .
     END.
-    IF opcCostUOM NE cCostUOMDef THEN DO: 
+    IF opcCostUOM NE cCostUOMDef THEN 
+    DO: 
         opcCostUOM = cCostUOMDef.
         opdCostPerUOMTotal = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMTotal).
         opdCostPerUOMDL = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMDL).
@@ -186,9 +213,10 @@ PROCEDURE GetCostForPOLine:
                 .
             
         END.
-    IF AVAILABLE bf-po-ordl THEN DO:
+    IF AVAILABLE bf-po-ordl THEN 
+    DO:
         ASSIGN 
-            oplFound = YES
+            oplFound        = YES
             dLengthInInches = bf-po-ordl.s-len
             dWidthInInches  = bf-po-ordl.s-wid
             dDepthInInches  = bf-po-ordl.s-dep
@@ -199,7 +227,8 @@ PROCEDURE GetCostForPOLine:
             OUTPUT opdCostPerUOMExFreight, OUTPUT opdCostPerUOMFreight).
     
         /*Apply Vendor Currency Conversion*/
-        IF AVAILABLE bf-vend THEN DO:
+        IF AVAILABLE bf-vend THEN 
+        DO:
             opdCostPerUOMExFreight = fConvertCurrency(opdCostPerUOMExFreight, bf-vend.company, bf-vend.curr-code).
             opdCostPerUOMFreight = fConvertCurrency(opdCostPerUOMFreight, bf-vend.company, bf-vend.curr-code).
         END.
@@ -354,6 +383,39 @@ PROCEDURE pGetFreightPortion PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pGetReceiptBuffers PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Finds the Receipt History Buffers for original receipt given bin inputs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO.
+    DEFINE PARAMETER BUFFER obf-fg-rcpth FOR fg-rcpth.
+    DEFINE PARAMETER BUFFER obf-fg-rdtlh FOR fg-rdtlh.
+    
+    IF ipcTag NE "" THEN 
+    DO:
+        each-fg:
+        FOR EACH obf-fg-rdtlh NO-LOCK 
+            WHERE obf-fg-rdtlh.company   EQ ipcCompany            
+            AND obf-fg-rdtlh.tag       EQ ipcTag
+            AND obf-fg-rdtlh.rita-code EQ "R"
+            AND obf-fg-rdtlh.i-no      EQ ipcFGItemID
+            USE-INDEX tag 
+            ,
+            FIRST obf-fg-rcpth NO-LOCK 
+            WHERE obf-fg-rcpth.r-no      EQ obf-fg-rdtlh.r-no
+            AND obf-fg-rcpth.rita-code EQ obf-fg-rdtlh.rita-code
+            USE-INDEX r-no
+            BY obf-fg-rcpth.trans-date DESCENDING:
+            LEAVE each-fg.       
+        END.     
+    END.
+END PROCEDURE.
+
 PROCEDURE pSetBuffersPO PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets Buffers for FG Item and Customers
@@ -385,12 +447,12 @@ PROCEDURE pSetBuffersPO PRIVATE:
             AND opbf-po-ordl.line EQ ipiPOLine
             AND opbf-po-ordl.i-no EQ ipcItemID
             NO-ERROR.
-        IF NOT AVAILABLE opbf-po-ordl THEN
-            FIND FIRST opbf-po-ordl NO-LOCK
-                WHERE opbf-po-ordl.company EQ opbf-po-ord.company
-                AND opbf-po-ordl.po-no EQ opbf-po-ord.po-no
-                AND opbf-po-ordl.i-no EQ ipcItemID
-                NO-ERROR.
+    IF NOT AVAILABLE opbf-po-ordl THEN
+        FIND FIRST opbf-po-ordl NO-LOCK
+            WHERE opbf-po-ordl.company EQ opbf-po-ord.company
+            AND opbf-po-ordl.po-no EQ opbf-po-ord.po-no
+            AND opbf-po-ordl.i-no EQ ipcItemID
+            NO-ERROR.
     /*Po-ordl.item-type = NO-> FG, YES->RM*/
     IF AVAILABLE opbf-po-ordl AND opbf-po-ordl.item-type THEN 
         FIND FIRST opbf-item NO-LOCK 
@@ -398,27 +460,27 @@ PROCEDURE pSetBuffersPO PRIVATE:
             AND opbf-item.i-no EQ opbf-po-ordl.i-no
             NO-ERROR.
     ELSE IF AVAILABLE opbf-po-ordl THEN 
-        FIND FIRST opbf-itemfg NO-LOCK 
-            WHERE opbf-itemfg.company EQ opbf-po-ordl.company
-            AND opbf-itemfg.i-no EQ opbf-po-ordl.i-no
-            NO-ERROR.
+            FIND FIRST opbf-itemfg NO-LOCK 
+                WHERE opbf-itemfg.company EQ opbf-po-ordl.company
+                AND opbf-itemfg.i-no EQ opbf-po-ordl.i-no
+                NO-ERROR.
     
 END PROCEDURE.
 
 PROCEDURE pSetGlobalSettings PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Sets the NK1 setting global variables that are pertinent to th
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to th
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
 
-RUN sys/ref/nk1look.p (ipcCompany, "FGPOFRT", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-glIncludeFreight = lFound AND cReturn EQ "YES".
+    RUN sys/ref/nk1look.p (ipcCompany, "FGPOFRT", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    glIncludeFreight = lFound AND cReturn EQ "YES".
 
-RUN sys/ref/nk1look.p (ipcCompany, "MSFCALC", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-gdMultiplierForSquareFoot = IF lFound AND cReturn EQ "Corrware" THEN .007 ELSE 1 / 144.  
+    RUN sys/ref/nk1look.p (ipcCompany, "MSFCALC", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    gdMultiplierForSquareFoot = IF lFound AND cReturn EQ "Corrware" THEN .007 ELSE 1 / 144.  
 
 END PROCEDURE.
 
@@ -747,13 +809,13 @@ PROCEDURE GetCostForJob:
                 NO-ERROR.
         IF AVAIL reftable AND reftable.val[5] GT 0 THEN
             ASSIGN
-                oplFound            = YES
-                opcCostUOM          = "M"
-                opdCostPerUOMTotal  = reftable.val[5]   
-                opdCostPerUOMDL = reftable.val[1]
-                opdCostPerUOMDM = reftable.val[2]
-                opdCostPerUOMVO = reftable.val[3]
-                opdCostPerUOMFO = reftable.val[4].
+                oplFound           = YES
+                opcCostUOM         = "M"
+                opdCostPerUOMTotal = reftable.val[5]   
+                opdCostPerUOMDL    = reftable.val[1]
+                opdCostPerUOMDM    = reftable.val[2]
+                opdCostPerUOMVO    = reftable.val[3]
+                opdCostPerUOMFO    = reftable.val[4].
     END.
 
 END PROCEDURE.
@@ -779,39 +841,45 @@ PROCEDURE GetCostForReceipt:
     
     DEFINE BUFFER b-fg-rcpth FOR fg-rcpth.
     DEFINE BUFFER b-fg-rdtlh FOR fg-rdtlh.
-        
     
-    IF ipcTag NE "" THEN 
+    DEFINE VARIABLE dCostFreight AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iPOLine      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cSource      AS CHARACTER NO-UNDO.        
+    
+    RUN pGetReceiptBuffers(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, BUFFER b-fg-rcpth, BUFFER b-fg-rdtlh).
+    IF AVAILABLE b-fg-rcpth AND AVAILABLE b-fg-rdtlh THEN 
     DO:
-        each-fg:
-        FOR EACH b-fg-rcpth WHERE b-fg-rcpth.company   EQ ipcCompany
-            AND b-fg-rcpth.i-no      EQ ipcFGItemID
-            AND b-fg-rcpth.rita-code EQ "R"
-            USE-INDEX tran NO-LOCK  ,
             
-            FIRST b-fg-rdtlh WHERE b-fg-rdtlh.r-no    EQ b-fg-rcpth.r-no 
-            AND b-fg-rdtlh.rita-code EQ b-fg-rcpth.rita-code
-            AND b-fg-rdtlh.tag EQ ipcTag
-            NO-LOCK
-            BY b-fg-rcpth.trans-date DESCENDING:            
-            
-            IF b-fg-rdtlh.std-tot-cost NE 0 THEN         
-                ASSIGN
-                    opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
-                    opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
-                    opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
-                    opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
-                    opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost    
-                    .
-            ELSE 
-                ASSIGN 
-                    opdCostPerUOMTotal = b-fg-rdtlh.cost.    
-            ASSIGN 
-                opcCostUOM         = b-fg-rcpth.pur-uom
-                oplFound           = YES
+        IF b-fg-rdtlh.std-tot-cost NE 0 THEN 
+        DO:   /*if cost properly propagated to history transactions*/  
+            ASSIGN
+                opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
+                opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
+                opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
+                opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
+                opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost
+                oplFound           = YES 
+                opcCostUOM         = b-fg-rcpth.pur-uom    
                 .
-            LEAVE each-fg. 
-        END. /* each fg-rcp */
+        END.
+        ELSE 
+        DO: /*otherwise get cost detail from sources*/
+            ASSIGN 
+                opdCostPerUOMTotal = b-fg-rdtlh.cost.
+            IF b-fg-rcpth.job-no NE "" THEN 
+            DO:
+                RUN GetCostForJob(b-fg-rcpth.company, b-fg-rcpth.i-no, b-fg-rcpth.job-no, b-fg-rcpth.job-no2, 
+                    OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplFound).
+            END.
+            IF opdCostPerUOMTotal EQ 0 AND INTEGER(b-fg-rcpth.po-no) GT 0 THEN 
+            DO:
+                iPoLine = MAXIMUM(b-fg-rcpth.po-line, 1).
+                RUN GetCostForPOLine(b-fg-rcpth.company, INTEGER(b-fg-rcpth.po-no), iPoLine, b-fg-rcpth.i-no,
+                    OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT oplFound).
+                ASSIGN 
+                    opdCostPerUOMDM = opdCostPerUOMTotal.
+            END.           
+        END.    
     END.
     
 END PROCEDURE.

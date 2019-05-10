@@ -45,6 +45,7 @@ DEF VAR ls-status AS cha NO-UNDO.
 
 DEF VAR li-ord-no LIKE inv-line.ord-no NO-UNDO.
 DEF VAR vcText    AS CHAR NO-UNDO INIT 'By:'.
+DEF VAR li-cust-Po LIKE oe-ord.po-no NO-UNDO.
 
 DEF SHARED VARIABLE vfWinOrigW      AS DECIMAL  NO-UNDO.
 DEF SHARED VARIABLE vfWinOrigH      AS DECIMAL  NO-UNDO.
@@ -86,7 +87,7 @@ IF AVAIL sys-ctrl THEN
 &Scoped-define FIELDS-IN-QUERY-Browser-Table inv-head.inv-no ~
 inv-head.cust-no inv-head.cust-name inv-head.inv-date inv-head.bol-no ~
 f-ordno() @ li-ord-no inv-head.printed inv-head.t-inv-rev ~
-getStatus() @ ls-status inv-head.r-no inv-head.company 
+getStatus() @ ls-status inv-head.r-no inv-head.company f-cust-PO() @ li-cust-Po
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH inv-head WHERE ~{&KEY-PHRASE} ~
       AND inv-head.company = cocode and ~
@@ -119,6 +120,13 @@ fi_AutoFindLabel
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-ordno B-table-Win 
 FUNCTION f-ordno RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-cust-Po B-table-Win 
+FUNCTION f-cust-Po RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -168,6 +176,10 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 145 BY 1.43.
 
+DEFINE VARIABLE fi_cust-PO AS CHARACTER FORMAT "X(256)":U 
+     LABEL "PO#" 
+     VIEW-AS FILL-IN 
+     SIZE 26 BY 1 NO-UNDO.
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
@@ -194,6 +206,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 13.6 
       inv-head.r-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       inv-head.company FORMAT "x(3)":U
+      f-cust-Po() @ li-cust-Po COLUMN-LABEL "PO#" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
@@ -332,6 +345,8 @@ ASI.inv-head.multi-invoice = no"
 "inv-head.r-no" ? ? "integer" ? ? ? 14 ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.inv-head.company
 "inv-head.company" ? ? "character" ? ? ? ? ? ? no "" no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > "_<CALC>"
+"f-cust-Po() @ li-cust-Po" "PO#" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -605,7 +620,8 @@ DEF BUFFER bf-oe-ordl  FOR oe-ordl.
 DEF VAR v-totqty LIKE inv-line.qty NO-UNDO.
 
 IF AVAIL inv-head THEN DO:
-   ASSIGN li-ord-no = f-ordno().
+   ASSIGN li-ord-no = f-ordno()
+          li-cust-Po = f-cust-PO().
   
    IF li-ord-no NE 0 THEN DO:
   
@@ -640,14 +656,16 @@ IF AVAIL inv-head THEN DO:
                        inv-head.printed:BGCOLOR IN BROWSE {&BROWSE-NAME}   = 12
                        inv-head.t-inv-rev:BGCOLOR IN BROWSE {&BROWSE-NAME} = 12
                        ls-status:BGCOLOR IN BROWSE {&BROWSE-NAME}          = 12
-                       inv-head.r-no:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 12.
+                       inv-head.r-no:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 12
+                       li-cust-Po:BGCOLOR IN BROWSE {&BROWSE-NAME}         = 12.
                
                 LEAVE.
              END.
           END.
       END.
    END.
-   ASSIGN li-ord-no =  0.
+   ASSIGN li-ord-no =  0
+          li-cust-Po = "".
 
 END.
 
@@ -717,6 +735,45 @@ FUNCTION f-ordno RETURNS INTEGER
               IF AVAIL inv-misc THEN inv-misc.ord-no ELSE 0.
   
   RETURN lf-ord-no.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-cust-Po B-table-Win 
+FUNCTION f-cust-Po RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEF VAR lf-cust-Po AS CHAR NO-UNDO.
+  DEF VAR lv-ord-no LIKE inv-line.ord-no.
+  DEF BUFFER b-inv-line FOR inv-line.
+  DEF BUFFER b-inv-misc FOR inv-misc.
+  DEF BUFFER b-oe-ord FOR oe-ord.
+
+
+  FIND FIRST b-inv-line OF inv-head NO-LOCK
+      WHERE b-inv-line.ord-no NE 0
+      NO-ERROR.
+  IF NOT AVAIL b-inv-line THEN
+      FIND FIRST b-inv-misc OF inv-head NO-LOCK
+      WHERE b-inv-misc.ord-no NE 0
+      NO-ERROR.
+  lv-ord-no = IF AVAIL b-inv-line THEN b-inv-line.ord-no ELSE
+      IF AVAIL b-inv-misc THEN b-inv-misc.ord-no ELSE 0.
+
+  IF lv-ord-no NE 0 THEN DO:
+      FIND FIRST b-oe-ord WHERE b-oe-ord.company EQ inv-head.company
+          AND b-oe-ord.ord-no EQ lv-ord-no NO-LOCK NO-ERROR.
+      IF AVAIL b-oe-ord THEN
+          lf-cust-Po = b-oe-ord.po-no.
+  END.
+  
+  RETURN lf-cust-Po.   /* Function return value. */
 
 END FUNCTION.
 

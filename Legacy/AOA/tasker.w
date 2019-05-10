@@ -129,8 +129,8 @@ Task.taskID Task.prgmName Task.user-id
     ~{&OPEN-QUERY-TaskBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS TaskBrowse showLogging EmailBrowse ~
-AuditBrowse 
+&Scoped-Define ENABLED-OBJECTS showLogging TaskBrowse btnClearIsRunning ~
+EmailBrowse btnClearPendingEmails AuditBrowse 
 &Scoped-Define DISPLAYED-OBJECTS showLogging 
 
 /* Custom List Definitions                                              */
@@ -160,6 +160,14 @@ DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnClearIsRunning 
+     LABEL "Clear Is Running" 
+     SIZE 18 BY .91 TOOLTIP "Click to Clear Is Running".
+
+DEFINE BUTTON btnClearPendingEmails 
+     LABEL "Clear" 
+     SIZE 8 BY .91 TOOLTIP "Click to Clear Pending Emails".
+
 DEFINE VARIABLE showLogging AS LOGICAL 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -223,10 +231,14 @@ DEFINE BROWSE TaskBrowse
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
-     showLogging AT ROW 1 COL 2 HELP
+     showLogging AT ROW 1 COL 1 HELP
           "Show/Hide Logging" NO-LABEL WIDGET-ID 4
+     TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
+     btnClearIsRunning AT ROW 1 COL 98 HELP
+          "Click to Clear Is Running" WIDGET-ID 8
      EmailBrowse AT ROW 1 COL 116 WIDGET-ID 300
+     btnClearPendingEmails AT ROW 1 COL 153 HELP
+          "Click to Clear Pending Emails" WIDGET-ID 10
      AuditBrowse AT ROW 15.29 COL 1 WIDGET-ID 400
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -280,9 +292,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB TaskBrowse 1 DEFAULT-FRAME */
-/* BROWSE-TAB EmailBrowse showLogging DEFAULT-FRAME */
-/* BROWSE-TAB AuditBrowse EmailBrowse DEFAULT-FRAME */
+/* BROWSE-TAB TaskBrowse showLogging DEFAULT-FRAME */
+/* BROWSE-TAB EmailBrowse btnClearIsRunning DEFAULT-FRAME */
+/* BROWSE-TAB AuditBrowse btnClearPendingEmails DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -361,7 +373,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
        HIDDEN          = yes
        SENSITIVE       = yes.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-AFTER(EmailBrowse:HANDLE IN FRAME DEFAULT-FRAME).
+      CtrlFrame:MOVE-AFTER(btnClearPendingEmails:HANDLE IN FRAME DEFAULT-FRAME).
 
 &ENDIF
 
@@ -401,6 +413,28 @@ END.
 ON WINDOW-RESIZED OF C-Win /* Task Monitor */
 DO:
     RUN pWinReSize.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearIsRunning
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearIsRunning C-Win
+ON CHOOSE OF btnClearIsRunning IN FRAME DEFAULT-FRAME /* Clear Is Running */
+DO:
+    RUN pClearRunNow.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClearPendingEmails
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearPendingEmails C-Win
+ON CHOOSE OF btnClearPendingEmails IN FRAME DEFAULT-FRAME /* Clear */
+DO:
+    RUN pClearPendingEmails.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -556,10 +590,47 @@ PROCEDURE enable_UI :
   RUN control_load.
   DISPLAY showLogging 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE TaskBrowse showLogging EmailBrowse AuditBrowse 
+  ENABLE showLogging TaskBrowse btnClearIsRunning EmailBrowse 
+         btnClearPendingEmails AuditBrowse 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearPendingEmails C-Win 
+PROCEDURE pClearPendingEmails :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bTaskEmail FOR TaskEmail.
+    
+    FOR EACH bTaskEmail:
+        DELETE bTaskEmail.
+    END. /* each btaskemail */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearRunNow C-Win 
+PROCEDURE pClearRunNow :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bTask FOR Task.
+    
+    FOR EACH bTask EXCLUSIVE-LOCK:
+        bTask.isRunning = NO.
+    END. /* each btask */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -616,7 +687,7 @@ PROCEDURE pRunCommand :
     DEFINE OUTPUT PARAMETER opcRun AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cDLC   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cINI   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEXE   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx    AS INTEGER   NO-UNDO.
@@ -625,6 +696,10 @@ PROCEDURE pRunCommand :
     GET-KEY-VALUE SECTION 'STARTUP'
         KEY 'DLC'
         VALUE cDLC.
+    cEXE = cDLC + "\bin\prowin"
+         + REPLACE(STRING(PROCESS-ARCHITECTURE),"64","")
+         + ".exe "
+         .
     DO idx = 1 TO NUM-ENTRIES(SESSION:STARTUP-PARAMETERS):
         cParam = ENTRY(idx,SESSION:STARTUP-PARAMETERS).
         IF cParam BEGINS "-p " THEN NEXT.
@@ -645,9 +720,10 @@ PROCEDURE pRunCommand :
     DO idx = 1 TO NUM-DBS:
         opcRun = opcRun + REPLACE(DBPARAM(idx),","," ") + " ".
     END. /* do idx */
-    opcRun = cDLC + "\bin\prowin "
+    opcRun = cEXE
            + REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
            + "-p &1 -param &2"
+           + " -debugalert"
            .
 
 END PROCEDURE.
@@ -892,6 +968,8 @@ PROCEDURE pWinReSize :
         IF showLogging THEN
         VIEW BROWSE AuditBrowse.
         showLogging:MOVE-TO-TOP().
+        btnClearIsRunning:MOVE-TO-TOP().
+        btnClearPendingEmails:MOVE-TO-TOP().
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

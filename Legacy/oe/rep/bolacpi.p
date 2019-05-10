@@ -128,7 +128,7 @@ FORM w2.i-no                         FORMAT "x(15)"
 FORM oe-ordl.i-no                         FORMAT "x(15)"
      v-job-po                       AT 17 FORMAT "x(15)"
      v-part-dscr                    AT 33 FORMAT "x(30)"
-     w2.cases                       TO 70 FORMAT "->>>9"
+     w2.cases                       TO 70 FORMAT "->>>9" 
      icountpallet                   TO 78 FORMAT "->>>>>9"
      tt-boll.partial                TO 85 FORMAT "->>>9"
      tt-boll.qty                    TO 93 FORMAT "->>>>>9"
@@ -340,6 +340,9 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     ELSE DO:
       CREATE tt-boll.
       BUFFER-COPY oe-boll EXCEPT rec_key TO tt-boll.
+      ASSIGN 
+        v-tot-palls = v-tot-palls + tt-boll.cases
+        v-tot-wt = v-tot-wt + tt-boll.weight.
     END.
 
     oe-boll.printed = YES.
@@ -424,7 +427,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
   v-last-page = PAGE-NUMBER.
 
-  IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
+  /* IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets. */
 
   PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
       "<=8><R+1> Total Units       :" v-tot-palls
@@ -470,7 +473,7 @@ PROCEDURE create-tt-boll.
   DEFINE INPUT PARAMETER ip-qty-case LIKE oe-boll.qty-case NO-UNDO.
   DEFINE INPUT PARAMETER ip-cases    LIKE oe-boll.cases NO-UNDO.
 
-  IF ip-qty-case LT 0 THEN
+  IF ip-qty-case LT 0 THEN 
     ASSIGN
      ip-qty-case = ip-qty-case * -1
      ip-cases    = ip-cases * -1.
@@ -480,7 +483,7 @@ PROCEDURE create-tt-boll.
         AND tt-boll.po-no    EQ oe-boll.po-no
         AND tt-boll.ord-no   EQ oe-boll.ord-no
         AND tt-boll.line     EQ oe-boll.LINE 
-        AND (tt-boll.qty-sum EQ (ip-qty-case * ip-cases))
+        AND tt-boll.qty-case EQ ip-qty-case
       NO-ERROR.
 
   IF NOT AVAILABLE tt-boll THEN DO:
@@ -492,7 +495,7 @@ PROCEDURE create-tt-boll.
      tt-boll.cases    = 0
      tt-boll.qty      = 0
      tt-boll.weight   = 0
-     tt-boll.qty-sum = ip-qty-case * ip-cases
+     tt-boll.qty-sum  = 0
      tt-boll.partial  = 0 .
    
   END.
@@ -500,10 +503,13 @@ PROCEDURE create-tt-boll.
   ASSIGN
    tt-boll.cases  = tt-boll.cases + ip-cases
    tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
+   tt-boll.qty-sum = tt-boll.qty-sum + (ip-qty-case * ip-cases)
    tt-boll.weight = tt-boll.weight + 
                     ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight)
    tt-boll.partial = tt-boll.partial + oe-boll.partial 
-   tt-boll.unitCount =  tt-boll.unitCount + 1 .
+   tt-boll.unitCount =  tt-boll.unitCount + ip-cases
+   v-tot-palls = v-tot-palls + ip-cases
+   v-tot-wt = v-tot-wt + tt-boll.weight.
 
   IF oe-boll.p-c THEN tt-boll.p-c = YES.
 

@@ -1,15 +1,25 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File              : custom/MoveExcelT.w
+  File: ap-ctrl.w.w
 
-  Description       : Move Excel Template
+  Description: G/L Control File
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
+
+  Author: Ron Stark
+
+  Created: 01/12/2000
 
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.      */
+/*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
 /* Create an unnamed pool to store all the widgets created 
@@ -21,16 +31,26 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+
+/* Parameters Definitions ---                                           */
+
+/* Local Variable Definitions ---                                       */
+
 {methods/defines/hndldefs.i}
+{methods/prgsecur.i}
+
 {custom/gcompany.i}
 {custom/getcmpny.i}
+{custom/gloc.i}
+{custom/getloc.i}
+
 {sys/inc/var.i new shared}
 
 assign
- cocode = gcompany.
+ cocode = gcompany
+ locode = gloc.
 
-/* Variables */
-DEFINE VARIABLE vcStartingPath  AS CHARACTER  NO-UNDO.
+DEF TEMP-TABLE tt-rm-bin NO-UNDO LIKE rm-bin.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -44,14 +64,15 @@ DEFINE VARIABLE vcStartingPath  AS CHARACTER  NO-UNDO.
 &Scoped-define DB-AWARE no
 
 /* Name of first Frame and/or Browse and/or first Query                 */
-&Scoped-define FRAME-NAME DEFAULT-FRAME
+&Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-42 fi_filename btnOk BtnCancel 
-&Scoped-Define DISPLAYED-OBJECTS fi_filename 
+&Scoped-Define ENABLED-OBJECTS begin_rm-no end_rm-no btn-build btn-cancel ~
+RECT-17 
+&Scoped-Define DISPLAYED-OBJECTS begin_rm-no end_rm-no 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -64,38 +85,74 @@ DEFINE VARIABLE vcStartingPath  AS CHARACTER  NO-UNDO.
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON BtnCancel AUTO-END-KEY DEFAULT 
-     LABEL "Cancel" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
+DEFINE BUTTON btn-build 
+     LABEL "&Start Process" 
+     SIZE 18 BY 1.14.
 
-DEFINE BUTTON btnOk AUTO-GO 
-     LABEL "OK" 
-     SIZE 15 BY 1.14.
+DEFINE BUTTON btn-cancel 
+     LABEL "Ca&ncel" 
+     SIZE 18 BY 1.14.
 
-DEFINE VARIABLE fi_filename AS CHARACTER FORMAT "x(100)":U 
-     LABEL "Filename" 
+DEFINE VARIABLE begin_rm-no AS CHARACTER FORMAT "X(10)":U 
+     LABEL "Beginning Item#" 
      VIEW-AS FILL-IN 
-     SIZE 51.4 BY 1 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-42
+DEFINE VARIABLE end_rm-no AS CHARACTER FORMAT "x(10)":U INITIAL "zzzzzzzzzz" 
+     LABEL "Ending Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 70 BY 3.95.
+     SIZE 89 BY 10.48.
 
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME DEFAULT-FRAME
-     fi_filename AT ROW 3.14 COL 14.6 COLON-ALIGNED
-     btnOk AT ROW 12.19 COL 25
-     BtnCancel AT ROW 12.19 COL 41.2
-     "Move Excel Template" VIEW-AS TEXT
-          SIZE 21.4 BY .62 AT ROW 2.1 COL 6.6
-     RECT-42 AT ROW 2.38 COL 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+DEFINE FRAME FRAME-A
+     begin_rm-no AT ROW 9.57 COL 23 COLON-ALIGNED
+     end_rm-no AT ROW 9.57 COL 61 COLON-ALIGNED
+     btn-build AT ROW 16.24 COL 21
+     btn-cancel AT ROW 16.24 COL 53
+     RECT-17 AT ROW 4.81 COL 1
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 5.29 COL 5
+     "" VIEW-AS TEXT
+          SIZE 2.2 BY .95 AT ROW 1.95 COL 88
+          BGCOLOR 11 
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 74.4 BY 12.62.
+         SIZE 89.6 BY 17.52.
+
+DEFINE FRAME FRAME-B
+     "" VIEW-AS TEXT
+          SIZE 88.8 BY .95 AT ROW 1 COL 1
+          BGCOLOR 11 
+     "" VIEW-AS TEXT
+          SIZE 88.8 BY .95 AT ROW 3.76 COL 1
+          BGCOLOR 11 
+     "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
+          SIZE 84 BY .95 AT ROW 1.95 COL 4
+          BGCOLOR 11 FGCOLOR 12 FONT 5
+     "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
+          SIZE 76 BY .95 AT ROW 2.91 COL 8
+          BGCOLOR 11 FGCOLOR 12 FONT 5
+     "" VIEW-AS TEXT
+          SIZE 7 BY .95 AT ROW 2.91 COL 1
+          BGCOLOR 11 
+     "" VIEW-AS TEXT
+          SIZE 3 BY .95 AT ROW 1.95 COL 1
+          BGCOLOR 11 
+     "" VIEW-AS TEXT
+          SIZE 7 BY .95 AT ROW 2.91 COL 82.8
+          BGCOLOR 11 
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 89.2 BY 3.81
+         BGCOLOR 11 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -114,13 +171,13 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Move Excel Template"
-         HEIGHT             = 12.62
-         WIDTH              = 74.4
-         MAX-HEIGHT         = 12.62
-         MAX-WIDTH          = 74.4
-         VIRTUAL-HEIGHT     = 12.62
-         VIRTUAL-WIDTH      = 74.4
+         TITLE              = "Set RM On-Hand to Zero"
+         HEIGHT             = 17.71
+         WIDTH              = 90.2
+         MAX-HEIGHT         = 19.76
+         MAX-WIDTH          = 98.2
+         VIRTUAL-HEIGHT     = 19.76
+         VIRTUAL-WIDTH      = 98.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -131,6 +188,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -141,18 +204,20 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME DEFAULT-FRAME
+/* SETTINGS FOR FRAME FRAME-A
                                                                         */
 ASSIGN
-       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btn-build:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
 
 ASSIGN
-       btnOk:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
 
+/* SETTINGS FOR FRAME FRAME-B
+                                                                        */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -167,7 +232,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Move Excel Template */
+ON END-ERROR OF C-Win /* Set RM On-Hand to Zero */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -180,7 +245,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Move Excel Template */
+ON WINDOW-CLOSE OF C-Win /* Set RM On-Hand to Zero */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -191,67 +256,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME BtnCancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BtnCancel C-Win
-ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
+&Scoped-define SELF-NAME btn-build
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-build C-Win
+ON CHOOSE OF btn-build IN FRAME FRAME-A /* Start Process */
 DO:
-    APPLY "close" TO THIS-PROCEDURE.
+    run run-process.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnOk
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOk C-Win
-ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
+&Scoped-define SELF-NAME btn-cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
+ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   DEF VAR v-process AS LOG NO-UNDO.
-
-   ASSIGN fi_filename 
-          FILE-INFO:FILE-NAME = fi_filename.
-
-   IF FILE-INFO:FILE-TYPE EQ ? THEN
-   DO:
-       MESSAGE "Filename is invalid."
-           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-       APPLY "ENTRY":U TO fi_filename IN FRAME {&FRAME-NAME}.
-       LEAVE.
-   END.
-
-   message "Are you sure you want copy Excel Template file?"     
-          view-as alert-box question button yes-no update v-process.
-
-  if v-process then run run-process.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_filename
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_filename C-Win
-ON HELP OF fi_filename IN FRAME DEFAULT-FRAME /* Filename */
-DO:
-  DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
-  DEF VAR v-file-name AS CHAR NO-UNDO.
-
-  ASSIGN
-    init-dir = "c:\asi_gui10\pco1010\template" .
-  SYSTEM-DIALOG GET-FILE v-file-name
-      TITLE      "Select Excel Template  ..."
-      FILTERS    "Excel Files (*.xlt)" "*.xlt",
-                 "All Files (*.*)" "*.*"
-      INITIAL-DIR init-dir
-
-      USE-FILENAME
-      UPDATE OKpressed.
-  IF NOT OKpressed THEN
-     RETURN NO-APPLY.
-
-  fi_filename:SCREEN-VALUE = v-file-name.
+    apply "close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -264,7 +284,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{sys/inc/f3helpw.i}
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
@@ -282,13 +302,17 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    /* check security */
+  IF access-close THEN DO:
+     APPLY "close" TO THIS-PROCEDURE.
+     RETURN .
+  END.
 
-   RUN enable_UI.
-
-   apply 'entry':u to fi_filename.
-
-   IF NOT THIS-PROCEDURE:PERSISTENT THEN
-     WAIT-FOR CLOSE OF THIS-PROCEDURE.
+  FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
+  RUN enable_UI.
+  {methods/nowait.i}
+  IF NOT THIS-PROCEDURE:PERSISTENT THEN
+    WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,11 +351,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_filename 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-42 fi_filename btnOk BtnCancel 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+  DISPLAY begin_rm-no end_rm-no 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE begin_rm-no end_rm-no btn-build btn-cancel RECT-17 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW FRAME FRAME-B IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
   VIEW C-Win.
 END PROCEDURE.
 
@@ -340,68 +366,39 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR vcCommand AS CHAR NO-UNDO.
-  DEF VAR i AS INT INIT 1 NO-UNDO.
-  DEF VAR newi AS INT INIT 0 NO-UNDO.
-  DEF VAR v-filename AS CHAR NO-UNDO.
+def buffer b-rm-rcpth for rm-rcpth.
+def buffer b-rm-rdtlh for rm-rdtlh.
 
-  DO WITH FRAME {&FRAME-NAME}:
+def var fitm        like item.i-no.
+def var titm        like fitm               init "zzzzzzzzzz".
 
-     SESSION:SET-WAIT-STATE ("general").
+def var v-recid     as   recid.
+def var x           as   int.
 
-     REPEAT:
-        i = INDEX(fi_filename,"\",newi + 1).
-        IF i = 0 THEN
-           LEAVE.
-        newi = i.
-     END.
 
-     v-filename = SUBSTRING(fi_filename,newi + 1).
+session:set-wait-state("General").
 
-     vcCommand = "attrib -R " + "P:\asi10test\pco1010\template\" + v-filename.
-     OS-COMMAND SILENT VALUE (vcCommand).
+do with frame {&frame-name}:
+  assign
+   begin_rm-no
+   end_rm-no.
+end.
 
-     vcCommand = "copy " + fi_filename + " P:\asi10test\pco1010\template\".
-     OS-COMMAND SILENT VALUE (vcCommand).
+assign
+ fitm = begin_rm-no
+ titm = end_rm-no.
 
-     vcCommand = "attrib -R " + "P:\asi10test\rco1010\template\" + v-filename.
-     OS-COMMAND SILENT VALUE (vcCommand).
+{util/rmonhto0.i}
 
-     vcCommand = "copy " + fi_filename + " P:\asi10test\rco1010\template\".
-     OS-COMMAND SILENT VALUE (vcCommand).
+session:set-wait-state("").
 
-     vcCommand = "attrib -R " + "P:\asi10test\patch\pco1010\template\" + v-filename.
-     OS-COMMAND SILENT VALUE (vcCommand).
+message trim(c-win:title) + " Process Complete..." view-as alert-box.
+apply "close" to this-procedure.
 
-     vcCommand = "copy " + fi_filename + " P:\asi10test\patch\pco1010\template\".
-     OS-COMMAND SILENT VALUE (vcCommand).
+return no-apply.
 
-     vcCommand = "attrib -R " + "P:\asi10test\patch\rco1010\template\" + v-filename.
-     OS-COMMAND SILENT VALUE (vcCommand).
+/* end ---------------------------------- copr. 2001  advanced software, inc. */
 
-     vcCommand = "copy " + fi_filename + " P:\asi10test\patch\rco1010\template\".
-     OS-COMMAND SILENT VALUE (vcCommand).
-
-     vcCommand = "attrib -R " + "P:\asi10ship\rco1010\template\" + v-filename.
-     OS-COMMAND SILENT VALUE (vcCommand).
-
-     vcCommand = "copy " + fi_filename + " P:\asi10ship\rco1010\template\".
-     OS-COMMAND SILENT VALUE (vcCommand).
-
-     vcCommand = "attrib -R " + "P:\asi10ship\patch\rco1010\template\" + v-filename.
-     OS-COMMAND SILENT VALUE (vcCommand).
-
-     vcCommand = "copy " + fi_filename + " P:\asi10ship\patch\rco1010\template\".
-     OS-COMMAND SILENT VALUE (vcCommand).
-
-     MESSAGE "Files were copied."
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

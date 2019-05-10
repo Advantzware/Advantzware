@@ -82,6 +82,7 @@ assign
  ar-invl.loc          = IF AVAIL oe-boll THEN oe-boll.loc ELSE ""
  ar-invl.lot-no       = inv-line.lot-no
  ar-invl.e-num        = inv-line.e-num
+ ar-invl.inv-date   = inv-head.inv-date
  .
 
  

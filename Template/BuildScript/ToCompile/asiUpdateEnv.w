@@ -49,6 +49,7 @@ DEF INPUT PARAMETER ipcToVer AS CHAR NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
 DEF INPUT PARAMETER iplNeedBackup AS LOG NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
+DEF INPUT-OUTPUT PARAMETER iopiStatus AS INT NO-UNDO.
 
 /*
 /* FOR TEST PURPOSES ONLY */
@@ -190,7 +191,6 @@ DEF VAR v4 LIKE lookups.prgmname NO-UNDO.
 DEF VAR v5 LIKE lookups.rec_key NO-UNDO.
 DEF VAR xDbDir AS CHAR NO-UNDO.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -206,7 +206,7 @@ DEF VAR xDbDir AS CHAR NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-5 tbBackupDBs tbUserControl ~
+&Scoped-Define ENABLED-OBJECTS RECT-5 RECT-6 tbBackupDBs tbUserControl ~
 tbUserCleanup tbDelBadData tbUpdateMaster tbRunDataFix tbUpdateNK1s ~
 fiLicensedUsers tbReftableConv bProcess tbLoadMenus tbRelNotes eStatus ~
 tbInstallFiles tbUpdateIni 
@@ -233,15 +233,12 @@ FUNCTION fFixYear RETURNS DATE
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer C-Win
-FUNCTION fIntVer RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer C-Win 
+FUNCTION fIntVer RETURNS INTEGER
   ( INPUT cVerString AS CHAR ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -316,6 +313,16 @@ DEFINE VARIABLE fiToVer AS CHARACTER FORMAT "X(256)":U
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 39 BY 14.76.
+
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 75 BY 1.43
+     FGCOLOR 3 .
+
+DEFINE RECTANGLE rStatusBar
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 10 BY 1.43
+     BGCOLOR 3 FGCOLOR 3 .
 
 DEFINE VARIABLE tbBackupDBs AS LOGICAL INITIAL no 
      LABEL "Backup Databases" 
@@ -421,10 +428,12 @@ DEFINE FRAME DEFAULT-FRAME
      "Status:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.71 COL 3 WIDGET-ID 54
      RECT-5 AT ROW 1.48 COL 87
+     rStatusBar AT ROW 16.71 COL 3
+     RECT-6 AT ROW 16.71 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 130 BY 15.43 WIDGET-ID 100.
+         SIZE 130 BY 17.86 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -443,7 +452,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update - Programs/Data"
-         HEIGHT             = 15.48
+         COLUMN             = 5
+         ROW                = 5
+         HEIGHT             = 17.91
          WIDTH              = 130
          MAX-HEIGHT         = 34.29
          MAX-WIDTH          = 166.2
@@ -490,6 +501,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiSiteName IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiToVer IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE rStatusBar IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tbBackupFiles IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -592,9 +605,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         fiFromVer:{&SV}     = ipcFromVer
         fiToVer:{&SV}       = ipcToVer
         fiAsiDbName:{&SV}   = ipcName
-        fiAsiPortNo:{&SV}   = ipcPort.
+        fiAsiPortNo:{&SV}   = ipcPort
+        rStatusBar:WIDTH    = MIN(75,(iopiStatus / 100) * 75).
 
-    RUN ipFindIniFile ("N:\Admin\advantzware.ini",
+    RUN ipFindIniFile ("..\advantzware.ini",
                        OUTPUT cIniLoc).
     IF cIniLoc NE "" THEN 
         RUN ipReadIniFile.
@@ -639,7 +653,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         
     IF ipiLevel LT 10 THEN DO:
         ASSIGN
-            c-Win:WIDTH = 77
+            c-Win:WIDTH = 79.8
             bProcess:LABEL = "No User Action Required"
             lAutorun = TRUE.
         DISABLE ALL EXCEPT bProcess eStatus WITH FRAME {&FRAME-NAME}.
@@ -694,7 +708,7 @@ PROCEDURE enable_UI :
           tbLoadMenus tbRelNotes eStatus tbBackupFiles tbInstallFiles 
           tbUpdateIni 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-5 tbBackupDBs tbUserControl tbUserCleanup tbDelBadData 
+  ENABLE RECT-5 RECT-6 tbBackupDBs tbUserControl tbUserCleanup tbDelBadData 
          tbUpdateMaster tbRunDataFix tbUpdateNK1s fiLicensedUsers 
          tbReftableConv bProcess tbLoadMenus tbRelNotes eStatus tbInstallFiles 
          tbUpdateIni 
@@ -736,9 +750,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddDbmsFonts C-Win
-PROCEDURE ipAddDbmsFonts:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddDbmsFonts C-Win 
+PROCEDURE ipAddDbmsFonts :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -826,11 +839,9 @@ PROCEDURE ipAddDbmsFonts:
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
 PROCEDURE ipAddLocationData :
@@ -972,6 +983,7 @@ PROCEDURE ipArchiveFiles :
     
     FILE-INFO:FILE-NAME = cEnvProdDir.
     ASSIGN
+        lSuccess = FALSE 
         lProdExists = FILE-INFO:FULL-PATHNAME NE ?.
         
     IF SEARCH(cUpdProgramDir + "\programs.7z") NE ? THEN DO:
@@ -1060,14 +1072,16 @@ PROCEDURE ipArchiveFiles :
         OS-COMMAND SILENT VALUE(cCmdZip).
     END.
 
+    ASSIGN 
+        lSuccess = TRUE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAuditSysCtrl C-Win
-PROCEDURE ipAuditSysCtrl:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAuditSysCtrl C-Win 
+PROCEDURE ipAuditSysCtrl :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1084,11 +1098,9 @@ PROCEDURE ipAuditSysCtrl:
         .
                 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBackupDataFiles C-Win 
 PROCEDURE ipBackupDataFiles :
@@ -1219,6 +1231,7 @@ PROCEDURE ipBackupDBs :
     DEF VAR cThisPort AS CHAR NO-UNDO.
     
     ASSIGN 
+        lSuccess = FALSE 
         iCount = 1.
         
     DO iCount = 1 TO 2:
@@ -1282,6 +1295,8 @@ PROCEDURE ipBackupDBs :
         IF SEARCH(cBackupName) NE ? THEN 
         DO:
             ASSIGN
+                iopiStatus = iopiStatus + 5
+                rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75)
                 lSuccess = TRUE.
             RUN ipStatus ("    Backup successful").
         END.
@@ -1290,8 +1305,12 @@ PROCEDURE ipBackupDBs :
             ASSIGN
                 lSuccess = FALSE.
             RUN ipStatus ("    Backup FAILED").
+            RETURN.
         END.
     END.
+    
+    ASSIGN 
+        lSuccess = TRUE.
     
 END PROCEDURE.
 
@@ -1671,6 +1690,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertPrepItems C-Win
+PROCEDURE ipConvertPrepItems:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Converting advantzware.usr file...").
+
+    DISABLE TRIGGERS FOR LOAD OF prep.
+    
+    FOR EACH oe-ctrl NO-LOCK:
+        FOR EACH prep EXCLUSIVE WHERE 
+            prep.company EQ oe-ctrl.company:
+            ASSIGN 
+                prep.taxable = oe-ctrl.prep-chrg
+                prep.commissionable = oe-ctrl.prep-comm.
+        END.
+    END.
+    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertUsrFile C-Win 
 PROCEDURE ipConvertUsrFile :
 /*---------------------------------------------------------------------------*/
@@ -1936,6 +1983,9 @@ PROCEDURE ipCopyRelNotes :
 
     DEF VAR cCommandLine AS CHAR NO-UNDO.
     
+    ASSIGN 
+        lSuccess = FALSE.
+    
     FILE-INFO:FILE-NAME = cDocDir.
     IF FILE-INFO:FULL-PATHNAME EQ ? THEN
         OS-CREATE-DIR VALUE(cDocDir).
@@ -1944,6 +1994,9 @@ PROCEDURE ipCopyRelNotes :
     ASSIGN
         cCommandLine = "COPY " + cUpdRelNotesDir + "\*.* " + cDocDir + "\ReleaseNotes".
     OS-COMMAND SILENT VALUE(cCommandLine).
+    
+    ASSIGN 
+        lSuccess = TRUE.
     
 END PROCEDURE.
 
@@ -2045,7 +2098,8 @@ PROCEDURE ipDataFix :
     RUN ipStatus ("Starting Data Fixes - from version " + fiFromVer:{&SV}).
 
     ASSIGN 
-        cThisEntry = fiFromVer:{&SV}.
+        cThisEntry = fiFromVer:{&SV}
+        lSuccess = FALSE.
 
     IF fIntVer(cThisEntry) LT 16001000 THEN
         RUN ipDataFix160001.
@@ -2077,10 +2131,15 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160860.
     IF fIntVer(cThisEntry) LT 16088000 THEN 
         RUN ipDataFix160880.
+    IF fIntVer(cThisEntry) LT 16089000 THEN 
+        RUN ipDataFix160890.
     IF fIntVer(cThisEntry) LT 16089900 THEN
         RUN ipDataFix160899.
 
     RUN ipStatus ("Completed Data Fixes").
+    
+    ASSIGN 
+        lSuccess = TRUE.
 
 END PROCEDURE.
 
@@ -2374,9 +2433,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160860 C-Win
-PROCEDURE ipDataFix160860:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160860 C-Win 
+PROCEDURE ipDataFix160860 :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2385,15 +2443,14 @@ PROCEDURE ipDataFix160860:
 
         
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win
-PROCEDURE ipDataFix160880:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
+PROCEDURE ipDataFix160880 :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2404,11 +2461,25 @@ PROCEDURE ipDataFix160880:
 /*    RUN ipUpdateAdvantzwarePf.*/
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+PROCEDURE ipDataFix160890 :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 160890...").
+    
+    RUN ipSetFgcatStatusActive.  
+    RUN ipConvertPrepItems.  
+    RUN ipFixFrtPay.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
 PROCEDURE ipDataFix160899 :
@@ -2464,6 +2535,9 @@ PROCEDURE ipDelBadData :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("Removing Deprecated File Entries").
 
+    ASSIGN 
+        lSuccess = FALSE.
+
     DISABLE TRIGGERS FOR LOAD OF parmfile.
     DISABLE TRIGGERS FOR LOAD OF userlog.
     DISABLE TRIGGERS FOR LOAD OF mfdata.
@@ -2483,6 +2557,9 @@ PROCEDURE ipDelBadData :
     IF lNeedUsercontrol THEN FOR EACH userlog:
         DELETE userlog.
     END.
+
+    ASSIGN 
+        lSuccess = TRUE.
 
 END PROCEDURE.
 
@@ -2612,9 +2689,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDeleteAudit C-Win
-PROCEDURE ipDeleteAudit:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDeleteAudit C-Win 
+PROCEDURE ipDeleteAudit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2642,11 +2718,9 @@ PROCEDURE ipDeleteAudit:
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipExpandFiles C-Win 
 PROCEDURE ipExpandFiles :
@@ -2670,6 +2744,7 @@ PROCEDURE ipExpandFiles :
     RUN ipStatus ("Installing New ASI System Files").
 
     ASSIGN 
+        lSuccess = FALSE 
         cThisEntry = fiEnvironment:{&SV}
         cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
 
@@ -2712,6 +2787,9 @@ PROCEDURE ipExpandFiles :
 
     RUN ipStatus ("Installation of new system files complete").
     
+    ASSIGN 
+        lSuccess = TRUE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2771,6 +2849,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFgcatStatusActive C-Win
+PROCEDURE ipFgcatStatusActive:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF fgcat.
+    
+    FOR EACH fgcat:
+        ASSIGN 
+            lActive = TRUE.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBadYears C-Win 
 PROCEDURE ipFixBadYears :
 /*------------------------------------------------------------------------------
@@ -2785,7 +2884,7 @@ PROCEDURE ipFixBadYears :
     DISABLE TRIGGERS FOR LOAD OF oe-relh.
     DISABLE TRIGGERS FOR LOAD OF oe-rell.
     
-    FOR EACH oe-ord WHERE (oe-ord.ord-date GT 09/01/2018 
+    FOR EACH oe-ord EXCLUSIVE WHERE (oe-ord.ord-date GT 09/01/2018 
                            OR oe-ord.ord-date LT 12/31/0100):
         /* Note: do in multiple assigns, else function only evaluates once */
         ASSIGN oe-ord.ord-date = fFixYear(oe-ord.ord-date).
@@ -2798,22 +2897,22 @@ PROCEDURE ipFixBadYears :
         ASSIGN oe-ord.entered-date = fFixYear(oe-ord.entered-date).
         ASSIGN oe-ord.updated-date = fFixYear(oe-ord.updated-date).
         ASSIGN oe-ord.closedate = fFixYear(oe-ord.closedate).
-        FOR EACH oe-ordl OF oe-ord:
+        FOR EACH oe-ordl EXCLUSIVE OF oe-ord:
             ASSIGN oe-ordl.req-date = fFixYear(oe-ordl.req-date).
             ASSIGN oe-ordl.prom-date = fFixYear(oe-ordl.prom-date).
             ASSIGN oe-ordl.upd-date = fFixYear(oe-ordl.upd-date).
             ASSIGN oe-ordl.job-start-date = fFixYear(oe-ordl.job-start-date).
         END.
-        FOR EACH oe-rel OF oe-ord:
+        FOR EACH oe-rel EXCLUSIVE OF oe-ord:
             ASSIGN oe-rel.rel-date = fFixYear(oe-rel.rel-date).
             ASSIGN oe-rel.ship-date = fFixYear(oe-rel.ship-date).
             ASSIGN oe-rel.upd-date = fFixYear(oe-rel.upd-date).
-            FOR EACH oe-relh OF oe-rel:
-                ASSIGN oe-relh.rel-date = fFixYear(oe-relh.rel-date).
-                ASSIGN oe-relh.upd-date = fFixYear(oe-relh.upd-date).
-                ASSIGN oe-relh.prt-date = fFixYear(oe-relh.prt-date).
+            FOR EACH oe-relh EXCLUSIVE OF oe-rel:
+                ASSIGN oe-relh.rel-date = IF NOT oe-relh.rel-date EQ ? THEN fFixYear(oe-relh.rel-date) ELSE ?.
+                ASSIGN oe-relh.upd-date = IF NOT oe-relh.upd-date EQ ? THEN fFixYear(oe-relh.upd-date) ELSE ?.
+                ASSIGN oe-relh.prt-date = IF NOT oe-relh.prt-date EQ ? THEN fFixYear(oe-relh.prt-date) ELSE ?.
             END.
-            FOR EACH oe-rell OF oe-rel:
+            FOR EACH oe-rell EXCLUSIVE OF oe-rel:
                 ASSIGN oe-relh.upd-date = fFixYear(oe-rell.upd-date).
             END.
         END.
@@ -2824,6 +2923,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixFrtPay C-Win
+PROCEDURE ipFixFrtPay:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+    DISABLE TRIGGERS FOR LOAD OF oe-rell.
+    RUN ipStatus("   Fix release frt pay unknowns").
+    FOR EACH oe-rel EXCLUSIVE-LOCK
+        WHERE oe-rel.frt-pay eq ? OR oe-rel.fob-code EQ ?
+        :
+        IF oe-rel.frt-pay EQ ? THEN oe-rel.frt-pay = "".
+        IF oe-rel.fob-code EQ ? THEN oe-rel.fob-code = "".
+    END.
+    FOR EACH oe-rell EXCLUSIVE-LOCK 
+        WHERE oe-rell.frt-pay EQ ? OR oe-rell.fob-code eq ?
+        :
+        IF oe-rell.frt-pay EQ ? THEN oe-rell.frt-pay = "".
+        IF oe-rell.fob-code EQ ? THEN oe-rell.fob-code = "".
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 
@@ -2898,6 +3024,9 @@ PROCEDURE ipFixUsers :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("Validating Required Users").
 
+    ASSIGN 
+        lSuccess = FALSE.
+        
     IF NOT CAN-FIND (FIRST users WHERE
                      users.user_id = "asi") THEN
         RUN ipCreateAsiUser IN THIS-PROCEDURE.
@@ -2912,6 +3041,9 @@ PROCEDURE ipFixUsers :
 
     RUN ipLoadNewUserData IN THIS-PROCEDURE.
     RUN ipCleanBadUserData IN THIS-PROCEDURE.
+    
+    ASSIGN 
+        lSuccess = TRUE.
 
 END PROCEDURE.
 
@@ -3196,14 +3328,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadJasperData C-Win
-PROCEDURE ipLoadJasperData:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadJasperData C-Win 
+PROCEDURE ipLoadJasperData :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Loading Dynamic subjects...").
+    
+    DISABLE TRIGGERS FOR LOAD OF dynSubject.
+    DISABLE TRIGGERS FOR LOAD OF dynSubjectTable.
+    DISABLE TRIGGERS FOR LOAD OF dynSubjectWhere.
+    DISABLE TRIGGERS FOR LOAD OF dynSubjectColumn.
+    DISABLE TRIGGERS FOR LOAD OF dynSubjectParamSet.
+    DISABLE TRIGGERS FOR LOAD OF dynParam.
+    DISABLE TRIGGERS FOR LOAD OF dynParamSet.
+    DISABLE TRIGGERS FOR LOAD OF dynParamValue.
+    DISABLE TRIGGERS FOR LOAD OF dynParamSetDtl.
     
     /* Remove all records that we plan to replace */
     FOR EACH dynSubject EXCLUSIVE WHERE 
@@ -3248,7 +3389,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3257,7 +3400,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3266,7 +3411,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3275,7 +3422,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3284,7 +3433,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3293,7 +3444,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3302,7 +3455,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3311,7 +3466,9 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
@@ -3320,16 +3477,16 @@ PROCEDURE ipLoadJasperData:
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
-        IMPORT {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
     END.
     INPUT CLOSE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadLookups C-Win 
 PROCEDURE ipLoadLookups :
@@ -3427,6 +3584,8 @@ PROCEDURE ipLoadModules :
         DO:
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
+            ASSIGN 
+                {&tablename}.is-Used = FALSE.
         END.
     END.
     INPUT CLOSE.
@@ -4025,47 +4184,135 @@ PROCEDURE ipProcessAll :
 
     IF tbBackupDBs:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipBackupDBs.
+        IF lSuccess EQ FALSE THEN RETURN. 
     END.
     IF tbUserControl:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateUserControl.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 1
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 1
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+    
     IF tbUserCleanup:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipFixUsers.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 1
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 1
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
     IF tbDelBadData:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipDelBadData.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 2
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 2
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
     IF tbUpdateMaster:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateMaster.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 4
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 4
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
     IF tbRunDataFix:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipDataFix.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 10
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 10
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
     IF tbUpdateNK1s:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateNK1s.
-        /* RUN ipVerifyNK1Changes. */
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 3
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 3
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
     IF tbLoadMenus:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         /* Deprecated in 16.8.5 
         RUN ipLoadMenus (cUpdMenuDir,cEnvProdDir).
         */
     END.
+
     IF tbRelNotes:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipCopyRelNotes.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 2
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 2
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
     IF tbBackupFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipArchiveFiles.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 10
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 10
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+    
     IF tbInstallFiles:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipExpandFiles.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 20
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 20
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+
     IF tbRefTableConv:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipRefTableConv.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 30
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 30
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+    
     IF tbUpdateIni:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         RUN ipUpdateTTIniFile.
         RUN ipWriteIniFile.
+        IF lSuccess EQ TRUE THEN ASSIGN 
+            iopiStatus = iopiStatus + 5
+            rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+        ELSE RETURN.
     END.
+    ELSE ASSIGN 
+        iopiStatus = iopiStatus + 5
+        rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
     
     RUN ipStatus ("Patch Application Complete").
 
@@ -4097,6 +4344,7 @@ PROCEDURE ipRefTableConv :
     RUN ipStatus ("Converting Reftable records...").
 
     ASSIGN
+        lSuccess = FALSE 
         cOrigPropath = PROPATH
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
@@ -4166,6 +4414,9 @@ PROCEDURE ipRefTableConv :
             END.
         END.   
     END.  /*FOR EACH reftable1*/  
+
+    ASSIGN 
+        lSuccess = TRUE.
 
 END PROCEDURE.
 
@@ -4633,9 +4884,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdvantzwarePf C-Win
-PROCEDURE ipUpdateAdvantzwarePf:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdvantzwarePf C-Win 
+PROCEDURE ipUpdateAdvantzwarePf :
 /*------------------------------------------------------------------------------
  Purpose: This is broken, but is superseded by copying advantzware.pf during startUpdate
  Notes:
@@ -4678,11 +4928,9 @@ PROCEDURE ipUpdateAdvantzwarePf:
     OUTPUT CLOSE.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :
@@ -4692,6 +4940,9 @@ PROCEDURE ipUpdateMaster :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("Updating Master Records").
+
+    ASSIGN 
+        lSuccess = FALSE.
 
     RUN ipBackupDataFiles IN THIS-PROCEDURE.
     
@@ -4720,6 +4971,9 @@ PROCEDURE ipUpdateMaster :
     IF SEARCH(cUpdDataDir + "\cuecardtext.d") <> ? THEN
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
 
+    ASSIGN 
+        lSuccess = TRUE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4738,6 +4992,9 @@ PROCEDURE ipUpdateNK1s :
         
     RUN ipStatus ("Updating NK1 Records").
     
+    ASSIGN 
+        lSuccess = FALSE.
+
     DISABLE TRIGGERS FOR LOAD OF sys-ctrl.
     DISABLE TRIGGERS FOR LOAD OF sys-ctrl-shipto.
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
@@ -4783,7 +5040,7 @@ PROCEDURE ipUpdateNK1s :
             sys-ctrl.log-fld = TRUE.
     END.
     
-	/* Upgrade Button */
+    /* Upgrade Button */
     RUN ipStatus ("  MenuLinkUpdate").
     FOR EACH  sys-ctrl WHERE
         sys-ctrl.name EQ "MenuLinkUpgrade":
@@ -4837,6 +5094,19 @@ PROCEDURE ipUpdateNK1s :
             sys-ctrl.securityLevelUser = 1000.
     END.
     
+    /* 48200 - Deprecate KEEPFROZEN */
+    RUN ipStatus ("  KEEPFROZEN").
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "FGKEEPZEROBIN":
+        DELETE sys-ctrl.
+    END.
+    FOR EACH  sys-ctrl WHERE
+        sys-ctrl.name EQ "RMKEEPZEROBIN":
+        DELETE sys-ctrl.
+    END.
+    
+    ASSIGN 
+        lSuccess = TRUE.
        
 END PROCEDURE.
 
@@ -4852,6 +5122,7 @@ PROCEDURE ipUpdateTTIniFile :
     ------------------------------------------------------------------------------*/
 
     ASSIGN 
+        lSuccess = FALSE 
         iListEntry = LOOKUP(fiEnvironment:{&SV},cEnvList).    
 
     FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
@@ -4874,6 +5145,7 @@ PROCEDURE ipUpdateUserControl :
     DISABLE TRIGGERS FOR LOAD OF usercontrol.
     
     ASSIGN
+        lSuccess = FALSE 
         iUserCount = INTEGER(fiLicensedUsers:{&SV}).
         
     /* Create/update usercontrol record */
@@ -4912,6 +5184,8 @@ PROCEDURE ipUpdateUserControl :
     END.
     
     RELEASE usercontrol.
+    ASSIGN 
+        lSuccess = TRUE.
     
 END PROCEDURE.
 
@@ -5065,6 +5339,10 @@ PROCEDURE ipWriteIniFile :
         ELSE NEXT.
     END.
     OUTPUT CLOSE.
+    
+    ASSIGN 
+        lSuccess = TRUE.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5098,9 +5376,8 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer C-Win
-FUNCTION fIntVer RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIntVer C-Win 
+FUNCTION fIntVer RETURNS INTEGER
   ( INPUT cVerString AS CHAR ):
     /*------------------------------------------------------------------------------
       Purpose:  Converts a version string like "16.4.8" or "16.7.12.2" to an integer
@@ -5126,9 +5403,7 @@ FUNCTION fIntVer RETURNS INTEGER
     RETURN iIntVer.   /* Function return value. */
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 

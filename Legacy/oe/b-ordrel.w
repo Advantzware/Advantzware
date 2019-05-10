@@ -719,7 +719,7 @@ DO:
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       lCheckInquiry = YES .
      
- IF oe-rel.stat NE "C" AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
+ IF LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
      RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
      RUN reopen-query .
      RUN repo-query (ROWID(oe-rel)).
@@ -891,6 +891,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
 
+/* ***************************  Main Block  *************************** */
 SESSION:DATA-ENTRY-RETURN = YES.
 {sys/inc/f3help.i}
 {sys/inc/oeinq.i}
@@ -904,9 +905,11 @@ SESSION:DATA-ENTRY-RETURN = YES.
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 
- RUN-PROC = "sbo/oerel-recalc-act.p".
-{methods/smartrun.i}
-   lr-rel-lib = phandle.    
+    RUN-PROC = "sbo/oerel-recalc-act.p".
+    IF NOT VALID-HANDLE(lr-rel-lib)  THEN DO:
+       RUN-PROC = "sbo/oerel-recalc-act.p".
+       RUN VALUE(RUN-PROC) PERSISTENT SET lr-rel-lib.
+    END.
 lv-cust-x = "".
 
 
@@ -1568,11 +1571,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
           
       IF NOT VALID-HANDLE(lr-rel-lib)  THEN DO:
          RUN-PROC = "sbo/oerel-recalc-act.p".
-
-          lr-rel-lib = phandle. 
-         RUN VALUE(RUN-PROC) PERSISTENT SET phandle.
-         lr-rel-lib = phandle. 
-
+         RUN VALUE(RUN-PROC) PERSISTENT SET lr-rel-lib.
       END.
 
       IF AVAIL tt-report AND AVAIL oe-rel AND VALID-HANDLE(lr-rel-lib) THEN DO:
@@ -2146,9 +2145,10 @@ PROCEDURE pUpdateRecord :
     DEFINE VARIABLE lv-repos-recid AS RECID NO-UNDO.
     DEFINE VARIABLE v-nxt-r-no AS INTEGER NO-UNDO.
     DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReleaseDesc AS CHARACTER NO-UNDO .
     DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
     
-    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel AND oe-rel.stat NE "C" THEN
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel AND LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 THEN
     DO:
        RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) . 
        
@@ -2156,6 +2156,27 @@ PROCEDURE pUpdateRecord :
               RUN reopen-query .
               RUN repo-query (lv-rowid).
           END.
+     END.
+
+     IF AVAIL oe-rel AND LOOKUP(oe-rel.stat,"A,B,P,Z,C") NE 0 THEN DO:
+          CASE oe-rel.stat :
+                WHEN "A" THEN
+                    cReleaseDesc = "Actual".
+                WHEN "B" THEN
+                    cReleaseDesc = "Backorder".
+                WHEN "P" THEN
+                    cReleaseDesc = "Posted".
+                WHEN "Z" THEN
+                    cReleaseDesc = "Posted BOL".
+                 WHEN "C" THEN
+                    cReleaseDesc = "Completed".
+                OTHERWISE
+                    cReleaseDesc = oe-rel.stat .
+            END CASE.
+          
+         MESSAGE " Release Status is - " + STRING(cReleaseDesc) + ". Update not allowed..." 
+              VIEW-AS ALERT-BOX INFO .
+         RETURN .
      END.
 
      IF RelType-int = 1 AND AVAIL tt-report AND oe-rel.s-code EQ "I" THEN DO:

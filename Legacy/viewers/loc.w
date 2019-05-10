@@ -69,7 +69,8 @@ location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
 location.subCode3 location.subCode1 location.subCode4 location.countryCode ~
 location.subCode2 location.geoLat location.geoLong location.phone ~
 location.externalID[1] location.fax location.email location.notes ~
-loc.active 
+loc.active loc.handlingCost loc.storageCost[1] loc.storageCost[2] ~
+loc.storageCost[3] loc.storageCost[4]
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
@@ -80,7 +81,8 @@ location.streetAddr[1] location.streetAddr[6] location.streetAddr[2] ~
 location.streetAddr[3] location.subCode3 location.subCode1 ~
 location.subCode4 location.countryCode location.subCode2 location.geoLat ~
 location.geoLong location.phone location.externalID[1] location.fax ~
-location.email location.notes loc.active 
+location.email location.notes loc.active loc.handlingCost loc.storageCost[1]  ~
+loc.storageCost[2] loc.storageCost[3] loc.storageCost[4]
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -159,26 +161,26 @@ DEFINE FRAME F-Main
      loc.dscr AT ROW 2.43 COL 12 COLON-ALIGNED
           LABEL "Name" FORMAT "x(60)"
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
+          SIZE 50 BY 1
      location.streetAddr[5] AT ROW 3.14 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
      location.streetAddr[1] AT ROW 3.38 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
+          SIZE 50 BY 1
      location.streetAddr[6] AT ROW 4.1 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
      location.streetAddr[2] AT ROW 4.33 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
+          SIZE 50 BY 1
      location.streetAddr[3] AT ROW 5.29 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
+          SIZE 50 BY 1
      location.subCode3 AT ROW 6.24 COL 12 COLON-ALIGNED
           LABEL "City"
           VIEW-AS FILL-IN 
-          SIZE 53 BY 1
+          SIZE 40 BY 1
      location.subCode1 AT ROW 7.19 COL 12 COLON-ALIGNED
           LABEL "St/Prov"
           VIEW-AS FILL-IN 
@@ -192,6 +194,26 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 8 BY .95
      fsCtyDesc AT ROW 8.19 COL 48 COLON-ALIGNED NO-LABEL
+     loc.handlingCost AT ROW 2.43 COL 78 COLON-ALIGNED
+          LABEL "Handling" FORMAT "->,>>>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     loc.storageCost[1] AT ROW 3.38 COL 78 COLON-ALIGNED
+          LABEL "Storage 1" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+    loc.storageCost[2] AT ROW 4.33 COL 78 COLON-ALIGNED
+          LABEL "Storage 2" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+    loc.storageCost[3] AT ROW 5.29 COL 78 COLON-ALIGNED
+          LABEL "Storage 3" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+    loc.storageCost[4] AT ROW 6.24 COL 78 COLON-ALIGNED
+          LABEL "Storage 4" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      location.subCode2 AT ROW 9.33 COL 12 COLON-ALIGNED
           LABEL "County"
           VIEW-AS FILL-IN 
@@ -336,6 +358,16 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN location.subCode4 IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.handlingCost IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN loc.storageCost[1] IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN loc.storageCost[2] IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN loc.storageCost[3] IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN loc.storageCost[4] IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -461,7 +493,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-{sys/inc/f3help.i}
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         

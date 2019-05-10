@@ -89,4 +89,5 @@ DEF {1} SHARED TEMP-TABLE w-ord
   FIELD rel-qty LIKE oe-ordl.qty
   FIELD rel-no as INTEGER 
   FIELD po-line AS INTEGER 
+  FIELD zone as CHARACTER
   .

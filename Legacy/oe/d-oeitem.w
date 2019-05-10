@@ -2938,11 +2938,12 @@ oplRelFlg2 = llRelFlg2.
           IF AVAIL shipto AND v-ship-from EQ "" THEN
             v-ship-from = shipto.loc.
         END.
-        RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
-                   INPUT oe-ordl.qty, INPUT oe-ordl.i-no,
-                   INPUT-OUTPUT v-ship-id,
-                   INPUT-OUTPUT v-ship-from).
-
+        IF llOeShipFromLog THEN do:
+            RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
+                               INPUT oe-ordl.qty, INPUT oe-ordl.i-no,
+                               INPUT-OUTPUT v-ship-id,
+                               INPUT-OUTPUT v-ship-from).
+        END.
     END.
     ipcShipTo = v-ship-id.
     ipcShipFRom = v-ship-from.
@@ -4009,7 +4010,9 @@ ASSIGN
            itemfg.isaset     = xeb.form-no EQ 0
            itemfg.procat     = xeb.procat
            itemfg.alloc      = xeb.set-is-assembled
-           itemfg.pur-man    = xeb.pur-man.
+           itemfg.pur-man    = xeb.pur-man
+           itemfg.trno       = xeb.tr-no 
+           itemfg.spare-char-4 = xeb.dest-code.
 
     /*IF xeb.pur-man THEN itemfg.pur-uom = "EA".*/
 
@@ -4061,15 +4064,6 @@ ASSIGN
     END.
  END.
 
-IF fgmaster-cha EQ "FGITEM" THEN DO:
-
-   FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-   itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-                   ELSE IF AVAIL oe-ctrl THEN
-                           IF oe-ctrl.i-code THEN "S"
-                           ELSE "C"
-                   ELSE "S".
-END.
 IF itemfg.def-loc EQ "" THEN itemfg.def-loc = ipcLoc.
 IF itemfg.def-loc-bin EQ "" THEN itemfg.def-loc-bin = ipcLocBin.
 

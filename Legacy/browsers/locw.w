@@ -75,13 +75,14 @@ DEFINE TEMP-TABLE hold-job LIKE w-job.
 DEFINE TEMP-TABLE tt-ids 
     FIELD tt-rowid AS ROWID
     .
-DEFINE VARIABLE lv-sort-by     AS CHARACTER INIT "tag" NO-UNDO.
-DEFINE VARIABLE lv-sort-by-lab AS CHARACTER INIT "Tag" NO-UNDO.
+DEFINE VARIABLE lv-sort-by     AS CHARACTER NO-UNDO INITIAL "Tag".
+DEFINE VARIABLE lv-sort-by-lab AS CHARACTER NO-UNDO INITIAL "Tag".
 DEFINE VARIABLE ll-sort-asc    AS LOG       NO-UNDO.
 DEFINE VARIABLE li-pallets     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE li-qty-pal     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE h_w-inqord     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cPrintAvailQty AS CHARACTER INITIAL "2" NO-UNDO .
+DEFINE VARIABLE cPrintAvailQty AS CHARACTER NO-UNDO INITIAL "2".
+DEFINE VARIABLE cFGBinInquiry  AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE for-each1    ~
     FOR EACH w-jobs WHERE ((w-jobs.qtyAvailable NE 0 AND cPrintAvailQty EQ "2" ) ~
@@ -449,9 +450,16 @@ END.
 ON CHOOSE OF btnAllocated IN FRAME F-Main /* View Allocated */
 DO:
     IF itemfg.q-alloc NE 0 THEN
-    RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
-    IF VALID-HANDLE(h_w-inqord) THEN
-    RUN adm-initialize IN h_w-inqord.
+        IF cFGBinInquiry EQ "Yes" THEN
+        RUN AOA/dynGrid.p (13,
+            "company^" + itemfg.company +
+            "|fgItem^" + itemfg.i-no
+            ).
+        ELSE DO:
+            RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
+            IF VALID-HANDLE(h_w-inqord) THEN
+            RUN adm-initialize IN h_w-inqord.
+        END. /* else */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -485,7 +493,13 @@ DO:
                               AND job.job-no  EQ job-hdr.job-no
                               AND job.job-no2 EQ job-hdr.job-no2)
              NO-ERROR.
-        IF AVAILABLE job-hdr THEN 
+        IF AVAILABLE job-hdr THEN
+            IF cFGBinInquiry EQ "Yes" THEN
+            RUN AOA/dynGrid.p (15,
+                "company^" + itemfg.company +
+                "|fgItem^" + itemfg.i-no
+                ).
+            ELSE
             RUN jc/w-inqjob.w (ROWID(itemfg), YES).
         ELSE DO:
             FIND FIRST fg-set NO-LOCK
@@ -519,7 +533,13 @@ DO:
                           AND po-ord.po-no   EQ po-ordl.po-no)
          NO-ERROR.
     IF AVAILABLE po-ordl THEN
-    RUN po/w-inqpo.w (ROWID(itemfg), YES).
+        IF cFGBinInquiry EQ "Yes" THEN
+        RUN AOA/dynGrid.p (14,
+            "company^" + itemfg.company +
+            "|fgItem^" + itemfg.i-no
+            ).
+        ELSE
+        RUN po/w-inqpo.w (ROWID(itemfg), YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -751,6 +771,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lcItemFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcItemTo   AS CHAR NO-UNDO.
+DEFINE VARIABLE lcLocFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcLocTo   AS CHAR NO-UNDO.
+ 
+IF AVAIL itemfg THEN
+    ASSIGN
+        lcItemFrom = itemfg.i-no
+        lcItemTo = itemfg.i-no .
+IF AVAIL w-jobs THEN
+    ASSIGN
+        lcLocFrom = w-jobs.loc
+        lcLocTo = w-jobs.loc.
+
+    RUN fg/rd-locwexp.w (lcItemFrom,
+                       lcItemTo,
+                       lcLocFrom,
+                       lcLocTo
+                       ).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterLocMain B-table-Win 
 PROCEDURE filterLocMain :
 /*------------------------------------------------------------------------------
@@ -774,8 +826,13 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    
     /* Code placed here will execute PRIOR to standard behavior. */
+    RUN sys/ref/nk1look.p (
+        g_company,"FGBinInquiry","L",NO,NO,"","",
+        OUTPUT cFGBinInquiry, OUTPUT lFound
+        ).
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -787,9 +844,9 @@ PROCEDURE local-initialize :
     RUN local-open-query.
 
     IF QUERY br_table:NUM-RESULTS NE ? THEN DO:  
-        BROWSE br_table:MOVE-TO-TOP().
-        BROWSE br_table:SELECT-FOCUSED-ROW().
-        BROWSE br_table:SELECT-ROW(1).
+        BROWSE br_table:MOVE-TO-TOP() NO-ERROR.
+        BROWSE br_table:SELECT-FOCUSED-ROW() NO-ERROR.
+        BROWSE br_table:SELECT-ROW(1) NO-ERROR.
     END.
     APPLY "FOCUS":U TO btnBinDetails IN FRAME {&FRAME-NAME}.
     /*

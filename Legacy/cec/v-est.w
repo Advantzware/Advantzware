@@ -3797,10 +3797,13 @@ PROCEDURE set-panel :
 
 
   RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'btn-set-target':U,OUTPUT char-hdl).
-  IF ip-switch EQ 0 THEN 
-    RUN disable-all IN WIDGET-HANDLE(char-hdl).
-  ELSE
-    RUN enable-all IN WIDGET-HANDLE(char-hdl).
+
+  IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
+      IF ip-switch EQ 0 THEN 
+          RUN disable-all IN WIDGET-HANDLE(char-hdl).
+      ELSE
+          RUN enable-all IN WIDGET-HANDLE(char-hdl).
+  END.
 
   
 END PROCEDURE.

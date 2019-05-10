@@ -1,3 +1,3 @@
 /* p-fgrcpt.w */
 
-{p-updsav.w}
+{panels/p-updbtn.w}

@@ -66,6 +66,7 @@ DEF VAR locode AS CHAR NO-UNDO.
 cocode = ipToCompany.
 g_company = ipToCompany.
 locode  = g_loc .
+RUN spSetCompany (g_company).
 
 {sys/inc/oeship.i}
 {sys/inc/shiptorep.i}
@@ -1508,10 +1509,11 @@ PROCEDURE create-rel :
         IF AVAIL shipto AND gv-ship-from EQ "" THEN
             gv-ship-from = shipto.loc.
     END.
-    RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
-        INPUT b-oe-ordl.qty, INPUT b-oe-ordl.i-no,
-        INPUT-OUTPUT v-ship-id,
-        INPUT-OUTPUT gv-ship-from).
+    IF llOeShipFromLog THEN
+        RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
+                           INPUT b-oe-ordl.qty, INPUT b-oe-ordl.i-no,
+                           INPUT-OUTPUT v-ship-id,
+                           INPUT-OUTPUT gv-ship-from).
 
     v-num-shipto = 0.
     FOR EACH shipto WHERE shipto.company EQ cocode

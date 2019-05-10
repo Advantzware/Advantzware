@@ -431,8 +431,7 @@ DO:
       
        run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
        run reopen-query in widget-handle(char-hdl) (rowid(po-ordl)).
-      
-       RUN reopen-po-ord-query.
+       
       END.
       ELSE DO:                              /*10231304*/
           IF po-ordl.stat EQ "c" THEN

@@ -18,12 +18,12 @@
 
 /* ***************************  Definitions  ************************** */
 
-
  DEFINE VARIABLE gcOrdStatList AS CHAR NO-UNDO INIT "".
  DEFINE VARIABLE gcOrdDescList AS CHAR NO-UNDO INIT "".
  DEFINE VARIABLE glStatTypeItemUpdate AS LOGICAL NO-UNDO INIT NO.
  DEFINE VARIABLE gc-char-val AS CHAR NO-UNDO INIT "".
-
+ DEFINE VARIABLE hTagProcs AS HANDLE NO-UNDO.
+ 
 /* AO = Active Order = Order is open, everything good to go                                                                                                                                     */
 /* PA = Price Approval Needed= everything including shipping is allowed except for                                                                     invoicing, price must be approved first  */
 /* OH = Order Hold = nothing can continue with the order due to any reason other than credit                                                                                                    */
@@ -39,6 +39,9 @@
 
 DEFINE BUFFER b-oe-ord FOR oe-ord.
 DEFINE BUFFER b-oe-ordl FOR oe-ordl.
+
+IF NOT VALID-HANDLE(hTagProcs) THEN 
+    RUN system/tagprocs.p PERSISTENT SET hTagProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -186,6 +189,8 @@ PROCEDURE os-Process-Hold-Status :
        ASSIGN vcStatus = "N"
               vcHoldType = "".
 
+       RUN addTagRelease IN hTagProcs (b-oe-ord.rec_key).
+       
        /* Prompt to update items if more than one. */
        IF vi > 1 THEN
            RUN os-Prompt-Item-Update.
@@ -208,6 +213,7 @@ PROCEDURE os-Process-Hold-Status :
           else leave status at current status. */
        ASSIGN vcStatus = (IF vcHoldType <> "" THEN "H" ELSE b-oe-ord.stat).
 
+       RUN clearTagsOfType IN hTagProcs (b-oe-ord.rec_key,"Release").
 
        /* Prompt to update items if more than one. */
        IF vi > 1 THEN 

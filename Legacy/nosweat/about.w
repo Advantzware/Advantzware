@@ -62,8 +62,8 @@ DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 userControl.maxSessionsPerUser 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
-&Scoped-Define ENABLED-OBJECTS btnProperties userScreen screenImage ~
-properties autoMaximize winSize btnSave currentUsers 
+&Scoped-Define ENABLED-OBJECTS btnSave btnProperties properties userScreen ~
+screenImage autoMaximize winSize currentUsers 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
 userControl.maxSessionsPerUser 
 &Scoped-define DISPLAYED-TABLES userControl
@@ -99,7 +99,7 @@ DEFINE BUTTON btnProperties
      SIZE 7.6 BY 1.81 TOOLTIP "View System Settings".
 
 DEFINE BUTTON btnSave AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.6 BY 1.81 TOOLTIP "Save Settings".
 
@@ -176,11 +176,11 @@ DEFINE VARIABLE autoMaximize AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     btnSave AT ROW 23.38 COL 68
      btnProperties AT ROW 1.24 COL 69 WIDGET-ID 42
      properties AT ROW 1 COL 77 NO-LABEL WIDGET-ID 38
      autoMaximize AT ROW 8.86 COL 9 WIDGET-ID 2
      winSize AT ROW 21 COL 9 NO-LABEL WIDGET-ID 8
-     btnSave AT ROW 23.38 COL 61
      physical_file AT ROW 1.24 COL 23 COLON-ALIGNED
      prgmTitle AT ROW 2.19 COL 14 COLON-ALIGNED
      copyrite AT ROW 3.14 COL 7 COLON-ALIGNED NO-LABEL
@@ -509,8 +509,8 @@ PROCEDURE enable_UI :
   IF AVAILABLE userControl THEN 
     DISPLAY userControl.maxAllowedUsers userControl.maxSessionsPerUser 
       WITH FRAME Dialog-Frame.
-  ENABLE btnProperties userScreen screenImage properties autoMaximize winSize 
-         btnSave userControl.maxAllowedUsers userControl.maxSessionsPerUser 
+  ENABLE btnSave btnProperties properties userScreen screenImage autoMaximize 
+         winSize userControl.maxAllowedUsers userControl.maxSessionsPerUser 
          currentUsers 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.

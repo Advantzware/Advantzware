@@ -41,6 +41,9 @@ def var lv-first-time as log init yes no-undo.
 DEF VAR ll-new-file AS LOG NO-UNDO.
 DEF VAR lv-cust-no LIKE itemfg.cust-no NO-UNDO.
 DEF VAR lv-part-no LIKE itemfg.part-no NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lDefaultFilteras AS LOGICAL NO-UNDO .
 
 &scoped-define SORTBY-1 BY itemfg.i-no
 &scoped-define SORTBY-2 BY itemfg.i-name
@@ -339,11 +342,8 @@ ON CHOOSE OF bt-clear IN FRAME Dialog-Frame /* Clear Find */
 DO:
     assign lv-search:screen-value = "".
            lv-search = "".
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.
-    apply "entry" to {&browse-name}.
+    
+  RUN pSearchData .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -375,10 +375,8 @@ DO:
            lv-search.
     &scoped-define IAMWHAT Search
     &scoped-define where-statement begins lv-search
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.      
+    
+    RUN pSearchData .
     
 END.
 
@@ -394,11 +392,8 @@ DO:
     &scoped-define IAMWHAT LOOKUP   
          
     assign rd-sort.
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.    
-    apply "entry" to {&browse-name}.
+    
+    RUN pSearchData .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,11 +407,8 @@ DO:
     &scoped-define IAMWHAT LOOKUP   
     ASSIGN rd-filter .     
     assign rd-sort.
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-    end.   
-    apply "entry" to {&browse-name}.
+    
+    RUN pSearchData .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -440,10 +432,22 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  ASSIGN rd-filter = 1 .
-
-  IF ip-vendor EQ "" THEN 
+  
+  IF PROGRAM-NAME(2) MATCHES "*po/d-poordl.*" THEN do:
+      RUN sys/ref/nk1look.p (INPUT ip-company, "POItemFilterDefault", "L" /* Logical */, NO /* check by cust */, 
+                             INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                             OUTPUT cRtnChar, OUTPUT lRecFound).
+      IF lRecFound THEN
+          lDefaultFilteras = LOGICAL(cRtnChar) NO-ERROR.
+      IF lDefaultFilteras THEN
+          ASSIGN rd-filter = 1 .
+      ELSE
+          rd-filter = 2.
+  END.
+  ELSE DO:
       ASSIGN rd-filter = 2 .
+      rd-filter:HIDDEN in FRAME {&FRAME-NAME} = YES .
+  END.
       
   &scoped-define key-phrase {&fld-name-1} >= ip-cur-val
   &scoped-define sortby-phrase {&sortby-1}
@@ -455,6 +459,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       rd-filter:HIDDEN in FRAME {&FRAME-NAME} = YES .
       lv-label:HIDDEN in FRAME {&FRAME-NAME} = YES  .
   END.
+  APPLY "value-changed" TO rd-sort.
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -529,6 +534,61 @@ PROCEDURE get-cust-part :
        lv-cust-no = ip-cust-no.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSearchData Dialog-Frame 
+PROCEDURE pSearchData :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DO WITH FRAME {&FRAME-NAME}:
+       IF rd-filter EQ 1 THEN do:
+            case rd-sort:
+            {srtord2.i 1}
+            {srtord2.i 2}
+            END.
+      END.
+      ELSE IF rd-filter EQ 2 THEN do:
+           
+       IF rd-sort EQ 1 THEN do:
+        OPEN QUERY {&browse-name}
+          FOR EACH itemfg WHERE {&KEY-PHRASE}
+              and itemfg.company = ip-company AND itemfg.stat EQ "A"
+              AND itemfg.i-no BEGINS lv-search  
+              AND itemfg.i-no NE "" NO-LOCK,
+              first e-itemfg-vend NO-LOCK 
+              where e-itemfg-vend.company eq itemfg.company 
+              and e-itemfg-vend.i-no    eq itemfg.i-no 
+              and e-itemfg-vend.vend-no EQ ip-vendor  OUTER-JOIN
+              {&sortby-1}.
+          END.
+          ELSE IF rd-sort EQ 2 THEN do:
+              OPEN QUERY {&browse-name}
+              FOR EACH itemfg WHERE {&KEY-PHRASE}
+              and itemfg.company = ip-company AND itemfg.stat EQ "A"
+              AND itemfg.i-name BEGINS lv-search  
+              AND itemfg.i-no NE ""    NO-LOCK,
+              first e-itemfg-vend NO-LOCK 
+              where e-itemfg-vend.company eq itemfg.company 
+              and e-itemfg-vend.i-no    eq itemfg.i-no 
+              and e-itemfg-vend.vend-no EQ ip-vendor  OUTER-JOIN
+              {&sortby-2}.
+          END.
+
+          IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN DO:
+              MESSAGE "Record not found beginning with '" + lv-search + "' !!!"
+                  VIEW-AS ALERT-BOX.
+              APPLY "ENTRY" TO {&BROWSE-NAME}.
+          END.
+      END. /* all po */
+
+     apply "entry" to {&browse-name}.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -3,7 +3,7 @@
 PUT "<FArial>".
 PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
-  PUT "<C2><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP
+  PUT "<P10><C2><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP
     "<FCourier New>"
     space(4) "Bill To:" "<C50>" "Ship To:" SKIP
     SPACE(4) inv-head.cust-name "<C50>" v-shipto-name  skip
@@ -59,7 +59,7 @@ PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
                 .   
-PUT "<FArial><=5><R+1>   Ordered     Shipped      Order      Item#/CustPart#                       Description                             Price       UOM             Amount" SKIP(1).
+PUT "<FArial><=5><R+1>   Ordered     Shipped      Order      Item#/CustPart#                       Description                             Price       UOM             Amount <P9>" SKIP(1).
 v-printline = v-printline + 4.
            
 

@@ -671,9 +671,9 @@ DO:
                       AND b-fg-rdtlh.qty       GT 0
                       AND b-fg-rdtlh.rita-code NE "S"
                       USE-INDEX tag) THEN DO:
-                    MESSAGE "This Tag Number Has Already Been Used." SKIP
-                            "Please Enter A Unique Tag Number."
-                            VIEW-AS ALERT-BOX ERROR.
+                    MESSAGE "This Tag Number Has Already Been Used, Negative receipts should be" SKIP
+                            "processed using  Sharp Shooter, Finished Goods, Delete Goods program."
+                            VIEW-AS ALERT-BOX ERROR. 
                     RETURN NO-APPLY.
                  END.
               END.
@@ -764,20 +764,20 @@ DO:
           RETURN NO-APPLY.
 
     END.
-    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND
+    IF lv-do-what <> "Delete" AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND
        CAN-FIND(FIRST b-fg-rctd 
                 WHERE b-fg-rctd.company = cocode 
                 AND b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} 
                 AND b-fg-rctd.rita-code <> "P" 
                 AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN
        DO:
-          MESSAGE "This Tag Number Has Already Been Used." SKIP
-                  "Please Enter A Unique Tag Number." 
+          MESSAGE "This Tag Number Has Already Been Used, Negative receipts should be " + 
+                  "processed using Sharp Shooter, Finished Goods, Delete Goods program." 
              VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
        END.
     ELSE DO:
-        IF lv-do-what <> "Delete" AND fg-rctd.tag:SCREEN-VALUE <> "" AND
+        IF lv-do-what <> "Delete" AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND
         CAN-FIND(FIRST b-fg-rdtlh WHERE
         b-fg-rdtlh.company   EQ cocode AND
         b-fg-rdtlh.loc       EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} AND
@@ -786,9 +786,9 @@ DO:
         b-fg-rdtlh.rita-code NE "S"
         USE-INDEX tag) THEN
         DO:
-           MESSAGE "This Tag Number Has Already Been Used." SKIP
-                   "Please Enter A Unique Tag Number." 
-                   VIEW-AS ALERT-BOX ERROR.
+           MESSAGE "This Tag Number Has Already Been Used, Negative receipts should be " + 
+                  "processed using Sharp Shooter, Finished Goods, Delete Goods program."
+              VIEW-AS ALERT-BOX ERROR.
            RETURN NO-APPLY.
         END.
         RUN valid-tag (fg-rctd.tag:HANDLE IN BROWSE {&browse-name}, OUTPUT op-error).
@@ -3256,7 +3256,8 @@ PROCEDURE valid-tag :
                         AND b-fg-rdtlh.tag       EQ ip-focus:SCREEN-VALUE
                         AND b-fg-rdtlh.qty       GT 0
                         AND b-fg-rdtlh.rita-code NE "S")) THEN
-             lv-msg = "Tag# has already been used, please re-enter".
+             lv-msg = "Tag# has already been used, Negative receipts should be " + 
+                "processed using Sharp Shooter, Finished Goods, Delete Goods program" .
         
          END. /*lv-do-what NE "Delete"*/
          ELSE IF NOT ll-set-parts THEN

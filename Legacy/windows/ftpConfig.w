@@ -6,7 +6,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
-  File: windows/<table>.w
+  File: windows/ftpConfig.w
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -116,7 +116,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "<Enter Title>"
+         TITLE              = "FTP Configuration"
          HEIGHT             = 24
          WIDTH              = 150
          MAX-HEIGHT         = 24

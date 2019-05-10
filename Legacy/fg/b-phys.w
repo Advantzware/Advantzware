@@ -57,6 +57,7 @@ DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-prv-i-no LIKE fg-rctd.i-no NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lCheckTag AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 ASSIGN
@@ -704,6 +705,9 @@ DO:
     IF AVAIL loadtag AND loadtag.po-no GT 0 THEN
         fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no).
     
+    RUN validate-tag(0) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
     RUN validate-count .
 
   END.
@@ -718,6 +722,7 @@ ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
   IF LASTKEY NE -1 THEN DO:
    lCheckCount = NO .
+   lCheckTag = NO .
   END.
 END.
 
@@ -1150,6 +1155,15 @@ PROCEDURE fgbin-help :
 
       RUN new-bin.
     END.  */
+
+    FIND FIRST fg-bin WHERE fg-bin.company eq cocode AND
+                      ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
+    IF AVAIL fg-bin THEN
+        ASSIGN fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.tag.
+
+    lCheckTag = NO.
+    RUN validate-tag(0) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     FIND FIRST tt-selected NO-LOCK NO-ERROR.
     IF AVAIL tt-selected THEN DO:
@@ -1683,10 +1697,10 @@ PROCEDURE local-update-record :
   RUN valid-loc-bin NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
- /*
-  RUN valid-tag NO-ERROR.
+ 
+  RUN validate-tag(1) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- */
+ 
   RUN validate-count .
 
   RUN valid-cust-no NO-ERROR.
@@ -1728,6 +1742,7 @@ PROCEDURE local-update-record :
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (yes).
   ASSIGN 
     lAddMode = FALSE.
+    lCheckTag = NO .
 
 END PROCEDURE.
 
@@ -2313,14 +2328,58 @@ IF NOT lCheckCount THEN do:
             EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no 
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
             AND fg-rdtlh.tag EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK: 
-            MESSAGE "Note: A count is already entered for this tag for the same date with a count of "
-                    STRING(fg-rdtlh.qty-case) VIEW-AS ALERT-BOX INFO .
+            MESSAGE "Note: A count is already entered for this tag for the same date with a quantity of "
+                    STRING(fg-rdtlh.qty) VIEW-AS ALERT-BOX INFO .
             lCheckCount = YES .
             LEAVE .
         END.
     END.
    END.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-tag B-table-Win 
+PROCEDURE validate-tag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipiTag AS INTEGER NO-UNDO .
+DEFINE BUFFER bf-fg-rctd FOR fg-rctd .
+IF NOT lCheckTag THEN do:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE bf-fg-rctd.company EQ g_company 
+               AND bf-fg-rctd.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+               AND bf-fg-rctd.rita-code EQ "C"
+               AND bf-fg-rctd.tag EQ (fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}) 
+               AND ROWID(bf-fg-rctd) NE ROWID(fg-rctd)
+            NO-ERROR .
+        IF AVAIL bf-fg-rctd THEN do:
+            MESSAGE "There is already a count entry for this tag in location '" + bf-fg-rctd.loc + "' with a quantity of '" 
+            + STRING(bf-fg-rctd.t-qty) +  "'. Are you sure you want to add another count entry for this tag? " 
+            VIEW-AS ALERT-BOX QUESTION BUTTON OK-CANCEL UPDATE ll-ans AS LOG .
+            IF NOT ll-ans  THEN do:
+              IF ipiTag EQ 0 THEN do:
+                 APPLY "entry" TO fg-rctd.tag .
+                 RETURN ERROR.  
+              END.
+              ELSE DO:
+                  RUN local-cancel-record . 
+                  RETURN ERROR .
+              END.
+            END.
+            ELSE DO:
+                lCheckTag = YES .
+            END.
+        END.
+   END.
+END.
 
 END PROCEDURE.
 

@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 
 {custom/globdefs.i}
 {oe/ordholdstat.i} 
+{oe/oeValidateInc.i}
 
 /* for oecomm.i */
 DEF NEW SHARED VAR v-upd-comm AS LOG INITIAL YES NO-UNDO.
@@ -65,7 +66,6 @@ DEF VAR v-estord-id AS RECID EXTENT 10 NO-UNDO.
 DEF VAR v-multord AS LOG NO-UNDO.
 DEF VAR ll-ord-no-override AS LOG NO-UNDO.
 DEFINE VARIABLE lWebOrder AS LOGICAL NO-UNDO.
-
 {ce/print4.i "new shared"}
 {ce/print42.i "new shared"}
 DEF NEW SHARED WORKFILE work-ordl LIKE oe-ordl.
@@ -124,6 +124,7 @@ DEF NEW SHARED BUFFER xef FOR ef.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -153,13 +154,13 @@ ASSIGN
 
 {oe/oe-sysct1.i NEW}
 {sys/ref/CustList.i NEW}        
+
   DO TRANSACTION:
     {sys/inc/oedate.i}
     {sys/inc/oecomb.i}
     {sys/inc/job#.i}
     {sys/inc/graphic.i}
     {sys/inc/oeestcom.i}
-    {sys/inc/OEPrepTaxCode.i}
     {sys/inc/shiptorep.i}
     {sys/inc/custlistform.i ""OU1"" }
   END.
@@ -221,6 +222,11 @@ RUN methods/prgsecur.p
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
+                          OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+   llOeShipFromLog = LOGICAL(cRtnChar) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -246,38 +252,37 @@ RUN methods/prgsecur.p
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.po-no oe-ord.spare-char-2 oe-ord.sold-id ~
-oe-ord.ship-id oe-ord.contact oe-ord.csrUser_id oe-ord.entered-id ~
-oe-ord.poReceivedDate oe-ord.ord-date oe-ord.due-code oe-ord.due-date ~
-oe-ord.last-date oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct ~
-oe-ord.terms oe-ord.tax-gr oe-ord.managed oe-ord.priceHold ~
-oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] ~
-oe-ord.sman[2] oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] ~
-oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier ~
-oe-ord.fob-code oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 ~
-oe-ord.cc-num oe-ord.cc-auth 
+oe-ord.job-no2 oe-ord.po-no oe-ord.sold-id oe-ord.ship-id oe-ord.contact ~
+oe-ord.csrUser_id oe-ord.entered-id oe-ord.poReceivedDate oe-ord.ord-date ~
+oe-ord.due-code oe-ord.due-date oe-ord.last-date oe-ord.prod-date ~
+oe-ord.over-pct oe-ord.under-pct oe-ord.terms oe-ord.tax-gr oe-ord.managed ~
+oe-ord.spare-char-2 oe-ord.priceHold oe-ord.priceHoldReason oe-ord.sman[1] ~
+oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.s-pct[2] ~
+oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.s-pct[3] oe-ord.s-comm[3] ~
+oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code oe-ord.cc-type ~
+oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num oe-ord.cc-auth 
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
 btnCalendar-4 btnCalendar-5 btnCalendar-6 RECT-30 RECT-33 RECT-35 RECT-36 ~
-RECT-37 RECT-34 
+RECT-37 RECT-34 imgHoldRsn 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.po-no oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 ~
-oe-ord.cust-no oe-ord.sold-id oe-ord.ship-id oe-ord.contact ~
-oe-ord.csrUser_id oe-ord.entered-id oe-ord.poReceivedDate oe-ord.ord-date ~
-oe-ord.cust-name oe-ord.sold-name oe-ord.due-code oe-ord.due-date ~
-oe-ord.last-date oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct ~
-oe-ord.terms oe-ord.terms-d oe-ord.tax-gr oe-ord.managed oe-ord.priceHold ~
-oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.sname[1] oe-ord.s-pct[1] ~
-oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.sname[2] oe-ord.s-pct[2] ~
-oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.sname[3] oe-ord.s-pct[3] ~
-oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
-oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num ~
-oe-ord.cc-auth oe-ord.approved-date oe-ord.ack-prnt-date 
+oe-ord.job-no2 oe-ord.po-no oe-ord.user-id oe-ord.stat oe-ord.cust-no ~
+oe-ord.sold-id oe-ord.ship-id oe-ord.contact oe-ord.csrUser_id ~
+oe-ord.entered-id oe-ord.poReceivedDate oe-ord.ord-date oe-ord.cust-name ~
+oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
+oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
+oe-ord.terms-d oe-ord.tax-gr oe-ord.managed oe-ord.spare-char-2 ~
+oe-ord.priceHold oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.sname[1] ~
+oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.sname[2] ~
+oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.sname[3] ~
+oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier ~
+oe-ord.fob-code oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 ~
+oe-ord.cc-num oe-ord.cc-auth oe-ord.approved-date oe-ord.ack-prnt-date 
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
-&Scoped-Define DISPLAYED-OBJECTS fiText1 fiText2 fiCustAddress fiHoldType ~
-fiShipName fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl ~
+&Scoped-Define DISPLAYED-OBJECTS fiText1 fiText2 fiCustAddress fiShipName ~
+fi_type fi_prev_order fiHoldType fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl ~
 fi_sman-lbl fiSoldAddress fiShipAddress 
 
 /* Custom List Definitions                                              */
@@ -333,7 +338,8 @@ FUNCTION fBuildAddress RETURNS CHARACTER
 FUNCTION fGetTaxable RETURNS LOGICAL
   ( ipcCompany AS CHARACTER,
    ipcCust AS CHARACTER,
-   ipcShipto AS CHARACTER) FORWARD.
+   ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -438,6 +444,10 @@ DEFINE VARIABLE fi_type AS CHARACTER FORMAT "X"
      VIEW-AS FILL-IN 
      SIZE 3.2 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer".
 
+DEFINE IMAGE imgHoldRsn
+     FILENAME "graphics/16x16/question.png":U
+     SIZE 4 BY .95.
+
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 76.4 BY 4.62.
@@ -471,7 +481,6 @@ DEFINE FRAME F-Main
      fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiHoldType AT ROW 9.33 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
@@ -500,10 +509,6 @@ DEFINE FRAME F-Main
           LABEL "Status"
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1
-     oe-ord.spare-char-2 AT ROW 9.33 COL 108 COLON-ALIGNED WIDGET-ID 8
-          LABEL "Hold Type" FORMAT "x(2)"
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1 TOOLTIP "Order Hold Type"
      oe-ord.cust-no AT ROW 2.67 COL 10.8 COLON-ALIGNED
           LABEL "Bill To" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -553,13 +558,6 @@ DEFINE FRAME F-Main
           LABEL "Last Ship"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      oe-ord.prod-date AT ROW 5.81 COL 128.2 COLON-ALIGNED
           LABEL "Production"
           VIEW-AS FILL-IN 
@@ -567,6 +565,13 @@ DEFINE FRAME F-Main
      oe-ord.over-pct AT ROW 9.33 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      oe-ord.under-pct AT ROW 10.38 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
@@ -585,6 +590,11 @@ DEFINE FRAME F-Main
      oe-ord.managed AT ROW 11.38 COL 50
           VIEW-AS TOGGLE-BOX
           SIZE 26 BY 1
+     oe-ord.spare-char-2 AT ROW 9.33 COL 108 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Hold Type" FORMAT "x(2)"
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1 TOOLTIP "Order Hold Type"
+     fiHoldType AT ROW 9.33 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      oe-ord.priceHold AT ROW 11 COL 103.2 RIGHT-ALIGNED WIDGET-ID 22
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
@@ -699,6 +709,7 @@ DEFINE FRAME F-Main
      RECT-36 AT ROW 13.71 COL 1.6
      RECT-37 AT ROW 2.52 COL 1.6
      RECT-34 AT ROW 9.1 COL 78 WIDGET-ID 14
+     imgHoldRsn AT ROW 9.52 COL 93
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -928,6 +939,7 @@ DO:
   DEF VAR look-recid AS RECID NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEF VAR fields-val AS CHARACTER NO-UNDO .
 
 
   lw-focus = FOCUS.
@@ -1392,6 +1404,17 @@ ON RETURN OF oe-ord.frt-pay IN FRAME F-Main /* Freight Pay Code */
 DO:
    APPLY "tab" TO SELF.
    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imgHoldRsn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
+ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
+DO:
+    RUN sys/ref/dlgTagVwr.w (oe-ord.rec_key,"","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2520,12 +2543,12 @@ PROCEDURE create-misc :
                                   (est-prep.cost * est-prep.qty) * (1 + (est-prep.mkup / 100)) * 
                                   (est-prep.amtz / 100)
                 oe-ordm.est-no = est-prep.est-no
-                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id)
+                oe-ordm.tax =  fGetTaxable(g_company, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge)
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
 
-         IF PrepTax-log THEN 
-            ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+         IF oe-ordm.tax THEN 
+            ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
                    .  
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                             OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
@@ -2641,6 +2664,7 @@ PROCEDURE create-release :
                             AND eb.form-no  NE 0
                                NO-LOCK NO-ERROR.
             IF AVAIL eb THEN ASSIGN v-ship-id = eb.ship-id.
+            if avail eb AND v-ship-from EQ "" then assign v-ship-from = eb.loc.
          END.
          ELSE DO:
             FIND FIRST shipto NO-LOCK  
@@ -2658,8 +2682,13 @@ PROCEDURE create-release :
                                      AND shipto.cust-no EQ oe-ordl.cust-no
                                      NO-LOCK NO-ERROR.   
             IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id.
+            IF AVAIL shipto AND v-ship-from EQ "" THEN
+                v-ship-from = shipto.loc.
          END.
-         RUN oe/d-shipid.w (INPUT oe-ord.cust-no , INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+         
+         IF llOeShipFromLog THEN
+             RUN oe/d-shipid.w (INPUT oe-ord.cust-no , INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id , INPUT-OUTPUT v-ship-from).
+
          ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
          FIND FIRST shipto WHERE shipto.company = cocode AND
                                   shipto.cust-no = oe-ord.cust-no  AND
@@ -2924,7 +2953,9 @@ END.
            itemfg.spc-no     = xeb.spc-no
            itemfg.isaset     = xeb.form-no EQ 0
            itemfg.pur-man    = xeb.pur-man
-           itemfg.alloc      = xeb.set-is-assembled.
+           itemfg.alloc      = xeb.set-is-assembled
+           itemfg.trno       = xeb.tr-no 
+           itemfg.spare-char-4 = xeb.dest-code .
 
     IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
     {oe/fgfreighta.i xeb}  
@@ -5234,7 +5265,11 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+    /*
+    ASSIGN 
+        imgHoldRsn:VISIBLE IN FRAME {&frame-name} = TRUE.
+    */     
+  
   DO WITH FRAME {&FRAME-NAME}:
       ASSIGN oe-ord.spare-char-2:TOOLTIP =  getOrdStatDescr(oe-ord.spare-char-2:SCREEN-VALUE).      
   END.
@@ -5523,9 +5558,52 @@ PROCEDURE local-update-record :
   CREATE old-oe-ord.
   BUFFER-COPY oe-ord TO old-oe-ord.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+    RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).
+    IF lHoldError                                                       /* ValidateALL has reported an error */
+    AND (DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) NE TRUE) THEN DO:  /* BUT there is a manual release tag */
+        MESSAGE 
+            "This order would be placed on hold due to the following:" SKIP 
+            cErrMessage SKIP 
+            "but the order has been MANUALLY RELEASED." SKIP(1)
+            "Press YES to continue with the order RELEASED." SKIP 
+            "Press NO to remove the release flag and continue" SKIP 
+            "with the order ON HOLD."
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lRelease AS LOG.
+        
+        IF NOT lRelease THEN DO: /* User said remove release tag */
+            RUN removeManualRelease IN spOeValidate (oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
+            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+            ASSIGN 
+                bf-oe-ord.stat = "H".
+            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
+        END.
+        ELSE 
+        DO:
+            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+            ASSIGN 
+                bf-oe-ord.stat = "N".
+            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
+        END.
+    END.
+    ELSE IF lHoldError THEN DO:    
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+        ASSIGN 
+            bf-oe-ord.stat = "H".
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
+        MESSAGE 
+            "Order placed on hold due to:" + CHR(10) + cErrMessage
+            VIEW-AS ALERT-BOX.
+    END.
+    ELSE DO:    
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
+        ASSIGN 
+            bf-oe-ord.stat = "N".
+        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
+    END.
+  
   /* If hold status needs to be changed on line items,
      process the line item update in oe/ordholdstat.i. */
   IF glStatTypeItemUpdate = YES THEN
@@ -7027,14 +7105,15 @@ END FUNCTION.
 FUNCTION fGetTaxable RETURNS LOGICAL
   ( ipcCompany AS CHARACTER,
    ipcCust AS CHARACTER,
-   ipcShipto AS CHARACTER):
+   ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

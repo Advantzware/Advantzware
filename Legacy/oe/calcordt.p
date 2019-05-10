@@ -38,12 +38,13 @@ IF AVAILABLE oe-ord THEN
 DO:
 
     lLockFirst = YES.
-
-    FIND FIRST oe-ctrl NO-LOCK 
+    /*FIND FIRST oe-ctrl NO-LOCK 
         WHERE oe-ctrl.company EQ oe-ord.company 
         NO-ERROR.
     IF AVAILABLE oe-ctrl THEN 
-        lTaxOnFreight = oe-ctrl.f-tax.  
+        lTaxOnFreight = oe-ctrl.f-tax.  */
+
+    RUN oe/FrtTaxAvail.p(oe-ord.company,oe-ord.tax-gr,OUTPUT lTaxOnFreight) .
 
     RUN ar/cctaxrt.p (oe-ord.company, oe-ord.tax-gr, OUTPUT dTaxRate, OUTPUT dTaxRateFreight).
 
