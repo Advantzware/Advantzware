@@ -91,7 +91,7 @@ DEFINE VARIABLE lCreated            AS LOGICAL   NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btKeyboard-1 RECT-27 fiTag br-table btExit ~
 btFirst btLast btNext btPrevious btnNumPad 
-&Scoped-Define DISPLAYED-OBJECTS fiItemType fiID fiTag fiLastOp 
+&Scoped-Define DISPLAYED-OBJECTS fiItemType fiID fiTag fiLastOp fiMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -162,6 +162,11 @@ DEFINE VARIABLE fiLastOp AS CHARACTER FORMAT "X(256)":U
      SIZE 40 BY 1
      BGCOLOR 15 FONT 35 NO-UNDO.
 
+DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 73 BY 1
+     FONT 35 NO-UNDO.
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 63 BY 1.38
@@ -211,13 +216,14 @@ DEFINE BROWSE br-table
 
 DEFINE FRAME F-Main
      btKeyboard-1 AT ROW 3.86 COL 86 WIDGET-ID 142
-     fiItemType AT ROW 3.81 COL 121.2 NO-LABEL WIDGET-ID 162
-     fiID AT ROW 3.81 COL 132 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+     fiItemType AT ROW 2.91 COL 121.2 NO-LABEL WIDGET-ID 162
+     fiID AT ROW 2.91 COL 132 COLON-ALIGNED NO-LABEL WIDGET-ID 62
      fiTag AT ROW 3.95 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-     fiLastOp AT ROW 4.95 COL 141.8 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     fiLastOp AT ROW 4.05 COL 141.8 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     fiMessage AT ROW 5.81 COL 117.6 COLON-ALIGNED NO-LABEL WIDGET-ID 164
      br-table AT ROW 7.67 COL 2 WIDGET-ID 200
      btPost AT ROW 31.05 COL 151 WIDGET-ID 38
-     btExit AT ROW 3.1 COL 192 WIDGET-ID 84
+     btExit AT ROW 2.19 COL 192 WIDGET-ID 84
      btFirst AT ROW 7.62 COL 192 WIDGET-ID 128
      btLast AT ROW 28.29 COL 192 WIDGET-ID 130
      btNext AT ROW 23.91 COL 192.2 WIDGET-ID 132
@@ -227,14 +233,14 @@ DEFINE FRAME F-Main
           SIZE 6.8 BY 1.19 AT ROW 4.1 COL 13.4 WIDGET-ID 22
           BGCOLOR 15 FGCOLOR 1 FONT 36
      "Last Operation:" VIEW-AS TEXT
-          SIZE 21 BY .81 AT ROW 5.05 COL 121.2 WIDGET-ID 70
+          SIZE 21 BY .81 AT ROW 4.14 COL 121.2 WIDGET-ID 70
           BGCOLOR 15 FONT 35
-     "Job Details" VIEW-AS TEXT
-          SIZE 15.8 BY .62 AT ROW 2.76 COL 123.4 WIDGET-ID 16
+     "Tag Details" VIEW-AS TEXT
+          SIZE 15.8 BY .62 AT ROW 1.86 COL 123.4 WIDGET-ID 16
           BGCOLOR 15 FONT 35
      RECT-2 AT ROW 3.43 COL 97 WIDGET-ID 140
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 126
-     RECT-25 AT ROW 3.05 COL 119.2 WIDGET-ID 14
+     RECT-25 AT ROW 2.14 COL 119.2 WIDGET-ID 14
      RECT-27 AT ROW 7.33 COL 2.2 WIDGET-ID 18
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -295,7 +301,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB br-table fiLastOp F-Main */
+/* BROWSE-TAB br-table fiMessage F-Main */
 ASSIGN 
        btKeyboard-1:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -309,6 +315,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fiItemType IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiLastOp IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiMessage IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -575,7 +583,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiItemType fiID fiTag fiLastOp 
+  DISPLAY fiItemType fiID fiTag fiLastOp fiMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btKeyboard-1 RECT-27 fiTag br-table btExit btFirst btLast btNext 
          btPrevious btnNumPad 
@@ -666,8 +674,11 @@ PROCEDURE pSubmitScan :
         ).
     
     IF NOT lValidInvStock THEN DO:
-        MESSAGE cReturnMessage 
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pUpdateMessageText (
+            cReturnMessage, /* Message Text */
+            TRUE,           /* Error */
+            FALSE           /* Alert-box*/
+            ).
         RETURN.
     END.       
     
@@ -693,12 +704,24 @@ PROCEDURE pSubmitScan :
                 ttBrowseinventory.locationID      = ttInventoryStockDetails.warehouseID +
                                                     FILL(" ", 5 - LENGTH(ttInventoryStockDetails.warehouseID)) +
                                                     ttInventoryStockDetails.locationID                                                    
+                cMessage                          = "Tag Received"
                 .
+             
+            RUN pUpdateMessageText (
+                cMessage, /* Message Text */
+                FALSE,    /* Error */
+                FALSE     /* Alert-box*/
+                ).
         END.
-        ELSE
-            MESSAGE "Tag is in " + ttInventoryStockDetails.inventoryStatus + " status." + 
-                    " Cannot Post transaction "
-                VIEW-AS ALERT-BOX ERROR.
+        ELSE DO:
+            cMessage = "Tag is in " + ttInventoryStockDetails.inventoryStatus + " status." + 
+                       " Cannot Post transaction ".
+            RUN pUpdateMessageText (
+                cMessage, /* Message Text */
+                TRUE,     /* Error */
+                FALSE     /* Alert-box*/
+                ).
+        END.
     END.                  
 END PROCEDURE.
 
@@ -722,7 +745,12 @@ PROCEDURE pTagScan :
     END.
     
     IF ipcTag EQ "" THEN DO:
-        MESSAGE "Empty Tag" VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Empty Tag".
+        RUN pUpdateMessageText (
+            cMessage,    /* Message Text */
+            TRUE,        /* Error */
+            FALSE        /* Alert-box*/
+            ).
         RETURN.
     END.
     
@@ -735,7 +763,11 @@ PROCEDURE pTagScan :
         ).
     
     IF NOT lValidInvStock THEN DO:
-        MESSAGE cReturnMessage VIEW-AS ALERT-BOX ERROR.
+        RUN pUpdateMessageText (
+            cReturnMessage, /* Message Text */
+            TRUE,           /* Error */
+            FALSE           /* Alert-box*/
+            ).
         RETURN.
     END.       
     
@@ -760,6 +792,43 @@ PROCEDURE pTagScan :
      END.
      
      
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateMessageText W-Win 
+PROCEDURE pUpdateMessageText :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplError    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplAlertBox AS LOGICAL   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    fiMessage:SCREEN-VALUE = "".
+    
+    IF iplAlertBox THEN DO:
+        MESSAGE ipcMessage
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
+    ASSIGN
+        fiMessage:SCREEN-VALUE = ipcMessage
+        fiMessage:FGCOLOR      = 2   /* Green */
+        .
+
+    IF iplError THEN
+        ASSIGN
+            fiMessage:SCREEN-VALUE = "**" + ipcMessage
+            fiMessage:FGCOLOR      = 12  /* Red */
+            .         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
