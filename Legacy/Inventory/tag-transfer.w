@@ -12,7 +12,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: 
+  File: tag-transfer.w
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -186,7 +186,7 @@ DEFINE VARIABLE fiID AS CHARACTER FORMAT "X(256)":U
      SIZE 50.8 BY 1
      BGCOLOR 15 FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiItemType AS CHARACTER FORMAT "X(256)":U INITIAL "WIP ID:" 
+DEFINE VARIABLE fiItemType AS CHARACTER FORMAT "X(256)":U INITIAL "WP ID:" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1
      BGCOLOR 15 FONT 35 NO-UNDO.
@@ -914,21 +914,34 @@ PROCEDURE pSubmitScan :
         
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
-    fiMessage:SCREEN-VALUE = "".
-        
+            
     IF ipcTag EQ "" THEN DO:
-        MESSAGE "Blank Tag" VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Blank Tag".
+        RUN pUpdateMessageText (
+            cMessage, /* Message Text */
+            TRUE,     /* Error */
+            FALSE     /* Alert-box*/
+            ).        
         RETURN.
     END.
          
     IF ipcWarehouseID EQ "" THEN DO:
-        MESSAGE "Blank Warehouse" VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Blank Warehouse".
+        RUN pUpdateMessageText (
+            cMessage, /* Message Text */
+            TRUE,     /* Error */
+            FALSE     /* Alert-box*/
+            ).        
         RETURN.
     END.    
 
     IF ipcLocationID EQ "" THEN DO:
-        MESSAGE "Blank Bin" VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Blank Bin".
+        RUN pUpdateMessageText (
+            cMessage, /* Message Text */
+            TRUE,     /* Error */
+            FALSE     /* Alert-box*/
+            ).        
         RETURN.
     END.
 
@@ -939,8 +952,12 @@ PROCEDURE pSubmitScan :
         ).
         
     IF NOT lValidLoc THEN DO:
-        MESSAGE "Invalid WarehouseID " + ipcWarehouseID
-            VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Invalid WarehouseID " + ipcWarehouseID.
+        RUN pUpdateMessageText (
+            cMessage, /* Message Text */
+            TRUE,     /* Error */
+            FALSE     /* Alert-box*/
+            ).        
         RETURN.
     END.
  
@@ -952,8 +969,12 @@ PROCEDURE pSubmitScan :
         ).
         
     IF NOT lValidBin THEN DO:
-        MESSAGE "Invalid Bin " + ipcLocationID
-            VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Invalid Bin " + ipcLocationID.
+        RUN pUpdateMessageText (
+            cMessage, /* Message Text */
+            TRUE,     /* Error */
+            FALSE     /* Alert-box*/
+            ).        
         RETURN.
     END.
 
@@ -966,8 +987,12 @@ PROCEDURE pSubmitScan :
         ).
     
     IF NOT lValidInvStock THEN DO:
-        MESSAGE cReturnMessage 
-            VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Invalid Bin " + ipcLocationID.
+        RUN pUpdateMessageText (
+            cReturnMessage, /* Message Text */
+            TRUE,           /* Error */
+            FALSE           /* Alert-box*/
+            ).        
         RETURN.
     END.       
     
@@ -976,9 +1001,12 @@ PROCEDURE pSubmitScan :
     IF AVAILABLE ttInventoryStockDetails THEN DO:
         IF ttInventoryStockDetails.warehouseID EQ ipcWarehouseID AND
            ttInventoryStockDetails.locationID  EQ ipcLocationID THEN DO:
-/*             MESSAGE "Scanned location is same as existing" */
-/*                 VIEW-AS ALERT-BOX ERROR. */
-            fiMessage:SCREEN-VALUE = "** Scanned location is same as existing".
+            cMessage = "Scanned location is same as existing".
+            RUN pUpdateMessageText (
+                cMessage, /* Message Text */
+                TRUE,     /* Error */
+                FALSE     /* Alert-box*/
+                ).        
             RETURN.
         END.
 
@@ -1007,7 +1035,14 @@ PROCEDURE pSubmitScan :
                 fiLocation:SCREEN-VALUE      = ttBrowseinventory.locationID
                 cbWarehouse:SCREEN-VALUE     = ipcWarehouseID
                 fiBin:SCREEN-VALUE           = ipcLocationID
+                cMessage                     = "Tag Transferred"
                 .
+
+            RUN pUpdateMessageText (
+                cMessage, /* Message Text */
+                FALSE,    /* Error */
+                FALSE     /* Alert-box*/
+                ).                        
         END.
     END.                  
 END PROCEDURE.
@@ -1032,7 +1067,12 @@ PROCEDURE pTagScan :
     END.
     
     IF ipcTag EQ "" THEN DO:
-        MESSAGE "Empty Tag" VIEW-AS ALERT-BOX ERROR.
+        cMessage = "Empty Tag".
+        RUN pUpdateMessageText (
+            cMessage, /* Message Text */
+            TRUE,     /* Error */
+            FALSE     /* Alert-box*/
+            ).        
         RETURN.
     END.
     
@@ -1045,7 +1085,11 @@ PROCEDURE pTagScan :
         ).
     
     IF NOT lValidInvStock THEN DO:
-        MESSAGE cReturnMessage VIEW-AS ALERT-BOX ERROR.
+        RUN pUpdateMessageText (
+            cReturnMessage, /* Message Text */
+            TRUE,           /* Error */
+            FALSE           /* Alert-box*/
+            ).        
         RETURN.
     END.       
     
@@ -1068,6 +1112,43 @@ PROCEDURE pTagScan :
                                        ttInventoryStockDetails.locationID
             .
             
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateMessageText W-Win 
+PROCEDURE pUpdateMessageText :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcMessage  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplError    AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplAlertBox AS LOGICAL   NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    fiMessage:SCREEN-VALUE = "".
+
+    IF iplAlertBox THEN DO:
+        MESSAGE ipcMessage
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+
+    ASSIGN
+        fiMessage:SCREEN-VALUE = ipcMessage
+        fiMessage:FGCOLOR      = 2   /* Green */
+        .
+
+    IF iplError THEN
+        ASSIGN
+            fiMessage:SCREEN-VALUE = "**" + ipcMessage
+            fiMessage:FGCOLOR      = 12  /* Red */
+            .         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
