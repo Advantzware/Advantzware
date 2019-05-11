@@ -641,12 +641,22 @@ ASSIGN
 ON DEFAULT-ACTION OF br-estitm IN FRAME Corr
 DO:
    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
-   DEF VAR char-hdl AS cha NO-UNDO.   
+   DEF VAR char-hdl AS cha NO-UNDO.  
+   DEFINE VARIABLE rRowid AS ROWID NO-UNDO .
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
-   RUN new-state IN phandle ('update-begin':U).
+
+   FIND FIRST estRelease NO-LOCK
+       WHERE estRelease.compamy EQ cocode
+         AND estRelease.estimateNo EQ eb.est-no
+         AND estRelease.formNo EQ eb.form-no
+         AND estRelease.blankNo EQ eb.blank-No NO-ERROR .
+   IF AVAIL estRelease THEN do:
+       RUN cec/d-estrel.w (RECID(estRelease),ROWID(eb), "update", OUTPUT rRowid) .
+   END.
+   ELSE
+       RUN new-state IN phandle ('update-begin':U).
 
 END.
 
@@ -4363,6 +4373,377 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createESTMiscRel B-table-Win 
+PROCEDURE createESTMiscRel :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ /* from crt-new-est procedure */
+  DEFINE INPUT PARAMETER iprRowid AS ROWID NO-UNDO .
+  DEF BUFFER bf-eb FOR eb.
+  DEF VAR iCount AS INT NO-UNDO.
+  DEF VAR iArtiosCount AS INT NO-UNDO.
+  DEF VAR v-cust-no AS CHAR NO-UNDO.
+  DEF VAR v-tmp LIKE eb.t-wid NO-UNDO.
+  DEF VAR lv-layers AS DEC NO-UNDO.
+  DEF BUFFER b-eb FOR eb.
+  DEF BUFFER b-ef FOR ef.
+  DEF BUFFER bf-est FOR est.
+  DEF BUFFER bf-est-qty FOR est-qty.
+  DEF VAR lv-comm LIKE eb.comm NO-UNDO.
+  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
+  DEF VAR ld-markup AS DEC NO-UNDO.
+  DEFINE VARIABLE lv-rno LIKE estRelease.estReleaseID NO-UNDO.
+  DEFINE BUFFER b-estRelease FOR estRelease.
+  
+  ASSIGN
+  ll-new-record = YES
+  iCount = 0.
+  FOR EACH tt-frmout NO-LOCK BREAK BY tt-frmout.form-no BY tt-frmout.blank-no:
+     iCount = iCount + 1.
+    
+    lv-crt-est-rowid = iprRowid .
+     
+     FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.
+     FIND FIRST ef OF eb  NO-ERROR.
+     FIND FIRST est OF ef  NO-ERROR.
+     FIND est-qty WHERE est-qty.company = ef.company
+                    AND est-qty.est-no = ef.est-no
+                    AND est-qty.eqty = ef.eqty NO-ERROR.
+     
+     ASSIGN lv-eb-recid   = RECID(eb)
+            lv-ef-recid   = RECID(ef)
+            eb.part-no    = tt-frmout.part-no
+            eb.stack-code = tt-frmout.stack-no
+            eb.part-dscr1 = tt-frmout.item-name
+            eb.part-dscr2 = tt-frmout.item-name .
+
+    /* if eb.tr-cnt = 0 then*/ eb.tr-cnt = eb.cas-cnt * eb.cas-pal.
+     
+     ASSIGN 
+         eb.i-coldscr = tt-frmout.colr-dscr
+         eb.tr-no     = tt-frmout.pallet 
+         eb.adhesive  = tt-frmout.glu-cod
+         eb.cas-no    = tt-frmout.bndl-cod 
+         eb.cust-no   = tt-frmout.cust-no
+         eb.ship-id   = tt-frmout.ship-id
+         eb.style     = tt-frmout.style
+         eb.flute     = tt-frmout.flute
+         eb.test      = tt-frmout.test
+         eb.tab-in    = tt-frmout.TAB  
+         ef.board     = tt-frmout.bord     
+         eb.len       = tt-frmout.len
+         eb.wid       = tt-frmout.wid
+         eb.dep       = tt-frmout.dep
+         eb.procat    = tt-frmout.cat 
+         eb.cas-cnt   = tt-frmout.unit-count
+         eb.cas-pal   = tt-frmout.per-pallet
+           .
+     
+     IF AVAIL est-qty THEN
+         ASSIGN eb.eqty = tt-frmout.quantity
+                ef.eqty = tt-frmout.quantity
+          est-qty.eqty = tt-frmout.quantity
+          est-qty.qty[1] = tt-frmout.quantity .
+
+     FIND FIRST itemfg NO-LOCK
+         WHERE  itemfg.company = cocode
+           AND itemfg.stat = "A" AND itemfg.i-no = tt-frmout.stack-no
+           AND ( itemfg.part-no = tt-frmout.part-no OR tt-frmout.part-no = "")  NO-ERROR .
+     IF NOT AVAIL itemfg THEN
+       FIND FIRST itemfg WHERE  itemfg.company = cocode
+         AND itemfg.stat = "A" AND itemfg.i-no = tt-frmout.stack-no NO-LOCK NO-ERROR .
+
+     IF AVAIL itemfg THEN
+         ASSIGN
+        eb.stock-no   = CAPS(itemfg.i-no)
+        eb.pur-man  = TRUE .
+  
+      /* convert to decimal from 1/16 */
+       {sys/inc/k16bb.i eb.wid  } 
+       {sys/inc/k16bb.i eb.len  } 
+       {sys/inc/k16bb.i eb.dep  } 
+        
+        FIND FIRST cust WHERE
+            cust.company = gcompany AND
+            cust.cust-no = eb.cust-no
+            NO-LOCK NO-ERROR.
+
+     IF AVAIL cust THEN DO: 
+        ASSIGN 
+            eb.sman = cust.sman  .
+
+        IF AVAIL cust AND cust.sman NE "" THEN DO:
+          FIND FIRST sman NO-LOCK
+              WHERE sman.company = gcompany
+                AND sman.sman = cust.sman NO-ERROR.
+
+          IF AVAIL sman THEN DO:
+              ASSIGN
+                  lv-sman = sman.sman.
+
+                RELEASE bf-eb.
+                IF eb.est-type EQ 6 THEN
+                FIND FIRST bf-eb NO-LOCK
+                    WHERE bf-eb.company EQ eb.company
+                      AND bf-eb.est-no  EQ eb.est-no
+                      AND bf-eb.form-no EQ 0
+                      AND bf-eb.procat  NE "" NO-ERROR.
+           
+                RUN ce/markup.p (eb.company, ROWID(eb), OUTPUT ld-markup).
+           
+                RUN sys/inc/getsmncm.p (eb.cust-no,
+                                        INPUT-OUTPUT lv-sman,
+                                        (IF AVAIL bf-eb THEN bf-eb.procat ELSE eb.procat),
+                                        ld-markup,
+                                        OUTPUT lv-comm).
+           
+                IF lv-comm NE 0 THEN eb.comm = (lv-comm).
+          END.
+        END.
+            
+        FIND FIRST shipto NO-LOCK
+             WHERE shipto.company EQ gcompany
+               AND shipto.cust-no EQ cust.cust-no
+               AND shipto.ship-id EQ tt-frmout.ship-id   NO-ERROR.
+     END.
+
+      IF AVAIL shipto THEN
+      ASSIGN
+       eb.ship-id      = shipto.ship-id
+       eb.ship-name    = shipto.ship-name
+       eb.ship-addr[1] = shipto.ship-addr[1]
+       eb.ship-addr[2] = shipto.ship-addr[2]
+       eb.ship-city    = shipto.ship-city
+       eb.ship-state   = shipto.ship-state
+       eb.ship-zip     = shipto.ship-zip.
+
+      IF AVAIL shipto AND shipto.spare-char-1 NE "" THEN DO:
+          ASSIGN eb.sman = shipto.spare-char-1 .
+          FIND FIRST sman NO-LOCK
+               WHERE sman.company = gcompany
+                 AND sman.sman = shipto.spare-char-1 NO-ERROR.
+          eb.comm =  IF AVAIL sman THEN sman.scomm ELSE 0. 
+      END.
+
+      FIND FIRST ITEM NO-LOCK
+          WHERE item.company = eb.company 
+            AND item.i-no = eb.cas-no NO-ERROR.
+
+     IF AVAIL item THEN ASSIGN eb.cas-len = (item.case-l)
+                              eb.cas-wid = (item.case-w)
+                              eb.cas-dep = (item.case-d)
+                              eb.cas-wt = (item.avg-w)         
+                              .
+     FIND FIRST ITEM NO-LOCK
+          WHERE item.company = eb.company 
+            AND item.i-no = eb.tr-no NO-ERROR.
+     IF AVAIL item THEN ASSIGN eb.tr-len = (item.case-l)
+                               eb.tr-wid = (item.case-w)
+                               eb.tr-dep = (item.case-d)
+                               .
+   
+     FIND FIRST item NO-LOCK
+            WHERE item.company EQ gcompany
+              AND item.i-no    EQ ef.board
+            NO-ERROR.
+        IF AVAIL item THEN DO:
+            ASSIGN ef.i-code = item.i-code
+                  /*ef.flute = item.flute*/
+                  ef.test = item.reg-no
+                  ef.weight = item.basis-w.
+            RUN sys/ref/uom-rm.p (item.mat-type, OUTPUT uom-list).
+            IF uom-list NE "" THEN ef.cost-uom = ENTRY(1,uom-list).
+            IF item.i-code = "R" THEN ASSIGN ef.lsh-len = item.s-len
+                                             ef.lsh-wid = item.s-wid
+                                             ef.gsh-wid = item.s-wid.
+            IF item.r-wid <> 0 THEN ASSIGN ef.roll = TRUE
+                                           ef.roll-wid = item.r-wid
+                                           ef.lsh-wid = item.r-wid
+                                           ef.gsh-wid = item.r-wid.  
+           FIND FIRST e-item OF item NO-LOCK NO-ERROR.
+           IF AVAIL e-item THEN ef.cost-uom = e-item.std-uom.                                        
+        END.      
+        FIND FIRST style WHERE style.company = est.company AND
+                      style.style = eb.style
+                      NO-LOCK NO-ERROR.
+     IF AVAIL style THEN DO:
+        ASSIGN eb.adhesive = style.material[7]
+               eb.gluelap = style.dim-gl
+               eb.fpanel = style.dim-pan5
+               eb.lock = style.dim-fit
+               eb.tuck = style.dim-tk.
+        FIND FIRST ITEM WHERE ITEM.company = eb.company 
+                          AND ITEM.i-no = eb.adhesive NO-LOCK NO-ERROR.
+        IF AVAIL ITEM AND index("G,S,T",ITEM.mat-type) > 0 AND ITEM.i-no <> "No Joint"
+        THEN eb.lin-in = eb.dep.
+     END.  /* avail style */ 
+
+  lv-rno = 0.
+  FIND LAST b-estRelease NO-LOCK
+       USE-INDEX iEstRelID  NO-ERROR.
+  IF AVAILABLE b-estRelease AND b-estRelease.estReleaseID GT lv-rno THEN
+      lv-rno = b-estRelease.estReleaseID.
+
+  CREATE estRelease.
+
+  DO WHILE TRUE:
+      lv-rno = lv-rno + 1.
+      FIND FIRST b-estRelease NO-LOCK
+           WHERE b-estRelease.estReleaseID EQ lv-rno USE-INDEX iEstRelID  NO-ERROR.
+      IF AVAILABLE b-estRelease THEN NEXT.
+      LEAVE.
+  END.
+
+   ASSIGN 
+       estRelease.compamy            = cocode
+       estRelease.estReleaseID       = lv-rno
+       estRelease.estimateNo         = eb.est-no
+       estRelease.FormNo             = eb.form-no
+       estRelease.BlankNo            = eb.blank-No
+       estRelease.quantity           = eb.eqty
+       estRelease.quantityRelease    = eb.eqty
+       estRelease.shipFromLocationID = eb.loc
+       estRelease.customerID         = eb.cust-no
+       estRelease.shipToID           = eb.ship-id 
+       estRelease.quantityPerSubUnit = eb.cas-cnt
+       estRelease.quantitySubUnitsPerUnit = eb.cas-pal
+
+       estRelease.quantityOfUnits = estRelease.quantityRelease / (eb.cas-cnt * eb.cas-pal )
+       estRelease.stackHeight     = eb.stackHeight
+       .
+   FIND FIRST shipto NO-LOCK
+       WHERE shipto.company EQ cocode
+       AND shipto.cust-no EQ eb.cust-no
+       AND shipto.ship-id EQ eb.ship-id NO-ERROR .
+   IF AVAIL shipto THEN
+       ASSIGN
+       estRelease.carrierID = shipto.carrier
+       estRelease.carrierZone = shipto.dest-code .
+   ASSIGN
+       estRelease.palletMultiplier = 1
+       estRelease.stackHeight      = 1.
+   FIND FIRST loc NO-LOCK 
+       WHERE loc.company EQ cocode 
+         AND loc.loc EQ eb.loc NO-ERROR .
+   IF AVAIL loc THEN
+       ASSIGN
+       estRelease.storageCost       = loc.storageCost[1]
+       estRelease.handlingCost      = loc.handlingCost  .
+       estRelease.handlingCostTotal =  estRelease.handlingCost * estRelease.quantityOfUnits .
+
+  FIND CURRENT estRelease NO-LOCK NO-ERROR.
+
+  FIND xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+  FIND xef WHERE ROWID(xef)   EQ ROWID(ef)  NO-LOCK NO-ERROR.
+  FIND xeb WHERE RECID(xeb) = recid(eb) NO-LOCK NO-ERROR.
+
+  RUN calc-pass.
+
+  /*RUN calc-layout (YES).*/
+  
+  RUN calc-blank-size.
+  
+  ASSIGN 
+      ef.gsh-wid = eb.t-wid
+      ef.gsh-len = eb.t-len
+      ef.nsh-wid = eb.t-wid
+      ef.nsh-len = eb.t-len
+      ef.trim-w = eb.t-wid
+      ef.trim-l = eb.t-len .
+
+  /* ink/pack copied from cec/estitm1.i */
+     IF eb.stock-no = "" THEN DO:
+        FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany AND
+                                 ce-ctrl.loc = gloc
+                                 NO-LOCK NO-ERROR.
+        ASSIGN eb.cas-no = ce-ctrl.def-case
+               eb.tr-no = ce-ctrl.def-pal.      
+     END.
+     FIND FIRST cust WHERE cust.company = gcompany AND
+                     cust.cust-no = eb.cust-no
+                     NO-LOCK NO-ERROR.
+                 
+     FIND item WHERE item.company = eb.company AND
+                     item.i-no = eb.cas-no
+              NO-LOCK NO-ERROR.
+     IF AVAIL item THEN ASSIGN 
+                              eb.cas-len = (item.case-l)
+                              eb.cas-wid = (item.case-w)
+                              eb.cas-dep = (item.case-d)
+                              eb.cas-wt = (item.avg-w)         
+                              .
+     FIND FIRST item WHERE item.company = eb.company AND
+                     item.i-no = eb.tr-no
+              NO-LOCK NO-ERROR.
+     IF AVAIL item THEN ASSIGN eb.tr-len = (item.case-l)
+                               eb.tr-wid = (item.case-w)
+                               eb.tr-dep = (item.case-d)
+                               .
+     DEF VAR lv-cas-pal AS DEC NO-UNDO.
+     DEF VAR lv-tr-cnt AS INT NO-UNDO.
+     DEF VAR lv-numstack AS INT NO-UNDO.
+     DEF VAR lv-stackcode AS cha NO-UNDO.
+     DEF VAR lv-error AS LOG NO-UNDO.
+     RUN cec/kpallet.p (RECID(xeb), OUTPUT lv-cas-pal, OUTPUT lv-tr-cnt,
+                        OUTPUT lv-numstack, OUTPUT lv-stackcode, OUTPUT lv-error).
+
+     IF lv-error THEN DO:
+/*         message "An error occured while attempting to calculate the number of pallets. " */
+/*                 skip                                                                     */
+/*                 "Please review any previous error messages for more information."        */
+/*                  view-as alert-box error.                                                */
+     END.
+     ELSE DO:
+       lv-layers = lv-cas-pal / lv-numstack.
+       {sys/inc/roundup.i lv-layers}
+
+       ASSIGN
+        eb.tr-cnt     = lv-tr-cnt
+        eb.tr-cas     = lv-layers
+        eb.stacks     = lv-numstack
+        eb.stack-code = lv-stackcode.
+     END.
+
+
+  RUN cec/mach-seq.p (ef.form-no, est-qty.eqty, NO).
+
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+     RUN init-box-design IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
+
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN
+     RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) ("B").
+
+     FIND FIRST box-design-hdr WHERE
+          box-design-hdr.design-no EQ 0 AND
+          box-design-hdr.company EQ cocode AND
+          box-design-hdr.est-no EQ est.est-no AND
+          box-design-hdr.form-no EQ tt-artios.form-num AND
+          box-design-hdr.blank-no EQ tt-artios.blank-num
+          NO-ERROR.
+      
+        IF AVAIL box-design-hdr THEN
+        DO:
+           box-design-hdr.box-image = tt-artios.DesignImg.
+           FIND CURRENT box-design-hdr NO-LOCK NO-ERROR.
+        END. 
+
+  END.  /* for each tt-frmout */
+
+  IF iCount > 0 THEN DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (lv-crt-est-rowid).
+  END. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE crt-est-childrecord B-table-Win 
 PROCEDURE crt-est-childrecord :
 /*------------------------------------------------------------------------------
@@ -5068,6 +5449,7 @@ PROCEDURE local-add-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE rEstRowid AS ROWID NO-UNDO .
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
@@ -5132,6 +5514,11 @@ PROCEDURE local-add-record :
      EMPTY TEMP-TABLE tt-frmout.
      RUN est/d-frmout.w (cocode).
      RUN createESTFarmOut.
+  END.
+   ELSE IF ls-add-what = "MiscEst" THEN DO:
+     EMPTY TEMP-TABLE tt-frmout.
+     RUN est/d-estrel.w (INPUT cocode,OUTPUT rEstRowid).
+     RUN createESTMiscRel(INPUT rEstRowid) .
   END.
   ELSE IF ls-add-what = "ImportForm" THEN DO:
       RUN est/dImportEst.w (cocode).
