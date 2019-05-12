@@ -33,9 +33,6 @@ FUNCTION fCalcStorageCostTotal RETURNS DECIMAL PRIVATE
     ipdPalletMultiplier AS DECIMAL,
     ipdMonthsAtShipFrom AS DECIMAL) FORWARD.
 
-FUNCTION fGetNextEstReleaseRecKey RETURNS CHARACTER PRIVATE
-    (  ) FORWARD.
-
 FUNCTION fGetNextEstReleaseID RETURNS INTEGER PRIVATE
     (  ) FORWARD.
 
@@ -351,7 +348,6 @@ PROCEDURE pCreateEstReleaseBuffer PRIVATE:
             opbf-estRelease.palletMultiplier = 1
             opbf-estRelease.monthsAtShipFrom = 0
             opbf-estRelease.estReleaseID     = fGetNextEstReleaseID()
-            opbf-estRelease.rec_key          = fGetNextEstReleaseRecKey()
             opiEstReleaseID                  = opbf-estRelease.estReleaseID
             oplError                         = NO 
             opcMessage                       = "estRelease Created with ID: " + STRING(opbf-estRelease.estReleaseID).
@@ -414,17 +410,6 @@ FUNCTION fCalcHandlingCostTotal RETURNS DECIMAL PRIVATE
 
     RETURN ipiPallets * ipdHandlingCostPerPallet.
 	
-END FUNCTION.
-
-FUNCTION fGetNextEstReleaseRecKey RETURNS CHARACTER PRIVATE
-    (  ):
-    /*------------------------------------------------------------------------------
-     Purpose: Gets the next recKey for an estRelease 
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    giTemp = giTemp + 1.
-    RETURN STRING(giTemp).
-		
 END FUNCTION.
 
 FUNCTION fGetNextEstReleaseID RETURNS INTEGER PRIVATE
