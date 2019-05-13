@@ -87,17 +87,25 @@ DEFINE QUERY external_tables FOR e-itemfg-vend, e-itemfg.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS e-itemfg-vend.vend-item e-itemfg-vend.cust-no ~
 e-itemfg-vend.vend-no e-itemfg-vend.spare-dec-1 e-itemfg-vend.roll-w[27] ~
-e-itemfg-vend.roll-w[28] e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] 
+e-itemfg-vend.roll-w[28] e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] ~
+e-itemfg-vend.runCostDeviation[1] e-itemfg-vend.runCostDeviation[2] e-itemfg-vend.runCostDeviation[3] ~
+e-itemfg-vend.runCostDeviation[4] e-itemfg-vend.runCostDeviation[5] e-itemfg-vend.runCostDeviation[6] ~
+e-itemfg-vend.runCostDeviation[7] e-itemfg-vend.runCostDeviation[8] e-itemfg-vend.runCostDeviation[9] ~
+e-itemfg-vend.runCostDeviation[10]
 &Scoped-define ENABLED-TABLES e-itemfg-vend
 &Scoped-define FIRST-ENABLED-TABLE e-itemfg-vend
 &Scoped-Define ENABLED-OBJECTS tb_sel tb_sel-01 tb_sel-02 tb_sel-03 ~
 tb_sel-04 tb_sel-05 tb_sel-06 tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 ~
-RECT-24 RECT-26 
+RECT-24 RECT-26 RECT-28
 &Scoped-Define DISPLAYED-FIELDS e-itemfg-vend.i-no e-itemfg.std-uom ~
 e-itemfg-vend.vend-item e-itemfg-vend.cust-no e-itemfg-vend.vend-no ~
 e-itemfg-vend.updated-id[1] e-itemfg-vend.updated-date[1] ~
 e-itemfg-vend.spare-dec-1 e-itemfg-vend.roll-w[27] e-itemfg-vend.roll-w[28] ~
-e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] 
+e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] e-itemfg-vend.createdID ~
+e-itemfg-vend.createdDate e-itemfg-vend.runCostDeviation[1] e-itemfg-vend.runCostDeviation[2] ~
+e-itemfg-vend.runCostDeviation[3] e-itemfg-vend.runCostDeviation[4] e-itemfg-vend.runCostDeviation[5] ~
+e-itemfg-vend.runCostDeviation[6] e-itemfg-vend.runCostDeviation[7] e-itemfg-vend.runCostDeviation[8] ~
+e-itemfg-vend.runCostDeviation[9] e-itemfg-vend.runCostDeviation[10]
 &Scoped-define DISPLAYED-TABLES e-itemfg-vend e-itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE e-itemfg-vend
 &Scoped-define SECOND-DISPLAYED-TABLE e-itemfg
@@ -108,8 +116,7 @@ run-qty-04 run-cost-04 setups-04 tb_sel-04 run-qty-05 run-cost-05 setups-05 ~
 tb_sel-05 run-qty-06 run-cost-06 setups-06 tb_sel-06 run-qty-07 run-cost-07 ~
 setups-07 tb_sel-07 run-qty-08 run-cost-08 setups-08 tb_sel-08 run-qty-09 ~
 run-cost-09 setups-09 tb_sel-09 run-qty-10 run-cost-10 setups-10 tb_sel-10 ~
-fi_oh-markup 
-
+fi_oh-markup
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,farmFields,DISPLAY-FIELD,List-5,List-6 */
 &Scoped-define ADM-CREATE-FIELDS e-itemfg.std-uom 
@@ -119,7 +126,7 @@ run-cost-02 setups-02 run-qty-03 run-cost-03 setups-03 run-qty-04 ~
 run-cost-04 setups-04 run-qty-05 run-cost-05 setups-05 run-qty-06 ~
 run-cost-06 setups-06 run-qty-07 run-cost-07 setups-07 run-qty-08 ~
 run-cost-08 setups-08 run-qty-09 run-cost-09 setups-09 run-qty-10 ~
-run-cost-10 setups-10 
+run-cost-10 setups-10
 &Scoped-define DISPLAY-FIELD fi_oh-markup 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -159,7 +166,7 @@ DEFINE BUTTON btnShowVendCostMtx
 DEFINE VARIABLE fi_oh-markup AS INTEGER FORMAT ">,>>9":U INITIAL 0 
      LABEL "GS&&A O/H Markup %" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE ls-item-dscr AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -171,7 +178,7 @@ DEFINE VARIABLE ls-item-name AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE ls-vend-name AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 58 BY 1 NO-UNDO.
+     SIZE 37 BY 1 NO-UNDO.
 
 DEFINE VARIABLE qty-label AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
@@ -299,11 +306,15 @@ DEFINE VARIABLE setups-10 AS DECIMAL FORMAT "->>,>>9.99" INITIAL 0
 
 DEFINE RECTANGLE RECT-24
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 99 BY 17.62.
+     SIZE 99 BY 19.52.
 
 DEFINE RECTANGLE RECT-26
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 49 BY 9.76.
+
+DEFINE RECTANGLE RECT-28
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 13 BY 0.1.
 
 DEFINE VARIABLE tb_sel AS LOGICAL INITIAL no 
      LABEL "Check to pre-select this quantity/" 
@@ -384,6 +395,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ls-vend-name AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL
+     e-itemfg-vend.spare-dec-1 AT ROW 4.37 COL 83.8 COLON-ALIGNED HELP
+          ""  
+          LABEL "Min. Charge"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     fi_oh-markup AT ROW 5.22 COL 83.8 COLON-ALIGNED
      qty-label AT ROW 6 COL 2.2 NO-LABEL
      btnShowVendCostMtx AT ROW 6.05 COL 15 WIDGET-ID 68
      tb_sel AT ROW 6 COL 53
@@ -433,55 +450,70 @@ DEFINE FRAME F-Main
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
      setups-10 AT ROW 15.62 COL 33.4 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     e-itemfg-vend.runCostDeviation[1] AT ROW 7.05 COL 56 NO-LABEL WIDGET-ID 28
+     e-itemfg-vend.runCostDeviation[2] AT ROW 8 COL 56 NO-LABEL WIDGET-ID 30
+     e-itemfg-vend.runCostDeviation[3] AT ROW 8.95 COL 56 NO-LABEL WIDGET-ID 32
+     e-itemfg-vend.runCostDeviation[4] AT ROW 9.91 COL 56 NO-LABEL WIDGET-ID 34
+     e-itemfg-vend.runCostDeviation[5] AT ROW 10.86 COL 56 NO-LABEL WIDGET-ID 36
+     e-itemfg-vend.runCostDeviation[6] AT ROW 11.81 COL 56 NO-LABEL WIDGET-ID 38
+     e-itemfg-vend.runCostDeviation[7] AT ROW 12.76 COL 56 NO-LABEL WIDGET-ID 40
+     e-itemfg-vend.runCostDeviation[8] AT ROW 13.71 COL 56 NO-LABEL WIDGET-ID 42
+     e-itemfg-vend.runCostDeviation[9] AT ROW 14.67 COL 56 NO-LABEL WIDGET-ID 44
+     e-itemfg-vend.runCostDeviation[10] AT ROW 15.62 COL 56 NO-LABEL WIDGET-ID 46
      tb_sel-10 AT ROW 15.52 COL 53
-     e-itemfg-vend.updated-id[1] AT ROW 8.05 COL 81 COLON-ALIGNED WIDGET-ID 70
+     e-itemfg-vend.updated-id[1] AT ROW 16.75 COL 50 COLON-ALIGNED WIDGET-ID 70
           LABEL "Updated By"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     e-itemfg-vend.updated-date[1] AT ROW 9 COL 81 COLON-ALIGNED WIDGET-ID 72
+     e-itemfg-vend.updated-date[1] AT ROW 17.59 COL 50 COLON-ALIGNED WIDGET-ID 72
           LABEL "On"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     e-itemfg-vend.spare-dec-1 AT ROW 10.48 COL 81.2 COLON-ALIGNED HELP
-          ""
-          LABEL "Min. Charge"
+     e-itemfg-vend.createdID AT ROW 16.75 COL 14 COLON-ALIGNED WIDGET-ID 70
+          LABEL "Created By"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     fi_oh-markup AT ROW 11.67 COL 81.2 COLON-ALIGNED
-     e-itemfg-vend.roll-w[27] AT ROW 13.62 COL 67.4 COLON-ALIGNED HELP
+     e-itemfg-vend.createdDate AT ROW 17.59 COL 14 COLON-ALIGNED WIDGET-ID 72
+          LABEL "On"
+          VIEW-AS FILL-IN
+          SIZE 18 BY 1  
+     e-itemfg-vend.roll-w[27] AT ROW 19.23 COL 9 COLON-ALIGNED HELP
           "Enter Sheet Width Minimum"
           LABEL "Width"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     e-itemfg-vend.roll-w[28] AT ROW 13.62 COL 81.6 COLON-ALIGNED HELP
+     e-itemfg-vend.roll-w[28] AT ROW 19.23 COL 23.2 COLON-ALIGNED HELP
           "Enter Sheet Width Maximum" NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     e-itemfg-vend.roll-w[29] AT ROW 15.52 COL 67.4 COLON-ALIGNED HELP
+     e-itemfg-vend.roll-w[29] AT ROW 19.23 COL 49 COLON-ALIGNED HELP
           "Enter Sheet Length Minimum"
           LABEL "Length"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     e-itemfg-vend.roll-w[30] AT ROW 15.52 COL 81.6 COLON-ALIGNED HELP
+     e-itemfg-vend.roll-w[30] AT ROW 19.23 COL 63.2 COLON-ALIGNED HELP
           "Enter Sheet Length Maximum" NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      "Cost Per" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 6 COL 20
      "Min" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 14.81 COL 69.6
+          SIZE 5 BY .62 AT ROW 18.63 COL 12
      "Max" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 14.81 COL 83.6
+          SIZE 5 BY .62 AT ROW 18.63 COL 26
      "Setup $" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 6 COL 37
+     "Deviation:" VIEW-AS TEXT
+          SIZE 14 BY .71 AT ROW 6 COL 57 
      "Purchased" VIEW-AS TEXT
           SIZE 13 BY .95 AT ROW 2.67 COL 2
      "Min" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 12.91 COL 70
+          SIZE 5 BY .62 AT ROW 18.63 COL 52
      "Max" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 12.91 COL 83.8
+          SIZE 5 BY .62 AT ROW 18.63 COL 66
      RECT-24 AT ROW 1 COL 1
      RECT-26 AT ROW 6.95 COL 2 WIDGET-ID 6
+     RECT-28 AT ROW 6.95 COL 56 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -515,7 +547,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.62
+         HEIGHT             = 19.52
          WIDTH              = 99.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -642,8 +674,38 @@ ASSIGN
 ASSIGN 
        e-itemfg-vend.updated-id[1]:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR FILL-IN e-itemfg-vend.createdDate IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+ASSIGN 
+       e-itemfg-vend.createdDate:READ-ONLY IN FRAME F-Main        = TRUE.
+
+/* SETTINGS FOR FILL-IN e-itemfg-vend.createdID IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+ASSIGN 
+       e-itemfg-vend.createdID:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* SETTINGS FOR FILL-IN e-itemfg-vend.vend-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[1] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[2] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[3] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[4] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[5] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[6] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[7] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[8] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[9] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.runCostDeviation[10] IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
