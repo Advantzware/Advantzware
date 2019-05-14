@@ -34,16 +34,22 @@ DEFINE BUFFER bf-existing-eb FOR eb.
 /* ***************************  Main Block  *************************** */
 
 FOR EACH ttInputEst NO-LOCK:
-    FIND FIRST est NO-LOCK 
-        WHERE ROWID(est) EQ ttInputEst.riParentEst NO-ERROR.
-    IF NOT AVAILABLE est THEN 
-    DO:
-        RUN est/NewEstimate.p ('C', 5, OUTPUT riEb).
-    END.
-    ELSE 
-    DO:
-        RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT riEb).
-    END.
+   IF ttInputEst.cEstType EQ "MiscEstimate" THEN do:
+       riEb = ttInputEst.riParentEst.
+   END. /* Misc Estimate */
+   ELSE do:
+       FIND FIRST est NO-LOCK 
+           WHERE ROWID(est) EQ ttInputEst.riParentEst NO-ERROR.
+       IF NOT AVAILABLE est THEN 
+           DO:
+           RUN est/NewEstimate.p ('C', 5, OUTPUT riEb).
+       END.
+       ELSE 
+           DO:
+           RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT riEb).
+       END.
+   END. /* Import form istimate */
+
     FIND eb 
         WHERE ROWID(eb) EQ riEb  
         NO-ERROR.
@@ -54,7 +60,7 @@ FOR EACH ttInputEst NO-LOCK:
         NO-ERROR.
     FIND FIRST est 
         WHERE est.company EQ ef.company
-        AND ef.est-no EQ eb.est-no  
+        AND est.est-no EQ eb.est-no  
         NO-ERROR.
     FIND est-qty 
         WHERE est-qty.company EQ ef.company
@@ -204,8 +210,12 @@ FOR EACH ttInputEst NO-LOCK:
         INPUT eb.form-no,
         INPUT 0).
 
-
-    RUN pCalcPacking(ROWID(eb)).
+   IF ttInputEst.cEstType EQ "MiscEstimate" THEN do:
+       RUN pCalcAssignMisc(ROWID(eb)).
+   END.
+   ELSE DO:
+       RUN pCalcPacking(ROWID(eb)).
+   END.
    
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */
@@ -375,6 +385,98 @@ PROCEDURE pCalcPacking:
 
         ASSIGN
             eb.cas-pal    = dUnitsPerPallet
+            eb.tr-cnt     = iCountOnPallet
+            eb.tr-cas     = iLayers
+            eb.stacks     = iStacks
+            eb.stack-code = cStackCode.
+    END.
+
+
+END PROCEDURE.
+
+PROCEDURE pCalcAssignMisc:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
+
+    DEFINE VARIABLE dUnitsPerPallet AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iCountOnPallet  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLayers         AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iStacks         AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cStackCode    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPackCode     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError        AS LOGICAL NO-UNDO.
+    
+    FIND eb WHERE ROWID(eb) EQ ipriEb.
+
+    ASSIGN 
+        eb.cas-cnt = ttInputEst.iUnitCount
+        eb.cas-pal = ttInputEst.iPerPallet 
+        eb.tr-no   = ttInputEst.cPallet 
+        eb.cas-no  = ttInputEst.cBndlCode 
+        eb.stock   = ttInputEst.cStockNo.
+    
+    IF eb.tr-cnt = 0 THEN 
+        eb.tr-cnt = eb.cas-cnt * eb.cas-pal.
+    
+    FIND FIRST cust NO-LOCK  
+        WHERE cust.company EQ eb.company 
+        AND cust.cust-no EQ eb.cust-no
+        NO-ERROR.
+    IF AVAILABLE cust THEN 
+        ASSIGN eb.sman = cust.sman  .
+
+    FIND FIRST shipto NO-LOCK 
+                WHERE shipto.company EQ cust.company
+                AND shipto.cust-no EQ cust.cust-no
+                AND shipto.ship-id EQ ttInputEst.cShipTo
+                NO-ERROR .
+
+    IF AVAIL shipto AND shipto.spare-char-1 NE "" THEN DO:
+          ASSIGN eb.sman = shipto.spare-char-1 .
+          FIND FIRST sman NO-LOCK
+               WHERE sman.company = cust.company
+                 AND sman.sman = shipto.spare-char-1 NO-ERROR.
+          eb.comm =  IF AVAIL sman THEN sman.scomm ELSE 0. 
+    END.
+          
+    FIND FIRST item NO-LOCK 
+        WHERE item.company EQ eb.company 
+        AND item.i-no EQ eb.cas-no
+        NO-ERROR.
+    IF AVAILABLE item THEN 
+        ASSIGN 
+            eb.cas-len = (item.case-l)
+            eb.cas-wid = (item.case-w)
+            eb.cas-dep = (item.case-d)
+            eb.cas-wt  = (item.avg-w)         
+            .
+    FIND FIRST item NO-LOCK 
+        WHERE item.company EQ eb.company 
+        AND  item.i-no EQ eb.tr-no
+        NO-ERROR.
+    IF AVAILABLE item THEN 
+        ASSIGN 
+            eb.tr-len = (item.case-l)
+            eb.tr-wid = (item.case-w)
+            eb.tr-dep = (item.case-d)
+            .
+    
+    RUN cec/kpallet.p (RECID(eb), 
+                       OUTPUT dUnitsPerPallet, 
+                       OUTPUT iCountOnPallet,
+                       OUTPUT iStacks, 
+                       OUTPUT cStackCode, 
+                       OUTPUT lError).
+
+    IF NOT lError THEN 
+    DO:
+        iLayers = dUnitsPerPallet / iStacks.
+        {sys/inc/roundup.i iLayers}
+
+        ASSIGN
             eb.tr-cnt     = iCountOnPallet
             eb.tr-cas     = iLayers
             eb.stacks     = iStacks

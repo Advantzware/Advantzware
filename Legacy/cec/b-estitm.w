@@ -5137,6 +5137,11 @@ PROCEDURE local-add-record :
       RUN est/dImportEst.w (cocode).
       RUN pCreateFormFromImport.
   END.
+  ELSE IF ls-add-what = "MiscEst" THEN DO:
+      EMPTY TEMP-TABLE ttInputEst .
+      RUN est/dNewMiscEst.w .
+      RUN pCreateMiscEstimate.
+  END.
   ELSE DO:
     {est/d-cadcamrun.i}
 
@@ -6745,7 +6750,43 @@ PROCEDURE pCreateFormFromImport :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+ 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateMiscEstimate B-table-Win 
+PROCEDURE pCreateMiscEstimate :
+/*------------------------------------------------------------------------------
+ Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE rRowidEb AS ROWID NO-UNDO . 
+  ASSIGN
+    ll-new-record = YES
+    iCount = 0
+    .
+
+  FOR EACH ttInputEst:
+      iCount = iCount + 1.
+      rRowidEb = ttInputEst.riParentEst .
+  END.
+  
+  RUN est/BuildEstimate.p ("C").
+
+  RUN est/dNewMiscCost.w( INPUT rRowidEb ) .
+  
+  IF iCount > 0 THEN DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (rRowidEb).
+  END. 
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 
 PROCEDURE redisplay-blanks :

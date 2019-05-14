@@ -98,7 +98,7 @@ eb.i-code[8] eb.i-dscr[8] eb.i-%[8] eb.i-ps[9] eb.i-code[9] eb.i-dscr[9] ~
 eb.i-%[9] eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] eb.i-%[10] 
 &Scoped-define ENABLED-TABLES eb
 &Scoped-define FIRST-ENABLED-TABLE eb
-&Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 RECT-28 RECT-29 
+&Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 RECT-28 RECT-29 btn_misc-est
 &Scoped-Define DISPLAYED-FIELDS eb.cas-no eb.cas-len eb.i-col eb.i-pass ~
 eb.i-coat eb.i-coat-p eb.cas-cost eb.cas-wid eb.i-coldscr eb.cas-cnt ~
 eb.cas-dep eb.cas-pal eb.cas-wt eb.i-ps[1] eb.i-code[1] eb.i-dscr[1] ~
@@ -173,6 +173,10 @@ DEFINE RECTANGLE RECT-28
 DEFINE RECTANGLE RECT-29
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 74 BY 4.29.
+
+DEFINE BUTTON btn_misc-est 
+     LABEL "Advanced" 
+     SIZE 17 BY 1.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -433,6 +437,7 @@ DEFINE FRAME Corr
           SIZE 18 BY .62 AT ROW 11.71 COL 73
           FGCOLOR 9 
      stackImage AT ROW 8.38 COL 122
+     btn_misc-est AT ROW 12.61 COL 120 
      RECT-26 AT ROW 1 COL 1
      RECT-27 AT ROW 11.48 COL 71
      RECT-28 AT ROW 5.29 COL 71
@@ -1374,6 +1379,18 @@ DO:
    end.*/
 
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_misc-est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_misc-est V-table-Win
+ON CHOOSE OF btn_misc-est IN FRAME Corr
+DO: 
+  IF AVAIL eb THEN
+   RUN Est/EstReleases.w (INPUT ROWID(eb)) .
 END.
 
 /* _UIB-CODE-BLOCK-END */
