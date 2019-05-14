@@ -522,8 +522,18 @@ DISABLE TRIGGERS FOR LOAD OF itemfg.
     end.
     */
     
-PROCEDURE cost-when-zero-qty:
+PROCEDURE cost-when-zero-qty:    
+DEFINE VARIABLE hCostProcs AS HANDLE NO-UNDO.
 DEF VAR lv-uom AS CHAR NO-UNDO.
+DEFINE VARIABLE dCostPerUOMTotal LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE dCostPerUOMDL LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE dCostPerUOMFO LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE dCostPerUOMVO LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE dCostPerUOMDM LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+
+RUN system/costProcs.p PERSISTENT SET hCostProcs.    
 
     FOR EACH b-fg-rcpth
       WHERE b-fg-rcpth.company   EQ itemfg.company
@@ -542,27 +552,57 @@ DEF VAR lv-uom AS CHAR NO-UNDO.
       BY b-fg-rcpth.r-no       desc
       BY RECID(b-fg-rdtlh)     desc:
 
-      FIND FIRST fg-rctd WHERE fg-rctd.r-no = b-fg-rdtlh.r-no NO-LOCK NO-ERROR.
 
-      lv-uom = "EA".
-      IF AVAIL fg-rctd THEN
-          lv-uom = fg-rctd.cost-uom.
-      
-      IF lv-uom NE "M" THEN
-        ASSIGN itemfg.avg-cost = b-fg-rdtlh.cost.
-      ELSE
-        ASSIGN itemfg.avg-cost = b-fg-rdtlh.cost * 1000.
-
+    IF VALID-HANDLE(hCostProcs) THEN 
+        RUN GetCostForReceipt IN hCostProcs
+            (
+            INPUT b-fg-rcpth.company,
+            INPUT b-fg-rcpth.i-no,
+            INPUT b-fg-rdtlh.Tag,
+            INPUT b-fg-rdtlh.job-no,
+            INPUT b-fg-rdtlh.job-no2,
+            OUTPUT dCostPerUOMTotal,
+            OUTPUT dCostPerUOMDL,
+            OUTPUT dCostPerUOMFO,
+            OUTPUT dCostPerUOMVO,
+            OUTPUT dCostPerUOMDM,  
+            OUTPUT cCostUOM,
+            OUTPUT lFound
+            ).
+                
+      IF NOT lFound THEN 
+        ASSIGN 
+           dCostPerUomTotal = b-fg-rdtlh.cost
+           cCostUom         = b-fg-rcpth.pur-uom
+           .
+      lv-uom = itemfg.prod-uom.
+      IF cCostUom EQ lv-uom THEN       
+        ASSIGN itemfg.avg-cost = dCostPerUOMTotal
+               .
+      ELSE 
+          ASSIGN itemfg.avg-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                dCostPerUOMTotal
+                )
+                .
+          
       ASSIGN itemfg.std-mat-cost   = itemfg.avg-cost
              itemfg.total-std-cost = itemfg.avg-cost
-             itemfg.last-cost      = itemfg.avg-cost.
+             itemfg.last-cost      = itemfg.avg-cost
+             .
 
       /* If found the fg-rctd, assume we have the correct uom,
          otherwise keep looking */
-      IF itemfg.avg-cost NE 0 AND AVAIL(fg-rctd) THEN
+      IF itemfg.avg-cost NE 0 /* AND AVAIL(fg-rctd) */ THEN
         LEAVE.
     END.
-
+    
+    DELETE OBJECT hCostProcs.
 END PROCEDURE.
 
 FUNCTION pgmStack RETURNS CHAR
