@@ -25,6 +25,8 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER lcCarrZonFrom AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER lcCarrZonTo   AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER lcCarrFrom AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER lcCarrTo   AS CHAR NO-UNDO.
 
@@ -56,13 +58,25 @@ DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
-ASSIGN cTextListToSelect = "Carrier,Description,Location,Loc Description,Charge Method "
+ASSIGN cTextListToSelect = "Carrier,Zone,Description,Zip Code,Min Rate," +
+                           "Num Pallets-Up To 1,Num Pallets-Up To 2,Num Pallets-Up To 3,Num Pallets-Up To 4,Num Pallets-Up To 5," +
+                           "Num Pallets-Up To 6,Num Pallets-Up To 7,Num Pallets-Up To 8,Num Pallets-Up To 9,Num Pallets-Up To 10," + 
+                           "Rate/Pallet 1,Rate/Pallet 2,Rate/Pallet 3,Rate/Pallet 4,Rate/Pallet 5," +
+                           "Rate/Pallet 6,Rate/Pallet 7,Rate/Pallet 8,Rate/Pallet 9,Rate/Pallet 10"  
 
-      cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method "
+      cFieldListToSelect = "carrier,del-zone,del-dscr,del-zip,min-rate," +
+                            "weight[1],weight[2],weight[3],weight[4],weight[5]," +
+                            "weight[6],weight[7],weight[8],weight[9],weight[10]," +
+                            "rate[1],rate[2],rate[3],rate[4],rate[5]," +
+                            "rate[6],rate[7],rate[8],rate[9],rate[10]" 
        .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Carrier,Description,Location,Loc Description,Charge Method " .
+ASSIGN cTextListToDefault  = "Carrier,Zone,Description,Zip Code,Min Rate," +
+                           "Num Pallets-Up To 1,Num Pallets-Up To 2,Num Pallets-Up To 3,Num Pallets-Up To 4,Num Pallets-Up To 5," +
+                           "Num Pallets-Up To 6,Num Pallets-Up To 7,Num Pallets-Up To 8,Num Pallets-Up To 9,Num Pallets-Up To 10," + 
+                           "Rate/Pallet 1,Rate/Pallet 2,Rate/Pallet 3,Rate/Pallet 4,Rate/Pallet 5," +
+                           "Rate/Pallet 6,Rate/Pallet 7,Rate/Pallet 8,Rate/Pallet 9,Rate/Pallet 10"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -79,10 +93,10 @@ ASSIGN cTextListToDefault  = "Carrier,Description,Location,Loc Description,Charg
 &Scoped-define FRAME-NAME rd-fgexp
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_carr-no end_carr-no ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_del-zone end_del-zone ~
 sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
-btn-ok btn-cancel Btn_Def
-&Scoped-Define DISPLAYED-OBJECTS begin_carr-no end_carr-no  ~
+btn-ok btn-cancel Btn_Def begin_carr-no end_carr-no
+&Scoped-Define DISPLAYED-OBJECTS begin_del-zone end_del-zone begin_carr-no end_carr-no ~
  sl_avail ~
 sl_selected tb_excel tb_runExcel fi_file 
 
@@ -118,7 +132,7 @@ FUNCTION buildHeader RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-itemfg rd-fgexp 
 FUNCTION getValue-itemfg RETURNS CHARACTER
-  ( BUFFER ipb-itemfg FOR carrier, ipc-field AS CHAR )  FORWARD.
+  ( BUFFER ipb-itemfg FOR carr-mtx, ipc-field AS CHAR )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -157,6 +171,16 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
+DEFINE VARIABLE begin_del-zone AS CHARACTER FORMAT "x(5)" 
+     LABEL "From Zone" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
+DEFINE VARIABLE end_del-zone AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
+     LABEL "To Zone" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
 DEFINE VARIABLE begin_carr-no AS CHARACTER FORMAT "x(5)" 
      LABEL "From Carrier" 
      VIEW-AS FILL-IN 
@@ -167,7 +191,7 @@ DEFINE VARIABLE end_carr-no AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-carr.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-carr-mtx.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
@@ -213,6 +237,10 @@ DEFINE FRAME rd-fgexp
           "Enter Beginning Carrier Number" WIDGET-ID 142
      end_carr-no AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Carrier #" WIDGET-ID 144
+     begin_del-zone AT ROW 5.25 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Delivery Zone" WIDGET-ID 142
+     end_del-zone AT ROW 5.25 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Delivery Zone" WIDGET-ID 144
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 12.38 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
@@ -244,7 +272,7 @@ DEFINE FRAME rd-fgexp
      SPACE(2.39) SKIP(2.08)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Export Carrier to Excel" WIDGET-ID 100.
+         TITLE "Export Carrier Matrix to Excel" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -274,6 +302,14 @@ ASSIGN
   
 ASSIGN 
        end_carr-no:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
+       begin_del-zone:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+  
+ASSIGN 
+       end_del-zone:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 ASSIGN 
@@ -313,6 +349,22 @@ DEF VAR char-val AS CHAR NO-UNDO.
 
    case lw-focus:name :
 
+       when "begin_del-zone" then do:
+           ls-cur-val = lw-focus:screen-value.
+           RUN windows/l-zone.w (cocode, output char-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  
+       when "end_del-zone" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-zone.w (cocode, output char-val).
+           if char-val <> "" then do:
+              lw-focus:screen-value =  ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  
        when "begin_carr-no" then do:
            ls-cur-val = lw-focus:screen-value.
            RUN windows/l-carrie.w (cocode, locode, ls-cur-val, output char-val).
@@ -347,10 +399,20 @@ END.
 &ANALYZE-RESUME
 
 
-
 &Scoped-define SELF-NAME begin_carr-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_carr-no rd-fgexp
 ON LEAVE OF begin_carr-no IN FRAME rd-fgexp /* From Item # */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_del-zone
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_del-zone rd-fgexp
+ON LEAVE OF begin_del-zone IN FRAME rd-fgexp /* From Zone */
 DO:
    assign {&self-name}.
 END.
@@ -453,6 +515,16 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_carr-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_carr-no rd-fgexp
+ON LEAVE OF end_carr-no IN FRAME rd-fgexp /* To Item # */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up rd-fgexp
 ON CHOOSE OF btn_Up IN FRAME rd-fgexp /* Move Up */
@@ -464,9 +536,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_carr-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_carr-no rd-fgexp
-ON LEAVE OF end_carr-no IN FRAME rd-fgexp /* To Item # */
+&Scoped-define SELF-NAME end_del-zone
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_del-zone rd-fgexp
+ON LEAVE OF end_del-zone IN FRAME rd-fgexp /* To Zone */
 DO:
      assign {&self-name}.
 END.
@@ -753,12 +825,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_carr-no end_carr-no sl_avail sl_selected tb_excel 
-          tb_runExcel fi_file 
+  DISPLAY begin_del-zone end_del-zone sl_avail sl_selected tb_excel 
+          tb_runExcel fi_file begin_carr-no end_carr-no
       WITH FRAME rd-fgexp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_carr-no end_carr-no  sl_avail Btn_Add 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_del-zone end_del-zone  sl_avail Btn_Add 
          sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
-         btn-cancel Btn_Def
+         btn-cancel Btn_Def begin_carr-no end_carr-no
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -837,7 +909,7 @@ PROCEDURE run-report :
 ------------------------------------------------------------------------------*/
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
-DEF BUFFER b-carrier FOR carrier.
+DEF BUFFER b-carr-mtx FOR carr-mtx.
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
@@ -845,16 +917,18 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
-FOR EACH b-carrier WHERE b-carrier.company = cocode
-        AND b-carrier.carrier GE begin_carr-no
-        AND b-carrier.carrier LE end_carr-no
+FOR EACH b-carr-mtx WHERE b-carr-mtx.company = cocode
+        AND b-carr-mtx.del-zone GE begin_del-zone
+        AND b-carr-mtx.del-zone LE end_del-zone
+        AND b-carr-mtx.carrier GE begin_carr-no
+        AND b-carr-mtx.carrier LE end_carr-no 
         NO-LOCK:
 
     v-excel-detail-lines = "".
 
     FOR EACH ttRptSelected:
         v-excel-detail-lines = v-excel-detail-lines + 
-            appendXLLine(getValue-itemfg(BUFFER b-carrier,ttRptSelected.FieldList)).
+            appendXLLine(getValue-itemfg(BUFFER b-carr-mtx,ttRptSelected.FieldList)).
 /*         CASE ttRptSelected.FieldList:                                                               */
 /*             WHEN "itemfg.i-no" THEN                                                                 */
 /*                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(itemfg.i-no).            */
@@ -914,6 +988,8 @@ DO WITH FRAME {&FRAME-NAME}:
       /* If a customer number was entered, find first and last matching customers. */
     IF lcCarrFrom <> "" THEN
     ASSIGN 
+        begin_del-zone:SCREEN-VALUE = assignParam(lcCarrZonFrom,NO)
+        end_del-zone:SCREEN-VALUE   = assignParam(lcCarrZonTo,NO)
         begin_carr-no:SCREEN-VALUE = assignParam(lcCarrFrom,NO)
         end_carr-no:SCREEN-VALUE   = assignParam(lcCarrTo,NO)
         .
@@ -1000,7 +1076,7 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-itemfg rd-fgexp 
 FUNCTION getValue-itemfg RETURNS CHARACTER
-  ( BUFFER ipb-itemfg FOR carrier, ipc-field AS CHAR ) :
+  ( BUFFER ipb-itemfg FOR carr-mtx, ipc-field AS CHAR ) :
 /*------------------------------------------------------------------------------
   Purpose:  Take a buffer and field name as string and return the value
     Notes:  
@@ -1010,7 +1086,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
     DEF VAR lc-return AS CHAR FORMAT "x(100)" NO-UNDO.
 
     CASE ipc-field :
-        WHEN "loc-dsce"  THEN DO:
+       /* WHEN "loc-dsce"  THEN DO:
             FIND FIRST loc WHERE loc.company  EQ ipb-itemfg.company
                 AND loc.loc     EQ ipb-itemfg.loc NO-LOCK NO-ERROR.
             IF AVAIL loc THEN
@@ -1028,7 +1104,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 OTHERWISE
                     lc-return = "Weight".
             END CASE.
-        END.
+        END.*/
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
         END.
