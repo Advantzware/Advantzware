@@ -541,8 +541,8 @@ IF NOT VALID-HANDLE(hCostProcs) THEN
     IF VALID-HANDLE(hCostProcs) THEN 
         RUN GetCostForLastReceipt IN hCostProcs
             (
-            INPUT b-fg-rcpth.company,
-            INPUT b-fg-rcpth.i-no,
+            INPUT itemfg.company,
+            INPUT itemfg.i-no,
             OUTPUT dCostPerUOMTotal,
             OUTPUT dCostPerUOMDL,
             OUTPUT dCostPerUOMFO,
@@ -612,9 +612,9 @@ IF NOT VALID-HANDLE(hCostProcs) THEN
       ASSIGN itemfg.total-std-cost = itemfg.avg-cost
              itemfg.last-cost      = itemfg.avg-cost
              .
-
     
     DELETE OBJECT hCostProcs.
+    
 END PROCEDURE.
 
 FUNCTION pgmStack RETURNS CHAR
