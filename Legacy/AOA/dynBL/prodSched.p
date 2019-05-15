@@ -11,16 +11,16 @@
 
 DEFINE TEMP-TABLE ttTempTable NO-UNDO
     FIELD transNumber       AS INTEGER   LABEL "Transaction Number"                FORMAT ">>>>>>>9"
-    FIELD brewery           AS INTEGER   LABEL "Brewery Code"                      FORMAT ">9"         INITIAL 99
-    FIELD startDate         AS DATE      LABEL "Forecast Horizon Start Date"       FORMAT "99/99/9999" INITIAL 1/1/1950
-    FIELD endDate           AS DATE      LABEL "Forecast Horizon End Date"         FORMAT "99/99/9999" INITIAL 12/31/2049
+    FIELD brewery           AS INTEGER   LABEL "Brewery Code"                      FORMAT ">9"        INITIAL 99
+    FIELD startDate         AS CHARACTER LABEL "Forecast Horizon Start Date"       FORMAT "x(6)"      INITIAL "100101"
+    FIELD endDate           AS CHARACTER LABEL "Forecast Horizon End Date"         FORMAT "x(6)"      INITIAL "991231"
     FIELD genDate           AS CHARACTER LABEL "Forecast Generated"                FORMAT "x(6)"
     FIELD genTime           AS CHARACTER LABEL "Forecast Generation Time"          FORMAT "x(6)"
     FIELD matNumber         AS CHARACTER LABEL "Material Numbers"                  FORMAT "x(15)"
     FIELD forecastQty       AS INTEGER   LABEL "Forecast Quantity"                 FORMAT "->>>>>>>9"
-    FIELD forecastQualifier AS CHARACTER LABEL "Forecast Timing Qualifier"         FORMAT "X"          INITIAL "W"
+    FIELD forecastQualifier AS CHARACTER LABEL "Forecast Timing Qualifier"         FORMAT "X"         INITIAL "W"
     FIELD prodStartDate     AS CHARACTER LABEL "Production Start Date of Quantity" FORMAT "x(6)"
-    FIELD uom               AS CHARACTER LABEL "Unit of Measurement"               FORMAT "x(2)"       INITIAL "EA"
+    FIELD uom               AS CHARACTER LABEL "Unit of Measurement"               FORMAT "x(2)"      INITIAL "EA"
     .
 /* Parameters Definitions ---                                           */
 
