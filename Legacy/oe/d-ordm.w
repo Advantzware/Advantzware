@@ -634,10 +634,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         FIND CURRENT oe-ordm EXCLUSIVE-LOCK NO-ERROR.
         oe-ordm.spare-char-1 = oe-ordm.spare-char-1:SCREEN-VALUE .
 
-        DO TRANSACTION:
-            DO WITH FRAME {&FRAME-NAME}:
-                ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
-            END.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
         END.
 
         FIND CURRENT oe-ord EXCLUSIVE.
@@ -1737,6 +1735,28 @@ PROCEDURE valid-charge :
             APPLY "entry" TO ip-focus.
             RETURN ERROR.
         END.
+    END.
+    
+    FIND FIRST prep NO-LOCK 
+    WHERE prep.company EQ oe-ord.company 
+    AND prep.code    EQ ip-focus:SCREEN-VALUE
+    NO-ERROR. 
+    
+    IF AVAIL prep THEN DO:
+        ASSIGN 
+            oe-ordm.tax:SCREEN-VALUE = STRING(prep.taxable).
+            
+        IF prep.commissionable THEN ASSIGN 
+            oe-ordm.s-man[1]:SCREEN-VALUE = STRING(oe-ord.sman[1])
+            oe-ordm.s-pct[1]:SCREEN-VALUE = STRING(oe-ord.s-pct[1])
+            oe-ordm.s-comm[1]:SCREEN-VALUE = STRING(oe-ord.s-comm[1])
+            oe-ordm.s-man[2]:SCREEN-VALUE = STRING(oe-ord.sman[2])
+            oe-ordm.s-pct[2]:SCREEN-VALUE = STRING(oe-ord.s-pct[2])
+            oe-ordm.s-comm[2]:SCREEN-VALUE = STRING(oe-ord.s-comm[2])
+            oe-ordm.s-man[3]:SCREEN-VALUE = STRING(oe-ord.sman[3])
+            oe-ordm.s-pct[3]:SCREEN-VALUE = STRING(oe-ord.s-pct[3])
+            oe-ordm.s-comm[3]:SCREEN-VALUE = STRING(oe-ord.s-comm[3])
+            .
     END.
 
 END PROCEDURE.

@@ -134,7 +134,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BOLSavePDF", "L" /* Logical */, NO /* chec
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lCopyPdfFile = logical(cRtnChar) NO-ERROR .
-IF SUBSTRING(cCopyPdfFile, length(cCopyPdfFile), 1) NE "\" THEN 
+IF cCopyPdfFile GT "" AND SUBSTRING(cCopyPdfFile, length(cCopyPdfFile), 1) NE "\" THEN 
   cCopyPdfFile = cCopyPdfFile + "\".
 
 DEF VAR lv-prt-bypass     AS LOG NO-UNDO.  /* bypass window's printer driver */
@@ -1212,7 +1212,9 @@ DO:
                  "Please verify transmission in your SENT folder."
                  VIEW-AS ALERT-BOX INFO BUTTONS OK.
    END.
-   IF lCopyPdfFile THEN 
+
+   IF lCopyPdfFile AND tb_posted THEN 
+
       RUN pdfArchive.
    SESSION:SET-WAIT-STATE ("").
 

@@ -723,6 +723,7 @@ PROCEDURE pRunCommand :
     opcRun = cEXE
            + REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
            + "-p &1 -param &2"
+           + " -debugalert"
            .
 
 END PROCEDURE.

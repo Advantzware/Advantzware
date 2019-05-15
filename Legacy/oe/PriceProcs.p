@@ -44,7 +44,23 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD cTableType      AS CHARACTER 
     .
 
-{oe/ttPriceHold.i "SHARED"}
+DEFINE TEMP-TABLE ttPriceHold
+    FIELD riLine               AS ROWID 
+    FIELD cFGItemID            AS CHARACTER
+    FIELD cCustID              AS CHARACTER 
+    FIELD cShipID              AS CHARACTER 
+    FIELD dQuantity            AS DECIMAL 
+    FIELD lMatrixMatch         AS LOGICAL 
+    FIELD cMatrixMatch         AS CHARACTER
+    FIELD lEffectiveDateTooOld AS LOGICAL 
+    FIELD dtEffectiveDate      AS DATE 
+    FIELD iQuantityLevel       AS INTEGER
+    FIELD lQuantityOutOfRange  AS LOGICAL
+    FIELD lQuantityMatch       AS LOGICAL  
+    FIELD lPriceHold           AS LOGICAL 
+    FIELD cPriceHoldReason     AS CHARACTER
+    FIELD cPriceHoldDetail     AS CHARACTER 
+    .     
     
 
 /* ********************  Preprocessor Definitions  ******************** */
