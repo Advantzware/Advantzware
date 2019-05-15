@@ -160,6 +160,65 @@ PROCEDURE GetCostForFGItemHist:
     
 END PROCEDURE.
 
+PROCEDURE GetCostForLastReceipt:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDL AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMFO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMVO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDM AS DECIMAL NO-UNDO.  
+    DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER b-fg-rcpth FOR fg-rcpth.
+    DEFINE BUFFER b-fg-rdtlh FOR fg-rdtlh.
+    DEFINE VARIABLE cRitaCodes AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCodeNum AS INTEGER NO-UNDO.
+    
+    cRitaCodes = "R,C".
+    HISTORYCOST:
+    DO iCodeNum = 1 TO NUM-ENTRIES(cRitaCodes):
+        
+        FOR EACH b-fg-rcpth
+            WHERE b-fg-rcpth.company EQ ipcCompany
+            AND b-fg-rcpth.i-no      EQ ipcFGItemID
+            AND b-fg-rcpth.rita-code EQ ENTRY(iCodeNum, cRitaCodes)
+            USE-INDEX i-no NO-LOCK,
+    
+            FIRST b-fg-rdtlh
+            WHERE b-fg-rdtlh.r-no    EQ b-fg-rcpth.r-no
+            AND b-fg-rdtlh.rita-code EQ b-fg-rcpth.rita-code
+            AND b-fg-rdtlh.qty     GT 0
+            NO-LOCK
+    
+            BY b-fg-rcpth.trans-date desc
+            BY b-fg-rdtlh.trans-time DESC
+            BY b-fg-rcpth.r-no       desc
+            BY RECID(b-fg-rdtlh)     desc:
+            IF b-fg-rdtlh.std-tot-cost NE 0 THEN 
+            DO:   /*if cost properly propagated to history transactions*/  
+                ASSIGN
+                    opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
+                    opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
+                    opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
+                    opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
+                    opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost
+                    oplFound           = YES 
+                    opcCostUOM         = b-fg-rcpth.pur-uom    
+                    .
+                 LEAVE HISTORYCOST.   
+            END.            
+        END. /* Each b-fg-rcpth */
+        
+    END. /* Do iCodeNum... */
+    
+END PROCEDURE.
+
 PROCEDURE GetCostForPOLine:
     /*------------------------------------------------------------------------------
      Purpose: Returns a Per UOM Cost based on total cost of the po.
