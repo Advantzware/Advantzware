@@ -370,7 +370,9 @@ for each itemfg
                 cExcelVarValue = "" .
                 DO j = 1 TO display_hist:
                     cVarValue = cVarValue + STRING(li-hist[j],"->>>>>9") + " " .
-                    cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9")) + "," .
+                    IF j EQ display_hist THEN
+                        cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9"))  .
+                    ELSE cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9")) + "," .
                 END.
             END.
             
