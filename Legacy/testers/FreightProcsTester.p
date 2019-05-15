@@ -246,7 +246,6 @@ RUN GetFreightForCarrierZone IN hFreightProcs (eb.company, eb.loc, eb.carrier, e
     dPalletCount, dTotalWeight, dTotalMSF, 
     OUTPUT dFreightTotal, OUTPUT dFreightMin,
     OUTPUT lError, OUTPUT cMessage).  
-    
 
 END PROCEDURE.
 

@@ -45,6 +45,7 @@ FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
 FUNCTION UseReleasesForFreightAndWarehousing RETURNS LOGICAL 
     (ipcCompany AS CHARACTER) FORWARD.
 
+
 /* ***************************  Main Block  *************************** */
 RUN inventory\InventoryProcs.p PERSISTENT SET ghInventoryProcs.
 
@@ -664,6 +665,7 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
+
     DEFINE BUFFER bf-ef      FOR ef.
     DEFINE BUFFER bf-item    FOR ITEM.
     DEFINE BUFFER bf-ce-ctrl FOR ce-ctrl.
@@ -691,7 +693,7 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
         ipbf-estRelease.dimEachDep              = ipbf-eb.t-dep
         ipbf-estRelease.dimEachUOM              = "IN"
         .
-    
+
     RUN GetStorageAndHandlingForLocation(ipbf-eb.company, ipbf-eb.loc, ipbf-eb.stackHeight, 
         OUTPUT ipbf-estRelease.storageCost, OUTPUT ipbf-estRelease.handlingCost,
         OUTPUT oplError, OUTPUT opcMessage).

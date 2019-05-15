@@ -2158,7 +2158,7 @@ DO li = 1 TO display_hist :
    ld-fr   = DATE(li1,1,YEAR(TODAY) - IF li1 GT MONTH(TODAY) THEN 1 ELSE 0)
    ls-hlbl = ls-hlbl + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2) .
-   IF li = 12 THEN
+   IF li = display_hist THEN
    ls-hlbl2 = ls-hlbl2 + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2)  .
    ELSE
@@ -2345,7 +2345,7 @@ DO li = 1 TO display_hist :
    ld-fr   = DATE(li1,1,YEAR(TODAY) - IF li1 GT MONTH(TODAY) THEN 1 ELSE 0)
    ls-hlbl = ls-hlbl + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2) .
-    IF li = 12 THEN
+    IF li = display_hist THEN
    ls-hlbl2 = ls-hlbl2 + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2)  .        
 ELSE
