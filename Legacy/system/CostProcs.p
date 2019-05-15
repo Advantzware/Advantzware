@@ -28,7 +28,9 @@ FUNCTION fConvert RETURNS DECIMAL
     ipdLengthInInches AS DECIMAL,
     ipdWidthInInches AS DECIMAL,
     ipdDepthInInches AS DECIMAL,
-    ipdValueToConvert AS DECIMAL) FORWARD.
+    ipdQuantityOfLotInEA AS DECIMAL,
+     ipdQuantityOfSubUnitInEA AS DECIMAL,
+     ipdValueToConvert AS DECIMAL) FORWARD.
 
 FUNCTION fConvertCurrency RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL,
@@ -115,7 +117,7 @@ PROCEDURE GetCostForFGItemHist:
                     /*Calculate Freight in EA*/
                     dCostFreightRct = bfrcpt-fg-rdtlh.frt-cost / bfrcpt-fg-rdtlh.qty.  
                      /*Convert EA cost of freight to cost UOM*/
-                    dCostFreightRct = fConvert("EA", opcCostUOM, 0, 0, 0, 0, dCostFreightRct) .
+                    dCostFreightRct = fConvert("EA", opcCostUOM, 0, 0, 0, 0, 0, 0, dCostFreightRct) .
                     /*Add Freight in like UOM cost*/
                     opdCostPerUOMTotal = opdCostPerUOMTotal + dCostFreightRct.                        .  
                 END.
@@ -151,11 +153,11 @@ PROCEDURE GetCostForFGItemHist:
     IF opcCostUOM NE cCostUOMDef THEN 
     DO: 
         opcCostUOM = cCostUOMDef.
-        opdCostPerUOMTotal = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMTotal).
-        opdCostPerUOMDL = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMDL).
-        opdCostPerUOMFO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMFO).
-        opdCostPerUOMVO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMVO).
-        opdCostPerUOMDM = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMDM).
+        opdCostPerUOMTotal = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMTotal).
+        opdCostPerUOMDL = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDL).
+        opdCostPerUOMFO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMFO).
+        opdCostPerUOMVO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMVO).
+        opdCostPerUOMDM = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDM).
     END.
     
 END PROCEDURE.
@@ -259,6 +261,7 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
     DEFINE VARIABLE dCostSetup          AS DECIMAL.
     DEFINE VARIABLE dDiscountPercentage AS DECIMAL.
     DEFINE VARIABLE dFreightPortion     AS DECIMAL.
+    DEFINE VARIABLE dLotQtyInEA         AS DECIMAL. 
 
 
     IF AVAILABLE ipbf-po-ordl THEN 
@@ -272,9 +275,15 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
             .
         
     IF dOrderQty EQ 0 THEN RETURN.
+    dLotQtyInEA = fConvert(cOrderQtyUOM, "EA",
+        ipdBasisWeightInPoundsPerSqInch,
+        ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
+        dOrderQty, 0 /*Refactor to support CAS*/,
+        dOrderQty).
     dCostInOrderQtyUOM = fConvert(cCostUOM, cOrderQtyUOM,
         ipdBasisWeightInPoundsPerSqInch,
         ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
+        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
         dCostPerUOM).
 
     /*Apply discount to Per UOM Cost Only*/
@@ -290,11 +299,13 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
     opdCostPerUOMExFreight = fConvert(cOrderQtyUOM, ipcTargetUOM,
         ipdBasisWeightInPoundsPerSqInch,
         ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
+        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
         dCostTotal / dOrderQty).
     
     opdCostPerUOMFreight = fConvert(cOrderQtyUOM, ipcTargetUOM,
         ipdBasisWeightInPoundsPerSqInch,
         ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
+        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
         dFreightPortion / dOrderQty).
     
 END PROCEDURE.
@@ -343,6 +354,7 @@ PROCEDURE pGetFreightPortion PRIVATE:
                     IF LOOKUP(bf-po-ordl.pr-qty-uom,cEachUOMListFG) EQ 0 THEN
                         dQtyInEach = fConvert(bf-po-ordl.pr-qty-uom, "EA",
                             0, bf-po-ordl.s-len, bf-po-ordl.s-wid, bf-po-ordl.s-dep,
+                            1, 1,
                             dQtyInEach).
                                   
                     dWeightTotal = dWeightTotal + (dQtyInEach / 100 * itemfg.weight-100).
@@ -365,6 +377,7 @@ PROCEDURE pGetFreightPortion PRIVATE:
                     IF LOOKUP(bf-po-ordl.pr-qty-uom,cEachUOMListRM) EQ 0 THEN
                         dQtyInEach = fConvert(bf-po-ordl.pr-qty-uom, "EA",
                             ITEM.basis-w, bf-po-ordl.s-len, bf-po-ordl.s-wid, bf-po-ordl.s-dep,
+                            1, 1,
                             dQtyInEach).
       
                     dWeightTotal = dWeightTotal + (dQtyInEach / 100 * item.weight-100).
@@ -664,7 +677,7 @@ PROCEDURE pConvertCostToM PRIVATE:
     DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
     
-    opdCost = fConvert(ipcUOM, "M", 0, 0, 0, 0, ipdCost).
+    opdCost = fConvert(ipcUOM, "M", 0, 0, 0, 0, 1, 1, ipdCost).
 
 END PROCEDURE.
 
@@ -1032,6 +1045,7 @@ FUNCTION fConvert RETURNS DECIMAL
     (ipcFromUOM AS CHARACTER , ipcToUOM AS CHARACTER, 
     ipdBasisWeightInPoundsPerSqInch AS DECIMAL, 
     ipdLengthInInches AS DECIMAL, ipdWidthInInches AS DECIMAL, ipdDepthInInches AS DECIMAL, 
+    ipdQuantityOfLotInEA AS DECIMAL, ipdQuantityOfSubUnitInEA AS DECIMAL, 
     ipdValueToConvert AS DECIMAL):
     /*------------------------------------------------------------------------------
      Purpose: Replaces all conversion programs
@@ -1081,6 +1095,10 @@ FUNCTION fConvert RETURNS DECIMAL
         WHEN "BF" OR 
         WHEN "BSF" THEN
             ipdValueToConvert = ((ipdLengthInInches * ipdWidthInInches * ipdDepthInInches) / 144) * ipdValueToConvert.
+        WHEN "CAS" OR WHEN "C" THEN 
+            ipdValueToConvert = ipdValueToConvert / ipdQuantityOfSubUnitInEA.
+        WHEN "LOT" OR WHEN "L" THEN
+            ipdValueToConvert = ipdValueToConvert / ipdQuantityOfLotInEA.
         OTHERWISE 
         DO:
             fromuom:
@@ -1141,6 +1159,11 @@ FUNCTION fConvert RETURNS DECIMAL
         WHEN "BSF" THEN 
             IF ipdLengthInInches NE 0 AND ipdWidthInInches NE 0 AND ipdDepthInInches NE 0 THEN 
                 dValueConverted = ipdValueToConvert / ((ipdLengthInInches * ipdWidthInInches * ipdDepthInInches) / 144).
+        WHEN "CAS" OR WHEN "C" THEN 
+            ipdValueToConvert = ipdValueToConvert * ipdQuantityOfSubUnitInEA.
+        WHEN "LOT" OR WHEN "L" THEN
+            ipdValueToConvert = ipdValueToConvert * ipdQuantityOfLotInEA.
+            
         OTHERWISE 
         DO:
             touom:

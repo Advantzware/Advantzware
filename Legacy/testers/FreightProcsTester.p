@@ -24,6 +24,9 @@ DEFINE VARIABLE giDeleteBlankForm AS INTEGER   INIT 2.
 DEFINE VARIABLE giDeleteBlank AS INTEGER   INIT 2.
 /* ********************  Preprocessor Definitions  ******************** */
 
+/* ************************  Function Prototypes ********************** */
+
+
 
 /* ***************************  Main Block  *************************** */
 RUN system\FreightProcs.p PERSISTENT SET hFreightProcs.
@@ -63,6 +66,8 @@ FOR EACH estRelease EXCLUSIVE-LOCK:
     DELETE estRelease.
 END.
 RUN pCreateTestEstReleases.
+
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -167,7 +172,7 @@ PROCEDURE pCreateTestEstReleases PRIVATE:
     AND eb.est-no EQ '   13798'
     AND eb.est-type EQ 5
     .
-    RUN CreateReleaseForEstBlank IN hFreightProcs (ROWID(eb), 
+    RUN CreateEstReleaseForEstBlank IN hFreightProcs (ROWID(eb), 
         OUTPUT iEstReleaseID, OUTPUT lError, OUTPUT cMessage).
     
     IF lError THEN
@@ -189,6 +194,7 @@ PROCEDURE pCreateTestEstReleases PRIVATE:
             MESSAGE cMessage VIEW-AS ALERT-BOX.
     END.
     RUN pDisplayEstReleases.
+    RUN pTestFreightCalc(BUFFER eb).
     
 END PROCEDURE.
 
@@ -214,6 +220,37 @@ PROCEDURE pDisplayEstReleases PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE pTestFreightCalc PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTotalMSF AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dFreightTotal AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dFreightMin AS DECIMAL NO-UNDO.
 
+ASSIGN
+    dPalletCount = 6
+    dTotalWeight = 500
+    dTotalMSF = 300
+    . 
+RUN GetFreightForCarrierZone IN hFreightProcs (eb.company, eb.loc, eb.carrier, eb.dest-code, eb.ship-zip,
+    dPalletCount, dTotalWeight, dTotalMSF, 
+    OUTPUT dFreightTotal, OUTPUT dFreightMin,
+    OUTPUT lError, OUTPUT cMessage).  
+    
+MESSAGE dFreightTotal SKIP 
+    dFreightMin SKIP 
+    cMessage
+VIEW-AS ALERT-BOX.
+END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
 
 

@@ -30,6 +30,9 @@ DEFINE VARIABLE ld-fg-rate  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE ld-hand-pct AS DECIMAL NO-UNDO.
 DEFINE VARIABLE opmr        LIKE est-op.op-mr NO-UNDO.
 DEFINE VARIABLE opsp        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
+
+RUN system\FreightProcs.p PERSISTENT SET hFreightProcs.
 
 DEFINE SHARED WORKFILE w-form
     FIELD form-no LIKE xef.form-no
@@ -288,118 +291,124 @@ DO:
         opsplit$[1] = opsplit$[1] + ctrl2[2] + ctrl2[3]
         op-tot[5]   = op-tot[5] + (ctrl2[2] + ctrl2[3]).
 END.
-   
-FIND FIRST carrier
-    WHERE carrier.company EQ cocode
-    AND carrier.loc     EQ locode
-    AND carrier.carrier EQ xeb.carrier
-    NO-LOCK NO-ERROR.
-IF AVAILABLE carrier THEN
-    FIND FIRST carr-mtx
-        WHERE carr-mtx.company  EQ cocode
-        AND carr-mtx.loc      EQ locode
-        AND carr-mtx.carrier  EQ carrier.carrier
-        AND carr-mtx.del-zone EQ xeb.dest-code
-        AND carr-mtx.del-zip EQ xeb.ship-zip
-        NO-LOCK NO-ERROR.
-IF NOT AVAILABLE carr-mtx THEN
-    FIND FIRST carr-mtx
-        WHERE carr-mtx.company  EQ cocode
-        AND carr-mtx.loc      EQ locode
-        AND carr-mtx.carrier  EQ carrier.carrier
-        AND carr-mtx.del-zone EQ xeb.dest-code
-        NO-LOCK NO-ERROR.
-
-ASSIGN
-    v-msf = (IF v-corr THEN ((xeb.t-sqin - xeb.t-win) * qty * .007)
-                       ELSE ((xeb.t-sqin - xeb.t-win) * qty / 144)) / 1000
-    zzz   = xef.weight.
-   
-IF xef.medium NE "" THEN 
-DO:
-    FIND FIRST item {sys/look/itemW.i} AND
-                 item.i-no = xef.medium NO-LOCK NO-ERROR.
-    IF AVAILABLE item
-        THEN zzz = zzz + (item.basis-w * (1 - (item.shrink / 100))).
+IF DYNAMIC-FUNCTION('UseReleasesForFreightAndWarehousing' IN hFreightProcs,xeb.company) THEN DO:
+    RUN GetFreightForEstimate IN hFreightProcs (xeb.company, xeb.est-no, qty, 
+            OUTPUT fr-tot).
+            
 END.
-   
-IF xef.flute NE "" THEN 
-DO:
-    FIND FIRST item {sys/look/itemW.i} AND
-                 item.i-no = xef.flute NO-LOCK NO-ERROR.
-    IF AVAILABLE item
-        THEN zzz = zzz + item.basis-w.
-END.
-   
-/*if xef.lam-code ne "" then do:
-   find first item {sys/look/itemW.i} and
-              item.i-no = xef.lam-code no-lock no-error.
-   if avail item
-   then zzz = zzz + item.basis-w.
-end.*/
-   
-xxx = v-msf * zzz.                           /* total weight */
-   
-FIND FIRST item                              /* add cases */
-    WHERE item.company EQ cocode
-    AND item.i-no    EQ xeb.cas-no
-    AND xeb.cas-no   NE ""
-    NO-LOCK NO-ERROR.
-xxx = xxx + (c-qty * (IF AVAILABLE item THEN item.basis-w
-ELSE ce-ctrl.def-cas-w)).
-                                       
-FIND FIRST item                              /* add pallets */
-    WHERE item.company EQ cocode
-    AND item.i-no    EQ xeb.tr-no
-    AND xeb.tr-no    NE ""
-    NO-LOCK NO-ERROR.
-
-ASSIGN
-    xxx    = xxx + (p-qty * (IF AVAILABLE item THEN item.basis-w
-                                       ELSE ce-ctrl.def-pal-w))
-    fr-tot = 0.
-   
-IF xeb.fr-out-c NE 0 THEN
-    fr-tot = xeb.fr-out-c * (xxx / 100).
-ELSE
-    IF xeb.fr-out-m NE 0 THEN
-        fr-tot = xeb.fr-out-m * (qtty[k] / 1000).
+ELSE DO:   
+    FIND FIRST carrier
+        WHERE carrier.company EQ cocode
+        AND carrier.loc     EQ locode
+        AND carrier.carrier EQ xeb.carrier
+        NO-LOCK NO-ERROR.
+    IF AVAILABLE carrier THEN
+        FIND FIRST carr-mtx
+            WHERE carr-mtx.company  EQ cocode
+            AND carr-mtx.loc      EQ locode
+            AND carr-mtx.carrier  EQ carrier.carrier
+            AND carr-mtx.del-zone EQ xeb.dest-code
+            AND carr-mtx.del-zip EQ xeb.ship-zip
+            NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE carr-mtx THEN
+        FIND FIRST carr-mtx
+            WHERE carr-mtx.company  EQ cocode
+            AND carr-mtx.loc      EQ locode
+            AND carr-mtx.carrier  EQ carrier.carrier
+            AND carr-mtx.del-zone EQ xeb.dest-code
+            NO-LOCK NO-ERROR.
+    
+    ASSIGN
+        v-msf = (IF v-corr THEN ((xeb.t-sqin - xeb.t-win) * qty * .007)
+                           ELSE ((xeb.t-sqin - xeb.t-win) * qty / 144)) / 1000
+        zzz   = xef.weight.
+       
+    IF xef.medium NE "" THEN 
+    DO:
+        FIND FIRST item {sys/look/itemW.i} AND
+                     item.i-no = xef.medium NO-LOCK NO-ERROR.
+        IF AVAILABLE item
+            THEN zzz = zzz + (item.basis-w * (1 - (item.shrink / 100))).
+    END.
+       
+    IF xef.flute NE "" THEN 
+    DO:
+        FIND FIRST item {sys/look/itemW.i} AND
+                     item.i-no = xef.flute NO-LOCK NO-ERROR.
+        IF AVAILABLE item
+            THEN zzz = zzz + item.basis-w.
+    END.
+       
+    /*if xef.lam-code ne "" then do:
+       find first item {sys/look/itemW.i} and
+                  item.i-no = xef.lam-code no-lock no-error.
+       if avail item
+       then zzz = zzz + item.basis-w.
+    end.*/
+       
+    xxx = v-msf * zzz.                           /* total weight */
+       
+    FIND FIRST item                              /* add cases */
+        WHERE item.company EQ cocode
+        AND item.i-no    EQ xeb.cas-no
+        AND xeb.cas-no   NE ""
+        NO-LOCK NO-ERROR.
+    xxx = xxx + (c-qty * (IF AVAILABLE item THEN item.basis-w
+    ELSE ce-ctrl.def-cas-w)).
+                                           
+    FIND FIRST item                              /* add pallets */
+        WHERE item.company EQ cocode
+        AND item.i-no    EQ xeb.tr-no
+        AND xeb.tr-no    NE ""
+        NO-LOCK NO-ERROR.
+    
+    ASSIGN
+        xxx    = xxx + (p-qty * (IF AVAILABLE item THEN item.basis-w
+                                           ELSE ce-ctrl.def-pal-w))
+        fr-tot = 0.
+       
+    IF xeb.fr-out-c NE 0 THEN
+        fr-tot = xeb.fr-out-c * (xxx / 100).
     ELSE
-        IF AVAILABLE carr-mtx THEN 
-        DO:
-            IF carrier.chg-method EQ "W" THEN
-            DO i = 1 TO 10:
-                fr-tot = carr-mtx.rate[i] * xxx / 100.
-                IF carr-mtx.weight[i] GE xxx THEN LEAVE.
-            END.
-     
-            ELSE
-                IF carrier.chg-method EQ "P" THEN
+        IF xeb.fr-out-m NE 0 THEN
+            fr-tot = xeb.fr-out-m * (qtty[k] / 1000).
+        ELSE
+            IF AVAILABLE carr-mtx THEN 
+            DO:
+                IF carrier.chg-method EQ "W" THEN
                 DO i = 1 TO 10:
-                    fr-tot = carr-mtx.rate[i] * p-qty.
-                    IF carr-mtx.weight[i] GE p-qty THEN LEAVE.
+                    fr-tot = carr-mtx.rate[i] * xxx / 100.
+                    IF carr-mtx.weight[i] GE xxx THEN LEAVE.
                 END.
-     
-                ELSE 
-                DO:
-                    FIND FIRST item
-           {sys/look/itemW.i}
-             AND item.i-no     EQ xef.board
-             AND item.mat-type EQ "B"
-             AND item.avg-w    GT 0
-                        NO-LOCK NO-ERROR.
-                    v-msf = v-msf * IF AVAILABLE item THEN item.avg-w ELSE 1.
-      
+         
+                ELSE
+                    IF carrier.chg-method EQ "P" THEN
                     DO i = 1 TO 10:
-                        fr-tot = carr-mtx.rate[i] * v-msf.
-                        IF carr-mtx.weight[i] GE v-msf THEN LEAVE.
+                        fr-tot = carr-mtx.rate[i] * p-qty.
+                        IF carr-mtx.weight[i] GE p-qty THEN LEAVE.
                     END.
-                END.
-     
-            IF fr-tot LT carr-mtx.min-rate THEN fr-tot = carr-mtx.min-rate.
-      
-            fr-tot = fr-tot + (carr-mtx.min-rate * (rels[k] - 1)).
-        END.
+         
+                    ELSE 
+                    DO:
+                        FIND FIRST item
+               {sys/look/itemW.i}
+                 AND item.i-no     EQ xef.board
+                 AND item.mat-type EQ "B"
+                 AND item.avg-w    GT 0
+                            NO-LOCK NO-ERROR.
+                        v-msf = v-msf * IF AVAILABLE item THEN item.avg-w ELSE 1.
+          
+                        DO i = 1 TO 10:
+                            fr-tot = carr-mtx.rate[i] * v-msf.
+                            IF carr-mtx.weight[i] GE v-msf THEN LEAVE.
+                        END.
+                    END.
+         
+                IF fr-tot LT carr-mtx.min-rate THEN fr-tot = carr-mtx.min-rate.
+          
+                fr-tot = fr-tot + (carr-mtx.min-rate * (rels[k] - 1)).
+            END.
+END.
 
 ld-fg-rate = IF xeb.pur-man THEN fg-rate-f ELSE ce-ctrl.fg-rate.
 

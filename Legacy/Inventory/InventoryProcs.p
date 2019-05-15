@@ -270,7 +270,7 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
             ttInventoryStockPreLoadtag.lastTransBy             = USERID("asi").
         RUN pGetWIPID(BUFFER ttInventoryStockPreLoadtag, OUTPUT ttInventoryStockPreLoadtag.wipItemID).
         ttInventoryStockPreLoadtag.primaryID = ttInventoryStockPreLoadtag.wipItemID.
-        RUN pRecalcQuantityUnits(ipdQuantityTotal, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantityPerSubUnit, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantitySubUnitsPerUnit, 
+        RUN RecalcQuantityUnits(ipdQuantityTotal, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantityPerSubUnit, INPUT-OUTPUT ttInventoryStockPreLoadtag.quantitySubUnitsPerUnit, 
             OUTPUT ttInventoryStockPreLoadtag.quantityOfSubUnits, OUTPUT ttInventoryStockPreLoadtag.quantityOfUnits, OUTPUT ttInventoryStockPreLoadtag.quantityPartial).
             
         FIND FIRST bf-item NO-LOCK 
@@ -815,7 +815,7 @@ PROCEDURE pCreateLoadtagFromPreLoadtag PRIVATE:
         ttInventoryStockLoadtag.inventoryStatus  = gcStatusStockLoadtag
         .
     /*Ensure the partial and unit counts are calculated correctly for this specific quantity*/
-    RUN pRecalcQuantityUnits(ttInventoryStockLoadtag.quantityOriginal, 
+    RUN RecalcQuantityUnits(ttInventoryStockLoadtag.quantityOriginal, 
         INPUT-OUTPUT ttInventoryStockLoadtag.quantityPerSubUnit, INPUT-OUTPUT ttInventoryStockLoadtag.quantitySubUnitsPerUnit,
         OUTPUT ttInventoryStockLoadtag.quantityOfSubUnits, OUTPUT ttInventoryStockLoadtag.quantityOfUnits, OUTPUT ttInventoryStockLoadtag.quantityPartial).
     
@@ -1007,7 +1007,7 @@ PROCEDURE PostTransaction:
 
 END PROCEDURE.
 
-PROCEDURE pRecalcQuantityUnits PRIVATE:
+PROCEDURE RecalcQuantityUnits:
     /*------------------------------------------------------------------------------
      Purpose: Given a quantity and unit count, return units and partial
      Notes:
@@ -1025,7 +1025,7 @@ PROCEDURE pRecalcQuantityUnits PRIVATE:
         opiQuantityOfSubUnits       = TRUNC(ipdQuantityTotal / iopdQuantityPerSubUnit, 0)
         opdQuantityPartialSubUnit   = ipdQuantityTotal - iopdQuantityPerSubUnit * opiQuantityOfSubUnits
         opiQuantityOfUnits          = INTEGER(TRUNC(opiQuantityOfSubUnits / iopiQuantitySubUnitsPerUnit, 0)) 
-        + INTEGER((opiQuantityOfSubUnits MODULO iopiQuantitySubUnitsPerUnit) NE 0) + INTEGER(opdQuantityPartialSubUnit GT 0)
+        + INTEGER((opiQuantityOfSubUnits MODULO iopiQuantitySubUnitsPerUnit) NE 0)
         .  
     
 END PROCEDURE.
