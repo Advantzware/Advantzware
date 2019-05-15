@@ -535,32 +535,14 @@ DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
 RUN system/costProcs.p PERSISTENT SET hCostProcs.    
 
-    FOR EACH b-fg-rcpth
-      WHERE b-fg-rcpth.company   EQ itemfg.company
-      AND b-fg-rcpth.i-no      EQ itemfg.i-no
-      AND b-fg-rcpth.rita-code EQ "R"
-      USE-INDEX i-no NO-LOCK,
-
-      FIRST b-fg-rdtlh
-      WHERE b-fg-rdtlh.r-no    EQ b-fg-rcpth.r-no
-      AND b-fg-rdtlh.rita-code EQ b-fg-rcpth.rita-code
-      AND b-fg-rdtlh.qty     GT 0
-      NO-LOCK
-
-      BY b-fg-rcpth.trans-date desc
-      BY b-fg-rdtlh.trans-time DESC
-      BY b-fg-rcpth.r-no       desc
-      BY RECID(b-fg-rdtlh)     desc:
-
-
+IF NOT VALID-HANDLE(hCostProcs) THEN 
+    RETURN. 
+    
     IF VALID-HANDLE(hCostProcs) THEN 
-        RUN GetCostForReceipt IN hCostProcs
+        RUN GetCostForLastReceipt IN hCostProcs
             (
             INPUT b-fg-rcpth.company,
             INPUT b-fg-rcpth.i-no,
-            INPUT b-fg-rdtlh.Tag,
-            INPUT b-fg-rdtlh.job-no,
-            INPUT b-fg-rdtlh.job-no2,
             OUTPUT dCostPerUOMTotal,
             OUTPUT dCostPerUOMDL,
             OUTPUT dCostPerUOMFO,
@@ -570,16 +552,15 @@ RUN system/costProcs.p PERSISTENT SET hCostProcs.
             OUTPUT lFound
             ).
                 
-      IF NOT lFound THEN 
-        ASSIGN 
-           dCostPerUomTotal = b-fg-rdtlh.cost
-           cCostUom         = b-fg-rcpth.pur-uom
-           .
       lv-uom = itemfg.prod-uom.
       IF cCostUom EQ lv-uom THEN       
-        ASSIGN itemfg.avg-cost = dCostPerUOMTotal
+         ASSIGN itemfg.avg-cost     = dCostPerUOMTotal
+                itemfg.std-lab-cost = dCostPerUOMDL
+                itemfg.std-fix-cost = dCostPerUOMFO
+                itemfg.std-var-cost = dCostPerUOMVO
+                itemfg.std-mat-cost = dCostPerUOMDM
                .
-      ELSE 
+      ELSE DO:
           ASSIGN itemfg.avg-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
                 cCostUom,
                 lv-uom,
@@ -588,19 +569,50 @@ RUN system/costProcs.p PERSISTENT SET hCostProcs.
                 itemfg.t-wid,
                 itemfg.t-dep,
                 dCostPerUOMTotal
-                )
+                )            
+          itemfg.std-lab-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                dCostPerUOMDL
+                ) 
+          itemfg.std-fix-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                dCostPerUOMFO
+                ) 
+          itemfg.std-var-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                dCostPerUOMVO
+                ) 
+          itemfg.std-mat-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                dCostPerUOMDM
+                )                                 
                 .
-          
-      ASSIGN itemfg.std-mat-cost   = itemfg.avg-cost
-             itemfg.total-std-cost = itemfg.avg-cost
+      END. /* UOM conversions */
+       
+      ASSIGN itemfg.total-std-cost = itemfg.avg-cost
              itemfg.last-cost      = itemfg.avg-cost
              .
 
-      /* If found the fg-rctd, assume we have the correct uom,
-         otherwise keep looking */
-      IF itemfg.avg-cost NE 0 /* AND AVAIL(fg-rctd) */ THEN
-        LEAVE.
-    END.
     
     DELETE OBJECT hCostProcs.
 END PROCEDURE.
