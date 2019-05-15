@@ -192,6 +192,9 @@ PROCEDURE pCreateTestEstReleases PRIVATE:
         RUN CalcStorageAndHandlingForEstRelease IN hFreightProcs (iEstReleaseID, OUTPUT lError, OUTPUT cMessage).
         IF lError THEN 
             MESSAGE cMessage VIEW-AS ALERT-BOX.
+        RUN CalcFreightForEstRelease IN hFreightProcs (iEstReleaseID, OUTPUT lError, OUTPUT cMessage).
+        IF lError THEN 
+            MESSAGE cMessage VIEW-AS ALERT-BOX.            
     END.
     RUN pDisplayEstReleases.
     RUN pTestFreightCalc(BUFFER eb).
@@ -243,11 +246,7 @@ RUN GetFreightForCarrierZone IN hFreightProcs (eb.company, eb.loc, eb.carrier, e
     dPalletCount, dTotalWeight, dTotalMSF, 
     OUTPUT dFreightTotal, OUTPUT dFreightMin,
     OUTPUT lError, OUTPUT cMessage).  
-    
-MESSAGE dFreightTotal SKIP 
-    dFreightMin SKIP 
-    cMessage
-VIEW-AS ALERT-BOX.
+
 END PROCEDURE.
 
 

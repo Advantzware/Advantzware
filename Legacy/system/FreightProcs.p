@@ -36,8 +36,15 @@ FUNCTION fCalcStorageCostTotal RETURNS DECIMAL PRIVATE
 FUNCTION fGetNextEstReleaseID RETURNS INTEGER PRIVATE
     (  ) FORWARD.
 
+FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
+    (ipdQuantity AS DECIMAL,
+    ipdLength AS DECIMAL,
+    ipdWidth AS DECIMAL,
+    ipcDimUOM AS CHARACTER) FORWARD.
+
 FUNCTION UseReleasesForFreightAndWarehousing RETURNS LOGICAL 
     (ipcCompany AS CHARACTER) FORWARD.
+
 
 /* ***************************  Main Block  *************************** */
 RUN inventory\InventoryProcs.p PERSISTENT SET ghInventoryProcs.
@@ -54,9 +61,11 @@ PROCEDURE CalcFreightForEstRelease:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE dSubUnits   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dPartial    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dFreightMin AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSubUnits    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPartial     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dFreightMin  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalMSF    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO.
 
     FIND FIRST estRelease EXCLUSIVE-LOCK   
         WHERE estRelease.estReleaseID EQ ipiEstReleaseID
@@ -65,8 +74,10 @@ PROCEDURE CalcFreightForEstRelease:
     DO:
         RUN RecalcQuantityUnits IN ghInventoryProcs (estRelease.quantityRelease, INPUT-OUTPUT estRelease.quantityPerSubUnit, INPUT-OUTPUT estRelease.quantitySubUnitsPerUnit, 
             OUTPUT dSubUnits, OUTPUT estRelease.quantityOfUnits, OUTPUT dPartial).
+        dTotalMSF = fGetTotalMSF(estRelease.quantityRelease, estRelease.dimEachLen, estRelease.dimEachWid, estRelease.dimEachUOM).
+        dTotalWeight = estRelease.quantityRelease * estRelease.weightTotalPerEach. 
         RUN GetFreightForCarrierZone (estRelease.company, estRelease.shipFromLocationID, estRelease.carrierID, estRelease.carrierZone, "",
-            estRelease.quantityOfUnits, 0, 0, 
+            estRelease.quantityOfUnits, dTotalWeight, dTotalMSF, 
             OUTPUT estRelease.freightCost, OUTPUT dFreightMin,
             OUTPUT oplError, OUTPUT opcMessage).  
     END.
@@ -173,97 +184,6 @@ PROCEDURE GetFreightForCarrierZone:
         IF opdFreightTotal LT opdFreightMin THEN 
             opdFreightTotal = opdFreightMin.
     END.
-
-/*ASSIGN                                                                       */
-/*    v-msf = (IF v-corr THEN ((xeb.t-sqin - xeb.t-win) * qty * .007)          */
-/*                       ELSE ((xeb.t-sqin - xeb.t-win) * qty / 144)) / 1000   */
-/*    zzz   = xef.weight.                                                      */
-/*                                                                             */
-/*IF xef.medium NE "" THEN                                                     */
-/*DO:                                                                          */
-/*    FIND FIRST item {sys/look/itemW.i} AND                                   */
-/*                 item.i-no = xef.medium NO-LOCK NO-ERROR.                    */
-/*    IF AVAILABLE item                                                        */
-/*        THEN zzz = zzz + (item.basis-w * (1 - (item.shrink / 100))).         */
-/*END.                                                                         */
-/*                                                                             */
-/*IF xef.flute NE "" THEN                                                      */
-/*DO:                                                                          */
-/*    FIND FIRST item {sys/look/itemW.i} AND                                   */
-/*                 item.i-no = xef.flute NO-LOCK NO-ERROR.                     */
-/*    IF AVAILABLE item                                                        */
-/*        THEN zzz = zzz + item.basis-w.                                       */
-/*END.                                                                         */
-/*                                                                             */
-/*/*if xef.lam-code ne "" then do:                                             */
-/*   find first item {sys/look/itemW.i} and                                    */
-/*              item.i-no = xef.lam-code no-lock no-error.                     */
-/*   if avail item                                                             */
-/*   then zzz = zzz + item.basis-w.                                            */
-/*end.*/                                                                       */
-/*                                                                             */
-/*xxx = v-msf * zzz.                           /* total weight */              */
-/*                                                                             */
-/*FIND FIRST item                              /* add cases */                 */
-/*    WHERE item.company EQ cocode                                             */
-/*    AND item.i-no    EQ xeb.cas-no                                           */
-/*    AND xeb.cas-no   NE ""                                                   */
-/*    NO-LOCK NO-ERROR.                                                        */
-/*xxx = xxx + (c-qty * (IF AVAILABLE item THEN item.basis-w                    */
-/*ELSE ce-ctrl.def-cas-w)).                                                    */
-/*                                                                             */
-/*FIND FIRST item                              /* add pallets */               */
-/*    WHERE item.company EQ cocode                                             */
-/*    AND item.i-no    EQ xeb.tr-no                                            */
-/*    AND xeb.tr-no    NE ""                                                   */
-/*    NO-LOCK NO-ERROR.                                                        */
-/*                                                                             */
-/*ASSIGN                                                                       */
-/*    xxx    = xxx + (p-qty * (IF AVAILABLE item THEN item.basis-w             */
-/*                                       ELSE ce-ctrl.def-pal-w))              */
-/*    fr-tot = 0.                                                              */
-/*                                                                             */
-/*IF xeb.fr-out-c NE 0 THEN                                                    */
-/*    fr-tot = xeb.fr-out-c * (xxx / 100).                                     */
-/*ELSE                                                                         */
-/*    IF xeb.fr-out-m NE 0 THEN                                                */
-/*        fr-tot = xeb.fr-out-m * (qtty[k] / 1000).                            */
-/*    ELSE                                                                     */
-/*        IF AVAILABLE carr-mtx THEN                                           */
-/*        DO:                                                                  */
-/*            IF carrier.chg-method EQ "W" THEN                                */
-/*            DO i = 1 TO 10:                                                  */
-/*                fr-tot = carr-mtx.rate[i] * xxx / 100.                       */
-/*                IF carr-mtx.weight[i] GE xxx THEN LEAVE.                     */
-/*            END.                                                             */
-/*                                                                             */
-/*            ELSE                                                             */
-/*                IF carrier.chg-method EQ "P" THEN                            */
-/*                DO i = 1 TO 10:                                              */
-/*                    fr-tot = carr-mtx.rate[i] * p-qty.                       */
-/*                    IF carr-mtx.weight[i] GE p-qty THEN LEAVE.               */
-/*                END.                                                         */
-/*                                                                             */
-/*                ELSE                                                         */
-/*                DO:                                                          */
-/*                    FIND FIRST item                                          */
-/*           {sys/look/itemW.i}                                                */
-/*             AND item.i-no     EQ xef.board                                  */
-/*             AND item.mat-type EQ "B"                                        */
-/*             AND item.avg-w    GT 0                                          */
-/*                        NO-LOCK NO-ERROR.                                    */
-/*                    v-msf = v-msf * IF AVAILABLE item THEN item.avg-w ELSE 1.*/
-/*                                                                             */
-/*                    DO i = 1 TO 10:                                          */
-/*                        fr-tot = carr-mtx.rate[i] * v-msf.                   */
-/*                        IF carr-mtx.weight[i] GE v-msf THEN LEAVE.           */
-/*                    END.                                                     */
-/*                END.                                                         */
-/*                                                                             */
-/*            IF fr-tot LT carr-mtx.min-rate THEN fr-tot = carr-mtx.min-rate.  */
-/*                                                                             */
-/*            fr-tot = fr-tot + (carr-mtx.min-rate * (rels[k] - 1)).           */
-/*        END.                                                                 */
 
 END PROCEDURE.
 
@@ -745,7 +665,19 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
+
+    DEFINE BUFFER bf-ef      FOR ef.
+    DEFINE BUFFER bf-item    FOR ITEM.
+    DEFINE BUFFER bf-ce-ctrl FOR ce-ctrl.
     DEFINE VARIABLE cCarrierDefault AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dTotalWeight    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBasisWeight    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitWeight  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dUnitWeight     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTareWeight     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dMSF            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnits       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPartial        AS DECIMAL   NO-UNDO.
     
     ASSIGN 
         ipbf-estRelease.customerID              = ipbf-eb.cust-no
@@ -756,13 +688,88 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
         ipbf-estRelease.quantitySubUnitsPerUnit = ipbf-eb.cas-pal
         ipbf-estRelease.stackHeight             = ipbf-eb.stackHeight
         ipbf-estRelease.quantityRelease         = ipbf-estRelease.quantity 
+        ipbf-estRelease.dimEachLen              = ipbf-eb.t-len
+        ipbf-estRelease.dimEachWid              = ipbf-eb.t-wid
+        ipbf-estRelease.dimEachDep              = ipbf-eb.t-dep
+        ipbf-estRelease.dimEachUOM              = "IN"
         .
+
     RUN GetStorageAndHandlingForLocation(ipbf-eb.company, ipbf-eb.loc, ipbf-eb.stackHeight, 
         OUTPUT ipbf-estRelease.storageCost, OUTPUT ipbf-estRelease.handlingCost,
         OUTPUT oplError, OUTPUT opcMessage).
     RUN GetShipToCarrierAndZone(ipbf-eb.company, ipbf-eb.loc, ipbf-eb.cust-no, ipbf-eb.ship-id, 
         OUTPUT cCarrierDefault, OUTPUT ipbf-estRelease.carrierZone, 
         OUTPUT oplError, OUTPUT opcMessage).
+    RUN RecalcQuantityUnits IN ghInventoryProcs (ipbf-estRelease.quantityRelease, INPUT-OUTPUT ipbf-estRelease.quantityPerSubUnit, 
+        INPUT-OUTPUT ipbf-estRelease.quantitySubUnitsPerUnit, 
+        OUTPUT dSubUnits, OUTPUT ipbf-estRelease.quantityOfUnits, OUTPUT dPartial).
+        
+    FIND FIRST bf-ef NO-LOCK 
+        WHERE bf-ef.company EQ ipbf-eb.company
+        AND bf-ef.est-no EQ ipbf-eb.est-no
+        AND bf-ef.form-no EQ ipbf-eb.form-no 
+        NO-ERROR.
+    FIND FIRST bf-ce-ctrl NO-LOCK 
+        WHERE bf-ce-ctrl.company EQ ipbf-eb.company
+        NO-ERROR.
+    IF AVAILABLE bf-ef THEN 
+    DO: 
+        
+        /*Calculate Weight of Board to get Net Weight of Each*/
+        ASSIGN 
+            dMSF         = (ipbf-eb.t-sqin - ipbf-eb.t-win) / 144000
+            dBasisWeight = bf-ef.weight
+            .
+        IF bf-ef.medium NE "" THEN 
+        DO:
+            FIND FIRST bf-item NO-LOCK 
+                WHERE bf-item.company EQ bf-ef.company
+                AND bf-item.i-no EQ bf-ef.medium
+                NO-ERROR.
+            IF AVAILABLE bf-item THEN 
+                dBasisWeight = dBasisWeight + bf-item.basis-w * (1 - (bf-item.shrink / 100)).
+        END.
+        IF bf-ef.flute NE "" THEN                                                     
+        DO:
+            RELEASE bf-item.
+            FIND FIRST bf-item NO-LOCK 
+                WHERE bf-item.company EQ bf-ef.company
+                AND bf-item.i-no EQ bf-ef.flute
+                NO-ERROR.
+            IF AVAILABLE bf-item THEN 
+                dBasisWeight = dBasisWeight + bf-item.basis-w.
+        END.
+        /*Calculate Net Weight Per Each*/
+        ipbf-estRelease.weightNetPerEach = dBasisWeight * dMSF.
+        
+    END.
+    /*Calculate Tare Weight Per Each*/ 
+    IF ipbf-eb.cas-no NE "" THEN   /*Cases/Sub-units*/
+        FIND FIRST bf-item NO-LOCK 
+            WHERE bf-item.company EQ ipbf-eb.company
+            AND bf-item.i-no EQ ipbf-eb.cas-no
+            NO-ERROR.
+    IF AVAILABLE bf-item THEN 
+        dSubUnitWeight = bf-item.basis-w.
+    ELSE 
+        dSubUnitWeight = IF AVAILABLE bf-ce-ctrl THEN bf-ce-ctrl.def-cas-w ELSE 0.
+    dTareWeight = dTareWeight + dSubUnits * dSubUnitWeight.
+        
+    IF ipbf-eb.tr-no NE "" THEN
+        FIND FIRST bf-item NO-LOCK 
+            WHERE bf-item.company EQ ipbf-eb.company
+            AND bf-item.i-no EQ ipbf-eb.tr-no
+            NO-ERROR. 
+    IF AVAILABLE bf-item THEN 
+        dUnitWeight = bf-item.basis-w.
+    ELSE 
+        dUnitWeight = IF AVAILABLE bf-ce-ctrl THEN bf-ce-ctrl.def-pal-w ELSE 0.
+    dTareWeight = dTareWeight + ipbf-estRelease.quantityOfUnits * dUnitWeight. 
+        
+    IF ipbf-estRelease.quantityRelease GT 0 THEN 
+        ipbf-estRelease.weightTarePerEach = dTareWeight / ipbf-estRelease.quantityRelease.
+    
+    ipbf-estRelease.weightTotalPerEach = ipbf-estRelease.weightNetPerEach + ipbf-estRelease.weightTarePerEach.
 
 END PROCEDURE.
 
@@ -803,6 +810,18 @@ FUNCTION fGetNextEstReleaseID RETURNS INTEGER PRIVATE
     ------------------------------------------------------------------------------*/	
 
     RETURN NEXT-VALUE(estReleaseID).
+		
+END FUNCTION.
+
+FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
+    (ipdQuantity AS DECIMAL, ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: given a quantity and LxW dimensions, return the total MSF calculation
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    
+    IF ipcDimUOM EQ "IN" OR ipcDimUOM EQ "" THEN 
+        RETURN ipdQuantity * (ipdLength * ipdWidth / 144000).    
 		
 END FUNCTION.
 
