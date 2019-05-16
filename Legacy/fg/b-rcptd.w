@@ -836,7 +836,8 @@ PROCEDURE get-first-r-no :
         WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "R"
         AND bq-fg-rctd.r-no      LT lv-frst-rno
-        USE-INDEX rita-code NO-LOCK
+        AND (bq-fg-rctd.SetHeaderRno GT 0 AND bq-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) 
+            OR (NOT ll-set-parts AND bq-fg-rctd.SetHeaderRno EQ 0))        USE-INDEX rita-code NO-LOCK
         BY bq-fg-rctd.r-no:
         lv-frst-rno = bq-fg-rctd.r-no.
         LEAVE.
@@ -847,7 +848,8 @@ PROCEDURE get-first-r-no :
         WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "E"
         AND bq-fg-rctd.r-no      LT lv-frst-rno
-        USE-INDEX rita-code NO-LOCK
+        AND (bq-fg-rctd.SetHeaderRno GT 0 AND bq-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) 
+    OR (NOT ll-set-parts AND bq-fg-rctd.SetHeaderRno EQ 0))                    USE-INDEX rita-code NO-LOCK
         BY bq-fg-rctd.r-no:
         lv-frst-rno = bq-fg-rctd.r-no.
         LEAVE.
