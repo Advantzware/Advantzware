@@ -78,6 +78,7 @@ DEFINE VARIABLE lv-copy-rel      AS INTEGER EXTENT 20 NO-UNDO.
 DEFINE VARIABLE lv-crt-est-rowid AS ROWID   NO-UNDO.
 DEFINE VARIABLE uom-list         AS cha     INIT "C,CS,EA,L,M," NO-UNDO.
 DEFINE VARIABLE ilogic           AS LOG     NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -95,18 +96,18 @@ DEFINE VARIABLE ilogic           AS LOG     NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS  cVendor cItemDscr1 ~
-Btn_OK Btn_Cancel RECT-1 cVendorItem RECT-5 cCostUom cItemDscr2 cItemDscr3 ~
-cItemDscr4 cItemDscr5 dSuCost1 dSuCost2 dSuCost3 dSuCost4 dSuCost5 dEaCost1 ~
-dEaCost2 dEaCost3 dEaCost4 dEaCost5 iQtyPer1 iQtyPer2 iQtyPer3 iQtyPer4 ~
-iQtyPer5 cCostType1 cCostType2 cCostType3 cCostType4 cCostType5 cMatLab1 ~
-cMatLab2 cMatLab3 cMatLab4 cMatLab5 
+&Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cVendor cVendorItem ~
+cCostUom cItemDscr1 dSuCost1 dEaCost1 iQtyPer1 cCostType1 cMatLab1 ~
+cItemDscr2 dSuCost2 dEaCost2 iQtyPer2 cCostType2 cMatLab2 cItemDscr3 ~
+dSuCost3 dEaCost3 iQtyPer3 cCostType3 cMatLab3 cItemDscr4 dSuCost4 dEaCost4 ~
+iQtyPer4 cCostType4 cMatLab4 cItemDscr5 dSuCost5 dEaCost5 iQtyPer5 ~
+cCostType5 cMatLab5 Btn_OK Btn_Cancel RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-OBJECTS quantity cCustNo ship-to cVendor ~
-cItemDscr1 est-no cust-name ship-name cVendorItem cCostUom cItemDscr2 ~
-cItemDscr3 cItemDscr4 cItemDscr5 dSuCost1 dSuCost2 dSuCost3 dSuCost4 ~
-dSuCost5 dEaCost1 dEaCost2 dEaCost3 dEaCost4 dEaCost5 iQtyPer1 iQtyPer2 ~
-iQtyPer3 iQtyPer4 iQtyPer5 cCostType1 cCostType2 cCostType3 cCostType4 ~
-cCostType5 cMatLab1 cMatLab2 cMatLab3 cMatLab4 cMatLab5 iForm iBlank 
+cVendorItem cCostUom cItemDscr1 dSuCost1 dEaCost1 iQtyPer1 cCostType1 ~
+cMatLab1 cItemDscr2 dSuCost2 dEaCost2 iQtyPer2 cCostType2 cMatLab2 ~
+cItemDscr3 dSuCost3 dEaCost3 iQtyPer3 cCostType3 cMatLab3 cItemDscr4 ~
+dSuCost4 dEaCost4 iQtyPer4 cCostType4 cMatLab4 cItemDscr5 dSuCost5 dEaCost5 ~
+iQtyPer5 cCostType5 cMatLab5 iForm iBlank est-no cust-name ship-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -122,346 +123,346 @@ cCostType5 cMatLab1 cMatLab2 cMatLab3 cMatLab4 cMatLab5 iForm iBlank
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 15 BY 1.29
-    BGCOLOR 8 .
+     LABEL "&Cancel" 
+     SIZE 15 BY 1.29
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
-    LABEL "&Next" 
-    SIZE 15 BY 1.29
-    BGCOLOR 8 .
+     LABEL "&Next" 
+     SIZE 15 BY 1.29
+     BGCOLOR 8 .
 
-DEFINE VARIABLE cCostType1  AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Include w/Vendor","N",
-    "Separate Bill","S"
-    DROP-DOWN-LIST 
-    SIZE 24.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCostType1 AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Include w/Vendor","N",
+                     "Separate Bill","S"
+     DROP-DOWN-LIST
+     SIZE 24.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCostType2  AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Include w/Vendor","N",
-    "Separate Bill","S"
-    DROP-DOWN-LIST  
-    SIZE 24.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCostType2 AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Include w/Vendor","N",
+                     "Separate Bill","S"
+     DROP-DOWN-LIST
+     SIZE 24.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCostType3  AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Include w/Vendor","N",
-    "Separate Bill","S"
-    DROP-DOWN-LIST  
-    SIZE 24.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCostType3 AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Include w/Vendor","N",
+                     "Separate Bill","S"
+     DROP-DOWN-LIST
+     SIZE 24.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCostType4  AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Include w/Vendor","N",
-    "Separate Bill","S"
-    DROP-DOWN-LIST 
-    SIZE 24.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCostType4 AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Include w/Vendor","N",
+                     "Separate Bill","S"
+     DROP-DOWN-LIST
+     SIZE 24.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCostType5  AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Include w/Vendor","N",
-    "Separate Bill","S"
-    DROP-DOWN-LIST 
-    SIZE 24.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCostType5 AS CHARACTER FORMAT "X(25)":U INITIAL "Include w/Vendor" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Include w/Vendor","N",
+                     "Separate Bill","S"
+     DROP-DOWN-LIST
+     SIZE 24.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCostUom    AS CHARACTER FORMAT "X(5)":U 
-    LABEL "Cost/Uom" 
-    VIEW-AS COMBO-BOX INNER-LINES 5
-    DROP-DOWN-LIST
-    SIZE 10.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCostUom AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Cost/Uom" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 10.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCustNo     AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Cust#" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cMatLab1 AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Mat","M",
+                     "Lab","L"
+     DROP-DOWN-LIST
+     SIZE 12.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cItemDscr1  AS CHARACTER FORMAT "X(20)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cMatLab2 AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Mat","M",
+                     "Lab","L"
+     DROP-DOWN-LIST
+     SIZE 12.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cItemDscr2  AS CHARACTER FORMAT "X(20)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cMatLab3 AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Mat","M",
+                     "Lab","L"
+     DROP-DOWN-LIST
+     SIZE 12.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cItemDscr3  AS CHARACTER FORMAT "X(20)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cMatLab4 AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Mat","M",
+                     "Lab","L"
+     DROP-DOWN-LIST
+     SIZE 12.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cItemDscr4  AS CHARACTER FORMAT "X(20)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cMatLab5 AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEM-PAIRS "Mat","M",
+                     "Lab","L"
+     DROP-DOWN-LIST
+     SIZE 12.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cItemDscr5  AS CHARACTER FORMAT "X(20)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCustNo AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Cust#" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cMatLab1    AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Mat","M",
-    "Lab","L"
-    DROP-DOWN-LIST 
-    SIZE 12.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cItemDscr1 AS CHARACTER FORMAT "X(20)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cMatLab2    AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Mat","M",
-    "Lab","L"
-    DROP-DOWN-LIST 
-    SIZE 12.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cItemDscr2 AS CHARACTER FORMAT "X(20)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cMatLab3    AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Mat","M",
-    "Lab","L"
-    DROP-DOWN-LIST  
-    SIZE 12.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cItemDscr3 AS CHARACTER FORMAT "X(20)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cMatLab4    AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Mat","M",
-    "Lab","L"
-    DROP-DOWN-LIST  
-    SIZE 12.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cItemDscr4 AS CHARACTER FORMAT "X(20)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cMatLab5    AS CHARACTER FORMAT "X(5)":U INITIAL "Mat" 
-    VIEW-AS COMBO-BOX INNER-LINES 2
-    LIST-ITEM-PAIRS "Mat","M",
-    "Lab","L"
-    DROP-DOWN-LIST  
-    SIZE 12.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cItemDscr5 AS CHARACTER FORMAT "X(20)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cust-name   AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cust-name AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cVendor     AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Vendor" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cVendor AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Vendor" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cVendorItem AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Vendor Item#" 
-    VIEW-AS FILL-IN 
-    SIZE 33 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cVendorItem AS CHARACTER FORMAT "X(16)":U 
+     LABEL "Vendor Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 33 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dEaCost1    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dEaCost1 AS DECIMAL FORMAT ">>,>>9.99<<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dEaCost2    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dEaCost2 AS DECIMAL FORMAT ">>,>>9.99<<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dEaCost3    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dEaCost3 AS DECIMAL FORMAT ">>,>>9.99<<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dEaCost4    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dEaCost4 AS DECIMAL FORMAT ">>,>>9.99<<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dEaCost5    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dEaCost5 AS DECIMAL FORMAT ">>,>>9.99<<<":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dSuCost1    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dSuCost1 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dSuCost2    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dSuCost2 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dSuCost3    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dSuCost3 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dSuCost4    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dSuCost4 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dSuCost5    AS DECIMAL   FORMAT ">>,>>9.99<<<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 14.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dSuCost5 AS DECIMAL FORMAT ">>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 14.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE est-no      AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Estimate#" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE est-no AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Estimate#" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iBlank      AS INTEGER   FORMAT ">>9":U INITIAL 0 
-    LABEL "Blank #" 
-    VIEW-AS FILL-IN 
-    SIZE 5.8 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iBlank AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Blank #" 
+     VIEW-AS FILL-IN 
+     SIZE 5.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iForm       AS INTEGER   FORMAT ">>9":U INITIAL 0 
-    LABEL "Form #" 
-    VIEW-AS FILL-IN 
-    SIZE 5.8 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iForm AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Form #" 
+     VIEW-AS FILL-IN 
+     SIZE 5.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iQtyPer1    AS INTEGER   FORMAT ">>>9.9<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 10.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iQtyPer1 AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iQtyPer2    AS INTEGER   FORMAT ">>>9.9<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 10.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iQtyPer2 AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iQtyPer3    AS INTEGER   FORMAT ">>>9.9<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 10.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iQtyPer3 AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iQtyPer4    AS INTEGER   FORMAT ">>>9.9<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 10.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iQtyPer4 AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iQtyPer5    AS INTEGER   FORMAT ">>>9.9<":U INITIAL 0 
-    VIEW-AS FILL-IN 
-    SIZE 10.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iQtyPer5 AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE quantity    AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
-    LABEL "Quantity" 
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE quantity AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Quantity" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ship-name   AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE ship-name AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ship-to     AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Ship To" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE ship-to AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Ship To" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-    SIZE 122.2 BY 3
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 122.2 BY 3
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-5
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-    SIZE 122.2 BY 14.91
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 122.2 BY 14.91
+     BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-    quantity AT ROW 2.14 COL 46.2 COLON-ALIGNED WIDGET-ID 198
-    cCustNo AT ROW 3.33 COL 13.4 COLON-ALIGNED WIDGET-ID 176
-    ship-to AT ROW 3.33 COL 71 COLON-ALIGNED WIDGET-ID 178
-    cVendor AT ROW 5.19 COL 17 COLON-ALIGNED WIDGET-ID 88
-    cVendorItem AT ROW 5.19 COL 54 COLON-ALIGNED WIDGET-ID 238
-    cCostUom AT ROW 5.19 COL 106.8 COLON-ALIGNED WIDGET-ID 240
-    cItemDscr1 AT ROW 7.38 COL 4 COLON-ALIGNED NO-LABELS WIDGET-ID 218
-    dSuCost1 AT ROW 7.38 COL 35.2 COLON-ALIGNED NO-LABELS WIDGET-ID 254
-    dEaCost1 AT ROW 7.38 COL 50.4 COLON-ALIGNED NO-LABELS WIDGET-ID 266
-    iQtyPer1 AT ROW 7.38 COL 65.80 COLON-ALIGNED NO-LABELS WIDGET-ID 276
-    cCostType1 AT ROW 7.38 COL 77.8 COLON-ALIGNED NO-LABELS WIDGET-ID 290
-    cMatLab1 AT ROW 7.38 COL 104.6 COLON-ALIGNED NO-LABELS WIDGET-ID 302
-    cItemDscr2 AT ROW 8.48 COL 4 COLON-ALIGNED NO-LABELS WIDGET-ID 244
-    dSuCost2 AT ROW 8.48 COL 35.2 COLON-ALIGNED NO-LABELS WIDGET-ID 256
-    dEaCost2 AT ROW 8.48 COL 50.4 COLON-ALIGNED NO-LABELS WIDGET-ID 268
-    iQtyPer2 AT ROW 8.48 COL 65.80 COLON-ALIGNED NO-LABELS WIDGET-ID 280
-    cCostType2 AT ROW 8.48 COL 77.8 COLON-ALIGNED NO-LABELS WIDGET-ID 292
-    cMatLab2 AT ROW 8.48 COL 104.6 COLON-ALIGNED NO-LABELS WIDGET-ID 304
-    cItemDscr3 AT ROW 9.57 COL 4 COLON-ALIGNED NO-LABELS WIDGET-ID 246
-    dSuCost3 AT ROW 9.57 COL 35.2 COLON-ALIGNED NO-LABELS WIDGET-ID 258
-    dEaCost3 AT ROW 9.57 COL 50.4 COLON-ALIGNED NO-LABELS WIDGET-ID 270
-    iQtyPer3 AT ROW 9.57 COL 65.80 COLON-ALIGNED NO-LABELS WIDGET-ID 282
-    cCostType3 AT ROW 9.57 COL 77.8 COLON-ALIGNED NO-LABELS WIDGET-ID 294
-    cMatLab3 AT ROW 9.57 COL 104.6 COLON-ALIGNED NO-LABELS WIDGET-ID 306
-    cItemDscr4 AT ROW 10.71 COL 4 COLON-ALIGNED NO-LABELS WIDGET-ID 248
-    dSuCost4 AT ROW 10.71 COL 35.2 COLON-ALIGNED NO-LABELS WIDGET-ID 260
-    dEaCost4 AT ROW 10.71 COL 50.4 COLON-ALIGNED NO-LABELS WIDGET-ID 272
-    iQtyPer4 AT ROW 10.71 COL 65.80 COLON-ALIGNED NO-LABELS WIDGET-ID 284
-    cCostType4 AT ROW 10.71 COL 77.8 COLON-ALIGNED NO-LABELS WIDGET-ID 296
-    cMatLab4 AT ROW 10.71 COL 104.6 COLON-ALIGNED NO-LABELS WIDGET-ID 308
-    cItemDscr5 AT ROW 11.86 COL 4 COLON-ALIGNED NO-LABELS WIDGET-ID 250  
-    dSuCost5 AT ROW 11.86 COL 35.2 COLON-ALIGNED NO-LABELS WIDGET-ID 262 
-    dEaCost5 AT ROW 11.86 COL 50.4 COLON-ALIGNED NO-LABELS WIDGET-ID 274 
-    iQtyPer5 AT ROW 11.86 COL 65.80 COLON-ALIGNED NO-LABELS WIDGET-ID 286 
-    cCostType5 AT ROW 11.86 COL 77.8 COLON-ALIGNED NO-LABELS WIDGET-ID 298
-    cMatLab5 AT ROW 11.86 COL 104.6 COLON-ALIGNED NO-LABELS WIDGET-ID 310 
-    iForm AT ROW 2.14 COL 93.4 COLON-ALIGNED WIDGET-ID 314
-    iBlank AT ROW 2.14 COL 111.2 COLON-ALIGNED WIDGET-ID 316
-    Btn_OK AT ROW 13.86 COL 43.2
-    Btn_Cancel AT ROW 13.86 COL 64.6
-    est-no AT ROW 2.14 COL 13.4 COLON-ALIGNED WIDGET-ID 200
-    cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABELS WIDGET-ID 202
-    ship-name AT ROW 3.33 COL 89.4 COLON-ALIGNED NO-LABELS WIDGET-ID 204
-    "Main Input" VIEW-AS TEXT
-    SIZE 13 BY 1 AT ROW 1.14 COL 6 WIDGET-ID 206
-    "Item Description" VIEW-AS TEXT
-    SIZE 22 BY 1 AT ROW 6.38 COL 6 WIDGET-ID 242
-    "SU Cost" VIEW-AS TEXT
-    SIZE 12 BY 1 AT ROW 6.38 COL 37.2 WIDGET-ID 252
-    "EA Cost" VIEW-AS TEXT
-    SIZE 12 BY 1 AT ROW 6.38 COL 52.4 WIDGET-ID 264
+     quantity AT ROW 2.14 COL 46.2 COLON-ALIGNED WIDGET-ID 198
+     cCustNo AT ROW 3.33 COL 13.4 COLON-ALIGNED WIDGET-ID 176
+     ship-to AT ROW 3.33 COL 71 COLON-ALIGNED WIDGET-ID 178
+     cVendor AT ROW 5.19 COL 17 COLON-ALIGNED WIDGET-ID 88
+     cVendorItem AT ROW 5.19 COL 54 COLON-ALIGNED WIDGET-ID 238
+     cCostUom AT ROW 5.19 COL 106.8 COLON-ALIGNED WIDGET-ID 240
+     cItemDscr1 AT ROW 7.38 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 218
+     dSuCost1 AT ROW 7.38 COL 35.2 COLON-ALIGNED NO-LABEL WIDGET-ID 254
+     dEaCost1 AT ROW 7.38 COL 50.4 COLON-ALIGNED NO-LABEL WIDGET-ID 266
+     iQtyPer1 AT ROW 7.38 COL 65.8 COLON-ALIGNED NO-LABEL WIDGET-ID 276
+     cCostType1 AT ROW 7.38 COL 77.8 COLON-ALIGNED NO-LABEL WIDGET-ID 290
+     cMatLab1 AT ROW 7.38 COL 104.6 COLON-ALIGNED NO-LABEL WIDGET-ID 302
+     cItemDscr2 AT ROW 8.48 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 244
+     dSuCost2 AT ROW 8.48 COL 35.2 COLON-ALIGNED NO-LABEL WIDGET-ID 256
+     dEaCost2 AT ROW 8.48 COL 50.4 COLON-ALIGNED NO-LABEL WIDGET-ID 268
+     iQtyPer2 AT ROW 8.48 COL 65.8 COLON-ALIGNED NO-LABEL WIDGET-ID 280
+     cCostType2 AT ROW 8.48 COL 77.8 COLON-ALIGNED NO-LABEL WIDGET-ID 292
+     cMatLab2 AT ROW 8.48 COL 104.6 COLON-ALIGNED NO-LABEL WIDGET-ID 304
+     cItemDscr3 AT ROW 9.57 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 246
+     dSuCost3 AT ROW 9.57 COL 35.2 COLON-ALIGNED NO-LABEL WIDGET-ID 258
+     dEaCost3 AT ROW 9.57 COL 50.4 COLON-ALIGNED NO-LABEL WIDGET-ID 270
+     iQtyPer3 AT ROW 9.57 COL 65.8 COLON-ALIGNED NO-LABEL WIDGET-ID 282
+     cCostType3 AT ROW 9.57 COL 77.8 COLON-ALIGNED NO-LABEL WIDGET-ID 294
+     cMatLab3 AT ROW 9.57 COL 104.6 COLON-ALIGNED NO-LABEL WIDGET-ID 306
+     cItemDscr4 AT ROW 10.71 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 248
+     dSuCost4 AT ROW 10.71 COL 35.2 COLON-ALIGNED NO-LABEL WIDGET-ID 260
+     dEaCost4 AT ROW 10.71 COL 50.4 COLON-ALIGNED NO-LABEL WIDGET-ID 272
+     iQtyPer4 AT ROW 10.71 COL 65.8 COLON-ALIGNED NO-LABEL WIDGET-ID 284
+     cCostType4 AT ROW 10.71 COL 77.8 COLON-ALIGNED NO-LABEL WIDGET-ID 296
+     cMatLab4 AT ROW 10.71 COL 104.6 COLON-ALIGNED NO-LABEL WIDGET-ID 308
+     cItemDscr5 AT ROW 11.86 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 250
+     dSuCost5 AT ROW 11.86 COL 35.2 COLON-ALIGNED NO-LABEL WIDGET-ID 262
+     dEaCost5 AT ROW 11.86 COL 50.4 COLON-ALIGNED NO-LABEL WIDGET-ID 274
+     iQtyPer5 AT ROW 11.86 COL 65.8 COLON-ALIGNED NO-LABEL WIDGET-ID 286
+     cCostType5 AT ROW 11.86 COL 77.8 COLON-ALIGNED NO-LABEL WIDGET-ID 298
+     cMatLab5 AT ROW 11.86 COL 104.6 COLON-ALIGNED NO-LABEL WIDGET-ID 310
+     iForm AT ROW 2.14 COL 93.4 COLON-ALIGNED WIDGET-ID 314
+     iBlank AT ROW 2.14 COL 111.2 COLON-ALIGNED WIDGET-ID 316
+     Btn_OK AT ROW 13.86 COL 43.2
+     Btn_Cancel AT ROW 13.86 COL 64.6
+     est-no AT ROW 2.14 COL 13.4 COLON-ALIGNED WIDGET-ID 200
+     cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 202
+     ship-name AT ROW 3.33 COL 89.4 COLON-ALIGNED NO-LABEL WIDGET-ID 204
+     "Main Input" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 1.14 COL 6 WIDGET-ID 206
+     "Item Description" VIEW-AS TEXT
+          SIZE 22 BY 1 AT ROW 6.38 COL 6 WIDGET-ID 242
+     "SU Cost" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 6.38 COL 37.2 WIDGET-ID 252
+     "EA Cost" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 6.38 COL 52.4 WIDGET-ID 264
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    CANCEL-BUTTON Btn_Cancel.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         CANCEL-BUTTON Btn_Cancel.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME D-Dialog
-    "Qty Per" VIEW-AS TEXT
-    SIZE 12 BY 1 AT ROW 6.38 COL 67.80 WIDGET-ID 278
-    "Cost Type" VIEW-AS TEXT
-    SIZE 12.8 BY 1 AT ROW 6.38 COL 80.2 WIDGET-ID 288
-    "Mat/Lab" VIEW-AS TEXT
-    SIZE 12.8 BY 1 AT ROW 6.38 COL 106.4 WIDGET-ID 300
-    RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
-    RECT-5 AT ROW 1.1 COL 1.8 WIDGET-ID 312
-    SPACE(0.39) SKIP(0.27)
+     "Qty Per" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 6.38 COL 67.8 WIDGET-ID 278
+     "Cost Type" VIEW-AS TEXT
+          SIZE 12.8 BY 1 AT ROW 6.38 COL 80.2 WIDGET-ID 288
+     "Mat/Lab" VIEW-AS TEXT
+          SIZE 12.8 BY 1 AT ROW 6.38 COL 106.4 WIDGET-ID 300
+     RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
+     RECT-5 AT ROW 1.1 COL 1.8 WIDGET-ID 312
+     SPACE(0.39) SKIP(0.27)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "New Miscellaneous Product Estimate - Cost Details "
-    CANCEL-BUTTON Btn_Cancel.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "New Miscellaneous Product Estimate - Cost Details "
+         CANCEL-BUTTON Btn_Cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -491,8 +492,8 @@ DEFINE FRAME D-Dialog
 /* SETTINGS FOR DIALOG-BOX D-Dialog
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME D-Dialog:SCROLLABLE = FALSE
-    FRAME D-Dialog:HIDDEN     = TRUE.
+       FRAME D-Dialog:SCROLLABLE       = FALSE
+       FRAME D-Dialog:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN cust-name IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -525,8 +526,8 @@ ASSIGN
 
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
-ON WINDOW-CLOSE OF FRAME D-Dialog /* New Miscellanceous Product Estimate  */
-    DO:  
+ON WINDOW-CLOSE OF FRAME D-Dialog /* New Miscellaneous Product Estimate - Cost Details  */
+DO:  
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
         APPLY "go" TO FRAME {&FRAME-NAME}.
 
@@ -539,7 +540,7 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* New Miscellanceous Product Estimate  */
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
-    DO:     
+DO:     
         APPLY "go" TO FRAME {&FRAME-NAME}.
     END.
 
@@ -550,7 +551,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Next */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
 
         DO WITH FRAME {&FRAME-NAME}:
@@ -577,7 +578,7 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Next */
 &Scoped-define SELF-NAME cCostUom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCostUom D-Dialog
 ON HELP OF cCostUom IN FRAME D-Dialog /* Cost/Uom */
-    DO:
+DO:
     /*DEFINE VARIABLE char-val   AS cha   NO-UNDO.
     DEFINE VARIABLE look-recid AS RECID NO-UNDO.
 
@@ -595,7 +596,7 @@ ON HELP OF cCostUom IN FRAME D-Dialog /* Cost/Uom */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCostUom D-Dialog
 ON LEAVE OF cCostUom IN FRAME D-Dialog /* Cost/Uom */
-    DO: 
+DO: 
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -607,12 +608,94 @@ ON LEAVE OF cCostUom IN FRAME D-Dialog /* Cost/Uom */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME cItemDscr1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr1 D-Dialog
+ON LEAVE OF cItemDscr1 IN FRAME D-Dialog
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name} .
+          IF cItemDscr1:SCREEN-VALUE NE "" THEN
+              ASSIGN iQtyPer1:SCREEN-VALUE = "1" .
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cItemDscr2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr2 D-Dialog
+ON LEAVE OF cItemDscr2 IN FRAME D-Dialog
+DO: 
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+            IF cItemDscr2:SCREEN-VALUE NE "" THEN
+              ASSIGN iQtyPer2:SCREEN-VALUE = "1" .
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cItemDscr3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr3 D-Dialog
+ON LEAVE OF cItemDscr3 IN FRAME D-Dialog
+DO: 
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+            IF cItemDscr3:SCREEN-VALUE NE "" THEN
+              ASSIGN iQtyPer3:SCREEN-VALUE = "1" .
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cItemDscr4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr4 D-Dialog
+ON LEAVE OF cItemDscr4 IN FRAME D-Dialog
+DO: 
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+            IF cItemDscr4:SCREEN-VALUE NE "" THEN
+              ASSIGN iQtyPer4:SCREEN-VALUE = "1" .
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cItemDscr5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr5 D-Dialog
+ON LEAVE OF cItemDscr5 IN FRAME D-Dialog
+DO: 
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+            IF cItemDscr5:SCREEN-VALUE NE "" THEN
+              ASSIGN iQtyPer5:SCREEN-VALUE = "1" .
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME cVendor
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cVendor D-Dialog
 ON HELP OF cVendor IN FRAME D-Dialog /* Vendor */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
         
@@ -629,7 +712,7 @@ ON HELP OF cVendor IN FRAME D-Dialog /* Vendor */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cVendor D-Dialog
 ON LEAVE OF cVendor IN FRAME D-Dialog /* Vendor */
-    DO: 
+DO: 
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -643,9 +726,10 @@ ON LEAVE OF cVendor IN FRAME D-Dialog /* Vendor */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME cVendorItem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cVendorItem D-Dialog
 ON LEAVE OF cVendorItem IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
+DO: 
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -657,86 +741,11 @@ ON LEAVE OF cVendorItem IN FRAME D-Dialog /* Vendor Item# */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr1 D-Dialog
-ON LEAVE OF cItemDscr1 IN FRAME D-Dialog /* Vendor Item# */
-    DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name} .
-          IF cItemDscr1:SCREEN-VALUE NE "" THEN
-              ASSIGN iQtyPer1:SCREEN-VALUE = "1" .
-        END.
-    END.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr2 D-Dialog
-ON LEAVE OF cItemDscr2 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name}.
-            IF cItemDscr2:SCREEN-VALUE NE "" THEN
-              ASSIGN iQtyPer2:SCREEN-VALUE = "1" .
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr3 D-Dialog
-ON LEAVE OF cItemDscr3 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name}.
-            IF cItemDscr3:SCREEN-VALUE NE "" THEN
-              ASSIGN iQtyPer3:SCREEN-VALUE = "1" .
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr4 D-Dialog
-ON LEAVE OF cItemDscr4 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name}.
-            IF cItemDscr4:SCREEN-VALUE NE "" THEN
-              ASSIGN iQtyPer4:SCREEN-VALUE = "1" .
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cItemDscr5 D-Dialog
-ON LEAVE OF cItemDscr5 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name}.
-            IF cItemDscr5:SCREEN-VALUE NE "" THEN
-              ASSIGN iQtyPer5:SCREEN-VALUE = "1" .
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
+&Scoped-define SELF-NAME iQtyPer1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iQtyPer1 D-Dialog
-ON LEAVE OF iQtyPer1 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
+ON LEAVE OF iQtyPer1 IN FRAME D-Dialog
+DO: 
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
@@ -750,9 +759,11 @@ ON LEAVE OF iQtyPer1 IN FRAME D-Dialog /* Vendor Item# */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME iQtyPer2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iQtyPer2 D-Dialog
-ON LEAVE OF iQtyPer2 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
+ON LEAVE OF iQtyPer2 IN FRAME D-Dialog
+DO: 
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
@@ -766,9 +777,11 @@ ON LEAVE OF iQtyPer2 IN FRAME D-Dialog /* Vendor Item# */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME iQtyPer3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iQtyPer3 D-Dialog
-ON LEAVE OF iQtyPer3 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
+ON LEAVE OF iQtyPer3 IN FRAME D-Dialog
+DO: 
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
@@ -782,9 +795,11 @@ ON LEAVE OF iQtyPer3 IN FRAME D-Dialog /* Vendor Item# */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME iQtyPer4
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iQtyPer4 D-Dialog
-ON LEAVE OF iQtyPer4 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
+ON LEAVE OF iQtyPer4 IN FRAME D-Dialog
+DO: 
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
@@ -798,9 +813,11 @@ ON LEAVE OF iQtyPer4 IN FRAME D-Dialog /* Vendor Item# */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME iQtyPer5
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iQtyPer5 D-Dialog
-ON LEAVE OF iQtyPer5 IN FRAME D-Dialog /* Vendor Item# */
-    DO: 
+ON LEAVE OF iQtyPer5 IN FRAME D-Dialog
+DO: 
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
@@ -909,21 +926,70 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available D-Dialog  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI D-Dialog  _DEFAULT-DISABLE
+PROCEDURE disable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME D-Dialog.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI D-Dialog  _DEFAULT-ENABLE
+PROCEDURE enable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY quantity cCustNo ship-to cVendor cVendorItem cCostUom cItemDscr1 
+          dSuCost1 dEaCost1 iQtyPer1 cCostType1 cMatLab1 cItemDscr2 dSuCost2 
+          dEaCost2 iQtyPer2 cCostType2 cMatLab2 cItemDscr3 dSuCost3 dEaCost3 
+          iQtyPer3 cCostType3 cMatLab3 cItemDscr4 dSuCost4 dEaCost4 iQtyPer4 
+          cCostType4 cMatLab4 cItemDscr5 dSuCost5 dEaCost5 iQtyPer5 cCostType5 
+          cMatLab5 iForm iBlank est-no cust-name ship-name 
+      WITH FRAME D-Dialog.
+  ENABLE quantity cCustNo ship-to cVendor cVendorItem cCostUom cItemDscr1 
+         dSuCost1 dEaCost1 iQtyPer1 cCostType1 cMatLab1 cItemDscr2 dSuCost2 
+         dEaCost2 iQtyPer2 cCostType2 cMatLab2 cItemDscr3 dSuCost3 dEaCost3 
+         iQtyPer3 cCostType3 cMatLab3 cItemDscr4 dSuCost4 dEaCost4 iQtyPer4 
+         cCostType4 cMatLab4 cItemDscr5 dSuCost5 dEaCost5 iQtyPer5 cCostType5 
+         cMatLab5 Btn_OK Btn_Cancel RECT-1 RECT-5 
+      WITH FRAME D-Dialog.
+  VIEW FRAME D-Dialog.
+  {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -931,7 +997,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignValues D-Dialog 
 PROCEDURE pAssignValues :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1054,7 +1120,7 @@ PROCEDURE pAssignValues :
                 ef.misQtyPer[3] = iQtyPer3
                 ef.misQtyPer[4] = iQtyPer4
                 ef.misQtyPer[5] = iQtyPer5 . 
-
+ 
             IF ef.mis-cost[1] NE "" THEN 
             DO:
 
@@ -1260,55 +1326,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI D-Dialog  _DEFAULT-DISABLE
-PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME D-Dialog.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI D-Dialog  _DEFAULT-ENABLE
-PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY quantity cCustNo ship-to cVendor cItemDscr1 est-no cust-name ship-name 
-        cVendorItem cCostUom cItemDscr2 cItemDscr3 cItemDscr4 cItemDscr5 
-        dSuCost1 dSuCost2 dSuCost3 dSuCost4 dSuCost5 dEaCost1 dEaCost2 
-        dEaCost3 dEaCost4 dEaCost5 iQtyPer1 iQtyPer2 iQtyPer3 iQtyPer4 
-        iQtyPer5 cCostType1 cCostType2 cCostType3 cCostType4 cCostType5 
-        cMatLab1 cMatLab2 cMatLab3 cMatLab4 cMatLab5 iForm iBlank 
-        WITH FRAME D-Dialog.
-    ENABLE cVendor cItemDscr1 Btn_OK Btn_Cancel RECT-1 
-        cVendorItem RECT-5 cCostUom cItemDscr2 cItemDscr3 cItemDscr4 
-        cItemDscr5 dSuCost1 dSuCost2 dSuCost3 dSuCost4 dSuCost5 dEaCost1 
-        dEaCost2 dEaCost3 dEaCost4 dEaCost5 iQtyPer1 iQtyPer2 iQtyPer3 
-        iQtyPer4 iQtyPer5 cCostType1 cCostType2 cCostType3 cCostType4 
-        cCostType5 cMatLab1 cMatLab2 cMatLab3 cMatLab4 cMatLab5 
-        WITH FRAME D-Dialog.
-    VIEW FRAME D-Dialog.
-    {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records D-Dialog  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -1317,21 +1334,18 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-/* SEND-RECORDS does nothing because there are no External
-   Tables specified for this SmartDialog, and there are no
-   tables specified in any contained Browse, Query, or Frame. */
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartDialog, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend-no D-Dialog 
 PROCEDURE valid-vend-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       

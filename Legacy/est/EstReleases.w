@@ -217,16 +217,16 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 W-Win _FREEFORM
     QUERY BROWSE-1 NO-LOCK DISPLAY
-    estRelease.quantity LABEL "Quantity" WIDTH 12 LABEL-BGCOLOR 14
+    estRelease.quantityRelease LABEL "Quantity" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
     estRelease.shipFromLocationID LABEL "From" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.shipToID LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.carrierID LABEL "Carrier" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.carrierZone LABEL "Zone" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.quantityOfUnits LABEL "Units" WIDTH 10 LABEL-BGCOLOR 14
-    estRelease.monthsAtShipFrom LABEL "Month of Ship From" WIDTH 25 LABEL-BGCOLOR 14
-    estRelease.handlingCostTotal LABEL "Handling Cost" WIDTH 18 LABEL-BGCOLOR 14
-    estRelease.storageCostTotal LABEL "Storage Cost" WIDTH 17 LABEL-BGCOLOR 14   
-    estRelease.freightCost LABEL "Freight Cost" WIDTH 17 LABEL-BGCOLOR 14
+    estRelease.monthsAtShipFrom LABEL "Months" WIDTH 15 LABEL-BGCOLOR 14
+    estRelease.handlingCostTotal LABEL "Handling" WIDTH 15 LABEL-BGCOLOR 14
+    estRelease.storageCostTotal LABEL "Storage" WIDTH 15 LABEL-BGCOLOR 14   
+    estRelease.freightCost LABEL "Freight" WIDTH 15 LABEL-BGCOLOR 14
     
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

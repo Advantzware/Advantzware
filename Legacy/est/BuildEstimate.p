@@ -214,13 +214,12 @@ FOR EACH ttInputEst NO-LOCK:
         BUFFER ef,
         INPUT eb.form-no,
         INPUT 0).
+    
+    RUN pCalcPacking(ROWID(eb)).
 
-   IF ttInputEst.cEstType EQ "MiscEstimate" THEN do:
+   IF ttInputEst.cEstType EQ "MiscEstimate" THEN
        RUN pCalcAssignMisc(ROWID(eb)).
-   END.
-   ELSE DO:
-       RUN pCalcPacking(ROWID(eb)).
-   END.
+   
    
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */

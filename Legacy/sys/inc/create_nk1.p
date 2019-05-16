@@ -622,7 +622,7 @@ CASE ip-nk1-value:
     WHEN "CEReleases" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Use Estimated Releases for Freight and Warehousing",
-        INPUT "" /* Char Value */, INPUT 1 /* Int value */,
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
 ELSE
