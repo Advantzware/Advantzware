@@ -82,7 +82,7 @@ FOR EACH ttInputEst NO-LOCK:
         est.est-qty[1]  = eb.eqty
         ef.eqty         = eb.eqty
         .
-        
+     
     ASSIGN 
         eb.part-no      = ttInputEst.cPartID
         eb.part-dscr1   = ttInputEst.cPartName
@@ -109,6 +109,11 @@ FOR EACH ttInputEst NO-LOCK:
         ef.trim-w       = ttInputEst.dWidthDie
         ef.trim-l       = ttInputEst.dLengthDie
         .
+    IF ttInputEst.cEstType EQ "MiscEstimate" THEN
+         ASSIGN  
+            est.estimateTypeID = "MISC" 
+            eb.pur-man      = YES .
+
     IF eb.sman NE "" AND eb.comm EQ 0 THEN DO:
         FIND FIRST sman NO-LOCK 
             WHERE sman.company EQ eb.company

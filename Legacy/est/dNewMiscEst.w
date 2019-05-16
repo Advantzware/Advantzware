@@ -184,13 +184,13 @@ DEFINE VARIABLE fg-no          AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE item-dscr      AS CHARACTER FORMAT "X(30)":U 
     LABEL "Description" 
     VIEW-AS FILL-IN 
-    SIZE 26 BY 1 
+    SIZE 42 BY 1 
     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE item-name      AS CHARACTER FORMAT "X(30)":U 
     LABEL "Item Name" 
     VIEW-AS FILL-IN 
-    SIZE 26 BY 1 
+    SIZE 42 BY 1 
     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE len            AS DECIMAL   FORMAT ">>9.99":U INITIAL 0 
@@ -341,7 +341,7 @@ DEFINE FRAME D-Dialog
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
     FGCOLOR 1 FONT 6
-    TITLE "New Miscellanceous Product Estimate "
+    TITLE "New Miscellaneous Product Estimate "
     CANCEL-BUTTON Btn_Cancel.
 
 
@@ -512,7 +512,7 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Next */
 
         IF INTEGER(quantity:SCREEN-VALUE) LE 0 THEN 
         DO:
-            MESSAGE "Quantity must be enter..." VIEW-AS ALERT-BOX INFORMATION .
+            MESSAGE "Quantity must not be 0..." VIEW-AS ALERT-BOX INFORMATION .
             APPLY "entry" TO quantity .
             RETURN NO-APPLY.
         END.
@@ -1059,7 +1059,7 @@ ON LEAVE OF quantity IN FRAME D-Dialog /* quantity */
         DO:
             IF INTEGER(quantity:SCREEN-VALUE) LE 0 THEN 
             DO:
-                MESSAGE "Quantity must be enter..." VIEW-AS ALERT-BOX INFORMATION .
+                MESSAGE "Quantity must not be 0..." VIEW-AS ALERT-BOX INFORMATION .
                 APPLY "entry" TO quantity .
                 RETURN NO-APPLY.
             END.
@@ -1569,7 +1569,7 @@ PROCEDURE valid-procat :
             WHERE fgcat.company EQ cocode
             AND fgcat.procat  EQ fg-cat:SCREEN-VALUE) THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid FG Category, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO fg-cat .
             oplOutError = YES .
         END.
@@ -1595,7 +1595,7 @@ PROCEDURE valid-ship-id :
             AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
             AND shipto.ship-id EQ ship-to:SCREEN-VALUE)  THEN 
         DO:
-            MESSAGE "Invalid entry, try help...             "  VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Ship To, try help...             "  VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO ship-to .
             oplOutError = YES .
       
@@ -1622,7 +1622,7 @@ PROCEDURE valid-style :
             AND style.style    EQ style-cod:SCREEN-VALUE
             AND style.industry EQ "2")  THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Style Code, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO style-cod .
             oplOutError = YES .
         END.
@@ -1725,7 +1725,7 @@ PROCEDURE valid-sub-UnitCount :
     DO WITH FRAME {&FRAME-NAME}:
         IF INTEGER(iUnitCount:SCREEN-VALUE) LE 0 THEN 
         DO:
-            MESSAGE "Sub Unit Count must be enter. " VIEW-AS ALERT-BOX INFORMATION.
+            MESSAGE "Sub Unit Count must not be 0. " VIEW-AS ALERT-BOX INFORMATION.
             APPLY "entry" TO iUnitCount.
             oplOutError = YES .
         END.
@@ -1748,7 +1748,7 @@ PROCEDURE valid-PerPallet :
     DO WITH FRAME {&FRAME-NAME}:
         IF INTEGER(iPerPallet:SCREEN-VALUE) LE 0 THEN 
         DO:
-            MESSAGE "Sub Unit Count must be enter. " VIEW-AS ALERT-BOX INFORMATION.
+            MESSAGE "Per Pallet must not be 0. " VIEW-AS ALERT-BOX INFORMATION.
             APPLY "entry" TO iPerPallet.
             oplOutError = YES .
         END.

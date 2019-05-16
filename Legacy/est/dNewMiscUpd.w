@@ -67,12 +67,12 @@ estRelease.carrierZone estRelease.quantitySubUnitsPerUnit ~
 estRelease.palletMultiplier estRelease.stackHeight estRelease.storageCost ~
 estRelease.handlingCost estRelease.freightCost estRelease.handlingCostTotal ~
 estRelease.storageCostTotal estRelease.createRelease 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame estRelease.quantity ~
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ~
 estRelease.shipFromLocationID estRelease.carrierID ~
 estRelease.quantityPerSubUnit estRelease.monthsAtShipFrom ~
 estRelease.quantityRelease estRelease.carrierZone ~
 estRelease.quantitySubUnitsPerUnit estRelease.palletMultiplier ~
-estRelease.createRelease 
+estRelease.createRelease estRelease.shipToID
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame estRelease
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame estRelease
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame estRelease
@@ -80,12 +80,12 @@ estRelease.createRelease
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS estRelease.quantity ~
-estRelease.shipFromLocationID estRelease.carrierID ~
+&Scoped-Define ENABLED-FIELDS estRelease.shipFromLocationID ~
+ estRelease.carrierID ~
 estRelease.quantityPerSubUnit estRelease.monthsAtShipFrom ~
 estRelease.quantityRelease estRelease.carrierZone ~
 estRelease.quantitySubUnitsPerUnit estRelease.palletMultiplier ~
-estRelease.createRelease 
+estRelease.createRelease estRelease.shipToID
 &Scoped-define ENABLED-TABLES estRelease
 &Scoped-define FIRST-ENABLED-TABLE estRelease
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 ~
@@ -168,21 +168,26 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    estRelease.estimateNo AT ROW 1.29 COL 21.8 COLON-ALIGNED
+    estRelease.estimateNo AT ROW 1.29 COL 14.8 COLON-ALIGNED
     LABEL "Estimate#" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 16.2 BY 1
     BGCOLOR 15 FONT 1
-    estRelease.formNo AT ROW 1.29 COL 53.6 COLON-ALIGNED
+    estRelease.quantity AT ROW 1.29 COL 52 COLON-ALIGNED
+    LABEL "Master Quantity" FORMAT "->>,>>>,>>9"
     VIEW-AS FILL-IN 
-    SIZE 12.4 BY 1
+    SIZE 13 BY 1
     BGCOLOR 15 FONT 1
-    estRelease.blankNo AT ROW 1.29 COL 80.4 COLON-ALIGNED
+    estRelease.formNo AT ROW 1.29 COL 75.6 COLON-ALIGNED
     VIEW-AS FILL-IN 
-    SIZE 16 BY 1
+    SIZE 7.4 BY 1
+    BGCOLOR 15 FONT 1
+    estRelease.blankNo AT ROW 1.29 COL 95.4 COLON-ALIGNED
+    VIEW-AS FILL-IN 
+    SIZE 7.4 BY 1
     BGCOLOR 15 FONT 1
     estRelease.shipFromLocationID AT ROW 3.38 COL 21.8 COLON-ALIGNED
-    LABEL "From" FORMAT "x(8)"
+    LABEL "Ship From" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
@@ -191,16 +196,17 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
-    estRelease.carrierID AT ROW 6.67 COL 21.8 COLON-ALIGNED
-    LABEL "Carrier" FORMAT "x(10)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
     estRelease.shipToID AT ROW 5.52 COL 21.8 COLON-ALIGNED
     LABEL "Ship To" FORMAT "x(10)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
+    estRelease.carrierID AT ROW 6.67 COL 21.8 COLON-ALIGNED
+    LABEL "Carrier" FORMAT "x(10)"
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1
+    BGCOLOR 15 FONT 1
+    
     estRelease.carrierZone AT ROW 7.76 COL 21.8 COLON-ALIGNED
     LABEL "Zone" FORMAT "x(10)"
     VIEW-AS FILL-IN 
@@ -208,38 +214,34 @@ DEFINE FRAME Dialog-Frame
     BGCOLOR 15 FONT 1
 
     fi_Pallet-count AT ROW 5.52 COL 80 COLON-ALIGNED
-    estRelease.quantity AT ROW 8.86 COL 22 COLON-ALIGNED
-    LABEL "Master Quantity" FORMAT "->>,>>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    estRelease.quantityRelease AT ROW 9.95 COL 22.2 COLON-ALIGNED
+    
+    estRelease.quantityRelease AT ROW 3.38 COL 80 COLON-ALIGNED
     LABEL "Release Quantity" FORMAT "->>,>>>,>>9"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
      
-    estRelease.quantityPerSubUnit AT ROW 3.38 COL 80 COLON-ALIGNED
+    estRelease.quantityPerSubUnit AT ROW 4.43 COL 80 COLON-ALIGNED
     LABEL "Unit Count" FORMAT "->>>>9"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
-    estRelease.quantitySubUnitsPerUnit AT ROW 4.43 COL 80 COLON-ALIGNED
+    estRelease.quantitySubUnitsPerUnit AT ROW 6.67 COL 80 COLON-ALIGNED
     LABEL "Unit/Pallet" FORMAT "->>>>9"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
-    estRelease.quantityOfUnits AT ROW 6.67 COL 80 COLON-ALIGNED
+    estRelease.quantityOfUnits AT ROW 7.76 COL 80 COLON-ALIGNED
     LABEL "Pallets" FORMAT "->>>>9"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
-    estRelease.palletMultiplier AT ROW 7.76 COL 80 COLON-ALIGNED
+    estRelease.palletMultiplier AT ROW 8.86 COL 80 COLON-ALIGNED
     LABEL "Pallet Multiplier" FORMAT ">>>9.99"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
-    estRelease.monthsAtShipFrom AT ROW 8.86 COL 80 COLON-ALIGNED
+    estRelease.monthsAtShipFrom AT ROW 9.96 COL 80 COLON-ALIGNED
     LABEL "Months at Ship From" FORMAT "->>>9.99"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
@@ -368,7 +370,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN estRelease.shipFromLocationID IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.shipToID IN FRAME Dialog-Frame
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.stackHeight IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN estRelease.storageCost IN FRAME Dialog-Frame
@@ -402,7 +404,7 @@ ON HELP OF FRAME Dialog-Frame /* Misc Release Update */
     DO:
         DEFINE VARIABLE char-val  AS cha    NO-UNDO.
         DEFINE VARIABLE lv-handle AS HANDLE NO-UNDO.
-
+        DEFINE VARIABLE look-recid AS RECID NO-UNDO .
         
         CASE FOCUS:NAME :
             WHEN "shipFromLocationID" THEN 
@@ -423,6 +425,12 @@ ON HELP OF FRAME Dialog-Frame /* Misc Release Update */
             WHEN "carrierZone" THEN 
                 DO:
                     RUN windows/l-delzon.w  (cocode, estRelease.shipFromLocationID:SCREEN-VALUE IN FRAME {&FRAME-NAME}, estRelease.carrierID:SCREEN-VALUE IN FRAME {&FRAME-NAME}, FOCUS:SCREEN-VALUE, OUTPUT char-val). 
+                    IF char-val <> "" THEN 
+                        FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+                END.
+           WHEN "shipToID" THEN 
+                DO: 
+                    RUN windows/l-shipt2.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
                     IF char-val <> "" THEN 
                         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
                 END.
@@ -516,12 +524,21 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
     DO:
         DEFINE VARIABLE ld              AS DECIMAL NO-UNDO.
         DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
+
+        RUN system/freightProcs.p PERSISTENT SET hftp.
+        THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
 
         IF ip-type EQ "view" THEN 
         DO: 
             APPLY "go" TO FRAME {&FRAME-NAME}.
             RETURN.
         END.
+
+        RUN valid-shipto(OUTPUT lValidateResult) NO-ERROR.
+        IF lValidateResult THEN RETURN NO-APPLY.
    
         RUN valid-loc (OUTPUT lValidateResult) NO-ERROR.
         IF lValidateResult THEN RETURN NO-APPLY.
@@ -540,12 +557,16 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
                 ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
             END.
         END.
+
+        RUN CalcStorageAndHandlingForEstRelease(INPUT estRelease.estReleaseID ,OUTPUT lError,
+                                OUTPUT cMessage ).
+
         
         FIND CURRENT estRelease NO-LOCK NO-ERROR .
         op-rowid = ROWID(estRelease).
 
         APPLY "go" TO FRAME {&FRAME-NAME}.
-
+     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp).
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,6 +676,22 @@ ON LEAVE OF estRelease.shipFromLocationID IN FRAME Dialog-Frame /* From */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME estRelease.shipToID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.shipToID Dialog-Frame
+ON LEAVE OF estRelease.shipToID IN FRAME Dialog-Frame /* From */
+    DO:
+        DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
+
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-shipto(OUTPUT lValidateResult) NO-ERROR.
+            IF lValidateResult THEN RETURN NO-APPLY.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -737,6 +774,7 @@ PROCEDURE create-item :
     DEFINE VARIABLE iEstReleaseID   AS INTEGER   NO-UNDO .
     DEFINE VARIABLE lCreated        AS LOGICAL   NO-UNDO .
     DEFINE VARIABLE cCreatedMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPalletQty AS DECIMAL NO-UNDO .
 
     RUN system/FreightProcs.p PERSISTENT SET hftp.
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
@@ -759,10 +797,12 @@ PROCEDURE create-item :
                 estRelease.quantityPerSubUnit      = eb.cas-cnt
                 estRelease.quantitySubUnitsPerUnit = eb.cas-pal
 
-                estRelease.quantityOfUnits         = estRelease.quantityRelease / (eb.cas-cnt * eb.cas-pal )
+                dPalletQty         = estRelease.quantityRelease / (eb.cas-cnt * eb.cas-pal )
                 estRelease.stackHeight             = eb.stackHeight
-
                 .
+            IF dPalletQty EQ TRUNCATE(dPalletQty,0) THEN
+                estRelease.quantityOfUnits = INTEGER(TRUNCATE(dPalletQty,0) + 1 ) .
+            ELSE   estRelease.quantityOfUnits = INTEGER(dPalletQty) .
             FIND FIRST shipto NO-LOCK
                 WHERE shipto.company EQ cocode
                 AND shipto.cust-no EQ eb.cust-no
@@ -881,12 +921,12 @@ PROCEDURE enable_UI :
             estRelease.freightCost estRelease.handlingCostTotal 
             estRelease.storageCostTotal estRelease.createRelease 
             WITH FRAME Dialog-Frame.
-    ENABLE estRelease.quantity estRelease.shipFromLocationID estRelease.carrierID 
+    ENABLE estRelease.shipFromLocationID estRelease.carrierID 
         estRelease.quantityPerSubUnit estRelease.monthsAtShipFrom 
         estRelease.quantityRelease estRelease.carrierZone 
         estRelease.quantitySubUnitsPerUnit estRelease.palletMultiplier 
-        estRelease.createRelease Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
-        RECT-39 RECT-40 
+        estRelease.createRelease estRelease.shipToID Btn_OK Btn_Done Btn_Cancel  
+        RECT-21 RECT-38 RECT-39 RECT-40 
         WITH FRAME Dialog-Frame.
     VIEW FRAME Dialog-Frame.
     {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1005,13 +1045,17 @@ PROCEDURE pCalAllUnit :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-  
+  DEFINE VARIABLE dPalletQty AS DECIMAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
         fi_Pallet-count:SCREEN-VALUE = STRING( INTEGER(estRelease.quantityPerSubUnit:SCREEN-VALUE) *
             INTEGER(estRelease.quantitySubUnitsPerUnit:SCREEN-VALUE)) .
 
-        estRelease.quantityOfUnits:SCREEN-VALUE = STRING( DECIMAL(estRelease.quantityRelease:SCREEN-VALUE) / (INTEGER(estRelease.quantityPerSubUnit:SCREEN-VALUE) *
+        dPalletQty = DECIMAL( DECIMAL(estRelease.quantityRelease:SCREEN-VALUE) / (INTEGER(estRelease.quantityPerSubUnit:SCREEN-VALUE) *
             DECIMAL(estRelease.quantitySubUnitsPerUnit:SCREEN-VALUE))) .
+
+        IF dPalletQty EQ TRUNCATE(dPalletQty,0) THEN
+                estRelease.quantityOfUnits:SCREEN-VALUE = STRING( INTEGER(TRUNCATE(dPalletQty,0) + 1 ) ).
+        ELSE estRelease.quantityOfUnits:SCREEN-VALUE = STRING( INTEGER(dPalletQty) ).
 
         handlingCostTotal:SCREEN-VALUE = STRING( DECIMAL(estRelease.handlingCost:SCREEN-VALUE) *
             DECIMAL(estRelease.quantityOfUnits:SCREEN-VALUE)) .
@@ -1020,6 +1064,38 @@ PROCEDURE pCalAllUnit :
             DECIMAL(estRelease.monthsAtShipFrom:SCREEN-VALUE) *
             DECIMAL(estRelease.quantityOfUnits:SCREEN-VALUE) *
             DECIMAL(estRelease.palletMultiplier:SCREEN-VALUE)  ) .
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-shipto Dialog-Frame 
+PROCEDURE valid-shipto :
+    /*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcValidError AS LOGICAL NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ cocode
+            AND cust.ACTIVE EQ "X" NO-ERROR .
+
+        FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ cocode 
+        AND (shipto.cust-no EQ estRelease.customerID:SCREEN-VALUE OR shipto.cust-no EQ cust.cust-no)
+        AND TRIM(shipto.ship-id) = TRIM(estRelease.shipToID:SCREEN-VALUE)
+        NO-ERROR.
+        IF NOT AVAILABLE shipto THEN 
+        DO:
+            MESSAGE "Invalid Ship To, try help..." VIEW-AS ALERT-BOX.
+            APPLY "entry" TO estRelease.shipToID .
+            opcValidError = YES .
+        END.
     END.
 
 END PROCEDURE.

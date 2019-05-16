@@ -86,7 +86,7 @@ DEFINE QUERY external_tables FOR eb.
 &Scoped-define INTERNAL-TABLES estRelease 
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 estRelease.quantity estRelease.shipFromLocationID estRelease.customerID estRelease.carrierID estRelease.carrierZone estRelease.quantityOfUnits estRelease.monthsAtShipFrom estRelease.handlingCostTotal estRelease.storageCostTotal   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 estRelease.quantity estRelease.shipFromLocationID estRelease.shipToID estRelease.carrierID estRelease.carrierZone estRelease.quantityOfUnits estRelease.monthsAtShipFrom estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.freightCost
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 estRelease
@@ -109,7 +109,7 @@ DEFINE QUERY external_tables FOR eb.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-1 btn-update btn-add btn-copy btn-ok ~
-RECT-1  
+btn-delete RECT-1  
 &Scoped-Define DISPLAYED-OBJECTS est-no quantity iForm iBlank cCustNo ~
 cust-name ship-to ship-name 
 
@@ -150,6 +150,10 @@ DEFINE BUTTON btn-ok
 
 DEFINE BUTTON btn-update 
     LABEL "Update Selected" 
+    SIZE 21.8 BY 1.14.  
+
+DEFINE BUTTON btn-delete 
+    LABEL "Delete Selected" 
     SIZE 21.8 BY 1.14.
 
 DEFINE VARIABLE cCustNo   AS CHARACTER FORMAT "X(8)":U 
@@ -215,13 +219,14 @@ DEFINE BROWSE BROWSE-1
     QUERY BROWSE-1 NO-LOCK DISPLAY
     estRelease.quantity LABEL "Quantity" WIDTH 12 LABEL-BGCOLOR 14
     estRelease.shipFromLocationID LABEL "From" WIDTH 10 LABEL-BGCOLOR 14
-    estRelease.customerID LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
-    estRelease.carrierID LABEL "carrier" WIDTH 10 LABEL-BGCOLOR 14
+    estRelease.shipToID LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
+    estRelease.carrierID LABEL "Carrier" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.carrierZone LABEL "Zone" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.quantityOfUnits LABEL "Units" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.monthsAtShipFrom LABEL "Month of Ship From" WIDTH 25 LABEL-BGCOLOR 14
     estRelease.handlingCostTotal LABEL "Handling Cost" WIDTH 18 LABEL-BGCOLOR 14
-    estRelease.storageCostTotal LABEL "Storage Cost" WIDTH 17 LABEL-BGCOLOR 14
+    estRelease.storageCostTotal LABEL "Storage Cost" WIDTH 17 LABEL-BGCOLOR 14   
+    estRelease.freightCost LABEL "Freight Cost" WIDTH 17 LABEL-BGCOLOR 14
     
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -236,6 +241,7 @@ DEFINE FRAME F-Main
     btn-update AT ROW 4.95 COL 37.8
     btn-add AT ROW 4.95 COL 2.2 WIDGET-ID 16
     btn-copy AT ROW 4.95 COL 17.6
+    btn-delete AT ROW 4.95 COL 60.8
     btn-ok AT ROW 20.62 COL 57
     est-no AT ROW 2.14 COL 13.8 COLON-ALIGNED WIDGET-ID 200
     quantity AT ROW 2.14 COL 46.2 COLON-ALIGNED WIDGET-ID 198
@@ -271,7 +277,7 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
     CREATE WINDOW W-Win ASSIGN
         HIDDEN             = YES
-        TITLE              = "New Misccellanceous Product Estimate - Releases"
+        TITLE              = "New Miscellaneous Product Estimate - Releases"
         HEIGHT             = 21.86
         WIDTH              = 135.8
         MAX-HEIGHT         = 53.71
@@ -425,15 +431,7 @@ ON DEFAULT-ACTION OF BROWSE-1 IN FRAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
     DO:
-    /*DEF VAR li AS INT NO-UNDO.
-    FIND FIRST ap-inv WHERE ap-inv.company = g_company 
-                          AND ap-inv.vend-no = estRelease.quantity
-                          AND ap-inv.posted  = YES
-                          AND ap-inv.inv-no = estRelease.shipFromLocationID NO-LOCK NO-ERROR.
     
-    
-    IF AVAIL ap-inv AND ap-inv.stat EQ "H" THEN
-    estRelease.shipFromLocationID:BGCOLOR IN BROWSE {&browse-name} = 11.*/
    
     END.
 
@@ -554,6 +552,31 @@ ON CHOOSE OF btn-update IN FRAME F-Main /* Update Selected */
         END.
 
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btn-delete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-delete W-Win
+ON CHOOSE OF btn-delete IN FRAME F-Main /* Update Selected */
+    DO:
+    DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-rowid        AS ROWID     NO-UNDO.
+     IF AVAILABLE estRelease THEN DO:
+         MESSAGE "Are you sure you want to delete this release?" 
+             view-as alert-box question
+             button yes-no update ll-ans as log.
+         if not ll-ans then return NO-APPLY.
+
+         RUN system/FreightProcs.p PERSISTENT SET hftp.
+         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
+
+         RUN DeleteEstReleaseByID (INPUT estRelease.estReleaseID) .
+         RUN repo-query (lv-rowid).
+
+         THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp). 
+     END.                                             
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -753,13 +776,7 @@ PROCEDURE local-open-query :
     /* Code placed here will execute PRIOR to standard behavior. */
     FIND FIRST eb WHERE ROWID(eb) EQ iprRowid  NO-LOCK NO-ERROR. 
 
-    /*FOR EACH estRelease WHERE estRelease.company = cocode 
-  AND estRelease.estimateNo              = eb.est-no 
-  AND estRelease.FormNo                  = eb.form-no
-  AND estRelease.BlankNo                 = eb.blank-No   NO-LOCK:
-   MESSAGE "estRelease.estimateNo " estRelease.estimateNo VIEW-AS ALERT-BOX ERROR .
-  END.*/
-  
+    
     /* Dispatch standard ADM method.                             */
 
     CLOSE QUERY BROWSE-1.

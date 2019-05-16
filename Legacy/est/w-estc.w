@@ -1183,6 +1183,48 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-enable-specs W-Win 
+PROCEDURE disable-enable-specs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {est/SpecsTab.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-enable-layout W-Win 
+PROCEDURE disable-enable-layout :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {est/LayoutTab.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-enable-BoxDesign W-Win 
+PROCEDURE disable-enable-BoxDesign :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {est/BoxDesignTab.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1362,7 +1404,7 @@ ELSE
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN reopen-init IN WIDGET-HANDLE(char-hdl) .
   END.
- 
+  
   DO WITH FRAME {&FRAME-NAME}:
     /*ASSIGN
       btNextItemfg:VISIBLE = li-page[1] EQ 2
