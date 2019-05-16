@@ -45,6 +45,8 @@ def var lv-layers AS DEC no-undo.
 DEF VAR ll-foam AS LOG NO-UNDO.
 DEF VAR lv-label AS CHAR EXTENT 10 NO-UNDO.
 DEF VAR ll-assem-part AS LOG NO-UNDO.
+DEFINE VARIABLE lReleaseBtn AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hFreightProcs            AS HANDLE    NO-UNDO.
 
 PROCEDURE ShellExecuteA EXTERNAL "shell32":u :
       define input parameter hwnd as long.
@@ -175,7 +177,7 @@ DEFINE RECTANGLE RECT-29
      SIZE 74 BY 4.29.
 
 DEFINE BUTTON btn_misc-est 
-     LABEL "Advanced" 
+     LABEL "Releases" 
      SIZE 17 BY 1.
 
 
@@ -1409,6 +1411,16 @@ PROCEDURE WinExec EXTERNAL "KERNEL32.DLL":
        DEFINE INPUT PARAMETER visualstyle AS long.
        DEFINE RETURN PARAM statuscode AS LONG.
 END.
+
+
+RUN system/FreightProcs.p PERSISTENT SET hFreightProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hFreightProcs).
+
+lReleaseBtn =   DYNAMIC-FUNCTION('UseReleasesForFreightAndWarehousing' IN hFreightProcs,cocode) .
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hFreightProcs).
+
+IF NOT lReleaseBtn THEN
+    btn_misc-est:VISIBLE IN FRAME {&FRAME-NAME} = NO .
 
 session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          

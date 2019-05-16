@@ -6762,6 +6762,16 @@ PROCEDURE pCreateMiscEstimate :
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
   DEFINE VARIABLE rRowidEb AS ROWID NO-UNDO . 
+  DEFINE VARIABLE iEstReleaseID AS INTEGER NO-UNDO .
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+  DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
+  DEFINE BUFFER bff-eb FOR eb.
+
+  RUN system/FreightProcs.p PERSISTENT SET hftp.
+  THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
+
   ASSIGN
     ll-new-record = YES
     iCount = 0
@@ -6774,13 +6784,33 @@ PROCEDURE pCreateMiscEstimate :
   
   RUN est/BuildEstimate.p ("C").
 
-  RUN est/dNewMiscCost.w( INPUT rRowidEb ) .
+  FIND FIRST bff-eb NO-LOCK
+      WHERE bff-eb.company EQ cocode
+        AND ROWID(bff-eb) EQ rRowidEb NO-ERROR .
+
+
+  IF AVAIL bff-eb THEN
+      RUN est/dNewMiscCost.w( INPUT rRowidEb ) .
+
+  IF iCount > 0 AND AVAIL bff-eb THEN do:
+      
+      RUN CreateEstReleaseForEstBlank(INPUT rRowidEb, OUTPUT iEstReleaseID ,
+                                     OUTPUT lError,OUTPUT cMessage) .
+
+      FIND FIRST estRelease NO-LOCK
+          WHERE estRelease.company EQ cocode 
+          AND estRelease.estReleaseID EQ estReleaseID NO-ERROR .
+
+      IF AVAIL estRelease THEN
+          RUN est/dNewMiscUpd.w (RECID(estRelease),ROWID(eb),"Update", OUTPUT lv-rowid) .
+  END.
   
   IF iCount > 0 THEN DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
      RUN new_record IN WIDGET-HANDLE(char-hdl)  (rRowidEb).
   END. 
   
+  THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp).
 
 END PROCEDURE.
 

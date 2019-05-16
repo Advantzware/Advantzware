@@ -1072,6 +1072,17 @@ DO:
     END.
     ELSE
        RUN spec-image-proc(INPUT "", INPUT NO).
+
+       IF AVAIL est AND est.estimateTypeID EQ "Misc" THEN do:
+           {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-specs" "(NO)"}
+               {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-layout" "(NO)"}
+               {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-BoxDesign" "(NO)"}
+        END.
+        ELSE DO:
+            {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-specs" "(yes)"}
+                {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-layout" "(yes)"}
+                {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-BoxDesign" "(yes)"}
+        END.
   END.
 END.
 
