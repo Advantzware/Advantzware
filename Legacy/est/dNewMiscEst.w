@@ -94,13 +94,13 @@ DEFINE VARIABLE lv-crt-est-rowid AS ROWID   NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS cCustNo ship-to style-cod len wid dep ~
-cCustPart fg-no fg-cat quantity board Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 ~
-RECT-4 item-name item-dscr sub-unit iUnitCount iPerPallet pallet 
-&Scoped-Define DISPLAYED-OBJECTS cCustNo ship-to style-cod style-dscr len ~
-wid dep cCustPart fg-no fg-cat quantity board est-no cust-name ship-name ~
-item-name item-dscr board-dscr cat-dscr sub-unit sun-Unit-dscr iUnitCount ~
-iPerPallet pallet pallet-dscr tot-iUnitCount 
+&Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
+item-name item-dscr len wid dep style-cod board fg-cat sub-unit iUnitCount ~
+iPerPallet pallet Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 
+&Scoped-Define DISPLAYED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
+item-name item-dscr len wid dep style-cod style-dscr board fg-cat sub-unit ~
+sun-Unit-dscr iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount ~
+cust-name ship-name board-dscr cat-dscr 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -116,233 +116,224 @@ iPerPallet pallet pallet-dscr tot-iUnitCount
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 15 BY 1.29
-    BGCOLOR 8 .
+     LABEL "&Cancel" 
+     SIZE 15 BY 1.29
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
-    LABEL "&Next" 
-    SIZE 15 BY 1.29
-    BGCOLOR 8 .
+     LABEL "&Next" 
+     SIZE 15 BY 1.29
+     BGCOLOR 8 .
 
-DEFINE VARIABLE board          AS CHARACTER FORMAT "X(12)":U 
-    LABEL "Board" 
-    VIEW-AS FILL-IN 
-    SIZE 14.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE board AS CHARACTER FORMAT "X(12)":U 
+     LABEL "Board" 
+     VIEW-AS FILL-IN 
+     SIZE 14.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE board-dscr     AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE board-dscr AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cat-dscr       AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cat-dscr AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCustPart      AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Cust Part#" 
-    VIEW-AS FILL-IN 
-    SIZE 26 BY 1 NO-UNDO.
+DEFINE VARIABLE cCustNo AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Cust#" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cust-name      AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCustPart AS CHARACTER FORMAT "X(15)":U 
+     LABEL "Cust Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE cCustNo        AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Cust#" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cust-name AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dep            AS DECIMAL   FORMAT ">>9.99":U INITIAL 0 
-    LABEL "Depth" 
-    VIEW-AS FILL-IN 
-    SIZE 9.6 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dep AS DECIMAL FORMAT ">>9.99":U INITIAL 0 
+     LABEL "Depth" 
+     VIEW-AS FILL-IN 
+     SIZE 9.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE est-no         AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Estimate#" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fg-cat AS CHARACTER FORMAT "X(5)":U 
+     LABEL "FG Category" 
+     VIEW-AS FILL-IN 
+     SIZE 14.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fg-cat         AS CHARACTER FORMAT "X(5)":U 
-    LABEL "FG Category" 
-    VIEW-AS FILL-IN 
-    SIZE 14.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fg-no AS CHARACTER FORMAT "X(15)":U 
+     LABEL "FG Item Code" 
+     VIEW-AS FILL-IN 
+     SIZE 26 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fg-no          AS CHARACTER FORMAT "X(15)":U 
-    LABEL "FG Item Code" 
-    VIEW-AS FILL-IN 
-    SIZE 26 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iPerPallet AS INTEGER FORMAT "->>,>>9":U INITIAL 0 
+     LABEL "Per Pallet" 
+     VIEW-AS FILL-IN 
+     SIZE 8.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE item-dscr      AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Description" 
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE item-dscr AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Description" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE item-name      AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Item Name" 
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE item-name AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Item Name" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE len            AS DECIMAL   FORMAT ">>9.99":U INITIAL 0 
-    LABEL "Length" 
-    VIEW-AS FILL-IN 
-    SIZE 9.6 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iUnitCount AS INTEGER FORMAT "->>,>>9":U INITIAL 0 
+     LABEL "Sub Unit Count" 
+     VIEW-AS FILL-IN 
+     SIZE 8.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE pallet         AS CHARACTER FORMAT "X(10)":U 
-    LABEL "Pallet" 
-    VIEW-AS FILL-IN 
-    SIZE 14.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE len AS DECIMAL FORMAT ">>9.99":U INITIAL 0 
+     LABEL "Length" 
+     VIEW-AS FILL-IN 
+     SIZE 9.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE pallet-dscr    AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE pallet AS CHARACTER FORMAT "X(10)":U 
+     LABEL "Pallet" 
+     VIEW-AS FILL-IN 
+     SIZE 14.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iPerPallet     AS INTEGER   FORMAT "->>,>>9":U INITIAL 0 
-    LABEL "Per Pallet" 
-    VIEW-AS FILL-IN 
-    SIZE 8.6 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE pallet-dscr AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE quantity       AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
-    LABEL "Quantity" 
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE quantity AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Quantity" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ship-name      AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE ship-name AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ship-to        AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Ship To" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE ship-to AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Ship To" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE style-cod      AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Style Code" 
-    VIEW-AS FILL-IN 
-    SIZE 14.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE style-cod AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Style Code" 
+     VIEW-AS FILL-IN 
+     SIZE 14.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE style-dscr     AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE style-dscr AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE sub-unit       AS CHARACTER FORMAT "X(10)":U 
-    LABEL "Sub Unit" 
-    VIEW-AS FILL-IN 
-    SIZE 14.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE sub-unit AS CHARACTER FORMAT "X(10)":U 
+     LABEL "Sub Unit" 
+     VIEW-AS FILL-IN 
+     SIZE 14.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE sun-Unit-dscr  AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE sun-Unit-dscr AS CHARACTER FORMAT "X(25)":U 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE tot-iUnitCount AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
-    LABEL "Unit/Pallet Count" 
-    VIEW-AS FILL-IN 
-    SIZE 13.4 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE tot-iUnitCount AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Unit/Pallet Count" 
+     VIEW-AS FILL-IN 
+     SIZE 13.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iUnitCount     AS INTEGER   FORMAT "->>,>>9":U INITIAL 0 
-    LABEL "Sub Unit Count" 
-    VIEW-AS FILL-IN 
-    SIZE 8.6 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE wid            AS DECIMAL   FORMAT ">>9.99":U INITIAL 0 
-    LABEL "Width" 
-    VIEW-AS FILL-IN 
-    SIZE 9.6 BY 1 
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE wid AS DECIMAL FORMAT ">>9.99":U INITIAL 0 
+     LABEL "Width" 
+     VIEW-AS FILL-IN 
+     SIZE 9.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-    SIZE 122.2 BY 3
-    BGCOLOR 15.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 122.2 BY 3
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-2
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-    SIZE 63.2 BY 10
-    BGCOLOR 15.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 63.2 BY 10
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-3
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-    SIZE 58.6 BY 7.38
-    BGCOLOR 15.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 58.6 BY 7.38
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-4
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-    SIZE 122 BY 16.67
-    BGCOLOR 15.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 122 BY 16.67
+     BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-    quantity AT ROW 2.14 COL 46.2 COLON-ALIGNED WIDGET-ID 198
-    cCustNo AT ROW 3.33 COL 13.4 COLON-ALIGNED WIDGET-ID 176
-    ship-to AT ROW 3.33 COL 71 COLON-ALIGNED WIDGET-ID 178
-    cCustPart AT ROW 5.86 COL 17 COLON-ALIGNED WIDGET-ID 88
-    fg-no AT ROW 6.95 COL 17 COLON-ALIGNED WIDGET-ID 42
-    item-name AT ROW 8.05 COL 17 COLON-ALIGNED WIDGET-ID 208
-    item-dscr AT ROW 9.19 COL 17 COLON-ALIGNED WIDGET-ID 210
-    len AT ROW 10.38 COL 9.8 COLON-ALIGNED WIDGET-ID 190
-    wid AT ROW 10.38 COL 29 COLON-ALIGNED WIDGET-ID 194
-    dep AT ROW 10.38 COL 48.8 COLON-ALIGNED WIDGET-ID 192
-    style-cod AT ROW 11.71 COL 17 COLON-ALIGNED WIDGET-ID 180
-    style-dscr AT ROW 11.71 COL 32 COLON-ALIGNED NO-LABELS WIDGET-ID 182
-    board AT ROW 12.81 COL 17 COLON-ALIGNED WIDGET-ID 174
-    fg-cat AT ROW 13.91 COL 17 COLON-ALIGNED WIDGET-ID 196
-    sub-unit AT ROW 6.43 COL 76.6 COLON-ALIGNED WIDGET-ID 216
-    sun-Unit-dscr AT ROW 6.43 COL 91.5 COLON-ALIGNED NO-LABELS WIDGET-ID 218
-    iUnitCount AT ROW 7.91 COL 82.2 COLON-ALIGNED WIDGET-ID 220
-    iPerPallet AT ROW 7.91 COL 111.2 COLON-ALIGNED WIDGET-ID 222
-    pallet AT ROW 9.29 COL 76.8 COLON-ALIGNED WIDGET-ID 224
-    pallet-dscr AT ROW 9.29 COL 91.6 COLON-ALIGNED NO-LABELS WIDGET-ID 226
-    tot-iUnitCount AT ROW 10.71 COL 85.2 COLON-ALIGNED WIDGET-ID 228
-    Btn_OK AT ROW 15.67 COL 45.4
-    Btn_Cancel AT ROW 15.67 COL 66.8
-    est-no AT ROW 2.14 COL 13.4 COLON-ALIGNED WIDGET-ID 200
-    cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABELS WIDGET-ID 202
-    ship-name AT ROW 3.33 COL 89.4 COLON-ALIGNED NO-LABELS WIDGET-ID 204
-    board-dscr AT ROW 12.86 COL 32 COLON-ALIGNED NO-LABELS WIDGET-ID 212
-    cat-dscr AT ROW 13.95 COL 32 COLON-ALIGNED NO-LABELS WIDGET-ID 214
-     
-     
-    "Product Input" VIEW-AS TEXT
-    SIZE 16 BY .86 AT ROW 4.81 COL 6 WIDGET-ID 166
-    "Main Input" VIEW-AS TEXT
-    SIZE 13 BY 1 AT ROW 1.14 COL 6 WIDGET-ID 206
-    "Packing" VIEW-AS TEXT
-    SIZE 11 BY .86 AT ROW 4.86 COL 71.4 WIDGET-ID 234
-    RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
-    RECT-2 AT ROW 5.24 COL 1.8 WIDGET-ID 230
-    RECT-3 AT ROW 5.24 COL 65.4 WIDGET-ID 232
-    RECT-4 AT ROW 1.1 COL 1.8 WIDGET-ID 236
-    SPACE(0.59) SKIP(0.27)
+     quantity AT ROW 2.19 COL 13.4 COLON-ALIGNED WIDGET-ID 198
+     cCustNo AT ROW 3.33 COL 13.4 COLON-ALIGNED WIDGET-ID 176
+     ship-to AT ROW 3.33 COL 71 COLON-ALIGNED WIDGET-ID 178
+     cCustPart AT ROW 5.86 COL 17 COLON-ALIGNED WIDGET-ID 88
+     fg-no AT ROW 6.95 COL 17 COLON-ALIGNED WIDGET-ID 42
+     item-name AT ROW 8.05 COL 17 COLON-ALIGNED WIDGET-ID 208
+     item-dscr AT ROW 9.19 COL 17 COLON-ALIGNED WIDGET-ID 210
+     len AT ROW 10.38 COL 9.8 COLON-ALIGNED WIDGET-ID 190
+     wid AT ROW 10.38 COL 29 COLON-ALIGNED WIDGET-ID 194
+     dep AT ROW 10.38 COL 48.8 COLON-ALIGNED WIDGET-ID 192
+     style-cod AT ROW 11.71 COL 17 COLON-ALIGNED WIDGET-ID 180
+     style-dscr AT ROW 11.71 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 182
+     board AT ROW 12.81 COL 17 COLON-ALIGNED WIDGET-ID 174
+     fg-cat AT ROW 13.91 COL 17 COLON-ALIGNED WIDGET-ID 196
+     sub-unit AT ROW 6.43 COL 76.6 COLON-ALIGNED WIDGET-ID 216
+     sun-Unit-dscr AT ROW 6.43 COL 91.6 COLON-ALIGNED NO-LABEL WIDGET-ID 218
+     iUnitCount AT ROW 7.91 COL 82.2 COLON-ALIGNED WIDGET-ID 220
+     iPerPallet AT ROW 7.91 COL 111.2 COLON-ALIGNED WIDGET-ID 222
+     pallet AT ROW 9.29 COL 76.8 COLON-ALIGNED WIDGET-ID 224
+     pallet-dscr AT ROW 9.29 COL 91.6 COLON-ALIGNED NO-LABEL WIDGET-ID 226
+     tot-iUnitCount AT ROW 10.71 COL 85.2 COLON-ALIGNED WIDGET-ID 228
+     Btn_OK AT ROW 15.67 COL 45.4
+     Btn_Cancel AT ROW 15.67 COL 66.8
+     cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 202
+     ship-name AT ROW 3.33 COL 89.4 COLON-ALIGNED NO-LABEL WIDGET-ID 204
+     board-dscr AT ROW 12.86 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 212
+     cat-dscr AT ROW 13.95 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 214
+     "Product Input" VIEW-AS TEXT
+          SIZE 16 BY .86 AT ROW 4.81 COL 6 WIDGET-ID 166
+     "Main Input" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 1.14 COL 6 WIDGET-ID 206
+     "Packing" VIEW-AS TEXT
+          SIZE 11 BY .86 AT ROW 4.86 COL 71.4 WIDGET-ID 234
+     RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
+     RECT-2 AT ROW 5.24 COL 1.8 WIDGET-ID 230
+     RECT-3 AT ROW 5.24 COL 65.4 WIDGET-ID 232
+     RECT-4 AT ROW 1.1 COL 1.8 WIDGET-ID 236
+     SPACE(0.59) SKIP(0.27)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "New Miscellaneous Product Estimate "
-    CANCEL-BUTTON Btn_Cancel.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "New Miscellaneous Product Estimate "
+         CANCEL-BUTTON Btn_Cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -372,16 +363,14 @@ DEFINE FRAME D-Dialog
 /* SETTINGS FOR DIALOG-BOX D-Dialog
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME D-Dialog:SCROLLABLE = FALSE
-    FRAME D-Dialog:HIDDEN     = TRUE.
+       FRAME D-Dialog:SCROLLABLE       = FALSE
+       FRAME D-Dialog:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN board-dscr IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cat-dscr IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust-name IN FRAME D-Dialog
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN est-no IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN pallet-dscr IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -414,8 +403,8 @@ ASSIGN
 
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
-ON WINDOW-CLOSE OF FRAME D-Dialog /* Create Estimate for Misc Release */
-    DO:  
+ON WINDOW-CLOSE OF FRAME D-Dialog /* New Miscellaneous Product Estimate  */
+DO:  
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
         FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.
         IF AVAILABLE eb THEN 
@@ -435,30 +424,10 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* Create Estimate for Misc Release */
 &ANALYZE-RESUME
 
 
-
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
-ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Next */
-    DO:
-        FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.
-        IF AVAILABLE eb THEN 
-        DO:
-            FIND FIRST ef OF eb NO-LOCK  NO-ERROR.
-            FIND FIRST est OF ef NO-LOCK NO-ERROR.
-            DELETE est.
-        END.
-        EMPTY TEMP-TABLE ttInputEst .
-        APPLY "go" TO FRAME {&FRAME-NAME}.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME board
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL board D-Dialog
 ON HELP OF board IN FRAME D-Dialog /* Board */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
@@ -475,7 +444,7 @@ ON HELP OF board IN FRAME D-Dialog /* Board */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL board D-Dialog
 ON LEAVE OF board IN FRAME D-Dialog /* Board */
-    DO:
+DO:
         IF NOT CAN-FIND(item WHERE item.company = gcompany
             AND item.i-no = board:screen-value
             AND LOOKUP(ITEM.mat-type,"P,R,B,F" ) GT 0)
@@ -500,10 +469,29 @@ ON LEAVE OF board IN FRAME D-Dialog /* Board */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
+ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
+DO:
+        FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.
+        IF AVAILABLE eb THEN 
+        DO:
+            FIND FIRST ef OF eb NO-LOCK  NO-ERROR.
+            FIND FIRST est OF ef NO-LOCK NO-ERROR.
+            DELETE est.
+        END.
+        EMPTY TEMP-TABLE ttInputEst .
+        APPLY "go" TO FRAME {&FRAME-NAME}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Next */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
 
         DO WITH FRAME {&FRAME-NAME}:
@@ -565,10 +553,53 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Next */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME cCustNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
+ON HELP OF cCustNo IN FRAME D-Dialog /* Cust# */
+DO:
+        DEFINE VARIABLE char-val   AS cha   NO-UNDO.
+        DEFINE VARIABLE look-recid AS RECID NO-UNDO.
+   
+        RUN windows/l-custact.w (gcompany,"", OUTPUT char-val, OUTPUT look-recid).
+        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
+            ASSIGN
+                SELF:screen-value      = ENTRY(1,char-val)
+                cust-name:screen-value = ENTRY(2,char-val)
+                .                                    
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
+ON LEAVE OF cCustNo IN FRAME D-Dialog /* Cust# */
+DO:
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+   
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-cust-no(OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY.
+        END.
+        IF SELF:SCREEN-VALUE NE "" THEN 
+        DO:
+            FIND FIRST cust WHERE cust.company = cocode
+                AND cust.cust-no EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
+             
+            IF AVAILABLE cust THEN
+                ASSIGN cust-name:SCREEN-VALUE = cust.NAME .
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME cCustPart
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustPart D-Dialog
 ON HELP OF cCustPart IN FRAME D-Dialog /* Cust Part# */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
 
@@ -588,7 +619,7 @@ ON HELP OF cCustPart IN FRAME D-Dialog /* Cust Part# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustPart D-Dialog
 ON LEAVE OF cCustPart IN FRAME D-Dialog /* Cust Part# */
-    DO: 
+DO: 
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -602,29 +633,10 @@ ON LEAVE OF cCustPart IN FRAME D-Dialog /* Cust Part# */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME cCustNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
-ON HELP OF cCustNo IN FRAME D-Dialog /* Cust# */
-    DO:
-        DEFINE VARIABLE char-val   AS cha   NO-UNDO.
-        DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-   
-        RUN windows/l-custact.w (gcompany,"", OUTPUT char-val, OUTPUT look-recid).
-        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
-            ASSIGN
-                SELF:screen-value      = ENTRY(1,char-val)
-                cust-name:screen-value = ENTRY(2,char-val)
-                .                                    
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME dep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dep D-Dialog
 ON HELP OF dep IN FRAME D-Dialog /* Depth */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
  
@@ -636,7 +648,7 @@ ON HELP OF dep IN FRAME D-Dialog /* Depth */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dep D-Dialog
 ON LEAVE OF dep IN FRAME D-Dialog /* Depth */
-    DO:
+DO:
         DEFINE VARIABLE v-dec    AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-dec   AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-error AS LOG     NO-UNDO.
@@ -676,35 +688,10 @@ ON LEAVE OF dep IN FRAME D-Dialog /* Depth */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME cCustNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
-ON LEAVE OF cCustNo IN FRAME D-Dialog /* customer */
-    DO:
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-   
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-cust-no(OUTPUT lError) NO-ERROR.
-            IF lError THEN RETURN NO-APPLY.
-        END.
-        IF SELF:SCREEN-VALUE NE "" THEN 
-        DO:
-            FIND FIRST cust WHERE cust.company = cocode
-                AND cust.cust-no EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
-             
-            IF AVAILABLE cust THEN
-                ASSIGN cust-name:SCREEN-VALUE = cust.NAME .
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-cat D-Dialog
 ON HELP OF fg-cat IN FRAME D-Dialog /* FG Category */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
 
@@ -721,7 +708,7 @@ ON HELP OF fg-cat IN FRAME D-Dialog /* FG Category */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-cat D-Dialog
 ON LEAVE OF fg-cat IN FRAME D-Dialog /* FG Category */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -747,7 +734,7 @@ ON LEAVE OF fg-cat IN FRAME D-Dialog /* FG Category */
 &Scoped-define SELF-NAME fg-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON HELP OF fg-no IN FRAME D-Dialog /* FG Item Code */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
 
@@ -770,7 +757,7 @@ ON HELP OF fg-no IN FRAME D-Dialog /* FG Item Code */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON LEAVE OF fg-no IN FRAME D-Dialog /* FG Item Code */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -783,9 +770,10 @@ ON LEAVE OF fg-no IN FRAME D-Dialog /* FG Item Code */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON VALUE-CHANGED OF fg-no IN FRAME D-Dialog /* FG Item Code */
-    DO:
+DO:
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company = cocode
             AND itemfg.i-no EQ fg-no:SCREEN-VALUE NO-ERROR.
@@ -800,10 +788,38 @@ ON VALUE-CHANGED OF fg-no IN FRAME D-Dialog /* FG Item Code */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME iPerPallet
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPerPallet D-Dialog
+ON LEAVE OF iPerPallet IN FRAME D-Dialog /* Per Pallet */
+DO:
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
+        IF LASTKEY NE -1 THEN 
+        DO:
+
+            RUN valid-PerPallet(OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY .
+        END.
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPerPallet D-Dialog
+ON VALUE-CHANGED OF iPerPallet IN FRAME D-Dialog /* Per Pallet */
+DO:
+        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE)) .  
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME item-dscr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
 ON HELP OF item-dscr IN FRAME D-Dialog /* Description */
-    DO:
+DO:
    
     END.
 
@@ -813,7 +829,7 @@ ON HELP OF item-dscr IN FRAME D-Dialog /* Description */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
 ON LEAVE OF item-dscr IN FRAME D-Dialog /* Description */
-    DO: 
+DO: 
     
     END.
 
@@ -824,7 +840,7 @@ ON LEAVE OF item-dscr IN FRAME D-Dialog /* Description */
 &Scoped-define SELF-NAME item-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-name D-Dialog
 ON HELP OF item-name IN FRAME D-Dialog /* Item Name */
-    DO:
+DO:
    
     END.
 
@@ -834,7 +850,7 @@ ON HELP OF item-name IN FRAME D-Dialog /* Item Name */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-name D-Dialog
 ON LEAVE OF item-name IN FRAME D-Dialog /* Item Name */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
@@ -845,10 +861,39 @@ ON LEAVE OF item-name IN FRAME D-Dialog /* Item Name */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME iUnitCount
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iUnitCount D-Dialog
+ON LEAVE OF iUnitCount IN FRAME D-Dialog /* Sub Unit Count */
+DO:
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
+        IF LASTKEY NE -1 THEN 
+        DO:
+
+            RUN valid-sub-UnitCount(OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY .
+        END.
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iUnitCount D-Dialog
+ON VALUE-CHANGED OF iUnitCount IN FRAME D-Dialog /* Sub Unit Count */
+DO:
+        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE)) .  
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME len
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL len D-Dialog
 ON LEAVE OF len IN FRAME D-Dialog /* Length */
-    DO:
+DO:
         DEFINE VARIABLE v-dec    AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-dec   AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-error AS LOG     NO-UNDO.
@@ -891,7 +936,7 @@ ON LEAVE OF len IN FRAME D-Dialog /* Length */
 &Scoped-define SELF-NAME pallet
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pallet D-Dialog
 ON HELP OF pallet IN FRAME D-Dialog /* Pallet */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
@@ -910,7 +955,7 @@ ON HELP OF pallet IN FRAME D-Dialog /* Pallet */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pallet D-Dialog
 ON LEAVE OF pallet IN FRAME D-Dialog /* Pallet */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
        
     
@@ -932,21 +977,10 @@ ON LEAVE OF pallet IN FRAME D-Dialog /* Pallet */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME iPerPallet
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPerPallet D-Dialog
-ON VALUE-CHANGED OF iPerPallet IN FRAME D-Dialog /* Per Pallet */
-    DO:
-        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE)) .  
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME quantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
 ON HELP OF quantity IN FRAME D-Dialog /* Quantity */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
         DEFINE VARIABLE char-val2  AS cha   NO-UNDO.        
@@ -1005,10 +1039,28 @@ ON HELP OF quantity IN FRAME D-Dialog /* Quantity */
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
+ON LEAVE OF quantity IN FRAME D-Dialog /* Quantity */
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+            IF INTEGER(quantity:SCREEN-VALUE) LE 0 THEN 
+            DO:
+                MESSAGE "Quantity must not be 0..." VIEW-AS ALERT-BOX INFORMATION .
+                APPLY "entry" TO quantity .
+                RETURN NO-APPLY.
+            END.
+        END.                                
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME ship-to
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship-to D-Dialog
 ON HELP OF ship-to IN FRAME D-Dialog /* Ship To */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
@@ -1027,7 +1079,7 @@ ON HELP OF ship-to IN FRAME D-Dialog /* Ship To */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship-to D-Dialog
 ON LEAVE OF ship-to IN FRAME D-Dialog /* Ship To */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -1052,28 +1104,10 @@ ON LEAVE OF ship-to IN FRAME D-Dialog /* Ship To */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
-ON LEAVE OF quantity IN FRAME D-Dialog /* quantity */
-    DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
-            IF INTEGER(quantity:SCREEN-VALUE) LE 0 THEN 
-            DO:
-                MESSAGE "Quantity must not be 0..." VIEW-AS ALERT-BOX INFORMATION .
-                APPLY "entry" TO quantity .
-                RETURN NO-APPLY.
-            END.
-        END.                                
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME style-cod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style-cod D-Dialog
 ON HELP OF style-cod IN FRAME D-Dialog /* Style Code */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
@@ -1100,7 +1134,7 @@ ON HELP OF style-cod IN FRAME D-Dialog /* Style Code */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style-cod D-Dialog
 ON LEAVE OF style-cod IN FRAME D-Dialog /* Style Code */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .    
         IF SELF:SCREEN-VALUE NE "" THEN 
         DO:
@@ -1126,7 +1160,7 @@ ON LEAVE OF style-cod IN FRAME D-Dialog /* Style Code */
 &Scoped-define SELF-NAME sub-unit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sub-unit D-Dialog
 ON HELP OF sub-unit IN FRAME D-Dialog /* Sub Unit */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
@@ -1144,7 +1178,7 @@ ON HELP OF sub-unit IN FRAME D-Dialog /* Sub Unit */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sub-unit D-Dialog
 ON LEAVE OF sub-unit IN FRAME D-Dialog /* Sub Unit */
-    DO: 
+DO: 
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -1170,54 +1204,8 @@ ON LEAVE OF sub-unit IN FRAME D-Dialog /* Sub Unit */
 &Scoped-define SELF-NAME tot-iUnitCount
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tot-iUnitCount D-Dialog
 ON LEAVE OF tot-iUnitCount IN FRAME D-Dialog /* Unit/Pallet Count */
-    DO:
+DO:
    
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME iUnitCount
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iUnitCount D-Dialog
-ON VALUE-CHANGED OF iUnitCount IN FRAME D-Dialog /* Sub Unit Count */
-    DO:
-        tot-iUnitCount:SCREEN-VALUE = STRING(INTEGER(iUnitCount:SCREEN-VALUE) * INTEGER(iPerPallet:SCREEN-VALUE)) .  
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME iUnitCount
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iUnitCount D-Dialog
-ON LEAVE OF iUnitCount IN FRAME D-Dialog /* Sub Unit Count */
-    DO:
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
-        IF LASTKEY NE -1 THEN 
-        DO:
-
-            RUN valid-sub-UnitCount(OUTPUT lError) NO-ERROR.
-            IF lError THEN RETURN NO-APPLY .
-        END.
-
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME iPerPallet
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPerPallet D-Dialog
-ON LEAVE OF iPerPallet IN FRAME D-Dialog /* Sub Unit Count */
-    DO:
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
-        IF LASTKEY NE -1 THEN 
-        DO:
-
-            RUN valid-PerPallet(OUTPUT lError) NO-ERROR.
-            IF lError THEN RETURN NO-APPLY .
-        END.
-
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1227,7 +1215,7 @@ ON LEAVE OF iPerPallet IN FRAME D-Dialog /* Sub Unit Count */
 &Scoped-define SELF-NAME wid
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wid D-Dialog
 ON LEAVE OF wid IN FRAME D-Dialog /* Width */
-    DO:
+DO:
         DEFINE VARIABLE v-dec    AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-dec   AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-error AS LOG     NO-UNDO.
@@ -1289,8 +1277,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         RUN est/NewEstimate.p ('C', 5 ,OUTPUT lv-crt-est-rowid).
         FIND FIRST eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-LOCK NO-ERROR.
-        IF AVAILABLE eb THEN 
-            est-no:SCREEN-VALUE = eb.est-no .
+/*        IF AVAILABLE eb THEN                 */
+/*            est-no:SCREEN-VALUE = eb.est-no .*/
     END.
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -1318,20 +1306,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available D-Dialog  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -1340,7 +1328,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-ttfrmout D-Dialog 
 PROCEDURE create-ttfrmout :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1395,16 +1383,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI D-Dialog  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME D-Dialog.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME D-Dialog.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1412,26 +1400,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI D-Dialog  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY cCustNo ship-to style-cod style-dscr len wid dep cCustPart fg-no fg-cat 
-        quantity board est-no cust-name ship-name item-name item-dscr 
-        board-dscr cat-dscr sub-unit sun-Unit-dscr iUnitCount iPerPallet 
-        pallet pallet-dscr tot-iUnitCount 
-        WITH FRAME D-Dialog.
-    ENABLE cCustNo ship-to style-cod len wid dep cCustPart fg-no fg-cat quantity 
-        board Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 item-name 
-        item-dscr sub-unit iUnitCount iPerPallet pallet 
-        WITH FRAME D-Dialog.
-    VIEW FRAME D-Dialog.
-    {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
+          dep style-cod style-dscr board fg-cat sub-unit sun-Unit-dscr 
+          iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount cust-name 
+          ship-name board-dscr cat-dscr 
+      WITH FRAME D-Dialog.
+  ENABLE quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
+         dep style-cod board fg-cat sub-unit iUnitCount iPerPallet pallet 
+         Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 
+      WITH FRAME D-Dialog.
+  VIEW FRAME D-Dialog.
+  {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1445,9 +1433,9 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-/* SEND-RECORDS does nothing because there are no External
-   Tables specified for this SmartDialog, and there are no
-   tables specified in any contained Browse, Query, or Frame. */
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartDialog, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.
 
@@ -1456,7 +1444,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-64-dec D-Dialog 
 PROCEDURE valid-64-dec :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1476,9 +1464,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-board D-Dialog 
+PROCEDURE valid-board :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT CAN-FIND(item WHERE item.company = gcompany
+            AND item.i-no = board:screen-value
+            AND LOOKUP(ITEM.mat-type,"P,R,B,F" ) GT 0)
+            THEN 
+        DO:
+            MESSAGE "Invalid Board. Try Help. " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO board.
+            oplOutError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no D-Dialog 
+PROCEDURE valid-cust-no :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT CAN-FIND(FIRST cust
+            WHERE cust.company  EQ gcompany
+            AND cust.cust-no   EQ cCustNo:SCREEN-VALUE)  THEN 
+        DO:
+            MESSAGE "Invalid Customer, try help..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cCustNo .
+            oplOutError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-fgitem D-Dialog 
 PROCEDURE valid-fgitem :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1506,21 +1544,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no D-Dialog 
-PROCEDURE valid-cust-no :
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-pack D-Dialog 
+PROCEDURE valid-pack :
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST cust
-            WHERE cust.company  EQ gcompany
-            AND cust.cust-no   EQ cCustNo:SCREEN-VALUE)  THEN 
+        IF NOT CAN-FIND(item WHERE item.company = gcompany
+            AND item.i-no = sub-unit:screen-value
+            AND item.mat-type = "C")
+            THEN 
         DO:
-            MESSAGE "Invalid Customer, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO cCustNo .
+            MESSAGE "Invalid Sub Unit. Try Help. " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO sub-unit.
+            oplOutError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-pallet D-Dialog 
+PROCEDURE valid-pallet :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT CAN-FIND(item WHERE item.company = gcompany
+            AND item.i-no = pallet:screen-value
+            AND item.mat-type EQ "D" )
+            THEN 
+        DO:
+            MESSAGE "Invalid Pallet. Try Help. " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO pallet.
             oplOutError = YES .
         END.
     END.
@@ -1532,7 +1598,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no D-Dialog 
 PROCEDURE valid-part-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1553,9 +1619,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-PerPallet D-Dialog 
+PROCEDURE valid-PerPallet :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF INTEGER(iPerPallet:SCREEN-VALUE) LE 0 THEN 
+        DO:
+            MESSAGE "Per Pallet must not be 0. " VIEW-AS ALERT-BOX INFORMATION.
+            APPLY "entry" TO iPerPallet.
+            oplOutError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat D-Dialog 
 PROCEDURE valid-procat :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1582,7 +1671,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id D-Dialog 
 PROCEDURE valid-ship-id :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1609,7 +1698,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-style D-Dialog 
 PROCEDURE valid-style :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1633,89 +1722,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-board D-Dialog 
-PROCEDURE valid-board :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(item WHERE item.company = gcompany
-            AND item.i-no = board:screen-value
-            AND LOOKUP(ITEM.mat-type,"P,R,B,F" ) GT 0)
-            THEN 
-        DO:
-            MESSAGE "Invalid Board. Try Help. " VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO board.
-            oplOutError = YES .
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-pack D-Dialog 
-PROCEDURE valid-pack :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(item WHERE item.company = gcompany
-            AND item.i-no = sub-unit:screen-value
-            AND item.mat-type = "C")
-            THEN 
-        DO:
-            MESSAGE "Invalid Sub Unit. Try Help. " VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO sub-unit.
-            oplOutError = YES .
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-pallet D-Dialog 
-PROCEDURE valid-pallet :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(item WHERE item.company = gcompany
-            AND item.i-no = pallet:screen-value
-            AND item.mat-type EQ "D" )
-            THEN 
-        DO:
-            MESSAGE "Invalid Pallet. Try Help. " VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO pallet.
-            oplOutError = YES .
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-sub-UnitCount D-Dialog 
 PROCEDURE valid-sub-UnitCount :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1736,25 +1745,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-PerPallet D-Dialog 
-PROCEDURE valid-PerPallet :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF INTEGER(iPerPallet:SCREEN-VALUE) LE 0 THEN 
-        DO:
-            MESSAGE "Per Pallet must not be 0. " VIEW-AS ALERT-BOX INFORMATION.
-            APPLY "entry" TO iPerPallet.
-            oplOutError = YES .
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

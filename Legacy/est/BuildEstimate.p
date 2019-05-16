@@ -79,6 +79,7 @@ FOR EACH ttInputEst NO-LOCK:
         eb.eqty         = bf-existing-eb.eqty.
      ASSIGN 
         est-qty.eqty    = eb.eqty
+        est-qty.qty[1]  = eb.eqty
         est.est-qty[1]  = eb.eqty
         ef.eqty         = eb.eqty
         .
