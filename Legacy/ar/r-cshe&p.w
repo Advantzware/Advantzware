@@ -1479,7 +1479,6 @@ PROCEDURE undo-trnum :
         IF xtrnum EQ gl-ctrl.trnum THEN gl-ctrl.trnum = gl-ctrl.trnum - 1.
         FIND CURRENT gl-ctrl NO-LOCK.
         RELEASE gl-ctrl.
-        LEAVE.
       END. /* IF AVAIL gl-ctrl */
   END.
 
