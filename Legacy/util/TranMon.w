@@ -99,8 +99,8 @@ edLocks
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for OCX Containers                            */
-DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
+DEFINE VARIABLE CtrlFrame-2 AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE chCtrlFrame-2 AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnClose 
@@ -226,17 +226,17 @@ THEN C-Win:HIDDEN = no.
 
 &IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
 
-CREATE CONTROL-FRAME CtrlFrame ASSIGN
+CREATE CONTROL-FRAME CtrlFrame-2 ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
        ROW             = 3.38
-       COLUMN          = 43
+       COLUMN          = 52
        HEIGHT          = 4.76
        WIDTH           = 20
-       WIDGET-ID       = 4
+       WIDGET-ID       = 28
        HIDDEN          = yes
        SENSITIVE       = yes.
-/* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
-      CtrlFrame:MOVE-AFTER(btnClose:HANDLE IN FRAME DEFAULT-FRAME).
+/* CtrlFrame-2 OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
+      CtrlFrame-2:MOVE-AFTER(btnClose:HANDLE IN FRAME DEFAULT-FRAME).
 
 &ENDIF
 
@@ -303,15 +303,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME CtrlFrame
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame C-Win OCX.Tick
-PROCEDURE CtrlFrame.PSTimer.Tick .
+&Scoped-define SELF-NAME CtrlFrame-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CtrlFrame-2 C-Win OCX.Tick
+PROCEDURE CtrlFrame-2.PSTimer.Tick .
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN postMonitor.
+RUN postMonitor.
 
 END PROCEDURE.
 
@@ -382,9 +382,9 @@ IF OCXFile = ? THEN
 IF OCXFile <> ? THEN
 DO:
   ASSIGN
-    chCtrlFrame = CtrlFrame:COM-HANDLE
-    UIB_S = chCtrlFrame:LoadControls( OCXFile, "CtrlFrame":U)
-    CtrlFrame:NAME = "CtrlFrame":U
+    chCtrlFrame-2 = CtrlFrame-2:COM-HANDLE
+    UIB_S = chCtrlFrame-2:LoadControls( OCXFile, "CtrlFrame-2":U)
+    CtrlFrame-2:NAME = "CtrlFrame-2":U
   .
   RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
 END.
