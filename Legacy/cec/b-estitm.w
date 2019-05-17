@@ -6730,7 +6730,8 @@ PROCEDURE pCreateFormFromImport :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-   
+  DEFINE VARIABLE riEb AS ROWID NO-UNDO.
+  
   ASSIGN
     ll-new-record = YES
     iCount = 0
@@ -6741,7 +6742,7 @@ PROCEDURE pCreateFormFromImport :
       iCount = iCount + 1.
   END.
   
-  RUN est/BuildEstimate.p ("C").
+  RUN est/BuildEstimate.p ("C", OUTPUT riEb).
   
   RUN dispatch('open-query').
     lDummy = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
@@ -6761,7 +6762,7 @@ PROCEDURE pCreateMiscEstimate :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE rRowidEb AS ROWID NO-UNDO . 
+  DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
   DEFINE VARIABLE iEstReleaseID AS INTEGER NO-UNDO .
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO .
@@ -6779,22 +6780,21 @@ PROCEDURE pCreateMiscEstimate :
 
   FOR EACH ttInputEst:
       iCount = iCount + 1.
-      rRowidEb = ttInputEst.riParentEst .
   END.
   
-  RUN est/BuildEstimate.p ("C").
+  RUN est/BuildEstimate.p ("C", OUTPUT riEb).
 
   FIND FIRST bff-eb NO-LOCK
       WHERE bff-eb.company EQ cocode
-        AND ROWID(bff-eb) EQ rRowidEb NO-ERROR .
+        AND ROWID(bff-eb) EQ riEb NO-ERROR .
 
 
   IF AVAIL bff-eb THEN
-      RUN est/dNewMiscCost.w( INPUT rRowidEb ) .
+      RUN est/dNewMiscCost.w( INPUT riEb ) .
 
   IF iCount > 0 AND AVAIL bff-eb THEN do:
       
-      RUN CreateEstReleaseForEstBlank(INPUT rRowidEb, OUTPUT iEstReleaseID ,
+      RUN CreateEstReleaseForEstBlank(INPUT riEb, OUTPUT iEstReleaseID ,
                                      OUTPUT lError,OUTPUT cMessage) .
 
       FIND FIRST estRelease NO-LOCK
@@ -6802,13 +6802,14 @@ PROCEDURE pCreateMiscEstimate :
           AND estRelease.estReleaseID EQ estReleaseID NO-ERROR .
 
       IF AVAIL estRelease THEN
-          //RUN est/dNewMiscUpd.w (RECID(estRelease), rRowidEb, "Update", OUTPUT lv-rowid) .
-          RUN est/estReleases.w (rRowidEb).
+          //RUN est/dNewMiscUpd.w (RECID(estRelease), riEb, "Update", OUTPUT lv-rowid) .
+          RUN est/estReleases.w (riEb).
+
   END.
   
   IF iCount > 0 THEN DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-     RUN new_record IN WIDGET-HANDLE(char-hdl)  (rRowidEb).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
   END. 
   
   THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp).

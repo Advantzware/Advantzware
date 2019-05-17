@@ -50,7 +50,7 @@ def SHARED var cocode     as   char  format "x(3)"  no-undo.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm Btn_itm-cad Btn_tandem ~
-Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 Btn_Cancel Btn_est-rel
+Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 Btn_Cancel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -64,6 +64,13 @@ Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 Btn_Cancel Btn_est-rel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableImportForm D-Dialog 
 FUNCTION fEnableImportForm RETURNS LOGICAL
   (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableMisc D-Dialog 
+FUNCTION fEnableMisc RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -99,6 +106,11 @@ DEFINE BUTTON Btn_est-2 AUTO-GO
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
+DEFINE BUTTON Btn_est-rel AUTO-GO 
+     LABEL "Misc Estimate" 
+     SIZE 26 BY 2.14
+     BGCOLOR 8 .
+
 DEFINE BUTTON Btn_frm-out AUTO-GO 
      LABEL "Farm Out" 
      SIZE 26 BY 2.14
@@ -126,11 +138,6 @@ DEFINE BUTTON Btn_set AUTO-GO
 
 DEFINE BUTTON Btn_tandem AUTO-GO 
      LABEL "Create from &Tandem" 
-     SIZE 26 BY 2.14
-     BGCOLOR 8 .
-
-DEFINE BUTTON Btn_est-rel AUTO-GO 
-     LABEL "Misc Estimate" 
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
@@ -196,6 +203,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        btnImportForm:HIDDEN IN FRAME D-Dialog           = TRUE.
+
+/* SETTINGS FOR BUTTON Btn_est-rel IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn_est-rel:HIDDEN IN FRAME D-Dialog           = TRUE.
 
 /* SETTINGS FOR BUTTON Btn_part IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -292,6 +304,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_est-rel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_est-rel D-Dialog
+ON CHOOSE OF Btn_est-rel IN FRAME D-Dialog /* Misc Estimate */
+DO:
+    assign ls-add-what = "MiscEst".
+    apply "window-close" to this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_frm-out
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_frm-out D-Dialog
 ON CHOOSE OF Btn_frm-out IN FRAME D-Dialog /* Farm Out */
@@ -371,17 +395,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME Btn_est-rel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_est-rel D-Dialog
-ON CHOOSE OF Btn_est-rel IN FRAME D-Dialog /* Est Release */
-DO:
-    assign ls-add-what = "MiscEst".
-    apply "window-close" to this-procedure.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &UNDEFINE SELF-NAME
 
@@ -395,10 +408,17 @@ IF ip-corr = YES THEN DO:
       btn_part:SENSITIVE = YES
       .
 END.
+IF fEnableMisc(cocode) THEN 
+    ASSIGN 
+        btn_est-rel:HIDDEN = NO
+        btn_est-rel:SENSITIVE = YES
+        .
+        
 IF fEnableImportForm(cocode) THEN 
     ASSIGN  
         btnImportForm:HIDDEN = NO
-        btnImportForm:SENSITIVE = YES .
+        btnImportForm:SENSITIVE = YES 
+        .
     
 {src/adm/template/dialogmn.i}
 
@@ -472,7 +492,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   ENABLE RECT-25 Btn_itm Btn_itm-cad Btn_tandem Btn_set Btn_frm-out Btn_est 
-         Btn-Copy Btn_est-2 Btn_Cancel Btn_est-rel
+         Btn-Copy Btn_est-2 Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -539,6 +559,21 @@ FUNCTION fEnableImportForm RETURNS LOGICAL
 
     lResult = lFound AND cReturn EQ 'YES'.
     RETURN lResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEnableMisc D-Dialog 
+FUNCTION fEnableMisc RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns logical if the Misc Est option should appear
+ Notes:
+------------------------------------------------------------------------------*/
+
+    RETURN ip-corr.
 
 END FUNCTION.
 
