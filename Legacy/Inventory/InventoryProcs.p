@@ -1011,6 +1011,8 @@ PROCEDURE RecalcQuantityUnits:
     /*------------------------------------------------------------------------------
      Purpose: Given a quantity and unit count, return units and partial
      Notes:
+     Syntax: RUN RecalcQuantityUnits IN hInventoryProcs (dQuantityTotal, INPUT-OUTPUT dCaseCount, INPUT-OUTPUT iCasesPerPallet, 
+            OUTPUT iCases, OUTPUT iPallets, OUTPUT dPartial).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipdQuantityTotal AS DECIMAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdQuantityPerSubUnit AS DECIMAL NO-UNDO.
