@@ -125,6 +125,7 @@ DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -1159,16 +1160,12 @@ END.
 ON LEAVE OF oe-ord.carrier IN FRAME F-Main /* Carrier */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    {&methods/lValidateError.i YES}
-    IF oe-ord.carrier:screen-value <> "" AND
-       NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
-                                  carrier.loc = g_loc AND
-                                  carrier.carrier = oe-ord.carrier:screen-value)
-    THEN DO:                              
-         MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.                                
+
+    IF LASTKEY <> -1 THEN DO:
+     RUN valid-carrier NO-ERROR.
+     IF NOT lErrorValid THEN RETURN NO-APPLY.
     END.
-    {&methods/lValidateError.i NO}       
+          
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5480,16 +5477,12 @@ PROCEDURE local-update-record :
      RUN valid-due-date NO-ERROR.
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
+
+     RUN valid-carrier NO-ERROR.
+     IF NOT lErrorValid THEN RETURN NO-APPLY.
+
      {&methods/lValidateError.i YES}
-     
-     IF oe-ord.carrier:screen-value <> "" AND
-        NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
-                                  carrier.loc = g_loc AND
-                                  carrier.carrier = oe-ord.carrier:screen-value)
-     THEN DO:                              
-         MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.                                
-     END.       
+         
      IF oe-ord.terms:screen-value <> "" AND
         NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
      THEN DO:
@@ -7072,6 +7065,42 @@ PROCEDURE valid-type :
   END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-type valid-carrier 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+{&methods/lValidateError.i YES}
+     ASSIGN lErrorValid = YES .
+DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST carrier  
+        WHERE carrier.company EQ g_company 
+         AND carrier.loc = g_loc
+         AND carrier.carrier EQ oe-ord.carrier:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " oe-ord.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+        lErrorValid = NO .
+        END.
+    END.
+
+    IF oe-ord.carrier:screen-value <> "" AND NOT AVAIL carrier
+    THEN DO:                              
+         MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
+         lErrorValid = NO .                                
+    END.
+END.
+    {&methods/lValidateError.i NO} 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
