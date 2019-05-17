@@ -82,7 +82,7 @@ PROCEDURE pValidate PRIVATE:
         IF ipbf-ttImportCarrier.chg-method EQ '' THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Key Field Blank: Change Method.".
+                opcNote  = "Key Field Blank: Charge Method.".
     END.
     IF oplValid THEN 
     DO:
@@ -98,7 +98,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidWarehouse IN hdValidator (ipbf-ttImportCarrier.Loc, YES, ipbf-ttImportCarrier.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
        IF oplValid AND ipbf-ttImportCarrier.chg-method NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Charge Method",ipbf-ttImportCarrier.chg-method, "MAF,Pallet,Weight",  OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("Charge Method",ipbf-ttImportCarrier.chg-method, "MSF,Pallet,Weight",  OUTPUT oplValid, OUTPUT cValidNote).
        
     END.
    
