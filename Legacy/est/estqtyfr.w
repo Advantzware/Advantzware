@@ -59,21 +59,21 @@ cocode = g_company.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS lv-qty1 lv-rel-1 lv-qty2 lv-rel-2 lv-qty3 ~
-lv-rel-3 lv-qty4 lv-rel-4 lv-qty5 lv-rel-5 lv-qty6 lv-rel-6 lv-qty7 ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 lv-qty1 lv-rel-1 lv-qty2 lv-rel-2 ~
+lv-qty3 lv-rel-3 lv-qty4 lv-rel-4 lv-qty5 lv-rel-5 lv-qty6 lv-rel-6 lv-qty7 ~
 lv-rel-7 lv-qty8 lv-rel-8 lv-qty9 lv-rel-9 lv-qty10 lv-rel-10 lv-qty11 ~
 lv-rel-11 lv-qty12 lv-rel-12 lv-qty13 lv-rel-13 lv-qty14 lv-rel-14 lv-qty15 ~
 lv-rel-15 lv-qty16 lv-rel-16 lv-qty17 lv-rel-17 lv-qty18 lv-rel-18 lv-qty19 ~
-lv-rel-19 lv-qty20 lv-rel-20 Btn_OK Btn_Cancel RECT-6 
-&Scoped-Define DISPLAYED-OBJECTS lv-qty1 lv-rel-1 lv-qty2 lv-rel-2 lv-qty3 ~
-lv-rel-3 lv-qty4 lv-rel-4 lv-qty5 lv-rel-5 lv-qty6 lv-rel-6 lv-qty7 ~
-lv-rel-7 lv-qty8 lv-rel-8 lv-qty9 lv-rel-9 lv-qty10 lv-rel-10 lv-qty11 ~
-lv-rel-11 lv-qty12 lv-rel-12 lv-qty13 lv-rel-13 lv-qty14 lv-rel-14 lv-qty15 ~
-lv-rel-15 lv-qty16 lv-rel-16 lv-qty17 lv-rel-17 lv-qty18 lv-rel-18 lv-qty19 ~
-lv-rel-19 lv-qty20 lv-rel-20 lv-msf-2 lv-msf-8 lv-msf-7 lv-msf-6 lv-msf-5 ~
-lv-msf-4 lv-msf-3 lv-msf-20 lv-msf-9 lv-msf-19 lv-msf-18 lv-msf-17 ~
-lv-msf-16 lv-msf-15 lv-msf-14 lv-msf-12 lv-msf-13 lv-msf-11 lv-msf-10 ~
-lv-msf-1 
+lv-rel-19 lv-qty20 lv-rel-20 Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS lv-qty1 lv-rel-1 lv-msf-1 lv-qty2 lv-rel-2 ~
+lv-msf-2 lv-qty3 lv-rel-3 lv-msf-3 lv-qty4 lv-rel-4 lv-msf-4 lv-qty5 ~
+lv-rel-5 lv-msf-5 lv-qty6 lv-rel-6 lv-msf-6 lv-qty7 lv-rel-7 lv-msf-7 ~
+lv-qty8 lv-rel-8 lv-msf-8 lv-msf-9 lv-qty9 lv-rel-9 lv-msf-10 lv-qty10 ~
+lv-rel-10 lv-qty11 lv-rel-11 lv-msf-11 lv-qty12 lv-rel-12 lv-msf-12 ~
+lv-qty13 lv-rel-13 lv-msf-13 lv-qty14 lv-rel-14 lv-msf-14 lv-qty15 ~
+lv-rel-15 lv-msf-15 lv-qty16 lv-rel-16 lv-msf-16 lv-qty17 lv-rel-17 ~
+lv-msf-17 lv-qty18 lv-rel-18 lv-msf-18 lv-qty19 lv-rel-19 lv-msf-19 ~
+lv-qty20 lv-rel-20 lv-msf-20 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -339,7 +339,7 @@ DEFINE VARIABLE lv-rel-9 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0
      SIZE 16 BY 1.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 58 BY 23.1.
 
 
@@ -348,83 +348,82 @@ DEFINE RECTANGLE RECT-6
 DEFINE FRAME Dialog-Frame
      lv-qty1 AT ROW 2.43 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-1 AT ROW 2.43 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-1 AT ROW 2.43 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty2 AT ROW 3.48 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-2 AT ROW 3.48 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-2 AT ROW 3.48 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty3 AT ROW 4.48 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-3 AT ROW 4.48 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-3 AT ROW 4.48 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty4 AT ROW 5.33 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-4 AT ROW 5.33 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-4 AT ROW 5.33 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty5 AT ROW 6.29 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-5 AT ROW 6.29 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-5 AT ROW 6.29 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty6 AT ROW 7.29 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-6 AT ROW 7.29 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-6 AT ROW 7.29 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty7 AT ROW 8.24 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-7 AT ROW 8.24 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-7 AT ROW 8.24 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty8 AT ROW 9.33 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-8 AT ROW 9.33 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-8 AT ROW 9.33 COL 39 COLON-ALIGNED NO-LABEL
+     lv-msf-9 AT ROW 10.29 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty9 AT ROW 10.33 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-9 AT ROW 10.33 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-10 AT ROW 11.24 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty10 AT ROW 11.29 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-10 AT ROW 11.29 COL 20 COLON-ALIGNED NO-LABEL
      lv-qty11 AT ROW 12.19 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-11 AT ROW 12.19 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-11 AT ROW 12.19 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty12 AT ROW 13.14 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-12 AT ROW 13.14 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-12 AT ROW 13.14 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty13 AT ROW 14.1 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-13 AT ROW 14.1 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-13 AT ROW 14.1 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty14 AT ROW 15.05 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-14 AT ROW 15.05 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-14 AT ROW 15.05 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty15 AT ROW 16 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-15 AT ROW 16 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-15 AT ROW 16 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty16 AT ROW 16.95 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-16 AT ROW 16.95 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-16 AT ROW 16.95 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty17 AT ROW 17.91 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-17 AT ROW 17.91 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-17 AT ROW 17.91 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty18 AT ROW 18.86 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-18 AT ROW 18.86 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-18 AT ROW 18.86 COL 39 COLON-ALIGNED NO-LABEL
      lv-qty19 AT ROW 19.81 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-19 AT ROW 19.81 COL 20 COLON-ALIGNED NO-LABEL
-     lv-qty20 AT ROW 20.76 COL 1 COLON-ALIGNED NO-LABEL
-     lv-rel-20 AT ROW 20.76 COL 20 COLON-ALIGNED NO-LABEL
-     Btn_OK AT ROW 22.43 COL 13
-     Btn_Cancel AT ROW 22.43 COL 29
-     lv-msf-2 AT ROW 3.48 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-8 AT ROW 9.33 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-7 AT ROW 8.24 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-6 AT ROW 7.29 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-5 AT ROW 6.29 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-4 AT ROW 5.33 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-3 AT ROW 4.48 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-20 AT ROW 20.76 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-9 AT ROW 10.29 COL 39 COLON-ALIGNED NO-LABEL
      lv-msf-19 AT ROW 19.81 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-18 AT ROW 18.86 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-17 AT ROW 17.91 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-16 AT ROW 16.95 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-15 AT ROW 16 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-14 AT ROW 15.05 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-12 AT ROW 13.14 COL 39 COLON-ALIGNED NO-LABEL
+     lv-qty20 AT ROW 20.76 COL 1 COLON-ALIGNED NO-LABEL
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-     lv-msf-13 AT ROW 14.1 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-11 AT ROW 12.19 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-10 AT ROW 11.24 COL 39 COLON-ALIGNED NO-LABEL
-     lv-msf-1 AT ROW 2.43 COL 39 COLON-ALIGNED NO-LABEL
-     RECT-6 AT ROW 1 COL 1
-     "Quantity" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.48 COL 6
+     lv-rel-20 AT ROW 20.76 COL 20 COLON-ALIGNED NO-LABEL
+     lv-msf-20 AT ROW 20.76 COL 39 COLON-ALIGNED NO-LABEL
+     Btn_OK AT ROW 22.43 COL 13
+     Btn_Cancel AT ROW 22.43 COL 29
+     "Releases" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.48 COL 25
           FONT 6
      "Qty MSF" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.48 COL 42
           FONT 6
-     "Releases" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.48 COL 25
+     "Quantity" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.48 COL 6
           FONT 6
-     SPACE(108.99) SKIP(21.99)
+     RECT-6 AT ROW 1 COL 1
+     SPACE(86.99) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Quantity Detail Information"
@@ -446,7 +445,7 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-   Custom                                                               */
+   L-To-R                                                               */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -1140,22 +1139,22 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY lv-qty1 lv-rel-1 lv-qty2 lv-rel-2 lv-qty3 lv-rel-3 lv-qty4 lv-rel-4 
-          lv-qty5 lv-rel-5 lv-qty6 lv-rel-6 lv-qty7 lv-rel-7 lv-qty8 lv-rel-8 
-          lv-qty9 lv-rel-9 lv-qty10 lv-rel-10 lv-qty11 lv-rel-11 lv-qty12 
-          lv-rel-12 lv-qty13 lv-rel-13 lv-qty14 lv-rel-14 lv-qty15 lv-rel-15 
-          lv-qty16 lv-rel-16 lv-qty17 lv-rel-17 lv-qty18 lv-rel-18 lv-qty19 
-          lv-rel-19 lv-qty20 lv-rel-20 lv-msf-2 lv-msf-8 lv-msf-7 lv-msf-6 
-          lv-msf-5 lv-msf-4 lv-msf-3 lv-msf-20 lv-msf-9 lv-msf-19 lv-msf-18 
-          lv-msf-17 lv-msf-16 lv-msf-15 lv-msf-14 lv-msf-12 lv-msf-13 lv-msf-11 
-          lv-msf-10 lv-msf-1 
+  DISPLAY lv-qty1 lv-rel-1 lv-msf-1 lv-qty2 lv-rel-2 lv-msf-2 lv-qty3 lv-rel-3 
+          lv-msf-3 lv-qty4 lv-rel-4 lv-msf-4 lv-qty5 lv-rel-5 lv-msf-5 lv-qty6 
+          lv-rel-6 lv-msf-6 lv-qty7 lv-rel-7 lv-msf-7 lv-qty8 lv-rel-8 lv-msf-8 
+          lv-msf-9 lv-qty9 lv-rel-9 lv-msf-10 lv-qty10 lv-rel-10 lv-qty11 
+          lv-rel-11 lv-msf-11 lv-qty12 lv-rel-12 lv-msf-12 lv-qty13 lv-rel-13 
+          lv-msf-13 lv-qty14 lv-rel-14 lv-msf-14 lv-qty15 lv-rel-15 lv-msf-15 
+          lv-qty16 lv-rel-16 lv-msf-16 lv-qty17 lv-rel-17 lv-msf-17 lv-qty18 
+          lv-rel-18 lv-msf-18 lv-qty19 lv-rel-19 lv-msf-19 lv-qty20 lv-rel-20 
+          lv-msf-20 
       WITH FRAME Dialog-Frame.
-  ENABLE lv-qty1 lv-rel-1 lv-qty2 lv-rel-2 lv-qty3 lv-rel-3 lv-qty4 lv-rel-4 
-         lv-qty5 lv-rel-5 lv-qty6 lv-rel-6 lv-qty7 lv-rel-7 lv-qty8 lv-rel-8 
-         lv-qty9 lv-rel-9 lv-qty10 lv-rel-10 lv-qty11 lv-rel-11 lv-qty12 
-         lv-rel-12 lv-qty13 lv-rel-13 lv-qty14 lv-rel-14 lv-qty15 lv-rel-15 
-         lv-qty16 lv-rel-16 lv-qty17 lv-rel-17 lv-qty18 lv-rel-18 lv-qty19 
-         lv-rel-19 lv-qty20 lv-rel-20 Btn_OK Btn_Cancel RECT-6 
+  ENABLE RECT-6 lv-qty1 lv-rel-1 lv-qty2 lv-rel-2 lv-qty3 lv-rel-3 lv-qty4 
+         lv-rel-4 lv-qty5 lv-rel-5 lv-qty6 lv-rel-6 lv-qty7 lv-rel-7 lv-qty8 
+         lv-rel-8 lv-qty9 lv-rel-9 lv-qty10 lv-rel-10 lv-qty11 lv-rel-11 
+         lv-qty12 lv-rel-12 lv-qty13 lv-rel-13 lv-qty14 lv-rel-14 lv-qty15 
+         lv-rel-15 lv-qty16 lv-rel-16 lv-qty17 lv-rel-17 lv-qty18 lv-rel-18 
+         lv-qty19 lv-rel-19 lv-qty20 lv-rel-20 Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

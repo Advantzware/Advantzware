@@ -473,6 +473,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 DO:
+
 /*        FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.*/
 /*        IF AVAILABLE eb THEN                                  */
 /*        DO:                                                   */
@@ -480,6 +481,7 @@ DO:
 /*            FIND FIRST est OF ef NO-LOCK NO-ERROR.            */
 /*            DELETE est.                                       */
 /*        END.                                                  */
+
         EMPTY TEMP-TABLE ttInputEst .
         APPLY "go" TO FRAME {&FRAME-NAME}.
     END.
@@ -1277,6 +1279,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 /*        RUN est/NewEstimate.p ('C', 5 ,OUTPUT lv-crt-est-rowid).            */
 /*        FIND FIRST eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-LOCK NO-ERROR.*/
+
 /*        IF AVAILABLE eb THEN                 */
 /*            est-no:SCREEN-VALUE = eb.est-no .*/
     END.

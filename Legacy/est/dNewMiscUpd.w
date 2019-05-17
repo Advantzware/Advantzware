@@ -428,7 +428,8 @@ DO:
                 END.
            WHEN "shipToID" THEN 
                 DO: 
-                    RUN windows/l-shipt2.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+                    RUN windows/l-shipt3.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+//                    RUN windows/l-shipt2.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
                     IF char-val <> "" THEN 
                         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
                 END.

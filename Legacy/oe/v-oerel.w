@@ -534,6 +534,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME oe-relh.carrier
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.carrier V-table-Win
+ON LEAVE OF oe-relh.carrier IN FRAME F-Main /* carrier */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-carrier NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.cust-no V-table-Win
 ON VALUE-CHANGED OF oe-relh.cust-no IN FRAME F-Main /* Customer */
@@ -1459,6 +1472,9 @@ PROCEDURE local-update-record :
   RUN valid-rel-date NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-carrier NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN valid-date-change NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    /* ========== end of validation ==========*/
@@ -1848,5 +1864,43 @@ DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 
 END PROCEDURE.
     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    oe-relh.carrier:SCREEN-VALUE = CAPS(oe-relh.carrier:SCREEN-VALUE).
+
+    FIND FIRST carrier  
+        WHERE carrier.company EQ g_company 
+        AND carrier.carrier EQ oe-relh.carrier:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " oe-relh.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+            APPLY "entry" TO oe-relh.carrier.
+            RETURN ERROR.
+        END.
+    END.
+
+    IF NOT AVAIL carrier THEN DO:
+      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO oe-relh.carrier.
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

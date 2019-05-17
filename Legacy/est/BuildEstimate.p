@@ -73,6 +73,7 @@ FOR EACH ttInputEst NO-LOCK:
         eb.eqty         = ttInputEst.iQuantity.
     IF eb.eqty EQ 0 AND AVAILABLE bf-existing-eb THEN 
         eb.eqty         = bf-existing-eb.eqty.
+
     ASSIGN 
         est-qty.eqty   = eb.eqty
         est-qty.qty[1] = eb.eqty
@@ -229,8 +230,6 @@ FOR EACH ttInputEst NO-LOCK:
     
     RUN pCalcPacking(ROWID(eb)).
 
-    RUN cec/mach-seq.p (ef.form-no, est-qty.eqty, NO).
-    
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */
 /*    DO:                                                                                   */

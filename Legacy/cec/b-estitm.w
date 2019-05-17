@@ -6804,6 +6804,7 @@ PROCEDURE pCreateMiscEstimate :
       IF AVAIL estRelease THEN
           //RUN est/dNewMiscUpd.w (RECID(estRelease), riEb, "Update", OUTPUT lv-rowid) .
           RUN est/estReleases.w (riEb).
+
   END.
   
   IF iCount > 0 THEN DO:
