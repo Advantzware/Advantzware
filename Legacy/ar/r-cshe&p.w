@@ -449,18 +449,14 @@ DO:
   END.
 
   DO TRANSACTION:       /** GET next G/L TRANS. POSTING # **/
-    /* gdm - 11050906 */
-    REPEAT:
+
       FIND FIRST gl-ctrl EXCLUSIVE-LOCK
-        WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
+        WHERE gl-ctrl.company EQ cocode NO-ERROR.
       IF AVAIL gl-ctrl THEN DO:
         ASSIGN xtrnum        = gl-ctrl.trnum + 1
                gl-ctrl.trnum = xtrnum.
         RELEASE gl-ctrl.
-        LEAVE.
-      END. /* IF AVAIL gl-ctrl */
-    END. /* REPEAT */
-    /* gdm - 11050906 */
+      END.
   END.
 
   run run-report. 
