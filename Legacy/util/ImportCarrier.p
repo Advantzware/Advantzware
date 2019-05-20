@@ -20,6 +20,7 @@ DEFINE TEMP-TABLE ttImportCarrier
     FIELD Loc        AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Location" HELP "Required - Size:8" 
     FIELD LocDscr      AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Loc Description" HELP "Optional - Size:30" 
     FIELD chg-method      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Charge Method" HELP "Required - MSF,Pallet,Weight"
+    FIELD Inactive      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Inactive" HELP "Required - Yes or No"
     
     .
 
@@ -101,6 +102,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList IN hdValidator ("Charge Method",ipbf-ttImportCarrier.chg-method, "MSF,Pallet,Weight",  OUTPUT oplValid, OUTPUT cValidNote).
        
     END.
+    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
    
     
 END PROCEDURE.
@@ -113,10 +115,11 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportCarrier FOR ttImportCarrier.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
-     
+    
     FIND FIRST carrier EXCLUSIVE-LOCK
         WHERE carrier.company EQ ipbf-ttImportCarrier.Company
         AND carrier.carrier EQ ipbf-ttImportCarrier.carrier
+        AND carrier.loc EQ ipbf-ttImportCarrier.Loc
         NO-ERROR.  
     IF NOT AVAILABLE carrier THEN 
     DO:
@@ -125,6 +128,7 @@ PROCEDURE pProcessRecord PRIVATE:
         ASSIGN 
             carrier.company = ipbf-ttImportCarrier.Company
             carrier.carrier = ipbf-ttImportCarrier.carrier
+            carrier.loc = ipbf-ttImportCarrier.Loc
             .
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
@@ -132,7 +136,13 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCarrier.dscr, iplIgnoreBlanks, INPUT-OUTPUT carrier.dscr).
     RUN pAssignValueC (ipbf-ttImportCarrier.loc, iplIgnoreBlanks, INPUT-OUTPUT carrier.loc).
     RUN pAssignValueC (substring(ipbf-ttImportCarrier.chg-method,1,1), iplIgnoreBlanks, INPUT-OUTPUT carrier.chg-method).
-    
+    IF ipbf-ttImportCarrier.Inactive EQ "Yes" AND DYNAMIC-FUNCTION("IsActive",carrier.rec_key) THEN DO:
+     RUN AddTagInactive(carrier.rec_key,"carrier").
+    END.
+    ELSE if ipbf-ttImportCarrier.Inactive EQ "No" AND NOT DYNAMIC-FUNCTION("IsActive",carrier.rec_key) THEN DO: 
+     RUN ClearTagsInactive(carrier.rec_key).
+    END.                                    
+
     RELEASE carrier.
     
 END PROCEDURE.

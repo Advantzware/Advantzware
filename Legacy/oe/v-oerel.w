@@ -1878,9 +1878,15 @@ PROCEDURE valid-carrier :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     oe-relh.carrier:SCREEN-VALUE = CAPS(oe-relh.carrier:SCREEN-VALUE).
-
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ g_company 
+        AND shipto.cust-no EQ oe-relh.cust-no:SCREEN-VALUE
+        AND TRIM(shipto.ship-id) = TRIM(oe-relh.ship-id:SCREEN-VALUE)
+        NO-ERROR.
+   IF AVAIL shipto THEN do:
     FIND FIRST carrier  
         WHERE carrier.company EQ g_company 
+        AND carrier.loc = shipto.loc
         AND carrier.carrier EQ oe-relh.carrier:SCREEN-VALUE
         NO-LOCK NO-ERROR.
     IF AVAIL carrier THEN DO:
@@ -1897,6 +1903,7 @@ PROCEDURE valid-carrier :
       APPLY "entry" TO oe-relh.carrier.
       RETURN ERROR.
     END.
+   END.
   END.
 
   {methods/lValidateError.i NO}
