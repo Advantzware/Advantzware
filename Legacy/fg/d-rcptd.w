@@ -3419,8 +3419,8 @@ PROCEDURE pGetCostsFromPO PRIVATE :
     DEFINE VARIABLE lFound            AS LOGICAL.
     
     RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, ipcFGItemID, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
-    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0, opdCostPerUOM).
-    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0, dCostFreight).
+    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,0,0, opdCostPerUOM).
+    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,0,0, dCostFreight).
     ASSIGN 
         opdCostTotal        = ipdQty * dCostPerEA
         opdCostTotalFreight = ipdQty * dCostFreightPerEA.
