@@ -36,8 +36,11 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER iprRowid AS ROWID NO-UNDO .
+DEFINE VARIABLE lEnableButton AS LOGICAL NO-UNDO .
 /* Local Variable Definitions ---                                       */
 
+IF PROGRAM-NAME(2) MATCHES "*viewers/itemfg.*"  THEN
+    ASSIGN lEnableButton = YES .
 {methods/prgsecur.i}               
 {methods/defines/hndldefs.i}               
 {sys/inc/VAR.i NEW SHARED}
@@ -409,11 +412,12 @@ ON DEFAULT-ACTION OF BROWSE-1 IN FRAME F-Main
         DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
         IF AVAILABLE eb THEN 
         DO:
-            IF AVAILABLE estRelease THEN 
+            IF lEnableButton AND AVAIL estRelease THEN do:
+                RUN est/dNewMiscUpd.w (RECID(estRelease),ROWID(eb),"View", OUTPUT lv-rowid) .
+            END.
+            ELSE IF AVAILABLE estRelease THEN 
             DO:
-
                 RUN est/dNewMiscUpd.w (RECID(estRelease),ROWID(eb),"Update", OUTPUT lv-rowid) . 
-   
                 RUN repo-query (ROWID(estRelease)).
             END.
      
@@ -602,7 +606,7 @@ FIND FIRST eb WHERE ROWID(eb) EQ iprRowid  NO-LOCK NO-ERROR.
         
 
 {src/adm/template/windowmn.i}
-
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -749,15 +753,24 @@ PROCEDURE local-initialize :
 
     RUN local-open-query.
 
+    DO WITH FRAME {&FRAME-NAME}:
+       
+        IF lEnableButton  THEN do:
+            ASSIGN
+                btn-update:SENSITIVE = NO 
+                btn-add:SENSITIVE = NO 
+                btn-copy:SENSITIVE = NO 
+                btn-delete:SENSITIVE = NO .
+        END.
+
+    END.
+
     /* Code placed here will execute AFTER standard behavior.    */
     IF access-close THEN 
     DO:
         APPLY "window-close" TO CURRENT-WINDOW.
         RETURN .
     END.
-      
- 
-
   
     {methods/nowait.i}
   

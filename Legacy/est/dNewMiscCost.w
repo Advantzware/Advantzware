@@ -24,7 +24,6 @@ CREATE WIDGET-POOL.
 
 
 DEFINE INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
-/*DEFINE OUTPUT PARAMETER oprEstRowid AS ROWID NO-UNDO .*/
 DEFINE VARIABLE opCADCAM AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -37,6 +36,8 @@ DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-count    AS INTEGER NO-UNDO.
 DEFINE VARIABLE k_frac     AS DECIMAL INIT 6.25 NO-UNDO.
 
+DEFINE BUFFER bff-e-itemfg-vend FOR e-itemfg-vend .
+
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
@@ -47,8 +48,8 @@ ELSE
         v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
         v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 
-/*{est/frmotvar.i "shared"}*/
-{est\ttInputEst.i}
+
+/*{est\ttInputEst.i}*/
 {sys/inc/var.i shared}
 {custom/gcompany.i}  
 
@@ -848,58 +849,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     {methods/nowait.i}
      
-    DO WITH FRAME {&frame-name}:
-      
-        APPLY "entry" TO cVendor IN FRAME {&FRAME-NAME}.
-
-        FIND FIRST eb WHERE ROWID(eb) EQ iprRowid  NO-LOCK NO-ERROR.
-        IF AVAILABLE eb THEN 
-            ASSIGN
-                est-no:SCREEN-VALUE   = eb.est-no 
-                quantity:SCREEN-VALUE = STRING(eb.eqty)
-                cCustNo:SCREEN-VALUE  = eb.cust-no
-                ship-to:SCREEN-VALUE  = eb.ship-id
-                iForm:SCREEN-VALUE    = STRING(eb.form-no)
-                iBlank:SCREEN-VALUE   = STRING(eb.blank-no)
-                .
-        ASSIGN
-            cMatLab1:SCREEN-VALUE   = "M" 
-            cMatLab2:SCREEN-VALUE   = "M" 
-            cMatLab3:SCREEN-VALUE   = "M" 
-            cMatLab4:SCREEN-VALUE   = "M" 
-            cMatLab5:SCREEN-VALUE   = "M" 
-            cCostType1:SCREEN-VALUE = "N" 
-            cCostType2:SCREEN-VALUE = "N" 
-            cCostType3:SCREEN-VALUE = "N" 
-            cCostType4:SCREEN-VALUE = "N" 
-            cCostType5:SCREEN-VALUE = "N" .
-
-        FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ eb.company
-            AND cust.cust-no EQ eb.cust-no NO-ERROR .
-        IF AVAILABLE cust THEN 
-        DO:
-            cust-name:SCREEN-VALUE = cust.NAME .
-            FIND FIRST shipto NO-LOCK
-                WHERE shipto.company = eb.company
-                AND shipto.cust-no EQ eb.cust-no
-                AND shipto.ship-id EQ eb.ship-id  NO-ERROR .
-       
-            IF AVAILABLE shipto THEN
-                ASSIGN ship-name:SCREEN-VALUE = shipto.ship-name .
-        END.
-
-        
-        cCostUom:LIST-ITEMS IN FRAME {&frame-name} = "".
-        
-        RUN sys/ref/uom-fg.p  (NO, OUTPUT uom-list).
-        ASSIGN uom-list = "EA,M" .
-        DO i = 1 TO NUM-ENTRIES(uom-list):
-            ilogic = cCostUom:ADD-LAST (ENTRY(i,uom-list)) IN FRAME {&frame-name}.
-        END.
-        cCostUom:SCREEN-VALUE = "EA"  NO-ERROR.    
-
-    END.
+    RUN pDisplayValue .
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1004,7 +954,7 @@ PROCEDURE pAssignValues :
         ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-ref-rec-qty AS RECID NO-UNDO.
     DEFINE VARIABLE lv-ref-rec-cst AS RECID NO-UNDO.
-   
+    
     FIND FIRST eb WHERE ROWID(eb) EQ iprRowid  EXCLUSIVE-LOCK NO-ERROR.
         
     IF AVAILABLE eb THEN 
@@ -1048,65 +998,78 @@ PROCEDURE pAssignValues :
             DO:
                 ASSIGN
                     ef.mis-matf[1] = dSuCost1 
-                    ef.mis-matm[1] = dEaCost1 * iQtyPer1 * 1000  .
+                    ef.mis-matm[1] = dEaCost1 * iQtyPer1 * 1000 
+                    ef.mis-labf[1] = 0 
+                    ef.mis-labm[1] = 0.
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[1] = dSuCost1 
-                    ef.mis-labm[1] = dEaCost1 * iQtyPer1 * 1000 .
+                    ef.mis-labm[1] = dEaCost1 * iQtyPer1 * 1000 
+                    ef.mis-matf[1] = 0
+                    ef.mis-matm[1] = 0
+                    .
             END.
 
             IF cMatLab2 EQ "M" THEN 
             DO:
                 ASSIGN
                     ef.mis-matf[2] = dSuCost2 
-                    ef.mis-matm[2] = dEaCost2 * iQtyPer2 * 1000  .
+                    ef.mis-matm[2] = dEaCost2 * iQtyPer2 * 1000  
+                    ef.mis-labf[2] = 0.
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[2] = dSuCost2 
-                    ef.mis-labm[2] = dEaCost2 * iQtyPer2 * 1000 .
+                    ef.mis-labm[2] = dEaCost2 * iQtyPer2 * 1000
+                    ef.mis-matf[2] = 0 .
             END.
 
             IF cMatLab3 EQ "M" THEN 
             DO:
                 ASSIGN
                     ef.mis-matf[3] = dSuCost3 
-                    ef.mis-matm[3] = dEaCost3 * iQtyPer3 * 1000  .
+                    ef.mis-matm[3] = dEaCost3 * iQtyPer3 * 1000 
+                    ef.mis-labf[3] = 0 .
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[3] = dSuCost3 
-                    ef.mis-labm[3] = dEaCost3 * iQtyPer3 * 1000 .
+                    ef.mis-labm[3] = dEaCost3 * iQtyPer3 * 1000 
+                    ef.mis-matf[3] = 0.
             END.
 
             IF cMatLab4 EQ "M" THEN 
             DO:
                 ASSIGN
                     ef.mis-matf[4] = dSuCost4 
-                    ef.mis-matm[4] = dEaCost4 * iQtyPer4 * 1000  .
+                    ef.mis-matm[4] = dEaCost4 * iQtyPer4 * 1000
+                     ef.mis-labf[4] = 0  .
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[4] = dSuCost4 
-                    ef.mis-labm[4] = dEaCost4 * iQtyPer4 * 1000 .
+                    ef.mis-labm[4] = dEaCost4 * iQtyPer4 * 1000
+                    ef.mis-matf[4] = 0 .
             END.
 
             IF cMatLab5 EQ "M" THEN 
             DO:
                 ASSIGN
                     ef.mis-matf[5] = dSuCost5 
-                    ef.mis-matm[5] = dEaCost5 * iQtyPer5 * 1000  .
+                    ef.mis-matm[5] = dEaCost5 * iQtyPer5 * 1000  
+                    ef.mis-labf[5] = 0.
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[5] = dSuCost5 
-                    ef.mis-labm[5] = dEaCost5 * iQtyPer5 * 1000 .
+                    ef.mis-labm[5] = dEaCost5 * iQtyPer5 * 1000 
+                    ef.mis-matf[5] = 0.
             END.
 
             ASSIGN
@@ -1231,7 +1194,7 @@ PROCEDURE pAssignValues :
 
                     FIND reftable WHERE RECID(reftable) = lv-ref-rec-cst .
                     ASSIGN 
-                        reftable.val[1] = (dEaCost3 * iQtyPer3 * 1000 ) .
+                        reftable.val[1] = (dEaCost4 * iQtyPer4 * 1000 ) .
              
                     FIND reftable WHERE RECID(reftable) = lv-ref-rec-qty .
                     ASSIGN 
@@ -1245,7 +1208,7 @@ PROCEDURE pAssignValues :
 
                     FIND reftable WHERE RECID(reftable) = lv-ref-rec-cst .
                     ASSIGN 
-                        reftable.val[1] = (dEaCost3 * iQtyPer3 * 1000 ) .
+                        reftable.val[1] = (dEaCost4 * iQtyPer4 * 1000 ) .
              
                     FIND reftable WHERE RECID(reftable) = lv-ref-rec-qty .
                     ASSIGN 
@@ -1265,7 +1228,7 @@ PROCEDURE pAssignValues :
 
                     FIND reftable WHERE RECID(reftable) = lv-ref-rec-cst .
                     ASSIGN 
-                        reftable.val[1] = (dEaCost3 * iQtyPer3 * 1000 ) .
+                        reftable.val[1] = (dEaCost5 * iQtyPer5 * 1000 ) .
              
                     FIND reftable WHERE RECID(reftable) = lv-ref-rec-qty .
                     ASSIGN 
@@ -1279,7 +1242,7 @@ PROCEDURE pAssignValues :
 
                     FIND reftable WHERE RECID(reftable) = lv-ref-rec-cst .
                     ASSIGN 
-                        reftable.val[1] = (dEaCost3 * iQtyPer3 * 1000 ) .
+                        reftable.val[1] = (dEaCost5 * iQtyPer5 * 1000 ) .
              
                     FIND reftable WHERE RECID(reftable) = lv-ref-rec-qty .
                     ASSIGN 
@@ -1287,28 +1250,80 @@ PROCEDURE pAssignValues :
                 END.
             END.
 
-            DO i = 1 TO 2:
-                CREATE e-itemfg-vend .
-                ASSIGN 
-                    e-itemfg-vend.company   = cocode
-                    e-itemfg-vend.item-type = NO   /* for finished good */
-                    e-itemfg-vend.est-no    = eb.est-no
-                    e-itemfg-vend.eqty      = eb.eqty
-                    e-itemfg-vend.form-no   = eb.form-no
-                    e-itemfg-vend.blank-no  = eb.blank-no
-                    e-itemfg-vend.i-no      = eb.stock-no .
-                IF i EQ 1 THEN
+            FIND FIRST bff-e-itemfg-vend EXCLUSIVE-LOCK
+                WHERE bff-e-itemfg-vend.company = eb.company 
+                 AND bff-e-itemfg-vend.est-no = eb.est-no 
+                 AND bff-e-itemfg-vend.eqty = eb.eqty 
+                 AND bff-e-itemfg-vend.form-no = eb.form-no 
+                 AND bff-e-itemfg-vend.blank-no = eb.blank-no
+                 AND bff-e-itemfg-vend.vend-no NE ""  NO-ERROR .
+            IF NOT AVAIL bff-e-itemfg-vend  THEN
+                FIND FIRST bff-e-itemfg-vend EXCLUSIVE-LOCK
+                WHERE bff-e-itemfg-vend.company = eb.company 
+                 AND bff-e-itemfg-vend.est-no = eb.est-no 
+                 AND bff-e-itemfg-vend.eqty = eb.eqty 
+                 AND bff-e-itemfg-vend.form-no = eb.form-no 
+                 AND bff-e-itemfg-vend.blank-no = eb.blank-no
+                 AND bff-e-itemfg-vend.vend-no EQ ""  NO-ERROR.
+            
+            IF AVAIL bff-e-itemfg-vend THEN do:
+
+               ASSIGN
+                   bff-e-itemfg-vend.vend-no   = cVendor 
+                   bff-e-itemfg-vend.vend-item = cVendorItem 
+                   bff-e-itemfg-vend.std-uom   = cCostUom 
+                   bff-e-itemfg-vend.run-qty[1]  = dEaCost1 * iQtyPer1 * 1000
+                   bff-e-itemfg-vend.run-cost[1] = dSuCost1 
+                   bff-e-itemfg-vend.run-qty[2]  = dEaCost2 * iQtyPer2 * 1000
+                   bff-e-itemfg-vend.run-cost[2] = dSuCost2  
+                   bff-e-itemfg-vend.run-qty[3]  = dEaCost3 * iQtyPer3 * 1000
+                   bff-e-itemfg-vend.run-cost[3] = dSuCost3  
+                   bff-e-itemfg-vend.run-qty[4]  = dEaCost4 * iQtyPer4 * 1000
+                   bff-e-itemfg-vend.run-cost[4] = dSuCost4  
+                   bff-e-itemfg-vend.run-qty[5]  = dEaCost5 * iQtyPer5 * 1000
+                   bff-e-itemfg-vend.run-cost[5] = dSuCost5  .  
+            END.
+
+            IF NOT AVAILABLE bff-e-itemfg-vend THEN DO:
+
+                DO i = 1 TO 2:
+                    IF cVendor EQ "" THEN
+                        ASSIGN i = 2 .
+                    CREATE e-itemfg-vend .
+                    ASSIGN 
+                        e-itemfg-vend.company   = cocode
+                        e-itemfg-vend.item-type = NO   /* for finished good */
+                        e-itemfg-vend.est-no    = eb.est-no
+                        e-itemfg-vend.eqty      = eb.eqty
+                        e-itemfg-vend.form-no   = eb.form-no
+                        e-itemfg-vend.blank-no  = eb.blank-no
+                        e-itemfg-vend.i-no      = eb.stock-no .
+                        
+                    IF i EQ 1 THEN
+                        ASSIGN
+                        e-itemfg-vend.vend-no   = cVendor .
                     ASSIGN
-                        e-itemfg-vend.vend-no   = cVendor
                         e-itemfg-vend.vend-item = cVendorItem 
                         e-itemfg-vend.std-uom   = cCostUom .
-
-                IF NOT CAN-FIND(FIRST e-itemfg OF e-itemfg-vend) THEN 
-                DO:
-                    CREATE e-itemfg.
-                    ASSIGN 
-                        e-itemfg.company = e-itemfg-vend.company
-                        e-itemfg.i-no    = e-itemfg-vend.i-no.
+                    ASSIGN
+                        e-itemfg-vend.run-qty[1]  = dEaCost1 * iQtyPer1 * 1000
+                        e-itemfg-vend.run-cost[1] = dSuCost1 
+                        e-itemfg-vend.run-qty[2]  = dEaCost2 * iQtyPer2 * 1000
+                        e-itemfg-vend.run-cost[2] = dSuCost2  
+                        e-itemfg-vend.run-qty[3]  = dEaCost3 * iQtyPer3 * 1000
+                        e-itemfg-vend.run-cost[3] = dSuCost3  
+                        e-itemfg-vend.run-qty[4]  = dEaCost4 * iQtyPer4 * 1000
+                        e-itemfg-vend.run-cost[4] = dSuCost4  
+                        e-itemfg-vend.run-qty[5]  = dEaCost5 * iQtyPer5 * 1000
+                        e-itemfg-vend.run-cost[5] = dSuCost5  .  
+    
+                    IF NOT CAN-FIND(FIRST e-itemfg OF e-itemfg-vend) THEN 
+                    DO:
+                        CREATE e-itemfg.
+                        ASSIGN 
+                            e-itemfg.company = e-itemfg-vend.company
+                            e-itemfg.i-no    = e-itemfg-vend.i-no.
+                    END.
                 END.
             END.
 
@@ -1320,7 +1335,8 @@ PROCEDURE pAssignValues :
 
     RELEASE eb.
     RELEASE ef.
-   
+    RELEASE bff-e-itemfg-vend.
+    RELEASE e-itemfg-vend .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1353,7 +1369,8 @@ PROCEDURE valid-vend-no :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST vend
+        IF cVendor:SCREEN-VALUE NE "" AND
+            NOT CAN-FIND(FIRST vend
             WHERE vend.company  EQ gcompany
             AND vend.vend-no    EQ cVendor:SCREEN-VALUE )  THEN 
         DO:
@@ -1367,4 +1384,175 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayValue D-Dialog 
+PROCEDURE pDisplayValue :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+   DO WITH FRAME {&frame-name}:
+      
+        APPLY "entry" TO cVendor IN FRAME {&FRAME-NAME}.
+
+        FIND FIRST eb WHERE ROWID(eb) EQ iprRowid  NO-LOCK NO-ERROR.
+        IF AVAILABLE eb THEN 
+            ASSIGN
+                est-no:SCREEN-VALUE   = eb.est-no 
+                quantity:SCREEN-VALUE = STRING(eb.eqty)
+                cCustNo:SCREEN-VALUE  = eb.cust-no
+                ship-to:SCREEN-VALUE  = eb.ship-id
+                iForm:SCREEN-VALUE    = STRING(eb.form-no)
+                iBlank:SCREEN-VALUE   = STRING(eb.blank-no)
+                .
+        ASSIGN
+            cMatLab1:SCREEN-VALUE   = "M" 
+            cMatLab2:SCREEN-VALUE   = "M" 
+            cMatLab3:SCREEN-VALUE   = "M" 
+            cMatLab4:SCREEN-VALUE   = "M" 
+            cMatLab5:SCREEN-VALUE   = "M" 
+            cCostType1:SCREEN-VALUE = "N" 
+            cCostType2:SCREEN-VALUE = "N" 
+            cCostType3:SCREEN-VALUE = "N" 
+            cCostType4:SCREEN-VALUE = "N" 
+            cCostType5:SCREEN-VALUE = "N" .
+
+        FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ eb.company
+            AND cust.cust-no EQ eb.cust-no NO-ERROR .
+        IF AVAILABLE cust THEN 
+        DO:
+            cust-name:SCREEN-VALUE = cust.NAME .
+            FIND FIRST shipto NO-LOCK
+                WHERE shipto.company = eb.company
+                AND shipto.cust-no EQ eb.cust-no
+                AND shipto.ship-id EQ eb.ship-id  NO-ERROR .
+       
+            IF AVAILABLE shipto THEN
+                ASSIGN ship-name:SCREEN-VALUE = shipto.ship-name .
+        END.
+
+        
+        cCostUom:LIST-ITEMS IN FRAME {&frame-name} = "".
+        
+        RUN sys/ref/uom-fg.p  (NO, OUTPUT uom-list).
+        ASSIGN uom-list = "EA,M" .
+        DO i = 1 TO NUM-ENTRIES(uom-list):
+            ilogic = cCostUom:ADD-LAST (ENTRY(i,uom-list)) IN FRAME {&frame-name}.
+        END.
+        cCostUom:SCREEN-VALUE = "EA"  NO-ERROR.    
+
+        FIND FIRST ef EXCLUSIVE-LOCK
+            WHERE ef.company EQ eb.company
+            AND ef.est-no EQ eb.est-no
+            AND ef.form-no EQ eb.form-no NO-ERROR .
+        IF AVAILABLE ef THEN 
+        DO:
+
+            ASSIGN
+                cItemDscr1:SCREEN-VALUE = ef.mis-cost[1] 
+                cItemDscr2:SCREEN-VALUE = ef.mis-cost[2] 
+                cItemDscr3:SCREEN-VALUE = ef.mis-cost[3] 
+                cItemDscr4:SCREEN-VALUE = ef.mis-cost[4] 
+                cItemDscr5:SCREEN-VALUE = ef.mis-cost[5]  .
+            ASSIGN
+               cCostType1:SCREEN-VALUE =  ef.mis-simon[1]
+               cCostType2:SCREEN-VALUE =  ef.mis-simon[2]
+               cCostType3:SCREEN-VALUE =  ef.mis-simon[3]
+               cCostType4:SCREEN-VALUE =  ef.mis-simon[4]
+               cCostType5:SCREEN-VALUE =  ef.mis-simon[5] 
+               iQtyPer1:SCREEN-VALUE   = STRING(ef.misQtyPer[1])
+               iQtyPer2:SCREEN-VALUE   = STRING(ef.misQtyPer[2])
+               iQtyPer3:SCREEN-VALUE   = STRING(ef.misQtyPer[3])
+               iQtyPer4:SCREEN-VALUE   = STRING(ef.misQtyPer[4])
+               iQtyPer5:SCREEN-VALUE   = STRING(ef.misQtyPer[5]) .
+
+           IF ef.mis-matf[1] NE 0 THEN DO:
+              dSuCost1:SCREEN-VALUE = string(ef.mis-matf[1]).
+              dEaCost1:SCREEN-VALUE = STRING( (ef.mis-matm[1] / ef.misQtyPer[1] ) / 1000) .
+              cMatLab1:SCREEN-VALUE   = "M" .
+           END.
+           ELSE IF ef.mis-labf[1] GT 0 THEN DO:
+              dSuCost1:SCREEN-VALUE = string(ef.mis-labf[1]).
+              dEaCost1:SCREEN-VALUE = STRING( (ef.mis-labm[1] / ef.misQtyPer[1] ) / 1000) .
+              cMatLab1:SCREEN-VALUE   = "L" .
+           END.
+
+           IF ef.mis-matf[2] NE 0 THEN DO:
+              dSuCost2:SCREEN-VALUE = string(ef.mis-matf[2]).
+              dEaCost2:SCREEN-VALUE = STRING( (ef.mis-matm[2] / ef.misQtyPer[2] ) / 1000) .
+              cMatLab2:SCREEN-VALUE   = "M" .
+           END.
+           ELSE IF ef.mis-labf[2] GT 0 THEN DO:
+              dSuCost2:SCREEN-VALUE = string(ef.mis-labf[2]).
+              dEaCost2:SCREEN-VALUE = STRING( (ef.mis-labm[2] / ef.misQtyPer[2] ) / 1000) .
+              cMatLab2:SCREEN-VALUE   = "L" .
+           END.
+
+           IF ef.mis-matf[3] NE 0 THEN DO:
+              dSuCost3:SCREEN-VALUE = string(ef.mis-matf[3]).
+              dEaCost3:SCREEN-VALUE = STRING( (ef.mis-matm[3] / ef.misQtyPer[3] ) / 1000) .
+              cMatLab3:SCREEN-VALUE   = "M" .
+           END.
+           ELSE IF ef.mis-labf[3] GT 0 THEN DO:
+              dSuCost3:SCREEN-VALUE = string(ef.mis-labf[3]).
+              dEaCost3:SCREEN-VALUE = STRING( (ef.mis-labm[3] / ef.misQtyPer[3] ) / 1000) .
+              cMatLab3:SCREEN-VALUE   = "L" .
+           END.
+
+           IF ef.mis-matf[4] NE 0 THEN DO:
+              dSuCost4:SCREEN-VALUE = string(ef.mis-matf[4]).
+              dEaCost4:SCREEN-VALUE = STRING( (ef.mis-matm[4] / ef.misQtyPer[4] ) / 1000) .
+              cMatLab4:SCREEN-VALUE   = "M" .
+           END.
+           ELSE IF ef.mis-labf[4] GT 0 THEN DO:
+              dSuCost4:SCREEN-VALUE = string(ef.mis-labf[4]).
+              dEaCost4:SCREEN-VALUE = STRING( (ef.mis-labm[4] / ef.misQtyPer[4] ) / 1000) .
+              cMatLab4:SCREEN-VALUE   = "L" .
+           END.
+
+           IF ef.mis-matf[5] NE 0 THEN DO:
+              dSuCost5:SCREEN-VALUE = string(ef.mis-matf[5]).
+              dEaCost5:SCREEN-VALUE = STRING( (ef.mis-matm[5] / ef.misQtyPer[5] ) / 1000) .
+              cMatLab5:SCREEN-VALUE   = "M" .
+           END.
+           ELSE IF ef.mis-labf[5] GT 0 THEN DO:
+              dSuCost5:SCREEN-VALUE = string(ef.mis-labf[5]).
+              dEaCost5:SCREEN-VALUE = STRING( (ef.mis-labm[5] / ef.misQtyPer[5] ) / 1000) .
+              cMatLab5:SCREEN-VALUE   = "L" .
+           END.
+
+            
+            
+           FIND FIRST bff-e-itemfg-vend NO-LOCK
+                WHERE bff-e-itemfg-vend.company = eb.company 
+                 AND bff-e-itemfg-vend.est-no = eb.est-no 
+                 AND bff-e-itemfg-vend.eqty = eb.eqty 
+                 AND bff-e-itemfg-vend.form-no = eb.form-no 
+                 AND bff-e-itemfg-vend.blank-no = eb.blank-no
+                 AND bff-e-itemfg-vend.vend-no NE ""  NO-ERROR .
+            IF NOT AVAIL bff-e-itemfg-vend  THEN
+                FIND FIRST bff-e-itemfg-vend NO-LOCK
+                WHERE bff-e-itemfg-vend.company = eb.company 
+                 AND bff-e-itemfg-vend.est-no = eb.est-no 
+                 AND bff-e-itemfg-vend.eqty = eb.eqty 
+                 AND bff-e-itemfg-vend.form-no = eb.form-no 
+                 AND bff-e-itemfg-vend.blank-no = eb.blank-no
+                 AND bff-e-itemfg-vend.vend-no EQ ""  NO-ERROR.
+
+            IF AVAIL bff-e-itemfg-vend THEN
+                ASSIGN
+                cVendor:SCREEN-VALUE     = bff-e-itemfg-vend.vend-no   
+                cVendorItem:SCREEN-VALUE = bff-e-itemfg-vend.vend-item 
+                cCostUom:SCREEN-VALUE    = bff-e-itemfg-vend.std-uom   .
+
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

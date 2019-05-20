@@ -111,12 +111,68 @@ FOR EACH ttInputEst NO-LOCK:
         eb.cas-pal      = ttInputEst.iPerPallet
         eb.tr-no        = ttInputEst.cPallet
         eb.cas-no       = ttInputEst.cBndlCode
+        eb.weight       = ttInputEst.dWeightPerM
+        eb.t-sqin        = ttInputEst.dProArea
         .
+
+     IF AVAIL est-qty THEN
+         ASSIGN 
+          est-qty.eqty   = ttInputEst.iQuantity
+          est-qty.qty[1] = ttInputEst.iQuantity
+          est-qty.qty[2] = ttInputEst.copy-qty[2]
+          est-qty.qty[3] = ttInputEst.copy-qty[3]
+          est-qty.qty[4] = ttInputEst.copy-qty[4]
+          est-qty.qty[5] = ttInputEst.copy-qty[5]
+          est-qty.qty[6] = ttInputEst.copy-qty[6]
+          est-qty.qty[7] = ttInputEst.copy-qty[7]
+          est-qty.qty[8] = ttInputEst.copy-qty[8]
+          est-qty.qty[9] = ttInputEst.copy-qty[9]
+          est-qty.qty[10] = ttInputEst.copy-qty[10]
+          est-qty.qty[11] = ttInputEst.copy-qty[11]
+          est-qty.qty[12] = ttInputEst.copy-qty[12]
+          est-qty.qty[13] = ttInputEst.copy-qty[13]
+          est-qty.qty[14] = ttInputEst.copy-qty[14]
+          est-qty.qty[15] = ttInputEst.copy-qty[15]
+          est-qty.qty[16] = ttInputEst.copy-qty[16]
+          est-qty.qty[17] = ttInputEst.copy-qty[17]
+          est-qty.qty[18] = ttInputEst.copy-qty[18]
+          est-qty.qty[19] = ttInputEst.copy-qty[19]
+          est-qty.qty[20] = ttInputEst.copy-qty[20]
+          
+          est-qty.qty[21] = ttInputEst.copy-rel[1]
+          est-qty.qty[22] = ttInputEst.copy-rel[2] 
+          est-qty.qty[23] = ttInputEst.copy-rel[3] 
+          est-qty.qty[24] = ttInputEst.copy-rel[4] 
+          est-qty.qty[25] = ttInputEst.copy-rel[5] 
+          est-qty.qty[26] = ttInputEst.copy-rel[6] 
+          est-qty.qty[27] = ttInputEst.copy-rel[7] 
+          est-qty.qty[28] = ttInputEst.copy-rel[8] 
+          est-qty.qty[29] = ttInputEst.copy-rel[9] 
+          est-qty.qty[30] = ttInputEst.copy-rel[10]
+          est-qty.qty[31] = ttInputEst.copy-rel[11] 
+          est-qty.qty[32] = ttInputEst.copy-rel[12] 
+          est-qty.qty[33] = ttInputEst.copy-rel[13] 
+          est-qty.qty[34] = ttInputEst.copy-rel[14] 
+          est-qty.qty[35] = ttInputEst.copy-rel[15] 
+          est-qty.qty[36] = ttInputEst.copy-rel[16] 
+          est-qty.qty[37] = ttInputEst.copy-rel[17] 
+          est-qty.qty[38] = ttInputEst.copy-rel[18] 
+          est-qty.qty[39] = ttInputEst.copy-rel[19] 
+          est-qty.qty[40] = ttInputEst.copy-rel[20]  .
         
-    IF ttInputEst.cEstType EQ "MiscEstimate" THEN
+    IF ttInputEst.cEstType EQ "MiscEstimate" THEN do:
         ASSIGN  
             est.estimateTypeID = "MISC" 
             eb.pur-man         = YES .
+
+      IF NOT CAN-FIND(FIRST itemfg
+                  WHERE itemfg.company EQ eb.company
+                    AND itemfg.i-no    EQ eb.stock-no) THEN DO:
+          FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+          FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+          RUN fg/ce-addfg.p (xeb.stock-no).
+      END.
+    END.
 
     IF eb.sman NE "" AND eb.comm EQ 0 THEN 
     DO:

@@ -645,8 +645,14 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
-   RUN new-state IN phandle ('update-begin':U).
+
+   IF AVAIL est AND  est.estimateTypeID = "MISC"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE
+       RUN new-state IN phandle ('update-begin':U).
 
 END.
 
@@ -5068,7 +5074,7 @@ PROCEDURE local-add-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-
+  DEFINE VARIABLE riRowidEbNew AS ROWID NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    ll-add-set = NO
@@ -5139,7 +5145,7 @@ PROCEDURE local-add-record :
   END.
   ELSE IF ls-add-what = "MiscEst" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
-      RUN est/dNewMiscEst.w .
+      RUN est/dNewMiscEst.w("",riRowidEbNew) .
       RUN pCreateMiscEstimate.
   END.
   ELSE DO:
@@ -8298,6 +8304,32 @@ PROCEDURE valid-wid-len :
       END.
     END.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+   DEF VAR char-hdl AS cha NO-UNDO.   
+   RUN get-link-handle IN adm-broker-hdl
+      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+   phandle = WIDGET-HANDLE(char-hdl).
+
+   IF AVAIL est AND  est.estimateTypeID = "MISC"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE
+       RUN new-state IN phandle ('update-begin':U).
 
 END PROCEDURE.
 

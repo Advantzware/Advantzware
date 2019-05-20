@@ -2160,3 +2160,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord V-table-Win 
+PROCEDURE pUpdateRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+   DEF VAR char-hdl AS cha NO-UNDO.   
+   RUN get-link-handle IN adm-broker-hdl
+      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+   phandle = WIDGET-HANDLE(char-hdl).
+
+   IF AVAIL est AND  est.estimateTypeID = "MISC" AND AVAIL eb  THEN do:
+       RUN est/dNewMiscCost.w(INPUT ROWID(eb)) .
+       RUN local-display-fields.
+   END.
+   ELSE
+       RUN new-state IN phandle ('update-begin':U).
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

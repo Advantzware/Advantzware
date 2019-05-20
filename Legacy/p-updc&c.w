@@ -109,7 +109,7 @@ DEFINE BUTTON Btn-Save
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 31 BY 1.76.
+     SIZE 21 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -253,8 +253,14 @@ DO:
      DO WITH FRAME Panel-Frame:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
-           RUN new-state('update-begin':U).
-           ASSIGN add-active = no.
+	  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"upd-miscsub-eb-target",OUTPUT char-hdl).
+            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+		RUN pUpdateRecord IN WIDGET-HANDLE(char-hdl) .
+	    end.
+            ELSE DO:
+		RUN new-state('update-begin':U).
+                ASSIGN add-active = no.
+	    END.
         END.
         ELSE 
         DO: /* Save */
@@ -298,6 +304,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
+  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -565,6 +572,7 @@ DO WITH FRAME Panel-Frame:
     IF NOT v-can-update THEN ASSIGN btn-save:SENSITIVE = NO.
     IF NOT v-can-update THEN ASSIGN btn-copy:SENSITIVE = NO.
   END.
+     btn-copy:visible in FRAME {&FRAME-NAME} = no .
 
 END. /* DO WITH FRAME */
 END PROCEDURE.
