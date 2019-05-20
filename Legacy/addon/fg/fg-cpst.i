@@ -19,7 +19,9 @@ for each {1}fg-rctd
          NO-LOCK NO-ERROR.
         
     IF NOT AVAIL itemfg THEN NEXT.
-
+    
+    {1}fg-rctd.post-date = TODAY.
+    
     release b2-fg-bin.        
             
     /* Find Bin for that specific Job# Sequence & if avail
