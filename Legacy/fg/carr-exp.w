@@ -56,13 +56,13 @@ DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
-ASSIGN cTextListToSelect = "Carrier,Description,Location,Loc Description,Charge Method "
+ASSIGN cTextListToSelect = "Carrier,Description,Location,Loc Description,Charge Method,Inactive"
 
-      cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method "
+      cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method,inactive"
        .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Carrier,Description,Location,Loc Description,Charge Method " .
+ASSIGN cTextListToDefault  = "Carrier,Description,Location,Loc Description,Charge Method,Inactive" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -84,7 +84,7 @@ sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
 btn-ok btn-cancel Btn_Def
 &Scoped-Define DISPLAYED-OBJECTS begin_carr-no end_carr-no  ~
  sl_avail ~
-sl_selected tb_excel tb_runExcel fi_file 
+sl_selected tb_excel tb_runExcel fi_file
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -754,7 +754,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_carr-no end_carr-no sl_avail sl_selected tb_excel 
-          tb_runExcel fi_file 
+          tb_runExcel fi_file
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_carr-no end_carr-no  sl_avail Btn_Add 
          sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
@@ -1031,6 +1031,11 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         END.
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
+        END.
+        WHEN "inactive" THEN DO:
+            IF NOT DYNAMIC-FUNCTION("IsActive", ipb-itemfg.rec_key) THEN
+                lc-return = "Yes".
+            ELSE lc-return = "No".
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:

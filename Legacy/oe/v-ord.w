@@ -7081,23 +7081,29 @@ PROCEDURE valid-carrier :
 {&methods/lValidateError.i YES}
      ASSIGN lErrorValid = YES .
 DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST carrier  
-        WHERE carrier.company EQ g_company 
-         AND carrier.loc = g_loc
-         AND carrier.carrier EQ oe-ord.carrier:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
-    IF AVAIL carrier THEN DO:
-        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
-            MESSAGE "Please note: Carrier " oe-ord.carrier:SCREEN-VALUE " is valid but currently inactive"
-            VIEW-AS ALERT-BOX INFO.
-        lErrorValid = NO .
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ g_company 
+        AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+        AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+        NO-ERROR.
+    IF AVAIL shipto THEN do:
+        FIND FIRST carrier  
+            WHERE carrier.company EQ g_company 
+            AND carrier.loc = shipto.loc
+            AND carrier.carrier EQ oe-ord.carrier:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        IF AVAIL carrier THEN DO:
+            IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+                MESSAGE "Please note: Carrier " oe-ord.carrier:SCREEN-VALUE " is valid but currently inactive"
+                    VIEW-AS ALERT-BOX INFO.
+                lErrorValid = NO .
+            END.
         END.
-    END.
-
-    IF oe-ord.carrier:screen-value <> "" AND NOT AVAIL carrier
-    THEN DO:                              
-         MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
-         lErrorValid = NO .                                
+        IF oe-ord.carrier:screen-value <> "" AND NOT AVAIL carrier
+            THEN DO:                              
+            MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
+            lErrorValid = NO .                                
+        END.
     END.
 END.
     {&methods/lValidateError.i NO} 

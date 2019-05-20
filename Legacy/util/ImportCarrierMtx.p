@@ -101,6 +101,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidCarrier IN hdValidator (ipbf-ttImportCarrierMtx.carrier, YES, ipbf-ttImportCarrierMtx.company, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
+    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
    
     
 END PROCEDURE.
