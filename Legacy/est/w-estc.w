@@ -525,6 +525,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_fgadd. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_fgadd ).
        RUN add-link IN adm-broker-hdl (h_fgadd, 'fgadd':U , h_p-estc ).
+       RUN add-link IN adm-broker-hdl (h_p-estc, 'upd-viewtab-eb':U , h_b-estitm ).
 
     END. /* Page 2 */
     WHEN 3 THEN DO:
@@ -836,6 +837,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_v-navef-2. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-navef-2 ).
+       RUN add-link IN adm-broker-hdl (h_p-updc&c, 'upd-miscsub-eb':U , h_v-est4 ).
 
     END. /* Page 7 */
 

@@ -111,7 +111,7 @@ itemfg.palletVolume
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
-RECT-11 RECT-12 
+RECT-11 RECT-12 btn_misc-est
 &Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.setupDate ~
 itemfg.i-no itemfg.isaset itemfg.part-no itemfg.i-name itemfg.part-dscr1 ~
 itemfg.part-dscr2 itemfg.part-dscr3 itemfg.spare-char-1 itemfg.exempt-disc ~
@@ -200,6 +200,10 @@ DEFINE VARIABLE tg-Freeze-weight AS LOGICAL INITIAL no
      LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 3 BY .81 NO-UNDO.
+
+DEFINE BUTTON btn_misc-est 
+     LABEL "Releases" 
+     SIZE 17 BY 1.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -480,6 +484,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     btn_misc-est AT ROW 20.33 COL 120 
      "Status:" VIEW-AS TEXT
           SIZE 8 BY .95 AT ROW 3.05 COL 70
      "Ship Method:" VIEW-AS TEXT
@@ -1392,6 +1397,23 @@ ON VALUE-CHANGED OF itemfg.type-code IN FRAME F-Main /* Type Code */
 DO:
         RUN new-type.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_misc-est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_misc-est V-table-Win
+ON CHOOSE OF btn_misc-est IN FRAME F-Main
+DO: 
+  IF AVAIL itemfg AND itemfg.est-no NE "" THEN do:
+      FIND FIRST eb NO-LOCK
+          WHERE eb.company EQ cocode 
+            AND eb.est-no EQ itemfg.est-no NO-ERROR .
+      IF AVAIL eb THEN
+          RUN Est/EstReleases.w (INPUT ROWID(eb)) .
+  END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

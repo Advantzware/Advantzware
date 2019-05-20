@@ -37,7 +37,7 @@ DEFINE VARIABLE char-val        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-item-recid   AS RECID     NO-UNDO.
 DEFINE VARIABLE ll-order-warned AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL   NO-UNDO.
-
+DEFINE VARIABLE ilogic          AS LOGICAL   NO-UNDO.
 
 {Inventory/ttInventory.i "NEW SHARED"}
 
@@ -176,8 +176,9 @@ DEFINE FRAME Dialog-Frame
           SIZE 16.2 BY 1
           BGCOLOR 15 FONT 1
      estRelease.quantity AT ROW 1.29 COL 52 COLON-ALIGNED
-          LABEL "Master Quantity" FORMAT "->>,>>>,>>9"
-          VIEW-AS FILL-IN 
+          LABEL "Master Quantity" FORMAT "->>>>>>9"
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          DROP-DOWN-LIST
           SIZE 13 BY 1
           BGCOLOR 15 FONT 1
      estRelease.formNo AT ROW 1.29 COL 75.6 COLON-ALIGNED
@@ -572,6 +573,17 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME estRelease.quantity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.quantity Dialog-Frame
+ON VALUE-CHANGED OF estRelease.quantity IN FRAME Dialog-Frame /* Master Qty */
+DO:
+        ASSIGN estRelease.quantityRelease:SCREEN-VALUE = estRelease.quantity:SCREEN-VALUE .
+        RUN pCalAllUnit .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME estRelease.carrierID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.carrierID Dialog-Frame
@@ -751,6 +763,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_done:SENSITIVE                        = YES.
         btn_ok:HIDDEN                             = YES.
         btn_cancel:HIDDEN                         = YES.
+        estRelease.stackHeight:VISIBLE IN FRAME {&FRAME-NAME} = NO.
+        estRelease.storageCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
+        estRelease.handlingCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
+        estRelease.freightCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
+        estRelease.handlingCostTotal:VISIBLE IN FRAME {&FRAME-NAME} = NO.
+        estRelease.storageCostTotal:VISIBLE IN FRAME {&FRAME-NAME} = NO.
+        estRelease.createRelease:VISIBLE IN FRAME {&FRAME-NAME} = NO.
     END.
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -863,6 +882,25 @@ PROCEDURE display-item :
     DO:
         ASSIGN 
             fi_Pallet-count = STRING(quantityPerSubUnit * quantitySubUnitsPerUnit) .
+        
+        estRelease.quantity:LIST-ITEMS IN FRAME {&frame-name} = "".
+
+        IF AVAIL eb THEN
+            FIND est-qty 
+        WHERE est-qty.company EQ eb.company
+            AND est-qty.est-no EQ eb.est-no
+            AND est-qty.eqty EQ eb.eqty 
+            NO-ERROR.
+        
+        IF AVAIL est-qty THEN
+        
+        DO i = 1 TO 20:
+            IF est-qty.qty[i] NE 0 THEN
+                ilogic = estRelease.quantity:ADD-LAST (string(est-qty.qty[i])) IN FRAME {&frame-name} NO-ERROR.
+        END.
+        
+            estRelease.quantity:SCREEN-VALUE = string(estRelease.quantity)  NO-ERROR.
+
 
         DISPLAY estRelease.quantity estRelease.quantityRelease 
             estRelease.shipFromLocationID estRelease.customerID estRelease.shipToID estRelease.carrierID estRelease.carrierZone 
