@@ -91,6 +91,8 @@ PROCEDURE local-destroy:
     IF cellColumn[i]:NAME EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):NAME AND
        columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS 
        AND NOT lAutoSave THEN NEXT.
+    IF SEARCH(cellColumnDat) EQ ? THEN ASSIGN 
+        lAutoSave = TRUE. 
     IF NOT lAutoSave THEN 
         MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
         QUESTION BUTTONS YES-NO UPDATE saveChanges.
