@@ -292,7 +292,7 @@ DO:
         op-tot[5]   = op-tot[5] + (ctrl2[2] + ctrl2[3]).
 END.
 IF DYNAMIC-FUNCTION('UseReleasesForFreightAndWarehousing' IN hFreightProcs,xeb.company) THEN DO:
-    RUN GetFreightForEstimate IN hFreightProcs (xeb.company, xeb.est-no, qty, 
+    RUN GetFreightForEstimateBlank IN hFreightProcs (xeb.company, xeb.est-no, qty, xeb.form-no, xeb.blank-no, 
             OUTPUT fr-tot).
             
 END.
