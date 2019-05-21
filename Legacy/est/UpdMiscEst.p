@@ -76,7 +76,7 @@ FOR EACH ttInputEst NO-LOCK:
         eb.tr-no        = ttInputEst.cPallet
         eb.cas-no       = ttInputEst.cBndlCode
         eb.weight       = ttInputEst.dWeightPerM
-        eb.t-sqin        = ttInputEst.dProArea
+        eb.stackHeight  = ttInputEst.iStackHeight
         .
 
      IF AVAIL est-qty THEN do:

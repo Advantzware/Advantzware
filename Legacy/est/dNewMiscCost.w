@@ -25,6 +25,9 @@ CREATE WIDGET-POOL.
 
 DEFINE INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
 DEFINE VARIABLE opCADCAM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lButtonLabel AS LOGICAL NO-UNDO .
+IF PROGRAM-NAME(2) MATCHES "*est/v-est4.*"  THEN
+    ASSIGN lButtonLabel = YES .
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
@@ -97,7 +100,7 @@ DEFINE VARIABLE ilogic           AS LOG     NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cVendor cVendorItem ~
+&Scoped-Define ENABLED-OBJECTS quantity cVendor cVendorItem ~
 cCostUom cItemDscr1 dSuCost1 dEaCost1 iQtyPer1 cCostType1 cMatLab1 ~
 cItemDscr2 dSuCost2 dEaCost2 iQtyPer2 cCostType2 cMatLab2 cItemDscr3 ~
 dSuCost3 dEaCost3 iQtyPer3 cCostType3 cMatLab3 cItemDscr4 dSuCost4 dEaCost4 ~
@@ -931,7 +934,7 @@ PROCEDURE enable_UI :
           cCostType4 cMatLab4 cItemDscr5 dSuCost5 dEaCost5 iQtyPer5 cCostType5 
           cMatLab5 iForm iBlank est-no cust-name ship-name 
       WITH FRAME D-Dialog.
-  ENABLE quantity cCustNo ship-to cVendor cVendorItem cCostUom cItemDscr1 
+  ENABLE quantity cVendor cVendorItem cCostUom cItemDscr1 
          dSuCost1 dEaCost1 iQtyPer1 cCostType1 cMatLab1 cItemDscr2 dSuCost2 
          dEaCost2 iQtyPer2 cCostType2 cMatLab2 cItemDscr3 dSuCost3 dEaCost3 
          iQtyPer3 cCostType3 cMatLab3 cItemDscr4 dSuCost4 dEaCost4 iQtyPer4 
@@ -1017,14 +1020,16 @@ PROCEDURE pAssignValues :
                 ASSIGN
                     ef.mis-matf[2] = dSuCost2 
                     ef.mis-matm[2] = dEaCost2 * iQtyPer2 * 1000  
-                    ef.mis-labf[2] = 0.
+                    ef.mis-labf[2] = 0
+                    ef.mis-labm[2] = 0.
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[2] = dSuCost2 
                     ef.mis-labm[2] = dEaCost2 * iQtyPer2 * 1000
-                    ef.mis-matf[2] = 0 .
+                    ef.mis-matf[2] = 0
+                    ef.mis-matm[2] = 0 .
             END.
 
             IF cMatLab3 EQ "M" THEN 
@@ -1032,14 +1037,16 @@ PROCEDURE pAssignValues :
                 ASSIGN
                     ef.mis-matf[3] = dSuCost3 
                     ef.mis-matm[3] = dEaCost3 * iQtyPer3 * 1000 
-                    ef.mis-labf[3] = 0 .
+                    ef.mis-labf[3] = 0 
+                    ef.mis-labm[3] = 0.
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[3] = dSuCost3 
                     ef.mis-labm[3] = dEaCost3 * iQtyPer3 * 1000 
-                    ef.mis-matf[3] = 0.
+                    ef.mis-matf[3] = 0
+                    ef.mis-matm[3] = 0.
             END.
 
             IF cMatLab4 EQ "M" THEN 
@@ -1047,14 +1054,16 @@ PROCEDURE pAssignValues :
                 ASSIGN
                     ef.mis-matf[4] = dSuCost4 
                     ef.mis-matm[4] = dEaCost4 * iQtyPer4 * 1000
-                     ef.mis-labf[4] = 0  .
+                    ef.mis-labf[4] = 0 
+                    ef.mis-labm[4] = 0 .
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[4] = dSuCost4 
                     ef.mis-labm[4] = dEaCost4 * iQtyPer4 * 1000
-                    ef.mis-matf[4] = 0 .
+                    ef.mis-matf[4] = 0 
+                    ef.mis-matm[4] = 0.
             END.
 
             IF cMatLab5 EQ "M" THEN 
@@ -1062,14 +1071,16 @@ PROCEDURE pAssignValues :
                 ASSIGN
                     ef.mis-matf[5] = dSuCost5 
                     ef.mis-matm[5] = dEaCost5 * iQtyPer5 * 1000  
-                    ef.mis-labf[5] = 0.
+                    ef.mis-labf[5] = 0
+                    ef.mis-labm[5] = 0.
             END.
             ELSE 
             DO:
                 ASSIGN
                     ef.mis-labf[5] = dSuCost5 
                     ef.mis-labm[5] = dEaCost5 * iQtyPer5 * 1000 
-                    ef.mis-matf[5] = 0.
+                    ef.mis-matf[5] = 0
+                    ef.mis-matm[5] = 0.
             END.
 
             ASSIGN
@@ -1267,21 +1278,26 @@ PROCEDURE pAssignValues :
                  AND bff-e-itemfg-vend.vend-no EQ ""  NO-ERROR.
             
             IF AVAIL bff-e-itemfg-vend THEN do:
-
+ 
                ASSIGN
                    bff-e-itemfg-vend.vend-no   = cVendor 
                    bff-e-itemfg-vend.vend-item = cVendorItem 
                    bff-e-itemfg-vend.std-uom   = cCostUom 
-                   bff-e-itemfg-vend.run-qty[1]  = dEaCost1 * iQtyPer1 * 1000
-                   bff-e-itemfg-vend.run-cost[1] = dSuCost1 
-                   bff-e-itemfg-vend.run-qty[2]  = dEaCost2 * iQtyPer2 * 1000
-                   bff-e-itemfg-vend.run-cost[2] = dSuCost2  
-                   bff-e-itemfg-vend.run-qty[3]  = dEaCost3 * iQtyPer3 * 1000
-                   bff-e-itemfg-vend.run-cost[3] = dSuCost3  
-                   bff-e-itemfg-vend.run-qty[4]  = dEaCost4 * iQtyPer4 * 1000
-                   bff-e-itemfg-vend.run-cost[4] = dSuCost4  
-                   bff-e-itemfg-vend.run-qty[5]  = dEaCost5 * iQtyPer5 * 1000
-                   bff-e-itemfg-vend.run-cost[5] = dSuCost5  .  
+                   bff-e-itemfg-vend.run-qty[1]  = iQtyPer1 * 1000
+                   bff-e-itemfg-vend.run-cost[1] = dEaCost1 * iQtyPer1 * 1000
+                   bff-e-itemfg-vend.setups[1]   = dSuCost1
+                   bff-e-itemfg-vend.run-qty[2]  = iQtyPer2 * 1000
+                   bff-e-itemfg-vend.run-cost[2] = dEaCost2 * iQtyPer2 * 1000  
+                   bff-e-itemfg-vend.setups[2]   = dSuCost2
+                   bff-e-itemfg-vend.run-qty[3]  = iQtyPer3 * 1000
+                   bff-e-itemfg-vend.run-cost[3] = dEaCost3 * iQtyPer3 * 1000 
+                   bff-e-itemfg-vend.setups[3]   = dSuCost3
+                   bff-e-itemfg-vend.run-qty[4]  = iQtyPer4 * 1000
+                   bff-e-itemfg-vend.run-cost[4] = dEaCost4 * iQtyPer4 * 1000 
+                   bff-e-itemfg-vend.setups[4]   = dSuCost4
+                   bff-e-itemfg-vend.run-qty[5]  = iQtyPer5 * 1000
+                   bff-e-itemfg-vend.run-cost[5] = dEaCost5 * iQtyPer5 * 1000
+                   bff-e-itemfg-vend.setups[5]   = dSuCost5  .  
             END.
 
             IF NOT AVAILABLE bff-e-itemfg-vend THEN DO:
@@ -1306,16 +1322,21 @@ PROCEDURE pAssignValues :
                         e-itemfg-vend.vend-item = cVendorItem 
                         e-itemfg-vend.std-uom   = cCostUom .
                     ASSIGN
-                        e-itemfg-vend.run-qty[1]  = dEaCost1 * iQtyPer1 * 1000
-                        e-itemfg-vend.run-cost[1] = dSuCost1 
-                        e-itemfg-vend.run-qty[2]  = dEaCost2 * iQtyPer2 * 1000
-                        e-itemfg-vend.run-cost[2] = dSuCost2  
-                        e-itemfg-vend.run-qty[3]  = dEaCost3 * iQtyPer3 * 1000
-                        e-itemfg-vend.run-cost[3] = dSuCost3  
-                        e-itemfg-vend.run-qty[4]  = dEaCost4 * iQtyPer4 * 1000
-                        e-itemfg-vend.run-cost[4] = dSuCost4  
-                        e-itemfg-vend.run-qty[5]  = dEaCost5 * iQtyPer5 * 1000
-                        e-itemfg-vend.run-cost[5] = dSuCost5  .  
+                        e-itemfg-vend.run-qty[1]  = iQtyPer1 * 1000
+                        e-itemfg-vend.run-cost[1] = dEaCost1 * iQtyPer1 * 1000 
+                        e-itemfg-vend.setups[1]   = dSuCost1 
+                        e-itemfg-vend.run-qty[2]  = iQtyPer2 * 1000
+                        e-itemfg-vend.run-cost[2] = dEaCost2 * iQtyPer2 * 1000  
+                        e-itemfg-vend.setups[2]   = dSuCost2
+                        e-itemfg-vend.run-qty[3]  = iQtyPer3 * 1000
+                        e-itemfg-vend.run-cost[3] = dEaCost3 * iQtyPer3 * 1000  
+                        e-itemfg-vend.setups[3]   = dSuCost3
+                        e-itemfg-vend.run-qty[4]  = iQtyPer4 * 1000
+                        e-itemfg-vend.run-cost[4] = dEaCost4 * iQtyPer4 * 1000  
+                        e-itemfg-vend.setups[4]   = dSuCost4
+                        e-itemfg-vend.run-qty[5]  = iQtyPer5 * 1000
+                        e-itemfg-vend.run-cost[5] = dEaCost5 * iQtyPer5 * 1000
+                        e-itemfg-vend.setups[5]   = dSuCost5  .  
     
                     IF NOT CAN-FIND(FIRST e-itemfg OF e-itemfg-vend) THEN 
                     DO:
@@ -1395,6 +1416,10 @@ PROCEDURE pDisplayValue :
    DO WITH FRAME {&frame-name}:
       
         APPLY "entry" TO cVendor IN FRAME {&FRAME-NAME}.
+
+        IF lButtonLabel THEN
+            ASSIGN Btn_OK:LABEL = "Save" .
+        quantity:VISIBLE  = NO .
 
         FIND FIRST eb WHERE ROWID(eb) EQ iprRowid  NO-LOCK NO-ERROR.
         IF AVAILABLE eb THEN 

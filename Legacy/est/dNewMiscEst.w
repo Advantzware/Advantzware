@@ -98,11 +98,11 @@ DEFINE VARIABLE lv-crt-est-rowid AS ROWID   NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
 item-name item-dscr len wid dep style-cod board fg-cat sub-unit iUnitCount ~
 iPerPallet pallet Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 dWeightPerM ~
-dProductArea 
+iStackHeight
 &Scoped-Define DISPLAYED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
 item-name item-dscr len wid dep style-cod style-dscr board fg-cat sub-unit ~
 sun-Unit-dscr iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount ~
-cust-name ship-name board-dscr cat-dscr dWeightPerM dProductArea 
+cust-name ship-name board-dscr cat-dscr dWeightPerM iStackHeight 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -165,16 +165,21 @@ DEFINE VARIABLE dep AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0
      SIZE 10.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dProductArea AS DECIMAL FORMAT ">>>9.999<<":U INITIAL 0 
-     LABEL "Product Area(AQIN)" 
-     VIEW-AS FILL-IN 
+DEFINE VARIABLE dWeightPerM AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+     LABEL "Weight Per M" 
+     VIEW-AS FILL-IN
      SIZE 15 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dWeightPerM AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
-     LABEL "Weight Per M" 
-     VIEW-AS FILL-IN 
-     SIZE 15 BY 1
+DEFINE VARIABLE iStackHeight AS INTEGER FORMAT ">":U INITIAL 1 
+     LABEL "Stack Height" 
+     VIEW-AS COMBO-BOX INNER-LINES 4
+     LIST-ITEM-PAIRS "1","1",
+                     "2","2",
+                     "3","3",
+                     "4","4"
+     DROP-DOWN-LIST
+     SIZE 8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE fg-cat AS CHARACTER FORMAT "X(5)":U 
@@ -326,8 +331,8 @@ DEFINE FRAME D-Dialog
      pallet AT ROW 9.29 COL 77.2 COLON-ALIGNED WIDGET-ID 224
      pallet-dscr AT ROW 9.29 COL 91.8 COLON-ALIGNED NO-LABEL WIDGET-ID 226
      tot-iUnitCount AT ROW 10.71 COL 90 COLON-ALIGNED WIDGET-ID 228
-     dWeightPerM AT ROW 12.1 COL 90 COLON-ALIGNED WIDGET-ID 238
-     dProductArea AT ROW 13.52 COL 90 COLON-ALIGNED WIDGET-ID 240
+     dWeightPerM AT ROW 12.1 COL 90 COLON-ALIGNED WIDGET-ID 238 
+     iStackHeight AT ROW 13.5 COL 90 COLON-ALIGNED WIDGET-ID 248
      Btn_OK AT ROW 15.67 COL 45.4
      Btn_Cancel AT ROW 15.67 COL 66.8
      cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 202
@@ -980,7 +985,7 @@ DO:
         DEFINE VARIABLE date-val2  AS cha   NO-UNDO.
 
     
-        run est/estqtyfr.w (len:screen-value,wid:SCREEN-VALUE, quantity:SCREEN-VALUE, output char-val, output char-val2, output date-val, output date-val2) .
+        run est/estqtyfr.w (len:screen-value,wid:SCREEN-VALUE, quantity:SCREEN-VALUE,ipriRowid, output char-val, output char-val2, output date-val, output date-val2) .
         if char-val <> "?" 
            then assign quantity:screen-value = entry(1,char-val)
                        lv-copy-qty[1] = integer(entry(1,char-val))
@@ -1343,7 +1348,7 @@ PROCEDURE create-ttfrmout :
         ttInputEst.iQuantity        = quantity 
         ttInputEst.cCategory        = fg-cat 
         ttInputEst.dWeightPerM      = dWeightPerM
-        ttInputEst.dProArea         = dProductArea 
+        ttInputEst.iStackHeight     = iStackHeight
         ttInputEst.cEstType         = "MiscEstimate" 
         .
      ASSIGN 
@@ -1437,11 +1442,11 @@ PROCEDURE enable_UI :
   DISPLAY quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
           dep style-cod style-dscr board fg-cat sub-unit sun-Unit-dscr 
           iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount cust-name 
-          ship-name board-dscr cat-dscr dWeightPerM dProductArea 
+          ship-name board-dscr cat-dscr dWeightPerM iStackHeight 
       WITH FRAME D-Dialog.
   ENABLE quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
          dep style-cod board fg-cat sub-unit iUnitCount iPerPallet pallet 
-         Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 dWeightPerM dProductArea 
+         Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 dWeightPerM iStackHeight  
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1818,7 +1823,11 @@ PROCEDURE pDisplayValue :
              iPerPallet:SCREEN-VALUE = string(eb.cas-pal)
              pallet:SCREEN-VALUE     = eb.tr-no
              dWeightPerM:SCREEN-VALUE = string(eb.weight)
-             dProductArea:SCREEN-VALUE = string(eb.t-sqin) . 
+             tot-iUnitCount:SCREEN-VALUE = string(eb.cas-cnt * eb.cas-pal )
+              . 
+        IF eb.stackHeight GT 0 THEN 
+            ASSIGN iStackHeight:SCREEN-VALUE = string(eb.stackHeight) .
+        ELSE iStackHeight:SCREEN-VALUE = string("1") .
 
         FIND FIRST ITEM NO-LOCK WHERE ITEM.company = cocode
             AND ITEM.i-no EQ pallet:SCREEN-VALUE NO-ERROR .

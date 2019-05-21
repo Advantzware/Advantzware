@@ -194,10 +194,19 @@
      end.
      ASSIGN
        v-do-all-forms-ink = NO.
-
+     IF xest.estimateTypeID EQ 'Misc' THEN DO:
+     assign do-speed  = NO 
+            do-mr     = NO
+            do-gsa    = NO
+            v-drop-rc = NO
+            v-board-cost-from-blank = NO
+	    v-do-all-forms-ink = NO.
+    END.
+    ELSE DO:
      run est/getqty.w (input-output do-speed, input-output do-mr, input-output do-gsa, input-output v-drop-rc,
                        input-output v-match-up, INPUT-OUTPUT v-do-all-forms-ink, INPUT-OUTPUT v-board-cost-from-blank, input no, output lv-error). 
      if lv-error then return error.
+    END.
 
      IF lv-override THEN DO:
          for each probe where probe.company = xest.company and
