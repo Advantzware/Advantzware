@@ -160,20 +160,6 @@ FOR EACH ttInputEst NO-LOCK:
           est-qty.qty[39] = ttInputEst.copy-rel[19] 
           est-qty.qty[40] = ttInputEst.copy-rel[20]  .
         
-    IF ttInputEst.cEstType EQ "MiscEstimate" THEN do:
-        ASSIGN  
-            est.estimateTypeID = "MISC" 
-            eb.pur-man         = YES .
-
-      IF NOT CAN-FIND(FIRST itemfg
-                  WHERE itemfg.company EQ eb.company
-                    AND itemfg.i-no    EQ eb.stock-no) THEN DO:
-          FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
-          FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
-          RUN fg/ce-addfg.p (xeb.stock-no).
-      END.
-    END.
-
     IF eb.sman NE "" AND eb.comm EQ 0 THEN 
     DO:
         FIND FIRST sman NO-LOCK 
@@ -285,7 +271,21 @@ FOR EACH ttInputEst NO-LOCK:
         INPUT 0).
     
     RUN pCalcPacking(ROWID(eb)).
+    IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
+        ASSIGN  
+            est.estimateTypeID = "MISC" 
+            eb.pur-man         = YES .
 
+      IF NOT CAN-FIND(FIRST itemfg
+                  WHERE itemfg.company EQ eb.company
+                    AND itemfg.i-no    EQ eb.stock-no) THEN DO:
+          FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+          FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+          RUN fg/ce-addfg.p (xeb.stock-no).
+      END.
+      RUN cec/mach-seq.p (eb.form-no, eb.eqty, NO).
+    END.
+    
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */
 /*    DO:                                                                                   */
