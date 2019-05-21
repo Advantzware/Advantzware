@@ -568,6 +568,8 @@ IF NOT VALID-HANDLE(hCostProcs) THEN
                 itemfg.t-len,
                 itemfg.t-wid,
                 itemfg.t-dep,
+                1,
+                1,
                 dCostPerUOMTotal
                 )            
           itemfg.std-lab-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
@@ -577,6 +579,8 @@ IF NOT VALID-HANDLE(hCostProcs) THEN
                 itemfg.t-len,
                 itemfg.t-wid,
                 itemfg.t-dep,
+                1,
+                1,
                 dCostPerUOMDL
                 ) 
           itemfg.std-fix-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
@@ -586,6 +590,8 @@ IF NOT VALID-HANDLE(hCostProcs) THEN
                 itemfg.t-len,
                 itemfg.t-wid,
                 itemfg.t-dep,
+                1,
+                1,
                 dCostPerUOMFO
                 ) 
           itemfg.std-var-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
@@ -595,6 +601,8 @@ IF NOT VALID-HANDLE(hCostProcs) THEN
                 itemfg.t-len,
                 itemfg.t-wid,
                 itemfg.t-dep,
+                1,
+                1,
                 dCostPerUOMVO
                 ) 
           itemfg.std-mat-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
@@ -604,6 +612,8 @@ IF NOT VALID-HANDLE(hCostProcs) THEN
                 itemfg.t-len,
                 itemfg.t-wid,
                 itemfg.t-dep,
+                1,
+                1,
                 dCostPerUOMDM
                 )                                 
                 .
