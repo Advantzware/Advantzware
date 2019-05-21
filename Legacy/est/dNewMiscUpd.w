@@ -214,6 +214,16 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
+    estRelease.stackHeight AT ROW 8.86 COL 21.8 COLON-ALIGNED
+          LABEL "Stack Height" FORMAT ">>9" 
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "1","1",
+                     "2","2",
+                     "3","3",
+                     "4","4"
+          DROP-DOWN-LIST
+          SIZE 8 BY 1
+          BGCOLOR 15 FONT 1
      fi_Pallet-count AT ROW 6.52 COL 80 COLON-ALIGNED
      estRelease.quantityRelease AT ROW 3.38 COL 80 COLON-ALIGNED
           LABEL "Release Quantity" FORMAT "->>,>>>,>>9"
@@ -230,25 +240,20 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.quantityOfUnits AT ROW 7.57 COL 80 COLON-ALIGNED
+     estRelease.quantityOfUnits AT ROW 7.50 COL 80 COLON-ALIGNED
           LABEL "Pallets" FORMAT "->>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.palletMultiplier AT ROW 8.86 COL 80 COLON-ALIGNED
+     estRelease.palletMultiplier AT ROW 8.50 COL 80 COLON-ALIGNED
           LABEL "Pallet Multiplier" FORMAT ">>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.monthsAtShipFrom AT ROW 9.95 COL 80 COLON-ALIGNED
+     estRelease.monthsAtShipFrom AT ROW 9.56 COL 80 COLON-ALIGNED
           LABEL "Months at Ship From" FORMAT "->>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-          BGCOLOR 15 FONT 1
-     estRelease.stackHeight AT ROW 12.95 COL 17 COLON-ALIGNED
-          LABEL "Stack Height" FORMAT ">>>9"
-          VIEW-AS FILL-IN 
-          SIZE 20.2 BY 1
           BGCOLOR 15 FONT 1
      estRelease.storageCost AT ROW 12.95 COL 85 COLON-ALIGNED
           LABEL "Storage Cost Per Pallet Per Month at Ship From" FORMAT "->>>>9"
@@ -266,7 +271,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.freightCost AT ROW 12.95 COL 17.6 COLON-ALIGNED
+     estRelease.freightCost AT ROW 10.55 COL 80 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -371,7 +376,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN estRelease.shipToID IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.stackHeight IN FRAME Dialog-Frame
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+   EXP-LABEL EXP-FORMAT                                                */
 /* SETTINGS FOR FILL-IN estRelease.storageCost IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN estRelease.storageCostTotal IN FRAME Dialog-Frame
@@ -741,16 +746,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF ip-type NE "view" THEN 
     DO: 
+        
         RUN enable_UI.
         RUN display-item.
 
         ASSIGN 
             ll-order-warned = NO.
         btn_done:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-        estRelease.stackHeight:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.storageCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.handlingCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
-        estRelease.freightCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.handlingCostTotal:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.storageCostTotal:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.createRelease:VISIBLE IN FRAME {&FRAME-NAME} = NO.
@@ -763,15 +767,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_done:SENSITIVE                        = YES.
         btn_ok:HIDDEN                             = YES.
         btn_cancel:HIDDEN                         = YES.
-        estRelease.stackHeight:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.storageCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.handlingCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
-        estRelease.freightCost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.handlingCostTotal:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.storageCostTotal:VISIBLE IN FRAME {&FRAME-NAME} = NO.
         estRelease.createRelease:VISIBLE IN FRAME {&FRAME-NAME} = NO.
     END.
-
+   FIND CURRENT estRelease NO-LOCK NO-ERROR .
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -884,7 +886,6 @@ PROCEDURE display-item :
             fi_Pallet-count = STRING(quantityPerSubUnit * quantitySubUnitsPerUnit) .
         
         estRelease.quantity:LIST-ITEMS IN FRAME {&frame-name} = "".
-
         IF AVAIL eb THEN
             FIND est-qty 
         WHERE est-qty.company EQ eb.company
@@ -900,6 +901,9 @@ PROCEDURE display-item :
         END.
         
             estRelease.quantity:SCREEN-VALUE = string(estRelease.quantity)  NO-ERROR.
+            IF estRelease.stackHeight GT 0 THEN
+                estRelease.stackHeight:SCREEN-VALUE = STRING(estRelease.stackHeight) .
+            ELSE estRelease.stackHeight:SCREEN-VALUE = "1" .
 
 
         DISPLAY estRelease.quantity estRelease.quantityRelease 
@@ -952,7 +956,7 @@ PROCEDURE enable_UI :
   ENABLE estRelease.quantity estRelease.shipFromLocationID estRelease.shipToID 
          estRelease.carrierID estRelease.carrierZone estRelease.quantityRelease 
          estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit 
-         estRelease.palletMultiplier estRelease.monthsAtShipFrom 
+         estRelease.palletMultiplier estRelease.monthsAtShipFrom estRelease.stackHeight
          estRelease.createRelease Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
          RECT-39 RECT-40 
       WITH FRAME Dialog-Frame.

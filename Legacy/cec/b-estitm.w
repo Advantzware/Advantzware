@@ -387,13 +387,13 @@ DEFINE BROWSE br-estitm
       ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
       eb.procat FORMAT "x(5)":U COLUMN-FONT 2
       display-cw-dim(yes,eb.len) @ eb.len
-      eb.len FORMAT ">>9.99":U COLUMN-FONT 2
+      eb.len FORMAT ">>>>9.99":U COLUMN-FONT 2
       display-cw-dim(yes,eb.len) @ eb.len
       display-cw-dim(yes,eb.wid) @ eb.wid
-      eb.wid FORMAT ">>9.99":U COLUMN-FONT 2
+      eb.wid FORMAT ">>>>9.99":U COLUMN-FONT 2
       display-cw-dim(yes,eb.wid) @ eb.wid
       display-cw-dim(yes,eb.dep) @ eb.dep
-      eb.dep FORMAT ">>9.99":U COLUMN-FONT 2
+      eb.dep FORMAT ">>>>9.99":U COLUMN-FONT 2
       display-cw-dim(yes,eb.dep) @ eb.dep
       eb.form-no FORMAT ">9":U
       eb.blank-no FORMAT ">9":U
@@ -569,19 +569,19 @@ ASSIGN
      _FldNameList[17]   > "_<CALC>"
 "display-cw-dim(yes,eb.len) @ eb.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.len
-"eb.len" ? ">>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
 "display-cw-dim(yes,eb.len) @ eb.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
 "display-cw-dim(yes,eb.wid) @ eb.wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.eb.wid
-"eb.wid" ? ">>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
 "display-cw-dim(yes,eb.wid) @ eb.wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
 "display-cw-dim(yes,eb.dep) @ eb.dep" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.eb.dep
-"eb.dep" ? ">>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.dep" ? ">>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > "_<CALC>"
 "display-cw-dim(yes,eb.dep) @ eb.dep" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   = ASI.eb.form-no

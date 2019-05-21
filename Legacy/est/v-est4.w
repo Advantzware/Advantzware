@@ -2177,6 +2177,10 @@ PROCEDURE pUpdateRecord :
    IF AVAIL est AND  est.estimateTypeID = "MISC" AND AVAIL eb  THEN do:
        RUN est/dNewMiscCost.w(INPUT ROWID(eb)) .
        RUN local-display-fields.
+       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"upd-farm-target",OUTPUT char-hdl).
+          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+              RUN local-open-query IN WIDGET-HANDLE(char-hdl) .
+          END.
    END.
    ELSE
        RUN new-state IN phandle ('update-begin':U).
