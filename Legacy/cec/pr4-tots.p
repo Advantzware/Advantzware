@@ -77,7 +77,7 @@ FIND FIRST xeb
    IF v-cewhspct THEN
      ctrl2[1] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10]) * ctrl[1].
    ELSE IF DYNAMIC-FUNCTION('UseReleasesForFreightAndWarehousing' IN hFreightProcs,xeb.company) THEN DO:
-       RUN GetStorageAndHandlingForEstimate IN hFreightProcs (xeb.company, xeb.est-no, qty, 
+       RUN GetStorageAndHandlingForEstimateBlank IN hFreightProcs (xeb.company, xeb.est-no, qty, xeb.form-no, xeb.blank-no,
             OUTPUT dStorageCostTotal, OUTPUT dHandlingCostTotal).
        ctrl2[1] = dStorageCostTotal + dHandlingCostTotal.
    END. 
