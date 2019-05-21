@@ -110,7 +110,8 @@ OUTPUT STREAM s3 TO VALUE(cOutDir + "\dynSubjectColumn.d").
 OUTPUT STREAM s4 TO VALUE(cOutDir + "\dynSubjectParamSet.d").
 FOR EACH dynSubject NO-LOCK WHERE 
     dynSubject.subjecttype EQ "system" AND 
-    dynSubject.user-id EQ "_default"
+    dynSubject.user-id EQ "_default" AND 
+    dynSubject.subjectID LE 5000
     BY dynSubject.subjectid:
     EXPORT STREAM s0 dynSubject.
     FOR EACH dynSubjectTable OF dynSubject NO-LOCK:
@@ -134,7 +135,8 @@ OUTPUT STREAM s4 CLOSE.
 
 OUTPUT TO VALUE(cOutDir + "\dynParam.d").
 FOR EACH dynParam NO-LOCK WHERE 
-    dynParam.paramType EQ "system":
+    dynParam.paramType EQ "system" AND 
+    dynParam.paramID LE 5000:
     EXPORT dynParam.
 END. /* each dynParam */
 OUTPUT CLOSE.
@@ -142,7 +144,8 @@ OUTPUT CLOSE.
 OUTPUT STREAM s0 TO VALUE(cOutDir + "\dynParamSet.d").
 OUTPUT STREAM s1 TO VALUE(cOutDir + "\dynParamSetDtl.d").
 FOR EACH dynParamSet NO-LOCK WHERE 
-    dynParamSet.paramSetType EQ "system":
+    dynParamSet.paramSetType EQ "system" AND 
+    dynParamSet.paramSetID LE 5000:
     EXPORT STREAM s0 dynParamSet.
     FOR EACH dynParamSetDtl OF dynParamSet NO-LOCK:
         EXPORT STREAM s1 dynParamSetDtl.
@@ -153,7 +156,8 @@ OUTPUT STREAM s1 CLOSE.
 
 OUTPUT TO VALUE(cOutDir + "\dynParamValue.d").
 FOR EACH dynParamValue NO-LOCK WHERE 
-    dynParamValue.user-id EQ "_default":
+    dynParamValue.user-id EQ "_default" AND 
+    dynParamValue.subjectID LE 5000:
     EXPORT dynParamValue.
 END. /* each dynParamValue */
 OUTPUT CLOSE.
