@@ -131,14 +131,6 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetRoutingForJob C-Win 
-FUNCTION fGetRoutingForJob RETURNS CHARACTER
-  ( ipEst AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
@@ -2581,31 +2573,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetRoutingForJob C-Win 
-FUNCTION fGetRoutingForJob RETURNS CHARACTER
-  ( ipEst AS CHARACTER ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
-
-    IF ipEst NE "" THEN DO:
-        FOR EACH est-op NO-LOCK
-            WHERE est-op.company = cocode 
-            AND est-op.est-no = ipEst 
-            AND est-op.line < 500  BREAK BY est-op.est-no :
-            IF NOT LAST( est-op.est-no) THEN
-                dResult = dResult + est-op.m-code + "," .
-            ELSE dResult = dResult + est-op.m-code .
-        END.
-    END.                
-
-    RETURN dResult.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-

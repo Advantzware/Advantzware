@@ -2,6 +2,11 @@
 Program: fgrep/r-fgrordN.i
 
 *****************************************************************************/
+DEFINE VARIABLE hftJobPros AS HANDLE NO-UNDO.
+
+RUN jc/JobProcs.p PERSISTENT SET hftJobPros.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftJobPros).
+
 for each itemfg
   where itemfg.company    eq cocode
   and itemfg.cust-no    ge v-cust[1]
@@ -298,7 +303,7 @@ for each itemfg
           END.
           li-avg-hist = li-avg-hist / display_hist .
 
-          cMachine = fGetRoutingForJob(INPUT itemfg.est-no ) .
+          RUN GetOperationsForEst(INPUT itemfg.company, INPUT itemfg.est-no, OUTPUT cMachine).
           
   if v-reord-qty gt 0 or v-prt-all then
   IF tb_history THEN DO:
@@ -491,5 +496,5 @@ for each itemfg
     
   END. /* not tb_hist */
 end. /* each itemfg */
-
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftJobPros).
 
