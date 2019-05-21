@@ -320,7 +320,7 @@ PROCEDURE GetOperationsForEst:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipEst        AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER buf-est-op FOR est-op.
     Main-Loop-Mach:
