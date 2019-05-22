@@ -20,7 +20,7 @@ for each {1}fg-rctd
         
     IF NOT AVAIL itemfg THEN NEXT.
     
-    {1}fg-rctd.post-date = TODAY.
+    {1}fg-rctd.post-date = v-post-date.
     
     release b2-fg-bin.        
             
