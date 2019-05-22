@@ -957,6 +957,8 @@ PROCEDURE pAssignValues :
         ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-ref-rec-qty AS RECID NO-UNDO.
     DEFINE VARIABLE lv-ref-rec-cst AS RECID NO-UNDO.
+    DEFINE VARIABLE dCalValueSetup AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dCalValueCost AS DECIMAL NO-UNDO .
     
     FIND FIRST eb WHERE ROWID(eb) EQ iprRowid  EXCLUSIVE-LOCK NO-ERROR.
         
@@ -1261,6 +1263,29 @@ PROCEDURE pAssignValues :
                 END.
             END.
 
+            
+                IF dSuCost1 GT 0 AND cCostType1 EQ "N" THEN
+                    ASSIGN
+                    dCalValueSetup = dSuCost1 
+                    dCalValueCost = dEaCost1 * iQtyPer1 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
+                IF dSuCost2 GT 0 AND cCostType2 EQ "N" THEN
+                    ASSIGN
+                    dCalValueSetup = dCalValueSetup + dSuCost2 
+                    dCalValueCost = dCalValueCost + dEaCost2 * iQtyPer2 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
+                IF dSuCost3 GT 0 AND cCostType3 EQ "N" THEN
+                    ASSIGN
+                    dCalValueSetup = dCalValueSetup + dSuCost3 
+                    dCalValueCost = dCalValueCost + dEaCost3 * iQtyPer3 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
+                IF dSuCost4 GT 0 AND cCostType4 EQ "N" THEN
+                    ASSIGN
+                    dCalValueSetup = dCalValueSetup + dSuCost4 
+                    dCalValueCost = dCalValueCost + dEaCost4 * iQtyPer4 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
+                IF dSuCost5 GT 0 AND cCostType5 EQ "N" THEN
+                    ASSIGN
+                    dCalValueSetup = dCalValueSetup + dSuCost5 
+                    dCalValueCost = dCalValueCost + dEaCost5 * iQtyPer5 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
+           
+
             FIND FIRST bff-e-itemfg-vend EXCLUSIVE-LOCK
                 WHERE bff-e-itemfg-vend.company = eb.company 
                  AND bff-e-itemfg-vend.est-no = eb.est-no 
@@ -1283,21 +1308,9 @@ PROCEDURE pAssignValues :
                    bff-e-itemfg-vend.vend-no   = cVendor 
                    bff-e-itemfg-vend.vend-item = cVendorItem 
                    bff-e-itemfg-vend.std-uom   = cCostUom 
-                   bff-e-itemfg-vend.run-qty[1]  = iQtyPer1 * 1000
-                   bff-e-itemfg-vend.run-cost[1] = dEaCost1 * iQtyPer1 * 1000
-                   bff-e-itemfg-vend.setups[1]   = dSuCost1
-                   bff-e-itemfg-vend.run-qty[2]  = iQtyPer2 * 1000
-                   bff-e-itemfg-vend.run-cost[2] = dEaCost2 * iQtyPer2 * 1000  
-                   bff-e-itemfg-vend.setups[2]   = dSuCost2
-                   bff-e-itemfg-vend.run-qty[3]  = iQtyPer3 * 1000
-                   bff-e-itemfg-vend.run-cost[3] = dEaCost3 * iQtyPer3 * 1000 
-                   bff-e-itemfg-vend.setups[3]   = dSuCost3
-                   bff-e-itemfg-vend.run-qty[4]  = iQtyPer4 * 1000
-                   bff-e-itemfg-vend.run-cost[4] = dEaCost4 * iQtyPer4 * 1000 
-                   bff-e-itemfg-vend.setups[4]   = dSuCost4
-                   bff-e-itemfg-vend.run-qty[5]  = iQtyPer5 * 1000
-                   bff-e-itemfg-vend.run-cost[5] = dEaCost5 * iQtyPer5 * 1000
-                   bff-e-itemfg-vend.setups[5]   = dSuCost5  .  
+                   bff-e-itemfg-vend.run-qty[1]  = 9999999
+                   bff-e-itemfg-vend.run-cost[1] = dCalValueCost
+                   bff-e-itemfg-vend.setups[1]   = dCalValueSetup .  
             END.
 
             IF NOT AVAILABLE bff-e-itemfg-vend THEN DO:
@@ -1322,21 +1335,10 @@ PROCEDURE pAssignValues :
                         e-itemfg-vend.vend-item = cVendorItem 
                         e-itemfg-vend.std-uom   = cCostUom .
                     ASSIGN
-                        e-itemfg-vend.run-qty[1]  = iQtyPer1 * 1000
-                        e-itemfg-vend.run-cost[1] = dEaCost1 * iQtyPer1 * 1000 
-                        e-itemfg-vend.setups[1]   = dSuCost1 
-                        e-itemfg-vend.run-qty[2]  = iQtyPer2 * 1000
-                        e-itemfg-vend.run-cost[2] = dEaCost2 * iQtyPer2 * 1000  
-                        e-itemfg-vend.setups[2]   = dSuCost2
-                        e-itemfg-vend.run-qty[3]  = iQtyPer3 * 1000
-                        e-itemfg-vend.run-cost[3] = dEaCost3 * iQtyPer3 * 1000  
-                        e-itemfg-vend.setups[3]   = dSuCost3
-                        e-itemfg-vend.run-qty[4]  = iQtyPer4 * 1000
-                        e-itemfg-vend.run-cost[4] = dEaCost4 * iQtyPer4 * 1000  
-                        e-itemfg-vend.setups[4]   = dSuCost4
-                        e-itemfg-vend.run-qty[5]  = iQtyPer5 * 1000
-                        e-itemfg-vend.run-cost[5] = dEaCost5 * iQtyPer5 * 1000
-                        e-itemfg-vend.setups[5]   = dSuCost5  .  
+                        e-itemfg-vend.run-qty[1]  = 9999999
+                        e-itemfg-vend.run-cost[1] = dCalValueCost 
+                        e-itemfg-vend.setups[1]   = dCalValueSetup
+                         .  
     
                     IF NOT CAN-FIND(FIRST e-itemfg OF e-itemfg-vend) THEN 
                     DO:
