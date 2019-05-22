@@ -2391,21 +2391,6 @@ END.
 &UNDEFINE SELF-NAME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-po-info C-Win
-PROCEDURE reset-po-info:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
 
