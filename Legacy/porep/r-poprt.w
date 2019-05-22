@@ -1153,13 +1153,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
 
-    IF NOT CAN-DO('Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana',v-print-fmt) THEN DO:
+    IF NOT CAN-DO('Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,PremierXFGItems',v-print-fmt) THEN DO:
        IF v-print-fmt NE "CentBox" THEN
           ASSIGN
              tb_itemDescription = NO
              tb_itemDescription:SCREEN-VALUE = 'NO'
 
-         tb_score-types              = CAN-DO("Premierx,PremierCX,PremierXFGItems,Fibrex,Lovepac,POPrint10-CAN,MWFibre,Protagon,Sultana",v-print-fmt)
+         tb_score-types              = CAN-DO("Fibrex,Lovepac,POPrint10-CAN,MWFibre,Protagon,Sultana",v-print-fmt)
          tb_score-types:SCREEN-VALUE = STRING(tb_score-types)
          tb_score-types:SENSITIVE    = YES.
 
