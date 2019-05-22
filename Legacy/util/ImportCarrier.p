@@ -136,11 +136,11 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCarrier.dscr, iplIgnoreBlanks, INPUT-OUTPUT carrier.dscr).
     RUN pAssignValueC (ipbf-ttImportCarrier.loc, iplIgnoreBlanks, INPUT-OUTPUT carrier.loc).
     RUN pAssignValueC (substring(ipbf-ttImportCarrier.chg-method,1,1), iplIgnoreBlanks, INPUT-OUTPUT carrier.chg-method).
-    IF ipbf-ttImportCarrier.Inactive EQ "Yes" AND DYNAMIC-FUNCTION("IsActive",carrier.rec_key) THEN DO:
-     RUN AddTagInactive(carrier.rec_key,"carrier").
+    IF ipbf-ttImportCarrier.Inactive EQ "Yes" THEN DO:
+        RUN AddTagInactive(carrier.rec_key,"carrier"). 
     END.
-    ELSE if ipbf-ttImportCarrier.Inactive EQ "No" AND NOT DYNAMIC-FUNCTION("IsActive",carrier.rec_key) THEN DO: 
-     RUN ClearTagsInactive(carrier.rec_key).
+    ELSE if ipbf-ttImportCarrier.Inactive EQ "No" THEN DO: 
+        RUN ClearTagsInactive(carrier.rec_key).
     END.                                    
 
     RELEASE carrier.
