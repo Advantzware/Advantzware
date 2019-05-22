@@ -29,6 +29,8 @@ IF end_i-no EQ '' THEN end_i-no = 'zzzzzzzzzzzzzzz'.
 ASSIGN
   v-ford-no[1]   = begin_ord-no
   v-ford-no[2]   = end_ord-no
+  v-ford-line[1] = begin_poLine
+  v-ford-line[2] = end_poLine
   v-fitem[1]     = begin_i-no
   v-fitem[2]     = end_i-no
   by-release     = tb_rel
@@ -137,7 +139,7 @@ ASSIGN
     FOR EACH po-ord NO-LOCK
         WHERE po-ord.company EQ cocode
           AND po-ord.po-no   GE v-ford-no[1]
-          AND po-ord.po-no   LE v-ford-no[2]
+          AND po-ord.po-no   LE v-ford-no[2]          
           AND (v-stat EQ "A"                         OR
                (v-stat EQ "C" AND NOT po-ord.opened) OR
                (v-stat EQ "O" AND po-ord.opened)):
