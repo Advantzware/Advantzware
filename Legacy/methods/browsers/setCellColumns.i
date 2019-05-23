@@ -1,9 +1,20 @@
 /* setCellColumns.i */
-
-DEFINE VARIABLE cellColumn AS WIDGET-HANDLE NO-UNDO EXTENT 200.
-DEFINE VARIABLE columnWidth AS DECIMAL NO-UNDO EXTENT 200.
-DEFINE VARIABLE cellColumnDat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAutoSave AS LOGICAL NO-UNDO.
+DEF VAR brwColHandle AS HANDLE NO-UNDO EXTENT 200.
+DEF VAR brwColList AS CHAR NO-UNDO.
+DEF VAR brwColName AS CHAR NO-UNDO EXTENT 200.
+DEF VAR brwColWidth AS DEC NO-UNDO EXTENT 200.
+DEF VAR cellColumnDat AS CHAR NO-UNDO.  /* Dat File Name */
+DEF VAR cTestName AS CHAR NO-UNDO.
+DEF VAR datColList AS CHAR NO-UNDO.
+DEF VAR datColName AS CHAR NO-UNDO EXTENT 200.
+DEF VAR datColWidth AS DEC NO-UNDO EXTENT 200.
+DEF VAR iBrwCols AS INT NO-UNDO.
+DEF VAR iDatCols AS INT NO-UNDO.
+DEF VAR lAutoSave AS LOG NO-UNDO.
+DEF VAR lNoMatch AS LOG NO-UNDO.
+DEF VAR lSaveChanges AS LOG NO-UNDO.
+DEF VAR iCtr AS INT NO-UNDO.
+DEF VAR jCtr AS INT NO-UNDO.
 
 /* create a &SCOPED-DEFINE cellColumnDat value prior to this include
    if another file name is desired to store user cell column order */
@@ -14,65 +25,95 @@ DEFINE VARIABLE lAutoSave AS LOGICAL NO-UNDO.
 cellColumnDat = './users/' + USERID('ASI') + '/{&cellColumnDat}.dat'.
 
 PROCEDURE setCellColumns:
-  DEFINE VARIABLE userColumn AS CHARACTER NO-UNDO EXTENT 200.
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE j AS INTEGER NO-UNDO INITIAL 1.
-  DEFINE VARIABLE k AS INTEGER NO-UNDO.
-  DEFINE VARIABLE v-index AS INT NO-UNDO.
   
-  lAutoSave = NO.
-  IF SEARCH(cellColumnDat) NE ? THEN DO:
-     /* get user cell column order */
-     INPUT FROM VALUE(cellColumnDat) NO-ECHO.
-     REPEAT:
-        IMPORT userColumn[j] columnWidth[j].
-        j = j + 1.
-     END. /* repeat */
-     INPUT CLOSE.
-     /* change default columns to user order */
-     DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-        cellColumn[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i).
-     END.
-    
-     j = j - 1.
-     OUTERLOOP:
-     DO i = 1 TO j:
+    IF SEARCH(cellColumnDat) NE ? THEN DO:
+        lAutoSave = NO.
      
-        DO k = 1 TO j:
-            IF NOT VALID-HANDLE(cellColumn[k]) THEN
-                LEAVE.
-            IF userColumn[i] EQ cellColumn[k]:NAME THEN
-                LEAVE.
+        /* get user cell column order from .dat file */
+        INPUT FROM VALUE(cellColumnDat) NO-ECHO.
+        REPEAT:
+            ASSIGN 
+                iDatCols = iDatCols + 1.
+            IMPORT datColName[iDatCols] datColWidth[iDatCols].
+            ASSIGN 
+                datColList = datColList + datColName[iDatCols] + ",".
+        END. /* repeat */
+        ASSIGN 
+            datColList = TRIM(datColList,",")
+            iDatCols = NUM-ENTRIES(datColList).
+        INPUT CLOSE.
+     
+        /* read column handles from default browse */
+        ASSIGN 
+            iBrwCols = {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}.
+        DO iCtr = 1 TO iBrwCols:
+            ASSIGN 
+                brwColHandle[iCtr] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iCtr)
+                brwColName[iCtr] = brwColHandle[iCtr]:NAME
+                brwColWidth[iCtr] = brwColHandle[iCtr]:WIDTH-PIXELS
+                brwColList = brwColList + brwColName[iCtr] + "," .
         END.
-
-        /* 25841 - handle condition where the column def in the .dat file no longer exists in the browser */
-        IF NOT VALID-HANDLE(cellColumn[k]) THEN DO:
-            lAutoSave = YES.
-            LEAVE OUTERLOOP.
-            
-        END.
-        /* 25841 - end */
-        
-        IF columnWidth[i] NE cellColumn[k]:WIDTH-PIXELS THEN
-           cellColumn[k]:WIDTH-PIXELS = columnWidth[i].
-
-        IF userColumn[i] NE cellColumn[i]:NAME THEN DO:
+        ASSIGN 
+            brwColList = TRIM(brwColList,",")
+            iBrwCols = NUM-ENTRIES(brwColList) .
     
-           {&BROWSE-NAME}:MOVE-COLUMN(k,i) IN FRAME {&FRAME-NAME}.
-          
-           DO v-index = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-              cellColumn[v-index] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(v-index).
-           END.
+        /* If the columns don't have the same number of list items (browse had a field added/delete in code), delete the dat file */
+        IF iDatCols NE iBrwCols THEN DO:
+            OS-DELETE VALUE(cellColumnDat).
+            RETURN.
+        END.        
+        
+        /* If the column names don't match (browse had a field replaced in code), delete the dat file */
+        DO iCtr = 1 TO iBrwCols:
+            IF NOT CAN-DO(datColList, ENTRY(iCtr,brwColList)) THEN DO:
+                ASSIGN 
+                    lNoMatch = TRUE.
+                LEAVE.
+            END. 
         END.
-     END. /* do i */
+        IF lNoMatch THEN DO:
+            OS-DELETE VALUE(cellColumnDat).
+            RETURN.
+        END.
 
-  END. /* search */
-  /* read new order to check for changes when exiting */
-  DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-    ASSIGN
-      cellColumn[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i)
-      columnWidth[i] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS.
-  END. /* do i */
+        /* If there are two columns with the same name, discard the dat file */
+        DO iCtr = 1 TO iDatCols:
+            ASSIGN 
+                cTestName = ENTRY(iCtr,datColList).
+            DO jCtr = 1 TO iDatCols:
+                IF ENTRY(jCtr,datColList) EQ cTestName 
+                AND jCtr NE iCtr THEN DO:
+                    ASSIGN 
+                        lNoMatch = TRUE.
+                    LEAVE.
+                END.
+            END.
+        END.            
+        IF lNoMatch THEN DO:
+            OS-DELETE VALUE(cellColumnDat).
+            RETURN.
+        END.
+            
+        /* Now move the browse columns to match the order of the dat file */
+        /* Have to do this in reverse order (R-L) to preserve browse col indexing */
+        DO iCtr = iDatCols TO 1 BY -1:
+            DO jCtr = 1 TO iBrwCols:
+                IF brwColName[jCtr] EQ datColName[iCtr] THEN DO:
+                    ASSIGN 
+                        brwColHandle[jCtr]:WIDTH-PIXELS = datColWidth[iCtr].
+                    {&BROWSE-NAME}:MOVE-COLUMN(jCtr,iCtr).
+                END.
+            END.
+        END.    
+    END. /* search */
+  
+    /* read new order to check for changes when exiting */
+    DO iCtr = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
+        ASSIGN
+            brwColHandle[iCtr] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iCtr)
+            brwColWidth[iCtr] = {&BROWSE-NAME}:GET-BROWSE-COLUMN(iCtr):WIDTH-PIXELS.
+    END. /* do iCtr */
+    
 END PROCEDURE.
 
 PROCEDURE local-destroy:
@@ -80,40 +121,40 @@ PROCEDURE local-destroy:
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE j AS INTEGER NO-UNDO.
-  DEFINE VARIABLE saveChanges AS LOG INITIAL NO NO-UNDO.
-
-  /* check for any columns changes */
-  DO i = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-    IF cellColumn[i]:NAME EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):NAME AND
-       columnWidth[i] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(i):WIDTH-PIXELS 
-       AND NOT lAutoSave THEN NEXT.
-    IF SEARCH(cellColumnDat) EQ ? THEN ASSIGN 
-        lAutoSave = TRUE. 
-    IF NOT lAutoSave THEN 
-        MESSAGE 'Save Column Changes?' VIEW-AS ALERT-BOX
-        QUESTION BUTTONS YES-NO UPDATE saveChanges.
-    IF saveChanges OR lAutoSave THEN DO:
-      OS-CREATE-DIR VALUE("./users/" + USERID("ASI")). 
-      OUTPUT TO VALUE(cellColumnDat).
-      DO j = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
-        EXPORT {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):NAME {&BROWSE-NAME}:GET-BROWSE-COLUMN(j):WIDTH-PIXELS.
-      END. /* do j */
-      OUTPUT CLOSE.
-    END. /* if savechanges */
-    LEAVE.
-  END. /* do i */
-
-  &IF DEFINED(xlocal-destroy) &THEN
-    RUN xlocal-destroy.
-  &ENDIF
+    /* check for any columns changes */
+    DO iCtr = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
+        IF brwColHandle[iCtr]:NAME EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(iCtr):NAME 
+        AND brwColWidth[iCtr] EQ {&BROWSE-NAME}:GET-BROWSE-COLUMN(iCtr):WIDTH-PIXELS THEN 
+        NEXT.
+        ELSE ASSIGN 
+            lNoMatch = TRUE.
+    END.
   
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+    IF lNoMatch THEN DO:
+        /* If there's no dat file, create one no matter what */
+        IF SEARCH(cellColumnDat) EQ ? THEN ASSIGN 
+            lAutoSave = TRUE. 
+        IF NOT lAutoSave THEN MESSAGE 
+            'Save Column Changes?' 
+            VIEW-AS ALERT-BOX
+            QUESTION BUTTONS YES-NO UPDATE lSaveChanges.
+        IF lSaveChanges OR lAutoSave THEN DO:
+            OS-CREATE-DIR VALUE("./users/" + USERID("ASI")). 
+            OUTPUT TO VALUE(cellColumnDat).
+            DO jCtr = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
+                EXPORT 
+                    {&BROWSE-NAME}:GET-BROWSE-COLUMN(jCtr):NAME 
+                    {&BROWSE-NAME}:GET-BROWSE-COLUMN(jCtr):WIDTH-PIXELS.
+            END. /* do jCtr */
+            OUTPUT CLOSE.
+        END. /* if savechanges */
+        LEAVE.
+    END. /* lFail */
 
-  /* Code placed here will execute AFTER standard behavior.    */
+&IF DEFINED(xlocal-destroy) &THEN
+    RUN xlocal-destroy.
+&ENDIF
+  
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
 END PROCEDURE.
