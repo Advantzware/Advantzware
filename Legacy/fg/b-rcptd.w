@@ -254,49 +254,31 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
     QUERY Browser-Table NO-LOCK DISPLAY
-    fg-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>>":U WIDTH 12
-    LABEL-BGCOLOR 14
-    fg-rctd.rct-date COLUMN-LABEL "Receipt!Date" FORMAT "99/99/9999":U
-    LABEL-BGCOLOR 14
-    STRING(fg-rctd.trans-time,'HH:MM') @ trans-time COLUMN-LABEL "Receipt!Time"
-    WIDTH 10
-    fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 29
-    LABEL-BGCOLOR 14
-    fg-rctd.po-no FORMAT "x(9)":U WIDTH 14 LABEL-BGCOLOR 14
-    fg-rctd.po-line COLUMN-LABEL "PO Ln#" FORMAT ">>9":U
-    fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 8
-    LABEL-BGCOLOR 14
-    fg-rctd.job-no2 FORMAT "99":U
-    fg-rctd.i-no COLUMN-LABEL "Item" FORMAT "X(15)":U WIDTH 22
-    LABEL-BGCOLOR 14
-    fg-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
-    LABEL-BGCOLOR 14
-    fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8 LABEL-BGCOLOR 14
-    fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 14
-    LABEL-BGCOLOR 14
-    fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U LABEL-BGCOLOR 14
-    fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT ">>>,>>9":U
-    LABEL-BGCOLOR 14
-    fg-rctd.cases-unit COLUMN-LABEL "Units/!Skid" FORMAT ">>>9":U
-    LABEL-BGCOLOR 14
-    fg-rctd.partial COLUMN-LABEL "Partial" FORMAT "->>>,>>9":U
-    LABEL-BGCOLOR 14
-    fg-rctd.std-cost COLUMN-LABEL "Cost/UOM" FORMAT ">,>>>,>>9.99<<<<":U
-    WIDTH 18 LABEL-BGCOLOR 14
-    fg-rctd.cost-uom COLUMN-LABEL "UOM" FORMAT "x(3)":U LABEL-BGCOLOR 14
-    fg-rctd.t-qty COLUMN-LABEL "Total!Qty" FORMAT "->>>,>>>,>>9.99":U
-    LABEL-BGCOLOR 14
-    fg-rctd.frt-cost COLUMN-LABEL "Freight Cost" FORMAT ">>>,>>9.99<<":U
-    WIDTH 18 LABEL-BGCOLOR 14
-    fg-rctd.ext-cost COLUMN-LABEL "Extended Cost" FORMAT "->,>>>,>>9.99":U
-    WIDTH 18 LABEL-BGCOLOR 14
-    fg-rctd.stack-code COLUMN-LABEL "FG Lot#" FORMAT "X(20)":U
-    WIDTH 21.8 LABEL-BGCOLOR 14
-    fg-rctd.tot-wt FORMAT ">>,>>9.99":U
-    fg-rctd.created-by COLUMN-LABEL "Created By" FORMAT "x(8)":U
-    LABEL-BGCOLOR 14
-    fg-rctd.updated-by COLUMN-LABEL "Last Updated By" FORMAT "x(8)":U
-    LABEL-BGCOLOR 14
+    fg-rctd.r-no            COLUMN-LABEL "Seq#"         FORMAT ">>>>>>>>":U     WIDTH 12    LABEL-BGCOLOR 14
+    fg-rctd.rct-date        COLUMN-LABEL "Receipt!Date" FORMAT "99/99/9999":U   WIDTH 14    LABEL-BGCOLOR 14
+    STRING(fg-rctd.trans-time,'HH:MM') @ trans-time COLUMN-LABEL "Receipt!Time" WIDTH 10
+    fg-rctd.tag             COLUMN-LABEL "Tag#"         FORMAT "x(20)":U        WIDTH 29    LABEL-BGCOLOR 14
+    fg-rctd.po-no           COLUMN-LABEL "PO No."       FORMAT "x(9)":U         WIDTH 14    LABEL-BGCOLOR 14
+    fg-rctd.po-line         COLUMN-LABEL "PO Ln"        FORMAT ">>9":U          WIDTH 8
+    fg-rctd.job-no          COLUMN-LABEL "Job#"         FORMAT "x(6)":U         WIDTH 8     LABEL-BGCOLOR 14
+    fg-rctd.job-no2         COLUMN-LABEL "-2"           FORMAT "99":U           WIDTH 4
+    fg-rctd.i-no            COLUMN-LABEL "Item"         FORMAT "X(15)":U        WIDTH 22    LABEL-BGCOLOR 14
+    fg-rctd.i-name          COLUMN-LABEL "Name/Desc"    FORMAT "x(30)":U        WIDTH 45    LABEL-BGCOLOR 14
+    fg-rctd.loc             COLUMN-LABEL "Whse"         FORMAT "x(5)":U         WIDTH 8     LABEL-BGCOLOR 14
+    fg-rctd.loc-bin         COLUMN-LABEL "Bin"          FORMAT "x(8)":U         WIDTH 14    LABEL-BGCOLOR 14
+    fg-rctd.cases           COLUMN-LABEL "Units"        FORMAT "->>>,>>9":U     WIDTH 14    LABEL-BGCOLOR 14
+    fg-rctd.qty-case        COLUMN-LABEL "Unit!Count"   FORMAT ">>>,>>9":U      WIDTH 14    LABEL-BGCOLOR 14
+    fg-rctd.cases-unit      COLUMN-LABEL "Units!/Skid"  FORMAT ">>>9":U         WIDTH 9     LABEL-BGCOLOR 14
+    fg-rctd.partial         COLUMN-LABEL "Partial"      FORMAT "->>>,>>9":U     WIDTH 14    LABEL-BGCOLOR 14
+    fg-rctd.std-cost        COLUMN-LABEL "Cost/UOM"     FORMAT ">,>>>,>>9.99<<<<":U WIDTH 18 LABEL-BGCOLOR 14
+    fg-rctd.cost-uom        COLUMN-LABEL "UOM"          FORMAT "x(3)":U         WIDTH 5     LABEL-BGCOLOR 14
+    fg-rctd.t-qty           COLUMN-LABEL "Total!Qty"    FORMAT "->>>,>>>,>>9.99":U WIDTH 16 LABEL-BGCOLOR 14
+    fg-rctd.frt-cost        COLUMN-LABEL "Freight Cost" FORMAT ">>>,>>9.99<<":U WIDTH 18    LABEL-BGCOLOR 14
+    fg-rctd.ext-cost        COLUMN-LABEL "Extended Cost" FORMAT "->,>>>,>>9.99":U WIDTH 18  LABEL-BGCOLOR 14
+    fg-rctd.stack-code      COLUMN-LABEL "FG Lot#"      FORMAT "X(20)":U        WIDTH 22  LABEL-BGCOLOR 14
+    fg-rctd.tot-wt          COLUMN-LABEL "Tot. Wgt."    FORMAT ">>,>>9.99":U    WIDTH 13
+    fg-rctd.created-by      COLUMN-LABEL "Created By"   FORMAT "x(8)":U         WIDTH 14    LABEL-BGCOLOR 14
+    fg-rctd.updated-by      COLUMN-LABEL "Last Updated By" FORMAT "x(8)":U      WIDTH 18    LABEL-BGCOLOR 14
   ENABLE
       fg-rctd.rct-date
       fg-rctd.tag
