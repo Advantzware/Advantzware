@@ -533,7 +533,7 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME D-Dialog /* New Miscellaneous Product Estimate - Cost Details  */
 DO:  
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
-        APPLY "go" TO FRAME {&FRAME-NAME}.
+        APPLY "END-ERROR":U TO SELF.
 
     END.
 

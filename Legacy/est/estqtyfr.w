@@ -957,7 +957,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ASSIGN
     lv-qty1 = INT(ip-qty)
     lv-yld  = IF est.est-type LE 4 OR est.est-type EQ 8 THEN 1 ELSE
-              (IF eb.yld-qty < 0 THEN -1 / eb.yld-qty ELSE eb.yld-qty). 
+              (IF eb.quantityPerSet < 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet). 
 
    if lv-qty1 > 0 then lv-msf-1 = if v-corr then( (lv-qty1 * eb.t-len * eb.t-wid * .007)
                                                  * lv-yld
@@ -1185,13 +1185,13 @@ PROCEDURE get-msf :
    IF AVAIL eb THEN do:
     ASSIGN
      ld-msf = DEC(FOCUS:SCREEN-VALUE)
-     ld-msf = (IF v-corr THEN (ld-msf * ip-len * ip-wid * .007)
-                     ELSE (ld-msf * ip-len * ip-wid / 144))   *
+     ld-msf = (IF v-corr THEN (ld-msf * eb.t-len * eb.t-wid * .007)
+                     ELSE (ld-msf * eb.t-len * eb.t-wid / 144))   *
           (IF eb.est-type EQ 2 THEN
              (IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%)
            ELSE
            IF eb.est-type EQ 6 THEN
-             (IF eb.yld-qty LT 0 THEN -1 / (eb.yld-qty) ELSE eb.yld-qty)
+             (IF eb.quantityPerSet LT 0 THEN -1 / (eb.quantityPerSet) ELSE eb.quantityPerSet)
            ELSE 1) / 1000 .
    END.
   END.

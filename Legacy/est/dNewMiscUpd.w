@@ -266,7 +266,7 @@ DEFINE FRAME Dialog-Frame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-     estRelease.handlingCost AT ROW 12.95 COL 82 COLON-ALIGNED
+     estRelease.handlingCost AT ROW 11.95 COL 82 COLON-ALIGNED
           LABEL "Handling Cost Per Pallet at Ship From" FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
@@ -531,6 +531,8 @@ DO:
         DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
         DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE dCostStorage AS DECIMAL NO-UNDO .
+        DEFINE VARIABLE dCostHandling AS DECIMAL NO-UNDO .
         DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
 
         RUN system/freightProcs.p PERSISTENT SET hftp.
@@ -561,6 +563,14 @@ DO:
             DO WITH FRAME {&FRAME-NAME}:
                 ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
             END.
+        END.
+
+        IF AVAIL eb THEN do:
+             RUN GetStorageAndHandlingForLocation(eb.company,eb.loc,estRelease.stackHeight,
+                                                  OUTPUT dCostStorage, OUTPUT dCostHandling,OUTPUT lError,OUTPUT cMessage) .
+             ASSIGN
+               estRelease.storageCost  = dCostStorage
+               estRelease.handlingCost = dCostHandling.
         END.
 
         RUN CalcStorageAndHandlingForEstRelease(INPUT estRelease.estReleaseID ,OUTPUT lError,
@@ -621,7 +631,7 @@ DO:
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
+    
 
 &Scoped-define SELF-NAME estRelease.monthsAtShipFrom
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.monthsAtShipFrom Dialog-Frame
@@ -880,6 +890,7 @@ PROCEDURE display-item :
               PARAMs:  <none>
               Notes:       
             ------------------------------------------------------------------------------*/
+    
     IF AVAILABLE estRelease  THEN 
     DO:
         ASSIGN 
@@ -894,7 +905,6 @@ PROCEDURE display-item :
             NO-ERROR.
         
         IF AVAIL est-qty THEN
-        
         DO i = 1 TO 20:
             IF est-qty.qty[i] NE 0 THEN
                 ilogic = estRelease.quantity:ADD-LAST (string(est-qty.qty[i])) IN FRAME {&frame-name} NO-ERROR.
@@ -904,7 +914,6 @@ PROCEDURE display-item :
             IF estRelease.stackHeight GT 0 THEN
                 estRelease.stackHeight:SCREEN-VALUE = STRING(estRelease.stackHeight) .
             ELSE estRelease.stackHeight:SCREEN-VALUE = "1" .
-
 
         DISPLAY estRelease.quantity estRelease.quantityRelease 
             estRelease.shipFromLocationID estRelease.customerID estRelease.shipToID estRelease.carrierID estRelease.carrierZone 
@@ -922,7 +931,7 @@ PROCEDURE display-item :
 
     VIEW FRAME {&FRAME-NAME}. 
     APPLY "entry" TO FRAME {&FRAME-NAME}.
-
+   
 
 END PROCEDURE.
 
