@@ -152,7 +152,7 @@ DEFINE SUB-MENU m_Board_Interval
 
 DEFINE SUB-MENU m_Scenario 
        MENU-ITEM m_btnSave      LABEL "Save"          
-       MENU-ITEM m_btnReset     LABEL "Reset" .
+       MENU-ITEM m_btnReset     LABEL "Reset"         .
 
 DEFINE MENU POPUP-MENU-W-Win 
        MENU-ITEM m_Board        LABEL "Board"         
@@ -179,7 +179,7 @@ DEFINE MENU POPUP-MENU-W-Win
        RULE
        SUB-MENU  m_Scenario     LABEL "Scenario"      
        RULE
-       MENU-ITEM m_btnJobSeqScan LABEL "Job Sequence Scan" .        
+       MENU-ITEM m_btnJobSeqScan LABEL "Job Sequence Scan"
        RULE
        MENU-ITEM m_btnPending   LABEL "Pending by Job"
        MENU-ITEM m_btnPendingJobs LABEL "Pending by Resource"
@@ -920,6 +920,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME m_btnJobSeqScan
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_btnJobSeqScan W-Win
+ON CHOOSE OF MENU-ITEM m_btnJobSeqScan /* Job Sequence Scan */
+DO:
+  RUN menuItem IN h_board (SELF:NAME).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME m_btnLegend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_btnLegend W-Win
 ON CHOOSE OF MENU-ITEM m_btnLegend /* View Color Legend */
@@ -1046,17 +1057,6 @@ END.
 ON CHOOSE OF MENU-ITEM m_btnReLoad /* Reload Board */
 DO:
   APPLY 'CHOOSE' TO btnReLoad IN FRAME {&FRAME-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME m_btnJobSeqScan
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_btnJobSeqScan W-Win
-ON CHOOSE OF MENU-ITEM m_btnJobSeqScan /* Job Sequence Scan */
-DO:
-  RUN menuItem IN h_board (SELF:NAME).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1247,9 +1247,6 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             btnUpdates:HANDLE IN FRAME schedulerFrame , 'BEFORE':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -1786,6 +1783,24 @@ PROCEDURE pReload :
     RUN getLoginID IN h_board (OUTPUT lvLoginID).
     OS-DELETE VALUE(SEARCH('{&data}/' + ID + '/inUse.' + lvLoginID + '.dat')).
     RUN loadBoard IN h_board (YES).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLock W-Win 
+PROCEDURE pSetLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplLock       AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtBeginDate AS DATE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtEndDate   AS DATE    NO-UNDO.
+    
+    RUN pSetLock IN h_board (iplLock, ipdtBeginDate, ipdtEndDate).
 
 END PROCEDURE.
 

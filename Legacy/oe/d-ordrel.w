@@ -1066,16 +1066,25 @@ ON ENTRY OF oe-rel.carrier IN FRAME Dialog-Frame /* Via */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.carrier Dialog-Frame
 ON LEAVE OF oe-rel.carrier IN FRAME Dialog-Frame /* Via */
     DO:
-        IF LASTKEY = -1 THEN RETURN.
-    
-        FIND FIRST carrier WHERE carrier.company = g_company AND
-            carrier.carrier = SELF:screen-value
-            NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE carrier THEN 
-        DO:
-            MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
+   
+       /* IF LASTKEY = -1 THEN DO:*/
+            FIND FIRST carrier WHERE carrier.company = g_company 
+                AND carrier.loc EQ oe-rel.spare-char-1:SCREEN-VALUE
+                AND carrier.carrier = oe-rel.carrier:screen-value
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL carrier THEN DO:
+                IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+                    MESSAGE "Please note: Carrier " oe-rel.carrier:SCREEN-VALUE " is valid but currently inactive"
+                        VIEW-AS ALERT-BOX INFO.
+                    RETURN NO-APPLY.
+                END.
+            END.
+            IF NOT AVAIL carrier THEN DO:
+                MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.
+      /*  END.*/
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3680,4 +3689,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

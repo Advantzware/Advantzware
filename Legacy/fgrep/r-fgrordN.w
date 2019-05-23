@@ -74,12 +74,12 @@ DEFINE VARIABLE cItemLoc AS CHARACTER NO-UNDO .
 ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,WHSE," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
-                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS"
+                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS,ESTIMATE ROUTING"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
-                            "mo-avg,sug-avg,msf-reord,itemfg.stat"
-       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6"  .
+                            "mo-avg,sug-avg,msf-reord,itemfg.stat,est-rout"
+       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,30"  .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
@@ -130,7 +130,6 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -1003,7 +1002,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   
-  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6"  .
+  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,30"  .
   
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -2145,6 +2144,7 @@ DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2158,7 +2158,7 @@ DO li = 1 TO display_hist :
    ld-fr   = DATE(li1,1,YEAR(TODAY) - IF li1 GT MONTH(TODAY) THEN 1 ELSE 0)
    ls-hlbl = ls-hlbl + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2) .
-   IF li = 12 THEN
+   IF li = display_hist THEN
    ls-hlbl2 = ls-hlbl2 + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2)  .
    ELSE
@@ -2332,6 +2332,7 @@ DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2345,7 +2346,7 @@ DO li = 1 TO display_hist :
    ld-fr   = DATE(li1,1,YEAR(TODAY) - IF li1 GT MONTH(TODAY) THEN 1 ELSE 0)
    ls-hlbl = ls-hlbl + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2) .
-    IF li = 12 THEN
+    IF li = display_hist THEN
    ls-hlbl2 = ls-hlbl2 + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2)  .        
 ELSE
@@ -2572,4 +2573,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

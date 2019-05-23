@@ -498,3 +498,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lcCarrZonFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcCarrZonTo   AS CHAR NO-UNDO.
+DEFINE VARIABLE lcCarrFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcCarrTo   AS CHAR NO-UNDO.
+
+IF carrier.carrier NE "" THEN
+    ASSIGN
+        lcCarrZonFrom = carr-mtx.del-zone
+        lcCarrZonTo = carr-mtx.del-zone 
+        lcCarrFrom = carrier.carrier
+        lcCarrTo = carrier.carrier .
+
+RUN fg/carr-mtx-exp.w (lcCarrZonFrom,
+                       lcCarrZonTo,lcCarrFrom,lcCarrTo).
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

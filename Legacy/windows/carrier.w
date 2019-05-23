@@ -467,6 +467,14 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_carr-mtx ( 17.38 , 81.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 69.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-updsav.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
@@ -488,6 +496,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_carr-mtx. */
        RUN add-link IN adm-broker-hdl ( h_carrier , 'Record':U , h_carr-mtx ).
+       RUN add-link IN adm-broker-hdl ( h_carr-mtx , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_carr-mtx-2 ,

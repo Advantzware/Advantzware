@@ -2472,9 +2472,9 @@ PROCEDURE ipDataFix160890 :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 160890...").
     
-    RUN ipSetFgcatStatusActive.  
     RUN ipConvertPrepItems.  
     RUN ipFixFrtPay.
+    RUN ipFgcatStatusActive.
 
 END PROCEDURE.
 
@@ -2858,6 +2858,8 @@ PROCEDURE ipFgcatStatusActive:
 ------------------------------------------------------------------------------*/
     DISABLE TRIGGERS FOR LOAD OF fgcat.
     
+    RUN ipStatus("   Set fgcat.lActive = TRUE").
+
     FOR EACH fgcat:
         ASSIGN 
             lActive = TRUE.

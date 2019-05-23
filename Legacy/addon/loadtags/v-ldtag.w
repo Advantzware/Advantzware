@@ -27,13 +27,16 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{custom/globdefs.i}
+ {custom/globdefs.i}
 
+{sys/inc/var.i new shared}
+cocode = g_company.
 &SCOPED-DEFINE post-enable post-enable
 
 /* gdm - 09210908 */
 DEF VAR v-ldpalwt LIKE loadtag.misc-dec[2] NO-UNDO.
-
+DEFINE VARIABLE cRfidTag AS CHARACTER NO-UNDO.
+   {sys/inc/rfidtag.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -604,7 +607,7 @@ PROCEDURE local-assign-statement :
   DEF BUFFER bfRfid FOR rfidtag.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  FIND CURRENT rfidtag EXCLUSIVE-LOCK.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
@@ -620,7 +623,7 @@ PROCEDURE local-assign-statement :
      END.     
   END.
   ASSIGN rfidtag.rfidtag:SENSITIVE = NO.    
-
+  FIND CURRENT rfidtag NO-LOCK.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -657,7 +660,7 @@ PROCEDURE local-create-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
   loadtag.company = g_company.
 
@@ -666,6 +669,17 @@ PROCEDURE local-create-record :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
     RUN get-item-type IN WIDGET-HANDLE(char-hdl) (OUTPUT loadtag.item-type).
     RUN get-is-case-tag IN WIDGET-HANDLE(char-hdl) (OUTPUT loadtag.is-case-tag).
+  END.
+  IF RFIDTag-log THEN DO:
+
+     RUN nextRfidTag (cocode , OUTPUT cRfidTag).
+
+     CREATE rfidtag.
+     ASSIGN rfidtag.company = loadtag.company
+            rfidtag.item-type = loadtag.item-type
+            rfidtag.tag-no = loadtag.tag-no
+            rfidtag.rfidtag = cRfidTag /* string(dRFIDTag)*/.
+     RELEASE oe-ctrl.
   END.
 
 END PROCEDURE.
