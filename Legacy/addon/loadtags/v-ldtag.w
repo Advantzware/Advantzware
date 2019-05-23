@@ -30,6 +30,7 @@ CREATE WIDGET-POOL.
  {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
+
 cocode = g_company.
 &SCOPED-DEFINE post-enable post-enable
 
@@ -607,11 +608,29 @@ PROCEDURE local-assign-statement :
   DEF BUFFER bfRfid FOR rfidtag.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  FIND CURRENT rfidtag EXCLUSIVE-LOCK.
+
+  FIND CURRENT rfidtag EXCLUSIVE-LOCK NO-ERROR.
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  FIND FIRST bfRfid NO-LOCK 
+        WHERE bfRfid.company EQ loadtag.company
+          AND bfRfid.item-type EQ NO                      
+          AND bfRfid.tag-no = loadtag.tag-no
+          NO-ERROR.  
+  IF RFIDTag-log AND NOT AVAIL bfRfid THEN DO:
+     RUN nextRfidTag (cocode , OUTPUT cRfidTag).
+
+     CREATE rfidtag.
+     ASSIGN rfidtag.company = loadtag.company
+            rfidtag.item-type = loadtag.item-type
+            rfidtag.tag-no = loadtag.tag-no
+            rfidtag.rfidtag = cRfidTag /* string(dRFIDTag)*/
+            rfidtag.rfidtag:SCREEN-VALUE IN FRAME {&frame-name} = cRfidTag.
+     RELEASE oe-ctrl.
+  END.
   IF USERID('nosweat') = "asi" AND AVAIL rfidtag AND
      rfidtag.rfidtag <> rfidtag.rfidtag:SCREEN-VALUE IN FRAME {&FRAME-NAME}
      THEN DO:
@@ -623,7 +642,9 @@ PROCEDURE local-assign-statement :
      END.     
   END.
   ASSIGN rfidtag.rfidtag:SENSITIVE = NO.    
-  FIND CURRENT rfidtag NO-LOCK.
+
+  FIND CURRENT rfidtag NO-LOCK no-error.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -682,6 +703,7 @@ PROCEDURE local-create-record :
      RELEASE oe-ctrl.
   END.
 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -714,6 +736,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE nextRfidTag V-table-Win
+PROCEDURE nextRfidTag:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
+DEF OUTPUT PARAMETER opcRfidTag AS CHAR NO-UNDO.
+DEF VAR dRFIDTag AS DECIMAL NO-UNDO.
+  FIND FIRST oe-ctrl WHERE oe-ctrl.company = ipcCompany NO-ERROR.
+  dRFIDTag = IF AVAIL oe-ctrl AND oe-ctrl.spare-char-1 <> "" 
+                    THEN dec(oe-ctrl.spare-char-1) ELSE 111110000000000000000001. 
+  oe-ctrl.spare-char-1 = string(dRFIDTag + 1).
+
+  opcRfidTag = string(dRFIDTag).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-enable V-table-Win 
 PROCEDURE post-enable :
