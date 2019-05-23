@@ -20,7 +20,7 @@ DEFINE TEMP-TABLE ttImportQuote
     FIELD Quote          AS INTEGER   FORMAT ">>>>>>>>" COLUMN-LABEL "Quote#" HELP "Optional - Integer"
     FIELD Qty            AS INTEGER   FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Quantity" HELP "Required - Size:30"
     FIELD Price          AS DECIMAL   FORMAT "->>>,>>>,>>9.99" COLUMN-LABEL "Price   " HELP "Required - Decimal"
-    FIELD Profit         AS DECIMAL   FORMAT ">>9.99%" COLUMN-LABEL "Profit %" HELP "Required - Decimal"
+    FIELD Profit         AS DECIMAL   FORMAT "->>9.99%" COLUMN-LABEL "Profit %" HELP "Required - Decimal"
     FIELD Uom            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "UOM" HELP "Required - Size:2" 
     FIELD ShipTo         AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8"
     FIELD SoldTo         AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "SoldTo" HELP "Optional - Size:8"
@@ -108,13 +108,6 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Price can not be Negative or Zero.".
-    END.
-    IF oplValid THEN 
-    DO:
-        IF ipbf-ttImportQuote.profit LT 0 THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Profit can not be Negative or Zero.".
     END.
     IF oplValid THEN 
     DO:

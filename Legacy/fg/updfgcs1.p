@@ -553,6 +553,7 @@ IF NOT VALID-HANDLE(hCostProcs) THEN
             ).
                 
       lv-uom = itemfg.prod-uom.
+      IF cCostUOM EQ "" THEN cCostUOM = lv-uom.
       IF cCostUom EQ lv-uom THEN       
          ASSIGN itemfg.avg-cost     = dCostPerUOMTotal
                 itemfg.std-lab-cost = dCostPerUOMDL

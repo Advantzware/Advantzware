@@ -458,6 +458,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL board D-Dialog
 ON LEAVE OF board IN FRAME D-Dialog /* Board */
 DO:
+    IF LASTKEY NE -1 THEN DO:
         IF NOT CAN-FIND(item WHERE item.company = gcompany
             AND item.i-no = board:screen-value
             AND LOOKUP(ITEM.mat-type,"P,R,B,F" ) GT 0)
@@ -475,9 +476,9 @@ DO:
             IF AVAILABLE ITEM THEN
                 ASSIGN board-dscr:SCREEN-VALUE = item.i-name .
         END.
-            .                                    
+                                                
     END.
-
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1146,10 +1147,11 @@ DO:
             FIND FIRST style WHERE style.company = cocode
                 AND style.style EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
 
-            IF AVAILABLE style THEN
-                ASSIGN style-dscr:SCREEN-VALUE = style.dscr
-                    sub-unit:SCREEN-VALUE   = style.spare-char-5 
-                    .
+            IF AVAILABLE style THEN do:
+                ASSIGN style-dscr:SCREEN-VALUE = style.dscr .
+                IF style.spare-char-5 NE "" THEN
+                    sub-unit:SCREEN-VALUE   = style.spare-char-5 .
+            END.
         END.
     END.
 
@@ -1173,6 +1175,22 @@ DO:
                 AND style.style EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
 
             IF AVAILABLE style THEN
+                ASSIGN style-dscr:SCREEN-VALUE = style.dscr.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style-cod D-Dialog
+ON VALUE-CHANGED OF style-cod IN FRAME D-Dialog /* Style Code */
+DO:     
+        IF SELF:SCREEN-VALUE NE "" THEN 
+        DO:
+            FIND FIRST style NO-LOCK WHERE style.company = cocode
+                AND style.style EQ SELF:SCREEN-VALUE  NO-ERROR .
+
+            IF AVAILABLE style AND style.spare-char-5 NE "" THEN
                 ASSIGN style-dscr:SCREEN-VALUE = style.dscr
                     sub-unit:SCREEN-VALUE   = style.spare-char-5  .
         END.

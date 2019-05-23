@@ -106,6 +106,7 @@ FOR EACH mch-act NO-LOCK
                 tt-srt.mr-end-time    = ?
                 tt-srt.gotReceipts    = NO
                 lGotRmRct             = NO
+                tt-srt.i-no      = mch-act.i-no
                 .
             
             RUN pro-rate-mr.
@@ -462,6 +463,11 @@ FOR EACH tt-srt USE-INDEX dept-idx
 
     IF tb_excel THEN  
     DO:
+        FIND FIRST itemfg NO-LOCK 
+                        WHERE itemfg.company EQ cocode
+                        AND itemfg.i-no EQ tt-srt.i-no
+                        NO-ERROR.
+
         tt-srt.sqFeet-Prod = tt-srt.qty-msf * 1000.
         PUT STREAM excel UNFORMATTED
             '"' tt-srt.m-code '",'
@@ -487,6 +493,8 @@ FOR EACH tt-srt USE-INDEX dept-idx
             '"' mr-eff FORM "->>>>9.99%" '",'
             '"' run-eff FORM "->>>>9.99%" '",'
             '"' STRING(tt-srt.shift,">>>>") '",'
+            '"' STRING(tt-srt.i-no) '",'
+            '"' (IF AVAIL itemfg THEN STRING(itemfg.i-name) ELSE "") '",'
             SKIP.
           
     END.

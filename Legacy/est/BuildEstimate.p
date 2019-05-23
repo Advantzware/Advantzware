@@ -276,11 +276,12 @@ FOR EACH ttInputEst NO-LOCK:
             est.estimateTypeID = "MISC" 
             eb.pur-man         = YES .
 
+      FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+      FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+
       IF NOT CAN-FIND(FIRST itemfg
                   WHERE itemfg.company EQ eb.company
                     AND itemfg.i-no    EQ eb.stock-no) THEN DO:
-          FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
-          FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
           RUN fg/ce-addfg.p (xeb.stock-no).
       END.
       RUN cec/mach-seq.p (eb.form-no, eb.eqty, NO).

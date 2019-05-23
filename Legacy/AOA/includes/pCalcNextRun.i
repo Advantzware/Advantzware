@@ -81,7 +81,7 @@ PROCEDURE pCalcNextRun:
             Task.isRunning = NO
             .
         IF Task.runNow THEN DO:
-            IF Task.nextDate EQ ? THEN
+            IF Task.taskName EQ "Run Now Task" THEN
             DELETE Task.
             ELSE
             Task.runNow = NO.
