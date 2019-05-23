@@ -113,6 +113,7 @@ DEF VAR v-tot-msf AS DEC FORM ">>>>,>>9.999" NO-UNDO.
 DEF VAR v-out-qty AS DEC NO-UNDO.
 DEFINE VAR v-ord-no AS CHAR NO-UNDO.
 DEF VAR v-vend-no AS CHAR NO-UNDO.
+DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
 
 {custom/formtext.i NEW}
 
@@ -122,7 +123,8 @@ v-dash-line = fill ("_",80).
 
 {po/po-print.f}
 {ce/msfcalc.i}
-
+DEFINE VARIABLE hdJobProcs AS HANDLE    NO-UNDO.
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 assign v-hdr = "VEND ITEM".
        
        
@@ -177,6 +179,7 @@ find first company where company.company eq cocode NO-LOCK.
       find first carrier where carrier.company eq po-ord.company 
                            and carrier.carrier eq po-ord.carrier no-lock no-error.
 
+      IF AVAIL vend THEN
       FIND FIRST currency WHERE currency.company EQ cocode
                             AND currency.c-code EQ vend.curr-code NO-LOCK NO-ERROR .
       IF AVAIL currency THEN 
@@ -212,7 +215,7 @@ find first company where company.company eq cocode NO-LOCK.
 
         if po-ordl.deleted eq yes then   assign v-change-dscr = "Deleted".
         assign
-           v-ino-job = po-ordl.vend-i-no
+           v-ino-job = po-ordl.vend-i-no 
            V-ADDER = ""
            v-vend-item = "".
 
@@ -343,6 +346,11 @@ find first company where company.company eq cocode NO-LOCK.
           
         end. /* avail item and item.mat-type eq "B" */
        
+        cMachCode = "" .
+        lPrintMach = NO .
+
+        RUN GetOperation IN hdJobProcs (cocode, po-ordl.job-no, INTEGER(po-ordl.job-no2),INTEGER(po-ordl.s-num),"Internal", INPUT-OUTPUT cMachCode).
+
         v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
                     ELSE "").
@@ -472,8 +480,13 @@ find first company where company.company eq cocode NO-LOCK.
 /*         IF TRIM(v-lstloc) NE "" THEN       */
 /*            PUT v-lstloc AT 7 FORM "x(15)". */
 
-        PUT po-ordl.dscr[1] AT 25  FORM "x(30)" SKIP
-            po-ordl.dscr[2] AT 25  FORM "x(30)".
+        PUT po-ordl.dscr[1] AT 25  FORM "x(30)" SKIP.
+        IF po-ordl.dscr[2] NE "" THEN
+            PUT po-ordl.dscr[2] AT 25  FORM "x(30)".
+        ELSE do:
+            PUT cMachCode AT 25  FORM "x(30)" .  
+            lPrintMach = YES .
+        END.
             /*v-adder[2] FORM "x(8)" SPACE(1)*/
             
         ASSIGN
@@ -489,6 +502,16 @@ find first company where company.company eq cocode NO-LOCK.
           v-line-number = v-line-number + 1
           v-printline = v-printline + 1.
         end.
+
+        IF NOT lPrintMach AND cMachCode NE "" THEN DO:
+            PUT cMachCode AT 25  FORM "x(30)" .  
+            lPrintMach = YES .
+
+            ASSIGN
+                v-line-number = v-line-number + 1
+                v-printline = v-printline + 1.
+        END.
+
     
         /*if po-ordl.dscr[2] ne "" OR v-adder[4] <> "" then do:
           put " " v-adder[4] AT 56 skip.
@@ -737,11 +760,12 @@ find first company where company.company eq cocode NO-LOCK.
      EMPTY TEMP-TABLE tt-formtext.
 
      lv-text = "".
+    IF AVAIL vend THEN do:
      FOR EACH notes FIELDS(note_text) WHERE notes.rec_key EQ vend.rec_key
          AND notes.note_group = "Vendor Notes" NO-LOCK:
          lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
      END.
-
+    END.
      DO i = 1 TO EXTENT(v-inst):
         CREATE tt-formtext.
         ASSIGN
