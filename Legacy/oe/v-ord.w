@@ -5554,48 +5554,49 @@ PROCEDURE local-update-record :
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-    RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).
-    IF lHoldError                                                       /* ValidateALL has reported an error */
-    AND (DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) NE TRUE) THEN DO:  /* BUT there is a manual release tag */
-        MESSAGE 
-            "This order would be placed on hold due to the following:" SKIP 
-            cErrMessage SKIP 
-            "but the order has been MANUALLY RELEASED." SKIP(1)
-            "Press YES to continue with the order RELEASED." SKIP 
-            "Press NO to remove the release flag and continue" SKIP 
-            "with the order ON HOLD."
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lRelease AS LOG.
-        
-        IF NOT lRelease THEN DO: /* User said remove release tag */
-            RUN removeManualRelease IN spOeValidate (oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
-            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-            ASSIGN 
-                bf-oe-ord.stat = "H".
-            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-        END.
-        ELSE 
-        DO:
-            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-            ASSIGN 
-                bf-oe-ord.stat = "N".
-            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-        END.
-    END.
-    ELSE IF lHoldError THEN DO:    
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-        ASSIGN 
-            bf-oe-ord.stat = "H".
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-        MESSAGE 
-            "Order placed on hold due to:" + CHR(10) + cErrMessage
-            VIEW-AS ALERT-BOX.
-    END.
-    ELSE DO:    
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-        ASSIGN 
-            bf-oe-ord.stat = "N".
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-    END.
+/*    IF adm-adding-record THEN                                                                                  */
+/*        RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).        */
+/*    IF lHoldError                                                       /* ValidateALL has reported an error */*/
+/*    AND (DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) NE TRUE) THEN DO:  /* BUT there is a manual release tag */*/
+/*        MESSAGE                                                                                                */
+/*            "This order would be placed on hold due to the following:" SKIP                                    */
+/*            cErrMessage SKIP                                                                                   */
+/*            "but the order has been MANUALLY RELEASED." SKIP(1)                                                */
+/*            "Press YES to continue with the order RELEASED." SKIP                                              */
+/*            "Press NO to remove the release flag and continue" SKIP                                            */
+/*            "with the order ON HOLD."                                                                          */
+/*            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lRelease AS LOG.                                  */
+/*                                                                                                               */
+/*        IF NOT lRelease THEN DO: /* User said remove release tag */                                            */
+/*            RUN removeManualRelease IN spOeValidate (oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).   */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                    */
+/*            ASSIGN                                                                                             */
+/*                bf-oe-ord.stat = "H".                                                                          */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                           */
+/*        END.                                                                                                   */
+/*        ELSE                                                                                                   */
+/*        DO:                                                                                                    */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                    */
+/*            ASSIGN                                                                                             */
+/*                bf-oe-ord.stat = "N".                                                                          */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                           */
+/*        END.                                                                                                   */
+/*    END.                                                                                                       */
+/*    ELSE IF lHoldError THEN DO:                                                                                */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                        */
+/*        ASSIGN                                                                                                 */
+/*            bf-oe-ord.stat = "H".                                                                              */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                               */
+/*        MESSAGE                                                                                                */
+/*            "Order placed on hold due to:" + CHR(10) + cErrMessage                                             */
+/*            VIEW-AS ALERT-BOX.                                                                                 */
+/*    END.                                                                                                       */
+/*    ELSE DO:                                                                                                   */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                        */
+/*        ASSIGN                                                                                                 */
+/*            bf-oe-ord.stat = "N".                                                                              */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                               */
+/*    END.                                                                                                       */
   
   /* If hold status needs to be changed on line items,
      process the line item update in oe/ordholdstat.i. */
