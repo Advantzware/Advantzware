@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : FreightProcs.p
     Purpose     : 
@@ -17,7 +16,8 @@ DEFINE VARIABLE giTemp                   AS INTEGER NO-UNDO.
 DEFINE VARIABLE giAllFormsIndicator      AS INTEGER INITIAL -1.
 DEFINE VARIABLE giAllBlanksIndicator     AS INTEGER INITIAL -1.
 DEFINE VARIABLE gdAllQuantitiesIndicator AS INTEGER INITIAL -1.
-
+DEFINE VARIABLE ghInventoryProcs         AS HANDLE  NO-UNDO.
+{Inventory/ttInventory.i "NEW SHARED"}
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -36,40 +36,79 @@ FUNCTION fCalcStorageCostTotal RETURNS DECIMAL PRIVATE
 FUNCTION fGetNextEstReleaseID RETURNS INTEGER PRIVATE
     (  ) FORWARD.
 
+FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
+    (ipdQuantity AS DECIMAL,
+    ipdLength AS DECIMAL,
+    ipdWidth AS DECIMAL,
+    ipcDimUOM AS CHARACTER) FORWARD.
+
+FUNCTION UseReleasesForFreightAndWarehousing RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER) FORWARD.
+
 
 /* ***************************  Main Block  *************************** */
-
+RUN inventory\InventoryProcs.p PERSISTENT SET ghInventoryProcs.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-PROCEDURE CalcStorageAndHandlingForEstRelease:
+PROCEDURE CalcFreightForEstRelease:
     /*------------------------------------------------------------------------------
-     Purpose: Calculates a given estReleaseID's Storage and Handling
+     Purpose: Calculates a given estReleaseID's Freight Cost
      Notes:
+     Syntax:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstReleaseID AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE dPallets        AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dPalletsRounded AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSubUnits    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPartial     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dFreightMin  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalMSF    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO.
 
     FIND FIRST estRelease EXCLUSIVE-LOCK   
         WHERE estRelease.estReleaseID EQ ipiEstReleaseID
         NO-ERROR.
     IF AVAILABLE estRelease THEN 
     DO:
+        RUN RecalcQuantityUnits IN ghInventoryProcs (estRelease.quantityRelease, INPUT-OUTPUT estRelease.quantityPerSubUnit, INPUT-OUTPUT estRelease.quantitySubUnitsPerUnit, 
+            OUTPUT dSubUnits, OUTPUT estRelease.quantityOfUnits, OUTPUT dPartial).
+        dTotalMSF = fGetTotalMSF(estRelease.quantityRelease, estRelease.dimEachLen, estRelease.dimEachWid, estRelease.dimEachUOM).
+        dTotalWeight = estRelease.quantityRelease * estRelease.weightTotalPerEach. 
+        RUN GetFreightForCarrierZone (estRelease.company, estRelease.shipFromLocationID, estRelease.carrierID, estRelease.carrierZone, "",
+            estRelease.quantityOfUnits, dTotalWeight, dTotalMSF, 
+            OUTPUT estRelease.freightCost, OUTPUT dFreightMin,
+            OUTPUT oplError, OUTPUT opcMessage).  
+    END.
+    ELSE 
         ASSIGN 
-            estRelease.quantityPerSubUnit      = MAXIMUM(estRelease.quantityPerSubUnit,1)
-            estRelease.quantitySubUnitsPerUnit = MAXIMUM(estRelease.quantitySubUnitsPerUnit,1)
+            oplError   = YES
+            opcMessage = "Invalid estReleaseID " + STRING(ipiEstReleaseID)
             .
-        IF estRelease.quantityOfUnits EQ 0 THEN 
-            ASSIGN /*calculate and round up*/ 
-                dPallets                   = estRelease.quantityRelease / (estRelease.quantityPerSubUnit * estRelease.quantitySubUnitsPerUnit) 
-                dPalletsRounded            = ROUND(dPallets,0)
-                estRelease.quantityOfUnits = INTEGER(dPalletsRounded) + INTEGER(dPallets GT dPalletsRounded)
-                .
+
+END PROCEDURE.
+PROCEDURE CalcStorageAndHandlingForEstRelease:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculates a given estReleaseID's Storage and Handling
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstReleaseID AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dSubUnits AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPartial  AS DECIMAL NO-UNDO.
+    
+
+    FIND FIRST estRelease EXCLUSIVE-LOCK   
+        WHERE estRelease.estReleaseID EQ ipiEstReleaseID
+        NO-ERROR.
+    IF AVAILABLE estRelease THEN 
+    DO:
+        RUN RecalcQuantityUnits IN ghInventoryProcs (estRelease.quantityRelease, INPUT-OUTPUT estRelease.quantityPerSubUnit, INPUT-OUTPUT estRelease.quantitySubUnitsPerUnit, 
+            OUTPUT dSubUnits, OUTPUT estRelease.quantityOfUnits, OUTPUT dPartial). 
         estRelease.storageCostTotal = fCalcStorageCostTotal(estRelease.storageCost,estRelease.quantityOfUnits,estRelease.palletMultiplier, estRelease.monthsAtShipFrom).
         estRelease.handlingCostTotal = fCalcHandlingCostTotal(estRelease.handlingCost, estRelease.quantityOfUnits).
     
@@ -79,7 +118,72 @@ PROCEDURE CalcStorageAndHandlingForEstRelease:
             oplError   = YES
             opcMessage = "Invalid estReleaseID " + STRING(ipiEstReleaseID)
             .
-    RELEASE estRelease.
+
+END PROCEDURE.
+
+PROCEDURE GetFreightForCarrierZone:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a Company, Loc, Carrier, Zone, Zip (optional), and lookup quantities
+     return the total calculated freight and freight min (to apply min x releases if necessary)
+     Notes: 
+     Syntax: RUN GetFreightForCarrierZone IN hFreightProcs (eb.company, eb.loc, eb.carrier, eb.dest-code, eb.ship-zip,
+                dPalletCount, dTotalWeight, dTotalMSF, 
+                OUTPUT dFreightTotal, OUTPUT dFreightMin,
+                OUTPUT lError, OUTPUT cMessage).  
+         
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCarrier AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcZone AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcZip AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotalPallets AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotalWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotalMSF AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightMin AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-carrier  FOR carrier.
+    DEFINE BUFFER bf-carr-mtx FOR carr-mtx.
+    DEFINE VARIABLE iLevel          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dCostMultiplier AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyToLookup    AS DECIMAL NO-UNDO.
+
+    RUN pGetCarrierBuffers(ipcCompany, ipcLocationID, ipcCarrier, ipcZone, ipcZip, 
+        BUFFER bf-carrier, BUFFER bf-carr-mtx, 
+        OUTPUT oplError, OUTPUT opcMessage).
+    IF AVAILABLE bf-carrier AND AVAILABLE bf-carr-mtx THEN 
+    DO:
+        CASE bf-carrier.chg-method:
+            WHEN "W" THEN
+                ASSIGN 
+                    dCostMultiplier = ipdTotalWeight / 100
+                    dQtyToLookup    = ipdTotalWeight
+                    .
+                
+            WHEN "P" THEN 
+                ASSIGN 
+                    dCostMultiplier = ipdTotalPallets
+                    dQtyToLookup    = ipdTotalPallets
+                    .
+            OTHERWISE /*MSF*/
+            ASSIGN 
+                dCostMultiplier = ipdTotalMSF
+                dQtyToLookup    = ipdTotalMSF
+                .
+        END CASE. 
+        DO iLevel = 1 TO 10:
+            IF bf-carr-mtx.weight[iLevel] GE dQtyToLookup THEN LEAVE.
+        END.
+        ASSIGN 
+            opdFreightMin   = bf-carr-mtx.min-rate
+            opdFreightTotal = bf-carr-mtx.rate[iLevel] * dCostMultiplier
+            .
+        IF opdFreightTotal LT opdFreightMin THEN 
+            opdFreightTotal = opdFreightMin.
+    END.
 
 END PROCEDURE.
 
@@ -87,6 +191,9 @@ PROCEDURE CreateEstRelease:
     /*------------------------------------------------------------------------------
      Purpose: Creates an EstRelease Record based on required inputs
      Notes:
+     Sample Syntax: RUN CreateEstRelease IN hFreightProcs (gcCompany, gcEstimate2, 1, 1, gdQty1,
+        OUTPUT iEstReleaseID, 
+        OUTPUT lError, OUTPUT cMessage ).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
@@ -104,10 +211,12 @@ PROCEDURE CreateEstRelease:
         
 END PROCEDURE.
 
-PROCEDURE CreateReleaseForEstBlank:
+PROCEDURE CreateEstReleaseForEstBlank:
     /*------------------------------------------------------------------------------
-     Purpose:
+     Purpose:  Creates EstRelease based on Rowid of eb (EstBlank)
      Notes:
+     Sample Syntax: RUN CreateEstReleaseForEstBlank IN hFreightProcs (ROWID(eb), 
+        OUTPUT iEstReleaseID, OUTPUT lError, OUTPUT cMessage).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriEstBlank AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEstReleaseID AS INTEGER NO-UNDO.
@@ -132,22 +241,7 @@ PROCEDURE CreateReleaseForEstBlank:
         OUTPUT opiEstReleaseID, OUTPUT oplError, OUTPUT opcMessage, BUFFER bf-estRelease).
     IF AVAILABLE bf-estRelease THEN 
     DO:
-        ASSIGN 
-            bf-estRelease.customerID              = eb.cust-no
-            bf-estRelease.shipToID                = eb.ship-id
-            bf-estRelease.carrierID               = eb.carrier
-            bf-estRelease.shipFromLocationID      = eb.loc    
-            bf-estRelease.quantityPerSubUnit      = eb.cas-cnt
-            bf-estRelease.quantitySubUnitsPerUnit = eb.cas-pal
-            bf-estRelease.stackHeight             = eb.stackHeight
-            bf-estRelease.quantityRelease         = bf-estRelease.quantity 
-            .
-        RUN GetStorageAndHandlingForLocation(eb.company, eb.loc, eb.stackHeight, 
-            OUTPUT bf-estRelease.storageCost, OUTPUT bf-estRelease.handlingCost,
-            OUTPUT oplError, OUTPUT opcMessage).
-        RUN GetShipToCarrierAndZone(eb.company, eb.loc, eb.cust-no, eb.ship-id, 
-            OUTPUT cCarrierDefault, OUTPUT bf-estRelease.carrierZone, 
-            OUTPUT oplError, OUTPUT opcMessage).
+        RUN pUpdateEstReleaseFromEstBlank(BUFFER bf-estRelease, BUFFER eb, OUTPUT oplError, OUTPUT opcMessage).
     END. 
     
 END PROCEDURE.
@@ -156,6 +250,7 @@ PROCEDURE DeleteAllEstReleasesForEstimate:
     /*------------------------------------------------------------------------------
      Purpose: Deletes all estRelease records for a given estimate
      Notes:
+     Sample Syntax: RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate2).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
@@ -168,6 +263,7 @@ PROCEDURE DeleteAllEstReleasesForEstimateBlank:
     /*------------------------------------------------------------------------------
      Purpose: Deletes all estRelease records for a given estimate
      Notes:
+     Sample Syntax: RUN DeleteAllEstReleasesForEstimateBlank IN hFreightProcs (gcCompany, gcEstimate1, giDeleteBlankForm, giDeleteBlank).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
@@ -182,6 +278,7 @@ PROCEDURE DeleteAllEstReleasesForEstimateForm:
     /*------------------------------------------------------------------------------
      Purpose: Deletes all estRelease records for a given estimate
      Notes:
+     Sample Syntax: RUN DeleteAllEstReleasesForEstimateForm IN hFreightProcs (gcCompany, gcEstimate1, giDeleteForm).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
@@ -195,6 +292,7 @@ PROCEDURE DeleteAllEstReleasesForEstimateQuantity:
     /*------------------------------------------------------------------------------
      Purpose: Deletes all estRelease records for a given estimate
      Notes:
+     Sample Syntax: RUN DeleteAllEstReleasesForEstimateQuantity IN hFreightProcs (gcCompany, gcEstimate1, gdQty1).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
@@ -219,10 +317,95 @@ PROCEDURE DeleteEstReleaseByID:
         
 END PROCEDURE.
 
+PROCEDURE GetFreightForEstimate:
+    /*------------------------------------------------------------------------------
+     Purpose: Given company estimate and calculation quantity, return the total freight cost
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightTotal AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pGetFreight(ipcCompany, ipcEstimateNo, ipdQuantity, giAllFormsIndicator, giAllBlanksIndicator, 
+        OUTPUT opdFreightTotal,
+        OUTPUT lError, OUTPUT cMessage ).
+
+END PROCEDURE.
+
+PROCEDURE GetFreightForEstimateBlank:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a rowid for estBlank (eb) quantity return the freight cost
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightTotal AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pGetFreight(ipcCompany, ipcEstimateNo, ipdQuantity, ipiFormNo, ipiBlankNo, 
+        OUTPUT opdFreightTotal,
+        OUTPUT lError, OUTPUT cMessage ).
+
+END PROCEDURE.
+
+PROCEDURE GetStorageAndHandlingForEstimate:
+    /*------------------------------------------------------------------------------
+     Purpose: Given an estimate/quantity return the total Handling and Storage costs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdStorageCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHandlingCostTotal AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pGetStorageAndHandling(ipcCompany, ipcEstimateNo, ipdQuantity, giAllFormsIndicator, giAllBlanksIndicator, 
+        OUTPUT opdStorageCostTotal, OUTPUT opdHandlingCostTotal,
+        OUTPUT lError, OUTPUT cMessage ).
+        
+END PROCEDURE.
+
+PROCEDURE GetStorageAndHandlingForEstimateBlank:
+    /*------------------------------------------------------------------------------
+     Purpose: Given an estimate/quantity and form-blank return the total Handling and Storage costs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdStorageCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHandlingCostTotal AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pGetStorageAndHandling(ipcCompany, ipcEstimateNo, ipdQuantity, ipiFormNo, ipiBlankNo, 
+        OUTPUT opdStorageCostTotal, OUTPUT opdHandlingCostTotal,
+        OUTPUT lError, OUTPUT cMessage ).
+        
+END PROCEDURE.
+
 PROCEDURE GetStorageAndHandlingForLocation:
     /*------------------------------------------------------------------------------
      Purpose: Given a location and StackHeight, return the Storage and Handling Cost
      Notes:
+     Sample Syntax: RUN GetStorageAndHandlingForLocation IN hFreightProcs (estRelease.company, estRelease.shipFromLocationID, estRelease.stackHeight,
+                OUTPUT estRelease.storageCost, OUTPUT estRelease.handlingCost, 
+                OUTPUT lError, OUTPUT cMessage). 
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
@@ -268,6 +451,9 @@ PROCEDURE GetShipToCarrierAndZone:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-carrier  FOR carrier.
+    DEFINE BUFFER bf-carr-mtx FOR carr-mtx.
+    
     FIND FIRST shipto NO-LOCK 
         WHERE shipto.company EQ ipcCompany
         AND shipto.cust-no EQ ipcCustomerID
@@ -275,35 +461,13 @@ PROCEDURE GetShipToCarrierAndZone:
         NO-ERROR.
     IF AVAILABLE shipto THEN 
     DO:
-        FIND FIRST carrier NO-LOCK 
-            WHERE carrier.company EQ shipto.company
-            AND carrier.carrier EQ shipto.carrier
-            AND carrier.loc EQ ipcLocationID
-            NO-ERROR.
-        IF AVAILABLE carrier THEN 
-        DO:
-            FIND FIRST carr-mtx NO-LOCK 
-                WHERE carr-mtx.company EQ carrier.company
-                AND carr-mtx.loc EQ carrier.loc
-                AND carr-mtx.carrier EQ carrier.carrier
-                AND carr-mtx.del-zone EQ shipto.dest-code
-                NO-ERROR.
-            IF AVAILABLE carr-mtx THEN 
-                ASSIGN 
-                    opcCarrier = carr-mtx.carrier
-                    opcZone    = carr-mtx.del-zone
-                    opcMessage = "Valid Carrier and Zone found for shipping from " + ipcLocationID + " to " + ipcShipToID
-                    .
-            ELSE 
-                ASSIGN 
-                    oplError   = YES
-                    opcMessage = "Invalid Zone " + shipto.del-zone + " for Carrier " + carrier.carrier + " for shipping from " + ipcLocationID + " to " + ipcShiptoID
-                    .
-        END.
-        ELSE 
+        RUN pGetCarrierBuffers(shipto.company, ipcLocationID, shipto.carrier,shipto.dest-code, shipto.ship-zip,
+            BUFFER bf-carrier, BUFFER bf-carr-mtx,
+            OUTPUT oplError, OUTPUT opcMessage).
+        IF AVAILABLE bf-carr-mtx THEN 
             ASSIGN 
-                oplError   = YES
-                opcMessage = "Invalid Carrier " + shipto.carrier + " for ship to " + shipto.ship-id + " and location " + ipcLocationID
+                opcCarrier = bf-carr-mtx.carrier
+                opcZone    = bf-carr-mtx.del-zone
                 .
     END.
     ELSE 
@@ -383,6 +547,317 @@ PROCEDURE pDeleteEstReleases PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pGetCarrierBuffers PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: given company, location, carrier, zone and zip (optional), 
+     return a carrier and carr-mtx buffer
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCarrier AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcZone AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcZip AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-carrier  FOR carrier.
+    DEFINE PARAMETER BUFFER opbf-carr-mtx FOR carr-mtx.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    FIND FIRST opbf-carrier NO-LOCK 
+        WHERE opbf-carrier.company EQ ipcCompany
+        AND opbf-carrier.carrier EQ ipcCarrier
+        AND opbf-carrier.loc EQ ipcLocationID
+        NO-ERROR.
+    IF AVAILABLE opbf-carrier THEN 
+    DO:
+        FIND FIRST opbf-carr-mtx NO-LOCK 
+            WHERE opbf-carr-mtx.company EQ opbf-carrier.company
+            AND opbf-carr-mtx.loc EQ opbf-carrier.loc
+            AND opbf-carr-mtx.carrier EQ opbf-carrier.carrier
+            AND opbf-carr-mtx.del-zone EQ ipcZone
+            AND opbf-carr-mtx.del-zip EQ ipcZip
+            NO-ERROR.
+        IF NOT AVAILABLE opbf-carr-mtx THEN  
+            FIND FIRST opbf-carr-mtx NO-LOCK 
+                WHERE opbf-carr-mtx.company EQ opbf-carrier.company
+                AND opbf-carr-mtx.loc EQ opbf-carrier.loc
+                AND opbf-carr-mtx.carrier EQ opbf-carrier.carrier
+                AND opbf-carr-mtx.del-zone EQ ipcZone
+                AND opbf-carr-mtx.del-zip EQ ""
+                NO-ERROR.
+        IF NOT AVAILABLE opbf-carr-mtx THEN  
+            FIND FIRST opbf-carr-mtx NO-LOCK 
+                WHERE opbf-carr-mtx.company EQ opbf-carrier.company
+                AND opbf-carr-mtx.loc EQ opbf-carrier.loc
+                AND opbf-carr-mtx.carrier EQ opbf-carrier.carrier
+                AND opbf-carr-mtx.del-zone EQ ipcZone
+                NO-ERROR.
+        IF AVAILABLE opbf-carr-mtx THEN 
+            ASSIGN 
+                oplError   = NO
+                opcMessage = "Carrier and matrix found for carrier " + ipcCarrier + " for location " + ipcLocationID
+                .
+        ELSE 
+            ASSIGN
+                oplError   = YES 
+                opcMessage = "Invalid Zone " + ipcZone + " for Carrier " + ipcCarrier + " for shipping from " + ipcLocationID
+                .
+                        
+    END.
+    ELSE 
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Invalid Carrier " + ipcCarrier + " for location " + ipcLocationID
+            . 
+
+END PROCEDURE.
+
+PROCEDURE pGetEffectiveQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given an estimate and quantity, search the estRelease table for the
+ effective quantity to establish the pro rata costs for freight and handling
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipdQuantityTarget AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opdQuantityEffective AS DECIMAL NO-UNDO.
+
+DEFINE BUFFER bf-estRelease FOR estRelease.
+
+FOR EACH bf-estRelease NO-LOCK 
+    WHERE bf-estRelease.company EQ ipcCompany
+    AND bf-estRelease.formNo EQ ipiFormNo
+    AND bf-estRelease.blankNo EQ ipiBlankNo
+    BREAK BY bf-estRelease.quantity:
+        
+    IF FIRST-OF(bf-estRelease.quantity) THEN DO:
+        IF FIRST(bf-estRelease.quantity) OR bf-estRelease.quantity LE ipdQuantityTarget THEN 
+            opdQuantityEffective = bf-estRelease.quantity.
+        IF bf-estRelease.quantity GE ipdQuantityTarget THEN LEAVE.
+    END.
+END.
+
+END PROCEDURE.
+
+PROCEDURE pGetFreight PRIVATE:
+    /*------------------------------------------------------------------------------
+    Purpose: Given an estimate, qty, form, and blank, return the total freight cost
+    costs
+    Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-estRelease FOR estRelease.
+    DEFINE VARIABLE dQuantityEffective AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dFreightEach AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityReleaseProRated AS DECIMAL NO-UNDO.
+    
+    RUN pGetEffectiveQuantity (ipcCompany, ipcEstimateNo, ipiFormNo, ipiBlankNo, ipdQuantity, OUTPUT dQuantityEffective).
+    FOR EACH bf-estRelease NO-LOCK
+        WHERE bf-estRelease.company EQ ipcCompany
+        AND bf-estRelease.estimateNo EQ ipcEstimateNo
+        AND bf-estRelease.formNo EQ ipiFormNo
+        AND bf-estRelease.blankNo EQ ipiBlankNo
+        AND bf-estRelease.quantity EQ dQuantityEffective:
+            
+        RUN CalcFreightForEstRelease(bf-estRelease.estReleaseID, OUTPUT oplError, OUTPUT opcMessage).
+        
+        IF NOT oplError THEN DO:
+            IF ipdQuantity EQ dQuantityEffective THEN 
+                ASSIGN 
+                    opdFreightCostTotal = opdFreightCostTotal + bf-estRelease.freightCost
+                    .
+            ELSE /*Prorate the Freight based on the relative release to master quantity*/
+                ASSIGN 
+                    dFreightEach = bf-estRelease.freightCost / bf-estRelease.quantityRelease
+                    dQuantityReleaseProRated = ipdQuantity * bf-estRelease.quantityRelease / bf-estRelease.quantity
+                    opdFreightCostTotal = opdFreightCostTotal + dFreightEach * dQuantityReleaseProRated
+                    . 
+        END.
+    END.
+    
+END PROCEDURE.
+PROCEDURE pGetStorageAndHandling PRIVATE:
+    /*------------------------------------------------------------------------------
+    Purpose: Given an estimate, qty, form, and blank, return the total storage and handling
+    costs
+    Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdStorageCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHandlingCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-estRelease FOR estRelease.
+    DEFINE VARIABLE dQuantityEffective AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dStorageEach AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dHandlingEach AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityReleaseProRated AS DECIMAL NO-UNDO.
+    
+    RUN pGetEffectiveQuantity (ipcCompany, ipcEstimateNo, ipiFormNo, ipiBlankNo, ipdQuantity, OUTPUT dQuantityEffective).
+    IF dQuantityEffective EQ 0 THEN 
+        dQuantityEffective = ipdQuantity.
+    FOR EACH bf-estRelease NO-LOCK
+        WHERE bf-estRelease.company EQ ipcCompany
+        AND bf-estRelease.estimateNo EQ ipcEstimateNo
+        AND bf-estRelease.formNo EQ ipiFormNo
+        AND bf-estRelease.blankNo EQ ipiBlankNo
+        AND bf-estRelease.quantity EQ dQuantityEffective:
+            
+        RUN CalcStorageAndHandlingForEstRelease(bf-estRelease.estReleaseID, OUTPUT oplError, OUTPUT opcMessage).
+        
+        IF NOT oplError THEN DO:
+            IF ipdQuantity EQ dQuantityEffective THEN 
+                ASSIGN 
+                    opdStorageCostTotal  = opdStorageCostTotal + bf-estRelease.storageCostTotal
+                    opdHandlingCostTotal = opdHandlingCostTotal + bf-estRelease.handlingCostTotal
+                    .
+            ELSE /*Prorate the Costs based on the relative release to master quantity*/
+                 ASSIGN 
+                    dQuantityReleaseProRated = ipdQuantity * bf-estRelease.quantityRelease / bf-estRelease.quantity
+                    dStorageEach = bf-estRelease.storageCostTotal / bf-estRelease.quantityRelease
+                    dHandlingEach = bf-estRelease.handlingCostTotal / bf-estRelease.quantityRelease
+                    opdStorageCostTotal = opdStorageCostTotal + dStorageEach * dQuantityReleaseProRated
+                    opdHandlingCostTotal = opdHandlingCostTotal + dHandlingEach * dQuantityReleaseProRated
+                    . 
+        END.
+    END.
+    
+END PROCEDURE.
+
+PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given 2 buffers, update the estRelease from the eb and recalculate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estRelease FOR estRelease.
+    DEFINE PARAMETER BUFFER ipbf-eb         FOR eb.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+
+    DEFINE BUFFER bf-ef      FOR ef.
+    DEFINE BUFFER bf-item    FOR ITEM.
+    DEFINE BUFFER bf-ce-ctrl FOR ce-ctrl.
+    DEFINE VARIABLE cCarrierDefault AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dTotalWeight    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dBasisWeight    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitWeight  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dUnitWeight     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTareWeight     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dMSF            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnits       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPartial        AS DECIMAL   NO-UNDO.
+    
+    ASSIGN 
+        ipbf-estRelease.customerID              = ipbf-eb.cust-no
+        ipbf-estRelease.shipToID                = ipbf-eb.ship-id
+        ipbf-estRelease.carrierID               = ipbf-eb.carrier
+        ipbf-estRelease.shipFromLocationID      = ipbf-eb.loc    
+        ipbf-estRelease.quantityPerSubUnit      = ipbf-eb.cas-cnt
+        ipbf-estRelease.quantitySubUnitsPerUnit = ipbf-eb.cas-pal
+        ipbf-estRelease.stackHeight             = ipbf-eb.stackHeight
+        ipbf-estRelease.quantityRelease         = ipbf-estRelease.quantity 
+        ipbf-estRelease.dimEachLen              = ipbf-eb.t-len
+        ipbf-estRelease.dimEachWid              = ipbf-eb.t-wid
+        ipbf-estRelease.dimEachDep              = ipbf-eb.t-dep
+        ipbf-estRelease.dimEachUOM              = "IN"
+        .
+
+    RUN GetStorageAndHandlingForLocation(ipbf-eb.company, ipbf-eb.loc, ipbf-eb.stackHeight, 
+        OUTPUT ipbf-estRelease.storageCost, OUTPUT ipbf-estRelease.handlingCost,
+        OUTPUT oplError, OUTPUT opcMessage).
+    RUN GetShipToCarrierAndZone(ipbf-eb.company, ipbf-eb.loc, ipbf-eb.cust-no, ipbf-eb.ship-id, 
+        OUTPUT cCarrierDefault, OUTPUT ipbf-estRelease.carrierZone, 
+        OUTPUT oplError, OUTPUT opcMessage).
+    RUN RecalcQuantityUnits IN ghInventoryProcs (ipbf-estRelease.quantityRelease, INPUT-OUTPUT ipbf-estRelease.quantityPerSubUnit, 
+        INPUT-OUTPUT ipbf-estRelease.quantitySubUnitsPerUnit, 
+        OUTPUT dSubUnits, OUTPUT ipbf-estRelease.quantityOfUnits, OUTPUT dPartial).
+        
+    FIND FIRST bf-ef NO-LOCK 
+        WHERE bf-ef.company EQ ipbf-eb.company
+        AND bf-ef.est-no EQ ipbf-eb.est-no
+        AND bf-ef.form-no EQ ipbf-eb.form-no 
+        NO-ERROR.
+    FIND FIRST bf-ce-ctrl NO-LOCK 
+        WHERE bf-ce-ctrl.company EQ ipbf-eb.company
+        NO-ERROR.
+    IF AVAILABLE bf-ef THEN 
+    DO: 
+        
+        /*Calculate Weight of Board to get Net Weight of Each*/
+        ASSIGN 
+            dMSF         = (ipbf-eb.t-sqin - ipbf-eb.t-win) / 144000
+            dBasisWeight = bf-ef.weight
+            .
+        IF bf-ef.medium NE "" THEN 
+        DO:
+            FIND FIRST bf-item NO-LOCK 
+                WHERE bf-item.company EQ bf-ef.company
+                AND bf-item.i-no EQ bf-ef.medium
+                NO-ERROR.
+            IF AVAILABLE bf-item THEN 
+                dBasisWeight = dBasisWeight + bf-item.basis-w * (1 - (bf-item.shrink / 100)).
+        END.
+        IF bf-ef.flute NE "" THEN                                                     
+        DO:
+            RELEASE bf-item.
+            FIND FIRST bf-item NO-LOCK 
+                WHERE bf-item.company EQ bf-ef.company
+                AND bf-item.i-no EQ bf-ef.flute
+                NO-ERROR.
+            IF AVAILABLE bf-item THEN 
+                dBasisWeight = dBasisWeight + bf-item.basis-w.
+        END.
+        /*Calculate Net Weight Per Each*/
+        ipbf-estRelease.weightNetPerEach = dBasisWeight * dMSF.
+        
+    END.
+    /*Calculate Tare Weight Per Each*/ 
+    IF ipbf-eb.cas-no NE "" THEN   /*Cases/Sub-units*/
+        FIND FIRST bf-item NO-LOCK 
+            WHERE bf-item.company EQ ipbf-eb.company
+            AND bf-item.i-no EQ ipbf-eb.cas-no
+            NO-ERROR.
+    IF AVAILABLE bf-item THEN 
+        dSubUnitWeight = bf-item.basis-w.
+    ELSE 
+        dSubUnitWeight = IF AVAILABLE bf-ce-ctrl THEN bf-ce-ctrl.def-cas-w ELSE 0.
+    dTareWeight = dTareWeight + dSubUnits * dSubUnitWeight.
+        
+    IF ipbf-eb.tr-no NE "" THEN
+        FIND FIRST bf-item NO-LOCK 
+            WHERE bf-item.company EQ ipbf-eb.company
+            AND bf-item.i-no EQ ipbf-eb.tr-no
+            NO-ERROR. 
+    IF AVAILABLE bf-item THEN 
+        dUnitWeight = bf-item.basis-w.
+    ELSE 
+        dUnitWeight = IF AVAILABLE bf-ce-ctrl THEN bf-ce-ctrl.def-pal-w ELSE 0.
+    dTareWeight = dTareWeight + ipbf-estRelease.quantityOfUnits * dUnitWeight. 
+        
+    IF ipbf-estRelease.quantityRelease GT 0 THEN 
+        ipbf-estRelease.weightTarePerEach = dTareWeight / ipbf-estRelease.quantityRelease.
+    
+    ipbf-estRelease.weightTotalPerEach = ipbf-estRelease.weightNetPerEach + ipbf-estRelease.weightTarePerEach.
+
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCalcStorageCostTotal RETURNS DECIMAL PRIVATE
@@ -423,4 +898,31 @@ FUNCTION fGetNextEstReleaseID RETURNS INTEGER PRIVATE
 		
 END FUNCTION.
 
+FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
+    (ipdQuantity AS DECIMAL, ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: given a quantity and LxW dimensions, return the total MSF calculation
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    
+    IF ipcDimUOM EQ "IN" OR ipcDimUOM EQ "" THEN 
+        RETURN ipdQuantity * (ipdLength * ipdWidth / 144000).    
+		
+END FUNCTION.
+
+FUNCTION UseReleasesForFreightAndWarehousing RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns NK1 setting indicating that new estRelease table should be used
+     to calculate Freight and Warehousing costs
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys\ref\nk1look.p (ipcCompany,'CEReleases','L',NO,NO,'','', 
+        OUTPUT cReturn, OUTPUT lFound).
+    
+    RETURN lFound AND cReturn EQ "YES". 			
+END FUNCTION.
 

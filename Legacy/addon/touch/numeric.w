@@ -205,7 +205,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-WIDTH      = 33.2
          MIN-BUTTON         = no
          MAX-BUTTON         = no
-         ALWAYS-ON-TOP      = yes
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no

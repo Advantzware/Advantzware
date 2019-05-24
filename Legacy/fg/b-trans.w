@@ -661,15 +661,18 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-
+  DEF VAR hButtonPanel AS HANDLE NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     RUN clear_auto_find.
     RUN change-order (browse-order:SCREEN-VALUE).
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-  END.
+    END.
 
-  RUN dispatch ('row-changed').
+    RUN dispatch ('row-changed').
+    
+    RUN get-link-handle in adm-broker-hdl (this-procedure,"TableIO", output hButtonPanel).
+    RUN set-Buttons IN hButtonPanel ("Initial").
 
 END PROCEDURE.
 

@@ -113,9 +113,24 @@ PROCEDURE pCustomerPO PRIVATE:
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
 
-    IF ipboe-ord.po-no = "" THEN ASSIGN 
-        oplError = TRUE 
-        opcMessage = "PO Number may not be blank".
+    DEF BUFFER bcust FOR cust.
+    
+    FIND FIRST bcust NO-LOCK WHERE 
+        bcust.company EQ ipboe-ord.company AND 
+        bcust.cust-no EQ ipboe-ord.cust-no  
+        NO-ERROR.
+    IF NOT AVAIL bcust THEN DO:
+        ASSIGN 
+            oplError = TRUE 
+            opcMessage = "Unable to locate a customer for this order.".
+        RETURN.
+    END. 
+    ELSE DO:
+        IF bCust.po-mandatory 
+        AND ipboe-ord.po-no = "" THEN ASSIGN 
+            oplError = TRUE 
+            opcMessage = "PO Number may not be blank for this customer".
+    END.
 
 END PROCEDURE.
 
@@ -198,16 +213,17 @@ END PROCEDURE.
 
 
 PROCEDURE pValidShipTo PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:   Determines if a valid ShipTo record exists for this customer
-     Notes:     Since oe-ord is created on ADD button, we can depend on rec_key availability
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:   Determines if a valid ShipTo record exists for this customer
+ Notes:     Since oe-ord is created on ADD button, we can depend on rec_key availability
+------------------------------------------------------------------------------*/
     DEF PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
 
     DEF BUFFER bcust FOR cust.
     DEF BUFFER bshipto FOR shipto.
+    DEF VAR lActive AS LOG NO-UNDO.
     
     FIND FIRST bcust NO-LOCK WHERE 
         bcust.company EQ ipboe-ord.company AND 
@@ -226,16 +242,24 @@ PROCEDURE pValidShipTo PRIVATE:
         IF NOT AVAIL bshipto THEN ASSIGN 
                 oplError = TRUE 
                 opcMessage = "Unable to locate shipto record " + ipboe-ord.ship-id + " for customer " + bcust.cust-no.
+        ELSE DO:
+            ASSIGN 
+                lActive = DYNAMIC-FUNCTION("isActive",bshipto.rec_key).
+            IF NOT lActive THEN ASSIGN 
+                oplError = TRUE 
+                opcMessage = "Specified shipto " + ipboe-ord.ship-id + "is INACTIVE for customer " + bcust.cust-no.
+                
+        END.
     END. 
     
 END PROCEDURE.
 
 
 PROCEDURE pValidUoM PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:   Verifies that UoM on each line is not blank and can be found in UoM table
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:   Verifies that UoM on each line is not blank and can be found in UoM table
+ Notes:
+------------------------------------------------------------------------------*/
     DEF PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
@@ -369,17 +393,17 @@ END PROCEDURE.
 
 
 PROCEDURE validateAll:
-    /*------------------------------------------------------------------------------
-     Purpose:   Entry point to all validation procs in this procedure
-     Notes:     Syntax is
-                RUN Validate IN hspValidate (
-                    INPUT testName or "ALL"
-                    INPUT tablename
-                    INPUT rec_key to test
-                    OUTPUT logical error (yes/no)
-                    OUTPUT error message to display
-                    ).
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:   Entry point to all validation procs in this procedure
+ Notes:     Syntax is
+            RUN Validate IN hspValidate (
+                INPUT testName or "ALL"
+                INPUT tablename
+                INPUT rec_key to test
+                OUTPUT logical error (yes/no)
+                OUTPUT error message to display
+                ).
+------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER ipcRecKey AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcLinkTable AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
@@ -392,6 +416,7 @@ PROCEDURE validateAll:
     DEF VAR lError AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR lTag AS LOG NO-UNDO.
+    DEF VAR iCtr AS INT NO-UNDO.
     
     CASE ipcLinkTable:
         WHEN "oe-ord" THEN 
@@ -401,7 +426,29 @@ PROCEDURE validateAll:
     /* Note: this can be expanded if other tables need to be tested */
     END CASE. 
         
+    /* Create/setup NK1s if not already there */
+    /* I know there is a "standard" for this, but we're pulling two values from eight records,
+       This is much more compact. */
+    DEF VAR cTestList AS CHAR INITIAL "CreditHold,CustomerPN,CustomerPO,PriceGtCost,PriceHold,UniquePO,ValidShipTo,ValidUom" NO-UNDO.    
+    DEF VAR cReqdList AS CHAR INITIAL "TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE" NO-UNDO.    
+    DEF VAR cTypeList AS CHAR INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD" NO-UNDO.    
+    DO iCtr = 1 TO NUM-ENTRIES(cTestList):
+        IF NOT CAN-FIND(FIRST sys-ctrl WHERE 
+            sys-ctrl.company EQ boe-ord.company AND
+            sys-ctrl.module EQ "VAL" AND  
+            sys-ctrl.name EQ ENTRY(iCtr,cTestList)) THEN DO:
+            CREATE sys-ctrl.
+            ASSIGN 
+                sys-ctrl.company = boe-ord.company
+                sys-ctrl.module = "VAL"
+                sys-ctrl.name = ENTRY(iCtr,cTestList)
+                sys-ctrl.log-fld = LOGICAL(ENTRY(iCtr,cReqdList))
+                sys-ctrl.char-fld = ENTRY(iCtr,cTypeList).
+        END.
+    END.
+                
     RUN clearTagsHold IN hTagProcs (ipcRecKey).
+    
     FOR EACH sys-ctrl NO-LOCK WHERE    /* ALL tests requested */ 
         sys-ctrl.module EQ "VAL" AND 
         sys-ctrl.log-fld EQ TRUE:

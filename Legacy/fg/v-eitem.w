@@ -48,6 +48,7 @@ DEF VAR gTerm AS cha NO-UNDO.
 DEF VAR gNewVendor AS LOG NO-UNDO.
 DEF VAR lCopyRecord AS LOG NO-UNDO.
 DEF VAR lAddRecord AS LOG NO-UNDO.
+DEFINE VARIABLE lShowDev AS LOGICAL NO-UNDO .
 
 RUN sys/ref/nk1look.p ( g_company, 
                         "VendCostMatrix", 
@@ -60,6 +61,12 @@ RUN sys/ref/nk1look.p ( g_company,
                         OUTPUT lRecFound).
 ASSIGN 
     lVendCostMtx = LOGICAL(cRtnChar) NO-ERROR .
+
+RUN sys/ref/nk1look.p (INPUT g_company, "FGVendCostEnhanced", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lShowDev = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -116,7 +123,7 @@ run-qty-04 run-cost-04 setups-04 tb_sel-04 run-qty-05 run-cost-05 setups-05 ~
 tb_sel-05 run-qty-06 run-cost-06 setups-06 tb_sel-06 run-qty-07 run-cost-07 ~
 setups-07 tb_sel-07 run-qty-08 run-cost-08 setups-08 tb_sel-08 run-qty-09 ~
 run-cost-09 setups-09 tb_sel-09 run-qty-10 run-cost-10 setups-10 tb_sel-10 ~
-fi_oh-markup
+fi_oh-markup cLabelDev
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,farmFields,DISPLAY-FIELD,List-5,List-6 */
 &Scoped-define ADM-CREATE-FIELDS e-itemfg.std-uom 
@@ -371,6 +378,9 @@ DEFINE VARIABLE tb_sel-10 AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
+DEFINE VARIABLE cLabelDev AS CHARACTER FORMAT "x(20)" INIT "Deviation:" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY .8  NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -503,8 +513,7 @@ DEFINE FRAME F-Main
           SIZE 5 BY .62 AT ROW 18.63 COL 26
      "Setup $" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 6 COL 37
-     "Deviation:" VIEW-AS TEXT
-          SIZE 14 BY .71 AT ROW 6 COL 57 
+     cLabelDev AT ROW 6 COL 57 NO-LABEL
      "Purchased" VIEW-AS TEXT
           SIZE 13 BY .95 AT ROW 2.67 COL 2
      "Min" VIEW-AS TEXT
@@ -580,6 +589,9 @@ ASSIGN
 ASSIGN 
        btnShowVendCostMtx:HIDDEN IN FRAME F-Main           = TRUE.
 
+
+/* SETTINGS FOR FILL-IN cLabelDev IN FRAME F-Main
+  No-Label NO-ENABLE EXP-FORMAT                                         */
 /* SETTINGS FOR FILL-IN fi_oh-markup IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.i-no IN FRAME F-Main
@@ -1716,6 +1728,22 @@ PROCEDURE local-display-fields :
         ls-item-dscr 
         qty-label 
         WITH FRAME {&FRAME-NAME}.
+
+    IF NOT lShowDev THEN DO:
+        ASSIGN
+            e-itemfg-vend.runCostDeviation[1]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[2]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[3]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[4]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[5]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[6]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[7]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[8]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[9]:VISIBLE IN FRAME {&FRAME-NAME} = NO 
+            e-itemfg-vend.runCostDeviation[10]:VISIBLE IN FRAME {&FRAME-NAME} = NO .
+            RECT-28:VISIBLE IN FRAME {&FRAME-NAME} = NO .
+            cLabelDev:VISIBLE IN FRAME {&FRAME-NAME} = NO .
+    END.
 
     RUN new-sel.
 

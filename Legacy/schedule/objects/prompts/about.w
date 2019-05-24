@@ -53,11 +53,12 @@ DEFINE VARIABLE ipContainerHandle AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 aboutBox btnClearCheckoffs ~
+&Scoped-Define ENABLED-OBJECTS aboutBox btnClearCheckoffs ~
 deleteStatusCheckoffs btnClearNotes deleteJobNotes btnReturnToPending ~
-btnFromPending btnFromPendingByDueDate btnSave btnRestore btnExit 
+btnFromPending btnFromPendingByDueDate btnUnlock beginDate btnLock endDate ~
+btnSave btnRestore btnExit 
 &Scoped-Define DISPLAYED-OBJECTS aboutBox deleteStatusCheckoffs ~
-deleteJobNotes version 
+deleteJobNotes beginDate endDate version 
 
 /* Custom List Definitions                                              */
 /* adminFunction,List-2,List-3,List-4,List-5,List-6                     */
@@ -109,6 +110,11 @@ DEFINE BUTTON btnFromPendingByDueDate
      LABEL "" 
      SIZE 4.6 BY 1.1 TOOLTIP "Schedule From Pending By Due Date".
 
+DEFINE BUTTON btnLock 
+     IMAGE-UP FILE "schedule/images/locked.gif":U
+     LABEL "" 
+     SIZE 5.2 BY 1.1 TOOLTIP "Lock Jobs".
+
 DEFINE BUTTON btnRestore 
      IMAGE-UP FILE "schedule/images/rollback.bmp":U
      LABEL "" 
@@ -124,10 +130,25 @@ DEFINE BUTTON btnSave
      LABEL "" 
      SIZE 4.6 BY 1.1 TOOLTIP "Save Configuration Data Files".
 
+DEFINE BUTTON btnUnlock 
+     IMAGE-UP FILE "schedule/images/unlocked.gif":U
+     LABEL "" 
+     SIZE 5.2 BY 1.1 TOOLTIP "Unlock Jobs".
+
 DEFINE VARIABLE aboutBox AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 87 BY 15.24
      BGCOLOR 15 FONT 2 NO-UNDO.
+
+DEFINE VARIABLE beginDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/50 
+     LABEL "Beginning Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
+DEFINE VARIABLE endDate AS DATE FORMAT "99/99/9999":U INITIAL 12/31/49 
+     LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE version AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -149,8 +170,8 @@ DEFINE VARIABLE deleteStatusCheckoffs AS CHARACTER INITIAL "Completed"
      SIZE 48 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 87 BY 8.57.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 87 BY 10.95.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -169,25 +190,31 @@ DEFINE FRAME Dialog-Frame
           "Schedule From Pending" WIDGET-ID 8
      btnFromPendingByDueDate AT ROW 22.43 COL 3 HELP
           "Schedule From Pending By Due Date" WIDGET-ID 10
-     btnSave AT ROW 23.62 COL 3 HELP
+     btnUnlock AT ROW 23.62 COL 3 HELP
+          "Click to Unlock Jobs" WIDGET-ID 48
+     beginDate AT ROW 23.62 COL 23 COLON-ALIGNED WIDGET-ID 36
+     btnLock AT ROW 24.81 COL 3 HELP
+          "Click to Lock Jobs" WIDGET-ID 46
+     endDate AT ROW 24.81 COL 23 COLON-ALIGNED WIDGET-ID 38
+     btnSave AT ROW 26 COL 3 HELP
           "Save Configuration Data Files"
-     btnRestore AT ROW 24.81 COL 3 HELP
+     btnRestore AT ROW 27.19 COL 3 HELP
           "Restore Configuration Data Files"
-     btnExit AT ROW 24.81 COL 83 HELP
+     btnExit AT ROW 27.19 COL 83 HELP
           "Exit About" WIDGET-ID 34
      version AT ROW 1.24 COL 28 NO-LABEL
+     "Move ALL Pending Jobs to the Board" VIEW-AS TEXT
+          SIZE 37 BY 1 AT ROW 21.24 COL 9 WIDGET-ID 22
      "Job Notes:" VIEW-AS TEXT
           SIZE 11 BY 1 AT ROW 18.86 COL 16 WIDGET-ID 32
      "Status Checkoffs:" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 17.67 COL 9 WIDGET-ID 30
      "Restore Custom Configuration .DAT Files" VIEW-AS TEXT
-          SIZE 50 BY 1 AT ROW 24.81 COL 9 WIDGET-ID 28
+          SIZE 50 BY 1 AT ROW 27.19 COL 9 WIDGET-ID 28
      "Create Backup's of Custom Configuration .DAT Files" VIEW-AS TEXT
-          SIZE 50 BY 1 AT ROW 23.62 COL 9 WIDGET-ID 26
+          SIZE 50 BY 1 AT ROW 26 COL 9 WIDGET-ID 26
      "Move ALL Pending Jobs to the Board by Due Date" VIEW-AS TEXT
           SIZE 50 BY 1 AT ROW 22.43 COL 9 WIDGET-ID 24
-     "Move ALL Pending Jobs to the Board" VIEW-AS TEXT
-          SIZE 37 BY 1 AT ROW 21.24 COL 9 WIDGET-ID 22
      "Return ALL Jobs to Pending" VIEW-AS TEXT
           SIZE 29 BY 1 AT ROW 20.05 COL 9 WIDGET-ID 20
      RECT-4 AT ROW 17.43 COL 2
@@ -236,6 +263,8 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR BUTTON btnSave IN FRAME Dialog-Frame
    1                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN version IN FRAME Dialog-Frame
    NO-ENABLE ALIGN-L                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -252,6 +281,17 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* About (Support Contact Information) */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME beginDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL beginDate Dialog-Frame
+ON LEAVE OF beginDate IN FRAME Dialog-Frame /* Beginning Date */
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,6 +342,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnLock
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLock Dialog-Frame
+ON CHOOSE OF btnLock IN FRAME Dialog-Frame
+DO:
+    RUN pSetLock (YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnRestore
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestore Dialog-Frame
 ON CHOOSE OF btnRestore IN FRAME Dialog-Frame
@@ -335,6 +386,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnUnlock
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUnlock Dialog-Frame
+ON CHOOSE OF btnUnlock IN FRAME Dialog-Frame
+DO:
+    RUN pSetLock (NO).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME deleteJobNotes
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL deleteJobNotes Dialog-Frame
 ON VALUE-CHANGED OF deleteJobNotes IN FRAME Dialog-Frame
@@ -351,6 +413,17 @@ END.
 ON VALUE-CHANGED OF deleteStatusCheckoffs IN FRAME Dialog-Frame
 DO:
   ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME endDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL endDate Dialog-Frame
+ON LEAVE OF endDate IN FRAME Dialog-Frame /* Ending Date */
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -417,11 +490,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY aboutBox deleteStatusCheckoffs deleteJobNotes version 
+  DISPLAY aboutBox deleteStatusCheckoffs deleteJobNotes beginDate endDate 
+          version 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-4 aboutBox btnClearCheckoffs deleteStatusCheckoffs btnClearNotes 
+  ENABLE aboutBox btnClearCheckoffs deleteStatusCheckoffs btnClearNotes 
          deleteJobNotes btnReturnToPending btnFromPending 
-         btnFromPendingByDueDate btnSave btnRestore btnExit 
+         btnFromPendingByDueDate btnUnlock beginDate btnLock endDate btnSave 
+         btnRestore btnExit 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -727,6 +802,28 @@ PROCEDURE pSaveDatFiles :
   END. /* do i */
   MESSAGE 'Schedule Board ".dat" Files Successfully' SKIP
     'Saved in directory "{&backup}"' VIEW-AS ALERT-BOX.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLock Dialog-Frame 
+PROCEDURE pSetLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplLock AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            beginDate
+            endDate
+            .
+        RUN pSetLock IN ipContainerHandle (iplLock, beginDate, endDate).
+    END. /* do with */
 
 END PROCEDURE.
 

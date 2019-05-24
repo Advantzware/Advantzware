@@ -630,27 +630,23 @@ v-printline = 0.
         len-score = "".   
         run po/po-ordls.p (recid(po-ordl)).
         {po/poprints.i}       
-/*             IF AVAIL ITEM AND lookup(ITEM.mat-type,"1,2,3,4") > 0 THEN DO: */
-/*             END.                                                           */
-/*             ELSE DO:                                                       */
-/*                if not v-test-scr then do:                                  */
-/*                   put                                                      */
-/*                       "Score: " AT 3                                       */
-/*                       len-score format "x(80)" SKIP .                      */
-/*                                                                            */
-/*                   v-line-number = v-line-number + 1.                       */
-/*                   v-printline = v-printline + 1.                           */
-/*                end.                                                        */
-/*                                                                            */
-/*                else                                                        */
-/*                if dec(trim(len-score)) ne v-wid then do:                   */
-/*                   put "Score: " AT 3                                       */
-/*                       len-score format "x(80)"  SKIP.                      */
-/*                                                                            */
-/*                   v-line-number = v-line-number + 1.                       */
-/*                   v-printline = v-printline + 1.                           */
-/*                END.                                                        */
-/*             END.                                                           */
+            IF v-score-types THEN do:
+                if not v-test-scr then do:                                  
+                    put                                                      
+                        "Score: " AT 3                                       
+                        len-score format "x(80)" SKIP .                      
+                    
+                    v-line-number = v-line-number + 1.                       
+                    v-printline = v-printline + 1.                           
+                END.
+                else                                                        
+                    if dec(trim(len-score)) ne v-wid then do:                   
+                        put "Score: " AT 3                                       
+                            len-score format "x(80)"  SKIP.                      
+                        v-line-number = v-line-number + 1.                       
+                        v-printline = v-printline + 1.                           
+                    END.
+            END. /* v-score-types */
           end.
           END.
         end.
