@@ -445,8 +445,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
      IF lGeneratecXML THEN DO:
        RUN cXMLOutput (clXMLOutput,'Request deploymentMode="' + cXMLProduction + '"','','Row').
        RUN cXMLOutput (clXMLOutput,'ShipNoticeRequest','','Row').
-       RUN cXMLOutput (clXMLOutput,'ShipNoticeHeader noticeDate="' +
-                                    cXMLTimeStamp + '" operation="new" shipmentID="' +
+       RUN cXMLOutput (clXMLOutput,'ShipNoticeHeader shipmentDate="' + getFormattedDate(oe-bolh.bol-date, TIME)
+                                    + '" deliveryDate="' + getFormattedDate(oe-bolh.bol-date + 2, TIME)
+                                    + '" noticeDate="' + cXMLTimeStamp
+                                    + '" operation="new" shipmentID="' +
                                     STRING(oe-bolh.bol-no) + '"','','Row').
        RUN cXMLOutput (clXMLOutput,'Contact role="shipFrom"','','Row').
        RUN cXMLOutput (clXMLOutput,'Name xml:lang="en"','','Row').
