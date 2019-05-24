@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/globdefs.i}
 {sys/inc/var.i new shared }
-{oe/oeValidateInc.i}
 
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
 def var v-use-rel like sys-ctrl.log-fld no-undo.
@@ -2196,19 +2195,7 @@ PROCEDURE local-update-record:
 
     /* Code placed here will execute AFTER standard behavior.    */
 
-    /* Run order-level validation tests */
-    RUN pValidate IN spOeValidate ("ALL", "oe-ord", bf-oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
-    IF lHoldError THEN DO: 
-        RUN releaseCheck IN spOeValidate ("", "oe-ord", bf-oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
-        IF NOT lHoldError THEN DO:
-            FIND bx-oe-ord WHERE ROWID(bx-oe-ord) EQ ROWID(bf-oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-            ASSIGN 
-                bx-oe-ord.stat = "H".
-            FIND bx-oe-ord WHERE ROWID(bx-oe-ord) EQ ROWID(bf-oe-ord) NO-LOCK NO-ERROR.
-        END.
-    END.
-
-
+ 
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
