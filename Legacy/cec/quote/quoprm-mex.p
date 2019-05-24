@@ -167,7 +167,7 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
      ship[5] = "SAME".
 
 
-  RUN sys/ref/getFileFullPathName.p ("Template\QuotePremMex.xlt", OUTPUT chFile).
+  RUN sys/ref/getFileFullPathName.p (search("Template\QuotePremMex.xlt"), OUTPUT chFile).
   IF chFile = ? THEN  
       APPLY 'close' TO THIS-PROCEDURE.
 
