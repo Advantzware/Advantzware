@@ -261,7 +261,7 @@ DEFINE BROWSE Browser-Table
     fg-rctd.po-no           COLUMN-LABEL "PO No."       FORMAT "x(9)":U         WIDTH 14    LABEL-BGCOLOR 14
     fg-rctd.po-line         COLUMN-LABEL "PO Ln"        FORMAT ">>9":U          WIDTH 8
     fg-rctd.job-no          COLUMN-LABEL "Job#"         FORMAT "x(6)":U         WIDTH 8     LABEL-BGCOLOR 14
-    fg-rctd.job-no2         COLUMN-LABEL "-2"           FORMAT "99":U           WIDTH 4
+    fg-rctd.job-no2         COLUMN-LABEL ""             FORMAT "99":U           WIDTH 4
     fg-rctd.i-no            COLUMN-LABEL "Item"         FORMAT "X(15)":U        WIDTH 22    LABEL-BGCOLOR 14
     fg-rctd.i-name          COLUMN-LABEL "Name/Desc"    FORMAT "x(30)":U        WIDTH 45    LABEL-BGCOLOR 14
     fg-rctd.loc             COLUMN-LABEL "Whse"         FORMAT "x(5)":U         WIDTH 8     LABEL-BGCOLOR 14
