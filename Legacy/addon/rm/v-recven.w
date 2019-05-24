@@ -204,7 +204,7 @@ DEFINE BUTTON Btn_Clear_Find-2
 
 DEFINE BUTTON btn_receive 
      LABEL "Receive Tag" 
-     SIZE 15.6 BY 1.14.
+     SIZE 14.6 BY 1.14.
 
 DEFINE VARIABLE begin_po-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "P.O.#" 
@@ -261,17 +261,17 @@ DEFINE RECTANGLE RECT-9
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     scr-vend-tag AT ROW 1.19 COL 14 COLON-ALIGNED WIDGET-ID 6
-     begin_po-no AT ROW 1.19 COL 54.4 COLON-ALIGNED HELP
+     scr-vend-tag AT ROW 1.24 COL 14 COLON-ALIGNED WIDGET-ID 6
+     begin_po-no AT ROW 1.24 COL 55 COLON-ALIGNED HELP
           "Enter Beginning PO Number" WIDGET-ID 8
-     scr-po-line AT ROW 1.19 COL 80 COLON-ALIGNED HELP
+     scr-po-line AT ROW 1.24 COL 82 COLON-ALIGNED HELP
           "Enter Beginning PO Number" WIDGET-ID 10
-     scr-qty AT ROW 1.19 COL 91 COLON-ALIGNED HELP
+     scr-qty AT ROW 1.24 COL 94 COLON-ALIGNED HELP
           "Enter Beginning PO Number" WIDGET-ID 12
-     scr-uom AT ROW 1.24 COL 115 COLON-ALIGNED WIDGET-ID 26
-     btn_receive AT ROW 1.19 COL 127.2 WIDGET-ID 4
-     scr-item-no AT ROW 2.38 COL 60.4 COLON-ALIGNED WIDGET-ID 22
-     scr-item-name AT ROW 2.38 COL 91 COLON-ALIGNED WIDGET-ID 20
+     scr-uom AT ROW 1.29 COL 118 COLON-ALIGNED WIDGET-ID 26
+     btn_receive AT ROW 1.24 COL 129 WIDGET-ID 4
+     scr-item-no AT ROW 2.43 COL 63 COLON-ALIGNED WIDGET-ID 22
+     scr-item-name AT ROW 2.43 COL 94 COLON-ALIGNED WIDGET-ID 20
      lv-search AT ROW 4 COL 24 COLON-ALIGNED HELP
           "Enter Auto Find Value" WIDGET-ID 16
      Btn_Clear_Find-2 AT ROW 4.05 COL 66 HELP
@@ -697,17 +697,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME scr-vend-tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-vend-tag V-table-Win
-ON VALUE-CHANGED OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
-DO:
- LSSScanVendorLength = NO .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME scr-vend-tag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-vend-tag V-table-Win
@@ -800,6 +789,17 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-vend-tag V-table-Win
+ON VALUE-CHANGED OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
+DO:
+ LSSScanVendorLength = NO .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -818,52 +818,6 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckTagLength V-table-Win
-PROCEDURE pCheckTagLength PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: given a company, vendor and tag, determine if it meets tag length
-     requirements
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcScan AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplOK AS LOGICAL NO-UNDO.
-
-    DEFINE VARIABLE iSSScanVendorLength         AS INTEGER   NO-UNDO .
-    DEFINE VARIABLE lSSScanVendorLengthRequired AS LOGICAL   NO-UNDO .
-    DEFINE VARIABLE lRecFound                   AS LOG       NO-UNDO.
-    DEFINE VARIABLE cRtnChar                    AS CHARACTER NO-UNDO.
-    
-    oplOK = YES.
-    RUN sys/ref/nk1look.p (ipcCompany, "SSScanVendor", "I", YES, NO, ipcVendorID, "", 
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-    IF lRecFound THEN
-        iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
-    RUN sys/ref/nk1look.p (ipcCompany, "SSScanVendor", "D", YES, NO, ipcVendorID, "", 
-        OUTPUT cRtnChar, OUTPUT lRecFound).  
-    IF lRecFound THEN
-        lSSScanVendorLengthRequired = DEC(cRtnChar) EQ 1 NO-ERROR.
-    IF iSSScanVendorLength NE 0 AND ipcScan NE "" THEN 
-    DO:
-        IF LENGTH(ipcScan) NE iSSScanVendorLength AND NOT lSSScanVendorLengthRequired THEN 
-            MESSAGE "Vendor tag is not equal to the target of " + STRING(iSSScanVendorLength) 
-                + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
-        ELSE IF LENGTH(ipcScan) NE iSSScanVendorLength AND lSSScanVendorLengthRequired THEN DO:
-            MESSAGE "Vendor tag length must be " + STRING(iSSScanVendorLength) 
-                + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX ERROR.
-            oplOK = NO.
-        END.
-    END.
-        
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -1087,10 +1041,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE edDocSearch V-table-Win
-PROCEDURE edDocSearch:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE edDocSearch V-table-Win 
+PROCEDURE edDocSearch :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1133,11 +1086,9 @@ IF AVAILABLE EDSHLine THEN
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE entry-vend-tag-proc V-table-Win 
 PROCEDURE entry-vend-tag-proc :
@@ -1152,10 +1103,64 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckTagLength V-table-Win 
+PROCEDURE pCheckTagLength PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose: given a company, vendor and tag, determine if it meets tag length
+     requirements
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScan AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOK AS LOGICAL NO-UNDO.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE poSearch V-table-Win
-PROCEDURE poSearch:
-    /*------------------------------------------------------------------------------
+    DEFINE VARIABLE iSSScanVendorLength         AS INTEGER   NO-UNDO .
+    DEFINE VARIABLE lSSScanVendorLengthRequired AS LOGICAL   NO-UNDO .
+    DEFINE VARIABLE lRecFound                   AS LOG       NO-UNDO.
+    DEFINE VARIABLE cRtnChar                    AS CHARACTER NO-UNDO.
+    
+    oplOK = YES.
+    RUN sys/ref/nk1look.p (ipcCompany, "SSScanVendor", "I", YES, NO, ipcVendorID, "", 
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+        iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
+    RUN sys/ref/nk1look.p (ipcCompany, "SSScanVendor", "D", YES, NO, ipcVendorID, "", 
+        OUTPUT cRtnChar, OUTPUT lRecFound).  
+    IF lRecFound THEN
+        lSSScanVendorLengthRequired = DEC(cRtnChar) EQ 1 NO-ERROR.
+    IF iSSScanVendorLength NE 0 AND ipcScan NE "" THEN 
+    DO:
+        IF LENGTH(ipcScan) NE iSSScanVendorLength AND NOT lSSScanVendorLengthRequired THEN 
+            MESSAGE "Vendor tag is not equal to the target of " + STRING(iSSScanVendorLength) 
+                + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
+        ELSE IF LENGTH(ipcScan) NE iSSScanVendorLength AND lSSScanVendorLengthRequired THEN DO:
+            MESSAGE "Vendor tag length must be " + STRING(iSSScanVendorLength) 
+                + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX ERROR.
+            oplOK = NO.
+            IF lSSScanVendorLengthRequired THEN
+            DO WITH FRAME {&FRAME-NAME}:
+                ASSIGN
+                    scr-vend-tag:SCREEN-VALUE  = ""
+                    begin_po-no:SCREEN-VALUE   = "0"
+                    scr-po-line:SCREEN-VALUE   = "0"
+                    scr-qty:SCREEN-VALUE       = "0"
+                    scr-uom:SCREEN-VALUE       = ""
+                    scr-item-no:SCREEN-VALUE   = ""
+                    scr-item-name:SCREEN-VALUE = ""
+                    .
+            END. /* with frame */
+        END.
+    END.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE poSearch V-table-Win 
+PROCEDURE poSearch :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1214,11 +1219,9 @@ PROCEDURE poSearch:
     END. /* Do */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE process-tag-proc V-table-Win 
 PROCEDURE process-tag-proc :

@@ -1,0 +1,37 @@
+/* General */
+body             { background-color:#FFFFCC; color:#000000; font-family: Tahoma, Arial, Sans-Serif; }
+h1               { background-color:#000066; color:#FFFF00; font-size:120%; }
+h2               { font-size:110%; }
+th               { background-color:#00CCFF; color:#000000; font-size:90%; font-weight:normal; }
+tr               { font-size:100%; }
+td               { font-size:80%; }
+
+/* Links */
+
+/* Alternate colours in tables */
+.oddrow          { background-color:#CCFFFF; color:#000000;  }
+.evenrow         { color:#000066; }
+.shadedrow       { background-color:#CCFFFF; color:#000000;  }
+
+.navbar          { background-color:#CCFFFF; color:#000000; font-size:90%; font-weight:normal; }
+.separator       { height:1px; }
+.clearboth       { clear: both; }
+.tbdetcol        { float: left; width: 45%; }
+.tbcol           { float: left; }
+.stylecombo      { height: 16px; color:#000000; background-color:#CCFFFF; }
+
+/* styles for list of tables */
+.tablelist       { width:12%; height:100%; top:10px; position:fixed; overflow:auto; }
+.tabledetail     { position:absolute; left:13%; padding-left:3px; }
+.tablelistitem   { width:100%; float:left; }
+.tablelistheader { width:100%; float:left; color:#FFFF66; background-color:#990000; margin-bottom:3px; font-weight:bold; }
+.dbcombo         { float:left; height:18px; color:#000066; background-color:#cccc99; margin-top:5px; }
+
+/* Styles for progress sources */
+pre              { font-family:Courier,monospace; font-size:100%; }
+.progressCode    { background-color:#FFFFFF; color:#000000; border:0px; font-family:Courier,monospace; font-size:90%; white-space:pre; }
+.src-comment     { color:#006600; background-color:#FFFFFF; font-style:italic; }
+.src-prep        { color:#993333; background-color:#FFFFFF; }
+.src-keyword     { color:#000066; background-color:#FFFFFF; }
+.src-char        { color:#CC0000; background-color:#FFFFFF; }
+.src-number      { color:#CC0000; background-color:#FFFFFF; }

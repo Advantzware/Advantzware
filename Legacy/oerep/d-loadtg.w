@@ -1067,7 +1067,9 @@ PROCEDURE pCheckPoLine :
               AND po-ordl.po-no EQ w-ord.po-no 
               AND po-ordl.LINE EQ INTEGER(w-ord.po-line:SCREEN-VALUE IN BROWSE {&browse-NAME})
             NO-ERROR .
-        IF NOT AVAIL po-ordl THEN DO:
+        IF NOT AVAIL po-ordl 
+           AND w-ord.job-no:SCREEN-VALUE IN BROWSE {&browse-NAME} EQ "" 
+           AND w-ord.ord-no:SCREEN-VALUE IN BROWSE {&browse-NAME} EQ "" THEN DO:
             MESSAGE "Please enter a valid PO Line..." 
                 VIEW-AS ALERT-BOX INFO .
             APPLY "entry"  TO w-ord.po-line IN BROWSE {&browse-NAME}.

@@ -125,6 +125,7 @@ DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -1159,16 +1160,12 @@ END.
 ON LEAVE OF oe-ord.carrier IN FRAME F-Main /* Carrier */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    {&methods/lValidateError.i YES}
-    IF oe-ord.carrier:screen-value <> "" AND
-       NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
-                                  carrier.loc = g_loc AND
-                                  carrier.carrier = oe-ord.carrier:screen-value)
-    THEN DO:                              
-         MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.                                
+
+    IF LASTKEY <> -1 THEN DO:
+     RUN valid-carrier NO-ERROR.
+     IF NOT lErrorValid THEN RETURN NO-APPLY.
     END.
-    {&methods/lValidateError.i NO}       
+          
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5480,16 +5477,12 @@ PROCEDURE local-update-record :
      RUN valid-due-date NO-ERROR.
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
+
+     RUN valid-carrier NO-ERROR.
+     IF NOT lErrorValid THEN RETURN NO-APPLY.
+
      {&methods/lValidateError.i YES}
-     
-     IF oe-ord.carrier:screen-value <> "" AND
-        NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
-                                  carrier.loc = g_loc AND
-                                  carrier.carrier = oe-ord.carrier:screen-value)
-     THEN DO:                              
-         MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.                                
-     END.       
+         
      IF oe-ord.terms:screen-value <> "" AND
         NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
      THEN DO:
@@ -5561,48 +5554,49 @@ PROCEDURE local-update-record :
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-    RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).
-    IF lHoldError                                                       /* ValidateALL has reported an error */
-    AND (DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) NE TRUE) THEN DO:  /* BUT there is a manual release tag */
-        MESSAGE 
-            "This order would be placed on hold due to the following:" SKIP 
-            cErrMessage SKIP 
-            "but the order has been MANUALLY RELEASED." SKIP(1)
-            "Press YES to continue with the order RELEASED." SKIP 
-            "Press NO to remove the release flag and continue" SKIP 
-            "with the order ON HOLD."
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lRelease AS LOG.
-        
-        IF NOT lRelease THEN DO: /* User said remove release tag */
-            RUN removeManualRelease IN spOeValidate (oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).
-            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-            ASSIGN 
-                bf-oe-ord.stat = "H".
-            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-        END.
-        ELSE 
-        DO:
-            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-            ASSIGN 
-                bf-oe-ord.stat = "N".
-            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-        END.
-    END.
-    ELSE IF lHoldError THEN DO:    
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-        ASSIGN 
-            bf-oe-ord.stat = "H".
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-        MESSAGE 
-            "Order placed on hold due to:" + CHR(10) + cErrMessage
-            VIEW-AS ALERT-BOX.
-    END.
-    ELSE DO:    
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-        ASSIGN 
-            bf-oe-ord.stat = "N".
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
-    END.
+/*    IF adm-adding-record THEN                                                                                  */
+/*        RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).        */
+/*    IF lHoldError                                                       /* ValidateALL has reported an error */*/
+/*    AND (DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) NE TRUE) THEN DO:  /* BUT there is a manual release tag */*/
+/*        MESSAGE                                                                                                */
+/*            "This order would be placed on hold due to the following:" SKIP                                    */
+/*            cErrMessage SKIP                                                                                   */
+/*            "but the order has been MANUALLY RELEASED." SKIP(1)                                                */
+/*            "Press YES to continue with the order RELEASED." SKIP                                              */
+/*            "Press NO to remove the release flag and continue" SKIP                                            */
+/*            "with the order ON HOLD."                                                                          */
+/*            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lRelease AS LOG.                                  */
+/*                                                                                                               */
+/*        IF NOT lRelease THEN DO: /* User said remove release tag */                                            */
+/*            RUN removeManualRelease IN spOeValidate (oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).   */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                    */
+/*            ASSIGN                                                                                             */
+/*                bf-oe-ord.stat = "H".                                                                          */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                           */
+/*        END.                                                                                                   */
+/*        ELSE                                                                                                   */
+/*        DO:                                                                                                    */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                    */
+/*            ASSIGN                                                                                             */
+/*                bf-oe-ord.stat = "N".                                                                          */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                           */
+/*        END.                                                                                                   */
+/*    END.                                                                                                       */
+/*    ELSE IF lHoldError THEN DO:                                                                                */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                        */
+/*        ASSIGN                                                                                                 */
+/*            bf-oe-ord.stat = "H".                                                                              */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                               */
+/*        MESSAGE                                                                                                */
+/*            "Order placed on hold due to:" + CHR(10) + cErrMessage                                             */
+/*            VIEW-AS ALERT-BOX.                                                                                 */
+/*    END.                                                                                                       */
+/*    ELSE DO:                                                                                                   */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                        */
+/*        ASSIGN                                                                                                 */
+/*            bf-oe-ord.stat = "N".                                                                              */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                               */
+/*    END.                                                                                                       */
   
   /* If hold status needs to be changed on line items,
      process the line item update in oe/ordholdstat.i. */
@@ -7072,6 +7066,48 @@ PROCEDURE valid-type :
   END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-type valid-carrier 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+{&methods/lValidateError.i YES}
+     ASSIGN lErrorValid = YES .
+DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ g_company 
+        AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+        AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+        NO-ERROR.
+    IF AVAIL shipto THEN do:
+        FIND FIRST carrier  
+            WHERE carrier.company EQ g_company 
+            AND carrier.loc = shipto.loc
+            AND carrier.carrier EQ oe-ord.carrier:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        IF AVAIL carrier THEN DO:
+            IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+                MESSAGE "Please note: Carrier " oe-ord.carrier:SCREEN-VALUE " is valid but currently inactive"
+                    VIEW-AS ALERT-BOX INFO.
+                lErrorValid = NO .
+            END.
+        END.
+        IF oe-ord.carrier:screen-value <> "" AND NOT AVAIL carrier
+            THEN DO:                              
+            MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
+            lErrorValid = NO .                                
+        END.
+    END.
+END.
+    {&methods/lValidateError.i NO} 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
