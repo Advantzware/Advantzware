@@ -2024,20 +2024,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax Dialog-Frame 
 PROCEDURE valid-tax :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF oe-ordm.tax:SCREEN-VALUE EQ "Y" AND
-            oe-ord.tax-gr EQ ""                                      THEN 
-        DO:
+        IF oe-ordm.tax:SCREEN-VALUE EQ "Y" 
+        AND oe-ord.tax-gr EQ "" THEN DO:
             MESSAGE /*"Order has no tax group! " */
-                "Misc. charge can't be taxable if order's not taxable. Make sure order's taxable."
+                "Misc. charge cannot be taxable if the order is not taxable." SKIP 
+                "Ensure that the order is taxable (has a valid tax code)." SKIP 
+                "Normally the tax code will be pulled from the Ship To ID or" SKIP 
+                "from the Customer record when the order is created."
                 VIEW-AS ALERT-BOX ERROR.
-            oe-ordm.tax:SCREEN-VALUE = "N".
+            ASSIGN 
+                oe-ordm.tax:SCREEN-VALUE = "N".
             APPLY "entry" TO oe-ordm.tax.
             RETURN ERROR.     
         END.
