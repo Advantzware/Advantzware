@@ -3792,7 +3792,15 @@ PROCEDURE post-bol :
             RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").            
                         
         END. /* If lCopyPdfFile */
-      end. /* avail */
+        
+        /* Process EDI 856 and 814 */
+        IF asnsps-log THEN RUN oe/oe856gen.p (RECID(oe-bolh), yes,yes).
+        FIND FIRST edcode NO-LOCK
+            WHERE edcode.setID EQ "214" 
+            NO-ERROR.
+        IF AVAIL edcode THEN 
+          RUN oe/oe214gen.p (Recid(oe-bolh), yes,yes).
+      END. /* avail */
     END. /* do while not avail */
   END. /* do trans */
 
@@ -4225,8 +4233,7 @@ PROCEDURE run-report :
       IF NOT iplPdfOnly AND lCopyPdfFile THEN DO:
           CREATE ttPdfBOLs.
           BUFFER-COPY report TO ttPdfBOLs.
-      END.
-      IF asnsps-log THEN RUN oe/oe856gen.p (report.rec-id, yes,yes).
+      END.      
       
       delete report.
   end.
