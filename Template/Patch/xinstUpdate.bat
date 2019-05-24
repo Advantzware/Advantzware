@@ -23,7 +23,7 @@ IF /I NOT !Hostname! == %computername% (
     )
 
 GOTO :Continue
-:: Check to ensure the user has Admiin rights
+:: Check to ensure the user has Admin rights
 NET SESSION >nul 2>&1
 IF NOT %errorlevel%==0 (
     ECHO MSGBOX "You MUST run this program as an Administrator." > %temp%\TEMPmessage.vbs
@@ -57,8 +57,12 @@ CD ..\..\Updates
 
 :: Copy files/dirs from Patch to "regular" directories
 MKDIR ..\Documentation\DBDict > NUL
+MKDIR ..\Install\ReportWriter > NUL
+MKDIR ..\Backups\PatchFiles > NUL
+XCOPY /S /Y .\*.zip ..\Backups\PatchFiles > NUL
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
 XCOPY /S /Y .\DBDict\*.* ..\Documentation\DBDict > NUL
+XCOPY /S /Y .\Install\ReportWriter\*.* ..\Install\ReportWriter > NUL
 XCOPY /S /Y .\ReleaseNotes\*.* ..\Documentation\ReleaseNotes > NUL
 XCOPY /S /Y .\Structure\*.* ..\Databases\Structure > NUL
 IF NOT EXIST ..\Admin\EnvAdmin\updateHist.txt (
@@ -89,7 +93,7 @@ COPY /Y .\progress.cfg !DLCDir!\progress.cfg > NUL
 CACLS !DLCDir!\progress.cfg /e /p Everyone:f
 
 :: Concatenate the extended and current update logs
-COPY /Y ..\Admin\EnvAdmin\UpdateHist.txt+..\Admin\EnvAdmin\UpdateLog.txt ..\Admin\EnvAdmin\UpdateHist1.txt > NUL
+COPY /Y ..\Admin\EnvAdmin\UpdateLog.txt+..\Admin\EnvAdmin\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist1.txt > NUL
 DEL /Q ..\Admin\EnvAdmin\UpdateHist.txt > NUL
 COPY /Y ..\Admin\EnvAdmin\UpdateHist1.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL
 DEL /Q ..\Admin\EnvAdmin\UpdateHist1.txt > NUL
