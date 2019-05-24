@@ -57,17 +57,17 @@ DEFINE VARIABLE cTextListToDefault AS cha     NO-UNDO.
 ASSIGN 
     cTextListToSelect  = "Cust#,Customer Name,PO#,Order#,Rel#,Item,Description," +
                            "Job#,Shipped Qty,Order Qty,Customer Part#,Del Zone,Terr," +
-                           "Trailer #,Total Sq Ft,Bol#" 
+                           "Trailer #,Total Sq Ft,Bol#,Ship To,Ship To Name,Bol Date" 
     cFieldListToSelect = "cust-no,cust-name,po-num,ord-no,rel-no,i-no,i-name," +
                                 "job,shp-qty,ord-qty,part-no,v-del-zone,v-terr," +
-                                "v-trailer,v-totl-sq,v-bol-no"
-    cFieldLength       = "8,30,15,6,6,15,30," + "9,14,13,15,8,4," + "21,15,8"
-    cFieldType         = "c,c,c,i,i,c,c," + "c,i,i,c,c,c,c," + "c,i,i"
+                                "v-trailer,v-totl-sq,v-bol-no,ship-id,ship-name,bol-date"
+    cFieldLength       = "8,30,15,6,6,15,30," + "9,11,11,15,8,4," + "21,12,6,8,30,10"
+    cFieldType         = "c,c,c,i,i,c,c," + "c,i,i,c,c,c," + "c,i,i,c,c,c"
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "Bol#,Job#,Cust#,Customer Name,Trailer #,PO#,Order#,Rel#,Shipped Qty,Order Qty,Total Sq Ft,Item,Description" .
+    cTextListToDefault = "Bol#,Bol Date,Job#,Cust#,Customer Name,Trailer #,PO#,Order#,Rel#,Shipped Qty,Order Qty,Total Sq Ft,Item,Description" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1323,7 +1323,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE str-tit4       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-tit5       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-line       AS cha       FORM "x(300)" NO-UNDO.
-
+    DEFINE VARIABLE cShipName      AS CHARACTER NO-UNDO.
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
     {sys/form/r-top5DL3.f} 
@@ -1430,8 +1430,20 @@ PROCEDURE run-report :
         IF AVAILABLE cust THEN
             ASSIGN cCustName = cust.NAME.
         RELEASE cust .
-        
+       ASSIGN cShipName = "" .
+        RUN oe/custxship.p (oe-bolh.company,
+                        oe-bolh.cust-no,
+                        oe-bolh.ship-id,
+                        BUFFER shipto).
+        IF AVAIL shipto THEN
+            ASSIGN cShipName = shipto.ship-name 
+                   v-del-zone = dest-code
+            .
+
         RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
+
+        IF AVAILABLE oe-ordl AND oe-ordl.ship-qty GT 0 THEN
+            dTotalSqft = dTotalSqft * oe-ordl.ship-qty .
             
         ASSIGN 
             cDisplay       = ""
@@ -1451,9 +1463,9 @@ PROCEDURE run-report :
                 WHEN "v-trailer" THEN 
                     cVarValue = STRING(v-trailer,"x(21)").
                 WHEN "v-totl-sq" THEN 
-                    cVarValue = STRING(dTotalSqft).
+                    cVarValue = STRING(dTotalSqft,"->>,>>,>>>.9<<<<").
                 WHEN "v-bol-no" THEN 
-                    cVarValue = STRING(v-bol-no).
+                    cVarValue = STRING(v-bol-no,">>>>>9").
 
                 WHEN "cust-no" THEN 
                     cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-no,"x(8)") ELSE "".
@@ -1462,21 +1474,27 @@ PROCEDURE run-report :
                 WHEN "po-num" THEN 
                     cVarValue = STRING(oe-boll.po-no) .
                 WHEN "ord-no" THEN 
-                    cVarValue = STRING(oe-boll.ord-no).
+                    cVarValue = STRING(oe-boll.ord-no,">>>>>9").
                 WHEN "rel-no" THEN 
-                    cVarValue = STRING(oe-bolh.release#).
+                    cVarValue = STRING(oe-bolh.release#,">>>>>9").
                 WHEN "i-no" THEN 
                     cVarValue = STRING(oe-boll.i-no).
                 WHEN "i-name" THEN 
                     cVarValue = STRING(v-i-name,"x(30)").
                 WHEN "job" THEN 
-                    cVarValue = STRING(oe-boll.job-no).                
+                    cVarValue = IF oe-boll.job-no NE "" THEN STRING(oe-boll.job-no + "-" + string(oe-boll.job-no2,"99")) ELSE "" .                
                 WHEN "shp-qty" THEN 
-                    cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.ship-qty) ELSE "0".
+                    cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.ship-qty,">>>,>>>,>>9") ELSE "0".
                 WHEN "ord-qty" THEN 
-                    cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty) ELSE "0" .
+                    cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty,">>>,>>>,>>9") ELSE "0" .
                 WHEN "part-no" THEN 
                     cVarValue = STRING(itemfg.part-no).
+                WHEN "bol-date" THEN 
+                    cVarValue = STRING(oe-bolh.bol-date,"99/99/9999").
+                WHEN "ship-id" THEN 
+                    cVarValue = STRING(oe-bolh.ship-id,"x(8)").
+                WHEN "ship-name" THEN 
+                    cVarValue = STRING(cShipName,"x(30)").
                
             END CASE.
             cExcelVarValue = cVarValue.
