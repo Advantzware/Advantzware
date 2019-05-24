@@ -525,6 +525,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_fgadd. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_fgadd ).
        RUN add-link IN adm-broker-hdl (h_fgadd, 'fgadd':U , h_p-estc ).
+       RUN add-link IN adm-broker-hdl (h_p-estc, 'upd-viewtab-eb':U , h_b-estitm ).
 
     END. /* Page 2 */
     WHEN 3 THEN DO:
@@ -806,7 +807,7 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updc&c ).
        RUN set-position IN h_p-updc&c ( 8.14 , 124.00 ) NO-ERROR.
-       RUN set-size IN h_p-updc&c ( 11.67 , 28.00 ) NO-ERROR.
+       RUN set-size IN h_p-updc&c ( 4.67  , 20.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/v-est4.w':U ,
@@ -836,6 +837,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_v-navef-2. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-navef-2 ).
+       RUN add-link IN adm-broker-hdl (h_p-updc&c, 'upd-miscsub-eb':U , h_v-est4 ).
 
     END. /* Page 7 */
 
@@ -1090,6 +1092,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_pricechg. */
        RUN add-link IN adm-broker-hdl ( h_v-eitem2 , 'price-change':U , h_pricechg ).
+       RUN add-link IN adm-broker-hdl (h_v-est4 , 'upd-farm':U , h_b-eitem2 ).
 
     END. /* Page 11 */
 

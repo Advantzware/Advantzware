@@ -23,8 +23,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 
-/*DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.*/
-/*DEFINE OUTPUT PARAMETER oprEstRowid AS ROWID NO-UNDO .*/
+DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode */
+DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
 DEFINE VARIABLE opCADCAM AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -36,6 +36,7 @@ DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname NO-UNDO.
 DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-count    AS INTEGER NO-UNDO.
 DEFINE VARIABLE k_frac     AS DECIMAL INIT 6.25 NO-UNDO.
+DEFINE VARIABLE lCreateNewFG AS LOGICAL NO-UNDO .
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -96,11 +97,12 @@ DEFINE VARIABLE lv-crt-est-rowid AS ROWID   NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
 item-name item-dscr len wid dep style-cod board fg-cat sub-unit iUnitCount ~
-iPerPallet pallet Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 
+iPerPallet pallet Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 dWeightPerM ~
+iStackHeight
 &Scoped-Define DISPLAYED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
 item-name item-dscr len wid dep style-cod style-dscr board fg-cat sub-unit ~
 sun-Unit-dscr iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount ~
-cust-name ship-name board-dscr cat-dscr 
+cust-name ship-name board-dscr cat-dscr dWeightPerM iStackHeight 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -115,7 +117,7 @@ cust-name ship-name board-dscr cat-dscr
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+DEFINE BUTTON Btn_Cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.29
      BGCOLOR 8 .
@@ -157,10 +159,27 @@ DEFINE VARIABLE cust-name AS CHARACTER FORMAT "X(25)":U
      SIZE 29 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dep AS DECIMAL FORMAT ">>9.99":U INITIAL 0 
+DEFINE VARIABLE dep AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
      LABEL "Depth" 
      VIEW-AS FILL-IN 
-     SIZE 9.6 BY 1
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dWeightPerM AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
+     LABEL "Override Weight Per M" 
+     VIEW-AS FILL-IN
+     SIZE 15 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE iStackHeight AS INTEGER FORMAT ">":U INITIAL 1 
+     LABEL "Stack Height" 
+     VIEW-AS COMBO-BOX INNER-LINES 4
+     LIST-ITEM-PAIRS "1","1",
+                     "2","2",
+                     "3","3",
+                     "4","4"
+     DROP-DOWN-LIST
+     SIZE 8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE fg-cat AS CHARACTER FORMAT "X(5)":U 
@@ -199,10 +218,10 @@ DEFINE VARIABLE iUnitCount AS INTEGER FORMAT "->>,>>9":U INITIAL 0
      SIZE 8.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE len AS DECIMAL FORMAT ">>9.99":U INITIAL 0 
+DEFINE VARIABLE len AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
      LABEL "Length" 
      VIEW-AS FILL-IN 
-     SIZE 9.6 BY 1
+     SIZE 10.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE pallet AS CHARACTER FORMAT "X(10)":U 
@@ -261,10 +280,10 @@ DEFINE VARIABLE tot-iUnitCount AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      SIZE 13.4 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE wid AS DECIMAL FORMAT ">>9.99":U INITIAL 0 
+DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
      LABEL "Width" 
      VIEW-AS FILL-IN 
-     SIZE 9.6 BY 1
+     SIZE 10.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -279,12 +298,12 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 58.6 BY 7.38
+     SIZE 58.6 BY 10.05
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 122 BY 16.67
+     SIZE 122 BY 16.57
      BGCOLOR 15 .
 
 
@@ -299,19 +318,21 @@ DEFINE FRAME D-Dialog
      item-name AT ROW 8.05 COL 17 COLON-ALIGNED WIDGET-ID 208
      item-dscr AT ROW 9.19 COL 17 COLON-ALIGNED WIDGET-ID 210
      len AT ROW 10.38 COL 9.8 COLON-ALIGNED WIDGET-ID 190
-     wid AT ROW 10.38 COL 29 COLON-ALIGNED WIDGET-ID 194
-     dep AT ROW 10.38 COL 48.8 COLON-ALIGNED WIDGET-ID 192
+     wid AT ROW 10.38 COL 30 COLON-ALIGNED WIDGET-ID 194
+     dep AT ROW 10.38 COL 50.2 COLON-ALIGNED WIDGET-ID 192
      style-cod AT ROW 11.71 COL 17 COLON-ALIGNED WIDGET-ID 180
      style-dscr AT ROW 11.71 COL 32 COLON-ALIGNED NO-LABEL WIDGET-ID 182
      board AT ROW 12.81 COL 17 COLON-ALIGNED WIDGET-ID 174
      fg-cat AT ROW 13.91 COL 17 COLON-ALIGNED WIDGET-ID 196
-     sub-unit AT ROW 6.43 COL 76.6 COLON-ALIGNED WIDGET-ID 216
-     sun-Unit-dscr AT ROW 6.43 COL 91.6 COLON-ALIGNED NO-LABEL WIDGET-ID 218
-     iUnitCount AT ROW 7.91 COL 82.2 COLON-ALIGNED WIDGET-ID 220
-     iPerPallet AT ROW 7.91 COL 111.2 COLON-ALIGNED WIDGET-ID 222
-     pallet AT ROW 9.29 COL 76.8 COLON-ALIGNED WIDGET-ID 224
-     pallet-dscr AT ROW 9.29 COL 91.6 COLON-ALIGNED NO-LABEL WIDGET-ID 226
-     tot-iUnitCount AT ROW 10.71 COL 85.2 COLON-ALIGNED WIDGET-ID 228
+     sub-unit AT ROW 6.43 COL 77 COLON-ALIGNED WIDGET-ID 216
+     sun-Unit-dscr AT ROW 6.43 COL 91.8 COLON-ALIGNED NO-LABEL WIDGET-ID 218
+     iUnitCount AT ROW 7.91 COL 82.6 COLON-ALIGNED WIDGET-ID 220
+     iPerPallet AT ROW 7.91 COL 111.4 COLON-ALIGNED WIDGET-ID 222
+     pallet AT ROW 9.29 COL 77.2 COLON-ALIGNED WIDGET-ID 224
+     pallet-dscr AT ROW 9.29 COL 91.8 COLON-ALIGNED NO-LABEL WIDGET-ID 226
+     tot-iUnitCount AT ROW 10.71 COL 91.8 COLON-ALIGNED WIDGET-ID 228
+     dWeightPerM AT ROW 12.1 COL 91.8 COLON-ALIGNED WIDGET-ID 238 
+     iStackHeight AT ROW 13.5 COL 91.8 COLON-ALIGNED WIDGET-ID 248
      Btn_OK AT ROW 15.67 COL 45.4
      Btn_Cancel AT ROW 15.67 COL 66.8
      cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 202
@@ -328,7 +349,7 @@ DEFINE FRAME D-Dialog
      RECT-2 AT ROW 5.24 COL 1.8 WIDGET-ID 230
      RECT-3 AT ROW 5.24 COL 65.4 WIDGET-ID 232
      RECT-4 AT ROW 1.1 COL 1.8 WIDGET-ID 236
-     SPACE(0.59) SKIP(0.27)
+     SPACE(0.59) SKIP(0.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -406,17 +427,9 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME D-Dialog /* New Miscellaneous Product Estimate  */
 DO:  
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
-        FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.
-        IF AVAILABLE eb THEN 
-        DO:
-            FIND FIRST ef OF eb NO-LOCK  NO-ERROR.
-            FIND FIRST est OF ef NO-LOCK NO-ERROR.
-
-            DELETE est.
-        END.
-
         EMPTY TEMP-TABLE ttInputEst .
-        APPLY "go" TO FRAME {&FRAME-NAME}.
+        
+        APPLY "END-ERROR":U TO SELF.
 
     END.
 
@@ -445,6 +458,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL board D-Dialog
 ON LEAVE OF board IN FRAME D-Dialog /* Board */
 DO:
+    IF LASTKEY NE -1 THEN DO:
         IF NOT CAN-FIND(item WHERE item.company = gcompany
             AND item.i-no = board:screen-value
             AND LOOKUP(ITEM.mat-type,"P,R,B,F" ) GT 0)
@@ -457,14 +471,14 @@ DO:
         IF SELF:SCREEN-VALUE NE "" THEN 
         DO:
             FIND FIRST item WHERE item.company = cocode
-                AND item.i-no EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
+                AND item.i-no EQ board:SCREEN-VALUE NO-LOCK NO-ERROR .
 
             IF AVAILABLE ITEM THEN
                 ASSIGN board-dscr:SCREEN-VALUE = item.i-name .
         END.
-            .                                    
+                                                
     END.
-
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -473,15 +487,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 DO:
-        FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.
-        IF AVAILABLE eb THEN 
-        DO:
-            FIND FIRST ef OF eb NO-LOCK  NO-ERROR.
-            FIND FIRST est OF ef NO-LOCK NO-ERROR.
-            DELETE est.
-        END.
         EMPTY TEMP-TABLE ttInputEst .
-        APPLY "go" TO FRAME {&FRAME-NAME}.
+        APPLY "END-ERROR":U TO SELF.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -514,6 +521,12 @@ DO:
         RUN valid-part-no(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY.
 
+        RUN valid-item-name(OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY .
+
+        RUN valid-item-dscr(OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY .
+
         RUN valid-procat(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY .   
 
@@ -541,7 +554,10 @@ DO:
         SESSION:SET-WAIT-STATE("general").
   
         RUN create-ttfrmout.
-        /*oprEstRowid = lv-crt-est-rowid .*/
+        
+        IF ipType EQ "Edit" THEN DO:
+            RUN est/UpdMiscEst.p(INPUT  ipriRowid) .
+        END.
 
         SESSION:SET-WAIT-STATE("").
   
@@ -565,7 +581,9 @@ DO:
             ASSIGN
                 SELF:screen-value      = ENTRY(1,char-val)
                 cust-name:screen-value = ENTRY(2,char-val)
-                .                                    
+                .     
+         APPLY "value-changed" TO cCustNo IN FRAME {&FRAME-NAME}.
+         APPLY "entry" TO cCustNo IN FRAME {&FRAME-NAME}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -589,6 +607,25 @@ DO:
              
             IF AVAILABLE cust THEN
                 ASSIGN cust-name:SCREEN-VALUE = cust.NAME .
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
+ON VALUE-CHANGED OF cCustNo IN FRAME D-Dialog /* Cust# */
+DO:     
+        IF SELF:SCREEN-VALUE NE "" THEN 
+        DO:
+            FIND FIRST shipto NO-LOCK
+                WHERE shipto.company EQ cocode
+                AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
+                AND shipto.ship-id EQ cCustNo:SCREEN-VALUE  NO-ERROR.
+             
+            IF AVAILABLE shipto THEN
+                ASSIGN ship-to:SCREEN-VALUE = shipto.ship-id
+                       ship-name:SCREEN-VALUE = shipto.ship-name .
         END.
     END.
 
@@ -718,7 +755,7 @@ DO:
             IF SELF:SCREEN-VALUE NE "" THEN 
             DO:
                 FIND FIRST fgcat WHERE fgcat.company = cocode
-                    AND fgcat.procat EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
+                    AND fgcat.procat EQ fg-cat:SCREEN-VALUE NO-LOCK NO-ERROR .
              
                 IF AVAILABLE fgcat THEN
                     ASSIGN cat-dscr:SCREEN-VALUE = fgcat.dscr .
@@ -782,6 +819,23 @@ DO:
                 cCustPart:SCREEN-VALUE = itemfg.part-no
                 item-name:SCREEN-VALUE = itemfg.i-name
                 item-dscr:SCREEN-VALUE = itemfg.part-dscr1 .
+         ASSIGN lCreateNewFG = FALSE .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME item-dscr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
+ON LEAVE OF item-dscr IN FRAME D-Dialog /* Description */
+DO:
+       DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-item-dscr(OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY .
+        END.
+               
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -817,43 +871,15 @@ DO:
 
 
 &Scoped-define SELF-NAME item-dscr
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
-ON HELP OF item-dscr IN FRAME D-Dialog /* Description */
-DO:
-   
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
-ON LEAVE OF item-dscr IN FRAME D-Dialog /* Description */
-DO: 
-    
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME item-name
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-name D-Dialog
-ON HELP OF item-name IN FRAME D-Dialog /* Item Name */
-DO:
-   
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-name D-Dialog
 ON LEAVE OF item-name IN FRAME D-Dialog /* Item Name */
 DO:
+       DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
-            ASSIGN {&self-name}.
+            RUN valid-item-name(OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY .
         END.
     END.
 
@@ -966,7 +992,7 @@ DO:
         IF SELF:SCREEN-VALUE NE "" THEN 
         DO:
             FIND FIRST ITEM WHERE ITEM.company = cocode
-                AND ITEM.i-no EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
+                AND ITEM.i-no EQ pallet:SCREEN-VALUE NO-LOCK NO-ERROR .
 
             IF AVAILABLE ITEM THEN
                 ASSIGN pallet-dscr:SCREEN-VALUE = ITEM.i-name .
@@ -987,8 +1013,8 @@ DO:
         DEFINE VARIABLE date-val   AS cha   NO-UNDO.
         DEFINE VARIABLE date-val2  AS cha   NO-UNDO.
 
-    /*
-        run est/estqtyfr.w (len:screen-value,wid:SCREEN-VALUE, quantity:SCREEN-VALUE, output char-val, output char-val2, output date-val, output date-val2) .
+    
+        run est/estqtyfr.w (len:screen-value,wid:SCREEN-VALUE, quantity:SCREEN-VALUE,ipriRowid, output char-val, output char-val2, output date-val, output date-val2) .
         if char-val <> "?" 
            then assign quantity:screen-value = entry(1,char-val)
                        lv-copy-qty[1] = integer(entry(1,char-val))
@@ -1032,7 +1058,7 @@ DO:
                        lv-copy-rel[18] = integer(entry(18,char-val2))  
                        lv-copy-rel[19] = integer(entry(19,char-val2))  
                        lv-copy-rel[20] = integer(entry(20,char-val2)) 
-            .*/
+            .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1121,10 +1147,11 @@ DO:
             FIND FIRST style WHERE style.company = cocode
                 AND style.style EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
 
-            IF AVAILABLE style THEN
-                ASSIGN style-dscr:SCREEN-VALUE = style.dscr
-                    sub-unit:SCREEN-VALUE   = style.spare-char-5 
-                    .
+            IF AVAILABLE style THEN do:
+                ASSIGN style-dscr:SCREEN-VALUE = style.dscr .
+                IF style.spare-char-5 NE "" THEN
+                    sub-unit:SCREEN-VALUE   = style.spare-char-5 .
+            END.
         END.
     END.
 
@@ -1148,6 +1175,22 @@ DO:
                 AND style.style EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
 
             IF AVAILABLE style THEN
+                ASSIGN style-dscr:SCREEN-VALUE = style.dscr.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style-cod D-Dialog
+ON VALUE-CHANGED OF style-cod IN FRAME D-Dialog /* Style Code */
+DO:     
+        IF SELF:SCREEN-VALUE NE "" THEN 
+        DO:
+            FIND FIRST style NO-LOCK WHERE style.company = cocode
+                AND style.style EQ SELF:SCREEN-VALUE  NO-ERROR .
+
+            IF AVAILABLE style AND style.spare-char-5 NE "" THEN
                 ASSIGN style-dscr:SCREEN-VALUE = style.dscr
                     sub-unit:SCREEN-VALUE   = style.spare-char-5  .
         END.
@@ -1202,16 +1245,6 @@ DO:
 
 
 &Scoped-define SELF-NAME tot-iUnitCount
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tot-iUnitCount D-Dialog
-ON LEAVE OF tot-iUnitCount IN FRAME D-Dialog /* Unit/Pallet Count */
-DO:
-   
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME wid
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wid D-Dialog
 ON LEAVE OF wid IN FRAME D-Dialog /* Width */
@@ -1272,13 +1305,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}
      
     DO WITH FRAME {&frame-name}:
+
+        IF ipType EQ "Edit" THEN
+            RUN pDisplayValue .
       
         APPLY "entry" TO quantity IN FRAME {&FRAME-NAME}.
-
-        RUN est/NewEstimate.p ('C', 5 ,OUTPUT lv-crt-est-rowid).
-        FIND FIRST eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-LOCK NO-ERROR.
-/*        IF AVAILABLE eb THEN                 */
-/*            est-no:SCREEN-VALUE = eb.est-no .*/
     END.
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -1362,8 +1393,53 @@ PROCEDURE create-ttfrmout :
         ttInputEst.cBoard           = board  
         ttInputEst.iQuantity        = quantity 
         ttInputEst.cCategory        = fg-cat 
+        ttInputEst.dWeightPerM      = dWeightPerM
+        ttInputEst.iStackHeight     = iStackHeight
         ttInputEst.cEstType         = "MiscEstimate" 
         .
+     ASSIGN 
+         ttInputEst.copy-qty[2] = lv-copy-qty[2] 
+         ttInputEst.copy-qty[3] = lv-copy-qty[3] 
+         ttInputEst.copy-qty[4] = lv-copy-qty[4] 
+         ttInputEst.copy-qty[5] = lv-copy-qty[5] 
+         ttInputEst.copy-qty[6] = lv-copy-qty[6] 
+         ttInputEst.copy-qty[7] = lv-copy-qty[7] 
+         ttInputEst.copy-qty[8] = lv-copy-qty[8] 
+         ttInputEst.copy-qty[9] = lv-copy-qty[9] 
+         ttInputEst.copy-qty[10] = lv-copy-qty[10]
+         
+         ttInputEst.copy-qty[11] = lv-copy-qty[11] 
+         ttInputEst.copy-qty[12] = lv-copy-qty[12] 
+         ttInputEst.copy-qty[13] = lv-copy-qty[13] 
+         ttInputEst.copy-qty[14] = lv-copy-qty[14] 
+         ttInputEst.copy-qty[15] = lv-copy-qty[15] 
+         ttInputEst.copy-qty[16] = lv-copy-qty[16] 
+         ttInputEst.copy-qty[17] = lv-copy-qty[17] 
+         ttInputEst.copy-qty[18] = lv-copy-qty[18] 
+         ttInputEst.copy-qty[19] = lv-copy-qty[19] 
+         ttInputEst.copy-qty[20] = lv-copy-qty[20] 
+
+         ttInputEst.copy-rel[1] = lv-copy-rel[1]
+         ttInputEst.copy-rel[2] = lv-copy-rel[2] 
+         ttInputEst.copy-rel[3] = lv-copy-rel[3] 
+         ttInputEst.copy-rel[4] = lv-copy-rel[4] 
+         ttInputEst.copy-rel[5] = lv-copy-rel[5] 
+         ttInputEst.copy-rel[6] = lv-copy-rel[6] 
+         ttInputEst.copy-rel[7] = lv-copy-rel[7] 
+         ttInputEst.copy-rel[8] = lv-copy-rel[8] 
+         ttInputEst.copy-rel[9] = lv-copy-rel[9] 
+         ttInputEst.copy-rel[10] = lv-copy-rel[10]
+         
+         ttInputEst.copy-rel[11] = lv-copy-rel[11] 
+         ttInputEst.copy-rel[12] = lv-copy-rel[12] 
+         ttInputEst.copy-rel[13] = lv-copy-rel[13] 
+         ttInputEst.copy-rel[14] = lv-copy-rel[14] 
+         ttInputEst.copy-rel[15] = lv-copy-rel[15] 
+         ttInputEst.copy-rel[16] = lv-copy-rel[16] 
+         ttInputEst.copy-rel[17] = lv-copy-rel[17] 
+         ttInputEst.copy-rel[18] = lv-copy-rel[18] 
+         ttInputEst.copy-rel[19] = lv-copy-rel[19] 
+         ttInputEst.copy-rel[20] = lv-copy-rel[20] .
      
     
     ttInputEst.riParentEst = lv-crt-est-rowid .
@@ -1412,11 +1488,11 @@ PROCEDURE enable_UI :
   DISPLAY quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
           dep style-cod style-dscr board fg-cat sub-unit sun-Unit-dscr 
           iUnitCount iPerPallet pallet pallet-dscr tot-iUnitCount cust-name 
-          ship-name board-dscr cat-dscr 
+          ship-name board-dscr cat-dscr dWeightPerM iStackHeight 
       WITH FRAME D-Dialog.
   ENABLE quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
          dep style-cod board fg-cat sub-unit iUnitCount iPerPallet pallet 
-         Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 
+         Btn_OK Btn_Cancel RECT-1 RECT-2 RECT-3 RECT-4 dWeightPerM iStackHeight  
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1524,16 +1600,22 @@ PROCEDURE valid-fgitem :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
      
-        IF fg-no:SCREEN-VALUE  NE "" THEN 
+        IF fg-no:SCREEN-VALUE  NE "" AND NOT lCreateNewFG THEN 
         DO:
             FIND FIRST itemfg
                 WHERE itemfg.company  EQ gcompany
                 AND itemfg.i-no    EQ fg-no:SCREEN-VALUE  NO-LOCK NO-ERROR.
             IF NOT AVAILABLE itemfg  THEN 
             DO:
-                MESSAGE "Invalid Fg Item, try help..." VIEW-AS ALERT-BOX ERROR.
-                APPLY "entry" TO fg-no .
-                oplOutError = YES .
+                MESSAGE "This item does not exist, would you like to add it?" 
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                    UPDATE ll-ans AS LOG.
+                IF ll-ans THEN
+                    ASSIGN lCreateNewFG = TRUE .
+                IF NOT ll-ans THEN do:
+                    APPLY "entry" TO fg-no .
+                    oplOutError = YES .
+                END.
             END.
         END.
     END.
@@ -1679,7 +1761,7 @@ PROCEDURE valid-ship-id :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST shipto
+        IF ship-to:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST shipto
             WHERE shipto.company EQ gcompany
             AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
             AND shipto.ship-id EQ ship-to:SCREEN-VALUE)  THEN 
@@ -1744,4 +1826,148 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-item-name D-Dialog 
+PROCEDURE valid-item-name :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF item-name:SCREEN-VALUE EQ "" THEN 
+        DO:
+            MESSAGE "Item Name must not be blank. " VIEW-AS ALERT-BOX INFORMATION.
+            APPLY "entry" TO item-name.
+            oplOutError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-item-dscr D-Dialog 
+PROCEDURE valid-item-dscr :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF item-dscr:SCREEN-VALUE EQ "" THEN 
+        DO:
+            MESSAGE "Description must not be blank. " VIEW-AS ALERT-BOX INFORMATION.
+            APPLY "entry" TO item-dscr.
+            oplOutError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayValue D-Dialog 
+PROCEDURE pDisplayValue :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+   
+    DO WITH FRAME {&FRAME-NAME}:
+
+        FIND FIRST eb NO-LOCK 
+            WHERE eb.company EQ cocode
+              AND ROWID(eb) EQ ipriRowid NO-ERROR .
+        
+        IF AVAIL eb THEN DO:
+            FIND FIRST ef NO-LOCK
+                WHERE ef.company EQ eb.company
+                AND ef.est-no EQ eb.est-no
+                AND ef.form-no EQ eb.form-no  
+                NO-ERROR.
+
+            ASSIGN
+             quantity:SCREEN-VALUE   = string(eb.eqty) 
+             cCustNo:SCREEN-VALUE    = eb.cust-no
+             ship-to:SCREEN-VALUE    = eb.ship-id
+             cCustPart:SCREEN-VALUE  = eb.part-no
+             fg-no:SCREEN-VALUE      = eb.stock-no
+             item-name:SCREEN-VALUE  = eb.part-dscr1
+             item-dscr:SCREEN-VALUE  = eb.part-dscr2
+             len:SCREEN-VALUE        = string(eb.len)
+             wid:SCREEN-VALUE        = string(eb.wid)
+             dep:SCREEN-VALUE        = string(eb.dep)
+             style-cod:SCREEN-VALUE  = eb.style
+             board:SCREEN-VALUE      = IF AVAIL ef THEN ef.board ELSE ""
+             fg-cat:SCREEN-VALUE     = eb.procat
+             sub-unit:SCREEN-VALUE   = eb.cas-no
+             iUnitCount:SCREEN-VALUE = string(eb.cas-cnt)
+             iPerPallet:SCREEN-VALUE = string(eb.cas-pal)
+             pallet:SCREEN-VALUE     = eb.tr-no
+             dWeightPerM:SCREEN-VALUE = string(eb.weight)
+             tot-iUnitCount:SCREEN-VALUE = string(eb.cas-cnt * eb.cas-pal )
+              . 
+        IF eb.stackHeight GT 0 THEN 
+            ASSIGN iStackHeight:SCREEN-VALUE = string(eb.stackHeight) .
+        ELSE iStackHeight:SCREEN-VALUE = string("1") .
+
+        FIND FIRST ITEM NO-LOCK WHERE ITEM.company = cocode
+            AND ITEM.i-no EQ pallet:SCREEN-VALUE NO-ERROR .
+        
+        IF AVAILABLE ITEM THEN
+            ASSIGN pallet-dscr:SCREEN-VALUE = ITEM.i-name .
+
+        FIND FIRST ITEM NO-LOCK WHERE ITEM.company = cocode
+            AND ITEM.i-no EQ sub-unit:SCREEN-VALUE NO-ERROR .
+        IF AVAILABLE ITEM THEN
+            ASSIGN sun-Unit-dscr:SCREEN-VALUE = ITEM.i-name .
+
+        FIND FIRST ITEM NO-LOCK WHERE item.company = cocode
+            AND item.i-no EQ board:SCREEN-VALUE NO-ERROR .
+        IF AVAILABLE ITEM THEN
+            ASSIGN board-dscr:SCREEN-VALUE = item.i-name .
+
+        FIND FIRST style NO-LOCK WHERE style.company = cocode
+            AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
+        
+        IF AVAILABLE style THEN
+            ASSIGN style-dscr:SCREEN-VALUE = style.dscr .
+
+        FIND FIRST cust NO-LOCK WHERE cust.company = cocode
+            AND cust.cust-no EQ cCustNo:SCREEN-VALUE NO-ERROR .
+        IF AVAILABLE cust THEN
+            ASSIGN cust-name:SCREEN-VALUE = cust.NAME .
+
+        FIND FIRST shipto NO-LOCK WHERE shipto.company = cocode
+            AND shipto.cust-no EQ cCustNo:SCREEN-VALUE
+            AND shipto.ship-id EQ ship-to:SCREEN-VALUE NO-ERROR .
+        IF AVAILABLE shipto THEN
+            ASSIGN ship-name:SCREEN-VALUE = shipto.ship-name .
+
+        FIND FIRST fgcat NO-LOCK WHERE fgcat.company = cocode
+            AND fgcat.procat EQ fg-cat:SCREEN-VALUE NO-ERROR .
+        IF AVAILABLE fgcat THEN
+            ASSIGN cat-dscr:SCREEN-VALUE = fgcat.dscr .
+        
+        Btn_OK:LABEL = "Save" .
+
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 

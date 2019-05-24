@@ -319,7 +319,7 @@ END PROCEDURE.
 
 PROCEDURE GetFreightForEstimate:
     /*------------------------------------------------------------------------------
-     Purpose: Given a rowid for estBlank (eb) quantity return the freight cost
+     Purpose: Given company estimate and calculation quantity, return the total freight cost
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
@@ -331,6 +331,27 @@ PROCEDURE GetFreightForEstimate:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     RUN pGetFreight(ipcCompany, ipcEstimateNo, ipdQuantity, giAllFormsIndicator, giAllBlanksIndicator, 
+        OUTPUT opdFreightTotal,
+        OUTPUT lError, OUTPUT cMessage ).
+
+END PROCEDURE.
+
+PROCEDURE GetFreightForEstimateBlank:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a rowid for estBlank (eb) quantity return the freight cost
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightTotal AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN pGetFreight(ipcCompany, ipcEstimateNo, ipdQuantity, ipiFormNo, ipiBlankNo, 
         OUTPUT opdFreightTotal,
         OUTPUT lError, OUTPUT cMessage ).
 
@@ -590,6 +611,37 @@ PROCEDURE pGetCarrierBuffers PRIVATE:
             . 
 
 END PROCEDURE.
+
+PROCEDURE pGetEffectiveQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given an estimate and quantity, search the estRelease table for the
+ effective quantity to establish the pro rata costs for freight and handling
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipdQuantityTarget AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opdQuantityEffective AS DECIMAL NO-UNDO.
+
+DEFINE BUFFER bf-estRelease FOR estRelease.
+
+FOR EACH bf-estRelease NO-LOCK 
+    WHERE bf-estRelease.company EQ ipcCompany
+    AND bf-estRelease.formNo EQ ipiFormNo
+    AND bf-estRelease.blankNo EQ ipiBlankNo
+    BREAK BY bf-estRelease.quantity:
+        
+    IF FIRST-OF(bf-estRelease.quantity) THEN DO:
+        IF FIRST(bf-estRelease.quantity) OR bf-estRelease.quantity LE ipdQuantityTarget THEN 
+            opdQuantityEffective = bf-estRelease.quantity.
+        IF bf-estRelease.quantity GE ipdQuantityTarget THEN LEAVE.
+    END.
+END.
+
+END PROCEDURE.
+
 PROCEDURE pGetFreight PRIVATE:
     /*------------------------------------------------------------------------------
     Purpose: Given an estimate, qty, form, and blank, return the total freight cost
@@ -606,18 +658,32 @@ PROCEDURE pGetFreight PRIVATE:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-estRelease FOR estRelease.
+    DEFINE VARIABLE dQuantityEffective AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dFreightEach AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityReleaseProRated AS DECIMAL NO-UNDO.
     
+    RUN pGetEffectiveQuantity (ipcCompany, ipcEstimateNo, ipiFormNo, ipiBlankNo, ipdQuantity, OUTPUT dQuantityEffective).
     FOR EACH bf-estRelease NO-LOCK
         WHERE bf-estRelease.company EQ ipcCompany
         AND bf-estRelease.estimateNo EQ ipcEstimateNo
-        AND (bf-estRelease.formNo EQ ipiFormNo OR ipiFormNo EQ giAllFormsIndicator)
-        AND (bf-estRelease.blankNo EQ ipiBlankNo OR ipiBlankNo EQ giAllBlanksIndicator)
-        AND (bf-estRelease.quantity EQ ipdQuantity OR ipdQuantity EQ gdAllQuantitiesIndicator):
+        AND bf-estRelease.formNo EQ ipiFormNo
+        AND bf-estRelease.blankNo EQ ipiBlankNo
+        AND bf-estRelease.quantity EQ dQuantityEffective:
+            
         RUN CalcFreightForEstRelease(bf-estRelease.estReleaseID, OUTPUT oplError, OUTPUT opcMessage).
-        IF NOT oplError THEN 
-            ASSIGN 
-                opdFreightCostTotal = opdFreightCostTotal + bf-estRelease.freightCost
-                . 
+        
+        IF NOT oplError THEN DO:
+            IF ipdQuantity EQ dQuantityEffective THEN 
+                ASSIGN 
+                    opdFreightCostTotal = opdFreightCostTotal + bf-estRelease.freightCost
+                    .
+            ELSE /*Prorate the Freight based on the relative release to master quantity*/
+                ASSIGN 
+                    dFreightEach = bf-estRelease.freightCost / bf-estRelease.quantityRelease
+                    dQuantityReleaseProRated = ipdQuantity * bf-estRelease.quantityRelease / bf-estRelease.quantity
+                    opdFreightCostTotal = opdFreightCostTotal + dFreightEach * dQuantityReleaseProRated
+                    . 
+        END.
     END.
     
 END PROCEDURE.
@@ -638,19 +704,38 @@ PROCEDURE pGetStorageAndHandling PRIVATE:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-estRelease FOR estRelease.
+    DEFINE VARIABLE dQuantityEffective AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dStorageEach AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dHandlingEach AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityReleaseProRated AS DECIMAL NO-UNDO.
     
+    RUN pGetEffectiveQuantity (ipcCompany, ipcEstimateNo, ipiFormNo, ipiBlankNo, ipdQuantity, OUTPUT dQuantityEffective).
+    IF dQuantityEffective EQ 0 THEN 
+        dQuantityEffective = ipdQuantity.
     FOR EACH bf-estRelease NO-LOCK
         WHERE bf-estRelease.company EQ ipcCompany
         AND bf-estRelease.estimateNo EQ ipcEstimateNo
-        AND (bf-estRelease.formNo EQ ipiFormNo OR ipiFormNo EQ giAllFormsIndicator)
-        AND (bf-estRelease.blankNo EQ ipiBlankNo OR ipiBlankNo EQ giAllBlanksIndicator)
-        AND (bf-estRelease.quantity EQ ipdQuantity OR ipdQuantity EQ gdAllQuantitiesIndicator):
+        AND bf-estRelease.formNo EQ ipiFormNo
+        AND bf-estRelease.blankNo EQ ipiBlankNo
+        AND bf-estRelease.quantity EQ dQuantityEffective:
+            
         RUN CalcStorageAndHandlingForEstRelease(bf-estRelease.estReleaseID, OUTPUT oplError, OUTPUT opcMessage).
-        IF NOT oplError THEN 
-            ASSIGN 
-                opdStorageCostTotal  = opdStorageCostTotal + bf-estRelease.storageCostTotal
-                opdHandlingCostTotal = opdHandlingCostTotal + bf-estRelease.handlingCostTotal
-                . 
+        
+        IF NOT oplError THEN DO:
+            IF ipdQuantity EQ dQuantityEffective THEN 
+                ASSIGN 
+                    opdStorageCostTotal  = opdStorageCostTotal + bf-estRelease.storageCostTotal
+                    opdHandlingCostTotal = opdHandlingCostTotal + bf-estRelease.handlingCostTotal
+                    .
+            ELSE /*Prorate the Costs based on the relative release to master quantity*/
+                 ASSIGN 
+                    dQuantityReleaseProRated = ipdQuantity * bf-estRelease.quantityRelease / bf-estRelease.quantity
+                    dStorageEach = bf-estRelease.storageCostTotal / bf-estRelease.quantityRelease
+                    dHandlingEach = bf-estRelease.handlingCostTotal / bf-estRelease.quantityRelease
+                    opdStorageCostTotal = opdStorageCostTotal + dStorageEach * dQuantityReleaseProRated
+                    opdHandlingCostTotal = opdHandlingCostTotal + dHandlingEach * dQuantityReleaseProRated
+                    . 
+        END.
     END.
     
 END PROCEDURE.

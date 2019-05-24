@@ -56,14 +56,18 @@ DEFINE STREAM excel.
 DEFINE VARIABLE ldummy AS LOG NO-UNDO.
 DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
-ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
+DEF VAR cTextListToDefault AS cha NO-UNDO.
+
+ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                            "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
                            "Item Description 2,Style,Dimensions,Board,Color"
-            cFieldListToSelect = "part-no,cust-no,quote,qty,price,price-uom,shipto,soldto,quote-date,del-date,exp-date," +
+            cFieldListToSelect = "part-no,cust-no,quote,qty,price,profit,price-uom,shipto,soldto,quote-date,del-date,exp-date," +
                                  "est-no,contact,sale-group,terms,carrier,zone,fg-item,item-dscr," +
                                  "item-dscr2,style,dimension,board,color"    .
 {sys/inc/ttRptSel.i}
-
+ASSIGN cTextListToDefault  = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
+                             "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
+                             "Item Description 2,Style,Dimensions,Board,Color" .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -82,7 +86,7 @@ ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Price UOM,Ship
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_cust end_cust ~
 begin_procat end_procat begin_slm end_slm begin_date end_date sl_avail ~
 Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok ~
-btn-cancel 
+btn-cancel Btn_Def
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_procat ~
 end_procat begin_slm end_slm begin_date end_date sl_avail sl_selected ~
 tb_excel tb_runExcel fi_file 
@@ -138,6 +142,10 @@ DEFINE BUTTON Btn_Add
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
+     SIZE 16 BY 1.
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
      SIZE 16 BY 1.
 
 DEFINE BUTTON Btn_Remove 
@@ -247,13 +255,15 @@ DEFINE FRAME rd-fgexp
      end_date AT ROW 6.71 COL 71 COLON-ALIGNED HELP
           "Enter Ending Quote Date" WIDGET-ID 102
      sl_avail AT ROW 11.14 COL 9 NO-LABELS WIDGET-ID 26
-     Btn_Add AT ROW 11.14 COL 44 HELP
+     Btn_Def AT ROW 11.38 COL 44 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 12.57 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
      sl_selected AT ROW 11.14 COL 64 NO-LABELS WIDGET-ID 28
-     Btn_Remove AT ROW 12.33 COL 44 HELP
+     Btn_Remove AT ROW 13.76 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 13.52 COL 44 WIDGET-ID 136
-     btn_down AT ROW 14.71 COL 44 WIDGET-ID 132
+     btn_Up AT ROW 14.95 COL 44 WIDGET-ID 136
+     btn_down AT ROW 16.14 COL 44 WIDGET-ID 132
      tb_excel AT ROW 17.81 COL 36 WIDGET-ID 32
      tb_runExcel AT ROW 17.81 COL 78 RIGHT-ALIGNED WIDGET-ID 34
      fi_file AT ROW 18.76 COL 34 COLON-ALIGNED HELP
@@ -275,7 +285,7 @@ DEFINE FRAME rd-fgexp
      SPACE(2.39) SKIP(2.90)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Export FG Items to Excel" WIDGET-ID 100.
+         TITLE "Export Quote to Excel" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -488,6 +498,19 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
+ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  
+  RUN DisplaySelectionList2 .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add rd-fgexp
@@ -749,6 +772,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgexp 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList rd-fgexp 
 PROCEDURE DisplaySelectionList :
 /*------------------------------------------------------------------------------
@@ -857,7 +903,7 @@ PROCEDURE enable_UI :
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_cust end_cust begin_procat end_procat 
          begin_slm end_slm begin_date end_date sl_avail Btn_Add sl_selected 
-         Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+         Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel Btn_Def
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -942,6 +988,7 @@ DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE lv-pdf-file AS cha NO-UNDO.
 DEFINE VARIABLE iQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>9.99%" NO-UNDO .
 DEFINE VARIABLE cUom AS CHARACTER NO-UNDO .
 
 v-excelheader = buildHeader().
@@ -965,6 +1012,7 @@ FOR EACH quotehd
     ASSIGN
        iQty   =  0
        dPrice = 0
+       dProfit = 0
        cUom   = "".
      
      
@@ -990,6 +1038,7 @@ FOR EACH quotehd
      IF AVAILABLE quoteqty THEN ASSIGN
           iQty = INTEGER(quoteqty.qty)
           dPrice = DECIMAL(quoteqty.price)
+          dProfit = DECIMAL(quoteqty.profit) 
           cUom   = quoteqty.uom .
      ELSE IF AVAILABLE quoteitm THEN ASSIGN
           iQty = INTEGER(quoteitm.qty)
@@ -1011,6 +1060,8 @@ FOR EACH quotehd
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(iQty)). 
             WHEN "price" THEN                                                                
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dPrice)). 
+            WHEN "profit" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dProfit, "->>9.99")).
             WHEN "price-uom" THEN                                                                
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cUom). 
             WHEN "shipto" THEN                                                                

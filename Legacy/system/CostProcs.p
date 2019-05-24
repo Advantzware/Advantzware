@@ -198,23 +198,17 @@ PROCEDURE GetCostForLastReceipt:
             AND b-fg-rdtlh.qty     GT 0
             NO-LOCK
     
-            BY b-fg-rcpth.trans-date desc
-            BY b-fg-rdtlh.trans-time DESC
-            BY b-fg-rcpth.r-no       desc
-            BY RECID(b-fg-rdtlh)     desc:
-            IF b-fg-rdtlh.std-tot-cost NE 0 THEN 
-            DO:   /*if cost properly propagated to history transactions*/  
-                ASSIGN
-                    opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
-                    opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
-                    opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
-                    opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
-                    opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost
-                    oplFound           = YES 
-                    opcCostUOM         = b-fg-rcpth.pur-uom    
-                    .
-                 LEAVE HISTORYCOST.   
-            END.            
+            BY b-fg-rcpth.trans-date DESCENDING 
+            BY b-fg-rdtlh.trans-time DESCENDING 
+            BY b-fg-rcpth.r-no       DESCENDING 
+            BY RECID(b-fg-rdtlh)     DESCENDING :
+            
+            RUN pGetCostForHistoryRecord(BUFFER b-fg-rcpth, BUFFER b-fg-rdtlh, 
+                OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, 
+                OUTPUT oplFound).
+            
+            IF opdCostPerUOMTotal NE 0 THEN LEAVE HISTORYCOST.
+
         END. /* Each b-fg-rcpth */
         
     END. /* Do iCodeNum... */
@@ -294,6 +288,65 @@ PROCEDURE GetCostForPOLine:
             opdCostPerUOMFreight = fConvertCurrency(opdCostPerUOMFreight, bf-vend.company, bf-vend.curr-code).
         END.
     END.
+END PROCEDURE.
+
+PROCEDURE pGetCostForHistoryRecord PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given FG History buffers, return the costs with detail
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-fg-rcpth FOR fg-rcpth.
+    DEFINE PARAMETER BUFFER ipbf-fg-rdtlh FOR fg-rdtlh.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDL AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMFO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMVO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDM AS DECIMAL NO-UNDO.  
+    DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE iPOLine AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dCostFreight AS DECIMAL NO-UNDO.
+    
+    opcCostUOM = ipbf-fg-rcpth.pur-uom.
+    IF ipbf-fg-rdtlh.std-tot-cost NE 0 THEN 
+        DO:   /*if cost properly propagated to history transactions*/  
+            ASSIGN
+                opdCostPerUOMFO    = ipbf-fg-rdtlh.std-fix-cost   
+                opdCostPerUOMDL    = ipbf-fg-rdtlh.std-lab-cost   
+                opdCostPerUOMDM    = ipbf-fg-rdtlh.std-mat-cost    
+                opdCostPerUOMTotal = ipbf-fg-rdtlh.std-tot-cost    
+                opdCostPerUOMVO    = ipbf-fg-rdtlh.std-var-cost
+                oplFound           = YES     
+                .
+        END.
+        ELSE 
+        DO: /*otherwise get cost detail from sources*/
+            IF ipbf-fg-rcpth.job-no NE "" THEN 
+            DO:
+                RUN GetCostForJob(ipbf-fg-rcpth.company, ipbf-fg-rcpth.i-no, ipbf-fg-rcpth.job-no, ipbf-fg-rcpth.job-no2, 
+                    OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplFound).
+            END.
+            IF opdCostPerUOMTotal EQ 0 AND INTEGER(ipbf-fg-rcpth.po-no) GT 0 THEN 
+            DO:
+                iPoLine = MAXIMUM(ipbf-fg-rcpth.po-line, 1).
+                RUN GetCostForPOLine(ipbf-fg-rcpth.company, INTEGER(ipbf-fg-rcpth.po-no), iPoLine, ipbf-fg-rcpth.i-no,
+                    OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT oplFound).
+                ASSIGN 
+                    opdCostPerUOMDM = opdCostPerUOMTotal.
+            END.
+            IF opdCostPerUOMTotal EQ 0 THEN 
+                opdCostPerUOMTotal = ipbf-fg-rdtlh.cost.           
+        END.
+        IF opcCostUOM EQ "" THEN DO:
+            FIND FIRST itemfg NO-LOCK 
+                WHERE itemfg.company EQ ipbf-fg-rcpth.company
+                AND itemfg.i-no EQ ipbf-fg-rcpth.i-no
+                NO-ERROR.
+            IF AVAILABLE itemfg THEN 
+                opcCostUOM = itemfg.pur-uom.
+        END.        
+        
 END PROCEDURE.
 
 PROCEDURE pGetCostForPOLineInUOM PRIVATE:
@@ -921,37 +974,9 @@ PROCEDURE GetCostForReceipt:
     RUN pGetReceiptBuffers(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, BUFFER b-fg-rcpth, BUFFER b-fg-rdtlh).
     IF AVAILABLE b-fg-rcpth AND AVAILABLE b-fg-rdtlh THEN 
     DO:
-            
-        IF b-fg-rdtlh.std-tot-cost NE 0 THEN 
-        DO:   /*if cost properly propagated to history transactions*/  
-            ASSIGN
-                opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
-                opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
-                opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
-                opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
-                opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost
-                oplFound           = YES 
-                opcCostUOM         = b-fg-rcpth.pur-uom    
-                .
-        END.
-        ELSE 
-        DO: /*otherwise get cost detail from sources*/
-            ASSIGN 
-                opdCostPerUOMTotal = b-fg-rdtlh.cost.
-            IF b-fg-rcpth.job-no NE "" THEN 
-            DO:
-                RUN GetCostForJob(b-fg-rcpth.company, b-fg-rcpth.i-no, b-fg-rcpth.job-no, b-fg-rcpth.job-no2, 
-                    OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplFound).
-            END.
-            IF opdCostPerUOMTotal EQ 0 AND INTEGER(b-fg-rcpth.po-no) GT 0 THEN 
-            DO:
-                iPoLine = MAXIMUM(b-fg-rcpth.po-line, 1).
-                RUN GetCostForPOLine(b-fg-rcpth.company, INTEGER(b-fg-rcpth.po-no), iPoLine, b-fg-rcpth.i-no,
-                    OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT oplFound).
-                ASSIGN 
-                    opdCostPerUOMDM = opdCostPerUOMTotal.
-            END.           
-        END.    
+        RUN pGetCostForHistoryRecord(BUFFER b-fg-rcpth, BUFFER b-fg-rdtlh, 
+            OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, 
+            OUTPUT oplFound).    
     END.
     
 END PROCEDURE.

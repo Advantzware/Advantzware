@@ -545,9 +545,9 @@ DEFINE BROWSE Browser-Table
       eb.yld-qty COLUMN-LABEL "Yield Quantity" FORMAT "->>>>>>9":U
             LABEL-BGCOLOR 14
       eb.quantityPerSet FORMAT ">>>>9.9<<<":U
-      display-cw-dim(yes,eb.len) @ eb.len FORMAT ">>9.99":U LABEL-BGCOLOR 14
-      display-cw-dim(yes,eb.wid) @ eb.wid FORMAT ">>9.99":U LABEL-BGCOLOR 14
-      display-cw-dim(yes,eb.dep) @ eb.dep FORMAT ">>9.99":U LABEL-BGCOLOR 14
+      display-cw-dim(yes,eb.len) @ eb.len FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
+      display-cw-dim(yes,eb.wid) @ eb.wid FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
+      display-cw-dim(yes,eb.dep) @ eb.dep FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
       eb.die-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.cad-no COLUMN-LABEL "Cad #" FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.plate-no FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -787,11 +787,11 @@ and est-qty.eqty = eb.eqty
      _FldNameList[14]   > ASI.eb.quantityPerSet
 "eb.quantityPerSet" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > "_<CALC>"
-"display-cw-dim(yes,eb.len) @ eb.len" ? ">>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-cw-dim(yes,eb.len) @ eb.len" ? ">>>>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
-"display-cw-dim(yes,eb.wid) @ eb.wid" ? ">>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-cw-dim(yes,eb.wid) @ eb.wid" ? ">>>>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
-"display-cw-dim(yes,eb.dep) @ eb.dep" ? ">>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-cw-dim(yes,eb.dep) @ eb.dep" ? ">>>>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.die-no
 "eb.die-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.eb.cad-no
@@ -2707,7 +2707,7 @@ FUNCTION display-cw-dim RETURNS DECIMAL
     Purpose:  
       Notes:  
   ------------------------------------------------------------------------------*/
-    DEF VAR out-dim AS DEC DECIMALS 6 NO-UNDO.
+    DEF VAR out-dim AS DECIMAL NO-UNDO.
     
     IF ip-is-corr-style AND ip-dim <> 0 AND v-cecscrn-char NE "Decimal" THEN
        out-dim = ROUND(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).

@@ -387,13 +387,13 @@ DEFINE BROWSE br-estitm
       ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
       eb.procat FORMAT "x(5)":U COLUMN-FONT 2
       display-cw-dim(yes,eb.len) @ eb.len
-      eb.len FORMAT ">>9.99":U COLUMN-FONT 2
+      eb.len FORMAT ">>>>9.99":U COLUMN-FONT 2
       display-cw-dim(yes,eb.len) @ eb.len
       display-cw-dim(yes,eb.wid) @ eb.wid
-      eb.wid FORMAT ">>9.99":U COLUMN-FONT 2
+      eb.wid FORMAT ">>>>9.99":U COLUMN-FONT 2
       display-cw-dim(yes,eb.wid) @ eb.wid
       display-cw-dim(yes,eb.dep) @ eb.dep
-      eb.dep FORMAT ">>9.99":U COLUMN-FONT 2
+      eb.dep FORMAT ">>>>9.99":U COLUMN-FONT 2
       display-cw-dim(yes,eb.dep) @ eb.dep
       eb.form-no FORMAT ">9":U
       eb.blank-no FORMAT ">9":U
@@ -569,19 +569,19 @@ ASSIGN
      _FldNameList[17]   > "_<CALC>"
 "display-cw-dim(yes,eb.len) @ eb.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.len
-"eb.len" ? ">>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
 "display-cw-dim(yes,eb.len) @ eb.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
 "display-cw-dim(yes,eb.wid) @ eb.wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.eb.wid
-"eb.wid" ? ">>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
 "display-cw-dim(yes,eb.wid) @ eb.wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
 "display-cw-dim(yes,eb.dep) @ eb.dep" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.eb.dep
-"eb.dep" ? ">>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.dep" ? ">>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > "_<CALC>"
 "display-cw-dim(yes,eb.dep) @ eb.dep" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   = ASI.eb.form-no
@@ -645,8 +645,14 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
-   RUN new-state IN phandle ('update-begin':U).
+
+   IF AVAIL est AND  est.estimateTypeID = "MISC"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE
+       RUN new-state IN phandle ('update-begin':U).
 
 END.
 
@@ -5068,7 +5074,7 @@ PROCEDURE local-add-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-
+  DEFINE VARIABLE riRowidEbNew AS ROWID NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    ll-add-set = NO
@@ -5139,7 +5145,7 @@ PROCEDURE local-add-record :
   END.
   ELSE IF ls-add-what = "MiscEst" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
-      RUN est/dNewMiscEst.w .
+      RUN est/dNewMiscEst.w("",riRowidEbNew) .
       RUN pCreateMiscEstimate.
   END.
   ELSE DO:
@@ -6730,7 +6736,8 @@ PROCEDURE pCreateFormFromImport :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-   
+  DEFINE VARIABLE riEb AS ROWID NO-UNDO.
+  
   ASSIGN
     ll-new-record = YES
     iCount = 0
@@ -6741,7 +6748,7 @@ PROCEDURE pCreateFormFromImport :
       iCount = iCount + 1.
   END.
   
-  RUN est/BuildEstimate.p ("C").
+  RUN est/BuildEstimate.p ("C", OUTPUT riEb).
   
   RUN dispatch('open-query').
     lDummy = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
@@ -6761,7 +6768,7 @@ PROCEDURE pCreateMiscEstimate :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE rRowidEb AS ROWID NO-UNDO . 
+  DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
   DEFINE VARIABLE iEstReleaseID AS INTEGER NO-UNDO .
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO .
@@ -6779,22 +6786,21 @@ PROCEDURE pCreateMiscEstimate :
 
   FOR EACH ttInputEst:
       iCount = iCount + 1.
-      rRowidEb = ttInputEst.riParentEst .
   END.
   
-  RUN est/BuildEstimate.p ("C").
+  RUN est/BuildEstimate.p ("C", OUTPUT riEb).
 
   FIND FIRST bff-eb NO-LOCK
       WHERE bff-eb.company EQ cocode
-        AND ROWID(bff-eb) EQ rRowidEb NO-ERROR .
+        AND ROWID(bff-eb) EQ riEb NO-ERROR .
 
 
   IF AVAIL bff-eb THEN
-      RUN est/dNewMiscCost.w( INPUT rRowidEb ) .
+      RUN est/dNewMiscCost.w( INPUT riEb ) .
 
   IF iCount > 0 AND AVAIL bff-eb THEN do:
       
-      RUN CreateEstReleaseForEstBlank(INPUT rRowidEb, OUTPUT iEstReleaseID ,
+      RUN CreateEstReleaseForEstBlank(INPUT riEb, OUTPUT iEstReleaseID ,
                                      OUTPUT lError,OUTPUT cMessage) .
 
       FIND FIRST estRelease NO-LOCK
@@ -6802,13 +6808,14 @@ PROCEDURE pCreateMiscEstimate :
           AND estRelease.estReleaseID EQ estReleaseID NO-ERROR .
 
       IF AVAIL estRelease THEN
-          //RUN est/dNewMiscUpd.w (RECID(estRelease), rRowidEb, "Update", OUTPUT lv-rowid) .
-          RUN est/estReleases.w (rRowidEb).
+          //RUN est/dNewMiscUpd.w (RECID(estRelease), riEb, "Update", OUTPUT lv-rowid) .
+          RUN est/estReleases.w (riEb).
+
   END.
   
   IF iCount > 0 THEN DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-     RUN new_record IN WIDGET-HANDLE(char-hdl)  (rRowidEb).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
   END. 
   
   THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp).
@@ -8297,6 +8304,32 @@ PROCEDURE valid-wid-len :
       END.
     END.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+   DEF VAR char-hdl AS cha NO-UNDO.   
+   RUN get-link-handle IN adm-broker-hdl
+      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+   phandle = WIDGET-HANDLE(char-hdl).
+
+   IF AVAIL est AND  est.estimateTypeID = "MISC"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE
+       RUN new-state IN phandle ('update-begin':U).
 
 END PROCEDURE.
 

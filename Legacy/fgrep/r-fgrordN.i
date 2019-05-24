@@ -2,6 +2,10 @@
  Program: fgrep/r-fgrordN.i
  
 *****************************************************************************/
+DEFINE VARIABLE hftJobPros AS HANDLE NO-UNDO.
+
+RUN jc/JobProcs.p PERSISTENT SET hftJobPros.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftJobPros).
 
 for each itemfg
    where itemfg.company    eq cocode
@@ -45,6 +49,7 @@ for each itemfg
        v-whse-bin-found = NO
        v-qty-onh = 0
        v-sales-rep = "".
+       cMachine = "" .
 
        /*Added for premier mod 08291201*/
     FIND FIRST cust WHERE cust.company = itemfg.company
@@ -295,6 +300,8 @@ for each itemfg
                 li-avg-hist = li-avg-hist + li-hist[j] .
             END.
             li-avg-hist = li-avg-hist / display_hist .
+
+            RUN GetOperationsForEst(INPUT itemfg.company, INPUT itemfg.est-no, OUTPUT cMachine).
        
     if v-reord-qty gt 0 or v-prt-all then
        IF tb_history THEN DO:
@@ -347,6 +354,8 @@ for each itemfg
                                  cExcelVarValue = "".
                           END.
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
+                              cExcelVarValue = "".
+                          WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
                               cExcelVarValue = "".
                           WHEN "li-hist" THEN do: 
                               cVarValue = "" .
@@ -446,6 +455,8 @@ for each itemfg
                           END.
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
+                          WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
+                              cExcelVarValue = "".
                           WHEN "li-hist" THEN do: 
                               cVarValue = "" .
                               cExcelVarValue = "" .
@@ -471,3 +482,4 @@ for each itemfg
        IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
     END.
 end. /* each itemfg */
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftJobPros).
