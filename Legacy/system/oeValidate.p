@@ -91,8 +91,17 @@ PROCEDURE pCustomerPN PRIVATE:
             bitemfg.part-no EQ boe-ordl.part-no AND 
             bitemfg.stat NE "I"
             NO-ERROR.
-        IF NOT AVAIL bitemfg THEN ASSIGN 
-            cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+        IF NOT AVAIL bitemfg THEN DO: 
+            FIND FIRST cust-part NO-LOCK 
+                WHERE cust-part.company EQ boe-ordl.company
+                AND cust-part.i-no EQ boe-ordl.i-no
+                AND cust-part.cust-no EQ boe-ordl.cust-no
+                AND cust-part.part-no EQ boe-ordl.part-no
+                NO-ERROR.
+            IF NOT AVAILABLE cust-part THEN  
+                ASSIGN 
+                    cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+        END.
     END.
     IF cBadLines NE "" THEN ASSIGN 
         cBadLines = TRIM(cBadLines,",")
@@ -431,7 +440,8 @@ PROCEDURE validateAll:
        This is much more compact. */
     DEF VAR cTestList AS CHAR INITIAL "CreditHold,CustomerPN,CustomerPO,PriceGtCost,PriceHold,UniquePO,ValidShipTo,ValidUom" NO-UNDO.    
     DEF VAR cReqdList AS CHAR INITIAL "TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE" NO-UNDO.    
-    DEF VAR cTypeList AS CHAR INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD" NO-UNDO.    
+    DEF VAR cTypeList AS CHAR INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD" NO-UNDO.
+    DEF VAR cDescList AS CHAR INITIAL "Credit check fails,Customer Part # invalid,PO number is blank,Extended Sell < Extended Cost,Order is on Price Hold,Customer PO number is not unique,Shipto is invalid,Price UOM is invalid" NO-UNDO.    
     DO iCtr = 1 TO NUM-ENTRIES(cTestList):
         IF NOT CAN-FIND(FIRST sys-ctrl WHERE 
             sys-ctrl.company EQ boe-ord.company AND
@@ -443,6 +453,7 @@ PROCEDURE validateAll:
                 sys-ctrl.module = "VAL"
                 sys-ctrl.name = ENTRY(iCtr,cTestList)
                 sys-ctrl.log-fld = LOGICAL(ENTRY(iCtr,cReqdList))
+                sys-ctrl.descrip = ENTRY(iCtr,cDescList)
                 sys-ctrl.char-fld = ENTRY(iCtr,cTypeList).
         END.
     END.
