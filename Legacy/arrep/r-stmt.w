@@ -1685,6 +1685,7 @@ ASSIGN ls-image1 = IF v-stmt-char = "Premier" THEN "images\premierinv.jpg"
                  /*  ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
                    ELSE IF v-stmt-char = "RFC" THEN cRtnChar 
                    ELSE IF v-stmt-char = "Badger" THEN cRtnChar 
+                   ELSE IF v-stmt-char = "StmtPrint-Mex" THEN "images\premierinv.jpg"
                    ELSE "images\asilogo.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -2088,6 +2089,10 @@ FOR EACH ttCustList
           ASSIGN v-remitto[1] = "<C40>Remit To: PREMIER PACKAGING"
                  v-remitto[2] = "<C40>          3254 RELIABLE PARKWAY"
                  v-remitto[3] = "<C40>          CHICAGO, IL 60686".
+       ELSE IF v-stmt-char = "StmtPrint-Mex" THEN
+          ASSIGN v-remitto[1] = "<C40>Remit To: PREMIER PACKAGING"
+                 v-remitto[2] = "<C40>          3254 RELIABLE PARKWAY"
+                 v-remitto[3] = "<C40>          CHICAGO, IL 60686".
        ELSE v-remitto = "".
 
        IF v-stmt-char = "Premier" THEN
@@ -2106,6 +2111,24 @@ FOR EACH ttCustList
            "<=1><R+17>Date     Code  Ref#  Description   <C56>Amount        Balance" SKIP
            "<=1><R+18><FROM><C+80><LINE>"
            . 
+
+       ELSE IF v-stmt-char = "StmtPrint-Mex" THEN
+       PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
+           "<=1><R+6><C+54><B><P22>Declaración</B><P12>" SKIP
+           "<=1><R+9><C+52><FROM><C+13><LINE>" SKIP
+           "<=1><R+9><C+68><FROM><C+10><LINE>" 
+           "<=1><R+9><C+52>" v-stmt-date
+           "<=1><R+9><C+68>" cust.cust-no SKIP
+           "<=1><R+11><C1>" ws_addr[1] v-remitto[1] skip
+           "<=1><R+12><C1>" ws_addr[2] v-remitto[2] skip 
+           "<=1><R+13><C1>" ws_addr[3] v-remitto[3] skip
+           "<=1><R+14><C1>" ws_addr[4] v-remitto[4] skip
+           /*"<=1><R+15><C1>" ws_addr[5] skip*/
+           "<=1><R+15><C1>Condiciones : " terms_dscr skip
+           "<=1><R+17>Fecha    Código Ref# Descripción   <C54>Cantidad     Equilibrar" SKIP
+           "<=1><R+18><FROM><C+80><LINE>"
+           . 
+
        ELSE IF v-stmt-char = "LoyLang" THEN
        PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
            "<=1><R+7><C+54><B><P22>Statement</B><P12>" SKIP
@@ -2302,6 +2325,12 @@ FOR EACH ttCustList
          "<=2>      Current             31 - 60             61 - 90            >90 Days" skip
          "<=2><R+1.3><FROM><C+80><LINE>" SKIP
          "<=2><R+2>" v-aged[1] AT 12 v-aged[2] AT 30  v-aged[3] AT 50  (v-aged[4] + v-aged[5]) AT 70
+         skip(1).
+         ELSE IF v-stmt-char = "StmtPrint-Mex" THEN
+           PUT "<R57><C1><#2>"SKIP
+         "<=2>      Corriente         30 dias         60 dias         90 dias        >90 dias" skip
+         "<=2><R+1.3><FROM><C+80><LINE>" SKIP
+         "<=2><R+2>" v-aged[1 for 5]
          skip(1).
          ELSE
             PUT "<R57><C1><#2>"SKIP
@@ -2531,6 +2560,7 @@ form
                      /*    ELSE IF v-stmt-char = "Badger" THEN "images\badger statement.JPG" */
                          ELSE IF v-stmt-char = "RFC" THEN cRtnChar
                          ELSE IF v-stmt-char = "Badger"  THEN cRtnChar
+                         ELSE IF v-stmt-char = "StmtPrint-Mex" THEN "images\premierinv.jpg"
                          ELSE "images\asilogo.jpg" .
      
       FILE-INFO:FILE-NAME = ls-image1.
@@ -2893,6 +2923,10 @@ FIRST cust no-lock
           ASSIGN v-remitto[1] = "<C40>Remit To: PREMIER PACKAGING"
                  v-remitto[2] = "<C40>          3254 RELIABLE PARKWAY"
                  v-remitto[3] = "<C40>          CHICAGO, IL 60686".
+       ELSE IF v-stmt-char = "StmtPrint-Mex" THEN
+          ASSIGN v-remitto[1] = "<C40>Remit To: PREMIER PACKAGING"
+                 v-remitto[2] = "<C40>          3254 RELIABLE PARKWAY"
+                 v-remitto[3] = "<C40>          CHICAGO, IL 60686".
        ELSE v-remitto = "".
 
        IF v-stmt-char = "Premier" THEN
@@ -2912,6 +2946,25 @@ FIRST cust no-lock
            "<=1><R+17>Date     Code  Ref#  Description   <C56>Amount        Balance" SKIP
            "<=1><R+18><FROM><C+80><LINE>"
            . 
+
+       ELSE IF v-stmt-char = "StmtPrint-Mex" THEN
+       PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
+           "<=1><R+6><C+54><B><P22>Declaración</B><P12>" SKIP
+           /*"<=1><R+8>Attn:" cust.contact "<C53>Statement Date  Account #" SKIP*/
+           "<=1><R+9><C+52><FROM><C+13><LINE>" SKIP
+           "<=1><R+9><C+68><FROM><C+10><LINE>" 
+           "<=1><R+9><C+52>" v-stmt-date
+           "<=1><R+9><C+68>" cust.cust-no SKIP
+           "<=1><R+11><C1>" ws_addr[1] v-remitto[1] skip
+           "<=1><R+12><C1>" ws_addr[2] v-remitto[2] skip 
+           "<=1><R+13><C1>" ws_addr[3] v-remitto[3] skip
+           "<=1><R+14><C1>" ws_addr[4] v-remitto[4] skip
+         /*  "<=1><R+15><C1>" ws_addr[5] skip*/
+           "<=1><R+15><C1>Condiciones : " terms_dscr skip
+           "<=1><R+17>Fecha    Código Ref# Descripción   <C54>Cantidad     Equilibrar" SKIP
+           "<=1><R+18><FROM><C+80><LINE>"
+           . 
+
        ELSE IF v-stmt-char = "LoyLang" THEN
        PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
            "<=1><R+7><C+54><B><P22>Statement</B><P12>" SKIP
@@ -3117,6 +3170,12 @@ FIRST cust no-lock
          "<=2><R+1.3><FROM><C+80><LINE>" SKIP
          "<=2><R+2>" v-aged[1] AT 12 v-aged[2] AT 30  v-aged[3] AT 50  (v-aged[4] + v-aged[5]) AT 70
          skip(1).
+      ELSE IF v-stmt-char = "StmtPrint-Mex" THEN 
+        PUT "<R57><C1><#2>"SKIP
+          "<=2>      Corriente        30 dias         60 dias         90 dias        >90 dias" skip
+          "<=2><R+1.3><FROM><C+80><LINE>" SKIP
+          "<=2><R+2>" v-aged[1 for 5]
+          skip(1).
       ELSE 
       PUT "<R57><C1><#2>"SKIP
       "<=2>      Current         30 Days         60 Days         90 Days        >90 Days" skip
@@ -4099,7 +4158,7 @@ PROCEDURE run-report :
 DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
-IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,ASIExcel,Loylang,Printers,Badger") > 0 THEN DO:
+IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,StmtPrint-Mex,ASIExcel,Loylang,Printers,Badger") > 0 THEN DO:
    RUN run-asistmt(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
    RETURN.
 END.
@@ -4648,7 +4707,7 @@ PROCEDURE run-report-mail :
 /* -------------------------------------------------------------------------- */
 DEFINE INPUT PARAM icCustNo   AS CHARACTER NO-UNDO.
 
-IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,Badger,Printers") > 0 THEN DO:
+IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,StmtPrint-Mex,Badger,Printers") > 0 THEN DO:
    RUN run-asistmt-mail (icCustNo).
    RETURN.
 END.
