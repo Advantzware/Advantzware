@@ -143,18 +143,18 @@ FOR EACH oe-bolh NO-LOCK
             cSendingLocation = oe-boll.loc.
         PUT STREAM sOut UNFORMATTED fInt(0) cStObj SKIP.
             PUT STREAM sOut UNFORMATTED fInt(1) fQuoter("non_retail_shipment") + cSep     + cStObj SKIP.
-                PUT STREAM sOut UNFORMATTED fInt(2) fQuoter("sending_location_id") + cSep + cSendingLocation + "," SKIP.
+                PUT STREAM sOut UNFORMATTED fInt(2) fQuoter("sending_location_id") + cSep + fQuoter(cSendingLocation) + "," SKIP.
                 PUT STREAM sOut UNFORMATTED fInt(2) fQuoter("proNumber") + cSep           + fQuoter(STRING(oe-bolh.bol-no)) + "," SKIP.
                 PUT STREAM sOut UNFORMATTED fInt(2) fQuoter("scac") + cSep                + fQuoter(fGetSCAC(oe-bolh.carrier)) + "," SKIP.
                 PUT STREAM sOut UNFORMATTED fInt(2) fQuoter("trailer_id") + cSep          + fQuoter(oe-bolh.trailer) + "," SKIP.
                    PUT STREAM sOut UNFORMATTED fInt(2) fQuoter("non_retail_store_shipment") + cSep + cStArray SKIP.
                       PUT STREAM sOut UNFORMATTED fInt(2) cStObj SKIP.
-                         PUT STREAM sOut UNFORMATTED fInt(3) fQuoter("receiving_location_id") + cSep     + oe-bolh.ship-id + "," SKIP.
+                         PUT STREAM sOut UNFORMATTED fInt(3) fQuoter("receiving_location_id") + cSep     + fQuoter(oe-bolh.ship-id) + "," SKIP.
                          PUT STREAM sOut UNFORMATTED fInt(3) fQuoter("estimated_time_of_arrival") + cSep + fDtTm(oe-bolh.bol-date + 2) + "," SKIP.
                          PUT STREAM sOut UNFORMATTED fInt(3) fQuoter("in_store_date")             + cSep + fDtTm(oe-bolh.bol-date + 4) + "," SKIP.
                          PUT STREAM sOut UNFORMATTED fInt(3) fQuoter("detatched_container_count") + cSep + STRING(oe-bolh.tot-pallets) + "," SKIP.
                          PUT STREAM sOut UNFORMATTED fInt(3) fQuoter("total_pallet_count") + cSep        + STRING(oe-bolh.tot-pallets) + "," SKIP.
-                         PUT STREAM sOut UNFORMATTED fInt(3) fQuoter("total_weight") + cSep              + STRING(INTEGER(oe-bolh.tot-wt)) + "," SKIP.
+                         PUT STREAM sOut UNFORMATTED fInt(3) fQuoter("total_weight") + cSep              + STRING(INTEGER(oe-bolh.tot-wt)) SKIP.
                       PUT STREAM sOut UNFORMATTED fInt(2) cEndObj SKIP.
                    PUT STREAM sOut UNFORMATTED fInt(2) cEndArray  SKIP.
             PUT STREAM sOut UNFORMATTED fInt(1) cEndObj SKIP.
