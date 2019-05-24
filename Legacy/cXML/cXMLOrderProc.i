@@ -400,19 +400,8 @@ PROCEDURE genTempOrderLines:
             END.
             WHEN 'itemOut|quantity' THEN
                 ttOrdLines.ttItemQuantity = TRIM(ttNodes.nodeValue).
-            WHEN 'itemID|supplierPartID' THEN DO:
+            WHEN 'itemID|supplierPartID' THEN
                 ttOrdLines.ttItemSupplierPartID = TRIM(ttNodes.nodeValue).
-                FIND FIRST itemfg NO-LOCK
-                    WHERE itemfg.company EQ cocode
-                    AND itemfg.i-no    EQ TRIM(ttOrdLines.ttItemSupplierPartID) NO-ERROR.
-                IF NOT AVAILABLE itemfg THEN 
-                DO:
-                    &IF DEFINED(monitorActivity) NE 0 &THEN
-                    RUN monitorActivity ('ERROR: Item ' + TRIM(itemSupplierPartID) + ' not found.',YES,'').
-                    &ENDIF
-                    NEXT.
-                END.
-            END.
             WHEN 'itemID|supplierPartAuxiliaryID'THEN
                 ttOrdLines.ttItemSupplierPartAuxiliaryID = TRIM(ttNodes.nodeValue).
             WHEN 'unitPrice|money'THEN
@@ -421,8 +410,20 @@ PROCEDURE genTempOrderLines:
                 ttOrdLines.ttItemDescription = TRIM(ttNodes.nodeValue).
             WHEN  'itemDetail|unitOfMeasure' THEN
                 ttOrdLines.ttItemUnitOfMeasure = TRIM(ttNodes.nodeValue).
-            WHEN  'itemDetail|ManufacturerPartID' THEN  
+            WHEN  'itemDetail|ManufacturerPartID' THEN DO:
                 ttOrdLines.ttItemManufacturerPartID = TRIM(ttNodes.nodeValue).
+                FIND FIRST itemfg NO-LOCK
+                    WHERE itemfg.company EQ cocode
+                    AND itemfg.i-no    EQ TRIM(ttOrdLines.ttItemManufacturerPartID) NO-ERROR.
+                IF NOT AVAILABLE itemfg THEN 
+                DO:
+                    &IF DEFINED(monitorActivity) NE 0 &THEN
+                    RUN monitorActivity ('ERROR: Item ' + TRIM(ttOrdLines.ttItemManufacturerPartID) + ' not found.',YES,'').
+                    &ENDIF
+                    NEXT.
+                END.
+            END.
+                
         END CASE.
         
 
@@ -479,7 +480,7 @@ PROCEDURE genOrderLines:
 
       FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ cocode
-              AND itemfg.i-no    EQ TRIM(itemSupplierPartID) NO-ERROR.
+              AND itemfg.i-no    EQ TRIM(itemManufacturerPartID) NO-ERROR.
       CREATE oe-ordl.
       ASSIGN
         oe-ordl.company   = oe-ord.company
@@ -497,8 +498,8 @@ PROCEDURE genOrderLines:
         oe-ordl.over-pct  = oe-ord.over-pct   
         oe-ordl.under-pct = oe-ord.under-pct
         oe-ordl.line      = INT(itemLineNumber)
-        oe-ordl.i-no      = TRIM(itemSupplierPartID)
-        oe-ordl.part-no   = itemManufacturerPartID
+        oe-ordl.i-no      = itemManufacturerPartID
+        oe-ordl.part-no   = TRIM(itemSupplierPartID)
         oe-ordl.qty       = DEC(itemQuantity)
         oe-ordl.pr-uom    = itemUnitOfMeasure
         oe-ordl.price     = DEC(itemMoney)
