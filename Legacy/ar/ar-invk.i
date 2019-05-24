@@ -9,7 +9,7 @@
     find first cust where cust.company eq g_company
                       and cust.cust-no eq ar-inv.cust-no no-lock no-error.
  assign
-   sub-tot     = {1}.net + (if {1}.f-bill then {1}.freight ELSE 0)
+   sub-tot     = {1}.net + {1}.freight
    {1}.tax-amt = 0
    tax         = 0
    ftax        = 0.
@@ -22,8 +22,7 @@
                        "", /* item */
                        OUTPUT tax).
              
-    IF {1}.f-bill THEN 
-        run ar/calctax2.p ({1}.tax-code, 
+    run ar/calctax2.p ({1}.tax-code, 
                        yes,
                        {1}.freight, 
                        cust.company,

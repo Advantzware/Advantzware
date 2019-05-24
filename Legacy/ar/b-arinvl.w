@@ -1138,8 +1138,8 @@ PROCEDURE local-delete-record :
   END.
 
   FIND bf-inv WHERE RECID(bf-inv) = RECID(ar-inv).
-  ASSIGN bf-inv.net = bf-inv.net - ar-invl.amt - (IF bf-inv.f-bill THEN bf-inv.freight ELSE 0)
-         bf-inv.gross = bf-inv.gross - ar-invl.amt - (IF bf-inv.f-bill THEN bf-inv.freight ELSE 0)
+  ASSIGN bf-inv.net = bf-inv.net - ar-invl.amt
+         bf-inv.gross = bf-inv.gross - ar-invl.amt
          .
   {ar/ar-invk.i bf-inv}
 
