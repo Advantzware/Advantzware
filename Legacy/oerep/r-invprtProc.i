@@ -1670,7 +1670,7 @@ DO:
                         PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
                         PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
@@ -1720,7 +1720,7 @@ DO:
                         PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
                     DO:
                         PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
@@ -1790,7 +1790,7 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
                 IF tb_office-copy THEN RUN value(v-program) ("Office Copy").
                 IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy").
             END.
-            ELSE IF LOOKUP(v-print-fmt,"PremierX,Coburn,Axis") > 0 THEN 
+            ELSE IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis") > 0 THEN 
 DO: 
                     RUN value(v-program) ("",NO). 
                     v-reprint = YES.
@@ -2260,6 +2260,11 @@ PROCEDURE SetInvForm:
         WHEN "PremierX" THEN
             ASSIGN
                 v-program      = "oe/rep/invpremx.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "InvPrint-Mex" THEN
+            ASSIGN
+                v-program      = "oe/rep/invmexst.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Coburn" THEN
@@ -2854,6 +2859,11 @@ PROCEDURE SetInvPostForm:
         WHEN "PremierX" THEN
             ASSIGN
                 v-program      = "ar/rep/invpremx.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "InvPrint-Mex" THEN
+            ASSIGN
+                v-program      = "ar/rep/invmexst.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Coburn" THEN
