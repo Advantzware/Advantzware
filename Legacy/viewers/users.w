@@ -1028,14 +1028,16 @@ DO:
     END.
     IF SELF:SCREEN-VALUE = "" THEN DO:
         MESSAGE
-            "You are setting this user's password" SKIP
-            "to BLANKS. Is this correct?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG.
-        IF NOT lBlanks AND NOT lAdd THEN DO:
+            "You can't setting this user's password" SKIP
+            "to BLANKS."
+            VIEW-AS ALERT-BOX ERROR /*QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG*/.
+            RETURN NO-APPLY.
+
+        /*IF NOT lBlanks AND NOT lAdd THEN DO:
             ASSIGN
                 SELF:SCREEN-VALUE = _user._password.
             RETURN NO-APPLY.
-        END.
+        END.*/
     END.
     IF NOT lAdd THEN 
         RUN ipChangePassword (SELF:SCREEN-VALUE).
