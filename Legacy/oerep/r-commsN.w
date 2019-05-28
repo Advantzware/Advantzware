@@ -1451,6 +1451,8 @@ END.
 
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
+    IF ttRptSelected.TextList = "Total Cost" AND NOT v-print-cost THEN NEXT. 
+
     ASSIGN str-tit4 = str-tit4 + 
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength + 1 - LENGTH(ttRptSelected.TextList))
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
