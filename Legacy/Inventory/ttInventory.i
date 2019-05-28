@@ -93,7 +93,11 @@ DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
     FIELD customerID             AS CHARACTER
     FIELD lastTransTime          AS DATETIME
     .
-    	    
+
+DEFINE TEMP-TABLE ttInventoryStockDetails NO-UNDO
+    LIKE inventoryStock
+    .
+
 DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
 DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
 DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Created".
