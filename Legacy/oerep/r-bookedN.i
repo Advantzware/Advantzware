@@ -270,6 +270,8 @@ FORMAT wkrecap.procat
     FOR EACH oe-ordl NO-LOCK
         WHERE oe-ordl.company EQ cocode
           AND oe-ordl.ord-no  EQ oe-ord.ord-no
+          AND oe-ordl.part-no GE fcpart
+          AND oe-ordl.part-no LE tcpart
           AND (oe-ordl.is-a-component EQ NO OR tb_exclude-set-comps = NO),
           
         FIRST itemfg NO-LOCK
@@ -277,7 +279,7 @@ FORMAT wkrecap.procat
           AND itemfg.i-no    EQ oe-ordl.i-no
           AND itemfg.procat  GE begin_fg-cat
           AND itemfg.procat  LE end_fg-cat
-
+          
         BREAK BY oe-ordl.line:
 
         FIND FIRST oe-rel NO-LOCK

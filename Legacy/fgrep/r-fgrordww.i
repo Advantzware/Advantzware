@@ -22,6 +22,8 @@ for each itemfg
   AND itemfg.spare-char-1 GE v-group[1]
   AND itemfg.spare-char-1 LE v-group[2]
   AND (itemfg.stat EQ "A" OR tb_inactive)
+  AND itemfg.part-no GE fcpart
+  AND itemfg.part-no LE tcpart
   
   and ((itemfg.ord-policy     and v-lot-reo eq "R") or
   (not itemfg.ord-policy and v-lot-reo eq "L") or v-lot-reo eq "A")

@@ -159,14 +159,14 @@ end_shipfrom tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot ~
 tb_exclude-transfer tb_include-ordrel tb_Under% tb_Over% Btn_Def sl_avail ~
 sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
 lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
-tb_batch btn-ok btn-cancel 
+tb_batch btn-ok btn-cancel begin_cust-part end_cust-part
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ord-date end_ord-date lbl_sqft begin_due-date end_due-date ~
 begin_slsmn end_slsmn begin_fg-cat end_fg-cat begin_shipfrom end_shipfrom ~
 tb_prepmisc tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer ~
 tb_include-ordrel tb_Under% fUnder% fOver% tb_Over% sl_avail sl_selected ~
 rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
-tb_excel tb_runExcel fi_file tb_batch 
+tb_excel tb_runExcel fi_file tb_batch begin_cust-part end_cust-part
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -242,6 +242,11 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_cust-part AS CHARACTER FORMAT "X(15)" 
+     LABEL "Beginning Customer Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE begin_due-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Due Date" 
      VIEW-AS FILL-IN 
@@ -269,6 +274,11 @@ DEFINE VARIABLE begin_slsmn AS CHARACTER FORMAT "XXX"
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzz" 
      LABEL "Ending Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_cust-part AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "Ending Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -420,7 +430,7 @@ DEFINE VARIABLE tb_Over% AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_prepmisc AS LOGICAL INITIAL no 
      LABEL "Include Prep / Misc Charges?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 30 BY .95 NO-UNDO.
+     SIZE 32 BY .95 NO-UNDO.
 
 DEFINE VARIABLE tb_prft AS LOGICAL INITIAL yes 
      LABEL "Print Profit?" 
@@ -497,18 +507,22 @@ DEFINE FRAME FRAME-A
           "Enter starting ship from location." WIDGET-ID 158
      end_shipfrom AT ROW 7.19 COL 73 COLON-ALIGNED HELP
           "Enter ending ship from location." WIDGET-ID 160
+     begin_cust-part AT ROW 8.05 COL 30 COLON-ALIGNED HELP
+          "Enter Beginning Customer Part Number"
+     end_cust-part AT ROW 8.05 COL 73 COLON-ALIGNED HELP
+          "Enter Ending Customer part Number"
      tb_sortby AT ROW 8.38 COL 122
-     tb_prepmisc AT ROW 8.57 COL 15
-     tb_smn-no AT ROW 8.57 COL 58
-     tb_exclude-set-comps AT ROW 9.52 COL 15 WIDGET-ID 4
-     tb_rep-tot AT ROW 9.67 COL 58 WIDGET-ID 54
-     tb_exclude-transfer AT ROW 10.48 COL 15 WIDGET-ID 6
-     tb_include-ordrel AT ROW 10.57 COL 58 WIDGET-ID 6
+     tb_prepmisc AT ROW 9.18 COL 15
+     tb_smn-no AT ROW 9.14 COL 58
+     tb_exclude-set-comps AT ROW 9.98 COL 15 WIDGET-ID 4
+     tb_rep-tot AT ROW 9.95 COL 58 WIDGET-ID 54
+     tb_exclude-transfer AT ROW 10.76 COL 15 WIDGET-ID 6
+     tb_include-ordrel AT ROW 10.77 COL 58 WIDGET-ID 6
      tb_comm AT ROW 11.24 COL 118
-     tb_Under% AT ROW 11.52 COL 15 WIDGET-ID 46
-     fUnder% AT ROW 11.52 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 48
-     fOver% AT ROW 11.52 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     tb_Over% AT ROW 11.57 COL 52 WIDGET-ID 52
+     tb_Under% AT ROW 11.62 COL 15 WIDGET-ID 46
+     fUnder% AT ROW 11.62 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     fOver% AT ROW 11.62 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     tb_Over% AT ROW 11.67 COL 52 WIDGET-ID 52
      tb_margin AT ROW 13.86 COL 119 WIDGET-ID 2
      Btn_Def AT ROW 15.29 COL 40 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
@@ -638,6 +652,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_cust-part:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
@@ -667,6 +685,10 @@ ASSIGN
 
 ASSIGN 
        end_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_cust-part:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -885,6 +907,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_cust-part
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-part C-Win
+ON LEAVE OF begin_cust-part IN FRAME FRAME-A /* Beginning Cust Part */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
@@ -1133,6 +1164,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_cust-part
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-part C-Win
+ON LEAVE OF end_cust-part IN FRAME FRAME-A /* Ending Customer Part# */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
@@ -1793,7 +1833,8 @@ PROCEDURE enable_UI :
           tb_smn-no tb_exclude-set-comps tb_rep-tot tb_exclude-transfer 
           tb_include-ordrel tb_Under% fUnder% fOver% tb_Over% sl_avail 
           sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file tb_batch 
+          td-show-parm tb_excel tb_runExcel fi_file tb_batch begin_cust-part
+          end_cust-part
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no end_cust-no 
          begin_ord-date end_ord-date begin_due-date end_due-date begin_slsmn 
@@ -1802,7 +1843,7 @@ PROCEDURE enable_UI :
          tb_exclude-transfer tb_include-ordrel tb_Under% tb_Over% Btn_Def 
          sl_avail sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest 
          lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
-         fi_file tb_batch btn-ok btn-cancel 
+         fi_file tb_batch btn-ok btn-cancel begin_cust-part end_cust-part 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2000,6 +2041,8 @@ DEFINE VARIABLE tot-renv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE tot-ton AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cPrevOrder AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lOrdWithNoRel AS LOGICAL INITIAL NO NO-UNDO.
+DEFINE VARIABLE fcpart like itemfg.part-no INITIAL " " NO-UNDO.
+DEFINE VARIABLE tcpart like fcpart INITIAL "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
 
 DEFINE VARIABLE v-revenue LIKE oe-ordl.t-price FORMAT "->,>>>,>>9.99" NO-UNDO
   COLUMN-LABEL "Order!Amount".
@@ -2066,7 +2109,9 @@ ASSIGN
  lSelected  = tb_cust-list
  dSDueDate      = begin_due-date
  dEDueDate      = end_due-date    
- lOrdWithNoRel  = tb_include-ordrel .
+ lOrdWithNoRel  = tb_include-ordrel 
+ fcpart      = begin_cust-part
+ tcpart      = END_cust-part.
 
 /*IF tb_margin THEN prt-profit = NO.*/
 prt-profit = NO.

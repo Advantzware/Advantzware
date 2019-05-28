@@ -111,13 +111,13 @@ end_slmn tgChooseSalesReps begin_i-no end_i-no begin_inv-date end_inv-date ~
 begin_shipfrom end_shipfrom tb_detailed tb_fin-chg rd_sort sl_avail Btn_Def ~
 sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
 lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+btn-cancel begin_cust-part end_cust-part
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust-no end_cust-no ~
 begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps begin_i-no ~
 end_i-no begin_inv-date end_inv-date begin_shipfrom end_shipfrom ~
 tb_detailed tb_fin-chg lbl_sort rd_sort sl_avail sl_selected rd-dest ~
 lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
-tb_runExcel fi_file 
+tb_runExcel fi_file begin_cust-part end_cust-part
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -175,6 +175,11 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_cust-part AS CHARACTER FORMAT "X(15)" 
+     LABEL "Beginning Customer Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE begin_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Invoice Date" 
      VIEW-AS FILL-IN 
@@ -202,6 +207,11 @@ DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
 
 DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_cust-part AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "Ending Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -361,6 +371,10 @@ DEFINE FRAME FRAME-A
           "Enter starting ship from location." WIDGET-ID 158
      end_shipfrom AT ROW 8.57 COL 69 COLON-ALIGNED HELP
           "Enter ending ship from location." WIDGET-ID 160
+     begin_cust-part AT ROW 9.37 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Customer Part Number"
+     end_cust-part AT ROW 9.37 COL 69 COLON-ALIGNED HELP
+          "Enter Ending Customer part Number"
      tb_detailed AT ROW 10.43 COL 50 RIGHT-ALIGNED
      tb_fin-chg AT ROW 10.43 COL 56.2
      lbl_sort AT ROW 11.62 COL 26 COLON-ALIGNED NO-LABEL
@@ -463,6 +477,9 @@ ASSIGN
 ASSIGN 
        begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+ASSIGN 
+       begin_cust-part:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        begin_inv-date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -494,6 +511,9 @@ ASSIGN
 
 ASSIGN 
        end_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+ASSIGN 
+       end_cust-part:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -624,6 +644,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_cust-part
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-part C-Win
+ON LEAVE OF begin_cust-part IN FRAME FRAME-A /* Beginning Cust Part */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME begin_inv-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv-date C-Win
@@ -908,6 +937,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_cust-part
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-part C-Win
+ON LEAVE OF end_cust-part IN FRAME FRAME-A /* Ending Customer Part# */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME end_inv-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv-date C-Win
@@ -1503,7 +1541,8 @@ PROCEDURE enable_UI :
           end_slmn tgChooseSalesReps begin_i-no end_i-no begin_inv-date 
           end_inv-date begin_shipfrom end_shipfrom tb_detailed tb_fin-chg 
           lbl_sort rd_sort sl_avail sl_selected rd-dest lv-ornt lines-per-page 
-          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file
+          begin_cust-part end_cust-part
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-8 tb_cust-list btnCustList begin_cust-no 
          end_cust-no begin_ship end_ship begin_slmn end_slmn tgChooseSalesReps 
@@ -1511,7 +1550,7 @@ PROCEDURE enable_UI :
          end_shipfrom tb_detailed tb_fin-chg rd_sort sl_avail Btn_Def 
          sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt 
          lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
-         btn-ok btn-cancel 
+         btn-ok btn-cancel begin_cust-part end_cust-part
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1660,6 +1699,8 @@ def var fship as ch init "" no-undo.
 def var tship like fcust init "zzzzzzzz" no-undo.
 def var fitem like itemfg.i-no init " " no-undo.
 def var titem like fitem init "zzzzzzzzzzzzzzzzzzz" no-undo.
+def var fcpart like itemfg.part-no init " " no-undo.
+def var tcpart like fcpart init "zzzzzzzzzzzzzzzzzzz" no-undo.
 def var fsman as char format "x(3)" init "" no-undo.
 def var tsman like fsman init "zzz" no-undo.
 def var fdate as date format "99/99/9999" no-undo.
@@ -1803,7 +1844,9 @@ ASSIGN
  v-sort1    = rd_sort EQ "Finished Goods"              
  v-inc-fc   = tb_fin-chg
  lSelected  = tb_cust-list
- lShipTotal = NO . 
+ lShipTotal = NO 
+ fcpart      = begin_cust-part
+ tcpart      = END_cust-part . 
 
 ASSIGN
  v-hdr[1] = if v-sort1  then "FG Item#" else "Customer Part#"
