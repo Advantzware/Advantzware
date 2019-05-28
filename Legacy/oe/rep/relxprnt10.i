@@ -9,7 +9,7 @@
 DEF BUFFER ref-lot-no FOR reftable.
 
 def TEMP-TABLE w-oe-rell NO-UNDO
-   FIELD ord-no AS INT FORMAT "ZZZZZ9"
+   FIELD ord-no AS INT FORMAT ">>>>>9"
    FIELD i-no AS CHAR
    FIELD qty AS INT
    FIELD LINE AS INT
@@ -43,7 +43,7 @@ def TEMP-TABLE w-bin NO-UNDO
    FIELD w-date-time AS CHAR
    FIELD w-cust-qty AS INT
    FIELD w-uom  AS CHAR
-   FIELD w-ord-col AS CHAR FORMAT "X(6)"
+   FIELD w-ord-col AS CHAR
    field job like fg-bin.job-no
    field job2 like fg-bin.job-no2
    INDEX w-loc w-loc w-bin
@@ -99,12 +99,12 @@ DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEFINE SHARED VARIABLE lSortRelSeq AS LOGICAL NO-UNDO .
 DEFINE SHARED VARIABLE lPrintQtyUom AS LOGICAL NO-UNDO .
 
-format w-bin.w-ord-col                  AT 1    FORMAT "x(6)"
+format w-oe-rell.ord-no /*w-bin.w-ord-col                  */
        w-bin.w-par                      at 8    format "x(25)"
        v-bin                            at 34   format "x(35)"
-       w-bin.w-units                    to 76   format "->>>>>"
-       w-bin.w-unit-count               to 83   format "->>>>>"
-       v-cust-value                     to 95   FORMAT "x(11)" /* format "->>>>>>>>>>" */
+       w-bin.w-units                    TO 76   format "->>>>>"
+       w-bin.w-unit-count               TO 83   format "->>>>>"
+       v-cust-value                     TO 95   FORMAT "x(11)" /* format "->>>>>>>>>>" */
 /*        v-rs                             AT 97   FORM "x(2)" */
     with down frame rel-mid no-box no-label STREAM-IO width 98.
 
@@ -706,9 +706,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                   OUTPUT v-tot-rqty-a).
               
               display {2}
-                     w-bin.w-ord-col
-/*                      w-oe-rell.ord-no when FIRST(w-bin.w-date-time) @ w-oe-rell.ord-no */
-                     w-bin.w-par
+                    /* w-bin.w-ord-col*/
+                     w-oe-rell.ord-no when FIRST(w-bin.w-date-time) @ w-oe-rell.ord-no
+                     w-bin.w-par AT 8
                      v-bin
                      w-bin.w-units
                      w-bin.w-unit-count

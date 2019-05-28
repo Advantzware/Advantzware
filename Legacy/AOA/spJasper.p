@@ -1217,8 +1217,9 @@ PROCEDURE pJasperReport :
             "leftMargin=~"" iMargin "~" "
             "rightMargin=~"" iMargin "~" "
             "topMargin=~"" iMargin "~" "
-            "bottomMargin=~"" iMargin "~">" SKIP
-            .
+            "bottomMargin=~"" iMargin "~" "
+            "isIgnorePagination=~"" TRIM(STRING(CAN-DO("csv,xls",ipcType),"true/false")) "~""
+            ">" SKIP.
         WHEN "Close" THEN
         PUT UNFORMATTED
             "</jasperReport>" SKIP

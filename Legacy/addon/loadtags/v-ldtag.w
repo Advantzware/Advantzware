@@ -51,12 +51,12 @@ DEF VAR v-ldpalwt LIKE loadtag.misc-dec[2] NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES loadtag rfidtag
+&Scoped-define EXTERNAL-TABLES loadtag
 &Scoped-define FIRST-EXTERNAL-TABLE loadtag
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR loadtag, rfidtag.
+DEFINE QUERY external_tables FOR loadtag.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS loadtag.sts loadtag.i-no loadtag.i-name ~
 loadtag.ord-no loadtag.po-no loadtag.loc loadtag.loc-bin loadtag.tag-date ~
@@ -69,22 +69,20 @@ loadtag.completed
 &Scoped-define FIRST-ENABLED-TABLE loadtag
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS loadtag.tag-no loadtag.sts loadtag.i-no ~
-loadtag.i-name rfidtag.rfidtag loadtag.ord-no loadtag.po-no ~
-loadtag.spare-char-1 loadtag.loc loadtag.loc-bin loadtag.tag-date ~
-loadtag.shift loadtag.job-no loadtag.job-no2 loadtag.qty-case ~
-loadtag.case-bundle loadtag.pallet-count loadtag.misc-dec[1] ~
-loadtag.misc-char[2] loadtag.partial loadtag.misc-dec[2] ~
-loadtag.misc-char[1] loadtag.tot-cases loadtag.misc-dec[3] loadtag.crew ~
-loadtag.completed 
-&Scoped-define DISPLAYED-TABLES loadtag rfidtag
+loadtag.i-name loadtag.ord-no loadtag.po-no loadtag.spare-char-1 ~
+loadtag.loc loadtag.loc-bin loadtag.tag-date loadtag.shift loadtag.job-no ~
+loadtag.job-no2 loadtag.qty-case loadtag.case-bundle loadtag.pallet-count ~
+loadtag.misc-dec[1] loadtag.misc-char[2] loadtag.partial ~
+loadtag.misc-dec[2] loadtag.misc-char[1] loadtag.tot-cases ~
+loadtag.misc-dec[3] loadtag.crew loadtag.completed 
+&Scoped-define DISPLAYED-TABLES loadtag
 &Scoped-define FIRST-DISPLAYED-TABLE loadtag
-&Scoped-define SECOND-DISPLAYED-TABLE rfidtag
-&Scoped-Define DISPLAYED-OBJECTS v-tagtime textField-1 textField-2 ~
+&Scoped-Define DISPLAYED-OBJECTS rfidtag v-tagtime textField-1 textField-2 ~
 textField-3 textField-4 textField-5 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,textFields,F1 */
-&Scoped-define ADM-CREATE-FIELDS loadtag.tag-no rfidtag.rfidtag 
+&Scoped-define ADM-CREATE-FIELDS loadtag.tag-no rfidtag 
 &Scoped-define textFields textField-1 textField-2 textField-3 textField-4 ~
 textField-5 
 
@@ -118,6 +116,11 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE rfidtag LIKE rfidtag.rfidtag
+     LABEL "RFID" 
+     VIEW-AS FILL-IN 
+     SIZE 46 BY 1 NO-UNDO.
+
 DEFINE VARIABLE textField-1 AS CHARACTER FORMAT "X(256)":U INITIAL "Folding Cartons = Case Count" 
       VIEW-AS TEXT 
      SIZE 35 BY .62 NO-UNDO.
@@ -170,10 +173,9 @@ DEFINE FRAME F-Main
      loadtag.i-name AT ROW 2.43 COL 42 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-     rfidtag.rfidtag AT ROW 2.43 COL 93 COLON-ALIGNED WIDGET-ID 14
-          LABEL "RFID Tag" FORMAT "x(24)"
-          VIEW-AS FILL-IN 
-          SIZE 46 BY 1
+     rfidtag AT ROW 2.43 COL 93 COLON-ALIGNED HELP
+          "" WIDGET-ID 14
+          LABEL "RFID" FORMAT "x(50)"
      loadtag.ord-no AT ROW 3.62 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -291,7 +293,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.loadtag,ASI.rfidtag
+   External Tables: ASI.loadtag
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -313,8 +315,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 15.24
-         WIDTH              = 145.
+         HEIGHT             = 15.67
+         WIDTH              = 146.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -374,8 +376,11 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN loadtag.qty-case IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN rfidtag.rfidtag IN FRAME F-Main
-   NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
+/* SETTINGS FOR FILL-IN rfidtag IN FRAME F-Main
+   NO-ENABLE 1 LIKE = asi.rfidtag. EXP-LABEL EXP-FORMAT                 */
+ASSIGN 
+       rfidtag:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* SETTINGS FOR FILL-IN loadtag.spare-char-1 IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT EXP-HELP                              */
 /* SETTINGS FOR FILL-IN loadtag.std-cost IN FRAME F-Main
@@ -537,14 +542,12 @@ PROCEDURE adm-row-available :
 
   /* Create a list of all the tables that we need to get.            */
   {src/adm/template/row-list.i "loadtag"}
-  {src/adm/template/row-list.i "rfidtag"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
   {src/adm/template/row-find.i "loadtag"}
-  {src/adm/template/row-find.i "rfidtag"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -601,7 +604,7 @@ PROCEDURE local-assign-statement :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bfRfid FOR rfidtag.
+
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -609,17 +612,7 @@ PROCEDURE local-assign-statement :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF USERID('nosweat') = "asi" AND AVAIL rfidtag AND
-     rfidtag.rfidtag <> rfidtag.rfidtag:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-     THEN DO:
-     FIND FIRST bfRfid WHERE bfRfid.company = rfidtag.company
-                         AND bfRfid.rfidtag = rfidtag.rfidtag EXCLUSIVE-LOCK.
-     IF AVAIL bfRfid THEN DO:
-       ASSIGN bfRfid.rfidtag = rfidtag.rfidtag:SCREEN-VALUE.
-       RELEASE bfRfid.
-     END.     
-  END.
-  ASSIGN rfidtag.rfidtag:SENSITIVE = NO.    
+
 
 END PROCEDURE.
 
@@ -639,7 +632,6 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN rfidtag.rfidtag:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
 
 END PROCEDURE.
 
@@ -687,11 +679,21 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  IF AVAIL loadtag THEN
+  IF AVAIL loadtag THEN DO:
      ASSIGN
         loadtag.sts:SCREEN-VALUE IN FRAME {&FRAME-NAME} = loadtag.sts
         v-tagtime:SCREEN-VALUE = STRING(loadtag.tag-time,"hh:mm:ss").
-
+        
+    FIND FIRST rfidtag NO-LOCK 
+        WHERE rfidtag.company EQ loadtag.company
+        AND rfidtag.tag-no EQ loadtag.tag-no
+        AND rfidtag.item-type EQ rfidtag.item-type
+    NO-ERROR.
+    IF AVAILABLE rfidtag THEN 
+        rfidtag:SCREEN-VALUE IN FRAME {&FRAME-NAME} = rfidtag.rfidtag.
+    ELSE 
+        rfidtag:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+  END.
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"loadtag-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN enable-all IN WIDGET-HANDLE(char-hdl).
@@ -712,8 +714,7 @@ PROCEDURE post-enable :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"loadtag-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN disable-all IN WIDGET-HANDLE(char-hdl).
-  IF USERID('nosweat') = "asi" AND AVAIL rfidtag THEN
-     ASSIGN rfidtag.rfidtag:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+
 
 END PROCEDURE.
 
@@ -749,7 +750,6 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "loadtag"}
-  {src/adm/template/snd-list.i "rfidtag"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

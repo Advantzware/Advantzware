@@ -1,0 +1,21 @@
+body { background-color:#FFFFFF; color:#000000; font-family: Tahoma,Arial,Sans-Serif; font-size:8pt; }
+a:link,a:visited                { color:#000000; background-color:transparent; text-decoration:none; }
+a.thlink:visited,a.thlink:link  { color:#FFFFFF; background-color:#000000;     text-decoration:none; }
+.oddrow,.shadedrow              { color:#000000; background-color:#cccccc; }
+th            { text-align:left; color:#FFFFFF; background-color:#000000;}
+h1            { font-size:14pt;  color:#FFFFFF; background-color:#000000; margin-top:0pt; }
+h2            { font-size:10pt; }
+.navbar       { display:none; }
+.separator    { height:1pt; }
+.clearboth    { clear:both; }
+.tbdetcol     { float:left; width:45%; }
+.tbcol        { float:left; }
+.stylecombo   { }
+.progressCode { background-color:#FFFFFF; color:#000000; border:0pt; font-family:Courier,monospace; font-size:8pt; white-space:pre; }
+.src-comment  { color:#006600; background-color:#FFFFFF; font-style:italic; }
+.src-prep     { color:#993333; background-color:#FFFFFF; }
+.src-keyword  { color:#000066; background-color:#FFFFFF; }
+.src-char     { color:#CC0000; background-color:#FFFFFF; }
+.src-number   { color:#CC0000; background-color:#FFFFFF; }
+.tablelist    { display:none;  }
+.tabledetail  { position:absolute; left:3px;}

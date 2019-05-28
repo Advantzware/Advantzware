@@ -342,3 +342,25 @@ FUNCTION fAddSpacesToString RETURNS CHARACTER
     RETURN result.
 
 END FUNCTION.
+
+PROCEDURE GetOperationsForEst:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipEst        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER buf-est-op FOR est-op.
+    Main-Loop-Mach:
+    FOR EACH buf-est-op NO-LOCK
+            WHERE buf-est-op.company = ipcCompany 
+            AND buf-est-op.est-no = ipEst 
+            AND buf-est-op.line < 500  BREAK BY buf-est-op.est-no :
+            IF NOT LAST( buf-est-op.est-no) THEN
+                opcMachineList = opcMachineList + buf-est-op.m-code + "," .
+            ELSE opcMachineList = opcMachineList + buf-est-op.m-code .
+    END.
+    RELEASE buf-est-op.
+END PROCEDURE.

@@ -217,6 +217,19 @@ Btn_Clear_Find
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFindLoadtag B-table-Win
+FUNCTION fFindLoadtag RETURNS LOGICAL 
+  ( ipcTag AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -3321,10 +3334,7 @@ PROCEDURE valid-tag :
 
       IF lv-msg EQ ""                                                   AND
          fgrecpt-int EQ 1                                               AND
-         NOT CAN-FIND(FIRST loadtag
-                      WHERE loadtag.company   EQ cocode
-                        AND loadtag.item-type EQ NO
-                        AND loadtag.tag-no    EQ ip-focus:SCREEN-VALUE) THEN
+         NOT fFindLoadtag(ip-focus:SCREEN-VALUE) THEN
         lv-msg = "Invalid Tag#, try help or scan valid tag#".
 
       IF lv-msg NE "" THEN DO:
@@ -3522,9 +3532,18 @@ PROCEDURE validate-record :
                        VIEW-AS ALERT-BOX ERROR.
                APPLY "entry" TO fg-rctd.tag.
                op-error = YES.
-               LEAVE.
-           END.
-    END.
+                  LEAVE.
+              END.
+      END.
+    IF NOT fFindLoadtag(fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}) THEN 
+    DO:
+            MESSAGE "Invalid Tag number." SKIP
+                "Please rescan and validate Tag# field."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO fg-rctd.tag.
+           op-error = YES.
+           LEAVE.        
+    END. 
         /*validate the i-no matches the loadtag i-no*/
     FIND FIRST bf-loadtag WHERE bf-loadtag.company EQ g_company
         AND bf-loadtag.item-type EQ NO
@@ -3555,4 +3574,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFindLoadtag B-table-Win
+FUNCTION fFindLoadtag RETURNS LOGICAL 
+  ( ipcTag AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+        lResult = CAN-FIND(FIRST loadtag
+                    WHERE loadtag.company   EQ cocode
+                      AND loadtag.item-type EQ NO
+                      AND loadtag.tag-no    EQ ipcTag).
+		RETURN lResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

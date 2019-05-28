@@ -37,17 +37,6 @@ RUN sys/ref/asiseq.p (INPUT g_company,
          {&TABLENAME}.company = cocode.
 
 END.
-/* WFK - Now using a sequence, this check not required */
-/* IF {&TABLENAME}.company NE ""   AND                                     */
-/*    {&TABLENAME}.ord-no NE 0     AND                                     */
-/*    old-{&TABLENAME}.ord-no EQ 0 THEN                                    */
-/* DO WHILE CAN-FIND(FIRST b-{&TABLENAME}                                  */
-/*                   WHERE b-{&TABLENAME}.company EQ {&TABLENAME}.company  */
-/*                     AND b-{&TABLENAME}.ord-no  EQ {&TABLENAME}.ord-no   */
-/*                     AND ROWID(b-{&TABLENAME})  NE ROWID({&TABLENAME})): */
-/*                                                                         */
-/*   {&TABLENAME}.ord-no = {&TABLENAME}.ord-no + 1.                        */
-/* END.                                                                    */
 
 FOR EACH cust NO-LOCK
     WHERE cust.company EQ {&TABLENAME}.company
@@ -126,8 +115,8 @@ RUN oe/calcordt.p (ROWID({&TABLENAME})).
 IF oeuserid-log THEN 
     ASSIGN 
         {&TABLENAME}.user-id = USERID("ASI")
-        {&TABLENAME}.updated-id = USERID("ASI")
         .
+{&TABLENAME}.updated-id = USERID("ASI").
 
 FOR EACH oe-rel
     WHERE oe-rel.company EQ {&TABLENAME}.company
@@ -143,6 +132,8 @@ FOR EACH oe-rel
   END.
 END.
 
+
+    
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.

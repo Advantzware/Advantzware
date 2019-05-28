@@ -148,10 +148,14 @@ IF AVAIL oe-ord THEN DO:
           FIND oe-ordm WHERE ROWID(oe-ordm) EQ wf.r-i NO-ERROR.
           IF AVAIL oe-ordm THEN
           DO li = 1 TO EXTENT(lv-s-man):
-            ASSIGN
-             oe-ordm.s-man[li]  = lv-s-man[li]
-             oe-ordm.s-pct[li]  = lv-s-pct[li]
-             oe-ordm.s-comm[li] = lv-s-com[li].
+              FIND FIRST prep NO-LOCK WHERE
+                prep.company EQ oe-ord.company AND 
+                prep.code EQ oe-ordm.charge
+                NO-ERROR.
+              IF prep.commissionable THEN ASSIGN
+                oe-ordm.s-man[li]  = lv-s-man[li]
+                oe-ordm.s-pct[li]  = lv-s-pct[li]
+                oe-ordm.s-comm[li] = lv-s-com[li].
           END.
         END.
       END.

@@ -408,7 +408,8 @@ DEFINE FRAME Dialog-Frame
      tt-report.frt-pay AT ROW 1.67 COL 83.0 COLON-ALIGNED
           LABEL "Frt Pay" FORMAT "x(12)"
           VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEM-PAIRS "P-Prepaid","P",
+          LIST-ITEM-PAIRS "","",
+                      "P-Prepaid","P",
                      "C-Collect","C",
                      "B-Bill","B",
                      "T-3rd Party","T"
@@ -423,7 +424,8 @@ DEFINE FRAME Dialog-Frame
      tt-report.flute AT ROW 2.86 COL 83.0 COLON-ALIGNED
           LABEL "FOB" FORMAT "x(1)"
           VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEM-PAIRS "D-Destination","D",
+          LIST-ITEM-PAIRS "","", 
+                     "D-Destination","D",
                      "O-Origin","O"
           DROP-DOWN-LIST 
           SIZE 17.5 BY 1
@@ -981,6 +983,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             END.
             IF tt-report.frt-pay EQ ? THEN 
                 tt-report.frt-pay = "".
+            IF tt-report.flute EQ ? THEN 
+                tt-report.flute = "".                
         END.
 
         RUN pUpdate-record(INPUT cPreRelDate).
@@ -1062,16 +1066,25 @@ ON ENTRY OF oe-rel.carrier IN FRAME Dialog-Frame /* Via */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.carrier Dialog-Frame
 ON LEAVE OF oe-rel.carrier IN FRAME Dialog-Frame /* Via */
     DO:
-        IF LASTKEY = -1 THEN RETURN.
-    
-        FIND FIRST carrier WHERE carrier.company = g_company AND
-            carrier.carrier = SELF:screen-value
-            NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE carrier THEN 
-        DO:
-            MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
+   
+       /* IF LASTKEY = -1 THEN DO:*/
+            FIND FIRST carrier WHERE carrier.company = g_company 
+                AND carrier.loc EQ oe-rel.spare-char-1:SCREEN-VALUE
+                AND carrier.carrier = oe-rel.carrier:screen-value
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL carrier THEN DO:
+                IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+                    MESSAGE "Please note: Carrier " oe-rel.carrier:SCREEN-VALUE " is valid but currently inactive"
+                        VIEW-AS ALERT-BOX INFO.
+                    RETURN NO-APPLY.
+                END.
+            END.
+            IF NOT AVAIL carrier THEN DO:
+                MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.
+      /*  END.*/
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2211,8 +2224,7 @@ PROCEDURE pCreateNewRel :
                               else*/ v-carrier
             oe-rel.r-no         = v-nxt-r-no
             oe-rel.spare-char-1 = v-shipfrom
-            oe-rel.fob-code     = oe-ord.fob-code
-            oe-rel.frt-pay      = oe-ord.frt-pay .                                                                                                              .
+            .                                                                                                              .
 
         IF oereleas-cha EQ "LastShip" THEN
             oe-rel.rel-date = oe-ord.last-date.
@@ -2595,7 +2607,8 @@ PROCEDURE pUpdate-record :
         oe-rel.fob-code = tt-report.flute:SCREEN-VALUE.
     IF oe-rel.frt-pay = ? THEN 
         oe-rel.frt-pay = "".
- 
+    IF oe-rel.fob-code = ? THEN 
+        oe-rel.fob-code = "".
 
     ASSIGN 
         oe-rel.sell-price = DEC(tt-report.price:SCREEN-VALUE)
@@ -3676,4 +3689,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

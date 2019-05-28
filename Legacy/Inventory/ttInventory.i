@@ -97,7 +97,7 @@ DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
 DEFINE TEMP-TABLE ttInventoryStockDetails NO-UNDO
     LIKE inventoryStock
     .
-       	    
+
 DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
 DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
 DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Created".

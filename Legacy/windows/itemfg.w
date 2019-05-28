@@ -845,7 +845,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updven ).
-       RUN set-position IN h_p-updven ( 22.43 , 65.00 ) NO-ERROR.
+       RUN set-position IN h_p-updven ( 24.23 , 65.00 ) NO-ERROR.
        RUN set-size IN h_p-updven ( 2.14 , 59.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -853,7 +853,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_pricechg ).
-       RUN set-position IN h_pricechg ( 22.43 , 127.00 ) NO-ERROR.
+       RUN set-position IN h_pricechg ( 24.23 , 127.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 17.20 ) */
 
        /* Initialize other pages that this page requires. */
