@@ -1706,7 +1706,7 @@ PROCEDURE ipConvertPrepItems:
             prep.company EQ oe-ctrl.company:
             ASSIGN 
                 prep.taxable = oe-ctrl.prep-chrg
-                prep.commisionable = oe-ctrl.prep-comm.
+                prep.commissionable = oe-ctrl.prep-comm.
         END.
     END.
     
@@ -2472,8 +2472,9 @@ PROCEDURE ipDataFix160890 :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 160890...").
     
-    RUN ipSetFgcatStatusActive.  
     RUN ipConvertPrepItems.  
+    RUN ipFixFrtPay.
+    RUN ipFgcatStatusActive.
 
 END PROCEDURE.
 
@@ -2857,6 +2858,8 @@ PROCEDURE ipFgcatStatusActive:
 ------------------------------------------------------------------------------*/
     DISABLE TRIGGERS FOR LOAD OF fgcat.
     
+    RUN ipStatus("   Set fgcat.lActive = TRUE").
+
     FOR EACH fgcat:
         ASSIGN 
             lActive = TRUE.
@@ -2921,6 +2924,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixFrtPay C-Win
+PROCEDURE ipFixFrtPay:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF oe-rel.
+    DISABLE TRIGGERS FOR LOAD OF oe-rell.
+    RUN ipStatus("   Fix release frt pay unknowns").
+    FOR EACH oe-rel EXCLUSIVE-LOCK
+        WHERE oe-rel.frt-pay eq ? OR oe-rel.fob-code EQ ?
+        :
+        IF oe-rel.frt-pay EQ ? THEN oe-rel.frt-pay = "".
+        IF oe-rel.fob-code EQ ? THEN oe-rel.fob-code = "".
+    END.
+    FOR EACH oe-rell EXCLUSIVE-LOCK 
+        WHERE oe-rell.frt-pay EQ ? OR oe-rell.fob-code eq ?
+        :
+        IF oe-rell.frt-pay EQ ? THEN oe-rell.frt-pay = "".
+        IF oe-rell.fob-code EQ ? THEN oe-rell.fob-code = "".
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixPoEdiDirs C-Win 
 PROCEDURE ipFixPoEdiDirs :

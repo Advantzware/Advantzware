@@ -120,13 +120,18 @@ DEFINE VARIABLE retcode        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCopyPDFFile   AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.                       
-
+RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCopyPdfFile = logical(cRtnChar) NO-ERROR .
 /* Build a Table to keep sequence of pdf files */
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
     FIELD tt-FileCtr  AS INT
@@ -867,7 +872,7 @@ DO:
             ASSIGN {&DISPLAYED-OBJECTS}
                 tb_collate lv-scr-num-copies
                 tb_cust-copy tb_office-copy tb_sman-copy
-            /* gdm - 12080817 */ tb_setcomp tbPostedAR
+                /* gdm - 12080817 */ tb_setcomp tbPostedAR
                 .
             ASSIGN tb_prt-dupl = LOGICAL(tb_prt-dupl:SCREEN-VALUE).
             IF begin_bol:SENSITIVE THEN 
@@ -1043,7 +1048,8 @@ DO:
             tb_splitPDF        ,
             tb_qty-all         ,
             tb_cust-list       ,
-            tb_prt-dupl        
+            tb_prt-dupl        ,
+            NO /* Pdf only */
             ).
 
         IF begin_bol EQ end_bol THEN 
@@ -1144,9 +1150,55 @@ DO:
         DO:
            RUN runReport1 (INPUT lv-fax-type).            
             
-        END.  /* rd-dest:Screen-value = 1*/
+    END.  /* rd-dest:Screen-value = 1*/
 
-
+    IF tb_posted AND lCopyPdfFile THEN DO:
+    RUN assignSelections
+        (begin_bol          ,
+        begin_cust         ,
+        begin_date         ,
+        begin_inv          ,
+        end_bol            ,
+        end_cust           ,
+        end_date           ,
+        end_inv            ,
+        fi_broker-bol      ,
+        fi_depts           ,
+        lbl_sort           ,
+        lines-per-page     ,
+        lv-font-name       ,
+        lv-font-no         ,
+        lv-scr-num-copies  ,
+        lv-ornt            ,
+        5 /*rd-dest */           ,
+        rd_sort            ,
+        rs_no_PN           ,
+        tb_attachBOL       ,
+        YES /*tb_BatchMail */       ,
+        tb_collate         ,
+        tb_cust-copy       ,
+        tb_email-orig      ,
+        tb_HideDialog      ,
+        tb_office-copy     ,
+        tb_override-email  ,
+        tb_posted          ,
+        tb_print-dept      ,
+        tb_prt-inst        ,
+        tb_prt-zero-qty    ,
+        tb_reprint         ,
+        tb_setcomp         ,
+        tb_sman-copy       ,
+        td-show-parm       ,
+        tbPostedAR         ,
+        YES /* tb_splitPDF */       ,
+        tb_qty-all         ,
+        tb_cust-list       ,
+        tb_prt-dupl        ,
+        YES /* Pdf only */
+        ).
+RUN BatchMail (begin_cust, end_cust).
+        END.
+        
         IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
         OS-DELETE VALUE(init-dir + "\Invoice.pdf").
         /* Implement in persistent procedure 
@@ -1708,7 +1760,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             fi_broker-bol:SENSITIVE = YES
             fi_broker-bol:HIDDEN    = NO.
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
         ASSIGN
             tb_prt-zero-qty:SENSITIVE = YES
             tb_prt-zero-qty:HIDDEN    = NO.
@@ -1727,7 +1779,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&FRAME-NAME}:
 
-        IF LOOKUP(v-print-fmt,"PremierX,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
+        IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
             ASSIGN
                 tb_cust-copy:HIDDEN      = NO
                 tb_cust-copy:SENSITIVE   = YES

@@ -1220,10 +1220,10 @@ PROCEDURE validateParameters :
     END.
     
     /* check if table input parameter is valid */
-    FIND FIRST _file NO-LOCK
-         WHERE _file._file-name = ip-table AND
-               _file._Tbl-Type  = "T" NO-ERROR.
-    IF NOT AVAIL _file THEN DO:
+    FIND FIRST ASI._file NO-LOCK
+         WHERE ASI._file._file-name = ip-table AND
+               ASI._file._Tbl-Type  = "T" NO-ERROR.
+    IF NOT AVAILABLE ASI._file THEN DO:
         MESSAGE "Incorrect DB table " + ip-table + " passed as input parameter"
             VIEW-AS ALERT-BOX.
         RETURN ERROR.
@@ -1239,10 +1239,10 @@ PROCEDURE validateParameters :
     /* check if fields supplied in the fields list are available in the table */
     ls-fields = ''.
     DO li-count = 1 TO NUM-ENTRIES(ip-fieldList):
-        FIND FIRST _field NO-LOCK
-             WHERE _field._Field-Name = ENTRY(li-count,ip-fieldList)
-               AND _field._file-recid = RECID(_file) NO-ERROR.
-        IF NOT AVAILABLE _field THEN
+        FIND FIRST ASI._field NO-LOCK
+             WHERE ASI._field._Field-Name = ENTRY(li-count,ip-fieldList)
+               AND ASI._field._file-recid = RECID(_file) NO-ERROR.
+        IF NOT AVAILABLE ASI._field THEN
             ls-fields = ls-fields + " " + ENTRY(li-count,ip-fieldList).    
     END.    
     
@@ -1260,10 +1260,10 @@ PROCEDURE validateParameters :
     END.
     
     /* check if lookup field input parameter is available in table */
-    FIND FIRST _field NO-LOCK
-         WHERE _field._Field-Name = ip-lookupField
-           AND _field._file-recid = RECID(_file) NO-ERROR.
-    IF NOT AVAILABLE _field THEN DO:
+    FIND FIRST ASI._field NO-LOCK
+         WHERE ASI._field._Field-Name = ip-lookupField
+           AND ASI._field._file-recid = RECID(_file) NO-ERROR.
+    IF NOT AVAILABLE ASI._field THEN DO:
         MESSAGE "Lookup field [ " + ip-lookupField + " ] is not available in the table " + ip-table
             VIEW-AS ALERT-BOX.
         RETURN ERROR.           

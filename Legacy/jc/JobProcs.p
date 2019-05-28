@@ -130,6 +130,36 @@ PROCEDURE GetOperationsForJob:
     RELEASE buf-job-mch.
 END PROCEDURE.
 
+PROCEDURE GetRMItemsForJob:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno      AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRMListItems  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER buf-job-mat FOR job-mat.
+    
+    FOR EACH buf-job-mat NO-LOCK
+        WHERE buf-job-mat.company  EQ ipcCompany
+          AND buf-job-mat.job-no   EQ ipcJobno
+          AND buf-job-mat.job-no2  EQ ipiJobno2
+          AND buf-job-mat.frm      EQ ipiFormno
+          AND buf-job-mat.blank-no EQ ipiBlankno
+        BY buf-job-mat.line
+        :
+        opcRMListItems = IF opcRMListItems EQ "" THEN STRING(buf-job-mat.i-no)
+                         ELSE IF INDEX(opcRMListItems,STRING(buf-job-mat.i-no)) GT 0 THEN opcRMListItems
+                         ELSE opcRMListItems + "," + STRING(buf-job-mat.i-no).           
+    END.
+
+    RELEASE buf-job-mat.
+END PROCEDURE.
+
 PROCEDURE GetOperation:
     /*------------------------------------------------------------------------------
      Purpose: Returns machine code list for a given jobID
@@ -312,3 +342,25 @@ FUNCTION fAddSpacesToString RETURNS CHARACTER
     RETURN result.
 
 END FUNCTION.
+
+PROCEDURE GetOperationsForEst:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipEst        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER buf-est-op FOR est-op.
+    Main-Loop-Mach:
+    FOR EACH buf-est-op NO-LOCK
+            WHERE buf-est-op.company = ipcCompany 
+            AND buf-est-op.est-no = ipEst 
+            AND buf-est-op.line < 500  BREAK BY buf-est-op.est-no :
+            IF NOT LAST( buf-est-op.est-no) THEN
+                opcMachineList = opcMachineList + buf-est-op.m-code + "," .
+            ELSE opcMachineList = opcMachineList + buf-est-op.m-code .
+    END.
+    RELEASE buf-est-op.
+END PROCEDURE.

@@ -75,10 +75,10 @@ DEFINE STREAM excel.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 begin_date end_date ~
 begin_cust-no end_cust-no begin_type end_type begin_item-cat end_item-cat ~
-begin_item end_item tb_runExcel fi_file btn-ok btn-cancel 
+begin_item end_item tb_runExcel fi_file btn-ok btn-cancel tb_active
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_cust-no ~
 end_cust-no begin_type end_type begin_item-cat end_item-cat begin_item ~
-end_item tb_excel tb_runExcel fi_file 
+end_item tb_active tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -168,17 +168,22 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-itmcom.c
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 7.14.
+     SIZE 101 BY 8.10.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 3.67.
+     SIZE 101 BY 2.71.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_active AS LOGICAL INITIAL NO 
+     LABEL "Only Active Entries?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes 
      LABEL "Auto Run Excel?" 
@@ -210,9 +215,10 @@ DEFINE FRAME Dialog-Frame
           "Enter Beginning FG Item Number" WIDGET-ID 100
      end_item AT ROW 6.76 COL 70.8 COLON-ALIGNED HELP
           "Enter Ending FG Item Number" WIDGET-ID 102
-     tb_excel AT ROW 8.71 COL 36 WIDGET-ID 32
-     tb_runExcel AT ROW 8.71 COL 78 RIGHT-ALIGNED WIDGET-ID 34
-     fi_file AT ROW 9.67 COL 34 COLON-ALIGNED HELP
+     tb_active AT ROW 8.1 COL 36 WIDGET-ID 32
+     tb_excel AT ROW 9.43 COL 36 WIDGET-ID 32
+     tb_runExcel AT ROW 9.43 COL 78 RIGHT-ALIGNED WIDGET-ID 34
+     fi_file AT ROW 10.38 COL 34 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 22
      btn-ok AT ROW 11.95 COL 30 WIDGET-ID 14
      btn-cancel AT ROW 11.95 COL 60.2 WIDGET-ID 12
@@ -220,7 +226,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
      RECT-7 AT ROW 1 COL 2 WIDGET-ID 38
-     RECT-8 AT ROW 8.14 COL 2 WIDGET-ID 84
+     RECT-8 AT ROW 9.10 COL 2 WIDGET-ID 84
      SPACE(0.79) SKIP(1.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -290,6 +296,12 @@ ASSIGN
 
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_active IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       tb_active:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME Dialog-Frame
@@ -548,6 +560,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_active
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_active Dialog-Frame
+ON VALUE-CHANGED OF tb_active IN FRAME Dialog-Frame /* Only Active Entries? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel Dialog-Frame
@@ -641,11 +662,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_date end_date begin_cust-no end_cust-no begin_type end_type 
           begin_item-cat end_item-cat begin_item end_item tb_excel tb_runExcel 
-          fi_file 
+          fi_file tb_active
       WITH FRAME Dialog-Frame.
   ENABLE RECT-7 RECT-8 begin_date end_date begin_cust-no end_cust-no begin_type 
          end_type begin_item-cat end_item-cat begin_item end_item tb_runExcel 
-         fi_file btn-ok btn-cancel 
+         fi_file btn-ok btn-cancel tb_active
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -694,6 +715,8 @@ IF tb_excel THEN
        AND b-oe-prmtx.custype LE end_type 
        AND b-oe-prmtx.eff-date GE begin_date
        AND b-oe-prmtx.eff-date LE end_date 
+       AND (((tb_active AND b-oe-prmtx.exp-date GE TODAY) 
+               OR b-oe-prmtx.exp-date EQ ?) OR NOT tb_active)
        NO-LOCK:
 /*        FIND FIRST reftable                                         */
 /*         WHERE reftable.rec_key  EQ b-oe-prmtx.rec_key              */

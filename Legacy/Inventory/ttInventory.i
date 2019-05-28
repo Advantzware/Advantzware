@@ -93,24 +93,11 @@ DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
     FIELD customerID             AS CHARACTER
     FIELD lastTransTime          AS DATETIME
     .
-    
-DEFINE {1} TEMP-TABLE inventoryStockSnapshot
-    LIKE inventoryStock
-    FIELD inventorySnapshotID AS INTEGER 
-    .    
 
-DEFINE {1} TEMP-TABLE inventorySnapshot
-    FIELD inventorySnapshotID    AS INTEGER
-    FIELD snapshotType           AS CHARACTER
-    FIELD itemType               AS CHARACTER
-    FIELD company                AS CHARACTER
-    FIELD warehouseID            AS CHARACTER
-    FIELD locationID             AS CHARACTER
-    FIELD inventoryStockStatus   AS CHARACTER
-    FIELD snapshotUser           AS CHARACTER
-    FIELD snapshotTime           AS DATETIME
+DEFINE TEMP-TABLE ttInventoryStockDetails NO-UNDO
+    LIKE inventoryStock
     .
-	    
+
 DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
 DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
 DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Created".
@@ -143,7 +130,8 @@ DEFINE VARIABLE gcSnapshotTypeArchive      AS CHARACTER INITIAL "A". /* Archive 
 DEFINE VARIABLE gcItemTypeWIP              AS CHARACTER INITIAL "WP".
 DEFINE VARIABLE gcItemTypeFG               AS CHARACTER INITIAL "FG".
 DEFINE VARIABLE gcItemTypeRM               AS CHARACTER INITIAL "RM".
-    
+
+DEFINE VARIABLE gcDBUser                   AS CHARACTER INITIAL "asi".    
 /* ********************  Preprocessor Definitions  ******************** */
 
 

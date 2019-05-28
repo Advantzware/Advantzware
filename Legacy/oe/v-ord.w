@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 
 {custom/globdefs.i}
 {oe/ordholdstat.i} 
+{oe/oeValidateInc.i}
 
 /* for oecomm.i */
 DEF NEW SHARED VAR v-upd-comm AS LOG INITIAL YES NO-UNDO.
@@ -65,7 +66,6 @@ DEF VAR v-estord-id AS RECID EXTENT 10 NO-UNDO.
 DEF VAR v-multord AS LOG NO-UNDO.
 DEF VAR ll-ord-no-override AS LOG NO-UNDO.
 DEFINE VARIABLE lWebOrder AS LOGICAL NO-UNDO.
-
 {ce/print4.i "new shared"}
 {ce/print42.i "new shared"}
 DEF NEW SHARED WORKFILE work-ordl LIKE oe-ordl.
@@ -115,10 +115,6 @@ DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEF VAR OEJobHold-log AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
-RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
-    OUTPUT lcReturn, OUTPUT llRecFound).
-IF llRecFound THEN
-   OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
@@ -126,6 +122,7 @@ DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 {oe/ttPriceHold.i "NEW SHARED"}
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -188,6 +185,12 @@ RUN methods/prgsecur.p
      
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+   OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
+
 RUN sys/ref/nk1look.p (INPUT cocode, "OEPO#Xfer", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -259,38 +262,37 @@ IF lRecFound THEN
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.po-no oe-ord.spare-char-2 oe-ord.sold-id ~
-oe-ord.ship-id oe-ord.contact oe-ord.csrUser_id oe-ord.entered-id ~
-oe-ord.poReceivedDate oe-ord.ord-date oe-ord.due-code oe-ord.due-date ~
-oe-ord.last-date oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct ~
-oe-ord.terms oe-ord.tax-gr oe-ord.managed oe-ord.priceHold ~
-oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] ~
-oe-ord.sman[2] oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] ~
-oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier ~
-oe-ord.fob-code oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 ~
-oe-ord.cc-num oe-ord.cc-auth 
+oe-ord.job-no2 oe-ord.po-no oe-ord.sold-id oe-ord.ship-id oe-ord.contact ~
+oe-ord.csrUser_id oe-ord.entered-id oe-ord.poReceivedDate oe-ord.ord-date ~
+oe-ord.due-code oe-ord.due-date oe-ord.last-date oe-ord.prod-date ~
+oe-ord.over-pct oe-ord.under-pct oe-ord.terms oe-ord.tax-gr oe-ord.managed ~
+oe-ord.spare-char-2 oe-ord.priceHold oe-ord.priceHoldReason oe-ord.sman[1] ~
+oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.s-pct[2] ~
+oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.s-pct[3] oe-ord.s-comm[3] ~
+oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code oe-ord.cc-type ~
+oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num oe-ord.cc-auth 
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
 btnCalendar-4 btnCalendar-5 btnCalendar-6 RECT-30 RECT-33 RECT-35 RECT-36 ~
-RECT-37 RECT-34 
+RECT-37 RECT-34 imgHoldRsn 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.po-no oe-ord.user-id oe-ord.stat oe-ord.spare-char-2 ~
-oe-ord.cust-no oe-ord.sold-id oe-ord.ship-id oe-ord.contact ~
-oe-ord.csrUser_id oe-ord.entered-id oe-ord.poReceivedDate oe-ord.ord-date ~
-oe-ord.cust-name oe-ord.sold-name oe-ord.due-code oe-ord.due-date ~
-oe-ord.last-date oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct ~
-oe-ord.terms oe-ord.terms-d oe-ord.tax-gr oe-ord.managed oe-ord.priceHold ~
-oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.sname[1] oe-ord.s-pct[1] ~
-oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.sname[2] oe-ord.s-pct[2] ~
-oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.sname[3] oe-ord.s-pct[3] ~
-oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
-oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num ~
-oe-ord.cc-auth oe-ord.approved-date oe-ord.ack-prnt-date 
+oe-ord.job-no2 oe-ord.po-no oe-ord.user-id oe-ord.stat oe-ord.cust-no ~
+oe-ord.sold-id oe-ord.ship-id oe-ord.contact oe-ord.csrUser_id ~
+oe-ord.entered-id oe-ord.poReceivedDate oe-ord.ord-date oe-ord.cust-name ~
+oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
+oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
+oe-ord.terms-d oe-ord.tax-gr oe-ord.managed oe-ord.spare-char-2 ~
+oe-ord.priceHold oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.sname[1] ~
+oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.sname[2] ~
+oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.sname[3] ~
+oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier ~
+oe-ord.fob-code oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 ~
+oe-ord.cc-num oe-ord.cc-auth oe-ord.approved-date oe-ord.ack-prnt-date 
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
-&Scoped-Define DISPLAYED-OBJECTS fiText1 fiText2 fiCustAddress fiHoldType ~
-fiShipName fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl ~
+&Scoped-Define DISPLAYED-OBJECTS fiText1 fiText2 fiCustAddress fiShipName ~
+fi_type fi_prev_order fiHoldType fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl ~
 fi_sman-lbl fiSoldAddress fiShipAddress 
 
 /* Custom List Definitions                                              */
@@ -452,6 +454,10 @@ DEFINE VARIABLE fi_type AS CHARACTER FORMAT "X"
      VIEW-AS FILL-IN 
      SIZE 3.2 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer".
 
+DEFINE IMAGE imgHoldRsn
+     FILENAME "graphics/16x16/question.png":U
+     SIZE 4 BY .95.
+
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 76.4 BY 4.62.
@@ -562,13 +568,6 @@ DEFINE FRAME F-Main
           LABEL "Last Ship"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      oe-ord.prod-date AT ROW 5.81 COL 128.2 COLON-ALIGNED
           LABEL "Production"
           VIEW-AS FILL-IN 
@@ -576,6 +575,13 @@ DEFINE FRAME F-Main
      oe-ord.over-pct AT ROW 9.33 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      oe-ord.under-pct AT ROW 10.38 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
@@ -713,6 +719,7 @@ DEFINE FRAME F-Main
      RECT-36 AT ROW 13.71 COL 1.6
      RECT-37 AT ROW 2.52 COL 1.6
      RECT-34 AT ROW 9.1 COL 78 WIDGET-ID 14
+     imgHoldRsn AT ROW 9.52 COL 93
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -1162,16 +1169,12 @@ END.
 ON LEAVE OF oe-ord.carrier IN FRAME F-Main /* Carrier */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    {&methods/lValidateError.i YES}
-    IF oe-ord.carrier:screen-value <> "" AND
-       NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
-                                  carrier.loc = g_loc AND
-                                  carrier.carrier = oe-ord.carrier:screen-value)
-    THEN DO:                              
-         MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.                                
+
+    IF LASTKEY <> -1 THEN DO:
+     RUN valid-carrier NO-ERROR.
+     IF NOT lErrorValid THEN RETURN NO-APPLY.
     END.
-    {&methods/lValidateError.i NO}       
+          
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1407,6 +1410,17 @@ ON RETURN OF oe-ord.frt-pay IN FRAME F-Main /* Freight Pay Code */
 DO:
    APPLY "tab" TO SELF.
    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imgHoldRsn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
+ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
+DO:
+    RUN sys/ref/dlgTagVwr.w (oe-ord.rec_key,"","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5270,7 +5284,11 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+    /*
+    ASSIGN 
+        imgHoldRsn:VISIBLE IN FRAME {&frame-name} = TRUE.
+    */     
+  
   DO WITH FRAME {&FRAME-NAME}:
       ASSIGN oe-ord.spare-char-2:TOOLTIP =  getOrdStatDescr(oe-ord.spare-char-2:SCREEN-VALUE).      
   END.
@@ -5483,18 +5501,14 @@ PROCEDURE local-update-record :
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
 
+     RUN valid-carrier NO-ERROR.
+     IF NOT lErrorValid THEN RETURN NO-APPLY.
+
      RUN valid-POReceivedDate(OUTPUT lOutError) NO-ERROR.
         IF lOutError THEN RETURN NO-APPLY.
+
      {&methods/lValidateError.i YES}
-     
-     IF oe-ord.carrier:screen-value <> "" AND
-        NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
-                                  carrier.loc = g_loc AND
-                                  carrier.carrier = oe-ord.carrier:screen-value)
-     THEN DO:                              
-         MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.                                
-     END.       
+         
      IF oe-ord.terms:screen-value <> "" AND
         NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
      THEN DO:
@@ -5563,9 +5577,53 @@ PROCEDURE local-update-record :
   CREATE old-oe-ord.
   BUFFER-COPY oe-ord TO old-oe-ord.
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+/*    IF adm-adding-record THEN                                                                                  */
+/*        RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).        */
+/*    IF lHoldError                                                       /* ValidateALL has reported an error */*/
+/*    AND (DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) NE TRUE) THEN DO:  /* BUT there is a manual release tag */*/
+/*        MESSAGE                                                                                                */
+/*            "This order would be placed on hold due to the following:" SKIP                                    */
+/*            cErrMessage SKIP                                                                                   */
+/*            "but the order has been MANUALLY RELEASED." SKIP(1)                                                */
+/*            "Press YES to continue with the order RELEASED." SKIP                                              */
+/*            "Press NO to remove the release flag and continue" SKIP                                            */
+/*            "with the order ON HOLD."                                                                          */
+/*            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lRelease AS LOG.                                  */
+/*                                                                                                               */
+/*        IF NOT lRelease THEN DO: /* User said remove release tag */                                            */
+/*            RUN removeManualRelease IN spOeValidate (oe-ord.rec_key, OUTPUT lHoldError, OUTPUT cErrMessage).   */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                    */
+/*            ASSIGN                                                                                             */
+/*                bf-oe-ord.stat = "H".                                                                          */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                           */
+/*        END.                                                                                                   */
+/*        ELSE                                                                                                   */
+/*        DO:                                                                                                    */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                    */
+/*            ASSIGN                                                                                             */
+/*                bf-oe-ord.stat = "N".                                                                          */
+/*            FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                           */
+/*        END.                                                                                                   */
+/*    END.                                                                                                       */
+/*    ELSE IF lHoldError THEN DO:                                                                                */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                        */
+/*        ASSIGN                                                                                                 */
+/*            bf-oe-ord.stat = "H".                                                                              */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                               */
+/*        MESSAGE                                                                                                */
+/*            "Order placed on hold due to:" + CHR(10) + cErrMessage                                             */
+/*            VIEW-AS ALERT-BOX.                                                                                 */
+/*    END.                                                                                                       */
+/*    ELSE DO:                                                                                                   */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.                        */
+/*        ASSIGN                                                                                                 */
+/*            bf-oe-ord.stat = "N".                                                                              */
+/*        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.                               */
+/*    END.                                                                                                       */
+  
   /* If hold status needs to be changed on line items,
      process the line item update in oe/ordholdstat.i. */
   IF glStatTypeItemUpdate = YES THEN
@@ -7057,6 +7115,48 @@ PROCEDURE valid-type :
   END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-type valid-carrier 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+{&methods/lValidateError.i YES}
+     ASSIGN lErrorValid = YES .
+DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ g_company 
+        AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+        AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+        NO-ERROR.
+    IF AVAIL shipto THEN do:
+        FIND FIRST carrier  
+            WHERE carrier.company EQ g_company 
+            AND carrier.loc = shipto.loc
+            AND carrier.carrier EQ oe-ord.carrier:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        IF AVAIL carrier THEN DO:
+            IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+                MESSAGE "Please note: Carrier " oe-ord.carrier:SCREEN-VALUE " is valid but currently inactive"
+                    VIEW-AS ALERT-BOX INFO.
+                lErrorValid = NO .
+            END.
+        END.
+        IF oe-ord.carrier:screen-value <> "" AND NOT AVAIL carrier
+            THEN DO:                              
+            MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
+            lErrorValid = NO .                                
+        END.
+    END.
+END.
+    {&methods/lValidateError.i NO} 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

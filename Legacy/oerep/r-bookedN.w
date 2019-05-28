@@ -125,7 +125,7 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,price,v-revenue,v-profit,t-tons,v-price-per-t," +
                             "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct,w-data.shp-qty,csrUser_id,ack-date," +
-                            "oe-ordl.pr-uom,Ship-from,v-mach,v-ink,print-sheet,oe-ordl.cost,oe-ordl.t-cost,full-cost,oe-ord.entered-id,status,po-recvdt,prev-order," +
+                            "oe-ordl.pr-uom,Ship-from,v-mach,v-ink,print-sheet,v-cost,v-t-cost,full-cost,oe-ord.entered-id,status,po-recvdt,prev-order," +
                             "approved-date"
 
        cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9,30,40,20,14,14,14,10,20,11,11," + "13"
@@ -2003,6 +2003,10 @@ DEFINE VARIABLE lOrdWithNoRel AS LOGICAL INITIAL NO NO-UNDO.
 
 DEFINE VARIABLE v-revenue LIKE oe-ordl.t-price FORMAT "->,>>>,>>9.99" NO-UNDO
   COLUMN-LABEL "Order!Amount".
+DEFINE VARIABLE v-cost LIKE oe-ordl.cost FORMAT "->>>,>>>,>>9.99" NO-UNDO
+  COLUMN-LABEL "COST/$M". 
+DEFINE VARIABLE v-t-cost LIKE oe-ordl.t-cost FORMAT "->>,>>>,>>9.99" NO-UNDO
+  COLUMN-LABEL "TOTAL STD COST".
 DEFINE VARIABLE v-profit AS DECIMAL FORMAT "->>,>>9.9" NO-UNDO
   COLUMN-LABEL "% Profit".
 DEFINE VARIABLE v-margin AS DECIMAL FORMAT "->>,>>9.9" NO-UNDO COLUMN-LABEL "% Margin".
@@ -2033,6 +2037,7 @@ DEFINE VARIABLE dSDueDate as DATE FORMAT "99/99/9999" INITIAL 01/01/0001 NO-UNDO
 DEFINE VARIABLE dEDueDate LIKE dSDueDate INITIAL 12/31/9999 NO-UNDO.
 DEFINE VARIABLE c-result  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCheckCostlist AS CHARACTER INIT "% Profit,ORDER AMOUNT,COST/$M,TOTAL STD COST,FULL COST" NO-UNDO.
 
 DEF BUFFER bw-data FOR w-data.
 
@@ -2064,8 +2069,13 @@ ASSIGN
  lOrdWithNoRel  = tb_include-ordrel .
 
 /*IF tb_margin THEN prt-profit = NO.*/
-prt-profit = CAN-DO(cSelectedlist,"% PROFIT").
+prt-profit = NO.
+DO i = 1 TO NUM-ENTRIES(cCheckCostlist,","):
+    IF LOOKUP(ENTRY(i,cCheckCostlist),cSelectedlist) NE 0
+    THEN prt-profit = YES.
+END.
 prt-sqft = NO.
+
 IF prt-profit THEN DO:
   IF NOT security-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
   prt-profit = security-flag.
@@ -2074,7 +2084,11 @@ END.
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
     IF ttRptSelected.TextList MATCHES "*SQ FT*" THEN prt-sqft = YES.
 
-    IF ttRptSelected.TextList = "% Profit" AND NOT prt-profit THEN NEXT.
+    IF ttRptSelected.TextList = "% Profit" AND NOT prt-profit THEN NEXT. 
+    IF ttRptSelected.TextList = "ORDER AMOUNT" AND NOT prt-profit THEN NEXT.
+    IF ttRptSelected.TextList = "COST/$M" AND NOT prt-profit THEN NEXT.
+    IF ttRptSelected.TextList = "TOTAL STD COST" AND NOT prt-profit THEN NEXT.
+    IF ttRptSelected.TextList = "FULL COST" AND NOT prt-profit THEN NEXT.
 
     ASSIGN str-tit4 = str-tit4 + 
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength + 1 - LENGTH(ttRptSelected.TextList))

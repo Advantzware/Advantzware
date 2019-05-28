@@ -59,6 +59,16 @@ DEFINE TEMP-TABLE ttImportVendCost
     FIELD SheetLengthMax    AS DECIMAL   FORMAT ">>9.9999" INITIAL 999.9999 COLUMN-LABEL "Maximum Sheet Length" HELP "Optional - Defaults to 999.9999 - decimal"
     FIELD MinimumCharge     AS DECIMAL   FORMAT "->>,>>9.99" COLUMN-LABEL "Minimum Charge" HELP "Optional - decimal"
     FIELD GSAMarkupPercent  AS DECIMAL   FORMAT ">,>>9":U INITIAL 0 COLUMN-LABEL "GS&&A O/H Markup %" HELP "Optional - Decimal"
+    FIELD DeviationCost1     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 1" HELP "Optional - Decimal"
+    FIELD DeviationCost2     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 2" HELP "Optional - Decimal"
+    FIELD DeviationCost3     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 3" HELP "Optional - Decimal"
+    FIELD DeviationCost4     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 4" HELP "Optional - Decimal"
+    FIELD DeviationCost5     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 5" HELP "Optional - Decimal"
+    FIELD DeviationCost6     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 6" HELP "Optional - Decimal"
+    FIELD DeviationCost7     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 7" HELP "Optional - Decimal"
+    FIELD DeviationCost8     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 8" HELP "Optional - Decimal"
+    FIELD DeviationCost9     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 9" HELP "Optional - Decimal"
+    FIELD DeviationCost10     AS DECIMAL   FORMAT "->,>>>,>>9.99":U INITIAL 0 COLUMN-LABEL "Deviation Cost 10" HELP "Optional - Decimal"
     .
     
 
@@ -224,6 +234,17 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pAssignValueD (ipbf-ttImportVendCost.LevelQuantity10, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.run-qty[10]).
         RUN pAssignValueD (ipbf-ttImportVendCost.LevelCostPerUOM10, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.run-cost[10]).
         RUN pAssignValueD (ipbf-ttImportVendCost.LevelSetup10, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.setups[10]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost1, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[1]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost2, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[2]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost3, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[3]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost4, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[4]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost5, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[5]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost6, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[6]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost7, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[7]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost8, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[8]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost9, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[9]).
+        RUN pAssignValueD (ipbf-ttImportVendCost.DeviationCost10, iplIgnoreBlanks, INPUT-OUTPUT e-itemfg-vend.runCostDeviation[10]).
+
         
 
         FIND FIRST reftable EXCLUSIVE

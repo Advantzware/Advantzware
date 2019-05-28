@@ -70,19 +70,22 @@ IF AVAILABLE dynParamValue THEN DO:
                     END. /* if avail */
                     ELSE
                     cSubject = "AOA Task Result".
-                    CREATE taskEmail.
-                    ASSIGN
-                        taskEmail.subject    = cSubject
-                        taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
-                                               config.emailBody ELSE "AOA Task Result Attached"
-                        taskEmail.attachment = cJasperFile
-                        taskEmail.recipients = Task.recipients
-                        taskEmail.mustExist  = YES
-                        taskEmail.rec_key    = Task.rec_key
-                        .
+                    DO TRANSACTION:
+                        CREATE taskEmail.
+                        ASSIGN
+                            taskEmail.subject    = cSubject
+                            taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
+                                                   config.emailBody ELSE "AOA Task Result Attached"
+                            taskEmail.attachment = cJasperFile
+                            taskEmail.recipients = Task.recipients
+                            taskEmail.mustExist  = YES
+                            taskEmail.rec_key    = Task.rec_key
+                            .
+                    END. /* do trans */
                 END. /* if recipients */
                 ELSE IF Task.runNow THEN DO:
-                    IF AVAILABLE config AND config.cueCard THEN DO:
+                    IF AVAILABLE config AND config.cueCard THEN
+                    DO TRANSACTION:
                         CREATE taskEmail.
                         ASSIGN
                             taskEmail.subject    = "Submitted Run Now Request"

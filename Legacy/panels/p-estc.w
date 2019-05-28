@@ -292,6 +292,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Save C-WIn
 ON CHOOSE OF Btn-Save IN FRAME Panel-Frame /* Save */
 DO:
+    def var char-hdl as cha no-undo.
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
   /* If we're in a persistent add-mode then don't change any labels. Just make */
   /* a call to update the last record and then add another record.             */
@@ -309,8 +310,14 @@ DO:
      DO WITH FRAME Panel-Frame:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
-           RUN new-state('update-begin':U).
-           ASSIGN add-active = no.
+            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"upd-viewtab-eb-target",OUTPUT char-hdl).
+            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+                RUN pUpdateRecord IN WIDGET-HANDLE(char-hdl) .
+            END.
+            ELSE do:
+                RUN new-state('update-begin':U).
+                ASSIGN add-active = no.
+            END.
         END.
         ELSE 
         DO: /* Save */
