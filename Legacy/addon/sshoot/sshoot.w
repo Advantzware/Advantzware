@@ -280,7 +280,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-phyCnt C-Win
 ON CHOOSE OF btn-phyCnt IN FRAME DEFAULT-FRAME /* New Physical Count Scan */
 DO:
-   RUN inventory/phy-menu.w.
+   RUN inventory/phy-menu.w (
+       g_company, 
+       g_loc
+       ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
