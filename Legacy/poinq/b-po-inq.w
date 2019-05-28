@@ -59,7 +59,7 @@ DEF VAR lv-sort-by AS CHAR INIT "po-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "PO#" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR lv-sort-list1 AS CHAR NO-UNDO
-  INIT "s-wid,s-len,cons-qty,cons-uom,t-rec-qty,cost,pr-uom,cons-uom".
+  INIT "s-wid,s-len,cons-qty,cons-uom,t-rec-qty,cost,pr-uom,cons-uom,ord-qty".
 DEF VAR char-hdl AS CHAR NO-UNDO.
 DEF VAR phandle AS HANDLE NO-UNDO.
 DEF VAR lv-t-rec-qty LIKE po-ordl.t-rec-qty NO-UNDO.
