@@ -14,8 +14,9 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
-    FIELD rec_KeyHeader  AS CHARACTER /*Unique ID*/
-    FIELD cCompany AS CHARACTER
+    FIELD rec_Key  AS CHARACTER 
+    FIELD estHeaderID AS CHARACTER /*Unique ID*/
+    FIELD company AS CHARACTER
     FIELD cEstNo AS CHARACTER
     FIELD dQtyMaster AS DECIMAL /*Master Qty Calculated*/
     FIELD cCalculator AS CHARACTER /*User ID of who calculated*/
@@ -26,15 +27,17 @@ DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
     .
 
 DEFINE {1} TEMP-TABLE ttEstItem
-    FIELD rec_keyItem AS CHARACTER 
-    FIELD rec_keyItemParent AS CHARACTER /*Link to Set*/
-    FIELD rec_keyHeader AS CHARACTER /*Link to Header*/
+    FIELD rec_key AS CHARACTER
+    FIELD estItemID AS CHARACTER 
+    FIELD estItemIDParent AS CHARACTER /*Link to Set*/
+    FIELD estHeaderID AS CHARACTER /*Link to Header*/
     FIELD dQtyPerParent AS DECIMAL
     FIELD dQtyRequired AS DECIMAL
     FIELD dQtyYielded AS DECIMAL
     FIELD cItemName AS CHARACTER 
     FIELD cItemDescription1 AS CHARACTER
     FIELD cItemDescription2 AS CHARACTER
+    FIELD cStyleID AS CHARACTER 
     FIELD cStyle AS CHARACTER  
     FIELD lIsSet AS LOGICAL
     FIELD cCustomerID AS CHARACTER
@@ -55,8 +58,9 @@ DEFINE {1} TEMP-TABLE ttEstItem
     .
    
 DEFINE {1} TEMP-TABLE ttEstForm
-    FIELD rec_KeyForm AS CHARACTER /*Unique ID*/
-    FIELD rec_keyHeader AS CHARACTER /*Link to Header*/
+    FIELD rec_key AS CHARACTER 
+    FIELD estFormID AS CHARACTER /*Unique ID*/
+    FIELD estHeaderID AS CHARACTER /*Link to Header*/
     FIELD iFormNo AS INTEGER
     FIELD dGrossWidth AS DECIMAL 
     FIELD dGrossLength AS DECIMAL 
@@ -96,9 +100,11 @@ DEFINE {1} TEMP-TABLE ttEstForm
     .
 
 DEFINE {1} TEMP-TABLE ttEstBlank
-    FIELD rec_keyBlank AS CHARACTER /*Unique ID*/
-    FIELD rec_keyForm AS CHARACTER /*Parent form*/
-    FIELD rec_keyItem AS CHARACTER /*Parent item*/
+    FIELD rec_key AS CHARACTER 
+    FIELD estBlankID AS CHARACTER /*Unique ID*/
+    FIELD estFormID AS CHARACTER /*Parent form*/
+    FIELD estItemID AS CHARACTER /*Parent item*/
+    FIELD estHeaderID AS CHARACTER /*Parent header*/
     FIELD iBlankNo AS INTEGER
     FIELD dBlankWidth AS DECIMAL 
     FIELD dBlankLength AS DECIMAL 
@@ -118,9 +124,13 @@ DEFINE {1} TEMP-TABLE ttEstBlank
     .
     
 DEFINE {1} TEMP-TABLE ttEstMaterial
-    FIELD rec_keyMaterial AS CHARACTER /*UniqueID*/
-    FIELD rec_keyForm AS CHARACTER /*link to parent form*/
-    FIELD rec_keyBlank AS CHARACTER /*link to parent blank*/
+    FIELD rec_key AS CHARACTER 
+    FIELD estMaterialID AS CHARACTER /*UniqueID*/
+    FIELD estFormID AS CHARACTER /*link to parent form*/
+    FIELD estBlankID AS CHARACTER /*link to parent blank*/
+    FIELD estHeaderID AS CHARACTER /*Link to Parent Header*/
+    FIELD iFormNo AS INTEGER 
+    FIELD iBlankNo AS INTEGER
     FIELD cItemID AS CHARACTER /*RM Item Code*/
     FIELD cItemName AS CHARACTER 
     FIELD dQtyRequiredNoWaste AS DECIMAL 
@@ -144,19 +154,58 @@ DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD lAddToWeightTare AS LOGICAL 
     .
     
-DEFINE {1} TEMP-TABLE ttEstOperations
-    FIELD rec_keyOperation AS CHARACTER /*Unique ID*/
-    FIELD rec_keyForm AS CHARACTER /*link to parent form*/
-    FIELD rec_keyBlank AS CHARACTER /*link to parent blank*/
+DEFINE {1} TEMP-TABLE ttEstOperation
+    FIELD rec_key AS CHARACTER 
+    FIELD estOperationID AS CHARACTER /*Unique ID*/
+    FIELD estFormID AS CHARACTER /*link to parent form*/
+    FIELD estBlankID AS CHARACTER /*link to parent blank*/
+    FIELD estHeaderID AS CHARACTER /*link to parent header*/
+    FIELD iFormNo AS INTEGER 
+    FIELD iBlankNo AS INTEGER 
     FIELD cOperationID AS CHARACTER /*Mach code*/
-    FIELD cOperationName AS CHARACTER 
+    FIELD cOperationName AS CHARACTER
+    FIELD cOperationFeedType AS CHARACTER /*B,S,R, etc*/
+    FIELD cOperationOutputType AS CHARACTER /*new B,S, etc*/
+    FIELD cDepartmentID AS CHARACTER
+    FIELD cAlt1DepartmentID AS CHARACTER 
+    FIELD cAlt2DepartmentID AS CHARACTER 
+    FIELD cAlt3DepartmentID AS CHARACTER 
+    FIELD iPass AS INTEGER 
+    FIELD lSpeedInLF AS LOGICAL
     FIELD dHoursRun AS DECIMAL 
     FIELD dHoursSetup AS DECIMAL 
     FIELD dSpeed AS DECIMAL 
-    FIELD dCostPerHourDL AS DECIMAL 
-    FIELD dCostPerHourFO AS DECIMAL 
-    FIELD dCostPerHourVO AS DECIMAL
+    FIELD dCrewSizeRun AS DECIMAL
+    FIELD dCrewSizeSetup AS DECIMAL 
+    FIELD dQtyInRunWastePercent AS DECIMAL
+    FIELD dQtyInSetupWasteCount AS DECIMAL
+    FIELD dCostPerManHourDLSetup AS DECIMAL
+    FIELD dCostPerHourFOSetup AS DECIMAL 
+    FIELD dCostPerHourVOSetup AS DECIMAL
+    FIELD dCostPerHourTotalSetup AS DECIMAL
+    FIELD dCostPerManHourDLRun AS DECIMAL 
+    FIELD dCostPerHourFORun AS DECIMAL 
+    FIELD dCostPerHourVORun AS DECIMAL
+    FIELD dCostPerHourTotalRun AS DECIMAL
     FIELD dCostTotal AS DECIMAL
+    FIELD dCostTotalRun AS DECIMAL 
+    FIELD dCostTotalDLRun AS DECIMAL 
+    FIELD dCostTotalVORun AS DECIMAL 
+    FIELD dCostTotalFORun AS DECIMAL 
+    FIELD dCostTotalSetup AS DECIMAL
+    FIELD dCostTotalDLSetup AS DECIMAL 
+    FIELD dCostTotalVOSetup AS DECIMAL 
+    FIELD dCostTotalFOSetup AS DECIMAL
+    FIELD dCostTotalMinDiffSetup AS DECIMAL /*portion of total cost attributed to min charge*/
+    FIELD dCostTotalMinDiffRun AS DECIMAL /*portion of total cost attributed to min charge*/
+    FIELD dCostTotalMinDiff AS DECIMAL /*portion of total cost attributed to min charge*/
+    FIELD dCostTotalMinDiffDLSetup AS DECIMAL /*portion of total cost attributed to min charge*/ 
+    FIELD dCostTotalMinDiffVOSetup AS DECIMAL /*portion of total cost attributed to min charge*/ 
+    FIELD dCostTotalMinDiffFOSetup AS DECIMAL /*portion of total cost attributed to min charge*/ 
+    FIELD dCostTotalMinDiffDLRun AS DECIMAL /*portion of total cost attributed to min charge*/ 
+    FIELD dCostTotalMinDiffVORun AS DECIMAL /*portion of total cost attributed to min charge*/ 
+    FIELD dCostTotalMinDiffFORun AS DECIMAL /*portion of total cost attributed to min charge*/ 
+    FIELD dMinCharge AS DECIMAL   
     FIELD dQtyIn AS DECIMAL 
     FIELD dQtyOut AS DECIMAL 
     FIELD dQtyWasteSetup AS DECIMAL 
@@ -164,29 +213,32 @@ DEFINE {1} TEMP-TABLE ttEstOperations
     .
 
 DEFINE {1} TEMP-TABLE ttEstCostDetail
-    FIELD rec_keyCostDetail AS CHARACTER
-    FIELD rec_keyCostCategory AS CHARACTER 
-    FIELD rec_keyHeader AS CHARACTER 
-    FIELD rec_keyForm AS CHARACTER 
-    FIELD rec_keyBlank AS CHARACTER
-    FIELD rec_keySource AS CHARACTER 
-    FIELD cSourceType AS CHARACTER
+    FIELD rec_key AS CHARACTER 
+    FIELD estCostDetailID AS CHARACTER
+    FIELD estCostCategoryID AS CHARACTER 
+    FIELD estHeaderID AS CHARACTER 
+    FIELD estFormID AS CHARACTER 
+    FIELD estBlankID AS CHARACTER
+    FIELD estSourceID AS CHARACTER /*MaterialID, OperationID, etc.*/ 
+    FIELD cSourceType AS CHARACTER /*Material, Operation, etc.*/
     FIELD cDetailDescription AS CHARACTER 
     FIELD dCost AS DECIMAL
     FIELD dMarkup AS DECIMAL 
     .
 
 DEFINE {1} TEMP-TABLE ttEstCostSummary
-    FIELD rec_keyCostSummary AS CHARACTER 
-    FIELD rec_keyCostGroup AS CHARACTER 
-    FIELD rec_keyScope AS CHARACTER /*Form, Item, Header*/
+    FIELD rec_key AS CHARACTER 
+    FIELD estCostSummaryID AS CHARACTER 
+    FIELD estCostGroupID AS CHARACTER 
+    FIELD cScope AS CHARACTER /*Form, Item, Header*/
     FIELD dCostPerM AS DECIMAL 
     FIELD dCostTotal AS DECIMAL 
     .
     
 DEFINE {1} TEMP-TABLE ttEstCostCategory
-    FIELD rec_keyCostCategory AS CHARACTER
-    FIELD rec_keyCostGroup AS CHARACTER 
+    FIELD rec_key AS CHARACTER 
+    FIELD estCostCategoryID AS CHARACTER
+    FIELD estCostGroupID AS CHARACTER 
     FIELD cCategoryLabel AS CHARACTER
     FIELD cCategoryDescription AS CHARACTER 
     FIELD cIncludeIn AS CHARACTER 
@@ -195,7 +247,8 @@ DEFINE {1} TEMP-TABLE ttEstCostCategory
     .
     
 DEFINE {1} TEMP-TABLE ttEstCostGroup
-    FIELD rec_keyCostGroup AS CHARACTER 
+    FIELD rec_key AS CHARACTER 
+    FIELD estCostGroupID AS CHARACTER 
     FIELD cGroupDescription AS CHARACTER 
     FIELD cGroupLabel AS CHARACTER 
     FIELD iSequence AS INTEGER 
@@ -204,6 +257,7 @@ DEFINE {1} TEMP-TABLE ttEstCostGroup
     .
     
 DEFINE {1} TEMP-TABLE ttEstCostGroupLevel
+    FIELD rec_key AS CHARACTER
     FIELD iCostGroupLevel AS INTEGER 
     FIELD cCostGroupLevelDescription AS CHARACTER 
     .    
