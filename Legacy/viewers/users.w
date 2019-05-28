@@ -1028,8 +1028,8 @@ DO:
     END.
     IF SELF:SCREEN-VALUE = "" THEN DO:
         MESSAGE
-            "You can't setting this user's password" SKIP
-            "to BLANKS."
+            "User password cannot be blank." SKIP
+            "Please enter a valid password."
             VIEW-AS ALERT-BOX ERROR /*QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG*/.
             RETURN NO-APPLY.
 
