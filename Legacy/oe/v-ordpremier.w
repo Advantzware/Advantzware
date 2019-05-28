@@ -112,11 +112,7 @@ DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEF VAR OEJobHold-log AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
-DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
-RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
-    OUTPUT lcReturn, OUTPUT llRecFound).
-IF llRecFound THEN
-   OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
+DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO. 
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
@@ -173,6 +169,12 @@ RUN methods/prgsecur.p
 
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+   OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.
+
 RUN sys/ref/nk1look.p (INPUT cocode, "OEPO#Xfer", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
