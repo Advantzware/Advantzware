@@ -115,8 +115,8 @@ DEFINE VARIABLE ll-continue       AS LOGICAL   NO-UNDO.
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bt-clear ls-search bt-prev bt-next bt-ok ~
-bt-cancel br-table 
+&Scoped-Define ENABLED-OBJECTS bt-cancel bt-clear ls-search br-table ~
+bt-next bt-ok bt-prev 
 &Scoped-Define DISPLAYED-OBJECTS ls-search 
 
 /* Custom List Definitions                                              */
@@ -156,33 +156,44 @@ FUNCTION getSearchValue RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-cancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 8 BY 1.91 TOOLTIP "Cancel"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-clear 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
      LABEL "Reset" 
-     SIZE 8 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON bt-next 
+     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_down2_disabled.ico":U NO-FOCUS
      LABEL "&Next" 
-     SIZE 7 BY 1.14
+     SIZE 8 BY 1.91 TOOLTIP "Page Down"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-ok AUTO-GO 
-     LABEL "OK" 
-     SIZE 15 BY 1.14
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "OK"
      BGCOLOR 8 .
 
 DEFINE BUTTON bt-prev 
+     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_up2_disabled.ico":U NO-FOCUS
      LABEL "&Prev" 
-     SIZE 7 BY 1.14
+     SIZE 8 BY 1.91 TOOLTIP "Page Up"
      BGCOLOR 8 .
 
 DEFINE VARIABLE ls-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 38.2 BY 1.14 NO-UNDO.
+     SIZE 50 BY 1.14 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 60 BY 1.91.
 
 DEFINE BUTTON bt-filter 
      IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U
@@ -196,23 +207,25 @@ DEFINE BROWSE br-table
   
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 112 BY 14.19 ROW-HEIGHT-CHARS .62.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 112 BY 25.29 ROW-HEIGHT-CHARS .62.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     bt-clear AT ROW 1.19 COL 7 WIDGET-ID 12
-     ls-search AT ROW 1.24 COL 22 COLON-ALIGNED WIDGET-ID 6
-     bt-prev AT ROW 1.24 COL 64 WIDGET-ID 14
-     bt-next AT ROW 1.24 COL 72.2 WIDGET-ID 16
-     bt-ok AT ROW 1.24 COL 80.8
-     bt-cancel AT ROW 1.24 COL 98
+     bt-cancel AT ROW 1.24 COL 104 WIDGET-ID 22
+     bt-clear AT ROW 1.24 COL 7 WIDGET-ID 24
+     ls-search AT ROW 1.62 COL 23 COLON-ALIGNED WIDGET-ID 32
      br-table AT ROW 4.52 COL 1 WIDGET-ID 200
+     bt-next AT ROW 1.24 COL 86 WIDGET-ID 26
+     bt-ok AT ROW 1.24 COL 95 WIDGET-ID 28
+     bt-prev AT ROW 1.24 COL 77 WIDGET-ID 30
+     RECT-1 AT ROW 1.24 COL 16 WIDGET-ID 20
+     SPACE(37.00) SKIP(26.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Help Information"
-         DEFAULT-BUTTON bt-ok CANCEL-BUTTON bt-cancel WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 15 FGCOLOR 1 "Help Information" WIDGET-ID 100.
 
 DEFINE FRAME filter-frame
      bt-filter AT ROW 1.1 COL 1 WIDGET-ID 2
@@ -242,13 +255,7 @@ ASSIGN FRAME filter-frame:FRAME = FRAME Dialog-Frame:HANDLE.
 
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-
-DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
-
-ASSIGN XXTABVALXX = FRAME filter-frame:MOVE-BEFORE-TAB-ITEM (bt-clear:HANDLE IN FRAME Dialog-Frame)
-/* END-ASSIGN-TABS */.
-
-/* BROWSE-TAB br-table bt-cancel Dialog-Frame */
+/* BROWSE-TAB br-table ls-search Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -259,6 +266,8 @@ ASSIGN
 ASSIGN 
        ls-search:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME filter-frame
    UNDERLINE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -418,23 +427,24 @@ END.
 
 &Scoped-define SELF-NAME bt-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
-ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
+ON CHOOSE OF bt-ok IN FRAME Dialog-Frame
 DO:
-    DEFINE VARIABLE h_lfield   AS HANDLE NO-UNDO.
+    DEFINE VARIABLE h_lfield AS HANDLE NO-UNDO.
     
-    IF h_browser:NUM-SELECTED-ROWS > 0 AND h_brBuffer:AVAILABLE THEN DO:
+    IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
        DO li-count = 1 TO NUM-ENTRIES(ip-outList):
            h_lfield = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE.
-           IF h_lfield:DATA-TYPE = "DATE" THEN
+           IF h_lfield:DATA-TYPE EQ "DATE" THEN
               op-returnFields = op-returnFields + 
-                                (IF h_lfield:BUFFER-VALUE = ? THEN "" 
+                                (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
                                 ELSE h_lfield:BUFFER-VALUE) + "|".
            ELSE 
               op-returnFields = op-returnFields + h_lfield:BUFFER-VALUE + "|".
        END.
        ASSIGN
           op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
-          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE.      
+          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
+          .
     END.  
 END.
 
@@ -668,7 +678,8 @@ PROCEDURE addFilterObjects :
             TRIGGERS:
                ON CHOOSE PERSISTENT RUN resetFilterObjects IN THIS-PROCEDURE.
             END TRIGGERS.
-  
+        h_btnClear:LOAD-IMAGE("Graphics/32x32/undo_32.ico").
+
         CREATE BUTTON h_btnOK
         ASSIGN FRAME = h_filterFrame
            LABEL     = "Find"
@@ -681,6 +692,7 @@ PROCEDURE addFilterObjects :
            TRIGGERS:
               ON CHOOSE PERSISTENT RUN openFilterQuery IN THIS-PROCEDURE.
            END TRIGGERS.
+        h_btnOK:LOAD-IMAGE("Graphics/32x32/magnifying_glass.ico").
 
         bt-ok:HANDLE:MOVE-TO-TOP().
         bt-cancel:HANDLE:MOVE-TO-TOP().
@@ -926,7 +938,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY ls-search 
       WITH FRAME Dialog-Frame.
-  ENABLE bt-clear ls-search bt-prev bt-next bt-ok bt-cancel 
+  ENABLE bt-cancel bt-clear ls-search bt-next bt-ok bt-prev 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
