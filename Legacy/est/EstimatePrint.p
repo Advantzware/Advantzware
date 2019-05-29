@@ -65,11 +65,7 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
 RUN pBuildSections(ipriEstHeader, ipcSectionStyle, ipcFormatStyle).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
-<<<<<<< Updated upstream
-    RUN InitializeOutputXprint IN hdOutputProcs (ipcOutputFile, YES, YES, gcFont, 11, "") .
-=======
     RUN InitializeOutputXprint(ipcOutputFile, YES, YES, gcFont, 11,"") .
->>>>>>> Stashed changes
     RUN pProcessSections.
     RUN CloseOutput.
     RUN PrintXprintFile(ipcOutputFile).
@@ -528,11 +524,11 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalNoWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  MR Waste",NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredWasteMR, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredWasteSetup, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cQtyUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.dCostMR, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedWasteMR, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalWasteMR, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.dCostSetup, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedWasteSetup, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalWasteSetup, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  Run Waste",NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredWasteRun, 7, 2, NO, YES, NO, NO, YES).
@@ -541,9 +537,9 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalWasteRun, 7, 2, NO, YES, NO, NO, YES).
         END.
         ELSE DO:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredWasteMR, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredWasteSetup, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cQtyUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.dCostMR, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.dCostSetup, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotal, 7, 2, NO, YES, NO, NO, YES).
         END.

@@ -77,7 +77,7 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD cUOMDimension AS CHARACTER /*Inches/cm*/
     FIELD cUOMArea AS CHARACTER /*MSF*/
     FIELD dGrossQtyRequiredNoWaste AS DECIMAL /* Products / Number Out*/
-    FIELD dGrossQtyRequiredWasteMR AS DECIMAL /*Wasted forms in MR*/
+    FIELD dGrossQtyRequiredWasteSetup AS DECIMAL /*Wasted forms in Setup*/
     FIELD dGrossQtyRequiredWasteRun AS DECIMAL /*Wasted forms in Run*/
     FIELD dGrossQtyRequiredTotal AS DECIMAL 
     FIELD dGrossQtyRequiredTotalWeight AS DECIMAL 
@@ -122,7 +122,34 @@ DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD dWeight AS DECIMAL 
     FIELD cUOMWeight AS CHARACTER
     .
-    
+  
+DEFINE {1} TEMP-TABLE ttEstMisc
+    FIELD rec_key AS CHARACTER 
+    FIELD estMiscID AS CHARACTER /*Unique ID*/
+    FIELD estFormID AS CHARACTER /*link to parent form*/
+    FIELD estBlankID AS CHARACTER /*link to parent blank*/
+    FIELD estHeaderID AS CHARACTER /*Link to Parent Header*/
+    FIELD iFormNo AS INTEGER 
+    FIELD iBlankNo AS INTEGER
+    FIELD cItemID AS CHARACTER /*RM Item Code*/
+    FIELD cCostDescription AS CHARACTER /*Can be RM Item Name, Prep Name, Manual description*/
+    FIELD cPrepID AS CHARACTER /*Prep ID*/
+    FIELD dQtyPerSourceQty AS DECIMAL 
+    FIELD dSourceQty AS DECIMAL
+    FIELD cSourceQtyUOM AS CHARACTER  
+    FIELD dQtyRequiredTotal AS DECIMAL 
+    FIELD cQtyUOM AS CHARACTER 
+    FIELD cSourceQtySource AS CHARACTER /*Each product, each blank, each case, each pallet, */
+    FIELD dCostPerUOM AS DECIMAL 
+    FIELD cCostUOM AS CHARACTER 
+    FIELD dCostSetup AS DECIMAL
+    FIELD cSIMON AS CHARACTER 
+    FIELD cCostType AS CHARACTER /*Material, Labor, other*/
+    FIELD dPercentForPrice AS DECIMAL /*Margin or Markup*/
+    FIELD cPercentType AS CHARACTER /*Margin or Markup*/
+    FIELD dCostTotal AS DECIMAL 
+    FIELD dProfit AS DECIMAL  
+    .
 DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD rec_key AS CHARACTER 
     FIELD estMaterialID AS CHARACTER /*UniqueID*/
@@ -133,21 +160,25 @@ DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD iBlankNo AS INTEGER
     FIELD cItemID AS CHARACTER /*RM Item Code*/
     FIELD cItemName AS CHARACTER 
+    FIELD cVendorID AS CHARACTER 
+    FIELD dQtyPerSourceQty AS DECIMAL /* to hold quantity per case, pallet, etc.*/
+    FIELD dSourceQty AS DECIMAL 
+    FIELD cSourceQtySource AS CHARACTER 
     FIELD dQtyRequiredNoWaste AS DECIMAL 
-    FIELD dQtyRequiredWasteMR AS DECIMAL 
+    FIELD dQtyRequiredWasteSetup AS DECIMAL 
     FIELD dQtyRequiredWasteRun AS DECIMAL
     FIELD dQtyRequiredTotal AS DECIMAL
     FIELD cQtyUOM AS CHARACTER 
     FIELD dCostPerUOM AS DECIMAL 
     FIELD cCostUOM AS CHARACTER  
-    FIELD dCostMR AS DECIMAL
+    FIELD dCostSetup AS DECIMAL
     FIELD dCostTotal AS DECIMAL
     FIELD dCostTotalNoWaste AS DECIMAL
-    FIELD dCostTotalWasteMR AS DECIMAL 
+    FIELD dCostTotalWasteSetup AS DECIMAL 
     FIELD dCostTotalWasteRun AS DECIMAL 
     FIELD dCostTotalPerMFinished AS DECIMAL
     FIELD dCostTotalPerMFinishedNoWaste AS DECIMAL
-    FIELD dCostTotalPerMFinishedWasteMR AS DECIMAL 
+    FIELD dCostTotalPerMFinishedWasteSetup AS DECIMAL 
     FIELD dCostTotalPerMFinishedWasteRun AS DECIMAL 
     FIELD lIsPrimarySubstrate AS LOGICAL 
     FIELD lAddToWeightFG AS LOGICAL 
@@ -223,7 +254,7 @@ DEFINE {1} TEMP-TABLE ttEstCostDetail
     FIELD cSourceType AS CHARACTER /*Material, Operation, etc.*/
     FIELD cDetailDescription AS CHARACTER 
     FIELD dCost AS DECIMAL
-    FIELD dMarkup AS DECIMAL 
+    FIELD dPercentForPrice AS DECIMAL /*Markup or Margin*/ 
     .
 
 DEFINE {1} TEMP-TABLE ttEstCostSummary

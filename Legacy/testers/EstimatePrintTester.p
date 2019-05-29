@@ -332,7 +332,7 @@ PROCEDURE pBuildTestData PRIVATE:
             ttEstForm.dDieArea                  = ttEstForm.dDieWidth * ttEstForm.dDieLength / 144
             ttEstForm.cUOMDimension             = "In"
             ttEstForm.cUOMArea                  = "SF"
-            ttEstForm.dGrossQtyRequiredWasteMR  = 20
+            ttEstForm.dGrossQtyRequiredWasteSetup  = 20
             ttEstForm.dGrossQtyRequiredWasteRun = 6
             ttEstForm.dBasisWeightInLbsPerMSF   = 123 
             ttEstForm.dWeightDie                = ttEstForm.dBasisWeightInLbsPerMSF * ttEstForm.dDieArea 
@@ -363,7 +363,7 @@ PROCEDURE pBuildTestData PRIVATE:
             ttEstBlank.dDepth                         = 11
     
             ttEstForm.dGrossQtyRequiredNoWaste        = ttEstItem.dQtyRequired / (ttEstBlank.iNumOut * ttEstForm.iNumOut)
-            ttEstForm.dGrossQtyRequiredTotal          = ttEstForm.dGrossQtyRequiredNoWaste + ttEstForm.dGrossQtyRequiredWasteMR + ttEstForm.dGrossQtyRequiredWasteRun
+            ttEstForm.dGrossQtyRequiredTotal          = ttEstForm.dGrossQtyRequiredNoWaste + ttEstForm.dGrossQtyRequiredWasteSetup + ttEstForm.dGrossQtyRequiredWasteRun
             ttEstForm.dGrossQtyRequiredTotalArea      = ttEstForm.dGrossQtyRequiredTotal * ttEstForm.dGrossArea / 1000
             ttEstForm.cUOMGrossQtyRequiredTotalArea   = "MSF"
             ttEstForm.dGrossQtyRequiredTotalWeight    = ttEstForm.dGrossQtyRequiredTotalArea * ttEstForm.dBasisWeightInLbsPerMSF
@@ -392,17 +392,17 @@ PROCEDURE pBuildTestData PRIVATE:
             ttEstMaterial.cItemID              = item.i-no 
             ttEstMaterial.cItemName            = item.i-name 
             ttEstMaterial.cQtyUOM              = "EA"
-            ttEstMaterial.dCostMR              = 124.34
+            ttEstMaterial.dCostSetup              = 124.34
             ttEstMaterial.dCostPerUOM          = .15
             ttEstMaterial.cCostUOM             = "EA"
             ttEstMaterial.dQtyRequiredNoWaste  = ttEstForm.dGrossQtyRequiredNoWaste
-            ttEstMaterial.dQtyRequiredWasteMR  = ttEstForm.dGrossQtyRequiredWasteMR
+            ttEstMaterial.dQtyRequiredWasteSetup  = ttEstForm.dGrossQtyRequiredWasteSetup
             ttEstMaterial.dQtyRequiredWasteRun = ttEstForm.dGrossQtyRequiredWasteRun
             ttEstMaterial.dQtyRequiredTotal    = ttEstForm.dGrossQtyRequiredTotal
             ttEstMaterial.dCostTotalNoWaste    = ttEstMaterial.dQtyRequiredNoWaste * ttEstMaterial.dCostPerUOM
-            ttEstMaterial.dCostTotalWasteMR    = ttEstMaterial.dQtyRequiredWasteMR * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostMR
+            ttEstMaterial.dCostTotalWasteSetup    = ttEstMaterial.dQtyRequiredWasteSetup * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostSetup
             ttEstMaterial.dCostTotalWasteRun   = ttEstMaterial.dQtyRequiredWasteRun * ttEstMaterial.dCostPerUOM
-            ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteMR + ttEstMaterial.dCostTotalWasteRun
+            ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteSetup + ttEstMaterial.dCostTotalWasteRun
             ttEstMaterial.lIsPrimarySubstrate  = YES
             ttEstMaterial.lAddToWeightFG       = YES
             ttEstMaterial.lAddToWeightTare     = NO
@@ -420,17 +420,17 @@ PROCEDURE pBuildTestData PRIVATE:
             ttEstMaterial.cItemID              = item.i-no 
             ttEstMaterial.cItemName            = item.i-name 
             ttEstMaterial.cQtyUOM              = "LB"
-            ttEstMaterial.dCostMR              = 3
+            ttEstMaterial.dCostSetup              = 3
             ttEstMaterial.dCostPerUOM          = .90
             ttEstMaterial.cCostUOM             = "LB"
             ttEstMaterial.dQtyRequiredNoWaste  = 82.02
-            ttEstMaterial.dQtyRequiredWasteMR  = 0
+            ttEstMaterial.dQtyRequiredWasteSetup  = 0
             ttEstMaterial.dQtyRequiredWasteRun = 0
-            ttEstMaterial.dQtyRequiredTotal    = ttEstMaterial.dQtyRequiredNoWaste + ttEstMaterial.dQtyRequiredWasteMR + ttEstMaterial.dQtyRequiredWasteRun
+            ttEstMaterial.dQtyRequiredTotal    = ttEstMaterial.dQtyRequiredNoWaste + ttEstMaterial.dQtyRequiredWasteSetup + ttEstMaterial.dQtyRequiredWasteRun
             ttEstMaterial.dCostTotalNoWaste    = ttEstMaterial.dQtyRequiredNoWaste * ttEstMaterial.dCostPerUOM
-            ttEstMaterial.dCostTotalWasteMR    = ttEstMaterial.dQtyRequiredWasteMR * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostMR
+            ttEstMaterial.dCostTotalWasteSetup    = ttEstMaterial.dQtyRequiredWasteSetup * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostSetup
             ttEstMaterial.dCostTotalWasteRun   = ttEstMaterial.dQtyRequiredWasteRun * ttEstMaterial.dCostPerUOM
-            ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteMR + ttEstMaterial.dCostTotalWasteRun
+            ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteSetup + ttEstMaterial.dCostTotalWasteRun
             .
         CREATE ttEstOperation.
         ASSIGN 
@@ -561,7 +561,7 @@ PROCEDURE pBuildTestData PRIVATE:
             ttEstForm.dDieArea                  = ttEstForm.dDieWidth * ttEstForm.dDieLength / 144
             ttEstForm.cUOMDimension             = "In"
             ttEstForm.cUOMArea                  = "SF"
-            ttEstForm.dGrossQtyRequiredWasteMR  = 20
+            ttEstForm.dGrossQtyRequiredWasteSetup  = 20
             ttEstForm.dGrossQtyRequiredWasteRun = 6
             ttEstForm.dBasisWeightInLbsPerMSF   = 123 
             ttEstForm.dWeightDie                = ttEstForm.dBasisWeightInLbsPerMSF * ttEstForm.dDieArea 
@@ -592,7 +592,7 @@ PROCEDURE pBuildTestData PRIVATE:
             ttEstBlank.dDepth                         = 11
     
             ttEstForm.dGrossQtyRequiredNoWaste        = ttEstItem.dQtyRequired / (ttEstBlank.iNumOut * ttEstForm.iNumOut)
-            ttEstForm.dGrossQtyRequiredTotal          = ttEstForm.dGrossQtyRequiredNoWaste + ttEstForm.dGrossQtyRequiredWasteMR + ttEstForm.dGrossQtyRequiredWasteRun
+            ttEstForm.dGrossQtyRequiredTotal          = ttEstForm.dGrossQtyRequiredNoWaste + ttEstForm.dGrossQtyRequiredWasteSetup + ttEstForm.dGrossQtyRequiredWasteRun
             ttEstForm.dGrossQtyRequiredTotalArea      = ttEstForm.dGrossQtyRequiredTotal * ttEstForm.dGrossArea / 1000
             ttEstForm.cUOMGrossQtyRequiredTotalArea   = "MSF"
             ttEstForm.dGrossQtyRequiredTotalWeight    = ttEstForm.dGrossQtyRequiredTotalArea * ttEstForm.dBasisWeightInLbsPerMSF
@@ -621,17 +621,17 @@ PROCEDURE pBuildTestData PRIVATE:
             ttEstMaterial.cItemID              = item.i-no 
             ttEstMaterial.cItemName            = item.i-name 
             ttEstMaterial.cQtyUOM              = "EA"
-            ttEstMaterial.dCostMR              = 124.34
+            ttEstMaterial.dCostSetup              = 124.34
             ttEstMaterial.dCostPerUOM          = .15
             ttEstMaterial.cCostUOM             = "EA"
             ttEstMaterial.dQtyRequiredNoWaste  = ttEstForm.dGrossQtyRequiredNoWaste
-            ttEstMaterial.dQtyRequiredWasteMR  = ttEstForm.dGrossQtyRequiredWasteMR
+            ttEstMaterial.dQtyRequiredWasteSetup  = ttEstForm.dGrossQtyRequiredWasteSetup
             ttEstMaterial.dQtyRequiredWasteRun = ttEstForm.dGrossQtyRequiredWasteRun
             ttEstMaterial.dQtyRequiredTotal    = ttEstForm.dGrossQtyRequiredTotal
             ttEstMaterial.dCostTotalNoWaste    = ttEstMaterial.dQtyRequiredNoWaste * ttEstMaterial.dCostPerUOM
-            ttEstMaterial.dCostTotalWasteMR    = ttEstMaterial.dQtyRequiredWasteMR * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostMR
+            ttEstMaterial.dCostTotalWasteSetup    = ttEstMaterial.dQtyRequiredWasteSetup * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostSetup
             ttEstMaterial.dCostTotalWasteRun   = ttEstMaterial.dQtyRequiredWasteRun * ttEstMaterial.dCostPerUOM
-            ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteMR + ttEstMaterial.dCostTotalWasteRun
+            ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteSetup + ttEstMaterial.dCostTotalWasteRun
             ttEstMaterial.lIsPrimarySubstrate  = YES
             ttEstMaterial.lAddToWeightFG       = YES
             ttEstMaterial.lAddToWeightTare     = NO
@@ -649,17 +649,17 @@ PROCEDURE pBuildTestData PRIVATE:
             ttEstMaterial.cItemID              = item.i-no 
             ttEstMaterial.cItemName            = item.i-name 
             ttEstMaterial.cQtyUOM              = "LB"
-            ttEstMaterial.dCostMR              = 3
+            ttEstMaterial.dCostSetup              = 3
             ttEstMaterial.dCostPerUOM          = .90
             ttEstMaterial.cCostUOM             = "LB"
             ttEstMaterial.dQtyRequiredNoWaste  = 82.02
-            ttEstMaterial.dQtyRequiredWasteMR  = 0
+            ttEstMaterial.dQtyRequiredWasteSetup  = 0
             ttEstMaterial.dQtyRequiredWasteRun = 0
-            ttEstMaterial.dQtyRequiredTotal    = ttEstMaterial.dQtyRequiredNoWaste + ttEstMaterial.dQtyRequiredWasteMR + ttEstMaterial.dQtyRequiredWasteRun
+            ttEstMaterial.dQtyRequiredTotal    = ttEstMaterial.dQtyRequiredNoWaste + ttEstMaterial.dQtyRequiredWasteSetup + ttEstMaterial.dQtyRequiredWasteRun
             ttEstMaterial.dCostTotalNoWaste    = ttEstMaterial.dQtyRequiredNoWaste * ttEstMaterial.dCostPerUOM
-            ttEstMaterial.dCostTotalWasteMR    = ttEstMaterial.dQtyRequiredWasteMR * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostMR
+            ttEstMaterial.dCostTotalWasteSetup    = ttEstMaterial.dQtyRequiredWasteSetup * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostSetup
             ttEstMaterial.dCostTotalWasteRun   = ttEstMaterial.dQtyRequiredWasteRun * ttEstMaterial.dCostPerUOM
-            ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteMR + ttEstMaterial.dCostTotalWasteRun
+            ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteSetup + ttEstMaterial.dCostTotalWasteRun
             .
         CREATE ttEstOperation.
         ASSIGN 
@@ -905,7 +905,7 @@ PROCEDURE pBuildTestData2 PRIVATE:
                 ttEstForm.dDieArea                        = ttEstForm.dDieWidth * ttEstForm.dDieLength / 144
                                     
                 /*Refactor - Calculate from Operations*/
-                ttEstForm.dGrossQtyRequiredWasteMR        = 20
+                ttEstForm.dGrossQtyRequiredWasteSetup        = 20
                 ttEstForm.dGrossQtyRequiredWasteRun       = 6
             
             
@@ -983,24 +983,24 @@ PROCEDURE pBuildTestData2 PRIVATE:
                     ttEstMaterial.cQtyUOM              = ITEM.cons-uom
             
                     /*Refactor - pull from vend-cost table*/
-                    ttEstMaterial.dCostMR              = 3
+                    ttEstMaterial.dCostSetup              = 3
                     ttEstMaterial.dCostPerUOM          = .90
                     ttEstMaterial.cCostUOM             = "LB"
                     ttEstMaterial.dQtyRequiredNoWaste  = 82.02
             
-                    ttEstMaterial.dQtyRequiredWasteMR  = 0
+                    ttEstMaterial.dQtyRequiredWasteSetup  = 0
                     ttEstMaterial.dQtyRequiredWasteRun = 0
-                    ttEstMaterial.dQtyRequiredTotal    = ttEstMaterial.dQtyRequiredNoWaste + ttEstMaterial.dQtyRequiredWasteMR + ttEstMaterial.dQtyRequiredWasteRun
+                    ttEstMaterial.dQtyRequiredTotal    = ttEstMaterial.dQtyRequiredNoWaste + ttEstMaterial.dQtyRequiredWasteSetup + ttEstMaterial.dQtyRequiredWasteRun
                     ttEstMaterial.dCostTotalNoWaste    = ttEstMaterial.dQtyRequiredNoWaste * ttEstMaterial.dCostPerUOM
-                    ttEstMaterial.dCostTotalWasteMR    = ttEstMaterial.dQtyRequiredWasteMR * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostMR
+                    ttEstMaterial.dCostTotalWasteSetup    = ttEstMaterial.dQtyRequiredWasteSetup * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostSetup
                     ttEstMaterial.dCostTotalWasteRun   = ttEstMaterial.dQtyRequiredWasteRun * ttEstMaterial.dCostPerUOM
-                    ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteMR + ttEstMaterial.dCostTotalWasteRun
+                    ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteSetup + ttEstMaterial.dCostTotalWasteRun
                     .
             END. /*Each eb of ef*/
             /*Refactor - Need True calculations*/
             ASSIGN 
                 ttEstForm.dGrossQtyRequiredNoWaste     = ttEstHeader.dQtyMaster / (iOutTotal * ttEstForm.iNumOut)
-                ttEstForm.dGrossQtyRequiredTotal       = ttEstForm.dGrossQtyRequiredNoWaste + ttEstForm.dGrossQtyRequiredWasteMR + ttEstForm.dGrossQtyRequiredWasteRun
+                ttEstForm.dGrossQtyRequiredTotal       = ttEstForm.dGrossQtyRequiredNoWaste + ttEstForm.dGrossQtyRequiredWasteSetup + ttEstForm.dGrossQtyRequiredWasteRun
                 ttEstForm.dGrossQtyRequiredTotalArea   = ttEstForm.dGrossQtyRequiredTotal * ttEstForm.dGrossArea / 1000
                 ttEstForm.dGrossQtyRequiredTotalWeight = ttEstForm.dGrossQtyRequiredTotalArea * ttEstForm.dBasisWeightInLbsPerMSF
                 .
@@ -1026,18 +1026,18 @@ PROCEDURE pBuildTestData2 PRIVATE:
                     ttEstMaterial.cQtyUOM              = ITEM.cons-uom
                     
                     /*Refactor - pull from vend-cost table*/
-                    ttEstMaterial.dCostMR              = 124.34
+                    ttEstMaterial.dCostSetup              = 124.34
                     ttEstMaterial.dCostPerUOM          = .15
                     ttEstMaterial.cCostUOM             = "EA"
                     
                     ttEstMaterial.dQtyRequiredNoWaste  = ttEstForm.dGrossQtyRequiredNoWaste
-                    ttEstMaterial.dQtyRequiredWasteMR  = ttEstForm.dGrossQtyRequiredWasteMR
+                    ttEstMaterial.dQtyRequiredWasteSetup  = ttEstForm.dGrossQtyRequiredWasteSetup
                     ttEstMaterial.dQtyRequiredWasteRun = ttEstForm.dGrossQtyRequiredWasteRun
                     ttEstMaterial.dQtyRequiredTotal    = ttEstForm.dGrossQtyRequiredTotal
                     ttEstMaterial.dCostTotalNoWaste    = ttEstMaterial.dQtyRequiredNoWaste * ttEstMaterial.dCostPerUOM
-                    ttEstMaterial.dCostTotalWasteMR    = ttEstMaterial.dQtyRequiredWasteMR * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostMR
+                    ttEstMaterial.dCostTotalWasteSetup    = ttEstMaterial.dQtyRequiredWasteSetup * ttEstMaterial.dCostPerUOM + ttEstMaterial.dCostSetup
                     ttEstMaterial.dCostTotalWasteRun   = ttEstMaterial.dQtyRequiredWasteRun * ttEstMaterial.dCostPerUOM
-                    ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteMR + ttEstMaterial.dCostTotalWasteRu   
+                    ttEstMaterial.dCostTotal           = ttEstMaterial.dCostTotalNoWaste + ttEstMaterial.dCostTotalWasteSetup + ttEstMaterial.dCostTotalWasteRu   
                     .
             END.
             FOR EACH est-op NO-LOCK 
