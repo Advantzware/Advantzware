@@ -43,6 +43,7 @@ DEFINE VARIABLE lvProdAceFile AS CHARACTER NO-UNDO FORMAT 'x(50)'.
 DEFINE VARIABLE lvProdAceData AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceResource AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceJob AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lvProdAceForm AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceBlank AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAcePass AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceOperator AS CHARACTER NO-UNDO EXTENT 10.
@@ -1207,9 +1208,10 @@ PROCEDURE createTtblProdAce :
     ASSIGN
       lvProdAceResource = ttblResource.resource
       lvProdAceJob      = ENTRY(2,lvProdAceData)
-      lvProdAceBlank    = ENTRY(2,lvProdAceJob,' ')
-      lvProdAcePass     = ENTRY(3,lvProdAceJob,' ')
-      lvProdAceJob      = ENTRY(1,lvProdAceJob,' ')
+      lvProdAceForm     = ENTRY(2,lvProdAceJob,'.')
+      lvProdAceBlank    = ENTRY(3,lvProdAceJob,'.')
+      lvProdAcePass     = ENTRY(4,lvProdAceJob,'.')
+      lvProdAceJob      = ENTRY(1,lvProdAceJob,'.') + '.' + lvProdAceForm
       .
     IF NOT CAN-FIND(FIRST ttblJob
                     WHERE ttblJob.resource EQ lvProdAceResource
@@ -1515,8 +1517,8 @@ PROCEDURE pExport :
                 IF ttToggleBox.hToggleBox:CHECKED THEN
                 firstJobsList = firstJobsList
                               + STRING(ttblResource.dmiID,'999') + '|'
-                              + ttblJob.job + ' '
-                              + STRING(INT(ttblJob.userField19)) + ' '
+                              + ttblJob.job + '.'
+                              + STRING(INT(ttblJob.userField19)) + '.'
                               + STRING(INT(ttblJob.userField20))
                               + ','
                               .
@@ -1575,7 +1577,7 @@ PROCEDURE pExport :
                 STRING(ttblProductID.dmiID,'999') ',"","","'
                 REPLACE(ttblProductID.productDesc,',','') '",'
                 TRIM(STRING(ttblProductID.standardCycle,'>>>>9.9<<<')) ','
-                0 ',' 1 ',' 0 ',' 0 ',' 0
+                180 ',' 1 ',' 0 ',' 0 ',' 0
                 SKIP
                 .
         END. /* each ttblproductid */
