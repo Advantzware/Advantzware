@@ -70,12 +70,12 @@ DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cAdjustReason-Desc AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "FGSetAdjustReason", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 lAdjustReason-log = LOGICAL(cRtnChar) NO-ERROR.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "C" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "FGSetAdjustReason", "C" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 cAdjustReason-Desc = cRtnChar NO-ERROR.
@@ -1043,6 +1043,12 @@ PROCEDURE local-create-record :
      fg-rctd.cases-unit   = 1.
     IF cAdjustReason-Desc NE "" THEN
      ASSIGN fg-rctd.reject-code[1] = cAdjustReason-Desc.
+
+    FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
+
+    IF AVAIL b-fg-rctd AND fg-rctd.reject-code[1] NE "" THEN
+        ASSIGN fg-rctd.reject-code[1] = b-fg-rctd.reject-code[1] .
+
     DISPLAY fg-rctd.rct-date fg-rctd.reject-code[1] WITH BROWSE {&browse-name}.
   END.  
 
