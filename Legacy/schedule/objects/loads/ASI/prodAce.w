@@ -43,6 +43,7 @@ DEFINE VARIABLE lvProdAceFile AS CHARACTER NO-UNDO FORMAT 'x(50)'.
 DEFINE VARIABLE lvProdAceData AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceResource AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceJob AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lvProdAceForm AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceBlank AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAcePass AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceOperator AS CHARACTER NO-UNDO EXTENT 10.
@@ -137,14 +138,14 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExportShifts btnReset btnSave ~
-setAllResources selectedShift selectedStartDate btnCalendar-1 ~
-selectedStartDateOption selectedEndDate btnImport btnCalendar-2 ~
-selectedEndDateOption selectedStartDueDate btnCalendar-3 btnExportEmployees ~
-selectedStartDueDateOption selectedEndDueDate btnCalendar-4 ~
+&Scoped-Define ENABLED-OBJECTS btnExportShifts btnReset btnSave btnImport ~
+btnExportEmployees setAllResources selectedShift selectedStartDate ~
+btnCalendar-1 selectedStartDateOption selectedEndDate btnCalendar-2 ~
+selectedEndDateOption selectedStartDueDate btnCalendar-3 ~
+selectedStartDueDateOption selectedEndDueDate btnCalendar-4 btnExportJobs ~
 selectedEndDueDateOption svAllJobNo svStartJobNo svStartJobNo2 svEndJobNo ~
-svEndJobNo2 lvProdAceDir lvImportDir btnExportJobs lvProdAceType ~
-lvProdAceBlankEmployee lvResourceList btnExportMachines 
+btnExportMachines svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType ~
+lvProdAceBlankEmployee lvResourceList 
 &Scoped-Define DISPLAYED-OBJECTS setAllResources selectedShift ~
 selectedStartDate selectedStartDateOption selectedEndDate ~
 selectedEndDateOption selectedStartDueDate selectedStartDueDateOption ~
@@ -394,6 +395,10 @@ DEFINE FRAME DEFAULT-FRAME
           "Click to Reset Values"
      btnSave AT ROW 20.52 COL 72 HELP
           "Click to Save"
+     btnImport AT ROW 5.52 COL 72 HELP
+          "Import from Production Ace" WIDGET-ID 6
+     btnExportEmployees AT ROW 12.19 COL 64 HELP
+          "Export Employees to Production ACE" WIDGET-ID 14
      setAllResources AT ROW 2.19 COL 85 HELP
           "Select to Toggle All Resources (On/Off)" WIDGET-ID 30
      selectedShift AT ROW 2.91 COL 3 HELP
@@ -405,21 +410,19 @@ DEFINE FRAME DEFAULT-FRAME
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
      selectedEndDate AT ROW 4.1 COL 32 COLON-ALIGNED HELP
           "Enter Ending Date"
-     btnImport AT ROW 5.52 COL 72 HELP
-          "Import from Production Ace" WIDGET-ID 6
      btnCalendar-2 AT ROW 4.1 COL 50 WIDGET-ID 78
      selectedEndDateOption AT ROW 4.1 COL 53 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
      selectedStartDueDate AT ROW 8.62 COL 25 COLON-ALIGNED HELP
           "Enter Starting Due Date" WIDGET-ID 82
      btnCalendar-3 AT ROW 8.62 COL 43 WIDGET-ID 86
-     btnExportEmployees AT ROW 12.19 COL 64 HELP
-          "Export Employees to Production ACE" WIDGET-ID 14
      selectedStartDueDateOption AT ROW 8.62 COL 46 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 90
      selectedEndDueDate AT ROW 9.81 COL 25 COLON-ALIGNED HELP
           "Enter Ending Due Date" WIDGET-ID 84
      btnCalendar-4 AT ROW 9.81 COL 43 WIDGET-ID 88
+     btnExportJobs AT ROW 12.19 COL 48 HELP
+          "Export Jobs to Production ACE" WIDGET-ID 26
      selectedEndDueDateOption AT ROW 9.81 COL 46 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 92
      svAllJobNo AT ROW 11 COL 27 HELP
@@ -430,30 +433,28 @@ DEFINE FRAME DEFAULT-FRAME
           "Enter Start Job Run" WIDGET-ID 180
      svEndJobNo AT ROW 13.14 COL 25 COLON-ALIGNED HELP
           "Enter End Job" WIDGET-ID 176
+     btnExportMachines AT ROW 12.19 COL 56 HELP
+          "Export Machines to Production ACE" WIDGET-ID 4
      svEndJobNo2 AT ROW 13.14 COL 36 COLON-ALIGNED HELP
           "Enter End Job Run" WIDGET-ID 182
      lvProdAceDir AT ROW 15.52 COL 21 COLON-ALIGNED
      lvImportDir AT ROW 16.71 COL 21 COLON-ALIGNED
-     btnExportJobs AT ROW 12.19 COL 48 HELP
-          "Export Jobs to Production ACE" WIDGET-ID 26
      lvProdAceType AT ROW 17.91 COL 24 NO-LABEL
      btnTransSelection AT ROW 17.91 COL 50 HELP
           "Access Transaction Selection" WIDGET-ID 32
      lvEmpLogin AT ROW 19.1 COL 24 NO-LABEL
      lvProdAceBlankEmployee AT ROW 20.29 COL 21 COLON-ALIGNED
      lvResourceList AT ROW 21.48 COL 21 COLON-ALIGNED
-     btnExportMachines AT ROW 12.19 COL 56 HELP
-          "Export Machines to Production ACE" WIDGET-ID 4
      "Employee Login:" VIEW-AS TEXT
           SIZE 16 BY .81 AT ROW 19.1 COL 6
-     " Configuration" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 14.57 COL 4 WIDGET-ID 38
-          FONT 6
      " Select to Set Current (1st) Job Per Resource" VIEW-AS TEXT
           SIZE 52 BY .62 AT ROW 1.24 COL 85 WIDGET-ID 190
           FONT 6
      " Export" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 7.91 COL 4 WIDGET-ID 40
+          FONT 6
+     "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
+          SIZE 49 BY .62 AT ROW 2.19 COL 3
           FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -462,14 +463,14 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
-          SIZE 49 BY .62 AT ROW 2.19 COL 3
-          FONT 6
      " Import" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 4 WIDGET-ID 36
           FONT 6
      "Type:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 17.91 COL 16
+     " Configuration" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 14.57 COL 4 WIDGET-ID 38
+          FONT 6
      RECT-1 AT ROW 14.81 COL 2
      RECT-2 AT ROW 8.14 COL 2 WIDGET-ID 2
      RECT-3 AT ROW 1.48 COL 2 WIDGET-ID 34
@@ -1207,9 +1208,10 @@ PROCEDURE createTtblProdAce :
     ASSIGN
       lvProdAceResource = ttblResource.resource
       lvProdAceJob      = ENTRY(2,lvProdAceData)
-      lvProdAceBlank    = ENTRY(2,lvProdAceJob,' ')
-      lvProdAcePass     = ENTRY(3,lvProdAceJob,' ')
-      lvProdAceJob      = ENTRY(1,lvProdAceJob,' ')
+      lvProdAceForm     = ENTRY(2,lvProdAceJob,'.')
+      lvProdAceBlank    = ENTRY(3,lvProdAceJob,'.')
+      lvProdAcePass     = ENTRY(4,lvProdAceJob,'.')
+      lvProdAceJob      = ENTRY(1,lvProdAceJob,'.') + '.' + lvProdAceForm
       .
     IF NOT CAN-FIND(FIRST ttblJob
                     WHERE ttblJob.resource EQ lvProdAceResource
@@ -1338,11 +1340,11 @@ PROCEDURE employeeRate :
   RETURN.
   opRate = bRate.rate.
   FIND bRate NO-LOCK
-       WHERE bRate.company = ipCompany
-         AND bRate.employee = ipEmployee
-         AND bRate.shift = ipShift
-         AND bRate.machine = ipMachine
-         AND bRate.ratetype = ipRatetype
+       WHERE bRate.company EQ ipCompany
+         AND bRate.employee EQ ipEmployee
+         AND bRate.shift EQ ipShift
+         AND bRate.machine EQ ipMachine
+         AND bRate.ratetype EQ ipRatetype
        NO-ERROR.
   IF AVAILABLE bRate THEN
   CASE bRate.factortype:
@@ -1379,14 +1381,14 @@ PROCEDURE enable_UI :
           svEndJobNo svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType 
           lvEmpLogin lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnExportShifts btnReset btnSave setAllResources selectedShift 
-         selectedStartDate btnCalendar-1 selectedStartDateOption 
-         selectedEndDate btnImport btnCalendar-2 selectedEndDateOption 
-         selectedStartDueDate btnCalendar-3 btnExportEmployees 
+  ENABLE btnExportShifts btnReset btnSave btnImport btnExportEmployees 
+         setAllResources selectedShift selectedStartDate btnCalendar-1 
+         selectedStartDateOption selectedEndDate btnCalendar-2 
+         selectedEndDateOption selectedStartDueDate btnCalendar-3 
          selectedStartDueDateOption selectedEndDueDate btnCalendar-4 
-         selectedEndDueDateOption svAllJobNo svStartJobNo svStartJobNo2 
-         svEndJobNo svEndJobNo2 lvProdAceDir lvImportDir btnExportJobs 
-         lvProdAceType lvProdAceBlankEmployee lvResourceList btnExportMachines 
+         btnExportJobs selectedEndDueDateOption svAllJobNo svStartJobNo 
+         svStartJobNo2 svEndJobNo btnExportMachines svEndJobNo2 lvProdAceDir 
+         lvImportDir lvProdAceType lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1515,8 +1517,8 @@ PROCEDURE pExport :
                 IF ttToggleBox.hToggleBox:CHECKED THEN
                 firstJobsList = firstJobsList
                               + STRING(ttblResource.dmiID,'999') + '|'
-                              + ttblJob.job + ' '
-                              + STRING(INT(ttblJob.userField19)) + ' '
+                              + ttblJob.job + '.'
+                              + STRING(INT(ttblJob.userField19)) + '.'
                               + STRING(INT(ttblJob.userField20))
                               + ','
                               .
@@ -1532,14 +1534,16 @@ PROCEDURE pExport :
             PUT UNFORMATTED 
                 idx ','
                 STRING(ttblResource.dmiID,'999') ',"'
-                ttblJob.job ' '
-                INT(ttblJob.userField19) ' '
+                ttblJob.job '.'
+                INT(ttblJob.userField19) '.'
                 INT(ttblJob.userField20) '","'
                 cProductID '",'
                 REPLACE(ttblJob.userField15,',','') ',"",'
                 YEAR(ttblJob.dueDate)
                 STRING(MONTH(ttblJob.dueDate),'99')
-                STRING(DAY(ttblJob.dueDate),'99') ',""'
+                STRING(DAY(ttblJob.dueDate),'99') ',"'
+                ENTRY(3,ttblJob.rowIDs)
+                '"'
                 SKIP 
                 .
             IF NOT CAN-FIND(FIRST ttblProductID
@@ -1575,7 +1579,7 @@ PROCEDURE pExport :
                 STRING(ttblProductID.dmiID,'999') ',"","","'
                 REPLACE(ttblProductID.productDesc,',','') '",'
                 TRIM(STRING(ttblProductID.standardCycle,'>>>>9.9<<<')) ','
-                0 ',' 1 ',' 0 ',' 0 ',' 0
+                180 ',' 1 ',' 0 ',' 0 ',' 0
                 SKIP
                 .
         END. /* each ttblproductid */
