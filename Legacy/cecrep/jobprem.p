@@ -579,16 +579,22 @@ do v-local-loop = 1 to v-local-copies:
                          with no-box no-labels frame m3 width 132 no-attr-space STREAM-IO.
 
         i = 0.
+        j = 0.
         for each w-m:
           i = i + 1.
+          j = j + 1.
         end.
         if i lt 3 then do i = i + 1 to 3:
           create w-m.
           w-m.dseq = 999999999.
         end.
             /* box for route */
-        
-        lv-rt-num = i + 3.
+
+        lv-rt-num = i + 3. 
+
+        IF j GT 2 THEN
+            lv-rt-num  = lv-rt-num + i - 1 .
+         
         PUT SKIP " " SKIP " ".        
         PUT UNFORMATTED "<#8><R+" lv-rt-num "><C+78><RECT#8><|3>" SKIP.                
 
@@ -608,35 +614,51 @@ do v-local-loop = 1 to v-local-copies:
         PUT " ".        
         PUT "<#10><R+7><C+78><RECT#10><|3>" SKIP.
 
+        PUT "<=#8>"
+            SKIP
+            "R" SKIP
+            "O" SKIP
+            "U" SKIP
+            "T" SKIP
+            "E" SKIP.
+
         if v-format eq "Brick" OR v-format = "ASI" then 
-             put "<=#8> Machine Routing        SU:    Start    Stop    Total   RUN:  Hours   Start   Stop   Total     QTY: In     Out      Waste" SKIP.
-        ELSE PUT "<=#8> Machine Routing        SU:    Start    Stop    Total   RUN:  Start   Stop    Total   QTY:    In     Out     Waste     Date" SKIP.
+             put "<=#8> Machine Routing        SU:   Start   Stop   Total   RUN: Hours  Start  Stop  Total    QTY: In    Out     Waste" SKIP.
+        ELSE PUT "<=#8> Machine Routing        SU:   Start   Stop   Total   RUN: Start  Stop   Total   QTY:    In    Out    Waste    Date    DMI " SKIP.
         
         PUT "<=#8><R+1><C+1><from><C+76><Line>" SKIP.
         i = 0.
 
-        for each w-m by w-m.dseq:
-          i = i + 1.
+        for each w-m WHERE w-m.dscr NE "" BREAK by w-m.dseq:
+            IF NOT FIRST(w-m.dseq) THEN
+                i = i + 2.
+            ELSE i = i + 1 .
+
           FIND first mach where mach.company eq cocode
                             and mach.m-dscr  eq w-m.dscr NO-LOCK NO-ERROR.
           /*lv-m-dscr = IF AVAIL mach THEN mach.m-code ELSE w-m.dscr.
-          v-letter = substr("UTE",i,1).*/   
-          display w-m.dscr AT 3
-                  w-m.s-hr when w-m.s-hr ne 0
-                  fill("_",7)  format "x(7)"    to 38   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 46   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 54   when w-m.dscr ne ""
+          v-letter = substr("UTE",i,1).*/ 
+          IF w-m.dscr ne "" THEN
+              PUT "<=#8><R+"  STRING(i ) ">"
+              w-m.dscr AT 3
+                  w-m.s-hr 
+                  fill("_",7)  format "x(6)"    to 37   
+                  fill("_",7)  format "x(6)"    to 44   
+                  fill("_",7)  format "x(6)"    to 51   
                   space(2)
-                  w-m.r-sp when w-m.r-sp ne 0
-                  fill("_",7)  format "x(7)"    to 69   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 77   when w-m.dscr ne ""
-                  fill("_",7)  format "x(7)"    to 85   when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 99   when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 108  when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 117  when w-m.dscr ne ""
-                  fill("_",8)  format "x(8)"    to 129  when w-m.dscr ne ""
-                  /*chr(124) format "x"           at 131   */                  
-              with no-box no-labels frame o2 width 132 no-attr-space down STREAM-IO.
+                  w-m.r-sp 
+                  fill("_",7)  format "x(6)"    to 65   
+                  fill("_",7)  format "x(6)"    to 72   
+                  fill("_",7)  format "x(6)"    to 80   
+                  fill("_",8)  format "x(7)"    to 93   
+                  fill("_",8)  format "x(7)"    to 101  
+                  fill("_",8)  format "x(7)"    to 109  
+                  fill("_",8)  format "x(7)"    to 117  
+                  "<=#8><R+"  STRING(i + 1) "><#32><UNITS=INCHES><C69.8><FROM><c79.4><r+0.8><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
+                   string(w-m.reckey,"x(21)")   ">" 
+              .
+        
+             
           v-lines = v-lines + 1.
           /* rstark 05181205 */
           IF w-m.dscr NE '' THEN DO:
@@ -648,6 +670,8 @@ do v-local-loop = 1 to v-local-copies:
           END.
           /* rstark 05181205 */
         END.
+        
+
 
         FIND LAST b-ef USE-INDEX est-qty WHERE b-ef.company = est.company
                                            AND b-ef.est-no = est.est-no NO-LOCK NO-ERROR.
@@ -657,7 +681,8 @@ do v-local-loop = 1 to v-local-copies:
                CREATE tt-wm.
                BUFFER-COPY w-m TO tt-wm.
         END.
-
+        
+        IF i EQ 0 THEN
         PUT "<=#8>"
             SKIP
             "R" SKIP

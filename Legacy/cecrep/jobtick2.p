@@ -448,7 +448,8 @@ for each job-mch
    w-m.dscr = mach.m-dscr
    w-m.s-hr = job-mch.mr-hr
    w-m.r-sp = job-mch.speed
-   w-m.r-hr = job-mch.run-hr.
+   w-m.r-hr = job-mch.run-hr 
+   w-m.reckey = job-mch.rec_key .
 
   if v-1st-dc                                           and
      (mach.dept[1] eq "DC" or mach.dept[2] eq "DC" or
