@@ -490,7 +490,7 @@ END.
                                 + 'invoiceID="' + STRING(inv-head.inv-no) + '" '
                                 + 'operation="new" purpose="standard"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailHeaderIndicator/','','Row').  
-        RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" /','','Row').
+        RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes" isTaxInLine="yes" /','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoicePartner','','Row').
         RUN cXMLOutput (clXMLOutput,'Contact role="billTo"','','Row').
         RUN cXMLOutput (clXMLOutput,'Name xml:lang="en-US"','','Row').
@@ -763,7 +763,7 @@ END.
              RUN cXMLOutput (clXMLOutput,'/UnitPrice','','Row'). 
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailItemReference lineNumber="' + STRING(inv-line.LINE) + '"','','Row').
              RUN cXMLOutput (clXMLOutput,'ItemID','','Row'). 
-             RUN cXMLOutput (clXMLOutput,'SupplierPartID',inv-line.i-no,'Col').
+             RUN cXMLOutput (clXMLOutput,'SupplierPartID',inv-line.part-no,'Col').
              RUN cXMLOutput (clXMLOutput,'/ItemID','','Row'). 
              RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
              RUN cXMLOutput (clXMLOutput,'',inv-line.i-name,'Col').
