@@ -2530,12 +2530,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      
      .
 
-    IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
-       IF AVAIL users AND users.user_program[3] NE "" THEN
-           ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3]
-                  userLabelPath = users.USER_program[3].       
-    END.
+    
 
     FIND FIRST sys-ctrl NO-LOCK 
       WHERE sys-ctrl.company EQ gcompany 
@@ -2577,10 +2572,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF bardir-int = 1 THEN DO:
        FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
-       IF AVAIL users AND users.user_program[3] NE "" THEN
-           ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3].                  
+       IF AVAIL users AND users.user_program[3] NE "" THEN          
+           ASSIGN  userLabelPath = users.USER_program[3]. 
+
+       ASSIGN begin_filename:SCREEN-VALUE =  bardir-desc + "\" + USERID(LDBNAME(1)) . /* Ticket 49774 */
+        begin_filename:SENSITIVE = NO .
+        FILE-INFO:FILE-NAME = begin_filename:SCREEN-VALUE .
+        if begin_filename:SCREEN-VALUE <> "" AND FILE-INFO:FILE-type eq ? then 
+            OS-CREATE-DIR VALUE(begin_filename:SCREEN-VALUE).
     END.
-    
+    .
      IF  PROGRAM-NAME(3) MATCHES "*/b-ordlt.*" THEN DO: 
       
       ASSIGN
@@ -2722,6 +2723,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             begin_rel:SENSITIVE = NO
             end_rel:SENSITIVE   = NO .
     END.
+
+     IF bardir-int = 1 AND begin_filename:SCREEN-VALUE NE "" THEN
+         begin_filename:SENSITIVE = NO .
+
   END.
   lForm = NO.
   iForm = 0.
