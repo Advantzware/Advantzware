@@ -475,6 +475,7 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE cShipToTaxCode AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cRequestedDeliveryDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE dRequestedDeliveryDate AS DATE NO-UNDO.
+  DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
 
   FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
   FIND FIRST cust WHERE cust.cust-no EQ oe-ord.cust-no 
@@ -561,7 +562,17 @@ PROCEDURE genOrderLines:
         IF oe-ordl.pr-uom EQ "CS" OR oe-ordl.pr-uom EQ "PLT" THEN
         oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
         ELSE IF oe-ordl.pr-uom EQ "C" THEN oe-ordl.qty = oe-ordl.qty * 100.
-        ELSE oe-ordl.qty = oe-ordl.qty * 1000.
+        ELSE DO:
+           FIND FIRST uom NO-LOCK 
+            WHERE uom.uom EQ oe-ordl.pr-uom NO-ERROR.
+            IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
+                dMultiplier = uom.mult.
+            ELSE 
+                dMultiplier = 1.
+            IF NOT AVAIL uom THEN 
+                dMultiplier = 1000.  /* original default */
+            oe-ordl.qty = oe-ordl.qty * dMultiplier.
+        END.
       END.
       ELSE 
       oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
