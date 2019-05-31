@@ -70,8 +70,7 @@ def {1} workfile w-m no-undo
   field dscr like mach.m-dscr
   field s-hr like job-mch.mr-hr
   field r-sp like job-mch.speed
-  field r-hr like job-mch.run-hr format ">>>9.99"
-  field reckey as character format "x(21)"
+  field r-hr like job-mch.run-hr format ">>>9.99"  
   .
 
 def {1} workfile w-i no-undo

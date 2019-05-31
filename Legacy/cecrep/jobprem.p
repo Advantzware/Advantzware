@@ -55,6 +55,7 @@ DEF VAR v-plate-loc LIKE prep.loc-bin NO-UNDO.
 DEF BUFFER bf-eb FOR eb.
 DEF SHARED VAR s-prt-set-header AS LOG NO-UNDO.
 DEF VAR tb_app-unprinted AS LOG NO-UNDO.
+DEFINE VARIABLE cMchEstRecKey AS CHARACTER NO-UNDO .
 
 FUNCTION barCode RETURNS CHARACTER (ipBarCode AS CHARACTER):
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
@@ -627,9 +628,22 @@ do v-local-loop = 1 to v-local-copies:
         ELSE PUT "<=#8> Machine Routing        SU:   Start   Stop   Total   RUN: Start  Stop   Total   QTY:    In    Out    Waste    Date    DMI " SKIP.
         
         PUT "<=#8><R+1><C+1><from><C+76><Line>" SKIP.
+
+
         i = 0.
 
         for each w-m WHERE w-m.dscr NE "" BREAK by w-m.dseq:
+            ASSIGN cMchEstRecKey = "".
+            FIND FIRST job-mch NO-LOCK
+                where job-mch.company eq cocode
+                and job-mch.job     eq job-hdr.job
+                and job-mch.job-no  eq job-hdr.job-no
+                and job-mch.job-no2 eq job-hdr.job-no2
+                AND job-mch.m-code  EQ w-m.m-code
+                and job-mch.frm     eq job-hdr.frm NO-ERROR .
+              IF AVAIL job-mch THEN
+                  ASSIGN cMchEstRecKey = job-mch.est-op_rec_key .
+              /*MESSAGE "cMchEstRecKey " STRING(cMchEstRecKey) VIEW-AS ALERT-BOX ERROR .*/
             IF NOT FIRST(w-m.dseq) THEN
                 i = i + 2.
             ELSE i = i + 1 .
@@ -655,7 +669,7 @@ do v-local-loop = 1 to v-local-copies:
                   fill("_",8)  format "x(7)"    to 109  
                   fill("_",8)  format "x(7)"    to 117  
                   "<=#8><R+"  STRING(i + 1) "><#32><UNITS=INCHES><C69.8><FROM><c79.4><r+0.8><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-                   string(w-m.reckey,"x(21)")   ">" 
+                   string(cMchEstRecKey,"x(21)")   ">" 
               .
         
              
@@ -690,6 +704,10 @@ do v-local-loop = 1 to v-local-copies:
             "U" SKIP
             "T" SKIP
             "E" SKIP.
+        ELSE IF i EQ 3 THEN
+            PUT SKIP(0.5) .
+        ELSE IF i EQ 1 THEN
+            PUT SKIP(3) .
 
         PUT SKIP(1).
         run cecrep/jobtick3.p (recid(job-hdr),v-format,cust.terms).
