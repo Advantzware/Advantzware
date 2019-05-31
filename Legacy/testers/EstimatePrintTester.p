@@ -894,9 +894,10 @@ PROCEDURE pBuildOperations PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstForm    FOR ttEstForm.
     
     DEFINE           BUFFER bf-ttEstOperation FOR ttEstOperation.
-    DEFINE VARIABLE dQtyInSheetsRunningTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityGrossRunning    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityTarget          AS DECIMAL NO-UNDO.
     
+    dQuantityGrossRunning = ipbf-ttEstForm.dGrossQtyRequiredNoWaste.
     FOR EACH est-op NO-LOCK 
         WHERE est-op.company EQ ipbf-ttEstHeader.company 
         AND est-op.est-no  EQ ipbf-ttEstHeader.cEstNo 
@@ -925,8 +926,8 @@ PROCEDURE pBuildOperations PRIVATE:
         RUN pAddEstOperation(BUFFER est-op, BUFFER ipbf-ttEstForm, BUFFER bf-ttEstOperation).
                 
         ASSIGN             
-            bf-ttEstOperation.
-        dQtyInSheets
+            bf-ttEstOperation.dQtyGrossSheets = dQuantityGrossRunning
+            
         bf-ttEstOperation.dHoursRun = 1                  
             .
        
