@@ -16,6 +16,7 @@
 
  r4.006 (updated 5.13.2019)
  * ability to lock/unlock jobs by date range
+ * added field "tot. time" in decimal format
 
  r4.005 (updated 2.13.2019)
  * added field "next start date"
