@@ -17,6 +17,7 @@ DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
     FIELD rec_Key  AS CHARACTER 
     FIELD estHeaderID AS CHARACTER /*Unique ID*/
     FIELD company AS CHARACTER
+    FIELD locationID AS CHARACTER 
     FIELD cEstNo AS CHARACTER
     FIELD dQtyMaster AS DECIMAL /*Master Qty Calculated*/
     FIELD cCalculator AS CHARACTER /*User ID of who calculated*/
@@ -34,6 +35,7 @@ DEFINE {1} TEMP-TABLE ttEstItem
     FIELD dQtyPerParent AS DECIMAL
     FIELD dQtyRequired AS DECIMAL
     FIELD dQtyYielded AS DECIMAL
+    FIELD cFGItemID AS CHARACTER
     FIELD cItemName AS CHARACTER 
     FIELD cItemDescription1 AS CHARACTER
     FIELD cItemDescription2 AS CHARACTER
@@ -85,10 +87,12 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD dGrossQtyRequiredTotalArea AS DECIMAL 
     FIELD cUOMGrossQtyRequiredTotalArea AS CHARACTER 
     FIELD dBasisWeightInLbsPerMSF AS DECIMAL 
-    FIELD iNumOutLength AS INTEGER 
-    FIELD iNumOutWidth AS INTEGER 
-    FIELD iNumOutDepth AS INTEGER 
-    FIELD iNumOut AS INTEGER 
+    FIELD iNumOutNetLength AS INTEGER 
+    FIELD iNumOutNetWidth AS INTEGER 
+    FIELD iNumOutNetDepth AS INTEGER 
+    FIELD iNumOutNet AS INTEGER
+    FIELD iNumOutBlanksOnNet AS INTEGER
+    FIELD iNumOut AS INTEGER  
     FIELD dWeightGross AS DECIMAL
     FIELD cUOMWeightGross AS CHARACTER 
     FIELD dWeightNet AS DECIMAL
@@ -145,10 +149,14 @@ DEFINE {1} TEMP-TABLE ttEstMisc
     FIELD dCostSetup AS DECIMAL
     FIELD cSIMON AS CHARACTER 
     FIELD cCostType AS CHARACTER /*Material, Labor, other*/
-    FIELD dPercentForPrice AS DECIMAL /*Margin or Markup*/
+    FIELD dProfitPercent AS DECIMAL /*Margin or Markup*/
     FIELD cPercentType AS CHARACTER /*Margin or Markup*/
+    FIELD dCostTotalBeforeProfit AS DECIMAL
     FIELD dCostTotal AS DECIMAL 
+    FIELD dCostTotalPerMFinished AS DECIMAL
     FIELD dProfit AS DECIMAL  
+    FIELD dAmortization AS DECIMAL
+    FIELD lIsPrep AS LOGICAL
     .
 DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD rec_key AS CHARACTER 
@@ -198,6 +206,7 @@ DEFINE {1} TEMP-TABLE ttEstOperation
     FIELD cOperationFeedType AS CHARACTER /*B,S,R, etc*/
     FIELD cOperationOutputType AS CHARACTER /*new B,S, etc*/
     FIELD cDepartmentID AS CHARACTER
+    FIELD iSequence AS INTEGER
     FIELD cAlt1DepartmentID AS CHARACTER 
     FIELD cAlt2DepartmentID AS CHARACTER 
     FIELD cAlt3DepartmentID AS CHARACTER 
@@ -241,6 +250,9 @@ DEFINE {1} TEMP-TABLE ttEstOperation
     FIELD dQtyOut AS DECIMAL 
     FIELD dQtyWasteSetup AS DECIMAL 
     FIELD dQtyWasteRun AS DECIMAL
+    FIELD dQtyGrossSheets AS DECIMAL
+    FIELD iNumOutDivisor AS INTEGER
+    FIELD lIsLocked AS LOGICAL 
     .
 
 DEFINE {1} TEMP-TABLE ttEstCostDetail
@@ -254,7 +266,7 @@ DEFINE {1} TEMP-TABLE ttEstCostDetail
     FIELD cSourceType AS CHARACTER /*Material, Operation, etc.*/
     FIELD cDetailDescription AS CHARACTER 
     FIELD dCost AS DECIMAL
-    FIELD dPercentForPrice AS DECIMAL /*Markup or Margin*/ 
+    FIELD dProfitPercent AS DECIMAL /*Markup or Margin*/ 
     .
 
 DEFINE {1} TEMP-TABLE ttEstCostSummary
@@ -292,6 +304,10 @@ DEFINE {1} TEMP-TABLE ttEstCostGroupLevel
     FIELD iCostGroupLevel AS INTEGER 
     FIELD cCostGroupLevelDescription AS CHARACTER 
     .    
+    
+DEFINE {1} TEMP-TABLE ttEstErrors
+    FIELD estHeaderID AS CHARACTER
+    FIELD cError AS CHARACTER.  
 /* ********************  Preprocessor Definitions  ******************** */
 
 
