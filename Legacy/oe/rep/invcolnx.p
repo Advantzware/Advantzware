@@ -50,9 +50,10 @@ def var cnt as int NO-UNDO.
 def var disp-frt as char init "Freight:" format "x(8)" NO-UNDO.
 def var minus-ship as int NO-UNDO.
 DEF VAR v-pc AS cha NO-UNDO. /* partial or complete */
-
+DEF VAR cBillNotes LIKE inv-head.bill-i NO-UNDO.
 def buffer xinv-head for inv-head .
 def buffer xinv-line for inv-line .
+DEF BUFFER bf-inv-head FOR inv-head.
 
 def workfile w-sman
   field sman as char format "x(4)".
@@ -170,6 +171,36 @@ def var v-billto-zip as char format "x(10)" NO-UNDO.
          assign v-fob = "Origin".
         else
          assign v-fob = "Destination".
+
+         ASSIGN 
+            cBillNotes[1] = ""
+            cBillNotes[2] = ""
+            cBillNotes[3] = ""
+            cBillNotes[4] = "".
+        IF xinv-head.multi-invoice THEN
+            FOR EACH bf-inv-head 
+                WHERE bf-inv-head.company EQ xinv-head.company
+                  AND bf-inv-head.bol-no EQ xinv-head.bol-no
+                  AND bf-inv-head.cust-no EQ xinv-head.cust-no
+                  AND NOT bf-inv-head.multi-invoice
+                  AND bf-inv-head.stat NE "H"
+                NO-LOCK
+                BREAK BY bf-inv-head.inv-date DESC:
+                ASSIGN 
+                    cBillNotes[1] = bf-inv-head.bill-i[1]
+                    cBillNotes[2] = bf-inv-head.bill-i[2]
+                    cBillNotes[3] = bf-inv-head.bill-i[3]
+                    cBillNotes[4] = bf-inv-head.bill-i[4]
+                    .
+                LEAVE.
+            END.
+        ELSE 
+            ASSIGN
+                cBillNotes[1] = xinv-head.bill-i[1]
+                cBillNotes[2] = xinv-head.bill-i[2]
+                cBillNotes[3] = xinv-head.bill-i[3]
+                cBillNotes[4] = xinv-head.bill-i[4]
+                .
 
         find FIRST carrier where carrier.company = inv-head.company and
           carrier.carrier = inv-head.carrier no-lock no-error.
@@ -542,13 +573,17 @@ def var v-billto-zip as char format "x(10)" NO-UNDO.
         end. /* each inv-misc */
 
         if v-prntinst then do:
-         do i = 1 to 4:
-          if inv-head.bill-i[i] ne "" then do:
-       
-            put inv-head.bill-i[i] at 10 skip.
-            assign v-printline = v-printline + 1.
-          end.
-         end. /* 1 to 4 */
+         DO i = 1 TO 4:
+             IF cBillNotes[i] <> "" THEN DO:
+                 IF v-printline > 50 THEN DO:
+                    PAGE.
+                    v-printline = 0.
+                    {oe/rep/invcolnx.i}
+                 END.
+                 PUT cBillNotes[i] SKIP.
+                 v-printline = v-printline + 1.
+              END.
+           END.
         end.
 
         /* T O T A L S */
