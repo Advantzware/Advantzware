@@ -494,6 +494,12 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    find first itemfg {sys/look/itemfgrlW.i}
+        and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        no-lock no-error.
+    IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
+        fg-rctd.loc:SCREEN-VALUE = itemfg.def-loc
+        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin .
   END.
 
 /*
