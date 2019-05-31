@@ -795,8 +795,7 @@ END.
              RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxAmt),'Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
-             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
-             // RUN cXMLOutput (clXMLOutput,'','Wade Tax','Col').
+             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').             
              RUN cXMLOutput (clXMLOutput,'/Description','','Row').                        
              RUN cXMLOutput (clXMLOutput,'TaxDetail category="sales"' + ' percentageRate="' + STRING(dLineTaxRate) + '"','','Row').             
              RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
@@ -810,7 +809,6 @@ END.
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
              RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').
              RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
-             // RUN cXMLOutput (clXMLOutput,'','Sales Tax','Col').
              RUN cXMLOutput (clXMLOutput,'/Description','','Row').
              RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').                        
              RUN cXMLOutput (clXMLOutput,'/Tax','','Row'). 
