@@ -141,13 +141,15 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNoCostMSF AS LOGICAL NO-UNDO.
-    
+    define variable icnt as int.
     RUN pCheckBinDups (OUTPUT lBinDups ).
+    
     IF lBinDups THEN 
          RETURN.
     RUN pCheckNoCost (OUTPUT lNoCostMSF ). 
-    IF lNoCostMSF THEN 
-       RETURN.
+
+  /*  IF lNoCostMSF THEN 
+       RETURN. */
     FOR EACH fg-bin NO-LOCK
         WHERE fg-bin.company EQ ipcCompany
         AND fg-bin.i-no GE ipcFGItemStart
@@ -157,6 +159,7 @@ PROCEDURE exportSnapshot:
         AND fg-bin.qty NE 0
         AND fg-bin.tag NE ""
         :
+        icnt = icnt + 1.
         CREATE ttSnapshot.
         ASSIGN 
             ttSnapShot.cCompany   = fg-bin.company
@@ -536,7 +539,32 @@ PROCEDURE pBuildCompareTable PRIVATE:
             ttCycleCountCompare.cSysCostUom   = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE itemfg.pur-uom      
             ttCycleCountCompare.dSysCostValue = dCost * ttCycleCountCompare.dSysQty
             .
-        
+            
+        IF ttCycleCountCompare.cTag GT "" THEN DO:
+            FOR each fg-rdtlh NO-LOCK 
+                WHERE fg-rdtlh.company EQ ttCycleCountCompare.cCompany
+                  AND fg-rdtlh.tag     EQ ttCycleCountCompare.cTag
+                  AND fg-rdtlh.rita-code EQ "R"
+                  USE-INDEX tag,
+                EACH fg-rcpth NO-LOCK 
+                    WHERE fg-rcpth.r-no EQ fg-rdtlh.r-no
+                BY fg-rcpth.trans-date DESCENDING:                 
+            
+                    ttCycleCountCompare.dtReceiptDate = fg-rcpth.trans-date.
+                    LEAVE.
+            END.
+         END.
+         ELSE DO:
+            FOR EACH fg-rcpth NO-LOCK 
+                WHERE fg-rcpth.company EQ ttCycleCountCompare.cCompany
+                  AND fg-rcpth.i-no     EQ ttCycleCountCompare.cFgItemID
+                  AND fg-rcpth.rita-code EQ "R"                  
+                  :
+
+                    ttCycleCountCompare.dtReceiptDate = fg-rcpth.trans-date.
+                    LEAVE.
+            END.
+         END.        
     END. 
 END PROCEDURE.
 
