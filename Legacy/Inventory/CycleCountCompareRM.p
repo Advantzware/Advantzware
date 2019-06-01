@@ -99,6 +99,9 @@ DEFINE TEMP-TABLE ttSnapShot
 DEFINE TEMP-TABLE ttDupTags
     FIELD i-no       LIKE rm-bin.i-no
     FIELD tag        LIKE rm-bin.tag
+    FIELD i-no2      LIKE rm-bin.i-no
+    FIELD loc1       LIKE rm-bin.loc
+    FIELD loc2       LIKE rm-bin.loc
     FIELD transTypes AS CHARACTER.
     
 DEFINE STREAM sOutput.
@@ -643,16 +646,26 @@ PROCEDURE pCheckBinDups:
             CREATE ttDupTags.
             ASSIGN 
                 ttDupTags.i-no = rm-bin.i-no
-                ttDupTags.tag  = rm-bin.tag.
+                ttDupTags.tag  = rm-bin.tag
+                ttDupTags.loc1 = rm-bin.loc + " " + rm-bin.loc-bin
+                ttDupTags.i-no2 = bf-rm-bin.i-no                
+                ttDupTags.loc2 = bf-rm-bin.loc + " " + bf-rm-bin.loc-bin
+                .
         END.
     END.
 
     OUTPUT STREAM sOutput TO c:\tmp\dupBinTags.csv.
+    EXPORT STREAM sOutput "Item,Tag,Trans Types,Item2,Loc1,Loc2" SKIP.
     FOR EACH ttDupTags:
+        
         PUT STREAM sOutput UNFORMATTED   
             '"' ttDupTags.i-no '",'
             '="' ttDupTags.tag '",'
-            '"' ttDupTags.transTypes '",' SKIP.              
+            '"' ttDupTags.transTypes '",' 
+            '"' ttDupTags.i-no2 '",' 
+            '"' ttDupTags.Loc1 '",' 
+            '"' ttDupTags.Loc2 '",' 
+            SKIP.              
     END.
     OUTPUT STREAM sOutput CLOSE.
     
