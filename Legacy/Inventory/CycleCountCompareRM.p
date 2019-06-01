@@ -589,6 +589,31 @@ PROCEDURE pBuildCompareTable PRIVATE:
             NO-ERROR.
         IF AVAILABLE loadtag THEN
             ttCycleCountCompare.cVendorTag = loadtag.misc-char[1].
+        IF ttCycleCountCompare.cTag GT "" THEN DO:
+            FOR each rm-rdtlh NO-LOCK 
+                WHERE rm-rdtlh.company EQ ttCycleCountCompare.cCompany
+                  AND rm-rdtlh.tag     EQ ttCycleCountCompare.cTag
+                  AND rm-rdtlh.rita-code EQ "R"
+                  USE-INDEX tag,
+                EACH rm-rcpth NO-LOCK 
+                    WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
+                BY rm-rcpth.trans-date DESCENDING:                 
+            
+                    ttCycleCountCompare.dtReceiptDate = rm-rcpth.trans-date.
+                    LEAVE.
+            END.
+         END.
+         ELSE DO:
+            FOR EACH rm-rcpth NO-LOCK 
+                WHERE rm-rcpth.company EQ ttCycleCountCompare.cCompany
+                  AND rm-rcpth.i-no     EQ ttCycleCountCompare.cFGItemID
+                  AND rm-rcpth.rita-code EQ "R"                  
+                  :
+
+                    ttCycleCountCompare.dtReceiptDate = rm-rcpth.trans-date.
+                    LEAVE.
+            END.
+         END.
     END. /* each ttCycleCountCompare */ 
     
 END PROCEDURE.
@@ -624,10 +649,10 @@ PROCEDURE pCheckBinDups:
 
     OUTPUT STREAM sOutput TO c:\tmp\dupBinTags.csv.
     FOR EACH ttDupTags:
-        PUT STREAM sOutput UNFORMATTED  
+        PUT STREAM sOutput UNFORMATTED   
             '"' ttDupTags.i-no '",'
             '="' ttDupTags.tag '",'
-            '"' ttDupTags.transTypes '",'.              
+            '"' ttDupTags.transTypes '",' SKIP.              
     END.
     OUTPUT STREAM sOutput CLOSE.
     
