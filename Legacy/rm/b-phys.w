@@ -84,8 +84,7 @@ DO:
         + STRING(DAY(TODAY), "99") + STRING(YEAR(TODAY))
         + STRING(TIME).
     cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
-    MESSAGE "logfile" cPhysCntSavefile
-        VIEW-AS ALERT-BOX.
+
     
     
 END.
