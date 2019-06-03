@@ -213,11 +213,21 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE VARIABLE dTransQty   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iStatusCnt1 AS INTEGER NO-UNDO.
     DEFINE VARIABLE iStatusCnt2 AS INTEGER NO-UNDO.
-
+    DEFINE var dCostPerUOMTotal AS DECIMAL NO-UNDO.
+    DEFINE var dCostPerUOMDL AS DECIMAL NO-UNDO.
+    DEFINE var dCostPerUOMFO AS DECIMAL NO-UNDO.
+    DEFINE var dCostPerUOMVO AS DECIMAL NO-UNDO.
+    DEFINE var dCostPerUOMDM AS DECIMAL NO-UNDO.  
+    DEFINE var cCostUOM AS CHARACTER NO-UNDO.
+    DEFINE var lFound AS LOGICAL NO-UNDO.       
+    DEFINE VARIABLE hCostProc   AS HANDLE NO-UNDO.
+    
+    RUN inventory/costProcs.p PERSISTENT SET hCostProc.
+    
     EMPTY TEMP-TABLE ttCycleCountCompare.
     
     FIND FIRST ce-ctrl WHERE ce-ctrl.company EQ ipcCompany NO-LOCK NO-ERROR.
-    FOR EACH fg-rctd NO-LOCK 
+    FOR EACH fg-rctd EXCLUSIVE-LOCK 
         WHERE fg-rctd.company EQ ipcCompany
         AND fg-rctd.rita-code EQ "C"
         AND fg-rctd.tag NE ""
@@ -265,6 +275,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 ttCycleCountCompare.cSNum          = STRING(fg-rctd.s-num)
                 ttCycleCountCompare.cBnum          = STRING(fg-rctd.b-num)
                 .
+
         END.
     END. 
   
@@ -531,6 +542,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 AND fg-bin.job-no EQ ttCycleCountCompare.cJobNo
                 AND fg-bin.job-no2 EQ INTEGER(ttCycleCountCompare.cJobNo2)
                 USE-INDEX tag NO-ERROR.
+        dCost = 0.
+        dMsf = 0.
+        lFound = NO.
         IF AVAILABLE fg-bin THEN 
             RUN pGetCostMSF (INPUT ROWID(fg-bin), ttCycleCountCompare.dSysQty, OUTPUT dMsf, OUTPUT dCost).
        
@@ -539,7 +553,24 @@ PROCEDURE pBuildCompareTable PRIVATE:
             ttCycleCountCompare.cSysCostUom   = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE itemfg.pur-uom      
             ttCycleCountCompare.dSysCostValue = dCost * ttCycleCountCompare.dSysQty
             .
-            
+           /* Correction for wrong values */
+           IF AVAIL fg-bin THEN 
+            run getCostForLastReceipt IN hCostProc
+                    (input fg-bin.company,
+                     input fg-bin.i-no,
+                    output dCostPerUOMTotal,
+                    output dCostPerUOMDL,
+                    output dCostPerUOMFO,
+                    output dCostPerUOMVO,
+                    output dCostPerUOMDM,  
+                    output cCostUOM ,
+                    output lFound 
+                    ).           
+            IF lFound THEN 
+                ASSIGN 
+                       ttCycleCountCompare.dSysCost      = dCostPerUOMTotal
+                       ttCycleCountCompare.dSysCostValue = dCostPerUOMTotal * ttCycleCountCompare.dSysQty
+                       .            
         IF ttCycleCountCompare.cTag GT "" THEN DO:
             FOR each fg-rdtlh NO-LOCK 
                 WHERE fg-rdtlh.company EQ ttCycleCountCompare.cCompany
@@ -566,6 +597,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
             END.
          END.        
     END. 
+    DELETE OBJECT hCostProc.
 END PROCEDURE.
 
 PROCEDURE pCheckBinDups:
@@ -1206,8 +1238,8 @@ PROCEDURE postFG:
         RUN pRemoveZeroCounts .
 
     RUN pCheckCountDups (OUTPUT lDupsExist).
-    IF lDupsExist THEN 
-        RETURN.
+    /* IF lDupsExist THEN 
+        RETURN. */
 
     RUN pCreateZeroCount.
     RUN pCreateTransfers.
