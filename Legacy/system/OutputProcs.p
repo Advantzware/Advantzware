@@ -213,46 +213,67 @@ PROCEDURE SetRowsPerPage:
 END PROCEDURE.
 
 PROCEDURE TempTableToCSV:
-    /*------------------------------------------------------------------------------ 
-     Purpose: Exports the contents of any temp-table into CSV    
-     Notes: 
-    ------------------------------------------------------------------------------*/ 
+/*------------------------------------------------------------------------------ 
+ Purpose: Exports the contents of any temp-table into CSV    
+ Notes: 
+------------------------------------------------------------------------------*/ 
     DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
     DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
     DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
   
     DEFINE VARIABLE hQuery  AS HANDLE    NO-UNDO. 
+    DEFINE VARIABLE hBuffer AS HANDLE    NO-UNDO.
     DEFINE VARIABLE iIndex  AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE eIndex  AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
-    
-    
-    cTTName = iphTT:NAME. 
+        
+    ASSIGN
+        cTTName = iphTT:NAME
+        hBuffer = iphTT:DEFAULT-BUFFER-HANDLE
+        .
+
     IF iplHeader THEN 
     DO:
         OUTPUT STREAM sOutput to VALUE(ipcFileName). 
-        DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS: 
-            PUT STREAM sOutput UNFORMATTED iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):COLUMN-LABEL + ",". 
+        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                    PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + STRING(eIndex) + 
+                    (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '' ELSE ',').
+                END.
+            END.
+            ELSE
+                PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + 
+                (IF iIndex NE hBuffer:NUM-FIELDS THEN "," ELSE ""). 
         END. 
         PUT STREAM sOutput UNFORMATTED SKIP. 
     END.
     ELSE 
         OUTPUT STREAM sOutput to VALUE(ipcFileName) APPEND. 
+        
     CREATE QUERY hQuery. 
-    hQuery:SET-BUFFERS (iphTT:DEFAULT-BUFFER-HANDLE). 
+    hQuery:SET-BUFFERS (hBuffer). 
     hQuery:QUERY-PREPARE("FOR EACH " + cTTName). 
     hQuery:QUERY-OPEN().
     REPEAT:   
         hQuery:GET-NEXT().   
         IF hQuery:QUERY-OFF-END THEN LEAVE.   
-        DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS: 
-            PUT STREAM sOutput UNFORMATTED  
-                '"' FormatForCSV(iphTT:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):BUFFER-VALUE) '",'. 
+        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                    PUT STREAM sOutput UNFORMATTED  
+                        '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE(eIndex)) 
+                        (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '"' ELSE '",').
+                END.
+            END.
+            ELSE
+                PUT STREAM sOutput UNFORMATTED  
+                    '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE) 
+                    (IF iIndex NE hBuffer:NUM-FIELDS THEN '",' ELSE '"'). 
         END. 
         PUT STREAM sOutput UNFORMATTED SKIP. 
     END. 
     OUTPUT STREAM sOutput CLOSE.
-
-
 END PROCEDURE.
 
 PROCEDURE WriteOutput:

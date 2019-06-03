@@ -98,6 +98,86 @@ DEFINE TEMP-TABLE ttInventoryStockDetails NO-UNDO
     LIKE inventoryStock
     .
 
+DEFINE {1} TEMP-TABLE ttPrintInventoryStockFG NO-UNDO
+    FIELDS customerName       AS CHARACTER FORMAT "X(30)"       LABEL "CUSTOMER"
+    FIELDS orderID            AS INTEGER   FORMAT ">>>>>9"      LABEL "ORDNUMBER"
+    FIELDS jobID              AS CHARACTER                      LABEL "JOBNUMBER"
+    FIELDS fgItemID           AS CHARACTER                      LABEL "ITEM"
+    FIELDS custPartID         AS CHARACTER                      LABEL "CUSTPARTNO"
+    FIELDS custPOID           AS CHARACTER                      LABEL "CUSTPONO"
+    FIELDS quantityPerSubUnit AS INTEGER   FORMAT ">>>>9"       LABEL "PCS"
+    FIELDS quantityOfSubUnits AS INTEGER   FORMAT "->,>>>,>>9"  LABEL "BUNDLE"
+    FIELDS quantity           AS INTEGER   FORMAT "->,>>>,>>9"  LABEL "TOTAL"
+    FIELDS shipNo             AS CHARACTER                      LABEL "SHIPCODE"
+    FIELDS shipName           AS CHARACTER                      LABEL "SHIPNAME"
+    FIELDS shipAdd1           AS CHARACTER                      LABEL "SHIPADD1"
+    FIELDS shipAdd2           AS CHARACTER                      LABEL "SHIPADD2"
+    FIELDS shipCity           AS CHARACTER                      LABEL "SHIPCITY"
+    FIELDS shipState          AS CHARACTER                      LABEL "SHIPSTATE"
+    FIELDS shipCtry           AS CHARACTER                      LABEL "SHIPCOUNTRY"
+    FIELDS shipZip            AS CHARACTER                      LABEL "SHIPZIP"
+    FIELDS soldCode           AS CHARACTER FORMAT ">>9"         LABEL "SOLDCODE"
+    FIELDS soldName           AS CHARACTER                      LABEL "SOLDNAME"
+    FIELDS soldAdd1           AS CHARACTER                      LABEL "SOLDADD1"
+    FIELDS soldAdd2           AS CHARACTER                      LABEL "SOLDADD2"
+    FIELDS soldCity           AS CHARACTER                      LABEL "SOLDCITY"
+    FIELDS soldState          AS CHARACTER                      LABEL "SOLDSTATE"
+    FIELDS soldCtry           AS CHARACTER                      LABEL "SOLDCOUNTRY"
+    FIELDS soldZip            AS CHARACTER                      LABEL "SOLDZIP"
+    FIELDS fgItemName         AS CHARACTER                      LABEL "INAME"
+    FIELDS dueDate            AS DATE                           LABEL "DUEDATE"
+    FIELDS relDate            AS DATE                           LABEL "RELDATE"
+    FIELDS upcID              AS CHARACTER                      LABEL "UPCNO"
+    FIELDS inventoryStockLen  AS DECIMAL   FORMAT ">>>9.99<<<"  LABEL "LENGTH"
+    FIELDS inventoryStockWid  AS DECIMAL   FORMAT ">>>9.99<<<"  LABEL "WIDTH"
+    FIELDS inventoryStockDep  AS DECIMAL   FORMAT ">>>9.99<<<"  LABEL "DEPTH"
+    FIELDS flute              AS CHARACTER                      LABEL "FLUTE"
+    FIELDS test               AS CHARACTER                      LABEL "TEST"
+    FIELDS vendor             AS CHARACTER                      LABEL "VENDOR"
+    FIELDS weightTotal        AS DECIMAL   FORMAT ">>>>9.99"    LABEL "GROSSWGT"
+    FIELDS weightTare         AS DECIMAL   FORMAT ">>>>9.99"    LABEL "TAREWGT"
+    FIELDS weightNet          AS DECIMAL   FORMAT ">>>>9.99"    LABEL "NETWGT"
+    FIELDS sheetWt            AS DECIMAL   FORMAT ">>>9.99"     LABEL "SHEETWGT"
+    FIELDS uom                AS CHARACTER                      LABEL "UOM"
+    FIELDS style              AS CHARACTER                      LABEL "STYLE"
+    FIELDS styleDesc          AS CHARACTER FORMAT "X(30)"       LABEL "STYLEDESC"
+    FIELDS relLotNo           AS CHARACTER                      LABEL "RELLOTNO"
+    FIELDS middleSexJobID     AS CHARACTER                      LABEL "MIDDLESEXJOBNUMBER"
+    FIELDS middleSexCustPOID  AS CHARACTER                      LABEL "MIDDLESEXCUSTPONO"
+    FIELDS stockIDAlias       AS CHARACTER                      LABEL "TAG#"
+    FIELDS quantityPartial    AS INTEGER   FORMAT ">>>,>>9"     LABEL "PARTIAL"
+    FIELDS caseID             AS CHARACTER                      LABEL "CASECODE"
+    FIELDS sn                 AS CHARACTER                      LABEL "SN"                 EXTENT 8
+    FIELDS poID               AS INTEGER   FORMAT ">>>>>9"      LABEL "PONO"
+    FIELDS dn                 AS CHARACTER                      LABEL "DN"                 EXTENT 10
+    FIELDS estID              AS CHARACTER                      LABEL "EST#"
+    FIELDS partDesc1          AS CHARACTER FORMAT "X(30)"       LABEL "ORDDESC1"
+    FIELDS partDesc2          AS CHARACTER FORMAT "X(30)"       LABEL "ORDDESC2"
+    FIELDS counterID          AS INTEGER                        LABEL "COUNTER#"
+    FIELDS rfIDTag            AS CHARACTER                      LABEL "RFIDTag"
+    FIELDS dueDateJobHdr      AS CHARACTER                      LABEL "DUEDATEJOBLINE"
+    FIELDS dueDateJob         AS CHARACTER                      LABEL "DUEDATEJOB"
+    FIELDS linenum            AS INTEGER   FORMAT ">>>>>9"      LABEL "LINE#"
+    FIELDS unitWeight         AS DECIMAL   FORMAT "->>,>>9.99"  LABEL "UnitWt"
+    FIELDS palletWeight       AS DECIMAL   FORMAT "->>,>>9.99"  LABEL "PalletWt"
+    FIELDS fgPartDesc1        AS CHARACTER                      LABEL "FGdesc1"
+    FIELDS fgPartDesc2        AS CHARACTER                      LABEL "FGdesc2"
+    FIELDS fgPartDesc3        AS CHARACTER                      LABEL "FGdesc3"
+    FIELDS fgLotNo            AS CHARACTER                      LABEL "FG Lot#"
+    FIELDS palletNo           AS CHARACTER                      LABEL "PalletCode"
+    FIELDS palletID           AS INTEGER   FORMAT "->,>>>,>>9"  LABEL "PalletID"
+    FIELDS tagCounter         AS INTEGER                        LABEL "TagCounter"
+    FIELDS tagCountTotal      AS INTEGER                        LABEL "TagCountTotal"
+    FIELDS rn                 AS CHARACTER                      LABEL "RN"                 EXTENT 4
+    FIELDS warehouseID        AS CHARACTER                      LABEL "WareHouse"
+    FIELDS locationID         AS CHARACTER                      LABEL "Bin"
+    FIELDS quantityJob        AS DECIMAL   FORMAT ">>,>>>,>>9"  LABEL "JobQty"
+    FIELDS runShip            AS CHARACTER                      LABEL "RunShip"
+    FIELDS palletType         AS CHARACTER                      LABEL "Pallet type"
+    FIELDS zone               AS CHARACTER                      LABEL "Zone"
+    FIELDS sscc               AS CHARACTER                      LABEL "SSCC"
+    .
+    		       	    
 DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
 DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
 DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Created".
@@ -119,6 +199,7 @@ DEFINE VARIABLE gcStatusTransactionPosted  AS CHARACTER INITIAL "Posted".
 
 DEFINE VARIABLE gcTransactionTypeReceive   AS CHARACTER INITIAL "R".
 DEFINE VARIABLE gcTransactionTypeTransfer  AS CHARACTER INITIAL "T".
+DEFINE VARIABLE gcTransactionTypeAdjustQty AS CHARACTER INITIAL "A".
 DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER INITIAL "I".
 DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER INITIAL "S".
 DEFINE VARIABLE gcTransactionTypeCompare   AS CHARACTER INITIAL "C".
