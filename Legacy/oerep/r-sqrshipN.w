@@ -1324,6 +1324,9 @@ PROCEDURE run-report :
     DEFINE VARIABLE str-tit5       AS cha       FORM "x(200)" NO-UNDO.
     DEFINE VARIABLE str-line       AS cha       FORM "x(300)" NO-UNDO.
     DEFINE VARIABLE cShipName      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iShipQty       AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iOrdQty        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dTtlSqFt       AS DECIMAL NO-UNDO.
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
     {sys/form/r-top5DL3.f} 
@@ -1394,10 +1397,16 @@ PROCEDURE run-report :
         FIRST itemfg WHERE
         itemfg.company EQ cocode AND
         itemfg.i-no    EQ oe-boll.i-no 
-        NO-LOCK:
+        NO-LOCK
+        BREAK BY oe-bolh.bol-no:
 
         STATUS DEFAULT "Processing Order#: " +
             TRIM(STRING(oe-boll.ord-no,">>>>>>>>")) .
+
+        IF FIRST-OF (oe-bolh.bol-no) THEN
+            ASSIGN iShipQty = 0
+                   iOrdQty = 0
+                   dTtlSqFt = 0 .
 
         FIND FIRST oe-ordl NO-LOCK
             WHERE oe-ordl.company EQ cocode
@@ -1414,10 +1423,6 @@ PROCEDURE run-report :
         ELSE IF AVAILABLE itemfg THEN 
                 v-i-name = itemfg.i-name.
         
-        IF AVAILABLE cust THEN
-            ASSIGN v-del-zone = cust.del-zone
-                v-terr     = cust.terr .
-
         IF AVAILABLE oe-bolh THEN
             ASSIGN v-trailer = oe-bolh.trailer
                 v-bol-no  = oe-bolh.bol-no.
@@ -1428,7 +1433,10 @@ PROCEDURE run-report :
             AND cust.cust-no EQ oe-ord.cust-no NO-ERROR .
 
         IF AVAILABLE cust THEN
-            ASSIGN cCustName = cust.NAME.
+            ASSIGN cCustName = cust.NAME
+            v-del-zone = cust.del-zone
+            v-terr     = cust.terr.
+
         RELEASE cust .
        ASSIGN cShipName = "" .
         RUN oe/custxship.p (oe-bolh.company,
@@ -1444,6 +1452,11 @@ PROCEDURE run-report :
 
         IF AVAILABLE oe-ordl AND oe-ordl.ship-qty GT 0 THEN
             dTotalSqft = dTotalSqft * oe-ordl.ship-qty .
+
+        iShipQty = iShipQty + (IF AVAIL oe-ordl THEN oe-ordl.ship-qty ELSE 0).
+        iOrdQty = iOrdQty + (IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0).
+        dTtlSqFt = dTtlSqFt + dTotalSqft.
+      IF LAST-OF(oe-bolh.bol-no) THEN DO:
             
         ASSIGN 
             cDisplay       = ""
@@ -1463,7 +1476,7 @@ PROCEDURE run-report :
                 WHEN "v-trailer" THEN 
                     cVarValue = STRING(v-trailer,"x(21)").
                 WHEN "v-totl-sq" THEN 
-                    cVarValue = STRING(dTotalSqft,"->>,>>,>>>.9<<<<").
+                    cVarValue = STRING(dTtlSqFt,"->>,>>,>>>.9<<<<").
                 WHEN "v-bol-no" THEN 
                     cVarValue = STRING(v-bol-no,">>>>>9").
 
@@ -1484,9 +1497,9 @@ PROCEDURE run-report :
                 WHEN "job" THEN 
                     cVarValue = IF oe-boll.job-no NE "" THEN STRING(oe-boll.job-no + "-" + string(oe-boll.job-no2,"99")) ELSE "" .                
                 WHEN "shp-qty" THEN 
-                    cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.ship-qty,">>>,>>>,>>9") ELSE "0".
+                    cVarValue = STRING(iShipQty,">>>,>>>,>>9").
                 WHEN "ord-qty" THEN 
-                    cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty,">>>,>>>,>>9") ELSE "0" .
+                    cVarValue = STRING(iOrdQty,">>>,>>>,>>9").
                 WHEN "part-no" THEN 
                     cVarValue = STRING(itemfg.part-no).
                 WHEN "bol-date" THEN 
@@ -1509,6 +1522,7 @@ PROCEDURE run-report :
             PUT STREAM excel UNFORMATTED  
                 cExcelDisplay SKIP.
         END.
+      END.
     END.
 
     STATUS DEFAULT "Printing...".
