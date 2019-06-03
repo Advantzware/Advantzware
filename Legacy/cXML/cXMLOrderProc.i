@@ -559,8 +559,10 @@ PROCEDURE genOrderLines:
           oe-ordl.spare-char-2 = oe-ordl.pr-uom
           oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
           .
-        IF oe-ordl.pr-uom EQ "CS" OR oe-ordl.pr-uom EQ "PLT" THEN
-        oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
+        IF oe-ordl.pr-uom EQ "CS" 
+            OR oe-ordl.pr-uom EQ "PLT" 
+            OR oe-ordl.pr-uom EQ "PF" THEN
+            oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
         ELSE IF oe-ordl.pr-uom EQ "C" THEN oe-ordl.qty = oe-ordl.qty * 100.
         ELSE DO:
            FIND FIRST uom NO-LOCK 
