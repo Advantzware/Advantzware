@@ -29,6 +29,8 @@ IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Coloni
   lines-per-page = 50. /*55*/
 ELSE IF tb_fold AND CAN-DO("FibreFC,HPB,METRO,Dee",lv-format-f) THEN 
   lines-per-page = 70 /* 58 lines-per-page*/.
+ELSE IF tb_fold AND CAN-DO("Ruffino",lv-format-f) THEN 
+  lines-per-page = 78 /* 58 lines-per-page*/.
 ELSE IF NOT tb_fold AND (lv-format-c = "Adapt" OR lv-format-c = "PFS" OR lv-format-c = "CSC") THEN
     lines-per-page = 0.  /*Xprint controls paging*/
 ELSE
@@ -153,7 +155,7 @@ IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,Fibre
           BY job-hdr.i-no
   TRANSACTION:
   
-    IF CAN-DO("Keystone,MWFibre,Ruffino",lv-format-f) THEN DO:
+    IF CAN-DO("Keystone,MWFibre",lv-format-f) THEN DO:
 
       IF FIRST-OF(job-hdr.frm) THEN 
         RUN cerep/d-keyst.w (job-hdr.job-no, job-hdr.job-no2, job-hdr.frm).
