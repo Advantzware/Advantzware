@@ -2571,7 +2571,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
        THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdOutputProcs).
        
-       RUN GetBarDirFilePath(cocode, "loadtag", OUTPUT bardir-desc ).
+       RUN GetBarDirFilePath(cocode, "", OUTPUT bardir-desc ).
        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdOutputProcs). 
        
         ASSIGN begin_filename:SCREEN-VALUE =  bardir-desc .
