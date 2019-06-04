@@ -59,22 +59,22 @@ cocode = g_company.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS lv-qty1 lv-rel-1 tg_RunShip lv-qty2 RECT-6 ~
-lv-rel-2 tg_RunShip-2 lv-qty3 lv-rel-3 tg_RunShip-3 lv-qty4 lv-rel-4 ~
-tg_RunShip-4 lv-qty5 lv-rel-5 tg_RunShip-5 lv-qty6 lv-rel-6 tg_RunShip-6 ~
-lv-qty7 lv-rel-7 tg_RunShip-7 lv-qty8 lv-rel-8 tg_RunShip-8 lv-qty9 ~
-lv-rel-9 tg_RunShip-9 lv-rel-10 lv-qty10 tg_RunShip-10 lv-qty11 lv-rel-11 ~
+&Scoped-Define ENABLED-OBJECTS lv-qty1 lv-rel-1 tg_RunShip lv-qty2 lv-rel-2 ~
+tg_RunShip-2 lv-qty3 lv-rel-3 tg_RunShip-3 lv-qty4 lv-rel-4 tg_RunShip-4 ~
+lv-qty5 lv-rel-5 tg_RunShip-5 lv-qty6 lv-rel-6 tg_RunShip-6 lv-qty7 ~
+lv-rel-7 tg_RunShip-7 lv-qty8 lv-rel-8 tg_RunShip-8 lv-qty9 lv-rel-9 ~
+tg_RunShip-9 lv-qty10 lv-rel-10 tg_RunShip-10 lv-qty11 lv-rel-11 ~
 tg_RunShip-11 lv-qty12 lv-rel-12 tg_RunShip-12 lv-qty13 lv-rel-13 ~
 tg_RunShip-13 lv-qty14 lv-rel-14 tg_RunShip-14 lv-qty15 lv-rel-15 ~
 tg_RunShip-15 lv-qty16 lv-rel-16 tg_RunShip-16 lv-qty17 lv-rel-17 ~
 tg_RunShip-17 lv-qty18 lv-rel-18 tg_RunShip-18 lv-qty19 lv-rel-19 ~
-tg_RunShip-19 lv-qty20 lv-rel-20 tg_RunShip-20 Btn_OK Btn_Cancel 
+tg_RunShip-19 lv-qty20 lv-rel-20 tg_RunShip-20 Btn_OK Btn_Cancel RECT-6 
 &Scoped-Define DISPLAYED-OBJECTS lv-qty1 lv-rel-1 tg_RunShip lv-msf-1 ~
 lv-qty2 lv-rel-2 tg_RunShip-2 lv-msf-2 lv-qty3 lv-rel-3 tg_RunShip-3 ~
 lv-msf-3 lv-qty4 lv-rel-4 tg_RunShip-4 lv-msf-4 lv-qty5 lv-rel-5 ~
 tg_RunShip-5 lv-msf-5 lv-qty6 lv-rel-6 tg_RunShip-6 lv-msf-6 lv-qty7 ~
 lv-rel-7 tg_RunShip-7 lv-msf-7 lv-qty8 lv-rel-8 tg_RunShip-8 lv-msf-8 ~
-lv-msf-9 lv-qty9 lv-rel-9 tg_RunShip-9 lv-rel-10 lv-qty10 tg_RunShip-10 ~
+lv-msf-9 lv-qty9 lv-rel-9 tg_RunShip-9 lv-qty10 lv-rel-10 tg_RunShip-10 ~
 lv-msf-10 lv-qty11 lv-rel-11 tg_RunShip-11 lv-msf-11 lv-qty12 lv-rel-12 ~
 tg_RunShip-12 lv-msf-12 lv-qty13 lv-rel-13 tg_RunShip-13 lv-msf-13 lv-qty14 ~
 lv-rel-14 tg_RunShip-14 lv-msf-14 lv-qty15 lv-rel-15 tg_RunShip-15 ~
@@ -490,8 +490,8 @@ DEFINE FRAME Dialog-Frame
      lv-qty9 AT ROW 10.33 COL 1 COLON-ALIGNED NO-LABEL
      lv-rel-9 AT ROW 10.33 COL 20 COLON-ALIGNED NO-LABEL
      tg_RunShip-9 AT ROW 10.29 COL 43 WIDGET-ID 22
-     lv-rel-10 AT ROW 11.29 COL 20 COLON-ALIGNED NO-LABEL
      lv-qty10 AT ROW 11.29 COL 1 COLON-ALIGNED NO-LABEL
+     lv-rel-10 AT ROW 11.29 COL 20 COLON-ALIGNED NO-LABEL
      tg_RunShip-10 AT ROW 11.24 COL 43 WIDGET-ID 24
      lv-msf-10 AT ROW 11.24 COL 51 COLON-ALIGNED NO-LABEL
      lv-qty11 AT ROW 12.19 COL 1 COLON-ALIGNED NO-LABEL
@@ -1339,7 +1339,7 @@ PROCEDURE enable_UI :
           tg_RunShip-4 lv-msf-4 lv-qty5 lv-rel-5 tg_RunShip-5 lv-msf-5 lv-qty6 
           lv-rel-6 tg_RunShip-6 lv-msf-6 lv-qty7 lv-rel-7 tg_RunShip-7 lv-msf-7 
           lv-qty8 lv-rel-8 tg_RunShip-8 lv-msf-8 lv-msf-9 lv-qty9 lv-rel-9 
-          tg_RunShip-9 lv-rel-10 lv-qty10 tg_RunShip-10 lv-msf-10 lv-qty11 
+          tg_RunShip-9 lv-qty10 lv-rel-10 tg_RunShip-10 lv-msf-10 lv-qty11 
           lv-rel-11 tg_RunShip-11 lv-msf-11 lv-qty12 lv-rel-12 tg_RunShip-12 
           lv-msf-12 lv-qty13 lv-rel-13 tg_RunShip-13 lv-msf-13 lv-qty14 
           lv-rel-14 tg_RunShip-14 lv-msf-14 lv-qty15 lv-rel-15 tg_RunShip-15 
@@ -1348,16 +1348,17 @@ PROCEDURE enable_UI :
           lv-msf-18 lv-qty19 lv-rel-19 tg_RunShip-19 lv-msf-19 lv-qty20 
           lv-rel-20 tg_RunShip-20 lv-msf-20 
       WITH FRAME Dialog-Frame.
-  ENABLE lv-qty1 lv-rel-1 tg_RunShip lv-qty2 RECT-6 lv-rel-2 tg_RunShip-2 
-         lv-qty3 lv-rel-3 tg_RunShip-3 lv-qty4 lv-rel-4 tg_RunShip-4 lv-qty5 
-         lv-rel-5 tg_RunShip-5 lv-qty6 lv-rel-6 tg_RunShip-6 lv-qty7 lv-rel-7 
+  ENABLE lv-qty1 lv-rel-1 tg_RunShip lv-qty2 lv-rel-2 tg_RunShip-2 lv-qty3 
+         lv-rel-3 tg_RunShip-3 lv-qty4 lv-rel-4 tg_RunShip-4 lv-qty5 lv-rel-5 
+         tg_RunShip-5 lv-qty6 lv-rel-6 tg_RunShip-6 lv-qty7 lv-rel-7 
          tg_RunShip-7 lv-qty8 lv-rel-8 tg_RunShip-8 lv-qty9 lv-rel-9 
-         tg_RunShip-9 lv-rel-10 lv-qty10 tg_RunShip-10 lv-qty11 lv-rel-11 
+         tg_RunShip-9 lv-qty10 lv-rel-10 tg_RunShip-10 lv-qty11 lv-rel-11 
          tg_RunShip-11 lv-qty12 lv-rel-12 tg_RunShip-12 lv-qty13 lv-rel-13 
          tg_RunShip-13 lv-qty14 lv-rel-14 tg_RunShip-14 lv-qty15 lv-rel-15 
          tg_RunShip-15 lv-qty16 lv-rel-16 tg_RunShip-16 lv-qty17 lv-rel-17 
          tg_RunShip-17 lv-qty18 lv-rel-18 tg_RunShip-18 lv-qty19 lv-rel-19 
          tg_RunShip-19 lv-qty20 lv-rel-20 tg_RunShip-20 Btn_OK Btn_Cancel 
+         RECT-6 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

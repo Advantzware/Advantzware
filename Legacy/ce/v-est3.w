@@ -4092,10 +4092,20 @@ PROCEDURE valid-carrier :
   DO WITH FRAME {&FRAME-NAME}:
     eb.carrier:SCREEN-VALUE = CAPS(eb.carrier:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST carrier
-                    {sys\look/carrierW.i}
-                      AND carrier.carrier EQ eb.carrier:SCREEN-VALUE)
-    THEN DO:
+    FIND FIRST carrier
+        {sys\look/carrierW.i}
+        AND carrier.loc EQ eb.loc
+        AND carrier.carrier EQ eb.carrier:SCREEN-VALUE NO-LOCK NO-ERROR.
+
+    IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " eb.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+           RETURN ERROR.
+        END.
+    END.
+
+    IF NOT AVAIL carrier THEN DO:
       MESSAGE "Invalid " + TRIM(eb.carrier:LABEL) + ", try help..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO eb.carrier.

@@ -251,24 +251,21 @@ PROCEDURE ipCheckCollision:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    FOR EACH report NO-LOCK WHERE report.term-id BEGINS cTermPrefix
-        AND report.term-id NE v-term,
-        FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id:
-        /* Check that someone else isn't posting the same BOL */
-      
-        FOR EACH bf-oe-boll NO-LOCK WHERE bf-oe-boll.b-no EQ oe-boll.b-no:
-            FIND FIRST bf-report NO-LOCK 
-                WHERE bf-report.term-id BEGINS cTermPrefix
-                AND bf-report.rec-id  EQ report.rec-id
-                AND bf-report.rec_key NE report.rec_key
-                NO-ERROR.
-            /* Found overlap with another user */
-            IF AVAILABLE bf-report THEN 
-                fLogMsg("Collision with other user oe-bolp3.p " + " BOL# " + STRING(oe-boll.bol-no) + " Key03: " + report.key-03
-                    + " term-id: " + bf-report.term-id + " rpt.term-id: " + report.term-id).          
-        END.
+    FOR EACH report NO-LOCK WHERE report.term-id EQ v-term,
+      FIRST oe-boll NO-LOCK WHERE RECID(oe-boll) EQ report.rec-id
+        :
+        /* Prefix of v-term is today's date */
+        FIND FIRST bf-report NO-LOCK 
+            WHERE bf-report.term-id BEGINS cTermPrefix
+              AND bf-report.rec-id  EQ report.rec-id
+              AND bf-report.rec_key NE report.rec_key
+              AND bf-report.term-id NE v-term
+            NO-ERROR.
+        /* Found overlap with another user */
+        IF AVAILABLE bf-report THEN 
+            fLogMsg("Collision with other user oe-bolp3.p " + " BOL# " + STRING(oe-boll.bol-no) + " Key03: " + report.key-03
+                + " term-id: " + bf-report.term-id + " rpt.term-id: " + report.term-id).          
     END. 
-
 
 END PROCEDURE.
 

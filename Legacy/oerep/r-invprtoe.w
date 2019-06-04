@@ -1760,7 +1760,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             fi_broker-bol:SENSITIVE = YES
             fi_broker-bol:HIDDEN    = NO.
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
         ASSIGN
             tb_prt-zero-qty:SENSITIVE = YES
             tb_prt-zero-qty:HIDDEN    = NO.
@@ -1779,7 +1779,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&FRAME-NAME}:
 
-        IF LOOKUP(v-print-fmt,"PremierX,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
+        IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
             ASSIGN
                 tb_cust-copy:HIDDEN      = NO
                 tb_cust-copy:SENSITIVE   = YES

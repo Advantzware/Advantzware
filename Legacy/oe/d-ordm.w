@@ -15,9 +15,6 @@
 
 /* ***************************  Definitions  ************************** */
 
-/*Gets rid of stack trace window when pressing F1*/
-SESSION:DEBUG-ALERT = FALSE.
-
 /* PARAMs Definitions ---                                           */
 DEFINE INPUT PARAMETER ip-rowid  AS ROWID     NO-UNDO.
 DEFINE INPUT PARAMETER ip-rowid2 AS ROWID     NO-UNDO.
@@ -596,10 +593,12 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             APPLY "go" TO FRAME {&FRAME-NAME}.
             RETURN.
         END.
+  
         /* ======== validation ===============*/
         DO WITH FRAME {&FRAME-NAME}:
-            RUN valid-charge (oe-ordm.charge:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+/*            already done on leave, re-doing resets tax and comm elements             */
+/*            RUN valid-charge (oe-ordm.charge:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.*/
+/*            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.                              */
             RUN valid-est (oe-ordm.est-no:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY .
         END.
@@ -630,7 +629,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         RUN valid-bill NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+ 
         FIND CURRENT oe-ordm EXCLUSIVE-LOCK NO-ERROR.
         oe-ordm.spare-char-1 = oe-ordm.spare-char-1:SCREEN-VALUE .
 
@@ -646,12 +645,13 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         FIND CURRENT oe-ord NO-LOCK.
 
         FIND xoe-ord WHERE ROWID(xoe-ord) EQ ROWID(oe-ord) EXCLUSIVE.
-
+  
         RUN oe/oe-comm.p.
-
+  
         RELEASE xoe-ord.
   
         RUN oe/calcordt.p (ROWID(oe-ord)).
+  
         FIND FIRST cust NO-LOCK
             WHERE cust.company EQ cocode
             AND cust.cust-no EQ oe-ord.cust-no
@@ -673,6 +673,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
   
 
         op-rowid = ROWID(oe-ordm).
+        RELEASE oe-ord .
+        RELEASE oe-ordm .
 
         APPLY "go" TO FRAME {&FRAME-NAME}.
 
@@ -686,7 +688,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.charge Dialog-Frame
 ON LEAVE OF oe-ordm.charge IN FRAME Dialog-Frame /* Charge */
     DO:
-        IF LASTKEY NE -1 THEN 
+        IF LASTKEY NE -1 
+        AND SELF:SCREEN-VALUE NE oe-ordm.charge THEN 
         DO:
             RUN valid-charge (FOCUS) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1143,6 +1146,16 @@ PROCEDURE create-item :
     DEFINE VARIABLE v-fgitem AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lv-error AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ordl FOR oe-ordl.
+
+    i = 0 .
+    FOR EACH bf-ordl OF oe-ord NO-LOCK:
+        i = i + 1.
+    END.
+
+    IF i GT 1 THEN do:
+         RUN cec/mis-ordfg.w (RECID(oe-ord),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
+    END.
+
     /* Code placed here will execute PRIOR to standard behavior. */
     FIND LAST bf-ordm NO-LOCK
         WHERE bf-ordm.company EQ oe-ord.company
@@ -1192,10 +1205,7 @@ PROCEDURE create-item :
     ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr
            oe-ordm.tax          = fGetTaxableMisc(cocode, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge:SCREEN-VALUE IN FRAME {&FRAME-NAME}) .
   
-    i = 0 .
-    FOR EACH bf-ordl OF oe-ord NO-LOCK:
-        i = i + 1.
-    END.
+    
   
     IF i = 1 THEN 
     DO:
@@ -1209,7 +1219,6 @@ PROCEDURE create-item :
     END.
     ELSE 
     DO:
-        RUN cec/mis-ordfg.w (RECID(oe-ord),OUTPUT v-fgitem,OUTPUT lv-error ) NO-ERROR.
         ASSIGN
             oe-ordm.spare-char-2 = v-fgitem .
         IF AVAILABLE oe-ord THEN
@@ -1219,8 +1228,9 @@ PROCEDURE create-item :
             ASSIGN
                 oe-ordm.ord-i-no = bf-ordl.job-no
                 oe-ordm.ord-line = bf-ordl.job-no2 .
+        
     END.
-   
+    FIND CURRENT oe-ordm NO-LOCK NO-ERROR.   
 
 END PROCEDURE.
 
@@ -1427,8 +1437,8 @@ PROCEDURE new-charge :
             AND prep.code    EQ oe-ordm.charge:SCREEN-VALUE
             NO-ERROR.
         IF AVAILABLE prep THEN 
-        DO:
-
+        DO: 
+            oe-ordm.tax:SCREEN-VALUE = STRING(prep.taxable).
             IF ceprepprice-chr EQ "Profit" THEN
                 markUp = prep.cost / (1 - (prep.mkup / 100)).
             ELSE
@@ -2014,20 +2024,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax Dialog-Frame 
 PROCEDURE valid-tax :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF oe-ordm.tax:SCREEN-VALUE EQ "Y" AND
-            oe-ord.tax-gr EQ ""                                      THEN 
-        DO:
+        IF oe-ordm.tax:SCREEN-VALUE EQ "Y" 
+        AND oe-ord.tax-gr EQ "" THEN DO:
             MESSAGE /*"Order has no tax group! " */
-                "Misc. charge can't be taxable if order's not taxable. Make sure order's taxable."
+                "Misc. charge cannot be taxable if the order is not taxable." SKIP 
+                "Ensure that the order is taxable (has a valid tax code)." SKIP 
+                "Normally the tax code will be pulled from the Ship To ID or" SKIP 
+                "from the Customer record when the order is created."
                 VIEW-AS ALERT-BOX ERROR.
-            oe-ordm.tax:SCREEN-VALUE = "N".
+            ASSIGN 
+                oe-ordm.tax:SCREEN-VALUE = "N".
             APPLY "entry" TO oe-ordm.tax.
             RETURN ERROR.     
         END.

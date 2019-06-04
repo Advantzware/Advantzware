@@ -218,8 +218,8 @@ w-job.tot-wt
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table w-job
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table w-job
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME}   FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag.
+&Scoped-define QUERY-STRING-br_table FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME}   FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag.
 &Scoped-define TABLES-IN-QUERY-br_table w-job
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table w-job
 
@@ -432,7 +432,7 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME}
-  FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE
+  FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE
       ELSE w-job.loc EQ lc-pass-loc)
       BY (IF oeinq THEN w-job.job-no ELSE "") DESC
       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC

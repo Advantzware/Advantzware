@@ -982,18 +982,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.carrier V-table-Win
 ON LEAVE OF cust.carrier IN FRAME F-Main /* Carrier */
 DO:
-     {&methods/lValidateError.i YES}
-     if lastkey <> -1 /*and cust.carrier:screen-value <> "" */ and
-        not can-find(first carrier where carrier.company = gcompany and 
-                                     carrier.loc = cust.loc:screen-value and
-                                     carrier.carrier = cust.carrier:screen-value)
-     then do:
-        message "Invalid Carrier Code. Try Help." view-as alert-box error.
-        return no-apply.     
-     end.
-
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-carrier NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
   {methods/dispflds.i}
-   {&methods/lValidateError.i NO}
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2307,6 +2301,9 @@ PROCEDURE local-update-record :
      RUN check-cr-bal NO-ERROR .
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+     RUN valid-carrier NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
      RUN valid-custtype NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -2349,15 +2346,6 @@ PROCEDURE local-update-record :
      then do:
         message "Invalid Ord. Loc. Code. Try Help." view-as alert-box error.
         apply "entry" to cust.loc.
-        return no-apply.     
-     end.
-     if /*cust.carrier:screen-value <> "" and*/
-        not can-find(first carrier where carrier.company = gcompany and 
-                                     carrier.loc = cust.loc:screen-value and
-                                     carrier.carrier = cust.carrier:screen-value)
-     then do:
-        message "Invalid Carrier Code. Try Help." view-as alert-box error.
-        apply "entry" to cust.carrier.
         return no-apply.     
      end.
      if /*cust.del-zone:screen-value <> "" and*/
@@ -3067,6 +3055,45 @@ PROCEDURE zip-carrier :
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&frame-name}:
+    cust.carrier:SCREEN-VALUE = CAPS(cust.carrier:SCREEN-VALUE).
+
+     FIND FIRST carrier  
+        WHERE carrier.company EQ g_company 
+        AND carrier.loc     EQ cust.loc:SCREEN-VALUE
+        AND carrier.carrier EQ cust.carrier:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " cust.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+            APPLY "entry" TO cust.carrier.
+            RETURN ERROR.
+        END.
+    END.
+
+    IF NOT AVAIL carrier THEN DO:
+      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO cust.carrier.
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

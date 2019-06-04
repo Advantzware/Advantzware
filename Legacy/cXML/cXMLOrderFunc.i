@@ -2,14 +2,35 @@
 
 DEFINE VARIABLE iNextOrder# AS INTEGER NO-UNDO.
 
-FUNCTION getCustNo RETURNS CHARACTER (ipIdentity AS CHARACTER):
+FUNCTION getCustNo RETURNS CHARACTER (ipIdentity AS CHARACTER, ipcShipToID AS CHARACTER):
+  DEFINE VARIABLE cReturnCust AS CHARACTER NO-UNDO.
   FIND FIRST sys-ctrl-shipto NO-LOCK
        WHERE sys-ctrl-shipto.company EQ cocode
          AND sys-ctrl-shipto.name EQ 'cXMLOrder'
          AND sys-ctrl-shipto.cust-vend EQ YES
          AND sys-ctrl-shipto.char-fld EQ ipIdentity
          AND sys-ctrl-shipto.log-fld EQ YES NO-ERROR.
-  RETURN IF AVAILABLE sys-ctrl-shipto THEN sys-ctrl-shipto.cust-vend-no ELSE ''.
+  cReturnCust = IF AVAILABLE sys-ctrl-shipto THEN sys-ctrl-shipto.cust-vend-no ELSE ''.
+  /* Option to find cust# by cust-no + ship-id */
+  IF sys-ctrl-shipto.int-fld EQ 1 
+      AND cReturnCust GT "" 
+      AND ipcShipToID GT "" THEN DO:
+      FOR EACH edMast NO-LOCK 
+        WHERE edMast.cust EQ cReturnCust
+        ,
+        EACH edShipTo NO-LOCK 
+            WHERE edShipTo.partner EQ edMast.partner
+              AND edShipTo.siteID EQ ipIdentity
+            ,
+            FIRST shipto NO-LOCK
+                WHERE shipto.company EQ cocode
+                  AND shipto.cust-no EQ edShipto.cust
+                  AND shipto.ship-id EQ ipcShipToID
+              :
+        cReturnCust = edShipTo.cust.
+      END.
+  END.
+  RETURN cReturnCust.
 END FUNCTION.
 
 FUNCTION getNextOrder# RETURNS INTEGER ( /* parameter-definitions */ ):

@@ -55,10 +55,11 @@ with frame detailoe no-attr-space no-labels no-box
      no-underline down stream-io width 90.
 
 form
-  ar-invl.prep-charge at 5 space(2) ar-invl.prep-dscr
-  ar-invl.amt to 80 format "->>,>>9.99"
+  ar-invl.po-no AT 5
+  ar-invl.prep-charge at 22 space(1) ar-invl.prep-dscr
+  ar-invl.amt to 81 format "->>,>>9.99"
   skip(1)
-with frame detailm no-labels no-box no-underline down stream-io width 90.
+with frame detailm no-labels no-box no-underline down stream-io width 110.
 
 form v-part-info       at 15
   with frame dscr no-labels no-box no-underline down stream-io width 80.
@@ -287,7 +288,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       if first-of(ar-invl.misc) then
         put skip(1) "** Miscellaneous Items **" at 23 skip(1).
 
-      display ar-invl.prep-charge
+      DISPLAY ar-invl.po-no ar-invl.prep-charge
                    ar-invl.prep-dscr
               ar-invl.amt with frame detailm.
       down with frame detailm.

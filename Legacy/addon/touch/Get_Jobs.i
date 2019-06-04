@@ -17,8 +17,12 @@
             BREAK {&sortBy} BY job.job-no BY job.job-no2
             :         
             IF FIRST-OF(job.job-no2) THEN DO:
-                FOR EACH job-mch OF job NO-LOCK
-                    WHERE (job-mch.m-code EQ machine_code
+                FOR EACH job-mch NO-LOCK
+                    WHERE job-mch.company EQ job.company
+                      AND job-mch.job EQ job.job
+                      AND job-mch.job-no EQ job.job-no
+                      AND job-mch.job-no2 EQ job.job-no2
+                      AND (job-mch.m-code EQ machine_code
                        OR LOOKUP(job-mch.m-code,machine_list) GT 0)
                       AND job-mch.run-complete EQ NO
                       AND (lTSShowPending EQ YES

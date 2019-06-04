@@ -2508,7 +2508,7 @@ PROCEDURE build-work :
       NEXT build-work.
     END.
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
        v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker"  THEN DO:
        IF AVAIL oe-bolh THEN do:
            IF oe-bolh.frt-pay EQ "B" AND oe-bolh.freight EQ 0 THEN
@@ -3792,7 +3792,15 @@ PROCEDURE post-bol :
             RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").            
                         
         END. /* If lCopyPdfFile */
-      end. /* avail */
+        
+        /* Process EDI 856 and 814 */
+        IF asnsps-log THEN RUN oe/oe856gen.p (RECID(oe-bolh), yes,yes).
+        FIND FIRST edcode NO-LOCK
+            WHERE edcode.setID EQ "214" 
+            NO-ERROR.
+        IF AVAIL edcode THEN 
+          RUN oe/oe214gen.p (Recid(oe-bolh), yes,yes).
+      END. /* avail */
     END. /* do while not avail */
   END. /* do trans */
 
@@ -3963,7 +3971,7 @@ PROCEDURE run-packing-list :
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -4156,7 +4164,7 @@ PROCEDURE run-report :
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -4212,6 +4220,8 @@ PROCEDURE run-report :
               RUN oe/rep/cocbcert10.p (?).
          ELSE IF v-program = "oe/rep/coclanyork.p" THEN
               RUN oe/rep/coclanyork.p (?).
+         ELSE IF v-program = "oe/rep/cocbolMex.p" THEN
+              RUN oe/rep/cocbolMex.p (?).
          ELSE RUN VALUE(v-program).
       END.
   END.
@@ -4225,8 +4235,7 @@ PROCEDURE run-report :
       IF NOT iplPdfOnly AND lCopyPdfFile THEN DO:
           CREATE ttPdfBOLs.
           BUFFER-COPY report TO ttPdfBOLs.
-      END.
-      IF asnsps-log THEN RUN oe/oe856gen.p (report.rec-id, yes,yes).
+      END.      
       
       delete report.
   end.
@@ -4429,7 +4438,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         WHEN 5 THEN do:
             IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                  PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-                 ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                 ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -4581,7 +4590,7 @@ PROCEDURE run-report-mail :
     IF IS-xprint-form THEN DO:
       IF v-print-fmt = "Century"                     /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
         THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-        ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+        ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
@@ -4609,6 +4618,8 @@ PROCEDURE run-report-mail :
             RUN oe/rep/cocbcert10.p (?).
          ELSE IF v-program EQ "oe/rep/coclanyork.p" THEN
             RUN oe/rep/coclanyork.p (?).
+         ELSE IF v-program = "oe/rep/cocbolMex.p" THEN
+            RUN oe/rep/cocbolMex.p (?).
          ELSE
                 RUN value(v-program).
       END.
@@ -4787,6 +4798,11 @@ PROCEDURE SetBOLForm :
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/cocprempkg.p".
+
+         WHEN "BOLCERT-Mex" THEN
+            ASSIGN
+               is-xprint-form = YES
+               v-program = "oe/rep/cocbolMex.p".
 
          WHEN "LoyLang" THEN
             ASSIGN

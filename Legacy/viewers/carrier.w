@@ -68,17 +68,17 @@ DEFINE QUERY external_tables FOR carrier.
 &Scoped-define ENABLED-TABLES carrier
 &Scoped-define FIRST-ENABLED-TABLE carrier
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS carrier.carrier carrier.dscr carrier.loc 
+&Scoped-Define DISPLAYED-FIELDS carrier.carrier carrier.dscr carrier.loc
 &Scoped-define DISPLAYED-TABLES carrier
 &Scoped-define FIRST-DISPLAYED-TABLE carrier
-&Scoped-Define DISPLAYED-OBJECTS loc_dscr rd_chg-method F1 
+&Scoped-Define DISPLAYED-OBJECTS loc_dscr rd_chg-method tg_inactive F1 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS carrier.carrier 
 &Scoped-define ADM-ASSIGN-FIELDS rd_chg-method 
 &Scoped-define DISPLAY-FIELD carrier.loc 
-&Scoped-define F1 F1 
+&Scoped-define F1 F1 tg_inactive
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -128,6 +128,11 @@ DEFINE VARIABLE rd_chg-method AS CHARACTER
 "Weight", "W"
      SIZE 45 BY .95 NO-UNDO.
 
+DEFINE VARIABLE tg_inactive AS LOGICAL INITIAL no 
+     LABEL "Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.4 BY .81 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 88 BY 3.81.
@@ -150,6 +155,7 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      loc_dscr AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL
      rd_chg-method AT ROW 3.62 COL 25 NO-LABEL
+     tg_inactive AT ROW 3.67 COL 70 WIDGET-ID 8
      F1 AT ROW 2.43 COL 35 NO-LABEL
      "Charge Method:" VIEW-AS TEXT
           SIZE 19 BY .95 AT ROW 3.62 COL 5
@@ -229,6 +235,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RADIO-SET rd_chg-method IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR TOGGLE-BOX tg_inactive IN FRAME F-Main
+   NO-ENABLE 5                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -384,6 +392,7 @@ PROCEDURE enable-carrier :
 
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE rd_chg-method.
+    ENABLE tg_inactive .
   END.
 
 END PROCEDURE.
@@ -443,6 +452,17 @@ PROCEDURE local-assign-record :
           .
   END. /* do trans */
   
+  IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" AND DYNAMIC-FUNCTION("IsActive",carrier.rec_key) THEN DO:
+     RUN AddTagInactive(carrier.rec_key,"carrier").
+     /*shipto.statusCode = "I".*/
+  END.
+  ELSE IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" AND NOT DYNAMIC-FUNCTION("IsActive",carrier.rec_key) THEN DO: 
+     RUN ClearTagsInactive(carrier.rec_key).
+    /* shipto.statusCode = "".*/
+  END.
+    
+  disable tg_inactive WITH FRAME {&FRAME-NAME}.
+
   IF adm-adding-record THEN DISP rd_chg-method WITH FRAME {&FRAME-NAME}.
 
   if adm-new-record and not adm-adding-record then do:  /* copy */
@@ -483,6 +503,7 @@ PROCEDURE local-cancel-record :
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE rd_chg-method.
   END.
+  disable tg_inactive WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -521,6 +542,15 @@ PROCEDURE local-display-fields :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  IF NOT adm-new-record AND AVAIL carrier THEN
+  DO:
+      ASSIGN
+        tg_inactive = DYNAMIC-FUNCTION("IsActive",carrier.rec_key) EQ NO .
+
+      DISPLAY tg_inactive WITH FRAME {&FRAME-NAME}.
+        
+  END.
 
   /* Code placed here will execute AFTER standard behavior.    */
 

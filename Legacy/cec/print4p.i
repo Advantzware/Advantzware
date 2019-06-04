@@ -194,10 +194,19 @@
      end.
      ASSIGN
        v-do-all-forms-ink = NO.
-
+     IF xest.estimateTypeID EQ 'Misc' THEN DO:
+     assign do-speed  = NO 
+            do-mr     = NO
+            do-gsa    = NO
+            v-drop-rc = NO
+            v-board-cost-from-blank = NO
+	    v-do-all-forms-ink = NO.
+    END.
+    ELSE DO:
      run est/getqty.w (input-output do-speed, input-output do-mr, input-output do-gsa, input-output v-drop-rc,
                        input-output v-match-up, INPUT-OUTPUT v-do-all-forms-ink, INPUT-OUTPUT v-board-cost-from-blank, input no, output lv-error). 
      if lv-error then return error.
+    END.
 
      IF lv-override THEN DO:
          for each probe where probe.company = xest.company and
@@ -527,7 +536,7 @@
             v-yld-qty                           FORMAT ">>>>9.9<<<"
             brd-sf[1]                              
             "Sf/BL"
-            brd-wu[1]
+            brd-wu[1]                           format ">>>>>>>9.9<<<"                
             space(0)
             "/MBL" skip
 
@@ -539,7 +548,7 @@
             SPACE(9)
             brd-sf[2]
             "Sf/NS"
-            brd-wu[2]
+            brd-wu[2]                           format ">>>>>>>9.9<<<"
             space(0)
             "/MNS"
             skip
@@ -552,11 +561,11 @@
             SPACE(9)
             brd-sf[3]
             "Sf/GS"
-            brd-wu[3]
+            brd-wu[3]                            format ">>>>>>>9.9<<<"
             space(0)
             "/MGS" skip
 
-        with stream-io no-box no-labels color value("blu/brown") width 82 frame aa2. 
+        with stream-io no-box no-labels color value("blu/brown") width 85 frame aa2. 
 
     IF v-yld-qty LT 0 THEN DO WITH FRAME aa:
       ASSIGN
