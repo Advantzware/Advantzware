@@ -404,6 +404,177 @@ PROCEDURE CreateInventoryStockFromInputsFG:
     RELEASE bf-oe-rel.      
 END PROCEDURE.
 
+PROCEDURE CreateInventoryStockFromInputsPO:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriPOOrd                  AS ROWID     NO-UNDO.  /* PO */
+    DEFINE INPUT  PARAMETER ipriPOOrdl                 AS ROWID     NO-UNDO.  /*PO Line*/
+    DEFINE INPUT  PARAMETER ipdQuantityTotal           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcInventoryStockID        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated                 AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cDefaultLocation    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAliasCreateMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAliasCreated       AS LOGICAL   NO-UNDO.
+
+
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-po-ord  FOR po-ord.
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+    DEFINE BUFFER bf-oe-rel  FOR oe-rel.
+    
+    FIND FIRST bf-po-ord NO-LOCK 
+        WHERE ROWID(bf-po-ord) EQ ipriPOOrd
+        NO-ERROR.
+        
+    FIND FIRST bf-po-ordl NO-LOCK 
+        WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl
+        NO-ERROR.
+        
+    IF AVAILABLE bf-po-ord AND AVAILABLE bf-po-ordl THEN 
+    DO:
+        CREATE inventoryStock.
+        ASSIGN 
+            inventoryStock.company                 = bf-po-ord.company
+            inventoryStock.jobID                   = bf-po-ordl.job-no
+            inventoryStock.poID                    = bf-po-ordl.po-no
+            inventoryStock.jobID2                  = bf-po-ordl.job-no2
+            inventoryStock.formNo                  = bf-po-ordl.s-num
+            inventoryStock.blankNo                 = bf-po-ordl.b-num
+            inventoryStock.inventoryStatus         = gcStatusStockPreLoadtag
+            inventoryStock.itemType                = IF bf-po-ordl.item-type THEN
+                                                         gcItemTypeRM 
+                                                     ELSE
+                                                         gcItemTypeFG
+            inventoryStock.dimEachLen              = bf-po-ordl.s-len
+            inventoryStock.dimEachWid              = bf-po-ordl.s-wid
+            inventoryStock.dimEachDep              = bf-po-ordl.s-dep
+            inventoryStock.warehouseID             = bf-po-ord.loc
+            inventoryStock.orderID                 = bf-po-ordl.ord-no
+            inventoryStock.customerID              = bf-po-ordl.cust-no
+            inventoryStock.quantityUOM             = ipcQuantityUOM
+            inventoryStock.quantityOriginal        = ipdQuantityTotal
+            inventoryStock.quantitySubUnitsPerUnit = ipiQuantitySubUnitsPerUnit
+            inventoryStock.quantityPerSubUnit      = ipdQuantityPerSubUnit
+            inventoryStock.poLine                  = bf-po-ordl.line
+            inventoryStock.lastTransTime           = NOW
+            inventoryStock.lastTransBy             = USERID(gcDBUser)
+            inventoryStock.inventoryStockID        = fGetNextStockID (
+                                                         inventoryStock.itemType
+                                                     )
+            inventoryStock.inventoryStatus         = gcStatusStockInitial
+            opcInventoryStockID                    = inventoryStock.inventoryStockID
+            .
+        
+        IF inventoryStock.itemType EQ gcItemTypeFG THEN
+            ASSIGN
+                inventoryStock.fgItemID  = bf-po-ordl.i-no
+                inventoryStock.primaryID = inventoryStock.fgItemID
+                .
+        ELSE IF inventoryStock.itemType EQ gcItemTypeRM THEN
+            ASSIGN
+                inventoryStock.rmItemID  = bf-po-ordl.i-no
+                inventoryStock.primaryID = inventoryStock.rmItemID
+                .
+
+        inventoryStock.stockIDAlias = fGetNextStockIDAlias (
+                                          inventoryStock.company,
+                                          inventoryStock.primaryID
+                                      ).
+            
+        RUN CreateStockIDAlias (
+            inventoryStock.company, 
+            inventoryStock.inventoryStockID,
+            inventoryStock.primaryID, 
+            inventoryStock.stockIDAlias,
+            OUTPUT lAliasCreated, 
+            OUTPUT cAliasCreateMessage
+            ). 
+
+        FIND FIRST bf-itemfg NO-LOCK 
+             WHERE bf-itemfg.company EQ bf-po-ordl.company
+               AND bf-itemfg.i-no    EQ bf-po-ordl.i-no
+               NO-ERROR.
+        IF AVAILABLE bf-itemfg THEN 
+            ASSIGN 
+                inventoryStock.basisWeight    = bf-itemfg.weight-100
+                inventoryStock.basisWeightUOM = "LBS/100"
+                .           
+
+        IF bf-po-ordl.ord-no NE 0 THEN
+        DO:
+            FIND FIRST bf-oe-ordl NO-LOCK
+                 WHERE bf-oe-ordl.company EQ bf-po-ordl.company
+                   AND bf-oe-ordl.ord-no  EQ bf-po-ordl.ord-no
+                   AND bf-oe-ordl.i-no    EQ bf-po-ordl.i-no
+                   NO-ERROR.
+ 
+            IF AVAIL bf-oe-ordl THEN
+                inventoryStock.orderLine = bf-oe-ordl.line.                
+            
+            FIND FIRST bf-oe-bolh NO-LOCK
+                 WHERE bf-oe-bolh.company  EQ bf-po-ordl.company
+                   AND bf-oe-bolh.ord-no   EQ bf-po-ordl.ord-no
+                   NO-ERROR.
+            IF AVAILABLE bf-oe-bolh THEN DO:                
+                inventoryStock.bolID = STRING(bf-oe-bolh.bol-no).
+                
+                FIND FIRST bf-oe-rel NO-LOCK
+                     WHERE bf-oe-rel.r-no EQ bf-oe-bolh.r-no
+                       NO-ERROR.
+                IF AVAILABLE bf-oe-rel THEN
+                    ASSIGN
+                        inventoryStock.releaseID   = bf-oe-rel.rel-no
+                        inventoryStock.releaseLine = bf-oe-rel.line
+                        .                
+            END.                     
+        END.
+        RUN sys/ref/nk1look.p (
+            bf-po-ordl.company,
+            "WIPTAGSDefaultLocation",
+            "C",
+            NO,
+            NO,
+            "",
+            "",
+            OUTPUT cDefaultLocation,OUTPUT lFound
+            ).
+        IF lFound THEN
+            inventoryStock.locationID = cDefaultLocation. 
+            
+        ASSIGN
+            oplCreated = YES
+            opcMessage = "Tag Created"
+            .
+    END.
+    ELSE 
+        ASSIGN 
+            oplCreated = NO
+            opcMessage = "Invalid PO" 
+            .   
+
+    RELEASE bf-job-mch.
+    RELEASE bf-job-mat.
+    RELEASE bf-itemfg.
+    RELEASE bf-job-hdr.
+    RELEASE bf-oe-ordl.   
+    RELEASE bf-po-ordl. 
+    RELEASE bf-oe-bolh.  
+    RELEASE bf-oe-rel.      
+END PROCEDURE.
+
 PROCEDURE CreatePreLoadtagsFromInputsRM:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -500,7 +671,7 @@ PROCEDURE CreatePreLoadtagsFromInputsWIP:
             OUTPUT cDefaultLocation,OUTPUT lFound
             ).
         IF lFound THEN
-            ttInventoryStockPreLoadtag.locationID = cDefaultLocation.
+        ttInventoryStockPreLoadtag.locationID = cDefaultLocation.
     END.
     ELSE 
         ASSIGN 
@@ -566,8 +737,180 @@ PROCEDURE CreatePrintInventory:
             ttPrintInventoryStock.machineName  = cMachName
             ttPrintInventoryStock.rmItemName   = cItemName.
     END.
-
 END PROCEDURE.
+
+PROCEDURE CreatePrintInventoryForRM:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates temporary table to send data to a text file
+     Notes: 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcInventoryStockID LIKE inventoryTransaction.inventoryStockID NO-UNDO.
+
+    DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
+    
+    RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
+    
+    FIND FIRST inventoryStock NO-LOCK
+         WHERE inventoryStock.inventoryStockID EQ ipcinventoryStockID
+         NO-ERROR.
+    IF AVAILABLE inventoryStock THEN DO:
+        CREATE ttPrintInventoryStockRM.
+        
+        ASSIGN
+            ttPrintInventoryStockRM.tagID         = inventoryStock.stockIDAlias
+            ttPrintInventoryStockRM.poID          = inventoryStock.poID
+            ttPrintInventoryStockRM.jobID         = inventoryStock.jobID
+            ttPrintInventoryStockRM.jobID2        = inventoryStock.jobID2
+            ttPrintInventoryStockRM.blankNo       = inventoryStock.blankNo
+            ttPrintInventoryStockRM.company       = inventoryStock.company
+            ttPrintInventoryStockRM.tagDate       = DATE(inventoryStock.createdTime)
+            ttPrintInventoryStockRM.locationID    = inventoryStock.locationID
+            ttPrintInventoryStockRM.warehouseID   = inventoryStock.warehouseID
+            ttPrintInventoryStockRM.partialQty    = inventoryStock.quantityPartial
+            .
+        
+        RUN GetOperation IN hdJobProcs (
+            inventoryStock.company, 
+            inventoryStock.jobID, 
+            inventoryStock.jobID2,
+            inventoryStock.formNo,
+            "First", 
+            INPUT-OUTPUT ttPrintInventoryStockRM.firstMachine
+            ).
+        
+        RUN GetOperation IN hdJobProcs (
+            inventoryStock.company, 
+            inventoryStock.jobID, 
+            inventoryStock.jobID2,
+            inventoryStock.formNo,
+            "Internal", 
+            INPUT-OUTPUT ttPrintInventoryStockRM.firstInternalMachine
+            ).
+
+        RUN GetOperation IN hdJobProcs (
+            inventoryStock.company, 
+            inventoryStock.jobID, 
+            inventoryStock.jobID2,
+            inventoryStock.formNo,
+            "Press", 
+            INPUT-OUTPUT ttPrintInventoryStockRM.firstPress
+            ).
+
+        FIND FIRST company NO-LOCK
+             WHERE company.company EQ inventoryStock.company
+             NO-ERROR.
+        IF AVAILABLE company THEN
+            ttPrintInventoryStockRM.companyName = company.name.
+            
+        FIND FIRST po-ord NO-LOCK
+             WHERE po-ord.company EQ inventoryStock.company
+               AND po-ord.po-no   EQ inventoryStock.poID
+             NO-ERROR.
+        IF AVAILABLE po-ord THEN DO:
+            FIND FIRST vend NO-LOCK
+                 WHERE vend.company EQ po-ord.company
+                   AND vend.vend-no EQ po-ord.vend-no
+                 NO-ERROR.
+                 
+            ASSIGN
+                ttPrintInventoryStockRM.acknowledgement        = po-ord.acknowledge
+                ttPrintInventoryStockRM.shipToAddress[1]       = po-ord.addr[1]
+                ttPrintInventoryStockRM.shipToAddress[2]       = po-ord.addr[2]
+                ttPrintInventoryStockRM.billTo                 = po-ord.bill-to
+                ttPrintInventoryStockRM.buyer                  = po-ord.buyer
+                ttPrintInventoryStockRM.shippingCarrier        = po-ord.carrier
+                ttPrintInventoryStockRM.city                   = po-ord.city
+                ttPrintInventoryStockRM.contact                = po-ord.contact
+                ttPrintInventoryStockRM.currencyCode[1]        = po-ord.curr-code[1]
+                ttPrintInventoryStockRM.currencyCode[2]        = po-ord.curr-code[2]
+                ttPrintInventoryStockRM.customerNumber         = po-ord.cust-no
+                ttPrintInventoryStockRM.deleted                = po-ord.deleted
+                ttPrintInventoryStockRM.requiredDate           = po-ord.due-date
+                ttPrintInventoryStockRM.exRate                 = po-ord.ex-rate
+                ttPrintInventoryStockRM.fobOriginDest          = po-ord.fob-code
+                ttPrintInventoryStockRM.freightPayment         = po-ord.frt-pay
+                ttPrintInventoryStockRM.lastShipDate           = po-ord.last-ship-date
+                ttPrintInventoryStockRM.opened                 = po-ord.opened
+                ttPrintInventoryStockRM.overrunPct             = po-ord.over-pct
+                ttPrintInventoryStockRM.dateChanged            = po-ord.po-change-date
+                ttPrintInventoryStockRM.poDate                 = po-ord.po-date
+                ttPrintInventoryStockRM.printed                = po-ord.printed
+                ttPrintInventoryStockRM.received               = po-ord.received
+                ttPrintInventoryStockRM.shippingAddress[1]     = po-ord.ship-addr[1]
+                ttPrintInventoryStockRM.shippingAddress[2]     = po-ord.ship-addr[2]
+                ttPrintInventoryStockRM.shippingCity           = po-ord.ship-city
+                ttPrintInventoryStockRM.shipTo                 = po-ord.ship-id
+                ttPrintInventoryStockRM.shippingName           = po-ord.ship-name
+                ttPrintInventoryStockRM.shipToNumber           = po-ord.ship-no
+                ttPrintInventoryStockRM.shippingState          = po-ord.ship-state
+                ttPrintInventoryStockRM.shippingZip            = po-ord.ship-zip
+                ttPrintInventoryStockRM.specialInstructions[1] = po-ord.spec-i[1]
+                ttPrintInventoryStockRM.specialInstructions[2] = po-ord.spec-i[2]
+                ttPrintInventoryStockRM.specialInstructions[3] = po-ord.spec-i[3]
+                ttPrintInventoryStockRM.specialInstructions[4] = po-ord.spec-i[4]
+                ttPrintInventoryStockRM.stat                   = po-ord.stat
+                ttPrintInventoryStockRM.state                  = po-ord.state
+                ttPrintInventoryStockRM.totalCost              = po-ord.t-cost
+                ttPrintInventoryStockRM.totalFreight           = po-ord.t-freight
+                ttPrintInventoryStockRM.tax                    = po-ord.tax
+                ttPrintInventoryStockRM.salesTaxGroup          = po-ord.tax-gr
+                ttPrintInventoryStockRM.taxExemptNo            = po-ord.tax-id
+                ttPrintInventoryStockRM.paymentTerms           = po-ord.terms
+                ttPrintInventoryStockRM.type                   = po-ord.type
+                ttPrintInventoryStockRM.underrunPct            = po-ord.under-pct
+                ttPrintInventoryStockRM.updatedDate            = po-ord.upd-date
+                ttPrintInventoryStockRM.updatedTime            = po-ord.upd-time
+                ttPrintInventoryStockRM.zipCode                = po-ord.zip
+                ttPrintInventoryStockRM.vendor                 = po-ord.vend-no
+                ttPrintInventoryStockRM.vendorName             = IF AVAILABLE vend THEN vend.name ELSE ""
+                .
+        END.
+        
+        FIND FIRST po-ordl NO-LOCK
+             WHERE po-ordl.company EQ inventoryStock.company
+               AND po-ordl.po-no   EQ inventoryStock.poID
+               AND po-ordl.line    EQ inventoryStock.poLine
+             NO-ERROR.
+        IF AVAILABLE po-ordl THEN DO:
+            ASSIGN
+                ttPrintInventoryStockRM.accountNo               = po-ordl.actnum
+                ttPrintInventoryStockRM.setupCharge             = po-ordl.adders$
+                ttPrintInventoryStockRM.blankNo                 = po-ordl.b-num
+                ttPrintInventoryStockRM.costs                   = po-ordl.cons-cost
+                ttPrintInventoryStockRM.consumptionQuantity     = po-ordl.cons-qty
+                ttPrintInventoryStockRM.uom                     = po-ordl.cons-uom
+                ttPrintInventoryStockRM.purchasedUOM            = po-ordl.pr-uom
+                ttPrintInventoryStockRM.discount                = po-ordl.disc
+                ttPrintInventoryStockRM.description[1]          = po-ordl.dscr[1]
+                ttPrintInventoryStockRM.description[2]          = po-ordl.dscr[2]
+                ttPrintInventoryStockRM.name                    = po-ordl.i-name
+                ttPrintInventoryStockRM.itemID                  = po-ordl.i-no
+                ttPrintInventoryStockRM.itemType                = po-ordl.item-type
+                ttPrintInventoryStockRM.internalJobNumber       = po-ordl.j-no
+                ttPrintInventoryStockRM.line                    = po-ordl.line
+                ttPrintInventoryStockRM.customerOrderNo         = po-ordl.ord-no
+                ttPrintInventoryStockRM.orderQuantity           = po-ordl.ord-qty
+                ttPrintInventoryStockRM.purchaseQuantityUOM     = po-ordl.pr-qty-uom
+                ttPrintInventoryStockRM.purchaseCount           = po-ordl.pur-cnt
+                ttPrintInventoryStockRM.releaseQuantity         = po-ordl.rel-qty
+                ttPrintInventoryStockRM.sheetLen                = po-ordl.s-len
+                ttPrintInventoryStockRM.sheetNo                 = po-ordl.s-num
+                ttPrintInventoryStockRM.sheetWid                = po-ordl.s-wid
+                ttPrintInventoryStockRM.shippingInstructions[1] = po-ordl.ship-i[1]
+                ttPrintInventoryStockRM.shippingInstructions[2] = po-ordl.ship-i[2]
+                ttPrintInventoryStockRM.shippingInstructions[3] = po-ordl.ship-i[3]
+                ttPrintInventoryStockRM.shippingInstructions[4] = po-ordl.ship-i[4]
+                ttPrintInventoryStockRM.totalInvoiced           = po-ordl.t-inv-qty
+                ttPrintInventoryStockRM.totalReceived           = po-ordl.t-rec-qty
+                ttPrintInventoryStockRM.totalQuantityReleased   = po-ordl.t-rel-qty
+                ttPrintInventoryStockRM.vendorItemID            = po-ordl.vend-i-no
+                ttPrintInventoryStockRM.unitCost                = po-ordl.cost
+                .
+        END.
+    END.
+    
+    DELETE OBJECT hdJobProcs.
+END.
 
 PROCEDURE CreatePrintInventoryForFG:
     /*------------------------------------------------------------------------------
@@ -790,9 +1133,18 @@ PROCEDURE CreatePrintInventoryForFG:
             ).
             
         ASSIGN
-            cJobNumber                                 = LEFT-TRIM(TRIM(inventoryStock.jobID))
-            cJobNumber                                 = FILL(" ",6 - LENGTH(cJobNumber)) + cJobNumber
-            ttPrintInventoryStockFG.jobID              = cJobNumber + "-" + STRING(inventoryStock.jobID2,"99")
+            cJobNumber                                 = IF inventoryStock.jobID NE "" THEN
+                                                             LEFT-TRIM(TRIM(inventoryStock.jobID))
+                                                         ELSE
+                                                             ""
+            cJobNumber                                 = IF inventoryStock.jobID NE "" THEN
+                                                             FILL(" ",6 - LENGTH(cJobNumber)) + cJobNumber
+                                                         ELSE
+                                                             ""
+            ttPrintInventoryStockFG.jobID              = IF inventoryStock.jobID NE "" THEN
+                                                             cJobNumber + "-" + STRING(inventoryStock.jobID2,"99")
+                                                         ELSE
+                                                             ""
             ttPrintInventoryStockFG.fgItemID           = inventoryStock.fgItemID
             ttPrintInventoryStockFG.orderID            = inventoryStock.orderID
             ttPrintInventoryStockFG.quantityPerSubUnit = inventoryStock.quantityPerSubUnit
@@ -829,7 +1181,6 @@ PROCEDURE DeleteInventoryStock:
         IF AVAILABLE inventoryStock THEN
         DELETE inventoryStock.
     END. /* do trans */
-
 END PROCEDURE.
 
 PROCEDURE DeleteInventoryTransaction:
@@ -864,7 +1215,7 @@ PROCEDURE PostReceivedInventory:
            AND inventoryTransaction.transactionStatus EQ gcStatusTransactionInitial
          NO-ERROR.
     IF AVAILABLE inventoryTransaction THEN
-        RUN PostTransaction(inventoryTransactionID).
+        RUN PostTransaction(inventoryTransactionID).    
 END PROCEDURE.
 
 PROCEDURE CreateTransactionInitializedFromJob:
@@ -1012,7 +1363,7 @@ PROCEDURE CreateTransactionInitializedFromJob:
                         FALSE, /* Post Receipt Transaction */
                         OUTPUT oplCreated,
                         OUTPUT opcMessage
-                        ).
+                        ).                
             END. 
             IF dQuantityOfPartialLoadtag NE 0 THEN DO:
                 RUN CreateInventoryStockFromInputsFG (
@@ -1044,6 +1395,130 @@ PROCEDURE CreateTransactionInitializedFromJob:
     END CASE.
 END PROCEDURE.
 
+PROCEDURE CreateTransactionInitializedFromPO:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates the inventoryStock from a PO
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPONo                    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLine                    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItem                    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantityTotal           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantityPerSubUnit      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantitySubUnitsPerUnit AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated                 AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage                 AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iCountOfLoadtags          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantityPerFullLoadtag   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iCountOfFullLoadtags      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantityOfPartialLoadtag AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cInventoryStockID         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemType                 AS CHARACTER NO-UNDO.
+    
+    FIND FIRST po-ord NO-LOCK
+         WHERE po-ord.company  EQ ipcCompany
+           AND po-ord.po-no    EQ ipiPONo
+         NO-ERROR.
+    IF NOT AVAILABLE po-ord THEN DO:
+        ASSIGN
+            oplCreated = FALSE
+            opcMessage = "Invalid PO".
+        RETURN.
+    END.
+
+    FIND FIRST po-ordl NO-LOCK
+         WHERE po-ordl.company  EQ ipcCompany
+           AND po-ordl.po-no    EQ ipiPONo
+           AND po-ordl.line     EQ ipiLine
+           AND po-ordl.i-no     EQ ipcItem
+         NO-ERROR.
+    IF NOT AVAILABLE po-ordl THEN DO:
+        ASSIGN
+            oplCreated = FALSE
+            opcMessage = "Invalid PO Line".
+        RETURN.
+    END.
+
+    ASSIGN 
+        ipdQuantityPerSubUnit      = MAX(1, ipdQuantityPerSubUnit)
+        ipiQuantitySubUnitsPerUnit = MAX(1, ipiQuantitySubUnitsPerUnit)
+        iCountOfFullLoadtags       = fCalculateQuantitySubUnits (
+                                         ipdQuantityTotal,
+                                         ipdQuantityPerSubUnit
+                                     )
+        dQuantityOfPartialLoadtag  = fCalculateQuantityPartialSubUnit (
+                                         ipdQuantityTotal,
+                                         ipdQuantityPerSubUnit,
+                                         iCountOfFullLoadtags
+                                     ) 
+        cItemType                  = IF po-ordl.item-type THEN
+                                         gcItemTypeRM
+                                     ELSE
+                                         gcItemTypeFG
+        .
+
+    IF dQuantityOfPartialLoadtag NE 0 AND iCountOfFullLoadtags EQ 1 THEN 
+        ASSIGN 
+            dQuantityOfPartialLoadtag = dQuantityOfPartialLoadtag + ipdQuantityPerSubUnit
+            iCountOfFullLoadtags      = iCountOfFullLoadtags - 1
+            .
+
+    DO iCountOfLoadtags = 1 TO iCountOfFullLoadtags:
+        RUN CreateInventoryStockFromInputsPO (
+            ROWID(po-ord), 
+            ROWID(po-ordl),
+            ipdQuantityPerSubUnit,
+            ipdQuantityPerSubUnit,
+            ipiQuantitySubUnitsPerUnit,
+            ipcQuantityUOM,
+            OUTPUT cInventoryStockID,
+            OUTPUT oplCreated,
+            OUTPUT opcMessage
+            ).    
+        
+        IF oplCreated THEN
+            RUN CreateInventoryStockReceipt (
+                ipcCompany,
+                cInventoryStockID,
+                TRUE, /* Create Receipt Transaction */
+                FALSE, /* Post Receipt Transaction */
+                OUTPUT oplCreated,
+                OUTPUT opcMessage
+                ).
+    END. 
+    IF dQuantityOfPartialLoadtag NE 0 THEN DO:
+        RUN CreateInventoryStockFromInputsPO (
+            ROWID(po-ord), 
+            ROWID(po-ordl),
+            dQuantityOfPartialLoadtag,
+            dQuantityOfPartialLoadtag,
+            ipiQuantitySubUnitsPerUnit,
+            ipcQuantityUOM,
+            OUTPUT cInventoryStockID,
+            OUTPUT oplCreated,
+            OUTPUT opcMessage
+            ).    
+        
+        IF oplCreated THEN
+            RUN CreateInventoryStockReceipt (
+                ipcCompany,
+                cInventoryStockID,
+                TRUE, /* Create Receipt Transaction */
+                FALSE, /* Post Receipt Transaction */
+                OUTPUT oplCreated,
+                OUTPUT opcMessage
+                ).
+    END.    
+    
+    ASSIGN
+        oplCreated = TRUE
+        opcMessage = "Tag(s) Created Successfully"
+        .        
+END PROCEDURE.
+
 PROCEDURE CreateTransactionReceived:
     /*------------------------------------------------------------------------------
      Purpose: Given the Loadtag buffer, create the Stock inventory
@@ -1060,8 +1535,8 @@ PROCEDURE CreateTransactionReceived:
     DEFINE BUFFER bf-inventoryStock FOR inventoryStock.
     
     FIND FIRST bf-inventoryStock NO-LOCK
-         WHERE bf-inventoryStock.company = ipcCompany 
-           AND bf-inventoryStock.inventoryStockID = ipcInventoryStockID NO-ERROR.
+         WHERE bf-inventoryStock.company          EQ ipcCompany 
+           AND bf-inventoryStock.inventoryStockID EQ ipcInventoryStockID NO-ERROR.
     IF AVAILABLE bf-inventoryStock THEN DO:
         RUN pCreateTransactionAndReturnID(bf-inventoryStock.company, bf-inventoryStock.inventoryStockID, gcTransactionTypeReceive, 
                 bf-inventoryStock.quantityOriginal, bf-inventoryStock.quantityUOM, bf-inventoryStock.warehouseID, bf-inventoryStock.locationID, 
@@ -1078,13 +1553,13 @@ PROCEDURE CreateTransactionTransfer:
      Purpose: Wrapper function to create a transfer
      Notes: 0 quantity transaction
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplPost AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouseID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocationID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPost             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE iTransactionID AS INTEGER NO-UNDO.
 
@@ -1166,8 +1641,8 @@ PROCEDURE CreateTransactionCompare:
     DEFINE VARIABLE iTransactionID AS INTEGER NO-UNDO.
     
     FIND FIRST inventoryTransaction EXCLUSIVE-LOCK
-         WHERE inventoryTransaction.company      = ipcCompany 
-           AND inventoryTransaction.stockIDAlias = ipcStockIDAlias NO-ERROR.
+         WHERE inventoryTransaction.company      EQ ipcCompany 
+           AND inventoryTransaction.stockIDAlias EQ ipcStockIDAlias NO-ERROR.
            
     IF AVAILABLE inventoryTransaction THEN DO:
         ASSIGN
@@ -1712,7 +2187,50 @@ PROCEDURE RebuildRMBrowse:
         IF inventoryStock.inventoryStatus EQ gcStatusStockReceived THEN
             opiTotOnHand = opiTotOnHand + 1.
         
-    END.        
+    END.
+        
+END PROCEDURE.
+
+PROCEDURE RebuildBrowseTTFromPO:
+    /*------------------------------------------------------------------------------
+     Purpose: Rebuilds browse temp-table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPONo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLine       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItem       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemType   AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    FOR EACH inventoryStock NO-LOCK
+       WHERE inventoryStock.company   EQ ipcCompany
+         AND inventoryStock.poID      EQ ipiPONo
+         AND inventoryStock.poLine    EQ ipiLine
+         AND (IF ipcItemType EQ gcItemTypeFG THEN
+                  inventoryStock.fgItemID EQ ipcItem
+              ELSE
+                  TRUE
+             )
+         AND (IF ipcItemType EQ gcItemTypeRM THEN
+                  inventoryStock.rmItemID EQ ipcItem
+              ELSE
+                  TRUE
+             )
+         AND (IF ipcItemType EQ gcItemTypeWIP THEN
+                  inventoryStock.wipItemID EQ ipcItem
+              ELSE
+                  TRUE
+             )
+        :
+        CREATE ttBrowseInventory.
+        BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
+        ttBrowseinventory.locationID = inventoryStock.warehouseID +
+                                       FILL(" ", 5 - LENGTH(inventoryStock.warehouseID)) +
+                                       inventoryStock.locationID.         
+    END.
+        
 END PROCEDURE.
 
 PROCEDURE RebuildWIPBrowseTT:
@@ -1934,7 +2452,7 @@ PROCEDURE CreateInventoryStockReceipt:
             oplCreated = FALSE
             opcMessage = "Invalid Inventory Stock"
             .
-            
+
     RELEASE inventoryStock.
 END.
 
@@ -2064,7 +2582,7 @@ PROCEDURE PostTransaction:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiInventoryTransactionID AS INTEGER NO-UNDO.
-
+    
     DEFINE BUFFER bf-inventoryTransaction FOR inventoryTransaction.
 
     FIND FIRST inventoryTransaction EXCLUSIVE-LOCK
@@ -2085,7 +2603,7 @@ PROCEDURE PostTransaction:
             inventoryStock.locationID = inventoryTransaction.locationID.
         CASE inventoryTransaction.transactionType:
             WHEN gcTransactionTypeReceive THEN 
-                DO: 
+                DO:
                     ASSIGN 
                         inventoryStock.inventoryStatus = gcStatusStockReceived.
                 END.
@@ -2130,7 +2648,7 @@ PROCEDURE PostTransaction:
                           NO-ERROR.
                      IF AVAILABLE bf-inventoryTransaction THEN
                          bf-inventoryTransaction.quantityChange = inventoryStock.quantityOriginal.
-                 END.                
+                 END.
         END CASE. 
         ASSIGN 
             inventoryTransaction.transactionStatus = gcStatusTransactionPosted
@@ -2139,6 +2657,7 @@ PROCEDURE PostTransaction:
             .
     END.
     RELEASE inventoryTransaction.
+    RELEASE bf-inventoryTransaction.
     RELEASE inventoryStock.
 
 END PROCEDURE.
@@ -2246,6 +2765,49 @@ PROCEDURE ValidateLoc:
         AND loc.active  EQ TRUE).
         
 
+END PROCEDURE.
+
+PROCEDURE ValidatePO:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPO      AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidPO AS LOGICAL NO-UNDO.
+    
+    oplValidPO = CAN-FIND(FIRST po-ord NO-LOCK 
+        WHERE po-ord.company EQ ipcCompany  
+          AND po-ord.po-no   EQ ipiPO).
+        
+
+END PROCEDURE.
+
+PROCEDURE GetItemListForPO:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiPONo         AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcStatus       AS CHARACTER NO-UNDO. /* "A" - All, "O" - Opened Only, "C" - Closed Only */
+    DEFINE INPUT-OUTPUT PARAMETER opcItemList     AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER buf-po-ordl FOR po-ordl.
+    
+    FOR EACH buf-po-ordl NO-LOCK
+        WHERE buf-po-ordl.company EQ ipcCompany
+          AND buf-po-ordl.po-no   EQ ipiPONo
+          AND (ipcStatus  EQ "A"                             OR
+               (ipcStatus EQ "C" AND NOT buf-po-ordl.opened) OR
+               (ipcStatus EQ "O" AND buf-po-ordl.opened)
+              ):
+        opcItemList = IF opcItemList EQ "" THEN (STRING(buf-po-ordl.line,"99") + "-" + STRING(buf-po-ordl.i-no))
+                      ELSE IF INDEX(opcItemList,STRING(buf-po-ordl.line,"99") + "-" + STRING(buf-po-ordl.i-no)) GT 0 THEN opcItemList
+                      ELSE (opcItemList + "," + STRING(buf-po-ordl.line,"99") + "-" + STRING(buf-po-ordl.i-no)).
+    END.
+
+    RELEASE buf-po-ordl.
 END PROCEDURE.
 
 PROCEDURE LocationParser:
@@ -2397,6 +2959,44 @@ PROCEDURE pGetInventoryStockDetails:
             .
 END PROCEDURE.
 
+PROCEDURE GetPOOrderLineDetails:
+    /*------------------------------------------------------------------------------
+     Purpose: Fetch Details of a po-ordl record into temp-table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPONo                AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLine                AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItem                AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidOrdLine        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage             AS CHARACTER NO-UNDO.     
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPOOrderLineDetails.
+        
+    FIND FIRST po-ordl NO-LOCK
+         WHERE po-ordl.company EQ ipcCompany
+           AND po-ordl.po-no   EQ ipiPONo
+           AND po-ordl.line    EQ ipiLine
+           AND po-ordl.i-no    EQ ipcItem
+         NO-ERROR.
+    
+    EMPTY TEMP-TABLE ttPOOrderLineDetails.
+    
+    IF AVAILABLE po-ordl THEN DO:
+        CREATE ttPOOrderLineDetails.
+        BUFFER-COPY po-ordl TO ttPOOrderLineDetails.
+        
+        ASSIGN
+            oplValidOrdLine = TRUE
+            opcMessage      = ""
+            .
+    END.
+    ELSE
+        ASSIGN
+            oplValidOrdLine = FALSE
+            opcMessage      = "Invalid PO order line"
+            .
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 
@@ -2458,7 +3058,7 @@ FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
         AND loadtag.item-type   EQ NO
         AND loadtag.is-case-tag EQ NO
         AND loadtag.tag-no      BEGINS ipcUniquePrefix
-        /*        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcUniquePrefix*/
+        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcUniquePrefix
         USE-INDEX tag NO-ERROR.
     iLastFGTag = (IF AVAILABLE loadtag THEN fGetNumberSuffix(loadtag.tag-no, iStartChar) ELSE 0) + 1.
 
@@ -2467,7 +3067,7 @@ FUNCTION fGetNextStockIDAlias RETURNS CHARACTER PRIVATE
         AND loadtag.item-type   EQ YES
         AND loadtag.is-case-tag EQ NO
         AND loadtag.tag-no      BEGINS ipcUniquePrefix
-        /*        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcUniquePrefix*/
+        AND SUBSTR(loadtag.tag-no,1,15) EQ ipcUniquePrefix
         USE-INDEX tag NO-ERROR.
     iLastRMTag = (IF AVAILABLE loadtag THEN fGetNumberSuffix(loadtag.tag-no, iStartChar) ELSE 0) + 1.
     
@@ -2519,7 +3119,6 @@ FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
     DEFINE VARIABLE iCountBeginningChars AS INTEGER.
     DEFINE VARIABLE iNumberSuffix        AS INTEGER.
     
-
     iNumberSuffix = INTEGER(SUBSTRING(ipcFullText, ipiStartChar, (LENGTH(ipcFullText) - ipiStartChar + 1))).	
 
     RETURN iNumberSuffix.
