@@ -86,6 +86,11 @@ IF iUserSpecific EQ 1 THEN DO:
         ASSIGN
             oplUserSpecific = YES.
             opcDirectory = cDirectory.
+    ASSIGN opcDirectory = opcDirectory + "\" + USERID(LDBNAME(1)) .
+
+    FILE-INFO:FILE-NAME = opcDirectory .
+    if opcDirectory <> "" AND FILE-INFO:FILE-type eq ? then 
+        OS-CREATE-DIR VALUE(opcDirectory) NO-ERROR.
 END.
 IF ipcType NE "" THEN DO:
     RUN GetTypeInfo(INPUT ipcType,
