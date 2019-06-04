@@ -6662,7 +6662,7 @@ PROCEDURE OnSaveButton :
             lPMBlock  = NO.
       
     RUN CheckPriceMatrix IN hdPriceProcs ( cocode, oe-ordl.i-no:SCREEN-VALUE,  oe-ord.cust-no, oe-ord.ship-id, DEC(oe-ordl.qty:SCREEN-VALUE),DEC(oe-ordl.price:SCREEN-VALUE),
-        OUTPUT lPMPrompt, OUTPUT cPMMessage, OUTPUT lPMBlock).
+       oe-ordl.pr-uom:SCREEN-VALUE, OUTPUT lPMPrompt, OUTPUT cPMMessage, OUTPUT lPMBlock).
     IF lPMPrompt THEN 
     DO: 
         MESSAGE cPMMessage VIEW-AS ALERT-BOX.
