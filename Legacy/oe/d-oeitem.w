@@ -2778,9 +2778,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
  
  IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
-    ELSE DO:        
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = YES .
+    ELSE DO:  
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.    
         
  END.
