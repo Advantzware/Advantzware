@@ -802,7 +802,7 @@ PROCEDURE build-type-list :
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+            fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList + "," .
     END.
     &ENDIF
       
@@ -1049,6 +1049,10 @@ PROCEDURE local-create-record :
      fg-rctd.cases-unit   = 1.
     IF cAdjustReason-Desc NE "" THEN
      ASSIGN fg-rctd.reject-code[1] = cAdjustReason-Desc.
+    ELSE
+        ASSIGN 
+            fg-rctd.reject-code[1] = ""
+            fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} = ""  .
     DISPLAY fg-rctd.rct-date fg-rctd.reject-code[1] WITH BROWSE {&browse-name}.
   END.  
 
