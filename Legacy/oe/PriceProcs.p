@@ -202,7 +202,6 @@ PROCEDURE CheckPriceMatrix:
     DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.  /*Ship to Scope of Customer  - optional*/
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO. /*to get price matrix appropriate for qty*/
     DEFINE INPUT PARAMETER ipdPrice AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcPriceUom AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPrompt AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplBlockEntry AS LOGICAL NO-UNDO.
@@ -234,8 +233,6 @@ PROCEDURE CheckPriceMatrix:
             RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).
             IF dPriceMtx NE ipdPrice THEN 
                 opcMessage = cMessage + " but price should be " + STRING(dPriceMtx) + " not " + STRING(ipdPrice).
-            ELSE IF  cPriceUOM NE ipcPriceUom THEN
-                opcMessage = cMessage + " but UOM should be " + STRING(cPriceUOM) + " not " + STRING(ipcPriceUom).
             ELSE 
             DO:                
                 IF NOT lQtyMatch THEN 

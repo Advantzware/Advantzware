@@ -2778,9 +2778,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
  
  IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
-    ELSE DO:        
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = YES .
+    ELSE DO:  
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.    
         
  END.
@@ -6662,7 +6666,7 @@ PROCEDURE OnSaveButton :
             lPMBlock  = NO.
       
     RUN CheckPriceMatrix IN hdPriceProcs ( cocode, oe-ordl.i-no:SCREEN-VALUE,  oe-ord.cust-no, oe-ord.ship-id, DEC(oe-ordl.qty:SCREEN-VALUE),DEC(oe-ordl.price:SCREEN-VALUE),
-       oe-ordl.pr-uom:SCREEN-VALUE, OUTPUT lPMPrompt, OUTPUT cPMMessage, OUTPUT lPMBlock).
+        OUTPUT lPMPrompt, OUTPUT cPMMessage, OUTPUT lPMBlock).
     IF lPMPrompt THEN 
     DO: 
         MESSAGE cPMMessage VIEW-AS ALERT-BOX.
