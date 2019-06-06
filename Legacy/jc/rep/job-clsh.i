@@ -22,35 +22,13 @@ for FIRST itemfg
    v-t-qty-ord       = 0
    v-act-price       = 0.
 
-  IF itemfg.isaset AND itemfg.alloc THEN
-     FOR EACH fg-act FIELDS(qty)
-         WHERE fg-act.company eq job-hdr.company
-           AND fg-act.job-no  eq job-hdr.job-no
-           AND fg-act.job-no2 eq job-hdr.job-no2
-           AND fg-act.i-no    eq job-hdr.i-no
-         NO-LOCK:
-         work-item.qty-prod = work-item.qty-prod + fg-act.qty.
-     END.
-
-  FOR EACH fg-rcpth FIELDS(r-no rita-code company)
-      WHERE fg-rcpth.company   EQ job-hdr.company
-        AND fg-rcpth.i-no      EQ job-hdr.i-no
-        AND fg-rcpth.job-no    EQ job-hdr.job-no
-        AND fg-rcpth.job-no2   EQ job-hdr.job-no2
-        AND fg-rcpth.rita-code EQ "R"
-        NO-LOCK,
-
-      EACH fg-rdtlh FIELDS(qty)
-      WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-      NO-LOCK
-        
-      BREAK BY fg-rcpth.company:
-
-    IF FIRST(fg-rcpth.company) THEN work-item.qty-prod = 0.
-
-    work-item.qty-prod = work-item.qty-prod + fg-rdtlh.qty.
-  END.
+  
+  RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                                   INPUT job-hdr.job-no,
+                                   INPUT job-hdr.job-no2,
+                                   INPUT job-hdr.i-no,
+                                   INPUT NO,
+                                   OUTPUT work-item.qty-prod ).  
 
   for each oe-ordl FIELDS(qty t-price)
       where oe-ordl.company eq cocode

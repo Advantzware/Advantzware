@@ -48,7 +48,7 @@ DEF VAR lv-ship-no LIKE shipto.ship-no NO-UNDO.
 DEF VAR ll-new-file AS LOG NO-UNDO.
 DEF VAR lv-part-no LIKE quoteitm.part-no NO-UNDO.
 DEF VAR lv-rowid AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 DEF TEMP-TABLE w-qqty NO-UNDO FIELD w-rowid AS ROWID.
 
 {sa/sa-sls01.i}  /* report */
@@ -508,18 +508,8 @@ END.
 ON LEAVE OF quotehd.carrier IN FRAME F-Main /* Carrier */
 DO:
   IF LASTKEY NE -1 THEN DO:
-  {&methods/lValidateError.i YES}
-    carrier_desc:SCREEN-VALUE = ''.
-    IF quotehd.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
-    FIND FIRST carrier NO-LOCK WHERE carrier.company EQ gcompany
-                                 AND carrier.loc EQ gloc
-                                 AND carrier.carrier EQ quotehd.carrier:SCREEN-VALUE NO-ERROR.
-    IF NOT AVAILABLE carrier THEN DO:
-      MESSAGE 'Invalid Carrier Code. Try Help.' VIEW-AS ALERT-BOX ERROR.
-      RETURN NO-APPLY.
-    END.
-    carrier_desc:SCREEN-VALUE = carrier.dscr.
-  {&methods/lValidateError.i NO}
+    RUN valid-carrier NO-ERROR.
+    IF NOT lErrorValid THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -1205,6 +1195,10 @@ PROCEDURE local-update-record :
 
    RUN valid-sold-id NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+   RUN valid-carrier NO-ERROR.
+    IF NOT lErrorValid THEN RETURN NO-APPLY.
+
    {&methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
      sman_desc:SCREEN-VALUE = ''.
@@ -1228,20 +1222,7 @@ PROCEDURE local-update-record :
        END.
        term_desc:SCREEN-VALUE = terms.dscr.
      END.
-
-     carrier_desc:SCREEN-VALUE = ''.
-     IF quotehd.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN DO:
-       FIND FIRST carrier NO-LOCK WHERE carrier.company EQ gcompany
-                                    AND carrier.loc EQ gloc
-                                    AND carrier.carrier EQ quotehd.carrier:SCREEN-VALUE NO-ERROR.
-       IF NOT AVAILABLE carrier THEN DO:
-         MESSAGE 'Invalid Carrier Code. Try Help.' VIEW-AS ALERT-BOX ERROR.
-         APPLY 'ENTRY' TO quotehd.carrier.
-         RETURN NO-APPLY.
-       END.
-       carrier_desc:SCREEN-VALUE = carrier.dscr.
-     END.
-
+     
      zon_desc:SCREEN-VALUE = ''.
      IF quotehd.del-zone:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN DO:
        FIND FIRST carr-mtx NO-LOCK WHERE carr-mtx.company EQ gcompany
@@ -1719,6 +1700,44 @@ PROCEDURE valid-sold-id :
 
       RUN new-sold-id.
     END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+   ASSIGN lErrorValid = YES .
+  DO WITH FRAME {&FRAME-NAME}:
+       FIND FIRST carrier NO-LOCK WHERE carrier.company EQ gcompany
+                                    AND carrier.loc EQ gloc
+                                    AND carrier.carrier EQ quotehd.carrier:SCREEN-VALUE NO-ERROR.
+       IF NOT AVAILABLE carrier THEN DO:
+         MESSAGE 'Invalid Carrier Code. Try Help.' VIEW-AS ALERT-BOX ERROR.
+         APPLY 'ENTRY' TO quotehd.carrier.
+         lErrorValid = NO .
+       END.
+       IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " quotehd.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+        lErrorValid = NO .
+        END.
+       carrier_desc:SCREEN-VALUE = carrier.dscr.
+       END.
+       
+     
   END.
 
   {methods/lValidateError.i NO}

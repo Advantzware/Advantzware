@@ -40,13 +40,12 @@ for each job-hdr
         EXCLUSIVE-LOCK NO-ERROR.
 
    assign v-fin-qty = 0.
-   for each fg-act where fg-act.company = cocode and
-                         fg-act.job = job.job and
-                         fg-act.i-no = job-hdr.i-no AND
-                         fg-act.loc  = job-hdr.loc
-                         no-lock:
-      v-fin-qty = v-fin-qty + fg-act.qty.
-   end.
+   RUN fg/GetProductionQty.p (INPUT cocode,
+                                   INPUT job-hdr.job-no,
+                                   INPUT job-hdr.job-no2,
+                                   INPUT job-hdr.i-no,
+                                   INPUT NO,
+                                   OUTPUT v-fin-qty ).
    if v-fin-qty lt job-hdr.qty then do:
       IF NOT itemfg.pur-man THEN
         assign

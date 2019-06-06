@@ -125,14 +125,12 @@ for each job-hdr
        li-qty = 0.
 
     IF itemfg.isaset AND itemfg.alloc THEN
-    FOR EACH fg-act FIELDS(qty)
-        WHERE fg-act.company eq job-hdr.company
-          AND fg-act.job-no  eq job-hdr.job-no
-          AND fg-act.job-no2 eq job-hdr.job-no2
-          AND fg-act.i-no    eq job-hdr.i-no
-        NO-LOCK:
-      li-qty = li-qty + fg-act.qty.
-    END.
+      RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                                   INPUT job-hdr.job-no,
+                                   INPUT job-hdr.job-no2,
+                                   INPUT job-hdr.i-no,
+                                   INPUT NO,
+                                   OUTPUT li-qty ).     
 
     FIND FIRST eb WHERE
          eb.company EQ job.company AND
