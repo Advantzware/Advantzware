@@ -27,7 +27,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{oe/ttPriceHold.i "SHARED"}
+{oe/ttPriceHold.i SHARED}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
