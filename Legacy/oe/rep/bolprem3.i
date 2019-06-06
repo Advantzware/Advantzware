@@ -32,7 +32,7 @@ FOR EACH tt-boll,
 
       FIND first oe-ord WHERE oe-ord.company EQ cocode
                           AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
-        
+
       /* rstark 05291402 */
         IF lGenerateCXML  THEN DO:
             IF AVAIL oe-ordl AND oe-ordl.spare-char-2 NE '' THEN DO:
@@ -40,7 +40,8 @@ FOR EACH tt-boll,
                     dOrigQty = oe-ordl.spare-dec-1
                     cOrigUom = oe-ordl.spare-char-2
                     .
-                IF cOrigUom EQ 'CS' 
+
+                IF (cOrigUom EQ 'CS' OR cOrigUom EQ 'PF' OR cOrigUom EQ "PLT")
                     AND dOrigQty NE tt-boll.qty 
                     AND oe-ordl.cas-cnt NE 0 THEN DO:
                     dOrigQty = tt-boll.qty / oe-ordl.cas-cnt.

@@ -427,6 +427,7 @@ PROCEDURE genTempOrderLines:
              WHERE itemfg.company EQ cocode
                AND itemfg.i-no    EQ TRIM(ttOrdLines.ttItemManufacturerPartID) 
              NO-ERROR.
+
         /* Manufacturer part is being assigned to oe-ordl.i-no */
         IF NOT AVAIL itemfg THEN DO:
              FIND FIRST itemfg NO-LOCK
@@ -558,10 +559,9 @@ PROCEDURE genOrderLines:
           oe-ordl.spare-dec-1 = oe-ordl.qty
           oe-ordl.spare-char-2 = oe-ordl.pr-uom
           oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
+          oe-ordl.pr-uom = (IF oe-ordl.pr-uom EQ "PF" OR oe-ordl.pr-uom EQ "PLT" THEN "CS" ELSE oe-ordl.pr-uom)
           .
-        IF oe-ordl.pr-uom EQ "CS" 
-            OR oe-ordl.pr-uom EQ "PLT" 
-            OR oe-ordl.pr-uom EQ "PF" THEN
+        IF oe-ordl.pr-uom EQ "CS" THEN
             oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
         ELSE IF oe-ordl.pr-uom EQ "C" THEN oe-ordl.qty = oe-ordl.qty * 100.
         ELSE DO:

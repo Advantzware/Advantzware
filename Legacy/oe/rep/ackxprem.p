@@ -76,6 +76,7 @@ DEF SHARED VAR v-print-po AS LOG NO-UNDO.
 DEF VAR po-no AS CHAR FORM "x(15)" NO-UNDO.
 DEF VAR lGeneratecXML AS LOG NO-UNDO.
 DEF VAR cShipmentDate AS CHAR NO-UNDO.
+DEF VAR cDeliveryDate AS CHAR NO-UNDO.
 
 DEF SHARED VAR v-UntCnt AS LOG NO-UNDO.
 DEF SHARED VAR v-Shpnot AS LOG NO-UNDO.
@@ -323,11 +324,19 @@ for each oe-ordl
                              + 'T'
                              + STRING(0,'hh:mm:ss')
                              + '-05:00'.
+            cDeliveryDate =  STRING(YEAR(oe-ordl.req-date + 1),'9999')
+                             + '-'
+                             + STRING(MONTH(oe-ordl.req-date + 1),'99')
+                             + '-'
+                             + STRING(DAY(oe-ordl.req-date + 1),'99')
+                             + 'T'
+                             + STRING(0,'hh:mm:ss')
+                             + '-05:00'.
 
             RUN cXMLOutput (clXMLOutput,'ConfirmationItem lineNumber="' + STRING(oe-ordl.line) 
                             + '" quantity="' + IF oe-ordl.spare-dec-1 NE 0 THEN STRING(oe-ordl.spare-dec-1) + '"' ELSE STRING(oe-ordl.qty) + '"','','Row').
             RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',IF oe-ordl.spare-char-2 NE '' THEN oe-ordl.spare-char-2 ELSE 'EA','Col').
-            RUN cXMLOutput (clXMLOutput,'ConfirmationStatus type="accept" quantity="' + IF oe-ordl.spare-dec-1 NE 0 THEN STRING(oe-ordl.spare-dec-1) + '"' ELSE STRING(oe-ordl.qty) + '"' 
+            RUN cXMLOutput (clXMLOutput,'ConfirmationStatus type="accept" ' + ' deliveryDate="' + cDeliveryDate + '"' + ' quantity="' + IF oe-ordl.spare-dec-1 NE 0 THEN STRING(oe-ordl.spare-dec-1) + '"' ELSE STRING(oe-ordl.qty) + '"' 
                             + ' shipmentDate="' + cShipmentDate + '"','','Row').
             RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',IF oe-ordl.spare-char-2 NE '' THEN oe-ordl.spare-char-2 ELSE 'EA','Col').
             RUN cXMLOutput (clXMLOutput,'/ConfirmationStatus','','Row').
