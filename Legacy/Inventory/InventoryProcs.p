@@ -87,6 +87,361 @@ FUNCTION fCalculateQuantityTotal RETURNS DECIMAL
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE BuildFGInventoryStockForItem:
+    /*------------------------------------------------------------------------------
+     Purpose: Create InventoryStock records from fg
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipriFGItem           AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdtAsOf             AS DATE      NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiCountOfProcessed AS INTEGER   NO-UNDO.
+    
+    RUN pBuildFGInventoryStockForItem (
+            ipriFGItem, 
+            ipdtAsOf, 
+            INPUT-OUTPUT iopiCountOfProcessed, 
+            NO, /* Purge */
+            ""  /* Output Path */
+            ).    
+END PROCEDURE.
+
+PROCEDURE BuildRMInventoryStockForItem:
+    /*------------------------------------------------------------------------------
+     Purpose: Create InventoryStock records from RM
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipriItem             AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdtAsOf             AS DATE      NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiCountOfProcessed AS INTEGER   NO-UNDO.
+    
+    RUN pBuildRMInventoryStockForItem (
+            ipriItem, 
+            ipdtAsOf, 
+            INPUT-OUTPUT iopiCountOfProcessed, 
+            NO, /* Purge */
+            ""  /* Output Path */
+            ).    
+END PROCEDURE.
+
+PROCEDURE pBuildFGInventoryStockForItem PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a FG Item, build bins - will purge and export too 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipriFGItem           AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdtAsOf             AS DATE      NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiCountOfProcessed AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplPurge             AS LOGICAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcExportPath        AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lCreated   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+    
+    FIND FIRST itemfg NO-LOCK
+        WHERE ROWID(itemfg) EQ ipriFGItem
+        NO-ERROR.
+    IF AVAILABLE itemfg THEN 
+    DO:
+        FOR EACH  fg-rcpth NO-LOCK
+            WHERE fg-rcpth.company    EQ itemfg.company
+              AND fg-rcpth.i-no       EQ itemfg.i-no
+              AND fg-rcpth.trans-date LE ipdtAsOf
+            USE-INDEX tran,
+            EACH  fg-rdtlh NO-LOCK
+            WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+            BY fg-rcpth.trans-date
+            BY fg-rdtlh.trans-time
+            BY fg-rcpth.r-no
+            :
+/*             FIND FIRST inventoryStock */
+/*                  WHERE inventoryStock.company      EQ fg-rcpth.company */
+/*                    AND inventoryStock.fgItemID     EQ fg-rcpth.i-no */
+/*                    AND inventoryStock.jobID        EQ fg-rcpth.job-no */
+/*                    AND inventoryStock.jobID2       EQ fg-rcpth.job-no2 */
+/*                    AND inventoryStock.warehouseID  EQ fg-rdtlh.loc */
+/*                    AND inventoryStock.locationID   EQ fg-rdtlh.loc-bin */
+/*                    AND inventoryStock.stockIDAlias EQ fg-rdtlh.tag */
+/*                    AND inventoryStock.customerID   EQ fg-rdtlh.cust-no */
+/*                  NO-ERROR. */
+            FIND FIRST inventoryStock EXCLUSIVE-LOCK
+                 WHERE inventoryStock.sourceID EQ fg-rdtlh.rec_key /* Unable to find a unique record. Temporarily using source ID */
+                 NO-ERROR.
+            IF NOT AVAILABLE inventoryStock THEN 
+            DO:
+                CREATE inventoryStock.
+                ASSIGN
+                    inventoryStock.company                    = fg-rcpth.company
+                    inventoryStock.jobID                      = fg-rcpth.job-no
+                    inventoryStock.jobID2                     = fg-rcpth.job-no2
+                    inventoryStock.warehouseID                = fg-rdtlh.loc
+                    inventoryStock.locationID                 = fg-rdtlh.loc-bin                            
+                    inventoryStock.customerID                 = fg-rdtlh.cust-no
+                    inventoryStock.fgItemID                   = fg-rcpth.i-no
+                    inventoryStock.poID                       = INTEGER(fg-rcpth.po-no)
+                    inventoryStock.createdTime                = fg-rcpth.trans-date
+                    inventoryStock.quantityUOM                = gcFGUOM
+                    inventoryStock.primaryID                  = inventoryStock.fgItemID
+                    inventoryStock.itemType                   = gcItemTypeFG
+                    inventoryStock.quantityPerSubUnit         = fg-rdtlh.qty-case
+                    inventoryStock.quantityOfSubUnits         = fg-rdtlh.cases
+                    inventoryStock.quantitySubUnitsPerUnit    = fg-rdtlh.stacks-unit
+                    inventoryStock.quantity                   = fg-rdtlh.qty
+                    inventoryStock.quantityPartial            = fg-rdtlh.partial
+                    inventoryStock.quantityOfUnits            = fCalculateQuantityUnits (
+                                                                    inventoryStock.quantityOfSubUnits,
+                                                                    inventoryStock.quantitySubUnitsPerUnit,
+                                                                    inventoryStock.quantityPartial
+                                                                )
+                    inventoryStock.quantityOfUnitsOriginal    = inventoryStock.quantityOfUnits
+                    inventoryStock.quantityPartialOriginal    = inventoryStock.quantityPartial
+                    inventoryStock.quantityOfSubUnitsOriginal = inventoryStock.quantityOfSubUnits
+                    inventoryStock.costStandardPerUOM         = fg-rdtlh.cost
+                    inventoryStock.createdTime                = DATETIME(fg-rdtlh.trans-date, fg-rdtlh.trans-time)
+                    inventoryStock.createdBy                  = fg-rcpth.create-by
+                    inventoryStock.lastTransBy                = fg-rcpth.update-by
+                    inventoryStock.bolID                      = STRING(fg-rcpth.b-no)
+                    inventoryStock.lot                        = fg-rdtlh.stack-code
+                    inventoryStock.dimEachLen                 = itemfg.t-len
+                    inventoryStock.dimEachWid                 = itemfg.t-wid
+                    inventoryStock.dimEachDep                 = itemfg.t-dep
+                    inventoryStock.inventoryStockLen          = itemfg.unitLength
+                    inventoryStock.inventoryStockWid          = itemfg.unitWidth
+                    inventoryStock.inventoryStockDep          = itemfg.unitHeight
+                    inventoryStock.dimEachUOM                 = gcUOMInches
+                    inventoryStock.inventoryStockUOM          = gcUOMInches
+                    inventoryStock.basisWeight                = itemfg.weight-100
+                    inventoryStock.basisWeightUOM             = gcUOMWeightBasis
+                    inventoryStock.weightUOM                  = gcUOMWeight
+                    inventoryStock.costStandardMat            = fg-rdtlh.std-mat-cost
+                    inventoryStock.costStandardLab            = fg-rdtlh.std-lab-cost
+                    inventoryStock.costStandardVOH            = fg-rdtlh.std-var-cost
+                    inventoryStock.costStandardFOH            = fg-rdtlh.std-fix-cost
+/*                     inventoryStock.sourceID                   = IF fg-rcpth.job-no NE "" THEN */
+/*                                                                     FILL(" ",6 - LENGTH(LEFT-TRIM(TRIM(fg-rcpth.job-no)))) + STRING(fg-rcpth.job-no2,"99") */
+/*                                                                 ELSE */
+/*                                                                     "" */
+                    inventoryStock.sourceID                   = fg-rdtlh.rec_key
+                    inventoryStock.sourceType                 = gcInventorySourceTypeJob
+                    inventoryStock.inventoryStatus            = gcStatusStockInitial
+                    inventoryStock.inventoryStockID           = fGetNextStockID (
+                                                                    inventoryStock.itemType
+                                                                )
+                    inventoryStock.stockIDAlias               = IF fg-rdtlh.tag NE "" THEN
+                                                                    fg-rdtlh.tag
+                                                                ELSE
+                                                                    fGetNextStockIDAlias (
+                                                                        inventoryStock.company,
+                                                                        inventoryStock.primaryID
+                                                                    )
+                    inventoryStock.costUOM                    = IF fg-rcpth.pur-uom NE "" THEN
+                                                                    fg-rcpth.pur-uom
+                                                                ELSE
+                                                                    itemfg.pur-uom
+                    inventoryStock.poLine                     = IF fg-rcpth.po-no NE "" THEN
+                                                                    1
+                                                                ELSE
+                                                                    0
+                    .
+
+                RUN CreateStockIDAlias (
+                    inventoryStock.company,
+                    inventoryStock.inventoryStockID,
+                    inventoryStock.primaryID,
+                    inventoryStock.stockIDAlias,
+                    OUTPUT lCreated,
+                    OUTPUT cMessage
+                    ).                    
+            END.
+
+            CASE fg-rcpth.rita-code:
+                WHEN "S" THEN
+                    ASSIGN
+                        inventoryStock.quantity        = inventoryStock.quantity - fg-rdtlh.qty
+                        inventoryStock.inventoryStatus = gcStatusStockConsumed 
+                        .
+                WHEN "C" THEN 
+                    ASSIGN
+                        inventoryStock.quantity        = fg-rdtlh.qty
+                        inventoryStock.inventoryStatus = gcStatusStockConsumed
+                        .
+                WHEN "R" THEN 
+                    ASSIGN
+                        inventoryStock.quantityOriginal = fg-rdtlh.qty
+                        inventoryStock.quantity         = fg-rdtlh.qty
+                        inventoryStock.inventoryStatus  = gcStatusStockReceived
+                        .
+                OTHERWISE 
+                    inventoryStock.quantity = inventoryStock.quantity + fg-rdtlh.qty.
+            END CASE.
+            
+            IF inventoryStock.quantity EQ 0 THEN
+                ASSIGN
+                    inventoryStock.consumedBy   = fg-rcpth.create-by
+                    inventoryStock.consumedTime = DATETIME(fg-rdtlh.trans-date, fg-rdtlh.trans-time)
+                    .                
+            ASSIGN
+                inventoryStock.lastTransTime = DATETIME(fg-rdtlh.trans-date, fg-rdtlh.trans-time)
+                iopiCountOfProcessed         = iopiCountOfProcessed + 1.
+                .
+        END.
+    END.        
+END PROCEDURE.
+
+PROCEDURE pBuildRMInventoryStockForItem PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a Item, build bins - will purge and export too 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipriItem             AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdtAsOf             AS DATE      NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiCountOfProcessed AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplPurge             AS LOGICAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcExportPath        AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lCreated   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+    
+    FIND FIRST item NO-LOCK
+        WHERE ROWID(item) EQ ipriItem
+        NO-ERROR.
+    IF AVAILABLE item THEN 
+    DO:
+        FOR EACH  rm-rcpth NO-LOCK
+            WHERE rm-rcpth.company    EQ item.company
+              AND rm-rcpth.i-no       EQ item.i-no
+              AND rm-rcpth.trans-date LE ipdtAsOf,
+            EACH  rm-rdtlh NO-LOCK
+            WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
+              AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
+            BY rm-rcpth.trans-date
+            BY rm-rdtlh.trans-time
+            BY rm-rcpth.r-no
+            :
+/*             FIND FIRST inventoryStock */
+/*                  WHERE inventoryStock.company      EQ rm-rcpth.company */
+/*                    AND inventoryStock.fgItemID     EQ rm-rcpth.i-no */
+/*                    AND inventoryStock.jobID        EQ rm-rcpth.job-no */
+/*                    AND inventoryStock.jobID2       EQ rm-rcpth.job-no2 */
+/*                    AND inventoryStock.warehouseID  EQ rm-rdtlh.loc */
+/*                    AND inventoryStock.locationID   EQ rm-rdtlh.loc-bin */
+/*                    AND inventoryStock.stockIDAlias EQ rm-rdtlh.tag */
+/*                    AND inventoryStock.customerID   EQ rm-rdtlh.cust-no */
+/*                  NO-ERROR. */
+            FIND FIRST inventoryStock EXCLUSIVE-LOCK
+                 WHERE inventoryStock.sourceID EQ rm-rdtlh.rec_key /* Unable to find a unique record. Temporarily using source ID */
+                 NO-ERROR.
+            IF NOT AVAILABLE inventoryStock THEN 
+            DO:
+                CREATE inventoryStock.
+                ASSIGN
+                    inventoryStock.company                    = rm-rcpth.company
+                    inventoryStock.jobID                      = rm-rcpth.job-no
+                    inventoryStock.jobID2                     = rm-rcpth.job-no2
+                    inventoryStock.warehouseID                = rm-rdtlh.loc
+                    inventoryStock.locationID                 = rm-rdtlh.loc-bin                            
+                    inventoryStock.rmItemID                   = rm-rcpth.i-no
+                    inventoryStock.poID                       = INTEGER(rm-rcpth.po-no)
+                    inventoryStock.createdTime                = DATETIME(rm-rdtlh.trans-date, rm-rdtlh.trans-time)
+                    inventoryStock.bolID                      = rm-rdtlh.BOL
+                    inventoryStock.primaryID                  = inventoryStock.rmItemID
+                    inventoryStock.itemType                   = gcItemTypeRM
+                    inventoryStock.quantityPerSubUnit         = 1
+                    inventoryStock.quantityOfSubUnits         = 1
+                    inventoryStock.quantitySubUnitsPerUnit    = 1
+                    inventoryStock.quantity                   = rm-rdtlh.qty
+                    inventoryStock.quantityPartial            = 0
+                    inventoryStock.quantityOfUnits            = fCalculateQuantityUnits (
+                                                                    inventoryStock.quantityOfSubUnits,
+                                                                    inventoryStock.quantitySubUnitsPerUnit,
+                                                                    inventoryStock.quantityPartial
+                                                                )
+                    inventoryStock.quantityOfUnitsOriginal    = inventoryStock.quantityOfUnits
+                    inventoryStock.quantityPartialOriginal    = inventoryStock.quantityPartial
+                    inventoryStock.quantityOfSubUnitsOriginal = inventoryStock.quantityOfSubUnits
+                    inventoryStock.costStandardPerUOM         = rm-rdtlh.cost
+                    inventoryStock.createdTime                = rm-rdtlh.enteredDT
+                    inventoryStock.createdBy                  = rm-rdtlh.enteredBy
+                    inventoryStock.lastTransBy                = rm-rdtlh.enteredBy
+                    inventoryStock.dimEachLen                 = item.s-len
+                    inventoryStock.dimEachWid                 = item.s-wid
+                    inventoryStock.dimEachDep                 = item.s-dep
+                    inventoryStock.dimEachUOM                 = gcUOMInches
+                    inventoryStock.inventoryStockUOM          = gcUOMInches
+                    inventoryStock.basisWeight                = item.weight-100
+                    inventoryStock.basisWeightUOM             = gcUOMWeightBasis
+                    inventoryStock.weightUOM                  = gcUOMWeight
+/*                     inventoryStock.sourceID                   = IF rm-rcpth.job-no NE "" THEN */
+/*                                                                     FILL(" ",6 - LENGTH(LEFT-TRIM(TRIM(rm-rcpth.job-no)))) + STRING(rm-rcpth.job-no2,"99") */
+/*                                                                 ELSE */
+/*                                                                     "" */
+                    inventoryStock.sourceID                   = rm-rdtlh.rec_key
+                    inventoryStock.sourceType                 = gcInventorySourceTypeJob
+                    inventoryStock.inventoryStatus            = gcStatusStockInitial
+                    inventoryStock.inventoryStockID           = fGetNextStockID (
+                                                                    inventoryStock.itemType
+                                                                )
+                    inventoryStock.stockIDAlias               = IF rm-rdtlh.tag NE "" THEN
+                                                                    rm-rdtlh.tag
+                                                                ELSE
+                                                                    fGetNextStockIDAlias (
+                                                                        inventoryStock.company,
+                                                                        inventoryStock.primaryID
+                                                                    )
+                    inventoryStock.costUOM                    = IF rm-rcpth.pur-uom NE "" THEN
+                                                                    rm-rcpth.pur-uom
+                                                                ELSE
+                                                                    item.pur-uom
+                    inventoryStock.poLine                     = IF rm-rcpth.po-no NE "" THEN
+                                                                    rm-rcpth.po-line
+                                                                ELSE
+                                                                    0
+                    .
+
+                RUN CreateStockIDAlias (
+                    inventoryStock.company,
+                    inventoryStock.inventoryStockID,
+                    inventoryStock.primaryID,
+                    inventoryStock.stockIDAlias,
+                    OUTPUT lCreated,
+                    OUTPUT cMessage
+                    ).                    
+            END.
+
+            CASE rm-rcpth.rita-code:
+                WHEN "S" THEN
+                    ASSIGN
+                        inventoryStock.quantity        = inventoryStock.quantity - rm-rdtlh.qty
+                        inventoryStock.inventoryStatus = gcStatusStockConsumed 
+                        .
+                WHEN "C" THEN 
+                    ASSIGN
+                        inventoryStock.quantity        = rm-rdtlh.qty
+                        inventoryStock.inventoryStatus = gcStatusStockConsumed
+                        .
+                WHEN "R" THEN 
+                    ASSIGN
+                        inventoryStock.quantityOriginal = rm-rdtlh.qty
+                        inventoryStock.quantity         = rm-rdtlh.qty
+                        inventoryStock.inventoryStatus  = gcStatusStockReceived
+                        .
+                OTHERWISE 
+                    inventoryStock.quantity = inventoryStock.quantity + rm-rdtlh.qty.
+            END CASE.
+            
+            IF inventoryStock.quantity EQ 0 THEN
+                ASSIGN
+                    inventoryStock.consumedBy   = rm-rdtlh.enteredBy
+                    inventoryStock.consumedTime = DATETIME(rm-rcpth.trans-date, rm-rdtlh.trans-time)
+                    .                
+            ASSIGN
+                inventoryStock.lastTransTime = DATETIME(rm-rcpth.trans-date, rm-rdtlh.trans-time)
+                iopiCountOfProcessed         = iopiCountOfProcessed + 1.
+                .
+        END.
+    END.        
+END PROCEDURE.
+
 PROCEDURE CheckInventoryStockIDAlias:
     /*------------------------------------------------------------------------------
      Purpose: Checks to see if passed ID is an alias or a true stock ID
