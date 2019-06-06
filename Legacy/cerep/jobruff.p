@@ -54,6 +54,7 @@ DEFINE            VARIABLE v-skip           AS LOG       NO-UNDO.
 DEFINE            VARIABLE v-fill2          AS cha       INIT "-" FORM "x(125)" NO-UNDO.
 DEFINE            VARIABLE li               AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE tb_app-unprinted AS LOG       NO-UNDO.
+DEFINE            VARIABLE cDieNo           AS CHARACTER   FORMAT "x(15)" NO-UNDO.    
 
 DEFINE TEMP-TABLE w-lo NO-UNDO
     FIELD layout LIKE v-layout.
@@ -883,6 +884,7 @@ FOR EACH ef
         AND item.i-no    EQ eb.cas-no
         NO-LOCK NO-ERROR.
     v-cas-dscr = IF AVAILABLE item THEN item.i-name ELSE "".
+    IF FIRST-OF(eb.form-no) THEN ASSIGN cDieNo = eb.die-no.
           
     IF LAST-OF(eb.form-no) THEN 
     DO:
@@ -1056,11 +1058,11 @@ FOR EACH ef
              
         FIND FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
-              AND prep.CODE EQ eb.die-no NO-ERROR .
+              AND prep.CODE EQ cDieNo AND cDieNo NE "" NO-ERROR .
         PUT 
             "<R17>" "<FGCOLOR=GREEN><C41> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
             "<FGCOLOR=GREEN><C41> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
-            "<FGCOLOR=GREEN><C41> DIE<FGCOLOR=BLACK> " eb.die-no FORM "x(25)" /*eb.die-no*/ SKIP
+            "<FGCOLOR=GREEN><C41> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
             "<FGCOLOR=GREEN><C41> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
             "<FGCOLOR=GREEN><C41> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + " x "  + STRING(ef.trim-l) FORMAT "x(25)" SKIP
             "<FGCOLOR=GREEN><C41> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                
