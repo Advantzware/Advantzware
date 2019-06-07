@@ -109,6 +109,7 @@ DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD estFormID AS CHARACTER /*Parent form*/
     FIELD estItemID AS CHARACTER /*Parent item*/
     FIELD estHeaderID AS CHARACTER /*Parent header*/
+    FIELD iFormNo AS INTEGER
     FIELD iBlankNo AS INTEGER
     FIELD dBlankWidth AS DECIMAL 
     FIELD dBlankLength AS DECIMAL 
@@ -205,11 +206,9 @@ DEFINE {1} TEMP-TABLE ttEstOperation
     FIELD cOperationName AS CHARACTER
     FIELD cOperationFeedType AS CHARACTER /*B,S,R, etc*/
     FIELD cOperationOutputType AS CHARACTER /*new B,S, etc*/
-    FIELD cDepartmentID AS CHARACTER
     FIELD iSequence AS INTEGER
-    FIELD cAlt1DepartmentID AS CHARACTER 
-    FIELD cAlt2DepartmentID AS CHARACTER 
-    FIELD cAlt3DepartmentID AS CHARACTER 
+    FIELD cDepartmentIDPrimary AS CHARACTER
+    FIELD cDepartmentIDs AS CHARACTER EXTENT 4
     FIELD iPass AS INTEGER 
     FIELD lSpeedInLF AS LOGICAL
     FIELD dHoursRun AS DECIMAL 
@@ -252,7 +251,17 @@ DEFINE {1} TEMP-TABLE ttEstOperation
     FIELD dQtyWasteRun AS DECIMAL
     FIELD dQtyGrossSheets AS DECIMAL
     FIELD iNumOutDivisor AS INTEGER
+    FIELD iNumOutMultiplier AS INTEGER /*for calculating run quantities in gross sheets*/
+    FIELD iNumOutForOperation AS INTEGER
     FIELD lIsLocked AS LOGICAL 
+    FIELD lIsPrinterOrCoater AS LOGICAL 
+    FIELD lIsNetSheetMaker AS LOGICAL 
+    FIELD lIsBlankMaker AS LOGICAL
+    FIELD dQtyWasteSetupPerColor AS DECIMAL
+    FIELD iCountInks AS INTEGER
+    FIELD iCountCoats AS INTEGER 
+    FIELD iCountPlateChanges AS INTEGER 
+    FIELD iCountFountainChanges AS INTEGER
     .
 
 DEFINE {1} TEMP-TABLE ttEstCostDetail

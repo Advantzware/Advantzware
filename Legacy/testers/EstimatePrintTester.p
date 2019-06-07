@@ -27,6 +27,8 @@ DEFINE VARIABLE gcSourceTypeMisc      AS CHARACTER NO-UNDO INITIAL "Miscellaneou
 /*Settings Globals*/
 DEFINE VARIABLE gcPrepRoundTo         AS CHARACTER NO-UNDO.  /*CEPREP - char val - potentially deprecate*/
 DEFINE VARIABLE gcPrepMarkupOrMargin  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
+
+DEFINE VARIABLE glUsePlateChangesAsColorForSetupWaste AS LOGICAL NO-UNDO INITIAL NO.  /*Defect in EstOperation Calc of applying the MR Waste Sheets Per Color?*/
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -48,6 +50,10 @@ FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
     ipdProfitPercent AS DECIMAL,
     ipcPercentType AS CHARACTER) FORWARD.
 
+FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
+	(ipcDepartment AS CHARACTER,
+	 ipcDepartmentList AS CHARACTER EXTENT 4) FORWARD.
+
 /* ***************************  Main Block  *************************** */
 
 RUN pBuildTestData("001").
@@ -57,7 +63,7 @@ RUN pBuildSummary.
 FIND FIRST ttEstHeader NO-LOCK 
     WHERE ttEstHeader.estHeaderID = "header2".
 
-RUN est\EstimatePrint.p (ROWID(ttEstHeader), gcOutputFile, "By Form with Item Summary","Baskerville Old Face").
+RUN est\EstimatePrint.p (ROWID(ttEstHeader), gcOutputFile, "By Form with Set Summary First","Calibri").
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -165,6 +171,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-ttEstBlank.estBlankID    = fGetNextID()
         opbf-ttEstBlank.estFormID     = ipbf-ttEstForm.estFormID
         opbf-ttEstBlank.estHeaderID   = ipbf-ttEstForm.estHeaderID
+        opbf-ttEstBlank.iFormNo       = ipbf-eb.form-no
         opbf-ttEstBlank.iBlankNo      = ipbf-eb.blank-no
         opbf-ttEstBlank.iNumOutLength = ipbf-eb.num-len
         opbf-ttEstBlank.iNumOutWidth  = ipbf-eb.num-wid
@@ -207,6 +214,24 @@ END PROCEDURE.
 
 PROCEDURE pAddEstForm PRIVATE:
     /*------------------------------------------------------------------------------
+     Purpose: create the EstForm for an est header and form no
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcEstHeaderID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-ttEstForm FOR ttEstForm.
+    
+    CREATE opbf-ttEstForm.
+    ASSIGN 
+        opbf-ttEstForm.rec_key     = fGetNextRecKey()
+        opbf-ttEstForm.estFormID   = fGetNextID()
+        opbf-ttEstForm.estHeaderID = ipcEstHeaderID
+        opbf-ttEstForm.iFormNo     = ipiFormNo
+        .
+END PROCEDURE.
+
+PROCEDURE pAddEstFormFromEf PRIVATE:
+    /*------------------------------------------------------------------------------
      Purpose: given an ef buffer, create the EstForm
      Notes:
     ------------------------------------------------------------------------------*/
@@ -214,12 +239,9 @@ PROCEDURE pAddEstForm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstHeader FOR ttEstHeader. 
     DEFINE PARAMETER BUFFER opbf-ttEstForm   FOR ttEstForm.
 
-    CREATE opbf-ttEstForm.
+    RUN pAddEstForm(ipbf-ttEstHeader.estHeaderID, ipbf-ef.form-no, BUFFER opbf-ttEstForm).
+    
     ASSIGN 
-        opbf-ttEstForm.rec_key                         = fGetNextRecKey()
-        opbf-ttEstForm.estFormID                       = fGetNextID()
-        opbf-ttEstForm.estHeaderID                     = ipbf-ttEstHeader.estHeaderID
-        opbf-ttEstForm.iFormNo                         = ipbf-ef.form-no
         opbf-ttEstForm.iNumOutNetLength                = MAX(ipbf-ef.n-out-l, 1)
         opbf-ttEstForm.iNumOutNetWidth                 = MAX(ipbf-ef.n-out, 1)
         opbf-ttEstForm.iNumOutNetDepth                 = MAX(ipbf-ef.n-out-d, 1)
@@ -281,9 +303,6 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-ttEstItem.estItemID         = fGetNextID()
         opbf-ttEstItem.estHeaderID       = ipbf-ttEstHeader.estHeaderID
         opbf-ttEstItem.cCustomerPart     = eb.part-no
-        opbf-ttEstItem.dQtyPerParent     = eb.quantityPerSet
-        opbf-ttEstItem.dQtyRequired      = ipbf-ttEstHeader.dQtyMaster * opbf-ttEstItem.dQtyPerParent
-        opbf-ttEstItem.dQtyPerParent     = opbf-ttEstItem.dQtyRequired
         opbf-ttEstItem.cColor            = eb.i-coldscr
         opbf-ttEstItem.cCustomerID       = eb.cust-no
         opbf-ttEstItem.cShipToID         = eb.ship-id
@@ -294,6 +313,18 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-ttEstItem.lIsSet            = eb.is-a-set
         opbf-ttEstItem.cFGItemID         = eb.stock-no
         .
+    
+    IF eb.est-type LT 5 THEN
+        opbf-ttEstItem.dQtyPerParent     = MAX(eb.cust-%, 1). 
+    ELSE         
+        opbf-ttEstItem.dQtyPerParent     = eb.quantityPerSet.
+    IF opbf-ttEstItem.dQtyPerParent LT 0 THEN 
+        opbf-ttEstItem.dQtyPerParent     = 1 / opbf-ttEstItem.dQtyPerParent.
+    IF opbf-ttEstItem.dQtyPerParent EQ 0 THEN 
+        opbf-ttEstItem.dQtyPerParent     = 1 .
+     
+    opbf-ttEstItem.dQtyRequired      = ipbf-ttEstHeader.dQtyMaster * opbf-ttEstItem.dQtyPerParent.
+            
     FIND FIRST cust NO-LOCK 
         WHERE cust.company EQ eb.company
         AND cust.cust-no EQ eb.cust-no
@@ -514,39 +545,64 @@ PROCEDURE pAddEstOperation PRIVATE:
     DO:
         CREATE opbf-ttEstOperation.
         ASSIGN 
-            opbf-ttEstOperation.rec_key             = fGetNextRecKey()
-            opbf-ttEstOperation.estOperationID      = fGetNextID()
-            opbf-ttEstOperation.estFormID           = ipbf-ttEstForm.estFormID
-            opbf-ttEstoperation.estHeaderID         = ipbf-ttEstForm.estHeaderID
-            opbf-ttEstOperation.iFormNo             = ipbf-est-op.s-num
-            opbf-ttEstOperation.iBlankNo            = ipbf-est-op.b-num
-            opbf-ttEstOperation.estBlankID          = fGetEstBlankID(opbf-ttEstOperation.estBlankID, opbf-ttEstOperation.estFormID, opbf-ttEstOperation.iBlankNo)
-            opbf-ttEstOperation.cOperationID        = ipbf-est-op.m-code
-            opbf-ttEstOperation.iPass               = ipbf-est-op.op-pass
-            opbf-ttEstOperation.iSequence           = ipbf-est-op.d-seq
-            opbf-ttEstOperation.iNumOutDivisor      = ipbf-est-op.n_out_div
+            opbf-ttEstOperation.rec_key                = fGetNextRecKey()
+            opbf-ttEstOperation.estOperationID         = fGetNextID()
+            opbf-ttEstOperation.estFormID              = ipbf-ttEstForm.estFormID
+            opbf-ttEstoperation.estHeaderID            = ipbf-ttEstForm.estHeaderID
+            opbf-ttEstOperation.iFormNo                = ipbf-est-op.s-num
+            opbf-ttEstOperation.iBlankNo               = ipbf-est-op.b-num
+            opbf-ttEstOperation.estBlankID             = fGetEstBlankID(opbf-ttEstOperation.estBlankID, opbf-ttEstOperation.estFormID, opbf-ttEstOperation.iBlankNo)
+            opbf-ttEstOperation.cOperationID           = ipbf-est-op.m-code
+            opbf-ttEstOperation.iPass                  = MAX(ipbf-est-op.op-pass, 1)
+            opbf-ttEstOperation.iSequence              = ipbf-est-op.line
+            opbf-ttEstOperation.iNumOutDivisor         = ipbf-est-op.n_out_div
                        
-            opbf-ttEstOperation.dQtyWasteSetup      = ipbf-est-op.op-waste
-            opbf-ttEstOperation.dHoursSetup         = ipbf-est-op.op-mr
-            opbf-ttEstOperation.dSpeed              = ipbf-est-op.op-speed
-            opbf-ttEstOperation.lIsLocked           = ipbf-est-op.isLocked
-            opbf-ttEstOperation.dCrewSizeSetup      = ipbf-est-op.op-crew[1]
-            opbf-ttEstOperation.dCrewSizeRun        = ipbf-est-op.op-crew[2]
+            opbf-ttEstOperation.dQtyWasteSetup         = ipbf-est-op.op-waste
+            opbf-ttEstOperation.dHoursSetup            = ipbf-est-op.op-mr
+            opbf-ttEstOperation.dSpeed                 = ipbf-est-op.op-speed
+            opbf-ttEstOperation.lIsLocked              = ipbf-est-op.isLocked
+            opbf-ttEstOperation.dCrewSizeSetup         = ipbf-est-op.op-crew[1]
+            opbf-ttEstOperation.dCrewSizeRun           = ipbf-est-op.op-crew[2]
+            opbf-ttEstOperation.iCountInks             = ipbf-est-op.num-col
+            opbf-ttEstOperation.iCountCoats            = ipbf-est-op.num-coat
+            opbf-ttEstOperation.iCountFountainChanges  = ipbf-est-op.fountains
+            opbf-ttEstOperation.iCountPlateChanges     = ipbf-est-op.plates
             
-            opbf-ttEstOperation.lSpeedInLF          = bf-mach.therm
-            opbf-ttEstOperation.cOperationName      = bf-mach.m-dscr
-            opbf-ttEstOperation.cOperationFeedType  = bf-mach.p-type
-            opbf-ttEstOperation.cDepartmentID       = bf-mach.dept[1]
-            opbf-ttEstOperation.cAlt1DepartmentID   = bf-mach.dept[2]
-            opbf-ttEstOperation.cAlt2DepartmentID   = bf-mach.dept[3]
-            opbf-ttEstOperation.cAlt3DepartmentID   = bf-mach.dept[4]
+            opbf-ttEstOperation.lSpeedInLF             = bf-mach.therm
+            opbf-ttEstOperation.cOperationName         = bf-mach.m-dscr
+            opbf-ttEstOperation.cOperationFeedType     = bf-mach.p-type
+            opbf-ttEstOperation.cDepartmentIDPrimary   = bf-mach.dept[1]
+            opbf-ttEstOperation.cDepartmentIDs         = bf-mach.dept
+            opbf-ttEstOperation.dQtyWasteSetupPerColor = bf-mach.col-wastesh
             
-            opbf-ttEstOperation.dCostPerHourFOSetup = bf-mach.mr-fixoh
-            opbf-ttEstOperation.dCostPerHourFORun   = bf-mach.run-fixoh
-            opbf-ttEstOperation.dCostPerHourVOSetup = bf-mach.mr-varoh
-            opbf-ttEstOperation.dCostPerHourVORun   = bf-mach.run-varoh
-            
+            opbf-ttEstOperation.dCostPerHourFOSetup    = bf-mach.mr-fixoh
+            opbf-ttEstOperation.dCostPerHourFORun      = bf-mach.run-fixoh
+            opbf-ttEstOperation.dCostPerHourVOSetup    = bf-mach.mr-varoh
+            opbf-ttEstOperation.dCostPerHourVORun      = bf-mach.run-varoh
             .
+        IF fIsDepartment("PR,CT",opbf-ttEstOperation.cDepartmentIDs) THEN  
+            opbf-ttEstOperation.lIsPrinterOrCoater = YES.
+        
+        IF fIsDepartment("RC,RS",opbf-ttEstOperation.cDepartmentIDs)  THEN 
+            opbf-ttEstOperation.lIsNetSheetMaker = YES.
+        IF fIsDepartment("DC",opbf-ttEstOperation.cDepartmentIDs) THEN 
+            opbf-ttEstOperation.lIsBlankMaker = YES.
+        
+        IF opbf-ttEstOperation.lIsNetSheetMaker THEN 
+            ASSIGN 
+                opbf-ttEstOperation.iNumOutForOperation = ipbf-ttEstForm.iNumOutNet
+                opbf-ttEstOperation.iNumOutMultiplier = ipbf-ttEstForm.iNumOutNet
+                .
+        ELSE IF opbf-ttEstOperation.lIsBlankMaker THEN 
+            ASSIGN 
+                opbf-ttEstOperation.iNumOutForOperation = ipbf-ttEstForm.iNumOutBlanksOnNet
+                opbf-ttEstOperation.iNumOutMultiplier = ipbf-ttEstForm.iNumOut
+                .
+        ELSE 
+            ASSIGN 
+                opbf-ttEstOperation.iNumOutForOperation = 1
+                opbf-ttEstOperation.iNumOutMultiplier = 1
+                .
     END.
     
 END PROCEDURE.
@@ -740,10 +796,16 @@ PROCEDURE pBuildItems PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstHeader FOR ttEstHeader.
 
     DEFINE           BUFFER bf-ttEstItem     FOR ttEstItem.
+    DEFINE           BUFFER bf-ttEstForm     FOR ttEstForm.
+    DEFINE           BUFFER bf-ttEstBlank    FOR ttEstBlank.
+    
+    DEFINE VARIABLE cEstItemIDSetHeader AS CHARACTER NO-UNDO.
+    
     /*Build Items*/
     FOR EACH eb NO-LOCK 
         WHERE eb.company EQ ipbf-ttEstHeader.company
-        AND eb.est-no EQ ipbf-ttEstHeader.cEstNo: 
+        AND eb.est-no EQ ipbf-ttEstHeader.cEstNo
+        BY eb.form-no: 
         FIND FIRST bf-ttEstItem NO-LOCK
             WHERE bf-ttEstItem.estHeaderID EQ ipbf-ttEstHeader.estHeaderID
             AND bf-ttEstItem.cCustomerPart EQ eb.part-no
@@ -751,6 +813,17 @@ PROCEDURE pBuildItems PRIVATE:
         IF NOT AVAILABLE bf-ttEstItem THEN 
         DO:
             RUN pAddEstItem(BUFFER eb, BUFFER ipbf-ttEstHeader, BUFFER bf-ttEstItem).
+            IF eb.form-no EQ 0 THEN 
+            DO:
+                RUN pAddEstForm(ipbf-ttEstHeader.estHeaderID, 0, BUFFER bf-ttEstForm).
+                RUN pAddEstBlank(BUFFER eb, BUFFER bf-ttEstForm, BUFFER bf-ttEstBlank).
+                ASSIGN 
+                    bf-ttEstItem.lIsSet = YES
+                    cEstItemIDSetHeader = bf-ttEstItem.estItemID
+                    .
+            END.     
+            ELSE 
+                bf-ttEstItem.estItemIDParent = cEstItemIDSetHeader.           
         END. /*Create ttEstitem*/
                
     END. /*Build EstItems*/
@@ -894,10 +967,12 @@ PROCEDURE pBuildOperations PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstForm    FOR ttEstForm.
     
     DEFINE           BUFFER bf-ttEstOperation FOR ttEstOperation.
-    DEFINE VARIABLE dQuantityGrossRunning    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dQuantityTarget          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityGrossRunning AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityTarget       AS DECIMAL NO-UNDO.
     
     dQuantityGrossRunning = ipbf-ttEstForm.dGrossQtyRequiredNoWaste.
+    
+    /*Get the effective Est-op quantity*/
     FOR EACH est-op NO-LOCK 
         WHERE est-op.company EQ ipbf-ttEstHeader.company 
         AND est-op.est-no  EQ ipbf-ttEstHeader.cEstNo 
@@ -916,22 +991,24 @@ PROCEDURE pBuildOperations PRIVATE:
             IF est-op.qty GE ipbf-ttEstHeader.dQtyMaster THEN LEAVE.
         END.
     END.
+    
+    /*Process each est-op for the right quantity*/
     FOR EACH est-op NO-LOCK 
         WHERE est-op.company EQ ipbf-ttEstHeader.company
         AND est-op.est-no EQ ipbf-ttEstHeader.cEstNo
+        AND est-op.s-num EQ ipbf-ttEstForm.iFormNo
         AND est-op.line LT 500
         AND est-op.qty EQ dQuantityTarget
         BY est-op.line DESCENDING:
     
         RUN pAddEstOperation(BUFFER est-op, BUFFER ipbf-ttEstForm, BUFFER bf-ttEstOperation).
                 
-        ASSIGN             
-            bf-ttEstOperation.dQtyGrossSheets = dQuantityGrossRunning
+        IF AVAILABLE bf-ttEstOperation THEN 
+        DO: 
+            RUN pProcessEstOperation(BUFFER ipbf-ttEstHeader, BUFFER ipbf-ttEstForm, BUFFER bf-ttEstOperation).
             
-        bf-ttEstOperation.dHoursRun = 1                  
-            .
-       
-        RUN pCalcEstOperation(BUFFER bf-ttEstOperation).
+            RUN pCalcEstOperation(BUFFER bf-ttEstOperation).
+        END.
     END.    
 
 END PROCEDURE.
@@ -987,10 +1064,13 @@ PROCEDURE pBuildTestData PRIVATE:
     DEFINE BUFFER bf-ttEstOperation FOR ttEstOperation.
     
     RUN pLoadData("EstHeader").
+
     RUN pLoadData("CostGroupLevel").
     RUN pLoadData("CostGroup").
     RUN pLoadData("CostCategory").
+    
     RUN pSetGlobalSettings(ipcCompany).
+    
     FOR EACH ttEstHeader NO-LOCK:        
         FIND FIRST est NO-LOCK 
             WHERE est.company EQ ttEstHeader.company
@@ -1005,7 +1085,7 @@ PROCEDURE pBuildTestData PRIVATE:
             WHERE ef.company EQ est.company
             AND ef.est-no EQ est.est-no:
             
-            RUN pAddEstForm(BUFFER ef, BUFFER ttEstHeader, BUFFER bf-ttEstForm).
+            RUN pAddEstFormFromEf(BUFFER ef, BUFFER ttEstHeader, BUFFER bf-ttEstForm).
 
             FOR EACH eb NO-LOCK 
                 OF ef:
@@ -1163,6 +1243,211 @@ PROCEDURE pGetMiscCostPerM PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pProcessEstOperation PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes: should replace ce/prokalk.i
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstHeader    FOR ttEstHeader.
+    DEFINE PARAMETER BUFFER ipbf-ttEstForm      FOR ttEstForm.
+    DEFINE PARAMETER BUFFER ipbf-ttEstOperation FOR ttEstOperation.
+    DEFINE INPUT-OUTPUT PARAMETER iopdQuantityGrossRunning AS DECIMAL NO-UNDO.
+
+    DEFINE BUFFER bf-mach FOR mach.
+
+    DEFINE VARIABLE iInkCoatCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dQty        AS DECIMAL NO-UNDO. 
+    
+    FIND FIRST bf-mach NO-LOCK 
+        WHERE bf-mach.company EQ ipbf-ttEstHeader.company
+        AND bf-mach.m-code EQ ipbf-ttEstOperation.cOperationID
+        NO-ERROR.
+     
+    iInkCoatCount = ipbf-ttEstOperation.iCountInks + ipbf-ttEstOperation.iCountCoats. 
+    IF ipbf-ttEstOperation.lIsPrinterOrCoater THEN 
+    DO:  /*Ink counting*/
+    /*        iColorCount = 0.                                        */
+    /*        find first w-ink                                        */
+    /*            where w-ink.form-no eq est-op.s-num                 */
+    /*            and w-ink.pass    eq est-op.op-pass                 */
+    /*            no-lock no-error.                                   */
+    /*                                                                */
+    /*        IF AVAIL w-ink THEN                                     */
+    /*        DO:                                                     */
+    /*            IF est-op.num-col + est-op.num-coat EQ 0 THEN       */
+    /*                ASSIGN                                          */
+    /*                    est-op.num-col  = w-ink.inks                */
+    /*                    est-op.num-coat = w-ink.varn.               */
+    /*            ELSE                                                */
+    /*                ASSIGN                                          */
+    /*                    w-ink.inks = est-op.num-col                 */
+    /*                    w-ink.varn = est-op.num-coat.               */
+    /*                                                                */
+    /*            iInkCoatCount = MIN(w-ink.inks + w-ink.varn,mach.max-color).*/
+    /*        END.                                                    */
+    END.
+
+    {sys/inc/roundup.i iopdQuantityGrossRunning}
+    ipbf-ttEstOperation.dQtyGrossSheets = iopdQuantityGrossRunning.
+    
+/*    dQty = ipbf-ttEstOperation.dQtyGrossSheets * ipbf-ttEstForm.iNumOut            .*/
+    /*    qty = est-op.num-sh *                                       */
+    /*        v-num-up * (if xef.n-out   eq 0 then 1 else xef.n-out) **/
+    /*        (if xef.n-out-l eq 0 then 1 else xef.n-out-l).          */
+
+    /*Recalc from standards off right now*/
+    IF NO /*NOT ipbf-ttEstOperation.lIsLocked*/ THEN 
+    /*    IF op-lock.val[1] EQ 1                                   */
+    /*        AND NOT est-op.isLocked                              */
+    /*        AND (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN*/
+    DO:
+        ipbf-ttEstOperation.dQtyWasteSetup = bf-mach.mr-waste.
+        /*        est-op.op-waste = mach.mr-waste.*/
+        
+        IF ipbf-ttEstOperation.lIsPrinterOrCoater THEN 
+            ipbf-ttEstOperation.dQtyWasteSetup = ipbf-ttEstOperation.dQtyWasteSetup + 
+                (ipbf-ttEstOperation.dQtyWasteSetupPerColor * 
+                IF glUsePlateChangesAsColorForSetupWaste AND ipbf-ttEstOperation.iCountPlateChanges NE 0 THEN ipbf-ttEstOperation.iCountPlateChanges
+                ELSE iInkCoatCount).
+/*        if est-op.dept eq "PR" or est-op.dept eq "CT" then*/
+/*            est-op.op-waste = est-op.op-waste +           */
+/*                (mach.col-wastesh *                       */
+/*                if est-op.plates ne 0 then est-op.plates  */
+/*                else iInkCoatCount).                              */
+
+        /*REFACTOR To handle the "Plain Jobs only* function in EB1*/
+/*        RUN est/diewaste.p (BUFFER est-op).*/
+/*    REFACTOR - Enable recalc of Spoilage*/          
+/*        est-op.op-spoil = 0.                                             */
+/*        {ce/kspoil.i &fil=est-op &fld=op-spoil}                          */
+/*        est-op.op-spoil = est-op.op-spoil + mach.run-spoil.              */
+/*                                                                         */
+/*        if not xef.lsh-lock and (mstd.rs-x eq 20 or mstd.rs-y eq 20) then*/
+/*        do:                                                              */
+/*                                                                         */
+/*            est-op.op-spoil = 0.                                         */
+/*            {ce/kspoil2.i &fil=est-op &fld=op-spoil}                     */
+/*            est-op.op-spoil = est-op.op-spoil + mach.run-spoil.          */
+/*                                                                         */
+/*        end.                                                             */
+    END.
+    ipbf-ttEstOperation.dQtyWasteRun = (iopdQuantityGrossRunning / (1 - (ipbf-ttEstOperation.dQtyInRunWastePercent / 100))) - iopdQuantityGrossRunning.
+    {sys/inc/roundup.i ipbf-ttEstOperation.dQtyWasteRun}
+/*    v-spo = (iopdQuantityGrossRunning / (1 - (est-op.op-spoil / 100))) - iopdQuantityGrossRunning.*/
+/*    {sys/inc/roundup.i v-spo}*/
+
+
+    ipbf-ttEstOperation.dQtyGrossSheets = ipbf-ttEstOperation.dQtyGrossSheets + ipbf-ttEstOperation.dQtyWasteRun.
+    ipbf-ttEstOperation.dQtyGrossSheets = ipbf-ttEstOperation.dQtyGrossSheets + ipbf-ttEstOperation.dQtyWasteSetup / ipbf-ttEstOperation.iNumOutForOperation.    
+/*    assign                                               */
+/*        est-op.num-sh      = est-op.num-sh      + v-spo  */
+/*        r-spo[xef.form-no] = r-spo[xef.form-no] + v-spo. */
+/*                                                         */
+
+    
+
+    run sys/inc/numout.p (recid(est-op), output v-n-out).
+
+    v-spo = est-op.op-waste /
+        if est-op.op-sb then v-n-out else
+        (v-num-up * (if xef.n-out   eq 0 then 1 else xef.n-out) *
+        (if xef.n-out-l eq 0 then 1 else xef.n-out-l)).
+
+   {sys/inc/roundup.i v-spo}
+
+    assign
+        est-op.num-sh = est-op.num-sh + v-spo
+        spo           = spo           + v-spo.
+
+    qty = est-op.num-sh *
+        v-num-up * (if xef.n-out   eq 0 then 1 else xef.n-out) *
+        (if xef.n-out-l eq 0 then 1 else xef.n-out-l).
+
+
+    IF (op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1) AND 
+        (ip-rowid EQ ? OR ip-rowid EQ ROWID(est-op)) THEN 
+    DO:
+        /* flip dimensions if corr. xgrain */
+        if est-op.dept eq "LM" and ((xef.n-out-l ne 0 and
+            (xef.lam-dscr eq  "R" or (xef.lam-dscr ne "R" and xef.xgrain eq "S")))
+            or
+            (xef.n-out-l eq 0 and (xef.lam-dscr ne "R" and xef.xgrain ne "S")))
+            then 
+        do:
+            fil_id = recid(xef).
+            find xef where recid(xef) eq fil_id.
+            zzz = xef.gsh-wid. 
+            xef.gsh-wid = xef.gsh-len. 
+            xef.gsh-len = zzz.
+            zzz = xef.lsh-wid. 
+            xef.lsh-wid = xef.lsh-len. 
+            xef.lsh-len = zzz.
+            zzz = xef.nsh-wid. 
+            xef.nsh-wid = xef.nsh-len. 
+            xef.nsh-len = zzz.
+            zzz = xef.trim-w. 
+            xef.trim-w = xef.trim-l. 
+            xef.trim-l = zzz.
+        end.
+        {ce/kmr-run.i &fil=est-op &fld=op-mr &fil2=est-op &fld2=op-speed}
+        /* reset dimensions if corr.xgrain */
+        if est-op.dept eq "LM" and ((xef.n-out-l ne 0 and
+            (xef.lam-dscr eq  "R" or (xef.lam-dscr ne "R" and xef.xgrain eq "S")))
+            or
+            (xef.n-out-l eq 0 and (xef.lam-dscr ne "R" and xef.xgrain ne "S")))
+            then 
+        do:
+            zzz = xef.gsh-wid. 
+            xef.gsh-wid = xef.gsh-len. 
+            xef.gsh-len = zzz.
+            zzz = xef.lsh-wid. 
+            xef.lsh-wid = xef.lsh-len. 
+            xef.lsh-len = zzz.
+            zzz = xef.nsh-wid. 
+            xef.nsh-wid = xef.nsh-len. 
+            xef.nsh-len = zzz.
+            zzz = xef.trim-w. 
+            xef.trim-w = xef.trim-l. 
+            xef.trim-l = zzz.
+            fil_id = recid(xef).
+            find xef where recid(xef) eq fil_id no-lock.
+        end.
+
+
+        IF op-lock.val[2] EQ 1 THEN
+            IF LOOKUP(est-op.dept,"PR,CT") gt 0 THEN 
+            DO:
+                IF est-op.plates NE 0 OR est-op.fountains ne 0 THEN 
+                    est-op.op-mr = (mach.tan-mrp * est-op.plates) +
+                        (mach.tan-mrf * est-op.fountains).
+
+                ELSE
+                    IF mach.washup GT 0 AND mach.col-pass EQ "P" THEN
+                        est-op.op-mr = est-op.op-mr + mach.washup.
+         
+                    ELSE
+                        IF mach.washup GT 0 AND mach.col-pass EQ "C" THEN
+                            est-op.op-mr = est-op.op-mr + (mach.washup * iInkCoatCount).
+            END.
+
+            ELSE RUN est/gluer-mr.p (BUFFER est-op) NO-ERROR.
+
+        RUN est/diewaste.p (BUFFER est-op).
+    END. /* lock */
+   
+    assign
+        est-op.op-rate[1] = (mach.lab-rate[mach.lab-drate] * est-op.op-crew[1]) +
+                         mach.mr-varoh + mach.mr-fixoh
+        est-op.op-rate[2] = (mach.lab-rate[mach.lab-drate] * est-op.op-crew[2]) +
+                         mach.run-varoh + mach.run-fixoh.
+
+    iopdQuantityGrossRunning = ipbf-ttEstOperation.dQtyGrossSheets
+    iopdQuantityGrossRunning = est-op.num-sh.
+
+/*    IF NEW op-lock THEN DELETE op-lock.*/
+
+END PROCEDURE.
+
 PROCEDURE pSetGlobalSettings PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to th
@@ -1269,4 +1554,23 @@ FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
 
     RETURN dProfit.
 	
+END FUNCTION.
+
+FUNCTION fIsDepartment RETURNS LOGICAL PRIVATE
+	(ipcDepartment AS CHARACTER, ipcDepartmentList AS CHARACTER EXTENT 4):
+/*------------------------------------------------------------------------------
+ Purpose: determine if provided department is in department list
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lIsDepartment AS LOGICAL NO-UNDO. 
+    
+    DO iIndex = 1 TO 4:
+        IF CAN-DO(ipcDepartment,ipcDepartmentList[iIndex]) THEN DO:
+            lIsDepartment = YES.
+            LEAVE.
+        END.
+    END.
+    RETURN lIsDepartment.
+		
 END FUNCTION.
