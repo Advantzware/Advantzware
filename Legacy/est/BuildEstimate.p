@@ -115,7 +115,7 @@ FOR EACH ttInputEst NO-LOCK:
         eb.stackHeight  = ttInputEst.iStackHeight
         .
 
-     IF AVAIL est-qty THEN
+     IF AVAIL est-qty AND ttInputEst.iQuantity GT 0 THEN
          ASSIGN 
           est-qty.eqty   = ttInputEst.iQuantity
           est-qty.qty[1] = ttInputEst.iQuantity
