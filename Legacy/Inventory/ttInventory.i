@@ -313,6 +313,7 @@ DEFINE VARIABLE gcUOMWeightBasis           AS CHARACTER INITIAL "C".
 DEFINE VARIABLE gcUOMWeight                AS CHARACTER INITIAL "LB".
 
 DEFINE VARIABLE gcInventorySourceTypeJob   AS CHARACTER INITIAL "Job".
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 

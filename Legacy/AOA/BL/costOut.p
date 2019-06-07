@@ -406,28 +406,13 @@ PROCEDURE pJobDetail:
             END. /* if uom ne m */
             dSales = dSales + iQtyOrdered / 1000 * dSellingPrice.
             IF AVAILABLE itemfg AND itemfg.isaset AND itemfg.alloc THEN
-            FOR EACH fg-act FIELDS(qty) NO-LOCK
-                WHERE fg-act.company EQ job-hdr.company
-                  AND fg-act.job-no  EQ job-hdr.job-no
-                  AND fg-act.job-no2 EQ job-hdr.job-no2
-                  AND fg-act.i-no    EQ job-hdr.i-no
-                :
-                iQtyProduced = iQtyProduced + fg-act.qty.
-            END. /* each fg-act */
-        
-            FOR EACH fg-rcpth NO-LOCK
-                WHERE fg-rcpth.company   EQ job-hdr.company
-                  AND fg-rcpth.i-no      EQ job-hdr.i-no
-                  AND fg-rcpth.job-no    EQ job-hdr.job-no
-                  AND fg-rcpth.job-no2   EQ job-hdr.job-no2
-                  AND fg-rcpth.rita-code EQ "R",    
-                EACH fg-rdtlh NO-LOCK
-                WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-                  AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code            
-                BREAK BY fg-rcpth.company
-                :    
-                iQtyProduced = iQtyProduced + fg-rdtlh.qty.
-            END. /* each fg-rcpth */
+           
+            RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT iQtyProduced).
         END. /* last frm */
         IF LAST(job-hdr.frm) THEN DO:
             IF AVAILABLE cust THEN

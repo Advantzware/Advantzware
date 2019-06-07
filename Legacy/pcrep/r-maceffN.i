@@ -58,14 +58,6 @@ FOR EACH work-tmp
             and (job-hdr.blank-no eq work-tmp.blank-no or
                  work-tmp.blank-no eq 0)
             no-lock:
-
-            for each fg-act FIELDS(qty)
-               where fg-act.company eq cocode
-                 and fg-act.job     eq job-hdr.job
-                 and fg-act.job-no  eq job-hdr.job-no
-                 and fg-act.job-no2 eq job-hdr.job-no2
-                 and fg-act.i-no    eq job-hdr.i-no
-                 no-lock:
              
                 RUN fg/GetProductionQty.p (INPUT cocode,
                                 INPUT work-tmp.job-no,
@@ -85,8 +77,6 @@ FOR EACH work-tmp
                                      + (v-blanks /*fg-act.qty*/ *
                                         (if avail itemfg then itemfg.t-sqft
                                          else 1) / 1000).
-                 
-          end. /*end for each fg-act*/
        END. /*each job-hdr*/
 
        RELEASE est.

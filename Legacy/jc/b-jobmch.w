@@ -58,6 +58,7 @@ DEF VAR lv-end-time AS cha COLUMN-LABEL "End!Time" NO-UNDO FORMAT 'X(5)'.
 DEF VAR lv-start-time-su AS cha COLUMN-LABEL "Setup!Start" NO-UNDO FORMAT 'X(5)'.
 DEF VAR lv-end-time-su AS cha COLUMN-LABEL "Setup!End" NO-UNDO FORMAT 'X(5)'.
 DEF VAR char-hdl AS CHAR NO-UNDO.
+DEFINE VARIABLE cEstMachine AS CHARACTER LABEL "Est Mach" NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -103,7 +104,8 @@ job-mch.start-date job-mch.end-date ~
 cvt-time-to-string('',job-mch.end-time-su,0.00) @ lv-end-time-su ~
 job-mch.run-complete job-mch.anchored job-mch.run-qty ~
 cvt-time-to-string('',job-mch.start-time,0.00) @ lv-start-time ~
-cvt-time-to-string('',job-mch.end-time,0.00) @ lv-end-time 
+cvt-time-to-string('',job-mch.end-time,0.00) @ lv-end-time ~
+fEstMachine () @ cEstMachine 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table job-mch.frm ~
 job-mch.blank-no job-mch.pass job-mch.m-code job-mch.i-name ~
 job-mch.lag-time job-mch.dept job-mch.mr-hr job-mch.mr-waste job-mch.run-hr ~
@@ -201,6 +203,13 @@ FUNCTION display-i-name RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEstMachine B-table-Win 
+FUNCTION fEstMachine RETURNS CHARACTER
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -263,6 +272,7 @@ DEFINE BROWSE br_table
       job-mch.run-qty FORMAT ">>>,>>>,>>9":U WIDTH 18
       cvt-time-to-string('',job-mch.start-time,0.00) @ lv-start-time
       cvt-time-to-string('',job-mch.end-time,0.00) @ lv-end-time
+      fEstMachine () @ cEstMachine
   ENABLE
       job-mch.frm
       job-mch.blank-no
@@ -438,6 +448,8 @@ use-index line-idx"
 "cvt-time-to-string('',job-mch.start-time,0.00) @ lv-start-time" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[32]   > "_<CALC>"
 "cvt-time-to-string('',job-mch.end-time,0.00) @ lv-end-time" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[33]   > "_<CALC>"
+"fEstMachine () @ cEstMachine" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -1575,6 +1587,26 @@ FUNCTION display-i-name RETURNS CHARACTER
 
   END.
   RETURN lv-nam.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEstMachine B-table-Win 
+FUNCTION fEstMachine RETURNS CHARACTER
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF AVAILABLE job-mch THEN DO:
+        FIND FIRST est-op NO-LOCK
+             WHERE est-op.rec_key EQ job-mch.est-op_rec_key
+             NO-ERROR.
+        RETURN IF AVAILABLE est-op THEN est-op.m-code ELSE job-mch.m-code.
+    END.    
+    RETURN "".
 
 END FUNCTION.
 
