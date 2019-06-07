@@ -51,7 +51,7 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 {sys/inc/var.i new shared}
 DEFINE VARIABLE hdPriceProcs  AS HANDLE.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 assign
  cocode = gcompany

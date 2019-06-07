@@ -52,7 +52,7 @@ cocode = g_company.
 DEF TEMP-TABLE tt-quoteitm FIELD row-id AS ROWID INDEX row-id row-id.
 DEF VAR v-quoflg AS LOG NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
