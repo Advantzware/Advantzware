@@ -132,14 +132,10 @@ ASSIGN
           AND ((oe-ordl.stat    NE "C" AND tb_open) OR (oe-ordl.stat EQ "C" AND tb_closed) OR oe-ordl.stat EQ "") ~
           AND ( (lookup(oe-ordl.cust-no,custcount) <> 0 AND oe-ordl.cust-no <> "") OR custcount = "") ~
           AND oe-ordl.cust-no   BEGINS fi_cust-no   ~
-          AND oe-ordl.i-no      BEGINS fLeftToAsterisk(fi_i-no)       ~
-          AND (IF INDEX(fi_i-no,'*') EQ 0 THEN TRUE ELSE oe-ordl.i-no  MATCHES fi_i-no) ~
-          AND oe-ordl.i-name    BEGINS fLeftToAsterisk(fi_i-name)  ~
-          AND (IF INDEX(fi_i-name,'*') EQ 0 THEN TRUE ELSE oe-ordl.i-name MATCHES fi_i-name) ~
-          AND oe-ordl.part-no    BEGINS fLeftToAsterisk(fi_part-no)  ~
-          AND (IF INDEX(fi_part-no,'*') EQ 0 THEN TRUE ELSE oe-ordl.part-no MATCHES fi_part-no) ~
-          AND oe-ordl.po-no     BEGINS fLeftToAsterisk(fi_po-no-2)   ~
-          AND (IF INDEX(fi_po-no-2,'*') EQ 0 THEN TRUE ELSE oe-ordl.po-no MATCHES fi_po-no-2) ~
+          AND {system/brMatches.i oe-ordl.i-no fi_i-no} ~
+          AND {system/brMatches.i oe-ordl.i-name fi_i-name} ~
+          AND {system/brMatches.i oe-ordl.part-no fi_part-no} ~
+          AND {system/brMatches.i oe-ordl.po-no fi_po-no-2} ~
           AND oe-ordl.est-no    BEGINS fi_est-no    ~
           AND oe-ordl.job-no    BEGINS fi_job-no    ~
           AND (oe-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
@@ -289,13 +285,6 @@ tb_closed fi_sort-by fi_po-no-2 fi_i-name fi_ord-date
 /* ************************  Function Prototypes ********************** */
 
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fLeftToAsterisk B-table-Win
-FUNCTION fLeftToAsterisk RETURNS CHARACTER 
-  ( INPUT ipcString AS CHAR ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
@@ -3362,32 +3351,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fLeftToAsterisk B-table-Win
-FUNCTION fLeftToAsterisk RETURNS CHARACTER 
-  ( INPUT ipcString AS CHAR ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iAstPos AS INTEGER NO-UNDO.
- 
-  iAstPos = INDEX(ipcString, "*").
-
-  IF iAstPos GT 0 THEN 
-     cResult = SUBSTRING(ipcString, 1, iAstPos - 1).
-  ELSE
-     cResult = ipcString.
-
-  RETURN cResult.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-bol-qty B-table-Win 

@@ -61,6 +61,20 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetBeginSearch Procedure
+FUNCTION sfGetBeginSearch RETURNS CHARACTER 
+  ( INPUT ipcString AS CHAR ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
@@ -1253,6 +1267,37 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetBeginSearch Procedure
+FUNCTION sfGetBeginSearch RETURNS CHARACTER 
+  ( INPUT ipcString AS CHAR ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iAstPos AS INTEGER NO-UNDO.
+ 
+  iAstPos = INDEX(ipcString, "*").
+
+  IF iAstPos GT 0 THEN 
+     cResult = SUBSTRING(ipcString, 1, iAstPos - 1).
+  ELSE
+     cResult = ipcString.
+
+  RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure
