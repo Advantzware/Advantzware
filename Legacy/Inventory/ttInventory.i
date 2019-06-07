@@ -306,8 +306,14 @@ DEFINE VARIABLE gcItemTypeWIP              AS CHARACTER INITIAL "WP".
 DEFINE VARIABLE gcItemTypeFG               AS CHARACTER INITIAL "FG".
 DEFINE VARIABLE gcItemTypeRM               AS CHARACTER INITIAL "RM".
 
-DEFINE VARIABLE gcDBUser                   AS CHARACTER INITIAL "asi". 
-DEFINE VARIABLE gcFMUOM                    AS CHARACTER INITIAL "EA".   
+DEFINE VARIABLE gcDBUser                   AS CHARACTER INITIAL "asi".
+DEFINE VARIABLE gcFGUOM                    AS CHARACTER INITIAL "EA".
+DEFINE VARIABLE gcUOMInches                AS CHARACTER INITIAL "IN".
+DEFINE VARIABLE gcUOMWeightBasis           AS CHARACTER INITIAL "C".
+DEFINE VARIABLE gcUOMWeight                AS CHARACTER INITIAL "LB".
+
+DEFINE VARIABLE gcInventorySourceTypeJob   AS CHARACTER INITIAL "Job".
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 

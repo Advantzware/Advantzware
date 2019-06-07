@@ -102,8 +102,8 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btNumPad-1 RECT-27 RECT-28 fiTag fiPONo ~
-cbItemNo btCreate fiTotRunQty tbCreateMultiple br-table btPrintSelected ~
-btPrintAll btKeyboard btExit btFirst btLast btNext btPrevious btnNumPad 
+cbItemNo btCreate fiTotRunQty btKeyboard tbCreateMultiple br-table btExit ~
+btPrintSelected btPrintAll btFirst btLast btNext btPrevious btnNumPad 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiPO fiLine fiVendor fiPONo ~
 fiItemType fiItem fiQtyPurchased fiJobNo cbItemNo fiQtyPerTag ~
 fiTotalPOQtyLabel fiTotRunQty fiTotTags fiNumTags fiUOM fiMessage ~
@@ -344,22 +344,22 @@ DEFINE FRAME F-Main
      cbItemNo AT ROW 6.62 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 160
      btCreate AT ROW 9.1 COL 174.2 WIDGET-ID 108
      fiQtyPerTag AT ROW 9.14 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+     btNumPad-2 AT ROW 9.1 COL 124.4 WIDGET-ID 126
      fiTotalPOQtyLabel AT ROW 9.14 COL 72.8 NO-LABEL WIDGET-ID 172
      fiTotRunQty AT ROW 9.14 COL 92.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      fiTotTags AT ROW 9.14 COL 131.4 COLON-ALIGNED NO-LABEL WIDGET-ID 174
+     btNumPad-3 AT ROW 9.05 COL 165.2 WIDGET-ID 128
      fiNumTags AT ROW 9.14 COL 144.8 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     btKeyboard AT ROW 4.76 COL 63 WIDGET-ID 132
      fiUOM AT ROW 9.33 COL 56 COLON-ALIGNED NO-LABEL WIDGET-ID 210
+     btDelete AT ROW 19.76 COL 192 WIDGET-ID 116
      fiMessage AT ROW 10.91 COL 69.8 COLON-ALIGNED NO-LABEL WIDGET-ID 142
      tbCreateMultiple AT ROW 11 COL 31 WIDGET-ID 206
      br-table AT ROW 12.43 COL 2 WIDGET-ID 200
+     btExit AT ROW 3.24 COL 192 WIDGET-ID 84
      btAdjQty AT ROW 30.52 COL 2 WIDGET-ID 144
      btPrintSelected AT ROW 30.52 COL 71 WIDGET-ID 154
      btPrintAll AT ROW 30.52 COL 141.2 WIDGET-ID 112
-     btNumPad-2 AT ROW 9.1 COL 124.4 WIDGET-ID 126
-     btNumPad-3 AT ROW 9.05 COL 165.2 WIDGET-ID 128
-     btKeyboard AT ROW 4.76 COL 63 WIDGET-ID 132
-     btDelete AT ROW 19.76 COL 192 WIDGET-ID 116
-     btExit AT ROW 3.24 COL 192 WIDGET-ID 84
      btFirst AT ROW 12.38 COL 191.8 WIDGET-ID 44
      btLast AT ROW 27.52 COL 191.8 WIDGET-ID 46
      btNext AT ROW 23.67 COL 192 WIDGET-ID 42
@@ -368,9 +368,6 @@ DEFINE FRAME F-Main
      "PO #:" VIEW-AS TEXT
           SIZE 9.6 BY 1.33 AT ROW 4.81 COL 10.4 WIDGET-ID 12
           FGCOLOR 9 FONT 36
-     "Job #:" VIEW-AS TEXT
-          SIZE 8 BY .95 AT ROW 6.57 COL 153 WIDGET-ID 202
-          FGCOLOR 9 FONT 35
      "Quantity Purchased:" VIEW-AS TEXT
           SIZE 27 BY .95 AT ROW 6.57 COL 98 WIDGET-ID 198
           FGCOLOR 9 FONT 35
@@ -380,20 +377,23 @@ DEFINE FRAME F-Main
      "PO #:" VIEW-AS TEXT
           SIZE 8 BY .95 AT ROW 3.86 COL 104.2 WIDGET-ID 180
           FGCOLOR 9 FONT 35
-     "PO Details:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 2.67 COL 104 WIDGET-ID 178
+     "Line:" VIEW-AS TEXT
+          SIZE 6.6 BY .95 AT ROW 3.86 COL 132.4 WIDGET-ID 186
           FGCOLOR 9 FONT 35
-     "PO or Tag:" VIEW-AS TEXT
-          SIZE 16.8 BY 1.33 AT ROW 3 COL 3.4 WIDGET-ID 170
+     "Vendor #:" VIEW-AS TEXT
+          SIZE 13 BY .95 AT ROW 3.86 COL 150 WIDGET-ID 190
+          FGCOLOR 9 FONT 35
+     "Quantity Per Tag:" VIEW-AS TEXT
+          SIZE 26.4 BY 1.33 AT ROW 9.14 COL 1.6 WIDGET-ID 96
           FGCOLOR 9 FONT 36
      "Item #:" VIEW-AS TEXT
           SIZE 11 BY 1.33 AT ROW 6.62 COL 7.8 WIDGET-ID 166
           FGCOLOR 9 FONT 36
-     "Quantity Per Tag:" VIEW-AS TEXT
-          SIZE 26.4 BY 1.33 AT ROW 9.14 COL 1.6 WIDGET-ID 96
+     "PO or Tag:" VIEW-AS TEXT
+          SIZE 16.8 BY 1.33 AT ROW 3 COL 3.4 WIDGET-ID 170
           FGCOLOR 9 FONT 36
-     "Vendor #:" VIEW-AS TEXT
-          SIZE 13 BY .95 AT ROW 3.86 COL 150 WIDGET-ID 190
+     "PO Details:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 2.67 COL 104 WIDGET-ID 178
           FGCOLOR 9 FONT 35
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -403,8 +403,8 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "Line:" VIEW-AS TEXT
-          SIZE 6.6 BY .95 AT ROW 3.86 COL 132.4 WIDGET-ID 186
+     "Job #:" VIEW-AS TEXT
+          SIZE 8 BY .95 AT ROW 6.57 COL 153 WIDGET-ID 202
           FGCOLOR 9 FONT 35
      RECT-2 AT ROW 4.81 COL 72.8 WIDGET-ID 130
      RECT-27 AT ROW 8.67 COL 3 WIDGET-ID 138
@@ -1296,7 +1296,7 @@ PROCEDURE enable_UI :
           fiNumTags fiUOM fiMessage tbCreateMultiple 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btNumPad-1 RECT-27 RECT-28 fiTag fiPONo cbItemNo btCreate fiTotRunQty 
-         tbCreateMultiple br-table btPrintSelected btPrintAll btKeyboard btExit 
+         btKeyboard tbCreateMultiple br-table btExit btPrintSelected btPrintAll 
          btFirst btLast btNext btPrevious btnNumPad 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
@@ -1958,7 +1958,7 @@ PROCEDURE pUpdatePODetails :
             fiUOM:SCREEN-VALUE          = IF ttPOOrderLineDetails.item-type THEN
                                               ttPOOrderLineDetails.cons-uom
                                           ELSE
-                                              gcFMUOM
+                                              gcFGUOM
             fiItem:SCREEN-VALUE         = STRING(ttPOOrderLineDetails.i-no)
             fiItemType:SCREEN-VALUE     = IF ttPOOrderLineDetails.item-type THEN
                                               "RM Item #:"
