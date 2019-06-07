@@ -579,17 +579,19 @@ DO:
         RETURN.
     END.
     
-    RUN CreateTransactionInitialized IN hdInventoryProcs (
+    RUN CreateTransactionInitializedFromJob IN hdInventoryProcs (
         ipcCompany,
         cFormattedJobno,
         cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+        "", /* Empty Item */
         DECIMAL(ls-total-run-qty:SCREEN-VALUE),
         DECIMAL(ls-qty-per-tag:SCREEN-VALUE),
-        1,
-        "EA",
+        1,  /* Sub Units Per Unit */
+        "EA", /* Quantity UOM */
+        gcItemTypeWIP,
         OUTPUT lCreated, 
         OUTPUT cMessage
         ).
