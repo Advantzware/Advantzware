@@ -47,7 +47,7 @@ DEFINE VARIABLE dLoss%          AS DECIMAL          NO-UNDO.
 DEFINE VARIABLE iBOL#           AS INTEGER          NO-UNDO.
 DEFINE VARIABLE iInv#           AS INTEGER          NO-UNDO.
 DEFINE VARIABLE hdPriceProcs  AS HANDLE.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 DEFINE BUFFER bOEOrdl FOR oe-ordl.

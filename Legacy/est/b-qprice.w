@@ -98,7 +98,7 @@ DEF VAR rCurItemRow AS ROWID NO-UNDO.
 DEFINE VARIABLE rPrevItemRow AS ROWID       NO-UNDO.
 DEFINE VARIABLE rPrevTTRow  AS ROWID       NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 /*&SCOPED-DEFINE SORTBY-PHRASE  BY itemfg.last-count*/
 gcompany = g_company.

@@ -123,7 +123,7 @@ DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
