@@ -7,7 +7,7 @@ DEF INPUT PARAM ip-out-l LIKE ef.n-out-l NO-UNDO.
 
 DEF BUFFER b-itemfg FOR itemfg.
 
-DEF VAR ld-qty LIKE fg-act.qty NO-UNDO.
+DEF VAR ld-qty LIKE fg-bin.qty NO-UNDO.
 
 {fg/fullset.i NEW}
 
