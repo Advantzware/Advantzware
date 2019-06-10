@@ -179,6 +179,7 @@ DEFINE FRAME F-Main
     VIEW-AS FILL-IN 
     SIZE 40 BY 1
     zMessage.displayOptions AT ROW 8.62 COL 96 COLON-ALIGNED
+    LABEL "Display" 
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
     zMessage.options AT ROW 9.86 COL 23.6 COLON-ALIGNED
