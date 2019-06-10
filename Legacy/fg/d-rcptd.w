@@ -1293,7 +1293,10 @@ ON LEAVE OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
         END.
         IF AVAILABLE itemfg THEN
             ASSIGN
-                fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
+                fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name .
+
+        IF fg-rctd.loc:SCREEN-VALUE EQ "" AND AVAILABLE itemfg THEN
+            assign
                 fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
                 fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin
                 .
