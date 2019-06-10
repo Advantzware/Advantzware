@@ -1506,13 +1506,13 @@ PROCEDURE valid-tag :
             AND bf-fg-rctd.rita-code = "T" 
             AND bf-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE 
             AND RECID(bf-fg-rctd) <> RECID(fg-rctd)  NO-ERROR.
-        IF AVAILABLE bf-fg-rctd THEN 
+        IF AVAILABLE bf-fg-rctd AND fg-rctd.tag:SCREEN-VALUE NE "" THEN 
         DO:
-            MESSAGE "This Tag Number Has Already Been Used." SKIP
-                "Please Enter A Unique Tag Number." 
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY 'entry' TO fg-rctd.tag .
-            RETURN ERROR.
+            MESSAGE "This Tag number has already been used." SKIP
+                "Please enter a unique Tag number." 
+                VIEW-AS ALERT-BOX INFO.
+                APPLY "entry" TO fg-rctd.tag .
+                RETURN ERROR.
         END.
     END.
 
