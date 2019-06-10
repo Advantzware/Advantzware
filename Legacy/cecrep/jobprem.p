@@ -642,7 +642,9 @@ do v-local-loop = 1 to v-local-copies:
                 AND job-mch.m-code  EQ w-m.m-code
                 and job-mch.frm     eq job-hdr.frm NO-ERROR .
               IF AVAIL job-mch THEN
-                  ASSIGN cMchEstRecKey = job-mch.est-op_rec_key .
+                  ASSIGN cMchEstRecKey = LEFT-TRIM(job-mch.job-no) + "-"
+                                       + STRING(job-mch.job-no2,"99")
+                                       + job-mch.est-op_rec_key .
               /*MESSAGE "cMchEstRecKey " STRING(cMchEstRecKey) VIEW-AS ALERT-BOX ERROR .*/
             IF NOT FIRST(w-m.dseq) THEN
                 i = i + 2.
@@ -667,12 +669,11 @@ do v-local-loop = 1 to v-local-copies:
                   fill("_",8)  format "x(7)"    to 93   
                   fill("_",8)  format "x(7)"    to 101  
                   fill("_",8)  format "x(7)"    to 109  
-                  fill("_",8)  format "x(7)"    to 117  
-                  "<=#8><R+"  STRING(i + 1) "><#32><UNITS=INCHES><C69.8><FROM><c79.4><r+0.8><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-                   string(cMchEstRecKey,"x(21)")   ">" 
-              .
-        
-             
+                  fill("_",8)  format "x(7)"    to 117
+                  "<=#8><R+"  STRING(i + 1) "><#32><UNITS=INCHES><C69.8><FROM><c81.94><r+0.8><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
+                  cMchEstRecKey FORMAT "x(30)"
+                  ">"
+                  .             
           v-lines = v-lines + 1.
           /* rstark 05181205 */
           IF w-m.dscr NE '' THEN DO:
