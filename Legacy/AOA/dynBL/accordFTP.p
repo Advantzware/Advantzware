@@ -97,6 +97,7 @@ PROCEDURE pBusinessLogic:
                     cFile,
                     YES /* run silent */
                     ).
+                PAUSE 5 NO-MESSAGE.
             END. /* if search */
         END. /* each taskresult */
     END. /* each ftpconfig */
