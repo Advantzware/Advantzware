@@ -1316,7 +1316,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-trailer      AS CHARACTER FORMAT "x(8)" NO-UNDO.
     DEFINE VARIABLE v-bol-no       AS INTEGER   FORMAT ">>>>>>>9" NO-UNDO.
     DEFINE VARIABLE v-totl-sq      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dTotalSqft     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotalSqft     AS DECIMAL  FORMAT "->>,>>,>>>.9<<<<"  NO-UNDO.
     DEFINE VARIABLE cCustName         AS CHARACTER FORMAT "X(30)" NO-UNDO.
     DEFINE VARIABLE v-i-name       LIKE oe-ordl.i-name NO-UNDO.
 
@@ -1449,9 +1449,9 @@ PROCEDURE run-report :
             .
 
         RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT dTotalSqft).
-
+ 
         IF AVAILABLE oe-ordl AND oe-ordl.ship-qty GT 0 THEN
-            dTotalSqft = dTotalSqft * oe-ordl.ship-qty .
+            dTotalSqft = round(dTotalSqft,5) * oe-ordl.ship-qty .
 
         iShipQty = iShipQty + (IF AVAIL oe-ordl THEN oe-ordl.ship-qty ELSE 0).
         iOrdQty = iOrdQty + (IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0).
