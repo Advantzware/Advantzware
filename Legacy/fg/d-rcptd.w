@@ -563,19 +563,8 @@ ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
                                 fg-rctd.po-line:SCREEN-VALUE = ENTRY(6,char-val)
                                 .
                             RUN pDisplayPO(YES).
-                            FIND FIRST itemfg WHERE itemfg.company = cocode AND
-                                itemfg.i-no = entry(2,char-val)
-                                NO-LOCK NO-ERROR.
-                            IF AVAILABLE itemfg THEN 
-                            DO:                         
-                                ASSIGN 
-                                    fg-rctd.loc:SCREEN-VALUE      = itemfg.def-loc
-                                    fg-rctd.loc-bin:SCREEN-VALUE  = itemfg.def-loc-bin
-                                    fg-rctd.qty-case:SCREEN-VALUE = STRING(itemfg.case-count)
-                                    /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
-                                                         else itemfg.prod-uom  */                        
-                                    .
-                            END. /* if avail itemfg */
+                            RUN pGetLocBin .
+
                             fg-rctd.ext-cost:SCREEN-VALUE  = "0".
 
                         END.  /* char-val <> "" */
@@ -622,7 +611,7 @@ ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
                                 IF rec-val <> ? THEN 
                                 DO:
                                     FIND itemfg WHERE RECID(itemfg) = rec-val NO-LOCK.
-                                    RUN pDisplayFG(BUFFER itemfg).
+                                    RUN pDisplayFG("1",BUFFER itemfg).
 
                                 END.
                             END.
@@ -1244,6 +1233,16 @@ ON ENTRY OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
+ON VALUE-CHANGED OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
+    DO:
+
+    RUN pGetLocBin . 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
 ON LEAVE OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
@@ -1291,12 +1290,7 @@ ON LEAVE OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
                 END.
             END.
         END.
-        IF AVAILABLE itemfg THEN
-            ASSIGN
-                fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
-                fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
-                fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin
-                .
+                
         RUN valid-i-no (FOCUS) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1523,6 +1517,60 @@ ON ENTRY OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Dialog-Frame
+ON VALUE-CHANGED OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
+    DO: 
+
+    IF {&self-name}:SCREEN-VALUE  NE "" THEN 
+        DO:
+        FIND FIRST po-ordl
+            WHERE po-ordl.company   EQ fg-rctd.company
+            AND po-ordl.po-no     EQ INT({&self-name}:SCREEN-VALUE )
+            AND po-ordl.item-type EQ NO
+            AND po-ordl.i-no      EQ fg-rctd.i-no:SCREEN-VALUE 
+            AND po-ordl.line      EQ INT(fg-rctd.po-line:SCREEN-VALUE )
+            NO-LOCK NO-ERROR.
+
+        IF NOT AVAILABLE po-ordl THEN
+            FIND FIRST po-ordl
+            WHERE po-ordl.company   EQ fg-rctd.company
+            AND po-ordl.po-no     EQ INT({&self-name}:SCREEN-VALUE )
+            AND po-ordl.item-type EQ NO
+            AND po-ordl.i-no      EQ fg-rctd.i-no:SCREEN-VALUE 
+            NO-LOCK NO-ERROR.
+        
+        IF NOT AVAILABLE po-ordl THEN
+            FIND FIRST po-ordl
+            WHERE po-ordl.company   EQ fg-rctd.company
+            AND po-ordl.po-no     EQ INT({&self-name}:SCREEN-VALUE )
+            AND po-ordl.item-type EQ NO
+            NO-LOCK NO-ERROR.
+        IF AVAILABLE po-ordl THEN RUN display-po (ROWID(po-ordl)).
+    END.
+
+    RUN pGetLocBin .
+    
+    FIND FIRST po-ord 
+            WHERE po-ord.company EQ cocode
+            AND po-ord.po-no EQ INTEGER(fg-rctd.po-no:SCREEN-VALUE )
+            NO-LOCK NO-ERROR.
+        IF AVAILABLE po-ord THEN 
+        DO:
+            /* 10021210 */
+            FIND FIRST shipto WHERE shipto.company EQ cocode
+                AND shipto.cust-no EQ po-ord.cust-no
+                AND shipto.ship-id EQ po-ord.ship-id
+                NO-LOCK NO-ERROR.
+            IF AVAILABLE shipto AND shipto.loc GT "" THEN
+                ASSIGN
+                    fg-rctd.loc:SCREEN-VALUE     = shipto.loc
+                    fg-rctd.loc-bin:SCREEN-VALUE = shipto.loc-bin.
+        END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Dialog-Frame
 ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
@@ -1531,32 +1579,6 @@ ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
         DO:
             IF INT({&self-name}:SCREEN-VALUE ) EQ 0 THEN
                 {&self-name}:SCREEN-VALUE  = "".
-            IF {&self-name}:SCREEN-VALUE  NE "" THEN 
-            DO:
-                FIND FIRST po-ordl
-                    WHERE po-ordl.company   EQ fg-rctd.company
-                    AND po-ordl.po-no     EQ INT({&self-name}:SCREEN-VALUE )
-                    AND po-ordl.item-type EQ NO
-                    AND po-ordl.i-no      EQ fg-rctd.i-no:SCREEN-VALUE 
-                    AND po-ordl.line      EQ INT(fg-rctd.po-line:SCREEN-VALUE )
-                    NO-LOCK NO-ERROR.
-
-                IF NOT AVAILABLE po-ordl THEN
-                    FIND FIRST po-ordl
-                        WHERE po-ordl.company   EQ fg-rctd.company
-                        AND po-ordl.po-no     EQ INT({&self-name}:SCREEN-VALUE )
-                        AND po-ordl.item-type EQ NO
-                        AND po-ordl.i-no      EQ fg-rctd.i-no:SCREEN-VALUE 
-                        NO-LOCK NO-ERROR.
-
-                IF NOT AVAILABLE po-ordl THEN
-                    FIND FIRST po-ordl
-                        WHERE po-ordl.company   EQ fg-rctd.company
-                        AND po-ordl.po-no     EQ INT({&self-name}:SCREEN-VALUE )
-                        AND po-ordl.item-type EQ NO
-                        NO-LOCK NO-ERROR.
-                IF AVAILABLE po-ordl THEN RUN display-po (ROWID(po-ordl)).
-            END.
 
             RUN valid-po-no (1) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1571,25 +1593,6 @@ ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
         IF fg-rctd.cases:SCREEN-VALUE  EQ ? 
             OR fg-rctd.cases:SCREEN-VALUE  EQ "?" THEN
             fg-rctd.cases:SCREEN-VALUE  = "0".
-        FIND po-ord 
-            WHERE po-ord.company EQ cocode
-            AND po-ord.po-no EQ INTEGER(fg-rctd.po-no:SCREEN-VALUE )
-            NO-LOCK NO-ERROR.
-        IF AVAILABLE po-ord THEN 
-        DO:
-
-            /* 10021210 */
-            FIND FIRST shipto WHERE shipto.company EQ cocode
-                AND shipto.cust-no EQ po-ord.cust-no
-                AND shipto.ship-id EQ po-ord.ship-id
-                NO-LOCK NO-ERROR.
-            IF AVAILABLE shipto AND shipto.loc GT "" THEN
-                ASSIGN
-                    fg-rctd.loc:SCREEN-VALUE     = shipto.loc
-                    fg-rctd.loc-bin:SCREEN-VALUE = shipto.loc-bin.
-        END.
-
-  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1879,7 +1882,7 @@ PROCEDURE create-from-po :
     poSelected = 0.
     DO WITH FRAME {&FRAME-NAME}:
         FOR EACH tt-pol WHERE tt-pol.selekt,
-            FIRST po-ordl WHERE ROWID(po-ordl) EQ tt-pol.row-id NO-LOCK:
+            FIRST po-ordl WHERE ROWID(po-ordl) EQ tt-pol.row-id NO-LOCK BREAK BY tt-pol.row-id:
             CREATE tt-fg-rctd.
             ASSIGN
                 poSelected              = poSelected + 1
@@ -1956,7 +1959,11 @@ PROCEDURE create-from-po :
                 fg-rctd.ext-cost = dCostExtended
                 fg-rctd.frt-cost = dCostExtendedFreight
                 .
+            IF LAST(tt-pol.row-id) THEN
+                IF NOT ip-set-parts THEN RUN fg/invrecpt.p (ROWID(fg-rctd), 1).
+
             RELEASE fg-rctd.
+
         END. /* for each */
     END. /* do with */
     lMultipleAdds = iCount GT 1.
@@ -2336,16 +2343,6 @@ PROCEDURE display-po :
             .
             
         RUN pDisplayPO(NO).
-            
-        FIND FIRST itemfg WHERE itemfg.company = cocode AND
-            itemfg.i-no = po-ordl.i-no
-            NO-LOCK NO-ERROR.
-        IF AVAILABLE itemfg THEN 
-            ASSIGN fg-rctd.loc:SCREEN-VALUE      = itemfg.def-loc
-                fg-rctd.loc-bin:SCREEN-VALUE  = itemfg.def-loc-bin
-                fg-rctd.qty-case:SCREEN-VALUE = STRING(itemfg.case-count)
-                /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
-                                else itemfg.prod-uom  */.
 
     END.
 
@@ -3057,10 +3054,10 @@ PROCEDURE get-values :
                     IF AVAILABLE itemfg          AND
                         DEC(lv-std-cost) EQ 0 THEN 
                     DO:
-                        RUN pDisplayFG(BUFFER itemfg).
+                        RUN pDisplayFG("0",BUFFER itemfg).
                     END.
             END.
-
+         
         /* #pn# If there is a tag, quantites should default from there */
         /* #pn# task 10311308                                          */
         IF fg-rctd.tag:SCREEN-VALUE  GT "" THEN
@@ -3347,14 +3344,18 @@ PROCEDURE pDisplayFG PRIVATE :
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER cCheckPro AS CHARACTER NO-UNDO .
     DEFINE PARAMETER BUFFER ipbf-itemfg FOR itemfg.
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
             fg-rctd.i-no:SCREEN-VALUE     = ipbf-itemfg.i-no
-            fg-rctd.i-name:SCREEN-VALUE   = ipbf-itemfg.i-name
+            fg-rctd.i-name:SCREEN-VALUE   = ipbf-itemfg.i-name .
+        IF cCheckPro EQ "1"  THEN
+            ASSIGN
             fg-rctd.loc:SCREEN-VALUE      = ipbf-itemfg.def-loc
-            fg-rctd.loc-bin:SCREEN-VALUE  = ipbf-itemfg.def-loc-bin
+            fg-rctd.loc-bin:SCREEN-VALUE  = ipbf-itemfg.def-loc-bin .
+        ASSIGN
             fg-rctd.std-cost:SCREEN-VALUE = IF glAverageCost THEN STRING(ipbf-itemfg.avg-cost) ELSE STRING(ipbf-itemfg.last-cost)
             fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  
             fg-rctd.qty-case:SCREEN-VALUE = STRING(ipbf-itemfg.case-count)
@@ -4484,6 +4485,29 @@ PROCEDURE validate-record :
             RETURN ERROR.
         END.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetLocBin Dialog-Frame 
+PROCEDURE pGetLocBin :
+    /*------------------------------------------------------------------------------
+    Purpose:     
+    Parameters:  <none>
+    Notes:       
+    ------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}: 
+    FIND FIRST itemfg {sys/look/itemfgrlW.i}
+        AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE 
+        NO-LOCK NO-ERROR.
+    IF AVAILABLE itemfg THEN
+        ASSIGN
+        fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
+        fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
+        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin .
+END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
