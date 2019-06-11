@@ -625,7 +625,7 @@ do v-local-loop = 1 to v-local-copies:
 
         if v-format eq "Brick" OR v-format = "ASI" then 
              put "<=#8> Machine Routing        SU:   Start   Stop   Total   RUN: Hours  Start  Stop  Total    QTY: In    Out     Waste" SKIP.
-        ELSE PUT "<=#8> Machine Routing        SU:   Start   Stop   Total   RUN: Start  Stop   Total   QTY:    In    Out    Waste    Date    DMI " SKIP.
+        ELSE PUT "<=#8> Machine Routing        SU:   Start   Stop   Total   RUN: Start  Stop   Total  QTY:   In   Out   Waste   Date   DMI " SKIP.
         
         PUT "<=#8><R+1><C+1><from><C+76><Line>" SKIP.
 
@@ -665,12 +665,12 @@ do v-local-loop = 1 to v-local-copies:
                   w-m.r-sp 
                   fill("_",7)  format "x(6)"    to 65   
                   fill("_",7)  format "x(6)"    to 72   
-                  fill("_",7)  format "x(6)"    to 80   
-                  fill("_",8)  format "x(7)"    to 93   
-                  fill("_",8)  format "x(7)"    to 101  
-                  fill("_",8)  format "x(7)"    to 109  
-                  fill("_",8)  format "x(7)"    to 117
-                  "<=#8><R+"  STRING(i + 1) "><#32><UNITS=INCHES><C69.8><FROM><c81.94><r+0.8><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
+                  fill("_",7)  format "x(6)"    to 79   
+                  fill("_",8)  format "x(6)"    to 91   
+                  fill("_",8)  format "x(6)"    to 98  
+                  fill("_",8)  format "x(6)"    to 105  
+                  fill("_",8)  format "x(6)"    to 112
+                  "<=#8><R+"  STRING(i ) "><#32><UNITS=INCHES><C66.8><FROM><c79.94><r+1.5><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
                   cMchEstRecKey FORMAT "x(30)"
                   ">"
                   .             
