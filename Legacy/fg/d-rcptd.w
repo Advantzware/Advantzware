@@ -894,7 +894,6 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             END.
       
             IF fg-rctd.loc:SCREEN-VALUE      EQ ""      OR
-                fg-rctd.loc-bin:SCREEN-VALUE  EQ ""      OR
                 INT(fg-rctd.qty-case:SCREEN-VALUE ) EQ 0 OR
                 fg-rctd.cost-uom:SCREEN-VALUE  EQ ""     OR
                 DEC(fg-rctd.std-cost:SCREEN-VALUE ) EQ 0 THEN
@@ -3062,8 +3061,7 @@ PROCEDURE get-values :
         /* #pn# task 10311308                                          */
         IF fg-rctd.tag:SCREEN-VALUE  GT "" THEN
             RUN new-tag.
-        IF fg-rctd.loc:SCREEN-VALUE      EQ "" OR
-            fg-rctd.loc-bin:SCREEN-VALUE  EQ "" THEN
+        IF fg-rctd.loc:SCREEN-VALUE      EQ "" THEN
             ASSIGN
                 fg-rctd.loc:SCREEN-VALUE     = lv-loc
                 fg-rctd.loc-bin:SCREEN-VALUE = lv-loc-bin.
