@@ -26,7 +26,8 @@ DEFINE VARIABLE cReturnValues      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lcMergeMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPromptEachItem    AS LOG       NO-UNDO.
 DEFINE VARIABLE lMergeNew          AS LOG       NO-UNDO.
-        
+DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.        
 DEFINE STREAM sRelErrorLog.
 
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
@@ -64,26 +65,15 @@ FIND FIRST eb  NO-LOCK
       AND eb.est-no EQ xoe-ordl.est-no 
     NO-ERROR.
 
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-      AND sys-ctrl.name    EQ "AUTOREL"
-    NO-LOCK NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN 
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.name    = "AUTOREL"
-        sys-ctrl.descrip = "Auto Release Default"
-        sys-ctrl.log-fld = NO.
-    MESSAGE sys-ctrl.descrip
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE sys-ctrl.log-fld.
-END.
-ASSIGN
-    v-auto   = sys-ctrl.log-fld
-    lAutoDef = sys-ctrl.int-fld EQ 1
-    .
+RUN sys/ref/nk1look.p (INPUT cocode, "AUTOREL", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturnChar, OUTPUT lRecFound).
+v-auto = LOGICAL(cReturnChar) NO-ERROR.
+RUN sys/ref/nk1look.p (INPUT cocode, "AUTOREL", "C" /* Char */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cReturnChar, OUTPUT lRecFound).
+lAutoDef = INTEGER(cReturnChar) EQ 1 NO-ERROR.                       
+
 
 IF v-auto THEN 
 DO ON ENDKEY UNDO, RETURN:
