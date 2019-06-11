@@ -628,6 +628,12 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cDueDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lIsEdiXML AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+  RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
 
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
   FIND FIRST ttNodes NO-LOCK
@@ -750,6 +756,9 @@ PROCEDURE gencXMLOrder:
       RUN touchOrder (INPUT rOrdRec, OUTPUT cReturn).
  
       ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
+      
+      RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).
+      
   END. 
   
   RELEASE oe-ord.  
