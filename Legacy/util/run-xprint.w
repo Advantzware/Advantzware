@@ -102,7 +102,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
+    ls-full-img1 = cRtnChar  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -119,9 +119,11 @@ ASSIGN
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-9 RECT-10 fi_text rd-dest tb_log btn-ok ~
+&Scoped-Define ENABLED-OBJECTS RECT-9 RECT-10 fi_text tb_rec tb_line ~
+tb_image tb_bar-code begin_font rd-dest begin_font-size tb_log btn-ok ~
 btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fi_text rd-dest tb_log begin_file 
+&Scoped-Define DISPLAYED-OBJECTS fi_text tb_rec tb_line tb_image ~
+tb_bar-code begin_font rd-dest begin_font-size tb_log begin_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -134,68 +136,106 @@ btn-cancel
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-    LABEL "&Cancel" 
-    SIZE 15 BY 1.14.
+     LABEL "&Cancel" 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 15 BY 1.14.
+     LABEL "&OK" 
+     SIZE 15 BY 1.14.
 
-DEFINE VARIABLE fi_text    AS CHARACTER 
-    VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-    SIZE 50 BY 5.24 NO-UNDO.
+DEFINE VARIABLE fi_text AS CHARACTER 
+     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+     SIZE 50 BY 3.1 NO-UNDO.
 
 DEFINE VARIABLE begin_file AS CHARACTER FORMAT "X(100)" 
-    VIEW-AS FILL-IN 
-    SIZE 39.8 BY 1.
+     VIEW-AS FILL-IN 
+     SIZE 39.8 BY 1.
 
-DEFINE VARIABLE rd-dest    AS INTEGER   INITIAL 2 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "To Printer", 1,
-    "To Screen", 2,
-    "To Email", 3
-    SIZE 20 BY 5.05 NO-UNDO.
+DEFINE VARIABLE begin_font AS CHARACTER FORMAT "X(100)" 
+     LABEL "Font" 
+     VIEW-AS FILL-IN 
+     SIZE 20.4 BY 1.
+
+DEFINE VARIABLE begin_font-size AS INTEGER FORMAT "->,>>>,>>9" INITIAL 0 
+     LABEL "Font Size" 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1.
+
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "To Printer", 1,
+"To Screen", 2,
+"To Email", 3
+     SIZE 20 BY 5.05 NO-UNDO.
 
 DEFINE RECTANGLE RECT-10
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 65 BY 5.95.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 65 BY 5.95.
 
 DEFINE RECTANGLE RECT-9
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 71.6 BY 18.57.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 71.6 BY 18.57.
 
-DEFINE VARIABLE tb_log AS LOGICAL INITIAL NO 
-    LABEL "Create Dbug Log File?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 33 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_bar-code AS LOGICAL INITIAL no 
+     LABEL "Print Bar Code" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_image AS LOGICAL INITIAL no 
+     LABEL "Print Image" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_line AS LOGICAL INITIAL no 
+     LABEL "Print Line" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_log AS LOGICAL INITIAL no 
+     LABEL "Create Dbug Log File?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_rec AS LOGICAL INITIAL no 
+     LABEL "Print Rectangle" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    fi_text AT ROW 3.38 COL 16 NO-LABELS
-    rd-dest AT ROW 11.48 COL 11.4 NO-LABELS
-    tb_log AT ROW 14 COL 30 WIDGET-ID 8
-    begin_file AT ROW 15.29 COL 27.6 COLON-ALIGNED HELP
-    "File Path" NO-LABELS WIDGET-ID 10
-    btn-ok AT ROW 17.52 COL 20.6
-    btn-cancel AT ROW 17.52 COL 36
-    "Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.24 COL 3
-    BGCOLOR 2 
-    "Output Options" VIEW-AS TEXT
-    SIZE 19 BY .71 AT ROW 10.71 COL 10 WIDGET-ID 6
-    RECT-9 AT ROW 1 COL 1
-    RECT-10 AT ROW 10.95 COL 6 WIDGET-ID 4
+     fi_text AT ROW 2.67 COL 16 NO-LABEL
+     tb_rec AT ROW 6.19 COL 16.2 WIDGET-ID 12
+     tb_line AT ROW 7.24 COL 16.2 WIDGET-ID 14
+     tb_image AT ROW 8.29 COL 16.2 WIDGET-ID 16
+     tb_bar-code AT ROW 9.38 COL 16.2 WIDGET-ID 18
+     begin_font AT ROW 11.24 COL 43 COLON-ALIGNED HELP
+          "File Path" WIDGET-ID 20
+     rd-dest AT ROW 11.48 COL 11.4 NO-LABEL
+     begin_font-size AT ROW 12.38 COL 52.4 COLON-ALIGNED HELP
+          "File Path" WIDGET-ID 22
+     tb_log AT ROW 14 COL 30 WIDGET-ID 8
+     begin_file AT ROW 15.29 COL 27.6 COLON-ALIGNED HELP
+          "File Path" NO-LABEL WIDGET-ID 10
+     btn-ok AT ROW 17.52 COL 20.6
+     btn-cancel AT ROW 17.52 COL 36
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 3
+          BGCOLOR 2 
+     "Output Options" VIEW-AS TEXT
+          SIZE 19 BY .71 AT ROW 10.71 COL 10 WIDGET-ID 6
+     RECT-9 AT ROW 1 COL 1
+     RECT-10 AT ROW 10.95 COL 6 WIDGET-ID 4
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 72 BY 19.14.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 72 BY 19.14.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -212,30 +252,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Xprint Test"
-        HEIGHT             = 19.14
-        WIDTH              = 72
-        MAX-HEIGHT         = 32.52
-        MAX-WIDTH          = 273.2
-        VIRTUAL-HEIGHT     = 32.52
-        VIRTUAL-WIDTH      = 273.2
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Xprint Test"
+         HEIGHT             = 19.14
+         WIDTH              = 72
+         MAX-HEIGHT         = 32.52
+         MAX-WIDTH          = 273.2
+         VIRTUAL-HEIGHT     = 32.52
+         VIRTUAL-WIDTH      = 273.2
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -252,23 +292,52 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FILL-IN begin_file IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    begin_file:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       begin_font:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       begin_font-size:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    fi_text:AUTO-RESIZE IN FRAME FRAME-A  = TRUE
-    fi_text:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    tb_log:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       fi_text:AUTO-RESIZE IN FRAME FRAME-A      = TRUE
+       fi_text:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_bar-code:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_image:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_line:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_log:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_rec:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -282,7 +351,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Xprint Test */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -296,7 +365,7 @@ ON END-ERROR OF C-Win /* Xprint Test */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Xprint Test */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -308,8 +377,30 @@ ON WINDOW-CLOSE OF C-Win /* Xprint Test */
 
 &Scoped-define SELF-NAME begin_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_file C-Win
-ON LEAVE OF begin_file IN FRAME FRAME-A /* Beginning Customer# */
-    DO:
+ON LEAVE OF begin_file IN FRAME FRAME-A
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_font
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_font C-Win
+ON LEAVE OF begin_font IN FRAME FRAME-A /* Font */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_font-size
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_font-size C-Win
+ON LEAVE OF begin_font-size IN FRAME FRAME-A /* Font Size */
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -320,7 +411,7 @@ ON LEAVE OF begin_file IN FRAME FRAME-A /* Beginning Customer# */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -331,7 +422,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -363,7 +454,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &Scoped-define SELF-NAME fi_text
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_text C-Win
 ON ENTRY OF fi_text IN FRAME FRAME-A
-    DO:
+DO:
         SELF:MODIFIED = NO.
     END.
 
@@ -373,7 +464,7 @@ ON ENTRY OF fi_text IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_text C-Win
 ON HELP OF fi_text IN FRAME FRAME-A
-    DO:
+DO:
         DEFINE VARIABLE char-val AS cha   NO-UNDO.
         DEFINE VARIABLE rec-val  AS RECID NO-UNDO.
 
@@ -385,7 +476,7 @@ ON HELP OF fi_text IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_text C-Win
 ON LEAVE OF fi_text IN FRAME FRAME-A
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
 
             IF SELF:MODIFIED THEN
@@ -402,8 +493,47 @@ ON LEAVE OF fi_text IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_bar-code
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_bar-code C-Win
+ON VALUE-CHANGED OF tb_bar-code IN FRAME FRAME-A /* Create Bar Code */
+DO:
+        ASSIGN {&self-name}.
+        begin_file:SCREEN-VALUE = "Path: c:/temp/debug.csl" .
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_image
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_image C-Win
+ON VALUE-CHANGED OF tb_image IN FRAME FRAME-A /* Create Image */
+DO:
+        ASSIGN {&self-name}.
+        begin_file:SCREEN-VALUE = "Path: c:/temp/debug.csl" .
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_line
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_line C-Win
+ON VALUE-CHANGED OF tb_line IN FRAME FRAME-A /* Create Line */
+DO:
+        ASSIGN {&self-name}.
+        begin_file:SCREEN-VALUE = "Path: c:/temp/debug.csl" .
+
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -413,7 +543,20 @@ ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 &Scoped-define SELF-NAME tb_log
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_log C-Win
 ON VALUE-CHANGED OF tb_log IN FRAME FRAME-A /* Create Dbug Log File? */
-    DO:
+DO:
+        ASSIGN {&self-name}.
+        begin_file:SCREEN-VALUE = "Path: c:/temp/debug.csl" .
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_rec
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_rec C-Win
+ON VALUE-CHANGED OF tb_rec IN FRAME FRAME-A /* Create Rectangle */
+DO:
         ASSIGN {&self-name}.
         begin_file:SCREEN-VALUE = "Path: c:/temp/debug.csl" .
 
@@ -476,18 +619,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -495,21 +638,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY fi_text rd-dest tb_log begin_file 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-9 RECT-10 fi_text rd-dest tb_log btn-ok btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY fi_text tb_rec tb_line tb_image tb_bar-code begin_font rd-dest 
+          begin_font-size tb_log begin_file 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-9 RECT-10 fi_text tb_rec tb_line tb_image tb_bar-code begin_font 
+         rd-dest begin_font-size tb_log btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -517,7 +662,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -561,7 +706,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -588,7 +733,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -612,23 +757,31 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProgram C-Win 
 PROCEDURE pProgram :
-    /* --------------------------------------------- oe/rep/oe-lad.p      RM ---- */
+/* --------------------------------------------- oe/rep/oe-lad.p      RM ---- */
     /* print bill of ladings                                                      */
     /* -------------------------------------------------------------------------- */
+      DEFINE VARIABLE hftp AS HANDLE NO-UNDO.
+      
+      RUN system/OutputProcs.p PERSISTENT SET hftp.
+      THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
   
     IF tb_log THEN 
     DO: 
         PUT "<DEBUG=ALL,FILE=c:/temp/debug.csl>" .
     END.
 
-    PUT
-        "<FMS Mincho>"
-        "<P14><R4><C52><B>Asi Version #: {&awversion} " "</B><P10> "
-        "<P14><R5><C52><B>Xprint Version #: " "</B><P10> "
-        "<C3><R2><#1><C+3><R+8><C+45><IMAGE#1=" ls-full-img1  SKIP(1)    .
+    RUN ChangeXprintFont(begin_font,begin_font-size).
 
-    PUT   "<#=100><AT=3.30,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" "Bar-test-45008" FORMAT "x(20)"  ">"
-        "<AT=4.25,3>" "Bar-test-45008" FORMAT "x(20)"  .
+    PUT 
+        "<R4><C52><B>Asi Version #: {&awversion} " "</B> "
+        "<R5><C52><B>Xprint Version #: " "</B> " .
+
+    IF tb_image THEN
+    RUN WriteToXprintImage(2,3,8,50,ls-full-img1) .
+
+   IF tb_bar-code THEN
+    RUN WriteToXprintBarCode(13,20,2.5,30,"Test data test","39") .
+
 
     PUT SKIP(2)  "<FCourier New>"
         "Sold To:" SPACE(30) "Ship To:"  SKIP
@@ -636,10 +789,22 @@ PROCEDURE pProgram :
         SPACE(5) "IBM Blvd" "DSC - S.E. - 05" AT 45 SKIP
         SPACE(5) "2nd Line of Address" "3850 PINSON VALLEY PKWY" AT 45 SKIP
         SPACE(5) "Rochester,NY 14606" "BIRMINGHAM, AL 35217" AT 45 SKIP .
-    PUT SKIP(5)
+    
+    
+    PUT SKIP(3)
         fi_text FORMAT "x(2000)" .
-      
 
+ 
+ IF tb_rec THEN
+     RUN WriteToXprintRect(42,46,5,40) .
+
+ IF tb_line THEN
+     RUN WriteToXprintLine(48,5,50) .
+
+
+
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp). 
+      
 
 END PROCEDURE.
 
@@ -648,7 +813,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    /* --------------------------------------------- oe/rep/oe-lad.p      RM ---- */
+/* --------------------------------------------- oe/rep/oe-lad.p      RM ---- */
     /* print bill of ladings                                                      */
     /* -------------------------------------------------------------------------- */
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.

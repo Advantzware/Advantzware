@@ -390,8 +390,7 @@ PROCEDURE WriteToXprintRect:
 
     cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
             "><FROM><R" + STRING(ipdRTo) + "><C" + STRING(ipdCTo) + "><RECT>" . 
-    
-    RUN WriteOutput(cText,YES,NO).
+    PUT cText FORMAT "x(150)" .
    
 END PROCEDURE.
 
@@ -408,8 +407,7 @@ PROCEDURE WriteToXprintLine:
 
     cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
             "><FROM><C" + STRING(ipdCTo) + "><LINE>" . 
-   
-   RUN WriteOutput(cText,YES,NO).
+   PUT cText FORMAT "x(150)" . 
    
 END PROCEDURE.
 
@@ -424,9 +422,8 @@ PROCEDURE ChangeXprintFont:
     
     IF ipcFont EQ "" THEN ipcFont = "Tahoma".
 
-     cText = "<R" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">". 
-   
-   RUN WriteOutput(cText,YES,NO).
+     cText = "<F" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">". 
+    PUT cText FORMAT "x(50)" .
    
 END PROCEDURE.
 
@@ -445,8 +442,7 @@ PROCEDURE WriteToXprintImage:
     
      cText = "<C" + STRING(ipdCFrom) + "><R" + string(ipdRFrom) + "><#1><R+" + STRING(ipdRSize) + 
          "><C+" + STRING(ipdCSize) + "><IMAGE#1=" + ipcImagePath + ">" . 
-   
-   RUN WriteOutput(cText,YES,NO).
+    PUT cText FORMAT "x(300)" .
    
 END PROCEDURE.
 
@@ -466,8 +462,7 @@ PROCEDURE WriteToXprintBarCode:
     cText = "<R" + STRING(ipdRFrom) + "><#1><UNITS=INCHES><C" + STRING(ipdCFrom) + "><FROM><C+" + STRING(ipdCSize) + "><R+" +
          STRING(ipdRSize) + "><BARCODE,TYPE=" + STRING(ipcBarCodeType) + ",CHECKSUM=NONE,VALUE= " + string(ipcBarCodeValue) + ">"  +
          "<C" + STRING(ipdCFrom + 0.5) + ">" + ipcBarCodeValue .
-   
-   RUN WriteOutput(cText,NO,NO).
+    PUT cText FORMAT "x(350)" .
    
 END PROCEDURE.
 
