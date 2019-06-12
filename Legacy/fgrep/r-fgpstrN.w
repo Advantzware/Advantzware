@@ -111,11 +111,12 @@ btnCustList begin_cust end_cust begin_i-no end_i-no begin_user end_user ~
 tb_rec tb_ship tb_tran tb_adj tb_ret tb_count tb_total Btn_Def sl_avail ~
 sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lines-per-page ~
 lv-ornt lv-font-no td-show-parm tb_runExcel tb_excel fi_file btn-ok ~
-btn-cancel 
+btn-cancel begin_ord-no end_ord-no
 &Scoped-Define DISPLAYED-OBJECTS from_date to_date tb_cust-list begin_cust ~
 end_cust begin_i-no end_i-no begin_user end_user tb_rec tb_ship tb_tran ~
 tb_adj tb_ret tb_count tb_total sl_avail sl_selected rd-dest lines-per-page ~
-lv-ornt lv-font-no lv-font-name td-show-parm tb_runExcel tb_excel fi_file 
+lv-ornt lv-font-no lv-font-name td-show-parm tb_runExcel tb_excel fi_file ~
+begin_ord-no end_ord-no
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -180,12 +181,17 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)"
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Item#" 
      VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_user AS CHARACTER FORMAT "x(8)" 
      LABEL "Beginning Order User ID" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
+
+DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
+     LABEL "Beginning Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
@@ -201,6 +207,11 @@ DEFINE VARIABLE end_user AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
      LABEL "Ending Order User ID" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
+
+DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999 
+     LABEL "Ending Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-fgpstr.csv" 
      LABEL "Excel File Name" 
@@ -289,7 +300,7 @@ DEFINE VARIABLE tb_adj AS LOGICAL INITIAL NO
 DEFINE VARIABLE tb_count AS LOGICAL INITIAL NO 
      LABEL "Cycle Counts" 
      VIEW-AS TOGGLE-BOX
-     SIZE 39 BY .81
+     SIZE 25 BY .81
      FONT 6 NO-UNDO.
 
 DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
@@ -306,7 +317,7 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES
 DEFINE VARIABLE tb_rec AS LOGICAL INITIAL NO 
      LABEL "Receipts" 
      VIEW-AS TOGGLE-BOX
-     SIZE 36 BY .81
+     SIZE 28 BY .81
      FONT 6 NO-UNDO.
 
 DEFINE VARIABLE tb_ret AS LOGICAL INITIAL NO 
@@ -359,19 +370,23 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Order Number" WIDGET-ID 6
      end_i-no AT ROW 5 COL 72 COLON-ALIGNED HELP
           "Enter Ending Item Number" WIDGET-ID 8
-     begin_user AT ROW 6.1 COL 29 COLON-ALIGNED HELP
+     begin_ord-no AT ROW 6.1 COL 29 COLON-ALIGNED HELP
+          "Enter Beginning Order Number"
+     end_ord-no AT ROW 6.1 COL 72 COLON-ALIGNED HELP
+          "Enter Ending Order Number"
+     begin_user AT ROW 7.19 COL 29 COLON-ALIGNED HELP
           "Enter Beginning User ID" WIDGET-ID 46
-     end_user AT ROW 6.1 COL 72 COLON-ALIGNED HELP
+     end_user AT ROW 7.19 COL 72 COLON-ALIGNED HELP
           "Enter Ending User ID" WIDGET-ID 48
-     tb_rec AT ROW 7.48 COL 38
-     tb_ship AT ROW 8.19 COL 38
-     rsShowVendor AT ROW 8.81 COL 64 NO-LABELS WIDGET-ID 14
-     tb_tran AT ROW 8.91 COL 38
-     tb_adj AT ROW 9.62 COL 38
-     rsShowTag AT ROW 10 COL 64 NO-LABELS WIDGET-ID 18
-     tb_ret AT ROW 10.33 COL 38
-     tb_count AT ROW 11.05 COL 38
-     tb_total AT ROW 11.76 COL 38
+     tb_rec AT ROW 8.43 COL 31
+     tb_ship AT ROW 9.14 COL 31
+     rsShowVendor AT ROW 10.71 COL 7 NO-LABELS WIDGET-ID 14
+     tb_tran AT ROW 9.86 COL 31
+     tb_adj AT ROW 8.43 COL 61
+     rsShowTag AT ROW 11.67 COL 7 NO-LABELS WIDGET-ID 18
+     tb_ret AT ROW 9.14 COL 61
+     tb_count AT ROW 9.86 COL 61
+     tb_total AT ROW 11.76 COL 43.6
      Btn_Def AT ROW 13.76 COL 40 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
      sl_avail AT ROW 13.81 COL 6 NO-LABELS WIDGET-ID 26
@@ -397,7 +412,7 @@ DEFINE FRAME FRAME-A
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 13.1 COL 2 WIDGET-ID 38
      "Transaction Types" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 7.38 COL 14
+          SIZE 22 BY .62 AT ROW 8.43 COL 7.80
           FONT 6
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 13.1 COL 59.4 WIDGET-ID 44
@@ -488,6 +503,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_ord-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -497,6 +516,10 @@ ASSIGN
 
 ASSIGN 
        end_user:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_ord-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -645,6 +668,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no C-Win
+ON LEAVE OF begin_ord-no IN FRAME FRAME-A /* Beginning Order# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME begin_user
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_user C-Win
@@ -869,6 +901,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_ord-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-no C-Win
+ON LEAVE OF end_ord-no IN FRAME FRAME-A /* Ending Order# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
@@ -1608,6 +1649,7 @@ DEFINE VARIABLE v-date AS DATE NO-UNDO.
 EMPTY TEMP-TABLE tt-report.
 DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE v-cust AS CHARACTER EXTENT 2 NO-UNDO.
+DEFINE VARIABLE iOrderNo AS INTEGER NO-UNDO .
 ASSIGN
     lSelected    = tb_cust-list
     v-cust[1]    = begin_cust
@@ -1649,7 +1691,7 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
         IF INDEX("RSTAEC",substr(v-types,i,1)) GT 0 THEN
         DO:
            v-type = substr(v-types,i,1).
-
+           MAINFGRCPTH:
            FOR EACH fg-rcpth 
                WHERE fg-rcpth.company                  EQ cocode
                  AND fg-rcpth.i-no                     EQ v-i-no
@@ -1676,6 +1718,11 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
               AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
               NO-LOCK:
 
+              iOrderNo = 0.
+              RUN pGetOrderNo(OUTPUT iOrderNo) .
+              
+              IF begin_ord-no GT iOrderNo OR  end_ord-no LT iOrderNo THEN NEXT MAINFGRCPTH . 
+              
                CREATE tt-report.
                ASSIGN
                   tt-report.term-id = ""
@@ -1716,8 +1763,9 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
 
            IF NOT(begin_cust EQ "" AND END_cust EQ "zzzzzzzz") THEN
            DO v-date = b-post-date TO e-post-date:
+               MAINFGRCPTH:
                FOR 
-                  EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
+                  EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date job-no job-no2 b-no) 
                   WHERE fg-rcpth.company                EQ cocode
                     AND fg-rcpth.rita-code              EQ v-type
                     AND fg-rcpth.post-date              EQ v-date
@@ -1742,8 +1790,12 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                                                    NO-LOCK)
                                      ELSE TRUE)) 
                   THEN DO:
-
-
+                  
+                  iOrderNo = 0.
+                  RUN pGetOrderNo(OUTPUT iOrderNo) .
+                  
+                  IF begin_ord-no GT iOrderNo OR end_ord-no LT iOrderNo THEN NEXT MAINFGRCPTH .
+                
                   CREATE tt-report.
                   ASSIGN
                      tt-report.term-id = ""
@@ -1758,9 +1810,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
               END.
 
                END.
-               
+
+               MAINFGRCPTH:
                FOR
-                  EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date)
+                  EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date job-no job-no2 b-no)
                   WHERE fg-rcpth.company    EQ cocode 
                     AND fg-rcpth.rita-code  EQ v-type 
                     AND fg-rcpth.post-date  EQ ? 
@@ -1789,6 +1842,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                                                        NO-LOCK)
                                          ELSE TRUE))
                   THEN DO:
+                     iOrderNo = 0.
+                     RUN pGetOrderNo(OUTPUT iOrderNo) .
+                    
+                     IF begin_ord-no GT iOrderNo OR end_ord-no LT iOrderNo THEN NEXT MAINFGRCPTH .
 
                         CREATE tt-report.
                         ASSIGN
@@ -1806,7 +1863,8 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
            ELSE
            DO v-date = b-post-date TO e-post-date:
 
-              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date) 
+              MAINFGRCPTH:
+              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date job-no job-no2 b-no) 
                   WHERE fg-rcpth.company                EQ cocode
                     AND fg-rcpth.rita-code              EQ v-type
                     AND fg-rcpth.post-date              EQ v-date
@@ -1827,6 +1885,11 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                                               AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
                   NO-LOCK:
 
+                  iOrderNo = 0.
+                  RUN pGetOrderNo(OUTPUT iOrderNo) .
+                  
+                  IF begin_ord-no GT iOrderNo OR end_ord-no LT iOrderNo THEN NEXT MAINFGRCPTH .
+
                   CREATE tt-report.
                   ASSIGN
                      tt-report.term-id = ""
@@ -1839,8 +1902,9 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                      tt-report.DATE    = fg-rcpth.trans-date.
                   RELEASE tt-report.
               END.
-
-              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date)
+                
+              MAINFGRCPTH:
+              FOR EACH fg-rcpth FIELDS(r-no rita-code i-no trans-date job-no job-no2 b-no)
                   WHERE fg-rcpth.company                EQ cocode AND
                         fg-rcpth.rita-code              EQ v-type AND
                         fg-rcpth.post-date              EQ ? AND
@@ -1863,6 +1927,10 @@ IF NOT(begin_i-no EQ "" AND END_i-no EQ "zzzzzzzzzzzzzzz") THEN
                   (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ itemfg.cust-no
                                               AND ttCustList.log-fld NO-LOCK) ELSE TRUE)
                   NO-LOCK:
+                       iOrderNo = 0.
+                       RUN pGetOrderNo(OUTPUT iOrderNo) .
+                       
+                       IF begin_ord-no GT iOrderNo OR end_ord-no LT iOrderNo THEN NEXT MAINFGRCPTH .
 
                         CREATE tt-report.
                         ASSIGN
@@ -2048,12 +2116,14 @@ PROCEDURE enable_UI :
           begin_user end_user tb_rec tb_ship tb_tran tb_adj tb_ret tb_count 
           tb_total sl_avail sl_selected rd-dest lines-per-page lv-ornt 
           lv-font-no lv-font-name td-show-parm tb_runExcel tb_excel fi_file 
+          begin_ord-no end_ord-no
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 from_date to_date tb_cust-list btnCustList begin_cust 
          end_cust begin_i-no end_i-no begin_user end_user tb_rec tb_ship 
          tb_tran tb_adj tb_ret tb_count tb_total Btn_Def sl_avail sl_selected 
          Btn_Add Btn_Remove btn_Up btn_down rd-dest lines-per-page lv-ornt 
          lv-font-no td-show-parm tb_runExcel tb_excel fi_file btn-ok btn-cancel 
+         begin_ord-no end_ord-no
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2954,6 +3024,47 @@ PROCEDURE show-param :
 
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOrderNo C-Win 
+PROCEDURE pGetOrderNo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER ipiOrderNo AS INTEGER NO-UNDO.
+
+  FIND FIRST job-hdr NO-LOCK 
+      WHERE job-hdr.company = cocode
+      AND job-hdr.job-no = fg-rcpth.job-no
+      AND job-hdr.job-no2 = fg-rcpth.job-no2
+      AND job-hdr.i-no = fg-rcpth.i-no  NO-ERROR.
+  
+  IF AVAIL job-hdr AND job-hdr.ord-no <> 0 THEN
+      ASSIGN ipiOrderNo = job-hdr.ord-no .
+  IF ipiOrderNo EQ 0 THEN DO:
+      FIND FIRST oe-bolh NO-LOCK
+          WHERE oe-bolh.company EQ cocode
+          AND oe-bolh.b-no    EQ fg-rcpth.b-no NO-ERROR.
+      IF AVAIL oe-bolh THEN do:
+          FIND FIRST oe-boll WHERE oe-boll.company = oe-bolh.company 
+              AND oe-boll.b-no = oe-bolh.b-no
+              AND oe-boll.i-no = fg-rcpth.i-no NO-LOCK NO-ERROR.
+          IF AVAIL oe-boll THEN 
+              FIND FIRST oe-ordl WHERE oe-ordl.company = cocode
+              AND oe-ordl.ord-no = int(oe-boll.ord-no )
+              AND oe-ordl.i-no   = fg-rcpth.i-no NO-LOCK NO-ERROR.
+          IF AVAIL oe-ordl THEN
+              ASSIGN ipiOrderNo = oe-ordl.ord-no .
+      END.
+  END.
+
+
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
