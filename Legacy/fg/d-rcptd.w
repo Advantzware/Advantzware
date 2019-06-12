@@ -110,7 +110,7 @@ DEFINE VARIABLE glFGRecpt           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE giFGRecpt           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glAverageCost       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cPoBeforeChange     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcPoBeforeChange    AS CHARACTER NO-UNDO.
 RUN pSetGlobalSettings(g_company).  /*Sets all of the above based on NK1 Settings*/
 
 DEFINE VARIABLE hdCostProcs AS HANDLE.
@@ -612,7 +612,7 @@ ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
                                 IF rec-val <> ? THEN 
                                 DO:
                                     FIND itemfg WHERE RECID(itemfg) = rec-val NO-LOCK.
-                                    RUN pDisplayFG("1",BUFFER itemfg).
+                                    RUN pDisplayFG(YES,BUFFER itemfg).
 
                                 END.
                             END.
@@ -1500,7 +1500,7 @@ ON ENTRY OF fg-rctd.po-line IN FRAME Dialog-Frame /* PO Ln# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Dialog-Frame
 ON ENTRY OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
     DO:
-        cPoBeforeChange = fg-rctd.job-no:SCREEN-VALUE  .
+        gcPoBeforeChange = fg-rctd.po-no:SCREEN-VALUE  .
         IF LASTKEY NE -1                                                  AND
             (ip-set-parts                                               OR
             fg-rctd.job-no:SCREEN-VALUE  NE "" OR
@@ -1524,8 +1524,8 @@ ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
         IF LASTKEY NE -1 THEN 
         DO:
             IF INT({&self-name}:SCREEN-VALUE ) EQ 0 THEN
-                {&self-name}:SCREEN-VALUE  = "".
-            IF {&self-name}:SCREEN-VALUE  NE cPoBeforeChange THEN 
+                {&self-name}:SCREEN-VALUE  = "". 
+            IF {&self-name}:SCREEN-VALUE  NE gcPoBeforeChange THEN 
             DO:
                 FIND FIRST po-ordl
                     WHERE po-ordl.company   EQ fg-rctd.company
@@ -1550,6 +1550,7 @@ ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
                         AND po-ordl.item-type EQ NO
                         NO-LOCK NO-ERROR.
                 IF AVAILABLE po-ordl THEN RUN display-po (ROWID(po-ordl)).
+                RUN pGetLocBin .
             END.
 
             RUN valid-po-no (1) NO-ERROR.
@@ -1565,7 +1566,7 @@ ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
         IF fg-rctd.cases:SCREEN-VALUE  EQ ? 
             OR fg-rctd.cases:SCREEN-VALUE  EQ "?" THEN
             fg-rctd.cases:SCREEN-VALUE  = "0".
-        IF {&self-name}:SCREEN-VALUE  NE cPoBeforeChange THEN do: 
+        IF {&self-name}:SCREEN-VALUE  NE gcPoBeforeChange THEN do: 
             FIND po-ord 
                 WHERE po-ord.company EQ cocode
                 AND po-ord.po-no EQ INTEGER(fg-rctd.po-no:SCREEN-VALUE )
@@ -2329,16 +2330,6 @@ PROCEDURE display-po :
             .
             
         RUN pDisplayPO(NO).
-            
-        FIND FIRST itemfg WHERE itemfg.company = cocode AND
-            itemfg.i-no = po-ordl.i-no
-            NO-LOCK NO-ERROR.
-        IF AVAILABLE itemfg THEN 
-            ASSIGN fg-rctd.loc:SCREEN-VALUE      = itemfg.def-loc
-                fg-rctd.loc-bin:SCREEN-VALUE  = itemfg.def-loc-bin
-                fg-rctd.qty-case:SCREEN-VALUE = STRING(itemfg.case-count)
-                /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
-                                else itemfg.prod-uom  */.
 
     END.
 
@@ -3050,7 +3041,7 @@ PROCEDURE get-values :
                     IF AVAILABLE itemfg          AND
                         DEC(lv-std-cost) EQ 0 THEN 
                     DO:
-                        RUN pDisplayFG("0",BUFFER itemfg).
+                        RUN pDisplayFG(NO,BUFFER itemfg).
                     END.
             END.
          
@@ -3339,14 +3330,14 @@ PROCEDURE pDisplayFG PRIVATE :
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER cCheckPro AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER iplGetLocBin AS LOGICAL NO-UNDO .
     DEFINE PARAMETER BUFFER ipbf-itemfg FOR itemfg.
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
             fg-rctd.i-no:SCREEN-VALUE     = ipbf-itemfg.i-no
             fg-rctd.i-name:SCREEN-VALUE   = ipbf-itemfg.i-name .
-        IF cCheckPro EQ "1"  THEN
+        IF iplGetLocBin EQ YES  THEN
             ASSIGN
             fg-rctd.loc:SCREEN-VALUE      = ipbf-itemfg.def-loc
             fg-rctd.loc-bin:SCREEN-VALUE  = ipbf-itemfg.def-loc-bin .
