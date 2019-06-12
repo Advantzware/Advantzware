@@ -466,6 +466,22 @@ PROCEDURE WriteToXprintBarCode:
    
 END PROCEDURE.
 
+PROCEDURE WriteToXprintSoldAndShip:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    PUT SKIP(2)  
+        " Sold To:" SPACE(30) " Ship To:"  SKIP
+        SPACE(5) "IBM CORP"  "1ST SOURCE SERVICE" AT 45 SKIP
+        SPACE(5) "IBM Blvd" "DSC - S.E. - 05" AT 45 SKIP
+        SPACE(5) "2nd Line of Address" "3850 PINSON VALLEY PKWY" AT 45 SKIP
+        SPACE(5) "Rochester,NY 14606" "BIRMINGHAM, AL 35217" AT 45 SKIP .
+   
+END PROCEDURE.
+
+
+
 
 /* ************************  Function Implementations ***************** */
 

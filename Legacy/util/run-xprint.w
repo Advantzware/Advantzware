@@ -760,10 +760,10 @@ PROCEDURE pProgram :
 /* --------------------------------------------- oe/rep/oe-lad.p      RM ---- */
     /* print bill of ladings                                                      */
     /* -------------------------------------------------------------------------- */
-      DEFINE VARIABLE hftp AS HANDLE NO-UNDO.
+      DEFINE VARIABLE hOutputProcs AS HANDLE NO-UNDO.
       
-      RUN system/OutputProcs.p PERSISTENT SET hftp.
-      THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
+      RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
+      THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hOutputProcs).
   
     IF tb_log THEN 
     DO: 
@@ -781,29 +781,25 @@ PROCEDURE pProgram :
 
    IF tb_bar-code THEN
     RUN WriteToXprintBarCode(13,20,2.5,30,"Test data test","39") .
-
-
-    PUT SKIP(2)  "<FCourier New>"
-        "Sold To:" SPACE(30) "Ship To:"  SKIP
-        SPACE(5) "IBM CORP"  "1ST SOURCE SERVICE" AT 45 SKIP
-        SPACE(5) "IBM Blvd" "DSC - S.E. - 05" AT 45 SKIP
-        SPACE(5) "2nd Line of Address" "3850 PINSON VALLEY PKWY" AT 45 SKIP
-        SPACE(5) "Rochester,NY 14606" "BIRMINGHAM, AL 35217" AT 45 SKIP .
     
+   RUN WriteToXprintSoldAndShip .
     
     PUT SKIP(3)
         fi_text FORMAT "x(2000)" .
 
  
  IF tb_rec THEN
-     RUN WriteToXprintRect(42,46,5,40) .
+     RUN WriteToXprintRect(18,26,1.5,43) .
+
+ IF tb_rec THEN
+     RUN WriteToXprintRect(18,26,48.5,85) .
 
  IF tb_line THEN
-     RUN WriteToXprintLine(48,5,50) .
+     RUN WriteToXprintLine(48,5,85) .
 
 
 
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp). 
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hOutputProcs). 
       
 
 END PROCEDURE.
