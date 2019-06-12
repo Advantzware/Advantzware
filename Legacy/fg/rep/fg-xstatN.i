@@ -85,7 +85,7 @@ FOR EACH ttCustList
                    
            FIRST itemfg WHERE itemfg.company EQ cocode
                           AND itemfg.i-no    EQ oe-ordl.i-no
-/*                           and itemfg.cust-no eq cust.cust-no */
+                          AND (itemfg.stat EQ "A" OR lIncludeInactive)  
                           AND (itemfg.i-code EQ typex OR typex EQ "A")
                         NO-LOCK
 
