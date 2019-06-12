@@ -3474,11 +3474,12 @@ FUNCTION fGetNumberSuffix RETURNS INTEGER PRIVATE
     DEFINE VARIABLE iCountBeginningChars AS INTEGER.
     DEFINE VARIABLE iNumberSuffix        AS INTEGER.
     
-    iNumberSuffix = INTEGER(SUBSTRING(ipcFullText, ipiStartChar, (LENGTH(ipcFullText) - ipiStartChar + 1))).	
+    iNumberSuffix = INTEGER(SUBSTRING(ipcFullText, ipiStartChar, (LENGTH(ipcFullText) - ipiStartChar + 1))) NO-ERROR.
 
+    IF ERROR-STATUS:ERROR THEN
+        iNumberSuffix = 0.
+    
     RETURN iNumberSuffix.
-
-	
 END FUNCTION.
 
 FUNCTION fGetSnapshotCompareStatus RETURNS CHARACTER
