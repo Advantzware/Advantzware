@@ -953,6 +953,7 @@ DEF VAR ld-total-c AS DEC NO-UNDO.
 DEF VAR lv-dash AS CHAR FORMAT "x" INIT "-" NO-UNDO.
 DEFINE VARIABLE dfreight LIKE inv-head.t-inv-freight NO-UNDO.
 DEFINE VARIABLE cfreightCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cItemFgCat LIKE itemfg.procat NO-UNDO.
 
 /* gdm - 10130810 */
 DEF VAR v_misc-amt  AS CHAR NO-UNDO.
