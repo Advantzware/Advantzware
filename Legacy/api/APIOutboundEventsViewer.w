@@ -7,9 +7,9 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: 
+  File: api/APIOutboundEventsViewer.w
 
-  Description: 
+  Description: Display all the API Outbound events
 
   Input Parameters:
       <none>
@@ -17,9 +17,9 @@
   Output Parameters:
       <none>
 
-  Author: 
+  Author: Vishnu Vellanki
 
-  Created: 
+  Created: 06th June 2019
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-2 APIOutboundEvent.apiID APIOutboundEvent.callingProgram APIOutboundEvent.requestDateTime APIOutboundEvent.success   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH APIOutboundEvent NO-LOCK     WHERE APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK     WHERE APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)            .
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH APIOutboundEvent NO-LOCK     WHERE (IF cbAPIID:SCREEN-VALUE EQ "All" THEN                TRUE            ELSE                APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE)       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)       BY APIOutboundEvent.requestDateTime DESCENDING
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK     WHERE (IF cbAPIID:SCREEN-VALUE EQ "All" THEN                TRUE            ELSE                APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE)       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)       BY APIOutboundEvent.requestDateTime DESCENDING.
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 APIOutboundEvent
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 APIOutboundEvent
 
@@ -99,9 +99,9 @@ DEFINE BUTTON btFilter
      LABEL "Filter" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U INITIAL "AddCustomer" 
+DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "AddCustomer","AddVendor","AddProduct","AddPurchaseOrder","AddPicklist" 
+     LIST-ITEMS "All","AddCustomer","AddVendor","AddProduct","AddPurchaseOrder","AddPicklist" 
      DROP-DOWN-LIST
      SIZE 20.2 BY 1
      FGCOLOR 9  NO-UNDO.
@@ -118,7 +118,7 @@ DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:"
      SIZE 12 BY 1
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiRequestDate AS DATE FORMAT "99/99/9999":U INITIAL ? 
+DEFINE VARIABLE fiRequestDate AS DATE FORMAT "99/99/9999":U 
      VIEW-AS FILL-IN 
      SIZE 16.4 BY 1 NO-UNDO.
 
@@ -239,7 +239,10 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE BROWSE-2
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK
-    WHERE APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE
+    WHERE (IF cbAPIID:SCREEN-VALUE EQ "All" THEN
+               TRUE
+           ELSE
+               APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE)
       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR
               fiRequestDate:SCREEN-VALUE EQ "" OR
               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN
@@ -252,7 +255,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK
                APIOutboundEvent.success = TRUE
            ELSE
                APIOutboundEvent.success = FALSE)
-           .
+      BY APIOutboundEvent.requestDateTime DESCENDING.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
@@ -297,7 +300,7 @@ END.
 ON DEFAULT-ACTION OF BROWSE-2 IN FRAME DEFAULT-FRAME
 DO:
     IF AVAILABLE APIOutboundEvent THEN DO:
-        RUN C:\RESTAPI\responseData.w (
+        RUN api\ResponseDataViewer.w (
             ROWID(APIOutboundEvent)
             ).
     END.

@@ -5,12 +5,12 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: 
+  File: api/ResponseDataViewer.w
 
-  Description: 
+  Description: Displays the Request/Response Data of a API Outbound Event
 
   Input Parameters:
-      <none>
+      ipriOutboundEvent: ROWID of the APIOutboundEvent
 
   Output Parameters:
       <none>
@@ -25,7 +25,7 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipriOutBoundEvent AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipriOutboundEvent AS ROWID NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -44,11 +44,12 @@ DEFINE INPUT PARAMETER ipriOutBoundEvent AS ROWID NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 edEndpoint edRequestData ~
-edResponseData Btn_OK Btn_Cancel 
+edResponseData edErrorMessage Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiRequestVerb fiSSLEnabled fiClientID ~
 fiRequestVerblb fiSSLEnabledlb fiClientIDlb fiReqDataType fiAuthType ~
 fiReqDataTypelb fiRequestVerb-2 fiEndPointLabel edEndpoint ~
-fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData 
+fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData ~
+fiErrorMessageLabel edErrorMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -78,6 +79,11 @@ DEFINE VARIABLE edEndpoint AS CHARACTER
      SIZE 119 BY 2.62
      FGCOLOR 9  NO-UNDO.
 
+DEFINE VARIABLE edErrorMessage AS CHARACTER 
+     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
+     SIZE 119 BY 2.48
+     FGCOLOR 9  NO-UNDO.
+
 DEFINE VARIABLE edRequestData AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 119 BY 5.71
@@ -85,7 +91,7 @@ DEFINE VARIABLE edRequestData AS CHARACTER
 
 DEFINE VARIABLE edResponseData AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
-     SIZE 119 BY 6.38
+     SIZE 119 BY 5.95
      FGCOLOR 9  NO-UNDO.
 
 DEFINE VARIABLE fiAuthType AS CHARACTER FORMAT "X(256)":U 
@@ -106,6 +112,11 @@ DEFINE VARIABLE fiClientIDlb AS CHARACTER FORMAT "X(256)":U INITIAL "Client ID:"
 DEFINE VARIABLE fiEndPointLabel AS CHARACTER FORMAT "X(256)":U INITIAL "End Point:" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiErrorMessageLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Error Message:" 
+     VIEW-AS FILL-IN 
+     SIZE 23 BY 1
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiReqDataType AS CHARACTER FORMAT "X(256)":U 
@@ -159,33 +170,35 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 126 BY 19.76.
+     SIZE 126 BY 22.86.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiRequestVerb AT ROW 2.62 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 82
-     fiSSLEnabled AT ROW 2.62 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
-     fiClientID AT ROW 2.62 COL 107.6 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     fiRequestVerblb AT ROW 2.71 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 70
-     fiSSLEnabledlb AT ROW 2.71 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
-     fiClientIDlb AT ROW 2.71 COL 93.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     fiReqDataType AT ROW 4.33 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     fiAuthType AT ROW 4.33 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
-     fiReqDataTypelb AT ROW 4.38 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 74
-     fiRequestVerb-2 AT ROW 4.38 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     fiEndPointLabel AT ROW 7.43 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     edEndpoint AT ROW 8.62 COL 11 NO-LABEL WIDGET-ID 14
-     fiRequestDataLabel AT ROW 11.71 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     edRequestData AT ROW 12.91 COL 11 NO-LABEL WIDGET-ID 2
-     fiResponseDataLabel AT ROW 18.86 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     edResponseData AT ROW 20.05 COL 11 NO-LABEL WIDGET-ID 10
-     Btn_OK AT ROW 26.95 COL 55
-     Btn_Cancel AT ROW 26.95 COL 74
-     RECT-1 AT ROW 2.19 COL 8 WIDGET-ID 84
-     RECT-2 AT ROW 6.95 COL 8 WIDGET-ID 86
-     SPACE(15.59) SKIP(1.61)
+     fiRequestVerb AT ROW 1.76 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 82
+     fiSSLEnabled AT ROW 1.76 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
+     fiClientID AT ROW 1.76 COL 107.6 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     fiRequestVerblb AT ROW 1.86 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+     fiSSLEnabledlb AT ROW 1.86 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
+     fiClientIDlb AT ROW 1.86 COL 93.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     fiReqDataType AT ROW 3.48 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiAuthType AT ROW 3.48 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     fiReqDataTypelb AT ROW 3.52 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+     fiRequestVerb-2 AT ROW 3.52 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     fiEndPointLabel AT ROW 5.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     edEndpoint AT ROW 6.86 COL 11 NO-LABEL WIDGET-ID 14
+     fiRequestDataLabel AT ROW 9.95 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     edRequestData AT ROW 11.14 COL 11 NO-LABEL WIDGET-ID 2
+     fiResponseDataLabel AT ROW 17.1 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     edResponseData AT ROW 18.29 COL 11 NO-LABEL WIDGET-ID 10
+     fiErrorMessageLabel AT ROW 24.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+     edErrorMessage AT ROW 25.76 COL 11 NO-LABEL WIDGET-ID 94
+     Btn_OK AT ROW 28.57 COL 55
+     Btn_Cancel AT ROW 28.57 COL 74
+     RECT-1 AT ROW 1.33 COL 8 WIDGET-ID 84
+     RECT-2 AT ROW 5.52 COL 8 WIDGET-ID 86
+     SPACE(7.79) SKIP(1.47)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Request/Response"
@@ -217,6 +230,9 @@ ASSIGN
        edEndpoint:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 ASSIGN 
+       edErrorMessage:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+ASSIGN 
        edRequestData:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 ASSIGN 
@@ -241,6 +257,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fiEndPointLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiErrorMessageLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiErrorMessageLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiReqDataType IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -326,7 +347,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   ASSIGN
-      edRequestData:WORD-WRAP = TRUE
+      edRequestData:WORD-WRAP  = TRUE
       edResponseData:WORD-WRAP = TRUE
       .
 
@@ -373,10 +394,10 @@ PROCEDURE enable_UI :
   DISPLAY fiRequestVerb fiSSLEnabled fiClientID fiRequestVerblb fiSSLEnabledlb 
           fiClientIDlb fiReqDataType fiAuthType fiReqDataTypelb fiRequestVerb-2 
           fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData 
-          fiResponseDataLabel edResponseData 
+          fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-1 RECT-2 edEndpoint edRequestData edResponseData Btn_OK 
-         Btn_Cancel 
+  ENABLE RECT-1 RECT-2 edEndpoint edRequestData edResponseData edErrorMessage 
+         Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -396,30 +417,28 @@ PROCEDURE pInit :
     END.
     
     FIND FIRST APIOutboundEvent NO-LOCK 
-         WHERE ROWID(APIOutboundEvent) EQ ipriOutboundEvent NO-ERROR.
+         WHERE ROWID(APIOutboundEvent) EQ ipriOutboundEvent 
+         NO-ERROR.
     IF AVAILABLE APIOutboundEvent THEN DO:
         ASSIGN
             edRequestData:SCREEN-VALUE  = STRING(APIOutboundEvent.requestData)
-            edResponseData:SCREEN-VALUE = STRING(APIOutboundEvent.responseData)
-
-            
+            edResponseData:SCREEN-VALUE = STRING(APIOutboundEvent.responseData)            
+            edErrorMessage:SCREEN-VALUE = APIOutboundEvent.errorMessage
             .            
     
        FIND FIRST APIOutbound NO-LOCK 
-            WHERE APIOutbound.apiID EQ APIOutboundEvent.apiID NO-ERROR.
+            WHERE APIOutbound.apiID EQ APIOutboundEvent.apiID 
+            NO-ERROR.
        IF AVAILABLE APIOutbound THEN
            ASSIGN
-               edEndpoint:SCREEN-VALUE = APIOutbound.endPoint
+               edEndpoint:SCREEN-VALUE     = APIOutbound.endPoint
                fiRequestVerb:SCREEN-VALUE  = APIOutbound.requestVerb
-               fiReqDataType:SCREEN-VALUE = APIOutbound.requestDataType
-               fiSSLEnabled:SCREEN-VALUE = string(APIOutbound.isSSLEnabled)
-               fiClientID:SCREEN-VALUE = APIOutbound.clientID
-               fiAuthType:SCREEN-VALUE = APIOutbound.authType
+               fiReqDataType:SCREEN-VALUE  = APIOutbound.requestDataType
+               fiSSLEnabled:SCREEN-VALUE   = string(APIOutbound.isSSLEnabled)
+               fiClientID:SCREEN-VALUE     = APIOutbound.clientID
+               fiAuthType:SCREEN-VALUE     = APIOutbound.authType
                .
     END.
-
-              
-            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

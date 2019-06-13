@@ -10,13 +10,13 @@
     Created     : Tue Jun 07 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT-OUTPUT PARAMETER oplcRequestData AS LONGCHAR  NO-UNDO.
+DEFINE INPUT        PARAMETER ipcRequestHandler   AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData    AS LONGCHAR  NO-UNDO.
+DEFINE OUTPUT       PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+DEFINE OUTPUT       PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
 
-oplcRequestData = SUBSTITUTE (
-                      oplcRequestData, 
-                      "ASI",   /* company */
-                      "C02291",
-                      "Testing.com",
-                      "1",
-                      "Address"
-                      ).
+RUN VALUE(ipcRequestHandler) (
+    INPUT-OUTPUT ioplcRequestData,
+    OUTPUT opcMessage,
+    OUTPUT oplSuccess
+    ).

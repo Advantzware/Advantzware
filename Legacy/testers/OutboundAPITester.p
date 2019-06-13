@@ -15,21 +15,45 @@
 /* ***************************  Definitions  ************************** */
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
-DEFINE VARIABLE cAPIID   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAPIID         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE cParentProgram AS CHARACTER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
-cAPIID = "AddPurchaseOrder".
+ASSIGN
+    cParentProgram = PROGRAM-NAME(1)
+    cAPIID         = "AddVendor".
 
-RUN api/CallOutBoundAPI.p (
+RUN api/PrepareOutboundRequest.p (
     cAPIId,
+    OUTPUT lcRequestData,
     OUTPUT cMessage,
     OUTPUT lSuccess
     ).
+
+IF NOT lSuccess THEN DO:
+   RUN api/CreateAPIOutboundEvent.p (
+       INPUT cAPIID,
+       INPUT lcRequestData,
+       INPUT "",
+       INPUT cParentProgram,
+       INPUT lSuccess,
+       INPUT cMessage,
+       INPUT NOW
+       ).    
+END.
+ELSE    
+    RUN api/CallOutBoundAPI.p (
+        cAPIId,
+        lcRequestData,
+        OUTPUT cMessage,
+        OUTPUT lSuccess
+        ).
     
 MESSAGE "Message:" cMessage SKIP
         "Success:" lSuccess
