@@ -1625,11 +1625,12 @@ display "" with frame r-top.
       if avail vend then ASSIGN v-vend-name = vend.name.
 
     release oe-ord.
-
+    v-jobDueDate = ? .
     find first job-hdr
         where job-hdr.company eq cocode
           and job-hdr.job-no  eq po-ordl.job-no
           and job-hdr.job-no2 eq po-ordl.job-no2
+          AND job-hdr.job-no  NE ""
         no-lock no-error.
 
     if avail job-hdr then v-jobDueDate = job-hdr.due-date.
