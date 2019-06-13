@@ -171,7 +171,8 @@ PROCEDURE pCreateDynParameters :
         WHERE dynParamSetDtl.paramSetID EQ dynParamSet.paramSetID,
         FIRST dynParam NO-LOCK
         WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-        BREAK BY {1}SubjectParamSet.paramSetID
+        BREAK BY {1}SubjectParamSet.sortOrder
+              BY {1}SubjectParamSet.paramSetID
         :
         IF FIRST-OF({1}SubjectParamSet.paramSetID) THEN DO:
             ASSIGN
