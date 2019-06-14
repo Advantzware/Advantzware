@@ -18,7 +18,7 @@ DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcSectionStyle AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcFormatStyle AS CHARACTER NO-UNDO.
 
-{est/ttEstPrint.i "SHARED"}
+{est/ttEstPrint.i SHARED}
 
 DEFINE VARIABLE gcFont              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glClassic           AS LOGICAL   NO-UNDO.
@@ -541,10 +541,10 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
    
     DEFINE VARIABLE iColumn1   AS INTEGER INITIAL 5.
-    DEFINE VARIABLE iColumn2   AS INTEGER INITIAL 12.
-    DEFINE VARIABLE iColumn3   AS INTEGER INITIAL 32.
-    DEFINE VARIABLE iColumn4   AS INTEGER INITIAL 45.
-    DEFINE VARIABLE iColumn5   AS INTEGER INITIAL 58.
+    DEFINE VARIABLE iColumn2   AS INTEGER INITIAL 20.
+    DEFINE VARIABLE iColumn3   AS INTEGER INITIAL 36.
+    DEFINE VARIABLE iColumn4   AS INTEGER INITIAL 48.
+    DEFINE VARIABLE iColumn5   AS INTEGER INITIAL 60.
     DEFINE VARIABLE iColumn6   AS INTEGER INITIAL 70.
     DEFINE VARIABLE iColumn7   AS INTEGER INITIAL 82.
     
@@ -554,43 +554,50 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "Materials", NO, YES, NO).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn4, "Qty Required", NO, YES, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn5, "MR $", NO, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn3, "Qty Req", NO, YES, YES).   
+    RUN pWriteToCoordinates(iopiRowCount, iColumn4, "Cost Per", NO, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn5, "SU $", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn6, "Cost/M", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn7, "Total Cost", NO, YES, YES).
      
     FOR EACH ttEstMaterial NO-LOCK 
-        WHERE ttEstMaterial.estFormID EQ ipbf-ttEstForm.estFormID
+        WHERE ttEstMaterial.estHeaderID EQ ipbf-ttEstForm.estHeaderID 
+        AND ttEstMaterial.estFormID EQ ipbf-ttEstForm.estFormID
         BY ttEstMaterial.iFormNo
-        BY ttEstMaterial.iBlankNo:
+        BY ttEstMaterial.iBlankNo
+        BY ttEstMaterial.iSequence:
 
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn1, fFormatNumber(ttEstMaterial.iFormNo,2, 0, YES) + "-" + fFormatNumber(ttEstMaterial.iBlankNo,2, 0, YES), NO, NO, YES).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, ttEstMaterial.cItemName, 20, NO, NO, NO).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, ttEstMaterial.cItemName, 30, NO, NO, NO).
         IF ttEstMaterial.lIsPrimarySubstrate THEN 
         DO:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredNoWaste, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cQtyUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.dQtyRequiredNoWasteInCostUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.cCostUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dCostPerUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cCostUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedNoWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalNoWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  MR Waste",NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredWasteSetup, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cQtyUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  SU Waste",NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.dQtyRequiredSetupWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.cQtyUOMWaste, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.dCostSetup, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedWasteSetup, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalWasteSetup, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedSetupWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalSetupWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  Run Waste",NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredWasteRun, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cQtyUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedWasteRun, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalWasteRun, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.dQtyRequiredRunWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.cQtyUOMWaste, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedRunWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalRunWaste, 7, 2, NO, YES, NO, NO, YES).
         END.
         ELSE 
         DO:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dQtyRequiredWasteSetup, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cQtyUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.dQtyRequiredTotal, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.cQtyUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dCostPerUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cCostUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.dCostSetup, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotal, 7, 2, NO, YES, NO, NO, YES).
@@ -704,11 +711,11 @@ PROCEDURE pPrintOperationsInfoForForm PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "Machine", NO, YES, NO).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn2, "MR Hrs", NO, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn2, "SU Hrs", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn3, "Run Hrs", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn4, "Speed", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn5, "Rate", NO, YES, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn6, "MR $", NO, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn6, "SU $", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn7, "Run $", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn8, "Total Cost", NO, YES, YES).
      

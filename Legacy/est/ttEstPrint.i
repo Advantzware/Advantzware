@@ -19,16 +19,51 @@ DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
     FIELD company AS CHARACTER
     FIELD locationID AS CHARACTER 
     FIELD cEstNo AS CHARACTER
+    FIELD riEstRowID AS ROWID
     FIELD dQtyMaster AS DECIMAL /*Master Qty Calculated*/
     FIELD cCalculator AS CHARACTER /*User ID of who calculated*/
     FIELD cPrinter AS CHARACTER /*User ID of who printed*/
     FIELD cEstType AS CHARACTER /*Set, Single, Combo, Tandem*/
+    FIELD cIndustry AS CHARACTER 
     FIELD dtCalcDateTime AS DATETIME 
     FIELD dtPrintDateTime AS DATETIME 
+    FIELD dMarginPct AS DECIMAL 
+    FIELD cMarginOn AS CHARACTER 
+    FIELD dWarehouseMarkupPct AS DECIMAL 
+    FIELD dHandlingChargePct AS DECIMAL 
+    FIELD dHandlingRatePerCWTRMPct AS DECIMAL 
+    FIELD dSpecial1MarkupPct AS DECIMAL 
+    FIELD dSpecial2MarkupPct AS DECIMAL 
+    FIELD dSpecial3MarkupPct AS DECIMAL 
+    FIELD lShowCommissoins AS LOGICAL
+    FIELD lShowLaborRates AS LOGICAL
+    FIELD lAddToFactCostSpecial1 AS LOGICAL
+    FIELD lAddToFactCostSpecial2 AS LOGICAL 
+    FIELD lAddToFactCostSpecial3 AS LOGICAL 
+    FIELD lAddToFactCostFreight AS LOGICAL 
+    FIELD lAddToFactCostGSA AS LOGICAL 
+    FIELD lAddToFactCostRoyalty AS LOGICAL 
+    FIELD lAddToFactCostComm AS LOGICAL 
+    FIELD dFoldPct AS DECIMAL
+    FIELD dHandlingRatePerCWTFGPct AS DECIMAL 
+    FIELD dHandlingRatePerCWTRMFarmPct AS DECIMAL 
+    FIELD dHandlingRatePerCWTFGFarmPct AS DECIMAL 
+    FIELD dHandlingChargeFarmPct AS DECIMAL
+    FIELD lRecalcSetupTime AS LOGICAL 
+    FIELD lRecalcRunSpeed AS LOGICAL 
+    FIELD lRecalcRunWaste AS LOGICAL 
+    FIELD lRecalcSetupCrew AS LOGICAL 
+    FIELD lRecalcRunCrew AS LOGICAL 
+    FIELD lRecalcSetupWaste AS LOGICAL 
+    FIELD lRecalcSetupRates AS LOGICAL 
+    FIELD lRecalcRunRates AS LOGICAL 
+    FIELD lForRealItemsUseAvgCost AS LOGICAL
+    FIELD lIsUnitizedSet AS LOGICAL
     .
 
 DEFINE {1} TEMP-TABLE ttEstItem
     FIELD rec_key AS CHARACTER
+    FIELD company AS CHARACTER 
     FIELD estItemID AS CHARACTER 
     FIELD estItemIDParent AS CHARACTER /*Link to Set*/
     FIELD estHeaderID AS CHARACTER /*Link to Header*/
@@ -57,12 +92,15 @@ DEFINE {1} TEMP-TABLE ttEstItem
     FIELD cCustomerPart AS CHARACTER
     FIELD cSize AS CHARACTER
     FIELD cColor AS CHARACTER
+
     .
    
 DEFINE {1} TEMP-TABLE ttEstForm
     FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER 
     FIELD estFormID AS CHARACTER /*Unique ID*/
     FIELD estHeaderID AS CHARACTER /*Link to Header*/
+    FIELD riEfRowID AS ROWID
     FIELD iFormNo AS INTEGER
     FIELD dGrossWidth AS DECIMAL 
     FIELD dGrossLength AS DECIMAL 
@@ -79,8 +117,8 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD cUOMDimension AS CHARACTER /*Inches/cm*/
     FIELD cUOMArea AS CHARACTER /*MSF*/
     FIELD dGrossQtyRequiredNoWaste AS DECIMAL /* Products / Number Out*/
-    FIELD dGrossQtyRequiredWasteSetup AS DECIMAL /*Wasted forms in Setup*/
-    FIELD dGrossQtyRequiredWasteRun AS DECIMAL /*Wasted forms in Run*/
+    FIELD dGrossQtyRequiredSetupWaste AS DECIMAL /*Wasted forms in Setup*/
+    FIELD dGrossQtyRequiredRunWaste AS DECIMAL /*Wasted forms in Run*/
     FIELD dGrossQtyRequiredTotal AS DECIMAL 
     FIELD dGrossQtyRequiredTotalWeight AS DECIMAL 
     FIELD cUOMGrossQtyRequiredTotalWeight AS CHARACTER
@@ -101,14 +139,19 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD cUOMWeightDie AS CHARACTER 
     FIELD dRollWidth AS DECIMAL
     FIELD dQtyFGOnForm AS DECIMAL
+    FIELD dCostPerUOMOverride AS DECIMAL 
+    FIELD cCostUOMOverride AS CHARACTER 
+    FIELD lNoCharge AS LOGICAL
     .
 
 DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER 
     FIELD estBlankID AS CHARACTER /*Unique ID*/
     FIELD estFormID AS CHARACTER /*Parent form*/
     FIELD estItemID AS CHARACTER /*Parent item*/
     FIELD estHeaderID AS CHARACTER /*Parent header*/
+    FIELD riEbRowID AS ROWID
     FIELD iFormNo AS INTEGER
     FIELD iBlankNo AS INTEGER
     FIELD dBlankWidth AS DECIMAL 
@@ -116,6 +159,8 @@ DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD dBlankDepth AS DECIMAL /*3D Foam*/
     FIELD cUOMDimension AS CHARACTER /*Inches/cm*/
     FIELD dBlankArea AS DECIMAL 
+    FIELD dBlankAreaWindow AS DECIMAL 
+    FIELD dBlankAreaNetWindow AS DECIMAL
     FIELD cUOMArea AS CHARACTER /*Sqin*/
     FIELD iNumOutWidth AS INTEGER 
     FIELD iNumOutLength AS INTEGER 
@@ -126,10 +171,17 @@ DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD dDepth AS DECIMAL 
     FIELD dWeight AS DECIMAL 
     FIELD cUOMWeight AS CHARACTER
+    FIELD lOutputInitialized AS LOGICAL /*Truly a temp-table field and not a db field*/
+    FIELD dQtyPerSet AS DECIMAL
+    FIELD dQtyRequired AS DECIMAL
+    FIELD dQtyYielded AS DECIMAL
+    FIELD iSubUnits AS INTEGER
+    FIELD iUnits AS INTEGER
     .
   
 DEFINE {1} TEMP-TABLE ttEstMisc
     FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER 
     FIELD estMiscID AS CHARACTER /*Unique ID*/
     FIELD estFormID AS CHARACTER /*link to parent form*/
     FIELD estBlankID AS CHARACTER /*link to parent blank*/
@@ -161,10 +213,12 @@ DEFINE {1} TEMP-TABLE ttEstMisc
     .
 DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER
     FIELD estMaterialID AS CHARACTER /*UniqueID*/
     FIELD estFormID AS CHARACTER /*link to parent form*/
     FIELD estBlankID AS CHARACTER /*link to parent blank*/
     FIELD estHeaderID AS CHARACTER /*Link to Parent Header*/
+    FIELD riItemRowID AS ROWID
     FIELD iFormNo AS INTEGER 
     FIELD iBlankNo AS INTEGER
     FIELD cItemID AS CHARACTER /*RM Item Code*/
@@ -174,28 +228,50 @@ DEFINE {1} TEMP-TABLE ttEstMaterial
     FIELD dSourceQty AS DECIMAL 
     FIELD cSourceQtySource AS CHARACTER 
     FIELD dQtyRequiredNoWaste AS DECIMAL 
-    FIELD dQtyRequiredWasteSetup AS DECIMAL 
-    FIELD dQtyRequiredWasteRun AS DECIMAL
+    FIELD dQtyRequiredSetupWaste AS DECIMAL 
+    FIELD dQtyRequiredRunWaste AS DECIMAL
+    FIELD dQtyRequiredMinDiff AS DECIMAL 
     FIELD dQtyRequiredTotal AS DECIMAL
+    FIELD dQtyRequiredNoWasteInCostUOM AS DECIMAL 
+    FIELD dQtyRequiredSetupWasteInCostUOM AS DECIMAL 
+    FIELD dQtyRequiredRunWasteInCostUOM AS DECIMAL
+    FIELD dQtyRequiredMinDiffInCostUOM AS DECIMAL 
+    FIELD dQtyRequiredTotalInCostUOM AS DECIMAL
     FIELD cQtyUOM AS CHARACTER 
+    FIELD cQtyUOMWaste AS CHARACTER
     FIELD dCostPerUOM AS DECIMAL 
+    FIELD dCostPerUOMAvg AS DECIMAL 
+    FIELD dCostPerUOMLast AS DECIMAL
+    FIELD dCostPerUOMOverride AS DECIMAL
     FIELD cCostUOM AS CHARACTER  
     FIELD dCostSetup AS DECIMAL
     FIELD dCostTotal AS DECIMAL
     FIELD dCostTotalNoWaste AS DECIMAL
-    FIELD dCostTotalWasteSetup AS DECIMAL 
-    FIELD dCostTotalWasteRun AS DECIMAL 
+    FIELD dCostTotalSetupWaste AS DECIMAL 
+    FIELD dCostTotalRunWaste AS DECIMAL 
+    FIELD dCostTotalMinDiff AS DECIMAL
     FIELD dCostTotalPerMFinished AS DECIMAL
     FIELD dCostTotalPerMFinishedNoWaste AS DECIMAL
-    FIELD dCostTotalPerMFinishedWasteSetup AS DECIMAL 
-    FIELD dCostTotalPerMFinishedWasteRun AS DECIMAL 
+    FIELD dCostTotalPerMFinishedSetupWaste AS DECIMAL 
+    FIELD dCostTotalPerMFinishedRunWaste AS DECIMAL 
     FIELD lIsPrimarySubstrate AS LOGICAL 
     FIELD lAddToWeightFG AS LOGICAL 
     FIELD lAddToWeightTare AS LOGICAL 
+    FIELD dBasisWeight AS DECIMAL
+    FIELD cBasisWeightUOM AS CHARACTER
+    FIELD dDimLength AS DECIMAL
+    FIELD dDimWidth AS DECIMAL 
+    FIELD dDimDepth AS DECIMAL  
+    FIELD cDimUOM AS CHARACTER 
+    FIELD lIsRealMaterial AS LOGICAL
+    FIELD cMaterialType AS CHARACTER
+    FIELD iSequence AS INTEGER 
+    
     .
     
 DEFINE {1} TEMP-TABLE ttEstOperation
     FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER
     FIELD estOperationID AS CHARACTER /*Unique ID*/
     FIELD estFormID AS CHARACTER /*link to parent form*/
     FIELD estBlankID AS CHARACTER /*link to parent blank*/
@@ -216,8 +292,6 @@ DEFINE {1} TEMP-TABLE ttEstOperation
     FIELD dSpeed AS DECIMAL 
     FIELD dCrewSizeRun AS DECIMAL
     FIELD dCrewSizeSetup AS DECIMAL 
-    FIELD dQtyInRunWastePercent AS DECIMAL
-    FIELD dQtyInSetupWasteCount AS DECIMAL
     FIELD dCostPerManHourDLSetup AS DECIMAL
     FIELD dCostPerHourFOSetup AS DECIMAL 
     FIELD dCostPerHourVOSetup AS DECIMAL
@@ -245,23 +319,31 @@ DEFINE {1} TEMP-TABLE ttEstOperation
     FIELD dCostTotalMinDiffVORun AS DECIMAL /*portion of total cost attributed to min charge*/ 
     FIELD dCostTotalMinDiffFORun AS DECIMAL /*portion of total cost attributed to min charge*/ 
     FIELD dMinCharge AS DECIMAL   
-    FIELD dQtyIn AS DECIMAL 
-    FIELD dQtyOut AS DECIMAL 
-    FIELD dQtyWasteSetup AS DECIMAL 
-    FIELD dQtyWasteRun AS DECIMAL
     FIELD dQtyGrossSheets AS DECIMAL
+    FIELD dQtyIn AS DECIMAL 
+    FIELD dQtyInAfterSetupWaste AS DECIMAL
+    FIELD dQtyInAfterSetupWasteLF AS DECIMAL
+    FIELD dQtyInSetupWaste AS DECIMAL 
+    FIELD dQtyInRunWaste AS DECIMAL
+    FIELD dQtyInRunWastePercent AS DECIMAL
+    FIELD dQtyInNoWaste AS DECIMAL
+    FIELD dQtyOut AS DECIMAL 
     FIELD iNumOutDivisor AS INTEGER
-    FIELD iNumOutMultiplier AS INTEGER /*for calculating run quantities in gross sheets*/
     FIELD iNumOutForOperation AS INTEGER
     FIELD lIsLocked AS LOGICAL 
-    FIELD lIsPrinterOrCoater AS LOGICAL 
+    FIELD lIsPrinter AS LOGICAL
+    FIELD lIsCoater AS LOGICAL 
+    FIELD lIsGluer AS LOGICAL 
+    FIELD lIsLeafer AS LOGICAL
     FIELD lIsNetSheetMaker AS LOGICAL 
     FIELD lIsBlankMaker AS LOGICAL
-    FIELD dQtyWasteSetupPerColor AS DECIMAL
+    FIELD dQtyInSetupWastePerColor AS DECIMAL
     FIELD iCountInks AS INTEGER
     FIELD iCountCoats AS INTEGER 
     FIELD iCountPlateChanges AS INTEGER 
     FIELD iCountFountainChanges AS INTEGER
+    FIELD dQtyInkLbsWastedPerSetup AS DECIMAL 
+    FIELD dQtyInkLbsWastedPerColorInSetup AS DECIMAL
     .
 
 DEFINE {1} TEMP-TABLE ttEstCostDetail
@@ -314,9 +396,113 @@ DEFINE {1} TEMP-TABLE ttEstCostGroupLevel
     FIELD cCostGroupLevelDescription AS CHARACTER 
     .    
     
-DEFINE {1} TEMP-TABLE ttEstErrors
+DEFINE {1} TEMP-TABLE ttEstError
     FIELD estHeaderID AS CHARACTER
-    FIELD cError AS CHARACTER.  
+    FIELD iFormNo AS INTEGER 
+    FIELD iBlankNo AS INTEGER
+    FIELD cErrorType AS CHARACTER
+    FIELD cError AS CHARACTER
+    .  
+    
+DEFINE {1} TEMP-TABLE ttInk
+    FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER 
+    FIELD estBlankID AS CHARACTER /*Unique ID*/
+    FIELD estFormID AS CHARACTER /*Parent form*/
+    FIELD estItemID AS CHARACTER /*Parent item*/
+    FIELD estHeaderID AS CHARACTER /*Parent header*/
+    FIELD riEbRowID AS ROWID
+    FIELD iFormNo AS INTEGER
+    FIELD iBlankNo AS INTEGER
+    FIELD cItemID AS CHARACTER
+    FIELD iPass AS INTEGER
+    FIELD iCountInks AS INTEGER 
+    FIELD iCountCoatings AS INTEGER
+    FIELD cMaterialType AS CHARACTER
+    FIELD cPressType AS CHARACTER
+    FIELD cDescription AS CHARACTER
+    FIELD dCoveragePercent    AS DECIMAL 
+    FIELD dCoverageRate AS DECIMAL 
+    FIELD cCoverageRateUOM AS CHARACTER 
+    FIELD dQtyRequiredPerBlank AS DECIMAL
+    FIELD dQtyRequired AS DECIMAL
+    FIELD cQtyUOM AS CHARACTER
+    FIELD dMinLbsPerJob AS DECIMAL
+    .
+    
+DEFINE {1} TEMP-TABLE ttGlue
+    FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER 
+    FIELD estBlankID AS CHARACTER /*Unique ID*/
+    FIELD estFormID AS CHARACTER /*Parent form*/
+    FIELD estItemID AS CHARACTER /*Parent item*/
+    FIELD estHeaderID AS CHARACTER /*Parent header*/
+    FIELD riEbRowID AS ROWID
+    FIELD iFormNo AS INTEGER
+    FIELD iBlankNo AS INTEGER
+    FIELD cItemID AS CHARACTER
+    FIELD cMaterialType AS CHARACTER
+    FIELD cDescription AS CHARACTER
+    FIELD dCoverageRate AS DECIMAL 
+    FIELD cCoverageRateUOM AS CHARACTER 
+    FIELD dQtyRequiredPerBlank AS DECIMAL
+    FIELD cQtyUOM AS CHARACTER
+    FIELD dMinLbsPerJob AS DECIMAL
+    . 
+DEFINE {1} TEMP-TABLE ttLeaf
+    FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER 
+    FIELD estBlankID AS CHARACTER /*Unique ID*/
+    FIELD estFormID AS CHARACTER /*Parent form*/
+    FIELD estItemID AS CHARACTER /*Parent item*/
+    FIELD estHeaderID AS CHARACTER /*Parent header*/
+    FIELD riEbRowID AS ROWID
+    FIELD iFormNo AS INTEGER
+    FIELD iBlankNo AS INTEGER
+    FIELD cItemID AS CHARACTER
+    FIELD cMaterialType AS CHARACTER
+    FIELD cDescription AS CHARACTER
+    FIELD dDimWidth AS DECIMAL 
+    FIELD dDimLength AS DECIMAL
+    FIELD dAreaInSQIn AS DECIMAL 
+    FIELD cDimUOM AS CHARACTER
+    FIELD cQtyUOM AS CHARACTER
+    FIELD dCoverageRate AS DECIMAL 
+    FIELD cCoverageRateUOM AS CHARACTER
+    FIELD dQtyRequiredPerLeaf AS DECIMAL
+    FIELD lIsSheetFed AS LOGICAL 
+    FIELD lIsWindow AS LOGICAL
+    . 
+    
+DEFINE {1} TEMP-TABLE ttPack
+    FIELD rec_key AS CHARACTER 
+    FIELD company AS CHARACTER 
+    FIELD estBlankID AS CHARACTER /*Unique ID*/
+    FIELD estFormID AS CHARACTER /*Parent form*/
+    FIELD estItemID AS CHARACTER /*Parent item*/
+    FIELD estHeaderID AS CHARACTER /*Parent header*/
+    FIELD riEbRowID AS ROWID
+    FIELD iFormNo AS INTEGER
+    FIELD iBlankNo AS INTEGER
+    FIELD cItemID AS CHARACTER
+    FIELD cMaterialType AS CHARACTER
+    FIELD cDescription AS CHARACTER
+    FIELD iCountPerSubUnit AS INTEGER
+    FIELD iCountSubUnitsPerUnit AS INTEGER
+    FIELD iCountPerUnit AS INTEGER
+    FIELD dQtyMultiplier AS DECIMAL 
+    FIELD cQtyMultiplierPer AS CHARACTER 
+    FIELD dWeightCapacity AS DECIMAL
+    FIELD dWeightTare AS DECIMAL  
+    FIELD dDimLength AS DECIMAL
+    FIELD dDimWidth AS DECIMAL 
+    FIELD dDimDepth AS DECIMAL  
+    FIELD cDimUOM AS CHARACTER 
+    FIELD cQtyUOM AS CHARACTER
+    FIELD lIsCase AS LOGICAL 
+    FIELD lIsPallet AS LOGICAL 
+    FIELD dCostPerUOMOverride AS DECIMAL
+    .     
 /* ********************  Preprocessor Definitions  ******************** */
 
 
