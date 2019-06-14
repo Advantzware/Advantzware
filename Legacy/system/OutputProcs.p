@@ -390,7 +390,7 @@ PROCEDURE WriteToXprintRect:
 
     cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
             "><FROM><R" + STRING(ipdRTo) + "><C" + STRING(ipdCTo) + "><RECT>" . 
-    /*PUT cText FORMAT "x(150)" .*/
+    
     RUN WriteOutput(cText,YES,NO).
    
 END PROCEDURE.
@@ -408,7 +408,7 @@ PROCEDURE WriteToXprintLine:
 
     cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
             "><FROM><C" + STRING(ipdCTo) + "><LINE>" . 
-   /*PUT cText FORMAT "x(150)" . */
+   
     RUN WriteOutput(cText,YES,NO).
    
 END PROCEDURE.
@@ -425,7 +425,7 @@ PROCEDURE ChangeXprintFont:
     IF ipcFont EQ "" THEN ipcFont = "Tahoma".
 
      cText = "<F" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">". 
-    /*PUT cText FORMAT "x(50)" .*/
+    
      RUN WriteOutput(cText,YES,NO).
    
 END PROCEDURE.
