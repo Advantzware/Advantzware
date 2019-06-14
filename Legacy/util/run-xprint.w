@@ -80,6 +80,7 @@ DEFINE            VARIABLE lv-font-no        AS CHARACTER FORMAT "X(256)":U INIT
 DEFINE            VARIABLE lv-ornt           AS CHARACTER INITIAL "P" NO-UNDO .
 DEFINE NEW SHARED VARIABLE v-print-fmt       AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hOutputProcs AS HANDLE NO-UNDO.
 
 {custom/xprint.i}
 
@@ -103,6 +104,9 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
     OUTPUT cRtnChar, OUTPUT lRecFound).
 ASSIGN 
     ls-full-img1 = cRtnChar  .
+
+RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -441,9 +445,12 @@ DO:
 
         ASSIGN 
             is-xprint-form = YES .
-        RUN run-report("",NO).
+        THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hOutputProcs).
+         
+           RUN run-report("",NO).
 
-        RUN GenerateReport("",NO).
+        /*RUN GenerateReport("",NO).*/
+        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hOutputProcs). 
 
     END.
 
@@ -760,10 +767,8 @@ PROCEDURE pProgram :
 /* --------------------------------------------- oe/rep/oe-lad.p      RM ---- */
     /* print bill of ladings                                                      */
     /* -------------------------------------------------------------------------- */
-      DEFINE VARIABLE hOutputProcs AS HANDLE NO-UNDO.
-      
-      RUN system/OutputProcs.p PERSISTENT SET hOutputProcs.
-      THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hOutputProcs).
+      DEFINE VARIABLE cText AS CHARACTER NO-UNDO .
+      DEFINE VARIABLE iRowCount AS INTEGER.
   
     IF tb_log THEN 
     DO: 
@@ -771,36 +776,54 @@ PROCEDURE pProgram :
     END.
 
     RUN ChangeXprintFont(begin_font,begin_font-size).
+    
+    
+    RUN WriteToXprint(4,52,"Asi Version #: {&awversion} ",YES,NO,NO) .
 
-    PUT 
-        "<R4><C52><B>Asi Version #: {&awversion} " "</B> "
-        "<R5><C52><B>Xprint Version #: " "</B> " .
+    RUN WriteToXprint(5,52,"Xprint Version #: ",YES,NO,NO) .
 
     IF tb_image THEN
-    RUN WriteToXprintImage(2,3,8,50,ls-full-img1) .
-
+    RUN WriteToXprintImage(2,3,8,50,ls-full-img1) . /* row form, col from, row size,col size ,image path */
+    
+    iRowCount = iRowCount + 8 .
+    
    IF tb_bar-code THEN
-    RUN WriteToXprintBarCode(13,20,2.5,30,"Test data test","39") .
-    
-   RUN WriteToXprintSoldAndShip .
-    
-    PUT SKIP(3)
-        fi_text FORMAT "x(2000)" .
+    RUN WriteToXprintBarCode(13,20,2.5,30,"Test data test","39") . /* row form, col from, row size,col size ,value ,type*/
 
- 
- IF tb_rec THEN
-     RUN WriteToXprintRect(18,26,1.5,43) .
+   iRowCount = iRowCount + 5 .
 
- IF tb_rec THEN
-     RUN WriteToXprintRect(18,26,48.5,85) .
+   IF tb_rec THEN
+     RUN WriteToXprintRect(18,26,1.5,43) . /* row from, row to, col from ,col to*/
 
- IF tb_line THEN
-     RUN WriteToXprintLine(48,5,85) .
+   IF tb_rec THEN
+     RUN WriteToXprintRect(18,26,48.5,85) . /* row from, row to, col from ,col to*/
+   
+    RUN WriteToXprint(19, 1," Sold To:" , NO, NO, NO).
+    RUN WriteToXprint(19, 49," Ship To:" , NO, NO, NO).
+
+    RUN WriteToXprint(20, 5," IBM CORP" , NO, NO, NO).
+    RUN WriteToXprint(20, 52," 1ST SOURCE SERVICE" , NO, NO, NO).
+
+    RUN WriteToXprint(21, 5," 2nd Line of Address" , NO, NO, NO).
+    RUN WriteToXprint(21, 52," 3850 PINSON VALLEY PKWY" , NO, NO, NO).
+
+    RUN WriteToXprint(22, 5," Rochester,NY 14606" , NO, NO, NO).
+    RUN WriteToXprint(22, 52," BIRMINGHAM, AL 35217" , NO, NO, NO).
+
+    iRowCount = iRowCount + 9 .
+   
+    RUN AddRow(INPUT-OUTPUT iRowCount, INPUT-OUTPUT iRowCount).
 
 
+    cText =  fi_text .
+     RUN WriteToXprint(35,5,cText,NO,NO,NO) .
 
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hOutputProcs). 
-      
+     iRowCount = iRowCount + 13 .
+
+     IF tb_line THEN
+         RUN WriteToXprintLine(48,5,85) .
+     iRowCount = iRowCount + 13 .
+
 
 END PROCEDURE.
 
@@ -819,7 +842,8 @@ PROCEDURE run-report :
 
     {sys/inc/print1.i}
   
-    {sys/inc/outprint.i value(99)}
+    /*{sys/inc/outprint.i value(99)}*/
+   RUN InitializeOutputXprint(list-name, YES, lBussFormModle, begin_font, begin_font-size,"") .
 
     SESSION:SET-WAIT-STATE ("general").
    
@@ -833,25 +857,21 @@ PROCEDURE run-report :
   
         CASE rd-dest:
             WHEN 1 THEN 
-                PUT "<PRINTER?>".
+                RUN WriteToXprint(1,1,"<PRINTER?>",YES,NO,NO) .
             WHEN 2 THEN 
                 DO:
-                    IF NOT lBussFormModle THEN
-                        PUT "<PREVIEW><MODAL=NO>". 
-                    ELSE
-                        PUT "<PREVIEW>".        
                 END.
             WHEN 3 THEN 
                 DO:
-                    PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(180)".
+                 RUN WriteToXprint(1,1,"<PDF-OUTPUT=" + lv-pdf-file + ">",YES,NO,NO) .
                 END.
         END CASE.
     END.
 
     RUN pProgram . 
- 
-   
-    OUTPUT CLOSE.
+    
+    RUN CloseOutput.
+    RUN PrintXprintFile(list-name).
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 

@@ -390,7 +390,8 @@ PROCEDURE WriteToXprintRect:
 
     cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
             "><FROM><R" + STRING(ipdRTo) + "><C" + STRING(ipdCTo) + "><RECT>" . 
-    PUT cText FORMAT "x(150)" .
+    /*PUT cText FORMAT "x(150)" .*/
+    RUN WriteOutput(cText,YES,NO).
    
 END PROCEDURE.
 
@@ -407,7 +408,8 @@ PROCEDURE WriteToXprintLine:
 
     cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
             "><FROM><C" + STRING(ipdCTo) + "><LINE>" . 
-   PUT cText FORMAT "x(150)" . 
+   /*PUT cText FORMAT "x(150)" . */
+    RUN WriteOutput(cText,YES,NO).
    
 END PROCEDURE.
 
@@ -423,7 +425,8 @@ PROCEDURE ChangeXprintFont:
     IF ipcFont EQ "" THEN ipcFont = "Tahoma".
 
      cText = "<F" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">". 
-    PUT cText FORMAT "x(50)" .
+    /*PUT cText FORMAT "x(50)" .*/
+     RUN WriteOutput(cText,YES,NO).
    
 END PROCEDURE.
 
@@ -442,7 +445,8 @@ PROCEDURE WriteToXprintImage:
     
      cText = "<C" + STRING(ipdCFrom) + "><R" + string(ipdRFrom) + "><#1><R+" + STRING(ipdRSize) + 
          "><C+" + STRING(ipdCSize) + "><IMAGE#1=" + ipcImagePath + ">" . 
-    PUT cText FORMAT "x(300)" .
+    
+     RUN WriteOutput(cText,YES,NO).
    
 END PROCEDURE.
 
@@ -462,25 +466,10 @@ PROCEDURE WriteToXprintBarCode:
     cText = "<R" + STRING(ipdRFrom) + "><#1><UNITS=INCHES><C" + STRING(ipdCFrom) + "><FROM><C+" + STRING(ipdCSize) + "><R+" +
          STRING(ipdRSize) + "><BARCODE,TYPE=" + STRING(ipcBarCodeType) + ",CHECKSUM=NONE,VALUE= " + string(ipcBarCodeValue) + ">"  +
          "<C" + STRING(ipdCFrom + 0.5) + ">" + ipcBarCodeValue .
-    PUT cText FORMAT "x(350)" .
+    
+    RUN WriteOutput(cText,YES,NO).
    
 END PROCEDURE.
-
-PROCEDURE WriteToXprintSoldAndShip:
-    /*------------------------------------------------------------------------------
-     Purpose: Wrapper on Write that prefixes Coordinates passed
-     Notes:
-    ------------------------------------------------------------------------------*/
-    PUT SKIP(2)  
-        " Sold To:" SPACE(30) " Ship To:"  SKIP
-        SPACE(5) "IBM CORP"  "1ST SOURCE SERVICE" AT 45 SKIP
-        SPACE(5) "IBM Blvd" "DSC - S.E. - 05" AT 45 SKIP
-        SPACE(5) "2nd Line of Address" "3850 PINSON VALLEY PKWY" AT 45 SKIP
-        SPACE(5) "Rochester,NY 14606" "BIRMINGHAM, AL 35217" AT 45 SKIP .
-   
-END PROCEDURE.
-
-
 
 
 /* ************************  Function Implementations ***************** */
