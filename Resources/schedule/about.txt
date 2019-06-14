@@ -4,7 +4,7 @@
       Email: Ron.Stark@AdvantzWare.com
            : Ron@TheStarkGroup.com
 
-    Support: 215.369.7800 (AdvantzWare Support)
+    Support: 904.685.8787 (AdvantzWare Support)
            : Ron Ext 7007
            : 404.769.7009 (Cell)
 
@@ -13,6 +13,9 @@
            (scrolldown to view release history)
 
  History:
+
+ r4.006 (updated 6.13.2019)
+ * add customer column to pending by job browser
 
  r4.006 (updated 5.13.2019)
  * ability to lock/unlock jobs by date range

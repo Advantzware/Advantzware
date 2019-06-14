@@ -5,9 +5,12 @@ DEFINE TEMP-TABLE jobID NO-UNDO
   FIELD jobSort LIKE pendingJob.jobSort
   FIELD jobSelected AS LOGICAL
   FIELD dueDate LIKE pendingJob.dueDate
+  FIELD customer AS CHARACTER FORMAT "x(15)" LABEL "Customer"
     INDEX jobSort IS PRIMARY UNIQUE jobSort
     INDEX jobID IS UNIQUE job
-    INDEX dueDate dueDate.
+    INDEX dueDate dueDate
+    INDEX customer customer
+    .
 
 PROCEDURE newEnd:
   {{&includes}/{&Board}/newEnd.i}
@@ -34,6 +37,7 @@ PROCEDURE setPendingJob:
         jobID.job = pendingJob.job
         jobID.jobSort = pendingJob.jobSort
         jobID.dueDate = pendingJob.dueDate
+        jobID.customer = pendingJob.userField01
         priorEndDate = pendingJob.dueDate
         priorEndTime = pendingJob.dueTime
         priorTimeSpan = pendingDays * 86400.
