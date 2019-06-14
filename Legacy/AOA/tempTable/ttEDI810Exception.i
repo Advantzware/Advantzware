@@ -2,7 +2,7 @@
 
 /* EDI 810 Exception.rpa */
 DEFINE TEMP-TABLE ttEDI810Exception NO-UNDO
-{aoa/tempTable/ttFields.i}
+    {aoa/tempTable/ttFields.i}
     FIELD custCode          AS CHARACTER LABEL "Customer" FORMAT "x(8)"
     FIELD custName          AS CHARACTER LABEL "Name"     FORMAT "x(30)"
     FIELD invoiceNo         AS INTEGER   LABEL "Invoice"  FORMAT ">>>>>>>9"

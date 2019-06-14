@@ -6,9 +6,13 @@
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
+/* **********************  Internal Functions  ************************ */
+
 FUNCTION fErrorMsg RETURNS CHARACTER (iphWidget AS HANDLE):
     RETURN "Invalid Entry for " + iphWidget:LABEL + " " + iphWidget:SCREEN-VALUE.
 END FUNCTION.
+
+/* **********************  Internal Procedures  *********************** */
 
 /* all validate procedures should run this procedure */
 PROCEDURE dynValReturn:
@@ -20,6 +24,18 @@ PROCEDURE dynValReturn:
 END PROCEDURE.
 
 /* create procedures in alphabetical order below here */
+PROCEDURE dynValCust:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST cust
+                 WHERE cust.company EQ cCompany
+                   AND cust.cust-no EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValFGItem:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     

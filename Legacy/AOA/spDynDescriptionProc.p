@@ -14,12 +14,26 @@
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
+/* **********************  Internal Functions  ************************ */
+
 FUNCTION fDefaultDescription RETURNS CHARACTER
     (iphWidgetTo AS HANDLE):
     RETURN IF iphWidgetTo:NAME BEGINS "start" THEN "<Start Range Value>"
       ELSE IF iphWidgetTo:NAME BEGINS "end"   THEN "<End Range Value>"
       ELSE "<Value Not Found>".
 END FUNCTION.
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE dynDescripCust:
+    {&defInputParam}
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ cCompany
+           AND cust.cust-no EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE cust THEN
+    iphWidgetTo:SCREEN-VALUE = cust.name.       
+END PROCEDURE.
 
 PROCEDURE dynDescripFGItem:
     {&defInputParam}
