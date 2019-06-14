@@ -21,6 +21,26 @@ FUNCTION fDefaultDescription RETURNS CHARACTER
       ELSE "<Value Not Found>".
 END FUNCTION.
 
+PROCEDURE dynDescripFGItem:
+    {&defInputParam}
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ cCompany
+           AND itemfg.i-no    EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE itemfg THEN
+    iphWidgetTo:SCREEN-VALUE = itemfg.i-name.       
+END PROCEDURE.
+
+PROCEDURE dynDescripLoc:
+    {&defInputParam}
+    FIND FIRST loc NO-LOCK
+         WHERE loc.company EQ cCompany
+           AND loc.loc     EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE loc THEN
+    iphWidgetTo:SCREEN-VALUE = loc.dscr.       
+END PROCEDURE.
+
 PROCEDURE dynDescripMachine:
     {&defInputParam}
     FIND FIRST mach NO-LOCK
@@ -30,6 +50,36 @@ PROCEDURE dynDescripMachine:
     IF AVAILABLE mach THEN
     iphWidgetTo:SCREEN-VALUE = mach.m-dscr.       
 END PROCEDURE.
+
+PROCEDURE dynDescripMat:
+    {&defInputParam}
+    FIND FIRST mat NO-LOCK
+         WHERE mat.mat EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE mat THEN
+    iphWidgetTo:SCREEN-VALUE = mat.dscr.
+END PROCEDURE.
+
+PROCEDURE dynDescripProCat:
+    {&defInputParam}
+    FIND FIRST procat NO-LOCK
+         WHERE procat.company EQ cCompany
+           AND procat.procat  EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE procat THEN
+    iphWidgetTo:SCREEN-VALUE = procat.dscr.       
+END PROCEDURE.
+
+PROCEDURE dynDescripRMItem:
+    {&defInputParam}
+    FIND FIRST item NO-LOCK
+         WHERE item.company EQ cCompany
+           AND item.i-no    EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE item THEN
+    iphWidgetTo:SCREEN-VALUE = item.i-name.       
+END PROCEDURE.
+
 
 PROCEDURE dynDescripShift:
     {&defInputParam}
