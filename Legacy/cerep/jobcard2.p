@@ -1565,12 +1565,17 @@ END FUNCTION.
             IF i EQ 1 THEN PUT "<C105><FROM><LINE><||3>" SKIP.
           END.
         END.
-
+          
         /* graphics packaging modification to show udf grn value */
         IF cUDFGroup NE ? THEN DO:
+         FOR EACH b-eb NO-LOCK
+             WHERE b-eb.company EQ cocode
+               AND b-eb.est-no EQ job-hdr.est-no 
+               AND b-eb.form-no EQ job-hdr.frm BREAK by b-eb.form-no :
+   
             FIND FIRST itemfg NO-LOCK
-                 WHERE itemfg.company EQ job-hdr.company
-                   AND itemfg.i-no EQ job-hdr.i-no
+                 WHERE itemfg.company EQ cocode
+                   AND itemfg.i-no EQ b-eb.stock-no
                  NO-ERROR.
             IF AVAILABLE itemfg THEN DO:
                 IF CAN-FIND(FIRST mfvalues
@@ -1578,12 +1583,17 @@ END FUNCTION.
                 RUN UDF/UDF.p (cUDFGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
                 /* GPI UDF ID of 0004 */
                 FIND FIRST ttUDF WHERE ttUDF.udfID EQ "0004" NO-ERROR.
-                IF AVAILABLE ttUDF THEN
-                PUT UNFORMATTED "GRN: " ttUDF.udfValue.
+                IF AVAILABLE ttUDF THEN do:
+                    IF FIRST(b-eb.form-no) THEN
+                        PUT "<b>UDF's</b>" SKIP .
+
+                    PUT UNFORMATTED "FG Item " itemfg.i-no FORMAT "x(15)"  "GRN: " ttUDF.udfValue.
+                END.
                 PUT "" SKIP.
             END. /* if avail */
             ELSE /* no fg item */
             PUT "" SKIP.
+         END. /* for each b-eb */
         END. /* cUDFGroup */
         ELSE /* no udf group */
         PUT "" SKIP.
