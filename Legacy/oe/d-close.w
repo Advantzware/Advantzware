@@ -245,7 +245,7 @@ DO:
     reftable.val[2] = INT(w-file.cloze) + 1.
   END.
 
-  FIND FIRST w-file WHERE w-file.cloze EQ YES NO-ERROR.
+  FIND FIRST w-file WHERE w-file.cloze EQ NO NO-ERROR.
   v-process = NOT AVAIL w-file.
 
   FOR EACH w-file WHERE w-file.cloze EQ NO,
@@ -275,8 +275,7 @@ DO:
     END.
 
     SESSION:SET-WAIT-STATE("").
-
-    IF NOT v-process THEN RETURN NO-APPLY.
+   
   END.
 END.
 
