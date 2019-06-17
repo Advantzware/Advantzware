@@ -44,7 +44,29 @@ DEF NEW SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
 
 DEF BUFFER br-tmp FOR rm-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR rm-rdtlh. /* for tag validation */
+DEFINE VARIABLE cRtnChr          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFnd          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE physCnt-log      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogFolder       AS CHARACTER NO-UNDO INIT "./custfiles/logs/RMInventory".
+DEFINE STREAM sPhysCntSave.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChr, OUTPUT lRecFnd).
+physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
+
+
+IF physCnt-log THEN 
+DO: 
+    OS-CREATE-DIR VALUE(cLogFolder).
+    FIND FIRST _myconnection NO-LOCK.     
+    cPhysCntSaveFile = cLogFolder + "/" + USERID("ASI") + STRING(MONTH(TODAY),"99") 
+        + STRING(DAY(TODAY), "99") + STRING(YEAR(TODAY))
+        + STRING(TIME).
+    cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
+
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -573,7 +595,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
-  RUN new-bin.
+   /* #46504 Don't change quantity when they modify the loc or bin */
+  /* RUN new-bin. */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -582,7 +605,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 DO:
-  RUN new-bin.
+  /* #46504 Don't change quantity when they modify the loc or bin */
+  /* RUN new-bin. */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -947,6 +971,13 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+  IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
+  DO: 
+      OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
+      EXPORT STREAM sPhysCntSave fg-rctd.
+      OUTPUT STREAM sPhysCntSave CLOSE.
+  END.
+    
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -1168,10 +1199,11 @@ PROCEDURE valid-loc-bin-tag :
            AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
            AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-ERROR.
-    IF ip-int LE 3 AND adm-new-record THEN
-    rm-rctd.qty:SCREEN-VALUE = '0'.
-    IF ip-int LE 3 AND adm-new-record AND AVAILABLE rm-bin THEN
-    rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty).
+/*    IF ip-int LE 3 AND adm-new-record THEN*/
+/*    rm-rctd.qty:SCREEN-VALUE = '0'.       */
+/* Handled by new-bin */
+/*    IF ip-int LE 3 AND adm-new-record AND AVAILABLE rm-bin THEN
+    rm-rctd.qty:SCREEN-VALUE = STRING(rm-bin.qty). */
     
     IF ip-int EQ 1 OR ip-int EQ 99  THEN DO:  
         FIND FIRST loc WHERE loc.company = cocode
@@ -1195,7 +1227,28 @@ PROCEDURE valid-loc-bin-tag :
           END.
 
     END.
-
+    IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        FIND FIRST loadtag NO-LOCK 
+            WHERE loadtag.company EQ g_company
+              AND loadtag.item-type EQ YES 
+              AND loadtag.tag-no EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+            NO-ERROR.
+        IF AVAILABLE loadtag AND loadtag.i-no NE rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
+              MESSAGE "Warning: a loadtag exists with this tag number" SKIP 
+                      "but for a different item number!"
+              VIEW-AS ALERT-BOX.
+        END.
+        IF AVAILABLE loadtag AND loadtag.job-no GT "" THEN 
+        FIND FIRST job-hdr NO-LOCK 
+            WHERE job-hdr.company EQ loadtag.company
+              AND job-hdr.job-no    EQ loadtag.job-no
+              AND job-hdr.job-no2   EQ loadtag.job-no2
+            NO-ERROR.
+        IF AVAILABLE job-hdr AND job-hdr.opened EQ NO THEN 
+            MESSAGE "Warning:  The job scanned has a status of closed."
+                VIEW-AS ALERT-BOX.
+    END.
+    
 /*    IF NOT AVAILABLE rm-bin THEN DO:                                               */
 /*      IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN              */
 /*        FIND FIRST loadtag NO-LOCK                                                 */
