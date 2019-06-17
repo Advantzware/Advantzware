@@ -1153,13 +1153,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
 
-    IF NOT CAN-DO('Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana',v-print-fmt) THEN DO:
+    IF NOT CAN-DO('Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,PremierXFGItems,POPrint-Mex',v-print-fmt) THEN DO:
        IF v-print-fmt NE "CentBox" THEN
           ASSIGN
              tb_itemDescription = NO
              tb_itemDescription:SCREEN-VALUE = 'NO'
 
-         tb_score-types              = CAN-DO("Premierx,PremierCX,PremierXFGItems,Fibrex,Lovepac,POPrint10-CAN,MWFibre,Protagon,Sultana",v-print-fmt)
+         tb_score-types              = CAN-DO("Fibrex,Lovepac,POPrint10-CAN,MWFibre,Protagon,Sultana",v-print-fmt)
          tb_score-types:SCREEN-VALUE = STRING(tb_score-types)
          tb_score-types:SENSITIVE    = YES.
 
@@ -1182,7 +1182,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        DISABLE tb_metric.
 
    /* IF v-print-fmt NE "Indiana" OR v-print-fmt NE "Indiana" THEN*/
-        IF LOOKUP(v-print-fmt,"Indiana,Premierx,PremierCX,PremierXFGItems") = 0 THEN
+        IF LOOKUP(v-print-fmt,"Indiana,Premierx,PremierCX,PremierXFGItems,POPrint-Mex") = 0 THEN
             ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
                    tb_print-prices:SENSITIVE = NO.
    
@@ -1845,7 +1845,7 @@ PROCEDURE SetGlobalVariables :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-po-ord-no AS INTEGER NO-UNDO.
 
-  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
+  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
     THEN is-xprint-form = YES.
     ELSE is-xprint-form = NO.
 
@@ -1910,6 +1910,7 @@ PROCEDURE SetPOPrintForm :
     WHEN "asixprnt"     THEN ASSIGN v-program = "po/po-asix.p"      li-lineperpage = 80.  
     WHEN "PremierX"     THEN ASSIGN v-program = "po/po-xprem.p"     li-lineperpage = 80.  
     WHEN "PremierXFGItems"     THEN ASSIGN v-program = "po/po-xpremfg.p"     li-lineperpage = 80.  
+    WHEN "POPrint-Mex"  THEN ASSIGN v-program = "po/po-prntMex.p"     li-lineperpage = 80.  
     WHEN "PremierCX"    THEN ASSIGN v-program = "po/po-cxprem.p"     li-lineperpage = 80.
     WHEN "Protagon"     THEN ASSIGN v-program = "po/po-protg.p"     li-lineperpage = 85.  
     WHEN "Protagon2"    THEN ASSIGN v-program = "po/po-protg2.p"    li-lineperpage = 85.

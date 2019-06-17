@@ -114,13 +114,19 @@ ASSIGN
 
 {oe/oe-sysct1.i NEW}
         
+  def var PrepTax-log like sys-ctrl.log-fld no-undo.
+def var PrepTax-cha like sys-ctrl.char-fld no-undo.
+
+assign
+ PrepTax-log = true
+ PrepTax-cha = "".
+  
   DO TRANSACTION:
     {sys/inc/oedate.i}
     {sys/inc/oecomb.i}
     {sys/inc/job#.i}
     {sys/inc/graphic.i}
     {sys/inc/oeestcom.i}
-    {sys/inc/OEPrepTaxCode.i}
     {sys/inc/oeship.i}
   END.
 
@@ -638,7 +644,7 @@ PROCEDURE create-misc :
                 oe-ordm.bill  = "Y".
             
          IF PrepTax-log THEN 
-            ASSIGN oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
+            ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
                    .  
          RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
                             OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
@@ -757,6 +763,7 @@ PROCEDURE create-release :
                                 AND eb.form-no  NE 0
                                    NO-LOCK NO-ERROR.
                 IF AVAIL eb THEN ASSIGN v-ship-id = eb.ship-id.
+                if avail eb AND v-ship-from EQ "" then assign v-ship-from = eb.loc.
              END.
              ELSE DO:
                 FIND FIRST shipto WHERE shipto.company EQ cocode
@@ -770,9 +777,14 @@ PROCEDURE create-release :
                                          NO-LOCK NO-ERROR.
                      IF AVAIL shipto THEN ASSIGN v-ship-id = shipto.ship-id.   
                 END.
+                IF AVAIL shipto AND v-ship-from EQ "" THEN
+                    v-ship-from = shipto.loc.
              END.
          END.
-         RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id, INPUT-OUTPUT v-ship-from)  .
+
+         IF llOeShipFromLog THEN
+             RUN oe/d-shipid.w (INPUT oe-ord.cust-no, INPUT oe-ordl.qty, INPUT oe-ordl.i-no, INPUT-OUTPUT v-ship-id, INPUT-OUTPUT v-ship-from)  .
+
          ASSIGN oe-rel.ship-id = TRIM(v-ship-id).
          FIND FIRST shipto WHERE shipto.company = cocode AND
                                   shipto.cust-no = oe-ord.cust-no  AND
@@ -1944,6 +1956,7 @@ PROCEDURE lib-create-record :
   g_company = ip-company.
   locode = ip-loc.
   g_loc = ip-loc.
+  RUN spSetCompany (g_company).
   DEF BUFFER bf-orig-ord FOR oe-ord.
   DEF BUFFER b-oe-ordl FOR oe-ordl.
   
@@ -3071,6 +3084,12 @@ FUNCTION fGetTaxable RETURNS LOGICAL
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
     RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    FIND FIRST prep NO-LOCK WHERE 
+        prep.company EQ oe-ordm.company AND 
+        prep.code    EQ oe-ordm.charge
+        NO-ERROR.
+    IF AVAIL prep THEN ASSIGN 
+        lTaxable = prep.taxable.    
     RETURN lTaxable.
 
 END FUNCTION.

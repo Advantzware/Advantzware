@@ -95,6 +95,19 @@ DEF VAR li-qty-pal AS INT NO-UNDO.
 DEF VAR lc-pass-loc AS CHAR NO-UNDO.
 DEF VAR lv-show-zero-bins AS LOG NO-UNDO.
 DEF VAR lv-show-tag-no AS CHAR NO-UNDO.
+DEFINE VARIABLE lAccessPro AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+
+RUN methods/prgsecur.p
+	    (INPUT "fgijob.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAccessPro, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 /*-sort-by = NOT oeinq.*/
 
 &SCOPED-DEFINE for-each1    ~
@@ -205,8 +218,8 @@ w-job.tot-wt
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table w-job
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table w-job
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME}   FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag.
+&Scoped-define QUERY-STRING-br_table FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME}   FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE       ELSE w-job.loc EQ lc-pass-loc)       BY (IF oeinq THEN w-job.job-no ELSE "") DESC       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC       BY w-job.cust-no       BY w-job.job-no       BY w-job.job-no2       BY w-job.loc       BY w-job.loc-bin       BY w-job.tag.
 &Scoped-define TABLES-IN-QUERY-br_table w-job
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table w-job
 
@@ -419,7 +432,7 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME}
-  FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "ALL") THEN TRUE
+  FOR EACH w-job WHERE (IF (lc-pass-loc EQ "" OR lc-pass-loc = "*ALL") THEN TRUE
       ELSE w-job.loc EQ lc-pass-loc)
       BY (IF oeinq THEN w-job.job-no ELSE "") DESC
       BY (IF oeinq THEN w-job.job-no2 ELSE 0) DESC
@@ -1161,16 +1174,18 @@ PROCEDURE update-cost :
     
     IF NOT AVAILABLE w-job THEN RETURN.
 
-    RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-    RUN epCanAccess IN hPgmSecurity ("viewers/p-fg-bj-l.w", "", OUTPUT lResult).
-    DELETE OBJECT hPgmSecurity.
-    IF lResult THEN
-        ASSIGN ll-secure = YES.
-  
-    IF NOT ll-secure THEN DO:  
-        RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
-        IF NOT ll-secure THEN RETURN.
-    END.  
+    /*RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.                    */
+    /*RUN epCanAccess IN hPgmSecurity ("viewers/p-fg-bj-l.w", "", OUTPUT lResult).*/
+    /*DELETE OBJECT hPgmSecurity.                                                 */
+    /*IF lResult THEN                                                             */
+    /*    ASSIGN ll-secure = YES.                                                 */
+    /*                                                                            */
+    /*IF NOT ll-secure THEN DO:                                                   */
+    /*    RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure).                           */
+    /*    IF NOT ll-secure THEN RETURN.                                           */
+    /*END.                                                                        */    
+
+    IF NOT lAccessPro THEN RETURN .
  
   FOR EACH hold-job:
     DELETE hold-job.

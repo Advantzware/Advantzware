@@ -492,11 +492,13 @@ DO:
             YEAR(date(inv_date)) NE YEAR(change_date)  THEN 
         DO:
      
-            MESSAGE "This could cause a problem with month end reporting " SKIP
-                "if the invoice date is not the same period as the BOL"
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO change_date .
-            RETURN NO-APPLY .
+            MESSAGE "Note: This could cause a problem with month end reporting " SKIP
+                "if the invoice date is not the same period as the BOL.  Continue?"
+                VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE v-process.
+            IF NOT v-process THEN DO: 
+                APPLY "entry" TO change_date .
+                RETURN NO-APPLY .
+            END.
         END.
 
 

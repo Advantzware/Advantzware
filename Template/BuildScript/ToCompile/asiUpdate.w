@@ -3,21 +3,12 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-
-  File:  
-
-  Description: 
-
-  Input Parameters:
-      <none>
-
-  Output Parameters:
-      <none>
-
-  Author: 
-
-  Created: 
-
+  File:                 asiUpdate1.w
+  Description:          Update launch program 
+  Input Parameters:     <none>
+  Output Parameters:    <none>
+  Author:               MYT 
+  Created:              02/01/2019 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
@@ -37,6 +28,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
 
+{iniFileVars.i}
+
 DEFINE STREAM s1.
 DEFINE STREAM sInstr.
 DEFINE STREAM outFile.
@@ -45,13 +38,6 @@ DEFINE STREAM outStream.
 DEFINE STREAM logStream.
 DEFINE STREAM iniStream.
 
-DEFINE TEMP-TABLE ttIniFile
-    FIELD iPos AS INTEGER
-    FIELD cRaw AS CHARACTER
-    FIELD cVarName AS CHARACTER
-    FIELD cVarValue AS CHARACTER
-    INDEX idxPos IS PRIMARY UNIQUE iPos.
-    
 DEFINE TEMP-TABLE ttDatabases
     FIELD cName AS CHARACTER
     FIELD cDir AS CHARACTER
@@ -78,9 +64,7 @@ DEFINE VARIABLE cFtpInstrFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFtpOutputFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFtpPassword AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFtpUser AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cIniLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cIniLoc AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cIniVarList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInstallerFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cIpAddress AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
@@ -112,6 +96,7 @@ DEFINE VARIABLE hPreRun AS HANDLE.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE VARIABLE iAsiDbVer AS INTEGER NO-UNDO.
 DEFINE VARIABLE iAudDbVer AS INTEGER NO-UNDO.
+DEFINE VARIABLE iStatus AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCtr AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCurrAudVer AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCurrDbVer AS INTEGER NO-UNDO.
@@ -154,166 +139,6 @@ DEFINE VARIABLE v1 AS CHARACTER FORMAT "x(15)" NO-UNDO.
 DEFINE VARIABLE v2 AS CHARACTER FORMAT "x(15)" NO-UNDO.
 DEFINE VARIABLE xDbDir AS CHARACTER NO-UNDO.
 
-/* Ensure that these lists always match when reading advantzware.ini, 'c' is always the prefix */
-ASSIGN 
-    cIniVarList = 
-    "# Setup Variables,siteName,hostname,drive,dbDrive,topDir,mapDir,DLCDir,currVer,verDate,connectAudit,makeBackup,lockoutTries," +
-    "# Filestructure Variables,adminDir,backupDir,dbDir,deskDir,docDir,envDir,installDir,updatesDir," +
-    "# Admin subdirs,dbAdmin,envAdmin," +
-    "# Backup subdirs,dbBackup,pgmBackup,resBackup," +
-    "# Database subdirs,dbAuditDir,dbDataDir,dbProdDir,dbShipDir,dbStructDir,dbTestDir," +
-    "# Documentation subdirs,docMiscDocuments,docReleaseNotes,docUserManual," +
-    "# Environment subdirs,envProdDir,envTestDir," +
-    "# Environment inner structure,envAddonDir,envCustFiles,envCustomerDir,envOverrideDir,envPoDir,envProgramsDir,envResourceDir,envScheduleDir,envTemplateDir,envUserMenuDir,envUsersDir," + 
-    "# Install subdirs,instAOA,instBackup,instDBMS,instEsko,instFileUtils,instLocalPrint,instRemAccess," +
-    "# Updates subdirs,updAdminDir,updCompressDir,updDataDir,updDataUpdateDir,updDeskDir,updMenuDir,updProgramDir,updRelNotesDir,updSqlDir,updStructureDir," +
-    "# ASI Login Items,modeList,envList,dbList," +
-    "# ASI Login Items Support,pgmList,dbDirList,dbPortList,audDirList,audDbList,audPortList,envVerList,dbVerList,audVerList," +
-    "# Basic DB Elements,audDbName,audDbPort,audDbStFile,prodDbName,prodDbPort,prodDbStFile,shipDbName,shipDbPort,shipDbStFile,testDbName,testDbPort,testDbStFile," +
-    "# Misc Elements,adminPort,dfFileName,deltaFileName".
-
-
-/* # Setup Variables */
-DEFINE VARIABLE cSitename AS CHARACTER INITIAL "ASI" NO-UNDO.
-DEFINE VARIABLE cHostname AS CHARACTER INITIAL "HOSTNAME" NO-UNDO.
-DEFINE VARIABLE cDrive AS CHARACTER INITIAL "C:" NO-UNDO.
-DEFINE VARIABLE cDbDrive AS CHARACTER INITIAL "C:" NO-UNDO.
-DEFINE VARIABLE cTopDir AS CHARACTER INITIAL "asigui" NO-UNDO.
-DEFINE VARIABLE cMapDir AS CHARACTER INITIAL "N:" NO-UNDO.
-DEFINE VARIABLE cDLCDir AS CHARACTER INITIAL "C:\Progress\OE116" NO-UNDO.
-DEFINE VARIABLE cCurrVer AS CHARACTER INITIAL "10.6.0" NO-UNDO.
-DEFINE VARIABLE cVerDate AS CHARACTER INITIAL "10/1/17" NO-UNDO.
-DEFINE VARIABLE cConnectAudit AS CHARACTER INITIAL "NO" NO-UNDO.
-DEFINE VARIABLE cMakeBackup AS CHARACTER INITIAL "NO" NO-UNDO.
-DEFINE VARIABLE cLockoutTries AS CHARACTER INITIAL "4" NO-UNDO.
-/* # Filestructure Variables */
-DEFINE VARIABLE cAdminDir AS CHARACTER INITIAL "Admin" NO-UNDO.
-DEFINE VARIABLE cBackupDir AS CHARACTER INITIAL "Backups" NO-UNDO.
-DEFINE VARIABLE cDbDir AS CHARACTER INITIAL "Databases" NO-UNDO.
-DEFINE VARIABLE cDeskDir AS CHARACTER INITIAL "Desktop" NO-UNDO.
-DEFINE VARIABLE cDocDir AS CHARACTER INITIAL "Documentation" NO-UNDO.
-DEFINE VARIABLE cEnvDir AS CHARACTER INITIAL "Environments" NO-UNDO.
-DEFINE VARIABLE cInstallDir AS CHARACTER INITIAL "Install" NO-UNDO.
-DEFINE VARIABLE cUpdatesDir AS CHARACTER INITIAL "Updates" NO-UNDO.
-/* # Admin subdirs */
-DEFINE VARIABLE cDbAdmin AS CHARACTER INITIAL "DbAdmin" NO-UNDO.
-DEFINE VARIABLE cEnvAdmin AS CHARACTER INITIAL "EnvAdmin" NO-UNDO.
-DEFINE VARIABLE cxDbAdmin AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxEnvAdmin AS CHARACTER NO-UNDO.
-/* # Backup subdirs */
-DEFINE VARIABLE cDbBackup AS CHARACTER INITIAL "Databases" NO-UNDO.
-DEFINE VARIABLE cPgmBackup AS CHARACTER INITIAL "Programs" NO-UNDO.
-DEFINE VARIABLE cResBackup AS CHARACTER INITIAL "Resources" NO-UNDO.
-DEFINE VARIABLE cxDbBackup AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxPgmBackup AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxResBackup AS CHARACTER NO-UNDO.
-/* # Database subdirs */
-DEFINE VARIABLE cDbAuditDir AS CHARACTER INITIAL "Audit" NO-UNDO.
-DEFINE VARIABLE cDbDataDir AS CHARACTER INITIAL "Data" NO-UNDO.
-DEFINE VARIABLE cDbProdDir AS CHARACTER INITIAL "Prod" NO-UNDO.
-DEFINE VARIABLE cDbShipDir AS CHARACTER INITIAL "Ship" NO-UNDO.
-DEFINE VARIABLE cDbStructDir AS CHARACTER INITIAL "Structure" NO-UNDO.
-DEFINE VARIABLE cDbTestDir AS CHARACTER INITIAL "Test" NO-UNDO.
-DEFINE VARIABLE cxDbAuditDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxDbDataDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxDbProdDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxDbShipDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxDbStructDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxDbTestDir AS CHARACTER NO-UNDO.
-/* # Documentation subdirs */
-DEFINE VARIABLE cDocMiscDocuments AS CHARACTER INITIAL "MiscDocuments" NO-UNDO.
-DEFINE VARIABLE cDocReleaseNotes AS CHARACTER INITIAL "ReleaseNotes" NO-UNDO.
-DEFINE VARIABLE cDocUserManual AS CHARACTER INITIAL "UserManual" NO-UNDO.
-DEFINE VARIABLE cxDocMiscDocuments AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxDocReleaseNotes AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxDocUserManual AS CHARACTER NO-UNDO.
-/* # Environment subdirs */
-DEFINE VARIABLE cEnvProdDir AS CHARACTER INITIAL "Prod" NO-UNDO.
-DEFINE VARIABLE cEnvTestDir AS CHARACTER INITIAL "Test" NO-UNDO.
-DEFINE VARIABLE cxEnvProdDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxEnvTestDir AS CHARACTER NO-UNDO.
-/* # Environment inner structure */
-DEFINE VARIABLE cEnvAddonDir AS CHARACTER INITIAL "Addon" NO-UNDO.
-DEFINE VARIABLE cEnvCustFiles AS CHARACTER INITIAL "CustFiles" NO-UNDO.
-DEFINE VARIABLE cEnvCustomerDir AS CHARACTER INITIAL "Customer" NO-UNDO.
-DEFINE VARIABLE cEnvOverrideDir AS CHARACTER INITIAL "Override" NO-UNDO.
-DEFINE VARIABLE cEnvPODir AS CHARACTER INITIAL "PO" NO-UNDO.
-DEFINE VARIABLE cEnvProgramsDir AS CHARACTER INITIAL "Programs" NO-UNDO.
-DEFINE VARIABLE cEnvResourceDir AS CHARACTER INITIAL "Resources" NO-UNDO.
-DEFINE VARIABLE cEnvScheduleDir AS CHARACTER INITIAL "Schedule" NO-UNDO.
-DEFINE VARIABLE cEnvTemplateDir AS CHARACTER INITIAL "Schedule" NO-UNDO.
-DEFINE VARIABLE cEnvUserMenuDir AS CHARACTER INITIAL "Usermenu" NO-UNDO.
-DEFINE VARIABLE cEnvUsersDir AS CHARACTER INITIAL "Users" NO-UNDO.
-/* # Install subdirs */
-DEFINE VARIABLE cInstAOA AS CHARACTER INITIAL "AOAInstall" NO-UNDO.
-DEFINE VARIABLE cInstBackup AS CHARACTER INITIAL "BackupInstall" NO-UNDO.
-DEFINE VARIABLE cInstDBMS AS CHARACTER INITIAL "DBMSInstall" NO-UNDO.
-DEFINE VARIABLE cInstEsko AS CHARACTER INITIAL "EskoInstall" NO-UNDO.
-DEFINE VARIABLE cInstFileUtils AS CHARACTER INITIAL "FileUtilities" NO-UNDO.
-DEFINE VARIABLE cInstLocalPrint AS CHARACTER INITIAL "LocalPrintInstall" NO-UNDO.
-DEFINE VARIABLE cInstRemAccess AS CHARACTER INITIAL "RemoteAccessInstall" NO-UNDO.
-DEFINE VARIABLE cxInstAOA AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxInstBackup AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxInstDBMS AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxInstEsko AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxInstFileUtils AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxInstLocalPrint AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxInstRemAccess AS CHARACTER NO-UNDO.
-/* # Updates subdirs */
-DEFINE VARIABLE cUpdAdminDir AS CHARACTER INITIAL "Admin" NO-UNDO.
-DEFINE VARIABLE cUpdCompressDir AS CHARACTER INITIAL "Compress" NO-UNDO.
-DEFINE VARIABLE cUpdDataDir AS CHARACTER INITIAL "DataFiles" NO-UNDO.
-DEFINE VARIABLE cUpdDataUpdateDir AS CHARACTER INITIAL "DataFiles" NO-UNDO.
-DEFINE VARIABLE cUpdDeskDir AS CHARACTER INITIAL "Desktop" NO-UNDO.
-DEFINE VARIABLE cUpdMenuDir AS CHARACTER INITIAL "MenuFiles" NO-UNDO.
-DEFINE VARIABLE cUpdProgramDir AS CHARACTER INITIAL "ProgramFiles" NO-UNDO.
-DEFINE VARIABLE cUpdRelNotesDir AS CHARACTER INITIAL "ReleaseNotes" NO-UNDO.
-DEFINE VARIABLE cUpdSQLDir AS CHARACTER INITIAL "SQLAccess" NO-UNDO.
-DEFINE VARIABLE cUpdStructureDir AS CHARACTER INITIAL "StructureUpdate" NO-UNDO.
-DEFINE VARIABLE cxUpdAdminDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdCompressDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdDataDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdDataUpdateDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdDeskDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdMenuDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdProgramDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdRelNotesDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdSQLDir AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cxUpdStructureDir AS CHARACTER NO-UNDO.
-/* #ASI Login Items */
-DEFINE VARIABLE cModeList AS CHARACTER INITIAL "Advantzware,CaseLabel,Schedule Monitor,Editor,Esko Monitor,FG XML Monitor,Loadtags,Monitor Users,Rel XML Monitor,RFID Monitor,RM Loadtag,Sharpshooter,Touchscreen" NO-UNDO.
-DEFINE VARIABLE cEnvList AS CHARACTER INITIAL "Prod" NO-UNDO.
-DEFINE VARIABLE cDbList AS CHARACTER INITIAL "asiProd" NO-UNDO.
-/* #ASI Login Items Support */
-DEFINE VARIABLE cPgmList AS CHARACTER INITIAL "system/mainmenu.w,oerep/r-casetg.w,custom/asiSchW.w,_edit.p,jobxml\monitor.w,fgXml\monitor.w,oerep/r-loadtg.w,proshut.bat,relxml\monitor.w,rfid\monitor.w,rmrep/rmloadtg.w,sshoot/sshoot.w,touch/touchscr.w" NO-UNDO.
-DEFINE VARIABLE cDbDirList AS CHARACTER INITIAL "Prod" NO-UNDO.
-DEFINE VARIABLE cDbPortList AS CHARACTER INITIAL "2826" NO-UNDO.
-DEFINE VARIABLE cAudDirList AS CHARACTER INITIAL "Audit" NO-UNDO.
-DEFINE VARIABLE cAudDBList AS CHARACTER INITIAL "audProd" NO-UNDO.
-DEFINE VARIABLE cAudPortList AS CHARACTER INITIAL "2836" NO-UNDO.
-DEFINE VARIABLE cEnvVerList AS CHARACTER INITIAL "0.0.0" NO-UNDO.
-DEFINE VARIABLE cDbVerList AS CHARACTER INITIAL "0.0.0" NO-UNDO.
-DEFINE VARIABLE cAudVerList AS CHARACTER INITIAL "16.8.0" NO-UNDO.
-/* # Basic DB Elements */
-DEFINE VARIABLE cAudDbName AS CHARACTER INITIAL "audProd" NO-UNDO.
-DEFINE VARIABLE cAudDbPort AS CHARACTER INITIAL "2836" NO-UNDO.
-DEFINE VARIABLE cAudDbStFile AS CHARACTER INITIAL "audit.st" NO-UNDO.
-DEFINE VARIABLE cProdDbName AS CHARACTER INITIAL "asiProd" NO-UNDO.
-DEFINE VARIABLE cProdDbPort AS CHARACTER INITIAL "2826" NO-UNDO.
-DEFINE VARIABLE cProdDbStFile AS CHARACTER INITIAL "asiProd.st" NO-UNDO.
-DEFINE VARIABLE cShipDbName AS CHARACTER INITIAL "asiShip" NO-UNDO.
-DEFINE VARIABLE cShipDbPort AS CHARACTER INITIAL "2825" NO-UNDO.
-DEFINE VARIABLE cShipDbStFile AS CHARACTER INITIAL "asiShip.st" NO-UNDO.
-DEFINE VARIABLE cTestDbName AS CHARACTER INITIAL "asiTest" NO-UNDO.
-DEFINE VARIABLE cTestDbPort AS CHARACTER INITIAL "2827" NO-UNDO.
-DEFINE VARIABLE cTestDbStFile AS CHARACTER INITIAL "asiTest.st" NO-UNDO.
-/* # Misc Elements */
-DEFINE VARIABLE cAdminPort AS CHARACTER INITIAL "20942" NO-UNDO.
-DEFINE VARIABLE cDfFileName AS CHARACTER INITIAL "asi0000.df" NO-UNDO.
-DEFINE VARIABLE cDeltaFileName AS CHARACTER INITIAL "asi0000_0000.df" NO-UNDO.
-
-/* END advantzware.ini Variables */
-
 PROCEDURE GetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
     DEFINE INPUT        PARAMETER intBufferSize AS LONG.
     DEFINE INPUT-OUTPUT PARAMETER ptrToString   AS MEMPTR.
@@ -323,6 +148,11 @@ END PROCEDURE.
 PROCEDURE SetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
     DEFINE INPUT  PARAMETER chrCurDir AS CHARACTER.
     DEFINE RETURN PARAMETER iResult AS LONG.
+END PROCEDURE.
+
+PROCEDURE BringWindowToTop EXTERNAL "USER32.DLL":
+    DEFINE INPUT  PARAMETER intHwnd   AS LONG.
+    DEFINE RETURN PARAMETER intResult AS LONG.
 END PROCEDURE.
 
 PROCEDURE GetLastError EXTERNAL "kernel32.dll":
@@ -344,8 +174,8 @@ END.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-4 fiUserID bCancel fiPassword ~
-slEnvList eStatus 
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-4 RECT-6 fiUserID bCancel ~
+fiPassword slEnvList eStatus 
 &Scoped-Define DISPLAYED-OBJECTS fiUserID fiPassword slEnvList ~
 fiFromVersion fiToVersion eStatus 
 
@@ -412,6 +242,16 @@ DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 78 BY 2.86.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 75 BY 1.43
+     FGCOLOR 3 .
+
+DEFINE RECTANGLE rStatusBar
+     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     SIZE 10 BY 1.43
+     BGCOLOR 3 FGCOLOR 3 .
+
 DEFINE VARIABLE slEnvList AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      SIZE 30 BY 1.67 NO-UNDO.
@@ -432,10 +272,12 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 8 BY .62 AT ROW 11.71 COL 3 WIDGET-ID 54
      RECT-2 AT ROW 1.48 COL 2 WIDGET-ID 44
      RECT-4 AT ROW 5.52 COL 2 WIDGET-ID 48
+     rStatusBar AT ROW 16.71 COL 3
+     RECT-6 AT ROW 16.71 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 79.8 BY 15.48 WIDGET-ID 100.
+         SIZE 79.8 BY 17.86 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -455,7 +297,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update"
-         HEIGHT             = 15.48
+         COLUMN             = 5
+         ROW                = 5
+         HEIGHT             = 17.86
          WIDTH              = 79.8
          MAX-HEIGHT         = 26.67
          MAX-WIDTH          = 81
@@ -488,6 +332,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiFromVersion IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiToVersion IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE rStatusBar IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -581,11 +427,25 @@ OR CHOOSE OF bUpdate
                     RUN ipStatus("Upgrade Complete.").
                     RUN ipStatus(" ").
             
-                    RUN ipStatus("Sending report to ASI").
-                    RUN ipBuildVerification (3).
-                    RUN ipSendVerification.
-
-                    IF lSuccess THEN APPLY 'close' TO THIS-PROCEDURE.
+                    IF lSuccess THEN DO:
+                        ASSIGN 
+                            cOutFile = cOutDir + "-SUCCESS.txt".
+                        RUN ipSendVerification.
+                        MESSAGE 
+                            "Congratulations! Your Advantzware update completed successfully."
+                            VIEW-AS ALERT-BOX.
+                        APPLY 'close' TO THIS-PROCEDURE.
+                    END.
+                    ELSE DO:
+                        ASSIGN 
+                            cOutFile = cOutDir + "-FAILED.txt".
+                        RUN ipSendVerification.
+                        MESSAGE 
+                            "There was an issue with update processing." SKIP 
+                            "Please contact Advantzware Support."
+                            VIEW-AS ALERT-BOX.
+                        APPLY 'close' TO THIS-PROCEDURE.
+                    END.
                 END.
         END CASE.
     END.
@@ -676,7 +536,7 @@ ON LEAVE OF slEnvList
     DO:
         RUN ipStatus("  User chose the " + SELF:{&SV} + " environment.").
     END.
-    
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -765,14 +625,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEFINE VARIABLE lNeedDBWork AS LOG NO-UNDO.
     DEFINE VARIABLE lGoodNos AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lGoodList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE rc AS INTEGER NO-UNDO.
 
+    /* This window will ALWAYS be on top of other windows */
+    RUN BringWindowToTop (c-Win:hwnd, OUTPUT rc).
+    
     /* There should not be any connected DBs at this point.  If there are, disconnect */
     DO ictr = 1 TO NUM-DBS:
         DISCONNECT VALUE (LDBNAME(ictr)).
     END. 
     
-    RUN ipCreateTTiniFile.
-    RUN ipFindIniFile.
+    RUN ipFindIniFile ("..\advantzware.ini",
+                       OUTPUT cIniLoc).
     IF cIniLoc NE "" THEN 
         RUN ipReadIniFile.
     RUN ipExpandVarNames.
@@ -785,8 +649,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
         iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
-        iCurrAudVer          = fIntVer(ENTRY(iIndex,cAudVerList))
-        .
+        iCurrAudVer         = fIntVer(ENTRY(iIndex,cAudVerList))
+        iStatus             = 1
+        rStatusBar:WIDTH    = MIN(75,(iStatus / 100) * 75).
 
     RUN ipGetPatchList.
 
@@ -802,57 +667,30 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         c7ZOutputFile  = cEnvAdmin + "\7zOutput.txt"
         c7ZErrFile     = cEnvAdmin + "\7zErrs.txt"
         cFtpInstrFile  = cEnvAdmin + "\ftpInstr.txt"
-        cOutFile = cEnvAdmin + "\" + cSiteName + "-" +
-                   STRING(YEAR(TODAY),"9999") +
-                   STRING(MONTH(TODAY),"99") +
-                   STRING(DAY(TODAY),"99") + ".txt"
         cOutDir = cSiteName + "-" +
                    STRING(YEAR(TODAY),"9999") +
                    STRING(MONTH(TODAY),"99") +
-                   STRING(DAY(TODAY),"99") + "-" + "ENV"
+                   STRING(DAY(TODAY),"99") + "-" + slEnvList:SCREEN-VALUE
         .    
     
-    /* Look in Progress dir to find out which mode (RUN/DEV) we're in */
-    GET-KEY-VALUE SECTION 'Startup' KEY 'DLC' VALUE cDLC.
-    ASSIGN 
-        cDevCfg = cDLC + "\progress.dev"
-        cRunCfg = cDLC + "\progress.run"
-        cCfgCfg = cDLC + "\progress.cfg".
-        
-    /* Make sure progress.cfg is where we expect it; otherwise disable this feature */    
-    IF SEARCH (cCfgCfg) EQ ? THEN MESSAGE 
-            "Unable to locate a valid progress.cfg."
-            VIEW-AS ALERT-BOX ERROR.
-    
-    /* Make sure progress.dev has been installed */    
-    IF SEARCH (cDevCfg) EQ ? 
-    AND SEARCH (cRunCfg) EQ ? THEN 
-    DO:
-        OS-COPY VALUE(cUpdStructureDir + "\STFiles\progress.dev") VALUE(cDLC).
-    END. 
-    
-    /* Now figure out if we're in dev mode or run mode */
-    IF SEARCH (cDevCfg) NE ? THEN ASSIGN
-        cState              = "Run".       
-    ELSE IF SEARCH (cRunCfg) NE ? THEN ASSIGN
-        cState              = "Dev".
-                       
-    IF SEARCH(cFtpOutputFile) NE ? THEN
-        OS-DELETE VALUE(SEARCH(cFtpOutputFile)).
-    IF SEARCH(cFtpErrFile) NE ? THEN
-        OS-DELETE VALUE(SEARCH(cFtpErrFile)).
-    IF SEARCH(c7zOutputFile) NE ? THEN
-        OS-DELETE VALUE(SEARCH(c7zOutputFile)).
-    IF SEARCH(c7zErrFile) NE ? THEN
-        OS-DELETE VALUE(SEARCH(c7zErrFile)).
-    
-    IF SEARCH(cFtpInstrFile) NE ? THEN
-        OS-DELETE VALUE(SEARCH(cFtpInstrFile)).
-      
     RUN ipStatus("Initialize").
+    
+    IF fIntVer(fiToVersion:{&SV}) LE 16087000 THEN DO:
+        ASSIGN
+            fiUserID:{&SV} = "admin"
+            fiPassword:{&SV} = "installme".
+        IF NUM-ENTRIES(slEnvList:LIST-ITEMS) EQ 1 THEN
+            APPLY 'choose' TO bUpdate.
+        ELSE DO:
+            APPLY 'leave' TO fiUserID.
+            APPLY 'leave' TO fiPassword.
+            APPLY 'entry' TO slEnvList.
+        END.
+    END.
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -893,79 +731,10 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiUserID fiPassword slEnvList fiFromVersion fiToVersion eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-2 RECT-4 fiUserID bCancel fiPassword slEnvList eStatus 
+  ENABLE RECT-2 RECT-4 RECT-6 fiUserID bCancel fiPassword slEnvList eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipBuildVerification C-Win 
-PROCEDURE ipBuildVerification :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiPhase AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cLine AS CHARACTER NO-UNDO.
-    
-    IF NOT lHeader THEN 
-    DO:
-        OUTPUT STREAM outFile TO VALUE(cOutFile).
-        OUTPUT STREAM outFile CLOSE.
-        ASSIGN
-            lHeader = TRUE.
-    END.
-    
-    CASE ipiPhase:
-        WHEN 1 THEN 
-            DO:
-                RUN ipStatus("  Building FTP Verification file").
-                OUTPUT STREAM outFile TO VALUE(cOutFile).
-                PUT STREAM outFile UNFORMATTED "Download started " + STRING(TODAY) + " at " + STRING(TIME,"HH:MM:SS") + CHR(10).
-                OUTPUT STREAM outFile CLOSE.
-            END.
-        WHEN 2 THEN 
-            DO:
-                OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
-                PUT STREAM outFile UNFORMATTED "Downloads: " + cDLList + CHR(10).
-                OUTPUT STREAM outFile CLOSE.
-            END.
-        WHEN 3 THEN 
-            DO:
-                OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
-                INPUT STREAM logFile FROM VALUE(cLogFile).
-                REPEAT:
-                    IMPORT STREAM logFile UNFORMATTED cLine.
-                    PUT STREAM outFile UNFORMATTED "  " + cLine + CHR(10).
-                END.
-                INPUT STREAM logFile CLOSE.
-                OUTPUT STREAM outFile CLOSE.
-            END.
-    END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCreateTTIniFile C-Win 
-PROCEDURE ipCreateTTIniFile :
-/*------------------------------------------------------------------------------
-      Purpose:     Builds initial ttIniFile with sequences correct for output
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    EMPTY TEMP-TABLE ttIniFile. 
-    DO i = 1 TO NUM-ENTRIES(cIniVarList):
-        CREATE ttIniFile.
-        ASSIGN
-            ttIniFile.iPos = i
-            ttIniFile.cVarName = ENTRY(i,cIniVarList).
-    END.
-            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1024,120 +793,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFindIniFile C-Win 
-PROCEDURE ipFindIniFile :
-/*------------------------------------------------------------------------------
-      Purpose:     Find the advantzware.ini file
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    /* Start guessing where the file might be */
-    DO:
-        ASSIGN
-            cIniLoc = "advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ELSE ASSIGN
-                cIniLoc = "..\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "N:\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "P:\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "C:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "C:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "D:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "D:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "E:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "E:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "F:\ASIGUI\Admin\advantzware.ini.".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "F:\ASI\Admin\advantzware.ini".
-        IF SEARCH(cIniLoc) <> ? THEN 
-        DO:
-            ASSIGN
-                cIniLoc = SEARCH(cIniLoc).
-            LEAVE.
-        END.
-        ASSIGN
-            cIniLoc = "".
-    END.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetPatchList C-Win 
 PROCEDURE ipGetPatchList :
 /*------------------------------------------------------------------------------
@@ -1188,6 +843,7 @@ PROCEDURE ipProcess :
     DEFINE VARIABLE cEnvVer AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iEnv AS INTEGER NO-UNDO.
     DEFINE VARIABLE cFileToRun AS CHARACTER NO-UNDO.
+    
         
     ASSIGN 
         lSuccess = TRUE.
@@ -1239,9 +895,11 @@ PROCEDURE ipProcess :
             iCurrAudVer,
             iPatchAudVer,
             iUserLevel,
-            OUTPUT lSuccess).
+            OUTPUT lSuccess,
+            INPUT-OUTPUT iStatus).
         ASSIGN
-            c-Win:VISIBLE = TRUE. 
+            c-Win:VISIBLE = TRUE
+            rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75). 
         RUN ipStatus("Return from asiUpdateDB.w").
 
         IF lSuccess THEN 
@@ -1274,6 +932,9 @@ PROCEDURE ipProcess :
             QUIT.
         END.
     END.
+    ELSE ASSIGN 
+        iStatus = iStatus + 2
+        rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75).
   
     ASSIGN
         iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
@@ -1365,325 +1026,14 @@ PROCEDURE ipProcess :
         fiToVersion:{&SV},
         iUserLevel,
         lMakeBackup, /* Need backup? */
-        OUTPUT lSuccess).
+        OUTPUT lSuccess,
+        INPUT-OUTPUT iStatus).
+        
     ASSIGN
-        c-Win:VISIBLE = TRUE. 
+        c-Win:VISIBLE = TRUE
+        rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75). 
+         
     RUN ipStatus("Return from asiUpdateENV.w").
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadIniFile C-Win 
-PROCEDURE ipReadIniFile :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    INPUT FROM VALUE(SEARCH(cIniLoc)).
-    REPEAT:
-        IMPORT UNFORMATTED cIniLine.
-        IF cIniLine BEGINS "#" THEN 
-        DO:
-            FIND ttIniFile WHERE 
-                ttIniFile.cVarName = cIniLine
-                NO-ERROR.
-            IF AVAILABLE ttIniFile THEN ASSIGN
-                    ttIniFile.cRaw = cIniLine.
-        END.
-        ELSE 
-        DO:
-            FIND ttIniFile WHERE 
-                ttIniFile.cVarName = ENTRY(1,cIniLine,"=")
-                NO-ERROR.
-            IF AVAILABLE ttIniFile THEN ASSIGN
-                    ttIniFile.cRaw = cIniLine
-                    ttIniFile.cVarValue = ENTRY(2,cIniLine,"=").
-        END.            
-    END.
-    INPUT CLOSE.
-    
-    FOR EACH ttIniFile:
-        CASE ttIniFile.cVarName:
-            WHEN "siteName" THEN 
-                ASSIGN 
-                    cSiteName = ttIniFile.cVarValue.
-            WHEN "hostname" THEN 
-                ASSIGN 
-                    cHostname = ttIniFile.cVarValue.
-            WHEN "drive" THEN 
-                ASSIGN 
-                    cDrive = ttIniFile.cVarValue.
-            WHEN "dbDrive" THEN 
-                ASSIGN 
-                    cDbDrive = ttIniFile.cVarValue.
-            WHEN "topDir" THEN 
-                ASSIGN 
-                    cTopDir = ttIniFile.cVarValue.
-            WHEN "mapDir" THEN 
-                ASSIGN 
-                    cMapDir = ttIniFile.cVarValue.
-            WHEN "DLCDir" THEN 
-                ASSIGN 
-                    cDLCDir = ttIniFile.cVarValue.
-            WHEN "currVer" THEN 
-                ASSIGN 
-                    cCurrVer = ttIniFile.cVarValue.
-            WHEN "verDate" THEN 
-                ASSIGN 
-                    cVerDate = ttIniFile.cVarValue.
-            WHEN "connectAudit" THEN 
-                ASSIGN 
-                    cConnectAudit = ttIniFile.cVarValue.
-            WHEN "makeBackup" THEN 
-                ASSIGN 
-                    cMakeBackup = ttIniFile.cVarValue.
-            WHEN "lockoutTries" THEN 
-                ASSIGN 
-                    cLockoutTries = ttIniFile.cVarValue.
-            WHEN "adminDir" THEN 
-                ASSIGN 
-                    cAdminDir = ttIniFile.cVarValue.
-            WHEN "backupDir" THEN 
-                ASSIGN 
-                    cBackupDir = ttIniFile.cVarValue.
-            WHEN "dbDir" THEN 
-                ASSIGN 
-                    cDbDir = ttIniFile.cVarValue.
-            WHEN "deskDir" THEN 
-                ASSIGN 
-                    cDeskDir = ttIniFile.cVarValue.
-            WHEN "docDir" THEN 
-                ASSIGN 
-                    cDocDir = ttIniFile.cVarValue.
-            WHEN "envDir" THEN 
-                ASSIGN 
-                    cEnvDir = ttIniFile.cVarValue.
-            WHEN "installDir" THEN 
-                ASSIGN 
-                    cInstallDir = ttIniFile.cVarValue.
-            WHEN "updatesDir" THEN 
-                ASSIGN 
-                    cUpdatesDir = ttIniFile.cVarValue.
-            WHEN "dbAdmin" THEN 
-                ASSIGN 
-                    cDbAdmin = ttIniFile.cVarValue.
-            WHEN "envAdmin" THEN 
-                ASSIGN 
-                    cEnvAdmin = ttIniFile.cVarValue.
-            WHEN "dbBackup" THEN 
-                ASSIGN 
-                    cDbBackup = ttIniFile.cVarValue.
-            WHEN "pgmBackup" THEN 
-                ASSIGN 
-                    cPgmBackup = ttIniFile.cVarValue.
-            WHEN "resBackup" THEN 
-                ASSIGN 
-                    cResBackup = ttIniFile.cVarValue.
-            WHEN "dbAuditDir" THEN 
-                ASSIGN 
-                    cDbAuditDir = ttIniFile.cVarValue.
-            WHEN "dbDataDir" THEN 
-                ASSIGN 
-                    cDbDataDir = ttIniFile.cVarValue.
-            WHEN "dbProdDir" THEN 
-                ASSIGN 
-                    cDbProdDir = ttIniFile.cVarValue.
-            WHEN "dbShipDir" THEN 
-                ASSIGN 
-                    cDbShipDir = ttIniFile.cVarValue.
-            WHEN "dbStructDir" THEN 
-                ASSIGN 
-                    cDbStructDir = ttIniFile.cVarValue.
-            WHEN "dbTestDir" THEN 
-                ASSIGN 
-                    cDbTestDir = ttIniFile.cVarValue.
-            WHEN "docMiscDocuments" THEN 
-                ASSIGN 
-                    cDocMiscDocuments = ttIniFile.cVarValue.
-            WHEN "docReleaseNotes" THEN 
-                ASSIGN 
-                    cDocReleaseNotes = ttIniFile.cVarValue.
-            WHEN "docUserManual" THEN 
-                ASSIGN 
-                    cDocUserManual = ttIniFile.cVarValue.
-            WHEN "envProdDir" THEN 
-                ASSIGN 
-                    cEnvProdDir = ttIniFile.cVarValue.
-            WHEN "envTestDir" THEN 
-                ASSIGN 
-                    cEnvTestDir = ttIniFile.cVarValue.
-            WHEN "envAddonDir" THEN 
-                ASSIGN 
-                    cEnvAddonDir = ttIniFile.cVarValue.
-            WHEN "envCustFiles" THEN 
-                ASSIGN 
-                    cEnvCustFiles = ttIniFile.cVarValue.
-            WHEN "envCustomerDir" THEN 
-                ASSIGN 
-                    cEnvCustomerDir = ttIniFile.cVarValue.
-            WHEN "envOverrideDir" THEN 
-                ASSIGN 
-                    cEnvOverrideDir = ttIniFile.cVarValue.
-            WHEN "envPoDir" THEN 
-                ASSIGN 
-                    cEnvPoDir = ttIniFile.cVarValue.
-            WHEN "envProgramsDir" THEN 
-                ASSIGN 
-                    cEnvProgramsDir = ttIniFile.cVarValue.
-            WHEN "envResourceDir" THEN 
-                ASSIGN 
-                    cEnvResourceDir = ttIniFile.cVarValue.
-            WHEN "envScheduleDir" THEN 
-                ASSIGN 
-                    cEnvScheduleDir = ttIniFile.cVarValue.
-            WHEN "envTemplateDir" THEN 
-                ASSIGN 
-                    cEnvTemplateDir = ttIniFile.cVarValue.
-            WHEN "envUserMenuDir" THEN 
-                ASSIGN 
-                    cEnvUserMenuDir = ttIniFile.cVarValue.
-            WHEN "envUsersDir" THEN 
-                ASSIGN 
-                    cEnvUsersDir = ttIniFile.cVarValue.
-            WHEN "instAOA" THEN 
-                ASSIGN 
-                    cInstAOA = ttIniFile.cVarValue.
-            WHEN "instBackup" THEN 
-                ASSIGN 
-                    cInstBackup = ttIniFile.cVarValue.
-            WHEN "instDBMS" THEN 
-                ASSIGN 
-                    cInstDBMS = ttIniFile.cVarValue.
-            WHEN "instEsko" THEN 
-                ASSIGN 
-                    cInstEsko = ttIniFile.cVarValue.
-            WHEN "instFileUtils" THEN 
-                ASSIGN 
-                    cInstFileUtils = ttIniFile.cVarValue.
-            WHEN "instLocalPrint" THEN 
-                ASSIGN 
-                    cInstLocalPrint = ttIniFile.cVarValue.
-            WHEN "instRemAccess" THEN 
-                ASSIGN 
-                    cInstRemAccess = ttIniFile.cVarValue.
-            WHEN "updAdminDir" THEN 
-                ASSIGN 
-                    cUpdAdminDir = ttIniFile.cVarValue.
-            WHEN "updCompressDir" THEN 
-                ASSIGN 
-                    cUpdCompressDir = ttIniFile.cVarValue.
-            WHEN "updDataDir" THEN 
-                ASSIGN 
-                    cUpdDataDir = ttIniFile.cVarValue.
-            WHEN "updDataUpdateDir" THEN 
-                ASSIGN 
-                    cUpdDataUpdateDir = ttIniFile.cVarValue.
-            WHEN "updDeskDir" THEN 
-                ASSIGN 
-                    cUpdDeskDir = ttIniFile.cVarValue.
-            WHEN "updMenuDir" THEN 
-                ASSIGN 
-                    cUpdMenuDir = ttIniFile.cVarValue.
-            WHEN "updProgramDir" THEN 
-                ASSIGN 
-                    cUpdProgramDir = ttIniFile.cVarValue.
-            WHEN "updRelNotesDir" THEN 
-                ASSIGN 
-                    cUpdRelNotesDir = ttIniFile.cVarValue.
-            WHEN "updSqlDir" THEN 
-                ASSIGN 
-                    cUpdSqlDir = ttIniFile.cVarValue.
-            WHEN "updStructureDir" THEN 
-                ASSIGN 
-                    cUpdStructureDir = ttIniFile.cVarValue.
-            WHEN "modeList" THEN 
-                ASSIGN 
-                    cModeList = ttIniFile.cVarValue.
-            WHEN "envList" THEN 
-                ASSIGN 
-                    cEnvList = ttIniFile.cVarValue.
-            WHEN "dbList" THEN 
-                ASSIGN 
-                    cDbList = ttIniFile.cVarValue.
-            WHEN "pgmList" THEN 
-                ASSIGN 
-                    cPgmList = ttIniFile.cVarValue.
-            WHEN "dbDirList" THEN 
-                ASSIGN 
-                    cDbDirList = ttIniFile.cVarValue.
-            WHEN "dbPortList" THEN 
-                ASSIGN 
-                    cDbPortList = ttIniFile.cVarValue.
-            WHEN "audDirList" THEN 
-                ASSIGN 
-                    cAudDirList = ttIniFile.cVarValue.
-            WHEN "audDbList" THEN 
-                ASSIGN 
-                    cAudDbList = ttIniFile.cVarValue.
-            WHEN "audPortList" THEN 
-                ASSIGN 
-                    cAudPortList = ttIniFile.cVarValue.
-            WHEN "envVerList" THEN 
-                ASSIGN 
-                    cEnvVerList = ttIniFile.cVarValue.
-            WHEN "dbVerList" THEN 
-                ASSIGN 
-                    cDbVerList = ttIniFile.cVarValue.
-            WHEN "audVerList" THEN
-                ASSIGN 
-                    cAudVerList = ttIniFile.cVarValue.
-            WHEN "prodDbName" THEN 
-                ASSIGN 
-                    cProdDbName = ttIniFile.cVarValue.
-            WHEN "prodDbPort" THEN 
-                ASSIGN 
-                    cProdDbPort = ttIniFile.cVarValue.
-            WHEN "prodDbStFile" THEN 
-                ASSIGN 
-                    cProdDbStFile = ttIniFile.cVarValue.
-            WHEN "shipDbName" THEN 
-                ASSIGN 
-                    cShipDbName = ttIniFile.cVarValue.
-            WHEN "shipDbPort" THEN 
-                ASSIGN 
-                    cShipDbPort = ttIniFile.cVarValue.
-            WHEN "shipDbStFile" THEN 
-                ASSIGN 
-                    cShipDbStFile = ttIniFile.cVarValue.
-            WHEN "testDbName" THEN 
-                ASSIGN 
-                    cTestDbName = ttIniFile.cVarValue.
-            WHEN "testDbPort" THEN 
-                ASSIGN 
-                    cTestDbPort = ttIniFile.cVarValue.
-            WHEN "testDbStFile" THEN 
-                ASSIGN 
-                    cTestDbStFile = ttIniFile.cVarValue.
-            WHEN "adminPort" THEN 
-                ASSIGN 
-                    cAdminPort = ttIniFile.cVarValue.
-            WHEN "dfFileName" THEN 
-                ASSIGN 
-                    cDfFileName = ttIniFile.cVarValue.
-            WHEN "deltaFileName" THEN 
-                ASSIGN 
-                    cDeltaFileName = ttIniFile.cVarValue.
-        END CASE.
-              
-    END.
-
-    /* Handle initialization of newly added variables here */
-    FIND ttIniFile WHERE 
-        ttIniFile.cVarName = "audVerList"
-        NO-ERROR.
-    IF AVAILABLE ttIniFile 
-    AND ttIniFile.cVarValue EQ "" THEN ASSIGN 
-        ttIniFile.cVarValue = cDbVerList
-        cAudVerList = cDbVerList.
-
     
 END PROCEDURE.
 
@@ -1698,21 +1048,30 @@ PROCEDURE ipSendVerification :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cFTPxmit AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLine AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFtpCmd AS CHARACTER NO-UNDO.
+
+    OUTPUT STREAM outFile TO VALUE(cOutFile) APPEND.
+    INPUT STREAM logFile FROM VALUE(cLogFile).
+    REPEAT:
+        IMPORT STREAM logFile UNFORMATTED cLine.
+        PUT STREAM outFile UNFORMATTED "  " + cLine + CHR(10).
+    END.
+    INPUT STREAM logFile CLOSE.
+    OUTPUT STREAM outFile CLOSE.
     
     ASSIGN
-        cFTPxmit = cEnvAdmin + "\FTPout.txt".
+        cFTPxmit = cEnvAdmin + "\FTPout.txt"
+        cFtpCmd = cEnvDir + "\" + slEnvList:{&SV} + "\Resources\WinSCP\winscp.com /ini=nul /log=" + 
+                  cFtpOutputFile + " /script=" + cFtpXmit.
         
     RUN ipStatus("  Building FTP Transmit file").
     RUN ipStatus("    File: " + cFTPxmit).
     RUN ipStatus("    FTP Addr: " + cIpAddress).
     
     OUTPUT STREAM sInstr TO VALUE(cFTPxmit).
-    PUT STREAM sInstr UNFORMATTED "OPEN " + cIpAddress SKIP.
-    PUT STREAM sInstr UNFORMATTED 
-        "PROMPT " SKIP.
-    PUT STREAM sInstr UNFORMATTED "USER " + cFtpUser + " " + cFtpPassword SKIP.
-    PUT STREAM sInstr UNFORMATTED 
-        "CD Results" SKIP.
+    PUT STREAM sInstr UNFORMATTED "OPEN ftp://ftpTest:TestFTP1!@34.203.15.64" SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD Results" SKIP.
     PUT STREAM sInstr UNFORMATTED "MKDIR " + cOutDir SKIP.
     PUT STREAM sInstr UNFORMATTED "CD " + cOutDir SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cOutFile SKIP.
@@ -1721,8 +1080,7 @@ PROCEDURE ipSendVerification :
     PUT STREAM sInstr UNFORMATTED "PUT " + cEnvAdmin + "\advantzware.pf" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\AdminServerPlugins.properties" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\conmgr.properties" SKIP.
-    PUT STREAM sInstr UNFORMATTED 
-        "BYE".
+    PUT STREAM sInstr UNFORMATTED "exit".
     OUTPUT STREAM sInstr CLOSE.
     
     IF SEARCH(cFtpxmit) EQ ? THEN 
@@ -1731,11 +1089,8 @@ PROCEDURE ipSendVerification :
         APPLY 'choose' TO bCancel IN FRAME {&FRAME-NAME}.
     END.
 
-    RUN ipStatus("  Starting 2d FTP session").
-    OS-COMMAND NO-WAIT VALUE("FTP -n -s:" + cFTPxmit + " >> " + cFtpOutputFile + " 2>> " + cFtpErrFile).
-
-    /* File cleanup */
-    RUN ipStatus("Upgrade Complete.  Press EXIT to quit.").
+    RUN ipStatus("  Starting FTP session").
+    OS-COMMAND SILENT VALUE(cFtpCmd).
 
 END PROCEDURE.
 

@@ -60,6 +60,9 @@ DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFnd AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE physCnt-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCheckTag AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLogFolder       AS CHARACTER NO-UNDO INIT "./custfiles/logs".
 DEFINE STREAM sPhysCntSave.
@@ -72,7 +75,8 @@ physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
 ASSIGN
  cocode = g_company
  locode = g_loc.
-IF physCnt-log THEN 
+{Inventory/ttInventory.i "NEW SHARED"}
+IF physCnt-log THEN
 DO: 
     OS-CREATE-DIR VALUE(cLogFolder).
     FIND FIRST _myconnection NO-LOCK.     
@@ -82,7 +86,6 @@ DO:
     cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
     MESSAGE "logfile" cPhysCntSavefile
         VIEW-AS ALERT-BOX.
-    
     
 END.
 DO:
@@ -726,6 +729,9 @@ DO:
     IF AVAIL loadtag AND loadtag.po-no GT 0 THEN
         fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no).
     
+    RUN validate-tag(0) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
     RUN validate-count .
 
   END.
@@ -740,6 +746,7 @@ ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
   IF LASTKEY NE -1 THEN DO:
    lCheckCount = NO .
+   lCheckTag = NO .
   END.
 END.
 
@@ -824,6 +831,8 @@ END.
 
 /* ***************************  Main Block  *************************** */
 &SCOPED-DEFINE SORTBY-PHRASE BY fg-rctd.r-no DESCENDING
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1170,6 +1179,15 @@ PROCEDURE fgbin-help :
 
       RUN new-bin.
     END.  */
+
+    FIND FIRST fg-bin WHERE fg-bin.company eq cocode AND
+                      ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
+    IF AVAIL fg-bin THEN
+        ASSIGN fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.tag.
+
+    lCheckTag = NO.
+    RUN validate-tag(0) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     FIND FIRST tt-selected NO-LOCK NO-ERROR.
     IF AVAIL tt-selected THEN DO:
@@ -1669,7 +1687,7 @@ PROCEDURE local-exit:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-
+DELETE OBJECT hInventoryProcs.
 
 END PROCEDURE.
 	
@@ -1727,10 +1745,10 @@ PROCEDURE local-update-record :
   RUN valid-loc-bin NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
- /*
-  RUN valid-tag NO-ERROR.
+ 
+  RUN validate-tag(1) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- */
+ 
   RUN validate-count .
 
   RUN valid-cust-no NO-ERROR.
@@ -1779,6 +1797,7 @@ PROCEDURE local-update-record :
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (yes).
   ASSIGN 
     lAddMode = FALSE.
+    lCheckTag = NO .
 
 END PROCEDURE.
 
@@ -2255,10 +2274,8 @@ PROCEDURE valid-loc :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST loc
-                    WHERE loc.company EQ cocode
-                      AND loc.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name})
-    THEN DO:
+    RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+    IF NOT lActiveBin THEN DO:
       MESSAGE "Invalid Warehouse, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
     END.
@@ -2278,13 +2295,10 @@ PROCEDURE valid-loc-bin :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST fg-bin
-                    WHERE fg-bin.company EQ cocode 
-                      AND fg-bin.i-no    EQ ""
-                      AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                    USE-INDEX co-ino)
-    THEN DO:
+      RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          OUTPUT lActiveBin ).
+    IF NOT lActiveBin THEN DO:
       MESSAGE "Invalid Bin#, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
     END.
@@ -2378,14 +2392,58 @@ IF NOT lCheckCount THEN do:
             EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no 
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
             AND fg-rdtlh.tag EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK: 
-            MESSAGE "Note: A count is already entered for this tag for the same date with a count of "
-                    STRING(fg-rdtlh.qty-case) VIEW-AS ALERT-BOX INFO .
+            MESSAGE "Note: A count is already entered for this tag for the same date with a quantity of "
+                    STRING(fg-rdtlh.qty) VIEW-AS ALERT-BOX INFO .
             lCheckCount = YES .
             LEAVE .
         END.
     END.
    END.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-tag B-table-Win 
+PROCEDURE validate-tag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipiTag AS INTEGER NO-UNDO .
+DEFINE BUFFER bf-fg-rctd FOR fg-rctd .
+IF NOT lCheckTag THEN do:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE bf-fg-rctd.company EQ g_company 
+               AND bf-fg-rctd.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+               AND bf-fg-rctd.rita-code EQ "C"
+               AND bf-fg-rctd.tag EQ (fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}) 
+               AND ROWID(bf-fg-rctd) NE ROWID(fg-rctd)
+            NO-ERROR .
+        IF AVAIL bf-fg-rctd THEN do:
+            MESSAGE "There is already a count entry for this tag in location '" + bf-fg-rctd.loc + "' with a quantity of '" 
+            + STRING(bf-fg-rctd.t-qty) +  "'. Are you sure you want to add another count entry for this tag? " 
+            VIEW-AS ALERT-BOX QUESTION BUTTON OK-CANCEL UPDATE ll-ans AS LOG .
+            IF NOT ll-ans  THEN do:
+              IF ipiTag EQ 0 THEN do:
+                 APPLY "entry" TO fg-rctd.tag .
+                 RETURN ERROR.  
+              END.
+              ELSE DO:
+                  RUN local-cancel-record . 
+                  RETURN ERROR .
+              END.
+            END.
+            ELSE DO:
+                lCheckTag = YES .
+            END.
+        END.
+   END.
+END.
 
 END PROCEDURE.
 
@@ -2426,21 +2484,17 @@ PROCEDURE validate-record :
      END.
   END.
   
-  FIND FIRST loc WHERE loc.company = cocode
-                        AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                        NO-LOCK NO-ERROR.
-       IF NOT AVAIL loc THEN DO:
+    RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+    IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
-  
-  FIND FIRST fg-bin WHERE fg-bin.company = cocode 
-                      AND fg-bin.i-no = ""
-                      AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                      USE-INDEX co-ino NO-LOCK NO-ERROR.
-  IF NOT AVAIL fg-bin THEN DO:
+  RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+      fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+      OUTPUT lActiveBin ).
+
+  IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc-bin.
           RETURN ERROR.

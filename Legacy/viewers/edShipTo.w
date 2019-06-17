@@ -61,21 +61,23 @@ DEFINE QUERY external_tables FOR EDShipto.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS EDShipto.Cust EDShipto.Partner ~
 EDShipto.Description EDShipto.Ship-to EDShipto.St-code EDShipto.By-code ~
-EDShipto.Opened EDShipto.Ref-type EDShipto.Attention EDShipto.Name ~
-EDShipto.Addr1 EDShipto.Addr2 EDShipto.City EDShipto.Cust-Region ~
-EDShipto.State EDShipto.Zip EDShipto.Dest-Zone EDShipto.Country ~
-EDShipto.Phone EDShipto.Fax EDShipto.Comments[1] EDShipto.Comments[2] ~
-EDShipto.Comments[3] EDShipto.Comments[4] EDShipto.Comments[5] 
+EDShipto.Opened EDShipto.Ref-type EDShipto.siteID EDShipto.Attention ~
+EDShipto.Name EDShipto.Addr1 EDShipto.Addr2 EDShipto.City ~
+EDShipto.Cust-Region EDShipto.State EDShipto.Zip EDShipto.Dest-Zone ~
+EDShipto.Country EDShipto.Phone EDShipto.Fax EDShipto.Comments[1] ~
+EDShipto.Comments[2] EDShipto.Comments[3] EDShipto.Comments[4] ~
+EDShipto.Comments[5] 
 &Scoped-define ENABLED-TABLES EDShipto
 &Scoped-define FIRST-ENABLED-TABLE EDShipto
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS EDShipto.Cust EDShipto.Partner ~
 EDShipto.Description EDShipto.Ship-to EDShipto.St-code EDShipto.By-code ~
-EDShipto.Opened EDShipto.Ref-type EDShipto.Attention EDShipto.Name ~
-EDShipto.Addr1 EDShipto.Addr2 EDShipto.City EDShipto.Cust-Region ~
-EDShipto.State EDShipto.Zip EDShipto.Dest-Zone EDShipto.Country ~
-EDShipto.Phone EDShipto.Fax EDShipto.Comments[1] EDShipto.Comments[2] ~
-EDShipto.Comments[3] EDShipto.Comments[4] EDShipto.Comments[5] 
+EDShipto.Opened EDShipto.Ref-type EDShipto.siteID EDShipto.Attention ~
+EDShipto.Name EDShipto.Addr1 EDShipto.Addr2 EDShipto.City ~
+EDShipto.Cust-Region EDShipto.State EDShipto.Zip EDShipto.Dest-Zone ~
+EDShipto.Country EDShipto.Phone EDShipto.Fax EDShipto.Comments[1] ~
+EDShipto.Comments[2] EDShipto.Comments[3] EDShipto.Comments[4] ~
+EDShipto.Comments[5] 
 &Scoped-define DISPLAYED-TABLES EDShipto
 &Scoped-define FIRST-DISPLAYED-TABLE EDShipto
 
@@ -145,6 +147,10 @@ DEFINE FRAME F-Main
      EDShipto.Ref-type AT ROW 4.1 COL 43.2 COLON-ALIGNED WIDGET-ID 42
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
+     EDShipto.siteID AT ROW 4.1 COL 72 COLON-ALIGNED WIDGET-ID 52
+          LABEL "Site ID" FORMAT "x(25)"
+          VIEW-AS FILL-IN 
+          SIZE 44 BY 1
      EDShipto.Attention AT ROW 5.1 COL 16.2 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
@@ -197,6 +203,13 @@ DEFINE FRAME F-Main
      EDShipto.Comments[5] AT ROW 17.05 COL 16 COLON-ALIGNED NO-LABEL WIDGET-ID 20
           VIEW-AS FILL-IN 
           SIZE 74 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6 WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -262,6 +275,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN EDShipto.Comments[1] IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN EDShipto.siteID IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

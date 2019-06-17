@@ -485,14 +485,13 @@ FOR EACH tt-report NO-LOCK
                          NO-ERROR.
                     IF AVAILABLE itemfg THEN DO:
                         IF itemfg.isaset AND itemfg.alloc THEN
-                        FOR EACH fg-act FIELDS(qty) NO-LOCK
-                            WHERE fg-act.company EQ job.company
-                              AND fg-act.job-no  EQ oe-ordl.job-no
-                              AND fg-act.job-no2 EQ oe-ordl.job-no2
-                              AND fg-act.i-no    EQ oe-ordl.i-no
-                            :
-                            dRecQty = dRecQty + fg-act.qty.
-                        END. /* each fg-act */
+                        RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                                                   INPUT job-hdr.job-no,
+                                                   INPUT job-hdr.job-no2,
+                                                   INPUT job-hdr.i-no,
+                                                   INPUT NO,
+                                                   OUTPUT dRecQty).
+
                         FOR EACH fg-rcpth FIELDS(r-no rita-code company) NO-LOCK
                             WHERE fg-rcpth.company   EQ job.company
                               AND fg-rcpth.i-no      EQ oe-ordl.i-no

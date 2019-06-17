@@ -1623,16 +1623,13 @@ display "" with frame r-top.
       create job-item.
       job-item.i-no = job-hdr.i-no.
 
-      for each fg-act
-          where fg-act.company eq cocode
-            and fg-act.job     eq job.job
-            and fg-act.job-no  eq job.job-no
-            and fg-act.job-no2 eq job.job-no2
-            and fg-act.i-no    eq job-hdr.i-no
-          no-lock:
-        v-blanks[3] = v-blanks[3] + fg-act.qty.
-      end.
-
+      RUN fg/GetProductionQty.p (INPUT cocode,
+                                INPUT job-hdr.job-no,
+                                INPUT job-hdr.job-no2,
+                                INPUT job-hdr.i-no,
+                                INPUT NO,
+                                OUTPUT v-blanks[3]).
+      
       if avail oe-ordl then v-blanks[4] = v-blanks[4] + oe-ordl.qty.
     end.
 

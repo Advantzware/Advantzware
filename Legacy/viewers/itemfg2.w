@@ -49,7 +49,7 @@ DEFINE VARIABLE h_w-inqord AS HANDLE      NO-UNDO.
 &Scoped-define List-buttons btn_onh btn_ono btn_all
 &Scoped-define List-nonreord itemfg.i-no itemfg.i-name itemfg.i-dscr itemfg.vend-no ~
      itemfg.vend-item itemfg.vend2-no itemfg.vend2-item itemfg.ord-policy ~
-     itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc itemfg.pur-uom ~
+     itemfg.stocked itemfg.alloc itemfg.pur-uom ~
      itemfg.beg-date
 
 /* _UIB-CODE-BLOCK-END */
@@ -78,14 +78,14 @@ DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS itemfg.i-dscr itemfg.pur-uom itemfg.beg-date ~
 itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
-itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
+itemfg.ord-policy itemfg.stocked itemfg.alloc ~
 itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.pur-uom itemfg.lead-days
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1
 &Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.pur-uom ~
 itemfg.i-dscr itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
-itemfg.ord-policy itemfg.stocked itemfg.pur-man itemfg.isaset itemfg.alloc ~
+itemfg.ord-policy itemfg.stocked itemfg.alloc ~
 itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days itemfg.beg-date
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
@@ -188,17 +188,6 @@ DEFINE FRAME F-Main
           LABEL "Stocked?"
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .95
-     itemfg.pur-man AT ROW 2.67 COL 106 HELP
-          "" NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Purchased", yes,
-"Manufactured", no
-          SIZE 37 BY .95
-     itemfg.isaset AT ROW 4.57 COL 68
-          LABEL "Set Header?"
-          VIEW-AS TOGGLE-BOX
-          SIZE 19 BY .95
      itemfg.alloc AT ROW 3.86 COL 106 NO-LABEL
           VIEW-AS RADIO-SET VERTICAL
           RADIO-BUTTONS 
@@ -240,9 +229,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 
      "Reorder Policy" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 5.76 COL 4
-          FGCOLOR 9 
-     "Item Is" VIEW-AS TEXT
-          SIZE 8 BY .95 AT ROW 2.67 COL 95
           FGCOLOR 9 
      RECT-22 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -321,8 +307,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN itemfg.i-no IN FRAME F-Main
    EXP-LABEL                                                             */
 
-/* SETTINGS FOR TOGGLE-BOX itemfg.isaset IN FRAME F-Main
-   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.ord-level IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN itemfg.ord-max IN FRAME F-Main
@@ -333,8 +317,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN itemfg.beg-date IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR RADIO-SET itemfg.pur-man IN FRAME F-Main
-   EXP-HELP                                                             */
 /* SETTINGS FOR RECTANGLE RECT-22 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-25 IN FRAME F-Main
@@ -396,35 +378,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME itemfg.isaset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.isaset V-table-Win
-ON VALUE-CHANGED OF itemfg.isaset IN FRAME F-Main /* Set Header? */
-DO:
-  DO WITH FRAME {&FRAME-NAME}:
-      RUN SetPurMan(itemfg.isaset:SCREEN-VALUE = "Y").
-
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
+               
 &Scoped-define SELF-NAME itemfg.ord-policy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.ord-policy V-table-Win
 ON return OF itemfg.ord-policy IN FRAME F-Main /* Reorder Policy Code */
-DO:
-     apply "tab" to self.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME itemfg.pur-man
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.pur-man V-table-Win
-ON return OF itemfg.pur-man IN FRAME F-Main /* Purchased or Manf */
 DO:
      apply "tab" to self.
 END.

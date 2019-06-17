@@ -68,7 +68,9 @@ DEFINE QUERY external_tables FOR loc, location.
 location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
 location.subCode3 location.subCode1 location.subCode4 location.countryCode ~
 location.subCode2 location.geoLat location.geoLong location.phone ~
-location.externalID[1] location.fax location.email location.notes 
+location.externalID[1] location.fax location.email location.notes ~
+loc.active loc.handlingCost loc.storageCost[1] loc.storageCost[2] ~
+loc.storageCost[3] loc.storageCost[4]
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
@@ -79,7 +81,8 @@ location.streetAddr[1] location.streetAddr[6] location.streetAddr[2] ~
 location.streetAddr[3] location.subCode3 location.subCode1 ~
 location.subCode4 location.countryCode location.subCode2 location.geoLat ~
 location.geoLong location.phone location.externalID[1] location.fax ~
-location.email location.notes 
+location.email location.notes loc.active loc.handlingCost loc.storageCost[1]  ~
+loc.storageCost[2] loc.storageCost[3] loc.storageCost[4]
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -155,79 +158,103 @@ DEFINE FRAME F-Main
      location.streetAddr[4] AT ROW 2.19 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
-     loc.dscr AT ROW 2.67 COL 16 COLON-ALIGNED
+     loc.dscr AT ROW 2.43 COL 12 COLON-ALIGNED
           LABEL "Name" FORMAT "x(60)"
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
+          SIZE 50 BY 1
      location.streetAddr[5] AT ROW 3.14 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
-     location.streetAddr[1] AT ROW 3.62 COL 16 COLON-ALIGNED NO-LABEL
+     location.streetAddr[1] AT ROW 3.38 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
+          SIZE 50 BY 1
      location.streetAddr[6] AT ROW 4.1 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
-     location.streetAddr[2] AT ROW 4.57 COL 16 COLON-ALIGNED NO-LABEL
+     location.streetAddr[2] AT ROW 4.33 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
-     location.streetAddr[3] AT ROW 5.52 COL 16 COLON-ALIGNED NO-LABEL
+          SIZE 50 BY 1
+     location.streetAddr[3] AT ROW 5.29 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
-     location.subCode3 AT ROW 6.48 COL 16 COLON-ALIGNED
+          SIZE 50 BY 1
+     location.subCode3 AT ROW 6.24 COL 12 COLON-ALIGNED
           LABEL "City"
           VIEW-AS FILL-IN 
-          SIZE 53 BY 1
-     location.subCode1 AT ROW 7.43 COL 16 COLON-ALIGNED
+          SIZE 40 BY 1
+     location.subCode1 AT ROW 7.19 COL 12 COLON-ALIGNED
           LABEL "St/Prov"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     fsStDesc AT ROW 7.48 COL 27 COLON-ALIGNED NO-LABEL
-     location.subCode4 AT ROW 8.38 COL 16 COLON-ALIGNED
+     fsStDesc AT ROW 7.24 COL 23 COLON-ALIGNED NO-LABEL
+     location.subCode4 AT ROW 8.14 COL 12 COLON-ALIGNED
           LABEL "Zip/Post"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.countryCode AT ROW 8.43 COL 43 COLON-ALIGNED
+     location.countryCode AT ROW 8.19 COL 39 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY .95
-     fsCtyDesc AT ROW 8.43 COL 52 COLON-ALIGNED NO-LABEL
-     location.subCode2 AT ROW 9.57 COL 16 COLON-ALIGNED
+     fsCtyDesc AT ROW 8.19 COL 48 COLON-ALIGNED NO-LABEL
+     loc.handlingCost AT ROW 2.43 COL 78 COLON-ALIGNED
+          LABEL "Handling" FORMAT "->,>>>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     loc.storageCost[1] AT ROW 3.38 COL 78 COLON-ALIGNED
+          LABEL "Storage 1" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+    loc.storageCost[2] AT ROW 4.33 COL 78 COLON-ALIGNED
+          LABEL "Storage 2" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+    loc.storageCost[3] AT ROW 5.29 COL 78 COLON-ALIGNED
+          LABEL "Storage 3" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+    loc.storageCost[4] AT ROW 6.24 COL 78 COLON-ALIGNED
+          LABEL "Storage 4" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     location.subCode2 AT ROW 9.33 COL 12 COLON-ALIGNED
           LABEL "County"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     location.geoLat AT ROW 9.57 COL 43 COLON-ALIGNED
+     location.geoLat AT ROW 9.33 COL 39 COLON-ALIGNED
           LABEL "Lat"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.geoLong AT ROW 9.57 COL 74 COLON-ALIGNED
+     location.geoLong AT ROW 9.33 COL 70 COLON-ALIGNED
           LABEL "Long"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.phone AT ROW 10.76 COL 16 COLON-ALIGNED
+     location.phone AT ROW 10.52 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
-     location.externalID[1] AT ROW 10.76 COL 71 COLON-ALIGNED
+     location.externalID[1] AT ROW 10.52 COL 67 COLON-ALIGNED
           LABEL "Ext.Code"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     location.fax AT ROW 11.71 COL 16 COLON-ALIGNED
+     location.fax AT ROW 11.48 COL 12 COLON-ALIGNED
           LABEL "Fax"
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
-     location.email AT ROW 12.67 COL 16 COLON-ALIGNED
+     location.email AT ROW 12.43 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
-     location.notes AT ROW 14.33 COL 18 NO-LABEL
+     location.notes AT ROW 14.1 COL 14 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 73 BY 3.1
-     "Notes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 14.33 COL 9
+     loc.active AT ROW 17.33 COL 14 WIDGET-ID 2
+          LABEL "Active?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY .81
      "Address:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 4.1 COL 7
+          SIZE 10 BY .62 AT ROW 3.86 COL 3
+     "Notes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 14.1 COL 5
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 102.2 BY 16.81
+         SIZE 102.2 BY 17.38
          FONT 6.
 
 
@@ -258,7 +285,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 16.81
+         HEIGHT             = 17.38
          WIDTH              = 102.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -286,6 +313,8 @@ END.
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR TOGGLE-BOX loc.active IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.company IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN location.defaultBin IN FRAME F-Main
@@ -329,6 +358,16 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN location.subCode4 IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.handlingCost IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN loc.storageCost[1] IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN loc.storageCost[2] IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN loc.storageCost[3] IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
+/* SETTINGS FOR FILL-IN loc.storageCost[4] IN FRAME F-Main
+   EXP-LABEL  EXP-FORMAT                                                */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -377,17 +416,6 @@ DO:
                 END.   
             END.
     END CASE.
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME location.countryCode
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.countryCode V-table-Win
-ON LEAVE OF location.countryCode IN FRAME F-Main /* Country */
-DO:
   
 END.
 
@@ -459,35 +487,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME location.subCode1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.subCode1 V-table-Win
-ON LEAVE OF location.subCode1 IN FRAME F-Main /* St/Prov */
-DO:
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME location.subCode4
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL location.subCode4 V-table-Win
-ON LEAVE OF location.subCode4 IN FRAME F-Main /* Zip/Post */
-DO:
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
-{sys/inc/f3help.i}
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         

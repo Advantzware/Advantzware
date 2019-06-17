@@ -54,12 +54,15 @@ DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
-ASSIGN cTextListToSelect = "Carrier,Description,Location,Loc Description,Charge Method "
+DEF VAR cTextListToDefault AS cha NO-UNDO.
 
-      cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method "
+ASSIGN cTextListToSelect = "Carrier,Description,Location,Loc Description,Charge Method,Inactive"
+
+      cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method,inactive"
        .
 
 {sys/inc/ttRptSel.i}
+ASSIGN cTextListToDefault  = "Carrier,Description,Location,Loc Description,Charge Method,Inactive" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -78,10 +81,10 @@ ASSIGN cTextListToSelect = "Carrier,Description,Location,Loc Description,Charge 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_carr-no end_carr-no ~
 sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
-btn-ok btn-cancel 
+btn-ok btn-cancel Btn_Def
 &Scoped-Define DISPLAYED-OBJECTS begin_carr-no end_carr-no  ~
  sl_avail ~
-sl_selected tb_excel tb_runExcel fi_file 
+sl_selected tb_excel tb_runExcel fi_file
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -140,6 +143,10 @@ DEFINE BUTTON Btn_Add
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
+     SIZE 16 BY 1.
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
      SIZE 16 BY 1.
 
 DEFINE BUTTON Btn_Remove 
@@ -207,13 +214,15 @@ DEFINE FRAME rd-fgexp
      end_carr-no AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Carrier #" WIDGET-ID 144
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
-     Btn_Add AT ROW 12.24 COL 44 HELP
+     Btn_Def AT ROW 12.38 COL 44 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 13.57 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Remove AT ROW 13.43 COL 44 HELP
+     Btn_Remove AT ROW 14.76 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 14.62 COL 44 WIDGET-ID 136
-     btn_down AT ROW 15.81 COL 44 WIDGET-ID 132
+     btn_Up AT ROW 15.95 COL 44 WIDGET-ID 136
+     btn_down AT ROW 17.14 COL 44 WIDGET-ID 132
      tb_excel AT ROW 18.91 COL 36 WIDGET-ID 32
      tb_runExcel AT ROW 18.91 COL 78 RIGHT-ALIGNED WIDGET-ID 34
      fi_file AT ROW 19.86 COL 34 COLON-ALIGNED HELP
@@ -377,6 +386,19 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
+ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  /* task 04041406 */ 
+  RUN DisplaySelectionList2 .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add rd-fgexp
@@ -605,6 +627,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgexp 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList rd-fgexp 
 PROCEDURE DisplaySelectionList :
 /*------------------------------------------------------------------------------
@@ -709,11 +754,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_carr-no end_carr-no sl_avail sl_selected tb_excel 
-          tb_runExcel fi_file 
+          tb_runExcel fi_file
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_carr-no end_carr-no  sl_avail Btn_Add 
          sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         btn-cancel Btn_Def
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -986,6 +1031,11 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         END.
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
+        END.
+        WHEN "inactive" THEN DO:
+            IF NOT DYNAMIC-FUNCTION("IsActive", ipb-itemfg.rec_key) THEN
+                lc-return = "Yes".
+            ELSE lc-return = "No".
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:

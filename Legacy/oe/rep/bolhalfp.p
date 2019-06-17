@@ -163,7 +163,7 @@ for each report   where report.term-id eq v-term-id,
 
     if first-of(oe-bolh.bol-no) then do:
 
-      if oe-ctrl.pr-broker and avail cust and shipto.broker then
+      if avail cust and shipto.broker then
 	assign
 	 v-comp-name    = cust.name
 	 v-comp-addr[1] = cust.addr[1]

@@ -283,7 +283,7 @@ format
               no-lock no-error.
       end. /* each xoe-rell */
 
-      if oe-ctrl.pr-broker and avail(cust) and shipto.broker then do:
+      if avail(cust) and shipto.broker then do:
         assign
           v-comp-name = cust.name
           v-add-line[1] = cust.addr[1]

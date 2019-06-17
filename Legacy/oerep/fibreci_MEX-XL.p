@@ -539,14 +539,16 @@ PROCEDURE InitializeExcel :
   Notes     :   
 ------------------------------------------------------------------------------*/
 
+  RUN sys/ref/getFileFullPathName.p ("Template\fibreci_MEX-XL.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+      APPLY 'close' TO THIS-PROCEDURE.
+
   /* Capture the current active printer. */
   IF LvOutputSelection = "email" THEN
     assign 
       CurActivePrinter = SESSION:PRINTER-NAME
       AdobePrinter     = "PDFcamp Printer".
   
-  vcTemplateFile   = "template\fibreci_MEX-XL.xlt".
-
   /* Connect to the running Excel session. */
   CREATE "Excel.Application" chExcelApplication connect no-error.
 
@@ -581,21 +583,8 @@ PROCEDURE InitializeExcel :
     RETURN ERROR.
   END.
   
-  FILE-INFO:FILE-NAME = vcTemplateFile.
-
-  /* Set the Excel Template to be used. */
-  ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
-  
-  if search (chFile) = ? then do:
-    MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
-            'cannot be found. Please verify that the file exists.'
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    apply 'CLOSE':U to this-procedure.
-  end.
-
   /* Make Excel visible. */
   ASSIGN
-     chFile = FILE-INFO:FULL-PATHNAME
      chExcelApplication:VISIBLE = TRUE.
   
   /* If we are going to E-Mail or Print, hide Excel. */

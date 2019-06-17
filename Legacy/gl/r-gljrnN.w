@@ -1537,11 +1537,14 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(300)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+  
 ASSIGN tot-deb-t  = 0 
        tot-cred-t = 0 .
 DEF VAR cslist AS cha NO-UNDO.
@@ -1618,7 +1621,7 @@ END.*/
     v-postable = NO.
 
     IF tb_excel THEN DO:
-        OUTPUT STREAM s-temp TO VALUE(fi_file).
+        OUTPUT STREAM s-temp TO VALUE(cFileName).
         PUT STREAM s-temp UNFORMATTED 
             STRING(TODAY) + str-tit     SKIP
             time_stamp    + str-tit2    SKIP
@@ -1637,7 +1640,7 @@ END.*/
     IF tb_excel THEN DO:
         OUTPUT STREAM s-temp close.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

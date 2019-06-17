@@ -166,7 +166,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       
        PUT "<C26>CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "")  FORM "x(30)" .
            IF v-board NE "" THEN
-               PUT "<C26>" v-board  FORM "x(30)" /*SKIP(1)*/  .  
+               PUT SKIP "<C26>" v-board  FORM "x(30)" /*SKIP(1)*/  .  
 
     END.
     IF i > 9 THEN PUT SPACE(58) .

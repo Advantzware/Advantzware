@@ -67,6 +67,8 @@ DEF TEMP-TABLE tt-po NO-UNDO
 DEF VAR lines-per-page AS INT NO-UNDO.
 DEF VAR v-overrun AS DEC NO-UNDO.
 DEF VAR v-mch-cod     AS CHAR INIT " " NO-UNDO.
+DEFINE VARIABLE cFirstInternalMach AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFirstMachPress AS CHARACTER NO-UNDO .
 DEF var save_id AS RECID.
 
 DEF var time_stamp AS ch.
@@ -118,10 +120,11 @@ def var copy_count      as int no-undo initial 2.
 def var n               as int no-undo initial 0.
 DEF VAR v-avgcost AS LOG NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdJobProcs AS HANDLE    NO-UNDO.
 {rm/avgcost.i}
 
 DEF BUFFER b-company FOR company.
-
+DEFINE BUFFER bf-po-ord FOR po-ord .
 DEF TEMP-TABLE w-file NO-UNDO FIELD w-key AS ROWID.
 DEF TEMP-TABLE tt-tag NO-UNDO FIELD tt-recid AS RECID.
 DEF TEMP-TABLE ttblJob NO-UNDO
@@ -143,7 +146,7 @@ DEFINE TEMP-TABLE tt-po-print LIKE w-po
     FIELD vend-tag AS CHARACTER.
 
 tmpstore = FILL("_",50).
-
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 DO TRANSACTION:
    /*{sys/inc/bardir.i}*/
 END.
@@ -975,11 +978,13 @@ IF scr-auto-print THEN DO:
                              OUTPUT lUserSpecific).
 
     IF lUserSpecific THEN 
-        RUN custom/lmprint.p (INPUT scr-label-file, 
+        RUN custom/lmprint.p (INPUT cocode, 
+                              INPUT scr-label-file, 
                               INPUT cDB,
                               INPUT cBarDir).
     ELSE
-        RUN custom/lmprint.p (INPUT scr-label-file,
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file,
                               INPUT "",
                               INPUT "").
 END.
@@ -1808,7 +1813,9 @@ Vendor Item #,~
 Vendor Name,~
 Vendor,~
 Zip Code,~
-First Machine' SKIP.
+First Machine,~
+First Internal Machine,~
+First Press' SKIP.
 
 END PROCEDURE.
 
@@ -1824,16 +1831,14 @@ PROCEDURE outputTagLine :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipQty AS INTEGER NO-UNDO.
 
-  ASSIGN v-mch-cod = "" .
-  FOR EACH job-mch WHERE job-mch.company EQ cocode
-          AND job-mch.job-no EQ w-po.job-no
-          AND job-mch.job-no2 EQ w-po.job-no2
-          AND job-mch.frm EQ w-po.s-num use-index line-idx NO-LOCK:
+  ASSIGN v-mch-cod = ""
+         cFirstMachPress = "" 
+         cFirstInternalMach = "" . 
 
-          ASSIGN v-mch-cod = job-mch.m-code .
-          LEAVE.
-   END.
-
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"First", INPUT-OUTPUT v-mch-cod).
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"Press", INPUT-OUTPUT cFirstMachPress).
+    RUN GetOperation IN hdJobProcs (cocode, w-po.job-no, INTEGER(w-po.job-no2),INTEGER(w-po.s-num),"Internal", INPUT-OUTPUT cFirstInternalMach).
+  
   PUT UNFORMATTED
     '"' removeChars(loadtag.tag-no)
     '","' w-po.acknowledge
@@ -1929,7 +1934,9 @@ PROCEDURE outputTagLine :
     '","' removeChars(w-po.vend-name)
     '","' w-po.vend-no
     '","' w-po.zip
-    '","' removeChars(v-mch-cod)
+    '","' removeChars(v-mch-cod)   
+    '","' removeChars(cFirstInternalMach)
+    '","' removeChars(cFirstMachPress)
     '"' SKIP.
 
 END PROCEDURE.
@@ -2183,6 +2190,7 @@ PROCEDURE run-report :
   DEF VAR lv-how-many-tags AS INT NO-UNDO.
   DEF VAR v-b-wpo-created AS LOG NO-UNDO.
   DEFINE VARIABLE choice2 AS LOGICAL  INIT YES  NO-UNDO.
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
 
   SESSION:SET-WAIT-STATE ("general").
 
@@ -2262,10 +2270,14 @@ PROCEDURE run-report :
 
   DO i = 1 TO NUM-ENTRIES(v-po-list).
     lv-po-no = INT(ENTRY(i,v-po-list)) NO-ERROR.
-
+  
     IF NOT ERROR-STATUS:ERROR AND
-      lv-po-no NE 0 THEN
-      RUN temp-po (lv-po-no).
+      lv-po-no NE 0 THEN do:
+        RUN pValidatePo(lv-po-no ,OUTPUT lCheckError) NO-ERROR .
+        IF lCheckError THEN RETURN NO-APPLY.
+
+        RUN temp-po (lv-po-no).
+    END.
   END. /* do i */
 
   FOR EACH w-file:
@@ -2273,10 +2285,16 @@ PROCEDURE run-report :
     IF AVAIL po-ord THEN RUN from-po.
   END. /* each w-file */
 
+  IF v-fpo-no[1] EQ v-fpo-no[2] THEN DO:
+      RUN pValidatePo(v-fpo-no[1], OUTPUT lCheckError) NO-ERROR .
+      IF lCheckError THEN RETURN NO-APPLY.
+  END.
+
   FOR EACH po-ord NO-LOCK
       WHERE po-ord.company EQ cocode
         AND po-ord.po-no   GE v-fpo-no[1]
         AND po-ord.po-no   LE v-fpo-no[2]
+        AND po-ord.stat    NE "H" 
         AND (v-stat EQ "A"                         OR
              (v-stat EQ "C" AND NOT po-ord.opened) OR
              (v-stat EQ "O" AND po-ord.opened)):
@@ -2719,6 +2737,31 @@ PROCEDURE xprint-tag :
       FILE-INFO:FILE-NAME = list-name.
       RUN printfile (FILE-INFO:FILE-NAME).
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidatePo C-Win 
+PROCEDURE pValidatePo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO .
+    DEFINE OUTPUT PARAMETER oplCheckError AS LOGICAL NO-UNDO .
+ {methods/lValidateError.i YES}    
+    FIND FIRST bf-po-ord NO-LOCK
+        WHERE bf-po-ord.company EQ cocode
+        AND bf-po-ord.po-no EQ ipiPoNo
+        AND bf-po-ord.stat EQ "H" NO-ERROR .
+    IF AVAIL bf-po-ord THEN DO:
+        MESSAGE "PO# '" + STRING(ipiPoNo) + "' is on hold and cannot print load tags for a PO on hold"
+             VIEW-AS ALERT-BOX ERROR .
+        oplCheckError = YES .
+    END.
+{methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

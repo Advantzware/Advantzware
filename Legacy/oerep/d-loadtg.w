@@ -93,7 +93,8 @@ IF NOT BOLWt-log THEN RUN calc-weight-all.
  w-ord.total-tags ~
  w-ord.unit-wt ~
   w-ord.pallt-wt ~
- w-ord.lot /*"Bdl/Case" AT 46  "Total#" AT 55  "Total Qty" AT 65 SKIP  "Order#"  "Cust # "  "Item #"  "Ord Qty" TO 44  "Count" AT 46  "Bdl/Case" AT 55  "Per Unit" AT 65  "Tags " TO 80 SKIP */   
+ w-ord.lot ~
+ w-ord.po-line /*"Bdl/Case" AT 46  "Total#" AT 55  "Total Qty" AT 65 SKIP  "Order#"  "Cust # "  "Item #"  "Ord Qty" TO 44  "Count" AT 46  "Bdl/Case" AT 55  "Per Unit" AT 65  "Tags " TO 80 SKIP */   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 w-ord
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 w-ord
 &Scoped-define SELF-NAME BROWSE-1
@@ -205,6 +206,7 @@ DEFINE BROWSE BROWSE-1
         w-ord.unit-wt   
         w-ord.pallt-wt
         w-ord.lot
+        w-ord.po-line
 /*"Bdl/Case" AT 46
   "Total#" AT 55
   "Total Qty" AT 65 SKIP
@@ -290,10 +292,9 @@ RUN calc-total.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Loadtag Creation Detail */
 DO: 
-    RUN pCheckTag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
-    APPLY "END-ERROR":U TO SELF.
+    APPLY "choose" TO btnCancel. /* choice window close  */
+    EMPTY TEMP-TABLE w-ord .
+    APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -386,6 +387,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Create Tags */
 DO: 
+   RUN pCheckPoLine NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
    RUN pCheckTag NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -447,6 +451,7 @@ ON 'LEAVE' OF w-ord.over-pct IN BROWSE {&BROWSE-NAME} DO:
       STRING(w-ord.qty-before * (1 + (DEC(SELF:SCREEN-VALUE) / 100)),
              w-ord.ord-qty:FORMAT IN BROWSE {&BROWSE-NAME}).
   IF SELF:MODIFIED THEN RUN calc-total.
+  
 END.
 
 ON 'RETURN' OF w-ord.pcs IN BROWSE {&BROWSE-NAME} DO:  
@@ -501,7 +506,7 @@ ON 'VALUE-CHANGED' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO:
  
 END.
 ON 'LEAVE' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO: 
-  IF SELF:MODIFIED THEN DO:
+  IF LASTKEY <> -1 AND SELF:MODIFIED THEN DO:
       glTotalTagsChanged = YES.
       lcheckflgMsg = YES .
       ASSIGN w-ord.ord-qty = dec(w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -549,6 +554,21 @@ ON 'ENTRY' OF w-ord.pallt-wt   IN BROWSE {&BROWSE-NAME} DO:
    END.
 END.
 
+ON 'ENTRY' OF w-ord.po-line   IN BROWSE {&BROWSE-NAME} DO:
+   IF w-ord.po-no EQ 0 THEN do:
+       APPLY "entry"  TO w-ord.over-pct IN BROWSE {&browse-NAME}.
+       RETURN NO-APPLY.
+   END.
+END.
+
+ON 'LEAVE' OF w-ord.po-line IN BROWSE {&BROWSE-NAME} DO:  
+  IF LASTKEY <> -1 THEN DO:
+    RUN pCheckPoLine NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+  
+END.
+
 /* gdm - end */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
@@ -573,6 +593,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF AVAIL w-ord AND w-ord.i-no NE '' THEN
         RUN displayUNNotes(INPUT g_company,
                            INPUT w-ord.i-no).
+
+  
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -1025,7 +1047,7 @@ DEFINE VARIABLE lcheckflg AS LOGICAL INITIAL YES NO-UNDO .
     END.
 
     IF lcheckflgMsg AND AVAIL w-ord AND w-ord.total-tags GT dLoadTagLimit THEN 
-      MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " of load tags?" 
+      MESSAGE "Are you sure you want to print " + string(w-ord.total-tags) + " load tags?" 
       VIEW-AS ALERT-BOX QUESTION  BUTTONS YES-NO UPDATE lcheckflg  .
   
     IF NOT lcheckflg THEN do:
@@ -1034,6 +1056,27 @@ DEFINE VARIABLE lcheckflg AS LOGICAL INITIAL YES NO-UNDO .
     END.
     ELSE DO:
       lcheckflgMsg = NO .
+    END.
+END PROCEDURE.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPoLine Dialog-Frame 
+PROCEDURE pCheckPoLine :
+    IF  w-ord.po-no NE 0 THEN DO:
+        FIND FIRST po-ordl NO-LOCK 
+            WHERE po-ordl.company EQ g_company
+              AND po-ordl.po-no EQ w-ord.po-no 
+              AND po-ordl.LINE EQ INTEGER(w-ord.po-line:SCREEN-VALUE IN BROWSE {&browse-NAME})
+            NO-ERROR .
+        IF NOT AVAIL po-ordl 
+           AND w-ord.job-no:SCREEN-VALUE IN BROWSE {&browse-NAME} EQ "" 
+           AND w-ord.ord-no:SCREEN-VALUE IN BROWSE {&browse-NAME} EQ "" THEN DO:
+            MESSAGE "Please enter a valid PO Line..." 
+                VIEW-AS ALERT-BOX INFO .
+            APPLY "entry"  TO w-ord.po-line IN BROWSE {&browse-NAME}.
+            RETURN ERROR  .
+        END.
+        IF AVAIL po-ordl THEN
+            w-ord.po-line = INTEGER(w-ord.po-line:SCREEN-VALUE IN BROWSE {&browse-name}).
     END.
 END PROCEDURE.
 

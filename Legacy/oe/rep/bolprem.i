@@ -62,6 +62,7 @@ def var v-terms like oe-ord.terms-d no-undo.
 def var v-frt-terms as char format "x(10)" no-undo.
 def var v-zone like carr-mtx.del-zone no-undo.
 DEF VAR v-total-weight LIKE tt-boll.weight.
+DEFINE VARIABLE cPoNum AS CHARACTER NO-UNDO.
 DEF VAR lGeneratecXML AS LOG NO-UNDO.
 DEFINE VARIABLE iReprint AS INTEGER     NO-UNDO.
 
@@ -324,6 +325,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
                              + 'T'
                              + STRING(0,'hh:mm:ss')
                              + '-05:00'
+        cPoNum = oe-boll.po-no
         .
       /* rstark 05291402 */
 
@@ -445,8 +447,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
      IF lGeneratecXML THEN DO:
        RUN cXMLOutput (clXMLOutput,'Request deploymentMode="' + cXMLProduction + '"','','Row').
        RUN cXMLOutput (clXMLOutput,'ShipNoticeRequest','','Row').
-       RUN cXMLOutput (clXMLOutput,'ShipNoticeHeader noticeDate="' +
-                                    cXMLTimeStamp + '" operation="new" shipmentID="' +
+       RUN cXMLOutput (clXMLOutput,'ShipNoticeHeader shipmentType="actual" shipmentDate="' + getFormattedDate(oe-bolh.bol-date, TIME)
+                                    + '" deliveryDate="' + getFormattedDate(oe-bolh.bol-date + 2, TIME)
+                                    + '" noticeDate="' + cXMLTimeStamp
+                                    + '" operation="new" shipmentID="' +
                                     STRING(oe-bolh.bol-no) + '"','','Row').
        RUN cXMLOutput (clXMLOutput,'Contact role="shipFrom"','','Row').
        RUN cXMLOutput (clXMLOutput,'Name xml:lang="en"','','Row').
@@ -486,7 +490,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
        RUN cXMLOutput (clXMLOutput,'ShipmentIdentifier',oe-bolh.trailer,'Col').
        RUN cXMLOutput (clXMLOutput,'/ShipControl','','Row').
        RUN cXMLOutput (clXMLOutput,'ShipNoticePortion','','Row').
-       RUN cXMLOutput (clXMLOutput,'OrderReference orderDate="' + cOrderDate + '"','','Row').
+       RUN cXMLOutput (clXMLOutput,'OrderReference orderDate="' + cOrderDate + '"' + ' orderID="' + cPoNum + '"','','Row').
        RUN cXMLOutput (clXMLOutput,'DocumentReference payloadID="' + cXMLPayloadID + '" /','','Row').
        RUN cXMLOutput (clXMLOutput,'/OrderReference','','Row').
        ciXMLOutput = 0.

@@ -58,9 +58,34 @@ DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
 DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 DEF VAR lv-auto-calc AS LOG NO-UNDO.
+DEFINE VARIABLE lPostSec AS LOGICAL NO-UNDO.
+DEF VAR lAccessClose AS LOGICAL NO-UNDO.
+DEF VAR cAccessList AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
+{custom/gcompany.i}
+{custom/getcmpny.i}
+
+DEFINE VARIABLE ceAuto-calc-msg AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+RUN sys/ref/nk1look.p (INPUT gcompany, "CEAutoCalcMessage", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    ceAuto-calc-msg = LOGICAL(cRtnChar) NO-ERROR.
+
+/* Check if authorized to create PO's */
+RUN methods/prgsecur.p
+    (INPUT "JobStdsButton.",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lPostSec, /* Allowed? Yes/NO */
+     OUTPUT lAccessClose, /* used in template/windows.i  */
+     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -260,6 +285,15 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-auto-calc C-WIn
 ON CHOOSE OF btn-auto-calc IN FRAME Panel-Frame /* Auto-Calc */
 DO:
+
+  IF ceAuto-calc-msg = YES THEN do:
+    MESSAGE
+        "The auto-calc function may change your data based upon your current standards." SKIP
+        "These changes are not reversed if you select Cancel.  Do you want to proceed?"
+        VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE lProceed AS LOG.
+     IF NOT lProceed THEN RETURN NO-APPLY.
+  END. /*ceAuto-calc-msg = YES THEN*/
+     
   DO WITH FRAME Panel-Frame:
      def var source-str as cha no-undo.
      RUN get-link-handle IN adm-broker-hdl 
@@ -403,6 +437,8 @@ DO:
         btn-stds:sensitive = yes.
      END.
   END.
+  IF NOT lPostSec THEN
+      btn-stds:sensitive = no.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -833,9 +869,13 @@ DO WITH FRAME Panel-Frame:
                                     btn-bom:SENSITIVE = NO
                                     btn-flm:SENSITIVE = NO
                                     btn-goto:SENSITIVE = NO
-                                    btn-stds:SENSITIVE = NO.
+                                    /*btn-stds:SENSITIVE = NO*/.
     IF NOT v-can-create THEN btn-copy:SENSITIVE = NO.
     IF NOT v-can-run THEN DISABLE ALL.
+
+    IF NOT lPostSec THEN
+         btn-stds:SENSITIVE = NO.
+
   END.
 
 END. /* DO WITH FRAME */

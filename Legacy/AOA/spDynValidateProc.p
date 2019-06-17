@@ -6,9 +6,13 @@
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
+/* **********************  Internal Functions  ************************ */
+
 FUNCTION fErrorMsg RETURNS CHARACTER (iphWidget AS HANDLE):
     RETURN "Invalid Entry for " + iphWidget:LABEL + " " + iphWidget:SCREEN-VALUE.
 END FUNCTION.
+
+/* **********************  Internal Procedures  *********************** */
 
 /* all validate procedures should run this procedure */
 PROCEDURE dynValReturn:
@@ -20,6 +24,42 @@ PROCEDURE dynValReturn:
 END PROCEDURE.
 
 /* create procedures in alphabetical order below here */
+PROCEDURE dynValCust:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST cust
+                 WHERE cust.company EQ cCompany
+                   AND cust.cust-no EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValFGItem:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST itemfg
+                 WHERE itemfg.company EQ cCompany
+                   AND itemfg.i-no    EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValLoc:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST loc
+                 WHERE loc.company EQ cCompany
+                   AND loc.loc     EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValMachine:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
@@ -29,6 +69,41 @@ PROCEDURE dynValMachine:
         CAN-FIND(FIRST mach
                  WHERE mach.company EQ cCompany
                    AND mach.m-code  EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValMat:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST mat
+                 WHERE mat.mat EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValProCat:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST procat
+                 WHERE procat.company EQ cCompany
+                   AND procat.procat  EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValRMItem:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST item
+                 WHERE item.company EQ cCompany
+                   AND item.i-no    EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 

@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 105
+&SCOPED-DEFINE nextUserField 106
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -612,7 +612,7 @@ FOR EACH job-hdr NO-LOCK
                 + STRING(job-mch.blank-no) + ','
                 + STRING(job-mch.pass) + ','
                 + job-mch.rec_key
-      timeSpan = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
+      timeSpan  = calcJobTime(job-mch.mr-hr,job-mch.run-hr)
       unitFound = NO
       userField = ''
       udfField  = ''
@@ -1055,6 +1055,7 @@ FOR EACH job-hdr NO-LOCK
       userField[102] = setUserField(102,specialTime(INTEGER(TRUNCATE(job-mch.mr-hr,0) * 3600 + (job-mch.mr-hr - TRUNCATE(job-mch.mr-hr,0)) * 3600)))
       userField[103] = setUserField(103,specialTime(INTEGER(TRUNCATE(job-mch.run-hr,0) * 3600 + (job-mch.run-hr - TRUNCATE(job-mch.run-hr,0)) * 3600)))
       userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
+      userField[105] = setUserField(105,STRING(timeSpan / 3600,">>,>>9.99"))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1494,11 +1495,15 @@ PROCEDURE ipJobMaterial:
     END. /* each item */
     requiredQty = requiredQty + job-mat.qty.
   END. /* each job-mat */
-  ASSIGN 
+  ASSIGN
     opNoCases = STRING(noCases,'>>,>>>,>>9.9<<<<<')
     opMatType5Qty = STRING(matType5Qty,'>>,>>>,>>9.9<<<<<')
     opMatType6Qty = STRING(matType6Qty,'>>,>>>,>>9.9<<<<<')
-    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9.9<<<<<')
+/*    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9.9<<<<<')*/
+    /* round up required quantity */
+    requiredQty = TRUNCATE(requiredQty,0)
+                + IF requiredQty - TRUNCATE(requiredQty,0) GT 0 THEN 1 ELSE 0
+    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9')
     .
 END PROCEDURE.
 
@@ -1863,6 +1868,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[102] = 'MR Time'        userWidth[102] = 15
     userLabel[103] = 'Run Time'       userWidth[103] = 15
     userLabel[104] = 'Job-Run'        userWidth[104] = 12
+    userLabel[105] = 'Tot. Time'      userWidth[105] = 8
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1927,7 +1933,7 @@ PROCEDURE setUseFields:
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64] OR useField[98] OR useField[99]
     ufJob = useField[89]
-    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104]
+    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]OR useField[91]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]

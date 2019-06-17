@@ -2,6 +2,10 @@
  Program: fgrep/r-fgrordN.i
  
 *****************************************************************************/
+DEFINE VARIABLE hftJobPros AS HANDLE NO-UNDO.
+
+RUN jc/JobProcs.p PERSISTENT SET hftJobPros.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftJobPros).
 
 for each itemfg
    where itemfg.company    eq cocode
@@ -18,6 +22,8 @@ for each itemfg
      AND itemfg.spare-char-1 GE v-group[1]
      AND itemfg.spare-char-1 LE v-group[2]     
      AND (itemfg.stat EQ "A" OR tb_inactive)
+     AND itemfg.part-no GE fcpart
+     AND itemfg.part-no LE tcpart
 
      and ((itemfg.ord-policy     and v-lot-reo eq "R") or
           (not itemfg.ord-policy and v-lot-reo eq "L") or v-lot-reo eq "A")
@@ -45,6 +51,7 @@ for each itemfg
        v-whse-bin-found = NO
        v-qty-onh = 0
        v-sales-rep = "".
+       cMachine = "" .
 
        /*Added for premier mod 08291201*/
     FIND FIRST cust WHERE cust.company = itemfg.company
@@ -295,6 +302,8 @@ for each itemfg
                 li-avg-hist = li-avg-hist + li-hist[j] .
             END.
             li-avg-hist = li-avg-hist / display_hist .
+
+            RUN GetOperationsForEst(INPUT itemfg.company, INPUT itemfg.est-no, OUTPUT cMachine).
        
     if v-reord-qty gt 0 or v-prt-all then
        IF tb_history THEN DO:
@@ -348,13 +357,16 @@ for each itemfg
                           END.
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
+                          WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
+                              cExcelVarValue = "".
                           WHEN "li-hist" THEN do: 
                               cVarValue = "" .
                               cExcelVarValue = "" .
                               DO j = 1 TO display_hist:
                                   cVarValue = cVarValue + STRING(li-hist[j],"->>>>>9") + " " .
-                                  
-                                  cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9")) + "," .
+                                 IF j EQ display_hist THEN
+                                     cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9"))  .
+                                 ELSE cExcelVarValue = cExcelVarValue + quoter(STRING(li-hist[j],"->>>>>9")) + "," .
                               END.
                           END.
                               
@@ -362,7 +374,10 @@ for each itemfg
                       IF cExcelVarValue = "" THEN cExcelVarValue = cVarValue.
                       cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".
+                      IF cTmpField EQ "li-hist" THEN
+                          cExcelDisplay = cExcelDisplay + (cExcelVarValue) + ",".
+                      ELSE
+                          cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".
 /*
                   IF cTmpfield = "li-hist" THEN DO:
                      ASSIGN cDisplay = cDisplay + STRING(li-hist[1]) + " "  + STRING(li-hist[2]) + " "  + STRING(li-hist[3]) + " "  +
@@ -383,7 +398,7 @@ for each itemfg
            PUT UNFORMATTED cDisplay SKIP.
 
            IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
-           
+          
            IF tb_excel THEN 
              PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
@@ -442,6 +457,8 @@ for each itemfg
                           END.
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
+                          WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
+                              cExcelVarValue = "".
                           WHEN "li-hist" THEN do: 
                               cVarValue = "" .
                               cExcelVarValue = "" .
@@ -467,3 +484,4 @@ for each itemfg
        IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
     END.
 end. /* each itemfg */
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftJobPros).

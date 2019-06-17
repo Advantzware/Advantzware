@@ -48,7 +48,7 @@ ASSIGN
     {&TABLENAME}.def-loc-bin  = IF AVAILABLE fg-bin THEN fg-bin.loc-bin ELSE ""
     {&TABLENAME}.procat       = IF AVAILABLE fgcat THEN fgcat.procat ELSE ""
     {&TABLENAME}.pur-man      = NO
-    {&TABLENAME}.i-code       = IF AVAILABLE oe-ctrl AND oe-ctrl.i-code THEN "S" ELSE "C"
+    {&TABLENAME}.i-code       = "S" 
     {&TABLENAME}.curr-code[1] = IF AVAILABLE company THEN company.curr-code ELSE "USD"
     {&TABLENAME}.i-no         = "               " + {&TABLENAME}.rec_key
     {&TABLENAME}.prod-uom     = "M"
@@ -57,6 +57,8 @@ ASSIGN
     {&TABLENAME}.stat         = "A"
     {&TABLENAME}.exempt-disc  = NO
     {&TABLENAME}.setupDate    = TODAY
+    {&TABLENAME}.setupBy      = USERID(LDBNAME(1))
+    {&TABLENAME}.stackHeight  = 1
     .
 
 IF {&TABLENAME}.def-loc     EQ "" AND

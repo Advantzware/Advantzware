@@ -209,7 +209,7 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
         LEAVE.
       END.
 
-      if oe-ctrl.pr-broker and avail cust and shipto.broker then
+      if avail cust and shipto.broker then
         assign
          v-comp-name   = cust.name
          v-add-line[1] = cust.addr[1]

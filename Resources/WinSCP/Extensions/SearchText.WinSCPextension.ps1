@@ -1,16 +1,18 @@
 # @name         &Search for Text...
-# @command      powershell.exe -ExecutionPolicy Bypass -File "%EXTENSION_PATH%" -sessionUrl "!S" -path "!/" -text "%Text%" -wildcard "%Wildcard%" -pause -sessionLogPath "%SessionLogPath%"
+# @command      powershell.exe -ExecutionPolicy Bypass -File "%EXTENSION_PATH%" ^
+#                   -sessionUrl "!S" -path "!/" -text "%Text%" -wildcard "%Wildcard%" ^
+#                   -pause -sessionLogPath "%SessionLogPath%"
 # @description  Searches recursively for a text in the current remote directory
-# @version      3
+# @version      6
 # @homepage     https://winscp.net/eng/docs/library_example_recursive_search_text
-# @require      WinSCP 5.8.4
+# @require      WinSCP 5.13
 # @option       Text -run textbox "Text:"
 # @option       Wildcard -run textbox "File mask:" "*.*"
 # @option       SessionLogPath -config sessionlogfile
 # @optionspage  https://winscp.net/eng/docs/library_example_recursive_search_text#options
 
 param (
-    # Use Generate URL function to obtain a value for -sessionUrl parameter.
+    # Use Generate Session URL function to obtain a value for -sessionUrl parameter.
     $sessionUrl = "sftp://user:mypassword;fingerprint=ssh-rsa-xx-xx-xx@example.com/",
     [Parameter(Mandatory = $True)]
     $path,
@@ -24,6 +26,11 @@ param (
 
 try
 {
+    if (!$text)
+    {
+         throw "No Text was specified."
+    }
+
     # Load WinSCP .NET assembly
     $assemblyPath = if ($env:WINSCP_PATH) { $env:WINSCP_PATH } else { $PSScriptRoot }
     Add-Type -Path (Join-Path $assemblyPath "WinSCPnet.dll")
@@ -53,10 +60,11 @@ try
             # Modify the code below if you want to do another task with
             # matching files, instead of grepping their contents
 
-            Write-Host ("File {0} matches mask, searching contents..." -f $fileInfo.FullName)
+            Write-Host "File $($fileInfo.FullName) matches mask, searching contents..."
             $tempPath = (Join-Path $env:temp $fileInfo.Name)
             # Download file to temporary directory
-            $transferResult = $session.GetFiles($session.EscapeFileMask($fileInfo.FullName), $tempPath)
+            $filePath = [WinSCP.RemotePath]::EscapeFileMask($fileInfo.FullName)
+            $transferResult = $session.GetFiles($filePath, $tempPath)
             # Did the download succeeded?
             if (!$transferResult.IsSuccess)
             {
@@ -86,9 +94,9 @@ try
 
     $result = 0
 }
-catch [Exception]
+catch
 {
-    Write-Host ("Error: {0}" -f $_.Exception.Message)
+    Write-Host "Error: $($_.Exception.Message)"
     $result = 1
 }
 

@@ -72,7 +72,7 @@ ASSIGN
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME BROWSE-1
 
@@ -83,7 +83,8 @@ ASSIGN
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 prep.code prep.dscr prep.cost prep.mkup prep.spare-dec-1 prep.loc
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 prep.code prep.dscr prep.cost ~
+prep.mkup prep.spare-dec-1 prep.taxable prep.loc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH prep WHERE ~{&KEY-PHRASE} ~
       AND prep.company = ip-company NO-LOCK ~
@@ -100,8 +101,8 @@ ASSIGN
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 rd-sort bt-clear lv-search bt-ok ~
-bt-cancel RECT-1 
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort bt-clear lv-search ~
+bt-ok bt-cancel 
 &Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
 
 /* Custom List Definitions                                              */
@@ -142,7 +143,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
      SIZE 45 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 91 BY 1.43.
 
 /* Query definitions                                                    */
@@ -158,9 +159,10 @@ DEFINE BROWSE BROWSE-1
       prep.code FORMAT "x(20)":U
       prep.dscr FORMAT "x(20)":U
       prep.cost FORMAT "->>,>>9.99":U
-      prep.mkup FORMAT "->>9.99":U
+      prep.mkup FORMAT ">>9.99":U
       prep.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>>,>>>9.99<<":U
-      prep.loc FORMAT "x(6)":U
+      prep.taxable COLUMN-LABEL "Taxable" FORMAT "yes/no":U
+      prep.loc COLUMN-LABEL "is" FORMAT "OPENED":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 112 BY 11.19
@@ -176,10 +178,10 @@ DEFINE FRAME Dialog-Frame
      lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 69
      bt-cancel AT ROW 14.1 COL 81
-     RECT-1 AT ROW 12.43 COL 1
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.91 COL 4
-     SPACE(81.39) SKIP(1.84)
+     RECT-1 AT ROW 12.43 COL 1
+     SPACE(21.00) SKIP(1.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Prep and Die File".
@@ -201,8 +203,8 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
-/* BROWSE-TAB BROWSE-1 1 Dialog-Frame */
+   FRAME-NAME                                                           */
+/* BROWSE-TAB BROWSE-1 TEXT-1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -219,13 +221,16 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.prep.company = ip-company"
      _FldNameList[1]   > ASI.prep.code
-"prep.code" ? "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"code" ? "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = ASI.prep.dscr
      _FldNameList[3]   = ASI.prep.cost
      _FldNameList[4]   = ASI.prep.mkup
      _FldNameList[5]   > ASI.prep.spare-dec-1
-"prep.spare-dec-1" "Price" "->>>,>>>9.99<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[6]   > ASI.prep.loc
+"spare-dec-1" "Price" "->>>,>>>9.99<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.prep.taxable
+"taxable" "Taxable" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.prep.loc
+"loc" "is" "OPENED" "character" ? ? ? ? ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -238,7 +243,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Prep Code Information */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Prep and Die File */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -422,7 +427,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY rd-sort lv-search 
       WITH FRAME Dialog-Frame.
-  ENABLE BROWSE-1 rd-sort bt-clear lv-search bt-ok bt-cancel RECT-1 
+  ENABLE BROWSE-1 RECT-1 rd-sort bt-clear lv-search bt-ok bt-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

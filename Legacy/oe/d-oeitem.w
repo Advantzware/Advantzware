@@ -162,7 +162,7 @@ DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
@@ -2778,9 +2778,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
  
  IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
-    ELSE DO:        
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = YES .
+    ELSE DO:  
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.    
         
  END.
@@ -2938,11 +2942,12 @@ oplRelFlg2 = llRelFlg2.
           IF AVAIL shipto AND v-ship-from EQ "" THEN
             v-ship-from = shipto.loc.
         END.
-        RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
-                   INPUT oe-ordl.qty, INPUT oe-ordl.i-no,
-                   INPUT-OUTPUT v-ship-id,
-                   INPUT-OUTPUT v-ship-from).
-
+        IF llOeShipFromLog THEN do:
+            RUN oe/d-shipid.w (INPUT b-oe-ordl.cust-no,
+                               INPUT oe-ordl.qty, INPUT oe-ordl.i-no,
+                               INPUT-OUTPUT v-ship-id,
+                               INPUT-OUTPUT v-ship-from).
+        END.
     END.
     ipcShipTo = v-ship-id.
     ipcShipFRom = v-ship-from.
@@ -4009,7 +4014,9 @@ ASSIGN
            itemfg.isaset     = xeb.form-no EQ 0
            itemfg.procat     = xeb.procat
            itemfg.alloc      = xeb.set-is-assembled
-           itemfg.pur-man    = xeb.pur-man.
+           itemfg.pur-man    = xeb.pur-man
+           itemfg.trno       = xeb.tr-no 
+           itemfg.spare-char-4 = xeb.dest-code.
 
     /*IF xeb.pur-man THEN itemfg.pur-uom = "EA".*/
 
@@ -4061,15 +4068,6 @@ ASSIGN
     END.
  END.
 
-IF fgmaster-cha EQ "FGITEM" THEN DO:
-
-   FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
-   itemfg.i-code = IF oe-ordl.est-no NE "" THEN "C"
-                   ELSE IF AVAIL oe-ctrl THEN
-                           IF oe-ctrl.i-code THEN "S"
-                           ELSE "C"
-                   ELSE "S".
-END.
 IF itemfg.def-loc EQ "" THEN itemfg.def-loc = ipcLoc.
 IF itemfg.def-loc-bin EQ "" THEN itemfg.def-loc-bin = ipcLocBin.
 

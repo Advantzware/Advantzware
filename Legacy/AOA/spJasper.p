@@ -21,32 +21,32 @@
 &SCOPED-DEFINE aoaJasperGap 5
 &SCOPED-DEFINE noBrowseRefresh
 
-DEFINE VARIABLE aoaCompany         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE aoaProgramID       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE aoaBatchSeq        AS INTEGER   NO-UNDO.
-DEFINE VARIABLE aoaUserID          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE aoaTitle           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hAppSrv            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE cSelectedColumns   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lJasperStarter     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lUseDefault        AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowParameters   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowReportHeader AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowReportFooter AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowPageHeader   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowPageFooter   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowGroupHeader  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE svShowGroupFooter  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE aoaBatchSeq         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE aoaCompany          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaProgramID        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaTitle            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE aoaUserID           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSelectedColumns    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hAppSrv             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hAppSrvBin          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lJasperStarter      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUseDefault         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowParameters    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowReportHeader  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowReportFooter  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowPageHeader    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowPageFooter    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowGroupHeader   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE svShowGroupFooter   AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER jasperUserPrint FOR user-print.
 
 {AOA/includes/ttColumn.i}
 {AOA/includes/aoaProcedures.i}
+{AOA/includes/pRunBusinessLogic.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -59,7 +59,6 @@ DEFINE BUFFER jasperUserPrint FOR user-print.
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Prototypes ********************** */
 
@@ -118,7 +117,6 @@ FUNCTION fJasperReportSize RETURNS INTEGER
 
 &ENDIF
 
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -142,19 +140,42 @@ FUNCTION fJasperReportSize RETURNS INTEGER
                                                                         */
 &ANALYZE-RESUME
 
- 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
-
 
 lJasperStarter = INDEX(OS-GETENV("Path"),"jasperstarter") NE 0.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pCreateDir) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateDir Procedure
+PROCEDURE pCreateDir:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcUserFolder   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cJasperFolder AS CHARACTER NO-UNDO.
+
+    /* ensure needed folders exist */
+    OS-CREATE-DIR "TaskResults".
+    OS-CREATE-DIR "users".
+    opcUserFolder = "users/" + aoaUserID + "/".
+    OS-CREATE-DIR VALUE(opcUserFolder).
+    cJasperFolder = "users/" + aoaUserID + "/Jasper/".
+    OS-CREATE-DIR VALUE(cJasperFolder).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-pGetSelectedColumns) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSelectedColumns Procedure 
@@ -241,8 +262,12 @@ PROCEDURE pGetUserParamValue:
                 cTable = ENTRY(1,dynParamValue.colName[idx],".")
                 cField = ENTRY(2,dynParamValue.colName[idx],".")
                 .
-            CREATE BUFFER hTable FOR TABLE cTable.
-            dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
+            IF CAN-FIND(FIRST dynSubject
+                        WHERE dynSubject.subjectID     EQ dynParamValue.subjectID
+                          AND dynSubject.businessLogic EQ "") THEN DO:
+                CREATE BUFFER hTable FOR TABLE cTable.
+                dWidth = hTable:BUFFER-FIELD(cField):WIDTH.
+            END. /* if not business logic */
         END. /* if table.field */
         ELSE
         cField = dynParamValue.colName[idx].
@@ -280,9 +305,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-pGetUserPrint) = 0 &THEN
 
@@ -1194,8 +1217,9 @@ PROCEDURE pJasperReport :
             "leftMargin=~"" iMargin "~" "
             "rightMargin=~"" iMargin "~" "
             "topMargin=~"" iMargin "~" "
-            "bottomMargin=~"" iMargin "~">" SKIP
-            .
+            "bottomMargin=~"" iMargin "~" "
+            "isIgnorePagination=~"" TRIM(STRING(CAN-DO("csv,xls",ipcType),"true/false")) "~""
+            ">" SKIP.
         WHEN "Close" THEN
         PUT UNFORMATTED
             "</jasperReport>" SKIP
@@ -1220,21 +1244,14 @@ PROCEDURE pJasperStarter :
     DEFINE INPUT  PARAMETER ipcType     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJastFile AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cJasperStarter AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 4.
-    DEFINE VARIABLE cJasperFolder  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJasperStarter AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
     
-    /* ensure needed folders exist */
-    OS-CREATE-DIR "TaskResults".
-    OS-CREATE-DIR "users".
-    cUserFolder = "users/" + aoaUserID + "/".
-    OS-CREATE-DIR VALUE(cUserFolder).
-    cJasperFolder = "users/" + aoaUserID + "/Jasper/".
-    OS-CREATE-DIR VALUE(cJasperFolder).
+    RUN pCreateDir (OUTPUT cUserFolder).
     ASSIGN
         dtDate         = TODAY
         iTime          = TIME
@@ -1273,7 +1290,7 @@ PROCEDURE pJasperStarter :
     IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
         CREATE TaskResult.
         ASSIGN
-            TaskResult.fileDateTime = DATETIME(dtDate,iTime)
+            TaskResult.fileDateTime = DATETIME(dtDate,iTime * 1000)
             TaskResult.fileType     = ipcType
             TaskResult.user-id      = aoaUserID
             TaskResult.folderFile   = opcJastFile
@@ -1574,13 +1591,14 @@ PROCEDURE spJasperQuery:
     DEFINE INPUT  PARAMETER iphAppSrvBin  AS HANDLE    NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cError     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTableName AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lOK        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJasperFile   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserFolder   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSize         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
     
     ASSIGN
         aoaTitle   = ipcTitle
@@ -1591,39 +1609,51 @@ PROCEDURE spJasperQuery:
     RUN pGetUserParamValue (iprRowID).
     /* set columns for selected report columns */
     RUN pGetSelectedColumns.
-    /* calculate width of jasper report */
-    iSize = fJasperReportSize().
-    /* if no active columns, done */
-    IF iSize EQ ? THEN RETURN.    
-    /* create jasper jrxml file */
-    cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
-    OUTPUT TO VALUE(cJasperFile).    
-    RUN pJasperReport ("Open", ipcType, iSize).
-    RUN pJasperStyles.
-    RUN pJasperQueryString.
-    RUN pJasperFieldDeclarations.
-    RUN pJasperVariableDeclarations.
-    IF svShowGroupHeader OR svShowGroupFooter THEN
-    RUN pJasperGroupDeclarations.
-    RUN pJasperBackgroundBand.    
-    IF svShowReportHeader THEN
-    RUN pJasterTitleBand.    
-    IF svShowPageHeader THEN DO:
-        RUN pJasperPageHeaderBand.    
-        RUN pJasperColumnHeaderBand.
-    END. /* show page header */
-    /*IF svShowGroupHeader THEN*/    
-    RUN pJasperDetailBand (iSize).    
-    IF svShowGroupFooter THEN
-    RUN pJasperColumnFooterBand.    
-    IF svShowPageFooter THEN
-    RUN pJasperPageFooterBand.    
-    IF svShowParameters THEN
-    RUN pJasperLastPageFooter ("dynParamValue").
-    IF svShowReportFooter THEN 
-    RUN pJasperSummaryBand.    
-    RUN pJasperReport ("Close", ipcType, iSize).    
-    OUTPUT CLOSE.    
+    /* check if using external form */
+    IF dynParamValue.externalForm NE "" AND
+       SEARCH(dynParamValue.externalForm) NE ? THEN DO:
+        RUN pCreateDir (OUTPUT cUserFolder).
+        OS-COPY
+            VALUE(dynParamValue.externalForm)
+            VALUE(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml")
+            .
+        cJasperFile = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml").
+    END. /* if external form */
+    ELSE DO: /* dynamically create jasper report */
+        /* calculate width of jasper report */
+        iSize = fJasperReportSize().
+        /* if no active columns, done */
+        IF iSize EQ ? THEN RETURN.    
+        /* create jasper jrxml file */
+        cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
+        OUTPUT TO VALUE(cJasperFile).    
+        RUN pJasperReport ("Open", ipcType, iSize).
+        RUN pJasperStyles.
+        RUN pJasperQueryString.
+        RUN pJasperFieldDeclarations.
+        RUN pJasperVariableDeclarations.
+        IF svShowGroupHeader OR svShowGroupFooter THEN
+        RUN pJasperGroupDeclarations.
+        RUN pJasperBackgroundBand.    
+        IF svShowReportHeader THEN
+        RUN pJasterTitleBand.    
+        IF svShowPageHeader THEN DO:
+            RUN pJasperPageHeaderBand.    
+            RUN pJasperColumnHeaderBand.
+        END. /* show page header */
+        /*IF svShowGroupHeader THEN*/    
+        RUN pJasperDetailBand (iSize).    
+        IF svShowGroupFooter THEN
+        RUN pJasperColumnFooterBand.    
+        IF svShowPageFooter THEN
+        RUN pJasperPageFooterBand.    
+        IF svShowParameters THEN
+        RUN pJasperLastPageFooter ("dynParamValue").
+        IF svShowReportFooter THEN 
+        RUN pJasperSummaryBand.    
+        RUN pJasperReport ("Close", ipcType, iSize).    
+        OUTPUT CLOSE.    
+    END. /* else if not using external form */
     /* copy local jasper files to jasper studio workspace */
     RUN pJasperCopy (cJasperFile).
     /* get dynamic subject tables */
@@ -1638,11 +1668,20 @@ PROCEDURE spJasperQuery:
          WHERE dynSubject.subjectID EQ dynParamValue.subjectID
          NO-ERROR.
     IF AVAILABLE dynSubject THEN DO:
+        IF dynSubject.businessLogic EQ "" THEN
         /* create dynamic query */
         RUN AOA/dynQuery.p (
             ROWID(dynParamValue),
             dynSubject.queryStr,
             cTableName,
+            0, /* zero = no record limit */
+            OUTPUT hQuery,
+            OUTPUT lOK,
+            OUTPUT cError
+            ).
+        ELSE
+        /* run business logic */
+        RUN pRunBusinessLogic (
             OUTPUT hQuery,
             OUTPUT lOK,
             OUTPUT cError
@@ -1670,9 +1709,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 /* ************************  Function Implementations ***************** */
 

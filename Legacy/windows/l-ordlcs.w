@@ -623,14 +623,12 @@ FUNCTION get-prod RETURNS INTEGER
 
 
   IF AVAIL oe-ordl AND oe-ordl.job-no NE "" THEN
-  FOR EACH fg-act
-      WHERE fg-act.company EQ cocode
-        AND fg-act.job-no  EQ oe-ordl.job-no
-        AND fg-act.job-no2 EQ oe-ordl.job-no2
-        AND fg-act.i-no    EQ oe-ordl.i-no
-      NO-LOCK:
-    li = li + fg-act.qty.
-  END.
+  RUN fg/GetProductionQty.p (INPUT cocode,
+                                INPUT oe-ordl.job-no,
+                                INPUT oe-ordl.job-no2,
+                                INPUT oe-ordl.i-no,
+                                INPUT NO,
+                                OUTPUT li).
  
   op-bal = li.
 

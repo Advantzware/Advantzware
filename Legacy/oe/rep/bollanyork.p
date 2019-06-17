@@ -392,7 +392,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
             ASSIGN v-ship-addr[2] = v-ship-addr3
                 v-ship-addr3   = "".
 
-        ln-cnt = 1.
+        ln-cnt = 0.
         FOR EACH tt-boll,
             FIRST xoe-bolh WHERE xoe-bolh.b-no EQ tt-boll.b-no NO-LOCK,
             FIRST itemfg WHERE itemfg.company EQ tt-boll.company
@@ -426,17 +426,19 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                 IF AVAILABLE oe-ordl AND oe-ordl.part-dscr1 <> "" THEN ln-cnt = ln-cnt + 1.
             END.
 
-            IF v-print-components AND itemfg.alloc NE YES THEN
+            IF v-print-components AND itemfg.alloc NE YES THEN 
                 FOR EACH fg-set WHERE fg-set.company EQ cocode
                     AND fg-set.set-no  EQ tt-boll.i-no NO-LOCK,
                     FIRST b-itemfg WHERE b-itemfg.company EQ cocode
                     AND b-itemfg.i-no    EQ fg-set.part-no NO-LOCK:
                     ln-cnt = ln-cnt + 3.
                 END.
+     
         END.
+       
         /* end of dup loop */
-        lv-tot-pg = IF (ln-cnt MOD 25) = 0 THEN TRUNC( ln-cnt / 25,0)
-                  ELSE 1 + TRUNC( ln-cnt / 25,0) .  /* 16->33 18 detail lines */
+        lv-tot-pg = IF (ln-cnt MOD 24) = 0 THEN TRUNC( ln-cnt / 24,0)
+                  ELSE 1 + TRUNC( ln-cnt / 24,0) .  /* 16->33 18 detail lines */
         IF lv-tot-pg EQ 0 THEN lv-tot-pg = 1 .
      
         {oe/rep/bollanyork2.i}

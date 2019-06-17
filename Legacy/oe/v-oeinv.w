@@ -46,6 +46,7 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEFINE VARIABLE ll-new-shipto AS LOGICAL  INIT NO  NO-UNDO.
 DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
+DEFINE BUFFER bff-head FOR inv-head.
 
 &SCOPED-DEFINE other-enable enable-other
 
@@ -1008,6 +1009,8 @@ PROCEDURE hold-invoice :
   DEF VAR v-rowid-list AS CHAR NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR li       AS INT   NO-UNDO.
+  DEFINE VARIABLE lcheckflg AS LOGICAL INIT YES NO-UNDO .
+  DEFINE VARIABLE dAllowableUnderrun AS DECIMAL NO-UNDO .
   DEF BUFFER bf1-head FOR inv-head . 
 /*   DEF VAR v-ThisInv-Date AS DATE NO-UNDO INIT ?.   */
 /*   DEF VAR v-FirstFG-Date AS DATE NO-UNDO INIT ?.   */
@@ -1095,6 +1098,65 @@ PROCEDURE hold-invoice :
                 END.
 
              END.
+             ELSE IF v-choice EQ "Po" THEN
+             DO:
+                 MAIN-INV:
+                 FOR EACH bf-line-2 WHERE
+                     bf-line-2.company EQ inv-head.company AND
+                     bf-line-2.po-no    EQ fi_PO:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-LOCK, 
+                     FIRST bff-head NO-LOCK
+                       WHERE bff-head.r-no    EQ bf-line-2.r-no AND
+                             bff-head.stat    EQ "H" BREAK BY bf-line-2.ord-no :
+                    
+                      IF FIRST-OF(bf-line-2.ord-no) THEN do:
+                       lcheckflg = YES .
+                       FOR EACH oe-rel NO-LOCK
+                           WHERE oe-rel.company EQ inv-head.company
+                           AND oe-rel.ord-no EQ bf-line-2.ord-no 
+                           AND oe-rel.po-no EQ bf-line-2.po-no 
+                           AND INDEX("CZ", oe-rel.stat ) eq 0 USE-INDEX ord-item:
+                           
+                           MESSAGE "This customer/PO still has open items remaining on Order " +  string(oe-rel.ord-no) + ", Are you sure?"
+                               VIEW-AS ALERT-BOX QUESTION 
+                               BUTTONS YES-NO UPDATE lcheckflg  .
+                           leave.
+                       END.
+
+                       IF NOT lcheckflg THEN NEXT MAIN-INV.
+
+                       FOR EACH oe-ordl NO-LOCK 
+                           WHERE oe-ordl.company EQ inv-head.company
+                           AND oe-ordl.ord-no    EQ bf-line-2.ord-no 
+                           AND oe-ordl.po-no     EQ bf-line-2.po-no:
+
+                      
+                           dAllowableUnderrun = oe-ordl.qty * (1 - (oe-ordl.under-pct / 100)) .
+
+                           IF oe-ordl.ship-qty LT dAllowableUnderrun THEN
+                               MESSAGE "Order qty not fully shipped on Order " +  string(oe-rel.ord-no) + ", Are you sure?"
+                               VIEW-AS ALERT-BOX QUESTION 
+                               BUTTONS YES-NO UPDATE lcheckflg  .
+                              LEAVE.
+                       END.
+                    
+                       IF lcheckflg THEN
+                           FOR EACH bf-line WHERE
+                           bf-line.company     EQ inv-head.company AND
+                           bf-line.ord-no      EQ bf-line-2.ord-no AND
+                           bf-line.po-no       EQ bf-line-2.po-no,
+                           EACH bf-head WHERE
+                           bf-head.r-no    EQ bf-line.r-no AND
+                           bf-head.stat    EQ "H":
+                           ASSIGN bf-head.stat = ""
+                               bf-head.inv-date = v-date.
+                           
+                           IF bf-head.r-no EQ inv-head.r-no THEN
+                               inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RELEASED" .
+                       END.
+                      END. /* first of ord*/
+                 END.
+               RELEASE bf-head.
+             END. /* All Invoices for This PO#*/
              ELSE IF v-choice EQ "This Invoice" THEN
              DO:
                 FIND bf-head WHERE RECID(bf-head) = RECID(inv-head).

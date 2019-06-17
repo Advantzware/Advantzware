@@ -337,6 +337,10 @@ PROCEDURE InitializeExcel :
     CurActivePrinter = SESSION:PRINTER-NAME
     AdobePrinter     = "PDFcamp Printer".
   
+  RUN sys/ref/getFileFullPathName.p ("Template\Statement.xlt", OUTPUT chFile).
+  IF chFile = ? THEN  
+    APPLY 'CLOSE':U TO THIS-PROCEDURE.
+
   /* Connect to the running Excel session. */
   CREATE "Excel.Application" chExcelApplication.
 
@@ -352,21 +356,8 @@ PROCEDURE InitializeExcel :
   IF LvOutputSelection = "Email" THEN
      WshNetwork:SetDefaultPrinter(AdobePrinter). 
 
-  FILE-INFO:FILE-NAME = "template\Statement.xlt".
-
-  /* Set the Excel Template to be used. */
-  ASSIGN chFile = search (FILE-INFO:FULL-PATHNAME) no-error.
-  
-  if search (chFile) = ? then do:
-    MESSAGE 'Template File: ' FILE-INFO:FULL-PATHNAME
-            'cannot be found. Please verify that the file exists.'
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    apply 'CLOSE':U to this-procedure.
-  end.
-
   /* Make Excel visible. */
   ASSIGN
-     chFile = FILE-INFO:FULL-PATHNAME
      chExcelApplication:VISIBLE = TRUE.
   
   /* If we are going to E-Mail or Print, hide Excel. */

@@ -119,6 +119,7 @@ END.
 {sys/inc/funcToWorkDay.i}
 DEFINE VARIABLE v-access-close AS LOG       NO-UNDO.
 DEFINE VARIABLE v-access-list  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
 
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
@@ -164,6 +165,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLPrompt", "C" /* Logical */, NO /* che
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeBolPrompt-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (cocode, "ShipNotesExpanded", "L" /* Logical */, NO /* check by cust */, 
+          INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  glShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.
 
 
 DEFINE VARIABLE lv-item-recid AS RECID   NO-UNDO.
@@ -408,7 +414,8 @@ DEFINE FRAME Dialog-Frame
      tt-report.frt-pay AT ROW 1.67 COL 83.0 COLON-ALIGNED
           LABEL "Frt Pay" FORMAT "x(12)"
           VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEM-PAIRS "P-Prepaid","P",
+          LIST-ITEM-PAIRS "","",
+                      "P-Prepaid","P",
                      "C-Collect","C",
                      "B-Bill","B",
                      "T-3rd Party","T"
@@ -423,7 +430,8 @@ DEFINE FRAME Dialog-Frame
      tt-report.flute AT ROW 2.86 COL 83.0 COLON-ALIGNED
           LABEL "FOB" FORMAT "x(1)"
           VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEM-PAIRS "D-Destination","D",
+          LIST-ITEM-PAIRS "","", 
+                     "D-Destination","D",
                      "O-Origin","O"
           DROP-DOWN-LIST 
           SIZE 17.5 BY 1
@@ -877,7 +885,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN
             RUN valid-colonial-date NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
+
         RUN valid-freight-pay NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -979,6 +987,10 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             DO WITH FRAME {&FRAME-NAME}:
                 ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
             END.
+            IF tt-report.frt-pay EQ ? THEN 
+                tt-report.frt-pay = "".
+            IF tt-report.flute EQ ? THEN 
+                tt-report.flute = "".                
         END.
 
         RUN pUpdate-record(INPUT cPreRelDate).
@@ -1060,16 +1072,25 @@ ON ENTRY OF oe-rel.carrier IN FRAME Dialog-Frame /* Via */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rel.carrier Dialog-Frame
 ON LEAVE OF oe-rel.carrier IN FRAME Dialog-Frame /* Via */
     DO:
-        IF LASTKEY = -1 THEN RETURN.
-    
-        FIND FIRST carrier WHERE carrier.company = g_company AND
-            carrier.carrier = SELF:screen-value
-            NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE carrier THEN 
-        DO:
-            MESSAGE "Invalid Carrier. Try Help. " VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
+   
+       /* IF LASTKEY = -1 THEN DO:*/
+            FIND FIRST carrier WHERE carrier.company = g_company 
+                AND carrier.loc EQ oe-rel.spare-char-1:SCREEN-VALUE
+                AND carrier.carrier = oe-rel.carrier:screen-value
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL carrier THEN DO:
+                IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+                    MESSAGE "Please note: Carrier " oe-rel.carrier:SCREEN-VALUE " is valid but currently inactive"
+                        VIEW-AS ALERT-BOX INFO.
+                    RETURN NO-APPLY.
+                END.
+            END.
+            IF NOT AVAIL carrier THEN DO:
+                MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.
+      /*  END.*/
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1943,11 +1964,11 @@ PROCEDURE display-item :
 
     IF ip-type EQ "update" THEN DO:
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
-        RUN epCanAccess IN hPgmSecurity ("windows/matprep.w", "", OUTPUT lResult).
+        RUN epCanAccess IN hPgmSecurity ("oe/d-ordrel.w", "", OUTPUT lResult).
         DELETE OBJECT hPgmSecurity.
         IF NOT lResult THEN 
             DO WITH FRAME {&FRAME-NAME}:
-            DISABLE oe-rel.stat .
+            DISABLE oe-rel.stat oe-rel.qty .
         END.
     END.
 
@@ -2075,6 +2096,13 @@ PROCEDURE pCreateNewRel :
     DEFINE VARIABLE v-qty-released      AS INTEGER NO-UNDO.
     DEFINE VARIABLE rShipTo             AS ROWID   NO-UNDO.
     DEFINE VARIABLE lFirstReleaseOfItem AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cShipNote   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+     IF glShipNotesExpanded THEN do:
+         RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hNotesProcs).
+     END.
   
     /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -2209,8 +2237,9 @@ PROCEDURE pCreateNewRel :
                               else*/ v-carrier
             oe-rel.r-no         = v-nxt-r-no
             oe-rel.spare-char-1 = v-shipfrom
-            oe-rel.fob-code     = oe-ord.fob-code
-            oe-rel.frt-pay      = oe-ord.frt-pay .                                                                                                              .
+            oe-rel.frt-pay  = oe-ord.frt-pay
+            oe-rel.fob-code = oe-ord.fob-code
+            .                                                                                                              .
 
         IF oereleas-cha EQ "LastShip" THEN
             oe-rel.rel-date = oe-ord.last-date.
@@ -2247,7 +2276,7 @@ PROCEDURE pCreateNewRel :
 
         IF oe-rel.rel-date LE v-lst-rel THEN oe-rel.rel-date = v-lst-rel + 1.
 
-        IF AVAILABLE shipto THEN
+        IF AVAILABLE shipto THEN do:
             ASSIGN oe-rel.ship-addr[1] = shipto.ship-addr[1]
                 oe-rel.ship-city    = shipto.ship-city
                 oe-rel.ship-state   = shipto.ship-state
@@ -2258,6 +2287,15 @@ PROCEDURE pCreateNewRel :
                 oe-rel.ship-i[2]    = shipto.notes[2]
                 oe-rel.ship-i[3]    = shipto.notes[3]
                 oe-rel.ship-i[4]    = shipto.notes[4].
+
+             IF glShipNotesExpanded THEN do:
+                
+                RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT cShipNote).
+                RUN UpdateShipNote IN hNotesProcs (oe-rel.rec_key,
+                                                   cShipNote) .
+            END.
+
+        END.
         ELSE ASSIGN oe-rel.ship-no   = oe-ord.sold-no
                 oe-rel.ship-id   = IF v-first-ship-id <> "" THEN v-first-ship-id ELSE oe-ord.ship-id
                 oe-rel.ship-i[1] = oe-ord.ship-i[1]
@@ -2274,7 +2312,7 @@ PROCEDURE pCreateNewRel :
                 WHERE shipto.company EQ cocode
                 AND shipto.cust-no EQ oe-rel.cust-no NO-LOCK BY shipto.ship-id:
 
-                IF AVAILABLE shipto THEN
+                IF AVAILABLE shipto THEN do:
                     ASSIGN 
                         oe-rel.ship-id      = shipto.ship-id
                         oe-rel.ship-addr[1] = shipto.ship-addr[1]
@@ -2286,7 +2324,14 @@ PROCEDURE pCreateNewRel :
                         oe-rel.ship-i[2]    = shipto.notes[2]
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4].
-                LEAVE .
+
+                    IF glShipNotesExpanded THEN do:
+                        RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT cShipNote).
+                        RUN UpdateShipNote IN hNotesProcs (oe-rel.rec_key,
+                                                   cShipNote) .
+                    END.
+                    LEAVE .
+                END.
             END.
         END.
         
@@ -2305,6 +2350,8 @@ PROCEDURE pCreateNewRel :
         RETURN ERROR.
     END.
      
+    IF glShipNotesExpanded THEN
+        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hNotesProcs).
 
 END PROCEDURE.
 
@@ -2493,6 +2540,9 @@ PROCEDURE pUpdate-record :
     DEFINE VARIABLE cOrigLoc    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lLocChanged AS LOG       NO-UNDO.
     DEFINE VARIABLE v-q-back    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cShipNote   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
     /* Code placed here will execute PRIOR to standard behavior. */
     IF NOT AVAILABLE oe-rel AND lv-rel-recid <> ? THEN
         FIND oe-rel WHERE RECID(oe-rel) = lv-rel-recid.
@@ -2591,8 +2641,10 @@ PROCEDURE pUpdate-record :
         oe-rel.lot-no   = tt-report.lot-no:SCREEN-VALUE
         oe-rel.frt-pay  = tt-report.frt-pay:SCREEN-VALUE
         oe-rel.fob-code = tt-report.flute:SCREEN-VALUE.
-
- 
+    IF oe-rel.frt-pay = ? THEN 
+        oe-rel.frt-pay = "".
+    IF oe-rel.fob-code = ? THEN 
+        oe-rel.fob-code = "".
 
     ASSIGN 
         oe-rel.sell-price = DEC(tt-report.price:SCREEN-VALUE)
@@ -2707,6 +2759,15 @@ PROCEDURE pUpdate-record :
                 oe-rel.ship-i[2]    = shipto.notes[2]
                 oe-rel.ship-i[3]    = shipto.notes[3]
                 oe-rel.ship-i[4]    = shipto.notes[4].
+
+            IF glShipNotesExpanded THEN do:
+
+                RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+                RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT cShipNote).
+                RUN UpdateShipNote IN hNotesProcs (oe-rel.rec_key,
+                                                   cShipNote) .
+            END.
+
         END.
     END.   
 
@@ -3673,4 +3734,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

@@ -189,6 +189,8 @@ DO:
   end.
     
   run fg/fg-reset.p (recid(itemfg)). 
+  
+  RUN spCheckTrackUsage ("d-reqtys.","IF1").
 
   session:set-wait-state('').
   
@@ -245,9 +247,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   find itemfg where rowid(itemfg) eq ip-rowid no-lock.
 
   assign
-   cocode  = itemfg.company
-   locode  = g_loc.
-  
+    cocode      = itemfg.company
+    locode      = g_loc.
+
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.

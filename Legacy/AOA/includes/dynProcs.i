@@ -18,15 +18,15 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE cBufferValue    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hBrowseQuery    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 200.
-DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hQuery          AS HANDLE    NO-UNDO.
-DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cBufferValue        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hBrowseQuery        AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hCalcColumn         AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hDynCalcField       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynDescripProc     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynInitProc        AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynValProc         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hQuery              AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 SESSION:ADD-SUPER-PROCEDURE (hDynCalcField).
@@ -89,6 +89,7 @@ END. /* row-display */
 
 {AOA/includes/pDynParamProcs.i "{1}"}
 {AOA/includes/pRunNow.i}
+{AOA/includes/pRunBusinessLogic.i}
 {AOA/includes/pSetDynParamValue.i "{1}"}
 
 RUN spSetCompany IN hDynDescripProc (g_company).
@@ -164,17 +165,16 @@ PROCEDURE pResultsBrowser :
     DO idx = 1 TO EXTENT(dynParamValue.colName):
         IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
         IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
-        IF dynParamValue.isCalcField[idx] THEN DO:
-            ASSIGN
-                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(
-                    dynParamValue.dataType[idx],
-                    dynParamValue.colFormat[idx],
-                    "",
-                    dynParamValue.colLabel[idx]
-                    )
-                hColumn = hCalcColumn[idx]
-                .
-        END. /* if calc field */
+        IF dynParamValue.isCalcField[idx] THEN
+        ASSIGN
+            hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(
+                dynParamValue.dataType[idx],
+                dynParamValue.colFormat[idx],
+                "",
+                dynParamValue.colLabel[idx]
+                )
+            hColumn = hCalcColumn[idx]
+            .
         ELSE
         ASSIGN
             hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx])
@@ -259,10 +259,18 @@ PROCEDURE pRunQuery:
         cTableName = cTableName + {1}SubjectTable.tableName + ",".
     END. /* each {1}SubjectTable */
     cTableName = TRIM(cTableName,",").
+    IF dynSubject.businessLogic EQ "" THEN
     RUN AOA/dynQuery.p (
         ROWID(dynParamValue),
         queryStr,
         cTableName,
+        IF ipcType EQ "Grid" THEN 2500 ELSE 0,
+        OUTPUT hQuery,
+        OUTPUT lOK,
+        OUTPUT cError
+        ).
+    ELSE
+    RUN pRunBusinessLogic (
         OUTPUT hQuery,
         OUTPUT lOK,
         OUTPUT cError

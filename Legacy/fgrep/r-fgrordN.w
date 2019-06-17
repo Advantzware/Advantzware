@@ -74,12 +74,12 @@ DEFINE VARIABLE cItemLoc AS CHARACTER NO-UNDO .
 ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,WHSE," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +
                            "VENDOR ITEM#,HISTORY,WHS DAYS,LAST SHIP,PO DUE DATE,JOB DUE DATE,CUSTOMER#,SALES REP,COST,COST UOM," +
-                           "5 MO AVG,SUGT - AVG,SUGT REORDER MSF,STOCK STATUS"
+                           "MO AVG,SUGT - AVG,SUGT REORDER MSF,STATUS,ESTIMATE ROUTING"
        cFieldListToSelect = "itemfg.i-no,itemfg.part-no,itemfg.i-name,itemfg.procat,itemfg.sell-uom,itemfg.ord-level,v-qty-onh,whse," +
                             "v-alloc-qty,itemfg.q-ono,itemfg.ord-min,itemfg.ord-max,v-qty-avail,itemfg.sell-price,v-reord-qty," +
                             "itemfg.vend-item,li-hist,whs-day,last-ship,po-due-dt,job-due-dt,itemfg.cust-no,v-rep,itemfg.total-std-cost,itemfg.prod-uom," +
-                            "mo-avg,sug-avg,msf-reord,itemfg.stat"
-       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,12"  .
+                            "mo-avg,sug-avg,msf-reord,itemfg.stat,est-rout"
+       cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17,47,8,10,11,12,9,20,11,8," + "8,10,16,6,30"  .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND," + 
@@ -107,13 +107,14 @@ end_whse begin_class end_class begin_group end_group tb_inc-qoh tb_inc-cust ~
 tb_below tb_dash rd_qoh begin_as-of rd_stocked rd_pur-man rd_lot-reo ~
 lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel ~
 fi_file btn-ok btn-cancel tb_reord-by-whse tb_inactive tb_excomp RECT-6 ~
-RECT-7 RECT-30 display_hist 
+RECT-7 RECT-30 display_hist begin_cust-part end_cust-part
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust ~
 begin_i-no end_i-no begin_cat end_cat begin_whse end_whse begin_class ~
 end_class begin_group end_group tb_inc-qoh tb_inc-cust tb_below lbl_qoh1 ~
 rd_qoh begin_as-of lbl_stocked rd_stocked lbl_pur-man rd_pur-man ~
 lbl_lot-reo rd_lot-reo lv-ornt lines-per-page rd-dest lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file display_hist 
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file display_hist ~
+begin_cust-part end_cust-part
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -130,7 +131,6 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -210,6 +210,11 @@ DEFINE VARIABLE begin_whse AS CHARACTER FORMAT "X(5)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_cust-part AS CHARACTER FORMAT "X(15)" 
+     LABEL "Beginning Customer Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE end_cat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Category" 
      VIEW-AS FILL-IN 
@@ -237,6 +242,11 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
 
 DEFINE VARIABLE end_whse AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
      LABEL "Ending Warehouse" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_cust-part AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "Ending Customer Part#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -434,7 +444,7 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 DEFINE FRAME FRAME-A
      tb_cust-list AT ROW 1.29 COL 32.6 WIDGET-ID 6
      btnCustList AT ROW 1.29 COL 64 WIDGET-ID 8
-     btn_SelectColumns AT ROW 16.43 COL 23 WIDGET-ID 10
+     btn_SelectColumns AT ROW 16.57 COL 23 WIDGET-ID 10
      begin_cust AT ROW 2.29 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
      end_cust AT ROW 2.24 COL 70 COLON-ALIGNED HELP
@@ -451,33 +461,37 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Warehouse"
      end_whse AT ROW 5.1 COL 70 COLON-ALIGNED HELP
           "Enter Ending Warehouse Number"
-     begin_class AT ROW 6.19 COL 27 COLON-ALIGNED HELP
+     begin_class AT ROW 6.10 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Class" WIDGET-ID 2
-     end_class AT ROW 6.14 COL 70 COLON-ALIGNED HELP
+     end_class AT ROW 6.05 COL 70 COLON-ALIGNED HELP
           "Enter Ending Class" WIDGET-ID 4
-     begin_group AT ROW 7.24 COL 27 COLON-ALIGNED HELP
+     begin_group AT ROW 7.05 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Group" WIDGET-ID 6
-     end_group AT ROW 7.19 COL 70 COLON-ALIGNED HELP
+     end_group AT ROW 7 COL 70 COLON-ALIGNED HELP
           "Enter Ending Group" WIDGET-ID 8
-     tb_inc-qoh AT ROW 8.29 COL 2
-     tb_part AT ROW 14.71 COL 61
-     tb_inc-cust AT ROW 9.19 COL 45 RIGHT-ALIGNED
-     tb_history AT ROW 15.52 COL 61
-     tb_below AT ROW 10.1 COL 50 RIGHT-ALIGNED
-     tb_dash AT ROW 8.29 COL 57
-     lbl_qoh1 AT ROW 12 COL 2 NO-LABEL
-     rd_qoh AT ROW 12 COL 14 NO-LABEL
-     begin_as-of AT ROW 12 COL 75 COLON-ALIGNED
-     lbl_stocked AT ROW 13.05 COL 2 COLON-ALIGNED NO-LABEL
-     rd_stocked AT ROW 13.05 COL 13 NO-LABEL
-     lbl_pur-man AT ROW 14 COL 2 COLON-ALIGNED NO-LABEL
-     rd_pur-man AT ROW 14 COL 13 NO-LABEL
-     lbl_lot-reo AT ROW 14.95 COL 2 COLON-ALIGNED NO-LABEL
-     rd_lot-reo AT ROW 14.95 COL 13 NO-LABEL
-     rd_qav-ven AT ROW 12.86 COL 56 NO-LABEL
-     display_hist AT ROW 14.1 COL 75 COLON-ALIGNED HELP
+     begin_cust-part AT ROW 8 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Customer Part Number"
+     end_cust-part AT ROW 7.95 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Customer part Number"
+     tb_inc-qoh AT ROW 9.05 COL 2
+     tb_part AT ROW 14.95 COL 61
+     tb_inc-cust AT ROW 9.95 COL 45 RIGHT-ALIGNED
+     tb_history AT ROW 15.71 COL 61
+     tb_below AT ROW 10.86 COL 50 RIGHT-ALIGNED
+     tb_dash AT ROW 9.14 COL 57
+     lbl_qoh1 AT ROW 12.38 COL 2 NO-LABEL
+     rd_qoh AT ROW 12.38 COL 14 NO-LABEL
+     begin_as-of AT ROW 12.38 COL 75 COLON-ALIGNED
+     lbl_stocked AT ROW 13.43 COL 2 COLON-ALIGNED NO-LABEL
+     rd_stocked AT ROW 13.43 COL 13 NO-LABEL
+     lbl_pur-man AT ROW 14.38 COL 2 COLON-ALIGNED NO-LABEL
+     rd_pur-man AT ROW 14.38 COL 13 NO-LABEL
+     lbl_lot-reo AT ROW 15.33 COL 2 COLON-ALIGNED NO-LABEL
+     rd_lot-reo AT ROW 15.33 COL 13 NO-LABEL
+     rd_qav-ven AT ROW 13.24 COL 56 NO-LABEL
+     display_hist AT ROW 14.38 COL 75 COLON-ALIGNED HELP
           "displays history from the today date." WIDGET-ID 54
-     rd_pri-ven-max AT ROW 13.76 COL 56 NO-LABEL
+     rd_pri-ven-max AT ROW 14.14 COL 56 NO-LABEL
      lv-ornt AT ROW 19.24 COL 30 NO-LABEL
      lines-per-page AT ROW 19.24 COL 83 COLON-ALIGNED
      rd-dest AT ROW 19.76 COL 6 NO-LABEL
@@ -498,9 +512,9 @@ DEFINE FRAME FRAME-A
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 14.81 COL 134 WIDGET-ID 40
      btn_down AT ROW 16 COL 134 WIDGET-ID 42
-     tb_reord-by-whse AT ROW 9.19 COL 57 WIDGET-ID 48
-     tb_inactive AT ROW 10.1 COL 57 WIDGET-ID 50
-     tb_excomp AT ROW 11 COL 57 WIDGET-ID 52
+     tb_reord-by-whse AT ROW 9.91 COL 57 WIDGET-ID 48
+     tb_inactive AT ROW 10.67 COL 57 WIDGET-ID 50
+     tb_excomp AT ROW 11.43 COL 57 WIDGET-ID 52
      
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -611,6 +625,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_cust-part:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
@@ -660,6 +678,10 @@ ASSIGN
 
 ASSIGN 
        end_whse:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_cust-part:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -937,17 +959,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_cust-part
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-part C-Win
+ON LEAVE OF begin_cust-part IN FRAME FRAME-A /* Beginning Cust Part */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME display_hist
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL display_hist C-Win
 ON HELP OF display_hist IN FRAME FRAME-A /* History for month */
 DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-cust.w (cocode, {&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
-                                  .
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1008,7 +1034,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   
-  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,12"  .
+  cFieldLength = "15,15,20,8,3,12,13,5,11,9,12,12,9,9,16,17," + STRING(8 * display_hist)  + ",8,10,11,12,9,20,11,8," + "8,10,16,6,30"  .
   
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
@@ -1273,6 +1299,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_cust-part
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-part C-Win
+ON LEAVE OF end_cust-part IN FRAME FRAME-A /* Ending Customer Part# */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
@@ -1656,9 +1691,9 @@ END.
 ON LEAVE OF display_hist IN FRAME FRAME-A /* Beginning Class */
 DO:
     
-  IF INTEGER(display_hist:SCREEN-VALUE) GT 12 THEN
+  IF INTEGER(display_hist:SCREEN-VALUE) GT 12 OR INTEGER(display_hist:SCREEN-VALUE) LT 1  THEN
       ASSIGN display_hist:SCREEN-VALUE = "12" .
-  ASSIGN {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1979,7 +2014,7 @@ PROCEDURE enable_UI :
           tb_inc-qoh tb_inc-cust tb_below lbl_qoh1 rd_qoh begin_as-of 
           lbl_stocked rd_stocked lbl_pur-man rd_pur-man lbl_lot-reo rd_lot-reo 
           lv-ornt lines-per-page rd-dest lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file display_hist 
+          tb_excel tb_runExcel fi_file display_hist begin_cust-part end_cust-part
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tb_cust-list btnCustList btn_SelectColumns begin_cust end_cust 
          begin_i-no end_i-no begin_cat end_cat begin_whse end_whse begin_class 
@@ -1987,7 +2022,7 @@ PROCEDURE enable_UI :
          tb_dash rd_qoh begin_as-of rd_stocked rd_pur-man rd_lot-reo lv-ornt 
          lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel 
          fi_file btn-ok btn-cancel tb_reord-by-whse tb_inactive tb_excomp 
-         RECT-6 RECT-7 RECT-30 display_hist 
+         RECT-6 RECT-7 RECT-30 display_hist begin_cust-part end_cust-part
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2130,6 +2165,8 @@ DEF VAR v-reord-msf AS   DEC FORMAT ">>>>>>>>9.99999" NO-UNDO.
 DEF VAR v-qty-avail AS   INT NO-UNDO.
 DEF VAR v-alloc-qty AS   INT NO-UNDO.
 DEF VAR v-stat      AS   CHAR NO-UNDO.
+DEFINE VARIABLE fcpart like itemfg.part-no INITIAL " " NO-UNDO.
+DEFINE VARIABLE tcpart like fcpart INITIAL "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
 
 DEF VAR li-avg-hist AS INT FORMAT "->>>>>9"  NO-UNDO.
 DEF VAR li-hist AS INT FORMAT "->>>>>9" EXTENT 12 NO-UNDO.
@@ -2150,6 +2187,7 @@ DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2163,7 +2201,7 @@ DO li = 1 TO display_hist :
    ld-fr   = DATE(li1,1,YEAR(TODAY) - IF li1 GT MONTH(TODAY) THEN 1 ELSE 0)
    ls-hlbl = ls-hlbl + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2) .
-   IF li = 6 THEN
+   IF li = display_hist THEN
    ls-hlbl2 = ls-hlbl2 + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2)  .
    ELSE
@@ -2197,7 +2235,8 @@ ASSIGN
  v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1)
  lExcludeComponents = tb_excomp
  lSelected      = tb_cust-list
-.
+ fcpart      = begin_cust-part
+ tcpart      = END_cust-part .
 
 
 
@@ -2317,6 +2356,8 @@ DEF VAR v-reord-msf AS   DEC FORMAT ">>>>>>>>9.99999" NO-UNDO.
 DEF VAR v-qty-avail AS   INT NO-UNDO.
 DEF VAR v-alloc-qty AS   INT NO-UNDO.
 DEF VAR v-stat      AS   CHAR NO-UNDO.
+DEFINE VARIABLE fcpart like itemfg.part-no INITIAL " " NO-UNDO.
+DEFINE VARIABLE tcpart like fcpart INITIAL "zzzzzzzzzzzzzzzzzzz" NO-UNDO.
 
 DEF VAR li-avg-hist AS INT FORMAT "->>>>>9"  NO-UNDO.
 DEF VAR li-hist AS INT FORMAT "->>>>>9" EXTENT 12 NO-UNDO.
@@ -2337,6 +2378,7 @@ DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2350,7 +2392,7 @@ DO li = 1 TO display_hist :
    ld-fr   = DATE(li1,1,YEAR(TODAY) - IF li1 GT MONTH(TODAY) THEN 1 ELSE 0)
    ls-hlbl = ls-hlbl + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2) .
-    IF li = 6 THEN
+    IF li = display_hist THEN
    ls-hlbl2 = ls-hlbl2 + " " + STRING(MONTH(ld-fr),"99") + "/" +
                                SUBSTR(STRING(YEAR(ld-fr),"9999"),3,2)  .        
 ELSE
@@ -2383,8 +2425,9 @@ ASSIGN
  v-prt-qty   = rd_qav-ven BEGINS "Qty"
  v-prt-prc   = SUBSTR(rd_pri-ven-max,1,1)
  lExcludeComponents = tb_excomp
- lSelected      = tb_cust-list.
-
+ lSelected      = tb_cust-list
+ fcpart      = begin_cust-part
+ tcpart      = END_cust-part.
 
 
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -2577,4 +2620,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

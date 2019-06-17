@@ -269,64 +269,6 @@ ASSIGN
  v-reprint   = reprint
  v-spec-list = spec-list.
 
-/* build tt-reftable est-type 4 has no all reftable*/
-for each job-hdr NO-LOCK
-        where job-hdr.company               eq cocode
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
-          and (production OR
-               job-hdr.ftick-prnt           eq v-reprint OR
-               PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          and can-find(first job where job.company eq cocode
-                                   and job.job     eq job-hdr.job
-                                   and job.job-no  eq job-hdr.job-no
-                                   and job.job-no2 eq job-hdr.job-no2
-                                   and job.stat    ne "H"
-                                   AND (job.pr-printed EQ reprint OR
-                                        NOT production))
-          use-index job-no,
-
-        first est NO-LOCK where est.company  eq job-hdr.company
-          AND est.est-no   EQ job-hdr.est-no
-          and est.est-type le 4
-    break by job-hdr.job
-              by job-hdr.job-no
-              by job-hdr.job-no2 :  
-
-   FOR EACH reftable NO-LOCK WHERE reftable.reftable EQ "jc/jc-calc.p"
-           AND reftable.company  EQ job-hdr.company
-           AND reftable.loc      EQ ""
-           AND reftable.code     EQ STRING(job-hdr.job,"999999999"):
-       CREATE tt-reftable.
-       BUFFER-COPY reftable TO tt-reftable.
-       tt-reftable.est-type = est.est-type.
-   END.
-   FIND FIRST tt-reftable WHERE tt-reftable.reftable EQ "jc/jc-calc.p"
-        AND tt-reftable.company  EQ job-hdr.company
-        AND tt-reftable.loc      EQ ""
-        AND tt-reftable.code     EQ STRING(job-hdr.job,"999999999")
-        AND tt-reftable.val[12] = job-hdr.frm   
-        NO-LOCK NO-ERROR.
-   IF NOT AVAILABLE tt-reftable THEN DO:
-      CREATE tt-reftable.
-      ASSIGN tt-reftable.reftable = "jc/jc-calc.p"
-             tt-reftable.company = job-hdr.company
-             tt-reftable.loc = ""
-             tt-reftable.CODE = STRING(job-hdr.job,"999999999")
-             tt-reftable.val[12] = job-hdr.frm
-             tt-reftable.val[13] = job-hdr.blank-no
-             tt-reftable.est-type = est.est-type.
-
-   END.
-END.
-/* end of tt-reftable building*/
-
 for each job-hdr NO-LOCK
         where job-hdr.company               eq cocode
           and job-hdr.job-no                ge substr(fjob-no,1,6)
@@ -353,12 +295,11 @@ for each job-hdr NO-LOCK
         where est.company  eq job-hdr.company
           AND est.est-no   EQ job-hdr.est-no
           and est.est-type le 4  
-        no-lock,
-        EACH tt-reftable
+        NO-LOCK 
         break by job-hdr.job
               by job-hdr.job-no
               by job-hdr.job-no2
-              BY tt-reftable.val[12]:       
+              BY job-hdr.frm :       
 
       ASSIGN lv-prt-sts = IF NOT job-hdr.ftick-prnt THEN "ORIGINAL" ELSE "REVISED"
              lv-prt-date = TODAY
@@ -442,9 +383,9 @@ for each job-hdr NO-LOCK
          lv-cad-image-list = "".
       END.
       
-      if first-of(tt-reftable.val[12]) then v-first = yes.
+      if first-of(job-hdr.frm) then v-first = yes.
 
-      reftable-frm-int = INT(tt-reftable.val[12]).
+      reftable-frm-int = INT(job-hdr.frm).
 
       /** PRINT JOB HEADER **/
       if v-first then do:
@@ -497,8 +438,8 @@ for each job-hdr NO-LOCK
            dPromDate = IF AVAIL oe-ordl THEN oe-ordl.prom-date
                         ELSE IF AVAIL oe-ord THEN oe-ord.due-date ELSE ?   .
        
-              v-ovund = string(trim(string(oe-ordl.over-pct,">9")) + "/" +
-                               trim(string(oe-ordl.under-pct,">9"))).
+              v-ovund = IF AVAIL oe-ordl THEN string(trim(string(oe-ordl.over-pct,">9")) + "/" +
+                               trim(string(oe-ordl.under-pct,">9"))) ELSE "".
 
         FIND FIRST cust WHERE cust.company = job-hdr.company AND
                               cust.cust-no = job-hdr.cust-no NO-LOCK NO-ERROR.
@@ -653,7 +594,7 @@ for each job-hdr NO-LOCK
       for each ef
           WHERE ef.company EQ job-hdr.company
             AND ef.est-no  EQ job-hdr.est-no
-            AND ef.form-no = tt-reftable.val[12]
+            AND ef.form-no = reftable-frm-int
           break by ef.est-no by ef.form-no:
 
         v-job-qty = 0.
@@ -680,7 +621,7 @@ for each job-hdr NO-LOCK
         else v-fac = 1.
         v-itm-printed = 0.
 
-        if ef.form-no eq tt-reftable.val[12] then ebloop:
+        if ef.form-no eq reftable-frm-int then ebloop:
         for each eb
             WHERE eb.company     EQ ef.company
               AND eb.est-no      eq ef.est-no
@@ -1151,7 +1092,7 @@ for each job-hdr NO-LOCK
       end. /* each ef */
       end. /* first job-no */
 
-      if last-of(tt-reftable.val[12]) then do:
+      if last-of( job-hdr.frm ) then do:
          PUT "<R-1.4>".
          IF s-run-speed THEN
             PUT "<B>MACHINE                            MR WASTE     MR HRS       RUN SPEED    SPOIL%           INPUT        OUTPUT</B>"
@@ -1174,7 +1115,7 @@ for each job-hdr NO-LOCK
            END.
          END.
          i = 0 .
-         FOR EACH wrk-op WHERE wrk-op.s-num = tt-reftable.val[12] BREAK by wrk-op.d-seq by wrk-op.b-num:
+         FOR EACH wrk-op WHERE wrk-op.s-num = job-hdr.frm BREAK by wrk-op.d-seq by wrk-op.b-num:
              v-mat-for-mach = "".
              IF lookup(wrk-op.dept,lv-mat-dept-list) > 0 THEN DO:
                  

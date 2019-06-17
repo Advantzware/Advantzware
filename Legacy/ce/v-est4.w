@@ -667,6 +667,8 @@ DO:
         {cec/refestg2.i "LAB" 1}
 
     END.
+    ELSE IF SELF:SCREEN-VALUE NE ef.mis-cost[1] AND ef.mis-cost[1] = "" THEN
+     ef.mis-simon[1]:SCREEN-VALUE = cemisc-cha.
 
 END.
 
@@ -695,6 +697,8 @@ DO:
         {cec/refestg2.i "LAB" 2}
 
     END.
+    ELSE IF SELF:SCREEN-VALUE NE ef.mis-cost[2] AND ef.mis-cost[2] = "" THEN
+      ef.mis-simon[2]:SCREEN-VALUE = cemisc-cha.
 
 END.
 
@@ -723,6 +727,8 @@ DO:
         {cec/refestg2.i "LAB" 3}
 
     END.
+    ELSE IF SELF:SCREEN-VALUE NE ef.mis-cost[3] AND ef.mis-cost[3] = "" THEN
+      ef.mis-simon[3]:SCREEN-VALUE = cemisc-cha.
 
 END.
 
@@ -751,6 +757,8 @@ DO:
         {cec/refestg2.i "LAB" 4}
 
     END.
+    ELSE IF SELF:SCREEN-VALUE NE ef.mis-cost[4] AND ef.mis-cost[4] = "" THEN
+      ef.mis-simon[4]:SCREEN-VALUE = cemisc-cha.
 
 END.
 
@@ -779,6 +787,8 @@ DO:
         {cec/refestg2.i "LAB" 5}
 
     END.
+    ELSE IF SELF:SCREEN-VALUE NE ef.mis-cost[5] AND ef.mis-cost[5] = "" THEN
+      ef.mis-simon[5]:SCREEN-VALUE = cemisc-cha.
 
 END.
 
@@ -807,6 +817,8 @@ DO:
         {cec/refestg2.i "LAB" 6}
 
     END.
+    ELSE IF SELF:SCREEN-VALUE NE ef.mis-cost[6] AND ef.mis-cost[6] = "" THEN
+      ef.mis-simon[6]:SCREEN-VALUE = cemisc-cha.
 END.
 
 /* _UIB-CODE-BLOCK-END */

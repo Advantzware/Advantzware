@@ -8,6 +8,7 @@
                            oe/oe-pric1.i
                            oe/oe-pric2.i
                            oe/oe-rpric.i (contents)
+                           
 
     Syntax      :
 
@@ -44,7 +45,7 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD cTableType      AS CHARACTER 
     .
 
-{oe/ttPriceHold.i "SHARED"}
+{oe/ttPriceHold.i} 
     
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -157,7 +158,7 @@ PROCEDURE CheckPriceHoldForOrder:
             opcPriceHoldReason = ""
             .
     IF iplPrompt AND oplPriceHold THEN 
-        RUN oe/dPriceHoldPrompt.w.
+        RUN oe/dPriceHoldPrompt.w (INPUT TABLE ttPriceHold).
     IF iplUpdateDB THEN 
     DO:
         FIND FIRST bf-oe-ord EXCLUSIVE-LOCK 
@@ -172,6 +173,23 @@ PROCEDURE CheckPriceHoldForOrder:
     END.
     RELEASE bf-oe-ord.
     
+END PROCEDURE.
+
+PROCEDURE CheckPriceHoldForOrderReturnTT:
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper of CheckPriceHoldForOrder that returns the Temp-table to the
+ caller.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriOeOrd AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrompt AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplUpdateDB AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplPriceHold AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPriceHoldReason AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttPriceHold.
+    
+   RUN CheckPriceHoldForOrder(ipriOeOrd, iplPrompt, iplUpdateDB, OUTPUT oplPriceHold, OUTPUT opcPriceHoldReason). 
+
 END PROCEDURE.
 
 PROCEDURE CheckPriceMatrix:

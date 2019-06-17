@@ -223,7 +223,7 @@ format
         "---------" to 67 "--------" to 80
         with frame hd-rel-comp no-box no-labels STREAM-IO width 80 page-top.
 
-      if oe-ctrl.pr-broker and avail(cust) and shipto.broker then do:
+      if avail(cust) and shipto.broker then do:
         assign
          v-comp-name = cust.name
          v-add-line[1] = cust.addr[1]

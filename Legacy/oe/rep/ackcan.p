@@ -7,7 +7,7 @@
 
 {oe/rep/acknowl.i}
 
-def var v-salesman as char format "x(3)" NO-UNDO.
+def var v-salesman as char format "x(17)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
 def var v-shipvia like carrier.dscr NO-UNDO.
 def var v-addr3 as char format "x(30)" NO-UNDO.
@@ -136,10 +136,10 @@ find first company where company.company eq cocode no-lock no-error.
   FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       FIRST oe-ord WHERE RECID(oe-ord) EQ report.rec-id:
 
-      if oe-ord.sman[2] eq "" and oe-ord.sman[3] eq "" then
-        v-salesman = oe-ord.sman[1].
-      else
-        v-salesman = oe-ord.sman[1] + oe-ord.sman[2] + oe-ord.sman[3].
+     /* if oe-ord.sname[2] eq "" and oe-ord.sname[3] eq "" then*/
+        v-salesman = oe-ord.sname[1].
+    /*  else
+        v-salesman = oe-ord.sname[1] + oe-ord.sname[2] + oe-ord.sname[3].*/
 
       if oe-ord.fob-code eq "ORIG" then
         v-fob = "Origin".

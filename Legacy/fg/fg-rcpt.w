@@ -42,6 +42,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+def var li-page as int extent 2 no-undo.
 
 {custom/gcompany.i}
 
@@ -87,7 +88,7 @@ DEFINE VARIABLE h_p-fgrcpt AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updcdc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-selbin AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -326,6 +327,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 70.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -361,6 +370,9 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartPanel h_p-fgrcpt. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'receipt':U , h_p-fgrcpt ).
+
+       /* Links to SmartObject h_movecol-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-rcptd , 'move-columns':U , h_movecol-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-rcptd ,
@@ -519,14 +531,25 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE VARIABLE lGetRecord AS LOGICAL NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+  run get-attribute ("current-page").
+
+   assign
+   li-page[2] = li-page[1]
+   li-page[1] = int(return-value).
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
+  IF li-page[1] = 2 THEN DO:  /* box design */
+     RUN pGetRecord IN h_b-rcptd-2 (OUTPUT lGetRecord).
+     IF lGetRecord THEN
+         RUN set-buttons IN h_p-updcdc ('Initial').
+     ELSE RUN set-buttons IN h_p-updcdc ('disable-all').
+  END.
 
 END PROCEDURE.
 

@@ -63,13 +63,15 @@ DEF BUFFER reftable-job FOR reftable.
 DEF VAR lv-frst-rno AS INT NO-UNDO.
 DEF VAR lv-linker LIKE fg-rcpts.linker NO-UNDO.
 DEF VAR ll-set-parts AS LOG NO-UNDO.
+DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {jc/jcgl-sh.i  NEW}
 {fg/fullset.i  NEW}
 {fg/fg-post3.i NEW}
-
+{Inventory/ttInventory.i "NEW SHARED"}
 
 
 
@@ -214,6 +216,19 @@ Btn_Clear_Find
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFindLoadtag B-table-Win
+FUNCTION fFindLoadtag RETURNS LOGICAL 
+  ( ipcTag AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -669,9 +684,9 @@ DO:
                       AND b-fg-rdtlh.qty       GT 0
                       AND b-fg-rdtlh.rita-code NE "S"
                       USE-INDEX tag) THEN DO:
-                    MESSAGE "This Tag Number Has Already Been Used." SKIP
-                            "Please Enter A Unique Tag Number."
-                            VIEW-AS ALERT-BOX ERROR.
+                    MESSAGE "This Tag Number Has Already Been Used, Negative receipts should be" SKIP
+                            "processed using  Sharp Shooter, Finished Goods, Delete Goods program."
+                            VIEW-AS ALERT-BOX ERROR. 
                     RETURN NO-APPLY.
                  END.
               END.
@@ -762,20 +777,20 @@ DO:
           RETURN NO-APPLY.
 
     END.
-    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND
+    IF lv-do-what <> "Delete" AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND
        CAN-FIND(FIRST b-fg-rctd 
                 WHERE b-fg-rctd.company = cocode 
                 AND b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} 
                 AND b-fg-rctd.rita-code <> "P" 
                 AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN
        DO:
-          MESSAGE "This Tag Number Has Already Been Used." SKIP
-                  "Please Enter A Unique Tag Number." 
+          MESSAGE "This Tag Number Has Already Been Used, Negative receipts should be " + 
+                  "processed using Sharp Shooter, Finished Goods, Delete Goods program." 
              VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
        END.
     ELSE DO:
-        IF lv-do-what <> "Delete" AND fg-rctd.tag:SCREEN-VALUE <> "" AND
+        IF lv-do-what <> "Delete" AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND
         CAN-FIND(FIRST b-fg-rdtlh WHERE
         b-fg-rdtlh.company   EQ cocode AND
         b-fg-rdtlh.loc       EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} AND
@@ -784,9 +799,9 @@ DO:
         b-fg-rdtlh.rita-code NE "S"
         USE-INDEX tag) THEN
         DO:
-           MESSAGE "This Tag Number Has Already Been Used." SKIP
-                   "Please Enter A Unique Tag Number." 
-                   VIEW-AS ALERT-BOX ERROR.
+           MESSAGE "This Tag Number Has Already Been Used, Negative receipts should be " + 
+                  "processed using Sharp Shooter, Finished Goods, Delete Goods program."
+              VIEW-AS ALERT-BOX ERROR.
            RETURN NO-APPLY.
         END.
         RUN valid-tag (fg-rctd.tag:HANDLE IN BROWSE {&browse-name}, OUTPUT op-error).
@@ -847,19 +862,15 @@ DO:
                  fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
        END.
 
-       FIND FIRST loc WHERE loc.company = cocode
-                        AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                        NO-LOCK NO-ERROR.
-       IF NOT AVAIL loc THEN DO:
+       RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+       IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
        END.
-       FIND FIRST fg-bin WHERE fg-bin.company = cocode 
-                           AND fg-bin.i-no = ""
-                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           USE-INDEX co-ino NO-LOCK NO-ERROR.
-       IF NOT AVAIL fg-bin THEN DO:
+       RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            OUTPUT lActiveBin ).       
+       IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc .
           RETURN NO-APPLY.
@@ -1210,6 +1221,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -2281,6 +2293,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -2518,6 +2555,7 @@ PROCEDURE post-finish-goods :
         INPUT NO,          /* tg-recalc-cost */
         INPUT "R",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
+        INPUT YES,
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,
@@ -3231,7 +3269,8 @@ PROCEDURE valid-tag :
                         AND b-fg-rdtlh.tag       EQ ip-focus:SCREEN-VALUE
                         AND b-fg-rdtlh.qty       GT 0
                         AND b-fg-rdtlh.rita-code NE "S")) THEN
-             lv-msg = "Tag# has already been used, please re-enter".
+             lv-msg = "Tag# has already been used, Negative receipts should be " + 
+                "processed using Sharp Shooter, Finished Goods, Delete Goods program" .
         
          END. /*lv-do-what NE "Delete"*/
          ELSE IF NOT ll-set-parts THEN
@@ -3295,10 +3334,7 @@ PROCEDURE valid-tag :
 
       IF lv-msg EQ ""                                                   AND
          fgrecpt-int EQ 1                                               AND
-         NOT CAN-FIND(FIRST loadtag
-                      WHERE loadtag.company   EQ cocode
-                        AND loadtag.item-type EQ NO
-                        AND loadtag.tag-no    EQ ip-focus:SCREEN-VALUE) THEN
+         NOT fFindLoadtag(ip-focus:SCREEN-VALUE) THEN
         lv-msg = "Invalid Tag#, try help or scan valid tag#".
 
       IF lv-msg NE "" THEN DO:
@@ -3439,10 +3475,8 @@ PROCEDURE validate-record :
       END.
     END.
   END.
-  
-  IF NOT CAN-FIND(FIRST loc WHERE
-     loc.company = cocode AND
-     loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}) THEN DO:
+  RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+    IF NOT lActiveBin THEN DO:
      MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fg-rctd.loc.
      op-error = YES.
@@ -3459,11 +3493,10 @@ PROCEDURE validate-record :
        op-error = YES.
      LEAVE.
     END.   
-  IF NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = cocode 
-                      AND fg-bin.i-no = ""
-                      AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                      USE-INDEX co-ino) THEN DO:
+    RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        OUTPUT lActiveBin ).    
+  IF NOT lActiveBin THEN DO:
      MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fg-rctd.loc-bin.
      op-error = YES.
@@ -3499,9 +3532,18 @@ PROCEDURE validate-record :
                        VIEW-AS ALERT-BOX ERROR.
                APPLY "entry" TO fg-rctd.tag.
                op-error = YES.
-               LEAVE.
-           END.
-    END.
+                  LEAVE.
+              END.
+      END.
+    IF NOT fFindLoadtag(fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}) THEN 
+    DO:
+            MESSAGE "Invalid Tag number." SKIP
+                "Please rescan and validate Tag# field."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO fg-rctd.tag.
+           op-error = YES.
+           LEAVE.        
+    END. 
         /*validate the i-no matches the loadtag i-no*/
     FIND FIRST bf-loadtag WHERE bf-loadtag.company EQ g_company
         AND bf-loadtag.item-type EQ NO
@@ -3532,4 +3574,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFindLoadtag B-table-Win
+FUNCTION fFindLoadtag RETURNS LOGICAL 
+  ( ipcTag AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+		DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+        lResult = CAN-FIND(FIRST loadtag
+                    WHERE loadtag.company   EQ cocode
+                      AND loadtag.item-type EQ NO
+                      AND loadtag.tag-no    EQ ipcTag).
+		RETURN lResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
