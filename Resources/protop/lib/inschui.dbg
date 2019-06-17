@@ -1,0 +1,487 @@
+        1   /* lib/inschui.p
+        2    *
+        3    *
+        4    *
+        5    */
+        6   
+        7   
+        8   /* lib/v9.i
+        9    *
+       10    */
+       11   
+       12   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+       13   &global-define  CPYLOB  "no"
+       14   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+       15   &global-define  LNGCR   character
+       16   &global-define  DTZ     integer
+       17   &global-define  BIGINT  decimal
+       18   &ELSE
+       19   &global-define  OE10    "yes"
+       20   &global-define  NOW     now
+       21   &global-define  LNGCR   longchar
+       22   &global-define  DTZ     datetime-tz
+       23   &global-define  BIGINT  int64
+       24   &ENDIF
+       25    
+       26   
+       27   /* lib/tt_dblist.i
+       28    *
+       29    */
+       30   
+       31   define temp-table tt_dbList no-undo
+       32     field xvalid        as logical
+       33     field friendlyName  as character format "x(20)"
+       34     field dbPath        as character format "x(60)" /* "x(128)" view-as fill-in size 60 by 1 */
+       35     field serverName    as character format "x(20)" /* "x(128)" view-as fill-in size 20 by 1 */
+       36     field dlcPath       as character format "x(20)" /* "x(128)" view-as fill-in size 20 by 1 */
+       37     field monitorDB     as logical                  label "Mon?"
+       38     field resrcType     as character format "x(10)" label "Type"
+       39     field monitorPID    as character format "x(10)" label "PID"
+       40     field monitorStat   as character format "x(20)" label "Status"
+       41     field statusInfo    as character format "x(50)" label "Status Info"
+       42   &IF DEFINED( OE10 ) &THEN
+       43     field dbAlert      as datetime-tz
+       44   &ELSE
+       45     field dbAlert      as integer
+       46   &ENDIF
+       47     index friendlyName-idx is primary unique friendlyName
+       48   .
+       49   
+       50    
+       51   
+       52   function hexEncode returns character ( input src as character ) in super.
+       53   
+       54   define input-output parameter custId  as character no-undo.
+       55   define input-output parameter envHOST as character no-undo.
+       56   
+       57   define input-output parameter envPT3  as character no-undo format "x(250)".
+       58   define input-output parameter envDLC  as character no-undo format "x(250)".
+       59   define input-output parameter envLOG  as character no-undo format "x(250)".
+       60   define input-output parameter envTMP  as character no-undo format "x(250)".
+       61   define input-output parameter envRPT  as character no-undo format "x(250)".
+       62   
+       63   define variable installType as integer no-undo initial 1
+       64     view-as radio-set radio-buttons
+       65       " Create a new custId", 1,
+       66       " Use an existing custId", 2,
+       67       " Local install (no portal)", 3
+       68   .
+       69   
+       70   define variable dbDirList  as character no-undo format "x(250)" view-as fill-in size 60 by 1.
+       71   define variable nameList   as character no-undo format "x(250)" view-as fill-in size 60 by 1.
+       72   define variable pathList   as character no-undo format "x(250)" view-as fill-in size 60 by 1.
+       73   define variable dirList    as character no-undo.
+       74   define variable dName      as character no-undo.
+       75   
+       76   define variable DS         as character no-undo.
+       77   
+       78   DS = ( if opsys begins "win" then "~\" else "/" ).
+       79   
+       80   define variable useSockets as logical   no-undo.
+       81   
+       82   
+       83   function leftMessage returns character ( input t as character, input w as integer ):
+       84   
+       85     define variable m as character no-undo.
+       86     define variable s as character no-undo.
+       87     define variable i as integer   no-undo.
+       88     define variable n as integer   no-undo.
+       89   
+       90     n = num-entries( t, "~n" ).
+       91     do i = 1 to n:
+       92       assign
+       93         s = entry( i, t, "~n" )
+       94         s = s + fill( " ", w - length( s ))
+       95         s = substring( s, 1, w )
+       96         m = m + s + "~n"
+       97       .
+       98     end.
+       99   
+      100     return m.
+      101   
+      102   end.
+      103   
+      104   
+      105   /* prompt for an existing custId
+      106    *
+      107    */
+      108   
+      109   procedure getCustId:
+      110   
+      111     define variable proxyStat as logical no-undo.
+      112     define variable mergeStat as logical no-undo.
+      113   
+      114     publish "logMsg" ( 0, "getCustId()" ).
+      115   
+      116     custId_loop: do while true
+      117       on error undo, leave
+      118       on endkey undo, leave
+      119       on stop undo, leave:
+      120   
+      121       run lib/insxcustid.p ( input-output custId ).
+      122   
+      123       if custId = "" or custId = ? then next custId_loop.
+      124   
+      125       if envHost = "" or envHost = ? or useSockets = no then
+      126         leave custId_loop.                                                                /* no way to check without a host       */
+      127        else
+      128         do:
+      129   
+      130           publish "logMsg" ( 0, "getCustId: proxytest" ).
+      131           run lib/insproxy.p ( envHost, output proxyStat ).
+      132           if proxyStat = false then leave custId_loop.
+      133   
+      134           message "Verifying custId and merging resources from portal".
+      135           publish "logMsg" ( 0, "getCustId: lib/mergedblist" ).
+      136           run lib/mergedblist.p ( input-output custId, envHost, "POST", output mergeStat ).       /* check the portal for the custId      */
+      137           if mergeStat = false then next custId_loop.
+      138   
+      139         end.
+      140   
+      141       if custId = "" or custId = ? then
+      142         next custId_loop.
+      143        else
+      144         do:
+      145           message "Customer ID" custId "confirmed." view-as alert-box title " Existing custId ".
+      146           publish "logMsg" ( 0, substitute( "getCustId: &1 confirmed", custId )).
+      147         end.
+      148   
+      149       leave custId_loop.
+      150   
+      151     end.
+      152   
+      153     return.
+      154   
+      155   end.
+      156   
+      157   
+      158   /* get a new custId
+      159    *
+      160    */
+      161   
+      162   procedure getNewCustId:
+      163   
+      164     define variable emailId    as character no-undo format "x(250)" view-as fill-in size 30 by 1 label "    Email ID".
+      165     define variable compId     as character no-undo format "x(250)" view-as fill-in size 30 by 1 label "Company Name".
+      166   
+      167   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      168     define variable result   as character no-undo.
+      169     define variable payload  as character no-undo.
+      170   &ELSE
+      171     define variable result   as longchar  no-undo.
+      172     define variable payload  as longchar  no-undo.
+      173   &ENDIF
+      174   
+      175     define variable proxyStat as logical no-undo.
+      176   
+      177     define variable respHeaders as character no-undo.
+      178     define variable resphdrX    as character no-undo.
+      179     define variable httpHeaders as character no-undo.
+      180   
+      181     define variable ok as logical.
+      182   
+      183     define variable ptVerStr    as character no-undo initial "
+      184   3.14
+      185    ".
+      186     define variable NL          as character no-undo.
+      187   
+      188     ptVerStr = trim( entry( 1, ptVerStr, "~n" )).
+      189   
+      190     NL = chr( 13 ) + chr( 10 ).                                           /* official http spec is CR + LF                        */
+      191   
+      192     define variable msgTemplate as character no-undo.
+      193     define variable msgBody     as character no-undo.
+      194   
+      195     msgTemplate = "email=&1&&companyName=&2".
+      196   
+      197     if useSockets = no then return.
+      198   
+      199     publish "logMsg" ( 0, "getNewCustId()" ).
+      200   
+      201     email_loop: do while true:
+      202   
+      203       run lib/insemail.p ( input-output emailId, input-output compId ).
+      204   
+      205       if emailId <> "" and emailId <> ? then
+      206         leave email_loop.
+      207        else
+      208         do:
+      209   
+      210           message
+      211             color value( "red" )
+      212             skip(1)
+      213             'Abandon portal setup?'
+      214             skip(1)
+      215            view-as alert-box question buttons yes-no title " Are You Sure? "
+      216             update ok
+      217           .
+      218   
+      219           if ok then
+      220             do:
+      221               custId = ?.
+      222               emailId = "".
+      223               publish "logMsg" ( 0, "getNewCustId() abandoned" ).
+      224               return.
+      225             end.
+      226   
+      227         end.
+      228   
+      229     end.
+      230   
+      231     publish "logMsg" ( 0, "getNewCustId: proxytest" ).
+      232     run lib/insproxy.p ( envHost, output proxyStat ).
+      233     if proxyStat = false then return.
+      234   
+      235     /* curl -X POST --data "email=me@email.com&companyName=mycompany" http://demo.wss.com/api/newsite.php -o test.dat
+      236      */
+      237   
+      238     httpHeaders =                                                         /* setup http headers                                   */
+      239       'Host: ' + envHOST + NL +                                           /* required?                                            */
+      240       'User-Agent: protop' + ptVerStr + NL +                              /* optional                                             */
+      241       'Accept: *' + '/' + '*' + NL                                        /* optional -- beware star-slash and slash-star!        */
+      242     .
+      243   
+      244   /*  msgBody = "/api/newsite.php" + "?" + substitute( msgTemplate, hexEncode( emailId ), hexEncode( compId )). */
+      245   
+      246     msgBody = "/api/newsite.php" + "?" + "email=" + hexEncode( emailId ) + "&companyName=" + hexEncode( compId ).
+      247   
+      248     publish "logMsg" ( 0, substitute( "getNewCustid( &1 )", msgBody )).
+      249   
+      250     /* let the user know that we are working on getting then a custId...
+      251      */
+      252   
+      253     display
+      254       skip(1)
+      255       " Obtaining a new custId..." skip
+      256       skip(1)
+      257       " This may take a while for slow network connections. Please be patient. " skip
+      258       skip(1)
+      259      with
+      260       frame checkPortal
+      261       title " New custId "
+      262       centered
+      263       row 3
+      264       width 110
+      265       side-labels
+      266     .
+      267   
+      268     run postURL(
+      269       envHOST,
+      270       msgBody,
+      271       httpHeaders,
+      272       "",                                                                 /* optional data payload                                */
+      273       "",                                                                 /* optional filename                                    */
+      274       output result,
+      275       output respHeaders
+      276     ).
+      277   
+      278     if /* length( result ) = 5 and */ result begins "z" then              /* this is a bit too hard-coded :(                      */
+      279       do:
+      280         custId = string( result ).
+      281         /***
+      282          * message
+      283          *   skip(1)
+      284          *   "Your new custId is " string( result )
+      285          *   skip(1)
+      286          *   "An email has been sent to " emailId "with" skip
+      287          *   "instructions to complete your portal setup." 
+      288          *   skip(1)
+      289          *   view-as alert-box
+      290          *   title " Confirmation "
+      291          * .
+      292          ***/
+      293       end.
+      294      else
+      295       do:
+      296   
+      297         custId = ?.
+      298   
+      299         respHdrX = substring( respHeaders, 1, 2048 ).
+      300         if respHdrX = substring( string( result ), 1, 2048 ) then respHdrX = "".
+      301   
+      302         publish "logMsg" ( 0, substitute( "getNewCustId error: &1", respHdrX )).
+      303   
+      304         if index( string( result ), "nothing to return" ) > 0 then
+      305           do:
+      306   
+      307             message
+      308               skip(1)
+      309               leftMessage( "An timeout error occurred getting a custId.", 76 )  skip
+      310               leftMessage( 'If you receive a "New ProTop custId" email you can manually enter the custId in etc/custid.cfg', 76 ) skip
+      311               leftMessage( "Otherwise please contact protop@wss.com for support.", 76 ) skip
+      312               skip(1)
+      313               view-as alert-box
+      314               title " Timeout Error "
+      315             .
+      316   
+      317           end.
+      318          else
+      319           do:
+      320   
+      321             message
+      322               skip(1)
+      323               leftMessage( "An error occurred getting a custId.", 76 )  skip
+      324               leftMessage( substring( "Request: " + string( msgBody ), 1, 2048 ), 76 ) skip
+      325               leftMessage( "Please contact protop@wss.com for support.", 76 ) skip
+      326               skip(1)
+      327               leftMessage( substring( string( result ), 1, 2048 ), 76 ) skip
+      328               leftMessage( respHdrX, 76 )
+      329               skip(1)
+      330               view-as alert-box
+      331               title " Error "
+      332             .
+      333   
+      334           end.
+      335   
+      336       end.
+      337   
+      338     return.
+      339   
+      340   end.
+      341   
+      342   define variable mergeStat as logical no-undo.
+      343   
+      344   define variable i as integer no-undo.
+      345   define variable n as integer no-undo.
+      346   
+      347   /* main
+      348    *
+      349    */
+      350   
+      351   if os-getenv( "USESOCKETS" ) = "no" then
+      352     useSockets = no.
+      353    else
+      354     useSockets = yes.
+      355   
+      356   do on error undo, leave
+      357      on endkey undo, leave
+      358      on stop undo, leave:
+      359   
+      360       config_loop: do while session:batch = no:
+      361   
+      362         if ( envDLC = "" or envPT3 = "" or envLOG = "" or envTMP = "" or envRPT = "" or
+      363              envDLC = ?  or envPT3 = ?  or envLOG = ?  or envTMP = ?  or envRPT = ? ) then
+      364           do:
+      365             run lib/inscfgvars.p( input-output envPT3, input-output envDLC, input-output envLOG, input-output envTMP, input-output envRPT ).
+      366             publish "logMsg" ( 0, substitute( "User values: [DLC=&1] [LOGDIR=&2] [TMPDIR=&3] [RPTDIR=&4] [CUSTID=&5] [ENVPT3=&6]", envDLC, envLOG, envTMP, envRPT, custId, envPT3 )).
+      367           end.
+      368   
+      369         run lib/instype.p ( input-output custId, input-output installType ).
+      370   
+      371         case installType:
+      372           when 1 then run getNewCustId.           /* get a new custId             */
+      373           when 2 then run getCustId.              /* use an existing custId       */
+      374           when 3 then custId = "".                /* local install                */
+      375           otherwise
+      376             do:
+      377               publish "logMsg" ( 0, "Invalid install type, aborting install." ).
+      378               quit.
+      379             end.
+      380         end.
+      381   
+      382         publish "logMsg" ( 0, substitute( "installType: &1 &2", entry( installType, "new custId,existing custId,local" ), custId )).
+      383   
+      384         if custId = ? and installType < 3 then
+      385           do:
+      386             publish "logMsg" ( 0, substitute( "install error: &1 &2", entry( installType, "new custId,existing custId,local" ), custId )).
+      387             assign
+      388               installType = 3
+      389               custId = ""
+      390             .
+      391             publish "logMsg" ( 0, substitute( "installing locally: &1 &2", entry( installType, "new custId,existing custId,local" ), custId )).
+      392           end.
+      393   
+      394       /* db discovery
+      395        */
+      396   
+      397   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      398       run lib/readdblist.p ( output table tt_dbList ).
+      399   &ELSE
+      400       run lib/readdblist.p ( output table tt_dbList by-reference ).
+      401   &ENDIF
+      402   
+      403       n = 0.
+      404       for each tt_dbList:
+      405         n = n + 1.
+      406       end.
+      407   
+      408       if n > 0 then
+      409         publish "logMsg" ( 0, substitute( "no db discovery, etc/dblist.cfg exists and has &1 entries", n )).
+      410        else
+      411         dbDiscovery_loop: do while true on endkey undo, leave on error undo, leave:
+      412   
+      413           publish "logMsg" ( 0, "auto db discovery offered" ).
+      414   
+      415           run lib/insdbdisc.p ( input-output dbDirList ).
+      416   
+      417           if dbDirList = "" then leave dbDiscovery_loop.
+      418   
+      419           dbDirList = replace( dbDirList, ",", " " ).
+      420           n = num-entries( dbDirList, " " ).
+      421           do i = 1 to n:
+      422   
+      423             dName = entry( i, dbDirList, " " ).
+      424   
+      425             dName = right-trim( dName, DS ).
+      426   
+      427             file-info:file-name = dName.
+      428   
+      429             if file-info:full-pathname = ? then
+      430               do:
+      431                 message "no such directory:" dName.
+      432                 next dbDiscovery_loop.
+      433               end.
+      434   
+      435             if index( file-info:file-type, "d" ) <= 0 then
+      436               do:
+      437                 message dName "is not a directory".
+      438                 next dbDiscovery_loop.
+      439               end.
+      440   
+      441             dirList = substitute( "&1 &2", dirList, dName ).
+      442   
+      443           end.
+      444   
+      445           dbDirList = trim( dirList ).
+      446   
+      447   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      448           run lib/discover.p ( dbDirList, output table tt_dbList ).
+      449   &ELSE
+      450           run lib/discover.p ( dbDirList, output table tt_dbList by-reference ).
+      451   &ENDIF
+      452   
+      453           n = 0.
+      454           for each tt_dbList:
+      455             n = n + 1.
+      456           end.
+      457   
+      458           if n = 0 then
+      459             publish "logMsg" ( 0, "discovery: no databases found" ).
+      460            else
+      461             do: 
+      462               publish "logMsg" ( 0, substitute( "discovery: &1 databases discovered", n )).
+      463               publish "logMsg" ( 0, substitute( "running lib/mergedblist( &1, &2, &3 )", custId, envHost, "POST" )).
+      464               run lib/mergedblist.p ( input-output custId, envHost, "POST", output mergeStat ).
+      465             end.
+      466   
+      467           leave dbDiscovery_loop.
+      468   
+      469         end.
+      470   
+      471         leave config_loop.
+      472   
+      473       end.
+      474   
+      475   end.
+      476   
+      477   if session:batch = no then
+      478     do:
+      479       case installType:
+      480         when 1 then message "New custId" custId "has been configured.  Check your email for instructions to login to the ProTop portal!" view-as alert-box title " ProTop Install Complete ".
+      481         when 2 then message custId "has been configured." view-as alert-box title " ProTop Install Complete ".
+      482         when 3 then message "ProTop has been installed locally, no portal access has been configured.  If you decide you would like to use the web portal run:~n pro -p lib/install.p from a PROENV command." view-as alert-box title " ProTop Install Complete ".
+      483         otherwise   message "Very strange ProTop3 install finished!" view-as alert-box title " ProTop Install Complete ".
+      484       end.
+      485     end.
+      486   
+      487   return.

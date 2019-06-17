@@ -1,0 +1,44 @@
+        1   /* dumpdotd.p
+        2    *
+        3    * dump a table to a dot-d file in a given directory
+        4    *
+        5    * bpro dbname -p ./dumpdotd.p -param "tableName|/dumpdir" > logfile 2>&1
+        6    *
+        7    * magic:
+        8    *
+        9    * "all"        will dump all tables
+       10    * "tblName"    will dump one specific table
+       11    * "_user"      will dump users to _User.d (note casing)
+       12    * "_sequence"  will dump sequences to _seqvals.d
+       13    *
+       14    */
+       15   
+       16   define variable tblName as character no-undo.
+       17   define variable dumpDir as character no-undo.
+       18   
+       19   assign
+       20     tblName = entry( 1, session:parameter, "|" )
+       21     dumpDir = entry( 2, session:parameter, "|" )
+       22   no-error.
+       23   
+       24   if dumpDir = "" or dumpDir = ? then dumpDir = ".".
+       25   
+       26   if lookup( tblName, "_seqvals,_sequence" ) < 1 then
+       27     do:
+       28       run prodict/dump_d( tblName, dumpDir, "" ).
+       29       find _file no-lock where _file-name = tblName no-error.
+       30       if available _file and _dump-name <> _file-name then
+       31         do:
+       32           os-rename value( substitute( "&1/&2.d", dumpDir, _dump-name )) value( substitute( "&1/&2.d", dumpDir, _file-name )).
+       33         end.
+       34     end.
+       35    else
+       36     do:
+       37       output to value( substitute( "&2/&1.d", "_seqvals", dumpDir )).             /* _seqvals.d for compatibility with the data dictionary */
+       38       for each _sequence no-lock:
+       39         export _seq-Num _seq-Name dynamic-current-value( _seq-name, "dictdb" ).
+       40       end.
+       41       output close.
+       42     end.
+       43   
+       44   return.

@@ -1,0 +1,178 @@
+Release Notes 3.3s
+==================
+
+-1) In case you've skipped a few releases -- ProTop ChUI now requires a
+minimum screen size of 160 columns by 48 rows -- 4x an old 80x24 green
+screen.
+
+0) Don't get used to this. Really. It is just a coincidence that these
+release notes are getting created. You have been warned.
+
+1) Cleaned up the server name detection:
+
+  a) Check the PTSERVER environment variable (set in bin/localenv). This
+  is helpful if you want to use a "cluster name" rather than a "node name"
+  in a clustered environment.
+
+  b) If no PTSERVER is specified use the 2nd field in "uname -a" (Unix) or
+  the "hostname" command on Windows.
+
+  c) If etc/protop.cfg contains an entry for "server" use that (overrides
+  all of the above - not terribly flexible).
+
+The server name is used when deciding which etc/dblist.cfg lines are
+relevant for an instance of dbmonitor.
+
+2) Added alternate buffer pool information to "Area Info", "Table
+Activity", and "Index Activity".
+
+3) Added a new data-collector for "Buffer Pools" that can be triggered
+via the "2" key.
+
+4) Added seqMaxPct to monitor how close a sequence is coming to its
+maximum value and seqPct32 to identify sequences approaching the old
+32 bit limit -- which can be an issue if old code is updating INTEGER
+fields rather than INT64. 
+
+5) Added user defined metrics to the dashboard.  See lib/usermonx.p
+for details.
+
+6) Fixed a bug in the calculation of pctLastX (the percentage full of
+the last fixed extent).
+
+7) Expanded the width of the "Q" (SQL users) screen.
+
+8) Expanded decimal places in percentage fields of Big B Guesstimator.
+
+9) Tweaked some unplanned features in "users of table" that might have
+sometimes possibly maybe resulted in potentially confusing data being
+occasionally shown under some circumstances.
+
+10) added a "user experience" metric (aka "zippy") to time access to a
+standard set of db records.  Think of this as "records per second" as
+seen by a random user connecting via shared memory.
+
+11) HTML encoded the email Id provided during installs to support people
+who like to embed crazy stuff like "+" in their email addresses.
+
+12) Added "idx reads" and "idx deletes" to the dashboard screen.
+
+13) Added ".lg file age" to configuration to show how old the oldest
+message in the .lg file is.
+
+14) Jumped through hoops to support 32 bit _progres executables if you
+happen to be running 32 bit db servers on Windows post 11.3. Which is
+a ridiculous thing to be doing if anyone wants my opinion...
+
+15) Added optional .pf file support at pt3agent startup for:
+
+	etc/protop.pf
+	etc/custId.pf
+	etc/serverName.pf
+	etc/type.pf
+	etc/friendlyName.pf
+
+if these .pf files exist they will be added to the pt3agent startup
+command in the order shown.  The db name should NOT be included in
+these parameter files as it is independently added to the startup
+parameters.  Take note: etc/protop.pf is NO LONGER SAFE for your
+localizations (such as -U and -P for example).
+
+16) Improved handling of startup errors. Now if something goes horribly
+wrong during startup ProTop should just exit rather than getting hung
+in a loop continually trying to start.
+
+17) Added the "ProTop Name" to _connect-usermisc for ProTop session.
+This makes it easier to see if the protop.p, pt3agent.p or other
+ProTop programs are having an impact.  (oe11.7+)
+
+18) Added "P" to client type codes to indicate PASOE agents.
+
+19) Added support for new 11.7+ _actBuffer data. The "2" screen now has
+extended information on the types of blocks in buffer pools:
+
+	Label	  Meaning
+	=====	  ==============
+        Pool	  Which buffer pool?  Primary or Alternate?
+        Tbls      How many tables are *assigned* to this pool?  (even if no -B2 is active they are still *assigned*)
+        Idxs      How many indexes are *assigned* to this pool?  (even if no -B2 is active they are still *assigned*)
+        LOB       How many LOBs are *assigned* to this pool?  (even if no -B2 is active they are still *assigned*)
+        LRU Stat  What is the status of the LRU for this area?
+        Buffers   How many -B or -B2 buffers have been allocated?
+        Unused    How many allocated buffers are unused?
+        Active    How many allocated buffers are being used?
+        DataBlk   How many buffers are data blocks?
+        IdxBlk	  How many buffers are index blocks?
+        Mstr	  How many buffers are master blocks?
+        SEQ	  How many buffers are sequence blocks?
+        Area	  How many buffers are area blocks?
+        Ctrl	  How many buffers are control blocks?
+        Obj	  How many buffers are object blocks?
+        OLst	  How many buffers are object list blocks?
+        OCL	  How many buffers are object control list blocks?
+        CMap	  How many buffers are cluster map blocks?
+        BMap	  How many buffers are block map blocks?
+        logRd	  How many logical reads per second?
+        OSRd	  How many os (disk) reads per second?
+        logWr	  How many logical writes per second?
+        OSWr	  How many os (disk) writes per second?
+        Hit%	  What is the hit ratio?
+
+20) Replaced call to "rfutil" with new 11.7+ _areaStatus info for AI
+extents.
+
+21) Modified checkpoint screen to reflect flexible number of checkpoints
+and new fields added with 11.7+.
+
+22) For 11.7 and higher the "Rec Lk" column on the UIO and SQL screens
+shows the current number of locks. (Prior to 11.7 it shows the number of
+lock requests per second.) This should help considerably in monitoring
+users who obtain large numbers of locks. "recWts" has been replaced, in all
+releases, with "lkHWM" - the High Water Mark of lock entries used by a
+session.  (Requests per second is still useful in earlier versions.)
+
+23) ProTop will now over-write the "standard" files in etc. It is no longer
+safe to put localizations into files such as etc/protop.pf or pt3agent.cfg
+and so forth. See #15 for .pf file, for .cfg files follow the established
+convention of pt3agent.XXX.cfg where XXX is the custId, serverName or
+friendlyName.
+
+24) More revisions to the the "excess" range calculation.  The "1" command
+will now bring up a screen with detailed information about how the excess
+is calculated along with some suggested values for setting -basetable,
+-baseindex, -tablerangesize and -indexrangesize.
+
+25) Simplified temp-table debugging and data collection examples by moving
+the setting of DEBUGTT to lib/ttdebug.i, in this way you only need to
+modify a single include file to enable the sample code.
+
+26) Revised configuration screen to use _dbParams when it is available and
+to avoid screen scraping PROMON or parsing the .lg file if possible.
+
+27) Added "message of the day" helpful hints, useful tips and similar
+stuff at startup.  The marketing droids may eventually get wind of this
+and start dropping hints.
+
+28) Added "inodes" to the df screen.  Currently only populated for Linux
+and AIX (AIX is untested).
+
+29) Added an experimental "task scheduler".  See etc/schedule.cfg for
+details.  It seems to work on Linux.  Windows testing has been "light"
+(IOW -- "it compiles")..
+
+30) Modified Windows protopenv.bat to only use the "install value" of
+DLC if the DLC environment variable has not already been set.  This is
+intended better to support situations where there are multiple versions
+of Progress installed on Windows.
+
+31) Added an option to turn on client statement caching when selecting a
+user via either "#" (by usr#) or "P" (by PID). This is a lot less invasive
+than turning it on for *everyone* and a lot easier than going into PROMON
+to focus on a small number of users.
+
+32) Added "TRX Lag" to the replication agent screen.  This shows the time
+difference since the last acknowledged replcation block.  If there are no
+active transactions TRX Lag will be 0.
+
+33) ChUI ProTop will warn on startup if the -*rangesize parameters are
+inadequate.

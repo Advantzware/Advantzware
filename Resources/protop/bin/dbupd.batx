@@ -1,0 +1,41 @@
+@echo off 
+
+rem	commonly needed commands to bring an untuned database "up to snuff"
+rem
+
+call C:\Users\Administrator.WIN-SIDPMPLNDIB\Downloads\protop\bin\protopenv.bat
+
+rem	after-imagine must be disabled to change the aiblocksize
+
+	call rfutil  %1 -C aimage end
+	call rfutil  %1 -C aimage truncate -aiblocksize 16 -r -G 0
+
+rem	if after-imaging needs to be enabled:
+rem
+
+rem	online probkup can turn on ai daemon
+
+rem	call probkup online %1 %BACKUPDIR%\%1.pbk enableai enableaiarchiver -aiarcdir %AIARCDIR1% -aiarcinterval 7200 -com
+
+	call probkup %1 %BACKUPDIR%\%1.pbk -com
+
+rem	call rfutil  %1 -C aimage mark backedup
+	call rfutil  %1 -C aimage begin
+
+rem	these can only be set if ai is already enabled
+rem
+
+	call rfutil  %1 -C aiarchiver setdir %AIARCDIR1%
+	call rfutil  %1 -C aiarchiver setinterval 7200
+	call rfutil  %1 -C aiarchiver enable
+
+	call proutil %1 -C truncate bi -bi 65536 -biblocksize 16 -r -G 0
+
+	call proutil %1 -C enablelargefiles
+	call proutil %1 -C enablelargekeys
+	call proutil %1 -C updatevst
+	call proutil %1 -C updateschema
+
+rem	call proutil %1 -C enableb2 "Schema Area"
+
+	call proutil %1 -C describe

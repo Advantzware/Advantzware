@@ -1,0 +1,9 @@
+@echo off
+
+call #ENVPT3#\bin\protopenv.bat
+
+set DB=d:\db\dbname
+
+sc create OE_restart_repl binpath= "%DLC%\bin\dsrutil.bat %DB% -C restart server" type=own type=interact
+sc start  OE_restart_repl
+sc delete OE_restart_repl

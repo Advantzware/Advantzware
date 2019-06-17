@@ -1,0 +1,17 @@
+# generic pf file for building a db -- not the same as for running in prod!
+#
+
+-B 100000
+-n 200
+-spin 50000
+-lruskips 100
+-lru2skips 100
+-omsize 4096
+
+-bibufs 256
+-aibufs 256
+
+-tablerangesize 1250
+-indexrangesize 2500
+
+-r		# unreliable IO -- NOT a suitable option for production!

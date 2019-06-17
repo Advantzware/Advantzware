@@ -1,0 +1,79 @@
+        1   /* gentba.p
+        2    *
+        3    * generates a script to run tabanalys on each storage area in parallel
+        4    *
+        5    * bpro dbName -p util/gentba.p -param "old|new"
+        6    *
+        7    * rm dbname.old.tba ; grep '^PUB.' *.ptba >> dbname.old.tba
+        8    *
+        9    */
+       10   
+       11   define variable oldNew as character no-undo.
+       12   
+       13   if session:parameter <> "" and session:parameter <> ? then
+       14     oldNew = session:parameter.
+       15    else
+       16     oldNew = "xxx".
+       17   
+       18   if opsys = "unix" then
+       19     do:
+       20   
+       21       output to value( substitute( "ptba.&1.sh", ldbname(1) )).
+       22   
+       23       put unformatted "#!/bin/sh" skip.
+       24       put unformatted "#" skip.
+       25       put skip(1).
+       26   
+       27       put unformatted ". $~{HOME~}/bin/dlenv" skip.
+       28       put skip(1).
+       29   
+       30       put unformatted "TMPTBA=$~{DL~}/tmp/" + oldNew skip.
+       31       put skip(1).
+       32       put unformatted "mkdir $~{TMPTBA~} 2>/dev/null" skip.
+       33       put skip(1).
+       34       put unformatted "rm -f $~{TMPTBA~}/* 2>/dev/null # " skip.
+       35       put skip(1).
+       36   
+       37       put unformatted "cd $~{SRCDIR~}" skip.
+       38       put skip(1).
+       39   
+       40     end.
+       41    else
+       42     do:
+       43   
+       44       output to value( substitute( "ptba.&1.bat", ldbname(1) )).
+       45   
+       46       put unformatted "@echo off" skip.
+       47       put skip(1).
+       48       put unformatted "call %PROTOP%~\dlbin~\dlenv.bat" skip.
+       49   
+       50     end.
+       51   
+       52   put skip(1).
+       53   
+       54   for each _Area no-lock where _Area-Num >= 6 and _Area._Area-type <> 7:  /* skip control area, bi area and after image areas             */
+       55   
+       56     if opsys = "unix" then
+       57       put unformatted substitute( 'proutil $~{DB~} -C tabanalys "&1" > $~{TMPTBA~}/&2.ptba && ', _Area-Name, replace( _Area-Name, " ", "_" )) skip.
+       58      else
+       59       put unformatted substitute( 'call proutil $~{DB~} -C tabanalys "&1" > %DL_LGDIR%~\&2.ptba && ', _Area-Name, replace( _Area-Name, " ", "_" )) skip.
+       60   
+       61   end.
+       62   
+       63   put skip(1).
+       64   
+       65   
+       66   if opsys = "unix" then
+       67     do:
+       68   
+       69       put unformatted "wait" skip.
+       70       put skip(1).
+       71   
+       72       put unformatted "grep -h ^PUB $~{TMPTBA~}~/" + '*.ptba | grep -v "^PUB._" ' + "| awk '~{print $1, $2~}' | sort -f > $~{DL_LGDIR~}/$~{DB~}." + oldNew + ".tbx" skip.
+       73       put skip(1).
+       74   
+       75     end.
+       76   
+       77   output close.
+       78   
+       79   return.

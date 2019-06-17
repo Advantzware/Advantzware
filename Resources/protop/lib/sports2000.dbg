@@ -1,0 +1,56 @@
+        1   /* sports2000.p
+        2    *
+        3    * initialized by lib/usermon.p IF sports2000 or s2k are connected
+        4    *
+        5    */
+        6   
+        7   
+        8   session:add-super-procedure( this-procedure ).
+        9   
+       10   subscribe to "usermon" anywhere run-procedure "userMon".
+       11   
+       12   return.
+       13   
+       14   
+       15   /* respond to requests for user-defined application specific metrics
+       16    *
+       17    * dc/dashboard.p PUBLISHes the request
+       18    *
+       19    * the label can be 13 characters wide and should include a final ":"
+       20    *
+       21    */
+       22   
+       23   procedure userMon:
+       24   
+       25     define output parameter ufld1 as decimal   no-undo.
+       26     define output parameter ulbl1 as character no-undo.
+       27   
+       28     define output parameter ufld2 as decimal   no-undo.
+       29     define output parameter ulbl2 as character no-undo.
+       30   
+       31     define output parameter ufld3 as decimal   no-undo.
+       32     define output parameter ulbl3 as character no-undo.
+       33   
+       34     define output parameter ufld4 as decimal   no-undo.
+       35     define output parameter ulbl4 as character no-undo.
+       36   
+       37     define output parameter ufld5 as decimal   no-undo.
+       38     define output parameter ulbl5 as character no-undo.
+       39   
+       40     define output parameter ufld6 as decimal   no-undo.
+       41     define output parameter ulbl6 as character no-undo.
+       42   
+       43     define output parameter ufld7 as decimal   no-undo.
+       44     define output parameter ulbl7 as character no-undo.
+       45   
+       46     define output parameter ufld8 as decimal   no-undo.
+       47     define output parameter ulbl8 as character no-undo.
+       48   
+       49     assign
+       50       ufld1 = random( 0, 99 )
+       51       ulbl1 =  "randomLabel:"
+       52     .
+       53   
+       54     return.
+       55   
+       56   end.

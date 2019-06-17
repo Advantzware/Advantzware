@@ -1,0 +1,235 @@
+        1   /* lib/editdblist.p
+        2    *
+        3    * allow the user to review the dbList and optionally remove entries from it
+        4    *
+        5    */
+        6   
+        7   
+        8   /* lib/v9.i
+        9    *
+       10    */
+       11   
+       12   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+       13   &global-define  CPYLOB  "no"
+       14   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+       15   &global-define  LNGCR   character
+       16   &global-define  DTZ     integer
+       17   &global-define  BIGINT  decimal
+       18   &ELSE
+       19   &global-define  OE10    "yes"
+       20   &global-define  NOW     now
+       21   &global-define  LNGCR   longchar
+       22   &global-define  DTZ     datetime-tz
+       23   &global-define  BIGINT  int64
+       24   &ENDIF
+       25    
+       26   
+       27   /* lib/tt_dblist.i
+       28    *
+       29    */
+       30   
+       31   define temp-table tt_dbList no-undo
+       32     field xvalid        as logical
+       33     field friendlyName  as character format "x(20)"
+       34     field dbPath        as character format "x(60)" /* "x(128)" view-as fill-in size 60 by 1 */
+       35     field serverName    as character format "x(20)" /* "x(128)" view-as fill-in size 20 by 1 */
+       36     field dlcPath       as character format "x(20)" /* "x(128)" view-as fill-in size 20 by 1 */
+       37     field monitorDB     as logical                  label "Mon?"
+       38     field resrcType     as character format "x(10)" label "Type"
+       39     field monitorPID    as character format "x(10)" label "PID"
+       40     field monitorStat   as character format "x(20)" label "Status"
+       41     field statusInfo    as character format "x(50)" label "Status Info"
+       42   &IF DEFINED( OE10 ) &THEN
+       43     field dbAlert      as datetime-tz
+       44   &ELSE
+       45     field dbAlert      as integer
+       46   &ENDIF
+       47     index friendlyName-idx is primary unique friendlyName
+       48   .
+       49   
+       50    
+       51   
+       52   define input-output parameter table for tt_dbList.
+       53   
+       54   define new global shared variable logLevel as integer no-undo initial 5.
+       55   
+       56   define query    q for tt_dbList.
+       57   
+       58   define variable n as integer no-undo.
+       59   define variable z as handle  no-undo.
+       60   
+       61   define variable infoText1 as character no-undo format "x(60)".
+       62   define variable infoText2 as character no-undo format "x(60)".
+       63   
+       64   infoText1 = '  Use the spacebar to toggle the "keep" field.'. 
+       65   infoText2 = substitute( "  Press &1 to save and exit, &2 to quit without saving.", kblabel( "GO" ), kblabel( "END-ERROR" )).
+       66   
+       67   define browse b
+       68     query q
+       69     display
+       70       tt_dbList.xValid format "yes/no" label "Keep?"
+       71       tt_dbList.friendlyName      /* x(20) */
+       72       tt_dbList.dbPath            /* x(60) */
+       73   /*  tt_dbList.monitorDB      */ /* x(4)  */
+       74      with
+       75       /* no-box */
+       76       /* width 132 */
+       77       /* 20 down */
+       78       title " Discovered Databases "
+       79       size 82 by 20
+       80       no-scrollbar-vertical
+       81   .
+       82   
+       83   form b with frame dbList width 82 row 16 centered no-box.               /* need "width" or else:  **BROWSE b will not fit in FRAME dbList in PROGRAM /home/protop/lib/editdblist.p. (4028) */
+       84   
+       85   
+       86   /* toggle a row
+       87    */
+       88   
+       89   on " " of b in frame dbList do:
+       90     publish "logMsg" ( 0, substitute( "&1: toggling &2", "lib/editdblist", tt_dbList.friendlyName )).
+       91     tt_dbList.xvalid = not tt_dbList.xvalid.
+       92     z:refresh().
+       93     return no-apply.
+       94   end.
+       95   
+       96   
+       97   /* /* enable monitoring -- sample code
+       98    *  */
+       99    * 
+      100    * on "m" of b in frame dbList do:
+      101    *   assign
+      102    *     tt_dbList.monitorDB   = not( tt_dbList.monitorDB )
+      103    *   .
+      104    *   z:refresh().
+      105    *   return no-apply.
+      106    * end.
+      107    * 
+      108    * 
+      109    * /* delete a row
+      110    *  */
+      111    * 
+      112    * on "delete-character", "delete-char", "delete-line", "delete", "ctrl-d", "d" of b in frame dbList do:
+      113    *   /* delete tt_dbList. */
+      114    *   publish "logMsg" ( 0, substitute( "&1: removing &2", "lib/editdblist", tt_dbList.friendlyName )).
+      115    *   tt_dbList.xvalid = no.     /* just set a flag so that we can un-delete... */
+      116    *   z:delete-current-row().
+      117    *   return no-apply.
+      118    * end.
+      119    * 
+      120    * 
+      121    * /* un-delete deleted rows
+      122    *  */
+      123    * 
+      124    * on "u" of b in frame dbList do:
+      125    *   publish "logMsg" ( 0, substitute( "&1: undeleting", "lib/editdblist" )).
+      126    *   for each tt_dbList:
+      127    *     tt_dbList.xvalid = yes.
+      128    *   end.
+      129    *   close query q.
+      130    *   open query q for each tt_dbList where tt_dbList.xvalid = yes.
+      131    *   z:refresh().
+      132    *   return no-apply.
+      133    * end.
+      134    * 
+      135    */
+      136   
+      137   
+      138   /* exit
+      139    */
+      140   
+      141   on "s", "x", "go", "ctrl-x", "pf1", "f1" of b in frame dbList do:
+      142     apply "close" to this-procedure.
+      143     return no-apply.
+      144   end.
+      145   
+      146   
+      147   /* quit -- save nothing, delete tt_dbList
+      148    */
+      149   
+      150   on "q", "end-error", "ctrl-e", "pf4", "f4" of b in frame dbList do:
+      151   
+      152     define variable ok as logical no-undo.
+      153   
+      154     /* message "quit:" key-label( lastkey ) key-function( lastkey ). */
+      155   
+      156     ok = no.
+      157   
+      158     message
+      159         skip(1)
+      160         "Do you really want to quit without keeping any discovered databases?"
+      161         skip(1)
+      162       view-as alert-box question buttons yes-no-cancel
+      163       title " Quit? "
+      164       update ok
+      165     .
+      166   
+      167     if ok then
+      168       do:
+      169         for each tt_dbList:
+      170           delete tt_dbList.
+      171         end.
+      172         publish "logMsg" ( 0, substitute( "&1: quit, no save", "lib/editdblist" )).
+      173         apply "close" to this-procedure.
+      174       end.
+      175   
+      176     return no-apply.
+      177   
+      178   end.
+      179   
+      180   
+      181   /* main block
+      182    */
+      183   
+      184   for each tt_dbList:
+      185     tt_dbList.xvalid = yes.
+      186     n = n + 1.
+      187   end.
+      188   
+      189   publish "logMsg" ( 0, substitute( "&1: &2", "lib/editdblist", n )).
+      190   
+      191   if n = 0 then return.
+      192   
+      193   display
+      194     skip(1)
+      195     infoText1 skip
+      196     infoText2 skip
+      197     skip(1)
+      198    with
+      199     frame info
+      200     no-box
+      201     no-labels
+      202     row 36
+      203     centered
+      204     width 82
+      205   .
+      206   
+      207   z = browse b:handle.
+      208   
+      209   open query q for each tt_dbList where tt_dbList.xvalid = yes.
+      210   
+      211   /* z:multiple = yes. */
+      212   
+      213   enable b with frame dbList.
+      214   
+      215   /* z:select-all(). */
+      216   z:refresh().
+      217   
+      218   apply "entry" to b in frame dbList.
+      219   
+      220   do on error undo, leave on endkey undo, leave on stop undo, leave:
+      221   
+      222     wait-for "close" of this-procedure.
+      223   
+      224   end.
+      225   
+      226   publish "logMsg" ( 0, substitute( "&1: cleanup", "lib/editdblist" )).
+      227   
+      228   for each tt_dbList where tt_dbList.xvalid = no:
+      229     delete tt_dbList.
+      230   end.
+      231   
+      232   hide frame dbList no-pause.
+      233   hide frame info   no-pause.
+      234   
+      235   return.
