@@ -65,17 +65,19 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect =  "MACHINE,START DATE,DUE DATE,CUSTOMER,CUSTOMER PART #,JOB #,"
-                          + "JOB QTY,BOARD,SHEET SIZE,VENDOR,BOARD RECEIVED,GL/ST,FG SHIPPED,BOARD ISSUED"
+ASSIGN cTextListToSelect =  "MACHINE,DUE DATE - JOB,DUE DATE OL,CUSTOMER,CUSTOMER PART #,JOB #,"
+                          + "JOB QTY,BOARD,SHEET SIZE,VENDOR,BOARD RECEIVED,GL/ST,FG SHIPPED,BOARD ISSUED,"
+                          + "START DATE - JOB,START DATE - OL,PROD DATE - OH"
 
        cFieldListToSelect = "mach,st-date,due-date,cust,cust-part,job," +
-                            "job-qty,board,sheet-size,vend,board-rec,gl-st,fg-ship,board-issued"
-       cFieldLength = "8,10,10,8,15,9," + "10,10,30,8,14,5,12,12"
-       cFieldType = "c,c,c,c,c,c," + "i,c,c,c,i,c,i,i,i" 
+                            "job-qty,board,sheet-size,vend,board-rec,gl-st,fg-ship,board-issued," +
+                            "dStartJob,dStartOL,dProdOH"
+       cFieldLength = "8,14,11,8,15,9," + "10,10,30,8,14,5,12,12," + "16,15,14"
+       cFieldType = "c,c,c,c,c,c," + "i,c,c,c,i,c,i,i,i," + "c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "MACHINE,START DATE,DUE DATE,CUSTOMER,CUSTOMER PART #,JOB #,"
+ASSIGN cTextListToDefault  = "MACHINE,DUE DATE - JOB,DUE DATE OL,CUSTOMER,CUSTOMER PART #,JOB #,"
                           + "JOB QTY,BOARD,SHEET SIZE,VENDOR,BOARD RECEIVED,GL/ST,FG SHIPPED" .
 
 /* _UIB-CODE-BLOCK-END */
@@ -1365,6 +1367,9 @@ DEFINE VARIABLE iBoardIssued AS INTEGER NO-UNDO .
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE dStartDtJob    AS   DATE format "99/99/99" NO-UNDO.
+DEFINE VARIABLE dStartDtOL    AS   DATE format "99/99/99" NO-UNDO.
+DEFINE VARIABLE dProdDtOH    AS   DATE format "99/99/99" NO-UNDO.
 
 /*form header
      skip
@@ -1512,7 +1517,6 @@ SESSION:SET-WAIT-STATE ("general").
               EACH  rm-rdtlh    
               WHERE rm-rdtlh.r-no    EQ rm-rcpth.r-no      
               AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code 
-              AND rm-rdtlh.tag NE ""
               USE-INDEX rm-rdtl NO-LOCK:
 
                 run sys/ref/convquom.p(item.cons-uom, "EA", job-mat.basis-w,
@@ -1649,6 +1653,8 @@ SESSION:SET-WAIT-STATE ("general").
       v-gl = if avail job-mch then "  X" else "".
 
       release oe-ord.
+      dProdDtOH = ?.
+      dStartDtOL = ? . 
       find first oe-ordl
           where oe-ordl.company eq cocode
             and oe-ordl.ord-no  eq job-hdr.ord-no
@@ -1657,9 +1663,14 @@ SESSION:SET-WAIT-STATE ("general").
             and oe-ordl.job-no2 eq job-hdr.job-no2
           no-lock no-error.
       if avail oe-ordl then do:
+        ASSIGN v-pct = oe-ordl.under-pct / 100
+            dStartDtOL = DATE(oe-ordl.spare-int-2) .
+
         find first oe-ord of oe-ordl no-lock no-error.
-        v-pct = oe-ordl.under-pct / 100.
+        IF AVAIL oe-ord THEN
+            ASSIGN dProdDtOH = oe-ord.prod-date .
       end.
+      
 
       release eb.
       if avail est then
@@ -1676,6 +1687,17 @@ SESSION:SET-WAIT-STATE ("general").
                  (eb.blank-no eq 0                and
                   (est.est-type eq 2 or est.est-type eq 6)))
           no-lock no-error.
+
+      FIND first job
+            where job.company eq cocode
+              and job.job     eq job-hdr.job     
+              and job.job-no  eq job-hdr.job-no
+              and job.job-no2 eq job-hdr.job-no2
+            NO-LOCK NO-ERROR.
+
+      IF AVAIL job THEN
+          ASSIGN dStartDtJob = job.start-date .
+      ELSE dStartDtJob = ?.
 
       if (tb_no-show-underrun AND
          v-fg-qty lt job-hdr.qty - (job-hdr.qty * v-pct)) OR
@@ -1724,6 +1746,9 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "gl-st"   THEN cVarValue = STRING(v-gl,"x(5)").
                          WHEN "fg-ship"  THEN cVarValue = STRING(v-fg-qty,"->>>,>>>,>>9") . 
                          WHEN "board-issued"  THEN cVarValue = STRING(iBoardIssued,"->>>,>>>,>>9") .
+                         WHEN "dStartJob"   THEN cVarValue = IF dStartDtJob <> ? THEN string(dStartDtJob,"99/99/9999") ELSE "".
+                         WHEN "dStartOL"   THEN cVarValue = IF dStartDtOL <> ? THEN string(dStartDtOL,"99/99/9999") ELSE "".
+                         WHEN "dProdOH"   THEN cVarValue = IF dProdDtOH <> ? THEN string(dProdDtOH,"99/99/9999") ELSE "".   
 
                     END CASE.
 

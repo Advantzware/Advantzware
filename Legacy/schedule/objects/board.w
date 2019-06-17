@@ -208,9 +208,9 @@ END.
 &Scoped-define FRAME-NAME boardFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS scenario btnSave btnReset btnJobSeqScan ~
-btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
-btnFlashLight btnJobBrowse resourceGrid btnPrevDate btnNextDate boardDate ~
+&Scoped-Define ENABLED-OBJECTS resourceGrid scenario btnSave btnReset ~
+btnJobSeqScan btnPending btnPendingJobs btnDatePrompt btnShowDowntime ~
+btnDetail btnFlashLight btnJobBrowse btnPrevDate btnNextDate boardDate ~
 btnCalendar btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
 btnResourceList btnNext btnLast btnSetColorType resourceList 
 &Scoped-Define DISPLAYED-OBJECTS scenario boardDate intervals timeValue ~
@@ -4109,6 +4109,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLock s-object 
+PROCEDURE pSetLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplLock       AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtBeginDate AS DATE    NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtEndDate   AS DATE    NO-UNDO.
+    
+    SESSION:SET-WAIT-STATE("General").
+    FOR EACH ttblJob
+        WHERE ttblJob.startDate GE ipdtBeginDate
+          AND ttblJob.startDate LE ipdtEndDate
+        :
+        ttblJob.jobLocked = iplLock.
+    END. /* each ttblJob */
+    RUN buildBoard (YES).
+    SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetResourceSequence s-object 
 PROCEDURE pSetResourceSequence :
 /*------------------------------------------------------------------------------
@@ -4498,7 +4524,7 @@ PROCEDURE timeLine :
       .
     &IF '{&Board}' EQ 'Pro' &THEN
     IF saveInterval NE 0 THEN DO: 
-      IF saveTimeInterval GT saveInterval THEN DO:
+      IF saveTimeInterval GT saveInterval AND btnSave:SENSITIVE THEN DO:
         MESSAGE 'Save Scheduler Pro?' VIEW-AS ALERT-BOX
           QUESTION BUTTONS YES-NO TITLE 'Auto Save Prompt'
           UPDATE saveNow AS LOGICAL.
@@ -4510,7 +4536,7 @@ PROCEDURE timeLine :
       saveTimeInterval = saveTimeInterval + .5.
     END. /* saveinterval ne 0 */
     accumTimeInterval = ETIME / 1000.
-    RUN displayLastSave IN containerHandle (accumTimeInterval).    
+    RUN displayLastSave IN containerHandle (accumTimeInterval).
     IF monitorInterval NE 0 THEN DO:
       IF autoMonitorInterval GT monitorInterval * 60 THEN DO:
         IF btnSave:SENSITIVE EQ NO THEN DO:

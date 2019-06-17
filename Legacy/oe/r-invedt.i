@@ -206,9 +206,17 @@
       IF FIRST(inv-line.r-no) AND v-detail THEN PUT SKIP(1).
 
       assign 
+       cItemFgCat = ""
        v-ext-price    = 0
        v-line-cost    = inv-line.cost * (inv-line.inv-qty / 1000)
        v-line-freight = 0.
+
+      find first itemfg
+            where itemfg.company eq cocode
+              and itemfg.i-no    eq inv-line.i-no
+            no-lock no-error.
+      IF AVAIL itemfg THEN
+          ASSIGN cItemFgCat = itemfg.procat.
 
       if v-detail then do:                           /** Write Detail Limes **/
         find first oe-ordl
@@ -253,6 +261,10 @@
               with frame ordl.
           down with frame ordl.
         END.
+
+        IF cItemFgCat NE "" THEN
+            PUT SKIP
+            "FG Category: " AT 28 cItemFgCat AT 44 .
 
         /* gdm - 10130810 */
         IF tb_excel THEN DO:

@@ -57,9 +57,23 @@ CREATE WIDGET-POOL.
 DEF VAR trans-commit AS LOG NO-UNDO.  
 DEF VAR panel-type   AS CHAR NO-UNDO INIT 'SAVE':U.
 DEF VAR add-active   AS LOGICAL NO-UNDO INIT NO.
+DEFINE VARIABLE lPostSec AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
+
+/* Check if authorized to jobstd button */
+RUN methods/prgsecur.p
+    (INPUT "JobStdsButton.",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lPostSec, /* Allowed? Yes/NO */
+     OUTPUT lAccessClose, /* used in template/windows.i  */
+     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -389,6 +403,8 @@ DO:
 
      END.
   END.
+  IF NOT lPostSec THEN
+      btn-stds:SENSITIVE = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -756,6 +772,9 @@ DO WITH FRAME Panel-Frame:
                                     btn-copyinks:SENSITIVE = NO 
                                     .
     IF NOT v-can-run THEN DISABLE ALL.
+
+    IF NOT lPostSec THEN
+         btn-stds:SENSITIVE = NO.
   END.
 
 END. /* DO WITH FRAME */

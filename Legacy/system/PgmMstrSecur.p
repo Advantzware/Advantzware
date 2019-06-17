@@ -70,6 +70,9 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/
                 (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
                 (ipProgName EQ "windows/ftpConfig.w" AND ipFunction EQ "") OR /* Ftp Config*/
+                (ipProgName EQ "ap/r-prnchk.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "arrep/r-stmt.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "oerep/r-bolprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
@@ -92,7 +95,6 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "system/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "LockMon") OR /*Lock Monitor Button*/
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "MonitorUsers") OR /*Monitor Users Button*/
-                (ipProgName EQ "viewers/p-fg-bj-l.w" AND ipFunction EQ "") OR /*IF1 Bin/Jobs tab */
                 (ipProgName EQ "viewers/sys-ctrl.w" AND ipFunction EQ "") OR /*NK1 view control tab value security */
                 (ipProgName EQ "viewers/usercontrol.w" AND ipFunction EQ "Access2") OR /*NK5 User Control - Max Sessions Per User*/
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/

@@ -78,7 +78,7 @@ DEFINE QUERY external_tables FOR itemfg.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table e-itemfg.i-no ~
-e-itemfg-vend.vend-no e-itemfg-vend.cust-no e-itemfg-vend.setups[1] 
+e-itemfg-vend.vend-no e-itemfg-vend.cust-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH e-itemfg OF itemfg WHERE ~{&KEY-PHRASE} NO-LOCK, ~
       EACH e-itemfg-vend OF e-itemfg ~
@@ -153,8 +153,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       e-itemfg-vend.vend-no FORMAT "x(8)":U WIDTH 11 LABEL-BGCOLOR 14
       e-itemfg-vend.cust-no FORMAT "x(8)":U WIDTH 11 LABEL-BGCOLOR 14
-      e-itemfg-vend.setups[1] COLUMN-LABEL "SU/Freight Chg" FORMAT "->>,>>9.99":U
-            LABEL-BGCOLOR 14
+      /*e-itemfg-vend.setups[1] COLUMN-LABEL "SU/Freight Chg" FORMAT "->>,>>9.99":U
+            LABEL-BGCOLOR 14                                                       */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 57 BY 18.1
@@ -267,8 +267,6 @@ ASSIGN
 "e-itemfg-vend.vend-no" ? ? "character" ? ? ? 14 ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.e-itemfg-vend.cust-no
 "e-itemfg-vend.cust-no" ? ? "character" ? ? ? 14 ? ? no "" no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.e-itemfg-vend.setups[1]
-"e-itemfg-vend.setups[1]" "SU/Freight Chg" ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

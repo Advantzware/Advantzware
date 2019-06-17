@@ -117,7 +117,8 @@ REPEAT:
 
         IF xeb.num-up * v-n-out NE 0 THEN
             v-medium-qty = hld-qty / (xeb.num-up * v-n-out).
-
+        {sys/inc/roundup.i v-medium-qty}
+        
         FIND FIRST e-item OF ITEM NO-LOCK NO-ERROR.
 
         ASSIGN

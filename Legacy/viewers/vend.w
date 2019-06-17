@@ -772,7 +772,7 @@ END.
 ON LEAVE OF vend.city IN FRAME F-Main /* City */
 DO:
   if adm-new-record and vend.r-city:screen-value eq "" then
-    vend.r-city:screen-value = {&self-name}:screen-value.
+    vend.r-city:screen-value = vend.city:screen-value.
 
   IF LASTKEY NE -1 THEN
   DO:

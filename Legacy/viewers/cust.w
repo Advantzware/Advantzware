@@ -61,7 +61,7 @@ DEF BUFFER bf-cust FOR cust.
 /* gdm - 08240904 */
 DEF VAR v-inv-fmt2 AS CHAR NO-UNDO.
 
-DO TRANSACTION:
+DO :
    {sys/inc/custpass.i}
 
     find first sys-ctrl
@@ -139,14 +139,14 @@ cust.addr[1] cust.addr[2] cust.city cust.state cust.zip cust.terms ~
 cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
 cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
-cust.sort cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
-cust.spare-char-2 cust.date-field[1] cust.type cust.csrUser_id cust.contact ~
-cust.sman cust.area-code cust.phone cust.scomm cust.fax-prefix ~
-cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
-cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
-cust.markup cust.ship-days cust.manf-day cust.imported cust.spare-int-1 ~
-cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
-cust.show-set cust.log-field[1] 
+cust.sort cust.tax-gr cust.tax-id cust.date-field[2] cust.spare-char-2 ~
+cust.date-field[1] cust.type cust.csrUser_id cust.contact cust.sman ~
+cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
+cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
+cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
+cust.ship-days cust.manf-day cust.imported cust.spare-int-1 cust.pallet ~
+cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
+cust.log-field[1] 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
@@ -155,14 +155,14 @@ cust.name cust.addr[1] cust.addr[2] cust.city cust.state cust.zip ~
 cust.terms cust.cr-use cust.cr-rating cust.cr-lim cust.ord-lim cust.disc ~
 cust.curr-code cust.cr-hold-invdays cust.cr-hold-invdue cust.cust-level ~
 cust.cr-hold cust.fin-chg cust.auto-reprice cust.an-edi-cust cust.factored ~
-cust.sort cust.spare-char-1 cust.tax-gr cust.tax-id cust.date-field[2] ~
-cust.spare-char-2 cust.date-field[1] cust.type cust.csrUser_id cust.contact ~
-cust.sman cust.area-code cust.phone cust.scomm cust.fax-prefix ~
-cust.fax-country cust.frt-pay cust.fob-code cust.ship-part cust.loc ~
-cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
-cust.markup cust.ship-days cust.manf-day cust.imported cust.spare-int-1 ~
-cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
-cust.show-set cust.log-field[1] 
+cust.sort cust.tax-gr cust.tax-id cust.date-field[2] cust.spare-char-2 ~
+cust.date-field[1] cust.type cust.csrUser_id cust.contact cust.sman ~
+cust.area-code cust.phone cust.scomm cust.fax-prefix cust.fax-country ~
+cust.frt-pay cust.fob-code cust.ship-part cust.loc cust.carrier ~
+cust.del-zone cust.terr cust.under-pct cust.over-pct cust.markup ~
+cust.ship-days cust.manf-day cust.imported cust.spare-int-1 cust.pallet ~
+cust.case-bundle cust.int-field[1] cust.po-mandatory cust.show-set ~
+cust.log-field[1] 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail terms_dscr rd_inv-meth ~
@@ -281,7 +281,7 @@ DEFINE VARIABLE rd_inv-meth AS LOGICAL
      RADIO-BUTTONS 
           "BOL", no,
 "PO", yes,
-"Group by Date", ?
+"User Select", ?
      SIZE 46 BY .81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
@@ -422,10 +422,6 @@ DEFINE FRAME F-Main
                     "Yes", "Y":U,
 "No", "N":U
           SIZE 16.4 BY .62
-     cust.spare-char-1 AT ROW 15.95 COL 58 COLON-ALIGNED WIDGET-ID 10
-          LABEL "Tax Prep Code" FORMAT "x(3)"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
      cust.tax-gr AT ROW 16.95 COL 16 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
@@ -490,6 +486,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
      faxAreaCode AT ROW 5.76 COL 73 COLON-ALIGNED AUTO-RETURN 
+     faxNumber AT ROW 5.76 COL 81 COLON-ALIGNED NO-LABEL
+     cust.fax-prefix AT ROW 5.76 COL 106 COLON-ALIGNED
+          LABEL "Prefix"
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
+          BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -497,12 +499,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     faxNumber AT ROW 5.76 COL 81 COLON-ALIGNED NO-LABEL
-     cust.fax-prefix AT ROW 5.76 COL 106 COLON-ALIGNED
-          LABEL "Prefix"
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-          BGCOLOR 15 
      cust.fax-country AT ROW 5.76 COL 123 COLON-ALIGNED
           LABEL "Country"
           VIEW-AS FILL-IN 
@@ -584,13 +580,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      cust.case-bundle AT ROW 14.57 COL 122.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
@@ -600,6 +589,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
           BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      cust.po-mandatory AT ROW 16.71 COL 104
           LABEL "PO Req'd"
           VIEW-AS TOGGLE-BOX
@@ -790,11 +786,9 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX cust.show-set IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN cust.sman IN FRAME F-Main
-   4  EXP-LABEL                                                         */
+   4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN sman_sname IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN cust.spare-char-1 IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN cust.spare-char-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN cust.spare-int-1 IN FRAME F-Main
@@ -988,18 +982,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.carrier V-table-Win
 ON LEAVE OF cust.carrier IN FRAME F-Main /* Carrier */
 DO:
-     {&methods/lValidateError.i YES}
-     if lastkey <> -1 /*and cust.carrier:screen-value <> "" */ and
-        not can-find(first carrier where carrier.company = gcompany and 
-                                     carrier.loc = cust.loc:screen-value and
-                                     carrier.carrier = cust.carrier:screen-value)
-     then do:
-        message "Invalid Carrier Code. Try Help." view-as alert-box error.
-        return no-apply.     
-     end.
-
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-carrier NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
   {methods/dispflds.i}
-   {&methods/lValidateError.i NO}
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1393,7 +1381,7 @@ END.
 
 &Scoped-define SELF-NAME cust.sman
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.sman V-table-Win
-ON LEAVE OF cust.sman IN FRAME F-Main /* Salesman */
+ON LEAVE OF cust.sman IN FRAME F-Main /* Sales Grp */
 DO:
  IF LASTKEY = -1 THEN RETURN.
   RUN valid-sman NO-ERROR. 
@@ -1411,31 +1399,6 @@ DO:
    apply "tab" to self.
    return no-apply.
 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME cust.spare-char-1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.spare-char-1 V-table-Win
-ON LEAVE OF cust.spare-char-1 IN FRAME F-Main /* Tax Prep Code */
-DO:
-  {&methods/lValidateError.i YES}
-  if lastkey <> -1 and SELF:screen-value <> "" and 
-     (
-    /* old
-      not can-find(first stax where stax.tax-group begins gcompany and
-                                   substring(stax.tax-group,1,10) = gcompany and
-                                   substring(stax.tax-group,11,length(trim(stax.tax-group)) - 10) = cust.tax-gr:screen-value )
-    */
-       not can-find(first stax-group where stax-group.tax-group = self:screen-value) 
-     )    
-  then do:
-     message "Invalid Tax Prep Code. Try Help." self:screen-value view-as alert-box error.
-     return no-apply.
-  end.   
-  {&methods/lValidateError.i NO}                    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1603,7 +1566,7 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-DO TRANSACTION:
+DO :
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""AF1"" }
 END.
@@ -1613,7 +1576,7 @@ find first sys-ctrl
       and sys-ctrl.name    eq "CUSTOMER"
     no-lock no-error.
 
-if not avail sys-ctrl then DO TRANSACTION:
+if not avail sys-ctrl then DO :
   create sys-ctrl.
   assign
    sys-ctrl.company  = cocode
@@ -1639,7 +1602,7 @@ find first sys-ctrl
       and sys-ctrl.name    eq "CUSTSIZE"
     no-lock no-error.
 
-if not avail sys-ctrl then DO TRANSACTION:
+if not avail sys-ctrl then DO :
   create sys-ctrl.
   assign
    sys-ctrl.company  = cocode
@@ -2338,6 +2301,9 @@ PROCEDURE local-update-record :
      RUN check-cr-bal NO-ERROR .
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+     RUN valid-carrier NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
      RUN valid-custtype NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -2380,15 +2346,6 @@ PROCEDURE local-update-record :
      then do:
         message "Invalid Ord. Loc. Code. Try Help." view-as alert-box error.
         apply "entry" to cust.loc.
-        return no-apply.     
-     end.
-     if /*cust.carrier:screen-value <> "" and*/
-        not can-find(first carrier where carrier.company = gcompany and 
-                                     carrier.loc = cust.loc:screen-value and
-                                     carrier.carrier = cust.carrier:screen-value)
-     then do:
-        message "Invalid Carrier Code. Try Help." view-as alert-box error.
-        apply "entry" to cust.carrier.
         return no-apply.     
      end.
      if /*cust.del-zone:screen-value <> "" and*/
@@ -3098,6 +3055,45 @@ PROCEDURE zip-carrier :
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&frame-name}:
+    cust.carrier:SCREEN-VALUE = CAPS(cust.carrier:SCREEN-VALUE).
+
+     FIND FIRST carrier  
+        WHERE carrier.company EQ g_company 
+        AND carrier.loc     EQ cust.loc:SCREEN-VALUE
+        AND carrier.carrier EQ cust.carrier:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " cust.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+            APPLY "entry" TO cust.carrier.
+            RETURN ERROR.
+        END.
+    END.
+
+    IF NOT AVAIL carrier THEN DO:
+      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO cust.carrier.
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

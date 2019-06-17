@@ -25,7 +25,11 @@ def var v-pct as dec NO-UNDO.
 DEF VAR v-cewhspct AS LOG NO-UNDO.
 DEF VAR v-n-out AS INT NO-UNDO.
 DEF VAR ll-gsa-pct AS LOG NO-UNDO.
+DEFINE VARIABLE hFreightProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE dStorageCostTotal AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dHandlingCostTotal AS DECIMAL NO-UNDO.
 
+RUN system\FreightProcs.p PERSISTENT SET hFreightProcs.
 
 {cec/msfcalc.i}
 
@@ -72,7 +76,11 @@ FIND FIRST xeb
 
    IF v-cewhspct THEN
      ctrl2[1] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10]) * ctrl[1].
-
+   ELSE IF DYNAMIC-FUNCTION('UseReleasesForFreightAndWarehousing' IN hFreightProcs,xeb.company) THEN DO:
+       RUN GetStorageAndHandlingForEstimateBlank IN hFreightProcs (xeb.company, xeb.est-no, qty, xeb.form-no, xeb.blank-no,
+            OUTPUT dStorageCostTotal, OUTPUT dHandlingCostTotal).
+       ctrl2[1] = dStorageCostTotal + dHandlingCostTotal.
+   END. 
    assign
    ctrl2[13] = (fac-tot + calcpcts.val[2] + ctrl2[9] + ctrl2[10]) * ctrl[19]
 

@@ -94,7 +94,7 @@ def var lv-first-time as log init yes no-undo.
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 shipto.cust-no shipto.ship-id ~
 shipto.ship-name shipto.ship-addr[1] shipto.ship-city shipto.ship-state ~
-shipto.ship-zip shipto.carrier shipto.loc 
+shipto.ship-zip shipto.carrier shipto.loc shipto.bill
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
       AND shipto.company = ip-company and ~
@@ -182,9 +182,10 @@ DEFINE BROWSE BROWSE-1
       shipto.ship-zip FORMAT "x(10)":U
       shipto.carrier FORMAT "x(5)":U
       shipto.loc FORMAT "x(5)":U
+      shipto.bill FORMAT "Yes/No":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 138 BY 11.19
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 145 BY 11.19
          BGCOLOR 8 .
 
 
@@ -250,6 +251,7 @@ and shipto.statusCode ne ""I"""
      _FldNameList[7]   = ASI.shipto.ship-zip
      _FldNameList[8]   = ASI.shipto.carrier
      _FldNameList[9]   = ASI.shipto.loc
+     _FldNameList[10]   = ASI.shipto.bill
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

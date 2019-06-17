@@ -65,7 +65,7 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no 
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ar-invl.line ~
 ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.i-name ar-invl.i-dscr ~
 ar-invl.lot-no ar-invl.inv-qty ar-invl.cons-uom ar-invl.ship-qty ~
@@ -73,7 +73,7 @@ ar-invl.sf-sht ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ~
 ar-invl.amt-msf ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ~
 ar-invl.s-pct[1] ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ~
 ar-invl.s-comm[2] ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ~
-ar-invl.bol-no ar-invl.ord-no ar-invl.po-no 
+ar-invl.bol-no ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame ar-invl
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH ar-invl ~
@@ -93,7 +93,7 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no 
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight
 &Scoped-define ENABLED-TABLES ar-invl
 &Scoped-define FIRST-ENABLED-TABLE ar-invl
 &Scoped-Define ENABLED-OBJECTS fi_acc-desc Btn_OK Btn_Done Btn_Cancel ~
@@ -105,7 +105,7 @@ ar-invl.unit-pr ar-invl.pr-qty-uom ar-invl.disc ar-invl.amt ar-invl.amt-msf ~
 ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ~
 ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ~
 ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ~
-ar-invl.ord-no ar-invl.po-no 
+ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-Freight
 &Scoped-define DISPLAYED-TABLES ar-invl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-invl
 &Scoped-Define DISPLAYED-OBJECTS fi_acc-desc 
@@ -174,6 +174,10 @@ DEFINE FRAME Dialog-Frame
           LABEL "Line"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     ar-invl.tax AT ROW 1.95 COL 50.2 COLON-ALIGNED
+          LABEL "Taxable" 
+          VIEW-AS TOGGLE-BOX
+          SIZE 14 BY 1
      ar-invl.actnum AT ROW 2.95 COL 29 COLON-ALIGNED
           LABEL "Account Number"
           VIEW-AS FILL-IN 
@@ -275,15 +279,19 @@ DEFINE FRAME Dialog-Frame
      ar-invl.s-comm[3] AT ROW 13.48 COL 51.6 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-invl.bol-no AT ROW 10.62 COL 86.2 COLON-ALIGNED
+     ar-invl.t-Freight AT ROW 11.10 COL 85 COLON-ALIGNED
+          LABEL "Freight" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     ar-invl.bol-no AT ROW 11.10 COL 115.2 COLON-ALIGNED
           LABEL "BOL #" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-invl.ord-no AT ROW 11.95 COL 86.2 COLON-ALIGNED
+     ar-invl.ord-no AT ROW 12.20 COL 115.2 COLON-ALIGNED
           LABEL "Order #" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-invl.po-no AT ROW 13.29 COL 86.2 COLON-ALIGNED
+     ar-invl.po-no AT ROW 13.29 COL 115.2 COLON-ALIGNED
           LABEL "PO #" FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -368,6 +376,10 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ar-invl.part-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN ar-invl.po-no IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN ar-invl.tax IN FRAME Dialog-Frame
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN ar-invl.t-freight IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ar-invl.pr-qty-uom IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -612,6 +624,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 DO:
     DEFINE VARIABLE dOldAmount AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dOldFright AS DECIMAL NO-UNDO .
     DO WITH FRAME {&FRAME-NAME}:
 
      IF ar-invl.actnum:MODIFIED  THEN DO:
@@ -665,13 +678,14 @@ DO:
     END.
 
  ASSIGN dOldAmount = IF AVAIL ar-invl THEN ar-invl.amt ELSE 0 .
+ ASSIGN dOldFright = IF AVAIL ar-invl THEN ar-invl.t-freight ELSE 0 .
   DO TRANSACTION:
       FIND CURRENT ar-invl EXCLUSIVE-LOCK NO-ERROR.
       
       DO WITH FRAME {&FRAME-NAME}:
           ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
       END.
-      RUN update-ar-invl(dOldAmount) .
+      RUN update-ar-invl(dOldAmount,dOldFright) .
   END.
 
  FIND CURRENT ar-invl NO-LOCK NO-ERROR.
@@ -1052,6 +1066,7 @@ PROCEDURE create-item :
             ar-invl.sman[1] = IF AVAIL cust THEN cust.sman ELSE ""
             ar-invl.s-pct[1] = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0
             ar-invl.actnum =  ar-ctrl.sales
+            ar-invl.inv-date = ar-inv.inv-date
                 .
 
          FIND FIRST account WHERE account.company = g_company
@@ -1059,7 +1074,10 @@ PROCEDURE create-item :
      
         IF AVAILABLE account THEN
             ASSIGN fi_acc-desc = account.dscr .
-
+        
+        find first cust where cust.company eq g_company
+            and cust.cust-no eq ar-inv.cust-no no-lock no-error.
+        ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
 
         ASSIGN lv-item-recid = RECID(ar-invl).
             ll-new-record = YES.
@@ -1111,7 +1129,7 @@ PROCEDURE display-item :
                ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1]
                ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] 
                ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no ar-invl.ord-no
-               ar-invl.po-no  fi_acc-desc ar-invl.ship-qty 
+               ar-invl.po-no ar-invl.tax ar-invl.t-freight fi_acc-desc ar-invl.ship-qty 
             WITH FRAME Dialog-Frame.
     END.
 
@@ -1150,7 +1168,7 @@ PROCEDURE enable_UI :
           ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] 
           ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] 
           ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no 
-          ar-invl.ord-no ar-invl.po-no 
+          ar-invl.ord-no ar-invl.po-no  ar-invl.tax ar-invl.t-freight
       WITH FRAME Dialog-Frame.
   ENABLE ar-invl.line ar-invl.actnum ar-invl.i-no ar-invl.part-no 
          ar-invl.i-name ar-invl.i-dscr ar-invl.lot-no ar-invl.inv-qty 
@@ -1159,8 +1177,8 @@ PROCEDURE enable_UI :
          ar-invl.cost ar-invl.dscr[1] ar-invl.sman[1] ar-invl.s-pct[1] 
          ar-invl.s-comm[1] ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] 
          ar-invl.sman[3] ar-invl.s-pct[3] ar-invl.s-comm[3] ar-invl.bol-no 
-         ar-invl.ord-no ar-invl.po-no fi_acc-desc Btn_OK Btn_Done Btn_Cancel 
-         RECT-21 RECT-38 
+         ar-invl.ord-no ar-invl.po-no ar-invl.tax ar-invl.t-freight fi_acc-desc
+         Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1274,6 +1292,7 @@ PROCEDURE update-ar-invl :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipAmount AS DECIMAL NO-UNDO .
+  DEFINE INPUT PARAMETER ipFreight AS DECIMAL NO-UNDO .
   DEF VAR out-qty LIKE ar-invl.qty NO-UNDO.
   DEF BUFFER bf-inv FOR ar-inv.
 
@@ -1281,9 +1300,10 @@ PROCEDURE update-ar-invl :
   FIND bf-inv WHERE RECID(bf-inv) = RECID(ar-inv) .
   
   IF  ip-type EQ "update"  THEN do:  /* update */
-  
-    ASSIGN bf-inv.gross = bf-inv.gross - ipAmount
-           bf-inv.net   = bf-inv.net - ipAmount .
+       
+    ASSIGN bf-inv.gross = bf-inv.gross - ipAmount - (IF bf-inv.f-bill THEN ipFreight ELSE 0)
+           bf-inv.net   = bf-inv.net - ipAmount  
+           bf-inv.freight = bf-inv.freight - ipFreight .  
   END.
   
   ar-invl.qty = ar-invl.inv-qty.
@@ -1297,14 +1317,15 @@ PROCEDURE update-ar-invl :
   assign
    ar-invl.amt     = if   (out-qty * ar-invl.unit-pr) eq 0
                      then (ar-invl.qty * ar-invl.unit-pr)
-                     else (out-qty * ar-invl.unit-pr)
+                     else (out-qty * ar-invl.unit-pr)  
    ar-invl.amt-msf = ((ar-invl.qty * ar-invl.sf-sht) / 1000.0)
-   bf-inv.gross    = bf-inv.gross + ar-invl.amt
-   bf-inv.net      = bf-inv.net + ar-invl.amt.
- 
-   find first cust where cust.company eq g_company
+   bf-inv.gross    = bf-inv.gross + ar-invl.amt + (IF bf-inv.f-bill THEN ipFreight ELSE 0)
+   bf-inv.net      = bf-inv.net + ar-invl.amt
+   bf-inv.freight  = bf-inv.freight + ar-invl.t-Freight        .
+  
+   /*find first cust where cust.company eq g_company
                       and cust.cust-no eq ar-inv.cust-no no-lock no-error.
-   ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
+   ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.*/
  
   IF ar-invl.bol-no GT 0 
     AND ar-invl.b-no EQ 0 THEN DO:

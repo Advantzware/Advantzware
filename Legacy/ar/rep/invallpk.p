@@ -146,7 +146,6 @@ end.
 
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
 
-if oe-ctrl.prcom then
   assign
    v-c-name    = company.name
    v-c-addr[1] = company.addr[1]

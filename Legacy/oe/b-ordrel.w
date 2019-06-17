@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 /* Temp-Table and Buffer definitions                                    */
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE oe-ordl
        FIELD cStatus AS CHAR
+       FIELD iTotRel LIKE oe-ordl.qty
        field rec-id as recid.
 
 
@@ -245,7 +246,7 @@ IF lRecFound THEN
     IF lv-sort-by EQ "q-rel"           THEN STRING(tt-report.q-rel,"9999999999")                                                                                                                     ELSE ~
     IF lv-sort-by EQ "r-no"        THEN STRING(oe-rel.r-no,"9999999999")                                                                                                                      ELSE ~
     IF lv-sort-by EQ "link-no"           THEN STRING(oe-rel.link-no,"9999999999")                                                                                                                    ELSE ~
-    IF lv-sort-by EQ "qty"        THEN STRING(9999999999.99999 + tt-report.qty,"-9999999999.99999")                                                                                                                     ELSE ~
+    IF lv-sort-by EQ "qty"        THEN STRING(9999999999.99999 + tt-report.iTotRel,"-9999999999.99999")                                                                                                                     ELSE ~
     IF lv-sort-by EQ "prom-code"           THEN STRING(tt-report.prom-code)                                                                                                                     ELSE ~
     IF lv-sort-by EQ "pr-uom"        THEN STRING(tt-report.pr-uom)                                                                                                                      ELSE ~
     IF lv-sort-by EQ "disc"           THEN STRING(oe-ordl.disc)                                                                                                                    ELSE ~
@@ -299,7 +300,7 @@ oe-rel.ship-addr[1] oe-rel.ship-city oe-rel.ship-state tt-report.price ~
 tt-report.whsed oe-ordl.disc oe-ordl.t-price tt-report.frt-pay ~
 tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 oe-rel.spare-char-3 ~
 tt-report.q-rel oe-rel.r-no oe-rel.link-no tt-report.job-start-date ~
-tt-report.qty tt-report.prom-code tt-report.pr-uom get-stat() @ cAbbrStatus
+tt-report.iTotRel tt-report.prom-code tt-report.pr-uom get-stat() @ cAbbrStatus
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table oe-rel.s-code ~
 oe-rel.ship-id oe-rel.stat oe-rel.carrier oe-rel.tot-qty oe-rel.qty ~
 tt-report.po-no tt-report.lot-no tt-report.prom-date tt-report.cStatus ~
@@ -338,7 +339,6 @@ tt-report.flute oe-rel.spare-char-1 oe-rel.spare-char-2 tt-report.q-rel
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
@@ -443,57 +443,45 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      tt-report.opened COLUMN-LABEL "Prt" FORMAT "Y/N":U WIDTH 5.4
-            COLUMN-FONT 0
-      oe-rel.s-code COLUMN-LABEL "S/I" FORMAT "X(12)":U
-      VIEW-AS COMBO-BOX INNER-LINES 4 
-          LIST-ITEM-PAIRS "B-Both","B",
+      tt-report.opened          COLUMN-LABEL "Prt"              FORMAT "Y/N":U                  WIDTH 5   
+      oe-rel.s-code             COLUMN-LABEL "S/I"              FORMAT "X(12)":U                WIDTH 18 
+        VIEW-AS COMBO-BOX INNER-LINES 4 
+        LIST-ITEM-PAIRS "B-Both","B",
                      "S-Ship","S",
                      "I-Invoice","I",
                      "T-Transfer","T"
-          DROP-DOWN-LIST
-      oe-rel.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U COLUMN-FONT 0
-      get-stat() @ cAbbrStatus COLUMN-LABEL "S" FORMAT "x(1)":U WIDTH 5.4
-      oe-rel.carrier COLUMN-LABEL "Via" FORMAT "x(5)":U COLUMN-FONT 0
-      oe-rel.tot-qty COLUMN-LABEL "Sched Qty" FORMAT "->>,>>>,>>9":U
-      oe-rel.qty COLUMN-LABEL "Actual Qty" FORMAT "->>,>>>,>>9":U
-            WIDTH 16 COLUMN-FONT 0
-      tt-report.po-no COLUMN-LABEL "Customer PO#" FORMAT "x(15)":U
-            COLUMN-FONT 0
-      tt-report.lot-no COLUMN-LABEL "Customer Lot #" FORMAT "x(15)":U
-            WIDTH 21.8 COLUMN-FONT 0
-      tt-report.prom-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
-      tt-report.cStatus COLUMN-LABEL "Rel Date" FORMAT "99/99/9999":U
-            WIDTH 18.4 COLUMN-FONT 0
-      oe-rel.ship-addr[1] COLUMN-LABEL "Ship To Address" FORMAT "x(26)":U
-            COLUMN-FONT 0
-      oe-rel.ship-city FORMAT "x(15)":U COLUMN-FONT 0
-      oe-rel.ship-state FORMAT "x(2)":U COLUMN-FONT 0
-      tt-report.price COLUMN-LABEL "Sell Price" FORMAT ">>,>>>,>>9.99<<<<":U
-            WIDTH 16 COLUMN-FONT 0
-      tt-report.whsed COLUMN-LABEL "$0" FORMAT "Y/N":U COLUMN-FONT 0
-      oe-ordl.disc FORMAT "(>>>,>>9.99)":U
-      oe-ordl.t-price COLUMN-LABEL "Ext Order Price" FORMAT "->>,>>>,>>9.99":U
-      tt-report.frt-pay COLUMN-LABEL "Frt Pay" FORMAT "x(8)":U
-            COLUMN-FONT 0
-      tt-report.flute COLUMN-LABEL "FOB" FORMAT "x(1)":U COLUMN-FONT 0
-      oe-rel.spare-char-1 COLUMN-LABEL "Ship From" FORMAT "x(5)":U
-      oe-rel.spare-char-2 COLUMN-LABEL "Dt Chg Reason" FORMAT "x(30)":U
-            WIDTH 23
-      oe-rel.spare-char-3 COLUMN-LABEL "Dt Chg User" FORMAT "x(8)":U
-      tt-report.q-rel COLUMN-LABEL "Release #" FORMAT ">>>>>>9":U
-            WIDTH 13.2 COLUMN-FONT 0
-      oe-rel.r-no COLUMN-LABEL "Seq. #" FORMAT ">>>>>>>>9":U WIDTH 15
-      oe-rel.link-no COLUMN-LABEL "Int. Release" FORMAT ">>>>>>>9":U
-            WIDTH 16.6
-      tt-report.job-start-date COLUMN-LABEL "Shp Date" FORMAT "99/99/9999":U
-            WIDTH 14.4
-      tt-report.qty FORMAT "->>,>>>,>>9.9<<":U
-      tt-report.prom-code COLUMN-LABEL "Due Dt Chg Usr" FORMAT "x(5)":U
-      tt-report.pr-uom COLUMN-LABEL "Due Dt Chg Rsn" FORMAT "x(4)":U
-      oe-rel.stat COLUMN-LABEL "Rel. Status" FORMAT "X(15)":U  WIDTH 28
-      VIEW-AS COMBO-BOX INNER-LINES 8 
-          LIST-ITEM-PAIRS "S-Scheduled","S",
+        DROP-DOWN-LIST
+      oe-rel.ship-id            COLUMN-LABEL "Ship To"          FORMAT "x(8)":U                 WIDTH 12            
+      get-stat() @ cAbbrStatus  COLUMN-LABEL "S"                FORMAT "x(1)":U                 WIDTH 5
+      oe-rel.carrier            COLUMN-LABEL "Via"              FORMAT "x(5)":U                 WIDTH 12            
+      oe-rel.tot-qty            COLUMN-LABEL "Sched Qty"        FORMAT "->>,>>>,>>9":U          WIDTH 16
+      oe-rel.qty                COLUMN-LABEL "Actual Qty"       FORMAT "->>,>>>,>>9":U          WIDTH 16    
+      tt-report.po-no           COLUMN-LABEL "Customer PO#"     FORMAT "x(15)":U                WIDTH 18            
+      tt-report.lot-no          COLUMN-LABEL "Customer Lot #"   FORMAT "x(15)":U                WIDTH 20  
+      tt-report.prom-date       COLUMN-LABEL "Due Date"         FORMAT "99/99/9999":U           WIDTH 16
+      tt-report.cStatus         COLUMN-LABEL "Rel Date"         FORMAT "99/99/9999":U           WIDTH 16  
+      oe-rel.ship-addr[1]       COLUMN-LABEL "Ship To Address"  FORMAT "x(26)":U                WIDTH 39            
+      oe-rel.ship-city          COLUMN-LABEL "City"             FORMAT "x(15)":U                WIDTH 25    
+      oe-rel.ship-state         COLUMN-LABEL "ST"               FORMAT "x(2)":U                 WIDTH 5     
+      tt-report.price           COLUMN-LABEL "Sell Price"       FORMAT ">>,>>>,>>9.99<<<<":U    WIDTH 16    
+      tt-report.whsed           COLUMN-LABEL "$0"               FORMAT "Y/N":U                  WIDTH 5     
+      oe-ordl.disc              COLUMN-LABEL "Discount"         FORMAT "(>>>,>>9.99)":U         WIDTH 16
+      oe-ordl.t-price           COLUMN-LABEL "Ext Order Price"  FORMAT "->>,>>>,>>9.99":U       WIDTH 24
+      tt-report.frt-pay         COLUMN-LABEL "Frt Pay"          FORMAT "x(8)":U                 WIDTH 12    
+      tt-report.flute           COLUMN-LABEL "FOB"              FORMAT "x(1)":U                 WIDTH 6     
+      oe-rel.spare-char-1       COLUMN-LABEL "Ship From"        FORMAT "x(5)":U                 WIDTH 13
+      oe-rel.spare-char-2       COLUMN-LABEL "Dt Chg Reason"    FORMAT "x(30)":U                WIDTH 23
+      oe-rel.spare-char-3       COLUMN-LABEL "Dt Chg User"      FORMAT "x(8)":U                 WIDTH 16
+      tt-report.q-rel           COLUMN-LABEL "Release #"        FORMAT ">>>>>>9":U              WIDTH 13  
+      oe-rel.r-no               COLUMN-LABEL "Seq. #"           FORMAT ">>>>>>>>9":U            WIDTH 13
+      oe-rel.link-no            COLUMN-LABEL "Int. Release"     FORMAT ">>>>>>>9":U             WIDTH 17
+      tt-report.job-start-date  COLUMN-LABEL "Ship Date"        FORMAT "99/99/9999":U           WIDTH 14
+      tt-report.iTotRel         COLUMN-LABEL "Tot Rel"          FORMAT "->>,>>>,>>9.9<<":U      WIDTH 16
+      tt-report.prom-code       COLUMN-LABEL "Due Dt Chg Usr"   FORMAT "x(5)":U                 WIDTH 20
+      tt-report.pr-uom          COLUMN-LABEL "Due Dt Chg Rsn"   FORMAT "x(4)":U                 WIDTH 20
+      oe-rel.stat               COLUMN-LABEL "Rel. Status"      FORMAT "X(15)":U                WIDTH 28
+        VIEW-AS COMBO-BOX INNER-LINES 8 
+        LIST-ITEM-PAIRS "S-Scheduled","S",
                      "L-Late","L",
                      "I-Invoice Per Terms","I",
                      "A-Actual","A",
@@ -501,7 +489,7 @@ DEFINE BROWSE br_table
                      "B-Backorder","B",
                      "Z-Posted BOL","Z",
                      "C-Completed","C"
-          DROP-DOWN-LIST
+        DROP-DOWN-LIST
       
   ENABLE
       oe-rel.s-code HELP "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer"
@@ -683,7 +671,8 @@ ASSIGN
 "ASI.oe-rel.link-no" "Int. Release" ">>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > Temp-Tables.tt-report.job-start-date
 "Temp-Tables.tt-report.job-start-date" "Shp Date" ? "date" ? ? ? ? ? ? no "Enter the Ship Date" no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   = Temp-Tables.tt-report.qty
+     _FldNameList[28]   = Temp-Tables.tt-report.iTotRel
+"Temp-tables.tt-report.iTotRel" "Qty Remain" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   > Temp-Tables.tt-report.prom-code
 "Temp-Tables.tt-report.prom-code" "Due Dt Chg Usr" "x(5)" "character" ? ? ? ? ? ? no "Enter code the Due Date Reason Code" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > Temp-Tables.tt-report.pr-uom
@@ -719,7 +708,7 @@ DO:
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       lCheckInquiry = YES .
      
- IF oe-rel.stat NE "C" AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
+ IF LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
      RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
      RUN reopen-query .
      RUN repo-query (ROWID(oe-rel)).
@@ -891,6 +880,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
 
 
+/* ***************************  Main Block  *************************** */
 SESSION:DATA-ENTRY-RETURN = YES.
 {sys/inc/f3help.i}
 {sys/inc/oeinq.i}
@@ -904,9 +894,11 @@ SESSION:DATA-ENTRY-RETURN = YES.
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 
- RUN-PROC = "sbo/oerel-recalc-act.p".
-{methods/smartrun.i}
-   lr-rel-lib = phandle.    
+    RUN-PROC = "sbo/oerel-recalc-act.p".
+    IF NOT VALID-HANDLE(lr-rel-lib)  THEN DO:
+       RUN-PROC = "sbo/oerel-recalc-act.p".
+       RUN VALUE(RUN-PROC) PERSISTENT SET lr-rel-lib.
+    END.
 lv-cust-x = "".
 
 
@@ -1462,7 +1454,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
            oe-rel.spare-char-1 = oe-rell.loc
            oe-rel.qty       = lv-qty
            oe-rel.frt-pay   = oe-rell.frt-pay
-           oe-ref.fob-code  = oe-rell.fob-code.
+           oe-rel.fob-code  = oe-rell.fob-code.
            
           RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
           RUN oe/custxship.p (oe-rel.company,
@@ -1521,7 +1513,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
               IF oe-rel.link-no NE 0 THEN oe-rel.link-no = 0.
 
               FIND FIRST tt-report WHERE tt-report.rec-id EQ RECID(oe-rel) NO-ERROR.
-              IF AVAIL tt-report THEN tt-report.qty = lv-qty.
+              IF AVAIL tt-report THEN tt-report.iTotRel = lv-qty.
             END.
           END.
         END.
@@ -1568,20 +1560,16 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
           
       IF NOT VALID-HANDLE(lr-rel-lib)  THEN DO:
          RUN-PROC = "sbo/oerel-recalc-act.p".
-
-          lr-rel-lib = phandle. 
-         RUN VALUE(RUN-PROC) PERSISTENT SET phandle.
-         lr-rel-lib = phandle. 
-
+         RUN VALUE(RUN-PROC) PERSISTENT SET lr-rel-lib.
       END.
 
       IF AVAIL tt-report AND AVAIL oe-rel AND VALID-HANDLE(lr-rel-lib) THEN DO:
-             RUN get-act-qty IN lr-rel-lib (INPUT ROWID(oe-rel), OUTPUT tt-report.qty).
-             IF tt-report.qty NE oe-rel.qty THEN DO:
+             RUN get-act-qty IN lr-rel-lib (INPUT ROWID(oe-rel), OUTPUT tt-report.iTotRel).
+             IF tt-report.iTotRel NE oe-rel.qty THEN DO:
                  FIND b-oe-rel WHERE ROWID(b-oe-rel) EQ ROWID(oe-rel)
                      EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
                  IF AVAIL b-oe-rel AND b-oe-rel.stat = "P" THEN
-                     b-oe-rel.qty = tt-report.qty.
+                     b-oe-rel.qty = tt-report.iTotRel.
                  FIND CURRENT b-oe-rel NO-LOCK.
 
              END.
@@ -2146,9 +2134,10 @@ PROCEDURE pUpdateRecord :
     DEFINE VARIABLE lv-repos-recid AS RECID NO-UNDO.
     DEFINE VARIABLE v-nxt-r-no AS INTEGER NO-UNDO.
     DEFINE VARIABLE lMatchingSRecordFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReleaseDesc AS CHARACTER NO-UNDO .
     DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
     
-    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel AND oe-rel.stat NE "C" THEN
+    IF AVAILABLE oe-ordl AND AVAILABLE oe-rel AND LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 THEN
     DO:
        RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) . 
        
@@ -2156,6 +2145,27 @@ PROCEDURE pUpdateRecord :
               RUN reopen-query .
               RUN repo-query (lv-rowid).
           END.
+     END.
+
+     IF AVAIL oe-rel AND LOOKUP(oe-rel.stat,"A,B,P,Z,C") NE 0 THEN DO:
+          CASE oe-rel.stat :
+                WHEN "A" THEN
+                    cReleaseDesc = "Actual".
+                WHEN "B" THEN
+                    cReleaseDesc = "Backorder".
+                WHEN "P" THEN
+                    cReleaseDesc = "Posted".
+                WHEN "Z" THEN
+                    cReleaseDesc = "Posted BOL".
+                 WHEN "C" THEN
+                    cReleaseDesc = "Completed".
+                OTHERWISE
+                    cReleaseDesc = oe-rel.stat .
+            END CASE.
+          
+         MESSAGE " Release Status is - " + STRING(cReleaseDesc) + ". Update not allowed..." 
+              VIEW-AS ALERT-BOX INFO .
+         RETURN .
      END.
 
      IF RelType-int = 1 AND AVAIL tt-report AND oe-rel.s-code EQ "I" THEN DO:
@@ -2863,7 +2873,7 @@ PROCEDURE create-report-record-1 :
                          ELSE
                          IF AVAIL oe-rell THEN oe-rell.po-no
                          ELSE*/ oe-rel.po-no
-     tt-report.qty     = oe-rel.qty
+     tt-report.iTotRel     = oe-rel.qty
      tt-report.opened = (AVAIL oe-relh AND oe-relh.printed) OR
                          INDEX("PCZ",lv-stat) GT 0
      tt-report.q-rel = (IF AVAIL oe-relh THEN oe-relh.release# ELSE 0).
@@ -4187,7 +4197,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-buttons B-table-Win 
 PROCEDURE set-buttons :
 /*------------------------------------------------------------------------------
@@ -4518,7 +4527,7 @@ DEF BUFFER bf-oe-rel FOR oe-rel.
              OR oe-rel.stat:SCREEN-VALUE IN BROWSE {&browse-name} EQ "") THEN 0
          ELSE
          IF AVAIL tt-report                 AND
-            INDEX("AB",get-rel-stat()) GT 0 THEN tt-report.qty
+            INDEX("AB",get-rel-stat()) GT 0 THEN tt-report.iTotRel
          ELSE
          IF AVAIL bf-oe-rel THEN bf-oe-rel.qty
          ELSE INT(oe-rel.qty:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -4557,7 +4566,7 @@ FUNCTION get-stat RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   
-  RETURN oe-rel.stat .
+  RETURN oe-rel.stat.
   
 END FUNCTION.
 
@@ -4580,7 +4589,7 @@ FUNCTION get-tot-qty RETURNS DECIMAL
 
   RETURN IF NOT oereleas-log                AND
             AVAIL tt-report                 AND
-            INDEX("AB",get-rel-stat()) GT 0 THEN tt-report.qty
+            INDEX("AB",get-rel-stat()) GT 0 THEN tt-report.iTotRel
          ELSE
          IF AVAIL oe-rel THEN oe-rel.tot-qty
          ELSE INT(oe-rel.tot-qty:SCREEN-VALUE IN BROWSE {&browse-name}).

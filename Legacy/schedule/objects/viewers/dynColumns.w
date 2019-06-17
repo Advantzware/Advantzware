@@ -366,7 +366,7 @@ DEFINE BROWSE browseJob
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 156 BY 4.76
          BGCOLOR 15 
-         TITLE BGCOLOR 15 "Browser Columns" ROW-HEIGHT-CHARS .52.
+         TITLE BGCOLOR 15 "Browser Columns".
 
 DEFINE BROWSE browserFilterFields
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browserFilterFields Dialog-Frame _FREEFORM
@@ -415,15 +415,15 @@ DEFINE FRAME Dialog-Frame
      "Locked Column" VIEW-AS TEXT
           SIZE 15 BY .71 AT ROW 1.48 COL 85
           BGCOLOR 12 
-     "Non-Sortable Column" VIEW-AS TEXT
-          SIZE 20 BY .71 AT ROW 1.48 COL 120
-          BGCOLOR 15 
-     "Hidden Column" VIEW-AS TEXT
-          SIZE 15 BY .71 AT ROW 1.48 COL 142
-          BGCOLOR 7 
      "Sortable Column" VIEW-AS TEXT
           SIZE 16 BY .71 AT ROW 1.48 COL 102
           BGCOLOR 14 
+     "Hidden Column" VIEW-AS TEXT
+          SIZE 15 BY .71 AT ROW 1.48 COL 142
+          BGCOLOR 7 
+     "Non-Sortable Column" VIEW-AS TEXT
+          SIZE 20 BY .71 AT ROW 1.48 COL 120
+          BGCOLOR 15 
      RECT-7 AT ROW 1.24 COL 84
      RECT-8 AT ROW 1.24 COL 101
      RECT-9 AT ROW 1.24 COL 119
@@ -451,31 +451,31 @@ DEFINE FRAME layoutFrame
           "Click to Move Current Column and Row Down"
      ruler-2 AT ROW 1.71 COL 1 NO-LABEL
      ruler-3 AT ROW 2.43 COL 1 NO-LABEL
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 6.48 COL 1
-          BGCOLOR 0 FGCOLOR 15 FONT 2
-     "6" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 10.76 COL 1
+     "Unused Layout Fields:" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 12.19 COL 2
+     "Available Fields" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 14.1 COL 13
+          BGCOLOR 14 
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 5.05 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
      "1" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 3.62 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 5.05 COL 1
+     "6" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 10.76 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
-     "Available Fields" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 14.1 COL 13
-          BGCOLOR 14 
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 6.48 COL 1
+          BGCOLOR 0 FGCOLOR 15 FONT 2
+     "5" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 9.33 COL 1
+          BGCOLOR 0 FGCOLOR 15 FONT 2
      "Excel Column Order" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 14.1 COL 56
           BGCOLOR 14 
      "4" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 7.91 COL 1
-          BGCOLOR 0 FGCOLOR 15 FONT 2
-     "Unused Layout Fields:" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 12.19 COL 2
-     "5" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 9.33 COL 1
           BGCOLOR 0 FGCOLOR 15 FONT 2
      line-1 AT ROW 3.14 COL 1
      line-2 AT ROW 4.57 COL 1

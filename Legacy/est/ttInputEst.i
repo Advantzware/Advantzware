@@ -50,6 +50,16 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD cDesigner AS CHARACTER /*Optional*/    
     FIELD dWidthDie AS DECIMAL  /*Defaults to WidthBlank*/
     FIELD dLengthDie AS DECIMAL /*Defaults to LengthBlank*/
+    FIELD cBndlCode AS CHARACTER /*Required*/
+    FIELD iUnitCount AS INTEGER /*Required*/
+    FIELD iPerPallet AS INTEGER /*Required*/
+    FIELD cPallet AS CHARACTER /*Required*/
+    FIELD cStockNo AS CHARACTER /*Optional*/
+    FIELD cEstType AS CHARACTER /* import form or misc estimate */
+    field copy-qty as int extent 20 /* Optional*/ 
+    field copy-rel as int extent 20  /* Optional */
+    field dWeightPerM as DECIMAL  /* Optional */
+    field iStackHeight as INTEGER  /* Optional */
     .
 
 

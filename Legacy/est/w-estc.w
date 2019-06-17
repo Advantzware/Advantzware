@@ -146,6 +146,7 @@ DEFINE VARIABLE h_w-qtest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_fgadd AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-cadimg AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 /*DEFINE BUTTON btNextItemfg 
@@ -524,6 +525,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_fgadd. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_fgadd ).
        RUN add-link IN adm-broker-hdl (h_fgadd, 'fgadd':U , h_p-estc ).
+       RUN add-link IN adm-broker-hdl (h_p-estc, 'upd-viewtab-eb':U , h_b-estitm ).
 
     END. /* Page 2 */
     WHEN 3 THEN DO:
@@ -542,7 +544,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-rfqsiz ).
-       RUN set-position IN h_p-rfqsiz ( 22.19 , 75.00 ) NO-ERROR.
+       RUN set-position IN h_p-rfqsiz ( 22.19 , 85.00 ) NO-ERROR.
        RUN set-size IN h_p-rfqsiz ( 1.76 , 66.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -553,6 +555,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_v-naveb ( 22.43 , 15.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 42.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-cadimg.w':U ,
+             INPUT  FRAME est:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_p-cadimg ).
+       RUN set-position IN h_p-cadimg ( 22.19 , 60.00 ) NO-ERROR.
+       /*RUN set-size IN h_p-cadimg ( 1.43 , 12.20 ) NO-ERROR.*/
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
@@ -560,6 +570,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_v-est ).
        RUN add-link IN adm-broker-hdl ( h_p-rfqsiz , 'TableIO':U , h_v-est ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'ebhead':U , h_v-est ).
+       RUN add-link IN adm-broker-hdl ( h_p-cadimg , 'TableIO':U , h_v-est ).
+       RUN add-link IN adm-broker-hdl ( h_v-est , 'btn-set':U , h_p-cadimg ).
 
        /* Links to SmartViewer h_v-naveb. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-naveb ).
@@ -795,7 +807,7 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updc&c ).
        RUN set-position IN h_p-updc&c ( 8.14 , 124.00 ) NO-ERROR.
-       RUN set-size IN h_p-updc&c ( 11.67 , 28.00 ) NO-ERROR.
+       RUN set-size IN h_p-updc&c ( 4.67  , 20.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/v-est4.w':U ,
@@ -825,6 +837,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_v-navef-2. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-navef-2 ).
+       RUN add-link IN adm-broker-hdl (h_p-updc&c, 'upd-miscsub-eb':U , h_v-est4 ).
 
     END. /* Page 7 */
 
@@ -1079,6 +1092,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_pricechg. */
        RUN add-link IN adm-broker-hdl ( h_v-eitem2 , 'price-change':U , h_pricechg ).
+       RUN add-link IN adm-broker-hdl (h_v-est4 , 'upd-farm':U , h_b-eitem2 ).
 
     END. /* Page 11 */
 
@@ -1166,6 +1180,48 @@ PROCEDURE disable-enable-farm :
   Notes:       
 ------------------------------------------------------------------------------*/
   {est/farmTab.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-enable-specs W-Win 
+PROCEDURE disable-enable-specs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {est/SpecsTab.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-enable-layout W-Win 
+PROCEDURE disable-enable-layout :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {est/LayoutTab.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-enable-BoxDesign W-Win 
+PROCEDURE disable-enable-BoxDesign :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {est/BoxDesignTab.i}
 
 END PROCEDURE.
 
@@ -1351,7 +1407,7 @@ ELSE
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN reopen-init IN WIDGET-HANDLE(char-hdl) .
   END.
- 
+  
   DO WITH FRAME {&FRAME-NAME}:
     /*ASSIGN
       btNextItemfg:VISIBLE = li-page[1] EQ 2

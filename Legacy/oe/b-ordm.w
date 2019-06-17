@@ -40,10 +40,6 @@ assign cocode = g_company
 {oe/d-selmis.i NEW}
 {sys/inc/ceprepprice.i}
 
-DO TRANSACTION:
-{sys/inc/OEPrepTaxCode.i}
-END.
- 
 
 DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL NO-UNDO.
@@ -138,7 +134,8 @@ oe-ordm.form-no oe-ordm.blank-no
 FUNCTION fGetTaxable RETURNS LOGICAL 
     (ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER) FORWARD.
+    ipcShipto AS CHARACTER,
+     ipcPrepCode AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -432,9 +429,7 @@ DO:
 
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
 
-       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
-            RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl). 
-     
+       PUBLISH "DispOrdTot" .
        RUN reopen-query (lv-rowid).
    END.
    
@@ -906,10 +901,15 @@ END.
   RELEASE xoe-ord.
   
   RUN oe/calcordt.p (ROWID(oe-ord)).
+    RUN dispatch ('row-changed').
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+  
+    PUBLISH "DispOrdTot" .  
   FIND FIRST cust NO-LOCK
       WHERE cust.company EQ cocode
       AND cust.cust-no EQ oe-ord.cust-no
       USE-INDEX cust  NO-ERROR.
+      
   IF (oe-ordm.bill NE "N" AND ld-prev-amt NE oe-ordm.amt)
        AND AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
     RUN oe/creditck.p (ROWID(oe-ord), YES).
@@ -988,18 +988,21 @@ PROCEDURE local-create-record :
    oe-ordm.s-pct[3]  = oe-ord.s-pct[3]
    oe-ordm.s-comm[3] = oe-ord.s-comm[3] .
 
-  IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ NO THEN DO:             /*Task# 11271302*/  
-      ASSIGN
-          oe-ordm.s-comm[1] = 0
-          oe-ordm.s-comm[2] = 0     
-          oe-ordm.s-comm[3] = 0.
-  END.
-
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = oe-ord.company NO-LOCK NO-ERROR.
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.
-
-  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id).
+  FIND FIRST prep NO-LOCK 
+            WHERE prep.company EQ oe-ord.company 
+            AND prep.code    EQ oe-ordm.charge
+            NO-ERROR.
+    
+    IF AVAILABLE prep AND NOT prep.commissionable THEN
+        ASSIGN 
+            oe-ordm.s-comm[1] = 0 
+            oe-ordm.s-comm[2] = 0
+            oe-ordm.s-comm[3] = 0
+            .
+  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge).
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -1058,11 +1061,16 @@ PROCEDURE local-delete-record :
   RELEASE xoe-ord.
 
   RUN oe/calcordt.p (ROWID(oe-ord)).
-
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-     RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
-
+  RUN dispatch ('row-changed').
+  FIND FIRST cust NO-LOCK
+      WHERE cust.company EQ cocode
+        AND cust.cust-no EQ oe-ord.cust-no
+      USE-INDEX cust  NO-ERROR.
+  IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+    RUN oe/creditck.p (ROWID(oe-ord), YES).
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+  
+    PUBLISH "DispOrdTot" .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1172,11 +1180,18 @@ PROCEDURE local-update-record :
      lv-new-recid = ?
      lv-valid-charge = NO.
 
-  /*RUN oe/sman-upd.p (ROWID(oe-ordm)).*/
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-     RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
-      
+    /*RUN oe/sman-upd.p (ROWID(oe-ordm)).*/
+  RUN oe/calcordt.p (ROWID(oe-ord)).
+  RUN dispatch ('row-changed').
+  FIND FIRST cust NO-LOCK
+      WHERE cust.company EQ cocode
+        AND cust.cust-no EQ oe-ord.cust-no
+      USE-INDEX cust  NO-ERROR.
+  IF AVAIL cust AND cust.active NE "X" AND AVAIL oe-ord AND oe-ord.TYPE NE "T" THEN
+      RUN oe/creditck.p (ROWID(oe-ord), YES).
+        
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
+    PUBLISH "DispOrdTot" .
   IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
   RUN reopen-query(ROWID(oe-ordm)).
@@ -1332,8 +1347,7 @@ PROCEDURE pUpdateRecord :
    IF AVAIL oe-ordm THEN do:
        RUN oe/d-ordm.w (ROWID(oe-ordm),ROWID(oe-ord), "update", OUTPUT lv-rowid) .
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-           RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
+       PUBLISH "DispOrdTot" .
        RUN reopen-query (lv-rowid).
    END.
   
@@ -1380,8 +1394,7 @@ PROCEDURE pCopyRecord :
      
       RUN oe/d-ordm.w (ROWID(bf-oe-ordm), ROWID(oe-ord), "Copy",OUTPUT lv-rowid).
       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).     
+       PUBLISH "DispOrdTot" .     
       FOR EACH bf-oe-ordm OF oe-ord NO-LOCK
           WHERE bf-oe-ordm.company EQ oe-ord.company
             AND bf-oe-ordm.line NE 0
@@ -1438,13 +1451,14 @@ PROCEDURE pAddRecord :
   DO:
      
      RUN oe/d-ordm.w (?, ROWID(oe-ord), "add",OUTPUT lv-rowid).
-     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oemisc-target",OUTPUT char-hdl).
-     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-         RUN Redisplay IN WIDGET-HANDLE(CHAR-hdl).
+
      FIND FIRST bf-oe-ordm  NO-LOCK
           WHERE bf-oe-ordm.company EQ oe-ord.company
             AND ROWID(bf-oe-ordm) EQ  lv-rowid NO-ERROR .
-        
+     RUN oe/calcordt.p (ROWID(oe-ord)).
+     RUN dispatch ('row-changed').
+ 
+     PUBLISH "DispOrdTot" .
      IF AVAIL bf-oe-ordm THEN DO:
         RUN reopen-query (lv-rowid).
      END.
@@ -1462,14 +1476,15 @@ END PROCEDURE.
 FUNCTION fGetTaxable RETURNS LOGICAL 
     (ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER):
+    ipcShipto AS CHARACTER, 
+    ipcPrepCode AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

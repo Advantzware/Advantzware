@@ -95,6 +95,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dQuoteValue AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cCheckLeftMarFormat AS CHARACTER INITIAL "QuoPrintVAL,quoprint 1,quoprint 2,quoprint 10,quoprint 20,xprint,quoprint 11,quoprint10-CAN,QuoPrint-Excel-Mex" NO-UNDO .
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -771,6 +772,7 @@ DO:
   IF tb_page:CHECKED AND
      (v-print-fmt EQ "CSC-EXCEL"     OR
       v-print-fmt EQ "PREMIER-EXCEL" OR
+      v-print-fmt EQ "QuoPrint-Excel-Mex" OR
       v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
       v-print-fmt EQ "BELL-EXCEL" OR
       v-print-fmt EQ "CCC-EXCEL" OR
@@ -1521,7 +1523,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              tb_terms:SENSITIVE    = NO
              lv-termFile:SENSITIVE = NO.
 
-    IF v-print-fmt EQ "Premier-Excel" OR v-print-fmt EQ "Premier-Excel-Mci" 
+    IF v-print-fmt EQ "Premier-Excel" OR v-print-fmt EQ "QuoPrint-Excel-Mex" OR v-print-fmt EQ "Premier-Excel-Mci" 
         OR v-print-fmt EQ "CCC-Excel" 
         /*OR v-print-fmt EQ "Bell-Excel"*/
       THEN 
@@ -1801,6 +1803,7 @@ PROCEDURE batchmail-2-proc :
    IF tb_page:CHECKED AND
       (v-print-fmt EQ "CSC-EXCEL" OR
       v-print-fmt EQ "PREMIER-EXCEL" OR
+      v-print-fmt EQ "QuoPrint-Excel-Mex" OR
       v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
       v-print-fmt EQ "BELL-EXCEL" OR
       v-print-fmt EQ "CCC-EXCEL" OR
@@ -1819,6 +1822,7 @@ PROCEDURE batchmail-2-proc :
 
    IF v-print-fmt <> "CSC-EXCEL" AND v-print-fmt <> "TRILAKE-EXCEL" AND
       v-print-fmt <> "PREMIER-EXCEL" AND
+      v-print-fmt <> "QuoPrint-Excel-Mex" AND
       v-print-fmt <> "PREMIER-EXCEL-MCI" AND
       v-print-fmt <> "BELL-EXCEL" AND
       v-print-fmt <> "CCC-EXCEL" AND
@@ -1912,6 +1916,7 @@ PROCEDURE GenerateMail :
 
         IF not(v-print-fmt EQ "CSC-EXCEL" OR
                v-print-fmt EQ "PREMIER-EXCEL" OR
+               v-print-fmt EQ "QuoPrint-Excel-Mex" OR
                v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
                v-print-fmt EQ "BELL-EXCEL" OR
                v-print-fmt EQ "CCC-EXCEL" OR
@@ -1921,7 +1926,7 @@ PROCEDURE GenerateMail :
                v-print-fmt EQ "MSPACK-EXCEL") THEN
            RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
 
-        IF v-print-fmt EQ "PREMIER-EXCEL" THEN do:
+        IF v-print-fmt EQ "PREMIER-EXCEL" OR v-print-fmt EQ "QuoPrint-Excel-Mex" THEN do:
             FIND FIRST tt-filelist NO-LOCK NO-ERROR .
             IF AVAIL tt-filelist THEN DO:
                 ASSIGN lv-pdf-file = tt-filelist.tt-FileName .
@@ -1959,6 +1964,7 @@ PROCEDURE GenerateReport :
    DO WITH FRAME {&FRAME-NAME}:
       IF v-print-fmt <> "CSC-EXCEL" AND v-print-fmt <> "TRILAKE-EXCEL" AND
          v-print-fmt <> "PREMIER-EXCEL" AND
+         v-print-fmt <> "QuoPrint-Excel-Mex" AND
          v-print-fmt <> "PREMIER-EXCEL-MCI" AND
          v-print-fmt <> "BELL-EXCEL" AND
          v-print-fmt <> "CCC-EXCEL" AND
@@ -2129,12 +2135,17 @@ ASSIGN
  v-boardDescription = tb_boardDescription
  s-print-2nd-dscr = tb_print-2nd-dscr
  v-prt-shp2 = tb_prt-shp2.
-
+ IF dQuoteValue EQ 0 THEN dQuoteValue = 4 .
   IF rs-act-inact:HIDDEN EQ NO THEN
      cItemStatus = SUBSTRING(rs-act-inact,1,1).
 
  IF rs_note:HIDDEN EQ NO THEN
     s-note-mode = rs_note.
+
+ IF v-program EQ "cec/quote/quoasi.p" THEN DO:  
+    MESSAGE "Format is invalid or not found - Set the proper format in NK1 - "  v-print-fmt VIEW-AS ALERT-BOX INFO.
+    RETURN.
+ END.
 
 {sys/inc/outprint.i value(lines-per-page)}
 
@@ -2351,24 +2362,24 @@ ASSIGN
 
 /* Check for XL also */
 IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "NOSCO-EXCEL" 
-    OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" OR v-print-fmt = "PREMIER-EXCEL-MCI" 
+    OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" OR v-print-fmt = "QuoPrint-Excel-Mex" OR v-print-fmt = "PREMIER-EXCEL-MCI" 
     OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" THEN.
 ELSE
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN do:
-            IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+            IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                 PUT  "<PRINTER?><LEFT=" + trim(string(dQuoteValue)) + "mm></PROGRESS>" FORMAT "x(50)".
             ELSE PUT  "<PRINTER?></PROGRESS>".
         END.
         WHEN 2 THEN do:
             IF NOT lBussFormModle THEN do:
-                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                     PUT "<PREVIEW><LEFT=" + trim(string(dQuoteValue)) + "mm><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
                 ELSE PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
             END.
             ELSE do:
-                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                     PUT "<PREVIEW><LEFT=" + trim(string(dQuoteValue)) + "mm></PROGRESS>" FORMAT "x(50)".     
                 ELSE PUT "<PREVIEW></PROGRESS>" FORMAT "x(50)". 
             END.
@@ -2383,6 +2394,8 @@ IF IS-xprint-form THEN DO:
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
             ELSE IF lookup(v-print-fmt,"QuoPrintVAL") > 0 THEN
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><LEFT=" + trim(string(dQuoteValue)) +  "mm><PDF-LEFT=2mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
+            ELSE IF lookup(v-print-fmt,cCheckLeftMarFormat) > 0 THEN
+                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><LEFT=" + trim(string(dQuoteValue)) +  "mm><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
             ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
         END.
     END CASE.
@@ -2422,6 +2435,13 @@ DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
 ASSIGN
    fcust = icCustNo
    tcust = icCustNo.
+
+ IF v-program EQ "cec/quote/quoasi.p" THEN DO:  
+    MESSAGE "Format is invalid or not found - Set the proper format in NK1 - "  v-print-fmt VIEW-AS ALERT-BOX INFO.
+    RETURN.
+ END.
+
+IF dQuoteValue EQ 0 THEN dQuoteValue = 4 .
 
 {sys/inc/print1.i}
 
@@ -2553,24 +2573,24 @@ ASSIGN
 
 /* Check for XL also */
 IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "NOSCO-EXCEL" 
-   OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" OR v-print-fmt = "PREMIER-EXCEL-MCI" 
+   OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" OR v-print-fmt = "QuoPrint-Excel-Mex" OR v-print-fmt = "PREMIER-EXCEL-MCI" 
    OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" THEN.
 ELSE
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN do:
-            IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+            IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                 PUT  "<PRINTER?><LEFT=" + string(dQuoteValue) + "mm></PROGRESS>" FORMAT "x(50)".
             ELSE PUT  "<PRINTER?></PROGRESS>" FORMAT "x(50)".
         END.
         WHEN 2 THEN do:
             IF NOT lBussFormModle THEN do:
-                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                     PUT "<PREVIEW><LEFT=" + string(dQuoteValue) + "mm><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
                 ELSE PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORMAT "x(50)". 
             END.
             ELSE do:
-                IF LOOKUP(v-print-fmt,"QuoPrintVAL") GT 0  THEN
+                IF LOOKUP(v-print-fmt,cCheckLeftMarFormat) GT 0  THEN
                     PUT "<PREVIEW><LEFT=" + string(dQuoteValue) + "mm></PROGRESS>" FORMAT "x(50)".     
                 ELSE PUT "<PREVIEW></PROGRESS>" FORMAT "x(50)". 
             END.
@@ -2585,6 +2605,8 @@ IF IS-xprint-form THEN DO:
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF lookup(v-print-fmt,"QuoPrintVAL") > 0 THEN
                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><LEFT=" + string( dQuoteValue) +  "mm><PDF-LEFT=2mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
+            ELSE IF lookup(v-print-fmt,cCheckLeftMarFormat) > 0 THEN
+                PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><LEFT=" + string( dQuoteValue) +  "mm><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
@@ -2701,6 +2723,7 @@ PROCEDURE SetQuoForm :
        WHEN "Elite" THEN ASSIGN v-program = "cec/quote/quoelite.p" lines-per-page = 66.
        WHEN "premierX" THEN ASSIGN v-program = "cec/quote/quoxprem.p" lines-per-page = 66.
        WHEN "Premier-Excel" THEN ASSIGN v-program = "cec/quote/quoprm-xl.p" lines-per-page = 66.
+       WHEN "QuoPrint-Excel-Mex" THEN ASSIGN v-program = "cec/quote/quoprm-mex.p" lines-per-page = 66.
        WHEN "Premier-Excel-Mci" THEN ASSIGN v-program = "cec/quote/quoprm-mci.p" lines-per-page = 66.
        WHEN "Bell-Excel" THEN ASSIGN v-program = "cec/quote/quobell-xl.p" lines-per-page = 66.
        WHEN "CCC-Excel" THEN ASSIGN v-program = "cec/quote/quoccc-xl.p" lines-per-page = 66.
@@ -2744,7 +2767,7 @@ PROCEDURE SetQuoForm :
 
           ELSE
              ASSIGN
-                v-program = "ce/quote/quoasi.p"
+                v-program = "cec/quote/quoasi.p"
                 lines-per-page = IF v-log THEN 50 ELSE 56.
        END.
    END.
@@ -2780,6 +2803,7 @@ PROCEDURE show-param :
   IF v-print-fmt <> "CSC-EXCEL" AND v-print-fmt <> "TRILAKE-EXCEL" AND
      v-print-fmt <> "FIBRE-EXCEL" AND
      v-print-fmt <> "PREMIER-EXCEL" AND
+     v-print-fmt <> "QuoPrint-Excel-Mex" AND
      v-print-fmt <> "PREMIER-EXCEL-MCI" AND
      v-print-fmt <> "BELL-EXCEL" AND
      v-print-fmt <> "CCC-EXCEL" AND

@@ -144,12 +144,22 @@ ELSE lv-comp-color = "BLACK".
            lv-email    = "Email:  " + cust.email 
            lv-comp-name = cust.NAME   
            .
- END.
-    
+ END.       
 
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
 
-    for each report where report.term-id eq v-term-id no-lock,
+    RUN pPrintReportData(NO).
+    IF v-prntdupl = YES THEN RUN pPrintReportData(YES).
+    
+PROCEDURE pPrintReportData :
+/*------------------------------------------------------------------------------
+  Purpose:     Duplicate with no unit price, extended price, and invoice totals.    
+  Parameters:  Company Code, Customer list logical and/or customer range
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
+
+for each report where report.term-id eq v-term-id no-lock,
         first ar-inv where recid(ar-inv) eq report.rec-id no-lock,
         FIRST cust WHERE cust.company = ar-inv.company
                      AND cust.cust-no = ar-inv.cust-no NO-LOCK 
@@ -424,18 +434,30 @@ ELSE lv-comp-color = "BLACK".
                    v-lines   = v-lines + 1.
                 end.
             
-            
-            PUT space(1)        /*"->>>>9.9<"*/
-                v-inv-qty format  "->>>>>9" SPACE(1)
-                v-ship-qty  format "->>>>>9" SPACE(1)
+            IF iplPrntDupl = NO THEN
+               PUT space(1)        /*"->>>>9.9<"*/
+                v-inv-qty format  "->>>>>>9" SPACE(1)
+                v-ship-qty  format "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
                 ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->,>>9.99<<" SPACE(2)
+                v-i-no  format "x(15)" SPACE(3)
+                v-i-dscr  format "x(25)" SPACE(3)
+                v-price  format "->>>>,>>9.99" /*"->,>>9.99<<"*/ SPACE(1)
                 v-price-head SPACE(1)
-                ar-invl.amt  format "->>>,>>9.99"                
+                ar-invl.amt  format "->,>>>,>>9.99" /*"->>>,>>9.99"           */     
                 SKIP.
+            ELSE
+               PUT space(1)        /*"->>>>9.9<"*/
+                v-inv-qty format  "->>>>>>9" SPACE(1)
+                v-ship-qty  format "->>>>>>9" SPACE(1)
+                /*v-bo-qty  format "->>>>>9" SPACE(1) */
+                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(3)
+                v-i-dscr  format "x(25)" SPACE(3)
+                
+                SKIP.
+
+
              v-printline = v-printline + 1.
       
             do v = 1 to 3:
@@ -445,10 +467,10 @@ ELSE lv-comp-color = "BLACK".
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) ar-invl.part-no SPACE v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(27) ar-invl.part-no SPACE(3) v-part-info SKIP.
                  ELSE
-                 IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
-                 ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
+                 IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
+                 ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.
@@ -601,30 +623,31 @@ ELSE lv-comp-color = "BLACK".
                         ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
                            ELSE FILL(" ",5) ) +
                        fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
+                       string(v-t-tax[i],"->>>,>>9.99")) else "".
     end.
     v-inv-freight = if (ar-inv.f-bill OR (cust.frt-pay = "B" AND ar-inv.ord-no = 0))
                     THEN ar-inv.freight ELSE 0.    
                     /*ar-inv.t-inv-freight*/.
-
-IF v-bot-lab[4] <> "" THEN
-    PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+IF iplPrntDupl = NO THEN do:
+  IF v-bot-lab[4] <> "" THEN
+    PUT "<P10><R58><C60><#8><FROM><R+8><C+20><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>,>>9.99" .
-ELSE
+        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>>,>>9.99" .
+  ELSE
     PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight
+        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" .
+        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>>,>>9.99" .
+END.
 
     PUT "<R58><C2> Please remit payment to: "
         "<R60><C2> Shamrock Packaging SHA4035"
@@ -647,3 +670,7 @@ ELSE
 end. /* each report, ar-inv */
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
+
+END PROCEDURE.
+
+

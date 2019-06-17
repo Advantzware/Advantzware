@@ -19,6 +19,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
@@ -59,7 +61,6 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
@@ -198,6 +199,33 @@ FIND FIRST users NO-LOCK
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
+PROCEDURE spCheckTrackUsage:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMnemonic AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
+
+    IF CAN-FIND(FIRST prgrms
+                WHERE prgrms.prgmname    EQ ipcPrgmName
+                  AND prgrms.track_usage EQ YES) THEN DO:
+        RUN spCreateAuditHdr ("TRACK","ASI",ipcPrgmName,ipcMnemonic,OUTPUT iAuditID).
+        RUN spCreateAuditDtl (iAuditID,"",0,"","",NO).
+    END. /* if lAuditRecalcQty */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-spCreateAuditDtl) = 0 &THEN
 
@@ -381,6 +409,208 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spDynAuditField) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spDynAuditField Procedure
+PROCEDURE spDynAuditField:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFrameDB    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFrameFile  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFrameField AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oprRowID      AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcErrorMsg   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRunAudit   AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cRunAudit  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSubjectID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSubjectID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lContinue  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lResults   AS LOGICAL   NO-UNDO.
+    
+    FIND FIRST AuditHdr NO-LOCK
+         WHERE AuditHdr.AuditDB    EQ ipcFrameDB
+           AND AuditHdr.AuditTable EQ ipcFrameFile
+         NO-ERROR.
+    lResults = AVAILABLE AuditHdr AND
+               CAN-FIND(FIRST AuditDtl OF AuditHdr
+                        WHERE AuditDtl.AuditField EQ ipcFrameField).
+    RUN util/CheckModule.p ("ASI","Audit", NO, OUTPUT lContinue).
+    IF lContinue THEN DO:
+        IF CAN-FIND(FIRST AuditTbl
+                    WHERE AuditTbl.AuditTable EQ ipcFrameFile
+                      AND (AuditTbl.AuditCreate EQ YES
+                       OR  AuditTbl.AuditDelete EQ YES
+                       OR  AuditTbl.AuditUpdate EQ YES)) THEN DO:
+            RUN sys/ref/nk1look.p (
+                ipcCompany,"DynAuditField","L",NO,NO,"","",
+                OUTPUT cRunAudit,OUTPUT lFound
+                ).
+            IF lFound AND cRunAudit EQ "yes" THEN DO:
+                RUN sys/ref/nk1look.p (
+                    ipcCompany,"DynAuditField","I",NO,NO,"","",
+                    OUTPUT cSubjectID,OUTPUT lFound
+                    ).
+                iSubjectID = INTEGER(cSubjectID).
+                IF iSubjectID NE 0 AND
+                   CAN-FIND(FIRST dynSubject
+                            WHERE dynSubject.subjectID EQ iSubjectID) THEN DO:
+                    RUN spGetDynParamValue (iSubjectID, OUTPUT oprRowID, OUTPUT opcErrorMsg).
+                    IF AVAILABLE dynParamValue THEN DO:
+                        IF lResults THEN
+                        DO TRANSACTION:
+                            FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+                            ASSIGN
+                                oplRunAudit  = YES
+                                cLookupTitle = "Audit Field History for Database: " + ipcFrameDB
+                                             + " - Table: " + ipcFrameFile
+                                             + " - Field: " + ipcFrameField
+                                             .
+                            DO idx = 1 TO EXTENT(dynParamValue.paramName):
+                                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
+                                CASE dynParamValue.paramName[idx]:
+                                    WHEN "AuditDB" THEN
+                                    dynParamValue.paramValue[idx] = ipcFrameDB.
+                                    WHEN "AuditTable" THEN
+                                    dynParamValue.paramValue[idx] = ipcFrameFile.
+                                    WHEN "AuditField" THEN
+                                    dynParamValue.paramValue[idx] = ipcFrameField.
+                                END CASE.
+                            END. /* do idx */
+                            FIND CURRENT dynParamValue NO-LOCK.
+                        END. /* if results exist */
+                        ELSE
+                        opcErrorMsg = "No Audit Field History Exists".
+                    END. /* if avail */
+                    ELSE
+                    opcErrorMsg = "User Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
+                END. /* if can-find */
+                ELSE
+                opcErrorMsg = "Invalid Dynamic Subject ~""
+                            + STRING(iSubjectID)
+                            + "~" set in NK1 DynAuditField"
+                            .
+            END. /* nk1 turned on */
+            ELSE
+            opcErrorMsg = "NK1 DynAuditField is not activated to view Audit Field History".
+        END. /* audit of table on */
+        ELSE
+        opcErrorMsg = "Auditing for Table ~""
+                    + ipcFrameFile
+                    + "~" not Enabled"
+                    .
+    END. /* if licensed */
+    ELSE
+    opcErrorMsg = "Viewing Audit Field History is not Licensed".
+    
+    IF opcErrorMsg NE "" AND lResults THEN
+    opcErrorMsg = opcErrorMsg + CHR(10) + CHR(10)
+                + "Audit Field History Exists for this Field"
+                .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spGetCompany) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetCompany Procedure
+PROCEDURE spGetCompany:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
+    
+    opcCompany = cCompany.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spGetDynParamValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetDynParamValue Procedure
+PROCEDURE spGetDynParamValue:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiSubjectID AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oprRowID     AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcErrorMsg  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bDynParamValue FOR dynParamValue.
+    
+    FIND FIRST dynParamValue NO-LOCK
+         WHERE dynParamValue.subjectID    EQ ipiSubjectID
+           AND dynParamValue.user-id      EQ USERID("ASI")
+           AND dynParamValue.paramValueID EQ 0
+         NO-ERROR.
+    IF NOT AVAILABLE dynParamValue THEN DO:
+        FIND FIRST bDynParamValue NO-LOCK
+             WHERE bDynParamValue.subjectID    EQ ipiSubjectID
+               AND bDynParamValue.user-id      EQ "_default"
+               AND bDynParamValue.paramValueID EQ 0
+             NO-ERROR.
+        IF AVAILABLE bDynParamValue THEN
+        DO TRANSACTION:
+            CREATE dynParamValue.
+            BUFFER-COPY bDynParamValue TO dynParamValue
+                ASSIGN
+                    dynParamValue.user-id          = USERID("ASI")
+                    dynParamValue.paramDescription = "User Default"
+                    dynParamValue.outputFormat     = "Grid"
+                    oprRowID                       = ROWID(dynParamValue)
+                    .
+            FIND CURRENT dynParamValue NO-LOCK.
+        END. /* if avail */
+        ELSE
+        opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
+    END. /* if not avail */
+    ELSE
+    oprRowID = ROWID(dynParamValue).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spGetLookupTitle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetLookupTitle Procedure
+PROCEDURE spGetLookupTitle:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcLookupTitle AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        opcLookupTitle = cLookupTitle
+        cLookupTitle   = ?
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spGetParamValueID) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetParamValueID Procedure
@@ -528,6 +758,25 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pSetCompany) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompany Procedure
+PROCEDURE spSetCompany:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    cCompany = ipcCompany.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spSetDismiss) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetDismiss Procedure
@@ -558,6 +807,7 @@ PROCEDURE spSetDismiss:
             xCueCard.cueType   = bCueCard.cueType
             xCueCard.cueTextID = bCueCardText.cueTextID
             .
+        RELEASE xCueCard.
     END. /* each bcuecardtext */
     iCueOrder = 99999.
     RUN spNextCue (iphWidget).
@@ -717,6 +967,7 @@ default_LeftDown,default_Left,information,default_SidebarCollapse,default_Sideba
                     xCueCard.cueType   = cueCard.cueType
                     xCueCard.cueTextID = cueCardText.cueTextID
                     .
+                RELEASE xCueCard.
                 NEXT.
             END. /* if securitylevel */
             /* calculate the cue card screen position */
@@ -1002,7 +1253,6 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure
@@ -1199,4 +1449,3 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-

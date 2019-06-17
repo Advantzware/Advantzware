@@ -181,10 +181,19 @@ find first company where company.company eq cocode no-lock no-error.
                 oe-ordl.LINE > 0
           no-lock:
           ln-cnt = ln-cnt + 3.
-          if /*oe-ordl.i-no ne oe-ordl.part-no or*/
-             oe-ordl.part-dscr1 ne ""        then ln-cnt = ln-cnt + 1.
-          if oe-ordl.part-dscr2 ne "" then ln-cnt = ln-cnt + 1.
+          v-pdscr1 = oe-ordl.part-dscr1 .
+          v-pdscr2 = oe-ordl.part-dscr2.
+          v-pdscr3 = oe-ordl.i-no.
 
+        IF v-pdscr1 = "" THEN  ASSIGN v-pdscr1 = v-pdscr2
+                                      v-pdscr2 = v-pdscr3
+                                      v-pdscr3 = "".
+        IF v-pdscr1 = "" THEN ASSIGN v-pdscr1 = v-pdscr2
+                                     v-pdscr2 = v-pdscr3
+                                     v-pdscr3 = "".
+
+          if v-pdscr2 ne "" then ln-cnt = ln-cnt + 1.
+          
           ASSIGN
              v-schrel-found = NO
              v-actrel-found = NO.
@@ -199,13 +208,13 @@ find first company where company.company eq cocode no-lock no-error.
 
               RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT v-stat).
 
-              IF LOOKUP(v-stat,"I,L,S") > 0 THEN
+              IF v-schrel AND LOOKUP(v-stat,"I,L,S") > 0 THEN
                  v-schrel-found = YES.
-              ELSE IF LOOKUP(v-stat,"A,B") > 0 THEN
+              ELSE IF v-actrel AND LOOKUP(v-stat,"A,B") > 0 THEN
                  v-actrel-found = YES.
               
               v-addr4 = "".
-              if v-shipto then do:
+              if v-shipto AND (v-schrel-found OR v-actrel-found) then do:
                  find first shipto where shipto.company eq cocode
                                    and shipto.cust-no eq oe-rel.cust-no
                                    and shipto.ship-id eq oe-rel.ship-id

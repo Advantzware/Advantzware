@@ -1,14 +1,11 @@
 
       v-fin-qty = 0.
-      FOR EACH fg-act
-          WHERE fg-act.company EQ job-hdr.company
-            AND fg-act.job     EQ job-hdr.job
-            AND fg-act.job-no  EQ job-hdr.job-no
-            AND fg-act.job-no2 EQ job-hdr.job-no2
-            AND fg-act.i-no    EQ job-hdr.i-no
-          NO-LOCK:
-        v-fin-qty = v-fin-qty + fg-act.qty.
-      END.
+      RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT v-fin-qty).
 
       v-underrun-qty = job-hdr.qty * .9.
 

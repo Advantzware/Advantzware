@@ -49,6 +49,7 @@ DEF var time_stamp AS ch.
 ASSIGN time_stamp = string(TIME, "hh:mmam").
 
 DEF var v-ford-no AS int FORMAT ">>>>>>" extent 2 no-undo.
+DEF var v-ford-line AS int FORMAT ">>" extent 2 no-undo.
 def var v-orders as char format "x(78)" extent 10.
 DEF var v-fitem AS char FORMAT "x(15)" extent 2 init ["","zzzzzzzzzzzzzzz"].
 DEF var v-po-no-source AS char FORMAT "!" init "R".
@@ -268,6 +269,9 @@ DEF BUFFER bf-jobhdr FOR job-hdr.
 DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
     FIELD tag-no AS CHARACTER .
 
+DEFINE VARIABLE hdCostProcs AS HANDLE.
+RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -292,13 +296,13 @@ begin_form btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to ~
 end_ship-to tb_close tb_print-view begin_rel end_rel RECT-7 RECT-8 RECT-11 ~
 RECT-12 
 &Scoped-Define DISPLAYED-OBJECTS tbPartSelect loadtagFunction tb_ret ~
-tb_reprint-tag v-ord-list v-job-list begin_ord-no end_ord-no begin_job ~
-begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
-begin_date end_date rd_comps v-dept-list tb_dept-note tb_rel tb_over ~
-tb_16ths tb_ship-id v-ship-id scr-auto-print scr-freeze-label ~
-scr-label-file begin_labels begin_form begin_filename typeLabel statusLabel ~
-lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to end_ship-to tb_close ~
-tb_print-view begin_rel end_rel 
+tb_reprint-tag v-ord-list v-job-list begin_ord-no begin_poLine end_ord-no ~
+end_poLine begin_job begin_job2 end_job end_job2 begin_i-no end_i-no ~
+rd_order-sts rd_print begin_date end_date rd_comps v-dept-list tb_dept-note ~
+tb_rel tb_over tb_16ths tb_ship-id v-ship-id scr-auto-print ~
+scr-freeze-label scr-label-file begin_labels begin_form begin_filename ~
+typeLabel statusLabel lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to ~
+end_ship-to tb_close tb_print-view begin_rel end_rel 
 
 /* Custom List Definitions                                              */
 /* jobFields,NonReprint,List-3,List-4,List-5,F1                         */
@@ -400,6 +404,11 @@ DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_poLine AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "Ln" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_rel AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
      LABEL "From Release" 
      VIEW-AS FILL-IN 
@@ -434,6 +443,11 @@ DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      LABEL "To Order#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_poLine AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "Ln" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_rel AS INTEGER FORMAT ">>>>>>9":U INITIAL 9999999 
      LABEL "To Release" 
@@ -607,8 +621,10 @@ DEFINE FRAME FRAME-A
      v-job-list AT ROW 5.95 COL 56 NO-LABEL
      begin_ord-no AT ROW 8.62 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
+     begin_poLine AT ROW 8.62 COL 45 COLON-ALIGNED WIDGET-ID 34
      end_ord-no AT ROW 8.62 COL 64 COLON-ALIGNED HELP
           "Enter Ending Order Number"
+     end_poLine AT ROW 8.62 COL 89 COLON-ALIGNED WIDGET-ID 34
      begin_job AT ROW 9.76 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job2 AT ROW 9.76 COL 36 COLON-ALIGNED HELP
@@ -664,9 +680,6 @@ DEFINE FRAME FRAME-A
           FONT 6
      "Print Set Components for:" VIEW-AS TEXT
           SIZE 26 BY 1 AT ROW 16.67 COL 4
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.1 COL 3
-          BGCOLOR 2 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -674,6 +687,9 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.1 COL 3
+          BGCOLOR 2 
      " Enter Jobs separated by comma" VIEW-AS TEXT
           SIZE 42 BY .62 AT ROW 5.29 COL 56
      "Data Parameters:" VIEW-AS TEXT
@@ -772,6 +788,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN begin_ord-no IN FRAME FRAME-A
    2                                                                    */
+/* SETTINGS FOR FILL-IN begin_poLine IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN begin_rel IN FRAME FRAME-A
    2                                                                    */
 /* SETTINGS FOR FILL-IN begin_ship-to IN FRAME FRAME-A
@@ -802,6 +820,8 @@ ASSIGN
    1 2                                                                  */
 /* SETTINGS FOR FILL-IN end_ord-no IN FRAME FRAME-A
    2                                                                    */
+/* SETTINGS FOR FILL-IN end_poLine IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN end_rel IN FRAME FRAME-A
    2                                                                    */
 /* SETTINGS FOR FILL-IN end_ship-to IN FRAME FRAME-A
@@ -1196,6 +1216,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no C-Win
 ON VALUE-CHANGED OF begin_ord-no IN FRAME FRAME-A /* From Order# */
 DO:  
+    
    FIND FIRST oe-ordl NO-LOCK
        WHERE oe-ordl.company EQ cocode
          AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
@@ -1214,6 +1235,27 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_poLine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_poLine C-Win
+ON VALUE-CHANGED OF begin_poLine IN FRAME FRAME-A /* From Order# */
+DO:  
+    RUN get-po-info ("REFRESH").
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_poLine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_poLine C-Win
+ON VALUE-CHANGED OF end_poLine IN FRAME FRAME-A /* From Order# */
+DO:  
+    RUN get-po-info ("REFRESH").
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
@@ -1942,6 +1984,10 @@ DO:
         end_job:SCREEN-VALUE = ''
         end_job2:SCREEN-VALUE = ''.
       DISABLE {&jobFields}.
+      ENABLE begin_poLine end_poLine. 
+      ASSIGN begin_poline:HIDDEN = FALSE
+             end_poline:HIDDEN = FALSE 
+             . 
     END.
     WHEN 'Order' THEN DO WITH FRAME {&FRAME-NAME}:
       ASSIGN
@@ -1950,6 +1996,10 @@ DO:
         end_ord-no:LABEL = REPLACE(end_ord-no:LABEL,'PO','Order')
         statusLabel:SCREEN-VALUE = REPLACE(statusLabel:SCREEN-VALUE,'PO','Order').
       ENABLE {&jobFields}.
+      DISABLE begin_poLine end_poLine.
+      ASSIGN begin_poline:HIDDEN = TRUE
+             end_poline:HIDDEN = TRUE
+             . 
     END.
   END CASE.
 END.
@@ -2123,6 +2173,9 @@ END.
 ON VALUE-CHANGED OF tb_override-mult IN FRAME FRAME-A /* Ignore Customer Labels/ Skid */
 DO:
   assign {&self-name}.
+  IF tb_override-mult:SCREEN-VALUE EQ "No" THEN
+      begin_labels:SENSITIVE = NO.
+  ELSE begin_labels:SENSITIVE = YES . 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2243,7 +2296,7 @@ DO:
 
     ELSE /*loadtagFunction:SCREEN-VALUE ne "order"*/
        IF NUM-ENTRIES(v-ord-list:SCREEN-VALUE) EQ 1 AND v-bardir THEN
-          RUN get-po-info.
+          RUN get-po-info ("INITIAL").
 
 END.
 
@@ -2336,6 +2389,7 @@ END.
 
 
 &UNDEFINE SELF-NAME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
@@ -2506,7 +2560,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         begin_rel:SCREEN-VALUE = ""
         end_rel:SCREEN-VALUE   = ""
         .
-
+    IF tb_override-mult:SCREEN-VALUE EQ "No" THEN
+        begin_labels:SENSITIVE = NO.
+    ELSE begin_labels:SENSITIVE = YES . 
+         
     DISABLE v-ship-id.
     ASSIGN v-ord-list:SCREEN-VALUE = "".
 
@@ -2754,11 +2811,13 @@ IF scr-auto-print THEN DO:
                              OUTPUT lUserSpecific).
 
     IF lUserSpecific THEN 
-        RUN custom/lmprint.p (INPUT scr-label-file, 
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file, 
                               INPUT cDB,
                               INPUT cBarDir).
     ELSE
-        RUN custom/lmprint.p (INPUT scr-label-file,
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file,
                               INPUT "",
                               INPUT "").
 END.
@@ -3318,6 +3377,11 @@ PROCEDURE create-loadtag :
   def var v-len like po-ordl.s-len no-undo.
   def var v-wid like po-ordl.s-len no-undo.
   def var v-dep like po-ordl.s-len no-undo.
+    DEFINE VARIABLE dCostPerUOM          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostExtended        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostExtendedFreight AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCostUOM             AS CHARACTER NO-UNDO. 
+  
   DEF VAR dRFIDTag AS DEC NO-UNDO.
 /*   DEF BUFFER bf-eb FOR eb. */
   DEF BUFFER bf-itemfg FOR itemfg.
@@ -3552,42 +3616,46 @@ PROCEDURE create-loadtag :
               b-po-ordl.company EQ cocode AND
               b-po-ordl.po-no EQ w-ord.po-no AND
               b-po-ordl.item-type EQ NO AND
-              b-po-ordl.i-no EQ loadtag.i-no
+              b-po-ordl.i-no EQ loadtag.i-no AND
+              (b-po-ordl.line EQ w-ord.po-line OR w-ord.po-line EQ 0)
               NO-LOCK NO-ERROR.
 
          IF AVAIL b-po-ordl THEN
          DO:
-            /* Created task 09261318 to be used by receiving screens in addition */            
-             RUN fg/calcRcptCostFromPO.p 
-               (INPUT cocode ,
-               INPUT ROWID(b-po-ordl),
-               INPUT ROWID(fg-rctd),
-               INPUT fg-rctd.qty-case,
-               INPUT fg-rctd.cases,
-               INPUT fg-rctd.partial,
-               INPUT fg-rctd.job-no,
-               INPUT fg-rctd.job-no2,
-               INPUT fg-rctd.cost-uom,
-               INPUT fg-rctd.t-qty,
-               OUTPUT lv-use-full-qty,
-               OUTPUT lv-full-qty,
-               OUTPUT lvCalcCostUom,
-               OUTPUT lvCalcStdCost,
-               OUTPUT lvCalcExtCost,
-               OUTPUT lvCalcFrtCost,
-               OUTPUT lvSetupPerCostUom).
-
-            ASSIGN
-               fg-rctd.cost-uom = lvCalcCostUom
-               fg-rctd.std-cost = lvCalcStdCost.
-               fg-rctd.ext-cost = lvCalcExtCost.
-
-            IF fgpofrt-log THEN 
-              fg-rctd.frt-cost = lvCalcFrtCost.
-
-            ASSIGN 
-              lv-out-cost = lvCalcStdCost            
-              lv-setup-per-cost-uom = lvSetupPerCostUom.
+             IF fg-rctd.po-line EQ 0 THEN fg-rctd.po-line = 1.
+             RUN pGetCostFromPO (b-po-ordl.company, b-po-ordl.po-no, b-po-ordl.line, b-po-ordl.i-no, fg-rctd.t-qty,
+             OUTPUT fg-rctd.std-cost, OUTPUT fg-rctd.cost-uom, OUTPUT fg-rctd.ext-cost, OUTPUT fg-rctd.frt-cost).
+/*            /* Created task 09261318 to be used by receiving screens in addition */*/
+/*             RUN fg/calcRcptCostFromPO.p                                           */
+/*               (INPUT cocode ,                                                     */
+/*               INPUT ROWID(b-po-ordl),                                             */
+/*               INPUT ROWID(fg-rctd),                                               */
+/*               INPUT fg-rctd.qty-case,                                             */
+/*               INPUT fg-rctd.cases,                                                */
+/*               INPUT fg-rctd.partial,                                              */
+/*               INPUT fg-rctd.job-no,                                               */
+/*               INPUT fg-rctd.job-no2,                                              */
+/*               INPUT fg-rctd.cost-uom,                                             */
+/*               INPUT fg-rctd.t-qty,                                                */
+/*               OUTPUT lv-use-full-qty,                                             */
+/*               OUTPUT lv-full-qty,                                                 */
+/*               OUTPUT lvCalcCostUom,                                               */
+/*               OUTPUT lvCalcStdCost,                                               */
+/*               OUTPUT lvCalcExtCost,                                               */
+/*               OUTPUT lvCalcFrtCost,                                               */
+/*               OUTPUT lvSetupPerCostUom).                                          */
+/*                                                                                   */
+/*            ASSIGN                                                                 */
+/*               fg-rctd.cost-uom = lvCalcCostUom                                    */
+/*               fg-rctd.std-cost = lvCalcStdCost.                                   */
+/*               fg-rctd.ext-cost = lvCalcExtCost.                                   */
+/*                                                                                   */
+/*            IF fgpofrt-log THEN                                                    */
+/*              fg-rctd.frt-cost = lvCalcFrtCost.                                    */
+/*                                                                                   */
+/*            ASSIGN                                                                 */
+/*              lv-out-cost = lvCalcStdCost                                          */
+/*              lv-setup-per-cost-uom = lvSetupPerCostUom.                           */
 
          END.
       END. /*info from PO on Order*/
@@ -3769,7 +3837,7 @@ PROCEDURE create-text-file :
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,"
                        "PalletCode,PalletID,TagCounter,TagCountTotal,"
-                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip,Pallet type".
+                       "RN1,RN2,RN3,RN4,WareHouse,Bin,JobQty,RunShip,Pallet type,Zone".
 
       /* rstark - */
       IF lSSCC THEN PUT UNFORMATTED ",SSCC".
@@ -4078,7 +4146,8 @@ PROCEDURE create-w-ord :
              w-ord.test    = itemfg.test
              w-ord.pcs     = loadtag.qty-case
              w-ord.bundle  = loadtag.case-bundle
-             w-ord.style   = itemfg.style.
+             w-ord.style   = itemfg.style
+             w-ord.zone    = itemfg.spare-char-4.
 
       IF w-ord.style NE "" THEN
       DO:
@@ -4190,7 +4259,8 @@ PROCEDURE create-w-ord :
                 w-ord.upc-no       = itemfg.upc-no
                 w-ord.box-len      = itemfg.l-score[50]
                 w-ord.box-wid      = itemfg.w-score[50]
-                w-ord.box-dep      = itemfg.d-score[50].
+                w-ord.box-dep      = itemfg.d-score[50]
+                w-ord.zone         = itemfg.spare-char-4.
 
              FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ job-hdr.company   
@@ -4310,7 +4380,8 @@ PROCEDURE create-w-ord :
                 w-ord.pcs = itemfg.case-count
                 w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
                 w-ord.style = itemfg.style
-                w-ord.cust-part-no = itemfg.part-no .
+                w-ord.cust-part-no = itemfg.part-no 
+                w-ord.zone         = itemfg.spare-char-4.
          IF po-ordl.ord-no > 0 THEN  
              FOR EACH cust-part NO-LOCK 
                  WHERE cust-part.company EQ po-ord.company   
@@ -4405,7 +4476,8 @@ PROCEDURE create-w-ord :
                  w-ord.partial =loadtag.partial
                  w-ord.total-unit = w-ord.pcs * w-ord.bundle + w-ord.partial
                  w-ord.style        = itemfg.style
-                 w-ord.lot          = loadtag.misc-char[2].
+                 w-ord.lot          = loadtag.misc-char[2]
+                 w-ord.zone         = itemfg.spare-char-4.
 
           FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ cocode   
@@ -4486,7 +4558,8 @@ PROCEDURE CreateWOrdFromItem :
       w-ord.uom = "EA"
       w-ord.pcs = itemfg.case-count
       w-ord.bundle = itemfg.case-pall
-      w-ord.style   = itemfg.style.
+      w-ord.style   = itemfg.style
+      w-ord.zone    = itemfg.spare-char-4.
      
       FOR EACH cust-part NO-LOCK 
           WHERE cust-part.company EQ cocode   
@@ -4650,13 +4723,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tbPartSelect loadtagFunction tb_ret tb_reprint-tag v-ord-list 
-          v-job-list begin_ord-no end_ord-no begin_job begin_job2 end_job 
-          end_job2 begin_i-no end_i-no rd_order-sts rd_print begin_date end_date 
-          rd_comps v-dept-list tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
-          v-ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels 
-          begin_form begin_filename typeLabel statusLabel lbl_po-no tb_xfer-lot 
-          tb_override-mult begin_ship-to end_ship-to tb_close tb_print-view 
-          begin_rel end_rel 
+          v-job-list begin_ord-no begin_poLine end_ord-no end_poLine begin_job 
+          begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print 
+          begin_date end_date rd_comps v-dept-list tb_dept-note tb_rel tb_over 
+          tb_16ths tb_ship-id v-ship-id scr-auto-print scr-freeze-label 
+          scr-label-file begin_labels begin_form begin_filename typeLabel 
+          statusLabel lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to 
+          end_ship-to tb_close tb_print-view begin_rel end_rel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tbPartSelect loadtagFunction tb_ret tb_reprint-tag v-ord-list 
          v-job-list begin_ord-no end_ord-no begin_job begin_job2 end_job 
@@ -4826,6 +4899,7 @@ PROCEDURE from-job :
             w-ord.due-date-job = IF job.due-date <> ? THEN STRING(job.due-date, "99/99/9999") ELSE "".
             w-ord.due-date-jobhdr = IF job-hdr.due-date <> ? THEN STRING(job-hdr.due-date, "99/99/9999") ELSE "".
             w-ord.job-qty      = job-hdr.qty  .
+            w-ord.zone         = itemfg.spare-char-4 .
             FOR EACH cust-part NO-LOCK 
              WHERE cust-part.company EQ cocode   
                AND cust-part.i-no EQ itemfg.i-no 
@@ -5180,7 +5254,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
              w-ord.test    = itemfg.test
              w-ord.pcs     = itemfg.case-count
              w-ord.bundle  = itemfg.case-pall
-             w-ord.style   = itemfg.style.
+             w-ord.style   = itemfg.style
+             w-ord.zone    = itemfg.spare-char-4.
 
           IF w-ord.style NE "" THEN
           DO:
@@ -5394,7 +5469,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
            w-ord.test    = itemfg.test
            w-ord.pcs     = itemfg.case-count
            w-ord.bundle  = itemfg.case-pall
-           w-ord.style   = itemfg.style.
+           w-ord.style   = itemfg.style
+           w-ord.zone    = itemfg.spare-char-4.
 
         IF w-ord.style NE "" THEN
         DO:
@@ -5465,15 +5541,16 @@ PROCEDURE from-po :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
     FOR EACH po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
                              AND po-ordl.po-no EQ po-ord.po-no
                              AND po-ordl.item-type EQ NO
                              AND po-ordl.i-no GE v-fitem[1]
                              AND po-ordl.i-no LE v-fitem[2]
+                             AND po-ordl.line GE v-ford-line[1]
+                             AND po-ordl.line LE v-ford-line[2]
                            USE-INDEX po-no BREAK BY po-ordl.i-no:
 
-    IF FIRST-OF(po-ordl.i-no) THEN DO:
+    // IF FIRST-OF(po-ordl.i-no) THEN DO:
       FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
                                 AND cust.cust-no EQ po-ordl.cust-no NO-ERROR.
       FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
@@ -5539,7 +5616,8 @@ PROCEDURE from-po :
         w-ord.pcs = itemfg.case-count
         w-ord.bundle = IF itemfg.case-pall NE 0 THEN itemfg.case-pall ELSE 1
         w-ord.style   = itemfg.style
-        w-ord.cust-part-no = itemfg.part-no .
+        w-ord.cust-part-no = itemfg.part-no 
+        w-ord.zone         = itemfg.spare-char-4.
       
     IF w-ord.ord-no > 0 THEN
        FOR EACH cust-part NO-LOCK 
@@ -5605,7 +5683,7 @@ PROCEDURE from-po :
         ELSE
             w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +
                            (IF CAN-DO("SSLABEL,CentBox",v-loadtag) THEN 0 ELSE 1).
-    END. /* first-of */
+    // END. /* first-of */
   END. /* each po-ordl */
 
 
@@ -6181,14 +6259,19 @@ PROCEDURE get-po-info :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER ipcState AS CHARACTER NO-UNDO.
 DEF VAR v-poord LIKE po-ord.po-no NO-UNDO.
 
 DEF VAR v-lncnt AS INT NO-UNDO.
 
 DEF VAR v-frstitem LIKE oe-ordl.i-no NO-UNDO INIT "ZZZZZZZZZZZZZZZZZ".
 DEF VAR v-lastitem LIKE oe-ordl.i-no NO-UNDO INIT "".
-
-ASSIGN v-poord = INT(ENTRY(1,v-ord-list:SCREEN-VALUE IN FRAME {&FRAME-NAME})).
+DEFINE VARIABLE iBeginLine AS INTEGER NO-UNDO INIT 99.
+DEFINE VARIABLE iEndLine AS INTEGER NO-UNDO INIT 99.
+ASSIGN v-poord = INT(ENTRY(1,v-ord-list:SCREEN-VALUE IN FRAME {&FRAME-NAME}))
+       iBeginLine = INTEGER(begin_poLine:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       iEndLine = INTEGER(end_poLine:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       .
 
 FIND FIRST bf-po-ord NO-LOCK 
   WHERE bf-po-ord.company EQ cocode 
@@ -6198,8 +6281,12 @@ IF AVAIL bf-po-ord THEN DO:
   FOR EACH bf-po-ordl NO-LOCK
     WHERE bf-po-ordl.company EQ bf-po-ord.company
       AND bf-po-ordl.po-no  EQ bf-po-ord.po-no
-     BREAK BY bf-po-ordl.i-no:
-    ASSIGN v-lncnt = v-lncnt + 1.
+      AND (bf-po-ordl.line GE iBeginLine OR ipcState EQ "Initial")
+      AND (bf-po-ordl.line LE iEndLine OR ipcState EQ "Initial")
+      
+     BREAK BY bf-po-ordl.i-no BY bf-po-ordl.line :
+    IF FIRST-OF(bf-po-ordl.i-no) THEN 
+      ASSIGN v-lncnt = v-lncnt + 1.
 
     IF bf-po-ordl.i-no LT v-frstitem THEN v-frstitem = bf-po-ordl.i-no.
     IF bf-po-ordl.i-no GT v-lastitem THEN v-lastitem = bf-po-ordl.i-no.                                                                           .
@@ -6212,14 +6299,20 @@ IF AVAIL bf-po-ord THEN DO:
         AND bf-po-ordl.po-no  EQ bf-po-ord.po-no NO-ERROR.
 
   ASSIGN begin_ord-no:SCREEN-VALUE = STRING(bf-po-ordl.po-no) 
-         end_ord-no:SCREEN-VALUE   = STRING(bf-po-ordl.po-no).
+         end_ord-no:SCREEN-VALUE   = STRING(bf-po-ordl.po-no)
+         .
+  IF ipcState EQ "Initial" THEN 
+      ASSIGN 
+         begin_poLine:SCREEN-VALUE = "1"
+         end_poLine:SCREEN-VALUE   = "99"
+         .
 
   IF v-lncnt EQ 1 THEN DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN begin_i-no:SCREEN-VALUE = bf-po-ordl.i-no
            end_i-no:SCREEN-VALUE   = bf-po-ordl.i-no.           
-
-    APPLY "LEAVE" TO END_i-no.
+    IF ipcState EQ "Initial" THEN 
+      APPLY "LEAVE" TO END_i-no.
 
   END.
   ELSE DO:
@@ -6236,15 +6329,16 @@ IF AVAIL bf-po-ord THEN DO:
 /*       AND bf-po-ordl.po-no  EQ bf-po-ord.po-no NO-ERROR. */
 /*    ASSIGN v-lastitem = bf-po-ordl.i-no.                  */
 
-   ASSIGN begin_i-no:SCREEN-VALUE = v-frstitem
+     ASSIGN begin_i-no:SCREEN-VALUE = v-frstitem
           end_i-no:SCREEN-VALUE   = v-lastitem.
-
-   APPLY "LEAVE" TO END_i-no.
-
-   MESSAGE 
-      "There are multiple Fg Items in this PO." skip
-      "     Please select an FG Item."
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     IF ipcState EQ "Initial" THEN DO:
+       APPLY "LEAVE" TO END_i-no.
+    
+       MESSAGE 
+          "There are multiple Fg Items in this PO." skip
+          "     Please select an FG Item."
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     END.
   END.
 
 END.
@@ -6436,6 +6530,7 @@ PROCEDURE get-set-full-qty :
             /* Always find just to get quantity */
             find first po-ordl where po-ordl.company = cocode
                                  and po-ordl.po-no   = int(b-fg-rctd.po-no)
+                                 and po-ordl.LINE   = int(b-fg-rctd.po-line)
                                  and po-ordl.i-no    = b-fg-rctd.i-no
                                  and po-ordl.job-no  = b-fg-rctd.job-no
                                  and po-ordl.job-no2 = b-fg-rctd.job-no2
@@ -7080,6 +7175,42 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   run scr-rpt.w (list-name,c-win:title). /* open file-name, title */ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCostFromPO C-Win 
+PROCEDURE pGetCostFromPO PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPONumber AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPOLine AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQty AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotalFreight AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE dCostPerEA        AS DECIMAL.
+    DEFINE VARIABLE dCostFreight      AS DECIMAL.
+    DEFINE VARIABLE dCostFreightPerEA AS DECIMAL.
+    DEFINE VARIABLE lFound            AS LOGICAL.
+    
+    RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, ipcFGItemID, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
+    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM).
+    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight).
+    ASSIGN 
+        opdCostTotal        = ipdQty * dCostPerEA
+        opdCostTotalFreight = ipdQty * dCostFreightPerEA.
+    IF fgpofrt-log THEN 
+        opdCostTotal = opdCostTotal + opdCostTotalFreight.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7971,7 +8102,8 @@ PROCEDURE write-loadtag-line :
         "~"" loadtag.loc-bin "~","
         "~"" w-ord.job-qty "~","
         "~"" STRING(w-ord.runShip,"R&S/WHSE")  "~"," 
-        "~"" STRING(loadtag.pallet-no)  "~"" .
+        "~"" STRING(loadtag.pallet-no)  "~"," 
+        "~"" STRING(w-ord.zone)  "~"".
     
     IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 END.

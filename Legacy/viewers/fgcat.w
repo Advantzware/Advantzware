@@ -76,11 +76,11 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR fgcat.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS fgcat.dscr fgcat.glacc fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct
+&Scoped-Define ENABLED-FIELDS fgcat.dscr fgcat.glacc fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct fgcat.lActive
 &Scoped-define ENABLED-TABLES fgcat
 &Scoped-define FIRST-ENABLED-TABLE fgcat
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS fgcat.procat fgcat.dscr fgcat.glacc fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct
+&Scoped-Define DISPLAYED-FIELDS fgcat.procat fgcat.dscr fgcat.glacc fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct fgcat.lActive
 &Scoped-define DISPLAYED-TABLES fgcat
 &Scoped-define FIRST-DISPLAYED-TABLE fgcat
 
@@ -131,7 +131,7 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 78 BY 6.52.
+     SIZE 78 BY 6.85.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -165,6 +165,12 @@ DEFINE FRAME F-Main
           FORMAT "X(20)"
           VIEW-AS FILL-IN
           SIZE 34 BY 1 
+          BGCOLOR 15 FONT 4
+     fgcat.lActive AT ROW 6.62 COL 30 COLON-ALIGNED HELP
+          "Status Yes or No "
+          FORMAT "Yes/No"
+          VIEW-AS FILL-IN
+          SIZE 7 BY 1 
           BGCOLOR 15 FONT 4
      F1 AT ROW 2.43 COL 72 NO-LABEL
      RECT-1 AT ROW 1 COL 1
@@ -602,6 +608,9 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/fgcat.i}
+   
+    ASSIGN 
+        fgcat.lActive = TRUE.
 
 END PROCEDURE.
 

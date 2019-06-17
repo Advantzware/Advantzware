@@ -12,6 +12,7 @@ def {1} shared var v-term-id as CHAR NO-UNDO.
 DEF {1} SHARED VAR v-print-dept AS LOG NO-UNDO.
 DEF {1} SHARED VAR v-depts AS CHAR NO-UNDO.
 def {1} shared var v-prntinst as log init yes.
+def {1} shared var v-prntdupl as log init No.
 
 def var v-last-page         as   int.
 def var v-page-tot          as   int.

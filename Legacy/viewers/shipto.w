@@ -728,7 +728,6 @@ DO:
     RUN valid-carrier NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-
   {methods/dispflds.i}
 END.
 
@@ -1166,7 +1165,12 @@ PROCEDURE pDeDupe :
 
     IF AVAILABLE shipto THEN 
     DO:
-        RUN util/dev/updship#.w .
+        RUN custom/setUserPrint.p (INPUT shipto.company,
+                           INPUT 'updship#.',
+                           INPUT 'begin_cust',
+                           INPUT STRING(shipto.cust-no) ).
+
+        RUN util/updship#.w .
     END.
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
@@ -1933,10 +1937,20 @@ PROCEDURE valid-carrier :
   DO WITH FRAME {&FRAME-NAME}:
     shipto.carrier:SCREEN-VALUE = CAPS(shipto.carrier:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST carrier
-                    WHERE carrier.company EQ cocode
-                      AND carrier.loc     EQ shipto.loc:SCREEN-VALUE
-                      AND carrier.carrier EQ shipto.carrier:SCREEN-VALUE) THEN DO:
+    FIND FIRST carrier  
+        WHERE carrier.company EQ g_company 
+        AND carrier.loc     EQ shipto.loc:SCREEN-VALUE
+        AND carrier.carrier EQ shipto.carrier:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " shipto.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+           RETURN ERROR.
+        END.
+    END.
+
+    IF NOT AVAIL carrier THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO shipto.carrier.
       RETURN ERROR.

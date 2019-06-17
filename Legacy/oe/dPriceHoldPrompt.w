@@ -24,10 +24,10 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+{oe/ttPriceHold.i}
 
+DEFINE INPUT PARAMETER TABLE FOR ttPriceHold.
 /* Local Variable Definitions ---                                       */
-
-{oe/ttPriceHold.i "SHARED"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -159,6 +159,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttPriceHold
      _Query            is NOT OPENED
 */  /* DIALOG-BOX Dialog-Frame */
 &ANALYZE-RESUME
+
+ 
+
 
 
 /* ************************  Control Triggers  ************************ */

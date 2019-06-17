@@ -612,7 +612,8 @@ PROCEDURE pCreateNewInvoiceLineAR:
         ar-invl.dscr[1]    = "EA"
         ar-invl.actnum     = IF AVAILABLE ar-ctrl THEN ar-ctrl.sales ELSE ""
         ar-invl.sman[1]    = IF AVAILABLE cust THEN cust.sman ELSE ""
-        ar-invl.s-pct[1]   = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0             
+        ar-invl.s-pct[1]   = IF ar-invl.sman[1] NE "" THEN 100 ELSE 0
+        ar-invl.inv-date   = ar-inv.inv-date            
         .
     opriARInvl = ROWID(ar-invl).
     RELEASE ar-invl.

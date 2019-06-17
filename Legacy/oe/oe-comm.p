@@ -52,12 +52,12 @@ IF AVAIL oe-ord THEN DO:
     END.
   END.
 
-  IF oe-ctrl.prep-comm THEN
   FOR EACH oe-ordm OF oe-ord NO-LOCK:
     FIND FIRST prep
         WHERE prep.company EQ oe-ordm.company
           AND prep.code    EQ oe-ordm.charge
         NO-LOCK NO-ERROR.
+    IF AVAILABLE prep AND prep.commissionable THEN 
     DO k = 1 TO 3:
       IF oe-ordm.s-man[k] NE "" THEN DO:
 	    RUN custom/combasis.p (oe-ord.company, oe-ordm.s-man[k],

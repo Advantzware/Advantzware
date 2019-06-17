@@ -150,7 +150,7 @@ DEFINE FRAME Dialog-Frame
     SIZE 19.2 BY 1
     BGCOLOR 15 FONT 1
     rm-rctd.rct-date AT ROW 2.43 COL 29.8 COLON-ALIGNED
-    LABEL "Transfer!Date" FORMAT "99/99/9999"
+    LABEL "Transfer Date" FORMAT "99/99/9999"
     VIEW-AS FILL-IN 
     SIZE 19.2 BY 1
     BGCOLOR 15 FONT 1
@@ -166,17 +166,17 @@ DEFINE FRAME Dialog-Frame
     SIZE 33.6 BY 1
     BGCOLOR 15 FONT 1
     rm-rctd.tag AT ROW 5.91 COL 29.8 COLON-ALIGNED
-    LABEL "From!Tag" FORMAT "x(20)"
+    LABEL "From Tag" FORMAT "x(20)"
     VIEW-AS FILL-IN 
     SIZE 33.6 BY 1
     BGCOLOR 15 FONT 1
     rm-rctd.loc AT ROW 7.19 COL 29.8 COLON-ALIGNED
-    LABEL "From!Whs" FORMAT "x(5)"
+    LABEL "From Whs" FORMAT "x(5)"
     VIEW-AS FILL-IN 
     SIZE 19 BY 1
     BGCOLOR 15 FONT 1
     rm-rctd.loc-bin AT ROW 8.48 COL 29.8 COLON-ALIGNED
-    LABEL "From!Bin" FORMAT "x(8)"
+    LABEL "From Bin" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 18.6 BY 1
     BGCOLOR 15 FONT 1
@@ -195,12 +195,12 @@ DEFINE FRAME Dialog-Frame
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
     rm-rctd.loc-bin2 AT ROW 5.91 COL 85.4 COLON-ALIGNED
-    LABEL "To!Bin" FORMAT "x(8)"
+    LABEL "To Bin" FORMAT "x(8)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
     rm-rctd.tag2 AT ROW 7.19 COL 85.4 COLON-ALIGNED
-    LABEL "To !Tag" FORMAT "x(20)"
+    LABEL "To Tag" FORMAT "x(20)"
     VIEW-AS FILL-IN 
     SIZE 33 BY 1
     BGCOLOR 15 FONT 1
@@ -1011,6 +1011,7 @@ PROCEDURE valid-i-no :
         FIND FIRST item
             WHERE item.company EQ cocode
             AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE 
+            AND ITEM.i-no    NE ""
             NO-LOCK NO-ERROR.
         IF NOT AVAILABLE item THEN 
         DO:

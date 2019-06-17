@@ -286,7 +286,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navfg ).
-       RUN set-position IN h_p-navfg ( 20.52 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_p-navfg ( 23.52 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-navfg ( 2.14 , 40.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -296,7 +296,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-upditm ).
-       RUN set-position IN h_p-upditm ( 20.52 , 65.00 ) NO-ERROR.
+       RUN set-position IN h_p-upditm ( 23.52 , 65.00 ) NO-ERROR.
        RUN set-size IN h_p-upditm ( 2.14 , 64.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -304,7 +304,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_p-calcc ).
-       RUN set-position IN h_p-calcc ( 20.52 , 131.00 ) NO-ERROR.
+       RUN set-position IN h_p-calcc ( 23.52 , 131.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -312,7 +312,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_q-ordlfg ).
-       RUN set-position IN h_q-ordlfg ( 20.52 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_q-ordlfg ( 23.52 , 49.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 11.60 ) */
 
        /* Links to SmartViewer h_itemfg. */

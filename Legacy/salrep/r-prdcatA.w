@@ -1155,7 +1155,7 @@ def var v-sum1      as   log init yes format "Customer/Salesrep"        no-undo.
 def var v-sman-no   as   char format "x(3)"                             no-undo.
 def var v-amt       LIKE ar-inv.gross  format "->,>>>,>>9.99"           no-undo.
 def var v-cost      LIKE itemfg.t-sqft  format "->,>>9.999"             no-undo.
-def var v-prof      as   dec format "->>>9.99" extent 3                 no-undo.
+def var v-prof      as   dec format "->>>>>9.99" extent 3                no-undo.
 def var v-sqft      like ar-inv.t-cost format "->,>>>,>>9.99"           no-undo.
 
 def var v-tot-sqft  like v-sqft extent 15.
@@ -1199,11 +1199,11 @@ form tt-report.key-02   column-label "Cat"      format "x(5)"
      v-prof[3] column-label "Margin"
      header skip(1)
      "Prod      SalesRep"
-     "---------------------Daily---------------" at 57
-     "-----------------Period to Date----------"
-     "------------------Year to Date-----------"
+     "---------------------Daily-----------------" at 57
+     "-----------------Period to Date------------"
+     "------------------Year to Date-------------"
 
-    with no-box frame detail down STREAM-IO width 205.
+    with no-box frame detail down STREAM-IO width 210.
 
 ASSIGN
  str-tit2 = c-win:title
@@ -1384,19 +1384,19 @@ PROCEDURE text-proc :
             ip-index-2 = ip-index + 2.
 
      IF NOT tb_rem-cents THEN
-        ASSIGN v-tot-amt-txt[ip-index] = STRING(v-tot-amt[ip-index],"->>>,>>9.99")
-               v-tot-amt-txt[ip-index-1] = STRING(v-tot-amt[ip-index-1],"->>>,>>9.99")
-               v-tot-amt-txt[ip-index-2] = STRING(v-tot-amt[ip-index-2],"->>>,>>9.99")
-               v-tot-cost-txt[ip-index] = STRING(v-tot-cost[ip-index],"->>,>>9.99")
-               v-tot-cost-txt[ip-index-1] = STRING(v-tot-cost[ip-index-1],"->>,>>9.99")
-               v-tot-cost-txt[ip-index-2] = STRING(v-tot-cost[ip-index-2],"->>,>>9.99").
+        ASSIGN v-tot-amt-txt[ip-index] = STRING(v-tot-amt[ip-index],"->>>>>>9.99")
+               v-tot-amt-txt[ip-index-1] = STRING(v-tot-amt[ip-index-1],"->>>>>>9.99")
+               v-tot-amt-txt[ip-index-2] = STRING(v-tot-amt[ip-index-2],"->>>>>>9.99")
+               v-tot-cost-txt[ip-index] = STRING(v-tot-cost[ip-index],"->>>>>9.99")
+               v-tot-cost-txt[ip-index-1] = STRING(v-tot-cost[ip-index-1],"->>>>>9.99")
+               v-tot-cost-txt[ip-index-2] = STRING(v-tot-cost[ip-index-2],"->>>>>9.99").
      ELSE
-        ASSIGN v-tot-amt-txt[ip-index] = FILL(" ",3) + STRING(v-tot-amt[ip-index],"->>>,>>9")
-               v-tot-amt-txt[ip-index-1] = FILL(" ",3) + STRING(v-tot-amt[ip-index-1],"->>>,>>9")
-               v-tot-amt-txt[ip-index-2] = FILL(" ",3) + STRING(v-tot-amt[ip-index-2],"->>>,>>9")
-               v-tot-cost-txt[ip-index] = FILL(" ",3) + STRING(v-tot-cost[ip-index],"->>,>>9")
-               v-tot-cost-txt[ip-index-1] = FILL(" ",3) + STRING(v-tot-cost[ip-index-1],"->>,>>9")
-               v-tot-cost-txt[ip-index-2] = FILL(" ",3) + STRING(v-tot-cost[ip-index-2],"->>,>>9").
+        ASSIGN v-tot-amt-txt[ip-index] = FILL(" ",3) + STRING(v-tot-amt[ip-index],"->>>>>>9")
+               v-tot-amt-txt[ip-index-1] = FILL(" ",3) + STRING(v-tot-amt[ip-index-1],"->>>>>>9")
+               v-tot-amt-txt[ip-index-2] = FILL(" ",3) + STRING(v-tot-amt[ip-index-2],"->>>>>>9")
+               v-tot-cost-txt[ip-index] = FILL(" ",3) + STRING(v-tot-cost[ip-index],"->>>>>9")
+               v-tot-cost-txt[ip-index-1] = FILL(" ",3) + STRING(v-tot-cost[ip-index-1],"->>>>>9")
+               v-tot-cost-txt[ip-index-2] = FILL(" ",3) + STRING(v-tot-cost[ip-index-2],"->>>>>9").
   END.
 END PROCEDURE.
 

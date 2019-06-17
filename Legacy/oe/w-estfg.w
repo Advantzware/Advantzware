@@ -124,7 +124,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 157.6 BY 22.29.
+         SIZE 157.6 BY 26.00.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -146,11 +146,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "FG Item"
-         HEIGHT             = 22.33
+         HEIGHT             = 26.00
          WIDTH              = 157.6
-         MAX-HEIGHT         = 24.14
+         MAX-HEIGHT         = 26.00
          MAX-WIDTH          = 172
-         VIRTUAL-HEIGHT     = 24.14
+         VIRTUAL-HEIGHT     = 26.00
          VIRTUAL-WIDTH      = 172
          RESIZE             = no
          SCROLL-BARS        = no
@@ -265,7 +265,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 22.14 , 157.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.00 , 157.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -287,7 +287,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navfg ).
-       RUN set-position IN h_p-navfg ( 20.52 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_p-navfg ( 23.82 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-navfg ( 1.91 , 40.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -297,7 +297,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-upditm ).
-       RUN set-position IN h_p-upditm ( 20.52 , 67.00 ) NO-ERROR.
+       RUN set-position IN h_p-upditm ( 23.82 , 67.00 ) NO-ERROR.
        RUN set-size IN h_p-upditm ( 2.14 , 64.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -305,7 +305,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_p-calcc ).
-       RUN set-position IN h_p-calcc ( 20.52 , 131.00 ) NO-ERROR.
+       RUN set-position IN h_p-calcc ( 23.82 , 131.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -313,7 +313,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_q-estfg ).
-       RUN set-position IN h_q-estfg ( 20.52 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_q-estfg ( 23.82 , 49.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 11.60 ) */
 
        /* Links to SmartViewer h_itemfg. */

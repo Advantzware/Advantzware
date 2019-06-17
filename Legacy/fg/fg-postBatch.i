@@ -1,4 +1,5 @@
 /* fg/fg-post.i   in GUI  copied and changed */ 
+DEFINE VARIABLE iRecQty as INTEGER NO-UNDO .
 
   release prod.
   find first prodl
@@ -202,21 +203,20 @@
             END.
 
             IF (ACCUM TOTAL job-hdr.qty) GT 0 THEN DO:
-              FOR EACH fg-act NO-LOCK
-                  WHERE fg-act.company EQ job.company
-                    AND fg-act.job-no  EQ job.job-no
-                    AND fg-act.job-no2 EQ job.job-no2
-                    AND fg-act.i-no    EQ {1}.i-no:
-                ACCUMULATE fg-act.qty (TOTAL).
-              END.
+              RUN fg/GetProductionQty.p (INPUT job.company,
+                                   INPUT job.job-no,
+                                   INPUT job.job-no2,
+                                   INPUT {1}.i-no,
+                                   INPUT NO,
+                                   OUTPUT iRecQty).              
             
-              v-reduce-qty = (ACCUM TOTAL fg-act.qty) + {2}.t-qty.
+              v-reduce-qty = (iRecQty) + {2}.t-qty.
             
               IF v-reduce-qty GT (ACCUM TOTAL job-hdr.qty) THEN
                 v-reduce-qty = {2}.t-qty -
                                (v-reduce-qty - (ACCUM TOTAL job-hdr.qty)).
               ELSE             
-                v-reduce-qty = v-reduce-qty - (ACCUM TOTAL fg-act.qty).
+                v-reduce-qty = v-reduce-qty - (iRecQty).
             END.
  
             find first sys-ctrl no-lock

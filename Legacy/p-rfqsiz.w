@@ -60,6 +60,17 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
+{custom/gcompany.i}
+{custom/getcmpny.i}
+
+DEFINE VARIABLE ceAuto-calc-msg AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+RUN sys/ref/nk1look.p (INPUT gcompany, "CEAutoCalcMessage", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    ceAuto-calc-msg = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -204,6 +215,15 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-auto-calc C-WIn
 ON CHOOSE OF btn-auto-calc IN FRAME Panel-Frame /* Auto-Calculate */
 DO:
+
+    IF ceAuto-calc-msg = YES THEN do:
+        MESSAGE
+            "The auto-calc function may change your data based upon your current standards." SKIP
+            "These changes are not reversed if you select Cancel.  Do you want to proceed?"
+            VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE lProceed AS LOG.
+        IF NOT lProceed THEN RETURN NO-APPLY.
+    END.
+     
   DO WITH FRAME Panel-Frame:
      def var source-str as cha no-undo.
      RUN get-link-handle IN adm-broker-hdl 

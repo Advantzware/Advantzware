@@ -74,7 +74,7 @@ DEF VAR lv-save-char AS CHAR INIT "" NO-UNDO.
 
 {sa/sa-sls01.i}
 
-RUN sys/ref/nk1look.p (INPUT cocode, "FGBrowse", "DT" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "FGHistoryDate", "DT" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN

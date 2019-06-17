@@ -263,6 +263,8 @@ DEFINE FRAME DEFAULT-FRAME
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
+     btnUpdate AT ROW 19.81 COL 23 HELP
+          "Update/Save" WIDGET-ID 128
      dynParamSetDtl.paramSetID AT ROW 1.24 COL 20 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
@@ -271,8 +273,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 
-     btnUpdate AT ROW 19.81 COL 23 HELP
-          "Update/Save" WIDGET-ID 128
      btnSetBuilder AT ROW 1.48 COL 74 HELP
           "Parameter Set Builder" WIDGET-ID 286
      dynParamSetDtl.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 162
@@ -315,32 +315,32 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
+     btnFirst-1 AT ROW 22.67 COL 31 HELP
+          "First" WIDGET-ID 274
      dynParamSetDtl.initialItems AT ROW 14.57 COL 20 COLON-ALIGNED WIDGET-ID 152
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 
      dynParamSetDtl.initializeProc AT ROW 15.76 COL 20 COLON-ALIGNED WIDGET-ID 296
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
-          LIST-ITEMS "Item 1" 
-          DROP-DOWN-LIST
-          SIZE 50 BY 1
-     btnFirst-1 AT ROW 22.67 COL 31 HELP
-          "First" WIDGET-ID 274
-     dynParamSetDtl.validateProc AT ROW 16.95 COL 20 COLON-ALIGNED WIDGET-ID 298
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
      btnLast-1 AT ROW 22.67 COL 55 HELP
           "Last" WIDGET-ID 68
-     dynParamSetDtl.descriptionProc AT ROW 18.14 COL 20 COLON-ALIGNED WIDGET-ID 300
-          LABEL "Descript Procedure"
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+     dynParamSetDtl.validateProc AT ROW 16.95 COL 20 COLON-ALIGNED WIDGET-ID 298
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
      btnNext-1 AT ROW 22.67 COL 47 HELP
           "Next" WIDGET-ID 276
+     dynParamSetDtl.descriptionProc AT ROW 18.14 COL 20 COLON-ALIGNED WIDGET-ID 300
+          LABEL "Descript Procedure"
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95

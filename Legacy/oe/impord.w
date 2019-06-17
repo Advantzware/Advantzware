@@ -589,8 +589,20 @@ PROCEDURE BuildImpTable :
                          ttDetail.POLineNum = INTEGER(ENTRY(21,cInput)) NO-ERROR.
         END.
    END.
+
    INPUT CLOSE.
    /* end of import */
+   
+   FIND FIRST ttDetail NO-LOCK 
+      WHERE ttDetail.Order# EQ iOrder#
+      NO-ERROR.
+   IF AVAILABLE ttDetail THEN 
+      FIND FIRST ttHeader 
+          WHERE ttHeader.order# EQ iOrder#
+          NO-ERROR.
+   IF AVAILABLE ttHeader THEN 
+       ttHeader.shipTo = ttDetail.ShipTo.
+     
  END. /* ipfilename not blank 05291402 */
 
  /* validate customer and item */
@@ -940,6 +952,8 @@ PROCEDURE CreateOrder :
           run oe/ordlup.p.         /* Update Inventory and Job Costing */
       END.
       */
+      
+/*   Insert?   RUN ProcessImportedOrder IN hOrderProcs (ROWID(oe-ord), OUTPUT lError, OUTPUT cMessage).*/
   END.
 END PROCEDURE.
 

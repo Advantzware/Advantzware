@@ -414,7 +414,7 @@ PROCEDURE local-open-query :
   IF NOT AVAIL ITEM THEN RETURN .
   /* Code placed here will execute AFTER standard behavior.    */
   ll-first-rec = no.
-  if not avail e-item then do:
+  if not avail e-item then DO TRANSACTION:
      ll-first-rec = yes.
      create e-item.
      assign e-item.company = item.company
@@ -435,7 +435,7 @@ PROCEDURE local-open-query :
      NOT(ITEM.mat-type = "B" AND
          CAN-FIND(FIRST item-bom where
                         item-bom.company = bf-eitem.company and
-                        item-bom.parent-i = bf-eitem.i-no)) THEN DO:
+                        item-bom.parent-i = bf-eitem.i-no)) THEN DO TRANSACTION:
      
     ll-first-rec = YES.
     CREATE e-item-vend.
@@ -445,13 +445,7 @@ PROCEDURE local-open-query :
      e-item-vend.vend-no   = "".
   END.
 
-  FIND bf-item WHERE ROWID(bf-item) = ROWID(item).
-
   lv-prev-i-no = item.i-no.
-  
-  if e-item-vend.setup = 0 and item.min-sqft <> 0 then 
-     assign e-item-vend.setup = item.min-sqft
-            bf-item.min-sqft = 0.
   
   if ll-first-rec then run dispatch ('open-query').
 

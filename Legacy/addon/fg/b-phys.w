@@ -43,6 +43,7 @@ DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
+DEFINE BUFFER bf-po-ordl FOR po-ordl .
 
 &SCOPED-DEFINE item-key-phrase TRUE
 DEF VAR ll-crt-transfer AS LOG NO-UNDO.
@@ -50,6 +51,9 @@ DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-org-cases AS INT NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+{Inventory/ttInventory.i "NEW SHARED"}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -79,10 +83,11 @@ fg-rctd.loc-bin fg-rctd.cases fg-rctd.qty-case fg-rctd.cases-unit ~
 fg-rctd.partial fg-rctd.t-qty fg-rctd.i-no fg-rctd.i-name fg-rctd.job-no ~
 fg-rctd.job-no2 fg-rctd.rct-date ~
 STRING(fg-rctd.trans-time,'HH:MM') @ trans-time fg-rctd.created-by ~
-fg-rctd.updated-by fg-rctd.r-no fg-rctd.po-no 
+fg-rctd.updated-by fg-rctd.r-no fg-rctd.po-no fg-rctd.po-line 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rctd.tag ~
 fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases fg-rctd.qty-case ~
-fg-rctd.cases-unit fg-rctd.partial fg-rctd.rct-date fg-rctd.po-no 
+fg-rctd.cases-unit fg-rctd.partial fg-rctd.rct-date fg-rctd.po-no ~
+fg-rctd.po-line
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
@@ -184,6 +189,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 15
       fg-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>>":U WIDTH 12
       fg-rctd.po-no FORMAT "x(9)":U
+      fg-rctd.po-line COLUMN-LABEL "Po Ln#" FORMAT ">9":U
   ENABLE
       fg-rctd.tag
       fg-rctd.loc
@@ -194,6 +200,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.partial
       fg-rctd.rct-date
       fg-rctd.po-no
+      fg-rctd.po-line
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 143 BY 12.38
@@ -278,6 +285,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+     fg-rctd.po-line:VISIBLE in browse {&browse-name} = NO .
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -326,6 +335,8 @@ fg-rctd.rita-code = ""C"""
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > asi.fg-rctd.po-no
 "fg-rctd.po-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[19]   > asi.fg-rctd.po-line
+"fg-rctd.po-line" "Po Ln#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -475,6 +486,7 @@ DO:
                     fg-rctd.partial:SCREEN-VALUE = IF AVAIL fg-bin THEN STRING(fg-bin.partial-count)
                                                    ELSE string(loadtag.partial)
                     fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = string(loadtag.po-no)
+                    fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = string(loadtag.LINE)
                     .
               fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
                                 INT(fg-rctd.cases:SCREEN-VALUE) *
@@ -623,12 +635,10 @@ DO:
           ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
                  fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
 
-          FIND FIRST fg-bin WHERE fg-bin.company = g_company 
-                           AND fg-bin.i-no = ""
-                           AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                           AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                           USE-INDEX co-ino NO-LOCK NO-ERROR.
-         IF NOT AVAIL fg-bin THEN DO:
+        RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+            OUTPUT lActiveBin ).
+        IF NOT lActiveBin THEN DO:
             MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO fg-rctd.loc .
             RETURN NO-APPLY.
@@ -839,6 +849,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF fg-rctd.po-no IN BROWSE Browser-Table
+DO:
+    IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        RUN pNewPoLine .
+     END.
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 &UNDEFINE SELF-NAME
 
@@ -850,6 +874,8 @@ END.
 ASSIGN
  cocode = g_company
  locode = g_loc.
+ 
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1268,6 +1294,16 @@ PROCEDURE local-assign-record :
   IF fg-rctd.pur-uom = "" THEN
       fg-rctd.pur-uom = fg-rctd.cost-uom.
 
+  IF fg-rctd.po-no NE "" AND fg-rctd.po-line EQ 0 THEN do:
+      FIND FIRST bf-po-ordl NO-LOCK
+          WHERE bf-po-ordl.company   EQ g_company
+            AND bf-po-ordl.po-no     EQ integer(fg-rctd.po-no) 
+            AND bf-po-ordl.i-no EQ fg-rctd.i-no NO-ERROR .
+      
+      IF AVAIL bf-po-ordl THEN
+          fg-rctd.po-line = bf-po-ordl.LINE .
+  END.
+
   /* 04241305 - take cost from job or PO */
 
   IF fg-rctd.ext-cost EQ ? THEN fg-rctd.ext-cost = 0.
@@ -1400,6 +1436,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
+PROCEDURE local-exit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DELETE OBJECT hInventoryProcs.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
@@ -1945,10 +2006,8 @@ PROCEDURE valid-loc :
   IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
       RETURN.
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST loc
-                    WHERE loc.company EQ cocode
-                      AND loc.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name})
-    THEN DO:
+    RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+    IF NOT lActiveBin THEN DO: 
       MESSAGE "Invalid Warehouse, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
@@ -1969,13 +2028,10 @@ PROCEDURE valid-loc-bin :
   IF {&BROWSE-NAME}:NUM-SELECTED-ROWS   IN FRAME {&FRAME-NAME} = 0 THEN 
       RETURN.
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST fg-bin
-                    WHERE fg-bin.company EQ cocode 
-                      AND fg-bin.i-no    EQ ""
-                      AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                    USE-INDEX co-ino)
-    THEN DO:
+    RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+          OUTPUT lActiveBin ).
+    IF NOT lActiveBin THEN  DO:
       MESSAGE "Invalid Bin#, try help..." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
@@ -2045,7 +2101,8 @@ PROCEDURE valid-tag :
             fg-rctd.rct-date:SCREEN-VALUE = IF fg-rctd.rct-date:SCREEN-VALUE = "" THEN STRING(TODAY) ELSE fg-rctd.rct-date:SCREEN-VALUE  
             fg-rctd.partial:SCREEN-VALUE = IF AVAIL fg-bin THEN STRING(fg-bin.partial-count)
                                            ELSE string(loadtag.partial)     
-            fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no).
+            fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no)
+            fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = string(loadtag.LINE) .     
 
      fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
                                 INT(fg-rctd.cases:SCREEN-VALUE) *
@@ -2116,21 +2173,17 @@ PROCEDURE validate-record :
      END.
   END.
   
-  FIND FIRST loc WHERE loc.company = cocode
-                        AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                        NO-LOCK NO-ERROR.
-       IF NOT AVAIL loc THEN DO:
+  RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
+  IF NOT lActiveBin THEN  DO:
           MESSAGE "Invalid Warehouse. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
   
-  FIND FIRST fg-bin WHERE fg-bin.company = cocode 
-                      AND fg-bin.i-no = ""
-                      AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND fg-bin.loc-bin = fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
-                      USE-INDEX co-ino NO-LOCK NO-ERROR.
-  IF NOT AVAIL fg-bin THEN DO:
+  RUN ValidateBin IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}, 
+        OUTPUT lActiveBin ).
+  IF NOT lActiveBin THEN DO:
           MESSAGE "Invalid Bin#. Try Help. " VIEW-AS ALERT-BOX ERROR.
           APPLY "entry" TO fg-rctd.loc-bin.
           RETURN ERROR.
@@ -2233,7 +2286,30 @@ PROCEDURE validTagForItem:
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNewPoLine B-table-Win
+PROCEDURE pNewPoLine:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST bf-po-ordl NO-LOCK
+            WHERE bf-po-ordl.company   EQ g_company
+              AND bf-po-ordl.po-no     EQ integer(fg-rctd.po-no:SCREEN-VALUE  IN BROWSE {&browse-name}) 
+              AND bf-po-ordl.i-no EQ fg-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name} NO-ERROR .
+        IF AVAIL bf-po-ordl THEN
+            ASSIGN fg-rctd.po-line:SCREEN-VALUE  IN BROWSE {&browse-name} = STRING(bf-po-ordl.LINE) . 
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 
 /* ************************  Function Implementations ***************** */

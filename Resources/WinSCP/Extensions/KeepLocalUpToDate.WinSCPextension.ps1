@@ -1,7 +1,7 @@
 # @name         &Keep Local Directory up to Date...
 # @command      powershell.exe -ExecutionPolicy Bypass -File "%EXTENSION_PATH%" -sessionUrl "!S" -localPath "%LocalPath%" -remotePath "%RemotePath%" %Delete% %Beep% %ContinueOnError% -interval "%Interval%" -pause -sessionLogPath "%SessionLogPath%"
 # @description  Periodically scans for changes in a remote directory and reflects them on a local directory
-# @version      3
+# @version      4
 # @homepage     https://winscp.net/eng/docs/library_example_keep_local_directory_up_to_date
 # @require      WinSCP 5.9.2
 # @option       - -run group "Directories"
@@ -10,14 +10,14 @@
 # @option       - -config -run group "Options"
 # @option         Delete -config -run checkbox "&Delete files" "" -delete 
 # @option         Beep -config -run checkbox "&Beep on change" "" -beep
-# @option         ContinueOnError -config -run checkbox "&Continue on &error" "" -continueOnError
+# @option         ContinueOnError -config -run checkbox "Continue on &error" "" -continueOnError
 # @option         Interval -config -run textbox "&Interval (in seconds):" "30"
 # @option       - -config group "Logging"
 # @option         SessionLogPath -config sessionlogfile
 # @optionspage  https://winscp.net/eng/docs/library_example_keep_local_directory_up_to_date#options
 
 param (
-    # Use Generate URL function to obtain a value for -sessionUrl parameter.
+    # Use Generate Session URL function to obtain a value for -sessionUrl parameter.
     $sessionUrl = "sftp://user:mypassword;fingerprint=ssh-rsa-xx-xx-xx@example.com/",
     [Parameter(Mandatory = $True)]
     $localPath,
@@ -64,7 +64,9 @@ try
         while ($True)
         {
             Write-Host "Synchronizing changes..."
-            $result = $session.SynchronizeDirectories([WinSCP.SynchronizationMode]::Local, $localPath, $remotePath, $delete)
+            $result =
+                $session.SynchronizeDirectories(
+                    [WinSCP.SynchronizationMode]::Local, $localPath, $remotePath, $delete)
 
             $changed = $False
 
@@ -72,7 +74,7 @@ try
             {
               if ($continueOnError)
               {
-                Write-Host ("Error: {0}" -f $result.Failures[0].Message)
+                Write-Host "Error: $($result.Failures[0].Message)"
                 $changed = $True
               }
               else
@@ -84,7 +86,7 @@ try
             # Print updated files
             foreach ($download in $result.Downloads)
             {
-                Write-Host ("{0} <= {1}" -f $download.Destination, $download.FileName)
+                Write-Host "$($download.Destination) <= $($download.FileName)"
                 $changed = $True
             }
 
@@ -95,7 +97,9 @@ try
 
                 if ($localFiles)
                 {
-                    $changes = Compare-Object -DifferenceObject $localFiles2 -ReferenceObject $localFiles
+                    $changes =
+                        Compare-Object -DifferenceObject $localFiles2 `
+                            -ReferenceObject $localFiles
                 
                     $removedFiles =
                         $changes |
@@ -105,7 +109,7 @@ try
                     # Print removed local files
                     foreach ($removedFile in $removedFiles)
                     {
-                        Write-Host ("{0} deleted" -f $removedFile)
+                        Write-Host "$removedFile deleted"
                         $changed = $True
                     }
                 }
@@ -144,9 +148,9 @@ try
         $session.Dispose()
     }
 }
-catch [Exception]
+catch
 {
-    Write-Host ("Error: {0}" -f $_.Exception.Message)
+    Write-Host "Error: $($_.Exception.Message)"
 }
 
 # Pause if -pause switch was used

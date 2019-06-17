@@ -81,7 +81,7 @@ form skip(1)
 find first company where company.company = cocode no-lock no-error.
 find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
 
-if oe-ctrl.prcom then
+
   assign
    v-c-name    = company.name
    v-c-addr[1] = company.addr[1]
@@ -89,15 +89,6 @@ if oe-ctrl.prcom then
    v-c-city    = company.city
    v-c-state   = company.state
    v-c-zip     = company.zip.
-else
-  assign
-   v-invhead   = ""
-   v-c-name    = ""
-   v-c-addr[1] = ""
-   v-c-addr[2] = ""
-   v-c-city    = ""
-   v-c-state   = ""
-   v-c-zip     = "".
 
 FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 

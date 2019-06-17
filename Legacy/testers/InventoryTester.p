@@ -59,7 +59,7 @@ RUN CreatePreLoadtagsFromInputsWIP IN hdInventoryProcs (ROWID(job-mch), ROWID(jo
 /*UI Code to manipulate the ttInventoryStockPreLoadtag table here*/
 RUN CreateInventoryLoadtagsFromPreLoadtags IN hdInventoryProcs.
 
-EMPTY TEMP-TABLE InventoryStock.
+/*EMPTY TEMP-TABLE InventoryStock.*/
 FOR EACH ttInventoryStockLoadtag:
     ASSIGN 
         lCreated = NO

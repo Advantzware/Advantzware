@@ -5,6 +5,10 @@
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
+/* **********************  Internal Functions  ************************ */
+
+/* **********************  Internal Procedures  *********************** */
+
 PROCEDURE dynInitCompany:
     RETURN cCompany.
 END PROCEDURE.

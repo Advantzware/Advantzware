@@ -1416,7 +1416,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-frst-i-no       AS LOGICAL   INITIAL NO NO-UNDO.
 
     DEFINE VARIABLE iMadeQty          LIKE fg-bin.qty NO-UNDO.
-    DEFINE VARIABLE iBalQty           LIKE fg-act.qty NO-UNDO.
+    DEFINE VARIABLE iBalQty           LIKE fg-bin.qty NO-UNDO.
     DEFINE VARIABLE cPricePer         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dvalue            AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dBackLogvalue     AS DECIMAL   NO-UNDO.

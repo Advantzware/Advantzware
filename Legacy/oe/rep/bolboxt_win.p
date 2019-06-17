@@ -97,7 +97,7 @@ for each report   where report.term-id eq v-term-id,
       
     v-tot-cwt = v-tot-wgt / (v-tot-cwt / 100).
 
-    if oe-ctrl.pr-broker and avail cust and shipto.broker then
+    if avail cust and shipto.broker then
       v-coname = cust.name.
     else do:
       find first company where company.company eq cocode no-lock no-error.

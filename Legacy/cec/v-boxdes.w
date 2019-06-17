@@ -470,6 +470,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL box-design-hdr.wscore V-table-Win
+ON LEAVE OF box-design-hdr.wscore IN FRAME F-Main /* Design # */
+DO:
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-wscore NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -929,6 +941,8 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   box-design-hdr.company = g_company.
+  box-design-hdr.lscore  = "[01]" .
+  box-design-hdr.wscore  = "[01]" . 
   find last xbox-design-hdr  where xbox-design-hdr.design-no gt 0
                  use-index design no-lock no-error.
   box-design-hdr.design-no = (if avail xbox-design-hdr
@@ -1076,6 +1090,8 @@ PROCEDURE local-update-record :
   def var li-row-num as rowid no-undo.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN valid-wscore NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -1264,4 +1280,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-wscore V-table-Win
+PROCEDURE valid-wscore:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cWscore AS CHARACTER NO-UNDO.
+  
+  cWscore = (box-design-hdr.wscore:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+  
+  {methods/lValidateError.i YES}
+  IF cWscore EQ "" THEN DO:
+     MESSAGE "Sizes should be entered if desired" VIEW-AS ALERT-BOX INFO.
+     RETURN ERROR.
+  END.
+  {methods/lValidateError.i NO}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 

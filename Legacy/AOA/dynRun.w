@@ -43,6 +43,7 @@ DEFINE INPUT PARAMETER iplParameters AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE cPoolName    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrgmName    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTitle       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrvBin   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hJasper      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQueryBrowse AS HANDLE    NO-UNDO.
@@ -249,11 +250,11 @@ DEFINE FRAME outputFrame
      btnCSV AT ROW 1.48 COL 103 HELP
           "Excel CSV" WIDGET-ID 140
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnHTML AT ROW 1.48 COL 135 HELP
           "HTML" WIDGET-ID 144
      btnView AT ROW 1.48 COL 151 HELP
           "Jasper Viewer" WIDGET-ID 148
-     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnAddEmail AT ROW 2.19 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
      btnPrint AT ROW 1.48 COL 143 HELP
@@ -458,7 +459,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCloseResults C-Win
 ON CHOOSE OF btnCloseResults IN FRAME resultsFrame /* Close Results */
 DO:
+    IF iplParameters THEN
     FRAME resultsFrame:HIDDEN = YES.
+    ELSE
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -698,6 +702,9 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  RUN spGetLookupTitle (OUTPUT cTitle).
+  IF cTitle NE ? THEN
+  {&WINDOW-NAME}:TITLE = cTitle.
   RUN pGetSettings.
   RUN enable_UI.
   RUN pCreateDynParameters (FRAME paramFrame:HANDLE, YES).
@@ -749,7 +756,7 @@ PROCEDURE enable_UI :
       WITH FRAME outputFrame IN WINDOW C-Win.
   ENABLE btnRunResults svRecipients svSetAlignment svShowAll svShowReportHeader 
          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         btnCSV svShowGroupFooter btnHTML btnView svShowParameters btnAddEmail 
+         btnCSV svShowGroupFooter svShowParameters btnHTML btnView btnAddEmail 
          btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}

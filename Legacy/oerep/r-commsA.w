@@ -976,10 +976,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         NO-LOCK NO-ERROR.
     v-year = IF AVAIL period THEN period.yr ELSE YEAR(TODAY).
 
-    IF AVAIL oe-ctrl AND NOT oe-ctrl.prep-comm THEN
-      ASSIGN
-       tb_prep:SCREEN-VALUE = "NO"
-       tb_prep:SENSITIVE    = NO.
   END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

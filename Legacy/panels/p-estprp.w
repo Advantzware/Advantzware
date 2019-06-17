@@ -43,6 +43,9 @@ DEFINE TEMP-TABLE tt-est-prep NO-UNDO LIKE est-prep.
 DEFINE VARIABLE llOEPrcChg-sec AS LOG       NO-UNDO.
 DEFINE VARIABLE v-access-close AS LOG       NO-UNDO.
 DEFINE VARIABLE v-access-list  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPostSec AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 
 RUN methods/prgsecur.p
     (INPUT "p-estprp.",
@@ -53,6 +56,17 @@ RUN methods/prgsecur.p
     OUTPUT llOEPrcChg-sec, /* Allowed? Yes/NO */
     OUTPUT v-access-close, /* used in template/windows.i  */
     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+/* Check if authorized to jobstd button */
+RUN methods/prgsecur.p
+    (INPUT "JobStdsButton.",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lPostSec, /* Allowed? Yes/NO */
+     OUTPUT lAccessClose, /* used in template/windows.i  */
+     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -668,9 +682,12 @@ PROCEDURE local-row-available :
                 btn-copy:SENSITIVE = NO.
 
         IF NOT l-can-update THEN ASSIGN Btn-Save:SENSITIVE = NO
-                btn-stds:SENSITIVE = NO.
+                /*btn-stds:SENSITIVE = NO*/ .
                                    
         IF NOT l-can-delete THEN Btn-Delete:SENSITIVE = NO.
+        
+        IF NOT lPostSec THEN 
+            btn-stds:SENSITIVE = NO.
     END.
 
 END PROCEDURE.

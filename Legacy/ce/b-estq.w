@@ -492,6 +492,7 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      vi_est-no AT ROW 1.95 COL 2 NO-LABEL
      begin_cust-no AT ROW 1.95 COL 15 COLON-ALIGNED NO-LABEL
+     begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABEL
      vi_part-no AT ROW 1.95 COL 29 COLON-ALIGNED NO-LABEL
      vi_stock-no AT ROW 1.95 COL 49 COLON-ALIGNED NO-LABEL
      vi_style AT ROW 1.95 COL 71 COLON-ALIGNED NO-LABEL
@@ -502,7 +503,6 @@ DEFINE FRAME F-Main
      vi_wid AT ROW 2.91 COL 86 COLON-ALIGNED NO-LABEL
      vi_wid-2 AT ROW 2.91 COL 103 COLON-ALIGNED NO-LABEL
      vi_cad-no AT ROW 2.91 COL 116 COLON-ALIGNED NO-LABEL
-     begin_ship AT ROW 3 COL 15 COLON-ALIGNED NO-LABEL
      vi_part-dscr1 AT ROW 3.14 COL 49 COLON-ALIGNED NO-LABEL
      vi_dep AT ROW 3.86 COL 86 COLON-ALIGNED NO-LABEL
      vi_dep-2 AT ROW 3.86 COL 103 COLON-ALIGNED NO-LABEL
@@ -737,6 +737,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
+ON VALUE-CHANGED OF begin_cust-no IN FRAME F-Main
+DO:
+  
+  {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
+     begin_ship:SENSITIVE = YES.
+  END.
+  ELSE begin_ship:SENSITIVE = NO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON LEAVE OF begin_cust-no IN FRAME F-Main
@@ -748,8 +761,6 @@ DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   IF {&self-name}:SCREEN-VALUE <> "" THEN DO:
      begin_ship:SENSITIVE = YES.
-     APPLY "entry" TO begin_ship.
-     RETURN NO-APPLY.
   END.
   ELSE begin_ship:SENSITIVE = NO.
 END.

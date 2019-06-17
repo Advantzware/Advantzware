@@ -23,13 +23,11 @@ def TEMP-TABLE w-bin
    field w-par /*AS CHAR*/  like oe-ordl.part-dscr1
    field w-x   as   log
    FIELD w-i-no AS cha
-   FIELD w-po-no AS cha 
-   FIELD tag-date AS DATE  .
+   FIELD w-po-no AS cha.
 
 def buffer b-cust  for cust.
 def buffer b-ship  for shipto.
 def buffer b-w-bin for w-bin.
-
 
 DEF VAR v-cust-part AS CHAR FORMAT "x(20)" .
 
@@ -331,17 +329,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                      (if fg-bin.units-pallet eq 0 then 1 else fg-bin.units-pallet)
              w-pal = w-qty[1] / w-pal.
 
-          FIND FIRST loadtag NO-LOCK
-              WHERE loadtag.company EQ cocode 
-                AND loadtag.tag-no EQ fg-bin.tag NO-ERROR .
-          IF AVAIL loadtag THEN
-                w-bin.tag-date = loadtag.tag-date .
-
-
             {sys/inc/roundup.i w-pal}
           end.
-            
-          for each w-bin BREAK BY w-bin.w-x DESC BY w-bin.tag-date by w-loc by w-bin:
+          
+          for each w-bin break by w-loc by w-bin:
             v-qty = v-qty + w-qty[1].
             
             if last-of(w-bin) then do:
@@ -354,14 +345,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               v-qty = 0.
             end.
           end.
-
-          j = 0 . 
-          for each b-w-bin BREAK BY b-w-bin.w-x DESC BY b-w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
-                IF NOT b-w-bin.w-x THEN
-                    j = j + 1 .
-                IF j GT 5 THEN
-                    DELETE b-w-bin .
-          END.
           
           if i eq 0 then do:
             find first b-cust
@@ -387,7 +370,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             create w-bin.
           end.
            
-          for each w-bin where w-par eq "" BY w-bin.w-x DESC BY w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
               if w-oe-rell.seq eq 0 THEN
                     w-par = "<B>" + oe-ordl.part-no   .
                
@@ -395,7 +378,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             leave.
           end.  
         
-          for each w-bin where w-par eq "" BY w-bin.w-x DESC BY w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
             w-par = if w-oe-rell.seq eq 0 THEN  oe-ordl.i-no 
                                           ELSE  itemfg.i-no.
             leave.
@@ -412,7 +395,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             leave.
           end.*/
          
-          for each w-bin where w-par eq "" BY w-bin.w-x DESC BY w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
             if w-oe-rell.po-no ne "" then w-par = "PO#:" + w-oe-rell.po-no.
             leave.
           end.
@@ -436,12 +419,12 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           end.*/
 
           j = 6.
-          for each w-bin BREAK BY w-bin.w-x DESC BY w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin break by w-qty[2] desc by w-qty[1] desc:
             if w-par eq "" and w-loc eq "" and w-bin eq "" then delete w-bin.
             else j = j + 1.
           end.
 
-          for each w-bin BREAK BY w-bin.w-x DESC BY w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin break by w-qty[2] desc by w-qty[1] desc:
             if last(w-qty[2]) and (w-loc ne "" or w-bin ne "") then j = j + 1. 
           end.
           
@@ -455,7 +438,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             end.
           end.
           
-          for each w-bin BREAK BY w-bin.w-x DESC BY w-bin.tag-date by w-qty[2] desc by w-qty[1] desc:
+          for each w-bin break by w-qty[2] desc by w-qty[1] desc:
             assign
              w-cas = w-qty[1] / w-c-c
              v-bin =  trim(substr(w-tag,16,5)) + "/" +

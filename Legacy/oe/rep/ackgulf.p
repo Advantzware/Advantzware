@@ -383,11 +383,9 @@ DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
           end.
         end. /* 1 to 4 */
       end.
-
-      if oe-ctrl.p-ack then do:
+      
         put "Total Order Value:" to 65 v-totord skip.
-        v-printline = v-printline + 1.
-      end.
+        v-printline = v-printline + 1.     
         
       put skip(pagebreak - v-printline - 1)
           space(32)

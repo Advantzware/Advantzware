@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 
 {custom/gcompany.i}
 {custom/getcmpny.i}
+{sys/ref/sys-ctrl.i}
 
 DEF VAR giCurrOrd AS INT NO-UNDO.
 
@@ -60,25 +61,44 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME oe-ctrl
+&Scoped-define BROWSE-NAME brHoldTests
+
+/* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES sys-ctrl
+
+/* Definitions for BROWSE brHoldTests                                   */
+&Scoped-define FIELDS-IN-QUERY-brHoldTests sys-ctrl.name sys-ctrl.descrip ~
+sys-ctrl.log-fld sys-ctrl.char-fld 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-brHoldTests sys-ctrl.log-fld ~
+sys-ctrl.char-fld 
+&Scoped-define ENABLED-TABLES-IN-QUERY-brHoldTests sys-ctrl
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-brHoldTests sys-ctrl
+&Scoped-define QUERY-STRING-brHoldTests FOR EACH sys-ctrl ~
+      WHERE sys-ctrl.module = "VAL" NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-brHoldTests OPEN QUERY brHoldTests FOR EACH sys-ctrl ~
+      WHERE sys-ctrl.module = "VAL" NO-LOCK INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-brHoldTests sys-ctrl
+&Scoped-define FIRST-TABLE-IN-QUERY-brHoldTests sys-ctrl
+
+
+/* Definitions for FRAME oe-ctrl                                        */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-oe-ctrl ~
+    ~{&OPEN-QUERY-brHoldTests}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close RECT-15 RECT-17 ~
-RECT-18 RECT-19 
-&Scoped-Define DISPLAYED-FIELDS oe-ctrl.i-code ar-ctrl.last-inv ~
-oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-comm ~
-oe-ctrl.prep-chrg oe-ctrl.ship-from oe-ctrl.p-fact oe-ctrl.p-bol ~
-oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker 
-&Scoped-define DISPLAYED-TABLES oe-ctrl ar-ctrl
-&Scoped-define FIRST-DISPLAYED-TABLE oe-ctrl
-&Scoped-define SECOND-DISPLAYED-TABLE ar-ctrl
-&Scoped-Define DISPLAYED-OBJECTS tgCreateSSBol n-ord fNextRFIDNum 
+&Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close 
+&Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv oe-ctrl.n-bol ~
+oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep 
+&Scoped-define DISPLAYED-TABLES ar-ctrl oe-ctrl
+&Scoped-define FIRST-DISPLAYED-TABLE ar-ctrl
+&Scoped-define SECOND-DISPLAYED-TABLE oe-ctrl
+&Scoped-Define DISPLAYED-OBJECTS fiOptions tgCreateSSBol n-ord fNextRFIDNum ~
+fiHoldTests 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 tgCreateSSBol oe-ctrl.i-code n-ord oe-ctrl.n-bol ~
-oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-comm oe-ctrl.prep-chrg ~
-oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep ~
-oe-ctrl.pr-broker fNextRFIDNum 
+&Scoped-define List-1 tgCreateSSBol n-ord oe-ctrl.n-bol oe-ctrl.p-fact ~
+oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep fNextRFIDNum 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -99,6 +119,16 @@ DEFINE BUTTON Btn_Update
      LABEL "&Update" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE fiHoldTests AS CHARACTER FORMAT "X(256)":U INITIAL "Order Hold Tests:" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1
+     FGCOLOR 9 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fiOptions AS CHARACTER FORMAT "X(256)":U INITIAL "Options:" 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1
+     FGCOLOR 9 FONT 6 NO-UNDO.
+
 DEFINE VARIABLE fNextRFIDNum AS CHARACTER FORMAT "x(24)" 
      LABEL "Next RFID Tag Number" 
      VIEW-AS FILL-IN 
@@ -110,121 +140,83 @@ DEFINE VARIABLE n-ord LIKE oe-ctrl.n-ord
      SIZE 10.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 33 BY 1.67.
-
-DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 46 BY 12.38.
-
-DEFINE RECTANGLE RECT-18
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 5.24.
-
-DEFINE RECTANGLE RECT-19
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 57 BY 5.48.
-
 DEFINE VARIABLE tgCreateSSBol AS LOGICAL INITIAL no 
      LABEL "Allow Creating of BOL in Sharp Shooter" 
      VIEW-AS TOGGLE-BOX
      SIZE 45 BY .81 NO-UNDO.
 
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY brHoldTests FOR 
+      sys-ctrl SCROLLING.
+&ANALYZE-RESUME
+
+/* Browse definitions                                                   */
+DEFINE BROWSE brHoldTests
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brHoldTests C-Win _STRUCTURED
+  QUERY brHoldTests NO-LOCK DISPLAY
+      sys-ctrl.name FORMAT "x(16)":U WIDTH 16.2
+      sys-ctrl.descrip FORMAT "x(40)":U WIDTH 45.2
+      sys-ctrl.log-fld COLUMN-LABEL "Req'd" FORMAT "yes/no":U WIDTH 7.2
+            VIEW-AS TOGGLE-BOX
+      sys-ctrl.char-fld COLUMN-LABEL "Action" FORMAT "x(8)":U WIDTH 12.4
+            VIEW-AS COMBO-BOX INNER-LINES 5
+                      LIST-ITEMS "HOLD" 
+                      DROP-DOWN-LIST 
+  ENABLE
+      sys-ctrl.log-fld
+      sys-ctrl.char-fld
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 88 BY 10.71 ROW-HEIGHT-CHARS .81 FIT-LAST-COLUMN.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME oe-ctrl
-     tgCreateSSBol AT ROW 11.52 COL 55 WIDGET-ID 8
-     oe-ctrl.i-code AT ROW 17.33 COL 27 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Stock", yes,
-"Custom", no
-          SIZE 22 BY .81
-     ar-ctrl.last-inv AT ROW 1.24 COL 35 COLON-ALIGNED
+     brHoldTests AT ROW 14.1 COL 5
+     fiOptions AT ROW 6.24 COL 3 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     tgCreateSSBol AT ROW 10.43 COL 13 WIDGET-ID 8
+     ar-ctrl.last-inv AT ROW 1.24 COL 31 COLON-ALIGNED
           LABEL "Last Invoice Number"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 7 FGCOLOR 15 
-     n-ord AT ROW 2.43 COL 35 COLON-ALIGNED HELP
+     n-ord AT ROW 2.43 COL 31 COLON-ALIGNED HELP
           "Enter order number to be used for next order"
           LABEL "Next Order Number"
           BGCOLOR 15 
-     oe-ctrl.n-bol AT ROW 3.62 COL 35 COLON-ALIGNED
+     oe-ctrl.n-bol AT ROW 3.62 COL 31 COLON-ALIGNED
           LABEL "Next Bill of Lading Number"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.prcom AT ROW 8.5 COL 7
-          LABEL "Print Company Name on Invoices"
-          VIEW-AS TOGGLE-BOX
-          SIZE 36 BY .81
-     oe-ctrl.f-tax AT ROW 9.5 COL 7
-          LABEL "Charge Tax on Freight"
-          VIEW-AS TOGGLE-BOX
-          SIZE 25 BY .81
-     oe-ctrl.prep-comm AT ROW 10.5 COL 7
-          LABEL "Pay Commissions on Prep Charges"
-          VIEW-AS TOGGLE-BOX
-          SIZE 39 BY .81
-     oe-ctrl.prep-chrg AT ROW 11.5 COL 7
-          LABEL "Charge Tax on Prep Charges"
-          VIEW-AS TOGGLE-BOX
-          SIZE 37 BY .81
-     oe-ctrl.ship-from AT ROW 15.81 COL 37 COLON-ALIGNED
-          LABEL "Ship From"
-          VIEW-AS FILL-IN 
-          SIZE 8.6 BY 1
-          BGCOLOR 15 
-     oe-ctrl.p-fact AT ROW 8.5 COL 55
+     oe-ctrl.p-fact AT ROW 7.43 COL 13
           LABEL "Allow Factory Ticket Printing"
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
-     oe-ctrl.p-bol AT ROW 9.5 COL 55
+     oe-ctrl.p-bol AT ROW 8.43 COL 13
           LABEL "Allow Bill of Lading Printing"
           VIEW-AS TOGGLE-BOX
           SIZE 35 BY .81
-     oe-ctrl.p-pick AT ROW 10.5 COL 55
+     oe-ctrl.p-pick AT ROW 9.43 COL 13
           LABEL "Allow Releases and Release Ticket Printing"
           VIEW-AS TOGGLE-BOX
-          SIZE 37 BY .81
-     oe-ctrl.p-ack AT ROW 15.5 COL 55
-          LABEL "Print Totals on Acknowledgement"
+          SIZE 45 BY .81
+     oe-ctrl.p-sep AT ROW 11.48 COL 13
+          LABEL "Print Separate Invoice per Release"
           VIEW-AS TOGGLE-BOX
-          SIZE 37 BY .81
-     oe-ctrl.p-sep AT ROW 16.5 COL 55
-          LABEL "Print Seperate Invoice per Release"
-          VIEW-AS TOGGLE-BOX
-          SIZE 37 BY .81
-     oe-ctrl.pr-broker AT ROW 17.5 COL 55
-          LABEL "Print Broker on Release / BOL"
-          VIEW-AS TOGGLE-BOX
-          SIZE 33 BY .81
-     Btn_Update AT ROW 21.62 COL 44 HELP
+          SIZE 43 BY .81
+     Btn_Update AT ROW 25.29 COL 54 HELP
           "Update/Save System Configurations"
-     Btn_Close AT ROW 21.62 COL 60 HELP
+     Btn_Close AT ROW 25.29 COL 70 HELP
           "Cancel Update or Close Window"
-     fNextRFIDNum AT ROW 4.76 COL 35 COLON-ALIGNED WIDGET-ID 6
-     "Company Control" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 7.14 COL 7
-          FGCOLOR 9 FONT 6
-     "Default Box Type:" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 17.38 COL 9
-     "Order Credit or Price Hold Control" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 7.19 COL 53
-          FGCOLOR 9 FONT 6
-     "Print Operations" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 14.1 COL 53
-          FGCOLOR 9 FONT 6
-     RECT-15 AT ROW 21.33 COL 43
-     RECT-17 AT ROW 7.86 COL 5
-     RECT-18 AT ROW 7.91 COL 53
-     RECT-19 AT ROW 14.81 COL 53
+     fNextRFIDNum AT ROW 4.76 COL 31 COLON-ALIGNED WIDGET-ID 6
+     fiHoldTests AT ROW 12.91 COL 3 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 120.8 BY 23.38.
+         SIZE 94.2 BY 25.67.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -244,11 +236,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Order Processing Control"
-         HEIGHT             = 23.38
-         WIDTH              = 120.8
-         MAX-HEIGHT         = 23.38
+         HEIGHT             = 25.91
+         WIDTH              = 94.8
+         MAX-HEIGHT         = 25.91
          MAX-WIDTH          = 120.8
-         VIRTUAL-HEIGHT     = 23.38
+         VIRTUAL-HEIGHT     = 25.91
          VIRTUAL-WIDTH      = 120.8
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -278,6 +270,9 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME oe-ctrl
    FRAME-NAME Custom                                                    */
+/* BROWSE-TAB brHoldTests 1 oe-ctrl */
+/* SETTINGS FOR BROWSE brHoldTests IN FRAME oe-ctrl
+   NO-ENABLE                                                            */
 ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME oe-ctrl     = 
                 "ribbon-button".
@@ -286,11 +281,11 @@ ASSIGN
        Btn_Update:PRIVATE-DATA IN FRAME oe-ctrl     = 
                 "ribbon-button".
 
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.f-tax IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN fiHoldTests IN FRAME oe-ctrl
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiOptions IN FRAME oe-ctrl
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fNextRFIDNum IN FRAME oe-ctrl
-   NO-ENABLE 1                                                          */
-/* SETTINGS FOR RADIO-SET oe-ctrl.i-code IN FRAME oe-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ar-ctrl.last-inv IN FRAME oe-ctrl
    NO-ENABLE EXP-LABEL                                                  */
@@ -298,8 +293,6 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN n-ord IN FRAME oe-ctrl
    1 LIKE = asi.oe-ctrl. EXP-LABEL EXP-SIZE                             */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-ack IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-bol IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-fact IN FRAME oe-ctrl
@@ -308,16 +301,6 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-sep IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.pr-broker IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.prcom IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-chrg IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-comm IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.ship-from IN FRAME oe-ctrl
-   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR TOGGLE-BOX tgCreateSSBol IN FRAME oe-ctrl
    NO-ENABLE 1                                                          */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -328,6 +311,23 @@ THEN C-Win:HIDDEN = no.
 
 
 /* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE brHoldTests
+/* Query rebuild information for BROWSE brHoldTests
+     _TblList          = "asi.sys-ctrl"
+     _Options          = "NO-LOCK INDEXED-REPOSITION"
+     _Where[1]         = "asi.sys-ctrl.module = ""VAL"""
+     _FldNameList[1]   > asi.sys-ctrl.name
+"name" ? "x(16)" "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > asi.sys-ctrl.descrip
+"descrip" ? ? "character" ? ? ? ? ? ? no ? no no "45.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > asi.sys-ctrl.log-fld
+"log-fld" "Req'd" ? "logical" ? ? ? ? ? ? yes ? no no "7.2" yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[4]   > asi.sys-ctrl.char-fld
+"char-fld" "Action" ? "character" ? ? ? ? ? ? yes ? no no "12.4" yes no no "U" "" "" "DROP-DOWN-LIST" "," "HOLD" ? 5 no 0 no no
+     _Query            is OPENED
+*/  /* BROWSE brHoldTests */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME oe-ctrl
 /* Query rebuild information for FRAME oe-ctrl
@@ -362,6 +362,25 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME brHoldTests
+&Scoped-define SELF-NAME brHoldTests
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brHoldTests C-Win
+ON ROW-ENTRY OF brHoldTests IN FRAME oe-ctrl
+DO:
+    DEF VAR cTestName AS CHAR NO-UNDO.
+    DEF VAR iTestPos AS INT NO-UNDO.
+    
+    ASSIGN
+        cTestName = sys-ctrl.name:SCREEN-VALUE IN BROWSE brHoldTests
+        iTestPos = LOOKUP(cTestName,name-fld-list) 
+        sys-ctrl.char-fld:LIST-ITEMS = str-init[iTestPos].
+        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -403,6 +422,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     tgCreateSSBol:SCREEN-VALUE = (IF oe-ctrl.spare-int-1 EQ 1 THEN "YES" ELSE "NO").
     ENABLE {&LIST-1}.
+    ENABLE brHoldTests WITH FRAME {&frame-name}.
     RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "order_seq", OUTPUT giCurrOrd) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
       MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
@@ -448,6 +468,7 @@ DO:
     oe-ctrl.u-inv = YES .  /* task 24948 */
     DISABLE {&LIST-1}.
     DISABLE tgCreateSSBol.
+    DISABLE brHoldTests WITH FRAME {&frame-name}.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Update"
       Btn_Close:LABEL = "&Close".
@@ -585,18 +606,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tgCreateSSBol n-ord fNextRFIDNum 
+  DISPLAY fiOptions tgCreateSSBol n-ord fNextRFIDNum fiHoldTests 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   IF AVAILABLE ar-ctrl THEN 
     DISPLAY ar-ctrl.last-inv 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   IF AVAILABLE oe-ctrl THEN 
-    DISPLAY oe-ctrl.i-code oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax 
-          oe-ctrl.prep-comm oe-ctrl.prep-chrg oe-ctrl.ship-from oe-ctrl.p-fact 
-          oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep 
-          oe-ctrl.pr-broker 
+    DISPLAY oe-ctrl.n-bol oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick 
+          oe-ctrl.p-sep 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
-  ENABLE n-ord Btn_Update Btn_Close RECT-15 RECT-17 RECT-18 RECT-19 
+  ENABLE n-ord Btn_Update Btn_Close 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-oe-ctrl}
   VIEW C-Win.

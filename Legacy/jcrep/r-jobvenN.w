@@ -1545,15 +1545,12 @@ display "" with frame r-top.
 
       v-fg-qty = 0.
 
-      for each fg-act
-          where fg-act.company eq cocode
-            and fg-act.job     eq job-hdr.job
-            and fg-act.job-no  eq job-hdr.job-no
-            and fg-act.job-no2 eq job-hdr.job-no2
-            and fg-act.i-no    eq job-hdr.i-no
-          no-lock:
-        v-fg-qty = v-fg-qty + fg-act.qty.
-      end.
+      RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT v-fg-qty).
 
       {sys/inc/roundup.i v-fg-qty}
 

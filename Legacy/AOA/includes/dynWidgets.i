@@ -130,8 +130,8 @@ PROCEDURE pCreateDynParameters :
     DEFINE VARIABLE cParamName  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamLabel AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dCol        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dRow        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCol        AS DECIMAL   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE dRow        AS DECIMAL   NO-UNDO INITIAL 1.
     DEFINE VARIABLE dSetCol     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dSetRow     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE hCalendar   AS HANDLE    NO-UNDO.
@@ -171,7 +171,8 @@ PROCEDURE pCreateDynParameters :
         WHERE dynParamSetDtl.paramSetID EQ dynParamSet.paramSetID,
         FIRST dynParam NO-LOCK
         WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-        BREAK BY {1}SubjectParamSet.paramSetID
+        BREAK BY {1}SubjectParamSet.sortOrder
+              BY {1}SubjectParamSet.paramSetID
         :
         IF FIRST-OF({1}SubjectParamSet.paramSetID) THEN DO:
             ASSIGN
@@ -207,9 +208,14 @@ PROCEDURE pCreateDynParameters :
                           ELSE dynParam.paramName
             cParamLabel = dynParamSetDtl.paramLabel
             cParamValue = dynParamSetDtl.initialValue
-            dCol        = dynParamSetDtl.paramCol + dSetCol - 1
-            dRow        = dynParamSetDtl.paramRow + dSetRow - 1
             .
+        CASE svSetAlignment:
+            WHEN "Custom" THEN
+            ASSIGN
+                dCol = dynParamSetDtl.paramCol + dSetCol - 1
+                dRow = dynParamSetDtl.paramRow + dSetRow - 1
+                .
+        END CASE.
         /* set screen-value for parameters from dynparamvalue */
         IF iplLive AND lSensitive THEN
         DO pdx = 1 TO EXTENT(dynParamValue.paramName):

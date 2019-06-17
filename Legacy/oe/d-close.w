@@ -485,7 +485,7 @@ PROCEDURE load-list :
       BY oe-ordl.LINE:
           
      /* To avoid error when string is more than 32000 bytes */
-     IF LENGTH(v-list) LT 3000 THEN 
+     IF LENGTH(v-list) LT 5000 THEN 
        v-list = v-list +
                 TRIM(STRING(oe-ordl.ord-no,">>>>>>>>")) +
                   FILL(" ",8 - LENGTH(TRIM(STRING(oe-ordl.ord-no,">>>>>>>>")))) + "  " +

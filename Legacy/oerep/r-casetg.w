@@ -1439,11 +1439,13 @@ IF scr-auto-print THEN DO:
                              OUTPUT lUserSpecific).
 
     IF lUserSpecific THEN 
-        RUN custom/lmprint.p (INPUT scr-label-file, 
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file, 
                               INPUT cDB,
                               INPUT cBarDir).
     ELSE
-        RUN custom/lmprint.p (INPUT scr-label-file,
+        RUN custom/lmprint.p (INPUT cocode,
+                              INPUT scr-label-file,
                               INPUT "",
                               INPUT "").
 END.
@@ -1897,7 +1899,7 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
             ASSIGN
              w-ord.flute      = eb.flute
              w-ord.test       = eb.test
-             w-ord.pcs        = eb.cas-cnt
+             w-ord.pcs        = if eb.cas-cnt NE 0 then eb.cas-cnt else itemfg.case-count
              w-ord.bundle     = eb.cas-pal
              w-ord.total-unit = w-ord.pcs * w-ord.bundle
              w-ord.partial    = 0 /* w-ord.ord-qty - w-ord.total-unit*/
@@ -1905,9 +1907,9 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
 
           /* Add .49 to round up and add 1 for extra tag   */
           IF w-ord.rel-qty NE 0 THEN
-              w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+              w-ord.total-tags = ((w-ord.rel-qty / w-ord.pcs) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
           ELSE
-              w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+              w-ord.total-tags = ((w-ord.ord-qty / w-ord.pcs) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
 
     END.
 
@@ -2096,7 +2098,7 @@ PROCEDURE from-ord :
             ASSIGN
              w-ord.flute      = eb.flute
              w-ord.test       = eb.test
-             w-ord.pcs        = eb.cas-cnt
+             w-ord.pcs        = if eb.cas-cnt NE 0 then eb.cas-cnt else itemfg.case-count
              w-ord.bundle     = eb.cas-pal
              w-ord.total-unit = w-ord.pcs * w-ord.bundle
              w-ord.partial    = 0 /*w-ord.ord-qty - w-ord.total-unit*/
@@ -2104,8 +2106,8 @@ PROCEDURE from-ord :
 
           /* Add .49 to round up and add 1 for extra tag   */
           IF w-ord.rel-qty NE 0 THEN
-              w-ord.total-tags = ((w-ord.rel-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
-          ELSE w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+              w-ord.total-tags = ((w-ord.rel-qty / w-ord.pcs) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
+          ELSE w-ord.total-tags = ((w-ord.ord-qty / w-ord.pcs) + .49) +  (IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1).
          
         END.  /* first-of */
       END.  /* not by-release */
@@ -2213,7 +2215,7 @@ PROCEDURE from-ord :
           w-ord.cas-no     = eb.cas-no.
 
         /* Add .49 to round up and add 1 for extra tag   */
-        ASSIGN w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
+        ASSIGN w-ord.total-tags = ((w-ord.ord-qty / w-ord.pcs) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
 
         ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
       END.
@@ -2966,14 +2968,14 @@ ASSIGN
           ASSIGN
            b-w-ord.flute      = eb.flute
            b-w-ord.test       = eb.test
-           b-w-ord.pcs        = eb.cas-cnt
+           b-w-ord.pcs        = if eb.cas-cnt NE 0 then eb.cas-cnt else itemfg.case-count
            b-w-ord.bundle     = eb.cas-pal
            b-w-ord.total-unit = b-w-ord.pcs * b-w-ord.bundle
            b-w-ord.cas-no     = eb.cas-no.
         IF b-w-ord.rel-qty NE 0 THEN
-            b-w-ord.total-tags = ((b-w-ord.rel-qty / b-w-ord.total-unit) + .49)
+            b-w-ord.total-tags = ((b-w-ord.rel-qty / b-w-ord.pcs) + .49)
                                + ( IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1) .
-        ELSE b-w-ord.total-tags = ((b-w-ord.ord-qty / b-w-ord.total-unit) + .49)
+        ELSE b-w-ord.total-tags = ((b-w-ord.ord-qty / b-w-ord.pcs) + .49)
                                + ( IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1) .
 
       END.
