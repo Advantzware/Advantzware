@@ -222,7 +222,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE var lFound AS LOGICAL NO-UNDO.       
     DEFINE VARIABLE hCostProc   AS HANDLE NO-UNDO.
     
-    RUN inventory/costProcs.p PERSISTENT SET hCostProc.
+    RUN system/costProcs.p PERSISTENT SET hCostProc.
     
     EMPTY TEMP-TABLE ttCycleCountCompare.
     
