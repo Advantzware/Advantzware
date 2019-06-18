@@ -1,0 +1,69 @@
+        1   /* lib/ptheader.p
+        2    *
+        3    * create the header portion of the chui screen
+        4    *
+        5    */
+        6   
+        7   define input-output parameter  headerFrame   as handle no-undo.
+        8   define input-output parameter  modeIndicator as handle no-undo.
+        9   define input-output parameter  protopVersion as handle no-undo.
+       10   define input-output parameter  clockString   as handle no-undo.
+       11   
+       12   define variable ptVerStr as character no-undo initial "ProTop Version 
+       13   3.14
+       14     as of 
+       15   May 15, 2019 18:41
+       16    ".
+       17   
+       18   ptVerStr = replace( ptVerStr, "~n", " " ).
+       19   ptVerStr = replace( ptVerStr, "  ", " " ).
+       20   
+       21   define variable w as integer no-undo.
+       22   
+       23   /* w = current-window:width-chars. */
+       24   
+       25   w = 160.
+       26   
+       27   create frame headerFrame.
+       28   assign
+       29     headerFrame:row          = 1
+       30     headerFrame:column       = 1
+       31     headerFrame:width-chars  = w
+       32     headerFrame:height-chars = 1
+       33     headerFrame:box          = no
+       34     headerFrame:top-only     = yes
+       35   .
+       36   
+       37   create text modeIndicator.
+       38   assign
+       39     modeIndicator:frame  = headerFrame
+       40     modeIndicator:row    = 1
+       41     modeIndicator:column = 1
+       42     modeIndicator:format = "x(50)"
+       43   /*  modeIndicator:screen-value = sampleMode */
+       44   .
+       45   
+       46   create text protopVersion.
+       47   assign
+       48     protopVersion:frame  = headerFrame
+       49     protopVersion:row    = 1
+       50     protopVersion:column = integer(( w - length( ptVerStr )) / 2 )
+       51     protopVersion:format = substitute( "x(&1)", length( ptVerStr ))
+       52     protopVersion:screen-value = ptVerStr
+       53   .
+       54   
+       55   create text clockString.
+       56   assign
+       57     clockString:frame  = headerFrame
+       58     clockString:row    = 1
+       59     clockString:column = w - 18
+       60     clockString:format = "x(19)"
+       61     clockString:screen-value = string( now )
+       62   .
+       63   
+       64   assign
+       65     headerFrame:hidden       = no
+       66     headerFrame:visible      = yes
+       67   .
+       68   
+       69   return.

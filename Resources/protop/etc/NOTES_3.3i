@@ -1,0 +1,54 @@
+Release Notes
+=============
+
+0) Don't get used to this.  It may not become a habit ;)
+
+1) Improved keystroke handling to try to eliminate "lost" keys.
+
+2) A side effect of this is that the double-refresh when the
+sample mode is "On-Demand" (the "S" command) has been eliminated.
+
+3) Modified the "R" command to permit fine grained selection
+of both sampling style (Interval/Cumulative/Raw) and data
+presentation (Rate vs Summary).  The default remains to show
+most metrics as the RATE during the INTERVAL.
+
+4) The top left corner displays some useful information.  For instance:
+
+s2k Auto Interval Rate JSON 15470 4732 0.303
+
+The fields are:
+
+  a) "Short name": if you started ProTop with a name from etc/dblist.cfg it
+  will be shown here.
+
+  b) Sampling method: (Auto or OnDemand) -- Auto means that an interval timer
+  is being used, OnDemand means that you must press "space" to get a new
+  sample.  Use "S" to change this.
+
+  c) Metric display: (Interval/Cumulative/Raw) -- metrics are measured in the
+  interval or since ProTop started or the raw value since the db started.  Use
+  the "R" command to modify this.
+
+  d) Metric style: (Rate/Summary) -- metrics are presented as a rate or just
+  as the underlying value.  Use the "R" command to modify this.
+
+  e) Data is passed from the data collector to the UI as JSON or XML.  The
+  "X" command can be used to change this.
+
+  f) The size of the JSON or XML.
+
+  g) The size of the dataset once it is extracted from the JSON or XML.
+
+  h) The time required to gather and transmit the data in seconds.
+
+The second line is the db logical name followed by logical reads and os
+reads performed by the protop data collector -- this information is to help
+identify situations where ProTop itself is causing unexpected database
+activity.  (The middle of the line is the db physical name and the right
+hand side is the server name.)
+
+5) Profiler support added:  The "y" key will enable profiling of the ProTop
+session.  A second "y" toggles profiling off and reports on the results.
+This is for internal performance tuning but the lib/zprofiler.p code may be
+interesting to people.

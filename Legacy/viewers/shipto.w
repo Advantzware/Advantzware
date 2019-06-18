@@ -897,17 +897,7 @@ END.
 &Scoped-define SELF-NAME ship_note
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship_note V-table-Win
 ON LEAVE OF ship_note IN FRAME F-Main
-DO:
-  Define Variable hNotesProcs as Handle NO-UNDO. 
-  RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-  RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
-              INPUT 60,
-              OUTPUT opcParsedText,
-              OUTPUT opiFilledArraySize).  
-    DELETE OBJECT hNotesProcs.
-  IF opiFilledArraySize GT 4 THEN DO:
-    MESSAGE "Autoparsed lines exceed 4 lines of text. Only first 4 lines will be used." view-as alert-box error.       
-  END. 
+DO:  
   {methods/dispflds.i}
 END.
 

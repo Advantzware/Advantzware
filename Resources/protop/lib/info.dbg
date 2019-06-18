@@ -1,0 +1,90 @@
+        1   /* lib/info.p
+        2    *
+        3    * generic meta info setup
+        4    *
+        5    * protop.p runs this to initialize UI
+        6    *
+        7    */
+        8   
+        9   
+       10   /* lib/tt_screenlist.i
+       11    */
+       12   
+       13   define new global shared temp-table tt_screenList no-undo
+       14   
+       15     field displayOrder  as integer
+       16     field screenName    as character format "x(30)"
+       17     field ttName        as character format "x(18)"
+       18     field dcName        as character
+       19     field evtName       as character
+       20     field frameHandle   as handle
+       21     field bufferHandle  as handle
+       22     field queryHandle   as handle
+       23     field browseHandle  as handle
+       24     field screenType    as character
+       25     field screenRow     as integer
+       26     field minRows       as integer
+       27     field maxRows       as integer
+       28     field resultRows    as integer
+       29     field screenVisible as logical
+       30     field screenActive  as logical
+       31     field sortBy        as character format "x(16)" label "Sort Column"
+       32     field sortDir       as character format "x(4)"
+       33     field sortFieldList as character format "x(74)"
+       34   
+       35     index ttName-idx is unique primary
+       36       ttName
+       37     index scrFrame is unique
+       38       frameHandle
+       39   .
+       40    
+       41   
+       42   define input parameter dispOrder as integer   no-undo.
+       43   define input parameter evtName   as character no-undo.
+       44   define input parameter scrTitle  as character no-undo.
+       45   define input parameter dcName    as character no-undo.
+       46   define input parameter ttName    as character no-undo.
+       47   define input parameter minRows   as integer   no-undo.
+       48   define input parameter maxRows   as integer   no-undo.
+       49   
+       50   procedure showMe:
+       51     return.
+       52   end.
+       53   
+       54   /* setup
+       55    *
+       56    */
+       57   
+       58   define variable dCLOB    as longchar  no-undo.
+       59   define variable bx       as handle  no-undo.
+       60   
+       61   /*** +++
+       62   run getConfig( substitute( "&1.xsd", ttName ), output dCLOB ).
+       63   
+       64   create temp-table bx.
+       65   bx:read-xmlschema( "longchar", dCLOB, ?, ?, ?  ).
+       66    ***/
+       67   
+       68   find tt_screenList where tt_screenList.ttName = ttName no-error.
+       69   if not available( tt_screenList ) then
+       70     do:
+       71       create tt_screenList.
+       72       assign
+       73         tt_screenList.displayOrder  = dispOrder
+       74         tt_screenList.screenName    = scrTitle
+       75         tt_screenList.ttName        = ttName
+       76         tt_screenList.dcName        = dcName
+       77         tt_screenList.evtName       = evtName
+       78         tt_screenList.screenType    = "info"
+       79         tt_screenList.screenVisible = no
+       80   /*    tt_screenList.bufferHandle  = bx:default-buffer-handle +++ */
+       81       .
+       82     end.
+       83   
+       84   /* initialize
+       85    *
+       86    */
+       87   
+       88   publish "protop_register" ( dcName ).
+       89   
+       90   return.

@@ -83,7 +83,6 @@
              w-ord.ord-no = oe-ord.ord-no
              w-ord.rec-id = RECID(oe-ord).
           END.
-          
           assign
            v-inv-qty = v-inv-qty + inv-line.inv-qty
            v-cas-cnt = if inv-line.cas-cnt ne 0 then
@@ -608,8 +607,17 @@
               with frame inv.
           down with fram inv.
           
+          cItemFgCat = "" .
           if v-detail then do:
             for each w-inv-line break by w-inv-line.ord-no:
+
+                find first itemfg
+                    where itemfg.company eq cocode
+                    and itemfg.i-no    eq w-inv-line.i-no
+                    no-lock no-error.
+                IF AVAIL itemfg THEN
+                    ASSIGN cItemFgCat = itemfg.procat.
+
               IF tb_ton THEN DO WITH FRAME invlt:
                 ASSIGN
                  ld-t[1] = w-inv-line.weight / 2000
@@ -634,6 +642,11 @@
                         v-prof WHEN v-prof NE ?.
                 DOWN.
               END.
+
+              IF cItemFgCat NE "" THEN
+                  PUT SKIP
+                  "FG Category: " AT 10 cItemFgCat AT 26 .
+
               delete w-inv-line.
               if last(w-inv-line.ord-no) then
               put skip(1).
