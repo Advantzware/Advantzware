@@ -25,7 +25,7 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipriOutboundEvent AS ROWID NO-UNDO.
+
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -43,13 +43,13 @@ DEFINE INPUT PARAMETER ipriOutboundEvent AS ROWID NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 edEndpoint edRequestData ~
-edResponseData edErrorMessage Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiRequestVerb fiSSLEnabled fiClientID ~
-fiRequestVerblb fiSSLEnabledlb fiClientIDlb fiReqDataType fiAuthType ~
-fiReqDataTypelb fiRequestVerb-2 fiEndPointLabel edEndpoint ~
-fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData ~
-fiErrorMessageLabel edErrorMessage 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 cbAPIId edRequestData ~
+Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS cbAPIId fiSSLEnabled fiClientID ~
+fiAPIIDLabel fiSSLEnabledlb fiClientIDlb fiRequestVerb fiReqDataType ~
+fiAuthType fiReqDataTypelb fiRequestVerb-2 fiRequestVerblb fiEndPointLabel ~
+edEndpoint fiRequestDataLabel edRequestData fiResponseDataLabel ~
+edResponseData fiErrorMessageLabel edErrorMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -69,10 +69,17 @@ DEFINE BUTTON Btn_Cancel AUTO-END-KEY
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_OK AUTO-GO 
-     LABEL "OK" 
+DEFINE BUTTON btSubmit 
+     LABEL "Submit" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
+
+DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "AddCustomer","AddVendor","AddProduct","AddPurchaseOrder","AddPicklist" 
+     DROP-DOWN-LIST
+     SIZE 27.2 BY 1
+     FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE edEndpoint AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
@@ -93,6 +100,11 @@ DEFINE VARIABLE edResponseData AS CHARACTER
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 119 BY 5.95
      FGCOLOR 9  NO-UNDO.
+
+DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1
+     FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiAuthType AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -136,7 +148,7 @@ DEFINE VARIABLE fiRequestDataLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Reque
 
 DEFINE VARIABLE fiRequestVerb AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 19 BY 1.19
+     SIZE 17 BY 1.19
      FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiRequestVerb-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Auth Type:" 
@@ -176,16 +188,18 @@ DEFINE RECTANGLE RECT-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiRequestVerb AT ROW 1.76 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 82
+     cbAPIId AT ROW 1.76 COL 21.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      fiSSLEnabled AT ROW 1.76 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
      fiClientID AT ROW 1.76 COL 107.6 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     fiRequestVerblb AT ROW 1.86 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+     fiAPIIDLabel AT ROW 1.81 COL 9.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
      fiSSLEnabledlb AT ROW 1.86 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
      fiClientIDlb AT ROW 1.86 COL 93.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     fiRequestVerb AT ROW 3.38 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 100
      fiReqDataType AT ROW 3.48 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      fiAuthType AT ROW 3.48 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      fiReqDataTypelb AT ROW 3.52 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 74
      fiRequestVerb-2 AT ROW 3.52 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     fiRequestVerblb AT ROW 3.52 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      fiEndPointLabel AT ROW 5.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
      edEndpoint AT ROW 6.86 COL 11 NO-LABEL WIDGET-ID 14
      fiRequestDataLabel AT ROW 9.95 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
@@ -194,15 +208,15 @@ DEFINE FRAME Dialog-Frame
      edResponseData AT ROW 18.29 COL 11 NO-LABEL WIDGET-ID 10
      fiErrorMessageLabel AT ROW 24.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
      edErrorMessage AT ROW 25.76 COL 11 NO-LABEL WIDGET-ID 94
-     Btn_OK AT ROW 28.57 COL 55
-     Btn_Cancel AT ROW 28.57 COL 74
+     btSubmit AT ROW 29.52 COL 55
+     Btn_Cancel AT ROW 29.52 COL 74
      RECT-1 AT ROW 1.33 COL 8 WIDGET-ID 84
      RECT-2 AT ROW 5.52 COL 8 WIDGET-ID 86
-     SPACE(7.79) SKIP(1.47)
+     SPACE(5.79) SKIP(2.90)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Request/Response"
-         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+         TITLE "API Tester"
+         DEFAULT-BUTTON btSubmit CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -226,18 +240,25 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btSubmit IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR EDITOR edEndpoint IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 ASSIGN 
        edEndpoint:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
+/* SETTINGS FOR EDITOR edErrorMessage IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 ASSIGN 
        edErrorMessage:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
-ASSIGN 
-       edRequestData:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
-
+/* SETTINGS FOR EDITOR edResponseData IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 ASSIGN 
        edResponseData:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiAuthType IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
@@ -319,9 +340,87 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Request/Response */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* API Tester */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btSubmit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSubmit Dialog-Frame
+ON CHOOSE OF btSubmit IN FRAME Dialog-Frame /* Submit */
+DO:
+    DEFINE VARIABLE cAPIID         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cParentProgram AS CHARACTER NO-UNDO.
+    
+    IF edRequestData:SCREEN-VALUE EQ "" AND
+       fiRequestVerb:SCREEN-VALUE EQ "POST" THEN DO:
+        MESSAGE "Request Data cannot be empty" 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+              
+    ASSIGN
+        lcRequestData = edRequestData:SCREEN-VALUE
+        cAPIID        = cbAPIId:SCREEN-VALUE
+        .
+    
+    SESSION:SET-WAIT-STATE("GENERAL").  
+    RUN api/CallOutBoundAPI.p (
+        cAPIId,
+        lcRequestData,
+        OUTPUT cMessage,
+        OUTPUT lSuccess
+        ). 
+    SESSION:SET-WAIT-STATE(""). 
+        
+    FIND LAST APIOutboundEvent NO-LOCK
+         WHERE APIOutboundEvent.apiID EQ cbAPIId:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE APIOutboundEvent THEN
+        ASSIGN
+            edResponseData:SCREEN-VALUE = STRING(APIOutboundEvent.responseData)
+            edErrorMessage:SCREEN-VALUE = IF APIOutboundEvent.success THEN 
+                                              "SUCCESS" + "~n" + APIOUtboundEvent.errorMessage
+                                          ELSE
+                                              "FAILURE" + "~n" + APIOUtboundEvent.errorMessage
+            edErrorMessage:FGCOLOR      = IF APIOutboundEvent.success THEN
+                                              2
+                                          ELSE
+                                              12
+            .
+    
+    MESSAGE edErrorMessage:SCREEN-VALUE VIEW-AS ALERT-BOX INFORMATION.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbAPIId
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbAPIId Dialog-Frame
+ON VALUE-CHANGED OF cbAPIId IN FRAME Dialog-Frame
+DO:
+    FIND FIRST APIOutbound NO-LOCK
+         WHERE APIOutbound.apiID EQ SELF:SCREEN-VALUE NO-ERROR.
+    IF AVAILABLE APIOutbound THEN DO:
+        ASSIGN
+            edEndpoint:SCREEN-VALUE     = APIOutbound.endPoint
+            fiRequestVerb:SCREEN-VALUE  = APIOutbound.requestVerb
+            fiReqDataType:SCREEN-VALUE  = APIOutbound.requestDataType
+            fiSSLEnabled:SCREEN-VALUE   = STRING(APIOutbound.isSSLEnabled)
+            fiClientID:SCREEN-VALUE     = APIOutbound.clientID
+            fiAuthType:SCREEN-VALUE     = APIOutbound.authType
+            edRequestData:SCREEN-VALUE  = STRING(APIOutbound.requestData)
+            btSubmit:SENSITIVE          = TRUE
+            .  
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -352,7 +451,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       .
 
   RUN enable_UI.
-  RUN pInit.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -391,61 +489,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiRequestVerb fiSSLEnabled fiClientID fiRequestVerblb fiSSLEnabledlb 
-          fiClientIDlb fiReqDataType fiAuthType fiReqDataTypelb fiRequestVerb-2 
-          fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData 
-          fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
+  DISPLAY cbAPIId fiSSLEnabled fiClientID fiAPIIDLabel fiSSLEnabledlb 
+          fiClientIDlb fiRequestVerb fiReqDataType fiAuthType fiReqDataTypelb 
+          fiRequestVerb-2 fiRequestVerblb fiEndPointLabel edEndpoint 
+          fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData 
+          fiErrorMessageLabel edErrorMessage 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-1 RECT-2 edEndpoint edRequestData edResponseData edErrorMessage 
-         Btn_OK Btn_Cancel 
+  ENABLE RECT-1 RECT-2 cbAPIId edRequestData Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit Dialog-Frame 
-PROCEDURE pInit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    FIND FIRST APIOutboundEvent NO-LOCK 
-         WHERE ROWID(APIOutboundEvent) EQ ipriOutboundEvent 
-         NO-ERROR.
-    IF AVAILABLE APIOutboundEvent THEN DO:
-        ASSIGN
-            edRequestData:SCREEN-VALUE  = STRING(APIOutboundEvent.requestData)
-            edResponseData:SCREEN-VALUE = STRING(APIOutboundEvent.responseData)                    
-            edErrorMessage:SCREEN-VALUE = IF APIOutboundEvent.success THEN
-                                              "SUCCESS:" + "~n" + APIOutboundEvent.errorMessage
-                                          ELSE
-                                              "FAILURE:" + "~n" + APIOutboundEvent.errorMessage
-            edErrorMessage:FGCOLOR      = IF APIOutboundEvent.success THEN
-                                              2
-                                          ELSE
-                                              12
-            .            
-    
-       FIND FIRST APIOutbound NO-LOCK 
-            WHERE APIOutbound.apiID EQ APIOutboundEvent.apiID 
-            NO-ERROR.
-       IF AVAILABLE APIOutbound THEN
-           ASSIGN
-               edEndpoint:SCREEN-VALUE     = APIOutbound.endPoint
-               fiRequestVerb:SCREEN-VALUE  = APIOutbound.requestVerb
-               fiReqDataType:SCREEN-VALUE  = APIOutbound.requestDataType
-               fiSSLEnabled:SCREEN-VALUE   = STRING(APIOutbound.isSSLEnabled)
-               fiClientID:SCREEN-VALUE     = APIOutbound.clientID
-               fiAuthType:SCREEN-VALUE     = APIOutbound.authType
-               .
-    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

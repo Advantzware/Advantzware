@@ -20,7 +20,39 @@ FIND FIRST APIOutbound NO-LOCK
        AND APIOutbound.isActive
      NO-ERROR.
 
-IF AVAILABLE APIOutbound THEN DO:    
+IF AVAILABLE APIOutbound THEN DO:
+    FIND FIRST sys-ctrl NO-LOCK
+         WHERE sys-ctrl.name     EQ "APIConfig"
+           AND sys-ctrl.chr-fld  EQ APIOutbound.clientID
+         NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl THEN DO:
+       ASSIGN
+           opcMessage = "No API Configuration available in sys-ctrl table"
+           oplSuccess = FALSE
+           .
+       RETURN.
+    END.
+    
+    IF APIOutbound.requestHandler NE "" THEN DO:
+        IF INDEX(APIOutbound.requestHandler,STRING(sys-ctrl.int-fld,"9999")) EQ 0 THEN DO:
+            ASSIGN
+                opcMessage = "Mismatch in APIOutbound and sys-ctrl request handler code for " + APIOutbound.clientID
+                oplSuccess = FALSE
+                .
+            RETURN.
+        END.  
+    END.
+
+    IF APIOutbound.responseHandler NE "" THEN DO:
+        IF INDEX(APIOutbound.responseHandler,STRING(sys-ctrl.int-fld,"9999")) EQ 0 THEN DO:
+            ASSIGN
+                opcMessage = "Mismatch in APIOutbound and sys-ctrl response handler code for " + APIOutbound.clientID
+                oplSuccess = FALSE
+                .
+            RETURN.
+        END.  
+    END.
+        
     oplcRequestData = APIOutbound.requestData.
     /* Transform Request Data */
     RUN pPrepareRequest (

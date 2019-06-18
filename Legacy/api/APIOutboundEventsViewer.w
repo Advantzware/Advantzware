@@ -73,7 +73,7 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btExit btFilter cbAPIId fiRequestDate ~
-cbSuccess BROWSE-2 
+cbSuccess btTest BROWSE-2 
 &Scoped-Define DISPLAYED-OBJECTS fiAPIIDLabel cbAPIId fiRequestDatelabel ~
 fiRequestDate fiSuccessLabel cbSuccess 
 
@@ -97,6 +97,10 @@ DEFINE BUTTON btExit
 
 DEFINE BUTTON btFilter 
      LABEL "Filter" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btTest 
+     LABEL "Test" 
      SIZE 15 BY 1.14.
 
 DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
@@ -167,6 +171,7 @@ DEFINE FRAME DEFAULT-FRAME
      fiRequestDate AT ROW 2.19 COL 59.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      fiSuccessLabel AT ROW 2.19 COL 76.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      cbSuccess AT ROW 2.19 COL 90.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     btTest AT ROW 3.38 COL 111 WIDGET-ID 20
      BROWSE-2 AT ROW 4.71 COL 6 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -193,10 +198,10 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "API Outbound Event"
          HEIGHT             = 17.91
          WIDTH              = 144.2
-         MAX-HEIGHT         = 21
-         MAX-WIDTH          = 144.2
-         VIRTUAL-HEIGHT     = 21
-         VIRTUAL-WIDTH      = 144.2
+         MAX-HEIGHT         = 33.57
+         MAX-WIDTH          = 273.2
+         VIRTUAL-HEIGHT     = 33.57
+         VIRTUAL-WIDTH      = 273.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -219,7 +224,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-2 cbSuccess DEFAULT-FRAME */
+/* BROWSE-TAB BROWSE-2 btTest DEFAULT-FRAME */
 /* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiRequestDatelabel IN FRAME DEFAULT-FRAME
@@ -332,6 +337,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btTest
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTest C-Win
+ON CHOOSE OF btTest IN FRAME DEFAULT-FRAME /* Test */
+DO:
+    RUN api/APIOutboundTest.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -400,7 +416,7 @@ PROCEDURE enable_UI :
   DISPLAY fiAPIIDLabel cbAPIId fiRequestDatelabel fiRequestDate fiSuccessLabel 
           cbSuccess 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btExit btFilter cbAPIId fiRequestDate cbSuccess BROWSE-2 
+  ENABLE btExit btFilter cbAPIId fiRequestDate cbSuccess btTest BROWSE-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

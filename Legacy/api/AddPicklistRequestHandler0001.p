@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-    File        : api/premier/AddPicklistRequestHandler.p
+    File        : api/AddPicklistRequestHandler0001.p
     Purpose     : Returns the request data for picklist addition
 
     Syntax      :
@@ -19,9 +19,9 @@ DEFINE OUTPUT       PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lcDetailData  AS   LONGCHAR   NO-UNDO.
 DEFINE VARIABLE lcDetailData1 AS   LONGCHAR   NO-UNDO.
 DEFINE VARIABLE lcDetailData2 AS   LONGCHAR   NO-UNDO.
-DEFINE VARIABLE lineNum       AS   INTEGER    NO-UNDO  INITIAL  1.
+DEFINE VARIABLE lineNum       AS   CHARACTER  NO-UNDO  INITIAL  1.
 DEFINE VARIABLE itemCode      AS   CHARACTER  NO-UNDO  INITIAL  "1001".
-DEFINE VARIABLE quantity      AS   INTEGER    NO-UNDO  INITIAL  10.
+DEFINE VARIABLE quantity      AS   CHARACTER  NO-UNDO  INITIAL  10.
 DEFINE VARIABLE whsCode       AS   CHARACTER  NO-UNDO  INITIAL  "005".
 DEFINE VARIABLE unitsPerPack  AS   CHARACTER  NO-UNDO  INITIAL  "1".
 DEFINE VARIABLE salesUnit     AS   CHARACTER  NO-UNDO  INITIAL  "Each".
@@ -46,50 +46,46 @@ FIND FIRST APIOutboundDetail NO-LOCK
      WHERE APIOutboundDetail.detailID = "detail"
        AND APIOutboundDetail.parentID = ipcParentID
      NO-ERROR.
+
 IF AVAILABLE APIOutboundDetail THEN
-    ASSIGN
+     ASSIGN
         lcDetailData1 = APIOutboundDetail.data   
-        lcDetailData2 = APIOutboundDetail.data   
-        lcDetailData1 = SUBSTITUTE (
-                            lcDetailData1,
-                            lineNum,
-                            itemCode,
-                            quantity,
-                            whsCode,
-                            unitsPerPack,
-                            salesUnit,
-                            lotNumber
-                            )
-        lcDetailData2 = SUBSTITUTE (
-                            lcDetailData2,
-                            lineNum,
-                            itemCode,
-                            quantity,
-                            whsCode,
-                            unitsPerPack,
-                            salesUnit,
-                            lotNumber
-                             ).
+        lcDetailData2 = APIOutboundDetail.data 
+        lcDetailData1 = REPLACE(lcDetailData1, "TBD7",  lotNumber)
+        lcDetailData1 = REPLACE(lcDetailData1, "TBD6",  salesUnit)
+        lcDetailData1 = REPLACE(lcDetailData1, "TBD5",  unitsPerPack)
+        lcDetailData1 = REPLACE(lcDetailData1, "TBD4",  whsCode)
+        lcDetailData1 = REPLACE(lcDetailData1, "TBD3",  quantity)
+        lcDetailData1 = REPLACE(lcDetailData1, "TBD2",  itemCode)
+        lcDetailData1 = REPLACE(lcDetailData1, "TBD1",  lineNum)
+        lcDetailData2 = REPLACE(lcDetailData2, "TBD7",  lotNumber)
+        lcDetailData2 = REPLACE(lcDetailData2, "TBD6",  salesUnit)
+        lcDetailData2 = REPLACE(lcDetailData2, "TBD5",  unitsPerPack)
+        lcDetailData2 = REPLACE(lcDetailData2, "TBD4",  whsCode)
+        lcDetailData2 = REPLACE(lcDetailData2, "TBD3",  quantity)
+        lcDetailData2 = REPLACE(lcDetailData2, "TBD2",  itemCode)
+        lcDetailData2 = REPLACE(lcDetailData2, "TBD1",  lineNum)
+        .
 
 lcDetailData = lcDetailData1 + "," + lcDetailData2.   
 
 ASSIGN
-    ioplcRequestData = REPLACE(ioplcRequestData, "&16", lcDetailData)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&15", priority)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&14", slpCode)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&13", address)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&12", routeID)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&11", docDueDate)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&10", numatCard)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&9",  cardName)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&8",  cardCode)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&7",  reqDate)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&6",  docDate)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&5",  docStatus)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&4",  docNum)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&3",  docEntry)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&2",  docType)
-    ioplcRequestData = REPLACE(ioplcRequestData, "&1",  company)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD16", lcDetailData)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD15", priority)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD14", slpCode)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD13", address)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD12", routeID)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD11", docDueDate)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD10", numatCard)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD9",  cardName)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD8",  cardCode)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD7",  reqDate)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD6",  docDate)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD5",  docStatus)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD4",  docNum)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD3",  docEntry)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD2",  docType)
+    ioplcRequestData = REPLACE(ioplcRequestData, "TBD1",  company)
     .
 
 ASSIGN
