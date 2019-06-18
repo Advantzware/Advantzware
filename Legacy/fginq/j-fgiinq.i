@@ -14,7 +14,7 @@ IF AVAIL po-ord THEN DO:
       OPEN QUERY {&browse-name}                     ~
           {&for-each1}                              ~
            and  fg-rcpth.po-no   EQ TRIM(STRING(po-ord.po-no,">>>>>>>>>>")) ~
-              USE-INDEX vend NO-LOCK,               ~
+              USE-INDEX item-po NO-LOCK,               ~
               {&for-each2}
   
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
