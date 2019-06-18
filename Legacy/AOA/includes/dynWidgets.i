@@ -308,6 +308,8 @@ PROCEDURE pCreateDynParameters :
                 END. /* if use a calendar */
             END. /* editor */
             WHEN "FILL-IN" THEN DO:
+                IF NOT lSensitive THEN
+                cParamValue = cInitItems.
                 RUN pFillIn (
                     cPoolName,
                     hFrame,

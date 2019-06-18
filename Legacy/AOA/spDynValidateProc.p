@@ -107,6 +107,18 @@ PROCEDURE dynValRMItem:
         ).
 END PROCEDURE.
 
+PROCEDURE dynValSalesRep:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST item
+                 WHERE sman.company EQ cCompany
+                   AND sman.sman    EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValTime:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
 

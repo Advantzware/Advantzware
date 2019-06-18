@@ -94,6 +94,15 @@ PROCEDURE dynDescripRMItem:
     iphWidgetTo:SCREEN-VALUE = item.i-name.       
 END PROCEDURE.
 
+PROCEDURE dynDescripSalesRep:
+    {&defInputParam}
+    FIND FIRST sman NO-LOCK
+         WHERE sman.company EQ cCompany
+           AND sman.sman    EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE sman THEN
+    iphWidgetTo:SCREEN-VALUE = sman.sman.
+END PROCEDURE.
 
 PROCEDURE dynDescripShift:
     {&defInputParam}
