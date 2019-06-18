@@ -1,0 +1,978 @@
+        1   /*******************************************************************************
+        2    *******************************************************************************
+        3    **                                                                           **
+        4    **                                                                           **
+        5    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+        6    **  http://www.greenfieldtech.com                                            **
+        7    **                                                                           **
+        8    **  ProTop is free software; you can redistribute it and/or modify it        **
+        9    **  under the terms of the GNU General Public License (GPL) as published     **
+       10    **  by the Free Software Foundation; either version 2 of the License, or     **
+       11    **  at your option) any later version.                                       **
+       12    **                                                                           **
+       13    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       14    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       15    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       16    **  for more details.                                                        **
+       17    **                                                                           **
+       18    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       19    **  of use and alternative licensing options for this software.              **
+       20    **                                                                           **
+       21    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       22    **                                                                           **
+       23    **  See http://www.fsf.org for more information about the GPL.               **
+       24    **                                                                           **
+       25    **                                                                           **
+       26    *******************************************************************************
+       27    *******************************************************************************
+       28    *
+       29    * bigb.p
+       30    *
+       31    *
+       32    * Make a stab a guesstimating the effects of changing -B.
+       33    *
+       34    *
+       35    * Author:
+       36    *
+       37    *      Tom Bascom, Greenfield Technologies
+       38    *      http://www.greenfieldtech.com
+       39    *      September 5, 2003
+       40    *
+       41    * History:
+       42    *
+       43    *      Gus suggested that this (based on an old PEG post) would make an interesting module.
+       44    *      September 30, 2003
+       45    *
+       46    */
+       47   
+       48   
+       49   /*******************************************************************************
+       50    *******************************************************************************
+       51    **                                                                           **
+       52    **                                                                           **
+       53    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       54    **  http://www.greenfieldtech.com                                            **
+       55    **                                                                           **
+       56    **  ProTop is free software; you can redistribute it and/or modify it        **
+       57    **  under the terms of the GNU General Public License (GPL) as published     **
+       58    **  by the Free Software Foundation; either version 2 of the License, or     **
+       59    **  at your option) any later version.                                       **
+       60    **                                                                           **
+       61    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       62    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       63    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       64    **  for more details.                                                        **
+       65    **                                                                           **
+       66    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       67    **  of use and alternative licensing options for this software.              **
+       68    **                                                                           **
+       69    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       70    **                                                                           **
+       71    **  See http://www.fsf.org for more information about the GPL.               **
+       72    **                                                                           **
+       73    **                                                                           **
+       74    *******************************************************************************
+       75    *******************************************************************************
+       76    *
+       77    * protop.i
+       78    *
+       79    * Header file for protop family of programs
+       80    *
+       81    *
+       82    * Known Bugs & Issues:
+       83    *
+       84    *
+       85    * To Do:
+       86    *
+       87    *
+       88    * Author:
+       89    *
+       90    *      Tom Bascom, Greenfield Technologies
+       91    *      http://www.greenfieldtech.com
+       92    *      August 28, 2003
+       93    *
+       94    */
+       95   
+       96   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+       97   &global-define  FASTLOCK        true
+       98   &ELSE
+       99   &global-define  FASTLOCK        false
+      100   &ENDIF
+      101   
+      102   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+      103   &global-define  OE11            "yes"
+      104   &global-define  xDEBUGTT        false
+      105   &ENDIF
+      106   
+      107   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+      108   &global-define  NOSERIALIZE     serialize-hidden
+      109   &ENDIF
+      110   
+      111   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+      112   &global-define  BIGINT          int64
+      113   &ELSE
+      114   &global-define  BIGINT          decimal
+      115   &ENDIF
+      116   
+      117   
+      118   /* lib/v9.i
+      119    *
+      120    */
+      121   
+      122   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      123   &global-define  CPYLOB  "no"
+      124   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      125   &global-define  LNGCR   character
+      126   &global-define  DTZ     integer
+      127   &global-define  BIGINT  decimal
+      128   &ELSE
+      129   &global-define  OE10    "yes"
+      130   &global-define  NOW     now
+      131   &global-define  LNGCR   longchar
+      132   &global-define  DTZ     datetime-tz
+      133   &global-define  BIGINT  int64
+      134   &ENDIF
+      135    
+      136   
+      137   /* use extended _connect fields: -client, -cache*
+      138    */
+      139   
+      140   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      141   &global-define  CONNECTX        "yes"
+      142   &ELSE
+      143   &global-define  CONNECTX        "no"
+      144   &ENDIF
+      145   
+      146   define stream inStrm.
+      147   
+      148   define new global shared variable dbgMode as integer no-undo initial 1.
+      149   
+      150   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      151    *
+      152    * someday everyone will have OO and I will replace these with a gsv class
+      153    * or something of that ilk
+      154    *
+      155    */
+      156   
+      157   define new global shared variable pt_shortname   as character no-undo.
+      158   define new global shared variable pt_uniqName    as character no-undo.
+      159   define new global shared variable pt_server      as character no-undo.
+      160   define new global shared variable pt_resrcType   as character no-undo.
+      161   
+      162   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      163   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      164   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      165   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      166   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      167   
+      168   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      169   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      170   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      171   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      172   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      173   define new global shared variable pt_ioFileName  as character no-undo.
+      174   define new global shared variable pt_dfCmd       as character no-undo.
+      175   
+      176   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      177   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      178   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      179   
+      180   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      181   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      182   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      183   
+      184   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      185   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      186   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      187   
+      188   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      189   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      190   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      191   
+      192   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      193   
+      194   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      195   
+      196   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      197   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      198   
+      199   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      200    * 
+      201    */
+      202   
+      203   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      204   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      205   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      206   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      207   
+      208   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      209   
+      210                                                                                   /* corresponding to base checkpoint#    */
+      211   /** Global Shared Temp Table Definitions
+      212    **
+      213    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      214    ** And a shared temp-table is logically the same as a db table so who really cares?
+      215    **
+      216    **/
+      217   
+      218   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      219    */
+      220   
+      221   define new global shared temp-table tt_tbl no-undo
+      222     field xid      as integer                                             /* _File._File-Num              */
+      223     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      224     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      225     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      226     field tblname  as character                                           /* _File._File-Name             */
+      227     index xid-idx is unique primary xid.
+      228   
+      229   define new global shared temp-table tt_idx no-undo
+      230     field xid      as integer                                             /* _Index._Idx-Num              */
+      231     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      232     field idxname  as character                                           /* _Index._Idx-Name             */
+      233     field idxnote  as character
+      234     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      235     field tblnum   as integer                                             /* _File._File-Num              */
+      236     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      237     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      238     field tblname  as character                                           /* _File._File-Name             */
+      239     index xid-idx is unique primary xid.
+      240   
+      241   define new global shared temp-table tt_areaExtent no-undo
+      242     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      243     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      244   
+      245     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      246     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      247     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      248   
+      249     index ae-idx is unique primary areaNum extNum.
+      250   
+      251   define new global shared temp-table tt_area no-undo
+      252     field xid      as integer    format ">>>9"
+      253     field SANum    as integer    format ">>>9"        label "#"
+      254     field areaPool as character  format "x(2)"        label "BX"
+      255   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      256     field SAName   as character  format "x(30)"       label "Area Name"
+      257     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      258     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      259     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      260     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      261     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      262     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      263     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      264   
+      265     field blkszkb as integer     format ">>9"         label "BSZ"
+      266     field rpb     as integer     format ">>9"         label "RPB"
+      267     field clstrsz as integer     format ">>9"         label "CSZ"
+      268   
+      269     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      270     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      271     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      272   
+      273     field numExts as integer     format ">>>>9"       label "#Exts"
+      274     field hasVar  as logical     format "Yes/No"      label "Var?"
+      275   
+      276     field xnote   as character   format "x"           label "*"
+      277   
+      278     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      279     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      280   
+      281     index pctAlloc-idx is primary pctAlloc descending
+      282     index pctLastX-idx pctLastX pctAlloc descending
+      283     index allocGB-idx allocGB descending
+      284     index totGB-idx totGB descending
+      285     index xid-idx is unique xid
+      286     index SANum-idx is unique SANum
+      287     index SAName-idx is unique SAName
+      288   .
+      289   
+      290   *** Encrypted Source ***
+      291   *** Encrypted Source ***
+      292   *** Encrypted Source ***
+      293   *** Encrypted Source ***
+      294   *** Encrypted Source ***
+      295   *** Encrypted Source ***
+      296   *** Encrypted Source ***
+      297   *** Encrypted Source ***
+      298   *** Encrypted Source ***
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323   *** Encrypted Source ***
+      324   *** Encrypted Source ***
+      325   *** Encrypted Source ***
+      326   *** Encrypted Source ***
+      327   *** Encrypted Source ***
+      328   *** Encrypted Source ***
+      329   *** Encrypted Source ***
+      330   *** Encrypted Source ***
+      331   *** Encrypted Source ***
+      332   *** Encrypted Source ***
+      333   *** Encrypted Source ***
+      334   *** Encrypted Source ***
+      335   *** Encrypted Source ***
+      336   *** Encrypted Source ***
+      337   *** Encrypted Source ***
+      338   *** Encrypted Source ***
+      339   *** Encrypted Source ***
+      340   *** Encrypted Source ***
+      341   *** Encrypted Source ***
+      342   *** Encrypted Source ***
+      343   *** Encrypted Source ***
+      344   *** Encrypted Source ***
+      345   *** Encrypted Source ***
+      346   *** Encrypted Source ***
+      347   *** Encrypted Source ***
+      348   *** Encrypted Source ***
+      349   *** Encrypted Source ***
+      350   *** Encrypted Source ***
+      351   *** Encrypted Source ***
+      352   *** Encrypted Source ***
+      353   *** Encrypted Source ***
+      354   *** Encrypted Source ***
+      355   *** Encrypted Source ***
+      356   *** Encrypted Source ***
+      357   *** Encrypted Source ***
+      358   *** Encrypted Source ***
+      359   *** Encrypted Source ***
+      360    
+      361   
+      362   /*******************************************************************************
+      363    *******************************************************************************
+      364    **                                                                           **
+      365    **                                                                           **
+      366    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      367    **  http://www.greenfieldtech.com                                            **
+      368    **                                                                           **
+      369    **  ProTop is free software; you can redistribute it and/or modify it        **
+      370    **  under the terms of the GNU General Public License (GPL) as published     **
+      371    **  by the Free Software Foundation; either version 2 of the License, or     **
+      372    **  at your option) any later version.                                       **
+      373    **                                                                           **
+      374    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      375    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      376    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      377    **  for more details.                                                        **
+      378    **                                                                           **
+      379    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      380    **  of use and alternative licensing options for this software.              **
+      381    **                                                                           **
+      382    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      383    **                                                                           **
+      384    **  See http://www.fsf.org for more information about the GPL.               **
+      385    **                                                                           **
+      386    **                                                                           **
+      387    *******************************************************************************
+      388    *******************************************************************************
+      389    *
+      390    * protoplib.i
+      391    *
+      392    * ProTop infrastructure library definitions
+      393    *
+      394    */
+      395   
+      396   function uDateTime returns integer () in super.
+      397   function string2uDateTime returns integer( input p_text as character ) in super.
+      398   function searchDir returns character ( input xDir as character ) in super.
+      399   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      400   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      401   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      402   function myPID returns character () in super.
+      403   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      404   
+      405   /* end protoplib.i */
+      406    
+      407   
+      408   /*******************************************************************************
+      409    *******************************************************************************
+      410    **                                                                           **
+      411    **                                                                           **
+      412    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      413    **  http://www.greenfieldtech.com                                            **
+      414    **                                                                           **
+      415    **  ProTop is free software; you can redistribute it and/or modify it        **
+      416    **  under the terms of the GNU General Public License (GPL) as published     **
+      417    **  by the Free Software Foundation; either version 2 of the License, or     **
+      418    **  at your option) any later version.                                       **
+      419    **                                                                           **
+      420    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      421    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      422    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      423    **  for more details.                                                        **
+      424    **                                                                           **
+      425    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      426    **  of use and alternative licensing options for this software.              **
+      427    **                                                                           **
+      428    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      429    **                                                                           **
+      430    **  See http://www.fsf.org for more information about the GPL.               **
+      431    **                                                                           **
+      432    **                                                                           **
+      433    *******************************************************************************
+      434    *******************************************************************************
+      435    *
+      436    * vstlib.i
+      437    *
+      438    * VST library definitions
+      439    *
+      440    */
+      441   
+      442   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      443   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      444   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      445   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      446   
+      447   function connectFlags returns character ( input cnxId as integer ) in super.
+      448   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      449   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      450   
+      451   function isAIEnabled returns logical () in super.
+      452   function isReplSource returns logical () in super.
+      453   function isReplTarget returns logical () in super.
+      454   function isBackupRunning returns logical () in super.
+      455   function isWorkgroup returns logical () in super.
+      456   
+      457   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      458   
+      459   /* end vstlib.i */
+      460    
+      461   
+      462   function add2ds returns logical ( input h as handle ) in super.
+      463   function getTempTableHandle returns handle ( input n as character ) in super.
+      464   
+      465   /* end protop.i */
+      466    
+      467   
+      468   /*******************************************************************************
+      469    *******************************************************************************
+      470    **                                                                           **
+      471    **                                                                           **
+      472    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+      473    **  http://www.greenfieldtech.com                                            **
+      474    **                                                                           **
+      475    **  ProTop is free software; you can redistribute it and/or modify it        **
+      476    **  under the terms of the GNU General Public License (GPL) as published     **
+      477    **  by the Free Software Foundation; either version 2 of the License, or     **
+      478    **  at your option) any later version.                                       **
+      479    **                                                                           **
+      480    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      481    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      482    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      483    **  for more details.                                                        **
+      484    **                                                                           **
+      485    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      486    **  of use and alternative licensing options for this software.              **
+      487    **                                                                           **
+      488    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      489    **                                                                           **
+      490    **  See http://www.fsf.org for more information about the GPL.               **
+      491    **                                                                           **
+      492    **                                                                           **
+      493    *******************************************************************************
+      494    *******************************************************************************
+      495    *
+      496    * tick.i
+      497    *
+      498    *
+      499    * common routine to handle "clock ticks"
+      500    *
+      501    *
+      502    * Author:
+      503    *
+      504    *      Tom Bascom, Greenfield Technologies
+      505    *      http://www.greenfieldtech.com
+      506    *      January 21, 2012
+      507    *
+      508    */
+      509   
+      510   
+      511   /* lib/v9.i
+      512    *
+      513    */
+      514   
+      515   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      516   &global-define  CPYLOB  "no"
+      517   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      518   &global-define  LNGCR   character
+      519   &global-define  DTZ     integer
+      520   &global-define  BIGINT  decimal
+      521   &ELSE
+      522   &global-define  OE10    "yes"
+      523   &global-define  NOW     now
+      524   &global-define  LNGCR   longchar
+      525   &global-define  DTZ     datetime-tz
+      526   &global-define  BIGINT  int64
+      527   &ENDIF
+      528    
+      529   
+      530   define new global shared variable rawMode  as integer no-undo initial 5.
+      531   define new global shared variable timeMode as integer no-undo initial 2.
+      532   
+      533   define new global shared variable x as integer no-undo initial 5.
+      534   define new global shared variable z as decimal no-undo.
+      535   
+      536   define variable y as decimal no-undo.
+      537   
+      538   define variable initTick as integer no-undo.
+      539   define variable prevTick as integer no-undo.
+      540   
+      541   
+      542   procedure updTick:
+      543   
+      544   &IF DEFINED( OE10 ) &THEN
+      545     if initTick = 0 then initTick = mtime.
+      546     assign
+      547       x = rawMode /* ( if rawMode then 4 else 5 ) */
+      548       z = mtime - prevTick
+      549       z = ( if z >= 0 then z else 86400000 - prevTick + mtime )   /* handle rolling over midnight */
+      550       z = z / 1000
+      551       y = mtime - initTick
+      552       y = y / 1000
+      553       prevTick = mtime
+      554     .
+      555   &ELSE
+      556     if initTick = 0 then initTick = etime.
+      557     assign
+      558       x = rawMode /* ( if rawMode then 4 else 5 ) */
+      559       z = etime - prevTick
+      560       z = ( if z >= 0 then z else 5000 )   /* etime doesn't rollover at midnite -- but a mistaken etime(yes) somewhere would be bad... */
+      561       z = z / 1000
+      562       y = etime - initTick
+      563       y = y / 1000
+      564       prevTick = etime
+      565     .
+      566   &ENDIF
+      567   
+      568     /* if rawMode <> 5 then z = 1. */
+      569   
+      570     if timeMode = 1 then z = 1.
+      571   
+      572     return.
+      573   
+      574   end.
+      575   
+      576   /* end tick.i */
+      577    
+      578   
+      579   define output parameter dcDescription as character no-undo initial "BigBGuesstimator".
+      580   
+      581   define temp-table tt_bigb no-undo
+      582     field xid     as integer   format       ">>>>>>9"
+      583     field xpct    as decimal   format       ">>>>>>9%"       label "Pct"
+      584     field bigb    as decimal   format ">>>>>>>>>>>>9"        label "BigB (-B)"
+      585     field bigbGB  as decimal   format     ">>>>>>>>9.999 GB" label "BigB (GB)"
+      586     field dbSize  as decimal   format    ">>>>>>>>>9 GB"     label "DB Size (GB)"
+      587     field db-pct  as decimal   format     ">>>>>>>>9.999%"   label "% DB Size"
+      588     field hr      as decimal   format ">>>>>>>>>>>>9"        label "Hit:1"
+      589     field mpct    as decimal   format         ">>>>9.99999%" label "Miss%"
+      590     field hpct    as decimal   format         ">>>>9.99999%" label "Hit%"
+      591     field osr     as decimal   format     ">>>>>>>>9"        label "OS Reads"
+      592     field xnote   as character format "x(36)"                label "Note"
+      593     field lrx     as decimal extent 5 serialize-hidden
+      594     field osrx    as decimal extent 5 serialize-hidden
+      595   
+      596     index xpct-idx is unique primary xpct
+      597     index xid-idx  is unique xid
+      598   .
+      599   
+      600   
+      601   /* lib/dumpTT.i
+      602    *
+      603    * simplified to a single line -- include should be eliminated.
+      604    *
+      605    */
+      606   
+      607   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 &THEN
+      608   /*** +++
+      609   file-info:file-name = "./ptdefs".
+      610   if file-info:full-pathname <> ? and index( file-info:file-type, "d" ) > 0 and index( file-info:file-type, "w" ) > 0 then
+      611     do:
+      612   
+      613       file-info:file-name = "./ptdefs/{1}.xsd".
+      614   
+      615       if true /* file-info:full-pathname = ? or file-info:file-size = 0 */ then
+      616         do:
+      617   
+      618           temp-table {1}:write-xmlschema(
+      619             "file",
+      620   /*        substitute( "ptdefs/&1.xsd", "{1}" ), */
+      621   /*        "./ptdefs/{1}.xsd", */
+      622             ( if opsys = "unix" then "./ptdefs/{1}.xsd" else ".~\ptdefs~\{1}.xsd" ),
+      623             true
+      624   
+      625         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2
+      626         &THEN
+      627             , ?, ?, ?
+      628         &ENDIF
+      629   
+      630       ).
+      631   
+      632       end.
+      633   
+      634     end.
+      635    +++ ***/
+      636   &ENDIF
+      637    
+      638   
+      639   define variable dbBlkSize as integer no-undo.
+      640   
+      641   /* Predict Big B
+      642    *
+      643    * Based on the calculation in this thread:
+      644    *
+      645    *      http://www.peg.com/lists/dba/history/200301/msg00509.html
+      646    *
+      647    * which originates in a 1998 posting (by me) referring to some interesting
+      648    * research published by IBM.  The formula used here is the one derived by
+      649    * Tim Casey:
+      650    *
+      651    *      m2 = m1 * sqrt( b1 / b2 )
+      652    *
+      653    * This results in a simple calculation of the expected impact on OS reads
+      654    * which is generally the ultimate goal of tuning -B.
+      655    *
+      656    * This is not an exact calculation -- there should be a locally calibrated
+      657    * constant applied to  ( b1 / b2 ).  The value is probably between 0.5 & 1.5
+      658    * but these results are, IMHO, close enough to give an idea of what to expect
+      659    * plus or minus a bit (maybe 25%).
+      660    *
+      661    * It should also be noted that as increases in -B reduce OS reads you can
+      662    * expect to see a possibly significant increase in logical reads since
+      663    * less time will be spent waiting for OS reads -- this will impact the
+      664    * OS reads in a recursive manner...
+      665    *
+      666    * You will get better results in you sample for a longer period.  10 second
+      667    * samples (for instance) can have quite a lot of variation from sample to
+      668    * sample.  I'd try at least 60 seconds for starters.
+      669    *
+      670    */
+      671   
+      672   procedure predict-b:
+      673   
+      674     define input parameter p_pct  as decimal no-undo.
+      675     define input parameter p_buf  as integer no-undo.
+      676     define input parameter p_lrx  as decimal no-undo.
+      677     define input parameter p_osrx as decimal no-undo.
+      678     define input parameter p_used as integer no-undo.
+      679   
+      680   /*
+      681     define variable x as integer no-undo.
+      682     define variable z as integer no-undo.
+      683    */
+      684   
+      685     find tt_bigb where tt_bigb.xpct = p_pct no-error.
+      686   
+      687     if available tt_bigb then
+      688       assign
+      689         tt_bigb.lrx[3]  = p_lrx
+      690         tt_bigb.osrx[3] = p_osrx
+      691       .
+      692      else
+      693       do:
+      694         create tt_bigb.
+      695         assign
+      696           tt_bigb.xid  = integer( p_pct )                         /* % of current Big B   */
+      697           tt_bigb.xpct = p_pct                                    /* % of current Big B   */
+      698           tt_bigb.bigb = p_buf * ( tt_bigb.xpct / 100 )           /* Modified Big B       */
+      699           tt_bigb.bigbGB = ( tt_bigb.bigb * dbBlkSize ) / ( 1024 * 1024 * 1024 )
+      700           
+      701   /*******************************************************************************
+      702    *******************************************************************************
+      703    **                                                                           **
+      704    **                                                                           **
+      705    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      706    **  http://www.greenfieldtech.com                                            **
+      707    **                                                                           **
+      708    **  ProTop is free software; you can redistribute it and/or modify it        **
+      709    **  under the terms of the GNU General Public License (GPL) as published     **
+      710    **  by the Free Software Foundation; either version 2 of the License, or     **
+      711    **  at your option) any later version.                                       **
+      712    **                                                                           **
+      713    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      714    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      715    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      716    **  for more details.                                                        **
+      717    **                                                                           **
+      718    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      719    **  of use and alternative licensing options for this software.              **
+      720    **                                                                           **
+      721    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      722    **                                                                           **
+      723    **  See http://www.fsf.org for more information about the GPL.               **
+      724    **                                                                           **
+      725    **                                                                           **
+      726    *******************************************************************************
+      727    *******************************************************************************
+      728    *
+      729    * init-xrec.i
+      730    *
+      731    * {1} = base field
+      732    * {2} = value to initialze array with
+      733    *
+      734    * [1] = base
+      735    * [2] = last (previous cumulative value)
+      736    * [3] = this
+      737    * [4] = cumulative
+      738    * [5] = interval
+      739    *
+      740    */
+      741   
+      742   tt_bigb.lrx[1] = p_lrx
+      743   tt_bigb.lrx[2] = p_lrx
+      744   tt_bigb.lrx[3] = p_lrx
+      745    
+      746           
+      747   /*******************************************************************************
+      748    *******************************************************************************
+      749    **                                                                           **
+      750    **                                                                           **
+      751    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      752    **  http://www.greenfieldtech.com                                            **
+      753    **                                                                           **
+      754    **  ProTop is free software; you can redistribute it and/or modify it        **
+      755    **  under the terms of the GNU General Public License (GPL) as published     **
+      756    **  by the Free Software Foundation; either version 2 of the License, or     **
+      757    **  at your option) any later version.                                       **
+      758    **                                                                           **
+      759    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      760    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      761    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      762    **  for more details.                                                        **
+      763    **                                                                           **
+      764    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      765    **  of use and alternative licensing options for this software.              **
+      766    **                                                                           **
+      767    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      768    **                                                                           **
+      769    **  See http://www.fsf.org for more information about the GPL.               **
+      770    **                                                                           **
+      771    **                                                                           **
+      772    *******************************************************************************
+      773    *******************************************************************************
+      774    *
+      775    * init-xrec.i
+      776    *
+      777    * {1} = base field
+      778    * {2} = value to initialze array with
+      779    *
+      780    * [1] = base
+      781    * [2] = last (previous cumulative value)
+      782    * [3] = this
+      783    * [4] = cumulative
+      784    * [5] = interval
+      785    *
+      786    */
+      787   
+      788   tt_bigb.osrx[1] = p_osrx
+      789   tt_bigb.osrx[2] = p_osrx
+      790   tt_bigb.osrx[3] = p_osrx
+      791    
+      792         .
+      793       end.
+      794   
+      795     assign
+      796   
+      797       
+      798   /*******************************************************************************
+      799    *******************************************************************************
+      800    **                                                                           **
+      801    **                                                                           **
+      802    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      803    **  http://www.greenfieldtech.com                                            **
+      804    **                                                                           **
+      805    **  ProTop is free software; you can redistribute it and/or modify it        **
+      806    **  under the terms of the GNU General Public License (GPL) as published     **
+      807    **  by the Free Software Foundation; either version 2 of the License, or     **
+      808    **  at your option) any later version.                                       **
+      809    **                                                                           **
+      810    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      811    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      812    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      813    **  for more details.                                                        **
+      814    **                                                                           **
+      815    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      816    **  of use and alternative licensing options for this software.              **
+      817    **                                                                           **
+      818    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      819    **                                                                           **
+      820    **  See http://www.fsf.org for more information about the GPL.               **
+      821    **                                                                           **
+      822    **                                                                           **
+      823    *******************************************************************************
+      824    *******************************************************************************
+      825    *
+      826    * upd-xrec.i
+      827    *
+      828    * {1} = base field
+      829    * {2} = value to update metrics with
+      830    *
+      831    * [1] = base
+      832    * [2] = last (previous cumulative value)
+      833    * [3] = this
+      834    * [4] = cumulative
+      835    * [5] = interval
+      836    *
+      837    */
+      838   
+      839   tt_bigb.lrx[3] = tt_bigb.lrx[3]
+      840   tt_bigb.lrx[4] = tt_bigb.lrx[3] - tt_bigb.lrx[1]
+      841   tt_bigb.lrx[5] = tt_bigb.lrx[3] - tt_bigb.lrx[2]
+      842   tt_bigb.lrx[2] = tt_bigb.lrx[3]
+      843                    /* Logical Reads        */
+      844       
+      845   /*******************************************************************************
+      846    *******************************************************************************
+      847    **                                                                           **
+      848    **                                                                           **
+      849    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      850    **  http://www.greenfieldtech.com                                            **
+      851    **                                                                           **
+      852    **  ProTop is free software; you can redistribute it and/or modify it        **
+      853    **  under the terms of the GNU General Public License (GPL) as published     **
+      854    **  by the Free Software Foundation; either version 2 of the License, or     **
+      855    **  at your option) any later version.                                       **
+      856    **                                                                           **
+      857    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      858    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      859    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      860    **  for more details.                                                        **
+      861    **                                                                           **
+      862    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      863    **  of use and alternative licensing options for this software.              **
+      864    **                                                                           **
+      865    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      866    **                                                                           **
+      867    **  See http://www.fsf.org for more information about the GPL.               **
+      868    **                                                                           **
+      869    **                                                                           **
+      870    *******************************************************************************
+      871    *******************************************************************************
+      872    *
+      873    * upd-xrec.i
+      874    *
+      875    * {1} = base field
+      876    * {2} = value to update metrics with
+      877    *
+      878    * [1] = base
+      879    * [2] = last (previous cumulative value)
+      880    * [3] = this
+      881    * [4] = cumulative
+      882    * [5] = interval
+      883    *
+      884    */
+      885   
+      886   tt_bigb.osrx[3] = tt_bigb.osrx[3]
+      887   tt_bigb.osrx[4] = tt_bigb.osrx[3] - tt_bigb.osrx[1]
+      888   tt_bigb.osrx[5] = tt_bigb.osrx[3] - tt_bigb.osrx[2]
+      889   tt_bigb.osrx[2] = tt_bigb.osrx[3]
+      890                   /* OS Reads             */
+      891   
+      892       tt_bigb.mpct =                                              /* Predicted Miss %     */
+      893         ( if tt_bigb.bigb > p_used then 0 else                            /* it all fits in -B    */
+      894         100 * exp(( p_buf / tt_bigb.bigb ), 0.5 ) *                       /* sqrt( OldB / NewB )  */
+      895         ( 1 - (( tt_bigb.lrx[x] - tt_bigb.osrx[x] ) / tt_bigb.lrx[x] )))  /* Current Miss %       */
+      896   
+      897       tt_bigb.hpct = 100 - tt_bigb.mpct                           /* Predicted Hit %      */
+      898       tt_bigb.osr  = tt_bigb.lrx[x] * ( tt_bigb.mpct / 100 )      /* Predicted OS Reads   */
+      899       tt_bigb.hr   = tt_bigb.lrx[x] / tt_bigb.osr                 /* Predicted Hit Ratio  */
+      900       tt_bigb.db-pct = ( tt_bigb.bigb / p_used ) * 100.
+      901       tt_bigb.hr = ( if tt_bigb.hr = ? then 99999999 else tt_bigb.hr )
+      902     .
+      903   
+      904     return.
+      905   
+      906   end.
+      907   
+      908   
+      909   procedure mon-init:
+      910   
+      911     empty temp-table tt_bigb.
+      912   
+      913     find dictdb._DbStatus no-lock.
+      914     dbBlkSize = _dbStatus-dbBlkSize.
+      915     run updTick.
+      916   
+      917     return.
+      918   
+      919   end.
+      920   
+      921   
+      922   procedure mon-update:
+      923   
+      924     define input parameter argList as character no-undo.
+      925   
+      926     define variable u-pct as decimal no-undo.
+      927     define variable bfree as integer no-undo.
+      928     define variable used  as integer no-undo.
+      929   
+      930     define variable i     as integer no-undo.
+      931     define variable b_pct as integer no-undo extent 12
+      932       initial [ 10, 25, 50, 100, 150, 200, 400, 800, 1000, 2000, 5000, 10000 ].
+      933   
+      934     run updTick.
+      935   
+      936     find first dictdb._BuffStatus no-lock.
+      937     find first dictdb._ActBuffer  no-lock.
+      938   
+      939     /* How many blocks is this database using?
+      940      *
+      941      * This is a quick & dirty calculation -- maybe it should be better?
+      942      *
+      943      */
+      944   
+      945     for each dictdb._AreaStatus no-lock:
+      946       if ( _AreaStatus-Freenum = ? ) then
+      947         bfree = _AreaStatus-Totblocks - _AreaStatus-Hiwater.
+      948        else
+      949         bfree = _AreaStatus-Totblocks - _AreaStatus-Hiwater + _AreaStatus-Freenum.
+      950       if bfree = ? then bfree = _AreaStatus-totblocks.
+      951       used = used + ( _AreaStatus-totblocks - bfree ).
+      952     end.
+      953   
+      954     do i = 1 to 12:
+      955       run predict-b( b_pct[i], ( _BuffStatus._BfStatus-TotBufs - 2 ), _ActBuffer._Buffer-LogicRds, _ActBuffer._Buffer-OSRds, used ).
+      956     end.
+      957   
+      958     /*** if we don't RELEASE this the summary screen fails to find it (which makes NO sense -- it's a FIND NO-LOCK...)
+      959      ***
+      960      ***/
+      961   
+      962     release dictdb._ActBuffer.
+      963   
+      964     for each tt_bigb no-lock by tt_bigb.xpct:
+      965   
+      966       tt_bigb.osr = ( tt_bigb.osr / z ).
+      967       tt_bigb.dbSize = ( used * dbBlkSize ) / ( 1024 * 1024 * 1024 ).
+      968       if tt_bigb.xpct = 100 then tt_bigb.xnote = "<== Current -B".
+      969   
+      970     end.
+      971   
+      972     add2ds( temp-table tt_bigb:default-buffer-handle ).
+      973   
+      974     return.
+      975   
+      976   end.
+      977   
+      978   return.

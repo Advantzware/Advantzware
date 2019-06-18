@@ -1,0 +1,9 @@
+# rp.pf
+#
+# client parameters
+# 
+# -H localhost
+# -S 9999
+# -Mm 8192
+
+-rand 2

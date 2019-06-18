@@ -1,0 +1,403 @@
+        1   /* zprof_topx.p
+        2    *
+        3    * process a .prf file and produce a report
+        4    *
+        5    * pro -p lib/zprof_topx.p -param tmp/f03e40c9-8043-0aba-e611-3cc5eac467bd.2016.12.18.11.12.14
+        6    *
+        7    * note: there is no ".prf" at the end of the file name!
+        8    *
+        9    */
+       10   
+       11   define variable zprofData as character no-undo.
+       12   define variable topLines  as integer no-undo initial 20.
+       13   
+       14   define temp-table tt_profile
+       15     field id          as integer format ">>>>9"
+       16     field pdate       as date format "99/99/99"
+       17     field description as character format "x(30)"
+       18     index profile-idx is unique primary
+       19       id
+       20     index profile-date
+       21       pdate
+       22   .
+       23   
+       24   define temp-table tt_source
+       25     field id          as integer format ">>>>9"
+       26     field pid         as integer format ">>>>>9"
+       27     field pname       as character format "x(40)"
+       28     field debug_name  as character format "x(40)"
+       29     index source-idx is unique primary
+       30       id pid
+       31     index source-name
+       32       pname
+       33   .
+       34   
+       35   define temp-table tt_tree
+       36     field id          as integer format ">>>>9"
+       37     field caller      as integer format ">>>>>9"
+       38     field src_line    as integer format ">>>>>9"
+       39     field callee      as integer format ">>>>>9"
+       40     field call_count  as integer format ">>>>>9"
+       41     index tree-idx is primary
+       42       id caller src_line callee
+       43   .
+       44   
+       45   define temp-table tt_ptime
+       46     field id          as integer format ">>>>9"
+       47     field pid         as integer format ">>>>>9"
+       48     field src_line    as integer format ">>>>>9"
+       49     field exec_count  as integer format ">>>>>>>>>9"
+       50     field exe_time    as decimal format ">>>>>9.999999"
+       51     field tot_time    as decimal format ">>>>>9.999999"
+       52     field avg_time    as decimal format ">>>>>9.999999"
+       53     index ptime-idx is unique primary
+       54       id pid src_line
+       55     index avg-idx
+       56       avg_time descending
+       57     index line-idx
+       58       src_line
+       59     index ptime-pid-t1
+       60       id pid exe_time
+       61     index ptime-pid-t3
+       62       id pid avg_time
+       63     index ptime-t1
+       64       id exe_time
+       65     index ptime-t3
+       66       id avg_time
+       67   .
+       68   
+       69   define temp-table tt_code_line
+       70     field pid         as integer   format ">>>>>9"                /* program id#                          */
+       71     field src_line    as integer   format ">>>>9"                 /* source line#                         */
+       72     field pname       as character format "x(30)"                 /* procedure or class name              */
+       73     field ipname      as character format "x(40)"                 /* internal procedure or method name    */
+       74     field t1          as decimal   format ">>>>>9.999999"         /* execution time                       */
+       75     field t2          as integer   format ">>>>>>>>>9"            /* calls                                */
+       76     field t3          as integer   format ">>9"                   /* sessions                             */
+       77     field t4          as decimal   format ">>>>>9.999999"         /* average time                         */
+       78     index bad-idx1 is unique primary
+       79       pid pname src_line
+       80     index bad-idx2
+       81       t2 t3
+       82     index bad-idx3
+       83       t1
+       84     index avg-idx
+       85       t4
+       86   .
+       87   
+       88   
+       89   /*********************************************************/
+       90   
+       91   define stream inStrm.
+       92   
+       93   procedure zprofiler_load:
+       94   
+       95     define input parameter zprofData as character no-undo.
+       96   
+       97     define variable i   as integer   no-undo.
+       98     define variable v   as integer   no-undo.
+       99     define variable dt  as date      no-undo.
+      100     define variable dsc as character no-undo.
+      101   
+      102     define variable profile_id as integer no-undo.
+      103   
+      104     empty temp-table tt_profile.
+      105     empty temp-table tt_source.
+      106     empty temp-table tt_tree.
+      107     empty temp-table tt_ptime.
+      108   
+      109     file-info:file-name = zprofData + ".prf".
+      110   
+      111     if file-info:full-pathname = ? then
+      112       do:
+      113         message "Cannot find profiler .prf data file:" zprofData.
+      114         pause.
+      115         return.
+      116       end.
+      117   
+      118     /* message "loading from:" file-info:full-pathname. /* session:date-format. */ pause. */
+      119   
+      120     input stream inStrm from value( file-info:full-pathname ).
+      121   
+      122     i = 1.
+      123   
+      124     repeat:                               /* in theory there could be more than 1?  that would probably break a lot of stuff...   */
+      125   
+      126       import stream inStrm v /* dt */ ^ dsc no-error.             /* the profiler apparently ignores session:date-format...       */
+      127   
+      128       if v <> 1 then
+      129         do:
+      130           input stream inStrm close.
+      131           message "Invalid version:" v.
+      132           pause.
+      133           return.
+      134         end.
+      135   
+      136       /* message v dt dsc. pause. */                              /* the profiler apparently ignores session:date-format...       */
+      137   
+      138       profile_id = i.
+      139   
+      140       create tt_profile.
+      141       assign
+      142         tt_profile.id          = profile_id
+      143         tt_profile.pdate       = today /* dt */
+      144         tt_profile.description = dsc
+      145       .
+      146   
+      147       i = i + 1.
+      148   
+      149     end.
+      150   
+      151     /* message "profile id:" profile_id. pause. */
+      152   
+      153     i = 1.
+      154   
+      155     repeat:
+      156   
+      157         create tt_source.
+      158         tt_source.id = profile_id.
+      159         import stream inStrm tt_source.pid tt_source.pname tt_source.debug_name no-error.
+      160   
+      161         i = i + 1.
+      162   
+      163     end.
+      164   
+      165   /*  message i "tt_source loaded". pause.
+      166    *  message "creating tt_source session record". pause.
+      167    */
+      168   
+      169     /* create tt_source. */               /* don't CREATE -- an extra will be left over from the REPEAT logic     */
+      170     assign
+      171       tt_source.id = profile_id
+      172       tt_source.pid = 0
+      173       tt_source.pname = "Session"
+      174       tt_source.debug_name = "Session"
+      175     .
+      176   
+      177     /* message "tt_source session record created". pause. */
+      178   
+      179     i = 1.
+      180   
+      181     repeat:
+      182   
+      183       create tt_tree.
+      184       tt_tree.id = profile_id.
+      185       import stream inStrm tt_tree.caller tt_tree.src_line tt_tree.callee tt_tree.call_count no-error.
+      186   
+      187       i = i + 1.
+      188   
+      189     end.
+      190   
+      191     delete tt_tree.
+      192   
+      193     /* message i "tt_tree loaded". pause. */
+      194   
+      195     i = 1.
+      196   
+      197     repeat:
+      198   
+      199   
+      200       create tt_ptime.
+      201       tt_ptime.id = profile_id.
+      202       import stream inStrm tt_ptime.pid tt_ptime.src_line tt_ptime.exec_count tt_ptime.exe_time tt_ptime.tot_time no-error.
+      203       tt_ptime.avg_time = tt_ptime.exe_time / tt_ptime.exec_count.
+      204   
+      205       i = i + 1.
+      206   
+      207     end.
+      208   
+      209     delete tt_ptime.
+      210   
+      211     /* message i "tt_ptime loaded". pause. */
+      212   
+      213     input stream inStrm close.
+      214   
+      215     return.
+      216   
+      217   end.
+      218   
+      219   
+      220   procedure zprofiler_proc:
+      221   
+      222     define variable c  as integer no-undo.
+      223     define variable i  as integer no-undo.
+      224     define variable t1 as decimal no-undo format ">>>>>9.999999".
+      225     define variable t2 as integer no-undo format ">>>>>>>>>9".
+      226     define variable t3 as integer no-undo format ">>9".
+      227   
+      228     define variable srcName    as character no-undo.
+      229     define variable iprocName  as character no-undo.
+      230   
+      231     empty temp-table tt_code_line.
+      232   
+      233     for each tt_ptime no-lock by tt_ptime.avg_time descending:     
+      234   
+      235       /*  if exec_count < 1 /* or src_line = 0 */ then next. */
+      236   
+      237       find tt_source where
+      238            tt_source.id =  tt_ptime.id and
+      239            tt_source.pid = tt_ptime.pid no-error.
+      240   
+      241       if not available( tt_source ) then
+      242         srcName = "session".
+      243        else
+      244         srcName = tt_source.pname.
+      245   
+      246       if srcName begins "lib/zprof" then next.                    /* don't include the profiler */
+      247   
+      248       find tt_code_line where
+      249            tt_code_line.pid      = tt_ptime.pid and
+      250            tt_code_line.src_line = tt_ptime.src_line and
+      251            tt_code_line.pname    = srcName /* tt_source.pname */ no-error.
+      252   
+      253       if not available tt_code_line then
+      254         do:
+      255           create tt_code_line.
+      256           assign
+      257             i = i + 1
+      258             tt_code_line.pid      = tt_ptime.pid
+      259             tt_code_line.src_line = tt_ptime.src_line
+      260             tt_code_line.pname    = srcName
+      261           .
+      262         end.
+      263   
+      264     end.
+      265   
+      266     /* message i "entries processed". pause. */
+      267   
+      268     for each tt_code_line:
+      269   
+      270       assign
+      271         tt_code_line.t1 = 0
+      272         tt_code_line.t2 = 0
+      273       .
+      274   
+      275       for
+      276         each tt_source where
+      277           tt_source.pname = tt_code_line.pname,
+      278         each tt_ptime where
+      279           tt_ptime.id       = tt_source.id  and
+      280           tt_ptime.pid      = tt_source.pid and
+      281           tt_ptime.src_line = tt_code_line.src_line:      
+      282   
+      283         assign
+      284           tt_code_line.t1 = tt_code_line.t1 + tt_ptime.exe_time
+      285           tt_code_line.t2 = tt_code_line.t2 + tt_ptime.exec_count
+      286           tt_code_line.t3 = tt_code_line.t3 + 1
+      287         .
+      288   
+      289         if tt_ptime.pid = 0 and tt_ptime.src_line = 0 then tt_code_line.t1 = tt_ptime.tot_time.
+      290   
+      291       end.
+      292   
+      293     end.
+      294   
+      295     for each tt_code_line:
+      296   
+      297       tt_code_line.t4 = ( tt_code_line.t1 / tt_code_line.t2 ).    /* calculate the average time... */
+      298   
+      299       if num-entries( tt_code_line.pname, " " ) > 1 then
+      300         assign
+      301           tt_code_line.ipname = entry( 1, tt_code_line.pname, " " )
+      302           tt_code_line.pname  = entry( 2, tt_code_line.pname, " " )
+      303         .
+      304   
+      305     end.
+      306   
+      307     return.
+      308   
+      309   end.
+      310   
+      311   
+      312   procedure zprofiler_topx:
+      313   
+      314     define input parameter zprofData as character no-undo.
+      315     define input parameter toTTY     as logical   no-undo.
+      316     define input parameter topLines  as integer   no-undo.
+      317   
+      318     define variable c  as integer no-undo.
+      319     define variable i  as integer no-undo.
+      320     define variable t1 as decimal no-undo format ">>>>>9.999999".
+      321     define variable t2 as integer no-undo format ">>>>>>>>>9".
+      322     define variable t3 as integer no-undo format ">>9".
+      323   
+      324     define variable t9 as integer no-undo.
+      325   
+      326     find first tt_profile no-lock no-error.       /* assuming that they're all the same date... */
+      327   
+      328     for each tt_code_line no-lock where tt_code_line.pname <> "session":
+      329       t9 = t9 + tt_code_line.t1.
+      330     end.
+      331   
+      332     if toTTY = no then output to value( zprofData + ".rpt" ).
+      333     
+      334     display
+      335       tt_profile.description  label "Description" format "x(70)" skip
+      336       "Session Total Execution Time  " string( t9, "hh:mm:ss" )  skip
+      337       "Line 0 = initialization, line -1 = cleanup"               skip
+      338      with frame prof-hdr
+      339        title " Profiler: Top Results "
+      340        width 120
+      341        centered
+      342        overlay
+      343        side-labels
+      344        row 4
+      345     .
+      346   
+      347     i = 0.
+      348   
+      349     for each tt_code_line no-lock by tt_code_line.t1 descending:
+      350   
+      351       if tt_code_line.pname = "session" then next.
+      352   
+      353       i = i + 1.
+      354   
+      355       display
+      356         tt_code_line.pname    label "Program/Class"
+      357         tt_code_line.src_line label "Line"
+      358         tt_code_line.t1       label "Time"
+      359         tt_code_line.t4       label "Avg Time"
+      360         tt_code_line.t2       label "Calls"
+      361         tt_code_line.ipname   label "Internal Procedure/Method"
+      362        with frame prof-rpt
+      363          title " Top Lines: Total Execution Time "
+      364          width 120
+      365          centered
+      366          overlay
+      367          down
+      368          row 9
+      369       .
+      370   
+      371       if i > topLines then leave.
+      372   
+      373     end.
+      374   
+      375     if toTTY = no then
+      376       output close.
+      377      else
+      378       do:
+      379         pause.
+      380         hide frame prof-rpt.
+      381         hide frame prof-hdr.
+      382       end.
+      383   
+      384     return.
+      385   
+      386   end.
+      387   
+      388   
+      389   /* main body
+      390    *
+      391    */
+      392   
+      393   zprofData = entry( 1, session:parameter, "|" ).
+      394   if num-entries( session:parameter, "|" ) = 2 then topLines = integer( entry( 2, session:parameter, "|" )).
+      395   
+      396   run zprofiler_load( zprofData ).                        /* load profiler data into temp-tables to analyze               */
+      397   run zprofiler_proc.                                     /* process the data                                             */
+      398   run zprofiler_topx( zprofData, no,  topLines ).         /* report on the top X execution time lines -- to file          */
+      399   
+      400   if session:batch = no then
+      401     run zprofiler_topx( zprofData, yes, topLines ).       /* report on the top X execution time lines -- to TTY           */
+      402   
+      403   quit.

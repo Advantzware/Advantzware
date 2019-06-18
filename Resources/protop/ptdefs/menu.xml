@@ -1,0 +1,165 @@
+<?xml version="1.0" ?>
+<ttTreeViewMenu>
+ 
+  <ttTreeViewMenuRow>
+    <NodeKey>001</NodeKey>
+    <ParentNodeKey/>
+    <NodeSort>001</NodeSort>
+    <NodeText>Configuration</NodeText>
+    <NodeTag>type=viewer|data=Configuration|table=tt_Configuration</NodeTag>
+    <ImageKey>control_panel</ImageKey>
+    <Active>True</Active>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>002</NodeKey>
+    <ParentNodeKey/>
+    <NodeSort>002</NodeSort>
+    <NodeText>Dashboard</NodeText>
+    <NodeTag>type=viewer|data=Dashboard|table=tt_Dashboard</NodeTag>
+    <ImageKey>control_panel</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <!-- Status -->
+
+  <ttTreeViewMenuRow>
+    <NodeKey>003</NodeKey>
+    <ParentNodeKey/>
+    <NodeSort>003</NodeSort>
+    <NodeText>Status</NodeText>
+    <NodeTag>Status</NodeTag>
+    <ImageKey>data_gear</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>031</NodeKey>
+    <ParentNodeKey>003</ParentNodeKey>
+    <NodeSort>031</NodeSort>
+    <NodeText>Active TRX</NodeText>
+    <NodeTag>type=browser|data=ActiveTRX|table=tt_trx</NodeTag>
+    <ImageKey>data_certificate</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>032</NodeKey>
+    <ParentNodeKey>003</ParentNodeKey>
+    <NodeSort>032</NodeSort>
+    <NodeText>Blocked Sessions</NodeText>
+    <NodeTag>type=browser|data=Blocked|table=tt_blocked</NodeTag>
+    <ImageKey>construction_barrier</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>033</NodeKey>
+    <ParentNodeKey>003</ParentNodeKey>
+    <NodeSort>033</NodeSort>
+    <NodeText>Oldest Blocker Stack Trace</NodeText>
+    <NodeTag>type=browser|data=Blocker|table=tt_blocker</NodeTag>
+    <ImageKey>construction_barrier</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>034</NodeKey>
+    <ParentNodeKey>003</ParentNodeKey>
+    <NodeSort>034</NodeSort>
+    <NodeText>Checkpoints</NodeText>
+    <NodeTag>type=browser|data=Checkpoints|table=tt_checkpt</NodeTag>
+    <ImageKey>data_gear</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <!-- IO -->
+
+  <ttTreeViewMenuRow>
+    <NodeKey>004</NodeKey>
+    <ParentNodeKey/>
+    <NodeSort>004</NodeSort>
+    <NodeText>IO</NodeText>
+    <NodeTag>IO</NodeTag>
+    <ImageKey>hard_drive</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>041</NodeKey>
+    <ParentNodeKey>004</ParentNodeKey>
+    <NodeSort>041</NodeSort>
+    <NodeText>BigB Guesstimator</NodeText>
+    <NodeTag>type=browser|data=BigBGuesstimator|table=tt_bigb|except=lrx[1],lrx[2],lrx[3],lrx[4],lrx[5],osrx[1],osrx[2],osrx[3],osrx[4],osrx[5]</NodeTag>
+    <ImageKey>calculator</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>044</NodeKey>
+    <ParentNodeKey>004</ParentNodeKey>
+    <NodeSort>044</NodeSort>
+    <NodeText>Remote Server Activity</NodeText>
+    <NodeTag>type=browser|data=RemoteServerActivity|table=tt_serverioact</NodeTag>
+    <ImageKey>data_gear</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>045</NodeKey>
+    <ParentNodeKey>004</ParentNodeKey>
+    <NodeSort>045</NodeSort>
+    <NodeText>Extent IO</NodeText>
+    <NodeTag>type=browser|data=FileIOActivity|table=tt_fileio|except=xId</NodeTag>
+    <ImageKey></ImageKey>
+  </ttTreeViewMenuRow>
+
+  <!-- Activity -->
+
+  <ttTreeViewMenuRow>
+    <NodeKey>009</NodeKey>
+    <ParentNodeKey/>
+    <NodeSort>009</NodeSort>
+    <NodeText>Activity</NodeText>
+    <NodeTag>Activity</NodeTag>
+    <ImageKey>data_gear</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>091</NodeKey>
+    <ParentNodeKey>009</ParentNodeKey>
+    <NodeSort>091</NodeSort>
+    <NodeText>User IO Activity</NodeText>
+    <NodeTag>type=browser|data=UserIOActivity|table=tt_uio</NodeTag>
+    <ImageKey>user</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>092</NodeKey>
+    <ParentNodeKey>009</ParentNodeKey>
+    <NodeSort>092</NodeSort>
+    <NodeText>Table Activity</NodeText>
+    <NodeTag>type=browser|data=TableActivity|table=tt_tblAct</NodeTag>
+    <ImageKey>data_table</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>093</NodeKey>
+    <ParentNodeKey>009</ParentNodeKey>
+    <NodeSort>093</NodeSort>
+    <NodeText>Index Activity</NodeText>
+    <NodeTag>type=browser|data=IndexActivity|table=tt_idxAct</NodeTag>
+    <ImageKey>data_table</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>094</NodeKey>
+    <ParentNodeKey>009</ParentNodeKey>
+    <NodeSort>094</NodeSort>
+    <NodeText>Resource Wait Activity</NodeText>
+    <NodeTag>type=browser|data=ResourceWaits|table=tt_resrc</NodeTag>
+    <ImageKey>construction_barrier</ImageKey>
+  </ttTreeViewMenuRow>
+
+  <ttTreeViewMenuRow>
+    <NodeKey>095</NodeKey>
+    <ParentNodeKey>009</ParentNodeKey>
+    <NodeSort>095</NodeSort>
+    <NodeText>Latch Activity</NodeText>
+    <NodeTag>type=browser|data=LatchActivity|table=tt_latch</NodeTag>
+    <ImageKey>key</ImageKey>
+  </ttTreeViewMenuRow>
+
+
+</ttTreeViewMenu>

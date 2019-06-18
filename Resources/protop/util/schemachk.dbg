@@ -1,0 +1,31 @@
+        1   /* schemachk.p
+        2    *
+        3    * look for RECID and LOB fields -- they can be troublesome when dumping & loading
+        4    *
+        5    */
+        6     
+        7   define variable i as integer no-undo format ">>9".
+        8     
+        9   form
+       10     i _file._file-name _field._field-name _field._data-type
+       11    with
+       12     frame a
+       13     down
+       14   .
+       15            
+       16   for each _file no-lock where _hidden = no:
+       17     for each _field no-lock of _file:
+       18       if _field._data-type = "recid" or _field._data-type matches "*LOB" then
+       19         do:
+       20           i = i + 1.
+       21           display i _file._file-name _field._field-name _field._data-type with frame a.
+       22           down with frame a.
+       23         end.
+       24     end.
+       25   end.
+       26   
+       27   pause.
+       28   
+       29   hide frame a.
+       30   
+       31   return.
