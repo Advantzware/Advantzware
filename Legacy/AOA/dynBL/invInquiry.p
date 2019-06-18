@@ -43,7 +43,15 @@ PROCEDURE pBusinessLogic:
     FOR EACH itemfg NO-LOCK
         WHERE itemfg.company EQ cCompany
           AND itemfg.cust-no EQ cCustNo
-          AND itemfg.stat    EQ "A"
+          AND itemfg.stat    EQ "A",
+        FIRST oe-ordl NO-LOCK
+        WHERE oe-ordl.company EQ itemfg.company
+          AND oe-ordl.part-no EQ itemfg.part-no,
+        FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ oe-ordl.company
+          AND oe-ord.ord-no  EQ oe-ordl.ord-no
+          AND oe-ord.cust-no EQ itemfg.cust-no
+          AND oe-ord.opened  EQ YES
         :
         DO idx = 1 TO EXTENT(iQualifier):
             CREATE ttTempTable.

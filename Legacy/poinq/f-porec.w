@@ -341,7 +341,6 @@ PROCEDURE populate-tt :
       FOR EACH fg-rcpth FIELDS(r-no rita-code i-no job-no
           job-no2 trans-date) WHERE
           fg-rcpth.company EQ cocode AND
-          fg-rcpth.vend-no EQ b-po-ord.vend-no AND
           fg-rcpth.po-no EQ v-po-no AND
           LOOKUP(fg-rcpth.rita-code,"R,E") > 0
           NO-LOCK,

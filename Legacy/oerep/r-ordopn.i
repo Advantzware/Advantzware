@@ -131,14 +131,12 @@
                  IF AVAIL itemfg THEN
                  DO:
                     IF itemfg.isaset AND itemfg.alloc THEN
-                       FOR EACH fg-act FIELDS(qty) WHERE
-                           fg-act.company eq job.company AND
-                           fg-act.job-no  eq oe-ordl.job-no AND
-                           fg-act.job-no2 eq oe-ordl.job-no2 AND
-                           fg-act.i-no    eq oe-ordl.i-no
-                           NO-LOCK:
-                           lv-rec-qty = lv-rec-qty + fg-act.qty.
-                       END.
+                       RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                                                  INPUT job-hdr.job-no,
+                                                  INPUT job-hdr.job-no2,
+                                                  INPUT job-hdr.i-no,
+                                                  INPUT NO,
+                                                  OUTPUT lv-rec-qty).
                       
                     FOR EACH fg-rcpth FIELDS(r-no rita-code company) WHERE
                         fg-rcpth.company   EQ job.company AND

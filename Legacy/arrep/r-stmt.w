@@ -101,12 +101,22 @@ def var v-use-cust as log no-undo.
 DEF VAR vcDefaultForm AS CHAR NO-UNDO.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
 
 DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE d-print-fmt-dec  AS DECIMAL NO-UNDO.
+
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("arrep/r-stmt.w","", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+
+IF lResult THEN ASSIGN lAsiUser = YES .
+
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -138,11 +148,11 @@ DEF BUFFER b-cust   FOR cust.
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 stmt-date tb_cust-list ~
 btnCustList begin_cust-no end_cust-no stmt-msg fi_contact tb_detailed ~
 tb_past-due tb_curr-bal tb_HideDialog rd-dest tb_BatchMail tb_emailpdf ~
-lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+lines-per-page lv-ornt lv-font-no td-show-parm run_format btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS stmt-date tb_cust-list begin_cust-no ~
 end_cust-no stmt-msg fi_contact lbl_detailed tb_detailed lbl_past-due ~
 tb_past-due lbl_curr-bal tb_curr-bal tb_HideDialog rd-dest tb_BatchMail ~
-tb_emailpdf lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
+tb_emailpdf lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm run_format
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -296,6 +306,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN /*COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST*/
+     SIZE 25 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -324,6 +339,7 @@ DEFINE FRAME FRAME-A
      lv-font-no AT ROW 16.33 COL 34 COLON-ALIGNED
      lv-font-name AT ROW 17.29 COL 29 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 19.05 COL 31
+     run_format AT ROW 19.05 COL 65 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 20.81 COL 20
      btn-cancel AT ROW 20.81 COL 58
      "Output Destination" VIEW-AS TEXT
@@ -568,7 +584,7 @@ DO:
       END.
   END.
 
-  IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+  IF NOT lAsiUser AND CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
      sys-ctrl-shipto.NAME = "STMTPRINT") THEN
      DO:
@@ -1017,6 +1033,41 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
+DO:
+   ASSIGN run_format.
+
+   IF v-stmt-char NE run_format THEN DO:
+       ASSIGN v-stmt-char =  run_format
+              vcDefaultForm = v-stmt-char.
+      RUN  pRunFormatValueChanged .
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Font */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+    
+    RUN windows/l-syschrL.w (gcompany,"STMTPRINT",run_format:SCREEN-VALUE,OUTPUT char-val).
+     IF char-val NE '' THEN
+      run_format:SCREEN-VALUE = ENTRY(1,char-val).
+     IF v-stmt-char NE run_format:SCREEN-VALUE THEN DO:
+       ASSIGN v-stmt-char =  run_format:SCREEN-VALUE
+              vcDefaultForm = v-stmt-char.
+      RUN  pRunFormatValueChanged .
+     END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1086,15 +1137,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        d-print-fmt-dec = sys-ctrl.dec-fld
        vcDefaultForm = v-stmt-char.
 
-    IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") AND
-       lookup("PDFCamp Printer",SESSION:GET-PRINTERS()) GT 0 THEN
-       v-pdf-camp = YES.
-    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "ARStmt3C" OR v-stmt-char = "SouleMed") THEN DO:
-        fi_contact:HIDDEN = NO.
-        RUN setAttentionDefault.
-    END.
-    ELSE
-        fi_contact:HIDDEN = YES.
+    RUN pRunFormatValueChanged .
 
     RUN SetEmailBoxes.
 
@@ -1141,6 +1184,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    END.
 
 
+   IF NOT lAsiUser THEN
+         RUN_format:HIDDEN IN FRAME FRAME-A = YES .
+     ELSE 
+         RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-stmt-char .
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1307,12 +1354,12 @@ PROCEDURE enable_UI :
   DISPLAY stmt-date tb_cust-list begin_cust-no end_cust-no stmt-msg fi_contact 
           lbl_detailed tb_detailed lbl_past-due tb_past-due lbl_curr-bal 
           tb_curr-bal tb_HideDialog rd-dest tb_BatchMail tb_emailpdf 
-          lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
+          lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 stmt-date tb_cust-list btnCustList begin_cust-no 
          end_cust-no stmt-msg fi_contact tb_detailed tb_past-due tb_curr-bal 
          tb_HideDialog rd-dest tb_BatchMail tb_emailpdf lines-per-page lv-ornt 
-         lv-font-no td-show-parm btn-ok btn-cancel 
+         lv-font-no td-show-parm run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -4351,6 +4398,13 @@ assign
  v-detail    = tb_detailed
  v-past-due  = tb_past-due.
 
+IF lAsiUser THEN DO:
+     ASSIGN v-stmt-char =  run_format
+         vcDefaultForm = v-stmt-char.
+     
+    /* viDefaultLinesPerPage = lines-per-page.*/
+END.
+
 IF ip-sys-ctrl-shipto THEN
    ASSIGN
       v-lo-cust = ip-cust-no
@@ -5442,6 +5496,32 @@ PROCEDURE show-param :
 
   put fill("-",80) format "x(80)" skip.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
+PROCEDURE pRunFormatValueChanged :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+
+        IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") AND
+            lookup("PDFCamp Printer",SESSION:GET-PRINTERS()) GT 0 THEN
+            v-pdf-camp = YES.
+        IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "StdStatement2" OR v-stmt-char = "ARStmt3C" OR v-stmt-char = "SouleMed") THEN DO:
+            fi_contact:HIDDEN IN FRAME {&FRAME-NAME} = NO.
+            RUN setAttentionDefault.
+        END.
+        ELSE
+            fi_contact:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+       
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

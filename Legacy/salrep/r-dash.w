@@ -1242,16 +1242,12 @@ PROCEDURE backlog-sales-forecast-proc :
       v-qty[1] = v-qty[1] + job-hdr.qty.
 
       if last-of(job-hdr.i-no) then do:
-        for each fg-act FIELDS(qty)
-            where fg-act.company eq tt-sales-forecast.company
-              and fg-act.job     eq job-hdr.job
-              and fg-act.job-no  eq job-hdr.job-no
-              and fg-act.job-no2 eq job-hdr.job-no2
-              and fg-act.i-no    eq job-hdr.i-no
-            use-index job-idx no-lock:
-
-          v-qty[2] = v-qty[2] + fg-act.qty.  
-        end.
+        RUN fg/GetProductionQty.p (INPUT cocode,
+                                INPUT job-hdr.job-no,
+                                INPUT job-hdr.job-no2,
+                                INPUT job-hdr.i-no,
+                                INPUT NO,
+                                OUTPUT v-qty[2]).
 
         if v-qty[2] lt v-qty[1] then do:
           create tt-report.

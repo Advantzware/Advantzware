@@ -1,0 +1,1017 @@
+        1   /* pt3svc.p
+        2    *
+        3    * service to make sure that monitoring jobs are up and running - deprecated, replaced by util/dbmonitor.p
+        4    *
+        5    */
+        6   
+        7   
+        8   /*******************************************************************************
+        9    *******************************************************************************
+       10    **                                                                           **
+       11    **                                                                           **
+       12    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       13    **  http://www.greenfieldtech.com                                            **
+       14    **                                                                           **
+       15    **  ProTop is free software; you can redistribute it and/or modify it        **
+       16    **  under the terms of the GNU General Public License (GPL) as published     **
+       17    **  by the Free Software Foundation; either version 2 of the License, or     **
+       18    **  at your option) any later version.                                       **
+       19    **                                                                           **
+       20    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       21    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       22    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       23    **  for more details.                                                        **
+       24    **                                                                           **
+       25    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       26    **  of use and alternative licensing options for this software.              **
+       27    **                                                                           **
+       28    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       29    **                                                                           **
+       30    **  See http://www.fsf.org for more information about the GPL.               **
+       31    **                                                                           **
+       32    **                                                                           **
+       33    *******************************************************************************
+       34    *******************************************************************************
+       35    *
+       36    * protop.i
+       37    *
+       38    * Header file for protop family of programs
+       39    *
+       40    *
+       41    * Known Bugs & Issues:
+       42    *
+       43    *
+       44    * To Do:
+       45    *
+       46    *
+       47    * Author:
+       48    *
+       49    *      Tom Bascom, Greenfield Technologies
+       50    *      http://www.greenfieldtech.com
+       51    *      August 28, 2003
+       52    *
+       53    */
+       54   
+       55   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+       56   &global-define  FASTLOCK        true
+       57   &ELSE
+       58   &global-define  FASTLOCK        false
+       59   &ENDIF
+       60   
+       61   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+       62   &global-define  OE11            "yes"
+       63   &global-define  xDEBUGTT        false
+       64   &ENDIF
+       65   
+       66   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+       67   &global-define  NOSERIALIZE     serialize-hidden
+       68   &ENDIF
+       69   
+       70   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+       71   &global-define  BIGINT          int64
+       72   &ELSE
+       73   &global-define  BIGINT          decimal
+       74   &ENDIF
+       75   
+       76   
+       77   /* lib/v9.i
+       78    *
+       79    */
+       80   
+       81   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+       82   &global-define  CPYLOB  "no"
+       83   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+       84   &global-define  LNGCR   character
+       85   &global-define  DTZ     integer
+       86   &global-define  BIGINT  decimal
+       87   &ELSE
+       88   &global-define  OE10    "yes"
+       89   &global-define  NOW     now
+       90   &global-define  LNGCR   longchar
+       91   &global-define  DTZ     datetime-tz
+       92   &global-define  BIGINT  int64
+       93   &ENDIF
+       94    
+       95   
+       96   /* use extended _connect fields: -client, -cache*
+       97    */
+       98   
+       99   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      100   &global-define  CONNECTX        "yes"
+      101   &ELSE
+      102   &global-define  CONNECTX        "no"
+      103   &ENDIF
+      104   
+      105   define stream inStrm.
+      106   
+      107   define new global shared variable dbgMode as integer no-undo initial 1.
+      108   
+      109   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      110    *
+      111    * someday everyone will have OO and I will replace these with a gsv class
+      112    * or something of that ilk
+      113    *
+      114    */
+      115   
+      116   define new global shared variable pt_shortname   as character no-undo.
+      117   define new global shared variable pt_uniqName    as character no-undo.
+      118   define new global shared variable pt_server      as character no-undo.
+      119   define new global shared variable pt_resrcType   as character no-undo.
+      120   
+      121   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      122   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      123   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      124   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      125   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      126   
+      127   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      128   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      129   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      130   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      131   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      132   define new global shared variable pt_ioFileName  as character no-undo.
+      133   define new global shared variable pt_dfCmd       as character no-undo.
+      134   
+      135   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      136   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      137   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      138   
+      139   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      140   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      141   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      142   
+      143   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      144   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      145   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      146   
+      147   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      148   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      149   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      150   
+      151   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      152   
+      153   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      154   
+      155   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      156   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      157   
+      158   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      159    * 
+      160    */
+      161   
+      162   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      163   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      164   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      165   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      166   
+      167   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      168   
+      169                                                                                   /* corresponding to base checkpoint#    */
+      170   /** Global Shared Temp Table Definitions
+      171    **
+      172    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      173    ** And a shared temp-table is logically the same as a db table so who really cares?
+      174    **
+      175    **/
+      176   
+      177   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      178    */
+      179   
+      180   define new global shared temp-table tt_tbl no-undo
+      181     field xid      as integer                                             /* _File._File-Num              */
+      182     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      183     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      184     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      185     field tblname  as character                                           /* _File._File-Name             */
+      186     index xid-idx is unique primary xid.
+      187   
+      188   define new global shared temp-table tt_idx no-undo
+      189     field xid      as integer                                             /* _Index._Idx-Num              */
+      190     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      191     field idxname  as character                                           /* _Index._Idx-Name             */
+      192     field idxnote  as character
+      193     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      194     field tblnum   as integer                                             /* _File._File-Num              */
+      195     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      196     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      197     field tblname  as character                                           /* _File._File-Name             */
+      198     index xid-idx is unique primary xid.
+      199   
+      200   define new global shared temp-table tt_areaExtent no-undo
+      201     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      202     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      203   
+      204     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      205     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      206     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      207   
+      208     index ae-idx is unique primary areaNum extNum.
+      209   
+      210   define new global shared temp-table tt_area no-undo
+      211     field xid      as integer    format ">>>9"
+      212     field SANum    as integer    format ">>>9"        label "#"
+      213     field areaPool as character  format "x(2)"        label "BX"
+      214   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      215     field SAName   as character  format "x(30)"       label "Area Name"
+      216     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      217     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      218     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      219     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      220     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      221     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      222     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      223   
+      224     field blkszkb as integer     format ">>9"         label "BSZ"
+      225     field rpb     as integer     format ">>9"         label "RPB"
+      226     field clstrsz as integer     format ">>9"         label "CSZ"
+      227   
+      228     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      229     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      230     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      231   
+      232     field numExts as integer     format ">>>>9"       label "#Exts"
+      233     field hasVar  as logical     format "Yes/No"      label "Var?"
+      234   
+      235     field xnote   as character   format "x"           label "*"
+      236   
+      237     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      238     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      239   
+      240     index pctAlloc-idx is primary pctAlloc descending
+      241     index pctLastX-idx pctLastX pctAlloc descending
+      242     index allocGB-idx allocGB descending
+      243     index totGB-idx totGB descending
+      244     index xid-idx is unique xid
+      245     index SANum-idx is unique SANum
+      246     index SAName-idx is unique SAName
+      247   .
+      248   
+      249   *** Encrypted Source ***
+      250   *** Encrypted Source ***
+      251   *** Encrypted Source ***
+      252   *** Encrypted Source ***
+      253   *** Encrypted Source ***
+      254   *** Encrypted Source ***
+      255   *** Encrypted Source ***
+      256   *** Encrypted Source ***
+      257   *** Encrypted Source ***
+      258   *** Encrypted Source ***
+      259   *** Encrypted Source ***
+      260   *** Encrypted Source ***
+      261   *** Encrypted Source ***
+      262   *** Encrypted Source ***
+      263   *** Encrypted Source ***
+      264   *** Encrypted Source ***
+      265   *** Encrypted Source ***
+      266   *** Encrypted Source ***
+      267   *** Encrypted Source ***
+      268   *** Encrypted Source ***
+      269   *** Encrypted Source ***
+      270   *** Encrypted Source ***
+      271   *** Encrypted Source ***
+      272   *** Encrypted Source ***
+      273   *** Encrypted Source ***
+      274   *** Encrypted Source ***
+      275   *** Encrypted Source ***
+      276   *** Encrypted Source ***
+      277   *** Encrypted Source ***
+      278   *** Encrypted Source ***
+      279   *** Encrypted Source ***
+      280   *** Encrypted Source ***
+      281   *** Encrypted Source ***
+      282   *** Encrypted Source ***
+      283   *** Encrypted Source ***
+      284   *** Encrypted Source ***
+      285   *** Encrypted Source ***
+      286   *** Encrypted Source ***
+      287   *** Encrypted Source ***
+      288   *** Encrypted Source ***
+      289   *** Encrypted Source ***
+      290   *** Encrypted Source ***
+      291   *** Encrypted Source ***
+      292   *** Encrypted Source ***
+      293   *** Encrypted Source ***
+      294   *** Encrypted Source ***
+      295   *** Encrypted Source ***
+      296   *** Encrypted Source ***
+      297   *** Encrypted Source ***
+      298   *** Encrypted Source ***
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319    
+      320   
+      321   /*******************************************************************************
+      322    *******************************************************************************
+      323    **                                                                           **
+      324    **                                                                           **
+      325    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      326    **  http://www.greenfieldtech.com                                            **
+      327    **                                                                           **
+      328    **  ProTop is free software; you can redistribute it and/or modify it        **
+      329    **  under the terms of the GNU General Public License (GPL) as published     **
+      330    **  by the Free Software Foundation; either version 2 of the License, or     **
+      331    **  at your option) any later version.                                       **
+      332    **                                                                           **
+      333    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      334    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      335    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      336    **  for more details.                                                        **
+      337    **                                                                           **
+      338    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      339    **  of use and alternative licensing options for this software.              **
+      340    **                                                                           **
+      341    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      342    **                                                                           **
+      343    **  See http://www.fsf.org for more information about the GPL.               **
+      344    **                                                                           **
+      345    **                                                                           **
+      346    *******************************************************************************
+      347    *******************************************************************************
+      348    *
+      349    * protoplib.i
+      350    *
+      351    * ProTop infrastructure library definitions
+      352    *
+      353    */
+      354   
+      355   function uDateTime returns integer () in super.
+      356   function string2uDateTime returns integer( input p_text as character ) in super.
+      357   function searchDir returns character ( input xDir as character ) in super.
+      358   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      359   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      360   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      361   function myPID returns character () in super.
+      362   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      363   
+      364   /* end protoplib.i */
+      365    
+      366   
+      367   /*******************************************************************************
+      368    *******************************************************************************
+      369    **                                                                           **
+      370    **                                                                           **
+      371    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      372    **  http://www.greenfieldtech.com                                            **
+      373    **                                                                           **
+      374    **  ProTop is free software; you can redistribute it and/or modify it        **
+      375    **  under the terms of the GNU General Public License (GPL) as published     **
+      376    **  by the Free Software Foundation; either version 2 of the License, or     **
+      377    **  at your option) any later version.                                       **
+      378    **                                                                           **
+      379    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      380    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      381    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      382    **  for more details.                                                        **
+      383    **                                                                           **
+      384    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      385    **  of use and alternative licensing options for this software.              **
+      386    **                                                                           **
+      387    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      388    **                                                                           **
+      389    **  See http://www.fsf.org for more information about the GPL.               **
+      390    **                                                                           **
+      391    **                                                                           **
+      392    *******************************************************************************
+      393    *******************************************************************************
+      394    *
+      395    * vstlib.i
+      396    *
+      397    * VST library definitions
+      398    *
+      399    */
+      400   
+      401   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      402   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      403   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      404   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      405   
+      406   function connectFlags returns character ( input cnxId as integer ) in super.
+      407   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      408   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      409   
+      410   function isAIEnabled returns logical () in super.
+      411   function isReplSource returns logical () in super.
+      412   function isReplTarget returns logical () in super.
+      413   function isBackupRunning returns logical () in super.
+      414   function isWorkgroup returns logical () in super.
+      415   
+      416   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      417   
+      418   /* end vstlib.i */
+      419    
+      420   
+      421   function add2ds returns logical ( input h as handle ) in super.
+      422   function getTempTableHandle returns handle ( input n as character ) in super.
+      423   
+      424   /* end protop.i */
+      425    
+      426   
+      427   define variable ptVerStr as character no-undo initial "
+      428   3.14
+      429    ".
+      430   
+      431   ptVerStr = trim( entry( 1, ptVerStr, "~n" )).
+      432   
+      433   define variable monint as decimal no-undo initial 5.
+      434   
+      435   define new global shared variable custId as character no-undo.
+      436   
+      437   run lib/windows.p persistent.
+      438   
+      439   /* {lib/windows.i} */
+      440   *** Encrypted Source ***
+      441   *** Encrypted Source ***
+      442   *** Encrypted Source ***
+      443   *** Encrypted Source ***
+      444   *** Encrypted Source ***
+      445   *** Encrypted Source ***
+      446   *** Encrypted Source ***
+      447   *** Encrypted Source ***
+      448   *** Encrypted Source ***
+      449   *** Encrypted Source ***
+      450   *** Encrypted Source ***
+      451   *** Encrypted Source ***
+      452   *** Encrypted Source ***
+      453   *** Encrypted Source ***
+      454   *** Encrypted Source ***
+      455   *** Encrypted Source ***
+      456   *** Encrypted Source ***
+      457   *** Encrypted Source ***
+      458   *** Encrypted Source ***
+      459   *** Encrypted Source ***
+      460   *** Encrypted Source ***
+      461   *** Encrypted Source ***
+      462   *** Encrypted Source ***
+      463   *** Encrypted Source ***
+      464   *** Encrypted Source ***
+      465   *** Encrypted Source ***
+      466   *** Encrypted Source ***
+      467   *** Encrypted Source ***
+      468   *** Encrypted Source ***
+      469   *** Encrypted Source ***
+      470   *** Encrypted Source ***
+      471   *** Encrypted Source ***
+      472   *** Encrypted Source ***
+      473   *** Encrypted Source ***
+      474   *** Encrypted Source ***
+      475   *** Encrypted Source ***
+      476   *** Encrypted Source ***
+      477   *** Encrypted Source ***
+      478   *** Encrypted Source ***
+      479   *** Encrypted Source ***
+      480   *** Encrypted Source ***
+      481   *** Encrypted Source ***
+      482   *** Encrypted Source ***
+      483   *** Encrypted Source ***
+      484   *** Encrypted Source ***
+      485   *** Encrypted Source ***
+      486   *** Encrypted Source ***
+      487   *** Encrypted Source ***
+      488   *** Encrypted Source ***
+      489   *** Encrypted Source ***
+      490   *** Encrypted Source ***
+      491   *** Encrypted Source ***
+      492   *** Encrypted Source ***
+      493   *** Encrypted Source ***
+      494   *** Encrypted Source ***
+      495   *** Encrypted Source ***
+      496   *** Encrypted Source ***
+      497   *** Encrypted Source ***
+      498   *** Encrypted Source ***
+      499   *** Encrypted Source ***
+      500   *** Encrypted Source ***
+      501   *** Encrypted Source ***
+      502   *** Encrypted Source ***
+      503   *** Encrypted Source ***
+      504   *** Encrypted Source ***
+      505   *** Encrypted Source ***
+      506   *** Encrypted Source ***
+      507   *** Encrypted Source ***
+      508   *** Encrypted Source ***
+      509   *** Encrypted Source ***
+      510   *** Encrypted Source ***
+      511   *** Encrypted Source ***
+      512   *** Encrypted Source ***
+      513   *** Encrypted Source ***
+      514   *** Encrypted Source ***
+      515   *** Encrypted Source ***
+      516   *** Encrypted Source ***
+      517   *** Encrypted Source ***
+      518   *** Encrypted Source ***
+      519   *** Encrypted Source ***
+      520   *** Encrypted Source ***
+      521   *** Encrypted Source ***
+      522   *** Encrypted Source ***
+      523   *** Encrypted Source ***
+      524   *** Encrypted Source ***
+      525   *** Encrypted Source ***
+      526   *** Encrypted Source ***
+      527   *** Encrypted Source ***
+      528   *** Encrypted Source ***
+      529   *** Encrypted Source ***
+      530   *** Encrypted Source ***
+      531   *** Encrypted Source ***
+      532   *** Encrypted Source ***
+      533   *** Encrypted Source ***
+      534   *** Encrypted Source ***
+      535   *** Encrypted Source ***
+      536   *** Encrypted Source ***
+      537   *** Encrypted Source ***
+      538   *** Encrypted Source ***
+      539   *** Encrypted Source ***
+      540   *** Encrypted Source ***
+      541   *** Encrypted Source ***
+      542   *** Encrypted Source ***
+      543   *** Encrypted Source ***
+      544   *** Encrypted Source ***
+      545   *** Encrypted Source ***
+      546   *** Encrypted Source ***
+      547   *** Encrypted Source ***
+      548   *** Encrypted Source ***
+      549   *** Encrypted Source ***
+      550   *** Encrypted Source ***
+      551   *** Encrypted Source ***
+      552   *** Encrypted Source ***
+      553   *** Encrypted Source ***
+      554   *** Encrypted Source ***
+      555   *** Encrypted Source ***
+      556   *** Encrypted Source ***
+      557   *** Encrypted Source ***
+      558   *** Encrypted Source ***
+      559   *** Encrypted Source ***
+      560   *** Encrypted Source ***
+      561   *** Encrypted Source ***
+      562   *** Encrypted Source ***
+      563   *** Encrypted Source ***
+      564   *** Encrypted Source ***
+      565   *** Encrypted Source ***
+      566   *** Encrypted Source ***
+      567   *** Encrypted Source ***
+      568   *** Encrypted Source ***
+      569   *** Encrypted Source ***
+      570   *** Encrypted Source ***
+      571   *** Encrypted Source ***
+      572   *** Encrypted Source ***
+      573   *** Encrypted Source ***
+      574   *** Encrypted Source ***
+      575   *** Encrypted Source ***
+      576   *** Encrypted Source ***
+      577   *** Encrypted Source ***
+      578   *** Encrypted Source ***
+      579   *** Encrypted Source ***
+      580   *** Encrypted Source ***
+      581   *** Encrypted Source ***
+      582   *** Encrypted Source ***
+      583   *** Encrypted Source ***
+      584   *** Encrypted Source ***
+      585   *** Encrypted Source ***
+      586   *** Encrypted Source ***
+      587   *** Encrypted Source ***
+      588   *** Encrypted Source ***
+      589   *** Encrypted Source ***
+      590   *** Encrypted Source ***
+      591   *** Encrypted Source ***
+      592   *** Encrypted Source ***
+      593   *** Encrypted Source ***
+      594   *** Encrypted Source ***
+      595   *** Encrypted Source ***
+      596   *** Encrypted Source ***
+      597   *** Encrypted Source ***
+      598   *** Encrypted Source ***
+      599   *** Encrypted Source ***
+      600   *** Encrypted Source ***
+      601   *** Encrypted Source ***
+      602   *** Encrypted Source ***
+      603   *** Encrypted Source ***
+      604   *** Encrypted Source ***
+      605   *** Encrypted Source ***
+      606   *** Encrypted Source ***
+      607   *** Encrypted Source ***
+      608   *** Encrypted Source ***
+      609   *** Encrypted Source ***
+      610   *** Encrypted Source ***
+      611   *** Encrypted Source ***
+      612   *** Encrypted Source ***
+      613   *** Encrypted Source ***
+      614   *** Encrypted Source ***
+      615   *** Encrypted Source ***
+      616   *** Encrypted Source ***
+      617   *** Encrypted Source ***
+      618   *** Encrypted Source ***
+      619   *** Encrypted Source ***
+      620   *** Encrypted Source ***
+      621   *** Encrypted Source ***
+      622   *** Encrypted Source ***
+      623   *** Encrypted Source ***
+      624   *** Encrypted Source ***
+      625   *** Encrypted Source ***
+      626   *** Encrypted Source ***
+      627   *** Encrypted Source ***
+      628   *** Encrypted Source ***
+      629   *** Encrypted Source ***
+      630   *** Encrypted Source ***
+      631   *** Encrypted Source ***
+      632   *** Encrypted Source ***
+      633   *** Encrypted Source ***
+      634   *** Encrypted Source ***
+      635   *** Encrypted Source ***
+      636   *** Encrypted Source ***
+      637   *** Encrypted Source ***
+      638   *** Encrypted Source ***
+      639   *** Encrypted Source ***
+      640   *** Encrypted Source ***
+      641   *** Encrypted Source ***
+      642   *** Encrypted Source ***
+      643   *** Encrypted Source ***
+      644   *** Encrypted Source ***
+      645   *** Encrypted Source ***
+      646   *** Encrypted Source ***
+      647   *** Encrypted Source ***
+      648   *** Encrypted Source ***
+      649   *** Encrypted Source ***
+      650   *** Encrypted Source ***
+      651   *** Encrypted Source ***
+      652   *** Encrypted Source ***
+      653   *** Encrypted Source ***
+      654   *** Encrypted Source ***
+      655   *** Encrypted Source ***
+      656   *** Encrypted Source ***
+      657   *** Encrypted Source ***
+      658   *** Encrypted Source ***
+      659   *** Encrypted Source ***
+      660   *** Encrypted Source ***
+      661   *** Encrypted Source ***
+      662   *** Encrypted Source ***
+      663   *** Encrypted Source ***
+      664   *** Encrypted Source ***
+      665   *** Encrypted Source ***
+      666   *** Encrypted Source ***
+      667   *** Encrypted Source ***
+      668   *** Encrypted Source ***
+      669   *** Encrypted Source ***
+      670   *** Encrypted Source ***
+      671   *** Encrypted Source ***
+      672   *** Encrypted Source ***
+      673   *** Encrypted Source ***
+      674   *** Encrypted Source ***
+      675   *** Encrypted Source ***
+      676   *** Encrypted Source ***
+      677   *** Encrypted Source ***
+      678   *** Encrypted Source ***
+      679   *** Encrypted Source ***
+      680   *** Encrypted Source ***
+      681   *** Encrypted Source ***
+      682   *** Encrypted Source ***
+      683   *** Encrypted Source ***
+      684   *** Encrypted Source ***
+      685   *** Encrypted Source ***
+      686   *** Encrypted Source ***
+      687   *** Encrypted Source ***
+      688   *** Encrypted Source ***
+      689   *** Encrypted Source ***
+      690   *** Encrypted Source ***
+      691   *** Encrypted Source ***
+      692   *** Encrypted Source ***
+      693   *** Encrypted Source ***
+      694   *** Encrypted Source ***
+      695   *** Encrypted Source ***
+      696   *** Encrypted Source ***
+      697   *** Encrypted Source ***
+      698   *** Encrypted Source ***
+      699   *** Encrypted Source ***
+      700   *** Encrypted Source ***
+      701   *** Encrypted Source ***
+      702   *** Encrypted Source ***
+      703   *** Encrypted Source ***
+      704   *** Encrypted Source ***
+      705   *** Encrypted Source ***
+      706   *** Encrypted Source ***
+      707   *** Encrypted Source ***
+      708   *** Encrypted Source ***
+      709   *** Encrypted Source ***
+      710   *** Encrypted Source ***
+      711   *** Encrypted Source ***
+      712   *** Encrypted Source ***
+      713   *** Encrypted Source ***
+      714   *** Encrypted Source ***
+      715   *** Encrypted Source ***
+      716   *** Encrypted Source ***
+      717   *** Encrypted Source ***
+      718   *** Encrypted Source ***
+      719   *** Encrypted Source ***
+      720   *** Encrypted Source ***
+      721   *** Encrypted Source ***
+      722   *** Encrypted Source ***
+      723   *** Encrypted Source ***
+      724   *** Encrypted Source ***
+      725   *** Encrypted Source ***
+      726   *** Encrypted Source ***
+      727   *** Encrypted Source ***
+      728   *** Encrypted Source ***
+      729   *** Encrypted Source ***
+      730   *** Encrypted Source ***
+      731   *** Encrypted Source ***
+      732   *** Encrypted Source ***
+      733   *** Encrypted Source ***
+      734   *** Encrypted Source ***
+      735   *** Encrypted Source ***
+      736   *** Encrypted Source ***
+      737   *** Encrypted Source ***
+      738   *** Encrypted Source ***
+      739   *** Encrypted Source ***
+      740   *** Encrypted Source ***
+      741   *** Encrypted Source ***
+      742   *** Encrypted Source ***
+      743   *** Encrypted Source ***
+      744   *** Encrypted Source ***
+      745   *** Encrypted Source ***
+      746   *** Encrypted Source ***
+      747   *** Encrypted Source ***
+      748   *** Encrypted Source ***
+      749   *** Encrypted Source ***
+      750   *** Encrypted Source ***
+      751   *** Encrypted Source ***
+      752   *** Encrypted Source ***
+      753   *** Encrypted Source ***
+      754   *** Encrypted Source ***
+      755   *** Encrypted Source ***
+      756   *** Encrypted Source ***
+      757   *** Encrypted Source ***
+      758   *** Encrypted Source ***
+      759   *** Encrypted Source ***
+      760   *** Encrypted Source ***
+      761   *** Encrypted Source ***
+      762   *** Encrypted Source ***
+      763   *** Encrypted Source ***
+      764   *** Encrypted Source ***
+      765   *** Encrypted Source ***
+      766   *** Encrypted Source ***
+      767   *** Encrypted Source ***
+      768   *** Encrypted Source ***
+      769   *** Encrypted Source ***
+      770   *** Encrypted Source ***
+      771   *** Encrypted Source ***
+      772   *** Encrypted Source ***
+      773   *** Encrypted Source ***
+      774   *** Encrypted Source ***
+      775   *** Encrypted Source ***
+      776   *** Encrypted Source ***
+      777   *** Encrypted Source ***
+      778   *** Encrypted Source ***
+      779   *** Encrypted Source ***
+      780   *** Encrypted Source ***
+      781   *** Encrypted Source ***
+      782   *** Encrypted Source ***
+      783   *** Encrypted Source ***
+      784   *** Encrypted Source ***
+      785   *** Encrypted Source ***
+      786   *** Encrypted Source ***
+      787   *** Encrypted Source ***
+      788   *** Encrypted Source ***
+      789   *** Encrypted Source ***
+      790   *** Encrypted Source ***
+      791   *** Encrypted Source ***
+      792   *** Encrypted Source ***
+      793   *** Encrypted Source ***
+      794   *** Encrypted Source ***
+      795   *** Encrypted Source ***
+      796   *** Encrypted Source ***
+      797   *** Encrypted Source ***
+      798   *** Encrypted Source ***
+      799   *** Encrypted Source ***
+      800   *** Encrypted Source ***
+      801   *** Encrypted Source ***
+      802   *** Encrypted Source ***
+      803   *** Encrypted Source ***
+      804   *** Encrypted Source ***
+      805   *** Encrypted Source ***
+      806   *** Encrypted Source ***
+      807   *** Encrypted Source ***
+      808   *** Encrypted Source ***
+      809   *** Encrypted Source ***
+      810   *** Encrypted Source ***
+      811   *** Encrypted Source ***
+      812   *** Encrypted Source ***
+      813   *** Encrypted Source ***
+      814   *** Encrypted Source ***
+      815   *** Encrypted Source ***
+      816   *** Encrypted Source ***
+      817   *** Encrypted Source ***
+      818   *** Encrypted Source ***
+      819   *** Encrypted Source ***
+      820   *** Encrypted Source ***
+      821   *** Encrypted Source ***
+      822   *** Encrypted Source ***
+      823   *** Encrypted Source ***
+      824   *** Encrypted Source ***
+      825   *** Encrypted Source ***
+      826   *** Encrypted Source ***
+      827   *** Encrypted Source ***
+      828   *** Encrypted Source ***
+      829   *** Encrypted Source ***
+      830   *** Encrypted Source ***
+      831   *** Encrypted Source ***
+      832   *** Encrypted Source ***
+      833   *** Encrypted Source ***
+      834   *** Encrypted Source ***
+      835   *** Encrypted Source ***
+      836   *** Encrypted Source ***
+      837   *** Encrypted Source ***
+      838   *** Encrypted Source ***
+      839   *** Encrypted Source ***
+      840   *** Encrypted Source ***
+      841   *** Encrypted Source ***
+      842   *** Encrypted Source ***
+      843   *** Encrypted Source ***
+      844   *** Encrypted Source ***
+      845   *** Encrypted Source ***
+      846   *** Encrypted Source ***
+      847   *** Encrypted Source ***
+      848   *** Encrypted Source ***
+      849   *** Encrypted Source ***
+      850   *** Encrypted Source ***
+      851   *** Encrypted Source ***
+      852   *** Encrypted Source ***
+      853   *** Encrypted Source ***
+      854   *** Encrypted Source ***
+      855   *** Encrypted Source ***
+      856   *** Encrypted Source ***
+      857   *** Encrypted Source ***
+      858   *** Encrypted Source ***
+      859   *** Encrypted Source ***
+      860   *** Encrypted Source ***
+      861   *** Encrypted Source ***
+      862   *** Encrypted Source ***
+      863   *** Encrypted Source ***
+      864   *** Encrypted Source ***
+      865   *** Encrypted Source ***
+      866   *** Encrypted Source ***
+      867   *** Encrypted Source ***
+      868   *** Encrypted Source ***
+      869   *** Encrypted Source ***
+      870   *** Encrypted Source ***
+      871   *** Encrypted Source ***
+      872   *** Encrypted Source ***
+      873   *** Encrypted Source ***
+      874   *** Encrypted Source ***
+      875   *** Encrypted Source ***
+      876   *** Encrypted Source ***
+      877   *** Encrypted Source ***
+      878   *** Encrypted Source ***
+      879   *** Encrypted Source ***
+      880   *** Encrypted Source ***
+      881   *** Encrypted Source ***
+      882   *** Encrypted Source ***
+      883   *** Encrypted Source ***
+      884   *** Encrypted Source ***
+      885   *** Encrypted Source ***
+      886   *** Encrypted Source ***
+      887   *** Encrypted Source ***
+      888   *** Encrypted Source ***
+      889   *** Encrypted Source ***
+      890   *** Encrypted Source ***
+      891   *** Encrypted Source ***
+      892   *** Encrypted Source ***
+      893   *** Encrypted Source ***
+      894   *** Encrypted Source ***
+      895   *** Encrypted Source ***
+      896   *** Encrypted Source ***
+      897   *** Encrypted Source ***
+      898   *** Encrypted Source ***
+      899   *** Encrypted Source ***
+      900   *** Encrypted Source ***
+      901   *** Encrypted Source ***
+      902   *** Encrypted Source ***
+      903   *** Encrypted Source ***
+      904   *** Encrypted Source ***
+      905   *** Encrypted Source ***
+      906   *** Encrypted Source ***
+      907   *** Encrypted Source ***
+      908   *** Encrypted Source ***
+      909   *** Encrypted Source ***
+      910   *** Encrypted Source ***
+      911   *** Encrypted Source ***
+      912   *** Encrypted Source ***
+      913   *** Encrypted Source ***
+      914   *** Encrypted Source ***
+      915   *** Encrypted Source ***
+      916   *** Encrypted Source ***
+      917   *** Encrypted Source ***
+      918   *** Encrypted Source ***
+      919   *** Encrypted Source ***
+      920   *** Encrypted Source ***
+      921   *** Encrypted Source ***
+      922   *** Encrypted Source ***
+      923   *** Encrypted Source ***
+      924   *** Encrypted Source ***
+      925   *** Encrypted Source ***
+      926   *** Encrypted Source ***
+      927   *** Encrypted Source ***
+      928   *** Encrypted Source ***
+      929   *** Encrypted Source ***
+      930   *** Encrypted Source ***
+      931   *** Encrypted Source ***
+      932   *** Encrypted Source ***
+      933   *** Encrypted Source ***
+      934   *** Encrypted Source ***
+      935   *** Encrypted Source ***
+      936   *** Encrypted Source ***
+      937   *** Encrypted Source ***
+      938   *** Encrypted Source ***
+      939   *** Encrypted Source ***
+      940   *** Encrypted Source ***
+      941   *** Encrypted Source ***
+      942   *** Encrypted Source ***
+      943   *** Encrypted Source ***
+      944   *** Encrypted Source ***
+      945   *** Encrypted Source ***
+      946   *** Encrypted Source ***
+      947   *** Encrypted Source ***
+      948   *** Encrypted Source ***
+      949   *** Encrypted Source ***
+      950   *** Encrypted Source ***
+      951   *** Encrypted Source ***
+      952    
+      953   
+      954   /* main block
+      955    */
+      956   
+      957   run lib/protop-cfg.p persistent.                                        /* initialize protop environment                        */
+      958   
+      959   file-info:file-name = pt_tmpdir.                                        /* make certain that we have a temp directory!          */
+      960   if file-info:full-pathname = ? then
+      961     os-command silent value( "mkdir " + pt_tmpdir ).
+      962   
+      963   file-info:file-name = pt_logdir.                                        /* make certain that we have a log directory!           */
+      964   if file-info:full-pathname = ? then
+      965     os-command silent value( "mkdir " + pt_logdir ).
+      966   
+      967   run ssg/sausage02.p persistent.
+      968   
+      969   display 
+      970     ' w = start "waiting" and "down" ' skip
+      971     ' s = stop  "still running"      ' skip
+      972     ' k = kill all                   ' skip
+      973     ' a = auto monitor               ' skip
+      974     skip(1)
+      975     " q = quit " skip
+      976     skip(1)
+      977    with
+      978     no-box
+      979   .
+      980   
+      981   do while ( lastkey <> 3 and lastkey <> 4 and lastkey <> 81 and lastkey <> 113 and lastkey <> 88 and lastkey <> 120 ):
+      982   
+      983     if session:batch = yes then
+      984       do:
+      985         run autoMonitor.
+      986         pause monint no-message.
+      987       end.
+      988     if session:batch = no then
+      989       do:
+      990   
+      991         run chkDBList.
+      992   
+      993         for each tt_dbList:
+      994           run chkDB( tt_dbList.friendlyName ).
+      995           display
+      996             tt_dbList.friendlyName
+      997             tt_dbList.dbPath
+      998             tt_dbList.monitorDB
+      999             tt_dbList.monitorPID
+     1000             tt_dbList.monitorStat
+     1001             tt_dbList.statusInfo
+     1002            with
+     1003             no-box
+     1004           .
+     1005         end.
+     1006   
+     1007         readkey pause monint.
+     1008         if       lastkey = 115 /* "s" */ then run stopRunning.
+     1009          else if lastkey = 119 /* "w" */ then run startWaiting.
+     1010          else if lastkey = 107 /* "k" */ then run killAll.
+     1011          else if lastkey =  97 /* "a" */ then run autoMonitor.
+     1012   
+     1013       end.
+     1014   
+     1015   end.
+     1016   
+     1017   quit.

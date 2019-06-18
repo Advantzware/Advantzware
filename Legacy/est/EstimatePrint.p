@@ -37,7 +37,6 @@ ASSIGN
     glShowAllQuantities = NO
     gcQtyMasterInd      = "*".
 
-
 DEFINE TEMP-TABLE ttSection
     FIELD rec_keyParent AS CHARACTER 
     FIELD iSequence     AS INTEGER
@@ -329,6 +328,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
    
     DEFINE BUFFER bf-PrimaryttEstHeader FOR ttEstHeader.
     DEFINE BUFFER bf-ttEstForm FOR ttEstForm.
+
     DEFINE VARIABLE iRowStart      AS INTEGER.
     DEFINE VARIABLE iColumn1       AS INTEGER   INITIAL 2.
     DEFINE VARIABLE iColumn2       AS INTEGER   INITIAL 36.
@@ -342,8 +342,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE VARIABLE dCostTotalPerM AS DECIMAL.
     DEFINE VARIABLE dCostTotal     AS DECIMAL.
     DEFINE VARIABLE lLineStarted   AS LOGICAL   NO-UNDO.
-    
-           
+
     FIND FIRST bf-PrimaryttEstHeader NO-LOCK 
         WHERE bf-PrimaryttEstHeader.estHeaderID EQ ipbf-ttEstForm.estHeaderID
         NO-ERROR.

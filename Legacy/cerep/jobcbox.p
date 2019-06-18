@@ -1681,8 +1681,12 @@ ASSIGN
        END.
        
        FOR EACH wrk-sheet NO-LOCK
-           BREAK BY wrk-sheet.gsh-qty
+           BREAK BY wrk-sheet.gsh-qty DESC
                  BY wrk-sheet.i-no :
+
+           FIND first ITEM NO-LOCK
+               where item.company eq cocode
+               and item.i-no    eq wrk-sheet.i-no NO-ERROR .
       
            ASSIGN
                v-vend       = ""
@@ -1693,7 +1697,7 @@ ASSIGN
                  WHERE po-ordl.company EQ job.company
                    AND po-ordl.job-no  EQ job.job-no
                    AND po-ordl.job-no2 EQ job.job-no2
-                   AND (po-ordl.s-num  EQ job-mat.frm OR
+                   AND (po-ordl.s-num  EQ wrk-sheet.form-no OR
                         po-ordl.s-num  EQ ?)
                    AND po-ordl.item-type
                    AND po-ordl.i-no EQ wrk-sheet.i-no
@@ -1730,7 +1734,7 @@ ASSIGN
                        PUT "<FArial><R18><C5><B> Sheet Length: " string(job-mat.len,"->>>>>9.9<<<") FORMAT "x(12)" "</B>" .
 
                        PUT UNFORMATTED "<R11.2><#1><UNITS=INCHES><C35.5><FROM><c49.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-                          item.i-no FORMAT "x(15)"  ">"    
+                          string(item.i-no,"x(15)")   ">"    
                            "<C36>" item.i-no FORMAT "x(15)" .
                        
                    END.
@@ -1748,7 +1752,7 @@ ASSIGN
                        PUT "<FArial><=6><R18><C52><B> Sheet Length: " string(job-mat.len,"->>>>>9.9<<<") FORMAT "x(12)"  "</B>" .
 
                        PUT UNFORMATTED "<R11.2><#1><UNITS=INCHES><C85.5><FROM><c100.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-                          item.i-no FORMAT "x(15)"  ">"    
+                          string(item.i-no,"x(15)")   ">"    
                            "<C86>" item.i-no FORMAT "x(15)" .
 
                    END.
@@ -1765,7 +1769,7 @@ ASSIGN
                        PUT "<FArial><R27><C5><B> Sheet Length: " string(job-mat.len,"->>>>>9.9<<<") FORMAT "x(12)" "</B>" SKIP(1).
 
                        PUT UNFORMATTED "<R20.2><#1><UNITS=INCHES><C35.5><FROM><c49.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-                          item.i-no FORMAT "x(15)"  ">"    
+                          string(item.i-no,"x(15)")   ">"    
                            "<C36>" item.i-no FORMAT "x(15)" .
 
                    END.
@@ -1783,7 +1787,7 @@ ASSIGN
                        PUT "<FArial><R27><C52><B> Sheet Length: " string(job-mat.len,"->>>>>9.9<<<") FORMAT "x(12)" "</B>" .
 
                        PUT UNFORMATTED "<R20.2><#1><UNITS=INCHES><C85.5><FROM><c100.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-                          item.i-no FORMAT "x(15)"  ">"    
+                          string(item.i-no,"x(15)")   ">"    
                            "<C86>" item.i-no FORMAT "x(15)" .
 
                    END.
@@ -1800,13 +1804,13 @@ ASSIGN
                        PUT "<FArial><R37><C5><B> Sheet Length: " string(job-mat.len,"->>>>>9.9<<<") FORMAT "x(12)" "</B>" SKIP .
 
                        PUT UNFORMATTED "<R30.2><#1><UNITS=INCHES><C35.5><FROM><c49.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-                          item.i-no FORMAT "x(15)"  ">"    
+                          string(item.i-no,"x(15)")   ">"    
                            "<C36>" item.i-no FORMAT "x(15)" .
 
                    END.
                    ELSE IF j EQ 6 THEN do:
                        
-                       PUT "<FArial><R30><C52><#9><FROM><R38><C50><RECT>" .
+                       PUT "<FArial><R30><C52><#9><FROM><R38><C101><RECT>" .
                        PUT "<FArial><R30><C52><B> RM Item#: " item.i-no FORMAT "x(15)" "</B>" .
                        PUT "<FArial><R31><C52><B> Board Name: " item.i-name FORMAT "x(25)" "</B>" .
                        PUT "<FArial><R32><C52><B> Total Sheets: " wrk-sheet.gsh-qty FORMAT ">>>>,>>9" "</B>" .
@@ -1817,7 +1821,7 @@ ASSIGN
                        PUT "<FArial><R37><C52><B> Sheet Length: " string(job-mat.len,"->>>>>9.9<<<") FORMAT "x(12)" "</B>" SKIP .
 
                        PUT UNFORMATTED "<R30.2><#1><UNITS=INCHES><C85.5><FROM><c100.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-                          item.i-no FORMAT "x(15)"  ">"    
+                          string(item.i-no,"x(15)")  ">"    
                            "<C86>" item.i-no FORMAT "x(15)" .
 
                    END.

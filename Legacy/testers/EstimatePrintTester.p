@@ -49,7 +49,6 @@ DEFINE VARIABLE gdMaterialMarkup                      AS DECIMAL NO-UNDO.    /*C
 
 DEFINE VARIABLE glUsePlateChangesAsColorForSetupWaste AS LOGICAL   NO-UNDO INITIAL NO.  /*Defect in EstOperation Calc of applying the MR Waste Sheets Per Color?*/
 
-
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -93,6 +92,7 @@ FIND FIRST ttEstHeader NO-LOCK
     WHERE ttEstHeader.estHeaderID = "header2".
 
 RUN est\EstimatePrint.p (ROWID(ttEstHeader), gcOutputFile, "By Form with Set Summary First","Calibri").
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -148,6 +148,7 @@ PROCEDURE pAddCostDetailForOperation PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pAddCostDetailForMaterial PRIVATE:
+
     /*------------------------------------------------------------------------------
      Purpose: Given an EstOperation buffer, create a unique cost detail record
      Notes:
@@ -207,6 +208,7 @@ PROCEDURE pAddCostSummary PRIVATE:
             ttEstCostSummary.estCostGroupID   = ipcGroupID
             ttEstCostSummary.cScope           = ipcScopeID
             .
+
     END.
     ttEstCostSummary.dCostTotal = ttEstCostSummary.dCostTotal + ipdCost.
     IF ipdQtyPerM GT 0 THEN 
@@ -214,7 +216,9 @@ PROCEDURE pAddCostSummary PRIVATE:
 
 END PROCEDURE.
 
+
 PROCEDURE pAddError PRIVATE:
+
     /*------------------------------------------------------------------------------
      Purpose: Registers an error in the ttEstError table for display
      Notes:
@@ -236,6 +240,7 @@ PROCEDURE pAddError PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pAddEstBlank PRIVATE:
+
     /*------------------------------------------------------------------------------
      Purpose: given an eb buffer, create the EstBlank
      Notes:
@@ -2727,8 +2732,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             opdCost    = IF ipbf-ttEstHeader.lForRealItemsUseAvgCost THEN ipbf-ttEstMaterial.dCostPerUOMAvg ELSE ipbf-ttEstMaterial.dCostPerUOMLast
             opcCostUOM = ipbf-ttEstMaterial.cQtyUOM  /*REFACTOR? - What uom is avg and last cost in*/
             .
-
-
+            
 END PROCEDURE.
 
 PROCEDURE pGetMiscCostPerM PRIVATE:
@@ -2906,7 +2910,6 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     END.
 END PROCEDURE.
 
-
 PROCEDURE pLoadData PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Loads EstHeader table from Excel
@@ -2949,7 +2952,7 @@ FUNCTION fGetEstBlankID RETURNS CHARACTER PRIVATE
         NO-ERROR.
     IF AVAILABLE ttEstBlank THEN 
         RETURN ttEstBlank.estBlankID.
-        
+
 END FUNCTION.
 
 FUNCTION fGetNextID RETURNS CHARACTER PRIVATE
@@ -3031,3 +3034,5 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
     RETURN dValueRounded.
 		
 END FUNCTION.
+
+

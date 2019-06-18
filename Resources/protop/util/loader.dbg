@@ -1,0 +1,402 @@
+        1   /* loader.p
+        2    *
+        3    * monitor the staging directory; when files appear select the largest and
+        4    *  - move it to the load directory
+        5    *  - launch a _proutil to load it
+        6    *  - when the load finishes move it to archive directory 
+        7    * rinse and repeat
+        8    *
+        9    * pro -p util/loader.p
+       10    *
+       11    * consider putting the load processes in the background so that the clock & status can be updated
+       12    * in real time as the load runs -- from a UI perspective that would be nice although it seems
+       13    * overly complex to implement for a fairly small beneift.
+       14    *
+       15    *
+       16    */
+       17   
+       18   define variable testMode as logical no-undo initial false.
+       19   
+       20   define temp-table tt_fileList no-undo
+       21     field fileSize   as decimal
+       22     field fileName   as character
+       23     field baseName   as character format "x(40)"
+       24     field sizeGB     as decimal   format ">,>>>,>>9.9999999" label "GB"
+       25   
+       26     field loadStatus as character format "x(16)" label "Status"
+       27     field loadStart  as datetime  label "Start"
+       28     field loadWait   as integer
+       29     field loadTime   as integer
+       30     field loadRate   as decimal   format ">,>>>,>>9.999999999" label "MB/sec"
+       31   
+       32     index fileSize-idx is primary fileSize descending
+       33     index fileName-idx is unique fileName
+       34   .
+       35   
+       36   define variable numTbls      as integer   no-undo.
+       37   define variable dumpComplete as integer   no-undo initial 3.
+       38   define variable justDoIt     as character no-undo.
+       39   define variable dbEnvName    as character no-undo.
+       40   
+       41   define variable targetDB   as character no-undo format "x(60)".
+       42   define variable dlDir      as character no-undo format "x(60)".
+       43   
+       44   define variable stageDir   as character no-undo format "x(60)".
+       45   define variable loadDir    as character no-undo format "x(60)".
+       46   define variable arcDir     as character no-undo format "x(60)".
+       47   define variable logDir     as character no-undo format "x(60)".
+       48   
+       49   define variable dotdCmd    as character no-undo format "x(60)" initial '_progres &1 -b -1 -p util/loaddotd.p -param "&2|&3" >> &4 2>&&1'.
+       50   
+       51   define variable binlCmd    as character no-undo format "x(60)" initial 'yes | _proutil &1 -C load &2 -r >> &3 2>&&1'.
+       52   
+       53   if os-getenv( "IDXBUILD" ) = "inline" then
+       54     binlCmd = 'yes | _proutil &1 -C load &2 build indexes -TB 31 -TM 32 -r >> &3 2>&&1'.
+       55   
+       56   define variable osFileName as character no-undo.
+       57   define variable cmd        as character no-undo format "x(65)".
+       58   define variable xcmd       as character no-undo format "x(60)".
+       59   define variable n          as integer   no-undo.
+       60   
+       61   define variable t          as integer   no-undo format "->,>>9"            label "Tables Loaded".
+       62   define variable w          as integer   no-undo format "->,>>9"            label "      Waiting".
+       63   define variable z          as integer   no-undo format "->,>>9"            label "       Queued".
+       64   define variable f          as integer   no-undo format "->,>>9"            label "       Failed".
+       65   define variable gb         as decimal   no-undo format ">,>>>,>>>,>>9.99"  label "    GB Loaded".
+       66   define variable tw         as integer   no-undo format ">,>>>,>>>,>>9"     label "    Wait Time".
+       67   
+       68   define variable dt         as character no-undo format "x(8)"              label "Start".
+       69   define variable q          as character no-undo format "x(8)"              label "Wait Time".
+       70   define variable x          as character no-undo format "x(8)"              label "Load Time".
+       71   
+       72   define variable dirSep     as character no-undo.
+       73   
+       74   define variable dlStartTS as datetime-tz no-undo.
+       75   define variable currTS    as datetime-tz no-undo.
+       76   
+       77   define variable currTime    as character no-undo format "x(19)".  /* 2018/09/29@15:09:32.551+0000 */
+       78   define variable elapsedTime as character no-undo format "x(8)".
+       79   
+       80   define stream logStrm.
+       81   define stream errStrm.
+       82   define stream inStrm.
+       83   
+       84   form
+       85     t gb tw             currTime to 132 skip
+       86     w z  space(11) f elapsedTime to 132 skip
+       87    with
+       88     frame showSummary
+       89     no-box
+       90     width 132
+       91     row 1
+       92     side-labels
+       93   .
+       94   
+       95   form
+       96     dt tt_fileList.sizeGB tt_fileList.baseName tt_fileList.loadStatus q x tt_fileList.loadRate skip
+       97    with
+       98     frame showWork
+       99     no-box
+      100     width 132
+      101     row 4
+      102     down
+      103   .
+      104   
+      105   define variable dlStart as datetime no-undo initial ?.
+      106   define variable lastDT  as datetime no-undo initial ?.
+      107   
+      108   procedure loadData:
+      109   
+      110     define input parameter stageFile as character no-undo.
+      111   
+      112     define variable tblName  as character no-undo.
+      113     define variable loadFile as character no-undo.
+      114     define variable arcFile  as character no-undo.
+      115     define variable logFile  as character no-undo.
+      116   
+      117     define variable inLine   as character no-undo.
+      118   
+      119     define variable startDT  as datetime  no-undo.
+      120   
+      121     define variable n as integer no-undo.
+      122   
+      123     if dlStart = ? then dlStart = now.
+      124   
+      125     n = num-entries( stageFile, "." ).
+      126   
+      127     if lastDT <> ? then tt_fileList.loadWait  = interval( now, lastDT, "seconds" ).
+      128   
+      129     assign
+      130       loadFile = replace( stageFile, stageDir, loadDir )
+      131       arcFile  = replace( stageFile, stageDir, arcDir )
+      132       startDT  = now
+      133       tt_fileList.loadStart = now
+      134       tw = tw + tt_fileList.loadWait
+      135     .
+      136   
+      137     if entry( n, loadFile, "." ) = "d" then
+      138       do:
+      139         tblName = substring( tt_fileList.baseName, 1, length( tt_fileList.baseName ) - 2 ).
+      140         logFile = replace( replace( stageFile, stageDir, logDir ), ".d", ".load.log" ).
+      141         cmd = substitute( dotdCmd, targetDB, tblName, loadFile, logFile ).
+      142       end.
+      143      else if entry( n, loadFile, "." ) begins "bd" then
+      144       do:
+      145         logFile = replace( replace( stageFile, stageDir, logDir ), ".bd", ".load.log" ).
+      146         cmd = substitute( binlCmd, targetDB, loadFile, logFile ).
+      147       end.
+      148      else
+      149       do:
+      150         f = f + 1.
+      151         tt_fileList.loadStatus = "unknown type".
+      152         display tt_fileList.loadStatus with frame showWork.
+      153         down with frame showWork.
+      154         return.
+      155       end.
+      156   
+      157     xcmd = entry( 1, cmd, ">" ).
+      158   
+      159     tt_fileList.loadStatus = "launch".
+      160     display substring( string( now ), 12, 8 ) @ dt tt_fileList.sizeGB tt_fileList.baseName tt_fileList.loadStatus with frame showWork.
+      161   
+      162     os-rename value( stageFile ) value( loadFile ).
+      163   
+      164     file-info:file-name = loadFile.
+      165     if file-info:full-pathname = ? then
+      166       do:
+      167   
+      168         f = f + 1.
+      169         tt_fileList.loadStatus = "move failed!".
+      170         display tt_fileList.loadStatus with frame showWork.
+      171         down with frame showWork.
+      172   
+      173       end.
+      174      else
+      175       do:
+      176   
+      177         output stream logStrm to value( logFile ).
+      178         put stream logStrm unformatted now " " cmd skip.
+      179         output stream logStrm close.
+      180   
+      181         tt_fileList.loadStatus = "loading...".
+      182   
+      183         q = string( tt_fileList.loadWait, "hh:mm:ss" ).
+      184   
+      185         display substring( string( now ), 12, 8 ) @ dt tt_fileList.sizeGB tt_fileList.baseName tt_fileList.loadStatus q with frame showWork.
+      186   
+      187         if testMode = false then
+      188           do:
+      189   
+      190             message tt_fileList.baseName ':' cmd.
+      191   
+      192             os-command silent value( cmd ).
+      193   
+      194             n = num-entries( tt_fileList.baseName, "." ).
+      195             if entry( n, tt_fileList.baseName, "." ) = "d" then
+      196               assign
+      197                 t = t + 1
+      198                 tt_fileList.loadStatus = "complete"
+      199               .
+      200              else
+      201               do:
+      202   
+      203                 inLine = "".
+      204                 input stream inStrm through value( substitute( "tail -1 &1", logFile )).
+      205                 import stream inStrm unformatted inLine.
+      206                 input stream inStrm close.
+      207   
+      208                 if inLine matches "*(6256)*" then
+      209                   assign
+      210                     t = t + 1
+      211                     tt_fileList.loadStatus = "complete"
+      212                   .
+      213                  else
+      214                   assign
+      215                     f = f + 1
+      216                     tt_fileList.loadStatus = "failed"
+      217                   .
+      218   
+      219               end.
+      220   
+      221           end.
+      222   
+      223         assign
+      224           gb = gb + tt_fileList.sizeGB
+      225           tt_fileList.loadTime   = interval( now, tt_fileList.loadStart, "seconds" )
+      226           tt_fileList.loadRate   = ( tt_fileList.sizeGB * 1024 ) / tt_fileList.loadTime
+      227           x  = string( integer( tt_fileList.loadTime ), "hh:mm:ss" )
+      228           lastDT = now
+      229         no-error.
+      230   
+      231         currTime = substring( string( now ), 1, 19 ).
+      232         elapsedTime = string( interval( now, dlStartTS, "seconds" ), "hh:mm:ss" ).
+      233   
+      234         display t gb tw f currTime elapsedTime with frame showSummary.
+      235   
+      236         display tt_fileList.loadStatus q x tt_fileList.loadRate with frame showWork.
+      237         down 1 with frame showWork.
+      238   
+      239         output stream logStrm to value( logFile ) append.
+      240         put stream logStrm unformatted now " -- run time: " x " -- " tt_fileList.loadRate "  MB/sec" skip.
+      241         output stream logStrm close.
+      242   
+      243         os-rename value( loadFile )  value( arcFile ).
+      244   
+      245       end.
+      246   
+      247     output stream errStrm to value( substitute( "&1/&2", logDir, "status.log" )) append.
+      248     put stream errStrm unformatted now space(1) string( tt_fileList.baseName, "x(40)" ) space(1) string( tt_fileList.loadStatus, "x(12)" ) cmd skip.
+      249     output stream errStrm close.
+      250   
+      251     return.
+      252   
+      253   end.
+      254   
+      255   /* main block
+      256    *
+      257    */
+      258   
+      259   dirSep = ( if opsys = "unix" then "/" else "~\" ).
+      260   
+      261   assign
+      262     justDoIt  = os-getenv( "JUSTDOIT" )
+      263     dbEnvName = os-getenv( "DB" )
+      264     stageDir  = os-getenv( "STGDIR" )
+      265     loadDir   = os-getenv( "LOADDIR" )
+      266     arcDir    = os-getenv( "ARCDIR" )
+      267     logDir    = os-getenv( "DL_LGDIR" )
+      268     targetDB  = os-getenv( "TGTDIR" ) + dirSep + os-getenv( "DB" )
+      269     numTbls   = integer( os-getenv( "NUMTBLS" ))
+      270   no-error.
+      271   
+      272   if justDoIt <> "yes" then
+      273     do:
+      274       update
+      275         skip(1)
+      276         "       Stage:" stageDir skip
+      277         "        Load:"  loadDir skip
+      278         "     Archive:"   arcDir skip
+      279         "        Logs:"   logDir skip
+      280         skip(1)
+      281         "  Target  DB:" targetDb skip
+      282         skip(1)
+      283         "    # Tables:" numTbls  skip
+      284         skip(1)
+      285        with
+      286         frame updPaths
+      287         no-labels
+      288       .
+      289     end.
+      290   
+      291   pause 0 before-hide.
+      292   
+      293   dlStartTS = now.
+      294   
+      295   watcher: do while lastkey <> 4 and lastkey <> asc( 'q' ):               /* and t < numTbls */ 
+      296   
+      297     /*** empty temp-table tt_fileList. ***/
+      298   
+      299     input from os-dir( stageDir ).
+      300   
+      301     dirLoop: repeat:
+      302   
+      303       import ^ osFileName.
+      304   
+      305       if osFileName begins "." then next dirLoop.                                         /* skip hidden files                            */
+      306   
+      307       n = num-entries( osFileName, "." ).
+      308       if n <> 2 then next dirLoop.                                                        /* tblName.d, tblName.bd or tblName.bd#         */
+      309   
+      310       if not (( entry( n, osFileName, "." ) = "d" ) or ( entry( n, osFileName, "." ) begins "bd" )) then
+      311         next dirLoop.                                                                     /* only process dot-d or binary dump files      */
+      312   
+      313       file-info:file-name = osFileName.
+      314   
+      315       if file-info:full-pathname <> ? then
+      316         do:
+      317   
+      318           find tt_fileList where tt_fileList.fileName = file-info:full-pathname no-error.
+      319           if not available tt_fileList then
+      320             create tt_fileList.
+      321   
+      322           assign
+      323             n = num-entries( file-info:full-pathname, dirSep )
+      324             tt_fileList.fileSize = file-info:file-size
+      325             tt_fileList.fileName = file-info:full-pathname
+      326             tt_fileList.baseName = entry( n, file-info:full-pathname, dirSep )
+      327             tt_fileList.sizeGB   = file-info:file-size / ( 1024 * 1024 * 1024 )
+      328             tt_fileList.loadStatus = "ready"
+      329           .
+      330   
+      331         end.
+      332   
+      333     end.  /* dirLoop */
+      334   
+      335     w = 0.
+      336     for each tt_filelist where loadStatus = "ready":
+      337       w = w + 1.
+      338     end.
+      339   
+      340     if dumpComplete < 0 and w = 0 then leave watcher.
+      341   
+      342     currTime = substring( string( now ), 1, 19 ).
+      343     elapsedTime = string( interval( now, dlStartTS, "seconds" ), "hh:mm:ss" ).
+      344   
+      345     z = numTbls - t.
+      346     display w z f tw currTime elapsedTime with frame showSummary.
+      347   
+      348     for each tt_fileList where tt_fileList.loadStatus = "ready" by tt_fileList.sizeGB descending:
+      349   
+      350       z = numTbls - t.
+      351       w = w - 1.
+      352   
+      353       currTime = substring( string( now ), 1, 19 ).
+      354       elapsedTime = string( interval( now, dlStartTS, "seconds" ), "hh:mm:ss" ).
+      355   
+      356       display w z f tw currTime elapsedTime with frame showSummary.
+      357   
+      358       run loadData( tt_fileList.fileName ).
+      359   
+      360       readkey pause 0.1.
+      361       next watcher.               /* just do one at a time -- then check for more work!   */
+      362   
+      363     end.
+      364   
+      365     if lastkey = 4 or lastkey = asc( 'q' ) then next watcher.
+      366   
+      367     display "waiting..." @ tt_fileList.loadstatus with frame showWork.
+      368   
+      369     readkey pause 0.05.
+      370   
+      371     file-info:file-name = substitute( "&1&2&3.dump.complete", logdir, dirSep, dbEnvName ).
+      372     if file-info:full-pathname <> ? then dumpComplete = -1.
+      373   
+      374     /*** the table count is unreliable!            use the dump.complete flag instead ***/
+      375     /*** if justDoIt = "yes" and numTbls > 0 and t >= numTbls then dumpComplete = -1. ***/
+      376   
+      377   end. /* watcher */
+      378   
+      379   output to value( logdir + dirSep + "loader.log" ).
+      380   
+      381   currTime = substring( string( now ), 1, 19 ).
+      382   elapsedTime = string( interval( now, dlStartTS, "seconds" ), "hh:mm:ss" ).
+      383   
+      384   display t gb tw w z f currTime elapsedTime with frame showSummary.
+      385   
+      386   for each tt_fileList by tt_fileList.loadStart:
+      387   
+      388     display
+      389       tt_fileList.loadStart
+      390       tt_fileList.baseName
+      391       tt_fileList.sizeGB
+      392       tt_fileList.loadStatus
+      393       tt_fileList.loadWait
+      394       tt_fileList.loadTime
+      395       tt_fileList.loadRate
+      396     .
+      397   
+      398   end.
+      399   
+      400   output close.
+      401   
+      402   quit.

@@ -213,46 +213,67 @@ PROCEDURE SetRowsPerPage:
 END PROCEDURE.
 
 PROCEDURE TempTableToCSV:
-    /*------------------------------------------------------------------------------ 
-     Purpose: Exports the contents of any temp-table into CSV    
-     Notes: 
-    ------------------------------------------------------------------------------*/ 
+/*------------------------------------------------------------------------------ 
+ Purpose: Exports the contents of any temp-table into CSV    
+ Notes: 
+------------------------------------------------------------------------------*/ 
     DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
     DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
     DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
   
     DEFINE VARIABLE hQuery  AS HANDLE    NO-UNDO. 
+    DEFINE VARIABLE hBuffer AS HANDLE    NO-UNDO.
     DEFINE VARIABLE iIndex  AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE eIndex  AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
-    
-    
-    cTTName = iphTT:NAME. 
+        
+    ASSIGN
+        cTTName = iphTT:NAME
+        hBuffer = iphTT:DEFAULT-BUFFER-HANDLE
+        .
+
     IF iplHeader THEN 
     DO:
         OUTPUT STREAM sOutput to VALUE(ipcFileName). 
-        DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS: 
-            PUT STREAM sOutput UNFORMATTED iphTT:DEFAULT-BUFFER-HANDLE:buffer-field(iIndex):COLUMN-LABEL + ",". 
+        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                    PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + STRING(eIndex) + 
+                    (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '' ELSE ',').
+                END.
+            END.
+            ELSE
+                PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + 
+                (IF iIndex NE hBuffer:NUM-FIELDS THEN "," ELSE ""). 
         END. 
         PUT STREAM sOutput UNFORMATTED SKIP. 
     END.
     ELSE 
         OUTPUT STREAM sOutput to VALUE(ipcFileName) APPEND. 
+        
     CREATE QUERY hQuery. 
-    hQuery:SET-BUFFERS (iphTT:DEFAULT-BUFFER-HANDLE). 
+    hQuery:SET-BUFFERS (hBuffer). 
     hQuery:QUERY-PREPARE("FOR EACH " + cTTName). 
     hQuery:QUERY-OPEN().
     REPEAT:   
         hQuery:GET-NEXT().   
         IF hQuery:QUERY-OFF-END THEN LEAVE.   
-        DO iIndex = 1 TO iphTT:DEFAULT-BUFFER-HANDLE:NUM-FIELDS: 
-            PUT STREAM sOutput UNFORMATTED  
-                '"' FormatForCSV(iphTT:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):BUFFER-VALUE) '",'. 
+        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                    PUT STREAM sOutput UNFORMATTED  
+                        '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE(eIndex)) 
+                        (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '"' ELSE '",').
+                END.
+            END.
+            ELSE
+                PUT STREAM sOutput UNFORMATTED  
+                    '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE) 
+                    (IF iIndex NE hBuffer:NUM-FIELDS THEN '",' ELSE '"'). 
         END. 
         PUT STREAM sOutput UNFORMATTED SKIP. 
     END. 
     OUTPUT STREAM sOutput CLOSE.
-
-
 END PROCEDURE.
 
 PROCEDURE WriteOutput:
@@ -355,6 +376,102 @@ PROCEDURE WriteToXprintRightAlign:
     RUN WriteToXprint(ipdR,ipdC, ipcText, NO, NO, YES).
    
 END PROCEDURE.
+
+PROCEDURE WriteToXprintRect:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdRFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRTo AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCTo AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+
+    cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
+            "><FROM><R" + STRING(ipdRTo) + "><C" + STRING(ipdCTo) + "><RECT>" . 
+    
+    RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+
+PROCEDURE WriteToXprintLine:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdRFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCTo AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+
+    cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
+            "><FROM><C" + STRING(ipdCTo) + "><LINE>" . 
+   
+    RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+PROCEDURE ChangeXprintFont:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFont AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFontSize AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+    
+    IF ipcFont EQ "" THEN ipcFont = "Tahoma".
+
+     cText = "<F" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">". 
+    
+     RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+PROCEDURE WriteToXprintImage:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdRFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRSize AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCSize AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImagePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+    
+    
+     cText = "<C" + STRING(ipdCFrom) + "><R" + string(ipdRFrom) + "><#1><R+" + STRING(ipdRSize) + 
+         "><C+" + STRING(ipdCSize) + "><IMAGE#1=" + ipcImagePath + ">" . 
+    
+     RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+PROCEDURE WriteToXprintBarCode:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdRFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRSize AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCSize AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBarCodeValue AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBarCodeType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+ 
+    cText = "<R" + STRING(ipdRFrom) + "><#1><UNITS=INCHES><C" + STRING(ipdCFrom) + "><FROM><C+" + STRING(ipdCSize) + "><R+" +
+         STRING(ipdRSize) + "><BARCODE,TYPE=" + STRING(ipcBarCodeType) + ",CHECKSUM=NONE,VALUE= " + string(ipcBarCodeValue) + ">"  +
+         "<C" + STRING(ipdCFrom + 0.5) + ">" + ipcBarCodeValue .
+    
+    RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION GetCurrentPage RETURNS INTEGER 

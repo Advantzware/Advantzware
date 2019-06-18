@@ -490,7 +490,7 @@ END.
                                 + 'invoiceID="' + STRING(inv-head.inv-no) + '" '
                                 + 'operation="new" purpose="standard"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailHeaderIndicator/','','Row').  
-        RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" /','','Row').
+        RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes" isTaxInLine="yes" /','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoicePartner','','Row').
         RUN cXMLOutput (clXMLOutput,'Contact role="billTo"','','Row').
         RUN cXMLOutput (clXMLOutput,'Name xml:lang="en-US"','','Row').
@@ -631,8 +631,11 @@ END.
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
                                      no-lock no-error.
+            ASSIGN dOrigQty = 0 
+                   cOrigUom = ""
+                   .                                     
             if avail oe-ordl THEN DO:
-            
+              
               assign v-bo-qty = if (inv-line.qty - inv-line.ship-qty -
                                     oe-ordl.t-ship-qty) < 0 then 0 else
                                    (inv-line.qty - inv-line.ship-qty -
@@ -642,7 +645,7 @@ END.
                         dOrigQty = oe-ordl.spare-dec-1
                         cOrigUom = oe-ordl.spare-char-2
                         .
-                    IF cOrigUom EQ 'CS' 
+                    IF (cOrigUom EQ 'CS' OR cOrigUom EQ 'PF' OR cOrigUom EQ 'PLT')
                         AND dOrigQty NE inv-line.qty
                         AND oe-ordl.cas-cnt NE 0 THEN 
                             dOrigQty = inv-line.inv-qty / oe-ordl.cas-cnt.
@@ -755,7 +758,7 @@ END.
 
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailItem invoiceLineNumber="' + STRING(inv-line.LINE) 
                              + '" quantity="' + STRING(IF dOrigQty NE 0 THEN dOrigQty ELSE inv-line.inv-qty) + '"','','Row').
-             RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',inv-line.pr-uom,'Col').
+             RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',(IF cOrigUom EQ "" THEN inv-line.pr-uom ELSE cOrigUOM),'Col').
              RUN cXMLOutput (clXMLOutput,'UnitPrice','','Row'). 
              RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              RUN cXMLOutput (clXMLOutput,'',STRING(v-price),'Col').
@@ -763,7 +766,7 @@ END.
              RUN cXMLOutput (clXMLOutput,'/UnitPrice','','Row'). 
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailItemReference lineNumber="' + STRING(inv-line.LINE) + '"','','Row').
              RUN cXMLOutput (clXMLOutput,'ItemID','','Row'). 
-             RUN cXMLOutput (clXMLOutput,'SupplierPartID',inv-line.i-no,'Col').
+             RUN cXMLOutput (clXMLOutput,'SupplierPartID',inv-line.part-no,'Col').
              RUN cXMLOutput (clXMLOutput,'/ItemID','','Row'). 
              RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
              RUN cXMLOutput (clXMLOutput,'',inv-line.i-name,'Col').

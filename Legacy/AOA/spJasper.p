@@ -1290,7 +1290,7 @@ PROCEDURE pJasperStarter :
     IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
         CREATE TaskResult.
         ASSIGN
-            TaskResult.fileDateTime = DATETIME(dtDate,iTime)
+            TaskResult.fileDateTime = DATETIME(dtDate,iTime * 1000)
             TaskResult.fileType     = ipcType
             TaskResult.user-id      = aoaUserID
             TaskResult.folderFile   = opcJastFile

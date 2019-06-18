@@ -15,7 +15,7 @@ DEFINE SHARED VARIABLE price-ent    AS LOG    NO-UNDO.
 DEFINE SHARED VARIABLE matrixExists AS LOG    NO-UNDO.
 
 DEFINE        VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 DEFINE VARIABLE cShipID   AS CHARACTER NO-UNDO.
 DEFINE BUFFER bf-inv-line FOR inv-line . 

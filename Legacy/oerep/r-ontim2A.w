@@ -1031,17 +1031,26 @@ SESSION:SET-WAIT-STATE ("general").
        lv-qty  = 0
        lv-last = "".
 
-      FOR EACH fg-act NO-LOCK
-          WHERE fg-act.company EQ oe-ordl.company
-            AND fg-act.job-no  EQ oe-ordl.job-no
-            AND fg-act.job-no2 EQ oe-ordl.job-no2
-            AND fg-act.i-no    EQ oe-ordl.i-no
-          USE-INDEX job-no
-          BY fg-act.fg-date:
-        ASSIGN
-         lv-qty  = lv-qty + fg-act.qty
-         lv-last = STRING(fg-act.fg-date,"99/99/99").
-      END.
+        FOR EACH fg-rcpth 
+            FIELDS( trans-date) NO-LOCK
+            WHERE fg-rcpth.company EQ oe-ordl.company
+            AND fg-rcpth.job-no EQ oe-ordl.job-no
+            AND fg-rcpth.job-no2 EQ oe-ordl.job-no2
+            AND fg-rcpth.i-no EQ oe-ordl.i-no
+            AND fg-rcpth.rita-code EQ 'R' 
+            USE-INDEX job
+            BREAK BY fg-rcpth.trans-date DESC:
+            
+            lv-last = STRING(fg-rcpth.trans-date,"99/99/99").
+            LEAVE .
+        END.
+        RUN fg/GetProductionQty.p (INPUT oe-ordl.company,
+                                   INPUT oe-ordl.job-no,
+                                   INPUT oe-ordl.job-no2,
+                                   INPUT oe-ordl.i-no,
+                                   INPUT NO,
+                                   OUTPUT lv-qty).
+
 
       IF lv-qty LT oe-ordl.qty * (100 - oe-ordl.under-pct) / 100 THEN
         lv-last = "Not Complete".

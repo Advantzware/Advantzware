@@ -448,7 +448,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     ELSE
     IF xqchg.bill EQ "W" THEN
        PUT xqchg.charge    AT 22
-           /*  "Will Advise "  TO 45 */  skip.
+           /*  "Will Advise "  TO 45 */  skip. 
 
     RUN printHeader (12,OUTPUT v-printline).
   END.
@@ -510,7 +510,7 @@ FOR EACH xqchg OF xquo NO-LOCK
   IF FIRST(xqchg.charge) THEN PUT SKIP(1).
  
     /*IF xqchg.qty EQ 0 OR FIRST-OF(xqchg.b-num) THEN DO:*/
-     lv-chg-amt = xqchg.amt .
+     lv-chg-amt = xqchg.spare-dec-1 .
 
      IF xqchg.bill EQ "N" THEN
        PUT xqchg.charge AT 22
@@ -523,6 +523,7 @@ FOR EACH xqchg OF xquo NO-LOCK
          /* rdb 02/02/07 01310703 
              lv-chg-amt          TO 80 SKIP. 
           */
+             xqchg.prep-qty     AT 60
              lv-chg-amt          TO 83  
                    "EA"          AT 90 SKIP.
      

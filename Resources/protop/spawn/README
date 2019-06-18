@@ -1,0 +1,58 @@
+README -- spawn utility
+
+0) For a quick and dirty test of the included code and scripts:
+
+	proenv> prodb sports sports
+	proenv> proserve sports
+	proenv> ./spawn.sh connect 5 sports
+	1
+	2
+	3
+	4
+	5
+	
+	Tue Dec 13 09:50:42 EST 2016
+	
+	5 "connect" sessions running.
+	
+	To stop the test:
+	  rm /tmp/connect.flg
+	
+	proenv> rm /tmp/connect.flg
+	proenv> proshut -by sports
+
+1) spawn.sh testName numSessions [localdbName]
+
+"testName" is the base name used for testName.pf and testName.p
+
+The .p defines your test scenario -- it might, for instance, be a very simple
+connection test (connect.p) that merely connects to a db to demonstrate that
+you have kernel parameters properly seti to support numSessions users.  Or it
+might be something more complex that drive a load test (for example).
+
+When you run a test a "flag" file: /tmp/testName.flg will be created.  The
+testName.p should monitor this flag file.  When you are done running your test
+remove the flag the dot-p should notice that the flag has disappeared and then
+gracefully exit.
+
+If you are using local self service connections you can specify the dbname as
+the 3rd parameter or include it in the .pf.
+
+2) You can run spawn.sh multiple times with the same or varying parameters in
+order to step additional load or various scenarios in a controlled manner.  You
+might, for instance do something like:
+
+$ spawn.sh connect  5
+$ spawn.sh connect 45
+$ spawn.sh connect 50
+
+In order to launch 100 sessions in three steps.  (It is sometimes helpful to
+launch a small iinitial number of sessions to verify that the .pf file is
+correctly configured or that a coding change is working properly.)
+
+3) The included "connect.p" is a useful procedure to verify that you can connect
+numSessions to a database.  There is a small block of generic "activity" code
+at the end of the program that randomly reads meta-schema tables in order to
+generate a test workload.
+
+

@@ -1,0 +1,1534 @@
+        1   /*******************************************************************************
+        2    *******************************************************************************
+        3    **                                                                           **
+        4    **                                                                           **
+        5    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+        6    **  http://www.greenfieldtech.com                                            **
+        7    **                                                                           **
+        8    **  ProTop is free software; you can redistribute it and/or modify it        **
+        9    **  under the terms of the GNU General Public License (GPL) as published     **
+       10    **  by the Free Software Foundation; either version 2 of the License, or     **
+       11    **  at your option) any later version.                                       **
+       12    **                                                                           **
+       13    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       14    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       15    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       16    **  for more details.                                                        **
+       17    **                                                                           **
+       18    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       19    **  of use and alternative licensing options for this software.              **
+       20    **                                                                           **
+       21    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       22    **                                                                           **
+       23    **  See http://www.fsf.org for more information about the GPL.               **
+       24    **                                                                           **
+       25    **                                                                           **
+       26    *******************************************************************************
+       27    *******************************************************************************
+       28    *
+       29    * tblact.p
+       30    *
+       31    *
+       32    * Table Activity
+       33    *
+       34    *
+       35    * Author:
+       36    *
+       37    *      Tom Bascom, Greenfield Technologies
+       38    *      http://www.greenfieldtech.com
+       39    *      September 5, 2003
+       40    *
+       41    */
+       42   
+       43   
+       44   /*******************************************************************************
+       45    *******************************************************************************
+       46    **                                                                           **
+       47    **                                                                           **
+       48    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       49    **  http://www.greenfieldtech.com                                            **
+       50    **                                                                           **
+       51    **  ProTop is free software; you can redistribute it and/or modify it        **
+       52    **  under the terms of the GNU General Public License (GPL) as published     **
+       53    **  by the Free Software Foundation; either version 2 of the License, or     **
+       54    **  at your option) any later version.                                       **
+       55    **                                                                           **
+       56    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       57    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       58    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       59    **  for more details.                                                        **
+       60    **                                                                           **
+       61    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       62    **  of use and alternative licensing options for this software.              **
+       63    **                                                                           **
+       64    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       65    **                                                                           **
+       66    **  See http://www.fsf.org for more information about the GPL.               **
+       67    **                                                                           **
+       68    **                                                                           **
+       69    *******************************************************************************
+       70    *******************************************************************************
+       71    *
+       72    * protop.i
+       73    *
+       74    * Header file for protop family of programs
+       75    *
+       76    *
+       77    * Known Bugs & Issues:
+       78    *
+       79    *
+       80    * To Do:
+       81    *
+       82    *
+       83    * Author:
+       84    *
+       85    *      Tom Bascom, Greenfield Technologies
+       86    *      http://www.greenfieldtech.com
+       87    *      August 28, 2003
+       88    *
+       89    */
+       90   
+       91   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+       92   &global-define  FASTLOCK        true
+       93   &ELSE
+       94   &global-define  FASTLOCK        false
+       95   &ENDIF
+       96   
+       97   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+       98   &global-define  OE11            "yes"
+       99   &global-define  xDEBUGTT        false
+      100   &ENDIF
+      101   
+      102   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+      103   &global-define  NOSERIALIZE     serialize-hidden
+      104   &ENDIF
+      105   
+      106   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+      107   &global-define  BIGINT          int64
+      108   &ELSE
+      109   &global-define  BIGINT          decimal
+      110   &ENDIF
+      111   
+      112   
+      113   /* lib/v9.i
+      114    *
+      115    */
+      116   
+      117   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      118   &global-define  CPYLOB  "no"
+      119   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      120   &global-define  LNGCR   character
+      121   &global-define  DTZ     integer
+      122   &global-define  BIGINT  decimal
+      123   &ELSE
+      124   &global-define  OE10    "yes"
+      125   &global-define  NOW     now
+      126   &global-define  LNGCR   longchar
+      127   &global-define  DTZ     datetime-tz
+      128   &global-define  BIGINT  int64
+      129   &ENDIF
+      130    
+      131   
+      132   /* use extended _connect fields: -client, -cache*
+      133    */
+      134   
+      135   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      136   &global-define  CONNECTX        "yes"
+      137   &ELSE
+      138   &global-define  CONNECTX        "no"
+      139   &ENDIF
+      140   
+      141   define stream inStrm.
+      142   
+      143   define new global shared variable dbgMode as integer no-undo initial 1.
+      144   
+      145   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      146    *
+      147    * someday everyone will have OO and I will replace these with a gsv class
+      148    * or something of that ilk
+      149    *
+      150    */
+      151   
+      152   define new global shared variable pt_shortname   as character no-undo.
+      153   define new global shared variable pt_uniqName    as character no-undo.
+      154   define new global shared variable pt_server      as character no-undo.
+      155   define new global shared variable pt_resrcType   as character no-undo.
+      156   
+      157   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      158   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      159   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      160   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      161   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      162   
+      163   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      164   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      165   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      166   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      167   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      168   define new global shared variable pt_ioFileName  as character no-undo.
+      169   define new global shared variable pt_dfCmd       as character no-undo.
+      170   
+      171   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      172   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      173   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      174   
+      175   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      176   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      177   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      178   
+      179   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      180   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      181   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      182   
+      183   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      184   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      185   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      186   
+      187   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      188   
+      189   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      190   
+      191   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      192   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      193   
+      194   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      195    * 
+      196    */
+      197   
+      198   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      199   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      200   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      201   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      202   
+      203   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      204   
+      205                                                                                   /* corresponding to base checkpoint#    */
+      206   /** Global Shared Temp Table Definitions
+      207    **
+      208    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      209    ** And a shared temp-table is logically the same as a db table so who really cares?
+      210    **
+      211    **/
+      212   
+      213   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      214    */
+      215   
+      216   define new global shared temp-table tt_tbl no-undo
+      217     field xid      as integer                                             /* _File._File-Num              */
+      218     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      219     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      220     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      221     field tblname  as character                                           /* _File._File-Name             */
+      222     index xid-idx is unique primary xid.
+      223   
+      224   define new global shared temp-table tt_idx no-undo
+      225     field xid      as integer                                             /* _Index._Idx-Num              */
+      226     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      227     field idxname  as character                                           /* _Index._Idx-Name             */
+      228     field idxnote  as character
+      229     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      230     field tblnum   as integer                                             /* _File._File-Num              */
+      231     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      232     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      233     field tblname  as character                                           /* _File._File-Name             */
+      234     index xid-idx is unique primary xid.
+      235   
+      236   define new global shared temp-table tt_areaExtent no-undo
+      237     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      238     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      239   
+      240     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      241     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      242     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      243   
+      244     index ae-idx is unique primary areaNum extNum.
+      245   
+      246   define new global shared temp-table tt_area no-undo
+      247     field xid      as integer    format ">>>9"
+      248     field SANum    as integer    format ">>>9"        label "#"
+      249     field areaPool as character  format "x(2)"        label "BX"
+      250   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      251     field SAName   as character  format "x(30)"       label "Area Name"
+      252     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      253     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      254     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      255     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      256     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      257     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      258     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      259   
+      260     field blkszkb as integer     format ">>9"         label "BSZ"
+      261     field rpb     as integer     format ">>9"         label "RPB"
+      262     field clstrsz as integer     format ">>9"         label "CSZ"
+      263   
+      264     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      265     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      266     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      267   
+      268     field numExts as integer     format ">>>>9"       label "#Exts"
+      269     field hasVar  as logical     format "Yes/No"      label "Var?"
+      270   
+      271     field xnote   as character   format "x"           label "*"
+      272   
+      273     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      274     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      275   
+      276     index pctAlloc-idx is primary pctAlloc descending
+      277     index pctLastX-idx pctLastX pctAlloc descending
+      278     index allocGB-idx allocGB descending
+      279     index totGB-idx totGB descending
+      280     index xid-idx is unique xid
+      281     index SANum-idx is unique SANum
+      282     index SAName-idx is unique SAName
+      283   .
+      284   
+      285   *** Encrypted Source ***
+      286   *** Encrypted Source ***
+      287   *** Encrypted Source ***
+      288   *** Encrypted Source ***
+      289   *** Encrypted Source ***
+      290   *** Encrypted Source ***
+      291   *** Encrypted Source ***
+      292   *** Encrypted Source ***
+      293   *** Encrypted Source ***
+      294   *** Encrypted Source ***
+      295   *** Encrypted Source ***
+      296   *** Encrypted Source ***
+      297   *** Encrypted Source ***
+      298   *** Encrypted Source ***
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323   *** Encrypted Source ***
+      324   *** Encrypted Source ***
+      325   *** Encrypted Source ***
+      326   *** Encrypted Source ***
+      327   *** Encrypted Source ***
+      328   *** Encrypted Source ***
+      329   *** Encrypted Source ***
+      330   *** Encrypted Source ***
+      331   *** Encrypted Source ***
+      332   *** Encrypted Source ***
+      333   *** Encrypted Source ***
+      334   *** Encrypted Source ***
+      335   *** Encrypted Source ***
+      336   *** Encrypted Source ***
+      337   *** Encrypted Source ***
+      338   *** Encrypted Source ***
+      339   *** Encrypted Source ***
+      340   *** Encrypted Source ***
+      341   *** Encrypted Source ***
+      342   *** Encrypted Source ***
+      343   *** Encrypted Source ***
+      344   *** Encrypted Source ***
+      345   *** Encrypted Source ***
+      346   *** Encrypted Source ***
+      347   *** Encrypted Source ***
+      348   *** Encrypted Source ***
+      349   *** Encrypted Source ***
+      350   *** Encrypted Source ***
+      351   *** Encrypted Source ***
+      352   *** Encrypted Source ***
+      353   *** Encrypted Source ***
+      354   *** Encrypted Source ***
+      355    
+      356   
+      357   /*******************************************************************************
+      358    *******************************************************************************
+      359    **                                                                           **
+      360    **                                                                           **
+      361    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      362    **  http://www.greenfieldtech.com                                            **
+      363    **                                                                           **
+      364    **  ProTop is free software; you can redistribute it and/or modify it        **
+      365    **  under the terms of the GNU General Public License (GPL) as published     **
+      366    **  by the Free Software Foundation; either version 2 of the License, or     **
+      367    **  at your option) any later version.                                       **
+      368    **                                                                           **
+      369    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      370    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      371    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      372    **  for more details.                                                        **
+      373    **                                                                           **
+      374    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      375    **  of use and alternative licensing options for this software.              **
+      376    **                                                                           **
+      377    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      378    **                                                                           **
+      379    **  See http://www.fsf.org for more information about the GPL.               **
+      380    **                                                                           **
+      381    **                                                                           **
+      382    *******************************************************************************
+      383    *******************************************************************************
+      384    *
+      385    * protoplib.i
+      386    *
+      387    * ProTop infrastructure library definitions
+      388    *
+      389    */
+      390   
+      391   function uDateTime returns integer () in super.
+      392   function string2uDateTime returns integer( input p_text as character ) in super.
+      393   function searchDir returns character ( input xDir as character ) in super.
+      394   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      395   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      396   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      397   function myPID returns character () in super.
+      398   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      399   
+      400   /* end protoplib.i */
+      401    
+      402   
+      403   /*******************************************************************************
+      404    *******************************************************************************
+      405    **                                                                           **
+      406    **                                                                           **
+      407    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      408    **  http://www.greenfieldtech.com                                            **
+      409    **                                                                           **
+      410    **  ProTop is free software; you can redistribute it and/or modify it        **
+      411    **  under the terms of the GNU General Public License (GPL) as published     **
+      412    **  by the Free Software Foundation; either version 2 of the License, or     **
+      413    **  at your option) any later version.                                       **
+      414    **                                                                           **
+      415    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      416    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      417    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      418    **  for more details.                                                        **
+      419    **                                                                           **
+      420    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      421    **  of use and alternative licensing options for this software.              **
+      422    **                                                                           **
+      423    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      424    **                                                                           **
+      425    **  See http://www.fsf.org for more information about the GPL.               **
+      426    **                                                                           **
+      427    **                                                                           **
+      428    *******************************************************************************
+      429    *******************************************************************************
+      430    *
+      431    * vstlib.i
+      432    *
+      433    * VST library definitions
+      434    *
+      435    */
+      436   
+      437   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      438   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      439   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      440   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      441   
+      442   function connectFlags returns character ( input cnxId as integer ) in super.
+      443   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      444   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      445   
+      446   function isAIEnabled returns logical () in super.
+      447   function isReplSource returns logical () in super.
+      448   function isReplTarget returns logical () in super.
+      449   function isBackupRunning returns logical () in super.
+      450   function isWorkgroup returns logical () in super.
+      451   
+      452   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      453   
+      454   /* end vstlib.i */
+      455    
+      456   
+      457   function add2ds returns logical ( input h as handle ) in super.
+      458   function getTempTableHandle returns handle ( input n as character ) in super.
+      459   
+      460   /* end protop.i */
+      461    
+      462   
+      463   /*******************************************************************************
+      464    *******************************************************************************
+      465    **                                                                           **
+      466    **                                                                           **
+      467    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+      468    **  http://www.greenfieldtech.com                                            **
+      469    **                                                                           **
+      470    **  ProTop is free software; you can redistribute it and/or modify it        **
+      471    **  under the terms of the GNU General Public License (GPL) as published     **
+      472    **  by the Free Software Foundation; either version 2 of the License, or     **
+      473    **  at your option) any later version.                                       **
+      474    **                                                                           **
+      475    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      476    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      477    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      478    **  for more details.                                                        **
+      479    **                                                                           **
+      480    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      481    **  of use and alternative licensing options for this software.              **
+      482    **                                                                           **
+      483    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      484    **                                                                           **
+      485    **  See http://www.fsf.org for more information about the GPL.               **
+      486    **                                                                           **
+      487    **                                                                           **
+      488    *******************************************************************************
+      489    *******************************************************************************
+      490    *
+      491    * tick.i
+      492    *
+      493    *
+      494    * common routine to handle "clock ticks"
+      495    *
+      496    *
+      497    * Author:
+      498    *
+      499    *      Tom Bascom, Greenfield Technologies
+      500    *      http://www.greenfieldtech.com
+      501    *      January 21, 2012
+      502    *
+      503    */
+      504   
+      505   
+      506   /* lib/v9.i
+      507    *
+      508    */
+      509   
+      510   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      511   &global-define  CPYLOB  "no"
+      512   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      513   &global-define  LNGCR   character
+      514   &global-define  DTZ     integer
+      515   &global-define  BIGINT  decimal
+      516   &ELSE
+      517   &global-define  OE10    "yes"
+      518   &global-define  NOW     now
+      519   &global-define  LNGCR   longchar
+      520   &global-define  DTZ     datetime-tz
+      521   &global-define  BIGINT  int64
+      522   &ENDIF
+      523    
+      524   
+      525   define new global shared variable rawMode  as integer no-undo initial 5.
+      526   define new global shared variable timeMode as integer no-undo initial 2.
+      527   
+      528   define new global shared variable x as integer no-undo initial 5.
+      529   define new global shared variable z as decimal no-undo.
+      530   
+      531   define variable y as decimal no-undo.
+      532   
+      533   define variable initTick as integer no-undo.
+      534   define variable prevTick as integer no-undo.
+      535   
+      536   
+      537   procedure updTick:
+      538   
+      539   &IF DEFINED( OE10 ) &THEN
+      540     if initTick = 0 then initTick = mtime.
+      541     assign
+      542       x = rawMode /* ( if rawMode then 4 else 5 ) */
+      543       z = mtime - prevTick
+      544       z = ( if z >= 0 then z else 86400000 - prevTick + mtime )   /* handle rolling over midnight */
+      545       z = z / 1000
+      546       y = mtime - initTick
+      547       y = y / 1000
+      548       prevTick = mtime
+      549     .
+      550   &ELSE
+      551     if initTick = 0 then initTick = etime.
+      552     assign
+      553       x = rawMode /* ( if rawMode then 4 else 5 ) */
+      554       z = etime - prevTick
+      555       z = ( if z >= 0 then z else 5000 )   /* etime doesn't rollover at midnite -- but a mistaken etime(yes) somewhere would be bad... */
+      556       z = z / 1000
+      557       y = etime - initTick
+      558       y = y / 1000
+      559       prevTick = etime
+      560     .
+      561   &ENDIF
+      562   
+      563     /* if rawMode <> 5 then z = 1. */
+      564   
+      565     if timeMode = 1 then z = 1.
+      566   
+      567     return.
+      568   
+      569   end.
+      570   
+      571   /* end tick.i */
+      572    
+      573   
+      574   define output parameter dcDescription as character no-undo initial "TableActivity".
+      575   
+      576   define variable hasOSRd    as logical   no-undo.
+      577   
+      578   
+      579   /*******************************************************************************
+      580    *******************************************************************************
+      581    **                                                                           **
+      582    **                                                                           **
+      583    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      584    **  http://www.greenfieldtech.com                                            **
+      585    **                                                                           **
+      586    **  ProTop is free software; you can redistribute it and/or modify it        **
+      587    **  under the terms of the GNU General Public License (GPL) as published     **
+      588    **  by the Free Software Foundation; either version 2 of the License, or     **
+      589    **  at your option) any later version.                                       **
+      590    **                                                                           **
+      591    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      592    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      593    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      594    **  for more details.                                                        **
+      595    **                                                                           **
+      596    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      597    **  of use and alternative licensing options for this software.              **
+      598    **                                                                           **
+      599    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      600    **                                                                           **
+      601    **  See http://www.fsf.org for more information about the GPL.               **
+      602    **                                                                           **
+      603    **                                                                           **
+      604    *******************************************************************************
+      605    *******************************************************************************
+      606    *
+      607    * tt_table.i
+      608    *
+      609    */
+      610   
+      611   define temp-table tt_table no-undo
+      612     field xid      as integer
+      613     field xvalid   as logical
+      614     field tblnum   as integer
+      615     field areaNum  as integer
+      616     field tblPool  as character
+      617     field tblname  as character label "Table Name" format "x(30)"
+      618     field ttbl     as character
+      619     field tbl-cre  as decimal extent 5 label "Create"  format ">>>>>>>>>>>>>>>>9"
+      620     field tbl-rd   as decimal extent 5 label "Read"    format ">>>>>>>>>>>>>>>>9"
+      621     field tbl-upd  as decimal extent 5 label "Update"  format ">>>>>>>>>>>>>>>>9"
+      622     field tbl-del  as decimal extent 5 label "Delete"  format ">>>>>>>>>>>>>>>>9"
+      623     field tbl-osrd as decimal extent 5 label "OS Read" format ">>>>>>>>>>>>>>>>9"
+      624     field pct-cre  as decimal   label "%" format ">>9.99"
+      625     field pct-rd   as decimal   label "%" format ">>9.99"
+      626     field pct-upd  as decimal   label "%" format ">>9.99"
+      627     field pct-del  as decimal   label "%" format ">>9.99"
+      628     index xid-idx is unique primary xid.
+      629   
+      630   procedure upd-tt_table:
+      631   
+      632     define input parameter p_tbl as integer no-undo.
+      633   
+      634     define variable x as integer no-undo.
+      635     define variable z as integer no-undo.
+      636   
+      637     define variable bh  as handle no-undo.
+      638     define variable bf  as handle no-undo.
+      639   
+      640     do-SumSample( output x, output z ).
+      641   
+      642     find dictdb._TableStat no-lock where _TableStat-id = p_tbl no-error.
+      643   
+      644     find tt_tbl no-lock where tt_tbl.xid = _TableStat-id no-error.
+      645     if not available tt_tbl then return.
+      646   
+      647     find tt_table exclusive-lock where tt_table.xid = p_tbl no-error.
+      648   
+      649     if available tt_table then
+      650       tt_table.xvalid = yes.
+      651      else
+      652       do:
+      653         create tt_table.
+      654         assign
+      655           tt_table.xid      = p_tbl
+      656           tt_table.xvalid   = yes
+      657           tt_table.TblName  = ( if available( _TableStat ) then "" else "*" ) + tt_tbl.tblname
+      658           tt_table.TblNum   = tt_tbl.xid
+      659           tt_table.areanum  = tt_tbl.areanum
+      660           tt_table.tblPool  = tt_tbl.tblPool
+      661         .
+      662         if available _TableStat then              /* _TableStat range may not be active...        */
+      663           do:
+      664             assign
+      665               
+      666   /*******************************************************************************
+      667    *******************************************************************************
+      668    **                                                                           **
+      669    **                                                                           **
+      670    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      671    **  http://www.greenfieldtech.com                                            **
+      672    **                                                                           **
+      673    **  ProTop is free software; you can redistribute it and/or modify it        **
+      674    **  under the terms of the GNU General Public License (GPL) as published     **
+      675    **  by the Free Software Foundation; either version 2 of the License, or     **
+      676    **  at your option) any later version.                                       **
+      677    **                                                                           **
+      678    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      679    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      680    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      681    **  for more details.                                                        **
+      682    **                                                                           **
+      683    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      684    **  of use and alternative licensing options for this software.              **
+      685    **                                                                           **
+      686    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      687    **                                                                           **
+      688    **  See http://www.fsf.org for more information about the GPL.               **
+      689    **                                                                           **
+      690    **                                                                           **
+      691    *******************************************************************************
+      692    *******************************************************************************
+      693    *
+      694    * init-xrec.i
+      695    *
+      696    * {1} = base field
+      697    * {2} = value to initialze array with
+      698    *
+      699    * [1] = base
+      700    * [2] = last (previous cumulative value)
+      701    * [3] = this
+      702    * [4] = cumulative
+      703    * [5] = interval
+      704    *
+      705    */
+      706   
+      707   tt_table.tbl-cre[1] = _TableStat-create
+      708   tt_table.tbl-cre[2] = _TableStat-create
+      709   tt_table.tbl-cre[3] = _TableStat-create
+      710    
+      711               
+      712   /*******************************************************************************
+      713    *******************************************************************************
+      714    **                                                                           **
+      715    **                                                                           **
+      716    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      717    **  http://www.greenfieldtech.com                                            **
+      718    **                                                                           **
+      719    **  ProTop is free software; you can redistribute it and/or modify it        **
+      720    **  under the terms of the GNU General Public License (GPL) as published     **
+      721    **  by the Free Software Foundation; either version 2 of the License, or     **
+      722    **  at your option) any later version.                                       **
+      723    **                                                                           **
+      724    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      725    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      726    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      727    **  for more details.                                                        **
+      728    **                                                                           **
+      729    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      730    **  of use and alternative licensing options for this software.              **
+      731    **                                                                           **
+      732    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      733    **                                                                           **
+      734    **  See http://www.fsf.org for more information about the GPL.               **
+      735    **                                                                           **
+      736    **                                                                           **
+      737    *******************************************************************************
+      738    *******************************************************************************
+      739    *
+      740    * init-xrec.i
+      741    *
+      742    * {1} = base field
+      743    * {2} = value to initialze array with
+      744    *
+      745    * [1] = base
+      746    * [2] = last (previous cumulative value)
+      747    * [3] = this
+      748    * [4] = cumulative
+      749    * [5] = interval
+      750    *
+      751    */
+      752   
+      753   tt_table.tbl-rd[1] = _TableStat-read
+      754   tt_table.tbl-rd[2] = _TableStat-read
+      755   tt_table.tbl-rd[3] = _TableStat-read
+      756    
+      757               
+      758   /*******************************************************************************
+      759    *******************************************************************************
+      760    **                                                                           **
+      761    **                                                                           **
+      762    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      763    **  http://www.greenfieldtech.com                                            **
+      764    **                                                                           **
+      765    **  ProTop is free software; you can redistribute it and/or modify it        **
+      766    **  under the terms of the GNU General Public License (GPL) as published     **
+      767    **  by the Free Software Foundation; either version 2 of the License, or     **
+      768    **  at your option) any later version.                                       **
+      769    **                                                                           **
+      770    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      771    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      772    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      773    **  for more details.                                                        **
+      774    **                                                                           **
+      775    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      776    **  of use and alternative licensing options for this software.              **
+      777    **                                                                           **
+      778    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      779    **                                                                           **
+      780    **  See http://www.fsf.org for more information about the GPL.               **
+      781    **                                                                           **
+      782    **                                                                           **
+      783    *******************************************************************************
+      784    *******************************************************************************
+      785    *
+      786    * init-xrec.i
+      787    *
+      788    * {1} = base field
+      789    * {2} = value to initialze array with
+      790    *
+      791    * [1] = base
+      792    * [2] = last (previous cumulative value)
+      793    * [3] = this
+      794    * [4] = cumulative
+      795    * [5] = interval
+      796    *
+      797    */
+      798   
+      799   tt_table.tbl-upd[1] = _TableStat-update
+      800   tt_table.tbl-upd[2] = _TableStat-update
+      801   tt_table.tbl-upd[3] = _TableStat-update
+      802    
+      803               
+      804   /*******************************************************************************
+      805    *******************************************************************************
+      806    **                                                                           **
+      807    **                                                                           **
+      808    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      809    **  http://www.greenfieldtech.com                                            **
+      810    **                                                                           **
+      811    **  ProTop is free software; you can redistribute it and/or modify it        **
+      812    **  under the terms of the GNU General Public License (GPL) as published     **
+      813    **  by the Free Software Foundation; either version 2 of the License, or     **
+      814    **  at your option) any later version.                                       **
+      815    **                                                                           **
+      816    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      817    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      818    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      819    **  for more details.                                                        **
+      820    **                                                                           **
+      821    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      822    **  of use and alternative licensing options for this software.              **
+      823    **                                                                           **
+      824    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      825    **                                                                           **
+      826    **  See http://www.fsf.org for more information about the GPL.               **
+      827    **                                                                           **
+      828    **                                                                           **
+      829    *******************************************************************************
+      830    *******************************************************************************
+      831    *
+      832    * init-xrec.i
+      833    *
+      834    * {1} = base field
+      835    * {2} = value to initialze array with
+      836    *
+      837    * [1] = base
+      838    * [2] = last (previous cumulative value)
+      839    * [3] = this
+      840    * [4] = cumulative
+      841    * [5] = interval
+      842    *
+      843    */
+      844   
+      845   tt_table.tbl-del[1] = _TableStat-delete
+      846   tt_table.tbl-del[2] = _TableStat-delete
+      847   tt_table.tbl-del[3] = _TableStat-delete
+      848    
+      849             .
+      850             if hasOSRd = no then
+      851               tt_table.tbl-osrd = ?.
+      852              else
+      853               assign
+      854                 bh = buffer _TableStat:handle
+      855                 bf = bh:buffer-field( "_TableStat-OSRead" )
+      856                 
+      857   /*******************************************************************************
+      858    *******************************************************************************
+      859    **                                                                           **
+      860    **                                                                           **
+      861    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      862    **  http://www.greenfieldtech.com                                            **
+      863    **                                                                           **
+      864    **  ProTop is free software; you can redistribute it and/or modify it        **
+      865    **  under the terms of the GNU General Public License (GPL) as published     **
+      866    **  by the Free Software Foundation; either version 2 of the License, or     **
+      867    **  at your option) any later version.                                       **
+      868    **                                                                           **
+      869    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      870    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      871    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      872    **  for more details.                                                        **
+      873    **                                                                           **
+      874    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      875    **  of use and alternative licensing options for this software.              **
+      876    **                                                                           **
+      877    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      878    **                                                                           **
+      879    **  See http://www.fsf.org for more information about the GPL.               **
+      880    **                                                                           **
+      881    **                                                                           **
+      882    *******************************************************************************
+      883    *******************************************************************************
+      884    *
+      885    * init-xrec.i
+      886    *
+      887    * {1} = base field
+      888    * {2} = value to initialze array with
+      889    *
+      890    * [1] = base
+      891    * [2] = last (previous cumulative value)
+      892    * [3] = this
+      893    * [4] = cumulative
+      894    * [5] = interval
+      895    *
+      896    */
+      897   
+      898   tt_table.tbl-osrd[1] = bf:buffer-value
+      899   tt_table.tbl-osrd[2] = bf:buffer-value
+      900   tt_table.tbl-osrd[3] = bf:buffer-value
+      901    
+      902               .
+      903           end.
+      904       end.
+      905   
+      906     if available _TableStat then          /* _TableStat range may not be active...        */
+      907       do:
+      908   
+      909         assign
+      910           
+      911   /*******************************************************************************
+      912    *******************************************************************************
+      913    **                                                                           **
+      914    **                                                                           **
+      915    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      916    **  http://www.greenfieldtech.com                                            **
+      917    **                                                                           **
+      918    **  ProTop is free software; you can redistribute it and/or modify it        **
+      919    **  under the terms of the GNU General Public License (GPL) as published     **
+      920    **  by the Free Software Foundation; either version 2 of the License, or     **
+      921    **  at your option) any later version.                                       **
+      922    **                                                                           **
+      923    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      924    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      925    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      926    **  for more details.                                                        **
+      927    **                                                                           **
+      928    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      929    **  of use and alternative licensing options for this software.              **
+      930    **                                                                           **
+      931    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      932    **                                                                           **
+      933    **  See http://www.fsf.org for more information about the GPL.               **
+      934    **                                                                           **
+      935    **                                                                           **
+      936    *******************************************************************************
+      937    *******************************************************************************
+      938    *
+      939    * upd-xrec.i
+      940    *
+      941    * {1} = base field
+      942    * {2} = value to update metrics with
+      943    *
+      944    * [1] = base
+      945    * [2] = last (previous cumulative value)
+      946    * [3] = this
+      947    * [4] = cumulative
+      948    * [5] = interval
+      949    *
+      950    */
+      951   
+      952   tt_table.tbl-cre[3] = _TableStat-create
+      953   tt_table.tbl-cre[4] = tt_table.tbl-cre[3] - tt_table.tbl-cre[1]
+      954   tt_table.tbl-cre[5] = tt_table.tbl-cre[3] - tt_table.tbl-cre[2]
+      955   tt_table.tbl-cre[2] = tt_table.tbl-cre[3]
+      956    
+      957           
+      958   /*******************************************************************************
+      959    *******************************************************************************
+      960    **                                                                           **
+      961    **                                                                           **
+      962    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      963    **  http://www.greenfieldtech.com                                            **
+      964    **                                                                           **
+      965    **  ProTop is free software; you can redistribute it and/or modify it        **
+      966    **  under the terms of the GNU General Public License (GPL) as published     **
+      967    **  by the Free Software Foundation; either version 2 of the License, or     **
+      968    **  at your option) any later version.                                       **
+      969    **                                                                           **
+      970    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      971    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      972    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      973    **  for more details.                                                        **
+      974    **                                                                           **
+      975    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      976    **  of use and alternative licensing options for this software.              **
+      977    **                                                                           **
+      978    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      979    **                                                                           **
+      980    **  See http://www.fsf.org for more information about the GPL.               **
+      981    **                                                                           **
+      982    **                                                                           **
+      983    *******************************************************************************
+      984    *******************************************************************************
+      985    *
+      986    * upd-xrec.i
+      987    *
+      988    * {1} = base field
+      989    * {2} = value to update metrics with
+      990    *
+      991    * [1] = base
+      992    * [2] = last (previous cumulative value)
+      993    * [3] = this
+      994    * [4] = cumulative
+      995    * [5] = interval
+      996    *
+      997    */
+      998   
+      999   tt_table.tbl-rd[3] = _TableStat-read
+     1000   tt_table.tbl-rd[4] = tt_table.tbl-rd[3] - tt_table.tbl-rd[1]
+     1001   tt_table.tbl-rd[5] = tt_table.tbl-rd[3] - tt_table.tbl-rd[2]
+     1002   tt_table.tbl-rd[2] = tt_table.tbl-rd[3]
+     1003    
+     1004           
+     1005   /*******************************************************************************
+     1006    *******************************************************************************
+     1007    **                                                                           **
+     1008    **                                                                           **
+     1009    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+     1010    **  http://www.greenfieldtech.com                                            **
+     1011    **                                                                           **
+     1012    **  ProTop is free software; you can redistribute it and/or modify it        **
+     1013    **  under the terms of the GNU General Public License (GPL) as published     **
+     1014    **  by the Free Software Foundation; either version 2 of the License, or     **
+     1015    **  at your option) any later version.                                       **
+     1016    **                                                                           **
+     1017    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+     1018    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+     1019    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+     1020    **  for more details.                                                        **
+     1021    **                                                                           **
+     1022    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+     1023    **  of use and alternative licensing options for this software.              **
+     1024    **                                                                           **
+     1025    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+     1026    **                                                                           **
+     1027    **  See http://www.fsf.org for more information about the GPL.               **
+     1028    **                                                                           **
+     1029    **                                                                           **
+     1030    *******************************************************************************
+     1031    *******************************************************************************
+     1032    *
+     1033    * upd-xrec.i
+     1034    *
+     1035    * {1} = base field
+     1036    * {2} = value to update metrics with
+     1037    *
+     1038    * [1] = base
+     1039    * [2] = last (previous cumulative value)
+     1040    * [3] = this
+     1041    * [4] = cumulative
+     1042    * [5] = interval
+     1043    *
+     1044    */
+     1045   
+     1046   tt_table.tbl-upd[3] = _TableStat-update
+     1047   tt_table.tbl-upd[4] = tt_table.tbl-upd[3] - tt_table.tbl-upd[1]
+     1048   tt_table.tbl-upd[5] = tt_table.tbl-upd[3] - tt_table.tbl-upd[2]
+     1049   tt_table.tbl-upd[2] = tt_table.tbl-upd[3]
+     1050    
+     1051           
+     1052   /*******************************************************************************
+     1053    *******************************************************************************
+     1054    **                                                                           **
+     1055    **                                                                           **
+     1056    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+     1057    **  http://www.greenfieldtech.com                                            **
+     1058    **                                                                           **
+     1059    **  ProTop is free software; you can redistribute it and/or modify it        **
+     1060    **  under the terms of the GNU General Public License (GPL) as published     **
+     1061    **  by the Free Software Foundation; either version 2 of the License, or     **
+     1062    **  at your option) any later version.                                       **
+     1063    **                                                                           **
+     1064    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+     1065    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+     1066    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+     1067    **  for more details.                                                        **
+     1068    **                                                                           **
+     1069    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+     1070    **  of use and alternative licensing options for this software.              **
+     1071    **                                                                           **
+     1072    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+     1073    **                                                                           **
+     1074    **  See http://www.fsf.org for more information about the GPL.               **
+     1075    **                                                                           **
+     1076    **                                                                           **
+     1077    *******************************************************************************
+     1078    *******************************************************************************
+     1079    *
+     1080    * upd-xrec.i
+     1081    *
+     1082    * {1} = base field
+     1083    * {2} = value to update metrics with
+     1084    *
+     1085    * [1] = base
+     1086    * [2] = last (previous cumulative value)
+     1087    * [3] = this
+     1088    * [4] = cumulative
+     1089    * [5] = interval
+     1090    *
+     1091    */
+     1092   
+     1093   tt_table.tbl-del[3] = _TableStat-delete
+     1094   tt_table.tbl-del[4] = tt_table.tbl-del[3] - tt_table.tbl-del[1]
+     1095   tt_table.tbl-del[5] = tt_table.tbl-del[3] - tt_table.tbl-del[2]
+     1096   tt_table.tbl-del[2] = tt_table.tbl-del[3]
+     1097    
+     1098         .
+     1099         if hasOSRd then
+     1100           assign
+     1101             bh = buffer _TableStat:handle
+     1102             bf = bh:buffer-field( "_TableStat-OSRead" )
+     1103             
+     1104   /*******************************************************************************
+     1105    *******************************************************************************
+     1106    **                                                                           **
+     1107    **                                                                           **
+     1108    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+     1109    **  http://www.greenfieldtech.com                                            **
+     1110    **                                                                           **
+     1111    **  ProTop is free software; you can redistribute it and/or modify it        **
+     1112    **  under the terms of the GNU General Public License (GPL) as published     **
+     1113    **  by the Free Software Foundation; either version 2 of the License, or     **
+     1114    **  at your option) any later version.                                       **
+     1115    **                                                                           **
+     1116    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+     1117    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+     1118    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+     1119    **  for more details.                                                        **
+     1120    **                                                                           **
+     1121    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+     1122    **  of use and alternative licensing options for this software.              **
+     1123    **                                                                           **
+     1124    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+     1125    **                                                                           **
+     1126    **  See http://www.fsf.org for more information about the GPL.               **
+     1127    **                                                                           **
+     1128    **                                                                           **
+     1129    *******************************************************************************
+     1130    *******************************************************************************
+     1131    *
+     1132    * upd-xrec.i
+     1133    *
+     1134    * {1} = base field
+     1135    * {2} = value to update metrics with
+     1136    *
+     1137    * [1] = base
+     1138    * [2] = last (previous cumulative value)
+     1139    * [3] = this
+     1140    * [4] = cumulative
+     1141    * [5] = interval
+     1142    *
+     1143    */
+     1144   
+     1145   tt_table.tbl-osrd[3] = bf:buffer-value
+     1146   tt_table.tbl-osrd[4] = tt_table.tbl-osrd[3] - tt_table.tbl-osrd[1]
+     1147   tt_table.tbl-osrd[5] = tt_table.tbl-osrd[3] - tt_table.tbl-osrd[2]
+     1148   tt_table.tbl-osrd[2] = tt_table.tbl-osrd[3]
+     1149    
+     1150           .
+     1151   
+     1152         /* This uses the *base* statistics rather than the sampled data -- so it reveals
+     1153          * the historical pattern rather than current usage.
+     1154          */
+     1155   
+     1156         if ( tt_table.tbl-cre[x] > 10 and tt_table.tbl-del[x] > 10 ) and
+     1157            ( abs( tt_table.tbl-cre[x] - tt_table.tbl-del[x] ) < ( tt_table.tbl-cre[x] * 0.2 )) then
+     1158           tt_table.ttbl = "***".
+     1159          else
+     1160           tt_table.ttbl = "".
+     1161   
+     1162       end.
+     1163   
+     1164     return.
+     1165   
+     1166   end.
+     1167   
+     1168   /* this will be called by the including procedure's mon-update procedure
+     1169    *
+     1170    */
+     1171   
+     1172   procedure age_table:
+     1173   
+     1174     for each tt_table exclusive-lock:
+     1175   
+     1176       if tt_table.xvalid = no then
+     1177         delete tt_table.
+     1178        else
+     1179         assign
+     1180           tt_table.xvalid = no
+     1181         .
+     1182   
+     1183     end.
+     1184   
+     1185     return.
+     1186   
+     1187   end.
+     1188    
+     1189   
+     1190   define temp-table tt_tblAct no-undo
+     1191     field xid        as integer   format "->>>>9"
+     1192     field tblNum     as integer   format "->>>>9"          label "Tbl#"
+     1193     field tblAreaNum as integer   format ">>>>9"           label "Area#"
+     1194     field tblPool    as character format "x(2)"            label "BX"
+     1195     field tblName    as character format "x(30)"           label "Table Name"
+     1196     field dbaRM      as decimal   format ">>>>>>>>>>>>"    label "RM Chain"
+     1197     field dbaRecs    as decimal   format ">>>>>>>>>>>>"    label "#Records"
+     1198     field dbaFragPct as decimal   format ">>9.99%"         label "Frag%"
+     1199     field dbaScatter as decimal   format ">>>>"            label "Scat"
+     1200     field tblTurn    as decimal   format ">>>>>>9.99"      label "Churn"
+     1201     field dbaAvgRow  as decimal   format ">>>>>>>"         label "AvgRow"
+     1202     field tblCr      as decimal   format ">>>>>>>>9"       label "Create"
+     1203     field tblRd      as decimal   format ">>>>>>>>>9"      label "Read"
+     1204     field tblUp      as decimal   format ">>>>>>>>9"       label "Update"
+     1205     field tblDl      as decimal   format ">>>>>>>>9"       label "Delete"
+     1206     field tblOSRd    as decimal   format ">>>>>>>>9"       label "OS Read"
+     1207   
+     1208     index tblRd-idx  is primary tblRd descending
+     1209     index tblNum-idx is unique tblNum
+     1210     index tblAreaNum-idx tblAreaNum descending
+     1211     index dbaRecs-idx dbaRecs descending
+     1212     index tblTurn-idx tblTurn descending
+     1213     index tblCr-idx   tblCr   descending
+     1214     index tblUp-idx   tblUp   descending
+     1215     index tblDl-idx   tblDl   descending
+     1216     index tblOSRd-idx tblOSRd descending
+     1217     index tblPool-idx tblPool descending
+     1218     index tblname-idx is unique tblName
+     1219     index xid-idx  is unique xid
+     1220   .
+     1221   
+     1222   
+     1223   /* lib/dumpTT.i
+     1224    *
+     1225    * simplified to a single line -- include should be eliminated.
+     1226    *
+     1227    */
+     1228   
+     1229   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 &THEN
+     1230   /*** +++
+     1231   file-info:file-name = "./ptdefs".
+     1232   if file-info:full-pathname <> ? and index( file-info:file-type, "d" ) > 0 and index( file-info:file-type, "w" ) > 0 then
+     1233     do:
+     1234   
+     1235       file-info:file-name = "./ptdefs/{1}.xsd".
+     1236   
+     1237       if true /* file-info:full-pathname = ? or file-info:file-size = 0 */ then
+     1238         do:
+     1239   
+     1240           temp-table {1}:write-xmlschema(
+     1241             "file",
+     1242   /*        substitute( "ptdefs/&1.xsd", "{1}" ), */
+     1243   /*        "./ptdefs/{1}.xsd", */
+     1244             ( if opsys = "unix" then "./ptdefs/{1}.xsd" else ".~\ptdefs~\{1}.xsd" ),
+     1245             true
+     1246   
+     1247         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2
+     1248         &THEN
+     1249             , ?, ?, ?
+     1250         &ENDIF
+     1251   
+     1252       ).
+     1253   
+     1254       end.
+     1255   
+     1256     end.
+     1257    +++ ***/
+     1258   &ENDIF
+     1259    
+     1260   
+     1261   define new global shared variable rowLimit as integer no-undo.
+     1262   
+     1263   procedure chkOSRd:
+     1264     hasOSRd = no.
+     1265     find _file no-lock where _file._file-name = "_tablestat" no-error.
+     1266     if available _file then find _field no-lock of _file where _field._field-name = "_tablestat-osread" no-error.
+     1267     hasOSRd = available( _field ).
+     1268     return.
+     1269   end.
+     1270   
+     1271   procedure mon-init:
+     1272   
+     1273     run chkOSRd.
+     1274   
+     1275     empty temp-table tt_table.
+     1276   
+     1277     run updTick.
+     1278   
+     1279     return.
+     1280   
+     1281   end.
+     1282   
+     1283   
+     1284   procedure mon-update:
+     1285   
+     1286     define input parameter argList as character no-undo.
+     1287   
+     1288     define variable i        as integer no-undo.
+     1289     define variable topLimit as integer no-undo initial 25.                               /* formerly 10                          */
+     1290   
+     1291     run updTick.
+     1292   
+     1293     for each dictdb._TableStat no-lock:
+     1294       find tt_tbl no-lock where tt_tbl.xid = _TableStat-id no-error.                      /* cached _file records                 */
+     1295       if available tt_tbl then run upd-tt_table ( _TableStat._TableStat-id ).
+     1296     end.
+     1297   
+     1298     /* run age_table. */                                                                  /* Does nothing but waste effort...     */
+     1299   
+     1300     empty temp-table tt_tblAct.
+     1301   
+     1302     /* top X creates
+     1303      */
+     1304   
+     1305     i = 0.
+     1306     for each tt_table no-lock by tt_table.tbl-cre[x] descending.
+     1307   
+     1308       i = i + 1.
+     1309   
+     1310       find tt_tblAct where tt_tblAct.tblNum = tt_table.tblNum no-error.                   /* prevent duplicates                   */
+     1311       if available tt_tblAct then next.
+     1312   
+     1313       create tt_tblAct.
+     1314       assign
+     1315         tt_tblAct.xid        = tt_table.tblNum
+     1316         tt_tblAct.tblNum     = tt_table.tblNum
+     1317         tt_tblAct.tblAreaNum = tt_table.areaNum
+     1318         tt_tblAct.tblPool    = tt_table.tblPool
+     1319         tt_tblAct.tblName    = tt_table.tblName
+     1320         tt_tblAct.tblCr      = ( tt_table.tbl-cre[x]  / z )
+     1321         tt_tblAct.tblRd      = ( tt_table.tbl-rd[x]   / z )
+     1322         tt_tblAct.tblUp      = ( tt_table.tbl-upd[x]  / z )
+     1323         tt_tblAct.tblDl      = ( tt_table.tbl-del[x]  / z )
+     1324         tt_tblAct.tblOSRd    = ( tt_table.tbl-osrd[x] / z )
+     1325       .
+     1326   
+     1327       run getTableInfo(
+     1328         tt_table.tblName,
+     1329         output tt_tblAct.dbaRecs,
+     1330         output tt_tblAct.dbaRM,
+     1331         output tt_tblAct.dbaFragPct,
+     1332         output tt_tblAct.dbaScatter,
+     1333         output tt_tblAct.dbaAvgRow
+     1334       ).
+     1335       if tt_tblAct.dbaRecs > 0 then tt_tblAct.tblTurn = tt_tblAct.tblRd / tt_tblAct.dbaRecs.
+     1336   
+     1337       if ( topLimit > 0 ) and ( i >= topLimit ) then leave.
+     1338   
+     1339     end.
+     1340   
+     1341     /* top X reads
+     1342      */
+     1343   
+     1344     i = 0.
+     1345     for each tt_table no-lock by tt_table.tbl-rd[x] descending.
+     1346   
+     1347       i = i + 1.
+     1348   
+     1349       find tt_tblAct where tt_tblAct.tblNum = tt_table.tblNum no-error.                   /* prevent duplicates                   */
+     1350       if available tt_tblAct then next.
+     1351   
+     1352       create tt_tblAct.
+     1353       assign
+     1354         tt_tblAct.xid        = tt_table.tblNum
+     1355         tt_tblAct.tblNum     = tt_table.tblNum
+     1356         tt_tblAct.tblAreaNum = tt_table.areaNum
+     1357         tt_tblAct.tblPool    = tt_table.tblPool
+     1358         tt_tblAct.tblName    = tt_table.tblName
+     1359         tt_tblAct.tblCr      = ( tt_table.tbl-cre[x]  / z )
+     1360         tt_tblAct.tblRd      = ( tt_table.tbl-rd[x]   / z )
+     1361         tt_tblAct.tblUp      = ( tt_table.tbl-upd[x]  / z )
+     1362         tt_tblAct.tblDl      = ( tt_table.tbl-del[x]  / z )
+     1363         tt_tblAct.tblOSRd    = ( tt_table.tbl-osrd[x] / z )
+     1364       .
+     1365   
+     1366       run getTableInfo(
+     1367         tt_table.tblName,
+     1368         output tt_tblAct.dbaRecs,
+     1369         output tt_tblAct.dbaRM,
+     1370         output tt_tblAct.dbaFragPct,
+     1371         output tt_tblAct.dbaScatter,
+     1372         output tt_tblAct.dbaAvgRow
+     1373       ).
+     1374       if tt_tblAct.dbaRecs > 0 then tt_tblAct.tblTurn = tt_tblAct.tblRd / tt_tblAct.dbaRecs.
+     1375   
+     1376       if ( topLimit > 0 ) and ( i >= topLimit ) then leave.
+     1377   
+     1378     end.
+     1379   
+     1380     /* top X updates
+     1381      */
+     1382   
+     1383     i = 0.
+     1384     for each tt_table no-lock by tt_table.tbl-upd[x] descending.
+     1385   
+     1386       i = i + 1.
+     1387   
+     1388       find tt_tblAct where tt_tblAct.tblNum = tt_table.tblNum no-error.                   /* prevent duplicates                   */
+     1389       if available tt_tblAct then next.
+     1390   
+     1391       create tt_tblAct.
+     1392       assign
+     1393         tt_tblAct.xid        = tt_table.tblNum
+     1394         tt_tblAct.tblNum     = tt_table.tblNum
+     1395         tt_tblAct.tblAreaNum = tt_table.areaNum
+     1396         tt_tblAct.tblPool    = tt_table.tblPool
+     1397         tt_tblAct.tblName    = tt_table.tblName
+     1398         tt_tblAct.tblCr      = ( tt_table.tbl-cre[x]  / z )
+     1399         tt_tblAct.tblRd      = ( tt_table.tbl-rd[x]   / z )
+     1400         tt_tblAct.tblUp      = ( tt_table.tbl-upd[x]  / z )
+     1401         tt_tblAct.tblDl      = ( tt_table.tbl-del[x]  / z )
+     1402         tt_tblAct.tblOSRd    = ( tt_table.tbl-osrd[x] / z )
+     1403       .
+     1404   
+     1405       run getTableInfo(
+     1406         tt_table.tblName,
+     1407         output tt_tblAct.dbaRecs,
+     1408         output tt_tblAct.dbaRM,
+     1409         output tt_tblAct.dbaFragPct,
+     1410         output tt_tblAct.dbaScatter,
+     1411         output tt_tblAct.dbaAvgRow
+     1412       ).
+     1413       if tt_tblAct.dbaRecs > 0 then tt_tblAct.tblTurn = tt_tblAct.tblRd / tt_tblAct.dbaRecs.
+     1414   
+     1415       if ( topLimit > 0 ) and ( i >= topLimit ) then leave.
+     1416   
+     1417     end.
+     1418   
+     1419     /* top X deletes
+     1420      */
+     1421   
+     1422     i = 0.
+     1423     for each tt_table no-lock by tt_table.tbl-del[x] descending.
+     1424   
+     1425       i = i + 1.
+     1426   
+     1427       find tt_tblAct where tt_tblAct.tblNum = tt_table.tblNum no-error.                   /* prevent duplicates                   */
+     1428       if available tt_tblAct then next.
+     1429   
+     1430       create tt_tblAct.
+     1431       assign
+     1432         tt_tblAct.xid        = tt_table.tblNum
+     1433         tt_tblAct.tblNum     = tt_table.tblNum
+     1434         tt_tblAct.tblAreaNum = tt_table.areaNum
+     1435         tt_tblAct.tblPool    = tt_table.tblPool
+     1436         tt_tblAct.tblName    = tt_table.tblName
+     1437         tt_tblAct.tblCr      = ( tt_table.tbl-cre[x]  / z )
+     1438         tt_tblAct.tblRd      = ( tt_table.tbl-rd[x]   / z )
+     1439         tt_tblAct.tblUp      = ( tt_table.tbl-upd[x]  / z )
+     1440         tt_tblAct.tblDl      = ( tt_table.tbl-del[x]  / z )
+     1441         tt_tblAct.tblOSRd    = ( tt_table.tbl-osrd[x] / z )
+     1442       .
+     1443   
+     1444       run getTableInfo(
+     1445         tt_table.tblName,
+     1446         output tt_tblAct.dbaRecs,
+     1447         output tt_tblAct.dbaRM,
+     1448         output tt_tblAct.dbaFragPct,
+     1449         output tt_tblAct.dbaScatter,
+     1450         output tt_tblAct.dbaAvgRow
+     1451       ).
+     1452       if tt_tblAct.dbaRecs > 0 then tt_tblAct.tblTurn = tt_tblAct.tblRd / tt_tblAct.dbaRecs.
+     1453   
+     1454       if ( topLimit > 0 ) and ( i >= topLimit ) then leave.
+     1455   
+     1456     end.
+     1457   
+     1458     add2ds( temp-table tt_tblAct:default-buffer-handle ).
+     1459   
+     1460     return.
+     1461   
+     1462   end.
+     1463   
+     1464   *** Encrypted Source ***
+     1465   *** Encrypted Source ***
+     1466   *** Encrypted Source ***
+     1467   *** Encrypted Source ***
+     1468   *** Encrypted Source ***
+     1469   *** Encrypted Source ***
+     1470   *** Encrypted Source ***
+     1471   *** Encrypted Source ***
+     1472   *** Encrypted Source ***
+     1473   *** Encrypted Source ***
+     1474   *** Encrypted Source ***
+     1475   *** Encrypted Source ***
+     1476   *** Encrypted Source ***
+     1477   *** Encrypted Source ***
+     1478   *** Encrypted Source ***
+     1479   *** Encrypted Source ***
+     1480   *** Encrypted Source ***
+     1481   *** Encrypted Source ***
+     1482   *** Encrypted Source ***
+     1483   *** Encrypted Source ***
+     1484   *** Encrypted Source ***
+     1485   *** Encrypted Source ***
+     1486   *** Encrypted Source ***
+     1487   *** Encrypted Source ***
+     1488   *** Encrypted Source ***
+     1489   *** Encrypted Source ***
+     1490   *** Encrypted Source ***
+     1491   *** Encrypted Source ***
+     1492   *** Encrypted Source ***
+     1493   *** Encrypted Source ***
+     1494   *** Encrypted Source ***
+     1495   *** Encrypted Source ***
+     1496   *** Encrypted Source ***
+     1497   *** Encrypted Source ***
+     1498   *** Encrypted Source ***
+     1499   *** Encrypted Source ***
+     1500   *** Encrypted Source ***
+     1501   *** Encrypted Source ***
+     1502   *** Encrypted Source ***
+     1503   *** Encrypted Source ***
+     1504   *** Encrypted Source ***
+     1505   *** Encrypted Source ***
+     1506   *** Encrypted Source ***
+     1507   *** Encrypted Source ***
+     1508   *** Encrypted Source ***
+     1509   *** Encrypted Source ***
+     1510   *** Encrypted Source ***
+     1511   *** Encrypted Source ***
+     1512   *** Encrypted Source ***
+     1513   *** Encrypted Source ***
+     1514   *** Encrypted Source ***
+     1515   *** Encrypted Source ***
+     1516   *** Encrypted Source ***
+     1517   *** Encrypted Source ***
+     1518   *** Encrypted Source ***
+     1519   *** Encrypted Source ***
+     1520   *** Encrypted Source ***
+     1521   *** Encrypted Source ***
+     1522   *** Encrypted Source ***
+     1523   *** Encrypted Source ***
+     1524   *** Encrypted Source ***
+     1525   *** Encrypted Source ***
+     1526   *** Encrypted Source ***
+     1527   *** Encrypted Source ***
+     1528   *** Encrypted Source ***
+     1529   *** Encrypted Source ***
+     1530   *** Encrypted Source ***
+     1531   *** Encrypted Source ***
+     1532    
+     1533   
+     1534   return.

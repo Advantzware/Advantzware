@@ -420,7 +420,7 @@ DEFINE {1} TEMP-TABLE ttEstCostGroupLevel
     FIELD iCostGroupLevel AS INTEGER 
     FIELD cCostGroupLevelDescription AS CHARACTER 
     .    
-    
+
 DEFINE {1} TEMP-TABLE ttEstError
     FIELD estHeaderID AS CHARACTER
     FIELD iFormNo AS INTEGER 

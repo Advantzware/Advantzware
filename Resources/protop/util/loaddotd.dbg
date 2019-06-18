@@ -1,0 +1,17 @@
+        1   /* loaddotd.p
+        2    *
+        3    * load a dot-d file in a given directory into a table
+        4    *
+        5    * bpro dbname -p ./loaddotd.p -param "tableName|/loadDir/tableName.d" > logfile 2>&1
+        6    *
+        7    */
+        8   
+        9   if entry( 1, session:parameter, "|" ) = "_seqvals" then
+       10     run util/loadseq.p.
+       11    else
+       12     run prodict/load_d.p (
+       13       input entry( 1, session:parameter, "|" ),
+       14       input entry( 2, session:parameter, "|" )
+       15     ).
+       16   
+       17   return.

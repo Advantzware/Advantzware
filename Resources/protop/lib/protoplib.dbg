@@ -1,0 +1,1110 @@
+        1   /*******************************************************************************
+        2    *******************************************************************************
+        3    **                                                                           **
+        4    **                                                                           **
+        5    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+        6    **  http://www.greenfieldtech.com                                            **
+        7    **                                                                           **
+        8    **  ProTop is free software; you can redistribute it and/or modify it        **
+        9    **  under the terms of the GNU General Public License (GPL) as published     **
+       10    **  by the Free Software Foundation; either version 2 of the License, or     **
+       11    **  at your option) any later version.                                       **
+       12    **                                                                           **
+       13    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       14    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       15    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       16    **  for more details.                                                        **
+       17    **                                                                           **
+       18    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       19    **  of use and alternative licensing options for this software.              **
+       20    **                                                                           **
+       21    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       22    **                                                                           **
+       23    **  See http://www.fsf.org for more information about the GPL.               **
+       24    **                                                                           **
+       25    **                                                                           **
+       26    *******************************************************************************
+       27    *******************************************************************************
+       28    *
+       29    * protoplib.p
+       30    *
+       31    * Library of common infrastructure functions for the ProTop family of programs
+       32    *
+       33    *
+       34    * Known Bugs & Issues:
+       35    *
+       36    *
+       37    * To Do:
+       38    *
+       39    *
+       40    * Author:
+       41    *
+       42    *      Tom Bascom, Greenfield Technologies
+       43    *      http://www.greenfieldtech.com
+       44    *      August 28, 2003
+       45    *
+       46    *
+       47    * History:
+       48    *
+       49    *      Accepted changes from Sam Paakki regarding "quit" function and PROPATH
+       50    *      September 26, 2003
+       51    *
+       52    *      Accepted changes from Patrick Tingen to set html output dir,   
+       53    *      eliminating the nasty curr-page shared variable, simplifying the
+       54    *      release# and adding protop-url 
+       55    *      October 30, 2003
+       56    * 
+       57    */
+       58   
+       59   
+       60   /*******************************************************************************
+       61    *******************************************************************************
+       62    **                                                                           **
+       63    **                                                                           **
+       64    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       65    **  http://www.greenfieldtech.com                                            **
+       66    **                                                                           **
+       67    **  ProTop is free software; you can redistribute it and/or modify it        **
+       68    **  under the terms of the GNU General Public License (GPL) as published     **
+       69    **  by the Free Software Foundation; either version 2 of the License, or     **
+       70    **  at your option) any later version.                                       **
+       71    **                                                                           **
+       72    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       73    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       74    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       75    **  for more details.                                                        **
+       76    **                                                                           **
+       77    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       78    **  of use and alternative licensing options for this software.              **
+       79    **                                                                           **
+       80    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       81    **                                                                           **
+       82    **  See http://www.fsf.org for more information about the GPL.               **
+       83    **                                                                           **
+       84    **                                                                           **
+       85    *******************************************************************************
+       86    *******************************************************************************
+       87    *
+       88    * protop.i
+       89    *
+       90    * Header file for protop family of programs
+       91    *
+       92    *
+       93    * Known Bugs & Issues:
+       94    *
+       95    *
+       96    * To Do:
+       97    *
+       98    *
+       99    * Author:
+      100    *
+      101    *      Tom Bascom, Greenfield Technologies
+      102    *      http://www.greenfieldtech.com
+      103    *      August 28, 2003
+      104    *
+      105    */
+      106   
+      107   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+      108   &global-define  FASTLOCK        true
+      109   &ELSE
+      110   &global-define  FASTLOCK        false
+      111   &ENDIF
+      112   
+      113   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+      114   &global-define  OE11            "yes"
+      115   &global-define  xDEBUGTT        false
+      116   &ENDIF
+      117   
+      118   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+      119   &global-define  NOSERIALIZE     serialize-hidden
+      120   &ENDIF
+      121   
+      122   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+      123   &global-define  BIGINT          int64
+      124   &ELSE
+      125   &global-define  BIGINT          decimal
+      126   &ENDIF
+      127   
+      128   
+      129   /* lib/v9.i
+      130    *
+      131    */
+      132   
+      133   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      134   &global-define  CPYLOB  "no"
+      135   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      136   &global-define  LNGCR   character
+      137   &global-define  DTZ     integer
+      138   &global-define  BIGINT  decimal
+      139   &ELSE
+      140   &global-define  OE10    "yes"
+      141   &global-define  NOW     now
+      142   &global-define  LNGCR   longchar
+      143   &global-define  DTZ     datetime-tz
+      144   &global-define  BIGINT  int64
+      145   &ENDIF
+      146    
+      147   
+      148   /* use extended _connect fields: -client, -cache*
+      149    */
+      150   
+      151   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      152   &global-define  CONNECTX        "yes"
+      153   &ELSE
+      154   &global-define  CONNECTX        "no"
+      155   &ENDIF
+      156   
+      157   define stream inStrm.
+      158   
+      159   define new global shared variable dbgMode as integer no-undo initial 1.
+      160   
+      161   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      162    *
+      163    * someday everyone will have OO and I will replace these with a gsv class
+      164    * or something of that ilk
+      165    *
+      166    */
+      167   
+      168   define new global shared variable pt_shortname   as character no-undo.
+      169   define new global shared variable pt_uniqName    as character no-undo.
+      170   define new global shared variable pt_server      as character no-undo.
+      171   define new global shared variable pt_resrcType   as character no-undo.
+      172   
+      173   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      174   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      175   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      176   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      177   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      178   
+      179   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      180   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      181   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      182   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      183   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      184   define new global shared variable pt_ioFileName  as character no-undo.
+      185   define new global shared variable pt_dfCmd       as character no-undo.
+      186   
+      187   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      188   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      189   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      190   
+      191   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      192   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      193   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      194   
+      195   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      196   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      197   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      198   
+      199   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      200   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      201   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      202   
+      203   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      204   
+      205   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      206   
+      207   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      208   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      209   
+      210   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      211    * 
+      212    */
+      213   
+      214   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      215   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      216   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      217   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      218   
+      219   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      220   
+      221                                                                                   /* corresponding to base checkpoint#    */
+      222   /** Global Shared Temp Table Definitions
+      223    **
+      224    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      225    ** And a shared temp-table is logically the same as a db table so who really cares?
+      226    **
+      227    **/
+      228   
+      229   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      230    */
+      231   
+      232   define new global shared temp-table tt_tbl no-undo
+      233     field xid      as integer                                             /* _File._File-Num              */
+      234     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      235     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      236     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      237     field tblname  as character                                           /* _File._File-Name             */
+      238     index xid-idx is unique primary xid.
+      239   
+      240   define new global shared temp-table tt_idx no-undo
+      241     field xid      as integer                                             /* _Index._Idx-Num              */
+      242     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      243     field idxname  as character                                           /* _Index._Idx-Name             */
+      244     field idxnote  as character
+      245     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      246     field tblnum   as integer                                             /* _File._File-Num              */
+      247     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      248     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      249     field tblname  as character                                           /* _File._File-Name             */
+      250     index xid-idx is unique primary xid.
+      251   
+      252   define new global shared temp-table tt_areaExtent no-undo
+      253     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      254     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      255   
+      256     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      257     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      258     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      259   
+      260     index ae-idx is unique primary areaNum extNum.
+      261   
+      262   define new global shared temp-table tt_area no-undo
+      263     field xid      as integer    format ">>>9"
+      264     field SANum    as integer    format ">>>9"        label "#"
+      265     field areaPool as character  format "x(2)"        label "BX"
+      266   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      267     field SAName   as character  format "x(30)"       label "Area Name"
+      268     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      269     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      270     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      271     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      272     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      273     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      274     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      275   
+      276     field blkszkb as integer     format ">>9"         label "BSZ"
+      277     field rpb     as integer     format ">>9"         label "RPB"
+      278     field clstrsz as integer     format ">>9"         label "CSZ"
+      279   
+      280     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      281     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      282     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      283   
+      284     field numExts as integer     format ">>>>9"       label "#Exts"
+      285     field hasVar  as logical     format "Yes/No"      label "Var?"
+      286   
+      287     field xnote   as character   format "x"           label "*"
+      288   
+      289     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      290     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      291   
+      292     index pctAlloc-idx is primary pctAlloc descending
+      293     index pctLastX-idx pctLastX pctAlloc descending
+      294     index allocGB-idx allocGB descending
+      295     index totGB-idx totGB descending
+      296     index xid-idx is unique xid
+      297     index SANum-idx is unique SANum
+      298     index SAName-idx is unique SAName
+      299   .
+      300   
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323   *** Encrypted Source ***
+      324   *** Encrypted Source ***
+      325   *** Encrypted Source ***
+      326   *** Encrypted Source ***
+      327   *** Encrypted Source ***
+      328   *** Encrypted Source ***
+      329   *** Encrypted Source ***
+      330   *** Encrypted Source ***
+      331   *** Encrypted Source ***
+      332   *** Encrypted Source ***
+      333   *** Encrypted Source ***
+      334   *** Encrypted Source ***
+      335   *** Encrypted Source ***
+      336   *** Encrypted Source ***
+      337   *** Encrypted Source ***
+      338   *** Encrypted Source ***
+      339   *** Encrypted Source ***
+      340   *** Encrypted Source ***
+      341   *** Encrypted Source ***
+      342   *** Encrypted Source ***
+      343   *** Encrypted Source ***
+      344   *** Encrypted Source ***
+      345   *** Encrypted Source ***
+      346   *** Encrypted Source ***
+      347   *** Encrypted Source ***
+      348   *** Encrypted Source ***
+      349   *** Encrypted Source ***
+      350   *** Encrypted Source ***
+      351   *** Encrypted Source ***
+      352   *** Encrypted Source ***
+      353   *** Encrypted Source ***
+      354   *** Encrypted Source ***
+      355   *** Encrypted Source ***
+      356   *** Encrypted Source ***
+      357   *** Encrypted Source ***
+      358   *** Encrypted Source ***
+      359   *** Encrypted Source ***
+      360   *** Encrypted Source ***
+      361   *** Encrypted Source ***
+      362   *** Encrypted Source ***
+      363   *** Encrypted Source ***
+      364   *** Encrypted Source ***
+      365   *** Encrypted Source ***
+      366   *** Encrypted Source ***
+      367   *** Encrypted Source ***
+      368   *** Encrypted Source ***
+      369   *** Encrypted Source ***
+      370   *** Encrypted Source ***
+      371    
+      372   
+      373   /*******************************************************************************
+      374    *******************************************************************************
+      375    **                                                                           **
+      376    **                                                                           **
+      377    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      378    **  http://www.greenfieldtech.com                                            **
+      379    **                                                                           **
+      380    **  ProTop is free software; you can redistribute it and/or modify it        **
+      381    **  under the terms of the GNU General Public License (GPL) as published     **
+      382    **  by the Free Software Foundation; either version 2 of the License, or     **
+      383    **  at your option) any later version.                                       **
+      384    **                                                                           **
+      385    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      386    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      387    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      388    **  for more details.                                                        **
+      389    **                                                                           **
+      390    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      391    **  of use and alternative licensing options for this software.              **
+      392    **                                                                           **
+      393    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      394    **                                                                           **
+      395    **  See http://www.fsf.org for more information about the GPL.               **
+      396    **                                                                           **
+      397    **                                                                           **
+      398    *******************************************************************************
+      399    *******************************************************************************
+      400    *
+      401    * protoplib.i
+      402    *
+      403    * ProTop infrastructure library definitions
+      404    *
+      405    */
+      406   
+      407   function uDateTime returns integer () in super.
+      408   function string2uDateTime returns integer( input p_text as character ) in super.
+      409   function searchDir returns character ( input xDir as character ) in super.
+      410   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      411   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      412   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      413   function myPID returns character () in super.
+      414   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      415   
+      416   /* end protoplib.i */
+      417    
+      418   
+      419   /*******************************************************************************
+      420    *******************************************************************************
+      421    **                                                                           **
+      422    **                                                                           **
+      423    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      424    **  http://www.greenfieldtech.com                                            **
+      425    **                                                                           **
+      426    **  ProTop is free software; you can redistribute it and/or modify it        **
+      427    **  under the terms of the GNU General Public License (GPL) as published     **
+      428    **  by the Free Software Foundation; either version 2 of the License, or     **
+      429    **  at your option) any later version.                                       **
+      430    **                                                                           **
+      431    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      432    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      433    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      434    **  for more details.                                                        **
+      435    **                                                                           **
+      436    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      437    **  of use and alternative licensing options for this software.              **
+      438    **                                                                           **
+      439    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      440    **                                                                           **
+      441    **  See http://www.fsf.org for more information about the GPL.               **
+      442    **                                                                           **
+      443    **                                                                           **
+      444    *******************************************************************************
+      445    *******************************************************************************
+      446    *
+      447    * vstlib.i
+      448    *
+      449    * VST library definitions
+      450    *
+      451    */
+      452   
+      453   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      454   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      455   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      456   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      457   
+      458   function connectFlags returns character ( input cnxId as integer ) in super.
+      459   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      460   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      461   
+      462   function isAIEnabled returns logical () in super.
+      463   function isReplSource returns logical () in super.
+      464   function isReplTarget returns logical () in super.
+      465   function isBackupRunning returns logical () in super.
+      466   function isWorkgroup returns logical () in super.
+      467   
+      468   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      469   
+      470   /* end vstlib.i */
+      471    
+      472   
+      473   function add2ds returns logical ( input h as handle ) in super.
+      474   function getTempTableHandle returns handle ( input n as character ) in super.
+      475   
+      476   /* end protop.i */
+      477    
+      478   
+      479   /* {lib/windows.i} */
+      480   
+      481   /*** Install self as a session super-procedure
+      482    ***
+      483    ***/
+      484   
+      485   session:add-super-procedure( this-procedure ).
+      486   
+      487   return.
+      488   
+      489   
+      490   /** Common functions
+      491    **
+      492    **/
+      493   
+      494   
+      495   /* Thanks to Wim van der Ham -- the very first community contribution!
+      496    *
+      497    * Now directly supported in 4gl but I keep it around for the memories :)
+      498    *
+      499    *
+      500    *
+      501    * function LOGICAL returns logical ( input p_text as character ):
+      502    *   return ( p_text = "true" or p_text = "yes" ).
+      503    * end.
+      504    *
+      505    */
+      506   
+      507   /* Thanks to Sam Paakki!
+      508    *
+      509    * The built-in search() won't find a directory on the propath -- this does (it also finds ordinary files)
+      510    *
+      511    */
+      512   
+      513   function searchDir returns character ( input xDir as character ):
+      514   
+      515     define variable i as integer no-undo.
+      516   
+      517     do i = 1 to num-entries( PROPATH ):
+      518       file-info:file-name = entry( i, PROPATH ) + '/' + xDir.
+      519       if file-info:full-pathname <> ? then return file-info:full-pathname.
+      520     end.
+      521   
+      522     return ?.     /* didn't find it :-(   */
+      523   
+      524   end.
+      525   
+      526   /* This one's for you Pete!
+      527    *
+      528    * "Just do it!"
+      529    *
+      530    */
+      531   
+      532   function uDateTime returns integer:                     /* BTW -- it doesn't account for leap seconds... */
+      533     return ((( today - 1/1/1970 ) * 86400 ) + time ).
+      534   end.
+      535   
+      536   function string2uDateTime returns integer( input p_text as character ):
+      537   
+      538     /* i.e. "Thu Oct  4 21:05:02 2007" */
+      539   
+      540     return
+      541       (( date(
+      542         lookup(  substring( p_text,  5, 3 ), "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec" ),
+      543         integer( substring( p_text,  9, 2 )),
+      544         integer( substring( p_text, 21, 4 ))
+      545         ) - 1/1/1970 ) * 86400 ) +
+      546   
+      547       (
+      548         integer( substring( p_text, 12, 2 )) * 3600 +
+      549         integer( substring( p_text, 15, 2 )) * 60   +
+      550         integer( substring( p_text, 18, 2 ))
+      551       ).
+      552   
+      553   end.
+      554   
+      555   function tmText2uDateTime returns integer( input p_text as character ):
+      556   
+      557     define variable tmText as character no-undo.
+      558     define variable numDay as integer   no-undo.
+      559     define variable numHr  as integer   no-undo.
+      560     define variable numMin as integer   no-undo.
+      561     define variable numSec as integer   no-undo.
+      562   
+      563     assign
+      564       tmText = trim( p_text )
+      565       numDay = 0
+      566       numHr  = 0
+      567       numMin = 0
+      568       numSec = 0
+      569     .
+      570     if num-entries( tmText, "d" ) > 1 then
+      571       assign
+      572         numDay = integer( entry( 1, tmText, "d" ))
+      573         tmText = trim( entry( 2, tmText, "d" ))
+      574       .
+      575   
+      576     if num-entries( tmText, ":" ) > 1 then
+      577       assign
+      578         numHr  = integer( entry( 1, tmText, ":" ))
+      579         numMin = integer( entry( 2, tmText, ":" ))
+      580         numSec = integer( entry( 3, tmText, ":" ))
+      581       no-error.
+      582   
+      583     return ( 86400 * numDay ) + ( 3600 * numHr  ) + ( 60 * numMin ) + numSec.
+      584   
+      585   end.
+      586   
+      587   /* return a corrected decimal on the assumption that the sign bit should not have been flipped
+      588    *
+      589    */
+      590   
+      591   function unsignMe returns decimal ( input s as decimal, i as integer ):
+      592   
+      593     if s < 0 then s = s + exp( 2, i ).
+      594   
+      595     return s.
+      596   
+      597   end.
+      598   
+      599   /* Variations on the hit ratio theme -- Gus' method:
+      600    *
+      601    *      http://www.peg.com/lists/dba/history/200209/msg00057.html
+      602    *
+      603    */
+      604   
+      605   define variable warned as logical no-undo.      /*** debugging code ***/
+      606   
+      607   /***
+      608   function hr returns decimal ( input lr as integer, input osr as integer, output hr-str as character, output hr as decimal, output mr as decimal ):
+      609    ***/
+      610   
+      611   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ):
+      612   
+      613     define variable lrx  as decimal no-undo.
+      614     define variable osrx as decimal no-undo.
+      615   
+      616     define variable hr-top as decimal no-undo.
+      617     define variable hr-bot as decimal no-undo.
+      618   
+      619     assign
+      620       lrx       = lr
+      621       osrx      = osr
+      622       hr-top    = lrx / osrx
+      623       hr-bot    = 1.0
+      624       hr        = 100.0 * (( lrx - osrx ) / lrx )
+      625       mr        = 100.0 - hr
+      626     .
+      627   
+      628     if hr < 0 and warned = no then
+      629       do:
+      630   
+      631           hr = 0.
+      632           warned = yes.
+      633   
+      634           /** Debugging -- this is very bad!!!
+      635            **
+      636   
+      637           display
+      638              skip(1)
+      639              "  BOGUS HIT RATIO Calculation!!!  " skip
+      640              skip(1)
+      641              "       lr:" lr     skip
+      642              "      osr:" osr    skip
+      643              "      lrx:" lrx    skip
+      644              "     osrx:" osrx   skip
+      645              "   hr-top:" hr-top skip
+      646              "   hr-bot:" hr-bot skip
+      647              "       hr:" hr     skip
+      648              "       mr:" mr    skip
+      649              skip(1)
+      650              "   Please send this data to:" skip
+      651              "       tom@greenfieldtech.com" skip
+      652              skip(1)
+      653            with no-labels.
+      654   
+      655            **
+      656            **/
+      657   
+      658       end.
+      659   
+      660     if hr < 0 then
+      661       do:
+      662         hr = 0.
+      663         hr-str = "".
+      664         return hr.
+      665       end.
+      666   
+      667     if hr < 1 then                  /* deal with pathologically bad ratios...     */
+      668       assign
+      669         hr-bot = 1.0 / hr-top
+      670         hr-top = 1.0
+      671       .
+      672   
+      673     hr-str = string( truncate( hr-top, 0 )) + ":" + string( truncate( hr-bot, 0 )).
+      674     if hr-str = ? then hr-str = "0:0".
+      675     if length( hr-str ) < 10 then hr-str = fill( " ", 10 - length( hr-str )) + hr-str.
+      676   
+      677     return hr.
+      678   
+      679   end.
+      680   
+      681   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ):
+      682   
+      683     define variable r as character no-undo case-sensitive initial "r".
+      684     define variable s as character no-undo case-sensitive initial "s".
+      685   
+      686     publish "get-RateRaw" ( output r ).           /*** I'm missing something...   ***/
+      687     publish "get-SumSample" ( output s ).
+      688   
+      689     if s = "S" then
+      690       assign
+      691         p_index = 4
+      692         p_time  = xtime.
+      693      else
+      694       assign
+      695         p_index = 5
+      696         p_time  = itime.
+      697   
+      698     return true.
+      699   
+      700   end.    /* do-SumSample */
+      701   
+      702   /* useful when there is no db conection and thus no _myconnection
+      703    */
+      704   
+      705   procedure GetCurrentProcessId external "kernel32":
+      706     define return parameter pid as long.
+      707   end.
+      708   
+      709   function myPID returns character ():
+      710   
+      711     define variable pid as integer no-undo initial ?.
+      712   
+      713     if opsys begins "WIN" then
+      714       do:
+      715         run GetCurrentProcessId( output pid ).
+      716       end.
+      717      else         /* calling the libc getpid function would be nice but finding libc.so is a pain... */
+      718       do:
+      719         input stream inStrm through value( "echo $PPID" ).
+      720         import stream inStrm pid.
+      721         input stream inStrm close.
+      722       end.
+      723   
+      724     return string( pid ).
+      725   
+      726   end.
+      727   
+      728   
+      729   /* myCustId
+      730    *
+      731    */
+      732   
+      733   procedure myCustId:
+      734   
+      735     define output parameter custId as character no-undo.
+      736   
+      737     custId = "".
+      738   
+      739     file-info:file-name = "etc/custid.cfg".
+      740     if file-info:full-pathname <> ? then
+      741       do:
+      742         input stream inStrm from value( file-info:full-pathname ).
+      743         import stream inStrm unformatted custId.
+      744         input stream inStrm close.
+      745       end.
+      746   
+      747     return.
+      748   
+      749   end.
+      750   
+      751   
+      752   /* chkDbgMode
+      753    *
+      754    * check for changes to the debug level
+      755    *
+      756    * i.e.
+      757    *
+      758    *      echo 5 > $TMPDIR/monName.friendlyName.dbg
+      759    *
+      760    */
+      761   
+      762   define variable dbgChgDate   as date        no-undo.
+      763   define variable dbgChgTime   as integer     no-undo.
+      764   
+      765   procedure chkDbgMode:
+      766   
+      767     define input        parameter dbgFileName as character no-undo.
+      768     define input-output parameter dbgMode     as integer   no-undo.
+      769   
+      770     file-info:file-name = dbgFileName.
+      771     if file-info:full-pathname <> ? and ( file-info:file-mod-date <> dbgChgDate or file-info:file-mod-time <> dbgChgTime ) then
+      772       do:
+      773         assign                                                            /* remember when we last looked!                        */
+      774           dbgChgDate = file-info:file-mod-date
+      775           dbgChgTime = file-info:file-mod-time
+      776         .
+      777         input stream inStrm from value( file-info:full-pathname ).
+      778         import stream inStrm dbgMode.
+      779         input stream inStrm close.
+      780         message now "dbgMode:" dbgMode.
+      781       end.
+      782   
+      783     return.
+      784   
+      785   end.
+      786   
+      787   
+      788   /* monName
+      789    *
+      790    */
+      791   
+      792   procedure getMonName:
+      793   
+      794     define input-output parameter monName as character.
+      795   
+      796     define variable i as integer no-undo.
+      797   
+      798     do i = 1 to num-entries( session:startup-parameters ):
+      799       if entry( i, session:startup-parameters ) begins "-p " then
+      800         do:
+      801   
+      802   /*      monName = entry( 1, substring( entry( i, session:startup-parameters ), 4 ), "." ). */
+      803   
+      804           monName = substring( entry( i, session:startup-parameters ), 4 ).               /* remove the "-p "                     */
+      805   
+      806           leave.
+      807   
+      808         end.
+      809     end.
+      810   
+      811     monName = substring( monName, r-index( monName, "/" ) + 1 ).          /* take the part from the last "/" onward               */
+      812     monName = substring( monName, r-index( monName, "~\" ) + 1 ).
+      813   
+      814     monName = right-trim( monName, ".p" ).                                /* get rid of the ".p"                                  */
+      815   
+      816     return.
+      817   
+      818   end.
+      819   
+      820   
+      821   procedure mkFlag:
+      822   
+      823     define input parameter flgFileName as character no-undo.
+      824   
+      825     define variable osPID     as character no-undo.                       /* process id from "ps"                                 */
+      826     define variable myPID     as character no-undo.                       /* the current process' PID                             */
+      827   
+      828     define variable flgPID    as character no-undo.                       /* process id in .flg file                              */
+      829     define variable flgDate   as character no-undo.                       /* the flag file date                                   */
+      830     define variable flgTime   as character no-undo.                       /* the flag file time                                   */
+      831   
+      832     define variable monName   as character no-undo.                       /* monitor name                                         */
+      833   
+      834     define variable ph        as integer   no-undo.                       /* process handle                                       */
+      835     define variable retVal    as integer   no-undo.
+      836   
+      837     define variable wmicLine  as character no-undo.                       /* wmic output line                                     */
+      838     define variable hdrLine   as character no-undo.                       /* wmic header line                                     */
+      839     define variable posCmdLn  as integer   no-undo.                       /* position of the CommandLine field                    */
+      840     define variable posName   as integer   no-undo.                       /* position of the Name field                           */
+      841     define variable posPID    as integer   no-undo.                       /* position of the ProcessID field                      */
+      842   
+      843     myPID = myPID().
+      844   
+      845     file-info:file-name = flgFileName.
+      846     if file-info:full-pathname <> ? then                                  /* the flag file exists -- but it might be stale        */
+      847       do:
+      848   
+      849         input stream inStrm from value( file-info:full-pathname ).        /* what PID created it?                                 */
+      850         import stream inStrm flgDate flgTime flgPID.                      /* date time PID                                        */
+      851         input stream inStrm close.
+      852   
+      853         flgPID = trim( flgPID ).
+      854   
+      855         if myPID = flgPID then                                            /* if the PID in the flag file = my PID...              */
+      856           do:
+      857             message now "WTF?  myPID = flgPID?" flgDate flgTime flgPID "this should not be possible".
+      858             return.
+      859           end.
+      860          else                                                             /* if the PID in the flag file <> my PID...             */
+      861           do:                                                             /* then I didn't create it                              */
+      862   
+      863             if dbgMode >= 2 then message now "Flag file exists.  Checking for stale flag file...".
+      864   
+      865             ph = 0.
+      866   
+      867             /* check if the indicated PID is still running...
+      868              *... and if it is an _progres process (missing 4 windows)...
+      869              */
+      870   
+      871             if opsys = "unix" then                                        /* try to find the monitor that created the .flg file   */
+      872               do:
+      873   
+      874                 monName = entry( 1, substring( flgFileName, r-index( flgFileName, "/" ) + 1 ), "." ).
+      875   
+      876                 if monName <> "" and monName <> ? then
+      877                   monName = "util/" + monName.                            /* something useful to grep for                         */
+      878                  else
+      879                   do:
+      880                     message now "monName is [" monName "]".            /* this shouldn't happen...                             */
+      881                     monName = "util/".                                    /* something useful to grep for                         */
+      882                   end.
+      883   
+      884                 /* FYI, "ps -ef" is surprisingly slow on some systems -- 30 secs + on one particular Solaris system...
+      885                  */
+      886   
+      887                 input stream inStrm through value( substitute( 'ps -p &1 -f | grep _progres | grep &2', flgPID, monName )).
+      888                 repeat:
+      889                   osPID = ?.
+      890                   import stream inStrm ^ osPID.
+      891                   osPID = trim( osPID ).
+      892                   if osPID = flgPID and osPID <> ? then
+      893                     do:
+      894                       ph = -1.
+      895                       leave.
+      896                     end.
+      897                 end.
+      898                 input stream inStrm close.
+      899   
+      900               end.
+      901              else
+      902               do:
+      903   
+      904                 monName = entry( 1, substring( flgFileName, r-index( flgFileName, "~\" ) + 1 ), "." ).
+      905   
+      906                 if monName <> "" and monName <> ? then
+      907                   monName = "util~\" + monName.                           /* something useful to grep for                         */
+      908                  else
+      909                   do:
+      910                     message now "monName is [" monName "]".            /* this shouldn't happen...                             */
+      911                     monName = "util~\".                                   /* something useful to grep for                         */
+      912                   end.
+      913   
+      914                 input stream inStrm through value( "wmic process get commandline,name,processid" ).
+      915   
+      916                 /* looking for _progres and monName
+      917                  */
+      918   
+      919                 /* this would have been too easy -- but Windows doesn't support /format and "where" everywhere...
+      920                  *
+      921                  * if monName = "" then
+      922                  *   input stream inStrm through value( substitute( "wmic process where ~"commandline like '%_progres%'~" get commandline,name,processid /format:csv" )).
+      923                  *  else
+      924                  *   input stream inStrm through value( substitute( "wmic process where ~"commandline like '%_progres%'~" get commandline,name,processid /format:csv | findstr -i &1", monName )).
+      925                  *
+      926                  * repeat:
+      927                  *   osPID = ?.
+      928                  *   import stream inStrm delimiter "," ^ ^ ^ osPID.      /* 4th field -- CSV format has the computername prefixed to each line... */
+      929                  *   osPID = trim( osPID ).
+      930                  *   if osPID = flgPID and osPID <> ? then
+      931                  *     do:
+      932                  *       ph = -1.                                         /* a non-zero result means that we found it             */
+      933                  *       leave.
+      934                  *     end.
+      935                  * end.
+      936                  *
+      937                  */
+      938   
+      939                 import stream inStrm unformatted hdrLine.
+      940                 if hdrLine = "" then import stream inStrm unformatted hdrLine.
+      941   
+      942                 if hdrLine <> "" then
+      943                   assign
+      944                     posCmdLn = index( hdrLine, "CommandLine" )
+      945                     posName  = index( hdrLine, "Name" )
+      946                     posPID   = index( hdrLine, "ProcessId" )
+      947                   .
+      948   
+      949                 repeat:
+      950                   import stream inStrm unformatted wmicLine.
+      951                   if index( wmicLine, " _progres.exe " ) > 0 and index( wmicLine, " " + flgPID + " " ) > 0 then
+      952                     do:
+      953                       if monName <> "" and index( wmicLine, monName ) < 0 then next.
+      954                       osPID = flgPID.
+      955                       ph = -1.
+      956                       leave.
+      957                     end.
+      958                 end.
+      959   
+      960                 input stream inStrm close.
+      961   
+      962                 /* last chance!
+      963                  */
+      964   
+      965                 if ph = 0 then
+      966                   do:
+      967                     /* 
+      968                      * run OpenProcess( 1024, 0, integer( flgPID ), output ph ).  /* checks if *something* with that PID is running -- but not more, no _progres or friendlyName  check :(        */
+      969                      * /* need a command line check...                            */
+      970                      * run CloseHandle( ph, output retVal ).
+      971                      */
+      972                   end.
+      973   
+      974               end.
+      975   
+      976             if ph <> 0 then
+      977               do:
+      978                 if dbgMode >= 2 then
+      979                   do:
+      980                     message now "Flag file:" flgFileName "exists and is owned by PID:" flgPID.
+      981                     message now "It would appear that there is already a monitor running.".
+      982                     message now "Cowardly refusing to start another.".
+      983                   end.
+      984                 quit.
+      985               end.
+      986              else
+      987               do:
+      988                 message now "Flag file:" flgFileName "exists but appears to be stale.  PID:" flgPID "is not running." osPID ph.
+      989                 message now "Deleting" flgFileName.
+      990                 os-delete value( flgFileName ).                           /* just in case this is a mistake -- give the other guy */
+      991                 pause 30 no-message.                                      /* a chance to notice and exit...                       */
+      992               end.                                        
+      993   
+      994           end.
+      995   
+      996       end.
+      997   
+      998     if myPID = ? or myPID = "?" or integer( myPID ) < 2 then
+      999       do:
+     1000   
+     1001         message now "I don't know my own PID:" myPID.
+     1002         message now "Refusing to create a bogus flag file.".
+     1003         if opsys = "unix" then message now "There may be a problem with $PPID -- check bin/protopenv.".
+     1004         quit.
+     1005   
+     1006       end.
+     1007      else
+     1008       do:
+     1009   
+     1010         /* the flag file did not exist or it was stale, create a new one and carry on.
+     1011          */
+     1012   
+     1013         message now "Creating new flag file:" flgFileName myPID skip.
+     1014   
+     1015         output to value( flgFileName ) unbuffered append.
+     1016         put unformatted today space(1) string( time, "hh:mm:ss" ) space(1) myPID skip.
+     1017         output close.
+     1018   
+     1019       end.
+     1020   
+     1021     return.
+     1022   
+     1023   end.
+     1024   
+     1025   
+     1026   procedure searchCfg:
+     1027   
+     1028     define input  parameter cfgRoot   as character no-undo.
+     1029     define input  parameter cfgOption as character no-undo.
+     1030     define output parameter cfgFile   as character no-undo.
+     1031   
+     1032     cfgFile = ?.
+     1033   
+     1034     if cfgOption <> "" then
+     1035       do:
+     1036         cfgFile = substitute( "&1/&2.&3.&4", "etc", cfgRoot, cfgOption, "cfg" ).
+     1037         if dbgMode >= 5 then message now "looking for:" cfgFile.
+     1038         file-info:file-name = cfgFile.
+     1039         if file-info:full-pathname <> ? then
+     1040           do:
+     1041             if dbgMode >= 4 then message now "xfound:" cfgFile.
+     1042           end.
+     1043         cfgFile = file-info:full-pathname.
+     1044       end.
+     1045   
+     1046     return.
+     1047   
+     1048   end.
+     1049   
+     1050   
+     1051   procedure findCfgName:
+     1052   
+     1053     define input parameter cfgRoot as character no-undo.
+     1054     define input-output parameter cfgFile as character no-undo.
+     1055   
+     1056     define variable custId as character no-undo.
+     1057   
+     1058     run myCustId( output custId  ).
+     1059   
+     1060     /* from most specific to least specific look for:
+     1061      *
+     1062      * 1) etc/cfgRoot.pt_shortName.cfg
+     1063      * 2) etc/cfgRoot.pt_server.pt_resrcType.cfg
+     1064      * 3) etc/cfgRoot.custId.pt_resrcType.cfg
+     1065      * 4) etc/cfgRoot.pt_resrcType.cfg
+     1066      * 5) etc/cfgRoot.pt_server.cfg
+     1067      * 6) etc/cfgRoot.custId.cfg
+     1068      * 7) etc/cfgRoot.cfg
+     1069      *
+     1070      */
+     1071   
+     1072     run searchCfg( cfgRoot, pt_shortName, output cfgFile ).
+     1073     if cfgFile <> ? then return.
+     1074   
+     1075     if pt_resrcType <> "" then
+     1076       do:
+     1077   
+     1078         run searchCfg( cfgRoot, pt_server + "." + pt_resrcType, output cfgFile ).
+     1079         if cfgFile <> ? then return.
+     1080   
+     1081         run searchCfg( cfgRoot, custId + "." + pt_resrcType, output cfgFile ).
+     1082         if cfgFile <> ? then return.
+     1083   
+     1084         run searchCfg( cfgRoot, pt_resrcType, output cfgFile ).
+     1085         if cfgFile <> ? then return.
+     1086   
+     1087       end.
+     1088   
+     1089     run searchCfg( cfgRoot, pt_server, output cfgFile ).
+     1090     if cfgFile <> ? then return.
+     1091   
+     1092     run searchCfg( cfgRoot, custId, output cfgFile ).
+     1093     if cfgFile <> ? then return.
+     1094   
+     1095     /* naked -- no cfgOption
+     1096      */
+     1097   
+     1098     cfgFile = substitute( "&1/&2.&4",    "etc", cfgRoot, "", "cfg" ).
+     1099     if dbgMode >= 5 then message now "looking for:" cfgFile.
+     1100     file-info:file-name = cfgFile.
+     1101     if file-info:full-pathname <> ? then
+     1102       do:
+     1103         if dbgMode >= 4 then message now "found:" cfgFile.
+     1104         return.
+     1105       end.
+     1106   
+     1107   end.
+     1108   
+     1109   
+     1110   /* end protoplib.p */

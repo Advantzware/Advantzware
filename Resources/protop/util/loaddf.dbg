@@ -1,0 +1,7 @@
+        1   /* loaddf.p
+        2    *
+        3    */
+        4   
+        5   run prodict/load_df ( input session:parameter ).
+        6   
+        7   return.

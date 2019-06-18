@@ -34,6 +34,8 @@ RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
 RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
+RUN spSetCompany (g_company).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

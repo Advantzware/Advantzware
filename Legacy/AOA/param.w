@@ -330,18 +330,14 @@ DEFINE FRAME viewFrame
           SIZE 61 BY 1
           BGCOLOR 15 
      dynParam.initializeProc AT ROW 18.14 COL 20 COLON-ALIGNED WIDGET-ID 296
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
+     btnEditor AT ROW 24.33 COL 32 HELP
+          "Create New EDITOR" WIDGET-ID 192
      dynParam.validateProc AT ROW 19.33 COL 20 COLON-ALIGNED WIDGET-ID 298
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
-          LIST-ITEMS "Item 1" 
-          DROP-DOWN-LIST
-          SIZE 50 BY 1
-     dynParam.descriptionProc AT ROW 20.52 COL 20 COLON-ALIGNED WIDGET-ID 300
-          LABEL "Descript Procedure"
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
@@ -353,10 +349,14 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnEditor AT ROW 24.33 COL 32 HELP
-          "Create New EDITOR" WIDGET-ID 192
      btnFill-In AT ROW 24.33 COL 40 HELP
           "Create New FILL-IN" WIDGET-ID 194
+     dynParam.descriptionProc AT ROW 20.52 COL 20 COLON-ALIGNED WIDGET-ID 300
+          LABEL "Descript Procedure"
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
      btnRadio-Set AT ROW 24.33 COL 48 HELP
           "Create New RADIO-SET" WIDGET-ID 196
      btnSelection-List AT ROW 24.33 COL 56 HELP

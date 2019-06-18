@@ -1,0 +1,6 @@
+@echo off
+
+call #ENVPT3#\bin\protopenv.bat
+
+schtasks /CREATE  /TN "Nightly" /SC DAILY  /MO 1        /ST 23:55:00 /SD 01/01/2000 /TR %PROTOP%\bin\nightly.bat /RU %RUNAS%
+schtasks /CREATE  /TN "Weekly"  /SC WEEKLY /MO 1 /D SAT /ST 01:00:00 /SD 01/01/2000 /TR %PROTOP%\bin\weekly.bat  /RU %RUNAS%

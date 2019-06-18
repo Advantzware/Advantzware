@@ -93,7 +93,7 @@ v-po-no <> "" and attach.est-no = v-po-no) ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 btnRun browse-order ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table btnRun RECT-4 browse-order ~
 btCopyFromItem 
 
 /* Custom List Definitions                                              */
@@ -253,6 +253,10 @@ ASSIGN
 
 /* SETTINGS FOR RADIO-SET browse-order IN FRAME F-Main
    NO-DISPLAY                                                           */
+ASSIGN 
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
+                "2".
+
 /* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -380,7 +384,7 @@ END.
 
 &Scoped-define SELF-NAME btnRun
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
-ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
+ON CHOOSE OF btnRun IN FRAME F-Main
 DO:
   RUN call-attach.
 END.
