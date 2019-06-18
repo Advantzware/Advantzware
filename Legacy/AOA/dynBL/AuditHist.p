@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------
   File:         AuditHist.p
   Description:  Business Logic
-  Author:       Wade Kaldawi (Ron Stark)
+  Author:       Ron Stark
   Date Created: 6.17.2019
 ------------------------------------------------------------------------*/
 

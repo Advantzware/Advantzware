@@ -14,6 +14,7 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE dynInitCompany:
+    RUN spGetCompany (OUTPUT cCompany).
     RETURN cCompany.
 END PROCEDURE.
 
