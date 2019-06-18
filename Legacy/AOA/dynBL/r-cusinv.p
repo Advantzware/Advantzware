@@ -19,14 +19,14 @@
 &Scoped-define subjectID 10
 {AOA/includes/subjectID{&subjectID}Defs.i}
 
-DEFINE VARIABLE iPalletCount AS INTEGER   NO-UNDO.
-DEFINE VARIABLE rRowID       AS ROWID     NO-UNDO.
-DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
-
 /* subject business logic */
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
+    DEFINE VARIABLE iPalletCount AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE rRowID       AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
+
     IF lCustList THEN
     RUN pBuildCustList (
         cCompany,

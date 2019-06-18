@@ -246,7 +246,7 @@ paramSetBrowse fieldBrowse btnPlus btnMinus subjectParamSetBrowse ~
 btnMultiply btnDivide btnYes btnNo btnDate cUseIndex findType btnDec ~
 subjectTableBrowse btnInt columnSearch columnMatches btnStr ~
 subjectColumnBrowse btnSubstr cParameter btnOpen btnClose cConstant ~
-btnPeriod btnDouble btnComma btnSingle queryStr btnResults btnCalcField ~
+btnResults btnPeriod btnDouble btnComma btnSingle queryStr btnCalcField ~
 btnSave btnUndo btnSyntax btnAddSelections btnGroupCalc btnAddUseIndex ~
 btnRemoveUseIndex btnAddParameter btnRemoveSelection btnMoveDown ~
 btnAddConstant btnRemove cParameterLabel cConstantLabel 
@@ -943,8 +943,8 @@ ttField.fieldLabel LABEL-BGCOLOR 14
 DEFINE BROWSE paramSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS paramSetBrowse C-Win _FREEFORM
   QUERY paramSetBrowse DISPLAY
-      dynParamSet.setName
-dynParamSet.paramSetID
+      dynParamSet.setName LABEL-BGCOLOR 14
+dynParamSet.paramSetID LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 36 BY 4.19
@@ -1137,13 +1137,13 @@ DEFINE FRAME DEFAULT-FRAME
      btnOpen AT ROW 20.76 COL 150 WIDGET-ID 94
      btnClose AT ROW 20.76 COL 155 WIDGET-ID 96
      cConstant AT ROW 21.95 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 176
+     btnResults AT ROW 1.24 COL 83 HELP
+          "Run Subject" WIDGET-ID 250
      btnPeriod AT ROW 21.95 COL 150 WIDGET-ID 236
      btnDouble AT ROW 21.95 COL 152.4 WIDGET-ID 240
      btnComma AT ROW 21.95 COL 155 WIDGET-ID 242
      btnSingle AT ROW 21.95 COL 157.4 WIDGET-ID 244
      queryStr AT ROW 23.86 COL 83 NO-LABEL WIDGET-ID 4
-     btnResults AT ROW 1.24 COL 83 HELP
-          "Run Subject" WIDGET-ID 250
      btnCalcField AT ROW 18.38 COL 77 HELP
           "Calculated Field" WIDGET-ID 280
      btnSave AT ROW 1.24 COL 94 HELP
@@ -1189,16 +1189,56 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160.2 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
+DEFINE FRAME paramFrame
+     btnCloseParam AT ROW 1 COL 156 HELP
           "Jasper Viewer" WIDGET-ID 252
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 139 ROW 9.81
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+         AT COL 1 ROW 23.14
+         SIZE 160 BY 6.43
+         FGCOLOR 1  WIDGET-ID 1300.
+
+DEFINE FRAME outputFrame
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     svSetAlignment AT ROW 1.71 COL 79 NO-LABEL WIDGET-ID 646
+     btnRunResults AT ROW 1.48 COL 94 HELP
+          "Results Grid" WIDGET-ID 254
+     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
+     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
+     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
+     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
+     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
+     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
+     btnPrint AT ROW 1.48 COL 142 HELP
+          "Printer" WIDGET-ID 644
+     btnAddEmail AT ROW 2.19 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     btnCSV AT ROW 1.48 COL 102 HELP
+          "Excel CSV" WIDGET-ID 140
+     btnDOCX AT ROW 1.48 COL 118 HELP
+          "Word DOCX" WIDGET-ID 142
+     btnHTML AT ROW 1.48 COL 134 HELP
+          "HTML" WIDGET-ID 144
+     btnPDF AT ROW 1.48 COL 126 HELP
+          "PDF" WIDGET-ID 146
+     btnView AT ROW 1.48 COL 150 HELP
+          "Jasper Viewer" WIDGET-ID 148
+     btnXLS AT ROW 1.48 COL 110 HELP
+          "Excel XLS" WIDGET-ID 150
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
+     "Set Alignment" VIEW-AS TEXT
+          SIZE 13.6 BY .62 AT ROW 1 COL 79 WIDGET-ID 650
+     RECT-PANEL-2 AT ROW 1.24 COL 93 WIDGET-ID 256
+     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 159 BY 5.24
+         BGCOLOR 15 
+         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1400.
 
 DEFINE FRAME viewFrame
      btnCloseView AT ROW 1.24 COL 106 HELP
@@ -1272,56 +1312,16 @@ DEFINE FRAME viewFrame
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 1500.
 
-DEFINE FRAME paramFrame
-     btnCloseParam AT ROW 1 COL 156 HELP
+DEFINE FRAME resultsFrame
+     btnCloseResults AT ROW 1 COL 6 HELP
           "Jasper Viewer" WIDGET-ID 252
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 23.14
-         SIZE 160 BY 6.43
-         FGCOLOR 1  WIDGET-ID 1300.
-
-DEFINE FRAME outputFrame
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svSetAlignment AT ROW 1.71 COL 79 NO-LABEL WIDGET-ID 646
-     btnRunResults AT ROW 1.48 COL 94 HELP
-          "Results Grid" WIDGET-ID 254
-     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
-     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
-     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
-     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
-     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
-     btnPrint AT ROW 1.48 COL 142 HELP
-          "Printer" WIDGET-ID 644
-     btnAddEmail AT ROW 2.19 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
-     btnCSV AT ROW 1.48 COL 102 HELP
-          "Excel CSV" WIDGET-ID 140
-     btnDOCX AT ROW 1.48 COL 118 HELP
-          "Word DOCX" WIDGET-ID 142
-     btnHTML AT ROW 1.48 COL 134 HELP
-          "HTML" WIDGET-ID 144
-     btnPDF AT ROW 1.48 COL 126 HELP
-          "PDF" WIDGET-ID 146
-     btnView AT ROW 1.48 COL 150 HELP
-          "Jasper Viewer" WIDGET-ID 148
-     btnXLS AT ROW 1.48 COL 110 HELP
-          "Excel XLS" WIDGET-ID 150
-     "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
-     "Set Alignment" VIEW-AS TEXT
-          SIZE 13.6 BY .62 AT ROW 1 COL 79 WIDGET-ID 650
-     RECT-PANEL-2 AT ROW 1.24 COL 93 WIDGET-ID 256
-     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 159 BY 5.24
-         BGCOLOR 15 
-         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1400.
+         AT COL 139 ROW 9.81
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1681,7 +1681,8 @@ ASSIGN
 /* SETTINGS FOR BROWSE paramSetBrowse IN FRAME DEFAULT-FRAME
    1 4                                                                  */
 ASSIGN 
-       paramSetBrowse:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE.
+       paramSetBrowse:HIDDEN  IN FRAME DEFAULT-FRAME                = TRUE
+       paramSetBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX paramSetMatches IN FRAME DEFAULT-FRAME
    1 3 4 5                                                              */
@@ -2506,7 +2507,7 @@ ON RIGHT-MOUSE-CLICK OF btnSubjectParamSet IN FRAME DEFAULT-FRAME /* Subject Par
 DO:
     FIND FIRST dynParamValue NO-LOCK
          WHERE dynParamValue.subjectID    EQ dynSubject.subjectID
-           AND dynParamValue.user-id      EQ "_default"
+           AND dynParamValue.user-id      EQ "{&defaultUser}"
            AND dynParamValue.paramValueID EQ 0
          NO-ERROR.
     IF AVAILABLE dynParamValue THEN
@@ -2828,6 +2829,23 @@ END.
 ON DEFAULT-ACTION OF paramSetBrowse IN FRAME DEFAULT-FRAME /* Available Parameter Sets */
 DO:
     RUN pAddParamSet (dynParamSet.paramSetID).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL paramSetBrowse C-Win
+ON START-SEARCH OF paramSetBrowse IN FRAME DEFAULT-FRAME /* Available Parameter Sets */
+DO:
+    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
+        IF cColumnLabel EQ cSaveLabel THEN
+        lAscending = NOT lAscending.
+        cSaveLabel = cColumnLabel.
+        RUN pReopenBrowse.
+    END.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3355,6 +3373,10 @@ END.
 {methods/sortByProc.i "pByFieldName" "ttField.fieldName"}
 {methods/sortByProc.i "pByFieldLabel" "ttField.fieldLabel"}
 
+&Scoped-define sdBrowseName paramSetBrowse
+{methods/sortByProc.i "pBySetName" "dynParamSet.setName"}
+{methods/sortByProc.i "pByParamSetID" "dynParamSet.paramSetID"}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3407,7 +3429,7 @@ PROCEDURE enable_UI :
          btnDivide btnYes btnNo btnDate cUseIndex findType btnDec 
          subjectTableBrowse btnInt columnSearch columnMatches btnStr 
          subjectColumnBrowse btnSubstr cParameter btnOpen btnClose cConstant 
-         btnPeriod btnDouble btnComma btnSingle queryStr btnResults 
+         btnResults btnPeriod btnDouble btnComma btnSingle queryStr 
          btnCalcField btnSave btnUndo btnSyntax btnAddSelections btnGroupCalc 
          btnAddUseIndex btnRemoveUseIndex btnAddParameter btnRemoveSelection 
          btnMoveDown btnAddConstant btnRemove cParameterLabel cConstantLabel 
@@ -3934,7 +3956,7 @@ PROCEDURE pCRUD :
                             dynSubject.subjectID:SCREEN-VALUE     = ""
                             dynSubject.isActive:SCREEN-VALUE      = "yes"
                             dynSubject.securityLevel:SCREEN-VALUE = STRING(iUserSecurityLevel)
-                            dynSubject.user-id:SCREEN-VALUE       = "_default"
+                            dynSubject.user-id:SCREEN-VALUE       = "{&defaultUser}"
                             dynSubject.subjectType:SCREEN-VALUE   = "System"
                             dynSubject.outputFormat:SCREEN-VALUE  = "Grid"
                             .
@@ -4003,10 +4025,10 @@ PROCEDURE pCRUD :
                 IF AVAILABLE dynSubject THEN DO:
                     IF CAN-FIND(FIRST dynParamValue
                         WHERE dynParamValue.subjectID EQ dynSubject.subjectID
-                          AND dynParamValue.user-id NE "_default") OR
+                          AND dynParamValue.user-id NE "{&defaultUser}") OR
                        CAN-FIND(FIRST Task
                         WHERE Task.subjectID EQ dynSubject.subjectID
-                          AND Task.user-id NE "_default") THEN
+                          AND Task.user-id NE "{&defaultUser}") THEN
                     cMsg = "Parameter Value and/or User Tasks will also be Deleted!" + CHR(10) + CHR(10).
                     MESSAGE
                         cMsg
@@ -4632,6 +4654,10 @@ PROCEDURE pReopenBrowse :
         RUN pByFieldName.
         WHEN "module" THEN
         RUN pByModule.
+        WHEN "paramSetID" THEN
+        RUN pByParamSetID.
+        WHEN "setName" THEN
+        RUN pBySetName.
         WHEN "subjectID" THEN
         RUN pBySubjectID.
         WHEN "subjectTitle" THEN

@@ -127,8 +127,9 @@ PROCEDURE pCreateDynParameters :
     DEFINE INPUT PARAMETER iphFrame AS HANDLE  NO-UNDO.
     DEFINE INPUT PARAMETER iplLive  AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE cParamName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInitItems  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamLabel AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamName  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dCol        AS DECIMAL   NO-UNDO INITIAL 1.
     DEFINE VARIABLE dRow        AS DECIMAL   NO-UNDO INITIAL 1.
@@ -208,6 +209,7 @@ PROCEDURE pCreateDynParameters :
                           ELSE dynParam.paramName
             cParamLabel = dynParamSetDtl.paramLabel
             cParamValue = dynParamSetDtl.initialValue
+            cInitItems  = dynParamSetDtl.initialItems
             .
         CASE svSetAlignment:
             WHEN "Custom" THEN
@@ -228,7 +230,7 @@ PROCEDURE pCreateDynParameters :
         IF dynParamSetDtl.initializeProc NE "" AND
            CAN-DO(hDynInitProc:INTERNAL-ENTRIES,dynParamSetDtl.initializeProc) THEN DO:
             RUN VALUE(dynParamSetDtl.initializeProc) IN hDynInitProc.
-            cParamValue = RETURN-VALUE.
+            cInitItems = RETURN-VALUE.
         END. /* if initializeProc */
         IF FIRST-OF({1}SubjectParamSet.paramSetID) AND
            dynParamSet.setRectangle THEN DO:
@@ -264,7 +266,7 @@ PROCEDURE pCreateDynParameters :
                 dCol,
                 dRow,
                 dynParamSetDtl.paramWidth,
-                dynParamSetDtl.initialItems,
+                cInitItems,
                 dynParam.paramFormat,
                 cParamValue,
                 dynParam.innerLines,
@@ -362,7 +364,7 @@ PROCEDURE pCreateDynParameters :
                 hFrame,
                 cParamLabel,
                 cParamName,
-                dynParamSetDtl.initialItems,
+                cInitItems,
                 CAN-DO(dynParamSetDtl.action,"HORIZONTAL"),
                 dCol,
                 dRow,
@@ -384,7 +386,7 @@ PROCEDURE pCreateDynParameters :
                 dynParamSetDtl.paramWidth,
                 dynParamSetDtl.paramHeight,
                 CAN-DO(dynParamSetDtl.action,"MULTISELECT"),
-                dynParamSetDtl.initialItems,
+                cInitItems,
                 cParamValue,
                 lSensitive,
                 lIsVisible,
