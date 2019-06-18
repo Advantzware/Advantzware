@@ -34,7 +34,10 @@ DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
     FIELD dHandlingRatePerCWTRMPct AS DECIMAL 
     FIELD dSpecial1MarkupPct AS DECIMAL 
     FIELD dSpecial2MarkupPct AS DECIMAL 
-    FIELD dSpecial3MarkupPct AS DECIMAL 
+    FIELD dSpecial3MarkupPct AS DECIMAL
+    FIELD dSpecial1FlatValue AS DECIMAL 
+    FIELD dSpecial2FlatValue AS DECIMAL 
+    FIELD dSpecial3FlatValue AS DECIMAL  
     FIELD lShowCommissoins AS LOGICAL
     FIELD lShowLaborRates AS LOGICAL
     FIELD lAddToFactCostSpecial1 AS LOGICAL
@@ -49,6 +52,9 @@ DEFINE {1} TEMP-TABLE ttEstHeader /*Master Print*/
     FIELD dHandlingRatePerCWTRMFarmPct AS DECIMAL 
     FIELD dHandlingRatePerCWTFGFarmPct AS DECIMAL 
     FIELD dHandlingChargeFarmPct AS DECIMAL
+    FIELD dDirectMaterialPct AS DECIMAL
+    FIELD dGSAMaterialPct AS DECIMAL 
+    FIELD dGSALaborPct AS DECIMAL
     FIELD lRecalcSetupTime AS LOGICAL 
     FIELD lRecalcRunSpeed AS LOGICAL 
     FIELD lRecalcRunWaste AS LOGICAL 
@@ -92,6 +98,12 @@ DEFINE {1} TEMP-TABLE ttEstItem
     FIELD cCustomerPart AS CHARACTER
     FIELD cSize AS CHARACTER
     FIELD cColor AS CHARACTER
+    FIELD dCostTotalBoard AS DECIMAL 
+    FIELD dCostTotalMaterial AS DECIMAL
+    FIELD dCostTotalLabor AS DECIMAL 
+    FIELD dCostTotalFactory AS DECIMAL
+    FIELD dCostTotalNonFactory AS DECIMAL  
+    FIELD dCostTotalFull AS DECIMAL
 
     .
    
@@ -142,6 +154,14 @@ DEFINE {1} TEMP-TABLE ttEstForm
     FIELD dCostPerUOMOverride AS DECIMAL 
     FIELD cCostUOMOverride AS CHARACTER 
     FIELD lNoCharge AS LOGICAL
+    FIELD dBlankArea AS DECIMAL 
+    FIELD dCostTotalBoard AS DECIMAL 
+    FIELD dCostTotalMaterial AS DECIMAL
+    FIELD dCostTotalLabor AS DECIMAL 
+    FIELD dCostTotalFactory AS DECIMAL 
+    FIELD dCostTotalNonFactory AS DECIMAL 
+    FIELD dCostTotalFull AS DECIMAL
+    FIELD dCostTotalGroupLevel AS DECIMAL EXTENT 10
     .
 
 DEFINE {1} TEMP-TABLE ttEstBlank
@@ -177,6 +197,7 @@ DEFINE {1} TEMP-TABLE ttEstBlank
     FIELD dQtyYielded AS DECIMAL
     FIELD iSubUnits AS INTEGER
     FIELD iUnits AS INTEGER
+    FIELD dPctOfForm AS DECIMAL
     .
   
 DEFINE {1} TEMP-TABLE ttEstMisc
@@ -375,7 +396,11 @@ DEFINE {1} TEMP-TABLE ttEstCostCategory
     FIELD estCostGroupID AS CHARACTER 
     FIELD cCategoryLabel AS CHARACTER
     FIELD cCategoryDescription AS CHARACTER 
-    FIELD cIncludeIn AS CHARACTER 
+    FIELD lIncludeInBoardCost AS LOGICAL 
+    FIELD lIncludeInFactoryCost AS LOGICAL 
+    FIELD lIncludeInMaterialCost AS LOGICAL
+    FIELD lIncludeInLaborCost AS LOGICAL 
+    FIELD lIncludeInNonFactoryCost AS LOGICAL 
     FIELD cBasis AS CHARACTER 
     FIELD cCostModel AS CHARACTER
     .
@@ -503,6 +528,7 @@ DEFINE {1} TEMP-TABLE ttPack
     FIELD lIsPallet AS LOGICAL 
     FIELD dCostPerUOMOverride AS DECIMAL
     .     
+        
 /* ********************  Preprocessor Definitions  ******************** */
 
 

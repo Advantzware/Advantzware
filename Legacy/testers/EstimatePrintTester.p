@@ -21,11 +21,13 @@ DEFINE STREAM sImport.
 
 DEFINE VARIABLE gcOutputFile                          AS CHARACTER INITIAL "C:\temp\estPrintOut.txt".
 DEFINE VARIABLE gcTestDataDir                         AS CHARACTER INITIAL "C:\Users\brad.vigrass\Documents\Testing\EstimateData\".
+//DEFINE VARIABLE gcTestDataDir                         AS CHARACTER INITIAL "C:\asigui\Backups\Import\".
 DEFINE VARIABLE giRecKey                              AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE gcSourceTypeOperation                 AS CHARACTER NO-UNDO INITIAL "Operation".
 DEFINE VARIABLE gcSourceTypeMaterial                  AS CHARACTER NO-UNDO INITIAL "Material".
 DEFINE VARIABLE gcSourceTypeMisc                      AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
+DEFINE VARIABLE gcSourceTypeNonFactory                AS CHARACTER NO-UNDO INITIAL "NonFactory".
 
 DEFINE VARIABLE gcBoardMatTypes                       AS CHARACTER NO-UNDO INITIAL "1,2,3,4,A,B,P,R".
 DEFINE VARIABLE gcGlueMatTypes                        AS CHARACTER NO-UNDO INITIAL "G,S,T".
@@ -43,6 +45,7 @@ DEFINE VARIABLE gcErrorCritical                       AS CHARACTER NO-UNDO INITI
 /*Settings Globals*/
 DEFINE VARIABLE gcPrepRoundTo                         AS CHARACTER NO-UNDO.  /*CEPREP - char val - potentially deprecate*/
 DEFINE VARIABLE gcPrepMarkupOrMargin                  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
+DEFINE VARIABLE gdMaterialMarkup                      AS DECIMAL NO-UNDO.    /*CEMatl - Dec val*/
 
 DEFINE VARIABLE glUsePlateChangesAsColorForSetupWaste AS LOGICAL   NO-UNDO INITIAL NO.  /*Defect in EstOperation Calc of applying the MR Waste Sheets Per Color?*/
 
@@ -78,10 +81,13 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
 /* ***************************  Main Block  *************************** */
 
 RUN pBuildTestData("001").
-RUN pBuildDetail.
-RUN pBuildSummary.
+RUN pBuildFactoryCostDetails.
+RUN pCalcCostTotals.
+RUN pBuildNonFactoryCostDetails.
+RUN pBuildCostSummary.
+
 FOR EACH ttEstError NO-LOCK:
-    DISPLAY ttEstError.cErrorType ttEstError.cError FORMAT "x(60)".
+    DISPLAY ttEstError.iFormNo ttEstError.iBlankNo ttEstError.cErrorType ttEstError.cError FORMAT "x(60)" ttEstError.iFormNo.
 END.
 FIND FIRST ttEstHeader NO-LOCK 
     WHERE ttEstHeader.estHeaderID = "header2".
@@ -179,6 +185,35 @@ PROCEDURE pAddCostDetailForMisc PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pAddCostSummary PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a scopeID, GroupID, Cost and Quantity, adds or increments a cost summary
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcScopeID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipcGroupID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER  ipdCost AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER  ipdQtyPerM AS DECIMAL NO-UNDO.
+    
+    FIND FIRST ttEstCostSummary EXCLUSIVE-LOCK
+        WHERE ttEstCostSummary.cScope EQ ipcScopeID
+        AND ttEstCostSummary.estCostGroupID EQ ipcGroupID
+        NO-ERROR.
+    IF NOT AVAILABLE ttEstCostSummary THEN 
+    DO:
+        CREATE ttEstCostSummary.
+        ASSIGN 
+            ttEstCostSummary.estCostSummaryID = fGetNextID()
+            ttEstCostSummary.estCostGroupID   = ipcGroupID
+            ttEstCostSummary.cScope           = ipcScopeID
+            .
+    END.
+    ttEstCostSummary.dCostTotal = ttEstCostSummary.dCostTotal + ipdCost.
+    IF ipdQtyPerM GT 0 THEN 
+        ttEstCostSummary.dCostPerM  = ttEstCostSummary.dCostPerM + ipdCost / ipdQtyPerM.
+
+END PROCEDURE.
+
 PROCEDURE pAddError PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Registers an error in the ttEstError table for display
@@ -241,6 +276,8 @@ PROCEDURE pAddEstBlank PRIVATE:
                             
         /*Refactor - Calculate Windowing*/
         opbf-ttEstBlank.dBlankAreaNetWindow = opbf-ttEstBlank.dBlankArea
+        opbf-ttEstBlank.dQtyRequired = ipbf-eb.bl-qty
+        opbf-ttEstBlank.dQtyYielded  = ipbf-eb.yld-qty
         .
         
     FIND FIRST ttEstItem EXCLUSIVE-LOCK 
@@ -253,14 +290,17 @@ PROCEDURE pAddEstBlank PRIVATE:
         ASSIGN 
             opbf-ttEstBlank.estItemID    = ttEstItem.estItemID
             ttEstItem.cSize              = TRIM(STRING(opbf-ttEstBlank.dLength,">>>9.99")) + " x " + TRIM(STRING(opbf-ttEstBlank.dWidth,">>>9.99"))
-            opbf-ttEstBlank.dQtyPerSet   = ttEstItem.dQtyPerParent
-            opbf-ttEstBlank.dQtyRequired = ttEstItem.dQtyRequired
-            opbf-ttEstBlank.dQtyYielded  = ttEstItem.dQtyYielded
-            .
+            opbf-ttEstBlank.dQtyPerSet   = MAX(ttEstItem.dQtyPerParent, 1)
+            opbf-ttEstBlank.dQtyRequired = ipbf-eb.bl-qty * opbf-ttEstBlank.dQtyPerSet
+            opbf-ttEstBlank.dQtyYielded  = ipbf-eb.yld-qty * opbf-ttEstBlank.dQtyPerSet
+        .
         IF opbf-ttEstBlank.dDepth NE 0 THEN 
             ttEstItem.cSize = ttEstItem.cSize + " x " + TRIM(STRING(opbf-ttEstBlank.dDepth,">>>9.99")).
     END.
-    ipbf-ttEstForm.iNumOutBlanksOnNet = ipbf-ttEstForm.iNumOutBlanksOnNet + opbf-ttEstBlank.iNumOut. 
+    ASSIGN 
+        ipbf-ttEstForm.iNumOutBlanksOnNet = ipbf-ttEstForm.iNumOutBlanksOnNet + opbf-ttEstBlank.iNumOut
+        ipbf-ttEstForm.dBlankArea         = ipbf-ttEstForm.dBlankArea + opbf-ttEstBLank.dBlankArea * opbf-ttEstBlank.iNumOut
+        . 
 
 END PROCEDURE.
 
@@ -375,7 +415,7 @@ PROCEDURE pAddEstItem PRIVATE:
     IF opbf-ttEstItem.dQtyPerParent EQ 0 THEN 
         opbf-ttEstItem.dQtyPerParent     = 1 .
      
-    opbf-ttEstItem.dQtyRequired      = ipbf-ttEstHeader.dQtyMaster * opbf-ttEstItem.dQtyPerParent.
+    opbf-ttEstItem.dQtyRequired      = ipbf-eb.bl-qty * opbf-ttEstItem.dQtyPerParent.
             
     FIND FIRST cust NO-LOCK 
         WHERE cust.company EQ ipbf-eb.company
@@ -476,15 +516,15 @@ PROCEDURE pAddEstMaterial PRIVATE:
         IF CAN-DO(gcBoardMatTypes, opbf-ttEstMaterial.cMaterialType) THEN 
             opbf-ttEstMaterial.iSequence = 1.
         ELSE IF CAN-DO(gcInkMatTypes,opbf-ttEstMaterial.cMaterialType) THEN 
-            opbf-ttEstMaterial.iSequence = 2.
-        ELSE IF CAN-DO(gcGlueMatTypes,opbf-ttEstMaterial.cMaterialType) THEN 
-            opbf-ttEstMaterial.iSequence = 3.
-        ELSE IF CAN-DO(gcLeafMatTypes,opbf-ttEstMaterial.cMaterialType) THEN 
-            opbf-ttEstMaterial.iSequence = 4.
-        ELSE IF CAN-DO(gcPackMatTypes,opbf-ttEstMaterial.cMaterialType) THEN 
-            opbf-ttEstMaterial.iSequence = 5.
-        ELSE  
-            opbf-ttEstMaterial.iSequence = 6.
+                opbf-ttEstMaterial.iSequence = 2.
+            ELSE IF CAN-DO(gcGlueMatTypes,opbf-ttEstMaterial.cMaterialType) THEN 
+                    opbf-ttEstMaterial.iSequence = 3.
+                ELSE IF CAN-DO(gcLeafMatTypes,opbf-ttEstMaterial.cMaterialType) THEN 
+                        opbf-ttEstMaterial.iSequence = 4.
+                    ELSE IF CAN-DO(gcPackMatTypes,opbf-ttEstMaterial.cMaterialType) THEN 
+                            opbf-ttEstMaterial.iSequence = 5.
+                        ELSE  
+                            opbf-ttEstMaterial.iSequence = 6.
             
         IF opbf-ttEstMaterial.iBlankNo NE 0 THEN 
         DO:
@@ -633,6 +673,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
     DEFINE PARAMETER BUFFER opbf-ttEstOperation FOR ttEstOperation.
 
     DEFINE           BUFFER bf-mach             FOR mach.
+    DEFINE           BUFFER bf-est-op           FOR est-op.
 
     FIND FIRST bf-mach NO-LOCK 
         WHERE bf-mach.company EQ ipbf-est-op.company
@@ -674,9 +715,10 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-ttEstOperation.cDepartmentIDs                  = bf-mach.dept
             opbf-ttEstOperation.dQtyInSetupWastePerColor        = bf-mach.col-wastesh
           
+            /*Refactor - this is where we can have a different rate for setup vs. run*/
+            opbf-ttEstOperation.dCostPerManHourDLRun            = bf-mach.lab-rate[bf-mach.lab-drate]
+            opbf-ttEstOperation.dCostPerManHourDLSetup          = bf-mach.lab-rate[bf-mach.lab-drate]
             
-            opbf-ttEstOperation.dCostPerManHourDLRun            = bf-mach.lab-rate[1]
-            opbf-ttEstOperation.dCostPerManHourDLSetup          = bf-mach.lab-rate[1]
             opbf-ttEstOperation.dCostPerHourFOSetup             = bf-mach.mr-fixoh
             opbf-ttEstOperation.dCostPerHourFORun               = bf-mach.run-fixoh
             opbf-ttEstOperation.dCostPerHourVOSetup             = bf-mach.mr-varoh
@@ -695,8 +737,27 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-ttEstOperation.lIsGluer = YES.
         IF fIsDepartment("WN,WS,FB,FS",opbf-ttEstOperation.cDepartmentIDs)  THEN 
             opbf-ttEstOperation.lIsLeafer = YES.
-        IF fIsDepartment("DC",opbf-ttEstOperation.cDepartmentIDs) /*refactor - next machine is blank fed*/ THEN 
-            opbf-ttEstOperation.lIsBlankMaker = YES.
+        
+        IF CAN-DO("R,S",opbf-ttEstOperation.cOperationFeedType) THEN DO:
+            FOR EACH bf-est-op NO-LOCK 
+                WHERE bf-est-op.company EQ ipbf-est-op.company
+                AND bf-est-op.est-no EQ ipbf-est-op.est-no
+                AND bf-est-op.s-num EQ ipbf-est-op.s-num
+                AND bf-est-op.qty EQ ipbf-est-op.qty
+                AND bf-est-op.line GT ipbf-est-op.line
+                AND bf-est-op.line LT 500,
+                FIRST bf-mach NO-LOCK 
+                    WHERE bf-mach.company EQ bf-est-op.company
+                    AND bf-mach.m-code EQ bf-est-op.m-code 
+                BY bf-est-op.line:
+                IF bf-mach.p-type EQ "B" THEN  /*Last machine before a blank fed*/
+                    opbf-ttEstOperation.lIsBlankMaker = YES.
+                LEAVE.
+            END.
+            IF NOT AVAILABLE bf-est-op THEN /*Last Machine*/  
+                opbf-ttEstOperation.lIsBlankMaker = YES.
+        END.
+        
         
         IF opbf-ttEstOperation.lIsNetSheetMaker THEN 
             ASSIGN 
@@ -710,7 +771,8 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
                 ASSIGN 
                     opbf-ttEstOperation.iNumOutForOperation = 1
                     .
-        IF opbf-ttEstOperation.iBlankNo NE 0 THEN DO:
+        IF opbf-ttEstOperation.iBlankNo NE 0 THEN 
+        DO:
             FIND FIRST ttEstBlank NO-LOCK 
                 WHERE ttEstBlank.estHeaderID EQ opbf-ttEstOperation.estHeaderID
                 AND ttEstBlank.estFormID EQ opbf-ttEstOperation.estFormID
@@ -1181,6 +1243,78 @@ PROCEDURE pBuildCostDetailForMisc PRIVATE:
         
 END PROCEDURE.
 
+PROCEDURE pBuildNonFactoryCostDetails PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Adds "cost" detail for all markups/non-factory costs
+ Notes:  Existing functionality "builds" up the totals and continues to take 
+ percentages of the built up total (Warehousing & Folding include Direct Material Markup and GS&A totals).  
+ I don't think this is right so only taking
+ totals of static values.  The order in which % calculate should not affect the 
+ % markups
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
+    
+    DEFINE BUFFER bf-ce-ctrl FOR ce-ctrl.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    
+    FOR EACH ttEstHeader EXCLUSIVE-LOCK,
+        EACH ttEstForm NO-LOCK
+        WHERE ttEstForm.estHeaderID EQ ttEstHeader.estHeaderID, 
+        FIRST bf-ce-ctrl NO-LOCK 
+            WHERE bf-ce-ctrl.company EQ ttEstHeader.company
+            AND bf-ce-ctrl.loc EQ ttEstHeader.locationID:
+        IF ttEstHeader.dDirectMaterialPct NE 0 THEN 
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfMatMarkup", "Direct Material Markup", ttEstForm.dCostTotalMaterial * ttEstHeader.dDirectMaterialPct, 0, BUFFER bf-ttEstCostDetail).
+        DO iIndex = 1 TO 6:
+            ttEstHeader.dGSAMaterialPct = bf-ce-ctrl.mat-pct[iIndex] / 100.
+            IF bf-ce-ctrl.mat-cost[iIndex] GT ttEstForm.dCostTotalMaterial THEN LEAVE.
+        END. 
+        IF ttEstHeader.dGSAMaterialPct NE 0 THEN DO:
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfGSAMat", "GSA Material", (ttEstForm.dCostTotalMaterial - ttEstForm.dCostTotalBoard) * ttEstHeader.dGSAMaterialPct, 0, BUFFER bf-ttEstCostDetail).
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfGSABoard", "GSA Board", ttEstForm.dCostTotalBoard * ttEstHeader.dGSAMaterialPct, 0, BUFFER bf-ttEstCostDetail).
+        END.
+        DO iIndex = 1 TO 6:
+            ttEstHeader.dGSALaborPct = bf-ce-ctrl.lab-pct[iIndex] / 100.
+            IF bf-ce-ctrl.lab-cost[iIndex] GT ttEstForm.dCostTotalLabor THEN LEAVE.
+        END. 
+        IF ttEstHeader.dGSALaborPct NE 0 THEN 
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfGSALab", "GSA Labor", ttEstForm.dCostTotalLabor * ttEstHeader.dGSALaborPct, 0, BUFFER bf-ttEstCostDetail).
+        
+        
+        IF ttEstHeader.dWarehouseMarkupPct NE 0 THEN 
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfWarehouse", "Warehousing", ttEstForm.dCostTotalFactory * ttEstHeader.dWarehouseMarkupPct, 0, BUFFER bf-ttEstCostDetail).
+        
+        /*Note - currently a defect with the Folding % is zeroed out during the calc process - this is fix*/
+        IF ttEstHeader.dFoldPct NE 0 THEN 
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfFolding", "Folding", ttEstForm.dCostTotalFactory * ttEstHeader.dFoldPct, 0, BUFFER bf-ttEstCostDetail).      
+        
+                                
+        IF ttEstHeader.dSpecial1MarkupPct NE 0 THEN 
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfUserDef1", "Special Markup 1", ttEstForm.dCostTotalFactory * ttEstHeader.dSpecial1MarkupPct, 0, BUFFER bf-ttEstCostDetail).    
+        IF ttEstHeader.dSpecial2MarkupPct NE 0 THEN 
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfUserDef2", "Special Markup 2", ttEstForm.dCostTotalFactory * ttEstHeader.dSpecial2MarkupPct, 0, BUFFER bf-ttEstCostDetail).
+        IF ttEstHeader.dSpecial3MarkupPct NE 0 THEN 
+            RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfUserDef3", "Special Markup 3", ttEstForm.dCostTotalFactory * ttEstHeader.dSpecial3MarkupPct, 0, BUFFER bf-ttEstCostDetail).
+        RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfUserDef1", "Special Markup 1", ttEstHeader.dSpecial1FlatValue, 0, BUFFER bf-ttEstCostDetail).    
+        RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfUserDef2", "Special Markup 2", ttEstHeader.dSpecial2FlatValue, 0, BUFFER bf-ttEstCostDetail).
+        RUN pAddCostDetail(ttEstForm.estHeaderID, ttEstForm.estFormID, "", ttEstForm.estFormID, 
+                                gcSourceTypeNonFactory, "nfUserDef3", "Special Markup 3", ttEstHeader.dSpecial3FlatValue, 0, BUFFER bf-ttEstCostDetail).                                                                                                   
+    END. /*Each ttEstHeader*/    
+
+END PROCEDURE.
+
 PROCEDURE pBuildCostDetailForOperation PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an operation buffer, build all costDetail records
@@ -1207,12 +1341,11 @@ PROCEDURE pBuildCostDetailForOperation PRIVATE:
             
 END PROCEDURE.
 
-PROCEDURE pBuildDetail PRIVATE:
+PROCEDURE pBuildFactoryCostDetails PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Builds the cost detail from the Test Data
+     Purpose: Builds the cost detail for all Factory Costs
      Notes:
     ------------------------------------------------------------------------------*/
-    EMPTY TEMP-TABLE ttEstCostDetail.
     FOR EACH ttEstHeader NO-LOCK:
         /*Process Operations*/
         FOR EACH ttEstOperation NO-LOCK 
@@ -1230,7 +1363,6 @@ PROCEDURE pBuildDetail PRIVATE:
             RUN pBuildCostDetailForMisc(BUFFER ttEstMisc).                  
                     
         END. /*Each ttEstMaterial for estHeader*/
-            
     END. /*Each ttEstHeader*/    
 
 END PROCEDURE.
@@ -1405,6 +1537,77 @@ PROCEDURE pBuildItems PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCalcBlankPct PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Calculates the share of that the blank will have on the form to 
+     proportinately allocate form costs to each blank
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstForm FOR ttEstForm.
+    
+    DEFINE VARIABLE dTotalBlankAreaOnForm AS DECIMAL.
+    
+    IF ipbf-ttEstForm.dBlankArea GT 0 THEN 
+        FOR EACH ttEstBlank EXCLUSIVE-LOCK 
+            WHERE ttEstBlank.estHeaderID EQ ipbf-ttEstForm.estHeaderID
+            AND ttEstBlank.estFormID EQ ipbf-ttEstForm.estFormID:
+   
+            ttEstBlank.dPctOfForm = ttEstBlank.dBlankArea * ttEstBlank.iNumOut / ipbf-ttEstForm.dBlankArea. 
+        END. 
+    
+END PROCEDURE.
+
+PROCEDURE pCalcCostTotalsForm PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a form and category buffer, increment the appropriate fields
+     on the form for cost totals.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstForm         FOR ttEstForm.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostCategory FOR ttEstCostCategory.
+    DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
+
+    FIND CURRENT ipbf-ttEstForm EXCLUSIVE-LOCK.
+    IF ipbf-ttEstCostCategory.lIncludeInBoardCost THEN 
+        ipbf-ttEstForm.dCostTotalBoard = ipbf-ttEstForm.dCostTotalBoard + ipdCost.
+    IF ipbf-ttEstCostCategory.lIncludeInLaborCost THEN 
+        ipbf-ttEstForm.dCostTotalLabor = ipbf-ttEstForm.dCostTotalLabor + ipdCost.
+    IF ipbf-ttEstCostCategory.lIncludeInMaterialCost THEN        
+        ipbf-ttEstForm.dCostTotalMaterial = ipbf-ttEstForm.dCostTotalMaterial + ipdCost.
+    IF ipbf-ttEstCostCategory.lIncludeInFactoryCost THEN 
+        ipbf-ttEstForm.dCostTotalFactory = ipbf-ttEstForm.dCostTotalFactory + ipdCost.
+    IF ipbf-ttEstCostCategory.lIncludeInNonFactoryCost THEN 
+        ipbf-ttEstForm.dCostTotalNonFactory = ipbf-ttEstForm.dCostTotalNonFactory + ipdCost.
+                  
+    FIND CURRENT ipbf-ttEstForm NO-LOCK.
+    
+END PROCEDURE.
+
+PROCEDURE pCalcCostTotalsItem PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a item and category buffer, increment the appropriate fields
+     on the item for cost totals.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstItem         FOR ttEstItem.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostCategory FOR ttEstCostCategory.
+    DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
+
+    FIND CURRENT ipbf-ttEstItem EXCLUSIVE-LOCK.
+    IF ipbf-ttEstCostCategory.lIncludeInBoardCost THEN 
+        ipbf-ttEstItem.dCostTotalBoard = ipbf-ttEstItem.dCostTotalBoard + ipdCost.
+    IF ipbf-ttEstCostCategory.lIncludeInLaborCost THEN 
+        ipbf-ttEstItem.dCostTotalLabor = ipbf-ttEstItem.dCostTotalLabor + ipdCost.
+    IF ipbf-ttEstCostCategory.lIncludeInMaterialCost THEN 
+        ipbf-ttEstItem.dCostTotalMaterial = ipbf-ttEstItem.dCostTotalMaterial + ipdCost.
+    IF ipbf-ttEstCostCategory.lIncludeInFactoryCost THEN 
+        ipbf-ttEstItem.dCostTotalFactory = ipbf-ttEstItem.dCostTotalFactory + ipdCost.
+    IF ipbf-ttEstCostCategory.lIncludeInNonFactoryCost THEN 
+        ipbf-ttEstItem.dCostTotalFull = ipbf-ttEstItem.dCostTotalFull + ipdCost.          
+    FIND CURRENT ipbf-ttEstItem NO-LOCK.
+    
+END PROCEDURE.
+
 PROCEDURE pGetLayerDividerDepth PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper around reftable for retrieving the depth for layer pad
@@ -1517,13 +1720,17 @@ PROCEDURE pAddRecord PRIVATE:
             DO:
                 CREATE ttEstCostCategory.
                 ASSIGN
-                    ttEstCostCategory.estCostCategoryID    = ipcData[1]
-                    ttEstCostCategory.cCategoryLabel       = ipcData[2]
-                    ttEstCostCategory.cCategoryDescription = ipcData[3]
-                    ttEstCostCategory.cBasis               = ipcData[4]
-                    ttEstCostCategory.estCostGroupID       = ipcData[5]
-                    ttEstCostCategory.cCostModel           = ipcData[6]
-                    ttEstCostCategory.cIncludeIn           = ipcData[7]
+                    ttEstCostCategory.estCostCategoryID        = ipcData[1]
+                    ttEstCostCategory.cCategoryLabel           = ipcData[2]
+                    ttEstCostCategory.cCategoryDescription     = ipcData[3]
+                    ttEstCostCategory.cBasis                   = ipcData[4]
+                    ttEstCostCategory.estCostGroupID           = ipcData[5]
+                    ttEstCostCategory.cCostModel               = ipcData[6]
+                    ttEstCostCategory.lIncludeInBoardCost      = ipcData[7] EQ "YES"
+                    ttEstCostCategory.lIncludeInMaterialCost   = ipcData[8] EQ "YES"
+                    ttEstCostCategory.lIncludeInLaborCost      = ipcData[9] EQ "YES"
+                    ttEstCostCategory.lIncludeInFactoryCost    = ipcData[10] EQ "YES"
+                    ttEstCostCategory.lIncludeInNonFactoryCost = ipcData[11] EQ "YES"
                     .
             END.
         WHEN "Item" THEN 
@@ -1575,7 +1782,7 @@ PROCEDURE pProcessOperations PRIVATE:
     DEFINE VARIABLE dQtyInOutSetupWaste AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyTarget          AS DECIMAL NO-UNDO.
     
-    dQtyInOut = ipbf-ttEstHeader.dQtyMaster.
+    dQtyInOut = ipbf-ttEstForm.dQtyFGOnForm.
     
     /*Get the effective Est-op quantity*/
     FOR EACH est-op NO-LOCK 
@@ -1617,7 +1824,7 @@ PROCEDURE pProcessOperations PRIVATE:
         IF AVAILABLE ttEstBlank THEN 
             ASSIGN 
                 ttEstBlank.lOutputInitialized = YES
-                dQtyInOut                     = ttEstBlank.iNumOut * ipbf-ttEstForm.iNumOutNet * ipbf-ttEstForm.dGrossQtyRequiredNoWaste
+                dQtyInOut                     = ttEstBlank.dQtyRequired
                 .
     END.
            
@@ -1625,7 +1832,7 @@ PROCEDURE pProcessOperations PRIVATE:
                 
     IF AVAILABLE bf-ttEstOperation THEN 
     DO: 
-        RUN pProcessEstOperation(BUFFER ipbf-ttEstHeader, BUFFER ipbf-ttEstForm, BUFFER bf-ttEstOperation, INPUT-OUTPUT dQtyInOut, 
+        RUN pProcessOperation(BUFFER ipbf-ttEstHeader, BUFFER ipbf-ttEstForm, BUFFER bf-ttEstOperation, INPUT-OUTPUT dQtyInOut, 
             INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
         RUN pCalcEstOperation(BUFFER ipbf-ttEstHeader, BUFFER bf-ttEstOperation, BUFFER ipbf-ttEstForm).                    
     END.
@@ -1675,38 +1882,97 @@ PROCEDURE pProcessSpecialMaterials PRIVATE:
     END.
 END PROCEDURE.
 
-PROCEDURE pBuildSummary PRIVATE:
+PROCEDURE pCalcCostTotals PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Processes all Cost Details and totals Forms and Items for 
+     use in % Total Calculations
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    FOR EACH ttEstCostDetail NO-LOCK, 
+        FIRST ttEstHeader NO-LOCK 
+        WHERE ttEstHeader.estHeaderID EQ ttEstCostDetail.estHeaderID,
+        FIRST ttEstForm NO-LOCK
+        WHERE ttEstForm.estHeaderID EQ ttEstCostDetail.estHeaderID
+        AND ttEstForm.estFormID EQ ttEstCostDetail.estFormID, 
+        FIRST ttEstCostCategory NO-LOCK 
+        WHERE ttEstCostCategory.estCostCategoryID EQ ttEstCostDetail.estCostCategoryID 
+        :
+        
+        RUN pCalcCostTotalsForm(BUFFER ttEstForm, BUFFER ttEstCostCategory,ttEstCostDetail.dCost).
+        
+        FIND FIRST ttEstBlank NO-LOCK 
+            WHERE ttEstBlank.estHeaderID EQ ttEstCostDetail.estHeaderID
+            AND ttEstBlank.estFormID EQ ttEstCostDetail.estFormID
+            AND ttEstBlank.estBlankID EQ ttEstCostDetail.estBlankID
+            NO-ERROR.
+        IF AVAILABLE ttEstBlank THEN 
+        DO:  /*Blank-specific cost*/
+            FIND FIRST ttEstItem NO-LOCK 
+                WHERE ttEstItem.estHeaderID EQ ttEstBlank.estHeaderID
+                AND ttEstItem.estItemID EQ ttEstBlank.estItemID
+                NO-ERROR.
+            IF AVAILABLE ttEstItem THEN 
+                RUN pCalcCostTotalsItem(BUFFER ttEstItem, BUFFER ttEstCostCategory, ttEstCostDetail.dCost).
+        END.
+        ELSE /*Divide up the Form-level Costs into each item*/
+            FOR EACH ttEstBlank NO-LOCK
+                WHERE ttEstBlank.estHeaderID EQ ttEstCostDetail.estHeaderID
+                AND ttEstBlank.estFormID EQ ttEstCostDetail.estFormID, 
+                FIRST ttEstItem NO-LOCK  
+                WHERE ttEstItem.estHeaderID EQ ttEstBlank.estHeaderID
+                AND ttEstItem.estItemID EQ ttEstBlank.estItemID :
+                RUN pCalcCostTotalsItem(BUFFER ttEstItem, BUFFER ttEstCostCategory, ttEstCostDetail.dCost * ttEstBlank.dPctOfForm).
+            END.
+    END.        
+        
+END PROCEDURE.
+
+PROCEDURE pBuildCostSummary PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Processes all Cost Details for a given header and creates summary
               records for each
      Notes:
     ------------------------------------------------------------------------------*/
     
-    FOR EACH ttEstHeader NO-LOCK, 
-        EACH ttEstCostDetail NO-LOCK 
-        WHERE ttEstCostDetail.estHeaderID EQ ttEstHeader.estHeaderID, 
+    FOR EACH ttEstCostDetail NO-LOCK, 
+        FIRST ttEstHeader NO-LOCK 
+        WHERE ttEstHeader.estHeaderID EQ ttEstCostDetail.estHeaderID,
+        FIRST ttEstForm NO-LOCK
+        WHERE ttEstForm.estHeaderID EQ ttEstCostDetail.estHeaderID
+        AND ttEstForm.estFormID EQ ttEstCostDetail.estFormID, 
         FIRST ttEstCostCategory NO-LOCK 
-        WHERE ttEstCostCategory.estCostCategoryID EQ ttEstCostDetail.estCostCategoryID,
-        FIRST ttEstForm NO-LOCK 
-        WHERE ttEstForm.estFormID EQ ttEstCostDetail.estFormID    
+        WHERE ttEstCostCategory.estCostCategoryID EQ ttEstCostDetail.estCostCategoryID 
         :
-        FIND FIRST ttEstCostSummary EXCLUSIVE-LOCK
-            WHERE ttEstCostSummary.cScope EQ ttEstCostDetail.estFormID
-            AND ttEstCostSummary.estCostGroupID EQ ttEstCostCategory.estCostGroupID
+        
+        RUN pAddCostSummary(ttEstCostDetail.estFormID, ttEstCostCategory.estCostGroupID, ttEstCostDetail.dCost, ttEstForm.dQtyFGOnForm / 1000).
+        
+        FIND FIRST ttEstBlank NO-LOCK 
+            WHERE ttEstBlank.estHeaderID EQ ttEstCostDetail.estHeaderID
+            AND ttEstBlank.estFormID EQ ttEstCostDetail.estFormID
+            AND ttEstBlank.estBlankID EQ ttEstCostDetail.estBlankID
             NO-ERROR.
-        IF NOT AVAILABLE ttEstCostSummary THEN 
-        DO:
-            CREATE ttEstCostSummary.
-            ASSIGN 
-                ttEstCostSummary.estCostSummaryID = fGetNextID()
-                ttEstCostSummary.estCostGroupID   = ttEstCostCategory.estCostGroupID
-                ttEstCostSummary.cScope           = ttEstCostDetail.estFormID
-                .
+        IF AVAILABLE ttEstBlank THEN 
+        DO:  /*Blank-specific cost*/
+            FIND FIRST ttEstItem NO-LOCK 
+                WHERE ttEstItem.estHeaderID EQ ttEstBlank.estHeaderID
+                AND ttEstItem.estItemID EQ ttEstBlank.estItemID
+                NO-ERROR.
+            IF AVAILABLE ttEstItem THEN 
+                RUN pAddCostSummary(ttEstItem.estItemID, ttEstCostCategory.estCostGroupID, ttEstCostDetail.dCost, ttEstItem.dQtyRequired / 1000).
+           
         END.
-        ASSIGN 
-            ttEstCostSummary.dCostTotal = ttEstCostSummary.dCostTotal + ttEstCostDetail.dCost
-            ttEstCostSummary.dCostPerM  = ttEstCostSummary.dCostPerM + ttEstCostDetail.dCost / (ttEstForm.dQtyFGOnForm / 1000)
-            .
+        ELSE /*Divide up the Form-level Costs into each item*/
+            FOR EACH ttEstBlank NO-LOCK
+                WHERE ttEstBlank.estHeaderID EQ ttEstCostDetail.estHeaderID
+                AND ttEstBlank.estFormID EQ ttEstCostDetail.estFormID, 
+                FIRST ttEstItem NO-LOCK  
+                WHERE ttEstItem.estHeaderID EQ ttEstBlank.estHeaderID
+                AND ttEstItem.estItemID EQ ttEstBlank.estItemID :
+                RUN pAddCostSummary(ttEstItem.estItemID, ttEstCostCategory.estCostGroupID, ttEstCostDetail.dCost * ttEstBlank.dPctOfForm, ttEstItem.dQtyRequired / 1000).
+           
+            END.
+        
     END.        
 
 
@@ -1725,7 +1991,8 @@ PROCEDURE pBuildTestData PRIVATE:
     DEFINE BUFFER bf-ttEstMaterial  FOR ttEstMaterial.
     DEFINE BUFFER bf-ttEstOperation FOR ttEstOperation.
     
-    DEFINE VARIABLE iNumOutBlanksOnForm AS INTEGER.
+    DEFINE VARIABLE iNumOutBlanksOnForm AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dQtyOnForm AS DECIMAL NO-UNDO.
     
     EMPTY TEMP-TABLE ttEstHeader.
     EMPTY TEMP-TABLE ttEstItem.
@@ -1766,12 +2033,19 @@ PROCEDURE pBuildTestData PRIVATE:
             AND ef.est-no EQ est.est-no:
             
             RUN pAddEstFormFromEf(BUFFER ef, BUFFER ttEstHeader, BUFFER bf-ttEstForm).
-
+            
+            ASSIGN 
+                iNumOutBlanksOnForm = 0
+                dQtyOnForm = 0
+                .
             FOR EACH eb NO-LOCK 
                 OF ef:
                 
                 RUN pAddEstBlank(BUFFER eb, BUFFER bf-ttEstForm, BUFFER bf-ttEstBlank).
-                iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-ttEstBlank.iNumOut.
+                ASSIGN 
+                    iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-ttEstBlank.iNumOut
+                    dQtyOnForm = dQtyOnForm + bf-ttEstBlank.dQtyRequired
+                    .
                 RUN pBuildInksForEb(BUFFER ttEstHeader, BUFFER bf-ttEstBlank, BUFFER eb).
                 RUN pAddGlue(BUFFER ttEstHeader, BUFFER bf-ttEstBlank, BUFFER eb).
                 RUN pBuildPackingForEb(BUFFER ttEstHeader, BUFFER bf-ttEstBlank, BUFFER eb).
@@ -1780,8 +2054,11 @@ PROCEDURE pBuildTestData PRIVATE:
             
             ASSIGN 
                 bf-ttEstForm.iNumOut                  = iNumOutBlanksOnForm * bf-ttEstForm.iNumOutNet
-                bf-ttEstForm.dGrossQtyRequiredNoWaste = ttEstHeader.dQtyMaster / bf-ttEstForm.iNumOut
+                bf-ttEstForm.dQtyFGOnForm             = dQtyOnForm
+                bf-ttEstForm.dGrossQtyRequiredNoWaste = bf-ttEstForm.dQtyFGOnForm / bf-ttEstForm.iNumOut
                 .
+                
+            RUN pCalcBlankPct(BUFFER bf-ttEstForm).                
             RUN pProcessOperations(BUFFER ttEstHeader, BUFFER bf-ttEstForm).
             RUN pProcessLeafs(BUFFER ef, BUFFER ttEstHeader, BUFFER bf-ttEstForm).
             RUN pProcessBoard(BUFFER ttEstHeader, BUFFER bf-ttEstForm, ef.board).           
@@ -1929,7 +2206,7 @@ PROCEDURE pProcessBoard PRIVATE:
         WHERE bf-item.company EQ ipbf-ttEstForm.company
         AND bf-item.i-no EQ ipcItemID
         NO-ERROR.
-    IF NOT AVAILABLE bf-item THEN 
+     IF NOT AVAILABLE bf-item THEN 
     DO:
         RUN pAddError("Board '" + ipcITemID + "' is not valid", gcErrorImportant, ipbf-ttEstForm.estHeaderID, ipbf-ttEstForm.iFormNo, 0).
         RETURN.
@@ -2052,7 +2329,7 @@ PROCEDURE pBuildHeader PRIVATE:
     END. 
     FIND FIRST bf-ce-ctrl NO-LOCK 
         WHERE bf-ce-ctrl.company EQ ipbf-ttEstHeader.company
-        AND bf-ce-ctrl.loc EQ ipbf-ttEstHeader.locationID
+        AND bf-ce-ctrl.loc EQ bf-est.loc
         NO-ERROR.
     IF NOT AVAILABLE bf-ce-ctrl THEN 
         FIND FIRST bf-ce-ctrl NO-LOCK 
@@ -2064,8 +2341,40 @@ PROCEDURE pBuildHeader PRIVATE:
         RETURN.
     END.
     ASSIGN 
-        ipbf-ttEstHeader.cIndustry = IF bf-est.est-type LE 4 THEN gcIndustryFolding ELSE gcIndustryCorrugated
+        ipbf-ttEstHeader.cIndustry                    = IF bf-est.est-type LE 4 THEN gcIndustryFolding ELSE gcIndustryCorrugated
+        ipbf-ttEstHeader.locationID                   = bf-est.loc
+        ipbf-ttEstHeader.cMarginOn                    = bf-ce-ctrl.sell-by
+        ipbf-ttEstHeader.dMarginPct                   = bf-ce-ctrl.prof-mrkup
+        ipbf-ttEstHeader.dWarehouseMarkupPct          = bf-ce-ctrl.whse-mrkup / 100 /*ctrl[1]*/
+        ipbf-ttEstHeader.dHandlingChargePct           = bf-ce-ctrl.hand-pct / 100 /*ctrl[2]*/
+        ipbf-ttEstHeader.dHandlingRatePerCWTRMPct     = bf-ce-ctrl.rm-rate / 100 /*ctrl[3]*/ /*NOTE CHANGED to be /100 */
+        
+        ipbf-ttEstHeader.dSpecial1MarkupPct           = bf-ce-ctrl.spec-%[1] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
+        ipbf-ttEstHeader.dSpecial1FlatValue           = 0 /*REFACTOR - treatment of Special Costs*/
+        
+        ipbf-ttEstHeader.dSpecial2MarkupPct           = bf-ce-ctrl.spec-%[2] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
+        ipbf-ttEstHeader.dSpecial2FlatValue           = 0
+        
+        ipbf-ttEstHeader.dSpecial3MarkupPct           = bf-ce-ctrl.spec-%[3] / 100 /*ctrl[4]*/ /*NOTE CHANGED to be /100 */
+        ipbf-ttEstHeader.dSpecial3FlatValue           = 0
+        
+        ipbf-ttEstHeader.lShowCommissoins             = bf-ce-ctrl.comm-add /*ctrl[5]*/
+        ipbf-ttEstHeader.lShowLaborRates              = bf-ce-ctrl.sho-labor /*ctrl[7]*/
+        ipbf-ttEstHeader.lAddToFactCostFreight        = bf-ce-ctrl.shp-add /*ctrl[6]*/
+        ipbf-ttEstHeader.lAddToFactCostSpecial1       = bf-ce-ctrl.spec-add[1] /*ctrl[13]*/
+        ipbf-ttEstHeader.lAddToFactCostSpecial2       = bf-ce-ctrl.spec-add[2] /*ctrl[14]*/
+        ipbf-ttEstHeader.lAddToFactCostSpecial3       = bf-ce-ctrl.spec-add[3] /*ctrl[15]*/
+        ipbf-ttEstHeader.lAddToFactCostGSA            = bf-ce-ctrl.spec-add[6] /*ctrl[16]*/
+        ipbf-ttEstHeader.lAddToFactCostRoyalty        = bf-ce-ctrl.spec-add[8] /*ctrl[18]*/
+        ipbf-ttEstHeader.dFoldPct                     = bf-ce-ctrl.fold-pct / 100 /*ctrl[19]*/ /*NOTE CHANGED to be /100 */    
+        ipbf-ttEstHeader.lAddToFactCostComm           = bf-ce-ctrl.spec-add[7] /*ctrl[17]*/
+        ipbf-ttEstHeader.dHandlingRatePerCWTFGPct     = bf-ce-ctrl.fg-rate / 100  /*ld-fg-rate*/
+        ipbf-ttEstHeader.dHandlingRatePerCWTRMFarmPct = bf-ce-ctrl.rm-rate-farm / 100
+        ipbf-ttEstHeader.dHandlingRatePerCWTFGFarmPct = bf-ce-ctrl.fg-rate-farm / 100
+        ipbf-ttEstHeader.dHandlingChargeFarmPct       = bf-ce-ctrl.hand-pct-farm / 100
+        ipbf-ttEstHeader.dDirectMaterialPct           = gdMaterialMarkup / 100                  
         .
+        
 END PROCEDURE.
 
 PROCEDURE pProcessInk PRIVATE:
@@ -2109,10 +2418,10 @@ PROCEDURE pProcessLeaf PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstHeader    FOR ttEstHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstForm      FOR ttEstForm.
     DEFINE PARAMETER BUFFER ipbf-ttEstOperation FOR ttEstOperation.
-    DEFINE PARAMETER BUFFER ipbf-ttLeaf          FOR ttLeaf.
+    DEFINE PARAMETER BUFFER ipbf-ttLeaf         FOR ttLeaf.
     DEFINE INPUT PARAMETER ipdQtyRequiredPerForm AS DECIMAL NO-UNDO.    
  
-    DEFINE           BUFFER bf-ttEstMaterial    FOR ttEstMaterial.
+    DEFINE BUFFER bf-ttEstMaterial FOR ttEstMaterial.
         
     RUN pAddEstMaterial(BUFFER ipbf-ttEstHeader, BUFFER ipbf-ttEstForm, ipbf-ttLeaf.cItemID, ipbf-ttLeaf.iBlankNo, BUFFER bf-ttEstMaterial).
         
@@ -2181,7 +2490,7 @@ PROCEDURE pProcessLeafs PRIVATE:
      quantity required
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-ef          FOR ef.
     DEFINE PARAMETER BUFFER ipbf-ttEstHeader FOR ttEstHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstForm   FOR ttEstForm.
 
@@ -2199,7 +2508,8 @@ PROCEDURE pProcessLeafs PRIVATE:
         AND ttLeaf.estFormID EQ ttEstOperation.estFormID
         BY ttEstOperation.iSequence DESCENDING:
         
-        IF ttEstOperation.cOperationFeedType EQ "B" THEN DO:            
+        IF ttEstOperation.cOperationFeedType EQ "B" THEN 
+        DO:            
             FIND FIRST ttEstBlank NO-LOCK 
                 WHERE ttEstBlank.estHeaderID EQ ttLeaf.estHeaderID
                 AND ttEstBlank.estFormID EQ ttLeaf.estFormID 
@@ -2464,7 +2774,7 @@ PROCEDURE pGetMiscCostPerM PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pProcessEstOperation PRIVATE:
+PROCEDURE pProcessOperation PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes: should replace ce/prokalk.i and ce/pr4-mch.p
@@ -2589,6 +2899,11 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany, "CEPREPPRICE", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN gcPrepMarkupOrMargin = cReturn.
     
+    RUN sys/ref/nk1look.p (ipcCompany, "CEMATL", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound AND cReturn EQ "YES" THEN  DO:
+        RUN sys/ref/nk1look.p (ipcCompany, "CEMATL", "D", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+        IF lFound THEN gdMaterialMarkup = DECIMAL(cReturn).
+    END.
 END PROCEDURE.
 
 
