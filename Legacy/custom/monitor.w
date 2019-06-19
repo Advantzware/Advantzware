@@ -45,6 +45,7 @@ ASSIGN
 DEFINE VARIABLE labelLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lAuditMonitor AS LOGICAL NO-UNDO.
 
 DEFINE STREAM monitorStrm.
 
@@ -275,11 +276,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearLog C-Win
 ON CHOOSE OF btnClearLog IN FRAME DEFAULT-FRAME /* Clear/Archive Log */
 DO:
-  OS-COPY VALUE(monitorImportDir + '/monitor/monitor.log')
-          VALUE(monitorImportDir + '/monitor/archived/monitor.' +
-                STRING(TODAY,'99999999') + '.' + STRING(TIME,'99999') +
-                '.log').
-  monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.log').
+/*  OS-COPY VALUE(monitorImportDir + '/monitor/monitor.log')             */
+/*          VALUE(monitorImportDir + '/monitor/archived/monitor.' +      */
+/*                STRING(TODAY,'99999999') + '.' + STRING(TIME,'99999') +*/
+/*                '.log').                                               */
+/*  monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.log').*/
   monitorActivity:SCREEN-VALUE = ''.
 END.
 
@@ -306,11 +307,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewLog C-Win
 ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View Log */
 DO:
-&IF DEFINED(FWD-VERSION) > 0 &THEN
-  open-mime-resource "text/plain" string("file:///" + monitorImportDir + '/monitor/monitor.log') false.
-&ELSE
-  OS-COMMAND NO-WAIT notepad.exe VALUE(monitorImportDir + '/monitor/monitor.log').
-&ENDIF
+/*&IF DEFINED(FWD-VERSION) > 0 &THEN*/
+/*  open-mime-resource "text/plain" string("file:///" + monitorImportDir + '/monitor/monitor.log') false.*/
+/*&ELSE                                                                                                  */
+/*  OS-COMMAND NO-WAIT notepad.exe VALUE(monitorImportDir + '/monitor/monitor.log').                     */
+/*&ENDIF                                                                                                 */
+  MESSAGE "View in audit viewer under table {2}"
+  VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
 END.
 
@@ -351,9 +354,9 @@ RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 ON CLOSE OF THIS-PROCEDURE 
 DO:
   RUN monitorActivity ('{1} Monitor Stopped',YES,'').
-  monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.tmp.log') IN FRAME {&FRAME-NAME}.
-  OS-APPEND VALUE(monitorImportDir + '/monitor/monitor.tmp.log')
-            VALUE(monitorImportDir + '/monitor/monitor.log').
+/*  monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.tmp.log') IN FRAME {&FRAME-NAME}.*/
+/*  OS-APPEND VALUE(monitorImportDir + '/monitor/monitor.tmp.log')                                  */
+/*            VALUE(monitorImportDir + '/monitor/monitor.log').                                     */
        RUN system/userLogOut.p (NO, 0).
   RUN disable_UI.
     DELETE OBJECT hPgmSecurity.
@@ -369,6 +372,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   RUN winReSize.
+  lAuditMonitor = CAN-FIND(FIRST AuditTbl
+                        WHERE AuditTbl.AuditTable  EQ "{2}"
+                          AND AuditTbl.AuditUpdate EQ YES).
   &IF '{1}' NE 'cXML' &THEN
     FIND FIRST sys-ctrl NO-LOCK
          WHERE sys-ctrl.company EQ g_company
@@ -513,17 +519,38 @@ PROCEDURE monitorActivity :
   DEFINE INPUT PARAMETER ipActivity AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipDateTimeStamp AS LOGICAL NO-UNDO.
   DEFINE INPUT PARAMETER ipmonitorFile AS CHARACTER NO-UNDO.
-
+  DEFINE VARIABLE cMsgStr1 AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cMsgStr2 AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iAuditID           AS INTEGER   NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF ipDateTimeStamp THEN
-    monitorActivity:INSERT-STRING(STRING(TODAY,'99/99/9999') + ' ' + 
+    cMsgStr1 = (STRING(TODAY,'99/99/9999') + ' ' + 
                                   STRING(TIME,'HH:MM:SS am') + ' ').
-    ELSE monitorActivity:INSERT-STRING(FILL(' ',23)).
-
-    monitorActivity:INSERT-STRING(ipActivity +
-                   (IF ipmonitorFile NE '' THEN ' [File: ' + ipmonitorFile + ']'
-                    ELSE '') + CHR(10)).
+    ELSE cMsgStr1 = (FILL(' ',23)).
+    monitorActivity:INSERT-STRING(cMsgStr1).
     
+    cMsgStr2 = ipActivity +
+                   (IF ipmonitorFile NE '' THEN ' [Audit: ' + ipmonitorFile + ']'
+                    ELSE '').
+    monitorActivity:INSERT-STRING(cMsgStr2 + CHR(10)).
+    IF lAuditMonitor THEN DO:
+        RUN spCreateAuditHdr (
+            "LOG", /* audit type */
+            "ASI",  /* audit db */
+            "{2}", /* audit table */
+            "",
+            OUTPUT iAuditID
+            ).
+    
+        RUN spCreateAuditDtl (
+            iAuditID,
+            "{2}",       /* audit field  - monitor type*/
+            0,           /* audit extent */
+            cMsgStr1 + cMsgStr2, /* Message shown on monitor screen */
+            "",        /* after value */
+            NO         /* is an idx field */
+            ).    
+    END.
     IF LENGTH(monitorActivity:SCREEN-VALUE) GT 20000 THEN
     APPLY 'CHOOSE':U TO btnClearLog.
   END.
