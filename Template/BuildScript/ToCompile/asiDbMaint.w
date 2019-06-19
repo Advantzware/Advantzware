@@ -86,7 +86,10 @@ DEF VAR iReturnVal AS INT NO-UNDO.
 DEF VAR iSelBakSize AS INT NO-UNDO.
 DEF VAR lFoundIni AS LOG NO-UNDO.
 DEF VAR lFWDembedded AS LOG NO-UNDO INITIAL FALSE.
-DEF VAR ptrToString AS MEMPTR NO-UNDO.
+DEF VAR intBufferSize    AS INTEGER   NO-UNDO INITIAL 256.
+DEF VAR intResult        AS INTEGER   NO-UNDO.
+DEF VAR ptrToString      AS MEMPTR    NO-UNDO.
+DEF VAR cOrigDirectoryName AS CHAR NO-UNDO.
     
 {iniFileVars.i}
 
@@ -1125,7 +1128,13 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-    RUN enable_UI.
+    
+    SET-SIZE(ptrToString) = 256.
+    RUN GetCurrentDirectoryA (INPUT        intBufferSize,
+                              INPUT-OUTPUT ptrToString,
+                              OUTPUT       intResult).
+    ASSIGN 
+        cOrigDirectoryName = GET-STRING(ptrToString,1).      RUN enable_UI.
    
     RUN pGetDbBakList (cDrive + "\" + cTopDir + "\" + cBackupDir + "\Databases",
                         OUTPUT cDbBakList).
@@ -2046,7 +2055,7 @@ PROCEDURE pRestoreDb :
 
     STATUS DEFAULT "Restoring database " + slAvailDbs:{&SV} + " from backup. Reply 'Y' when prompted.".
     ASSIGN 
-        cCmdString = "ECHO Y | " + cDLCDir + "\bin\_dbutil prorest " + cDbLongName + " " + 
+        cCmdString = "ECHO Y | " + cDLCDir + "\bin\_dbutil prorest " + slAvailDbs:{&SV} + " " + 
                  cDrive + "\" + cTopDir + "\" + cBackupDir + "\Databases\" + fiDbBkupFileName:{&SV}
         iWaitcount = 0.
     OS-COMMAND SILENT VALUE(cCmdString).
