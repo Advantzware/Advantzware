@@ -1838,34 +1838,34 @@ ASSIGN
        ELSE IF j EQ 5 OR j EQ 6 THEN
            j = 40 .
 
-        PUT "<FArial><=5><R" STRING(j - 1) "><C2><B> Sheeting Specs: "  "</B>" SKIP.
+        PUT "<FArial><=5><R" STRING(j - 1) "><C1><B> Sheeting Specs: "  "</B>" SKIP.
 
-        PUT "<FArial><=5><R" STRING(j ) "><C5><B> Vendor Tag # "  "<C60>Vendor Tag # " "</B>" .
-        PUT "<FArial><=5><R" STRING(j ) "><C15><B> CBX Tag # " "<C70>CBX Tag #"  "</B>" .
-        PUT "<FArial><=5><R" STRING(j ) "><C25><B> RM Lot # " "<C80>RM Lot # " "</B>" .
-        PUT "<FArial><=5><R" STRING(j ) "><C35><B> Sheets " "<C90>Sheets " "</B>" .
-        PUT "<FArial><=5><R" STRING(j ) "><C45><B>Sheeted Load # " "<C100>Sheeted Load #"  "</B>" .
+        PUT "<FArial><=5><R" STRING(j ) "><C3><B> Vendor Tag # "  "<C58>Vendor Tag # " "</B>" .
+        PUT "<FArial><=5><R" STRING(j ) "><C13><B> CBX Tag # " "<C68>CBX Tag #"  "</B>" .
+        PUT "<FArial><=5><R" STRING(j ) "><C23><B> RM Lot # " "<C78>RM Lot # " "</B>" .
+        PUT "<FArial><=5><R" STRING(j ) "><C33><B> Sheets " "<C88>Sheets " "</B>" .
+        PUT "<FArial><=5><R" STRING(j ) "><C43><B>Sheeted Load # " "<C98>Sheeted Load #"  "</B>" .
       
        DO i = 1 TO 30:
 
            IF PAGE-SIZE - LINE-COUNTER < 1 THEN do:
                j = 2 .
                PAGE.
-               PUT "<FArial><=4><R2><C5><B> Vendor Tag # "  "<C60>Vendor Tag # " "</B>" .
-               PUT "<FArial><=4><R2><C15><B> CBX Tag # " "<C70>CBX Tag #"  "</B>" .
-               PUT "<FArial><=4><R2><C25><B> RM Lot # " "<C80>RM Lot # " "</B>" .
-               PUT "<FArial><=4><R2><C35><B> Sheets " "<C90>Sheets " "</B>" .
-               PUT "<FArial><=4><R2><C45><B>Sheeted Load # " "<C100>Sheeted Load #"  "</B>" .
+               PUT "<FArial><=4><R2><C3><B> Vendor Tag # "  "<C58>Vendor Tag # " "</B>" .
+               PUT "<FArial><=4><R2><C13><B> CBX Tag # " "<C68>CBX Tag #"  "</B>" .
+               PUT "<FArial><=4><R2><C23><B> RM Lot # " "<C78>RM Lot # " "</B>" .
+               PUT "<FArial><=4><R2><C33><B> Sheets " "<C88>Sheets " "</B>" .
+               PUT "<FArial><=4><R2><C43><B>Sheeted Load # " "<C98>Sheeted Load #"  "</B>" .
                
            END.
 
            j = j + 1. 
-           PUT "<FArial><=5><R" STRING(j) "><C3><B>" TRIM(string(i) + ".")  "<C58><B>" trim(STRING(i + 30) + ".") "</B>" .
-           PUT "<FArial><=5><R" STRING(j) "><C5><FROM><R+1><C15><RECT> <R-1><C60><FROM><R+1><C70><RECT>" .
-           PUT "<FArial><=5><R" STRING(j) "><C15><FROM><R+1><C25><RECT> <R-1><C70><FROM><R+1><C80><RECT>". 
-           PUT "<FArial><=5><R" STRING(j) "><C25><FROM><R+1><C35><RECT> <R-1><C80><FROM><R+1><C90><RECT>" .
-           PUT "<FArial><=5><R" STRING(j) "><C35><FROM><R+1><C45><RECT> <R-1><C90><FROM><R+1><C100><RECT>" .
-           PUT "<FArial><=5><R" STRING(j) "><C45><FROM><R+1><C55><RECT> <R-1><C100><FROM><R+1><C110><RECT>" SKIP.
+           PUT "<FArial><=5><R" STRING(j) "><C1><B>" TRIM(string(i) + ".")  "<C56><B>" trim(STRING(i + 30) + ".") "</B>" .
+           PUT "<FArial><=5><R" STRING(j) "><C3><FROM><R+1><C13><RECT> <R-1><C58><FROM><R+1><C68><RECT>" .
+           PUT "<FArial><=5><R" STRING(j) "><C13><FROM><R+1><C23><RECT> <R-1><C68><FROM><R+1><C78><RECT>". 
+           PUT "<FArial><=5><R" STRING(j) "><C23><FROM><R+1><C33><RECT> <R-1><C78><FROM><R+1><C88><RECT>" .
+           PUT "<FArial><=5><R" STRING(j) "><C33><FROM><R+1><C43><RECT> <R-1><C88><FROM><R+1><C98><RECT>" .
+           PUT "<FArial><=5><R" STRING(j) "><C43><FROM><R+1><C53><RECT> <R-1><C98><FROM><R+1><C108><RECT>" SKIP.
        END. /* i 1 to 30*/
 
 
