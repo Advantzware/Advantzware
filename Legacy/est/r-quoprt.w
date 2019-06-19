@@ -97,6 +97,15 @@ DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dQuoteValue AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cCheckLeftMarFormat AS CHARACTER INITIAL "QuoPrintVAL,quoprint 1,quoprint 2,quoprint 10,quoprint 20,xprint,quoprint 11,quoprint10-CAN,QuoPrint-Excel-Mex" NO-UNDO .
 
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("est/r-quoprt.w","", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+
+IF lResult THEN ASSIGN lAsiUser = YES .
+
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -131,14 +140,14 @@ rd_sort rs_note tb_note tb_prt-box tb_prt-desc1 tb_boardDescription tb_comm ~
 tb_prt-comp tb_fg-desc2 tb_fg-desc3 tb_print-2nd-dscr tb_prt-item ~
 tb_prt-quoimage tb_prt-shp2 rs-act-inact lv-termFile tb_terms tb_BatchMail ~
 tb_HideDialog tb_page rd-dest lv-ornt td-show-parm lines-per-page ~
-lv-font-no btn-ok btn-cancel lbl_Item-status 
+lv-font-no btn-ok btn-cancel lbl_Item-status run_format
 &Scoped-Define DISPLAYED-OBJECTS v-quo-list begin_cust end_cust begin_quo# ~
 end_quo# tb_booked tb_inst tb_notesSpanPage begin_dept end_dept lbl_sort-3 ~
 rd_sort rs_note tb_note tb_prt-box tb_prt-desc1 tb_boardDescription tb_comm ~
 tb_prt-comp tb_fg-desc2 tb_fg-desc3 tb_print-2nd-dscr tb_prt-item ~
 tb_prt-quoimage tb_prt-shp2 lbl_Item-status rs-act-inact lv-termFile tb_terms tb_BatchMail ~
 tb_HideDialog tb_page rd-dest lv-ornt td-show-parm lines-per-page ~
-lv-font-no lv-font-name lbl_Item-status 
+lv-font-no lv-font-name lbl_Item-status run_format
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -383,6 +392,10 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -433,6 +446,7 @@ DEFINE FRAME FRAME-A
      lv-font-name AT ROW 20.71 COL 29 COLON-ALIGNED NO-LABEL
      v-group-title AT ROW 22.24 COL 37 COLON-ALIGNED HELP
           "Enter Email Title"
+     run_format AT ROW 23.10 COL 79.80 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 24.81 COL 31
      btn-cancel AT ROW 24.81 COL 65
      lbl_Item-status AT ROW 14.91 COL 1 COLON-ALIGNED WIDGET-ID 124
@@ -824,7 +838,7 @@ DO:
      IF rs_note:HIDDEN EQ NO THEN
         s-note-mode = rs_note.
 
-     IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+     IF NOT lAsiUser AND CAN-FIND(FIRST sys-ctrl-shipto WHERE
         sys-ctrl-shipto.company = cocode AND
         sys-ctrl-shipto.NAME = "QUOPRINT") THEN
         DO:
@@ -1383,7 +1397,44 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
+DO:
+   ASSIGN run_format.
 
+   IF v-print-fmt NE run_format THEN DO:
+       ASSIGN v-print-fmt =  run_format
+              vcDefaultForm = v-print-fmt.
+      RUN SetQuoForm (vcDefaultForm).
+      RUN  pRunFormatValueChanged .
+      
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Font */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+    
+    RUN windows/l-syschrL.w (gcompany,"QuoPrint",run_format:SCREEN-VALUE,OUTPUT char-val).
+     IF char-val NE '' THEN
+      run_format:SCREEN-VALUE = ENTRY(1,char-val).
+     IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
+       ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
+              vcDefaultForm = v-print-fmt.
+      RUN SetQuoForm (vcDefaultForm).
+      RUN  pRunFormatValueChanged .
+     END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1476,135 +1527,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     lines-per-page:SCREEN-VALUE = STRING(v-tmp-lines-per-page).
     DISABLE lines-per-page.
-    IF NOT AVAIL est OR est.est-type LE 4 THEN DISABLE tb_note tb_comm.
-    IF NOT AVAIL est OR est.est-type LE 4 OR 
-      (v-print-fmt NE "XPrint" AND v-print-fmt NE "RFC" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "QuoPrintVAL" AND
-        v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Chattanooga"  AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
-      THEN DO:
-      ASSIGN
-        tb_boardDescription:SCREEN-VALUE = 'Est'
-        tb_boardDescription = 'Est'.
-      HIDE tb_boardDescription NO-PAUSE.
-    END.
-    IF v-print-fmt NE "10 Pitch" THEN DISABLE tb_note.
-    IF v-print-fmt NE "Brick" AND
-       v-print-fmt NE "ASI" AND v-print-fmt NE "PACIFIC"
-        THEN DISABLE tb_comm.
-    IF v-print-fmt NE "StClair" 
-        THEN ASSIGN
-               tb_prt-item:HIDDEN = YES  
-               tb_prt-desc1:HIDDEN = YES  
-               tb_fg-desc2:HIDDEN = YES
-               tb_fg-desc3:HIDDEN = YES.
-        ELSE ASSIGN
-               tb_print-2nd-dscr:HIDDEN = YES
-               tb_print-2nd-dscr = NO
-               tb_prt-item:HIDDEN = YES
-               tb_prt-item = NO.
-
-    IF is-xprint-form = NO THEN DISABLE tb_prt-box.
-    IF v-print-fmt = "Century" THEN tb_prt-quoimage:HIDDEN = NO.
-    ELSE tb_prt-quoimage:HIDDEN = YES.
-
-    IF LOOKUP(v-print-fmt,"Fibrex,Boss,Protagon,Fibre-Excel,Loylang,LoylangBSF") EQ 0 THEN rs_note:HIDDEN = YES.
-    ELSE
-       IF AVAIL est AND est.est-type LE 4 THEN rs_note:SCREEN-VALUE = "Fold".
-    ELSE
-       IF AVAIL est AND est.est-type GT 4 THEN rs_note:SCREEN-VALUE = "Corr".
-
-    v-quo-list:SCREEN-VALUE = TRIM(v-quo-list:SCREEN-VALUE).
-
-    /* gdm - 04300907 */
-    IF v-print-fmt NE "Simkins" 
-      THEN ASSIGN 
-             tb_prt-shp2:HIDDEN    = YES
-             tb_terms:HIDDEN       = YES
-             lv-termFile:HIDDEN    = YES
-             tb_terms:SENSITIVE    = NO
-             lv-termFile:SENSITIVE = NO.
-
-    IF v-print-fmt EQ "Premier-Excel" OR v-print-fmt EQ "QuoPrint-Excel-Mex" OR v-print-fmt EQ "Premier-Excel-Mci" 
-        OR v-print-fmt EQ "CCC-Excel" 
-        /*OR v-print-fmt EQ "Bell-Excel"*/
-      THEN 
-       ASSIGN rd_sort:SENSITIVE = NO.
-
-
-     IF v-print-fmt EQ "Peachtree" THEN
-         ASSIGN rs-act-inact:HIDDEN = NO
-                rs-act-inact:SENSITIVE = YES
-                lbl_Item-status:HIDDEN = NO.
-     ELSE
-         ASSIGN rs-act-inact:HIDDEN = YES
-                lbl_Item-status:HIDDEN = YES.
-                .
-
-
-    IF v-print-fmt EQ "Simkins" THEN DO:
-
-      ASSIGN 
-        lv-termFile = lv-termFile:SCREEN-VALUE
-        lv-termFile:SCREEN-VALUE = lv-termFile.
-
-
-      IF lv-termFile:SCREEN-VALUE EQ "" THEN DO:
-         FIND FIRST sys-ctrl-shipto NO-LOCK
-           WHERE sys-ctrl-shipto.company      EQ cocode
-             AND sys-ctrl-shipto.NAME         EQ "QUOPRINT"
-             AND sys-ctrl-shipto.cust-vend    EQ YES
-             AND sys-ctrl-shipto.char-fld     NE '' NO-ERROR.
-         IF AVAIL sys-ctrl-shipto
-           THEN ASSIGN lv-termFile = sys-ctrl-shipto.char-fld.
-      END.
-/*                                                                              */
-/*       IF TRIM(lv-termFile) NE ""                                             */
-/*         THEN                                                                 */
-/*          lv-termPath = SUBSTR(TRIM(lv-termFile),1,R-INDEX(lv-termFile,"\")). */
-/*                                                                              */
-/*       IF TRIM(lv-termPath) EQ ""                                             */
-/*         THEN lv-termPath = "C:\".                                            */
-/*                                                */
-/*       ASSIGN                                   */
-/*         tb_terms                 = NO          */
-/*         tb_terms:SENSITIVE       = YES         */
-/*         lv-termFile:SCREEN-VALUE = lv-termFile */
-/*         tb_terms:SCREEN-VALUE    = "NO".       */
-
-
-      IF (TRIM(cocode) EQ "011" OR 
-         TRIM(cocode) EQ "11") /* Landrum */
-       THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms11.txt".
-       ELSE 
-        IF (TRIM(cocode) EQ "012" OR 
-            TRIM(cocode) EQ "12") /* Marietta */
-         THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms12.txt".
-         ELSE 
-          IF (TRIM(cocode) EQ "060" /* Harvard Folding Box */ OR
-             TRIM(cocode) EQ "60")  OR
-             (TRIM(cocode) EQ "062" /* Ideal */ OR
-             TRIM(cocode) EQ "62")
-           THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms60.txt".
-           ELSE ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile.
-
-      ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile
-             lv-termFile:SENSITIVE = NO.      
-
-      IF tb_terms:SCREEN-VALUE EQ "YES" 
-        THEN lv-termFile:SENSITIVE = YES.        
-
-    END.
-    ELSE ASSIGN
-          tb_terms:SENSITIVE       = NO
-          lv-termFile:SCREEN-VALUE = ""
-          lv-termFile              = ""
-          lv-termFile:SENSITIVE    = NO.
-
+    
+    RUN pRunFormatValueChanged .
 
     APPLY "entry" TO v-quo-list.
   END.
 
   {methods/nowait.i}
   APPLY "entry" TO v-quo-list IN FRAME {&FRAME-NAME}.
+
+  IF NOT lAsiUser THEN
+         RUN_format:HIDDEN IN FRAME FRAME-A = YES .
+     ELSE 
+         RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1884,7 +1819,7 @@ PROCEDURE enable_UI :
           tb_prt-comp tb_fg-desc2 tb_fg-desc3 tb_print-2nd-dscr tb_prt-item 
           tb_prt-quoimage tb_prt-shp2 lbl_Item-status rs-act-inact lv-termFile tb_terms 
           tb_BatchMail tb_HideDialog tb_page rd-dest lv-ornt td-show-parm 
-          lines-per-page lv-font-no lv-font-name lbl_Item-status 
+          lines-per-page lv-font-no lv-font-name lbl_Item-status run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 v-quo-list begin_cust end_cust begin_quo# end_quo# 
          tb_booked tb_inst tb_notesSpanPage begin_dept end_dept rd_sort rs_note 
@@ -1892,7 +1827,7 @@ PROCEDURE enable_UI :
          tb_prt-comp tb_fg-desc2 tb_fg-desc3 tb_print-2nd-dscr tb_prt-item 
          tb_prt-quoimage tb_prt-shp2 rs-act-inact lv-termFile tb_terms 
          tb_BatchMail tb_HideDialog tb_page rd-dest lv-ornt td-show-parm 
-         lines-per-page lv-font-no btn-ok btn-cancel lbl_Item-status 
+         lines-per-page lv-font-no btn-ok btn-cancel lbl_Item-status run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2861,3 +2796,147 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
+PROCEDURE pRunFormatValueChanged :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+
+        IF NOT AVAIL est OR est.est-type LE 4 THEN DISABLE tb_note tb_comm.
+        IF NOT AVAIL est OR est.est-type LE 4 OR 
+            (v-print-fmt NE "XPrint" AND v-print-fmt NE "RFC" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "QuoPrintVAL" AND
+             v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Chattanooga"  AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
+            THEN DO:
+            ASSIGN
+                tb_boardDescription:SCREEN-VALUE = 'Est'
+                tb_boardDescription = 'Est'.
+            HIDE tb_boardDescription NO-PAUSE.
+        END.
+        
+        IF v-print-fmt NE "10 Pitch" THEN DISABLE tb_note.
+        ELSE ENABLE tb_note.
+
+        IF v-print-fmt NE "Brick" AND
+            v-print-fmt NE "ASI" AND v-print-fmt NE "PACIFIC"
+            THEN DISABLE tb_comm.
+        ELSE ENABLE tb_comm.
+
+        IF v-print-fmt NE "StClair" 
+            THEN ASSIGN
+               tb_prt-item:HIDDEN = YES  
+               tb_prt-desc1:HIDDEN = YES  
+               tb_fg-desc2:HIDDEN = YES
+               tb_fg-desc3:HIDDEN = YES.
+        ELSE ASSIGN
+               tb_print-2nd-dscr:HIDDEN = YES
+               tb_print-2nd-dscr = NO
+               tb_prt-item:HIDDEN = YES
+               tb_prt-item = NO.
+
+        IF is-xprint-form = NO THEN DISABLE tb_prt-box.
+        
+        IF v-print-fmt = "Century" THEN tb_prt-quoimage:HIDDEN = NO.
+        ELSE tb_prt-quoimage:HIDDEN = YES.
+
+        IF LOOKUP(v-print-fmt,"Fibrex,Boss,Protagon,Fibre-Excel,Loylang,LoylangBSF") EQ 0 THEN rs_note:HIDDEN = YES.
+        ELSE
+        IF AVAIL est AND est.est-type LE 4 THEN rs_note:SCREEN-VALUE = "Fold".
+        ELSE
+        IF AVAIL est AND est.est-type GT 4 THEN rs_note:SCREEN-VALUE = "Corr".
+
+        v-quo-list:SCREEN-VALUE = TRIM(v-quo-list:SCREEN-VALUE).
+
+        /* gdm - 04300907 */
+        IF v-print-fmt NE "Simkins" 
+            THEN ASSIGN 
+             tb_prt-shp2:HIDDEN    = YES
+             tb_terms:HIDDEN       = YES
+             lv-termFile:HIDDEN    = YES
+             tb_terms:SENSITIVE    = NO
+             lv-termFile:SENSITIVE = NO.
+          ELSE ASSIGN 
+             tb_prt-shp2:HIDDEN    = NO
+             tb_terms:HIDDEN       = NO
+             lv-termFile:HIDDEN    = NO
+             tb_terms:SENSITIVE    = YES
+             lv-termFile:SENSITIVE = YES.
+
+        IF v-print-fmt EQ "Premier-Excel" OR v-print-fmt EQ "QuoPrint-Excel-Mex" OR v-print-fmt EQ "Premier-Excel-Mci" 
+            OR v-print-fmt EQ "CCC-Excel" 
+            /*OR v-print-fmt EQ "Bell-Excel"*/
+            THEN 
+            ASSIGN rd_sort:SENSITIVE = NO.
+        ELSE rd_sort:SENSITIVE = YES.
+
+        IF v-print-fmt EQ "Peachtree" THEN
+            ASSIGN rs-act-inact:HIDDEN = NO
+            rs-act-inact:SENSITIVE = YES
+            lbl_Item-status:HIDDEN = NO.
+        ELSE
+            ASSIGN rs-act-inact:HIDDEN = YES
+                   lbl_Item-status:HIDDEN = YES. 
+
+      IF v-print-fmt EQ "Simkins" THEN DO:
+          ASSIGN 
+              lv-termFile = lv-termFile:SCREEN-VALUE
+              lv-termFile:SCREEN-VALUE = lv-termFile.
+
+          IF lv-termFile:SCREEN-VALUE EQ "" THEN DO:
+              FIND FIRST sys-ctrl-shipto NO-LOCK
+                  WHERE sys-ctrl-shipto.company      EQ cocode
+                  AND sys-ctrl-shipto.NAME         EQ "QUOPRINT"
+                  AND sys-ctrl-shipto.cust-vend    EQ YES
+                  AND sys-ctrl-shipto.char-fld     NE '' NO-ERROR.
+              IF AVAIL sys-ctrl-shipto
+                  THEN ASSIGN lv-termFile = sys-ctrl-shipto.char-fld.
+          END.
+
+/*                                                                              */
+/*       IF TRIM(lv-termFile) NE ""                                             */
+/*         THEN                                                                 */
+/*          lv-termPath = SUBSTR(TRIM(lv-termFile),1,R-INDEX(lv-termFile,"\")). */
+/*                                                                              */
+/*       IF TRIM(lv-termPath) EQ ""                                             */
+/*         THEN lv-termPath = "C:\".                                            */
+/*                                                */
+/*       ASSIGN                                   */
+/*         tb_terms                 = NO          */
+/*         tb_terms:SENSITIVE       = YES         */
+/*         lv-termFile:SCREEN-VALUE = lv-termFile */
+/*         tb_terms:SCREEN-VALUE    = "NO".       */
+
+
+          IF (TRIM(cocode) EQ "011" OR 
+              TRIM(cocode) EQ "11") /* Landrum */
+              THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms11.txt".
+          ELSE 
+              IF (TRIM(cocode) EQ "012" OR 
+                  TRIM(cocode) EQ "12") /* Marietta */
+                  THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms12.txt".
+              ELSE 
+                  IF (TRIM(cocode) EQ "060" /* Harvard Folding Box */ OR
+                      TRIM(cocode) EQ "60")  OR
+                      (TRIM(cocode) EQ "062" /* Ideal */ OR
+                       TRIM(cocode) EQ "62")
+                      THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms60.txt".
+                  ELSE ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile.
+
+                  ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile
+                      lv-termFile:SENSITIVE = NO.      
+
+                  IF tb_terms:SCREEN-VALUE EQ "YES" 
+                      THEN lv-termFile:SENSITIVE = YES.        
+      END.
+      ELSE ASSIGN
+          tb_terms:SENSITIVE       = NO
+          lv-termFile:SCREEN-VALUE = ""
+          lv-termFile              = ""
+          lv-termFile:SENSITIVE    = NO.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
