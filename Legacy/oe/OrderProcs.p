@@ -116,8 +116,8 @@ PROCEDURE CreateActRelLine:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iprOeRelRow AS ROWID NO-UNDO.
-    DEFINE INPUT PARAMETER iprOeRelhRow AS ROWID NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-oe-rel FOR oe-rel.
+    DEFINE PARAMETER BUFFER ipbf-oe-relh FOR oe-relh.
     DEFINE INPUT PARAMETER iRelNo AS INTEGER NO-UNDO.    
     DEFINE OUTPUT PARAMETER oprOeRellRow AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
@@ -132,109 +132,83 @@ PROCEDURE CreateActRelLine:
     DEFINE VARIABLE lError            AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cErrMsg           AS CHARACTER NO-UNDO.
      
-    FIND oe-relh NO-LOCK 
-        WHERE ROWID(oe-relh) EQ iprOeRelhRow
-        NO-ERROR.
-    IF NOT AVAIL(oe-relh) THEN DO:
+
+    IF NOT AVAIL(ipbf-oe-relh) THEN DO:
         ASSIGN oplError = TRUE 
                opcMessage = "Release header record not found"
                .
+               MESSAGE "header not found"
+               VIEW-AS ALERT-BOX.
     END.      
         
-    FIND FIRST sys-ctrl
-        WHERE sys-ctrl.company eq oe-relh.company
-          AND sys-ctrl.name    eq "OEREORDR"
-        NO-LOCK NO-ERROR.
-    IF NOT AVAIL sys-ctrl THEN DO :
-      CREATE sys-ctrl.
-      ASSIGN
-       sys-ctrl.company = oe-relh.company
-       sys-ctrl.name    = "OEREORDR"
-       sys-ctrl.descrip = "Use Actual Releases to calculate Qty Allocated in OE?"
-       sys-ctrl.log-fld = NO.            
-    END.
-    ASSIGN
-     oereordr-log = sys-ctrl.log-fld
-     oereordr-cha = sys-ctrl.char-fld.
-    FIND FIRST sys-ctrl
-        WHERE sys-ctrl.company EQ oe-relh.company
-        AND sys-ctrl.NAME    EQ "BOLWHSE"
-        NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl THEN 
-    DO:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company = oe-relh.company
-            sys-ctrl.NAME    = "BOLWHSE"
-            sys-ctrl.descrip = "Default Warehouse for Adding Release/BOL"
-            sys-ctrl.log-fld = NO.
-        MESSAGE "System control record NOT found. " sys-ctrl.descrip
-            UPDATE sys-ctrl.char-fld.
-    END.
-    IF AVAILABLE sys-ctrl THEN lcBolWhse = sys-ctrl.char-fld.      
-     
-    RUN sys/ref/nk1look.p (INPUT oe-relh.company, "RelSkipRecalc", "L" /* Logical */, NO /* check by cust */, 
+    RUN sys/ref/nk1look.p (INPUT ipbf-oe-relh.company, "OEREORDR", "L" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    oereordr-log = LOGICAL(cReturnChar) NO-ERROR.
+    
+    RUN sys/ref/nk1look.p (INPUT ipbf-oe-relh.company, "OEREORDR", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    oereordr-cha = cReturnChar NO-ERROR.    
+    
+    RUN sys/ref/nk1look.p (INPUT ipbf-oe-relh.company, "BOLWHSE", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    lcBolWhse = cReturnChar NO-ERROR.
+         
+    RUN sys/ref/nk1look.p (INPUT ipbf-oe-relh.company, "RelSkipRecalc", "L" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cReturnChar, OUTPUT lRecFound).
     RelSkipRecalc-log = LOGICAL(cReturnChar) NO-ERROR.          
     
-    
-    FIND oe-relh NO-LOCK 
-        WHERE ROWID(oe-relh) EQ iprOeRelhRow
-        NO-ERROR.
-    IF NOT AVAIL(oe-relh) THEN DO:
-        ASSIGN oplError = TRUE 
-               opcMessage = "Release header record not found"
-               .
-    END.       
-    FIND oe-rel NO-LOCK 
-        WHERE ROWID(oe-rel) EQ iprOeRelRow
-        NO-ERROR.
-    IF NOT AVAIL(oe-rel) THEN DO:
+    IF NOT AVAIL(ipbf-oe-rel) THEN DO:
         ASSIGN oplError = TRUE 
                opcMessage = "Scheduled release record not found"
                .
+               MESSAGE "release not found"
+               VIEW-AS ALERT-BOX.
     END. 
+    IF oplError THEN
+        RETURN.
     FIND FIRST oe-ordl no-lock
-        WHERE oe-ordl.company  EQ oe-rel.company
-          AND oe-ordl.ord-no   EQ oe-rel.ord-no
-          AND oe-ordl.line EQ oe-rel.line
+        WHERE oe-ordl.company  EQ ipbf-oe-rel.company
+          AND oe-ordl.ord-no   EQ ipbf-oe-rel.ord-no
+          AND oe-ordl.line EQ ipbf-oe-rel.line
         NO-ERROR.
         
     FIND FIRST itemfg NO-LOCK
-        WHERE itemfg.company EQ oe-relh.company
-          AND itemfg.i-no    EQ oe-rel.i-no
+        WHERE itemfg.company EQ ipbf-oe-rel.company
+          AND itemfg.i-no    EQ ipbf-oe-rel.i-no
         NO-ERROR.        
     // RUN get-next-r-no.
-
     
     CREATE oe-rell.
     ASSIGN
         oprOeRellRow       = ROWID(oe-rell)
-        oe-rell.company    = oe-rel.company
-        oe-rell.r-no       = oe-relh.r-no
+        oe-rell.company    = ipbf-oe-rel.company
+        oe-rell.r-no       = ipbf-oe-relh.r-no
         oe-rell.rel-no     = iRelNo
-        oe-rell.loc        = IF lcBolWhse NE "ShipFromWhse" THEN locode ELSE oe-rel.spare-char-1
-        oe-rell.ord-no     = oe-rel.ord-no
-        oe-rell.qty        = oe-rel.tot-qty
-        oe-rell.i-no       = oe-rel.i-no
+        oe-rell.loc        = IF lcBolWhse NE "ShipFromWhse" THEN locode ELSE ipbf-oe-rel.spare-char-1
+        oe-rell.ord-no     = ipbf-oe-rel.ord-no
+        oe-rell.qty        = ipbf-oe-rel.tot-qty
+        oe-rell.i-no       = ipbf-oe-rel.i-no
         oe-rell.job-no     = oe-ordl.job-no
         oe-rell.job-no2    = oe-ordl.job-no2
-        oe-rell.po-no      = oe-rel.po-no
-        oe-rell.line       = oe-rel.line
-        oe-rell.lot-no     = oe-rel.lot-no
-        oe-rell.frt-pay    = oe-rel.frt-pay
-        oe-rell.fob-code   = oe-rel.fob-code
-        oe-rell.sell-price = oe-rel.sell-price
-        oe-rell.zeroPrice  = oe-rel.zeroPrice
+        oe-rell.po-no      = ipbf-oe-rel.po-no
+        oe-rell.line       = ipbf-oe-rel.line
+        oe-rell.lot-no     = ipbf-oe-rel.lot-no
+        oe-rell.frt-pay    = ipbf-oe-rel.frt-pay
+        oe-rell.fob-code   = ipbf-oe-rel.fob-code
+        oe-rell.sell-price = ipbf-oe-rel.sell-price
+        oe-rell.zeroPrice  = ipbf-oe-rel.zeroPrice
         oe-rell.printed    = NO
         oe-rell.posted     = NO
         oe-rell.deleted    = NO
         /** Set link to the planned releases **/
-        oe-rell.link-no    = oe-rel.r-no
-        oe-rell.s-code     = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
-                     IF oe-ordl.is-a-component THEN "S" ELSE
-                     IF AVAILABLE oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I"     
+        oe-rell.link-no    = ipbf-oe-rel.r-no
+        oe-rell.s-code     = IF ipbf-oe-rel.s-code <> "" THEN ipbf-oe-rel.s-code ELSE
+                                 IF oe-ordl.is-a-component THEN "S" ELSE
+                                    IF AVAILABLE oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I"     
         oe-rell.partial = IF oe-rell.s-code EQ "I" THEN oe-ordl.partial ELSE 0
         oe-rell.qty-case = IF AVAILABLE itemfg AND itemfg.case-count GT 0
             THEN itemfg.case-count
@@ -250,21 +224,21 @@ PROCEDURE CreateActRelLine:
 
     /* Fill in correct bin/loc */
     IF AVAILABLE oe-rell  THEN
-        RUN SetActualReleaseLocation (BUFFER oe-rell, BUFFER oe-rel, OUTPUT lError, OUTPUT cErrMsg).
+        RUN SetActualReleaseLocation (BUFFER oe-rell, BUFFER ipbf-oe-rel, OUTPUT lError, OUTPUT cErrMsg).
 
     /* Set values for invoice only */
     IF oe-rell.s-code = "I" THEN
        oe-rell.loc-bin = "".
        
-     FIND CURRENT oe-rel EXCLUSIVE-LOCK.
+     FIND CURRENT ipbf-oe-rel EXCLUSIVE-LOCK.
      ASSIGN 
-        oe-rel.rel-no   = iRelNo
-        oe-rel.b-ord-no = oe-relh.b-ord-no
-        oe-rel.qty      = oe-rel.tot-qty
+        ipbf-oe-rel.rel-no   = iRelNo
+        ipbf-oe-rel.b-ord-no = ipbf-oe-relh.b-ord-no
+        ipbf-oe-rel.qty      = ipbf-oe-rel.tot-qty
         .       
-    RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT oe-rel.stat).
+    RUN oe/rel-stat.p (ROWID(ipbf-oe-rel), OUTPUT ipbf-oe-rel.stat).
     
-    FIND CURRENT oe-rel NO-LOCK.
+    FIND CURRENT ipbf-oe-rel NO-LOCK.
 
      //   Shared Vars:
      //   RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT itemfg.q-alloc,
@@ -303,7 +277,7 @@ PROCEDURE CreateActRelHeader:
     /* Order Entry - Create actual releases from planned release line (header)    */
     /* -------------------------------------------------------------------------- */
 
-    DEFINE INPUT PARAMETER iprOeRelRow AS RECID.
+    DEFINE PARAMETER BUFFER ipbf-oe-rel FOR oe-rel.
     DEFINE OUTPUT PARAMETER oprOeRelhRow AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -319,21 +293,18 @@ PROCEDURE CreateActRelHeader:
     DEFINE VARIABLE lRecFound       AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-cust FOR cust.
 
-    FIND oe-rel NO-LOCK 
-        WHERE RECID(oe-rel) EQ iprOeRelRow
-        NO-ERROR.
-    IF NOT AVAIL(oe-rel) THEN DO:
+    IF NOT AVAIL(ipbf-oe-rel) THEN DO:
         ASSIGN oplError = TRUE 
                opcMessage = "Release record not found"
                .
     END.
     
-    RUN sys/ref/nk1look.p (INPUT oe-rel.company, "ADDXFER", "L" /* Logical */, NO /* check by cust */, 
+    RUN sys/ref/nk1look.p (INPUT ipbf-oe-rel.company, "ADDXFER", "L" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cReturnChar, OUTPUT lRecFound).
     addxfer-log = LOGICAL(cReturnChar) NO-ERROR.
     
-    RUN sys/ref/nk1look.p (INPUT oe-rel.company, "RELCREDT", "L" /* Logical */, NO /* check by cust */, 
+    RUN sys/ref/nk1look.p (INPUT ipbf-oe-rel.company, "RELCREDT", "L" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cReturnChar, OUTPUT lRecFound).
     relCredt-log = LOGICAL(cReturnChar) NO-ERROR.
@@ -345,8 +316,8 @@ PROCEDURE CreateActRelHeader:
 
     IF relCredt-log THEN DO: 
         FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ oe-rel.company
-              AND cust.cust-no EQ oe-rel.cust-no 
+            WHERE cust.company EQ ipbf-oe-rel.company
+              AND cust.cust-no EQ ipbf-oe-rel.cust-no 
             NO-ERROR.
         IF AVAILABLE cust AND cOrigProgram NE "fg/invrecpt.p" THEN
                 RUN oe/CRcheck.p ( INPUT ROWID(cust),
@@ -356,47 +327,47 @@ PROCEDURE CreateActRelHeader:
     RUN oe/getNextRelNo.p (INPUT "oe-relh", 
                            OUTPUT iNextRNo).
 
-    RUN oe/release#.p (oe-rel.company, 
+    RUN oe/release#.p (ipbf-oe-rel.company, 
                        OUTPUT iNextReleaseNum).
 
-    IF addxfer-log = YES  AND oe-rel.s-code EQ 'T' THEN 
+    IF addxfer-log = YES  AND ipbf-oe-rel.s-code EQ 'T' THEN 
     DO:
         FIND FIRST cust NO-LOCK
-            WHERE cust.company EQ oe-rel.company 
+            WHERE cust.company EQ ipbf-oe-rel.company 
               AND cust.active EQ 'X'  
             NO-ERROR.
         IF AVAILABLE cust THEN 
         DO:
             IF CAN-FIND(FIRST shipto 
-                WHERE shipto.company EQ oe-rel.company 
+                WHERE shipto.company EQ ipbf-oe-rel.company 
                   AND shipto.cust-no EQ cust.cust-no 
-                  AND shipto.ship-no EQ oe-rel.ship-no 
-                  AND shipto.ship-id EQ oe-rel.ship-id) 
+                  AND shipto.ship-no EQ ipbf-oe-rel.ship-no 
+                  AND shipto.ship-id EQ ipbf-oe-rel.ship-id) 
                 THEN ASSIGN cCustCode = cust.cust-no.
 
             RELEASE cust.
         END.
     END.
     ELSE 
-        cCustCode = oe-rel.cust-no.
+        cCustCode = ipbf-oe-rel.cust-no.
   
     CREATE oe-relh.  
     ASSIGN     
         oprOeRelhRow      = ROWID(oe-relh)
         oe-relh.cust-no   = cCustCode  
         oe-relh.r-no      = iNextRNo
-        oe-relh.company   = oe-rel.company
-        oe-relh.ship-no   = oe-rel.ship-no
-        oe-relh.ship-id   = oe-rel.ship-id
-        oe-relh.ship-i[1] = oe-rel.ship-i[1]
-        oe-relh.ship-i[2] = oe-rel.ship-i[2]
-        oe-relh.ship-i[3] = oe-rel.ship-i[3]
-        oe-relh.ship-i[4] = oe-rel.ship-i[4]
-        oe-relh.carrier   = oe-rel.carrier
+        oe-relh.company   = ipbf-oe-rel.company
+        oe-relh.ship-no   = ipbf-oe-rel.ship-no
+        oe-relh.ship-id   = ipbf-oe-rel.ship-id
+        oe-relh.ship-i[1] = ipbf-oe-rel.ship-i[1]
+        oe-relh.ship-i[2] = ipbf-oe-rel.ship-i[2]
+        oe-relh.ship-i[3] = ipbf-oe-rel.ship-i[3]
+        oe-relh.ship-i[4] = ipbf-oe-rel.ship-i[4]
+        oe-relh.carrier   = ipbf-oe-rel.carrier
         oe-relh.printed   = NO
         oe-relh.posted    = NO
         oe-relh.deleted   = NO
-        oe-relh.rel-date  = oe-rel.rel-date
+        oe-relh.rel-date  = ipbf-oe-rel.rel-date
         oe-relh.release#  = iNextReleaseNum
         oe-relh.user-id   = USERID("nosweat")
         oe-relh.upd-time  = TIME
@@ -404,13 +375,13 @@ PROCEDURE CreateActRelHeader:
         oe-relh.w-ord     = lCreditHold
         .
        
-    RUN pCopyShipNote (oe-rel.rec_key, oe-relh.rec_key).
+    RUN pCopyShipNote (ipbf-oe-rel.rec_key, oe-relh.rec_key).
 
     IF lCreditHold THEN
     DO:
         FIND FIRST bf-cust EXCLUSIVE-LOCK
-            WHERE bf-cust.company EQ oe-rel.company
-            AND bf-cust.cust-no EQ oe-rel.cust-no USE-INDEX cust 
+            WHERE bf-cust.company EQ ipbf-oe-rel.company
+            AND bf-cust.cust-no EQ ipbf-oe-rel.cust-no USE-INDEX cust 
             NO-WAIT NO-ERROR.
         IF AVAILABLE bf-cust THEN
             ASSIGN bf-cust.cr-hold = YES
@@ -724,7 +695,7 @@ PROCEDURE pCreateFgBinForRelease:
     
 END PROCEDURE.
 
-PROCEDURE pReleaseOrder PRIVATE:
+PROCEDURE ReleaseOrder :
     /*------------------------------------------------------------------------------
      Purpose: Given a buffer oe-ord, release all lines at full quantity into 
      Actual Releases
@@ -733,7 +704,75 @@ PROCEDURE pReleaseOrder PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAllOrdLinesReleased AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cResultMsg AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE rOeRelh AS ROWID NO-UNDO.
+    DEFINE VARIABLE rOeRell AS ROWID NO-UNDO.
+    DEFINE VARIABLE iRelNo AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-oe-rel FOR oe-rel.
+    DEFINE BUFFER bf-oe-relh FOR oe-relh.
+    ASSIGN lAllOrdLinesReleased = YES
+           iRelNo = 0
+           .
+    FOR EACH bf-oe-ordl NO-LOCK
+        WHERE bf-oe-ordl.company EQ ipbf-oe-ord.company 
+          AND bf-oe-ordl.ord-no  EQ ipbf-oe-ord.ord-no
+        :
+        FIND FIRST bf-oe-rel NO-LOCK 
+            WHERE bf-oe-rel.company EQ bf-oe-ordl.company
+              AND bf-oe-rel.ord-no  EQ bf-oe-ordl.ord-no
+              AND bf-oe-rel.line    EQ bf-oe-ordl.line
+            NO-ERROR.
+        IF NOT AVAIL bf-oe-rel THEN  
+            lAllOrdLinesReleased = NO.
+     END.
+     IF NOT lAllOrdLinesReleased THEN DO:
+         ASSIGN oplError = TRUE
+                opcMessage = "Some order lines do not have a scheduled release."
+                .
+         RETURN.
+     END.
+     REL-LINES:
+     FOR EACH bf-oe-rel NO-LOCK
+        WHERE bf-oe-rel.company EQ ipbf-oe-ord.company 
+          AND bf-oe-rel.ord-no  EQ ipbf-oe-ord.ord-no
+        BREAK BY bf-oe-rel.ord-no:
+            
+        IF FIRST-OF(bf-oe-rel.ord-no) THEN DO:
+           RUN CreateActRelHeader (BUFFER bf-oe-rel, OUTPUT rOeRelh, OUTPUT lResult, OUTPUT cResultMsg).
+           IF  lResult THEN DO:
+             ASSIGN oplError = TRUE
+                    opcMessage = cResultMsg
+                    .
+             MESSAGE "header result" lResult SKIP 
+               "cmsg" cResultMsg
+             VIEW-AS ALERT-BOX.
+             LEAVE REL-LINES.
+           END.
+           FIND FIRST bf-oe-relh NO-LOCK
+              WHERE ROWID(bf-oe-relh) EQ rOeRelh
+              NO-ERROR. 
+           IF NOT AVAIL bf-oe-relh THEN DO:
+                ASSIGN oplError = TRUE
+                       opcMessage = "Actual release header not created."
+                       .
+                MESSAGE "Error header not created"
+                VIEW-AS ALERT-BOX.
+                LEAVE REL-LINES.
+           END.
 
+        END.     
+        MESSAGE "run create act relline"
+        VIEW-AS ALERT-BOX.
+           iRelNo = iRelNo + 1.
+           RUN CreateActRelLine (BUFFER bf-oe-rel, BUFFER bf-oe-relh, iRelNo, OUTPUT rOeRell, OUTPUT lResult, OUTPUT cResultMsg).
+                        MESSAGE "line result" lResult SKIP 
+               "cmsg" cResultMsg
+             VIEW-AS ALERT-BOX.
+     END. 
+     
 
 END PROCEDURE.
 
