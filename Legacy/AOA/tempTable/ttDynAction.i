@@ -9,6 +9,7 @@ DEFINE TEMP-TABLE ttDynAction NO-UNDO
     FIELD initializeProc  AS CHARACTER FORMAT "X(30)"
     FIELD validateProc    AS CHARACTER FORMAT "X(30)"
     FIELD descriptionProc AS CHARACTER FORMAT "X(30)"
+    FIELD initialValue    AS CHARACTER FORMAT "x(20)"
         INDEX paramWidget IS PRIMARY paramWidget
         INDEX paramName paramName
         INDEX paramID paramID

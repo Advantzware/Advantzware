@@ -423,6 +423,7 @@ PROCEDURE pCreateDynParameters :
                 ttDynAction.initializeProc  = dynParamSetDtl.initializeProc
                 ttDynAction.validateProc    = dynParamSetDtl.validateProc
                 ttDynAction.descriptionProc = dynParamSetDtl.descriptionProc
+                ttDynAction.initialValue    = dynParamSetDtl.initialValue
                 .
             RUN spSetSessionParam (ttDynAction.paramName + "-Handle",STRING(hWidget:HANDLE)).
         END. /* if valid-handle */

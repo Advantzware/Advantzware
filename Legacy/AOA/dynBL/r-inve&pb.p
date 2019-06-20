@@ -1,25 +1,24 @@
-/* r-inve&pb.p */
+/*------------------------------------------------------------------------
+  File:         r-inve&pb.p
+  Description:  Business Logic
+  Author:       Wade Kaldawi (Ron Stark)
+  Date Created: 6.20.2019
+------------------------------------------------------------------------*/
 
-/* To Do ***/
-/* 1) UI to verify period for date given */
-/* 2) Put statements for misc */
-/* 3) UI to verify there is something to post */
-/* 4) GL Summary  report */ 
-/* 5) Prompt for close of orders, auto follow nk1 */
-/* Note: inv-list-post runs twice. Once for report and once to post. */
+/* ***************************  Definitions  ************************** */
 
-/* ***************************  Definitions  ***************************/
+/* Temp-Table Definitions ---                                           */
 
-/* Invoice Post Update GL.rpa */
+&Scoped-define ttTempTable ttInvoicePostUpdateGL 
 {aoa/tempTable/ttInvoicePostUpdateGL.i}
 
 {sys/ref/CustList.i NEW}
     
-/* Parameters Definitions ---                                           */
-DEFINE OUTPUT PARAMETER TABLE FOR ttInvoicePostUpdateGL.
-{aoa/includes/pInvoicePostUpdateGL.i}
-
 /* Local Variable Definitions ---                                       */
+
+&Scoped-define subjectID 17
+{AOA/includes/subjectID{&subjectID}Defs.i}
+
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
@@ -38,17 +37,6 @@ DEFINE VARIABLE hNotesProcs AS HANDLE    NO-UNDO.
 
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 
-ASSIGN
-    gcompany  = ipcCompany
-    cocode    = gcompany
-    g_company = ipcCompany   
-    .
-FIND FIRST company NO-LOCK
-    WHERE company.company EQ cocode
-    NO-ERROR.
-IF AVAILABLE company THEN
-    cCompCurr = company.curr-code.
-    
 DEFINE NEW SHARED BUFFER xoe-relh    FOR oe-relh.
 DEFINE NEW SHARED BUFFER yoe-relh    FOR oe-relh.
 DEFINE NEW SHARED BUFFER xoe-rell    FOR oe-rell.
@@ -139,92 +127,11 @@ DEFINE BUFFER save-line  FOR reftable.
 {oe/invwork.i NEW}
 {oe/closchk.i NEW}
 
-RUN oe/getacct.p.
-
-FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ cocode NO-LOCK.
-IF v-return THEN RETURN.
-
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "INVPOST"
-    NO-LOCK NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN 
-DO TRANSACTION:
-    MESSAGE "Creating new System Control record (INVPOST).".
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.name    = "INVPOST"
-        sys-ctrl.log-fld = NO
-        sys-ctrl.descrip = "Post cost-of-goods sold when cost is zero?"
-        .
-
-END.
-lPostZeroCGS = sys-ctrl.log-fld.
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "INVPRINT" NO-LOCK NO-ERROR.
-cPrintFormat = IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "".
-
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "AREXP"
-    NO-LOCK NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN 
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company  = cocode
-        sys-ctrl.name     = "AREXP"
-        sys-ctrl.descrip  = "A/R Export option"
-        sys-ctrl.char-fld = "ASI".
-
-END.
-cExportNk1 = sys-ctrl.char-fld.
-
-FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
-ASSIGN
-    lIsFreightTax = oe-ctrl.f-tax
-    lUInv         = oe-ctrl.u-inv
-    .
-
 DEFINE VARIABLE is-xprint-form AS LOG       NO-UNDO.
 DEFINE VARIABLE ls-fax-file    AS cha       NO-UNDO.
 DEFINE VARIABLE lv-audit-dir   AS CHARACTER NO-UNDO.
 
-DO TRANSACTION:
-    {sys/inc/postdate.i}
-    {sys/inc/oeprep.i}
-    {sys/inc/oeclose.i}
-    FIND FIRST sys-ctrl WHERE
-        sys-ctrl.company EQ cocode AND
-        sys-ctrl.name    EQ "AUDITDIR"
-        NO-LOCK NO-ERROR.
-   
-    IF NOT AVAILABLE sys-ctrl THEN 
-    DO:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company  = cocode
-            sys-ctrl.name     = "AUDITDIR"
-            sys-ctrl.descrip  = "Audit Trails directory"
-            sys-ctrl.char-fld = ".\AUDIT TRAILS"
-            .
-    END.
-  
-    lv-audit-dir = sys-ctrl.char-fld.
-  
-    IF LOOKUP(SUBSTR(lv-audit-dir,LENGTH(lv-audit-dir),1),"/,\") > 0 THEN
-        lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
-  
-    RELEASE sys-ctrl.
-END.
-
 &SCOPED-DEFINE use-factored
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* These are used in include files, so cannot be changed */
 DEFINE VARIABLE tran-period   AS INTEGER   FORMAT ">>":U INITIAL 0 LABEL "Period" .
@@ -238,41 +145,135 @@ DEFINE VARIABLE cReason       AS CHARACTER NO-UNDO.
 FUNCTION fDebugMsg RETURNS CHARACTER 
     (INPUT ipcMessage AS CHARACTER   ) FORWARD.
 
-/* Main Block */
-FIND FIRST period                   
-    WHERE period.company EQ cocode
-    AND period.pst     LE dtPostDate
-    AND period.pend    GE dtPostDate
-    NO-LOCK NO-ERROR.
-IF AVAILABLE period THEN
-    tran-period = period.pnum.
-      
-IF SEARCH("logs/r-invepb.txt") NE ? THEN 
-    lUseLogs = TRUE.
-cDebugLog = "logs/" + "r-invepb" + STRING(TODAY, "99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".txt".
-IF lUseLogs THEN 
-    OUTPUT STREAM sDebug TO VALUE(cDebugLog).
-  
-ASSIGN 
-    v-post   = lpost
-    v-detail = lInvoiceReportDetail /* Required since not part of parameters */
-    locode   = gloc
-    g_loc    = gloc
-    .
+/* subject business logic */
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pBusinessLogic:
+    ASSIGN
+        gcompany  = cCompany
+        cocode    = gcompany
+        g_company = cCompany   
+        .
+    FIND FIRST company NO-LOCK
+         WHERE company.company EQ cocode
+         NO-ERROR.
+    IF AVAILABLE company THEN
+    cCompCurr = company.curr-code.
+        
+    RUN oe/getacct.p.
+    
+    FIND FIRST ar-ctrl
+         WHERE ar-ctrl.company EQ cocode
+         NO-LOCK.
+    IF v-return THEN RETURN.
+    
+    FIND FIRST sys-ctrl NO-LOCK
+         WHERE sys-ctrl.company EQ cocode
+           AND sys-ctrl.name    EQ "INVPOST"
+         NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl THEN 
+    DO TRANSACTION:
+        MESSAGE "Creating new System Control record (INVPOST).".
+        CREATE sys-ctrl.
+        ASSIGN
+            sys-ctrl.company = cocode
+            sys-ctrl.name    = "INVPOST"
+            sys-ctrl.log-fld = NO
+            sys-ctrl.descrip = "Post cost-of-goods sold when cost is zero?"
+            .
+    
+    END.
+    lPostZeroCGS = sys-ctrl.log-fld.
+    FIND FIRST sys-ctrl
+        WHERE sys-ctrl.company EQ cocode
+        AND sys-ctrl.name    EQ "INVPRINT" NO-LOCK NO-ERROR.
+    cPrintFormat = IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld ELSE "".
+    
+    FIND FIRST sys-ctrl
+        WHERE sys-ctrl.company EQ cocode
+        AND sys-ctrl.name    EQ "AREXP"
+        NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl THEN 
+    DO TRANSACTION:
+        CREATE sys-ctrl.
+        ASSIGN
+            sys-ctrl.company  = cocode
+            sys-ctrl.name     = "AREXP"
+            sys-ctrl.descrip  = "A/R Export option"
+            sys-ctrl.char-fld = "ASI".
+    
+    END.
+    cExportNk1 = sys-ctrl.char-fld.
+    
+    FIND FIRST oe-ctrl
+         WHERE oe-ctrl.company EQ cocode
+         NO-LOCK.
+    IF AVAILABLE oe-ctrl THEN
+    ASSIGN
+        lIsFreightTax = oe-ctrl.f-tax
+        lUInv         = oe-ctrl.u-inv
+        .
+    DO TRANSACTION:
+        {sys/inc/postdate.i}
+        {sys/inc/oeprep.i}
+        {sys/inc/oeclose.i}
+        FIND FIRST sys-ctrl WHERE
+            sys-ctrl.company EQ cocode AND
+            sys-ctrl.name    EQ "AUDITDIR"
+            NO-LOCK NO-ERROR.
        
-/* persist.p needed for write trigger of job */       
-RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
-RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
+        IF NOT AVAILABLE sys-ctrl THEN 
+        DO:
+            CREATE sys-ctrl.
+            ASSIGN
+                sys-ctrl.company  = cocode
+                sys-ctrl.name     = "AUDITDIR"
+                sys-ctrl.descrip  = "Audit Trails directory"
+                sys-ctrl.char-fld = ".\AUDIT TRAILS"
+                .
+        END.
+      
+        lv-audit-dir = sys-ctrl.char-fld.
+      
+        IF LOOKUP(SUBSTR(lv-audit-dir,LENGTH(lv-audit-dir),1),"/,\") > 0 THEN
+            lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
+      
+        RELEASE sys-ctrl.
+    END.
 
-/* Main procedure to print and post */
-RUN pPrintPost.
-
-DELETE OBJECT Persistent-Handle.
-DELETE OBJECT ListLogic-Handle.
-DELETE OBJECT hNotesProcs.
-OUTPUT STREAM sDebug CLOSE.
-
-/* End Main Block */
+    FIND FIRST period                   
+        WHERE period.company EQ cocode
+        AND period.pst     LE dtPostDate
+        AND period.pend    GE dtPostDate
+        NO-LOCK NO-ERROR.
+    IF AVAILABLE period THEN
+    tran-period = period.pnum.
+          
+    IF SEARCH("logs/r-invepb.txt") NE ? THEN 
+    lUseLogs = TRUE.
+    cDebugLog = "logs/" + "r-invepb" + STRING(TODAY, "99999999") + STRING(TIME) + STRING(RANDOM(1,10)) + ".txt".
+    IF lUseLogs THEN 
+    OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+      
+    ASSIGN 
+        v-post   = lpost
+        v-detail = lInvoiceReportDetail /* Required since not part of parameters */
+        locode   = gloc
+        g_loc    = gloc
+        .
+           
+    /* persist.p needed for write trigger of job */       
+    RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
+    RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
+    
+    /* Main procedure to print and post */
+    RUN pPrintPost (oeprep-log).
+    
+    DELETE OBJECT Persistent-Handle.
+    DELETE OBJECT ListLogic-Handle.
+    DELETE OBJECT hNotesProcs.
+    OUTPUT STREAM sDebug CLOSE.
+END PROCEDURE.
 
 PROCEDURE calc-tax-gr :
     /*------------------------------------------------------------------------------
@@ -548,8 +549,6 @@ PROCEDURE list-gl :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-
-
     DEFINE VARIABLE dGLSales      AS DECIMAL   FORMAT ">>,>>>,>>9.99cr" NO-UNDO.
     DEFINE VARIABLE cAccountDscr  LIKE account.dscr NO-UNDO.
     DEFINE VARIABLE v-disp-actnum LIKE account.actnum NO-UNDO.
@@ -927,6 +926,7 @@ PROCEDURE list-post-inv :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-list-post AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER oeprep-log   AS LOGICAL   NO-UNDO.
 
     DEFINE BUFFER b-oe-boll FOR oe-boll.
 
@@ -2197,6 +2197,8 @@ PROCEDURE pPrintPost:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER oeprep-log AS LOGICAL NO-UNDO.
+    
     DEFINE VARIABLE lv-post      AS LOG       NO-UNDO.
     DEFINE VARIABLE v-close-line AS LOG       NO-UNDO.
     DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
@@ -2218,7 +2220,7 @@ PROCEDURE pPrintPost:
     END.
     
     fDebugMsg("Start Run Report").
-    RUN run-report.
+    RUN run-report (oeprep-log).
     fDebugMsg("After Run Report - lPostable? " + STRING(lPostable)).
     
     IF lPostable THEN 
@@ -2227,7 +2229,7 @@ PROCEDURE pPrintPost:
         fDebugMsg("After Run Report - lv-post? " + STRING(lv-post) + " v-post " + STRING(v-post) + " lpost " + STRING(lPost)).
         IF lv-post /* AND v-post (here by mistake?) */ THEN 
         DO:
-            RUN list-post-inv ("post").
+            RUN list-post-inv ("post", oeprep-log).
             RUN post-gl.
             RUN copy-report-to-audit-dir.
             FOR EACH tt-report:
@@ -2347,6 +2349,8 @@ PROCEDURE run-report :
     /* ---------------------------------------------------- oe/invpost.p 10/94 gb */
     /* Invoicing  - Edit Register & Post Invoicing Transactions                   */
     /* -------------------------------------------------------------------------- */
+    DEFINE INPUT PARAMETER oeprep-log AS LOGICAL NO-UNDO.
+    
     DEFINE BUFFER xinv-head FOR inv-head.
     DEFINE VARIABLE str-tit4                AS CHARACTER FORMAT "x(20)" NO-UNDO.
     DEFINE VARIABLE lv-label-ton            AS CHARACTER FORMAT "x(20)" EXTENT 2 NO-UNDO.
@@ -2443,7 +2447,7 @@ PROCEDURE run-report :
 
     cCListName = cListName.
     fDebugMsg("Run Report - run list-post-inv - list") .
-    RUN list-post-inv ("list").
+    RUN list-post-inv ("list", oeprep-log).
   
     /* wfk - taking out for batch report - export invoices to factor */   
     lFtpDone = NO.
