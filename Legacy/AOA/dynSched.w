@@ -56,6 +56,7 @@ Task.dayOfWeek7
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE cMode              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSessionValue      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSuperProcedures   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hContainer         AS HANDLE    NO-UNDO.
@@ -1794,7 +1795,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            NO-ERROR.
       IF AVAILABLE users THEN
       iUserSecurityLevel = users.securityLevel.
-      RUN spGetParamValueID (OUTPUT iParamValueID).
+      RUN spGetSessionParam ("ParamValueID", OUTPUT cSessionValue).
+      iParamValueID = INTEGER(cSessionValue).
       RUN enable_UI.
       DYNAMIC-FUNCTION('fDateOptions',startDateOption:HANDLE).
       DYNAMIC-FUNCTION('fDateOptions',endDateOption:HANDLE).
