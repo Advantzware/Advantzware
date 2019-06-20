@@ -59,11 +59,11 @@ DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Account,Account Description,Journal,Vendor,Name,Date,Inv#,Check#,Order#,Quantity," +
-                           "Amt MSF,Discount,Amount" 
+                           "Amt MSF,Discount,Amount,Currency Code" 
        cFieldListToSelect = "account,acc-desc,jou,vend,name,date,inv,chk,ord,qty," +
-                            "msf,dis,amt"
-       cFieldLength = "10,30,8,8,35,8,12,7,6,13," + "10,10,14"
-       cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i" 
+                            "msf,dis,amt,curr-code"
+       cFieldLength = "10,30,8,8,35,8,12,7,6,13," + "10,10,14,13"
+       cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1791,6 +1791,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "amt"  THEN cVarValue = STRING(gltrans.tr-amt,"->>,>>>,>>9.99") .
                          WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
+                         WHEN "curr-code"  THEN cVarValue = STRING(gltrans.curr-code[1]) .
 
                     END CASE.
 
@@ -1845,6 +1846,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "amt"  THEN cVarValue = STRING(glhist.tr-amt,"->>,>>>,>>9.99") .
                          WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
+                         WHEN "curr-code"  THEN cVarValue = STRING(glhist.curr-code[1]) .
 
                     END CASE.
 
@@ -1957,6 +1959,7 @@ do:
                          WHEN "amt"  THEN cVarValue = STRING(ap-invl.amt,"->>,>>>,>>9.99") .
                          WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
+                         WHEN "curr-code"  THEN cVarValue = STRING(ap-inv.curr-code[1]) .
 
                     END CASE.
 
@@ -2004,6 +2007,7 @@ end.
                          WHEN "amt"  THEN cVarValue = STRING(t-amt,"->>,>>>,>>9.99") .
                          WHEN "account"  THEN cVarValue = "" .
                          WHEN "acc-desc"  THEN cVarValue = "" .
+                         WHEN "curr-code" THEN cVarValue = "".
 
                     END CASE.
 
@@ -2047,6 +2051,7 @@ end.
                          WHEN "amt"  THEN cVarValue = STRING(g-amt,"->>,>>>,>>9.99") .
                           WHEN "account"  THEN cVarValue = "" .
                          WHEN "acc-desc"  THEN cVarValue = "" .
+                         WHEN "curr-code" THEN cVarValue = "".
 
                     END CASE.
 
