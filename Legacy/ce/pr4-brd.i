@@ -118,14 +118,8 @@ IF AVAIL tt-ei THEN DO:
   /* Total Quantity for other forms with same board, len, wid */
   IF xest.est-type GT 2 THEN 
       RUN est/calcTotalBrdQty.p 
-        (INPUT cocode,
-         INPUT xef.board,
-         INPUT xef.gsh-len,
-         INPUT xef.gsh-wid,
-         INPUT ROWID(xef),
-         INPUT ceBoard-log,
-         INPUT v-vend-no,
-         INPUT v-corr,         
+        (INPUT ROWID(xef),
+         INPUT b-uom,
          OUTPUT dQtyOtherForms).  
   
   IF AVAIL tt-eiv THEN v-vend-no = tt-eiv.vend-no.
