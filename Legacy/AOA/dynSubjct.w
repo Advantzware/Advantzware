@@ -155,8 +155,8 @@ ttSubjectColumn ttSubjectParamSet ttSubjectTable ttSubjectWhere ttTable
 &Scoped-define FIELDS-IN-QUERY-subjectBrowse dynSubject.subjectTitle dynSubject.isActive dynSubject.subjectID dynSubject.subjectType dynSubject.module dynSubject.user-id dynSubject.securityLevel dynSubject.outputFormat dynSubject.externalForm dynSubject.businessLogic   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-subjectBrowse   
 &Scoped-define SELF-NAME subjectBrowse
-&Scoped-define QUERY-STRING-subjectBrowse FOR EACH dynSubject NO-LOCK WHERE dynSubject.subjectID GT 0   AND dynSubject.securityLevel LE iUserSecurityLevel   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-subjectBrowse OPEN QUERY {&SELF-NAME} FOR EACH dynSubject NO-LOCK WHERE dynSubject.subjectID GT 0   AND dynSubject.securityLevel LE iUserSecurityLevel   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-subjectBrowse FOR EACH dynSubject NO-LOCK WHERE dynSubject.subjectID GT 0   AND dynSubject.securityLevel LE iUserSecurityLevel   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))  ~{&SORTBY-PHRASE} BY dynSubject.subjectTitle
+&Scoped-define OPEN-QUERY-subjectBrowse OPEN QUERY {&SELF-NAME} FOR EACH dynSubject NO-LOCK WHERE dynSubject.subjectID GT 0   AND dynSubject.securityLevel LE iUserSecurityLevel   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))  ~{&SORTBY-PHRASE} BY dynSubject.subjectTitle.
 &Scoped-define TABLES-IN-QUERY-subjectBrowse dynSubject
 &Scoped-define FIRST-TABLE-IN-QUERY-subjectBrowse dynSubject
 
@@ -3379,6 +3379,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN pGetParamList.
     END. /* if avail */
   END. /* if continue */
+  cColumnLabel = "subjectTitle".
+  RUN pReopenBrowse.
   APPLY "VALUE-CHANGED":U TO subjectSection.
   RUN LockWindowUpdate (0,OUTPUT i).
   SESSION:SET-WAIT-STATE("").

@@ -1076,7 +1076,7 @@ PROCEDURE pScheduleTask :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN spSetParamValueID (ttDynParamValue.paramValueID).
+    RUN spSetSessionParam ("ParamValueID", STRING(ttDynParamValue.paramValueID)).
     RUN AOA/dynSched.w.
 
 END PROCEDURE.

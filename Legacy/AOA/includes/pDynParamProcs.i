@@ -59,12 +59,12 @@ PROCEDURE pInitDynParameters :
         .
     DO WHILE VALID-HANDLE(hWidget):
         CASE hWidget:TYPE:
-            WHEN "COMBO-BOX" OR
-            WHEN "RADIO-SET" OR
+            WHEN "COMBO-BOX"      OR
+            WHEN "RADIO-SET"      OR
             WHEN "SELECTION-LIST" OR
-            WHEN "TOGGLE-BOX" THEN
+            WHEN "TOGGLE-BOX"     THEN
                 APPLY "VALUE-CHANGED":U TO hWidget.
-            WHEN "EDITOR" OR
+            WHEN "EDITOR"  OR
             WHEN "FILL-IN" THEN
                 APPLY "LEAVE":U TO hWidget.
         END CASE.

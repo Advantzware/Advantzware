@@ -1,4 +1,4 @@
-/* spDynDescriptionProc.p - rstark - 3.1.2019 */
+ /* spDynDescriptionProc.p - rstark - 3.1.2019 */
 
 /* add dynamic description procedures in alphabetical order */
 /* procedure has input of two iphWidget AS HANDLE           */
@@ -12,16 +12,26 @@
 ~
     iphWidgetTo:SCREEN-VALUE = fDefaultDescription(iphWidgetTo).
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
 
 /* **********************  Internal Functions  ************************ */
 
 FUNCTION fDefaultDescription RETURNS CHARACTER
     (iphWidgetTo AS HANDLE):
-    RETURN IF iphWidgetTo:NAME BEGINS "start" THEN "<Start Range Value>"
-      ELSE IF iphWidgetTo:NAME BEGINS "end"   THEN "<End Range Value>"
+    IF iphWidgetTo:DATA-TYPE EQ "Character" THEN
+    RETURN IF iphWidgetTo:NAME  BEGINS "start" THEN "<Start Range Value>"
+      ELSE IF iphWidgetTo:NAME  BEGINS "end"   THEN "<End Range Value>"
       ELSE "<Value Not Found>".
+    ELSE IF iphWidgetTo:DATA-TYPE EQ "Logical" THEN
+    RETURN "NO".
+    ELSE
+    RETURN "".
 END FUNCTION.
+
+/* **********************  Main Block  ******************************** */
+
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -74,6 +84,13 @@ PROCEDURE dynDescripMat:
     iphWidgetTo:SCREEN-VALUE = mat.dscr.
 END PROCEDURE.
 
+PROCEDURE dynDescripPeriod:
+    {&defInputParam}    
+    DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.    
+    RUN spGetSessionParam ("Period", OUTPUT cSessionValue).
+    iphWidgetTo:SCREEN-VALUE = cSessionValue.
+END PROCEDURE.
+
 PROCEDURE dynDescripProCat:
     {&defInputParam}
     FIND FIRST procat NO-LOCK
@@ -104,6 +121,14 @@ PROCEDURE dynDescripSalesRep:
     iphWidgetTo:SCREEN-VALUE = sman.sman.
 END PROCEDURE.
 
+PROCEDURE dynDescripSecure:
+    {&defInputParam}
+    RUN spGetSessionParam ("Secure", OUTPUT cSessionValue).
+    IF cSessionValue EQ "" THEN
+    cSessionValue = "NO".
+    iphWidgetTo:SCREEN-VALUE = cSessionValue.
+END PROCEDURE.
+
 PROCEDURE dynDescripShift:
     {&defInputParam}
     FIND FIRST shifts NO-LOCK
@@ -114,8 +139,21 @@ PROCEDURE dynDescripShift:
     iphWidgetTo:SCREEN-VALUE = shifts.description.
 END PROCEDURE.
 
-PROCEDURE spSetCompany:
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    
-    cCompany = ipcCompany.
+PROCEDURE dynDescripUser:
+    {&defInputParam}
+    FIND FIRST users NO-LOCK
+         WHERE users.user_id EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE users THEN
+    iphWidgetTo:SCREEN-VALUE = users.user_name.
+END PROCEDURE.
+
+PROCEDURE dynDescripVendor:
+    {&defInputParam}
+    FIND FIRST vend NO-LOCK
+         WHERE vend.company EQ cCompany
+           AND vend.vend-no EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE vend THEN
+    iphWidgetTo:SCREEN-VALUE = vend.name.
 END PROCEDURE.

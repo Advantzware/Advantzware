@@ -565,8 +565,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/run_link.i "CONTAINER" "pGethAppSrvBin" "(OUTPUT hAppSrvBin)"}
   {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
-  RUN spSetCompany IN hDynInitProc (cCompany).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
