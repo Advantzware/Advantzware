@@ -270,7 +270,10 @@ IF v-none THEN DO TRANSACTION:
    oe-rell.link-no = oe-rel.r-no
    oe-rell.s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
                      IF oe-ordl.is-a-component THEN "S" ELSE
-                     if avail oe-ctrl and oe-ctrl.ship-from then "B" else "I".
+                     if avail oe-ctrl and oe-ctrl.ship-from then "B" else "I"
+   oe-rell.enteredBy = USERID("asi")
+   oe-rell.enteredDT = DATETIME(TODAY, MTIME)                     
+   .
    FIND bf-oe-rel WHERE RECID(bf-oe-rel) = RECID(oe-rel) EXCLUSIVE-LOCK.
    bf-oe-rel.link-no = oe-rell.r-no.
    RELEASE bf-oe-rel.  

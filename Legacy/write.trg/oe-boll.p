@@ -220,7 +220,10 @@ IF {&TABLENAME}.b-no   NE 0  AND
       BUFFER-COPY {&TABLENAME} EXCEPT rec_key TO oe-rell
       ASSIGN
        oe-rell.rel-no = 0
-       oe-rell.posted = YES.
+       oe-rell.posted = YES
+       oe-rell.enteredBy = USERID("asi")
+       oe-rell.enteredDT = DATETIME(TODAY, MTIME)
+       .
       /* needed because triggers are disabled */
       {custom/rec_key.i oe-rell}
     END.

@@ -477,7 +477,10 @@ PROCEDURE pCreateOeRell:
     rlastOeRell = ?.
     FOR EACH ttOe-Rell:
         CREATE oe-rell.
-        BUFFER-COPY ttoe-rell TO oe-rell.
+        BUFFER-COPY ttoe-rell TO oe-rell
+            ASSIGN oe-rell.enteredBy = USERID("asi")
+                   oe-rell.enteredDT = DATETIME(TODAY, MTIME)
+            .
         DELETE ttoe-rell.
         rLastOeRell = ROWID(oe-rell).
     END.

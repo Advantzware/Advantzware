@@ -1002,7 +1002,10 @@ PROCEDURE create-item :
             ll-new-record = YES.
 
         ASSIGN oe-rell.company = oe-relh.company.
-               oe-rell.r-no = oe-relh.r-no.
+               oe-rell.r-no = oe-relh.r-no
+               oe-rell.enteredBy = USERID("asi")
+               oe-rell.enteredDT = DATETIME(TODAY, MTIME)
+               .
 
         FIND FIRST bf-oe-rell NO-LOCK
             WHERE bf-oe-rell.r-no   EQ oe-relh.r-no
