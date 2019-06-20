@@ -532,7 +532,7 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
     CREATE WINDOW C-Win ASSIGN
         HIDDEN             = YES
-        TITLE              = "Order Inquary "
+        TITLE              = "View Order"
         HEIGHT             = 20.57
         WIDTH              = 135.8
         MAX-HEIGHT         = 24.71
