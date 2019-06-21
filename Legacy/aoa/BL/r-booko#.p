@@ -5,7 +5,6 @@
 
 {sys/ref/CustList.i NEW}
 
-
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttOrdersBookedByOrderNo.
 {aoa/includes/pOrdersBookedByOrderNo.i}
