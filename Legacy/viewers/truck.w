@@ -34,15 +34,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
-{custom/gcompany.i}
-{custom/gloc.i}
-
 DEFINE VARIABLE op-company AS CHARACTER NO-UNDO.
 DEFINE VARIABLE op-carrier AS CHARACTER NO-UNDO.
 DEFINE VARIABLE op-loc AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE lValid AS LOGICAL NO-UNDO .
 &SCOPED-DEFINE proc-enable RUN proc-enable.
 
 /* _UIB-CODE-BLOCK-END */
@@ -299,7 +294,6 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME truck.truck-code
@@ -315,7 +309,9 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&UNDEFINE SELF-NAME
+
+&UNDEFINE SELF-NAME 
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -438,9 +434,7 @@ PROCEDURE local-create-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
-  ASSIGN truck.company = carrier.company
-      truck.carrier = carrier.carrier
-      truck.loc = carrier.loc .
+  {methods/viewers/create/truck.i}
 
   /* Code placed here will execute AFTER standard behavior.    */
 
@@ -476,9 +470,10 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
-   RUN validate-truck-code NO-ERROR.
+
+    RUN validate-truck-code NO-ERROR.
    IF NOT lValid THEN RETURN NO-APPLY.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -581,7 +576,9 @@ PROCEDURE validate-truck-code :
 
     DO WITH FRAME {&FRAME-NAME}:
 
-        FIND FIRST bf-truck WHERE bf-truck.company = carrier.company 
+        FIND FIRST bf-truck WHERE bf-truck.company EQ carrier.company 
+                             AND bf-truck.carrier EQ carrier.carrier
+                             AND bf-truck.loc EQ carrier.loc
                              AND bf-truck.truck-code = truck.truck-code:SCREEN-VALUE
                              AND RECID(bf-truck) <> RECID(truck)
                              NO-LOCK NO-ERROR.
