@@ -1,0 +1,98 @@
+<%@ Master Language="C#" AutoEventWireup="true" Inherits="MasterPage2" Codebehind="MasterPage2.master.cs" %>
+<%@ Register Src="footer.ascx" TagName="Footer" TagPrefix="ft" %>
+<%@ Register Src="header.ascx" TagName="Header" TagPrefix="hd" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<script language="javascript">
+
+
+</script>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head runat="server">
+    <title>Untitled Page</title>
+    <LINK href="include/style.css" type="text/css" rel="stylesheet"/>
+    <LINK href="order_inquiry.css" rel="stylesheet" type="text/css" />
+    <link href="include/tree.css" rel="stylesheet" type="text/css" />
+    <script>
+    function FP_swapImg() {//v1.0
+ var doc=document,args=arguments,elm,n; doc.$imgSwaps=new Array(); for(n=2; n<args.length;
+ n+=2) { elm=FP_getObjectByID(args[n]); if(elm) { doc.$imgSwaps[doc.$imgSwaps.length]=elm;
+ elm.$src=elm.src; elm.src=args[n+1]; } }
+}
+function FP_getObjectByID(id,o) {//v1.0
+ var c,el,els,f,m,n; if(!o)o=document; if(o.getElementById) el=o.getElementById(id);
+ else if(o.layers) c=o.layers; else if(o.all) el=o.all[id]; if(el) return el;
+ if(o.id==id || o.name==id) return o; if(o.childNodes) c=o.childNodes; if(c)
+ for(n=0; n<c.length; n++) { el=FP_getObjectByID(id,c[n]); if(el) return el; }
+ f=o.forms; if(f) for(n=0; n<f.length; n++) { els=f[n].elements;
+ for(m=0; m<els.length; m++){ el=FP_getObjectByID(id,els[n]); if(el) return el; } }
+ return null;
+}
+
+function FP_preloadImgs() {//v1.0
+ var d=document,a=arguments; if(!d.FP_imgs) d.FP_imgs=new Array();
+ for(var i=0; i<a.length; i++) { d.FP_imgs[i]=new Image; d.FP_imgs[i].src=a[i]; }
+}
+    </script>
+</head>
+<body onload="FP_preloadImgs(/*url*/'~/img/brwsorder0.jpg', /*url*/'~/img/brwsorder1.jpg', /*url*/'~/img/vieworder0.jpg', /*url*/'~/img/vieworder1.jpg', /*url*/'~/img/viewitem0.jpg', /*url*/'~/img/viewitem1.jpg', /*url*/'~/img/misccharge0.jpg', /*url*/'~/img/misccharge1.jpg', /*url*/'~/img/releases0.jpg', /*url*/'~/img/releases1.jpg', /*url*/'~/img/ordertotal0.jpg', /*url*/'~/img/ordertotal1.jpg', /*url*/'~/img/invoice0.jpg', /*url*/'~/img/invoice1.jpg', /*url*/'~/img/shipnotes0.jpg', /*url*/'~/img/shipnotes1.jpg', /*url*/'~/img/jobprod0.jpg', /*url*/'~/img/fgitem0.jpg')">
+    <form id="form1" runat="server">
+    <hd:Header ID="Header1" runat="server" />
+    <div>
+     <TABLE id="tblTop" cellSpacing="3" align="center" border="0" Width="100%">
+        <TR>
+          <TD width=30>&nbsp;</TD>
+          <TD align=center nowrap><font size=+0><b>Job Prod&nbsp;:<asp:Label ID="lbl_page" runat="server"></asp:Label></b></font></TD>
+          <TD vAlign="middle">
+            <asp:linkbutton id="LinkButton1" runat="server" OnClick="LinkButton1_Click">Back to menu</asp:linkbutton>
+          </TD>
+          <TD align="right"><font size=+0><b>Users&nbsp;&nbsp;</b></font></TD>
+          <TD vAlign="middle" align="left">Logged as&nbsp;
+            <asp:label id="lblUser" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+            <asp:linkbutton id="hlnkLogOut" runat="server" OnClick="hlnkLogOut_Click">Log out</asp:linkbutton>
+            
+            <%--&nbsp;&nbsp;&nbsp;<asp:hyperlink id="hlnkChangePwd" runat="server" NavigateUrl="changepwd.aspx">Change password</asp:hyperlink>
+            &nbsp;&nbsp;&nbsp;--%>
+            Company:&nbsp;
+            <asp:label id="lblComp" runat="server" Font-Bold="True">&nbsp;</asp:label>&nbsp;&nbsp;&nbsp;
+          </TD>
+          
+                    
+          <TD vAlign="middle" width="20">&nbsp;</TD>
+          <td width=30>&nbsp;</td>
+        </TR>
+      </TABLE>  
+  </div>
+    
+    
+    <div>
+       
+      <table>
+      <tr bgcolor="gray">
+      <td>
+      <div  id="navigation" style="width:100%">
+		<ul nowrap>
+		 <li id="librwsjobs" runat="server" ><asp:LinkButton ID="lnk_brwsjobs" runat="server" OnClick="lnk_brwsjobs_Click">Brws Jobs</asp:LinkButton><%--<asp:ImageButton ID="brwsjobs" ImageUrl="~/Images/brws jobs 0.jpg" runat="server" OnClick="brwsjobs_Click" />--%>
+          </li>
+          <li id="liviewjob" runat="server" ><asp:LinkButton ID="lnk_viewjob" runat="server" OnClick="lnk_viewjob_Click">View Jobs</asp:LinkButton><%--<asp:ImageButton ID="viewjob" ImageUrl="~/img/viewjob0.jpg" runat="server" OnClick="viewjob_Click" />--%></li>
+          <li id="limaterial" runat="server" ><asp:LinkButton ID="lnk_material" runat="server" OnClick="lnk_material_Click">Material</asp:LinkButton><%--<asp:ImageButton ID="material" ImageUrl="~/img/material0.jpg" runat="server" OnClick="material_Click" />--%></li>
+          <li id="limatlinfo" runat="server" ><asp:LinkButton ID="lnk_matlinfo" runat="server" OnClick="lnk_matlinfo_Click" >Matl Info</asp:LinkButton><%--<asp:ImageButton ID="matlinfo" ImageUrl="~/img/matlinfo0.jpg" runat="server" OnClick="matlinfo_Click" />--%></li>
+          <li id="limachhrs" runat="server" ><asp:LinkButton ID="lnk_mach_hrs" runat="server" OnClick="lnk_mach_hrs_Click" >Mach hrs</asp:LinkButton><%--<asp:ImageButton ID="machhrs" ImageUrl="~/img/machhrs0.jpg" runat="server" OnClick="machhrs_Click" />--%></li>
+          <li id="limachqtys" runat="server" ><asp:LinkButton ID="lnk_machqtys" runat="server" OnClick="lnk_machqtys_Click" >Mach Qtys</asp:LinkButton><%--<asp:ImageButton ID="machqtys" ImageUrl="~/img/machqtys0.jpg" runat="server" OnClick="machqtys_Click" />--%></li>
+          <li id="liwaste" runat="server" ><asp:LinkButton ID="lnk_waste" runat="server" OnClick="lnk_waste_Click" >Waste</asp:LinkButton><%--<asp:ImageButton ID="waste" ImageUrl="~/img/waste0.jpg" runat="server" OnClick="waste_Click" />--%></li>
+          </ul></div>
+      </td>
+      </tr>
+      </table>
+     
+
+    </div>
+    
+    <div>
+        
+        <asp:contentplaceholder id="ContentPlaceHolder1" runat="server">
+        </asp:contentplaceholder>
+    </div>
+    <ft:Footer ID="Footer1" runat="server" />
+    </form>
+</body>
+</html>
