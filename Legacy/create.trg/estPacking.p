@@ -1,4 +1,4 @@
-&Scoped-define TABLENAME estPackaging
+&Scoped-define TABLENAME estPacking
 
 TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
