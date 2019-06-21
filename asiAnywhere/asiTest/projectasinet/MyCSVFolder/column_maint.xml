@@ -1,0 +1,119 @@
+<NewDataSet>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Units</col_name>
+    <col_val>vBolCases </col_val>
+    <seq_no>8</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name xml:space="preserve"> </col_name>
+    <col_val>vBolinNo2 </col_val>
+    <seq_no>5</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Item#</col_name>
+    <col_val>vBolIno   </col_val>
+    <seq_no>2</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Job#</col_name>
+    <col_val>vBolJobNo </col_val>
+    <seq_no>4</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Whse</col_name>
+    <col_val>vBolLoc   </col_val>
+    <seq_no>6</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Location</col_name>
+    <col_val>vBolLocbin</col_val>
+    <seq_no>7</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Bol#</col_name>
+    <col_val>vBolNo    </col_val>
+    <seq_no>1</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Partial</col_name>
+    <col_val>vBolPartial</col_val>
+    <seq_no>10</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Qty/Unit</col_name>
+    <col_val>vBolQtycase</col_val>
+    <seq_no>9</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Ship Status</col_name>
+    <col_val>vBolScode</col_val>
+    <seq_no>13</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Tag</col_name>
+    <col_val>vBolTag   </col_val>
+    <seq_no>3</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Weight</col_name>
+    <col_val>vBolweight</col_val>
+    <seq_no>11</seq_no>
+    <display>0</display>
+  </Table>
+  <Table>
+    <user_name>Admin</user_name>
+    <main_program>Arbol.aspx</main_program>
+    <sub_program>Arbol.aspx</sub_program>
+    <col_name>Total</col_name>
+    <col_val>vTotal</col_val>
+    <seq_no>12</seq_no>
+    <display>0</display>
+  </Table>
+</NewDataSet>
