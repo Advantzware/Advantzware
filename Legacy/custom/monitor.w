@@ -47,6 +47,8 @@ DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 DEFINE VARIABLE lAuditMonitor AS LOGICAL NO-UNDO.
 
+DEFINE BUFFER bf-prgrms FOR prgrms.
+
 DEFINE STREAM monitorStrm.
 
 IF INDEX(PROPATH,".\custom") EQ 0 THEN
@@ -312,7 +314,8 @@ DO:
 /*&ELSE                                                                                                  */
 /*  OS-COMMAND NO-WAIT notepad.exe VALUE(monitorImportDir + '/monitor/monitor.log').                     */
 /*&ENDIF                                                                                                 */
-  MESSAGE "View in audit viewer under table {2}"
+  MESSAGE "View in audit viewer under table {2}."
+
   VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
 END.
@@ -372,9 +375,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   RUN winReSize.
-  lAuditMonitor = CAN-FIND(FIRST AuditTbl
-                        WHERE AuditTbl.AuditTable  EQ "{2}"
-                          AND AuditTbl.AuditUpdate EQ YES).
+
+  FIND bf-prgrms NO-LOCK WHERE bf-prgrms.prgmname = "{2}." NO-ERROR.
+  IF AVAIL bf-prgrms AND bf-prgrms.track_usage THEN  
+      lAuditMonitor = TRUE.
+
   &IF '{1}' NE 'cXML' &THEN
     FIND FIRST sys-ctrl NO-LOCK
          WHERE sys-ctrl.company EQ g_company
@@ -537,14 +542,14 @@ PROCEDURE monitorActivity :
         RUN spCreateAuditHdr (
             "LOG", /* audit type */
             "ASI",  /* audit db */
-            "{2}", /* audit table */
+            "{2}.", /* audit table */
             "",
             OUTPUT iAuditID
             ).
     
         RUN spCreateAuditDtl (
             iAuditID,
-            "{2}",       /* audit field  - monitor type*/
+            "{2}.",       /* audit field  - monitor type*/
             0,           /* audit extent */
             cMsgStr1 + cMsgStr2, /* Message shown on monitor screen */
             "",        /* after value */
