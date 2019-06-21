@@ -213,7 +213,6 @@ DEFINE QUERY browseParamValue FOR
 DEFINE BROWSE browseParamValue
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseParamValue s-object _FREEFORM
   QUERY browseParamValue DISPLAY
-      ttDynParamValue.mnemonic LABEL-BGCOLOR 14
 ttDynParamValue.paramTitle LABEL-BGCOLOR 14
 ttDynParamValue.paramDescription LABEL-BGCOLOR 14
 ttDynParamValue.module LABEL-BGCOLOR 14
@@ -222,6 +221,7 @@ ttDynParamValue.paramValueID LABEL-BGCOLOR 14
 ttDynParamValue.outputFormat
 ttDynParamValue.prgmName LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
+ttDynParamValue.mnemonic LABEL-BGCOLOR 14
 ttDynParamValue.externalForm
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

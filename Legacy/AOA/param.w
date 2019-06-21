@@ -273,9 +273,9 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      btnParamBuilder AT ROW 1.48 COL 74 HELP
           "Parameter Builder" WIDGET-ID 286
-     dynParam.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 170
+     dynParam.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 170 FORMAT "x(40)"
           VIEW-AS FILL-IN 
-          SIZE 22 BY 1
+          SIZE 50 BY 1
           BGCOLOR 15 
      dynParam.paramLabel AT ROW 3.62 COL 20 COLON-ALIGNED WIDGET-ID 168
           VIEW-AS FILL-IN 
@@ -325,6 +325,8 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
+     btnEditor AT ROW 24.33 COL 32 HELP
+          "Create New EDITOR" WIDGET-ID 192
      dynParam.initialItems AT ROW 16.95 COL 20 COLON-ALIGNED WIDGET-ID 154
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
@@ -334,8 +336,8 @@ DEFINE FRAME viewFrame
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     btnEditor AT ROW 24.33 COL 32 HELP
-          "Create New EDITOR" WIDGET-ID 192
+     btnFill-In AT ROW 24.33 COL 40 HELP
+          "Create New FILL-IN" WIDGET-ID 194
      dynParam.validateProc AT ROW 19.33 COL 20 COLON-ALIGNED WIDGET-ID 298
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
@@ -349,16 +351,14 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnFill-In AT ROW 24.33 COL 40 HELP
-          "Create New FILL-IN" WIDGET-ID 194
+     btnRadio-Set AT ROW 24.33 COL 48 HELP
+          "Create New RADIO-SET" WIDGET-ID 196
      dynParam.descriptionProc AT ROW 20.52 COL 20 COLON-ALIGNED WIDGET-ID 300
           LABEL "Descript Procedure"
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     btnRadio-Set AT ROW 24.33 COL 48 HELP
-          "Create New RADIO-SET" WIDGET-ID 196
      btnSelection-List AT ROW 24.33 COL 56 HELP
           "Create New SELECTION-LIST" WIDGET-ID 198
      btnToggle-Box AT ROW 24.33 COL 64 HELP
@@ -511,7 +511,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN dynParam.paramLabel IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParam.paramName IN FRAME viewFrame
-   4 5                                                                  */
+   4 5 EXP-FORMAT                                                       */
 /* SETTINGS FOR COMBO-BOX dynParam.paramType IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParam.paramWidth IN FRAME viewFrame

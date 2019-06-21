@@ -96,7 +96,7 @@ btnRestoreDefaults btnSortMove
 
 /* Custom List Definitions                                              */
 /* transPanel,transInit,transUpdate,displayFields,enabledFields,List-6  */
-&Scoped-define transPanel RECT-SETBUILDER btnUpdate btnSetBuilder ~
+&Scoped-define transPanel btnUpdate RECT-SETBUILDER btnSetBuilder ~
 btnFirst-1 btnLast-1 btnNext-1 btnPrev-1 btnCancel btnAdd btnCopy btnDelete ~
 btnReset 
 &Scoped-define transInit btnUpdate btnSetBuilder btnFirst-1 btnLast-1 ~
@@ -275,9 +275,9 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      btnSetBuilder AT ROW 1.48 COL 74 HELP
           "Parameter Set Builder" WIDGET-ID 286
-     dynParamSetDtl.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 162
+     dynParamSetDtl.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 162 FORMAT "x(40)"
           VIEW-AS FILL-IN 
-          SIZE 22 BY 1
+          SIZE 50 BY 1
           BGCOLOR 15 
      dynParamSetDtl.paramLabel AT ROW 3.62 COL 20 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS FILL-IN 
@@ -304,6 +304,8 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
+     btnFirst-1 AT ROW 22.67 COL 31 HELP
+          "First" WIDGET-ID 274
      dynParamSetDtl.paramRow AT ROW 11 COL 20 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -315,19 +317,17 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     btnFirst-1 AT ROW 22.67 COL 31 HELP
-          "First" WIDGET-ID 274
      dynParamSetDtl.initialItems AT ROW 14.57 COL 20 COLON-ALIGNED WIDGET-ID 152
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 
+     btnLast-1 AT ROW 22.67 COL 55 HELP
+          "Last" WIDGET-ID 68
      dynParamSetDtl.initializeProc AT ROW 15.76 COL 20 COLON-ALIGNED WIDGET-ID 296
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     btnLast-1 AT ROW 22.67 COL 55 HELP
-          "Last" WIDGET-ID 68
      dynParamSetDtl.validateProc AT ROW 16.95 COL 20 COLON-ALIGNED WIDGET-ID 298
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
@@ -490,7 +490,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramLabel IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramName IN FRAME viewFrame
-   4 5                                                                  */
+   4 5 EXP-FORMAT                                                       */
 /* SETTINGS FOR TOGGLE-BOX dynParamSetDtl.paramPrompt IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.paramRow IN FRAME viewFrame
