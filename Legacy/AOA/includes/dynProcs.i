@@ -34,7 +34,8 @@ RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
 RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
-RUN spSetCompany (g_company).
+RUN spSetSessionParam ("Company", g_company).
+RUN spSetSessionParam ("Location", g_loc).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -93,10 +94,6 @@ END. /* row-display */
 {AOA/includes/pRunNow.i}
 {AOA/includes/pRunBusinessLogic.i}
 {AOA/includes/pSetDynParamValue.i "{1}"}
-
-RUN spSetCompany IN hDynDescripProc (g_company).
-RUN spSetCompany IN hDynInitProc (g_company).
-RUN spSetCompany IN hDynValProc (g_company).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

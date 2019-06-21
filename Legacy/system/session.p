@@ -20,6 +20,7 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
@@ -27,11 +28,18 @@ DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
 /* cue card variables */
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
 
+DEFINE TEMP-TABLE ttSessionParam NO-UNDO
+    FIELD sessionParam AS CHARACTER
+    FIELD sessionValue AS CHARACTER
+        INDEX sessionParam IS PRIMARY UNIQUE sessionParam
+        .
 {system/ttSysCtrlUsage.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -61,6 +69,20 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetBeginSearch Procedure
+FUNCTION sfGetBeginSearch RETURNS CHARACTER 
+  ( INPUT ipcString AS CHAR ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfWebCharacters Procedure
@@ -199,7 +221,6 @@ FIND FIRST users NO-LOCK
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
-
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
@@ -520,25 +541,6 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-spGetCompany) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetCompany Procedure
-PROCEDURE spGetCompany:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcCompany AS CHARACTER NO-UNDO.
-    
-    opcCompany = cCompany.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-spGetDynParamValue) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetDynParamValue Procedure
@@ -611,17 +613,22 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-spGetParamValueID) = 0 &THEN
+&IF DEFINED(EXCLUDE-spGetSession) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetParamValueID Procedure
-PROCEDURE spGetParamValueID:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSession Procedure
+PROCEDURE spGetSessionParam:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opiParamValueID AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSessionValue AS CHARACTER NO-UNDO.
     
-    opiParamValueID = iParamValueID.
+    FIND FIRST ttSessionParam
+         WHERE ttSessionParam.sessionParam EQ ipcSessionParam
+         NO-ERROR.
+    IF AVAILABLE ttSessionParam THEN
+    opcSessionValue = ttSessionParam.sessionValue.
 
 END PROCEDURE.
 	
@@ -753,25 +760,6 @@ PROCEDURE spSetDontShowAgain:
 
 END PROCEDURE.
 	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pSetCompany) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompany Procedure
-PROCEDURE spSetCompany:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    
-    cCompany = ipcCompany.
-
-END PROCEDURE.
-    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1190,17 +1178,25 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-spSetParamValueID) = 0 &THEN
+&IF DEFINED(EXCLUDE-spSetSessionParam) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetParamValueID Procedure
-PROCEDURE spSetParamValueID:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetSessionParam Procedure
+PROCEDURE spSetSessionParam:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiParamValueID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSessionValue AS CHARACTER NO-UNDO.
     
-    iParamValueID = ipiParamValueID.
+    FIND FIRST ttSessionParam
+         WHERE ttSessionParam.sessionParam EQ ipcSessionParam
+         NO-ERROR.
+    IF NOT AVAILABLE ttSessionParam THEN DO:
+        CREATE ttSessionParam.
+        ttSessionParam.sessionParam = ipcSessionParam.
+    END. /* if not avail */
+    ttSessionParam.sessionValue = ipcSessionValue.
 
 END PROCEDURE.
 	
@@ -1253,6 +1249,37 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetBeginSearch Procedure
+FUNCTION sfGetBeginSearch RETURNS CHARACTER 
+  ( INPUT ipcString AS CHAR ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iAstPos AS INTEGER NO-UNDO.
+ 
+  iAstPos = INDEX(ipcString, "*").
+
+  IF iAstPos GT 0 THEN 
+     cResult = SUBSTRING(ipcString, 1, iAstPos - 1).
+  ELSE
+     cResult = ipcString.
+
+  RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfWebCharacters Procedure

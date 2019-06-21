@@ -46,7 +46,9 @@ DEFINE VARIABLE labelLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 DEFINE VARIABLE lAuditMonitor AS LOGICAL NO-UNDO.
+
 DEFINE BUFFER bf-prgrms FOR prgrms.
+
 DEFINE STREAM monitorStrm.
 
 IF INDEX(PROPATH,".\custom") EQ 0 THEN
@@ -313,6 +315,7 @@ DO:
 /*  OS-COMMAND NO-WAIT notepad.exe VALUE(monitorImportDir + '/monitor/monitor.log').                     */
 /*&ENDIF                                                                                                 */
   MESSAGE "View in audit viewer under table {2}."
+
   VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
 END.
@@ -372,9 +375,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   RUN winReSize.
+
   FIND bf-prgrms NO-LOCK WHERE bf-prgrms.prgmname = "{2}." NO-ERROR.
   IF AVAIL bf-prgrms AND bf-prgrms.track_usage THEN  
       lAuditMonitor = TRUE.
+
   &IF '{1}' NE 'cXML' &THEN
     FIND FIRST sys-ctrl NO-LOCK
          WHERE sys-ctrl.company EQ g_company
