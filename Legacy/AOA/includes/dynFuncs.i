@@ -1,19 +1,21 @@
 /* dynFuncs.i - rstark - 1.25.2019 */
 
 FUNCTION fCreateLabel RETURNS HANDLE
-  (ipcPool AS CHARACTER, iphFrame AS HANDLE, ipcLabel AS CHARACTER, ipdRow AS DECIMAL) :
+  (ipcPool AS CHARACTER, iphFrame AS HANDLE, ipcLabel AS CHARACTER, ipdRow AS DECIMAL, ipdHeight AS DECIMAL) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
     
+    IF ipdHeight GT 1 THEN
+    ipdHeight = 1.
     ipcLabel = TRIM(ipcLabel) + ":".
     CREATE TEXT hLabel IN WIDGET-POOL ipcPool
       ASSIGN
         FRAME = iphFrame
         AUTO-RESIZE = YES
-        HEIGHT = 1
+        HEIGHT = ipdHeight
         WIDTH = FONT-TABLE:GET-TEXT-WIDTH-CHARS(ipcLabel,iphFrame:FONT) + .5
         ROW = ipdRow
         FORMAT = "x(" + STRING(LENGTH(ipcLabel)) + ")"

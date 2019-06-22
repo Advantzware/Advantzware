@@ -292,6 +292,8 @@ DEFINE FRAME viewFrame
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
           LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION" 
           SIZE 27 BY 9.52
+     btnFirst-1 AT ROW 22.67 COL 31 HELP
+          "First" WIDGET-ID 274
      dynParamSetDtl.paramWidth AT ROW 7.43 COL 20 COLON-ALIGNED WIDGET-ID 306
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -304,8 +306,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     btnFirst-1 AT ROW 22.67 COL 31 HELP
-          "First" WIDGET-ID 274
      dynParamSetDtl.paramRow AT ROW 11 COL 20 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -317,12 +317,12 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParamSetDtl.initialItems AT ROW 14.57 COL 20 COLON-ALIGNED WIDGET-ID 152
+     btnLast-1 AT ROW 22.67 COL 55 HELP
+          "Last" WIDGET-ID 68
+     dynParamSetDtl.initialItems AT ROW 14.57 COL 20 COLON-ALIGNED WIDGET-ID 152 FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 
-     btnLast-1 AT ROW 22.67 COL 55 HELP
-          "Last" WIDGET-ID 68
      dynParamSetDtl.initializeProc AT ROW 15.76 COL 20 COLON-ALIGNED WIDGET-ID 296
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
@@ -476,7 +476,7 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX dynParamSetDtl.descriptionProc IN FRAME viewFrame
    4 5 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.initialItems IN FRAME viewFrame
-   4 5                                                                  */
+   4 5 EXP-FORMAT                                                       */
 /* SETTINGS FOR COMBO-BOX dynParamSetDtl.initializeProc IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParamSetDtl.initialValue IN FRAME viewFrame
