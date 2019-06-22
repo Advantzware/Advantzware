@@ -65,7 +65,7 @@ DEFINE            VARIABLE lv-t-rec-qty  LIKE po-ordl.t-rec-qty NO-UNDO.
 DEFINE            VARIABLE cPoStatus     AS CHARACTER NO-UNDO .
 DEFINE            VARIABLE cPoLineStatus AS CHARACTER NO-UNDO .
 DEFINE NEW SHARED VARIABLE factor#       AS DECIMAL   NO-UNDO.
-
+DEFINE VARIABLE dQtyDue AS DECIMAL NO-UNDO .
 &SCOPED-DEFINE sortby BY po-ordl.po-no DESC BY po-ordl.LINE BY po-ordl.i-no 
 
 /* _UIB-CODE-BLOCK-END */
@@ -94,7 +94,7 @@ po-ordl.s-num po-ordl.i-no po-ordl.i-name dim-in-16 (po-ordl.s-wid) @ po-ordl.s-
 dim-in-16 (po-ordl.s-len) @ po-ordl.s-len po-ordl.s-len po-ordl.vend-i-no po-ordl.ord-qty ~
 qty-in-ord-uom () @ lv-t-rec-qty po-ordl.pr-qty-uom po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost ~
 po-ordl.pr-uom po-ord.buyer is-it-polinestat() @ cPoLineStatus is-it-postat() @ cPoStatus is-it-paid() @ v-paidflg ~
-po-ordl.cust-no po-ordl.LINE   
+po-ordl.cust-no po-ordl.LINE po-ord.Loc  pGetQtyDue() @ dQtyDue
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH po-ordl WHERE po-ordl.company = itemfg.company  ~
@@ -193,6 +193,13 @@ FUNCTION qty-in-ord-uom RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQtyDue C-Win 
+FUNCTION pGetQtyDue RETURNS DECIMAL
+    ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -249,9 +256,15 @@ DEFINE BROWSE BROWSE-1
     po-ord.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U LABEL-BGCOLOR 14
     po-ordl.due-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
     po-ord.ship-id FORMAT "x(8)":U LABEL-BGCOLOR 14
-    po-ord.ship-name FORMAT "x(30)":U LABEL-BGCOLOR 14
     po-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14
     po-ordl.job-no2 COLUMN-LABEL "" FORMAT "99":U 
+    po-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
+    po-ord.Loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
+    po-ordl.ord-qty COLUMN-LABEL "Qty Ordered" FORMAT "->>>,>>>,>>9.9<<<<<":U
+    WIDTH 15.8 LABEL-BGCOLOR 14
+    pGetQtyDue() @ dQtyDue COLUMN-LABEL "Due Qty" FORMAT "->>>,>>>,>>9.9<<<<<":U
+    WIDTH 15.8 LABEL-BGCOLOR 14
+    po-ord.ship-name FORMAT "x(30)":U LABEL-BGCOLOR 14
     po-ordl.s-num COLUMN-LABEL "Form#" FORMAT ">>>":U LABEL-BGCOLOR 14
     po-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
     po-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
@@ -264,8 +277,6 @@ DEFINE BROWSE BROWSE-1
     LABEL-BGCOLOR 14
     po-ordl.vend-i-no COLUMN-LABEL "Vendor Item#" FORMAT "x(15)":U
     LABEL-BGCOLOR 14
-    po-ordl.ord-qty COLUMN-LABEL "Qty Ordered" FORMAT "->>>,>>>,>>9.9<<<<<":U
-    WIDTH 22.8 LABEL-BGCOLOR 14
     qty-in-ord-uom () @ lv-t-rec-qty COLUMN-LABEL "PO Qty Received" FORMAT "->>>,>>>,>>9.9<<":U
     WIDTH 21.2
     po-ordl.pr-qty-uom COLUMN-LABEL "Ord UOM" FORMAT "x(4)":U
@@ -280,7 +291,6 @@ DEFINE BROWSE BROWSE-1
     is-it-polinestat() @ cPoLineStatus COLUMN-LABEL "Line Status" FORMAT "x(20)":U 
     is-it-postat() @ cPoStatus COLUMN-LABEL "PO Status" FORMAT "x(20)":U 
     is-it-paid() @ v-paidflg COLUMN-LABEL "Paid" FORMAT "YES / NO":U
-    po-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
     LABEL-BGCOLOR 14
     po-ordl.LINE COLUMN-LABEL "Line #" FORMAT ">>>9":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
@@ -897,4 +907,26 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQtyDue C-Win 
+FUNCTION pGetQtyDue RETURNS DECIMAL
+    (  /* parameter-definitions */  ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE dResult   AS DECIMAL NO-UNDO.
+    
+    IF AVAILABLE po-ordl THEN 
+    DO: 
+        dResult = MAX( po-ordl.ord-qty - po-ordl.t-rec-qty,0) .
+    END.
+    RETURN dResult.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
