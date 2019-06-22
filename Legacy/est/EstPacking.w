@@ -129,7 +129,7 @@ FUNCTION fget-type-name RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetPerQty B-table-Win 
 FUNCTION fGetPerQty RETURNS CHARACTER
-    ( ipcPer AS DECIMAL )  FORWARD.
+    ( ipcPer AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -301,9 +301,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
-/*{src/adm/method/browser.i}
-{src/adm/method/query.i}
-{methods/template/browser.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -909,17 +906,19 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetPerQty B-table-Win 
 FUNCTION fGetPerQty RETURNS CHARACTER
-    ( ipcPer AS DECIMAL ) :
+    ( ipcPer AS CHARACTER ) :
     /*------------------------------------------------------------------------------
     
         Notes:  
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO .
-    IF ipcPer EQ 1  THEN
-        ASSIGN cReturn = "Case" .
-    ELSE IF ipcPer EQ 2  THEN cReturn = "Pallet" .
-        ELSE cReturn = "Lot" .
-    
+    CASE ipcPer: 
+        WHEN 'C'  THEN
+            cReturn = "Case".
+        WHEN 'P' THEN 
+            cReturn = "Pallet".
+        OTHERWISE cReturn = "Lot" .
+    END CASE.
     RETURN cReturn .
 
 END FUNCTION.

@@ -83,7 +83,7 @@ estPacking.dimWidth estPacking.dimDepth
 &Scoped-define DISPLAYED-TABLES estPacking
 &Scoped-define FIRST-DISPLAYED-TABLE estPacking
 &Scoped-Define DISPLAYED-OBJECTS est-no iForm iBlank cCustPart cCase ~
-cPallet fi_mat-name fi_type-name
+cPallet fi_mat-name fi_type-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -91,8 +91,15 @@ cPallet fi_mat-name fi_type-name
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetItemName Dialog-Frame 
+FUNCTION fGetItemName RETURNS CHARACTER
+    ( ipcItem AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetNextEstReleaseID Dialog-Frame 
 FUNCTION fGetNextEstReleaseID RETURNS INTEGER
@@ -101,8 +108,8 @@ FUNCTION fGetNextEstReleaseID RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetItemName Dialog-Frame 
-FUNCTION fGetItemName RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetType Dialog-Frame 
+FUNCTION fGetType RETURNS CHARACTER
     ( ipcItem AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -116,165 +123,155 @@ FUNCTION fGetTypeName RETURNS CHARACTER
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetType Dialog-Frame 
-FUNCTION fGetType RETURNS CHARACTER
-    ( ipcItem AS CHARACTER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 /* ***********************  Control Definitions  ********************** */
 
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
-    IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "Cancel" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Cancel" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_Done AUTO-END-KEY DEFAULT 
-    LABEL "&Done" 
-    SIZE 15 BY 1.14
-    BGCOLOR 8 .
+     LABEL "&Done" 
+     SIZE 15 BY 1.14
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK 
-    IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-    LABEL "&Save" 
-    SIZE 8 BY 1.91
-    BGCOLOR 8 .
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Save" 
+     SIZE 8 BY 1.91
+     BGCOLOR 8 .
 
-DEFINE VARIABLE cCase        AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Case" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCase AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Case" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCustPart    AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Part#" 
-    VIEW-AS FILL-IN 
-    SIZE 25.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCustPart AS CHARACTER FORMAT "X(15)":U 
+     LABEL "Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 25.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cPallet      AS CHARACTER FORMAT "X(25)":U 
-    LABEL "Pallet" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cPallet AS CHARACTER FORMAT "X(25)":U 
+     LABEL "Pallet" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE est-no       AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Estimate#" 
-    VIEW-AS FILL-IN 
-    SIZE 12.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE est-no AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Estimate#" 
+     VIEW-AS FILL-IN 
+     SIZE 12.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fi_mat-name  AS CHARACTER FORMAT "X(20)":U 
-    VIEW-AS FILL-IN 
-    SIZE 27.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fi_mat-name AS CHARACTER FORMAT "X(20)":U 
+     VIEW-AS FILL-IN 
+     SIZE 27.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE fi_type-name AS CHARACTER FORMAT "X(20)":U 
-    VIEW-AS FILL-IN 
-    SIZE 27.2 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 27.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iBlank       AS INTEGER   FORMAT ">>9":U INITIAL 0 
-    LABEL "Blank #" 
-    VIEW-AS FILL-IN 
-    SIZE 5.8 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iBlank AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Blank #" 
+     VIEW-AS FILL-IN 
+     SIZE 5.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iForm        AS INTEGER   FORMAT ">>9":U INITIAL 0 
-    LABEL "Form #" 
-    VIEW-AS FILL-IN 
-    SIZE 5.8 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iForm AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Form #" 
+     VIEW-AS FILL-IN 
+     SIZE 5.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 19 BY 2.38
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 19 BY 2.38
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-38
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 104.8 BY 2.71
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 104.8 BY 2.71
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-39
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 104.8 BY 5.71
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 104.8 BY 5.71
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Dialog-Frame FOR 
-    estPacking SCROLLING.
+      estPacking SCROLLING.
 &ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-    est-no AT ROW 1.43 COL 13.8 COLON-ALIGNED WIDGET-ID 200
-    iForm AT ROW 1.43 COL 37.4 COLON-ALIGNED WIDGET-ID 314
-    iBlank AT ROW 1.43 COL 55.2 COLON-ALIGNED WIDGET-ID 316
-    cCustPart AT ROW 2.62 COL 13.8 COLON-ALIGNED WIDGET-ID 176
-    cCase AT ROW 1.48 COL 83.2 COLON-ALIGNED WIDGET-ID 178
-    cPallet AT ROW 2.67 COL 83.2 COLON-ALIGNED WIDGET-ID 204
-    estPacking.rmItemID AT ROW 4.62 COL 22.2 COLON-ALIGNED
-    LABEL "Item ID" FORMAT "x(10)"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fi_mat-name AT ROW 4.62 COL 40.8 COLON-ALIGNED NO-LABELS
-    estPacking.materialType AT ROW 6.05 COL 22.2 COLON-ALIGNED
-    LABEL "Type"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    fi_type-name AT ROW 6.05 COL 40.8 COLON-ALIGNED NO-LABELS
-    estPacking.quantity AT ROW 7.62 COL 22.2 COLON-ALIGNED
-    LABEL "Quantity" FORMAT ">>>,>>9.9<<"
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    BGCOLOR 15 FONT 1
-    estPacking.quantityPer AT ROW 7.62 COL 43 COLON-ALIGNED
-    LABEL "Per" FORMAT "->>,>>9"
-    VIEW-AS COMBO-BOX INNER-LINES 3 
-    LIST-ITEM-PAIRS "Case",1,
-    "Pallet",2,
-    "Lot",3
-    DROP-DOWN-LIST
-    SIZE 12 BY 1
-    BGCOLOR 15 FONT 1
-    estPacking.dimLength AT ROW 4.62 COL 83.8 COLON-ALIGNED
-    LABEL "Lenght" FORMAT ">9.9999"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    estPacking.dimWidth AT ROW 6.05 COL 83.8 COLON-ALIGNED
-    LABEL "Width" FORMAT ">9.9999"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    estPacking.dimDepth AT ROW 7.62 COL 83.8 COLON-ALIGNED
-    LABEL "Depth" FORMAT ">9.9999"
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1
-    BGCOLOR 15 FONT 1
-    Btn_OK AT ROW 10.33 COL 88.2
-    Btn_Done AT ROW 10.62 COL 89.2
-    Btn_Cancel AT ROW 10.33 COL 97.2
-    RECT-21 AT ROW 10.1 COL 87.2
-    RECT-38 AT ROW 1.14 COL 1.2
-    RECT-39 AT ROW 4.1 COL 1.2 WIDGET-ID 2
-    SPACE(1.79) SKIP(3.23)
+     est-no AT ROW 1.43 COL 13.8 COLON-ALIGNED WIDGET-ID 200
+     iForm AT ROW 1.43 COL 37.4 COLON-ALIGNED WIDGET-ID 314
+     iBlank AT ROW 1.43 COL 55.2 COLON-ALIGNED WIDGET-ID 316
+     cCustPart AT ROW 2.62 COL 13.8 COLON-ALIGNED WIDGET-ID 176
+     cCase AT ROW 1.48 COL 83.2 COLON-ALIGNED WIDGET-ID 178
+     cPallet AT ROW 2.67 COL 83.2 COLON-ALIGNED WIDGET-ID 204
+     estPacking.rmItemID AT ROW 4.62 COL 22.2 COLON-ALIGNED
+          LABEL "Item ID" FORMAT "x(10)"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fi_mat-name AT ROW 4.62 COL 40.8 COLON-ALIGNED NO-LABEL
+     estPacking.materialType AT ROW 6.05 COL 22.2 COLON-ALIGNED
+          LABEL "Type"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     fi_type-name AT ROW 6.05 COL 40.8 COLON-ALIGNED NO-LABEL
+     estPacking.quantity AT ROW 7.62 COL 22.2 COLON-ALIGNED
+          LABEL "Quantity" FORMAT ">>>,>>9.9<<"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+          BGCOLOR 15 FONT 1
+     estPacking.quantityPer AT ROW 7.62 COL 43 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 3
+          LIST-ITEM-PAIRS "Case","C",
+                     "Pallet","P",
+                     "Lot","L"
+          DROP-DOWN-LIST
+          SIZE 12 BY 1
+          BGCOLOR 15 FONT 1
+     estPacking.dimLength AT ROW 4.62 COL 83.8 COLON-ALIGNED
+          LABEL "Length" FORMAT ">9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     estPacking.dimWidth AT ROW 6.05 COL 83.8 COLON-ALIGNED
+          LABEL "Width" FORMAT ">9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     estPacking.dimDepth AT ROW 7.62 COL 83.8 COLON-ALIGNED
+          LABEL "Depth" FORMAT ">9.9999"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+          BGCOLOR 15 FONT 1
+     Btn_OK AT ROW 10.33 COL 88.2
+     Btn_Done AT ROW 10.62 COL 89.2
+     Btn_Cancel AT ROW 10.33 COL 97.2
+     RECT-21 AT ROW 10.1 COL 87.2
+     RECT-38 AT ROW 1.14 COL 1.2
+     RECT-39 AT ROW 4.1 COL 1.2 WIDGET-ID 2
+     SPACE(1.79) SKIP(3.23)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "Add/Update Packing Material".
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "Add/Update Packing Material".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -304,8 +301,8 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME Custom                                                    */
 ASSIGN 
-    FRAME Dialog-Frame:SCROLLABLE = FALSE
-    FRAME Dialog-Frame:HIDDEN     = TRUE.
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN estPacking.dimDepth IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
@@ -320,8 +317,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN estPacking.materialType IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN estPacking.quantity IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN estPacking.quantityPer IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estPacking.rmItemID IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
@@ -349,7 +344,7 @@ ASSIGN
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Add/Update Packing Material */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha    NO-UNDO.
         DEFINE VARIABLE lv-handle  AS HANDLE NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID  NO-UNDO .
@@ -381,7 +376,7 @@ ON HELP OF FRAME Dialog-Frame /* Add/Update Packing Material */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON RETURN OF FRAME Dialog-Frame /* Add/Update Packing Material */
-    ANYWHERE
+ANYWHERE
     DO:
         APPLY "tab" TO SELF.
         RETURN NO-APPLY.
@@ -393,7 +388,7 @@ ON RETURN OF FRAME Dialog-Frame /* Add/Update Packing Material */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add/Update Packing Material */
-    DO:
+DO:
         DISABLE TRIGGERS FOR LOAD OF estPacking .
     
         IF AVAILABLE estPacking THEN
@@ -418,7 +413,7 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Add/Update Packing Material */
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
-    DO:
+DO:
         DISABLE TRIGGERS FOR LOAD OF estPacking .
     
         IF AVAILABLE estPacking THEN
@@ -441,7 +436,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 &Scoped-define SELF-NAME Btn_Done
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Done Dialog-Frame
 ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
-    DO:
+DO:
         IF AVAILABLE estPacking THEN
             ASSIGN op-rowid = ROWID(estPacking) .
   &IF DEFINED (adm-panel) NE 0 &THEN
@@ -458,7 +453,7 @@ ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
-    DO:
+DO:
         DEFINE VARIABLE ld              AS DECIMAL   NO-UNDO.
         DEFINE VARIABLE lValidateResult AS LOGICAL   NO-UNDO.
         DEFINE VARIABLE lError          AS LOGICAL   NO-UNDO.
@@ -500,7 +495,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 &Scoped-define SELF-NAME estPacking.quantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estPacking.quantity Dialog-Frame
 ON LEAVE OF estPacking.quantity IN FRAME Dialog-Frame /* Quantity */
-    DO:
+DO:
         
         IF LASTKEY NE -1 THEN 
         DO:     
@@ -514,7 +509,7 @@ ON LEAVE OF estPacking.quantity IN FRAME Dialog-Frame /* Quantity */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estPacking.quantity Dialog-Frame
 ON VALUE-CHANGED OF estPacking.quantity IN FRAME Dialog-Frame /* Quantity */
-    DO:
+DO:
     /*ASSIGN estPacking.quantityPer:SCREEN-VALUE = estPacking.quantity:SCREEN-VALUE .
     RUN pCalAllUnit .*/
     END.
@@ -525,8 +520,8 @@ ON VALUE-CHANGED OF estPacking.quantity IN FRAME Dialog-Frame /* Quantity */
 
 &Scoped-define SELF-NAME estPacking.rmItemID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estPacking.rmItemID Dialog-Frame
-ON LEAVE OF estPacking.rmItemID IN FRAME Dialog-Frame /* Material */
-    DO:
+ON LEAVE OF estPacking.rmItemID IN FRAME Dialog-Frame /* Item ID */
+DO:
         DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
         IF LASTKEY NE -1 THEN 
         DO:
@@ -544,10 +539,10 @@ ON LEAVE OF estPacking.rmItemID IN FRAME Dialog-Frame /* Material */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME estPacking.rmItemID
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estPacking.rmItemID Dialog-Frame
-ON VALUE-CHANGED OF estPacking.rmItemID IN FRAME Dialog-Frame /* Material */
-    DO:
+ON VALUE-CHANGED OF estPacking.rmItemID IN FRAME Dialog-Frame /* Item ID */
+DO:
         DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
         IF LASTKEY NE -1 THEN 
         DO:
@@ -629,7 +624,7 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item Dialog-Frame 
 PROCEDURE create-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                   Purpose:     
                   PARAMs:  <none>
                   Notes:       
@@ -650,7 +645,7 @@ PROCEDURE create-item :
             estPacking.FormNo       = eb.form-no
             estPacking.BlankNo      = eb.blank-No
             estPacking.estPackingID = fGetNextEstReleaseID()
-            estPacking.quantityPer  = 1  .
+            estPacking.quantityPer  = "C"  .
 
         IF AVAILABLE estPacking THEN 
         DO:
@@ -671,16 +666,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME Dialog-Frame.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -688,7 +683,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-item Dialog-Frame 
 PROCEDURE display-item :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                   Purpose:     
                   PARAMs:  <none>
                   Notes:       
@@ -736,28 +731,28 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY est-no iForm iBlank cCustPart cCase cPallet fi_mat-name 
-        WITH FRAME Dialog-Frame.
-    IF AVAILABLE estPacking THEN 
-        DISPLAY estPacking.rmItemID estPacking.materialType estPacking.quantity 
-            estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
-            estPacking.dimDepth 
-            WITH FRAME Dialog-Frame.
-    ENABLE estPacking.rmItemID estPacking.dimDepth 
-        estPacking.quantity estPacking.quantityPer estPacking.dimLength 
-        estPacking.dimWidth Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
-        WITH FRAME Dialog-Frame.
-    VIEW FRAME Dialog-Frame.
-    {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY est-no iForm iBlank cCustPart cCase cPallet fi_mat-name fi_type-name 
+      WITH FRAME Dialog-Frame.
+  IF AVAILABLE estPacking THEN 
+    DISPLAY estPacking.rmItemID estPacking.materialType estPacking.quantity 
+          estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
+          estPacking.dimDepth 
+      WITH FRAME Dialog-Frame.
+  ENABLE est-no iForm iBlank cCustPart cCase cPallet estPacking.rmItemID 
+         estPacking.quantity estPacking.quantityPer estPacking.dimLength 
+         estPacking.dimWidth Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -765,7 +760,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
 PROCEDURE local-exit :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -787,7 +782,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-material Dialog-Frame 
 PROCEDURE valid-material :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -811,11 +806,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE value-change-material Dialog-Frame 
 PROCEDURE value-change-material :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
               Purpose:     
               Parameters:  <none>
               Notes:       
@@ -840,25 +833,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
 
-/* ************************  Function Prototypes ********************** */
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNextEstReleaseID B-table-Win 
-FUNCTION fGetNextEstReleaseID RETURNS INTEGER
-    ( /* parameter-definitions */ ) :
-    /*------------------------------------------------------------------------------
-      Purpose:Gets the next unique estPackingID for an estRelease 
-        Notes:  
-    ------------------------------------------------------------------------------*/
-    RETURN NEXT-VALUE(estPackingId_seq).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetItemName B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetItemName Dialog-Frame 
 FUNCTION fGetItemName RETURNS CHARACTER
     ( ipcItem AS CHARACTER ) :
     /*------------------------------------------------------------------------------
@@ -878,27 +855,21 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTypeName B-table-Win 
-FUNCTION fGetTypeName RETURNS CHARACTER
-    ( ipcItem AS CHARACTER ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNextEstReleaseID Dialog-Frame 
+FUNCTION fGetNextEstReleaseID RETURNS INTEGER
+    ( /* parameter-definitions */ ) :
     /*------------------------------------------------------------------------------
-      Purpose:
+      Purpose:Gets the next unique estPackingID for an estRelease 
         Notes:  
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO .
-
-    FIND mat WHERE mat.mat EQ ipcItem NO-LOCK NO-ERROR.
-    IF AVAILABLE mat THEN 
-        ASSIGN cReturn = mat.dscr.
-    
-    RETURN cReturn .
+    RETURN NEXT-VALUE(estPackingId_seq).
 
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetType B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetType Dialog-Frame 
 FUNCTION fGetType RETURNS CHARACTER
     ( ipcItem AS CHARACTER ) :
     /*------------------------------------------------------------------------------
@@ -918,5 +889,23 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTypeName Dialog-Frame 
+FUNCTION fGetTypeName RETURNS CHARACTER
+    ( ipcItem AS CHARACTER ) :
+    /*------------------------------------------------------------------------------
+      Purpose:
+        Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO .
 
+    FIND mat WHERE mat.mat EQ ipcItem NO-LOCK NO-ERROR.
+    IF AVAILABLE mat THEN 
+        ASSIGN cReturn = mat.dscr.
+    
+    RETURN cReturn .
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
