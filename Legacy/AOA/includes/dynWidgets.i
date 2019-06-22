@@ -94,7 +94,7 @@ PROCEDURE pComboBox:
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
 
     IF ipcLabel NE "" AND lShowLabel THEN
-    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow).
+    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, 1).
     CREATE COMBO-BOX ophWidget IN WIDGET-POOL ipcPoolName
       ASSIGN
         FRAME = iphFrame
@@ -508,7 +508,7 @@ PROCEDURE pEditor:
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.
@@ -533,7 +533,7 @@ PROCEDURE pFillIn:
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
 
     IF ipcLabel NE "" AND lShowLabel THEN
-    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow).
+    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight).
     CREATE FILL-IN ophWidget IN WIDGET-POOL ipcPoolName
         ASSIGN
             FRAME = iphFrame
@@ -693,7 +693,7 @@ PROCEDURE pRadioSet:
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.
@@ -770,7 +770,7 @@ PROCEDURE pSelectionList:
     END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.

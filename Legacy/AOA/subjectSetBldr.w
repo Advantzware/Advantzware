@@ -117,7 +117,7 @@ DEFINE FRAME paramFrame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 158 BY 26.95
+         SIZE 158 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME outputFrame
@@ -154,11 +154,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Dynamic Subject Parameter Set Builder"
-         HEIGHT             = 26.95
+         HEIGHT             = 28.57
          WIDTH              = 158
-         MAX-HEIGHT         = 26.95
+         MAX-HEIGHT         = 28.57
          MAX-WIDTH          = 158
-         VIRTUAL-HEIGHT     = 26.95
+         VIRTUAL-HEIGHT     = 28.57
          VIRTUAL-WIDTH      = 158
          RESIZE             = yes
          SCROLL-BARS        = no
