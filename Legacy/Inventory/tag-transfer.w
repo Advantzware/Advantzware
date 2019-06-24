@@ -631,6 +631,7 @@ DO:
     RUN system/openlookup.p (
         ipcCompany, 
         "loc",  /* Job No lookup ID */
+        0, "", 0,
         OUTPUT cFieldsValue, 
         OUTPUT cFoundValue, 
         OUTPUT recFoundRecID

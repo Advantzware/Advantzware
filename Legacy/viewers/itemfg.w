@@ -754,7 +754,7 @@ DO:
                 END.
             WHEN "procat" THEN 
                 DO:
-                    RUN system/openlookup.p (gcompany, "procat", OUTPUT fields-val, OUTPUT char-val, OUTPUT look-recid).
+                    RUN system/openlookup.p (gcompany, "procat", 0, "", 0, OUTPUT fields-val, OUTPUT char-val, OUTPUT look-recid).
                     
                     FIND FIRST fgcat NO-LOCK 
                         WHERE  fgcat.company EQ gcompany 

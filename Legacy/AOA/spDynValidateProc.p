@@ -4,6 +4,11 @@
 /* 1. procedure has input of iphWidget AS HANDLE         */
 /* 2. RUN dynValReturn (iphWidget, results of validate)  */
 
+&Scoped-define defInputParam ~
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.~
+~
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+
 DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSessionParam AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
@@ -13,10 +18,6 @@ DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
 FUNCTION fErrorMsg RETURNS CHARACTER (iphWidget AS HANDLE):
     RETURN "Invalid Entry for " + iphWidget:LABEL + " " + iphWidget:SCREEN-VALUE.
 END FUNCTION.
-
-/* **********************  Main Block  ******************************** */
-
-RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -31,8 +32,7 @@ END PROCEDURE.
 
 /* create procedures in alphabetical order below here */
 PROCEDURE dynValCust:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
@@ -43,8 +43,7 @@ PROCEDURE dynValCust:
 END PROCEDURE.
 
 PROCEDURE dynValFGItem:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
@@ -55,8 +54,7 @@ PROCEDURE dynValFGItem:
 END PROCEDURE.
 
 PROCEDURE dynValLoc:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
@@ -67,8 +65,7 @@ PROCEDURE dynValLoc:
 END PROCEDURE.
 
 PROCEDURE dynValMachine:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
@@ -79,8 +76,7 @@ PROCEDURE dynValMachine:
 END PROCEDURE.
 
 PROCEDURE dynValMat:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
@@ -90,7 +86,7 @@ PROCEDURE dynValMat:
 END PROCEDURE.
 
 PROCEDURE dynValPostDate:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    {&defInputParam}
     
     DEFINE VARIABLE dtDate  AS DATE    NO-UNDO.
     DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.
@@ -124,7 +120,7 @@ PROCEDURE dynValPostDate:
 END PROCEDURE.
 
 PROCEDURE dynValPostInvDate:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    {&defInputParam}
 
     DEFINE VARIABLE cErrorMsg     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate        AS DATE      NO-UNDO.
@@ -176,8 +172,7 @@ PROCEDURE dynValPostInvDate:
 END PROCEDURE.
 
 PROCEDURE dynValProCat:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
@@ -188,8 +183,7 @@ PROCEDURE dynValProCat:
 END PROCEDURE.
 
 PROCEDURE dynValRMItem:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
@@ -200,8 +194,7 @@ PROCEDURE dynValRMItem:
 END PROCEDURE.
 
 PROCEDURE dynValSalesRep:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
@@ -257,8 +250,7 @@ PROCEDURE dynValUser:
 END PROCEDURE.
 
 PROCEDURE dynValVendor:
-    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    {&defInputParam}
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR

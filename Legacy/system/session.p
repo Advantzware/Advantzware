@@ -1468,6 +1468,7 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+/*    RETURN 9999. /* do not remove, used by rstark to access subjectID 0 */*/
     RETURN IF AVAILABLE users THEN users.securityLevel ELSE 0.
 
 END FUNCTION.

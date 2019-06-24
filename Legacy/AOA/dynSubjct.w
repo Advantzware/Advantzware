@@ -43,6 +43,8 @@ CREATE WIDGET-POOL.
 &Scoped-define showFields svShowAll svShowReportHeader svShowPageHeader ~
 svShowGroupHeader svShowGroupFooter svShowPageFooter svShowReportFooter ~
 svShowParameters
+/* used by rstark to access subjectID 0 by changing value to GE */
+&Scoped-define GT GT
 
 /* Parameters Definitions ---                                           */
 
@@ -152,11 +154,11 @@ ttSubjectColumn ttSubjectParamSet ttSubjectTable ttSubjectWhere ttTable
 
 
 /* Definitions for BROWSE subjectBrowse                                 */
-&Scoped-define FIELDS-IN-QUERY-subjectBrowse dynSubject.subjectTitle dynSubject.isActive dynSubject.subjectID dynSubject.subjectType dynSubject.module dynSubject.user-id dynSubject.securityLevel dynSubject.outputFormat dynSubject.externalForm dynSubject.businessLogic   
+&Scoped-define FIELDS-IN-QUERY-subjectBrowse dynSubject.subjectTitle dynSubject.isActive dynSubject.subjectID dynSubject.subjectType dynSubject.module dynSubject.user-id dynSubject.securityLevel dynSubject.outputFormat dynSubject.recordLimit dynSubject.externalForm dynSubject.businessLogic   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-subjectBrowse   
 &Scoped-define SELF-NAME subjectBrowse
-&Scoped-define QUERY-STRING-subjectBrowse FOR EACH dynSubject NO-LOCK WHERE dynSubject.subjectID GT 0   AND dynSubject.securityLevel LE iUserSecurityLevel   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))  ~{&SORTBY-PHRASE} BY dynSubject.subjectTitle
-&Scoped-define OPEN-QUERY-subjectBrowse OPEN QUERY {&SELF-NAME} FOR EACH dynSubject NO-LOCK WHERE dynSubject.subjectID GT 0   AND dynSubject.securityLevel LE iUserSecurityLevel   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))  ~{&SORTBY-PHRASE} BY dynSubject.subjectTitle.
+&Scoped-define QUERY-STRING-subjectBrowse FOR EACH dynSubject NO-LOCK WHERE dynSubject.subjectID {&GT} 0   AND dynSubject.securityLevel LE iUserSecurityLevel   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))  ~{&SORTBY-PHRASE} BY dynSubject.subjectTitle
+&Scoped-define OPEN-QUERY-subjectBrowse OPEN QUERY {&SELF-NAME} FOR EACH dynSubject NO-LOCK WHERE dynSubject.subjectID {&GT} 0   AND dynSubject.securityLevel LE iUserSecurityLevel   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))  ~{&SORTBY-PHRASE} BY dynSubject.subjectTitle.
 &Scoped-define TABLES-IN-QUERY-subjectBrowse dynSubject
 &Scoped-define FIRST-TABLE-IN-QUERY-subjectBrowse dynSubject
 
@@ -228,7 +230,7 @@ dynParamSet
 &Scoped-define FIELDS-IN-QUERY-viewFrame dynSubject.isActive ~
 dynSubject.securityLevel dynSubject.user-id dynSubject.subjectTitle ~
 dynSubject.subjectType dynSubject.module dynSubject.outputFormat ~
-dynSubject.externalForm dynSubject.businessLogic 
+dynSubject.externalForm dynSubject.businessLogic dynSubject.recordLimit
 &Scoped-define QUERY-STRING-viewFrame FOR EACH dynSubject SHARE-LOCK
 &Scoped-define OPEN-QUERY-viewFrame OPEN QUERY viewFrame FOR EACH dynSubject SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-viewFrame dynSubject
@@ -960,6 +962,7 @@ dynSubject.module LABEL-BGCOLOR 14
 dynSubject.user-id
 dynSubject.securityLevel
 dynSubject.outputFormat
+dynSubject.recordLimit
 dynSubject.externalForm
 dynSubject.businessLogic
 /* _UIB-CODE-BLOCK-END */
@@ -1289,6 +1292,10 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
           BGCOLOR 15 
+     dynSubject.recordLimit AT ROW 7.19 COL 16 COLON-ALIGNED WIDGET-ID 162
+          VIEW-AS FILL-IN
+          SIZE 16 BY 1
+          BGCOLOR 15
      btnUpdate AT ROW 6.24 COL 62 HELP
           "Update/Save" WIDGET-ID 128
      btnCancel AT ROW 6.24 COL 102 HELP
@@ -1842,6 +1849,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RADIO-SET dynSubject.outputFormat IN FRAME viewFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN dynSubject.recordLimit IN FRAME viewFrame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-PANEL IN FRAME viewFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN dynSubject.securityLevel IN FRAME viewFrame
@@ -1915,7 +1924,7 @@ AND dynParamSet.setName MATCHES "*" + paramSetSearch + "*")
 /* Query rebuild information for BROWSE subjectBrowse
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH dynSubject NO-LOCK
-WHERE dynSubject.subjectID GT 0
+WHERE dynSubject.subjectID {&GT} 0
   AND dynSubject.securityLevel LE iUserSecurityLevel
   AND ((subjectMatches EQ NO  AND dynSubject.subjectTitle BEGINS subjectSearch)
    OR  (subjectMatches EQ YES AND dynSubject.subjectTitle MATCHES "*" + subjectSearch + "*"))
@@ -3484,7 +3493,7 @@ PROCEDURE enable_UI :
     DISPLAY dynSubject.isActive dynSubject.securityLevel dynSubject.user-id 
           dynSubject.subjectTitle dynSubject.subjectType dynSubject.module 
           dynSubject.outputFormat dynSubject.externalForm 
-          dynSubject.businessLogic 
+          dynSubject.businessLogic dynSubject.recordLimit
       WITH FRAME viewFrame IN WINDOW C-Win.
   ENABLE btnCloseView btnUpdate btnAdd btnCopy btnDelete 
       WITH FRAME viewFrame IN WINDOW C-Win.
@@ -3796,6 +3805,7 @@ PROCEDURE pCalculatedField :
     DEFINE VARIABLE cFieldName   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCalcParam   AS CHARACTER NO-UNDO.    
     DEFINE VARIABLE cCalcProc    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDataType    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamList   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iSortOrder   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lSave        AS LOGICAL   NO-UNDO.
@@ -3816,6 +3826,7 @@ PROCEDURE pCalculatedField :
             ASSIGN
                 cFieldName   = ttSubjectColumn.fieldName
                 cFieldLabel  = ttSubjectColumn.fieldLabel
+                cDataType    = ttSubjectColumn.dataType
                 cFieldFormat = ttSubjectColumn.fieldFormat
                 cCalcProc    = ttSubjectColumn.calcProc
                 cCalcParam   = ttSubjectColumn.calcParam
@@ -3824,6 +3835,7 @@ PROCEDURE pCalculatedField :
                 hDynCalcField,
                 INPUT-OUTPUT cFieldName,
                 INPUT-OUTPUT cFieldLabel,
+                INPUT-OUTPUT cDataType,
                 INPUT-OUTPUT cFieldFormat,
                 INPUT-OUTPUT cCalcProc,
                 INPUT-OUTPUT cCalcParam,
@@ -3852,6 +3864,7 @@ PROCEDURE pCalculatedField :
             ASSIGN
                 ttSubjectColumn.fieldName   = cFieldName
                 ttSubjectColumn.fieldLabel  = cFieldLabel
+                ttSubjectColumn.dataType    = cDataType
                 ttSubjectColumn.fieldFormat = cFieldFormat
                 ttSubjectColumn.calcProc    = cCalcProc
                 ttSubjectColumn.calcParam   = cCalcParam
@@ -3875,6 +3888,7 @@ PROCEDURE pCalculatedField :
                 hDynCalcField,
                 INPUT-OUTPUT cFieldName,
                 INPUT-OUTPUT cFieldLabel,
+                INPUT-OUTPUT cDataType,
                 INPUT-OUTPUT cFieldFormat,
                 INPUT-OUTPUT cCalcProc,
                 INPUT-OUTPUT cCalcParam,
@@ -4537,7 +4551,7 @@ PROCEDURE pLoadSubject :
     EMPTY TEMP-TABLE ttGroupCalc.
     
     FOR EACH dynSubjectTable
-        WHERE dynSubjectTable.subjectID GT 0
+        WHERE dynSubjectTable.subjectID {&GT} 0
         :
         CREATE ttSubjectTable.
         BUFFER-COPY dynSubjectTable TO ttSubjectTable
@@ -4545,7 +4559,7 @@ PROCEDURE pLoadSubject :
     END. /* for each */
 
     FOR EACH dynSubjectWhere NO-LOCK
-        WHERE dynSubjectWhere.subjectID GT 0
+        WHERE dynSubjectWhere.subjectID {&GT} 0
         :
         CREATE ttSubjectWhere.
         BUFFER-COPY dynSubjectWhere TO ttSubjectWhere
@@ -4553,7 +4567,7 @@ PROCEDURE pLoadSubject :
     END. /* for each */
 
     FOR EACH dynSubjectColumn NO-LOCK
-        WHERE dynSubjectColumn.subjectID GT 0
+        WHERE dynSubjectColumn.subjectID {&GT} 0
         :
         CREATE ttSubjectColumn.
         BUFFER-COPY dynSubjectColumn TO ttSubjectColumn
@@ -4571,7 +4585,7 @@ PROCEDURE pLoadSubject :
     END. /* for each */
 
     FOR EACH dynSubjectParamSet NO-LOCK
-        WHERE dynSubjectParamSet.subjectID GT 0
+        WHERE dynSubjectParamSet.subjectID {&GT} 0
         :
         CREATE ttSubjectParamSet.
         BUFFER-COPY dynSubjectParamSet TO ttSubjectParamSet
@@ -5227,15 +5241,6 @@ FUNCTION fQueryStr RETURNS CHARACTER
         cQueryStr = TRIM(cQueryStr) + ", ".
     END. /* each ttSubjectTable */
     cQueryStr = TRIM(cQueryStr,", ").
-    /*
-    FOR EACH ttSubjectColumn
-        WHERE ttSubjectColumn.subjectID EQ dynSubject.subjectID
-          AND ttSubjectColumn.sortCol   GT 0
-           BY ttSubjectColumn.sortCol
-        :
-        cQueryStr = cQueryStr + " BY " + ttSubjectColumn.fieldName.
-    END. /* each ttSubjectColumn */
-    */
     
     RETURN cQueryStr.
 

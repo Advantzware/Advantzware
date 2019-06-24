@@ -9,8 +9,9 @@ DEFINE VARIABLE j AS INTEGER NO-UNDO.
 
 FIND dictdb._file WHERE dictdb._file._file-name = m_file_name NO-LOCK.
 FOR EACH dictdb._field OF dictdb._file NO-LOCK:
-  j = IF dictdb._field._extent = 0 THEN 1
+  j = IF dictdb._field._extent EQ 0 THEN 1
       ELSE dictdb._field._extent.
+  IF j GT 100 THEN j = 100.
   DO i = 1 TO j:
     m_field_list = IF m_field_list = "" THEN dictdb._field._field-name
                    ELSE m_field_list + "," + dictdb._field._field-name.
