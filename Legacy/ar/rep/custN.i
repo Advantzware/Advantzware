@@ -40,6 +40,7 @@
             v-fax-area-code = substr(cust.fax,1,3)
             v-fax-phone     = substr(cust.fax,4,7).
 
+        v-fst-invdt = "".
         ar-inv-loop:
         FOR EACH ar-inv FIELDS(inv-date) WHERE
            ar-inv.company EQ cust.company AND
