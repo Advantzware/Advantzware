@@ -350,9 +350,9 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=BoardStart><R+3><RIGHT=C+6>Size: <#SheetsSize>"
         "<=BoardStart><R+3><RIGHT=C+24>Tot Sq Ft: <#SheetsMSF>"
         "<=BoardStart><R+4><RIGHT=C+9>Wid Scores: <#Scores>"
-        "<=BoardStart><R+5><RIGHT=C+19> <#Scores2>"
+        "<=BoardStart><R+5><RIGHT=C+9> <#Scores2>"
         "<=BoardStart><R+6><RIGHT=C+9>Len Scores: <#ScoresLen>"
-        "<=BoardStart><R+7><RIGHT=C+19>       <#ScoresLen2>"
+        "<=BoardStart><R+7><RIGHT=C+9> <#ScoresLen2>"
         "<=BoardStart><R+8><RIGHT=C+6>Adders:"
         "<=BoardStart><R+8><C6><#Adders1><C20><#Adders2>"
         "<=BoardStart><R+9><C6><#Adders3><C20><#Adders4>"
@@ -500,9 +500,9 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
 
         "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
         "<=Scores><P9>" SUBSTRING(v-wid-score,1,34) FORMAT "x(35)" 
-        "<=Scores2><P9>" SUBSTRING(v-wid-score,35,34) FORMAT "x(35)"
+        "<=Scores2><P9>" SPACE (19) SUBSTRING(v-wid-score,35,34) FORMAT "x(35)"
         "<=ScoresLen>" SUBSTRING(v-len-score,1,34) FORMAT "x(35)" 
-        "<=ScoresLen2>" SUBSTRING(v-len-score,1,34) FORMAT "x(35)"
+        "<=ScoresLen2>" SPACE (19) SUBSTRING(v-len-score,35,34) FORMAT "x(35)"
         "<P8><=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  STRING(STRING(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
         "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  STRING(STRING(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"
         "<=Adders3>" IF LENGTH(xef.adder[9]) GT 10 THEN  STRING(STRING(xef.adder[9],"x(17)") + "...") ELSE xef.adder[9]  FORMAT "x(20)"
@@ -715,43 +715,6 @@ ASSIGN
       IF  i <= 30 THEN v-dept-note[i] = tt-formtext.tt-text.      
   END.
    
-/*FOR EACH notes WHERE notes.rec_key = job.rec_key AND
-    (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
-    ((v-dept-log AND lookup(notes.note_code,v-dept-codes) NE 0) OR NOT v-dept-log)
-    NO-LOCK,
-    FIRST dept WHERE dept.code = notes.note_code NO-LOCK 
-                       BY notes.note_code:
-    IF v-prev-note-rec <> ? AND
-        v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
-    
-    
-    DO i = 1 TO LENGTH(notes.note_text):
-        IF i - j >= v-note-length THEN ASSIGN j             = i
-                lv-got-return = lv-got-return + 1.
-
-        v-tmp-lines = ( i - j ) / v-note-length.
-        {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-        k = v-tmp-lines + lv-got-return + 
-            IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-        IF k < 20 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
-            ELSE "" .              
-
-        IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-            THEN 
-        DO:
-            lv-got-return = lv-got-return + 1.
-            j = i.
-        END.         
-    END.
-            
-    ASSIGN 
-        v-prev-note-rec = RECID(notes)
-        j               = 0
-        lv-got-return   = 0.
-
-
-END.*/
         
 ASSIGN
     v-inst        = ""
