@@ -2718,10 +2718,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             begin_rel:SENSITIVE = NO
             end_rel:SENSITIVE   = NO .
     END.
-
-     IF bardir-int = 1 AND begin_filename:SCREEN-VALUE NE "" THEN
-         begin_filename:SENSITIVE = NO .
-
+     
   END.
   lForm = NO.
   iForm = 0.
