@@ -5036,7 +5036,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN END_bol#:HIDDEN IN FRAME {&FRAME-NAME} = NO
             END_bol#:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
-        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
+        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
             tb_print-component:SCREEN-VALUE = "no".
             DISABLE tb_print-component.
             tb_print-unassemble-component:SCREEN-VALUE = "no".
@@ -5044,6 +5044,7 @@ PROCEDURE pRunFormatValueChanged :
         END.
 
         IF v-print-fmt = "Xprint"    or
+           v-print-fmt = "Delta2"    or
             v-print-fmt = "bolfmt 1"    or
             v-print-fmt = "bolfmt 10"    or
             v-print-fmt = "Wingate-BOL"    or
@@ -5105,7 +5106,7 @@ PROCEDURE pRunFormatValueChanged :
                tb_print-unassemble-component:HIDDEN = YES.
 
                 
-   IF v-print-fmt = "XPrint2" OR v-print-fmt = "Delta" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "bolfmt 30" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
+   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "bolfmt 30" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
        ASSIGN
         lbl_bolsort:HIDDEN = NO
         rd_bol-sort:HIDDEN = NO .
