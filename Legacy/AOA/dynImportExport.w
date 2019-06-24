@@ -37,7 +37,7 @@ DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 &Scoped-define dataFolder c:\tmp
-&Scoped-define tables dynParam,dynParamSet,dynParamSetDtl,dynParamValue,~
+&Scoped-define tables dynLookup,dynParam,dynParamSet,dynParamSetDtl,dynParamValue,~
 dynSubject,dynSubjectColumn,dynSubjectParamSet,dynSubjectTable,dynSubjectWhere
 
 /* _UIB-CODE-BLOCK-END */

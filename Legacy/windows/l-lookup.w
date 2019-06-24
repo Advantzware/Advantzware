@@ -27,10 +27,11 @@
     ip-queryString :Where clause to select specific records
     ip-outList     :List of fields for which the value is required to be 
                     returned when a row is selected in the browse
+    ip-recLimit    :Max Record Limit to prevent run away query
 
   Output Parameters:
-    op-returnFields:Pipe separated list of return field values as output 
-                    based on previous input list
+    op-returnFields:Pipe separated list of return field name and value as
+                    output based on previous input list
     op-lookupField :Single return value which is to be returned from 
                     the lookup - this will populate in the field from 
                     where the lookup was opened
@@ -49,6 +50,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
 DEFINE INPUT  PARAMETER ip-title          AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-lookupField    AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-table          AS CHARACTER NO-UNDO.
@@ -61,6 +63,7 @@ DEFINE INPUT  PARAMETER ip-filterList     AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-sortList       AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-queryString    AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-outList        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-recLimit       AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER op-returnFields   AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-lookupField    AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-recVal         AS RECID     NO-UNDO.
@@ -198,7 +201,7 @@ DEFINE RECTANGLE RECT-1
 DEFINE BUTTON bt-filter 
      IMAGE-UP FILE "Graphics/32x32/filter_and_sort.ico":U
      LABEL "" 
-     SIZE 8 BY 1.91.
+     SIZE 8 BY 1.91 TOOLTIP "Toggle Column Filters".
 
 
 /* Browse definitions                                                   */
@@ -231,8 +234,8 @@ DEFINE FRAME filter-frame
      bt-filter AT ROW 1.24 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS THREE-D 
-         AT COL 1 ROW 1.1
-         SIZE 10 BY 2.29 WIDGET-ID 300.
+         AT COL 1 ROW 1
+         SIZE 10 BY 2.38 WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -319,21 +322,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON DEFAULT-ACTION OF br-table IN FRAME Dialog-Frame
 DO:
-    DEFINE VARIABLE h_lfield   AS HANDLE NO-UNDO.
+    DEFINE VARIABLE h_lfield AS HANDLE NO-UNDO.
      
-    IF h_browser:NUM-SELECTED-ROWS > 0 AND h_brBuffer:AVAILABLE THEN DO:
+    IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
       DO li-count = 1 TO NUM-ENTRIES(ip-outList):
           h_lfield = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE.
-          IF h_lfield:DATA-TYPE = "DATE" THEN
+          op-returnFields = op-returnFields + h_lfield:NAME + "|".
+          IF h_lfield:DATA-TYPE EQ "DATE" THEN
              op-returnFields = op-returnFields + 
-                              (IF h_lfield:BUFFER-VALUE = ? THEN "" 
+                              (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
                               ELSE h_lfield:BUFFER-VALUE) + "|".
           ELSE 
              op-returnFields = op-returnFields + h_lfield:BUFFER-VALUE + "|".
       END.
       ASSIGN
           op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
-          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE.      
+          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
+          .      
     END.
   
     APPLY "WINDOW-CLOSE" TO FRAME {&FRAME-NAME}.
@@ -1372,9 +1377,9 @@ PROCEDURE validateRecordLimit :
     h_lquery:QUERY-PREPARE(ls-lqueryString).
     h_lquery:QUERY-OPEN().
     
-    IF h_lquery:NUM-RESULTS > li-recLimit THEN
+    IF ip-recLimit GT 0 AND h_lquery:NUM-RESULTS GT ip-recLimit THEN
        ip-filterFirst = TRUE.
-       
+    
     DELETE OBJECT h_lquery.
        
 END PROCEDURE.

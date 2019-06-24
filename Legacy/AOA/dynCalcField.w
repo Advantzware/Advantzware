@@ -27,6 +27,7 @@
 DEFINE INPUT        PARAMETER iphDynCalcField AS HANDLE    NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcFieldName   AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcFieldLabel  AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcDataType    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcFieldFormat AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcCalcProc    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcCalcParam   AS CHARACTER NO-UNDO.
@@ -54,10 +55,10 @@ RUN AOA/spDynCalcField.p PERSISTENT SET iphDynCalcField.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnAddParameter btnCancel cFieldLabel ~
-cFieldFormat cCalcParam cParamList cAvailFields cAvailCalcProc btnOK 
-&Scoped-Define DISPLAYED-OBJECTS cFieldName cFieldLabel cFieldFormat ~
-cCalcParam cParamList cAvailFields cCalcProc cAvailCalcProc 
+&Scoped-Define ENABLED-OBJECTS btnOK btnAddParameter btnCancel cFieldLabel ~
+cDataType cFieldFormat cCalcParam cParamList cAvailFields cAvailCalcProc 
+&Scoped-Define DISPLAYED-OBJECTS cFieldName cFieldLabel cDataType ~
+cFieldFormat cCalcParam cParamList cAvailFields cCalcProc cAvailCalcProc 
 
 /* Custom List Definitions                                              */
 /* calcFields,List-2,List-3,List-4,List-5,List-6                        */
@@ -91,6 +92,13 @@ DEFINE BUTTON btnOK AUTO-GO
      LABEL "OK" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
+
+DEFINE VARIABLE cDataType AS CHARACTER FORMAT "X(256)":U INITIAL "Character" 
+     LABEL "Data Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Character","Date","Decimal","Integer","Logical" 
+     DROP-DOWN-LIST
+     SIZE 36 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cParamList AS CHARACTER FORMAT "X(256)":U 
      LABEL "Parameters" 
@@ -131,7 +139,7 @@ DEFINE VARIABLE cAvailCalcProc AS CHARACTER
 
 DEFINE VARIABLE cAvailFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 36 BY 17.62 NO-UNDO.
+     SIZE 36 BY 16.43 NO-UNDO.
 
 DEFINE VARIABLE cCalcParam AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
@@ -141,25 +149,26 @@ DEFINE VARIABLE cCalcParam AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnAddParameter AT ROW 10.76 COL 54 WIDGET-ID 208
-     btnCancel AT ROW 8.38 COL 64
+     btnOK AT ROW 9.57 COL 56
+     btnAddParameter AT ROW 11.95 COL 54 WIDGET-ID 208
+     btnCancel AT ROW 9.57 COL 64
      cFieldName AT ROW 1.24 COL 16 COLON-ALIGNED WIDGET-ID 4
      cFieldLabel AT ROW 2.43 COL 16 COLON-ALIGNED WIDGET-ID 6
-     cFieldFormat AT ROW 3.62 COL 16 COLON-ALIGNED WIDGET-ID 8
-     cCalcParam AT ROW 4.81 COL 18 NO-LABEL WIDGET-ID 16
-     cParamList AT ROW 10.76 COL 16 COLON-ALIGNED WIDGET-ID 24
-     cAvailFields AT ROW 11.95 COL 18 NO-LABEL WIDGET-ID 22
+     cDataType AT ROW 3.62 COL 16 COLON-ALIGNED WIDGET-ID 210
+     cFieldFormat AT ROW 4.81 COL 16 COLON-ALIGNED WIDGET-ID 8
+     cCalcParam AT ROW 6 COL 18 NO-LABEL WIDGET-ID 16
+     cParamList AT ROW 11.95 COL 16 COLON-ALIGNED WIDGET-ID 24
+     cAvailFields AT ROW 13.14 COL 18 NO-LABEL WIDGET-ID 22
      cCalcProc AT ROW 1.24 COL 72 COLON-ALIGNED WIDGET-ID 10
      cAvailCalcProc AT ROW 2.43 COL 74 NO-LABEL WIDGET-ID 12
-     btnOK AT ROW 8.38 COL 56
      "Available Fields:" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 11.95 COL 2 WIDGET-ID 20
-     "Calc Params:" VIEW-AS TEXT
-          SIZE 13 BY 1 AT ROW 4.81 COL 5 WIDGET-ID 18
+          SIZE 16 BY 1 AT ROW 13.14 COL 2 WIDGET-ID 20
      "Avail Calc Proc:" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 2.43 COL 59 WIDGET-ID 14
-     RECT-1 AT ROW 8.14 COL 55 WIDGET-ID 2
-     SPACE(88.20) SKIP(19.05)
+     "Calc Params:" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 6 COL 5 WIDGET-ID 18
+     RECT-1 AT ROW 9.33 COL 55 WIDGET-ID 2
+     SPACE(88.20) SKIP(17.86)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 
@@ -276,6 +285,7 @@ DO:
     ASSIGN
         iopcFieldName   = cFieldName
         iopcFieldLabel  = cFieldLabel
+        iopcDataType    = cDataType
         iopcFieldFormat = cFieldFormat
         iopcCalcProc    = cCalcProc
         iopcCalcParam   = cCalcParam:LIST-ITEMS
@@ -316,6 +326,17 @@ END.
 ON DEFAULT-ACTION OF cCalcParam IN FRAME Dialog-Frame
 DO:
     SELF:DELETE(SELF:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cDataType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cDataType Dialog-Frame
+ON VALUE-CHANGED OF cDataType IN FRAME Dialog-Frame /* Data Type */
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -401,11 +422,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cFieldName cFieldLabel cFieldFormat cCalcParam cParamList cAvailFields 
-          cCalcProc cAvailCalcProc 
+  DISPLAY cFieldName cFieldLabel cDataType cFieldFormat cCalcParam cParamList 
+          cAvailFields cCalcProc cAvailCalcProc 
       WITH FRAME Dialog-Frame.
-  ENABLE btnAddParameter btnCancel cFieldLabel cFieldFormat cCalcParam 
-         cParamList cAvailFields cAvailCalcProc btnOK 
+  ENABLE btnOK btnAddParameter btnCancel cFieldLabel cDataType cFieldFormat 
+         cCalcParam cParamList cAvailFields cAvailCalcProc 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -431,6 +452,7 @@ PROCEDURE pGetCalcProc :
         ASSIGN
             cFieldName                 = iopcFieldName
             cFieldLabel                = iopcFieldLabel
+            cDataType                  = iopcDataType
             cFieldFormat               = iopcFieldFormat
             cCalcProc                  = iopcCalcProc
             cCalcParam:DELIMITER       = "|"

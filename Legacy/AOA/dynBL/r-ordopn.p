@@ -80,16 +80,11 @@ PROCEDURE pBusinessLogic:
     DEFINE BUFFER bOERell FOR oe-rell.
     
     /* subject business logic */
-    IF lAllJobNo THEN
     ASSIGN
-        cEndJobNo    = "999999"
-        iStartJobNo2 = 0
-        iEndJobNo2   = 99
-        .
-    
-    ASSIGN
-        cStartJobNo  = FILL(" ",6 - LENGTH(TRIM(cStartJobNo))) + TRIM(cStartJobNo) + STRING(INT(iStartJobNo2),"99")
-        cEndJobNo    = FILL(" ",6 - LENGTH(TRIM(cEndJobNo))) + TRIM(cEndJobNo) + STRING(INT(iEndJobNo2),"99") 
+        cStartJobNo  = LEFT-TRIM(cStartJobNo)
+        cEndJobNo    = LEFT-TRIM(cEndJobNo)
+        cStartJobNo  = FILL(" ",6 - LENGTH(TRIM(cStartJobNo))) + TRIM(cStartJobNo) + STRING(INTEGER(iStartJobNo2),"99")
+        cEndJobNo    = FILL(" ",6 - LENGTH(TRIM(cEndJobNo))) + TRIM(cEndJobNo) + STRING(INTEGER(iEndJobNo2),"99") 
         cStat        = SUBSTRING(cJobStatus,1,2)
         cOrderStatus = SUBSTRING(cOrderStatus,1,1)
         lInc         = lIncludeZeroOrderBalanceItems  

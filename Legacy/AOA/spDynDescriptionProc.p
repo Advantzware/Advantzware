@@ -1,4 +1,4 @@
- /* spDynDescriptionProc.p - rstark - 3.1.2019 */
+/* spDynDescriptionProc.p - rstark - 3.1.2019 */
 
 /* add dynamic description procedures in alphabetical order */
 /* procedure has input of two iphWidget AS HANDLE           */
@@ -10,6 +10,7 @@
     DEFINE INPUT PARAMETER iphWidgetFrom AS HANDLE NO-UNDO.~
     DEFINE INPUT PARAMETER iphWidgetTo   AS HANDLE NO-UNDO.~
 ~
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).~
     iphWidgetTo:SCREEN-VALUE = fDefaultDescription(iphWidgetTo).
 
 DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
@@ -28,10 +29,6 @@ FUNCTION fDefaultDescription RETURNS CHARACTER
     ELSE
     RETURN "".
 END FUNCTION.
-
-/* **********************  Main Block  ******************************** */
-
-RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* **********************  Internal Procedures  *********************** */
 
