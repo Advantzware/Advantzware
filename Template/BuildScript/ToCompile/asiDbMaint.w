@@ -485,7 +485,7 @@ DEFINE FRAME DEFAULT-FRAME
      tbShowMsg AT ROW 1.48 COL 99
      fiWarning AT ROW 1.48 COL 2 COLON-ALIGNED NO-LABEL
      fiUserID AT ROW 1.48 COL 39 COLON-ALIGNED
-     fiPassword AT ROW 1.48 COL 74 COLON-ALIGNED PASSWORD-FIELD 
+     fiPassword AT ROW 1.48 COL 72 COLON-ALIGNED PASSWORD-FIELD 
      rsDoWhat AT ROW 6.48 COL 36 NO-LABEL
      slAvailDbs AT ROW 9.33 COL 4 NO-LABEL
      tbCreateNewDbBak AT ROW 13.86 COL 4
@@ -759,7 +759,7 @@ END.
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
 ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* Execute */
-    DO:
+DO:
     RUN pLog("User chose the EXECUTE button").
     RUN pClickOK.
 END.
@@ -1487,7 +1487,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFileMaint C-Win 
 PROCEDURE pFileMaint :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -2001,6 +2001,13 @@ PROCEDURE pRestoreDb :
     DEF VAR cStopString AS CHAR NO-UNDO.
     DEF VAR cStartString AS CHAR NO-UNDO.
     DEF VAR iWaitCount AS INT NO-UNDO.
+    DEF VAR cTmpDir AS CHAR NO-UNDO.
+    DEF VAR iIdx AS INT NO-UNDO.
+    
+    ASSIGN 
+        iIdx = LOOKUP(slAvailDbs:{&SV},cAllDbList)
+        cTmpDir = ENTRY(iIdx,cAllDbDirList)
+        cDbLongName = cDbDrive + "\" + cTopDir + "\" + cDbDir + "\" + cTmpDir + "\" + slAvailDbs:{&SV} + ".db".
     
     IF tbShowMsg:CHECKED {&IN} THEN DO:
         MESSAGE 
@@ -2015,7 +2022,8 @@ PROCEDURE pRestoreDb :
     /* Is the database online? */
     ASSIGN
         cLockFile = REPLACE(cDbLongName,".db",".lk") 
-        lOnline = SEARCH(cLockFile) NE ?
+        lOnline = SEARCH(cLockFile) NE ?.
+    ASSIGN 
         cStopString = cDlcDir + "\bin\dbman" + 
             " -host " + cHostName + 
             " -port " + "7042" + 
@@ -2027,7 +2035,7 @@ PROCEDURE pRestoreDb :
             " -database " + slAvailDbs:{&SV} + 
             " -start"
             .
-{&Won}
+
     IF lOnline THEN DO:
         STATUS DEFAULT "Stopping database server " + slAvailDbs:{&SV}.
         OS-COMMAND SILENT VALUE(cStopString).
@@ -2053,9 +2061,9 @@ PROCEDURE pRestoreDb :
         END.
     END.
 
-    STATUS DEFAULT "Restoring database " + slAvailDbs:{&SV} + " from backup. Reply 'Y' when prompted.".
+    STATUS DEFAULT "Restoring database " + slAvailDbs:{&SV} + " from backup".
     ASSIGN 
-        cCmdString = "ECHO Y | " + cDLCDir + "\bin\_dbutil prorest " + slAvailDbs:{&SV} + " " + 
+        cCmdString = "ECHO Y | " + cDLCDir + "\bin\_dbutil prorest " + cDbLongName + " " + 
                  cDrive + "\" + cTopDir + "\" + cBackupDir + "\Databases\" + fiDbBkupFileName:{&SV}
         iWaitcount = 0.
     OS-COMMAND SILENT VALUE(cCmdString).
@@ -2085,7 +2093,7 @@ PROCEDURE pRestoreDb :
             RETURN.
         END.
     END.
-{&Woff}
+
     IF tbShowMsg:CHECKED {&IN} THEN 
     MESSAGE 
         "Database restore successful!"
