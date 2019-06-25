@@ -122,7 +122,8 @@ PROCEDURE CreateActRelLine:
     DEFINE OUTPUT PARAMETER oprOeRellRow AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
-
+    DEFINE BUFFER bf-oe-rell FOR oe-rell.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE VARIABLE lcBolWhse         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE RelSkipRecalc-log AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cReturnChar       AS CHARACTER NO-UNDO.
@@ -167,10 +168,10 @@ PROCEDURE CreateActRelLine:
     END. 
     IF oplError THEN
         RETURN.
-    FIND FIRST oe-ordl no-lock
-        WHERE oe-ordl.company  EQ ipbf-oe-rel.company
-          AND oe-ordl.ord-no   EQ ipbf-oe-rel.ord-no
-          AND oe-ordl.line EQ ipbf-oe-rel.line
+    FIND FIRST bf-oe-ordl no-lock
+        WHERE bf-oe-ordl.company  EQ ipbf-oe-rel.company
+          AND bf-oe-ordl.ord-no   EQ ipbf-oe-rel.ord-no
+          AND bf-oe-ordl.line EQ ipbf-oe-rel.line
         NO-ERROR.
         
     FIND FIRST itemfg NO-LOCK
@@ -179,53 +180,54 @@ PROCEDURE CreateActRelLine:
         NO-ERROR.        
     // RUN get-next-r-no.
     
-    CREATE oe-rell.
+    CREATE bf-oe-rell.
     ASSIGN
-        oprOeRellRow       = ROWID(oe-rell)
-        oe-rell.company    = ipbf-oe-rel.company
-        oe-rell.r-no       = ipbf-oe-relh.r-no
-        oe-rell.rel-no     = iRelNo
-        oe-rell.loc        = IF lcBolWhse NE "ShipFromWhse" THEN locode ELSE ipbf-oe-rel.spare-char-1
-        oe-rell.ord-no     = ipbf-oe-rel.ord-no
-        oe-rell.qty        = ipbf-oe-rel.tot-qty
-        oe-rell.i-no       = ipbf-oe-rel.i-no
-        oe-rell.job-no     = oe-ordl.job-no
-        oe-rell.job-no2    = oe-ordl.job-no2
-        oe-rell.po-no      = ipbf-oe-rel.po-no
-        oe-rell.line       = ipbf-oe-rel.line
-        oe-rell.lot-no     = ipbf-oe-rel.lot-no
-        oe-rell.frt-pay    = ipbf-oe-rel.frt-pay
-        oe-rell.fob-code   = ipbf-oe-rel.fob-code
-        oe-rell.sell-price = ipbf-oe-rel.sell-price
-        oe-rell.zeroPrice  = ipbf-oe-rel.zeroPrice
-        oe-rell.printed    = NO
-        oe-rell.posted     = NO
-        oe-rell.deleted    = NO
+        oprOeRellRow       = ROWID(bf-oe-rell)
+        bf-oe-rell.company    = ipbf-oe-rel.company
+        bf-oe-rell.r-no       = ipbf-oe-relh.r-no
+        bf-oe-rell.rel-no     = iRelNo
+        bf-oe-rell.loc        = IF lcBolWhse NE "ShipFromWhse" THEN locode ELSE ipbf-oe-rel.spare-char-1
+        bf-oe-rell.ord-no     = ipbf-oe-rel.ord-no
+        bf-oe-rell.qty        = ipbf-oe-rel.tot-qty
+        bf-oe-rell.i-no       = ipbf-oe-rel.i-no
+        bf-oe-rell.job-no     = bf-oe-ordl.job-no
+        bf-oe-rell.job-no2    = bf-oe-ordl.job-no2
+        bf-oe-rell.po-no      = ipbf-oe-rel.po-no
+        bf-oe-rell.line       = ipbf-oe-rel.line
+        bf-oe-rell.lot-no     = ipbf-oe-rel.lot-no
+        bf-oe-rell.frt-pay    = ipbf-oe-rel.frt-pay
+        bf-oe-rell.fob-code   = ipbf-oe-rel.fob-code
+        bf-oe-rell.sell-price = ipbf-oe-rel.sell-price
+        bf-oe-rell.zeroPrice  = ipbf-oe-rel.zeroPrice
+        bf-oe-rell.printed    = NO
+        bf-oe-rell.posted     = NO
+        bf-oe-rell.deleted    = NO
         /** Set link to the planned releases **/
-        oe-rell.link-no    = ipbf-oe-rel.r-no
-        oe-rell.s-code     = IF ipbf-oe-rel.s-code <> "" THEN ipbf-oe-rel.s-code ELSE
-                                 IF oe-ordl.is-a-component THEN "S" ELSE
+        bf-oe-rell.link-no    = ipbf-oe-rel.r-no
+        bf-oe-rell.s-code     = IF ipbf-oe-rel.s-code <> "" THEN ipbf-oe-rel.s-code ELSE
+                                 IF bf-oe-ordl.is-a-component THEN "S" ELSE
                                     IF AVAILABLE oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I"     
-        oe-rell.partial = IF oe-rell.s-code EQ "I" THEN oe-ordl.partial ELSE 0
-        oe-rell.qty-case = IF AVAILABLE itemfg AND itemfg.case-count GT 0
+        bf-oe-rell.partial = IF bf-oe-rell.s-code EQ "I" THEN bf-oe-ordl.partial ELSE 0
+        bf-oe-rell.qty-case = IF AVAILABLE itemfg AND itemfg.case-count GT 0
             THEN itemfg.case-count
             ELSE
-            IF oe-ordl.cas-cnt GT 0 THEN oe-ordl.cas-cnt
+            IF bf-oe-ordl.cas-cnt GT 0 THEN bf-oe-ordl.cas-cnt
             ELSE 1
-        oe-rell.cases   = TRUNC((oe-rell.qty - oe-rell.partial) /
-                            oe-rell.qty-case,0)
-        oe-rell.partial = oe-rell.qty - (oe-rell.cases * oe-rell.qty-case)
+        bf-oe-rell.cases   = TRUNC((bf-oe-rell.qty - bf-oe-rell.partial) /
+                            bf-oe-rell.qty-case,0)
+        bf-oe-rell.partial = bf-oe-rell.qty - (bf-oe-rell.cases * bf-oe-rell.qty-case)
         .                     
 
-    RUN oe/rel-stat-upd.p (ROWID(oe-rell)).
+    RUN oe/rel-stat-upd.p (ROWID(bf-oe-rell)).
 
     /* Fill in correct bin/loc */
-    IF AVAILABLE oe-rell  THEN
-        RUN SetActualReleaseLocation (BUFFER oe-rell, BUFFER ipbf-oe-rel, OUTPUT lError, OUTPUT cErrMsg).
+    IF AVAILABLE bf-oe-rell  THEN
+        RUN SetActualReleaseLocation (BUFFER bf-oe-rell, BUFFER ipbf-oe-rel, OUTPUT lError, OUTPUT cErrMsg).
 
     /* Set values for invoice only */
-    IF oe-rell.s-code = "I" THEN
-       oe-rell.loc-bin = "".
+    FIND CURRENT bf-oe-rell EXCLUSIVE-LOCK.
+    IF bf-oe-rell.s-code = "I" THEN
+       bf-oe-rell.loc-bin = "".
        
      FIND CURRENT ipbf-oe-rel EXCLUSIVE-LOCK.
      ASSIGN 
@@ -236,7 +238,7 @@ PROCEDURE CreateActRelLine:
     RUN oe/rel-stat.p (ROWID(ipbf-oe-rel), OUTPUT ipbf-oe-rel.stat).
     
     FIND CURRENT ipbf-oe-rel NO-LOCK.
-
+    FIND CURRENT bf-oe-rell NO-LOCK.
      //   Shared Vars:
      //   RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT itemfg.q-alloc,
      //       OUTPUT itemfg.q-back).
@@ -524,7 +526,7 @@ PROCEDURE pApproveImportedOrder PRIVATE:
                 ipbf-oe-ord.stat = "A"
                 ipbf-oe-ord.approved-date = TODAY.
             RUN oe/syncJobHold.p (INPUT ipbf-oe-ord.company, INPUT ipbf-oe-ord.ord-no, INPUT "Approve").
-            RUN pReleaseOrder(BUFFER ipbf-oe-ord, OUTPUT oplError, OUTPUT opcMessage).          
+            RUN ReleaseOrder(ROWID(ipbf-oe-ord), OUTPUT oplError, OUTPUT opcMessage).          
         END.
     END.
         ELSE ipbf-oe-ord.stat = "W".  /*Refactor - if we add ability to build job, this can be removed*/
@@ -649,6 +651,7 @@ PROCEDURE pCreateFgBinForRelease:
     DEFINE INPUT  PARAMETER iprOeRell AS ROWID       NO-UNDO.
     
     DEFINE BUFFER bfOeRell FOR oe-rell.
+    DEFINE BUFFER bfFgBin  FOR fg-bin.
     DEFINE VARIABLE xLoc LIKE fg-bin.loc NO-UNDO.
     DEFINE VARIABLE xBin LIKE fg-bin.loc-bin NO-UNDO.
     FIND bfOeRell NO-LOCK WHERE ROWID(bfOeRell) EQ iprOeRell NO-ERROR.
@@ -658,37 +661,37 @@ PROCEDURE pCreateFgBinForRelease:
         xLoc = bfOeRell.loc
         .
 
-    CREATE fg-bin.
+    CREATE bfFgBin.
     ASSIGN
-        fg-bin.company = bfOeRell.company
-        fg-bin.i-no    = bfOeRell.i-no
-        fg-bin.job-no  = bfOeRell.job-no
-        fg-bin.job-no2 = bfOeRell.job-no2
-        fg-bin.loc     = xLoc
-        fg-bin.loc-bin = xBin
-        fg-bin.tag     = bfOeRell.tag
-        fg-bin.cust-no = bfOeRell.cust-no
+        bfFgBin.company = bfOeRell.company
+        bfFgBin.i-no    = bfOeRell.i-no
+        bfFgBin.job-no  = bfOeRell.job-no
+        bfFgBin.job-no2 = bfOeRell.job-no2
+        bfFgBin.loc     = xLoc
+        bfFgBin.loc-bin = xBin
+        bfFgBin.tag     = bfOeRell.tag
+        bfFgBin.cust-no = bfOeRell.cust-no
         . 
-    RELEASE fg-bin.
+    RELEASE bfFgBin.
 
     /*Create a bin so that is shows up in IF4 -FG Bin (blank i-no)*/
-    FIND FIRST fg-bin NO-LOCK
-        WHERE fg-bin.company EQ bfOeRell.company 
-          AND fg-bin.loc EQ xLoc
-          AND fg-bin.loc-bin EQ xBin
-          AND fg-bin.i-no = ""
+    FIND FIRST bfFgBin NO-LOCK
+        WHERE bfFgBin.company EQ bfOeRell.company 
+          AND bfFgBin.loc EQ xLoc
+          AND bfFgBin.loc-bin EQ xBin
+          AND bfFgBin.i-no = ""
         NO-ERROR.
-    IF NOT AVAILABLE fg-bin THEN 
+    IF NOT AVAILABLE bfFgBin THEN 
     DO:
-        CREATE fg-bin.
+        CREATE bfFgBin.
         ASSIGN 
-            fg-bin.company = bfOeRell.company
-            fg-bin.i-no    = ""
-            fg-bin.loc     = xLoc
-            fg-bin.loc-bin = xBin
+            bfFgBin.company = bfOeRell.company
+            bfFgBin.i-no    = ""
+            bfFgBin.loc     = xLoc
+            bfFgBin.loc-bin = xBin
             .
     END.
-    FIND CURRENT fg-bin NO-LOCK NO-ERROR.
+    FIND CURRENT bfFgBin NO-LOCK NO-ERROR.
     
 END PROCEDURE.
 
@@ -698,7 +701,7 @@ PROCEDURE ReleaseOrder :
      Actual Releases
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
+    DEFINE INPUT PARAMETER ipriOeOrd AS ROWID NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAllOrdLinesReleased AS LOGICAL NO-UNDO.
@@ -707,15 +710,25 @@ PROCEDURE ReleaseOrder :
     DEFINE VARIABLE rOeRelh AS ROWID NO-UNDO.
     DEFINE VARIABLE rOeRell AS ROWID NO-UNDO.
     DEFINE VARIABLE iRelNo AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-oe-rel FOR oe-rel.
     DEFINE BUFFER bf-oe-relh FOR oe-relh.
     ASSIGN lAllOrdLinesReleased = YES
            iRelNo = 0
            .
+    FIND FIRST bf-oe-ord NO-LOCK
+        WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
+        NO-ERROR.
+     IF NOT AVAIL bf-oe-ord THEN DO:
+         ASSIGN oplError = TRUE
+                opcMessage = "Invalid order rowid passed in."
+                .
+         RETURN.
+     END.        
     FOR EACH bf-oe-ordl NO-LOCK
-        WHERE bf-oe-ordl.company EQ ipbf-oe-ord.company 
-          AND bf-oe-ordl.ord-no  EQ ipbf-oe-ord.ord-no
+        WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
+          AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
         :
         FIND FIRST bf-oe-rel NO-LOCK 
             WHERE bf-oe-rel.company EQ bf-oe-ordl.company
@@ -733,8 +746,8 @@ PROCEDURE ReleaseOrder :
      END.
      REL-LINES:
      FOR EACH bf-oe-rel NO-LOCK
-        WHERE bf-oe-rel.company EQ ipbf-oe-ord.company 
-          AND bf-oe-rel.ord-no  EQ ipbf-oe-ord.ord-no
+        WHERE bf-oe-rel.company EQ bf-oe-ord.company 
+          AND bf-oe-rel.ord-no  EQ bf-oe-ord.ord-no
         BREAK BY bf-oe-rel.ord-no:
             
         IF FIRST-OF(bf-oe-rel.ord-no) THEN DO:
@@ -756,10 +769,9 @@ PROCEDURE ReleaseOrder :
            END.
 
         END.     
-        MESSAGE "run create act relline"
-        VIEW-AS ALERT-BOX.
-           iRelNo = iRelNo + 1.
-           RUN CreateActRelLine (BUFFER bf-oe-rel, BUFFER bf-oe-relh, iRelNo, OUTPUT rOeRell, OUTPUT lResult, OUTPUT cResultMsg).
+
+        iRelNo = iRelNo + 1.
+        RUN CreateActRelLine (BUFFER bf-oe-rel, BUFFER bf-oe-relh, iRelNo, OUTPUT rOeRell, OUTPUT lResult, OUTPUT cResultMsg).
 
      END. 
      
@@ -884,16 +896,20 @@ PROCEDURE SetActualReleaseLocation:
     DEFINE VARIABLE lcLocBin       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound      AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cReturnChar    AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    DEFINE BUFFER bf-shipto FOR shipto.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     /* For premier, no tags are selected */
     cSelectedValue = "NoTag".
     
     FIND CURRENT ipbf-oe-rell EXCLUSIVE-LOCK NO-ERROR.
-    FIND FIRST oe-ordl NO-LOCK
-        WHERE oe-ordl.company EQ ipbf-oe-rel.company
-          AND oe-ordl.ord-no  EQ ipbf-oe-rel.ord-no
-          AND oe-ordl.line    EQ ipbf-oe-rel.line
+    FIND FIRST bf-oe-ordl NO-LOCK
+        WHERE bf-oe-ordl.company EQ ipbf-oe-rel.company
+          AND bf-oe-ordl.ord-no  EQ ipbf-oe-rel.ord-no
+          AND bf-oe-ordl.line    EQ ipbf-oe-rel.line
         NO-ERROR.
-    IF NOT AVAIL oe-ordl OR NOT AVAIL ipbf-oe-rel OR NOT AVAIL ipbf-oe-rell THEN 
+    IF NOT AVAIL bf-oe-ordl OR NOT AVAIL ipbf-oe-rel OR NOT AVAIL ipbf-oe-rell THEN 
     DO:
         ASSIGN oplError = true
                opcMessage = "Buffer not available"
@@ -937,162 +953,162 @@ PROCEDURE SetActualReleaseLocation:
     /* chosen by the user, so should try to find a bin for it       */
     IF lcBolWhse EQ "SHIPTO" THEN 
     DO:
-        FIND FIRST shipto NO-LOCK
-            WHERE shipto.company EQ ipbf-oe-rel.company
-              AND shipto.cust-no EQ ipbf-oe-rel.cust-no
-              AND shipto.ship-no EQ ipbf-oe-rel.ship-no
+        FIND FIRST bf-shipto NO-LOCK
+            WHERE bf-shipto.company EQ ipbf-oe-rel.company
+              AND bf-shipto.cust-no EQ ipbf-oe-rel.cust-no
+              AND bf-shipto.ship-no EQ ipbf-oe-rel.ship-no
             USE-INDEX ship-no NO-ERROR.
-        IF AVAILABLE shipto THEN 
+        IF AVAILABLE bf-shipto THEN 
             ASSIGN
-                ipbf-oe-rell.loc     = shipto.loc
-                ipbf-oe-rell.loc-bin = shipto.loc-bin
+                ipbf-oe-rell.loc     = bf-shipto.loc
+                ipbf-oe-rell.loc-bin = bf-shipto.loc-bin
                 .
     END.  
     ELSE 
     DO:
-        FIND FIRST fg-bin NO-LOCK
-            WHERE fg-bin.company EQ ipbf-oe-rell.company
-              AND fg-bin.job-no  EQ oe-ordl.job-no
-              AND fg-bin.job-no2 EQ oe-ordl.job-no2
-              AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-              AND fg-bin.qty     GE ipbf-oe-rell.qty
-              AND fg-bin.loc     EQ ipbf-oe-rell.loc
+        FIND FIRST bf-fg-bin NO-LOCK
+            WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+              AND bf-fg-bin.job-no  EQ bf-oe-ordl.job-no
+              AND bf-fg-bin.job-no2 EQ bf-oe-ordl.job-no2
+              AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+              AND bf-fg-bin.qty     GE ipbf-oe-rell.qty
+              AND bf-fg-bin.loc     EQ ipbf-oe-rell.loc
             USE-INDEX job NO-ERROR.
     
-        IF NOT AVAILABLE fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.job-no  EQ oe-ordl.job-no
-                  AND fg-bin.job-no2 EQ oe-ordl.job-no2
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.qty     GE ipbf-oe-rell.qty
+        IF NOT AVAILABLE bf-fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.job-no  EQ bf-oe-ordl.job-no
+                  AND bf-fg-bin.job-no2 EQ bf-oe-ordl.job-no2
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.qty     GE ipbf-oe-rell.qty
                 USE-INDEX job NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.job-no  EQ oe-ordl.job-no
-                  AND fg-bin.job-no2 EQ oe-ordl.job-no2
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.loc     EQ ipbf-oe-rell.loc
-                  AND fg-bin.qty     GT 0
+        IF NOT AVAILABLE bf-fg-bin THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.job-no  EQ bf-oe-ordl.job-no
+                  AND bf-fg-bin.job-no2 EQ bf-oe-ordl.job-no2
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.loc     EQ ipbf-oe-rell.loc
+                  AND bf-fg-bin.qty     GT 0
                 USE-INDEX job NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.job-no  EQ oe-ordl.job-no
-                  AND fg-bin.job-no2 EQ oe-ordl.job-no2
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.qty     GT 0
+        IF NOT AVAILABLE bf-fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.job-no  EQ bf-oe-ordl.job-no
+                  AND bf-fg-bin.job-no2 EQ bf-oe-ordl.job-no2
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.qty     GT 0
                 USE-INDEX job NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.job-no  EQ oe-ordl.job-no
-                  AND fg-bin.job-no2 EQ oe-ordl.job-no2
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.loc     EQ ipbf-oe-rell.loc
+        IF NOT AVAILABLE bf-fg-bin THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.job-no  EQ bf-oe-ordl.job-no
+                  AND bf-fg-bin.job-no2 EQ bf-oe-ordl.job-no2
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.loc     EQ ipbf-oe-rell.loc
                 USE-INDEX job NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.job-no  EQ oe-ordl.job-no
-                  AND fg-bin.job-no2 EQ oe-ordl.job-no2
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
+        IF NOT AVAILABLE bf-fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.job-no  EQ bf-oe-ordl.job-no
+                  AND bf-fg-bin.job-no2 EQ bf-oe-ordl.job-no2
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
                 USE-INDEX job NO-ERROR.
     
-        IF NOT AVAILABLE fg-bin AND oe-ordl.job-no EQ "" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.ord-no  EQ ipbf-oe-rel.ord-no
-                  AND fg-bin.loc     EQ ipbf-oe-rell.loc
-                  AND fg-bin.qty     GT 0
+        IF NOT AVAILABLE bf-fg-bin AND bf-oe-ordl.job-no EQ "" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.ord-no  EQ ipbf-oe-rel.ord-no
+                  AND bf-fg-bin.loc     EQ ipbf-oe-rell.loc
+                  AND bf-fg-bin.qty     GT 0
                 USE-INDEX co-ino NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin AND oe-ordl.job-no EQ "" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.ord-no  EQ ipbf-oe-rel.ord-no
-                  AND fg-bin.loc     EQ ipbf-oe-rell.loc
+        IF NOT AVAILABLE bf-fg-bin AND bf-oe-ordl.job-no EQ "" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.ord-no  EQ ipbf-oe-rel.ord-no
+                  AND bf-fg-bin.loc     EQ ipbf-oe-rell.loc
                 USE-INDEX co-ino NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin AND oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.ord-no  EQ ipbf-oe-rel.ord-no
-                  AND fg-bin.qty     GT 0
+        IF NOT AVAILABLE bf-fg-bin AND bf-oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.ord-no  EQ ipbf-oe-rel.ord-no
+                  AND bf-fg-bin.qty     GT 0
                 USE-INDEX co-ino NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin AND oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.ord-no  EQ ipbf-oe-rel.ord-no
+        IF NOT AVAILABLE bf-fg-bin AND bf-oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.ord-no  EQ ipbf-oe-rel.ord-no
                 USE-INDEX co-ino NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin AND oe-ordl.job-no EQ "" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.loc     EQ ipbf-oe-rell.loc
-                  AND fg-bin.qty     GT 0
+        IF NOT AVAILABLE bf-fg-bin AND bf-oe-ordl.job-no EQ "" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.loc     EQ ipbf-oe-rell.loc
+                  AND bf-fg-bin.qty     GT 0
                 USE-INDEX co-ino NO-ERROR.
    
-        IF NOT AVAILABLE fg-bin AND oe-ordl.job-no EQ "" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.loc     EQ ipbf-oe-rell.loc
+        IF NOT AVAILABLE bf-fg-bin AND bf-oe-ordl.job-no EQ "" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.loc     EQ ipbf-oe-rell.loc
                 USE-INDEX co-ino NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin AND oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
-                  AND fg-bin.qty     GT 0
+        IF NOT AVAILABLE bf-fg-bin AND bf-oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
+                  AND bf-fg-bin.qty     GT 0
                 USE-INDEX co-ino NO-ERROR.
 
-        IF NOT AVAILABLE fg-bin AND oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
-            FIND FIRST fg-bin NO-LOCK
-                WHERE fg-bin.company EQ ipbf-oe-rell.company
-                  AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
+        IF NOT AVAILABLE bf-fg-bin AND bf-oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
+            FIND FIRST bf-fg-bin NO-LOCK
+                WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+                  AND bf-fg-bin.i-no    EQ ipbf-oe-rell.i-no
                 USE-INDEX co-ino NO-ERROR.
 
-        IF AVAILABLE fg-bin THEN 
+        IF AVAILABLE bf-fg-bin THEN 
         DO:        
             IF ipbf-oe-rell.loc EQ "" OR ipbf-oe-rell.loc-bin EQ "" THEN
                 ASSIGN
-                    ipbf-oe-rell.loc     = fg-bin.loc
-                    ipbf-oe-rell.loc-bin = fg-bin.loc-bin
+                    ipbf-oe-rell.loc     = bf-fg-bin.loc
+                    ipbf-oe-rell.loc-bin = bf-fg-bin.loc-bin
                     .
 
             IF addrelse-cha NE "No Tags" AND cSelectedValue NE "NoTag" THEN
-                ipbf-oe-rell.tag      = fg-bin.tag.
+                ipbf-oe-rell.tag      = bf-fg-bin.tag.
         
             ASSIGN
-                ipbf-oe-rell.job-no   = fg-bin.job-no
-                ipbf-oe-rell.job-no2  = fg-bin.job-no2
-                ipbf-oe-rell.qty-case = fg-bin.case-count
+                ipbf-oe-rell.job-no   = bf-fg-bin.job-no
+                ipbf-oe-rell.job-no2  = bf-fg-bin.job-no2
+                ipbf-oe-rell.qty-case = bf-fg-bin.case-count
                 .       
         END.                           
         ELSE 
             IF lFgFile THEN 
             DO:
-                FIND FIRST itemfg NO-LOCK 
-                    WHERE itemfg.company EQ ipbf-oe-rell.company
-                      AND itemfg.i-no    EQ ipbf-oe-rell.i-no
+                FIND FIRST bf-itemfg NO-LOCK 
+                    WHERE bf-itemfg.company EQ ipbf-oe-rell.company
+                      AND bf-itemfg.i-no    EQ ipbf-oe-rell.i-no
                     NO-ERROR.
                 IF ipbf-oe-rell.loc EQ "" OR ipbf-oe-rell.loc-bin EQ "" THEN 
                 DO:          
                     ASSIGN
-                        ipbf-oe-rell.loc     = itemfg.def-loc
-                        ipbf-oe-rell.loc-bin = itemfg.def-loc-bin
+                        ipbf-oe-rell.loc     = bf-itemfg.def-loc
+                        ipbf-oe-rell.loc-bin = bf-itemfg.def-loc-bin
                         .
                 END.
             END.
@@ -1100,14 +1116,14 @@ PROCEDURE SetActualReleaseLocation:
   
     IF ipbf-oe-rell.loc EQ "" OR ipbf-oe-rell.loc-bin EQ "" THEN 
     DO:
-        FIND FIRST itemfg NO-LOCK 
-            WHERE itemfg.company EQ ipbf-oe-rell.company
-              AND itemfg.i-no    EQ ipbf-oe-rell.i-no
+        FIND FIRST bf-itemfg NO-LOCK 
+            WHERE bf-itemfg.company EQ ipbf-oe-rell.company
+              AND bf-itemfg.i-no    EQ ipbf-oe-rell.i-no
             NO-ERROR.
-        IF AVAILABLE itemfg THEN
+        IF AVAILABLE bf-itemfg THEN
             ASSIGN
-                ipbf-oe-rell.loc     = itemfg.def-loc
-                ipbf-oe-rell.loc-bin = itemfg.def-loc-bin
+                ipbf-oe-rell.loc     = bf-itemfg.def-loc
+                ipbf-oe-rell.loc-bin = bf-itemfg.def-loc-bin
                 .
         IF ipbf-oe-rell.loc EQ "" OR ipbf-oe-rell.loc-bin EQ "" THEN 
         DO:
@@ -1117,13 +1133,13 @@ PROCEDURE SetActualReleaseLocation:
                 NO-ERROR.
             IF AVAILABLE cust THEN 
             DO:
-                FIND FIRST shipto WHERE shipto.company EQ ipbf-oe-rell.company
-                    AND shipto.cust-no EQ cust.cust-no
+                FIND FIRST bf-shipto WHERE bf-shipto.company EQ ipbf-oe-rell.company
+                    AND bf-shipto.cust-no EQ cust.cust-no
                     NO-LOCK NO-ERROR.
-                IF AVAILABLE shipto THEN
+                IF AVAILABLE bf-shipto THEN
                     ASSIGN   
-                        ipbf-oe-rell.loc     = shipto.loc
-                        ipbf-oe-rell.loc-bin = shipto.loc-bin.
+                        ipbf-oe-rell.loc     = bf-shipto.loc
+                        ipbf-oe-rell.loc-bin = bf-shipto.loc-bin.
             END.            
         END.
     END.
@@ -1136,12 +1152,12 @@ PROCEDURE SetActualReleaseLocation:
         IF ipbf-oe-rel.spare-char-1 NE "" AND ipbf-oe-rell.loc NE ipbf-oe-rel.spare-char-1 THEN
             ipbf-oe-rell.loc = ipbf-oe-rel.spare-char-1.
         ipbf-oe-rell.loc-bin = lcLocBin.
-        FIND FIRST fg-bin NO-LOCK
-            WHERE fg-bin.company EQ ipbf-oe-rell.company
-              AND fg-bin.loc     EQ ipbf-oe-rell.loc
-              AND fg-bin.loc-bin EQ ipbf-oe-rell.loc-bin
+        FIND FIRST bf-fg-bin NO-LOCK
+            WHERE bf-fg-bin.company EQ ipbf-oe-rell.company
+              AND bf-fg-bin.loc     EQ ipbf-oe-rell.loc
+              AND bf-fg-bin.loc-bin EQ ipbf-oe-rell.loc-bin
             NO-ERROR.
-        IF NOT AVAILABLE fg-bin THEN 
+        IF NOT AVAILABLE bf-fg-bin THEN 
         DO:
             RUN pCreateFgBinForRelease (INPUT ROWID(ipbf-oe-rell)).        
         END.
