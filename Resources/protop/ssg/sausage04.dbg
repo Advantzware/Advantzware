@@ -1,0 +1,110 @@
+        1   *** Encrypted Source ***
+        2   *** Encrypted Source ***
+        3   *** Encrypted Source ***
+        4   *** Encrypted Source ***
+        5   *** Encrypted Source ***
+        6   *** Encrypted Source ***
+        7   *** Encrypted Source ***
+        8   *** Encrypted Source ***
+        9   *** Encrypted Source ***
+       10   *** Encrypted Source ***
+       11   *** Encrypted Source ***
+       12   *** Encrypted Source ***
+       13   *** Encrypted Source ***
+       14   *** Encrypted Source ***
+       15   *** Encrypted Source ***
+       16   *** Encrypted Source ***
+       17   *** Encrypted Source ***
+       18   *** Encrypted Source ***
+       19   *** Encrypted Source ***
+       20   *** Encrypted Source ***
+       21   *** Encrypted Source ***
+       22   *** Encrypted Source ***
+       23   *** Encrypted Source ***
+       24   
+       25   /* lib/v9.i
+       26    *
+       27    */
+       28   
+       29   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+       30   &global-define  CPYLOB  "no"
+       31   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+       32   &global-define  LNGCR   character
+       33   &global-define  DTZ     integer
+       34   &global-define  BIGINT  decimal
+       35   &ELSE
+       36   &global-define  OE10    "yes"
+       37   &global-define  NOW     now
+       38   &global-define  LNGCR   longchar
+       39   &global-define  DTZ     datetime-tz
+       40   &global-define  BIGINT  int64
+       41   &ENDIF
+       42   *** Encrypted Source ***
+       43   *** Encrypted Source ***
+       44   *** Encrypted Source ***
+       45   *** Encrypted Source ***
+       46   *** Encrypted Source ***
+       47   *** Encrypted Source ***
+       48   *** Encrypted Source ***
+       49   *** Encrypted Source ***
+       50   *** Encrypted Source ***
+       51   *** Encrypted Source ***
+       52   *** Encrypted Source ***
+       53   *** Encrypted Source ***
+       54   *** Encrypted Source ***
+       55   *** Encrypted Source ***
+       56   *** Encrypted Source ***
+       57   *** Encrypted Source ***
+       58   *** Encrypted Source ***
+       59   *** Encrypted Source ***
+       60   *** Encrypted Source ***
+       61   *** Encrypted Source ***
+       62   *** Encrypted Source ***
+       63   *** Encrypted Source ***
+       64   *** Encrypted Source ***
+       65   *** Encrypted Source ***
+       66   *** Encrypted Source ***
+       67   *** Encrypted Source ***
+       68   *** Encrypted Source ***
+       69   *** Encrypted Source ***
+       70   *** Encrypted Source ***
+       71   *** Encrypted Source ***
+       72   *** Encrypted Source ***
+       73   *** Encrypted Source ***
+       74   *** Encrypted Source ***
+       75   *** Encrypted Source ***
+       76   *** Encrypted Source ***
+       77   *** Encrypted Source ***
+       78   *** Encrypted Source ***
+       79   *** Encrypted Source ***
+       80   *** Encrypted Source ***
+       81   *** Encrypted Source ***
+       82   *** Encrypted Source ***
+       83   *** Encrypted Source ***
+       84   *** Encrypted Source ***
+       85   *** Encrypted Source ***
+       86   *** Encrypted Source ***
+       87   *** Encrypted Source ***
+       88   *** Encrypted Source ***
+       89   *** Encrypted Source ***
+       90   *** Encrypted Source ***
+       91   *** Encrypted Source ***
+       92   *** Encrypted Source ***
+       93   *** Encrypted Source ***
+       94   *** Encrypted Source ***
+       95   *** Encrypted Source ***
+       96   *** Encrypted Source ***
+       97   *** Encrypted Source ***
+       98   *** Encrypted Source ***
+       99   *** Encrypted Source ***
+      100   *** Encrypted Source ***
+      101   *** Encrypted Source ***
+      102   *** Encrypted Source ***
+      103   *** Encrypted Source ***
+      104   *** Encrypted Source ***
+      105   *** Encrypted Source ***
+      106   *** Encrypted Source ***
+      107   *** Encrypted Source ***
+      108   *** Encrypted Source ***
+      109   *** Encrypted Source ***
+      110   *** Encrypted Source ***

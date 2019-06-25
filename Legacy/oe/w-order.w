@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE NEW SHARED VARIABLE spOeValidate AS HANDLE NO-UNDO.
+
 
 &scoped-define item_spec  FGITEM 
 def var li-prev-page as int init 1 no-undo.

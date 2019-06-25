@@ -11,7 +11,7 @@ FIND mch-act WHERE ROWID(mch-act) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAIL mch-act THEN DO:
   g_company = mch-act.company.
-  RUN spSetCompany (g_company).
+  RUN spSetSessionParam ("Company", g_company).
 
   {sys/inc/tspost.i}
 

@@ -19,7 +19,8 @@ DEFINE TEMP-TABLE ttImportQuote
     FIELD CustNo         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Customer" HELP "Required - Size:30"
     FIELD Quote          AS INTEGER   FORMAT ">>>>>>>>" COLUMN-LABEL "Quote#" HELP "Optional - Integer"
     FIELD Qty            AS INTEGER   FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Quantity" HELP "Required - Size:30"
-    FIELD Price          AS DECIMAL   FORMAT "->>>,>>>,>>9.99" COLUMN-LABEL "Price" HELP "Required - Decimal"
+    FIELD Price          AS DECIMAL   FORMAT "->>>,>>>,>>9.99" COLUMN-LABEL "Price   " HELP "Required - Decimal"
+    FIELD Profit         AS DECIMAL   FORMAT "->>9.99%" COLUMN-LABEL "Profit %" HELP "Required - Decimal"
     FIELD Uom            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "UOM" HELP "Required - Size:2" 
     FIELD ShipTo         AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8"
     FIELD SoldTo         AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "SoldTo" HELP "Optional - Size:8"
@@ -335,6 +336,7 @@ PROCEDURE pProcessRecord PRIVATE:
       
       RUN pAssignValueI (ipbf-ttImportQuote.qty, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.qty).
       RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.price).
+      RUN pAssignValueD (ipbf-ttImportQuote.profit, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.profit).
       RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.uom).
 
       

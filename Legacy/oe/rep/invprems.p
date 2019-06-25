@@ -791,8 +791,8 @@ RUN XMLOutput (lXMLOutput,'','','Header').
             /* rstark 05181205 */
 
           end.
-
-            put inv-misc.charge AT 17 inv-misc.dscr inv-misc.amt AT 85 SKIP.
+            
+            put inv-misc.po-no AT 2 inv-misc.charge AT 17 inv-misc.dscr inv-misc.amt AT 85 SKIP.
 
             /* rstark 05181205 */
             XMLLineNumber = XMLLineNumber + 1.

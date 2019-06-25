@@ -43,7 +43,9 @@ def var v-case-cnt as char format "x(80)" extent 5 NO-UNDO.
 def var v-case-line as char NO-UNDO.
 def var v-part-line as char NO-UNDO.
 DEF VAR v-pc AS cha NO-UNDO. /* partial or complete */
-
+DEFINE VARIABLE dLineTaxableAmt AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dLineTaxAmt AS DECIMAL DECIMALS 3 NO-UNDO.
+DEFINE VARIABLE dLineTaxRate AS DECIMAL NO-UNDO.
 def buffer xinv-head for inv-head .
 def buffer xinv-line for inv-line .
 DEF BUFFER b-inv-head FOR inv-head.
@@ -110,6 +112,16 @@ DEFINE VARIABLE lChkImage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cTaxCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
+
+FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
+  DEFINE VARIABLE dNumTwoRight AS DECIMAL NO-UNDO.
+  dNumTwoRight = ipdNum * 100.
+  IF dNumTwoRight = TRUNCATE( dNumTwoRight, 0 ) THEN
+    RETURN INTEGER( dNumTwoRight ) / 100.
+   ELSE
+    RETURN INTEGER( TRUNCATE( dNumTwoRight, 0 ) + 1 ) / 100.
+
+END.
 
 /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &XMLOutput=XMLInvoice &Company=cocode}
@@ -478,7 +490,7 @@ END.
                                 + 'invoiceID="' + STRING(inv-head.inv-no) + '" '
                                 + 'operation="new" purpose="standard"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailHeaderIndicator/','','Row').  
-        RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" /','','Row').
+        RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes" isTaxInLine="yes" /','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoicePartner','','Row').
         RUN cXMLOutput (clXMLOutput,'Contact role="billTo"','','Row').
         RUN cXMLOutput (clXMLOutput,'Name xml:lang="en-US"','','Row').
@@ -619,8 +631,11 @@ END.
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
                                      no-lock no-error.
+            ASSIGN dOrigQty = 0 
+                   cOrigUom = ""
+                   .                                     
             if avail oe-ordl THEN DO:
-            
+              
               assign v-bo-qty = if (inv-line.qty - inv-line.ship-qty -
                                     oe-ordl.t-ship-qty) < 0 then 0 else
                                    (inv-line.qty - inv-line.ship-qty -
@@ -630,7 +645,7 @@ END.
                         dOrigQty = oe-ordl.spare-dec-1
                         cOrigUom = oe-ordl.spare-char-2
                         .
-                    IF cOrigUom EQ 'CS' 
+                    IF (cOrigUom EQ 'CS' OR cOrigUom EQ 'PF' OR cOrigUom EQ 'PLT')
                         AND dOrigQty NE inv-line.qty
                         AND oe-ordl.cas-cnt NE 0 THEN 
                             dOrigQty = inv-line.inv-qty / oe-ordl.cas-cnt.
@@ -743,7 +758,7 @@ END.
 
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailItem invoiceLineNumber="' + STRING(inv-line.LINE) 
                              + '" quantity="' + STRING(IF dOrigQty NE 0 THEN dOrigQty ELSE inv-line.inv-qty) + '"','','Row').
-             RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',inv-line.pr-uom,'Col').
+             RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',(IF cOrigUom EQ "" THEN inv-line.pr-uom ELSE cOrigUOM),'Col').
              RUN cXMLOutput (clXMLOutput,'UnitPrice','','Row'). 
              RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              RUN cXMLOutput (clXMLOutput,'',STRING(v-price),'Col').
@@ -751,7 +766,7 @@ END.
              RUN cXMLOutput (clXMLOutput,'/UnitPrice','','Row'). 
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailItemReference lineNumber="' + STRING(inv-line.LINE) + '"','','Row').
              RUN cXMLOutput (clXMLOutput,'ItemID','','Row'). 
-             RUN cXMLOutput (clXMLOutput,'SupplierPartID',inv-line.i-no,'Col').
+             RUN cXMLOutput (clXMLOutput,'SupplierPartID',inv-line.part-no,'Col').
              RUN cXMLOutput (clXMLOutput,'/ItemID','','Row'). 
              RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
              RUN cXMLOutput (clXMLOutput,'',inv-line.i-name,'Col').
@@ -762,6 +777,47 @@ END.
              RUN cXMLOutput (clXMLOutput,'',STRING(inv-line.t-price),'Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
              RUN cXMLOutput (clXMLOutput,'/SubtotalAmount','','Row'). 
+             ASSIGN dLineTaxableAmt = IF inv-line.tax THEN inv-line.t-price ELSE 0
+                    .
+
+             IF AVAIL stax AND inv-line.tax THEN 
+             DO:
+                RUN ar/calctax2.p (inv-head.tax-gr,NO,dLineTaxableAmt,inv-head.company,inv-line.i-no,OUTPUT dLineTaxAmt).
+                ASSIGN 
+                    dLineTaxAmt = fRoundUp(dLineTaxAmt)
+                    dLineTaxRate = TRUNC(dLineTaxAmt / dLineTaxableAmt * 100, 2)
+                    .
+             END.
+             ELSE 
+               ASSIGN dLineTaxableAmt = 0
+                      dLineTaxAmt     = 0
+                      dLineTaxRate    = 0
+                      . 
+
+             RUN cXMLOutput (clXMLOutput,'Tax','','Row'). 
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxAmt),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
+             // RUN cXMLOutput (clXMLOutput,'','Wade Tax','Col').
+             RUN cXMLOutput (clXMLOutput,'/Description','','Row').                        
+             RUN cXMLOutput (clXMLOutput,'TaxDetail category="sales"' + ' percentageRate="' + STRING(dLineTaxRate) + '"','','Row').             
+             RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxableAmt),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
+             RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxAmt),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
+             RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
+             // RUN cXMLOutput (clXMLOutput,'','Sales Tax','Col').
+             RUN cXMLOutput (clXMLOutput,'/Description','','Row').
+             RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').                        
+             RUN cXMLOutput (clXMLOutput,'/Tax','','Row'). 
+             
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineShipping','','Row').
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailShipping','','Row').
              RUN cXMLOutput (clXMLOutput,'Contact addressID="' + cXMLShipTo + '" role="shipTo"','','Row').
@@ -843,8 +899,8 @@ END.
             /* rstark 05181205 */
 
           end.
-
-            put inv-misc.charge AT 17 inv-misc.dscr inv-misc.amt AT 85 SKIP.
+                 
+            PUT inv-misc.po-no AT 2 inv-misc.charge AT 17 inv-misc.dscr inv-misc.amt AT 85 SKIP.
 
             /* rstark 05181205 */
             XMLLineNumber = XMLLineNumber + 1.

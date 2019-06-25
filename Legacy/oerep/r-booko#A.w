@@ -48,7 +48,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {sys/inc/var.i new shared}
 DEFINE VARIABLE hdPriceProcs  AS HANDLE.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 assign
  cocode = gcompany

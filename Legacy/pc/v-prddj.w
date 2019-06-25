@@ -230,7 +230,7 @@ DO:
 
     CASE FOCUS:NAME :
         WHEN "job-no" THEN DO:
-             RUN system/openlookup.p (g_company, FOCUS:NAME, OUTPUT fields-val, OUTPUT char-val, OUTPUT rec-val).
+             RUN system/openlookup.p (g_company, FOCUS:NAME, 0, "", 0, OUTPUT fields-val, OUTPUT char-val, OUTPUT rec-val).
              IF rec-val <> ? THEN DO:
                 FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
                 IF AVAIL job-hdr THEN 

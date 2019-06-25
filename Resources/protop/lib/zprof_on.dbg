@@ -1,0 +1,107 @@
+        1   /* zprof_on.p
+        2    *
+        3    * simple stand-alone non-persistent profiler startup and control
+        4    *
+        5    * a persistent-procedure version of this code is in zprofiler.p
+        6    *
+        7    *******************************************************************************
+        8    *
+        9    * run lib/zprof_on.p ( "baseName", "description", zFlush ).
+       10    *
+       11    * if baseName is blank or ? then a GUID will be generated and used for the output file name
+       12    * the zFlush parameter controls flushing of the output if the profiler is already enabled: yes = flush, no = don't flush
+       13    *
+       14    * there are 6 stand-alone programs in this package:
+       15    *
+       16    *    zprof_on.p    - initializes profiling
+       17    *    zprof_off.p   - ends profiling and writes the oputput file
+       18    *    zprof_topx.p  - produces a report on the results
+       19    *
+       20    *    zprof_flush.p - flushes profiling output, this is optional but necessary if your program does not terminate cleanly
+       21    *
+       22    *    zprof_check.p - checks for a basename.zprof "flag" file and starts profiling if it exists, stops profiling if it does not
+       23    *
+       24    * to use:
+       25    *
+       26    *    run lib/zprof_on.p ( "baseName", "description", no ).
+       27    *    run interestingStuff.p
+       28    *    run lib/zprof_off.p.
+       29    *
+       30    * this will create a single basename*.prf file that can be loaded into a profiler analysis tool such as zprof_topx.p
+       31    *
+       32    *    pro -p lib/zprof_topx.p -param tmp/basename.2016.12.18.11.12.14
+       33    *
+       34    * note: there is no ".prf" at the end of the file name!
+       35    *
+       36    * if you call zprof_on.p when it is already running no harm will be done -- if the zFlush parameter = yes
+       37    * then the profiler will just flush the output.  this can be very useful when you have limited control over
+       38    * starting and stopping the profiler.
+       39    *
+       40    * zprof_check is handy if you want to embed the zprof tools and selectively turn profiling on and off from
+       41    * outside the context of the application.
+       42    *
+       43    * perhaps you have a loop similar to this:
+       44    *
+       45    *   do while true:
+       46    *     run lib/zprof_check( "baseName", "description", yes ).
+       47    *     run interestingStuff.p
+       48    *     pause 10 no-message.
+       49    *   end.
+       50    *
+       51    * this approach allows you to enable and disable profiling externally -- just create baseName.zprof to
+       52    * enable profiling and remove it to disable profiling.  with the zFlush flag set to "yes" each iteration
+       53    * of the loop will create a basename.YY.MM.DD.HH.MM.SS.prf output file.
+       54    *
+       55    */
+       56   
+       57   define input parameter zBaseName    as character no-undo.
+       58   define input parameter zDescription as character no-undo.
+       59   define input parameter zFlush       as logical   no-undo.
+       60   
+       61   define new global shared variable profilerStart        as datetime  no-undo.
+       62   define new global shared variable profilerDescription  as character no-undo.
+       63   define new global shared variable profilerBaseName     as character no-undo.
+       64   define new global shared variable dbgMode              as integer   no-undo initial 3.
+       65   
+       66   define variable profilerOutfile as character format "x(50)" no-undo.
+       67   
+       68   if profiler:enabled = yes then                                                  /* already enabled, flush the output    */
+       69     do:
+       70       if zFlush = no then
+       71         do:
+       72           if dbgMode >= 5 then message now "zprofiler [" + profiler:description + "] is already enabled:" profiler:file-name ", NOT flushing profiler data.".
+       73           return.
+       74         end.
+       75        else
+       76         do:
+       77           if dbgMode >= 5 then message now "zprofiler [" + profiler:description + "] is already enabled:" profiler:file-name ", flushing profiler data.".
+       78           run lib/zprof_flush.p.
+       79           return.
+       80         end.
+       81     end.
+       82   
+       83   if zBaseName = "" or zBaseName = ? then zBaseName = guid( generate-uuid ).
+       84   
+       85   assign
+       86     profilerStart       = now
+       87     profilerBaseName    = zBaseName
+       88     profilerOutFile     = zBaseName
+       89     profilerDescription = zDescription
+       90   .
+       91   
+       92   /* If the "listings" or "coverage" attributes will be used then you must set them to yes BEFORE setting ENABLED to yes...
+       93    *
+       94    * profiler:listings = yes  /* results in wierd names -- it is much better to explicitly compile with debug-list... */
+       95    * profiler:coverage = yes  /* not really relevant... */
+       96    */
+       97   
+       98   assign
+       99     profiler:enabled     = yes
+      100     profiler:description = profilerDescription
+      101     profiler:profiling   = yes
+      102     profiler:file-name   = profilerOutFile + ".prf"
+      103   .
+      104   
+      105   if dbgMode >= 5 then message now "zprofiler [" + profiler:description + "] enabled:" profiler:file-name.
+      106   
+      107   return.

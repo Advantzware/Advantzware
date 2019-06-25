@@ -19,7 +19,9 @@ for each {1}fg-rctd
          NO-LOCK NO-ERROR.
         
     IF NOT AVAIL itemfg THEN NEXT.
-
+    
+    {1}fg-rctd.post-date = v-post-date.
+    
     release b2-fg-bin.        
             
     /* Find Bin for that specific Job# Sequence & if avail
@@ -58,7 +60,9 @@ for each {1}fg-rctd
        b-fg-bin.tag     = {1}fg-rctd.tag
        b-fg-bin.cust-no = {1}fg-rctd.cust-no
        b-fg-bin.i-no    = {1}fg-rctd.i-no
-       b-fg-bin.qty     = {1}fg-rctd.t-qty.
+       b-fg-bin.qty     = {1}fg-rctd.t-qty
+       b-fg-bin.po-no = {1}fg-rctd.po-no
+       .
 
       if avail b2-fg-bin then                      /* Transfer/Count */
         assign
@@ -202,10 +206,10 @@ for each {1}fg-rctd
 
     for each b-fg-bin FIELDS(qty)
         where b-fg-bin.company eq cocode
-          and b-fg-bin.i-no    eq itemfg-loc.i-no 
+          and b-fg-bin.i-no    eq itemfg.i-no 
           AND b-fg-bin.loc     EQ {1}fg-rctd.loc
         no-lock:
-            
+
       v-qty-onh = v-qty-onh + b-fg-bin.qty.
     end. /* each b-fg-bin */
 
@@ -220,6 +224,7 @@ for each {1}fg-rctd
 
        IF AVAIL itemfg-loc THEN
        DO:
+
           assign
              itemfg-loc.q-onh     = v-qty-onh
              itemfg-loc.q-avail   = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc

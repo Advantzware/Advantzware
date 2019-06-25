@@ -1,18 +1,22 @@
 
      Author: Ron Stark
 
-      Email: Ron.Stark@AdvantzWare.com
-           : Ron@TheStarkGroup.com
+      Email: Help@AdvantzWare.com
 
-    Support: 215.369.7800 (AdvantzWare Support)
-           : Ron Ext 7007
-           : 404.769.7009 (Cell)
+    Support: 904.685.8787 (AdvantzWare Support)
 
  COPYRIGHT, All Rights Reserved, Advantzware, Inc.
             All Rights Reserved, The Stark Group, Inc.
            (scrolldown to view release history)
 
  History:
+
+ r4.006 (updated 6.13.2019)
+ * add customer column to pending by job browser
+
+ r4.006 (updated 5.13.2019)
+ * ability to lock/unlock jobs by date range
+ * added field "tot. time" in decimal format
 
  r4.005 (updated 2.13.2019)
  * added field "next start date"
@@ -180,7 +184,6 @@
  * CTRL-O performs status checkoff operation
  * CTRL-S performs save board operation
  * CTRL-R performs reset board operation
- * 50th birthday
 
  r2.005 (updated 8.4.2012)
  * set job to pending if any dates blank and
@@ -640,7 +643,6 @@
 
  r1.002 (released 2.22.2004)
  * initiated actual development of functional sb
- * 41st birthday
 
  r1.001 (released 5.28.2001)
  * initiated development concept mockup of sb

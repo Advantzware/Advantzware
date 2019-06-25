@@ -2472,9 +2472,9 @@ PROCEDURE ipDataFix160890 :
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 160890...").
     
-    RUN ipSetFgcatStatusActive.  
     RUN ipConvertPrepItems.  
     RUN ipFixFrtPay.
+    RUN ipFgcatStatusActive.
 
 END PROCEDURE.
 
@@ -2492,15 +2492,7 @@ PROCEDURE ipDataFix160899 :
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
     RUN ipLoadJasperData.
-    
-    /* Remove audit file details if not licensed */
-    FIND FIRST module NO-LOCK WHERE 
-        module.module = "audit." AND 
-        module.is-Used = FALSE
-        NO-ERROR.
-    IF AVAIL module THEN DO:
-        RUN ipDeleteAudit.
-    END.
+    RUN ipDeleteAudit.
 
 END PROCEDURE.
 
@@ -2695,26 +2687,52 @@ PROCEDURE ipDeleteAudit :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("    Deleting audit records (unlicensed)...").
+    DEF VAR lAuditLicensed AS LOG NO-UNDO INITIAL TRUE.
+    
+    DISABLE TRIGGERS FOR LOAD OF auditHdr.
+    DISABLE TRIGGERS FOR LOAD OF auditDtl.
+    DISABLE TRIGGERS FOR LOAD OF auditStack.
+    DISABLE TRIGGERS FOR LOAD OF auditTbl.
+    
+    FIND FIRST module NO-LOCK WHERE 
+        module.module EQ "Audit."
+        NO-ERROR.
+    IF NOT AVAIL module
+    OR module.is-used EQ FALSE THEN ASSIGN 
+        lAuditLicensed = FALSE.
+        
+    IF NOT lAuditLicensed THEN DO:
+        RUN ipStatus ("    Deleting audit records (unlicensed)...").
 
-    RUN ipStatus ("      Deleting audit headers...").
-    FOR EACH AuditHdr TABLE-SCAN:
-        DELETE AuditHdr.
+        RUN ipStatus ("      Deleting audit headers...").
+        FOR EACH AuditHdr TABLE-SCAN:
+            DELETE AuditHdr.
+        END.
+        RUN ipStatus ("      Deleting audit details...").
+        FOR EACH AuditDtl TABLE-SCAN:
+            DELETE AuditDtl.
+        END.
+        RUN ipStatus ("      Deleting audit stack...").
+        FOR EACH AuditStack TABLE-SCAN:
+            DELETE AuditStack.
+        END.
+        FOR EACH AuditTbl:
+            ASSIGN
+                AuditTbl.AuditCreate = NO
+                AuditTbl.AuditDelete = NO
+                AuditTbl.AuditUpdate = NO
+                AuditTbl.AuditStack  = NO.
+        END.
     END.
-    RUN ipStatus ("      Deleting audit details...").
-    FOR EACH AuditDtl TABLE-SCAN:
-        DELETE AuditDtl.
-    END.
-    RUN ipStatus ("      Deleting audit stack...").
-    FOR EACH AuditStack TABLE-SCAN:
-        DELETE AuditStack.
-    END.
-    FOR EACH AuditTbl:
-        ASSIGN
-            AuditTbl.AuditCreate = NO
-            AuditTbl.AuditDelete = NO
-            AuditTbl.AuditUpdate = NO
-            AuditTbl.AuditStack  = NO.
+    ELSE DO:
+        RUN ipStatus ("    Deleting audit records older than 120 days...").
+        FOR EACH AuditHdr WHERE 
+            DATE(auditHdr.auditDateTime) LT TODAY - 120:
+            FOR EACH AuditDtl OF auditHdr:
+                DELETE AuditDtl.
+            END.
+            DELETE AuditHdr.
+        END.
     END.
 
 END PROCEDURE.
@@ -2858,6 +2876,8 @@ PROCEDURE ipFgcatStatusActive:
 ------------------------------------------------------------------------------*/
     DISABLE TRIGGERS FOR LOAD OF fgcat.
     
+    RUN ipStatus("   Set fgcat.lActive = TRUE").
+
     FOR EACH fgcat:
         ASSIGN 
             lActive = TRUE.

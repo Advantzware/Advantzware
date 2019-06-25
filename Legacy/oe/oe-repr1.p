@@ -17,7 +17,7 @@ DEFINE VARIABLE lQtyMatchFound          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lQtyWithinMatrixRange   AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE hdPriceProcs  AS HANDLE.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 FIND FIRST bf-cust NO-LOCK 

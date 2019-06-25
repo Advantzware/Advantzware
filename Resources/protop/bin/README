@@ -1,0 +1,22 @@
+Windows BAT file README
+=======================
+
+Files in %PROTOP%\bin that are downloaded and installed by ProTop will be
+overwritten and updated by future releases and updates. DO NOT CUSTOMIZE
+THESE FILES.
+
+ProTop does NOT install %PROTOP%\bin\localenv.bat so it will always be safe
+to customize %PROTOP%\bin\localenv.bat.
+
+If localenv.bat exists it will be executed at the end of protopenv.bat
+which allows for quite a lot of localization. See localenv.batx for an
+example.
+
+Files with a .BATX extension are samples. They may require customizations
+and tweaks to be used in the local environment.
+
+If there is a .BATX file then ProTop is not providing a .BAT version.
+
+ProTop only overwrites BAT and BATX files that are provided by ProTop -- so
+the idea is to copy BATX files to BAT files if they contain something that
+you would like to use. The BATX file may get updated but the BAT will not.

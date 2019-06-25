@@ -1,0 +1,44 @@
+        1   /* loadseq.p 
+        2    *
+        3    * bpro dbname -p util/loadseq.p -param "_seqvals|/loadDir/_seqvals.d" > logfile 2>&1
+        4    *
+        5    */
+        6   
+        7   define variable tblName as character no-undo.
+        8   define variable loadFile as character no-undo.
+        9   
+       10   define variable seqNum     as integer   no-undo.
+       11   define variable seqName    as character no-undo.
+       12   define variable seqCurrVal as int64     no-undo.
+       13   
+       14   define stream inStrm.
+       15   
+       16   assign
+       17     tblName = entry( 1, session:parameter, "|" )
+       18     loadFile = entry( 2, session:parameter, "|" )
+       19   no-error.
+       20   
+       21   if tblName <> "_seqvals" then return.
+       22   
+       23   if loadFile = "" or loadFile = ? then loadFile = "./_seqvals.d".
+       24   
+       25   file-info:file-name = loadFile.
+       26   if file-info:full-pathname = ? then
+       27     do:
+       28       message "cannot find" file-info:file-name.
+       29       return.
+       30     end.
+       31   
+       32   input stream inStrm from value( file-info:full-pathname ).
+       33   repeat:
+       34     seqName = ?.
+       35     import stream inStrm seqNum seqName seqCurrVal.
+       36     if seqName <> ? then
+       37       do:
+       38         display seqNum seqName seqCurrVal format ">,>>>,>>>,>>>,>>>,>>>,>>9".
+       39         dynamic-current-value( seqName, "dictdb" ) = seqCurrVal no-error.
+       40       end.
+       41   end.
+       42   input stream inStrm close.
+       43   
+       44   return.

@@ -1,0 +1,30 @@
+
+xvalid friendlyName         dbPath                                                       serverName           dlcPath              Mon? Type       PID        Status               Status Info
+dbAlert
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+yes    asiCust1             c:\asigui\databases\test\asiCust1                            WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiCust2             c:\asigui\databases\test\asiCust2                            WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiDemo1670          c:\asigui\databases\test\asiDemo1670                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiDemo1680          c:\asigui\databases\test\asiDemo1680                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiDemo1688          c:\asigui\databases\test\asiDemo1688                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiDevel             c:\asigui\databases\test\asiDevel                            WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiTest1670          c:\asigui\databases\test\asiTest1670                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiTest1680          c:\asigui\databases\test\asiTest1680                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiTest1686          c:\asigui\databases\test\asiTest1686                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiTest1687          c:\asigui\databases\test\asiTest1687                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiTest1688          c:\asigui\databases\test\asiTest1688                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiTest1689          c:\asigui\databases\test\asiTest1689                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+
+yes    asiTest1690          c:\asigui\databases\test\asiTest1690                         WIN-SIDPMPLNDIB      C:\Progress\OE116_64 yes
+

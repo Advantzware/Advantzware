@@ -539,7 +539,9 @@ DEF BUFFER io-oe-retl FOR oe-retl.
       no-lock,
       FIRST itemfg
           where itemfg.company eq cocode
-            and itemfg.i-no    eq tt-report.key-07
+            AND itemfg.i-no    eq tt-report.key-07
+            AND itemfg.part-no GE fcpart
+            AND itemfg.part-no LE tcpart
           NO-LOCK
 
       break by tt-report.key-01
@@ -555,7 +557,7 @@ DEF BUFFER io-oe-retl FOR oe-retl.
       if line-counter GT 56 THEN do:
          page.
          display "" with frame r-top100.
-    END.
+      END.
 
     create w-data.
     assign

@@ -124,6 +124,14 @@ DEFINE VARIABLE retcode        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("oerep/r-invprtoe.w","", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+IF lResult THEN ASSIGN lAsiUser = YES .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -802,7 +810,7 @@ PROCEDURE runReport5:
                         sys-ctrl-shipto.char-fld > ''
                         NO-LOCK NO-ERROR.
 
-                IF AVAILABLE sys-ctrl-shipto THEN
+                IF NOT lAsiUser AND AVAILABLE sys-ctrl-shipto THEN
                 DO:
                     
                     IF "{&head}" EQ "ar-inv" THEN
@@ -885,7 +893,7 @@ PROCEDURE runReport1:
             sys-ctrl-shipto.char-fld > ''
             NO-LOCK NO-ERROR.
 
-    IF AVAILABLE sys-ctrl-shipto THEN
+    IF NOT lAsiUser AND AVAILABLE sys-ctrl-shipto THEN
     DO:
         IF "{&head}" EQ "ar-inv" THEN
             RUN SetInvPostForm(sys-ctrl-shipto.char-fld). 
@@ -970,7 +978,7 @@ PROCEDURE output-to-mail :
                             sys-ctrl-shipto.char-fld > ''
                             NO-LOCK NO-ERROR.
 
-                    IF AVAILABLE sys-ctrl-shipto THEN
+                    IF NOT lAsiUser AND AVAILABLE sys-ctrl-shipto THEN
                     DO:
                         IF "{&head}" EQ "ar-inv" THEN
                             RUN SetInvPostForm(sys-ctrl-shipto.char-fld). 
@@ -1670,7 +1678,7 @@ DO:
                         PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
                         PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
@@ -1720,7 +1728,7 @@ DO:
                         PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
                     DO:
                         PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
@@ -1790,7 +1798,7 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
                 IF tb_office-copy THEN RUN value(v-program) ("Office Copy").
                 IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy").
             END.
-            ELSE IF LOOKUP(v-print-fmt,"PremierX,Coburn,Axis") > 0 THEN 
+            ELSE IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis") > 0 THEN 
 DO: 
                     RUN value(v-program) ("",NO). 
                     v-reprint = YES.
@@ -2260,6 +2268,11 @@ PROCEDURE SetInvForm:
         WHEN "PremierX" THEN
             ASSIGN
                 v-program      = "oe/rep/invpremx.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "InvPrint-Mex" THEN
+            ASSIGN
+                v-program      = "oe/rep/invmexst.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Coburn" THEN
@@ -2854,6 +2867,11 @@ PROCEDURE SetInvPostForm:
         WHEN "PremierX" THEN
             ASSIGN
                 v-program      = "ar/rep/invpremx.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "InvPrint-Mex" THEN
+            ASSIGN
+                v-program      = "ar/rep/invmexst.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Coburn" THEN

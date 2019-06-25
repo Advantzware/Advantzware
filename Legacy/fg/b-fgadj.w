@@ -68,11 +68,17 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cAdjustReason-Desc AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 lAdjustReason-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+cAdjustReason-Desc = cRtnChar NO-ERROR.
 
 
 &SCOPED-DEFINE item-key-phrase TRUE
@@ -488,6 +494,12 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    find first itemfg {sys/look/itemfgrlW.i}
+        and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        no-lock no-error.
+    IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
+        fg-rctd.loc:SCREEN-VALUE = itemfg.def-loc
+        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin .
   END.
 
 /*
@@ -526,6 +538,29 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fg-rctd.reject-code[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* Reason */
+DO: 
+   IF AVAIL fg-rctd AND fg-rctd.reject-code[1] EQ "" THEN
+       ASSIGN fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fg-rctd.reject-code[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* Reason */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-reason NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF fg-rctd.i-no IN BROWSE Browser-Table /* Item No */
@@ -767,7 +802,7 @@ PROCEDURE build-type-list :
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList .
+            fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList + "," .
     END.
     &ENDIF
       
@@ -1012,7 +1047,13 @@ PROCEDURE local-create-record :
      fg-rctd.s-num        = 0
      fg-rctd.units-pallet = 1
      fg-rctd.cases-unit   = 1.
-    DISPLAY fg-rctd.rct-date WITH BROWSE {&browse-name}.
+    IF cAdjustReason-Desc NE "" THEN
+     ASSIGN fg-rctd.reject-code[1] = cAdjustReason-Desc.
+    ELSE
+        ASSIGN 
+            fg-rctd.reject-code[1] = ""
+            fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} = ""  .
+    DISPLAY fg-rctd.rct-date fg-rctd.reject-code[1] WITH BROWSE {&browse-name}.
   END.  
 
 /*
@@ -1341,7 +1382,6 @@ PROCEDURE valid-reason :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&FRAME-NAME}:
-
     IF cComboList NE "" AND lAdjustReason-log AND fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
     THEN DO:
       MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX ERROR.

@@ -63,6 +63,8 @@
           EACH ar-cash NO-LOCK
           WHERE ar-cash.c-no EQ ar-cashl.c-no
             AND ar-cash.memo EQ NO
+            AND ar-cash.check-date GE v-date[3]
+            AND ar-cash.check-date LE v-date[4]
           USE-INDEX c-no
             
           BREAK BY ar-cash.check-date:

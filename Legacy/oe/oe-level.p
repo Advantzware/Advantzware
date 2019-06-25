@@ -11,7 +11,7 @@ DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
 DEFINE VARIABLE dQty          AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lMatrixExists AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdPriceProcs  AS HANDLE.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
                                              
 FOR EACH bf-oe-ordl NO-LOCK  

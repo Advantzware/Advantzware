@@ -952,6 +952,8 @@ PROCEDURE CreateOrder :
           run oe/ordlup.p.         /* Update Inventory and Job Costing */
       END.
       */
+      
+/*   Insert?   RUN ProcessImportedOrder IN hOrderProcs (ROWID(oe-ord), OUTPUT lError, OUTPUT cMessage).*/
   END.
 END PROCEDURE.
 

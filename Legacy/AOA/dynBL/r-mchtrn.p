@@ -9,11 +9,11 @@
 
 /* Temp-Table Definitions ---                                           */
 
+&Scoped-define ttTempTable ttMachineTransactions
 {AOA/tempTable/ttMachineTransactions.i}
 
 /* Parameters Definitions ---                                           */
 
-&Scoped-define ttTempTable ttMachineTransactions
 &Scoped-define subjectID 8
 {AOA/includes/subjectID{&subjectID}Defs.i}
 

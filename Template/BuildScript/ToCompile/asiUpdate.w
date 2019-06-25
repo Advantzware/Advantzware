@@ -670,7 +670,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         cOutDir = cSiteName + "-" +
                    STRING(YEAR(TODAY),"9999") +
                    STRING(MONTH(TODAY),"99") +
-                   STRING(DAY(TODAY),"99") + "-" + "ENV"
+                   STRING(DAY(TODAY),"99") + "-" + slEnvList:SCREEN-VALUE
         .    
     
     RUN ipStatus("Initialize").

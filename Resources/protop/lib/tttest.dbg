@@ -1,0 +1,66 @@
+        1   /* lib/tttest.p
+        2    *
+        3    */
+        4   
+        5   
+        6   /* ttdebug.i
+        7    * 
+        8    * turn temp-table data collection capabilities on and off
+        9    * 
+       10    * 0) temp-table info requires OpenEdge 11 or higher
+       11    *
+       12    * 1) Modify lib/ttdebug.i to define DEBUGTT -- **** OBSOLETE **** no longer necessary
+       13    *
+       14    * 2) add TTDEBUG to bin/localenv:
+       15    *
+       16    *      export TTDEBUG=yes
+       17    *
+       18    * 3) You must also uncomment the -tt* parameters in etc/protop.pf
+       19    *
+       20    *      ...
+       21    *      # these define the temp-table stats collection for oe11 clients
+       22    *      # older clients should ignore these parameters (but we comment them out anyway).
+       23    *      
+       24    *      -ttbaseindex 1
+       25    *      -ttbasetable 1
+       26    *      -ttindexrangesize 1000
+       27    *      -tttablerangesize 1000
+       28    *
+       29    * of interest:
+       30    *
+       31    *      http://knowledgebase.progress.com/articles/Article/P95826
+       32    *
+       33    *      -tmpbsize 1 =  32 rows per block
+       34    *      -tmpbsize 4 = 256 rows per block
+       35    *      -tmpbsize 8 = 256 rows per block
+       36    */
+       37   
+       38   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+       39   
+       40   &global-define  xDEBUGTT        /*  **** OBSOLETE **** no longer necessary */
+       41   
+       42   &ENDIF
+       43    
+       44   
+       45   &IF DEFINED( DEBUGTT ) &THEN
+       46   Progress.Database.TempTableInfo:ArchiveTableStatistics = true.
+       47   Progress.Database.TempTableInfo:ArchiveIndexStatistics = true.
+       48   &ENDIF
+       49   
+       50   run lib/ttinfo.p persistent.
+       51   
+       52   define temp-table tt_unused     /* counted in "peak" but not instantiated -- so no details are visible */
+       53     field x as integer
+       54   .
+       55   
+       56   define temp-table tt_inuse
+       57     field y as integer
+       58   .
+       59   
+       60   create tt_inuse.
+       61   y = 1.
+       62   
+       63   create tt_inuse.
+       64   y = 2.
+       65   
+       66   publish "protop_showTT".

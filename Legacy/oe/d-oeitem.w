@@ -162,7 +162,7 @@ DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
@@ -1904,8 +1904,10 @@ DO:
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       IF oe-ordl.price:SENSITIVE  THEN 
         APPLY "entry" TO oe-ordl.price.
-      ELSE
+      ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
         APPLY "entry" TO oe-ordl.pr-uom.
+      ELSE 
+          APPLY "entry" TO oe-ordl.disc.
                      
       RETURN NO-APPLY.
   END.
@@ -2778,9 +2780,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
  
  IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
-    ELSE DO:        
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = YES .
+    ELSE DO:  
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.    
         
  END.

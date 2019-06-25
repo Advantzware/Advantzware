@@ -28,7 +28,7 @@ DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER   NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
-{oe/ttPriceHold.i "NEW SHARED"}
+{oe/ttPriceHold.i}
 DEFINE TEMP-TABLE ttPriceResults
     LIKE ttPriceHold
     FIELD dPriceOld AS DECIMAL 
@@ -325,7 +325,7 @@ FIND FIRST oe-ord NO-LOCK
     NO-ERROR.    
 IF AVAILABLE oe-ord THEN DO:
     /*builds the shared temp table ttPriceHold*/
-    RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(oe-ord), NO, NO, OUTPUT lHold, OUTPUT cReason).
+    RUN CheckPriceHoldForOrderReturnTT IN hdPriceProcs (ROWID(oe-ord), NO, NO, OUTPUT lHold, OUTPUT cReason, OUTPUT TABLE ttPriceHold).
     ASSIGN 
         fiHold = STRING(lHold)
         fiReason = STRING(cReason)

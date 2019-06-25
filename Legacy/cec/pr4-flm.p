@@ -69,7 +69,7 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
 RUN est/ef-#out.p (ROWID(xef), OUTPUT v-n-out).
 
 /* films */
-do i = 1 to 2 with frame ac0  down no-labels no-box:
+do i = 1 to 4 with frame ac0  down no-labels no-box:
    v-setup = 0.
 
    if xef.leaf[i] ne "" then do:

@@ -17,11 +17,6 @@ DEF BUFFER b-oe-rel FOR oe-rel.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR li-next-ordno AS INT NO-UNDO.
 
-DEF VAR lHoldError AS LOG NO-UNDO.
-DEF VAR cErrMessage AS CHAR NO-UNDO.
-DEF VAR spOeValidate AS HANDLE NO-UNDO.
-RUN system/oeValidate.p PERSISTENT SET spOeValidate.
-
 DISABLE TRIGGERS FOR LOAD OF oe-rel.
 DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
 
@@ -42,17 +37,6 @@ RUN sys/ref/asiseq.p (INPUT g_company,
          {&TABLENAME}.company = cocode.
 
 END.
-/* WFK - Now using a sequence, this check not required */
-/* IF {&TABLENAME}.company NE ""   AND                                     */
-/*    {&TABLENAME}.ord-no NE 0     AND                                     */
-/*    old-{&TABLENAME}.ord-no EQ 0 THEN                                    */
-/* DO WHILE CAN-FIND(FIRST b-{&TABLENAME}                                  */
-/*                   WHERE b-{&TABLENAME}.company EQ {&TABLENAME}.company  */
-/*                     AND b-{&TABLENAME}.ord-no  EQ {&TABLENAME}.ord-no   */
-/*                     AND ROWID(b-{&TABLENAME})  NE ROWID({&TABLENAME})): */
-/*                                                                         */
-/*   {&TABLENAME}.ord-no = {&TABLENAME}.ord-no + 1.                        */
-/* END.                                                                    */
 
 FOR EACH cust NO-LOCK
     WHERE cust.company EQ {&TABLENAME}.company
@@ -131,8 +115,8 @@ RUN oe/calcordt.p (ROWID({&TABLENAME})).
 IF oeuserid-log THEN 
     ASSIGN 
         {&TABLENAME}.user-id = USERID("ASI")
-        {&TABLENAME}.updated-id = USERID("ASI")
         .
+{&TABLENAME}.updated-id = USERID("ASI").
 
 FOR EACH oe-rel
     WHERE oe-rel.company EQ {&TABLENAME}.company
@@ -148,10 +132,6 @@ FOR EACH oe-rel
   END.
 END.
 
-RUN validateAll IN spOeValidate (oe-ord.rec_key,"oe-ord",OUTPUT lHoldError,OUTPUT cErrMessage).
-IF lHoldError
-AND DYNAMIC-FUNCTION("isOnHold",oe-ord.rec_key) THEN ASSIGN 
-    oe-ord.stat = "H".
 
     
 /* Clear out any error-status from find with no-error that is false */

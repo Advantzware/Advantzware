@@ -555,6 +555,7 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -563,7 +564,8 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/run_link.i "CONTAINER" "pGethAppSrvBin" "(OUTPUT hAppSrvBin)"}
-
+  {methods/run_link.i "CONTAINER" "pGetCompany" "(OUTPUT cCompany)"}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

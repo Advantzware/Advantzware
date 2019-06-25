@@ -1,0 +1,637 @@
+        1   /*******************************************************************************
+        2    *******************************************************************************
+        3    **                                                                           **
+        4    **                                                                           **
+        5    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+        6    **  http://www.greenfieldtech.com                                            **
+        7    **                                                                           **
+        8    **  ProTop is free software; you can redistribute it and/or modify it        **
+        9    **  under the terms of the GNU General Public License (GPL) as published     **
+       10    **  by the Free Software Foundation; either version 2 of the License, or     **
+       11    **  at your option) any later version.                                       **
+       12    **                                                                           **
+       13    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       14    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       15    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       16    **  for more details.                                                        **
+       17    **                                                                           **
+       18    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       19    **  of use and alternative licensing options for this software.              **
+       20    **                                                                           **
+       21    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       22    **                                                                           **
+       23    **  See http://www.fsf.org for more information about the GPL.               **
+       24    **                                                                           **
+       25    **                                                                           **
+       26    *******************************************************************************
+       27    *******************************************************************************
+       28    *
+       29    * dbid.p
+       30    *
+       31    */
+       32   
+       33   
+       34   /*******************************************************************************
+       35    *******************************************************************************
+       36    **                                                                           **
+       37    **                                                                           **
+       38    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       39    **  http://www.greenfieldtech.com                                            **
+       40    **                                                                           **
+       41    **  ProTop is free software; you can redistribute it and/or modify it        **
+       42    **  under the terms of the GNU General Public License (GPL) as published     **
+       43    **  by the Free Software Foundation; either version 2 of the License, or     **
+       44    **  at your option) any later version.                                       **
+       45    **                                                                           **
+       46    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       47    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       48    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       49    **  for more details.                                                        **
+       50    **                                                                           **
+       51    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       52    **  of use and alternative licensing options for this software.              **
+       53    **                                                                           **
+       54    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       55    **                                                                           **
+       56    **  See http://www.fsf.org for more information about the GPL.               **
+       57    **                                                                           **
+       58    **                                                                           **
+       59    *******************************************************************************
+       60    *******************************************************************************
+       61    *
+       62    * protop.i
+       63    *
+       64    * Header file for protop family of programs
+       65    *
+       66    *
+       67    * Known Bugs & Issues:
+       68    *
+       69    *
+       70    * To Do:
+       71    *
+       72    *
+       73    * Author:
+       74    *
+       75    *      Tom Bascom, Greenfield Technologies
+       76    *      http://www.greenfieldtech.com
+       77    *      August 28, 2003
+       78    *
+       79    */
+       80   
+       81   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+       82   &global-define  FASTLOCK        true
+       83   &ELSE
+       84   &global-define  FASTLOCK        false
+       85   &ENDIF
+       86   
+       87   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+       88   &global-define  OE11            "yes"
+       89   &global-define  xDEBUGTT        false
+       90   &ENDIF
+       91   
+       92   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+       93   &global-define  NOSERIALIZE     serialize-hidden
+       94   &ENDIF
+       95   
+       96   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+       97   &global-define  BIGINT          int64
+       98   &ELSE
+       99   &global-define  BIGINT          decimal
+      100   &ENDIF
+      101   
+      102   
+      103   /* lib/v9.i
+      104    *
+      105    */
+      106   
+      107   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      108   &global-define  CPYLOB  "no"
+      109   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      110   &global-define  LNGCR   character
+      111   &global-define  DTZ     integer
+      112   &global-define  BIGINT  decimal
+      113   &ELSE
+      114   &global-define  OE10    "yes"
+      115   &global-define  NOW     now
+      116   &global-define  LNGCR   longchar
+      117   &global-define  DTZ     datetime-tz
+      118   &global-define  BIGINT  int64
+      119   &ENDIF
+      120    
+      121   
+      122   /* use extended _connect fields: -client, -cache*
+      123    */
+      124   
+      125   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      126   &global-define  CONNECTX        "yes"
+      127   &ELSE
+      128   &global-define  CONNECTX        "no"
+      129   &ENDIF
+      130   
+      131   define stream inStrm.
+      132   
+      133   define new global shared variable dbgMode as integer no-undo initial 1.
+      134   
+      135   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      136    *
+      137    * someday everyone will have OO and I will replace these with a gsv class
+      138    * or something of that ilk
+      139    *
+      140    */
+      141   
+      142   define new global shared variable pt_shortname   as character no-undo.
+      143   define new global shared variable pt_uniqName    as character no-undo.
+      144   define new global shared variable pt_server      as character no-undo.
+      145   define new global shared variable pt_resrcType   as character no-undo.
+      146   
+      147   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      148   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      149   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      150   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      151   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      152   
+      153   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      154   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      155   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      156   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      157   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      158   define new global shared variable pt_ioFileName  as character no-undo.
+      159   define new global shared variable pt_dfCmd       as character no-undo.
+      160   
+      161   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      162   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      163   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      164   
+      165   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      166   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      167   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      168   
+      169   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      170   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      171   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      172   
+      173   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      174   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      175   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      176   
+      177   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      178   
+      179   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      180   
+      181   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      182   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      183   
+      184   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      185    * 
+      186    */
+      187   
+      188   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      189   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      190   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      191   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      192   
+      193   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      194   
+      195                                                                                   /* corresponding to base checkpoint#    */
+      196   /** Global Shared Temp Table Definitions
+      197    **
+      198    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      199    ** And a shared temp-table is logically the same as a db table so who really cares?
+      200    **
+      201    **/
+      202   
+      203   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      204    */
+      205   
+      206   define new global shared temp-table tt_tbl no-undo
+      207     field xid      as integer                                             /* _File._File-Num              */
+      208     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      209     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      210     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      211     field tblname  as character                                           /* _File._File-Name             */
+      212     index xid-idx is unique primary xid.
+      213   
+      214   define new global shared temp-table tt_idx no-undo
+      215     field xid      as integer                                             /* _Index._Idx-Num              */
+      216     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      217     field idxname  as character                                           /* _Index._Idx-Name             */
+      218     field idxnote  as character
+      219     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      220     field tblnum   as integer                                             /* _File._File-Num              */
+      221     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      222     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      223     field tblname  as character                                           /* _File._File-Name             */
+      224     index xid-idx is unique primary xid.
+      225   
+      226   define new global shared temp-table tt_areaExtent no-undo
+      227     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      228     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      229   
+      230     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      231     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      232     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      233   
+      234     index ae-idx is unique primary areaNum extNum.
+      235   
+      236   define new global shared temp-table tt_area no-undo
+      237     field xid      as integer    format ">>>9"
+      238     field SANum    as integer    format ">>>9"        label "#"
+      239     field areaPool as character  format "x(2)"        label "BX"
+      240   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      241     field SAName   as character  format "x(30)"       label "Area Name"
+      242     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      243     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      244     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      245     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      246     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      247     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      248     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      249   
+      250     field blkszkb as integer     format ">>9"         label "BSZ"
+      251     field rpb     as integer     format ">>9"         label "RPB"
+      252     field clstrsz as integer     format ">>9"         label "CSZ"
+      253   
+      254     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      255     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      256     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      257   
+      258     field numExts as integer     format ">>>>9"       label "#Exts"
+      259     field hasVar  as logical     format "Yes/No"      label "Var?"
+      260   
+      261     field xnote   as character   format "x"           label "*"
+      262   
+      263     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      264     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      265   
+      266     index pctAlloc-idx is primary pctAlloc descending
+      267     index pctLastX-idx pctLastX pctAlloc descending
+      268     index allocGB-idx allocGB descending
+      269     index totGB-idx totGB descending
+      270     index xid-idx is unique xid
+      271     index SANum-idx is unique SANum
+      272     index SAName-idx is unique SAName
+      273   .
+      274   
+      275   *** Encrypted Source ***
+      276   *** Encrypted Source ***
+      277   *** Encrypted Source ***
+      278   *** Encrypted Source ***
+      279   *** Encrypted Source ***
+      280   *** Encrypted Source ***
+      281   *** Encrypted Source ***
+      282   *** Encrypted Source ***
+      283   *** Encrypted Source ***
+      284   *** Encrypted Source ***
+      285   *** Encrypted Source ***
+      286   *** Encrypted Source ***
+      287   *** Encrypted Source ***
+      288   *** Encrypted Source ***
+      289   *** Encrypted Source ***
+      290   *** Encrypted Source ***
+      291   *** Encrypted Source ***
+      292   *** Encrypted Source ***
+      293   *** Encrypted Source ***
+      294   *** Encrypted Source ***
+      295   *** Encrypted Source ***
+      296   *** Encrypted Source ***
+      297   *** Encrypted Source ***
+      298   *** Encrypted Source ***
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323   *** Encrypted Source ***
+      324   *** Encrypted Source ***
+      325   *** Encrypted Source ***
+      326   *** Encrypted Source ***
+      327   *** Encrypted Source ***
+      328   *** Encrypted Source ***
+      329   *** Encrypted Source ***
+      330   *** Encrypted Source ***
+      331   *** Encrypted Source ***
+      332   *** Encrypted Source ***
+      333   *** Encrypted Source ***
+      334   *** Encrypted Source ***
+      335   *** Encrypted Source ***
+      336   *** Encrypted Source ***
+      337   *** Encrypted Source ***
+      338   *** Encrypted Source ***
+      339   *** Encrypted Source ***
+      340   *** Encrypted Source ***
+      341   *** Encrypted Source ***
+      342   *** Encrypted Source ***
+      343   *** Encrypted Source ***
+      344   *** Encrypted Source ***
+      345    
+      346   
+      347   /*******************************************************************************
+      348    *******************************************************************************
+      349    **                                                                           **
+      350    **                                                                           **
+      351    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      352    **  http://www.greenfieldtech.com                                            **
+      353    **                                                                           **
+      354    **  ProTop is free software; you can redistribute it and/or modify it        **
+      355    **  under the terms of the GNU General Public License (GPL) as published     **
+      356    **  by the Free Software Foundation; either version 2 of the License, or     **
+      357    **  at your option) any later version.                                       **
+      358    **                                                                           **
+      359    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      360    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      361    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      362    **  for more details.                                                        **
+      363    **                                                                           **
+      364    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      365    **  of use and alternative licensing options for this software.              **
+      366    **                                                                           **
+      367    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      368    **                                                                           **
+      369    **  See http://www.fsf.org for more information about the GPL.               **
+      370    **                                                                           **
+      371    **                                                                           **
+      372    *******************************************************************************
+      373    *******************************************************************************
+      374    *
+      375    * protoplib.i
+      376    *
+      377    * ProTop infrastructure library definitions
+      378    *
+      379    */
+      380   
+      381   function uDateTime returns integer () in super.
+      382   function string2uDateTime returns integer( input p_text as character ) in super.
+      383   function searchDir returns character ( input xDir as character ) in super.
+      384   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      385   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      386   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      387   function myPID returns character () in super.
+      388   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      389   
+      390   /* end protoplib.i */
+      391    
+      392   
+      393   /*******************************************************************************
+      394    *******************************************************************************
+      395    **                                                                           **
+      396    **                                                                           **
+      397    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      398    **  http://www.greenfieldtech.com                                            **
+      399    **                                                                           **
+      400    **  ProTop is free software; you can redistribute it and/or modify it        **
+      401    **  under the terms of the GNU General Public License (GPL) as published     **
+      402    **  by the Free Software Foundation; either version 2 of the License, or     **
+      403    **  at your option) any later version.                                       **
+      404    **                                                                           **
+      405    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      406    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      407    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      408    **  for more details.                                                        **
+      409    **                                                                           **
+      410    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      411    **  of use and alternative licensing options for this software.              **
+      412    **                                                                           **
+      413    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      414    **                                                                           **
+      415    **  See http://www.fsf.org for more information about the GPL.               **
+      416    **                                                                           **
+      417    **                                                                           **
+      418    *******************************************************************************
+      419    *******************************************************************************
+      420    *
+      421    * vstlib.i
+      422    *
+      423    * VST library definitions
+      424    *
+      425    */
+      426   
+      427   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      428   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      429   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      430   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      431   
+      432   function connectFlags returns character ( input cnxId as integer ) in super.
+      433   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      434   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      435   
+      436   function isAIEnabled returns logical () in super.
+      437   function isReplSource returns logical () in super.
+      438   function isReplTarget returns logical () in super.
+      439   function isBackupRunning returns logical () in super.
+      440   function isWorkgroup returns logical () in super.
+      441   
+      442   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      443   
+      444   /* end vstlib.i */
+      445    
+      446   
+      447   function add2ds returns logical ( input h as handle ) in super.
+      448   function getTempTableHandle returns handle ( input n as character ) in super.
+      449   
+      450   /* end protop.i */
+      451    
+      452   
+      453   /*******************************************************************************
+      454    *******************************************************************************
+      455    **                                                                           **
+      456    **                                                                           **
+      457    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      458    **  http://www.greenfieldtech.com                                            **
+      459    **                                                                           **
+      460    **  ProTop is free software; you can redistribute it and/or modify it        **
+      461    **  under the terms of the GNU General Public License (GPL) as published     **
+      462    **  by the Free Software Foundation; either version 2 of the License, or     **
+      463    **  at your option) any later version.                                       **
+      464    **                                                                           **
+      465    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      466    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      467    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      468    **  for more details.                                                        **
+      469    **                                                                           **
+      470    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      471    **  of use and alternative licensing options for this software.              **
+      472    **                                                                           **
+      473    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      474    **                                                                           **
+      475    **  See http://www.fsf.org for more information about the GPL.               **
+      476    **                                                                           **
+      477    **                                                                           **
+      478    *******************************************************************************
+      479    *******************************************************************************
+      480    *
+      481    * protoplib.i
+      482    *
+      483    * ProTop infrastructure library definitions
+      484    *
+      485    */
+      486   
+      487   function uDateTime returns integer () in super.
+      488   function string2uDateTime returns integer( input p_text as character ) in super.
+      489   function searchDir returns character ( input xDir as character ) in super.
+      490   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      491   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      492   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      493   function myPID returns character () in super.
+      494   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      495   
+      496   /* end protoplib.i */
+      497    
+      498   
+      499   define output parameter dcDescription as character no-undo initial "DBId".
+      500   
+      501   define temp-table tt_DBId no-undo
+      502   
+      503     field dbidLogName   as character label "DB Logical Name"
+      504     field dbidPhysName  as character label "DB Physical Name"
+      505     field dbidHost      as character label "DB Host Name"
+      506   
+      507     field pt_dbAccess   as int64
+      508     field pt_dbRead     as int64
+      509   
+      510     index dbidLogName-idx is unique primary dbidLogName
+      511   .
+      512   
+      513   
+      514   /* lib/dumpTT.i
+      515    *
+      516    * simplified to a single line -- include should be eliminated.
+      517    *
+      518    */
+      519   
+      520   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 &THEN
+      521   /*** +++
+      522   file-info:file-name = "./ptdefs".
+      523   if file-info:full-pathname <> ? and index( file-info:file-type, "d" ) > 0 and index( file-info:file-type, "w" ) > 0 then
+      524     do:
+      525   
+      526       file-info:file-name = "./ptdefs/{1}.xsd".
+      527   
+      528       if true /* file-info:full-pathname = ? or file-info:file-size = 0 */ then
+      529         do:
+      530   
+      531           temp-table {1}:write-xmlschema(
+      532             "file",
+      533   /*        substitute( "ptdefs/&1.xsd", "{1}" ), */
+      534   /*        "./ptdefs/{1}.xsd", */
+      535             ( if opsys = "unix" then "./ptdefs/{1}.xsd" else ".~\ptdefs~\{1}.xsd" ),
+      536             true
+      537   
+      538         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2
+      539         &THEN
+      540             , ?, ?, ?
+      541         &ENDIF
+      542   
+      543       ).
+      544   
+      545       end.
+      546   
+      547     end.
+      548    +++ ***/
+      549   &ENDIF
+      550    
+      551   
+      552   procedure mon-init:
+      553     return.
+      554   end.
+      555   
+      556   define variable dbidx as character no-undo.
+      557   
+      558   procedure mon-update:
+      559   
+      560     define input parameter argList as character no-undo.
+      561   
+      562     define variable dbCnxParam as character no-undo.
+      563   
+      564     find tt_dbid no-error.
+      565     if not available( tt_dbid ) then create tt_dbid.
+      566   
+      567     if tt_dbid.dbidHost = "" or tt_dbid.dbidHost = ? then
+      568       do:
+      569   
+      570         if connected( "dictdb" ) then
+      571           dbCnxParam = dbParam( ldbName( "DICTDB" )).
+      572   
+      573         if index( dbCnxParam, "-H " ) > 0 then
+      574           assign
+      575             tt_dbid.dbidHost = entry( 2, entry( 1, substring( dbCnxParam, index( dbCnxParam, "-H " ))), " " )
+      576           .
+      577          else
+      578           do:
+      579             if       os-getenv( "PTSERVER" )     <> ? then tt_dbid.dbidHost = os-getenv( "PTSERVER" ).
+      580              else if os-getenv( "HOST" )         <> ? then tt_dbid.dbidHost = os-getenv( "HOST" ).
+      581              else if os-getenv( "HOSTNAME" )     <> ? then tt_dbid.dbidHost = os-getenv( "HOSTNAME" ).
+      582              else if os-getenv( "COMPUTERNAME" ) <> ? then tt_dbid.dbidHost = os-getenv( "COMPUTERNAME" ).
+      583           end.
+      584   
+      585         if ( tt_dbid.dbidHost = "" or tt_dbid.dbidHost = ? ) and opsys = "UNIX" then
+      586           do:
+      587             input stream inStrm through value( "uname -n" ).
+      588             import stream inStrm tt_dbid.dbidHost.
+      589             input stream inStrm close.
+      590           end.
+      591   
+      592         if tt_dbid.dbidHost = "" or tt_dbid.dbidHost = ? then
+      593           tt_dbid.dbidHost = "Unknown Host".
+      594   
+      595       end.
+      596   
+      597     if connected( "dictdb" ) then
+      598       assign
+      599         tt_dbid.dbidLogName    = ldbName( "DICTDB" )
+      600         tt_dbid.dbidPhysName   = pdbName( "DICTDB" )
+      601       .
+      602      else
+      603       assign
+      604         tt_dbid.dbidLogName    = "n/a"
+      605         tt_dbid.dbidPhysName   = "n/a"
+      606       .
+      607   
+      608     dbidx = tt_dbid.dbidLogName.
+      609   
+      610     add2ds( temp-table tt_dbid:default-buffer-handle ).
+      611   
+      612     return.
+      613   
+      614   end.
+      615   
+      616   define new global shared variable programmerMode as logical  no-undo.
+      617   
+      618   procedure updPTStats:
+      619   
+      620     define input parameter logRd as int64 no-undo.
+      621     define input parameter osRd  as int64 no-undo.
+      622   
+      623     find tt_dbid no-error.
+      624     if not available( tt_dbid ) then create tt_dbid.
+      625     assign
+      626       pt_dbAccess = logRd
+      627       pt_dbRead   = osRd
+      628       tt_dbid.dbidLogName = substitute( "&1 &2 &3 &4", dbidx, logRd, osRd, ( if programmerMode = yes then "programmerMode" else "" ))
+      629     .
+      630   
+      631     return.
+      632   
+      633   end.
+      634   
+      635   subscribe to "updPTStats" anywhere run-procedure "updPTStats".
+      636   
+      637   return.

@@ -1,0 +1,216 @@
+        1   /*****************************************************************************/
+        2   /*                                                                           */
+        3   /*    Program        :  killprosession.p                                     */ 
+        4   /*                                                                           */
+        5   /*    Purpose        :  Monitors a user session that is going to be killed   */
+        6   /*                                                                           */
+        7   /*    Param          :  "( CONNECTED | MONITOR ) UserNum                     */
+        8   /*                      Example param: "CONNECTED 5"                         */
+        9   /*                                                                           */
+       10   /*****************************************************************************/
+       11   
+       12   DEFINE VARIABLE pUserNum  AS INT  NO-UNDO.
+       13   DEFINE VARIABLE pPID      AS INT  NO-UNDO.
+       14   DEFINE VARIABLE pFcn      AS CHAR NO-UNDO.
+       15   DEFINE VARIABLE PSLine    AS CHAR NO-UNDO.
+       16   DEFINE VARIABLE PauseSec  AS INT NO-UNDO. /* Seconds to pause between loops */
+       17   DEFINE VARIABLE TotalSec  AS INT NO-UNDO. /* Total seconds to loop */
+       18   DEFINE VARIABLE Cnt       AS INT INIT 0 NO-UNDO.
+       19   DEFINE VARIABLE Time1     AS INT INIT 0 NO-UNDO.
+       20   DEFINE VARIABLE Time2     AS INT INIT 0 NO-UNDO.
+       21   DEFINE VARIABLE DBIO1     AS INT INIT 0 NO-UNDO.
+       22   DEFINE VARIABLE DBIO2     AS INT INIT 0 NO-UNDO.
+       23   DEFINE VARIABLE DeadCnt   AS INT INIT 0 NO-UNDO.
+       24   DEFINE VARIABLE DeadIO    AS INT INIT 0 NO-UNDO.
+       25   DEFINE VARIABLE Disconct  AS LOG INIT NO NO-UNDO.
+       26   DEFINE VARIABLE InTrans   AS LOG INIT NO NO-UNDO.
+       27   DEFINE VARIABLE InRollBk  AS LOG INIT NO NO-UNDO.
+       28   
+       29   DEFINE VARIABLE LatchList     AS CHAR INIT "" NO-UNDO.
+       30   DEFINE VARIABLE OldLatchList  AS CHAR INIT "" NO-UNDO.
+       31   
+       32   /* Param 2 is either the user num or the PID, depending on param one */
+       33   Assign pUserNum   = INT(ENTRY(2,SESSION:PARAM," ")) NO-ERROR.
+       34   IF ERROR-STATUS:ERROR THEN
+       35   DO:
+       36     MESSAGE "ERROR:" ERROR-STATUS:GET-MESSAGE(1).
+       37     QUIT.
+       38   END.
+       39   Assign pPID       = pUserNum.
+       40   
+       41   Assign pFcn = ENTRY(1,SESSION:PARAM," ") NO-ERROR.
+       42   IF pFcn <> "MONITOR" AND pFcn <> "CONNECTED" THEN
+       43   DO:
+       44      MESSAGE "ERROR: INVALID PARAMETER: " pFcn.
+       45      QUIT.
+       46   END.
+       47   
+       48   Assign PauseSec  = 10
+       49          TotalSec  = 600.
+       50   
+       51   /* If the program was called with Param 1 = CONNECTED */
+       52   /* just return usernum and quit. */
+       53   IF pFcn = "CONNECTED" THEN
+       54   DO:
+       55      FIND DICTDB._Connect WHERE DICTDB._Connect._Connect-Pid = pPID 
+       56           NO-LOCK NO-ERROR.
+       57      IF AVAILABLE DICTDB._Connect THEN
+       58         MESSAGE DICTDB._Connect._Connect-Usr.
+       59      ELSE
+       60        MESSAGE "NOT_CONNECTED".
+       61   
+       62      QUIT.
+       63   END.
+       64   
+       65   /**
+       66       We wait for the process to end on its own up to TotalSec seconds
+       67       BUT
+       68       we make sure the process is actually doing something.
+       69   **/
+       70   
+       71   DO WHILE Cnt < TotalSec: 
+       72     FIND DICTDB._Connect WHERE DICTDB._Connect._Connect-Usr = pUserNum 
+       73          NO-LOCK NO-ERROR.
+       74   
+       75     IF NOT AVAIL DICTDB._Connect THEN
+       76     DO:
+       77        MESSAGE "NOT_CONNECTED".
+       78        QUIT.
+       79     END.
+       80   
+       81     IF DICTDB._Connect._Connect-Disconnect <> 0 THEN
+       82     DO:
+       83        ASSIGN Disconct = YES.
+       84        MESSAGE "INFO    : User disconnect already initiated".
+       85     END.
+       86     ELSE
+       87        MESSAGE "WARNING : No user disconnect seems to have been initiated".
+       88   
+       89     IF DICTDB._Connect._Connect-TransID <> 0 THEN
+       90     DO:
+       91        Assign InTrans = YES.
+       92        MESSAGE "INFO    : Process in transaction " 
+       93                DICTDB._Connect._Connect-TransID.
+       94     END.
+       95     ELSE
+       96        MESSAGE "INFO    : Process NOT in transaction ". 
+       97   
+       98     IF DICTDB._Connect._Connect-Resync = 1 THEN
+       99     DO:
+      100        ASSIGN InRollBk = YES.
+      101        MESSAGE "CRITICAL: Process rolling back transaction - do not kill!" .
+      102     END.
+      103     ELSE
+      104        MESSAGE "INFO    : Process NOT attempting to roll back a transaction".
+      105   
+      106     IF DICTDB._Connect._Connect-Interrupt <> 0 THEN
+      107        MESSAGE "INFO    : Process interrupted by signal".
+      108   
+      109     IF TRIM(DICTDB._Connect._Connect-Wait) <> "--" AND 
+      110        DICTDB._Connect._Connect-Wait1 <> 0 THEN
+      111     DO: 
+      112        MESSAGE "CRITICAL: Process waiting for resource :" 
+      113        DICTDB._Connect._Connect-Wait.
+      114     END.
+      115     /** 
+      116        Check if the user may be holding latches.
+      117        WARNING: _Latch shows the LAST user to hold the latch.  THIS DOES
+      118                 NOT NECESSARILY MEAN THE USER IS HOLDING THE LATCH NOW!!!! 
+      119     **/
+      120     ASSIGN OldLatchList = LatchList.
+      121               LatchList = ""
+      122               .
+      123     FOR EACH DICTDB._Latch WHERE DICTDB._Latch._Latch-hold = pUserNum NO-LOCK:
+      124        Assign LatchList = LatchList + STRING(DICTDB._Latch._Latch-ID) + " ".
+      125     END.
+      126     MESSAGE "INFO    : Old Latch List: " OldLatchList.
+      127     MESSAGE "INFO    : New Latch List: " LatchList.
+      128   
+      129     /** Check if the process is actually reading/writing to the db **/
+      130     FIND DICTDB._UserIO WHERE DICTDB._UserIO._UserIO-Usr = pUserNum 
+      131          NO-LOCK NO-ERROR.
+      132     IF AVAILABLE DICTDB._UserIO THEN
+      133     DO:
+      134        Assign DBIO2 = DICTDB._UserIO._UserIO-DbAccess + 
+      135                       DICTDB._UserIO._UserIO-BiRead   +
+      136                       DICTDB._UserIO._UserIO-BiWrite.
+      137        MESSAGE "INFO    : Database I/O in last" PauseSec "seconds :" 
+      138                (DBIO2 - DBIO1).
+      139     END.
+      140     IF DBIO2 > DBIO1 THEN
+      141        ASSIGN DBIO1  = DBIO2
+      142               DeadIO = 0
+      143               .
+      144     ELSE
+      145        Assign DeadIO = DeadIO + 1.
+      146   
+      147     /** Check if the process is consuming CPU time **/
+      148     INPUT THROUGH "ps -o ~"time=~" -p" VALUE(DICTDB._Connect._Connect-Pid) 
+      149           NO-ECHO.
+      150     SET PSLine.
+      151     INPUT CLOSE.
+      152     Time2 = (INT(ENTRY(1,PSLine,":")) * 3600) + 
+      153             (INT(ENTRY(2,PSLine,":")) * 60) +
+      154              INT(ENTRY(3,PSLine,":")).
+      155      
+      156     MESSAGE "INFO    : CPU Time in last" PauseSec "seconds :" 
+      157             (Time2 - Time1) "secs".
+      158     IF Time2 > Time1 THEN
+      159        ASSIGN Time1   = Time2
+      160               DeadCnt = 0 
+      161               .
+      162     ELSE
+      163        DeadCnt = DeadCnt + 1.
+      164   
+      165     IF DeadCnt >= 5  AND DeadIO >= 5 THEN
+      166     DO:
+      167       MESSAGE "INFO    : No change in CPU use or DB I/O".
+      168       MESSAGE  "NO_CPU_OR_DBIO".
+      169       QUIT.
+      170     END.
+      171     IF Disconct = NO AND InTrans = NO AND InRollBk = NO THEN
+      172     DO:
+      173       MESSAGE "INFO    : Process seems stable".
+      174       MESSAGE  "STABLE_PROCESS".
+      175       QUIT.
+      176     END.
+      177   
+      178     /** Wait and loop **/
+      179     MESSAGE "".
+      180     MESSAGE "********************* SLEEP" PauseSec "seconds *****************".
+      181     MESSAGE "".
+      182     PAUSE PauseSec.
+      183     Cnt = Cnt + PauseSec.
+      184   END.
+      185   
+      186   /** 
+      187      TotalSec seconds are up and the process is still alive.  We quit with
+      188      the appropriate msg based on whether or not the process is still
+      189      rolling back.
+      190   **/
+      191   FIND DICTDB._Connect WHERE DICTDB._Connect._Connect-Usr = pUserNum 
+      192        NO-LOCK NO-ERROR.
+      193   
+      194   IF NOT AVAIL DICTDB._Connect THEN
+      195   DO:
+      196      MESSAGE "NOT_CONNECTED".
+      197      QUIT.
+      198   END.
+      199   
+      200   IF DICTDB._Connect._Connect-Resync = 1 THEN
+      201   DO:
+      202      MESSAGE "CRITICAL: Process still rolling back actively".
+      203      MESSAGE "CRITICAL: Rerun this process to continue waiting".
+      204      MESSAGE "TIMEOUT_RESYNC".
+      205   END.
+      206   ELSE
+      207   DO:
+      208      MESSAGE "INFO    : Still waiting - process active.".
+      209      MESSAGE "TIMEOUT".
+      210   END.
+      211   
+      212   QUIT.
+      213   
+      214   
+      215   
+      216   

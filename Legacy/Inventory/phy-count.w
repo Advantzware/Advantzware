@@ -12,12 +12,13 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: 
+  File: phy-count.w
 
-  Description: from cntnrwin.w - ADM SmartWindow Template
+  Description: Physical Count Scan And Location
 
   Input Parameters:
-      <none>
+      ipcCompany   : Company Code
+      ipcLocation  : Location
 
   Output Parameters:
       <none>
@@ -39,16 +40,16 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE ipcCompany          AS CHARACTER NO-UNDO INITIAL "001".
-DEFINE VARIABLE ipcLocation         AS CHARACTER NO-UNDO INITIAL "MAIN".
-
 DEFINE VARIABLE lCreated              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cLocationID           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWarehouseID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cColumnHandles        AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
 {wip/keyboardDefs.i}
@@ -89,9 +90,11 @@ DEFINE VARIABLE cWarehouseID          AS CHARACTER NO-UNDO.
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDelete fiTag fiLocation btSubmit ~
-cbWarehouse fiBin br-table btAdjustQty btnNumPad btFirst btLast btNext ~
-btPrevious bt-exit btnKeyboard-2 btnKeyboard-3 
+&Scoped-Define ENABLED-OBJECTS btDelete btnNumPad btFirst btLast btNext ~
+btPrevious bt-exit rcNotScanned btnKeyboard-2 rcNotScannedConf ~
+rcCompleteMatch btnKeyboard-3 rcLocationChange rcQuantityChange ~
+rcQuantityLocationChange rcTagNotFound fiTag fiLocation btSubmit ~
+cbWarehouse fiBin br-table btAdjustQty 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiItemno fiItemType fiLocation ~
 fiCustno cbWarehouse fiBin fiTagMessage 
 
@@ -206,6 +209,41 @@ DEFINE VARIABLE fiTagMessage AS CHARACTER FORMAT "X(256)":U
      SIZE 47 BY 1
      FGCOLOR 12 FONT 35 NO-UNDO.
 
+DEFINE RECTANGLE rcCompleteMatch
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcLocationChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcNotScanned
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcNotScannedConf
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcQuantityChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcQuantityLocationChange
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
+DEFINE RECTANGLE rcTagNotFound
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 3 BY .71
+     FGCOLOR 12 .
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 10 BY 2.38
@@ -227,22 +265,30 @@ DEFINE BROWSE br-table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-table W-Win _FREEFORM
   QUERY br-table DISPLAY
       ttPhysicalBrowseInventory.stockIDAlias WIDTH 45 COLUMN-LABEL "Tag #" FORMAT "X(30)"
-ttPhysicalBrowseInventory.itemID WIDTH 38 COLUMN-LABEL "Item" FORMAT "X(15)"
-ttPhysicalBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty"
-ttPhysicalBrowseInventory.origQuantity WIDTH 25 COLUMN-LABEL "Original Qty"
-ttPhysicalBrowseInventory.location WIDTH 28 COLUMN-LABEL "Location" FORMAT "X(12)"
-ttPhysicalBrowseInventory.origLocation WIDTH 28 COLUMN-LABEL "Original Location" FORMAT "X(12)"
+ttPhysicalBrowseInventory.itemID WIDTH 35 COLUMN-LABEL "Item" FORMAT "X(15)"
+ttPhysicalBrowseInventory.quantity WIDTH 23 COLUMN-LABEL "Qty"
+ttPhysicalBrowseInventory.origQuantity WIDTH 23 COLUMN-LABEL "Original Qty"
+ttPhysicalBrowseInventory.location WIDTH 26 COLUMN-LABEL "Location" FORMAT "X(12)"
+ttPhysicalBrowseInventory.origLocation WIDTH 26 COLUMN-LABEL "Original Location" FORMAT "X(12)"
 ttPhysicalBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(25)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 188 BY 22.86
-         FONT 36 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 188 BY 20.48
+         FONT 36 ROW-HEIGHT-CHARS 1.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btDelete AT ROW 18.19 COL 192 WIDGET-ID 116
+     btDelete AT ROW 19 COL 192 WIDGET-ID 116
+     btnNumPad AT ROW 2.19 COL 97 WIDGET-ID 120
+     btFirst AT ROW 10 COL 192 WIDGET-ID 128
+     btLast AT ROW 28.24 COL 192 WIDGET-ID 130
+     btNext AT ROW 23.62 COL 192.2 WIDGET-ID 132
+     btPrevious AT ROW 14.38 COL 192.2 WIDGET-ID 134
+     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
+     btnKeyboard-2 AT ROW 2.05 COL 85 WIDGET-ID 142
+     btnKeyboard-3 AT ROW 3.81 COL 66.2 WIDGET-ID 144
      fiTag AT ROW 2.1 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiItemno AT ROW 2.91 COL 119 COLON-ALIGNED NO-LABEL WIDGET-ID 76
      fiItemType AT ROW 2.91 COL 175 COLON-ALIGNED NO-LABEL WIDGET-ID 148
@@ -252,42 +298,70 @@ DEFINE FRAME F-Main
      cbWarehouse AT ROW 5.76 COL 23 COLON-ALIGNED NO-LABEL WIDGET-ID 154
      fiBin AT ROW 5.76 COL 53.6 COLON-ALIGNED NO-LABEL WIDGET-ID 164
      fiTagMessage AT ROW 5.76 COL 109.4 COLON-ALIGNED NO-LABEL WIDGET-ID 162
-     br-table AT ROW 7.67 COL 2 WIDGET-ID 200
+     br-table AT ROW 10.05 COL 2 WIDGET-ID 200
      btAdjustQty AT ROW 30.95 COL 2 WIDGET-ID 110
-     btnNumPad AT ROW 2.19 COL 97 WIDGET-ID 120
-     btFirst AT ROW 7.71 COL 192 WIDGET-ID 128
-     btLast AT ROW 28.24 COL 192 WIDGET-ID 130
-     btNext AT ROW 23.38 COL 192.2 WIDGET-ID 132
-     btPrevious AT ROW 12.1 COL 192.2 WIDGET-ID 134
-     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
-     btnKeyboard-2 AT ROW 2.05 COL 85 WIDGET-ID 142
-     btnKeyboard-3 AT ROW 3.81 COL 66.2 WIDGET-ID 144
-     "Item Type:" VIEW-AS TEXT
-          SIZE 13 BY .81 AT ROW 2.95 COL 163.2 WIDGET-ID 150
-          FGCOLOR 1 FONT 34
-     "Item #:" VIEW-AS TEXT
-          SIZE 10 BY .81 AT ROW 2.95 COL 110.6 WIDGET-ID 74
-          FGCOLOR 1 FONT 34
-     "Customer #:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 4.29 COL 111.2 WIDGET-ID 78
-          FGCOLOR 1 FONT 34
      "Tag:" VIEW-AS TEXT
           SIZE 8.2 BY 1.19 AT ROW 2.19 COL 10.4 WIDGET-ID 22
           BGCOLOR 15 FGCOLOR 1 FONT 36
+     "Customer #:" VIEW-AS TEXT
+          SIZE 16 BY .81 AT ROW 4.29 COL 111.2 WIDGET-ID 78
+          FGCOLOR 1 FONT 34
+     "Tag Not Found" VIEW-AS TEXT
+          SIZE 19.2 BY .81 AT ROW 8.86 COL 6.8 WIDGET-ID 196
+          FONT 35
+     "Not Scanned - Confirmed" VIEW-AS TEXT
+          SIZE 33 BY .62 AT ROW 7.81 COL 29 WIDGET-ID 176
+          FONT 35
      "Location Scan:" VIEW-AS TEXT
           SIZE 21 BY 1.19 AT ROW 3.95 COL 3 WIDGET-ID 32
           FGCOLOR 1 FONT 36
-     "Tag Details" VIEW-AS TEXT
-          SIZE 16.2 BY .76 AT ROW 1.76 COL 113.8 WIDGET-ID 28
-          FGCOLOR 1 FONT 35
+     "Quantity Change" VIEW-AS TEXT
+          SIZE 23 BY .81 AT ROW 7.76 COL 128 WIDGET-ID 188
+          FONT 35
      "Bin:" VIEW-AS TEXT
           SIZE 6.8 BY 1.19 AT ROW 5.81 COL 48.4 WIDGET-ID 158
           FGCOLOR 1 FONT 36
+     "Location Change" VIEW-AS TEXT
+          SIZE 23.2 BY .81 AT ROW 7.81 COL 98.8 WIDGET-ID 184
+          FONT 35
+     "Item Type:" VIEW-AS TEXT
+          SIZE 13 BY .81 AT ROW 2.95 COL 163.2 WIDGET-ID 150
+          FGCOLOR 1 FONT 34
+     "Complete Match" VIEW-AS TEXT
+          SIZE 22.2 BY .81 AT ROW 7.81 COL 68.8 WIDGET-ID 180
+          FONT 35
+     "Item #:" VIEW-AS TEXT
+          SIZE 10 BY .81 AT ROW 2.95 COL 110.6 WIDGET-ID 74
+          FGCOLOR 1 FONT 34
+     "Tag Details" VIEW-AS TEXT
+          SIZE 16.2 BY .76 AT ROW 1.76 COL 113.8 WIDGET-ID 28
+          FGCOLOR 1 FONT 35
+     "Not Scanned" VIEW-AS TEXT
+          SIZE 17.2 BY .62 AT ROW 7.81 COL 6.8 WIDGET-ID 172
+          FONT 35
      "Warehouse:" VIEW-AS TEXT
           SIZE 17.4 BY 1.19 AT ROW 5.76 COL 6.6 WIDGET-ID 152
           FGCOLOR 1 FONT 36
+     "Quantity and Location Change" VIEW-AS TEXT
+          SIZE 41.6 BY .81 AT ROW 7.76 COL 157.4 WIDGET-ID 192
+          FONT 35
      RECT-27 AT ROW 2.19 COL 109.6 WIDGET-ID 26
      RECT-2 AT ROW 1.95 COL 96 WIDGET-ID 146
+     rcNotScanned AT ROW 7.81 COL 2.6 WIDGET-ID 166
+     rcNotScannedConf AT ROW 7.81 COL 24.8 WIDGET-ID 174
+     rcCompleteMatch AT ROW 7.81 COL 64.6 WIDGET-ID 178
+     rcLocationChange AT ROW 7.81 COL 94.6 WIDGET-ID 182
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 204 BY 36.19
+         BGCOLOR 15  WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     rcQuantityChange AT ROW 7.81 COL 123.8 WIDGET-ID 186
+     rcQuantityLocationChange AT ROW 7.81 COL 153.2 WIDGET-ID 190
+     rcTagNotFound AT ROW 8.91 COL 2.6 WIDGET-ID 194
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -362,6 +436,34 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiTagMessage IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       rcCompleteMatch:PRIVATE-DATA IN FRAME F-Main     = 
+                "Complete Match".
+
+ASSIGN 
+       rcLocationChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Location Change".
+
+ASSIGN 
+       rcNotScanned:PRIVATE-DATA IN FRAME F-Main     = 
+                "Not Scanned".
+
+ASSIGN 
+       rcNotScannedConf:PRIVATE-DATA IN FRAME F-Main     = 
+                "Not Scanned - Confirmed".
+
+ASSIGN 
+       rcQuantityChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Quantity Change".
+
+ASSIGN 
+       rcQuantityLocationChange:PRIVATE-DATA IN FRAME F-Main     = 
+                "Quantity and Location Change".
+
+ASSIGN 
+       rcTagNotFound:PRIVATE-DATA IN FRAME F-Main     = 
+                "Tag Not Found".
+
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-27 IN FRAME F-Main
@@ -415,6 +517,29 @@ DO:
        and its descendents to terminate properly on exit. */
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME br-table
+&Scoped-define SELF-NAME br-table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table W-Win
+ON ROW-DISPLAY OF br-table IN FRAME F-Main
+DO:
+    DEFINE VARIABLE iColor  AS INTEGER  NO-UNDO.
+    
+    IF AVAILABLE ttPhysicalBrowseInventory THEN DO:
+        iColor = DYNAMIC-FUNCTION (
+                 "fGetRowBGColor" IN hdInventoryProcs,
+                 INPUT ttPhysicalBrowseInventory.inventoryStatus
+                 ).
+                 
+        RUN pUpdateRowColor (
+            iColor
+            ).
+    END.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,7 +655,10 @@ END.
 ON CHOOSE OF btnKeyboard-2 IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY" TO fiTag.
-    RUN pKeyboard (fiTag:HANDLE, "Qwerty").
+    RUN pKeyboard (
+        fiTag:HANDLE,
+        "Qwerty"
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -542,7 +670,10 @@ END.
 ON CHOOSE OF btnKeyboard-3 IN FRAME F-Main /* Keyboard */
 DO:
     APPLY "ENTRY" TO fiLocation.
-    RUN pKeyboard (fiLocation:HANDLE, "Qwerty").  
+    RUN pKeyboard (
+        fiLocation:HANDLE, 
+        "Qwerty"
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -587,8 +718,7 @@ DO:
         INPUT fiTag:SCREEN-VALUE
         ).
                         
-    {&OPEN-BROWSERS-IN-QUERY-F-Main}
-             
+    {&OPEN-BROWSERS-IN-QUERY-F-Main}             
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +731,10 @@ ON ENTRY OF fiBin IN FRAME F-Main
 DO:
     hFocusField = SELF.
     IF lKeyboard THEN
-        RUN pKeyboard (SELF, "Qwerty").  
+        RUN pKeyboard (
+            SELF, 
+            "Qwerty"
+            ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -614,7 +747,10 @@ ON ENTRY OF fiLocation IN FRAME F-Main
 DO:
     hFocusField = SELF.
     IF lKeyboard THEN
-        RUN pKeyboard (SELF, "Qwerty").  
+        RUN pKeyboard (
+            SELF, 
+            "Qwerty"
+            ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -638,8 +774,7 @@ DO:
         INPUT cWarehouseID,
         INPUT cLocationID,
         INPUT fiTag:SCREEN-VALUE
-        ).        
-                
+        ).                        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -652,7 +787,10 @@ ON ENTRY OF fiTag IN FRAME F-Main
 DO:
     hFocusField = SELF.
     IF lKeyboard THEN
-        RUN pKeyboard (SELF, "Qwerty").  
+        RUN pKeyboard (
+            SELF, 
+            "Qwerty"
+            ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,7 +813,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME br-table
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
@@ -762,9 +899,11 @@ PROCEDURE enable_UI :
   DISPLAY fiTag fiItemno fiItemType fiLocation fiCustno cbWarehouse fiBin 
           fiTagMessage 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btDelete fiTag fiLocation btSubmit cbWarehouse fiBin br-table 
-         btAdjustQty btnNumPad btFirst btLast btNext btPrevious bt-exit 
-         btnKeyboard-2 btnKeyboard-3 
+  ENABLE btDelete btnNumPad btFirst btLast btNext btPrevious bt-exit 
+         rcNotScanned btnKeyboard-2 rcNotScannedConf rcCompleteMatch 
+         btnKeyboard-3 rcLocationChange rcQuantityChange 
+         rcQuantityLocationChange rcTagNotFound fiTag fiLocation btSubmit 
+         cbWarehouse fiBin br-table btAdjustQty 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -791,88 +930,24 @@ PROCEDURE init :
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                          + " - {&awversion}" + " - " 
                          + STRING(company.name) + " - " + ipcLocation.
-    
-    RUN GenerateSnapshotRecords IN hdInventoryProcs (
-        "FG",              /* Item Type */
-        "001",             /* Company */
-        "MAIN",            /* Warehouse */
-        "A-103",           /* Location */
-        OUTPUT lCreated,
-        OUTPUT cMessage
-        ).
-    
-    RUN GenerateSnapshotRecords IN hdInventoryProcs (
-        "FG",              /* Item Type */
-        "001",             /* Company */
-        "MAIN",            /* Warehouse */
-        "A-201",           /* Location */
-        OUTPUT lCreated,
-        OUTPUT cMessage
-        ).
+    RUN pAddLegend.
 
     RUN GetWarehouseList IN hdInventoryProcs (
-        "", /* Company. Pass empty if needed list of all warehouses across all companies are required */
+        "",   /* Company. Pass empty if needed list of all warehouses across all companies are required */
         TRUE, /* Active location only */
         OUTPUT cWarehouseListItems
         ).
         
     cbWarehouse:LIST-ITEMS IN FRAME {&FRAME-NAME} = cWarehouseListItems.
-
-    FOR EACH inventoryTransaction NO-LOCK
-        WHERE inventoryTransaction.transactionType EQ gcTransactionTypeCompare 
-          AND inventoryTransaction.scannedBy       EQ USERID("asi"):
-        
-        CREATE ttPhysicalBrowseInventory.
-        ASSIGN            
-            ttPhysicalBrowseInventory.company                = inventoryTransaction.company
-            ttPhysicalBrowseInventory.inventoryStockID       = inventoryTransaction.inventoryStockID
-            ttPhysicalBrowseInventory.stockIDAlias           = inventoryTransaction.stockIDAlias
-            ttPhysicalBrowseInventory.quantity               = inventoryTransaction.quantityChange
-            ttPhysicalBrowseInventory.lastTransTime          = inventoryTransaction.scannedTime
-            ttPhysicalBrowseInventory.locationID             = inventoryTransaction.locationID
-            ttPhysicalBrowseInventory.warehouseID            = inventoryTransaction.warehouseID
-            ttPhysicalBrowseInventory.location               = inventoryTransaction.warehouseID +
-                                                               FILL(" ", 5 - LENGTH(inventoryTransaction.warehouseID)) +
-                                                               inventoryTransaction.locationID                                                   
-            . 
-                   
-        FIND FIRST inventoryStockSnapshot NO-LOCK
-             WHERE inventoryStockSnapshot.company      EQ inventoryTransaction.company
-               AND inventoryStockSnapshot.stockIDAlias EQ inventoryTransaction.stockIDAlias NO-ERROR.
-        IF AVAILABLE inventoryStockSnapshot THEN
-            ASSIGN
-                ttPhysicalBrowseInventory.itemID          = IF inventoryStockSnapshot.fgItemID NE "" THEN
-                                                                inventoryStockSnapshot.fgItemID
-                                                            ELSE IF inventoryStockSnapshot.rmItemID NE "" THEN
-                                                                inventoryStockSnapshot.rmItemID
-                                                            ELSE
-                                                                 inventoryStockSnapshot.wipItemID
-                ttPhysicalBrowseInventory.origQuantity    = inventoryStockSnapshot.quantity
-                ttPhysicalBrowseInventory.origLocationID  = inventoryStockSnapshot.locationID
-                ttPhysicalBrowseInventory.origWarehouseID = inventoryStockSnapshot.warehouseID
-                ttPhysicalBrowseInventory.origLocation    = inventoryStockSnapshot.warehouseID +
-                                                            FILL(" ", 5 - LENGTH(inventoryStockSnapshot.warehouseID)) +
-                                                            inventoryStockSnapshot.locationID                                               
-                .
-        ELSE DO:
-            FIND FIRST loadtag NO-LOCK
-                 WHERE loadtag.company EQ inventoryTransaction.company
-                   AND loadtag.tag-no  EQ inventoryTransaction.stockIDAlias NO-ERROR.
-            IF AVAILABLE loadtag THEN
-                ttPhysicalBrowseInventory.itemID = loadtag.i-no.
+    
+    RUN BuildPhyScanBrowseFromTransactionUser IN hdInventoryProcs (
+        ipcCompany,
+        USERID(gcDBUser),           /* User ID */
+        gcTransactionTypeCompare /* Compare Transaction Type */
+        ).
             
-        END.
-
-        ttPhysicalBrowseInventory.inventoryStatus = DYNAMIC-FUNCTION (
-                                                    "fGetSnapshotCompareStatus" IN hdInventoryProcs, 
-                                                    ttPhysicalBrowseInventory.company,
-                                                    ttPhysicalBrowseInventory.stockIDAlias,
-                                                    ttPhysicalBrowseInventory.quantity,
-                                                    ttPhysicalBrowseInventory.warehouseID,
-                                                    ttPhysicalBrowseInventory.locationID
-                                                    ).
-    END.
-            
+    RUN pStoreColHandles.
+                
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
 END PROCEDURE.
 
@@ -914,6 +989,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddLegend W-Win 
+PROCEDURE pAddLegend :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        rcNotScanned:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcNotScanned:PRIVATE-DATA
+                               )
+        rcNotScannedConf:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcNotScannedConf:PRIVATE-DATA
+                               )
+        rcCompleteMatch:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcCompleteMatch:PRIVATE-DATA
+                               )
+        rcLocationChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcLocationChange:PRIVATE-DATA
+                               )
+        rcQuantityChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcQuantityChange:PRIVATE-DATA
+                               )
+        rcQuantityLocationChange:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcQuantityLocationChange:PRIVATE-DATA
+                               )
+        rcTagNotFound:BGCOLOR = DYNAMIC-FUNCTION (
+                               "fGetRowBGColor" IN hdInventoryProcs,
+                               rcTagNotFound:PRIVATE-DATA
+                               )
+        .                       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAdjustQuantity W-Win 
 PROCEDURE pAdjustQuantity :
 /*------------------------------------------------------------------------------
@@ -925,42 +1045,17 @@ PROCEDURE pAdjustQuantity :
     DEFINE INPUT  PARAMETER ipcTag              AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.
     
-    FIND FIRST ttPhysicalBrowseInventory EXCLUSIVE-LOCK
-         WHERE ttPhysicalBrowseInventory.company      EQ ipcCompany
-           AND ttPhysicalBrowseInventory.stockIDAlias EQ ipcTag NO-ERROR.
-    
-    IF AVAILABLE ttPhysicalBrowseInventory THEN DO:       
-        RUN CreateTransactionCompare IN hdInventoryProcs (
-            ttPhysicalBrowseInventory.company,
-            ttPhysicalBrowseInventory.stockIDAlias,
-            ipdQuantity,
-            "",    /* Blank Quantity EOM */
-            ttPhysicalBrowseInventory.warehouseID,
-            ttPhysicalBrowseInventory.locationID,
-            FALSE, /* Post transaction */
-            OUTPUT lCreated,
-            OUTPUT cMessage
-            ).
-    
-        IF lCreated THEN 
-            ASSIGN
-                ttPhysicalBrowseInventory.lastTransTime   = NOW
-                ttPhysicalBrowseInventory.quantity        = ipdQuantity
-                ttPhysicalBrowseInventory.inventoryStatus = DYNAMIC-FUNCTION (
-                                                            "fGetSnapshotCompareStatus" IN hdInventoryProcs, 
-                                                            ipcCompany,
-                                                            ipcTag,
-                                                            ipdQuantity,
-                                                            ttPhysicalBrowseInventory.warehouseID,
-                                                            ttPhysicalBrowseInventory.locationID
-                                                            )
-                .
-    END.
+    RUN pAdjustTransactionQuantity IN hdInventoryProcs (
+        ipcCompany,
+        ipcTag,
+        ipdQuantity, /* Zeroing out */
+        OUTPUT lCreated,
+        OUTPUT cMessage
+        ).
         
     {&OPEN-BROWSERS-IN-QUERY-F-Main}
     
-    APPLY "VALUE-CHANGED" TO br-table IN FRAME {&FRAME-NAME}.
-    
+    APPLY "VALUE-CHANGED" TO br-table IN FRAME {&FRAME-NAME}.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -990,7 +1085,11 @@ PROCEDURE pDelete :
                     ).    
                             
             ASSIGN
-                ttPhysicalBrowseInventory.lastTransTime   = NOW                
+                ttPhysicalBrowseInventory.lastTransTime   = NOW
+                ttPhysicalBrowseInventory.quantity        = 0
+                ttPhysicalBrowseInventory.locationID      = ""
+                ttPhysicalBrowseInventory.warehouseID     = ""
+                ttPhysicalBrowseInventory.location        = ""
                 ttPhysicalBrowseInventory.inventoryStatus = gcStatusSnapshotNotScanned
                 .
         END.                       
@@ -1019,8 +1118,7 @@ PROCEDURE pLocationScan :
         INPUT ipcTag
         ).
                         
-    {&OPEN-BROWSERS-IN-QUERY-F-Main}
-           
+    {&OPEN-BROWSERS-IN-QUERY-F-Main}           
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1048,7 +1146,31 @@ PROCEDURE pNavigate :
         END CASE.
         APPLY "VALUE-CHANGED":U TO BROWSE {&BROWSE-NAME}.
     END. /* if avail */
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pStoreColHandles W-Win 
+PROCEDURE pStoreColHandles :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hdCurrColHdl AS HANDLE NO-UNDO.
+    
+    hdCurrColHdl = BROWSE {&BROWSE-NAME}:FIRST-COLUMN.
+
+    DO WHILE VALID-HANDLE(hdCurrColHdl):
+        ASSIGN 
+            cColumnHandles = IF cColumnHandles <> "":U THEN
+                                 cColumnHandles + ",":U + STRING(hdCurrColHdl)
+                             ELSE
+                                 STRING(hdCurrColHdl)
+            hdCurrColHdl   = hdCurrColHdl:NEXT-COLUMN
+            .
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1097,103 +1219,37 @@ PROCEDURE pSubmitScan :
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
- 
-    FIND FIRST inventoryStockSnapshot NO-LOCK
-         WHERE inventoryStockSnapshot.company      EQ ipcCompany
-           AND inventoryStockSnapshot.stockIDAlias EQ ipcTag  NO-ERROR.
-           
-    FIND FIRST ttPhysicalBrowseInventory EXCLUSIVE-LOCK
-         WHERE ttPhysicalBrowseInventory.company         EQ ipcCompany
-           AND ttPhysicalBrowseInventory.stockIDAlias    EQ ipcTag NO-ERROR.
 
-    IF NOT AVAILABLE inventoryStockSnapshot THEN DO:
-        FIND FIRST inventoryStockAlias NO-LOCK
-             WHERE inventoryStockAlias.company      EQ ipcCompany
-               AND inventoryStockAlias.stockIDAlias EQ ipcTag NO-ERROR.
-        IF AVAILABLE inventoryStockAlias THEN
-            FIND FIRST inventoryStockSnapshot NO-LOCK
-                 WHERE inventoryStockSnapshot.inventoryStockID EQ inventoryStockAlias.inventoryStockID
-                 NO-ERROR.             
-    END.
-    
-    IF AVAILABLE inventoryStockSnapshot THEN DO:
-        IF NOT AVAILABLE ttPhysicalBrowseInventory THEN DO:
-            CREATE ttPhysicalBrowseInventory.
-            ASSIGN
-                ttPhysicalBrowseInventory.company          = inventoryStockSnapshot.company
-                ttPhysicalBrowseInventory.inventoryStockID = inventoryStockSnapshot.inventoryStockID
-                ttPhysicalBrowseInventory.stockIDAlias     = inventoryStockSnapshot.stockIDAlias
-                ttPhysicalBrowseInventory.itemType         = inventoryStockSnapshot.itemType
-                ttPhysicalBrowseInventory.itemID           = IF inventoryStockSnapshot.fgItemID NE "" THEN
-                                                                 inventoryStockSnapshot.fgItemID
-                                                             ELSE IF inventoryStockSnapshot.rmItemID NE "" THEN
-                                                                 inventoryStockSnapshot.rmItemID
-                                                             ELSE
-                                                                 inventoryStockSnapshot.wipItemID
-                ttPhysicalBrowseInventory.quantity         = inventoryStockSnapshot.quantity
-                ttPhysicalBrowseInventory.customerID       = inventoryStockSnapshot.customerID
-                .
-        END.             
-
-    END. 
-    ELSE DO:
-        
-        FIND FIRST loadtag NO-LOCK
-             WHERE loadtag.tag-no = ipcTag NO-ERROR.
-        IF NOT AVAILABLE loadtag THEN DO:
-            MESSAGE "Invalid Tag" VIEW-AS ALERT-BOX ERROR.
-            fiTagMessage:SCREEN-VALUE = "* Tag Not Found".
-            RETURN.
-        END.
-        
-        CREATE ttPhysicalBrowseInventory.
-        ASSIGN            
-            ttPhysicalBrowseInventory.company          = loadtag.company
-            ttPhysicalBrowseInventory.stockIDAlias     = ipcTag
-            ttPhysicalBrowseInventory.quantity         = 0
-            ttPhysicalBrowseInventory.itemID           = loadtag.i-no            
-            .
-    
-    END.
-
-    RUN CreateTransactionCompare IN hdInventoryProcs (
+    RUN SubmitPhysicalCountScan IN hdInventoryProcs (
         ipcCompany,
-        ipcTag,
-        ttPhysicalBrowseInventory.quantity,
-        "",    /* Blank Quantity EOM */
         ipcWarehouseID,
         ipcLocationID,
-        FALSE, /* Post transaction */
+        ipcTag,
+        TRUE, /* Set input parameter location to record */
         OUTPUT lCreated,
         OUTPUT cMessage
         ).
-
-    ASSIGN
-        ttPhysicalBrowseInventory.lastTransTime   = NOW
-        ttPhysicalBrowseInventory.locationID      = ipcLocationID
-        ttPhysicalBrowseInventory.warehouseID     = ipcWarehouseID
-        ttPhysicalBrowseInventory.location        = ipcWarehouseID +
-                                                    FILL(" ", 5 - LENGTH(ipcWarehouseID)) +
-                                                    ipcLocationID
-        ttPhysicalBrowseInventory.inventoryStatus = DYNAMIC-FUNCTION (
-                                                    "fGetSnapshotCompareStatus" IN hdInventoryProcs, 
-                                                    ipcCompany,
-                                                    ttPhysicalBrowseInventory.stockIDAlias,
-                                                    ttPhysicalBrowseInventory.quantity,
-                                                    ipcWarehouseID,
-                                                    ipcLocationID
-                                                    ).
-            
-    ASSIGN
-        fiLocation:SCREEN-VALUE      = ttPhysicalBrowseInventory.location
-        fiItemno:SCREEN-VALUE        = ttPhysicalBrowseInventory.itemID
-        fiItemType:SCREEN-VALUE      = ttPhysicalBrowseInventory.itemType
-        fiCustno:SCREEN-VALUE        = ttPhysicalBrowseInventory.customerID
-        cbWarehouse:SCREEN-VALUE     = ttPhysicalBrowseInventory.warehouseID
-        fiBin:SCREEN-VALUE           = ttPhysicalBrowseInventory.locationID
-        fiTagMessage:SCREEN-VALUE    = ""
-        .
-                  
+    
+    IF NOT lCreated AND cMessage NE "" THEN DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        IF cMessage = "Invalid Tag" THEN
+            fiTagMessage:SCREEN-VALUE = "** Tag Not Found".
+        RETURN.
+    END.
+    
+    FIND FIRST ttPhysicalBrowseInventory NO-LOCK
+         WHERE ttPhysicalBrowseInventory.company         EQ ipcCompany
+           AND ttPhysicalBrowseInventory.stockIDAlias    EQ ipcTag NO-ERROR.
+    IF AVAILABLE ttPhysicalBrowseInventory THEN        
+        ASSIGN
+            fiLocation:SCREEN-VALUE      = ttPhysicalBrowseInventory.location
+            fiItemno:SCREEN-VALUE        = ttPhysicalBrowseInventory.itemID
+            fiItemType:SCREEN-VALUE      = ttPhysicalBrowseInventory.itemType
+            fiCustno:SCREEN-VALUE        = ttPhysicalBrowseInventory.customerID
+            cbWarehouse:SCREEN-VALUE     = ttPhysicalBrowseInventory.warehouseID
+            fiBin:SCREEN-VALUE           = ttPhysicalBrowseInventory.locationID
+            fiTagMessage:SCREEN-VALUE    = ""
+            .                  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1222,7 +1278,7 @@ PROCEDURE pTagScan :
         fiTagMessage:SCREEN-VALUE = ""
         .
 
-    FIND FIRST ttPhysicalBrowseInventory EXCLUSIVE-LOCK
+    FIND FIRST ttPhysicalBrowseInventory NO-LOCK
          WHERE ttPhysicalBrowseInventory.company         EQ ipcCompany
            AND ttPhysicalBrowseInventory.stockIDAlias    EQ ipcTag NO-ERROR.
 
@@ -1249,8 +1305,7 @@ PROCEDURE pTagScan :
             cbWarehouse:SCREEN-VALUE     = ttPhysicalBrowseInventory.warehouseID
             fiBin:SCREEN-VALUE           = ttPhysicalBrowseInventory.locationID
             fiTagMessage:SCREEN-VALUE    = ""
-            .
-        
+            .        
     END.
     ELSE IF AVAILABLE inventoryStockSnapshot THEN DO:
         ASSIGN
@@ -1268,7 +1323,6 @@ PROCEDURE pTagScan :
             cbWarehouse:SCREEN-VALUE     = inventoryStockSnapshot.warehouseID
             fiBin:SCREEN-VALUE           = inventoryStockSnapshot.locationID
             .
-
     END. 
     ELSE DO:        
         FIND FIRST loadtag NO-LOCK
@@ -1291,11 +1345,32 @@ PROCEDURE pTagScan :
             cbWarehouse:SCREEN-VALUE     = loadtag.loc
             fiBin:SCREEN-VALUE           = loadtag.loc-bin
             .
-
     END.
-            
-                
-    /* {&OPEN-BROWSERS-IN-QUERY-F-Main} */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRowColor W-Win 
+PROCEDURE pUpdateRowColor :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiColor   AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE iNumCols AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCounter AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hdCurCol AS HANDLE  NO-UNDO.
+    
+    iNumCols = NUM-ENTRIES(cColumnHandles).
+ 
+    DO iCounter = 1 TO iNumCols:
+        ASSIGN 
+            hdCurCol         = WIDGET-HANDLE(ENTRY(iCounter,cColumnHandles))
+            hdCurCol:BGCOLOR = ipiColor.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

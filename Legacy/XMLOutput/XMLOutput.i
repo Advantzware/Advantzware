@@ -27,6 +27,23 @@
     {&c}iXMLOutput = sys-ctrl.int-fld.
   &ENDIF
   
+  &IF '{&c}' EQ 'c' &THEN
+    FUNCTION getFormattedDate RETURN CHARACTER (ipDate AS DATE, ipTime AS INTEGER):
+    DEFINE VARIABLE cFormattedDate AS CHARACTER NO-UNDO.
+    cFormattedDate = STRING(YEAR(ipDate),'9999')
+                   + '-'
+                   + STRING(MONTH(ipDate),'99')
+                   + '-'
+                   + STRING(DAY(ipDate),'99')
+                   + 'T'
+                   + STRING(ipTime,'hh:mm:ss')
+                   + '-05:00'
+                       .
+  
+        RETURN cFormattedDate.
+      END FUNCTION.
+  &ENDIF
+     
   &IF '{&{&c}XMLOutput}' NE '' &THEN
     &IF DEFINED(Company) NE 0 &THEN
       DEFINE VARIABLE {&c}XMLTemp AS CHARACTER NO-UNDO.

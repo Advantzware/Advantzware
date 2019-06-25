@@ -1,0 +1,51 @@
+        1   /* lib/insdbdisc.p
+        2    *
+        3    */
+        4   
+        5   define input-output parameter dbDirList as character no-undo format "x(250)".
+        6   
+        7   define variable xtext as character no-undo format "x(80)".
+        8   
+        9   if opsys = "unix" then 
+       10     xtext = '      Entries should have a leading "/".'.
+       11    else
+       12     xtext = '      Entries should have a leading "<Drive:~\>".'.
+       13   
+       14   dbDiscovery_loop: do while true on endkey undo, leave on error undo, leave:
+       15   
+       16     display
+       17       skip(1)
+       18       "      If you would like ProTop to try to discover your running databases enter the list                   " skip
+       19       "      of directories to search below.  Please separate search directories with a comma.                   " skip
+       20   &IF OPSYS="Windows" &THEN
+       21       "      You may need to use ALT-9-2 to enter ~\ on a non-English keyboard.                                   " skip
+       22   &ENDIF
+       23       xtext                                                                                                        skip
+       24       skip(1)
+       25       "      Leave blank to skip this step.                                                                      " skip
+       26       skip(1)
+       27       dbDirList at 15 view-as fill-in size 60 by 1
+       28       skip(1)
+       29       "      Only running databases will be auto-discovered.                                                     " skip
+       30       skip(1)
+       31      with
+       32       frame updDbDiscovery
+       33       title " ProTop 3 Database Discovery "
+       34       centered
+       35       row 3
+       36       width 110
+       37       no-labels
+       38     .
+       39   
+       40     update
+       41       dbDirList
+       42      go-on( "enter", "return" )
+       43      with
+       44       frame updDbDiscovery
+       45     .
+       46   
+       47     /*** if dbDirList = "" then ***/ leave dbDiscovery_loop.
+       48   
+       49   end.
+       50   
+       51   return.

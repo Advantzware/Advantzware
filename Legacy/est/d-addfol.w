@@ -68,6 +68,13 @@ FUNCTION fEnableImportForm RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableMisc D-Dialog 
+FUNCTION fEnableMisc RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -96,6 +103,11 @@ DEFINE BUTTON Btn_est AUTO-GO
 
 DEFINE BUTTON Btn_est-2 AUTO-GO 
      LABEL "Add &Blank to Form" 
+     SIZE 26 BY 2.14
+     BGCOLOR 8 .
+
+DEFINE BUTTON Btn_est-rel AUTO-GO 
+     LABEL "Misc Estimate" 
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
@@ -148,6 +160,7 @@ DEFINE FRAME D-Dialog
      Btn_est-2 AT ROW 11 COL 18
      btnImportForm AT ROW 11 COL 50 WIDGET-ID 8
      Btn_Cancel AT ROW 13.38 COL 18
+     Btn_est-rel AT ROW 13.38 COL 50
      RECT-25 AT ROW 1 COL 1
      SPACE(0.59) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -190,6 +203,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        btnImportForm:HIDDEN IN FRAME D-Dialog           = TRUE.
+
+/* SETTINGS FOR BUTTON Btn_est-rel IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn_est-rel:HIDDEN IN FRAME D-Dialog           = TRUE.
 
 /* SETTINGS FOR BUTTON Btn_part IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -279,6 +297,18 @@ END.
 ON CHOOSE OF Btn_est-2 IN FRAME D-Dialog /* Add Blank to Form */
 DO:
     assign ls-add-what = "blank".
+    apply "window-close" to this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_est-rel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_est-rel D-Dialog
+ON CHOOSE OF Btn_est-rel IN FRAME D-Dialog /* Misc Estimate */
+DO:
+    assign ls-add-what = "MiscEst".
     apply "window-close" to this-procedure.
 END.
 
@@ -378,10 +408,17 @@ IF ip-corr = YES THEN DO:
       btn_part:SENSITIVE = YES
       .
 END.
+IF fEnableMisc(cocode) THEN 
+    ASSIGN 
+        btn_est-rel:HIDDEN = NO
+        btn_est-rel:SENSITIVE = YES
+        .
+        
 IF fEnableImportForm(cocode) THEN 
     ASSIGN  
         btnImportForm:HIDDEN = NO
-        btnImportForm:SENSITIVE = YES .
+        btnImportForm:SENSITIVE = YES 
+        .
     
 {src/adm/template/dialogmn.i}
 
@@ -522,6 +559,21 @@ FUNCTION fEnableImportForm RETURNS LOGICAL
 
     lResult = lFound AND cReturn EQ 'YES'.
     RETURN lResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEnableMisc D-Dialog 
+FUNCTION fEnableMisc RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns logical if the Misc Est option should appear
+ Notes:
+------------------------------------------------------------------------------*/
+
+    RETURN ip-corr.
 
 END FUNCTION.
 

@@ -1217,8 +1217,9 @@ PROCEDURE pJasperReport :
             "leftMargin=~"" iMargin "~" "
             "rightMargin=~"" iMargin "~" "
             "topMargin=~"" iMargin "~" "
-            "bottomMargin=~"" iMargin "~">" SKIP
-            .
+            "bottomMargin=~"" iMargin "~" "
+            "isIgnorePagination=~"" TRIM(STRING(CAN-DO("csv,xls",ipcType),"true/false")) "~""
+            ">" SKIP.
         WHEN "Close" THEN
         PUT UNFORMATTED
             "</jasperReport>" SKIP
@@ -1289,7 +1290,7 @@ PROCEDURE pJasperStarter :
     IF NOT CAN-DO("print -d,view",ipcType) THEN DO TRANSACTION:
         CREATE TaskResult.
         ASSIGN
-            TaskResult.fileDateTime = DATETIME(dtDate,iTime)
+            TaskResult.fileDateTime = DATETIME(dtDate,iTime * 1000)
             TaskResult.fileType     = ipcType
             TaskResult.user-id      = aoaUserID
             TaskResult.folderFile   = opcJastFile
@@ -1673,7 +1674,7 @@ PROCEDURE spJasperQuery:
             ROWID(dynParamValue),
             dynSubject.queryStr,
             cTableName,
-            0, /* zero = no record limit */
+            dynParamValue.recordLimit, /* zero = no record limit */
             OUTPUT hQuery,
             OUTPUT lOK,
             OUTPUT cError

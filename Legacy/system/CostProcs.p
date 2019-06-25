@@ -28,7 +28,9 @@ FUNCTION fConvert RETURNS DECIMAL
     ipdLengthInInches AS DECIMAL,
     ipdWidthInInches AS DECIMAL,
     ipdDepthInInches AS DECIMAL,
-    ipdValueToConvert AS DECIMAL) FORWARD.
+    ipdQuantityOfLotInEA AS DECIMAL,
+     ipdQuantityOfSubUnitInEA AS DECIMAL,
+     ipdValueToConvert AS DECIMAL) FORWARD.
 
 FUNCTION fConvertCurrency RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL,
@@ -115,7 +117,7 @@ PROCEDURE GetCostForFGItemHist:
                     /*Calculate Freight in EA*/
                     dCostFreightRct = bfrcpt-fg-rdtlh.frt-cost / bfrcpt-fg-rdtlh.qty.  
                      /*Convert EA cost of freight to cost UOM*/
-                    dCostFreightRct = fConvert("EA", opcCostUOM, 0, 0, 0, 0, dCostFreightRct) .
+                    dCostFreightRct = fConvert("EA", opcCostUOM, 0, 0, 0, 0, 0, 0, dCostFreightRct) .
                     /*Add Freight in like UOM cost*/
                     opdCostPerUOMTotal = opdCostPerUOMTotal + dCostFreightRct.                        .  
                 END.
@@ -151,12 +153,65 @@ PROCEDURE GetCostForFGItemHist:
     IF opcCostUOM NE cCostUOMDef THEN 
     DO: 
         opcCostUOM = cCostUOMDef.
-        opdCostPerUOMTotal = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMTotal).
-        opdCostPerUOMDL = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMDL).
-        opdCostPerUOMFO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMFO).
-        opdCostPerUOMVO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMVO).
-        opdCostPerUOMDM = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, opdCostPerUOMDM).
+        opdCostPerUOMTotal = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMTotal).
+        opdCostPerUOMDL = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDL).
+        opdCostPerUOMFO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMFO).
+        opdCostPerUOMVO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMVO).
+        opdCostPerUOMDM = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDM).
     END.
+    
+END PROCEDURE.
+
+PROCEDURE GetCostForLastReceipt:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDL AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMFO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMVO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDM AS DECIMAL NO-UNDO.  
+    DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER b-fg-rcpth FOR fg-rcpth.
+    DEFINE BUFFER b-fg-rdtlh FOR fg-rdtlh.
+    DEFINE VARIABLE cRitaCodes AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCodeNum AS INTEGER NO-UNDO.
+    
+    cRitaCodes = "R,C".
+    HISTORYCOST:
+    DO iCodeNum = 1 TO NUM-ENTRIES(cRitaCodes):
+        
+        FOR EACH b-fg-rcpth
+            WHERE b-fg-rcpth.company EQ ipcCompany
+            AND b-fg-rcpth.i-no      EQ ipcFGItemID
+            AND b-fg-rcpth.rita-code EQ ENTRY(iCodeNum, cRitaCodes)
+            USE-INDEX i-no NO-LOCK,
+    
+            FIRST b-fg-rdtlh
+            WHERE b-fg-rdtlh.r-no    EQ b-fg-rcpth.r-no
+            AND b-fg-rdtlh.rita-code EQ b-fg-rcpth.rita-code
+            AND b-fg-rdtlh.qty     GT 0
+            NO-LOCK
+    
+            BY b-fg-rcpth.trans-date DESCENDING 
+            BY b-fg-rdtlh.trans-time DESCENDING 
+            BY b-fg-rcpth.r-no       DESCENDING 
+            BY RECID(b-fg-rdtlh)     DESCENDING :
+            
+            RUN pGetCostForHistoryRecord(BUFFER b-fg-rcpth, BUFFER b-fg-rdtlh, 
+                OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, 
+                OUTPUT oplFound).
+            
+            IF opdCostPerUOMTotal NE 0 THEN LEAVE HISTORYCOST.
+
+        END. /* Each b-fg-rcpth */
+        
+    END. /* Do iCodeNum... */
     
 END PROCEDURE.
 
@@ -235,6 +290,65 @@ PROCEDURE GetCostForPOLine:
     END.
 END PROCEDURE.
 
+PROCEDURE pGetCostForHistoryRecord PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given FG History buffers, return the costs with detail
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-fg-rcpth FOR fg-rcpth.
+    DEFINE PARAMETER BUFFER ipbf-fg-rdtlh FOR fg-rdtlh.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDL AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMFO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMVO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDM AS DECIMAL NO-UNDO.  
+    DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE iPOLine AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dCostFreight AS DECIMAL NO-UNDO.
+    
+    opcCostUOM = ipbf-fg-rcpth.pur-uom.
+    IF ipbf-fg-rdtlh.std-tot-cost NE 0 THEN 
+        DO:   /*if cost properly propagated to history transactions*/  
+            ASSIGN
+                opdCostPerUOMFO    = ipbf-fg-rdtlh.std-fix-cost   
+                opdCostPerUOMDL    = ipbf-fg-rdtlh.std-lab-cost   
+                opdCostPerUOMDM    = ipbf-fg-rdtlh.std-mat-cost    
+                opdCostPerUOMTotal = ipbf-fg-rdtlh.std-tot-cost    
+                opdCostPerUOMVO    = ipbf-fg-rdtlh.std-var-cost
+                oplFound           = YES     
+                .
+        END.
+        ELSE 
+        DO: /*otherwise get cost detail from sources*/
+            IF ipbf-fg-rcpth.job-no NE "" THEN 
+            DO:
+                RUN GetCostForJob(ipbf-fg-rcpth.company, ipbf-fg-rcpth.i-no, ipbf-fg-rcpth.job-no, ipbf-fg-rcpth.job-no2, 
+                    OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplFound).
+            END.
+            IF opdCostPerUOMTotal EQ 0 AND INTEGER(ipbf-fg-rcpth.po-no) GT 0 THEN 
+            DO:
+                iPoLine = MAXIMUM(ipbf-fg-rcpth.po-line, 1).
+                RUN GetCostForPOLine(ipbf-fg-rcpth.company, INTEGER(ipbf-fg-rcpth.po-no), iPoLine, ipbf-fg-rcpth.i-no,
+                    OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT oplFound).
+                ASSIGN 
+                    opdCostPerUOMDM = opdCostPerUOMTotal.
+            END.
+            IF opdCostPerUOMTotal EQ 0 THEN 
+                opdCostPerUOMTotal = ipbf-fg-rdtlh.cost.           
+        END.
+        IF opcCostUOM EQ "" THEN DO:
+            FIND FIRST itemfg NO-LOCK 
+                WHERE itemfg.company EQ ipbf-fg-rcpth.company
+                AND itemfg.i-no EQ ipbf-fg-rcpth.i-no
+                NO-ERROR.
+            IF AVAILABLE itemfg THEN 
+                opcCostUOM = itemfg.pur-uom.
+        END.        
+        
+END PROCEDURE.
+
 PROCEDURE pGetCostForPOLineInUOM PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given inputs, calculates an effective per UOM cost for a PO Line
@@ -259,6 +373,7 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
     DEFINE VARIABLE dCostSetup          AS DECIMAL.
     DEFINE VARIABLE dDiscountPercentage AS DECIMAL.
     DEFINE VARIABLE dFreightPortion     AS DECIMAL.
+    DEFINE VARIABLE dLotQtyInEA         AS DECIMAL. 
 
 
     IF AVAILABLE ipbf-po-ordl THEN 
@@ -272,9 +387,15 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
             .
         
     IF dOrderQty EQ 0 THEN RETURN.
+    dLotQtyInEA = fConvert(cOrderQtyUOM, "EA",
+        ipdBasisWeightInPoundsPerSqInch,
+        ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
+        dOrderQty, 0 /*Refactor to support CAS*/,
+        dOrderQty).
     dCostInOrderQtyUOM = fConvert(cCostUOM, cOrderQtyUOM,
         ipdBasisWeightInPoundsPerSqInch,
         ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
+        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
         dCostPerUOM).
 
     /*Apply discount to Per UOM Cost Only*/
@@ -290,11 +411,13 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
     opdCostPerUOMExFreight = fConvert(cOrderQtyUOM, ipcTargetUOM,
         ipdBasisWeightInPoundsPerSqInch,
         ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
+        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
         dCostTotal / dOrderQty).
     
     opdCostPerUOMFreight = fConvert(cOrderQtyUOM, ipcTargetUOM,
         ipdBasisWeightInPoundsPerSqInch,
         ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
+        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
         dFreightPortion / dOrderQty).
     
 END PROCEDURE.
@@ -343,6 +466,7 @@ PROCEDURE pGetFreightPortion PRIVATE:
                     IF LOOKUP(bf-po-ordl.pr-qty-uom,cEachUOMListFG) EQ 0 THEN
                         dQtyInEach = fConvert(bf-po-ordl.pr-qty-uom, "EA",
                             0, bf-po-ordl.s-len, bf-po-ordl.s-wid, bf-po-ordl.s-dep,
+                            1, 1,
                             dQtyInEach).
                                   
                     dWeightTotal = dWeightTotal + (dQtyInEach / 100 * itemfg.weight-100).
@@ -365,6 +489,7 @@ PROCEDURE pGetFreightPortion PRIVATE:
                     IF LOOKUP(bf-po-ordl.pr-qty-uom,cEachUOMListRM) EQ 0 THEN
                         dQtyInEach = fConvert(bf-po-ordl.pr-qty-uom, "EA",
                             ITEM.basis-w, bf-po-ordl.s-len, bf-po-ordl.s-wid, bf-po-ordl.s-dep,
+                            1, 1,
                             dQtyInEach).
       
                     dWeightTotal = dWeightTotal + (dQtyInEach / 100 * item.weight-100).
@@ -664,7 +789,7 @@ PROCEDURE pConvertCostToM PRIVATE:
     DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
     
-    opdCost = fConvert(ipcUOM, "M", 0, 0, 0, 0, ipdCost).
+    opdCost = fConvert(ipcUOM, "M", 0, 0, 0, 0, 1, 1, ipdCost).
 
 END PROCEDURE.
 
@@ -849,37 +974,9 @@ PROCEDURE GetCostForReceipt:
     RUN pGetReceiptBuffers(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, BUFFER b-fg-rcpth, BUFFER b-fg-rdtlh).
     IF AVAILABLE b-fg-rcpth AND AVAILABLE b-fg-rdtlh THEN 
     DO:
-            
-        IF b-fg-rdtlh.std-tot-cost NE 0 THEN 
-        DO:   /*if cost properly propagated to history transactions*/  
-            ASSIGN
-                opdCostPerUOMFO    = b-fg-rdtlh.std-fix-cost   
-                opdCostPerUOMDL    = b-fg-rdtlh.std-lab-cost   
-                opdCostPerUOMDM    = b-fg-rdtlh.std-mat-cost    
-                opdCostPerUOMTotal = b-fg-rdtlh.std-tot-cost    
-                opdCostPerUOMVO    = b-fg-rdtlh.std-var-cost
-                oplFound           = YES 
-                opcCostUOM         = b-fg-rcpth.pur-uom    
-                .
-        END.
-        ELSE 
-        DO: /*otherwise get cost detail from sources*/
-            ASSIGN 
-                opdCostPerUOMTotal = b-fg-rdtlh.cost.
-            IF b-fg-rcpth.job-no NE "" THEN 
-            DO:
-                RUN GetCostForJob(b-fg-rcpth.company, b-fg-rcpth.i-no, b-fg-rcpth.job-no, b-fg-rcpth.job-no2, 
-                    OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplFound).
-            END.
-            IF opdCostPerUOMTotal EQ 0 AND INTEGER(b-fg-rcpth.po-no) GT 0 THEN 
-            DO:
-                iPoLine = MAXIMUM(b-fg-rcpth.po-line, 1).
-                RUN GetCostForPOLine(b-fg-rcpth.company, INTEGER(b-fg-rcpth.po-no), iPoLine, b-fg-rcpth.i-no,
-                    OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT oplFound).
-                ASSIGN 
-                    opdCostPerUOMDM = opdCostPerUOMTotal.
-            END.           
-        END.    
+        RUN pGetCostForHistoryRecord(BUFFER b-fg-rcpth, BUFFER b-fg-rdtlh, 
+            OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, 
+            OUTPUT oplFound).    
     END.
     
 END PROCEDURE.
@@ -1032,6 +1129,7 @@ FUNCTION fConvert RETURNS DECIMAL
     (ipcFromUOM AS CHARACTER , ipcToUOM AS CHARACTER, 
     ipdBasisWeightInPoundsPerSqInch AS DECIMAL, 
     ipdLengthInInches AS DECIMAL, ipdWidthInInches AS DECIMAL, ipdDepthInInches AS DECIMAL, 
+    ipdQuantityOfLotInEA AS DECIMAL, ipdQuantityOfSubUnitInEA AS DECIMAL, 
     ipdValueToConvert AS DECIMAL):
     /*------------------------------------------------------------------------------
      Purpose: Replaces all conversion programs
@@ -1081,6 +1179,10 @@ FUNCTION fConvert RETURNS DECIMAL
         WHEN "BF" OR 
         WHEN "BSF" THEN
             ipdValueToConvert = ((ipdLengthInInches * ipdWidthInInches * ipdDepthInInches) / 144) * ipdValueToConvert.
+        WHEN "CAS" OR WHEN "C" THEN 
+            ipdValueToConvert = ipdValueToConvert / ipdQuantityOfSubUnitInEA.
+        WHEN "LOT" OR WHEN "L" THEN
+            ipdValueToConvert = ipdValueToConvert / ipdQuantityOfLotInEA.
         OTHERWISE 
         DO:
             fromuom:
@@ -1141,6 +1243,11 @@ FUNCTION fConvert RETURNS DECIMAL
         WHEN "BSF" THEN 
             IF ipdLengthInInches NE 0 AND ipdWidthInInches NE 0 AND ipdDepthInInches NE 0 THEN 
                 dValueConverted = ipdValueToConvert / ((ipdLengthInInches * ipdWidthInInches * ipdDepthInInches) / 144).
+        WHEN "CAS" OR WHEN "C" THEN 
+            ipdValueToConvert = ipdValueToConvert * ipdQuantityOfSubUnitInEA.
+        WHEN "LOT" OR WHEN "L" THEN
+            ipdValueToConvert = ipdValueToConvert * ipdQuantityOfLotInEA.
+            
         OTHERWISE 
         DO:
             touom:

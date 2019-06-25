@@ -1,0 +1,122 @@
+/* windows.i
+ *
+ * MS-Windows specific functions
+ *
+ */
+
+procedure CreateProcessA    external "kernel32":
+     define input parameter lpApplicationName       as long.
+     define input parameter lpCommandline           as character.
+     define input parameter lpProcessAttributes     as long.
+     define input parameter lpThreadAttributes      as long.
+     define input parameter bInheritHandles         as long.
+     define input parameter dCreationFlags          as long.
+     define input parameter lpEnvironment           as long.
+     define input parameter lpCurrentDirectory      as long.
+     define input parameter lpStartupInfo           as long.
+     define input parameter lpProcessInformation    as long.
+     define return parameter bResult                as long.
+end procedure.
+
+PROCEDURE OpenProcess EXTERNAL "kernel32" :
+  DEFINE INPUT  PARAMETER dwDesiredAccess AS LONG.
+  DEFINE INPUT  PARAMETER bInheritHandle  AS LONG.
+  DEFINE INPUT  PARAMETER dwProcessId     AS LONG.
+  DEFINE RETURN PARAMETER hProcess        AS LONG.
+END PROCEDURE.
+ 
+PROCEDURE CloseHandle EXTERNAL "kernel32" :
+  DEFINE INPUT  PARAMETER hObject     AS LONG.
+  DEFINE RETURN PARAMETER ReturnValue AS LONG.
+END PROCEDURE.
+ 
+PROCEDURE TerminateProcess EXTERNAL "kernel32" :
+  DEFINE INPUT  PARAMETER hProcess  AS LONG.
+  DEFINE INPUT  PARAMETER uExitCode AS LONG.
+  DEFINE RETURN PARAMETER retval    AS LONG.
+END PROCEDURE.
+
+PROCEDURE Sleep EXTERNAL "kernel32.DLL":
+  DEFINE INPUT PARAMETER intMilliseconds AS LONG.
+END PROCEDURE.
+
+/***************************************************************************/
+
+PROCEDURE Spawn:
+
+  DEFINE INPUT  PARAMETER CommandLine as character NO-UNDO.
+  DEFINE INPUT  PARAMETER WorkingDir  as character NO-UNDO.
+  DEFINE OUTPUT PARAMETER PID         AS INTEGER   NO-UNDO.
+ 
+  define variable wShowWindow AS INTEGER NO-UNDO INITIAL 0.
+  define variable bResult     AS INTEGER NO-UNDO.
+  define variable ReturnValue AS INTEGER NO-UNDO.
+
+ 
+   define variable lpStartupInfo AS MEMPTR.
+   SET-SIZE(lpStartupInfo)     = 68.
+   PUT-LONG(lpStartupInfo,1)   = 68.
+   PUT-LONG (lpStartupInfo,45) = 1. /* = STARTF_USESHOWWINDOW */
+   PUT-SHORT(lpStartupInfo,49) = wShowWindow.
+ 
+   define variable lpProcessInformation AS MEMPTR.
+   SET-SIZE(lpProcessInformation)   = 16.
+ 
+   define variable lpWorkingDirectory AS MEMPTR.
+   IF WorkingDir NE "" THEN DO:
+      SET-SIZE(lpWorkingDirectory)     = 256.
+      PUT-STRING(lpWorkingDirectory,1) = WorkingDir.
+   END.   
+ 
+   RUN CreateProcessA
+     ( 0,
+       CommandLine,
+       0,
+       0,
+       0,
+       0,
+       0,
+       IF WorkingDir="" THEN 0 ELSE GET-POINTER-VALUE(lpWorkingDirectory),
+       GET-POINTER-VALUE(lpStartupInfo),
+       GET-POINTER-VALUE(lpProcessInformation),
+       OUTPUT bResult
+     ).
+
+ 
+  IF bResult=0 THEN 
+     PID = 0.
+  ELSE DO:
+     PID = GET-LONG(lpProcessInformation,9).
+
+     /* release kernel-objects hProcess and hThread: */
+
+     RUN CloseHandle ( input GET-LONG(lpProcessInformation,1), OUTPUT ReturnValue).
+     RUN CloseHandle ( input GET-LONG(lpProcessInformation,5), OUTPUT ReturnValue).
+
+  END.
+ 
+  SET-SIZE(lpStartupInfo)        = 0.
+  SET-SIZE(lpProcessInformation) = 0.
+  SET-SIZE(lpWorkingDirectory)   = 0.
+
+END PROCEDURE.
+
+procedure kill:
+
+  DEFINE INPUT PARAMETER ProcessId AS INTEGER NO-UNDO.
+ 
+  define variable ProcessHandle AS INTEGER NO-UNDO.
+  define variable ReturnValue   AS INTEGER NO-UNDO.
+
+  RUN OpenProcess ( 1, 0, ProcessId, OUTPUT ProcessHandle).
+
+  IF ProcessHandle NE 0 THEN DO:
+     RUN TerminateProcess ( ProcessHandle, 0, OUTPUT ReturnValue).
+
+     RUN CloseHandle( ProcessHandle, OUTPUT ReturnValue).
+
+  END.
+
+end.
+
+/*** end windows.i ***/

@@ -1782,15 +1782,13 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
                        and job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
                        no-lock no-error.
        IF AVAIL job-hdr THEN DO:
-
-          FOR EACH fg-act
-              WHERE fg-act.company EQ cocode
-                AND fg-act.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                AND fg-act.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-                AND fg-act.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-              NO-LOCK:
-            v-rec-qty = v-rec-qty + fg-act.qty.     
-          END.
+         
+          RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT v-rec-qty).
 
           FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
                                     sys-ctrl.name = "JOB QTY" 

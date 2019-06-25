@@ -2035,7 +2035,7 @@ PROCEDURE pRestoreDb :
             " -database " + slAvailDbs:{&SV} + 
             " -start"
             .
-
+{&Won}
     IF lOnline THEN DO:
         STATUS DEFAULT "Stopping database server " + slAvailDbs:{&SV}.
         OS-COMMAND SILENT VALUE(cStopString).
@@ -2093,7 +2093,7 @@ PROCEDURE pRestoreDb :
             RETURN.
         END.
     END.
-
+{&Woff}
     IF tbShowMsg:CHECKED {&IN} THEN 
     MESSAGE 
         "Database restore successful!"

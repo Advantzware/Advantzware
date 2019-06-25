@@ -7,8 +7,8 @@ DEF OUTPUT PARAM op-q-ono LIKE itemfg.q-ono NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg.
 DEF BUFFER b-po-ordl FOR po-ordl.
 
-DEF VAR ld-qty LIKE fg-act.qty NO-UNDO.
-DEF VAR ldrcv-qty LIKE fg-act.qty NO-UNDO.
+DEF VAR ld-qty AS DECIMAL FORMAT ">>,>>>,>>9" NO-UNDO.
+DEF VAR ldrcv-qty AS DECIMAL FORMAT ">>,>>>,>>9" NO-UNDO.
 DEF VAR li-loop AS INT NO-UNDO.
 DEF VAR v-set-job-qty AS INT NO-UNDO.
 DEF VAR v-set-rcv-qty AS INT NO-UNDO.
@@ -63,17 +63,12 @@ IF AVAIL itemfg THEN DO:
            NEXT.
 
         ld-qty = 0.
-        FOR EACH fg-act fields(qty) WHERE
-            fg-act.company EQ job-hdr.company AND
-            fg-act.job     EQ job-hdr.job AND
-            fg-act.job-no  EQ job-hdr.job-no AND
-            fg-act.job-no2 EQ job-hdr.job-no2 AND           
-            fg-act.i-no    EQ job-hdr.i-no AND
-            (IF itemfg.alloc = ? THEN fg-act.qty GT 0
-             ELSE TRUE)
-            NO-LOCK:
-            ld-qty = ld-qty + fg-act.qty.
-        END.
+        RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT ld-qty).
       
         IF ld-qty LT job-hdr.qty THEN
            op-q-ono = op-q-ono + (job-hdr.qty - ld-qty).
@@ -106,14 +101,13 @@ IF AVAIL itemfg THEN DO:
           
           FOR EACH tt-fg-set WHERE tt-fg-set.part-no EQ reftable.code2:
               ld-qty = 0.
-              FOR EACH fg-act FIELDS(qty) NO-LOCK
-                  WHERE fg-act.company EQ job-hdr.company
-                    AND fg-act.job     EQ job-hdr.job
-                    AND fg-act.job-no  EQ job-hdr.job-no
-                    AND fg-act.job-no2 EQ job-hdr.job-no2
-                    AND fg-act.i-no    EQ tt-fg-set.part-no:
-                    ld-qty = ld-qty + fg-act.qty.
-              END. /* FOR EACH fg-act */
+              RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT ld-qty).
+
               IF ld-qty LT job-hdr.qty * tt-fg-set.part-qty-dec THEN
                  op-q-ono = op-q-ono + ((job-hdr.qty * tt-fg-set.part-qty-dec) - 
                                          ld-qty).
@@ -213,14 +207,13 @@ IF AVAIL itemfg THEN DO:
     
              ld-qty = 0.
              
-             FOR EACH fg-act fields(qty) NO-LOCK
-               WHERE fg-act.company EQ job-hdr.company
-                 AND fg-act.job     EQ job-hdr.job
-                 AND fg-act.job-no  EQ job-hdr.job-no
-                 AND fg-act.job-no2 EQ job-hdr.job-no2
-                 AND fg-act.i-no    EQ job-hdr.i-no:
-               ld-qty = ld-qty + fg-act.qty.
-             END.
+             RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT ld-qty).
+
              IF ld-qty LT job-hdr.qty THEN
                 op-q-ono = op-q-ono + ((job-hdr.qty - ld-qty) * v-part-qty).
              
@@ -250,15 +243,13 @@ IF AVAIL itemfg THEN DO:
          
            FOR EACH tt-fg-set WHERE tt-fg-set.part-no EQ reftable.code2:
                ld-qty = 0.
-               FOR EACH fg-act FIELDS(qty) WHERE
-                   fg-act.company EQ job-hdr.company AND
-                   fg-act.job     EQ job-hdr.job AND
-                   fg-act.job-no  EQ job-hdr.job-no AND
-                   fg-act.job-no2 EQ job-hdr.job-no2 AND
-                   fg-act.i-no    EQ tt-fg-set.part-no 
-                                      NO-LOCK:
-                   ld-qty = ld-qty + fg-act.qty.
-               END.  /* FOR EACH fg-act */
+               RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT ld-qty).
+
                IF ld-qty LT job-hdr.qty * tt-fg-set.part-qty-dec THEN
                   op-q-ono = op-q-ono + ((job-hdr.qty * tt-fg-set.part-qty-dec) - 
                                          ld-qty).
@@ -320,17 +311,13 @@ IF AVAIL itemfg THEN DO:
 
              ld-qty = 0.
              
-             FOR EACH fg-act fields(qty) NO-LOCK
-               WHERE fg-act.company EQ job-hdr.company
-                 AND fg-act.job     EQ job-hdr.job
-                 AND fg-act.job-no  EQ job-hdr.job-no
-                 AND fg-act.job-no2 EQ job-hdr.job-no2
-                 AND fg-act.i-no    EQ job-hdr.i-no                 
-                 AND fg-act.qty     GT 0:
-                 /* Note: For assembled items, fg-act has both a negative
-                          and positive record */
-               ld-qty = ld-qty + fg-act.qty.
-             END.
+             RUN fg/GetProductionQty.p (INPUT job-hdr.company,
+                INPUT job-hdr.job-no,
+                INPUT job-hdr.job-no2,
+                INPUT job-hdr.i-no,
+                INPUT NO,
+                OUTPUT ld-qty).
+
              IF ld-qty LT job-hdr.qty THEN
                 ASSIGN v-set-job-qty = job-hdr.qty
                        v-set-rcv-qty =  ld-qty.

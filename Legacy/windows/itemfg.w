@@ -659,6 +659,8 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-locw ( 27.56 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.10 , 95.00 ) */
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('13':U) NO-ERROR.
 
        /* Links to SmartViewer h_itemfg. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg ).
