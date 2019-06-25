@@ -843,6 +843,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddJobMchSeq C-Win
+PROCEDURE ipAddJobMchSeq:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF job-mch.
+    FOR EACH job-mch BY RECID(job-mch):
+        ASSIGN  
+            job-mchID = NEXT-VALUE(job-mch_seq).
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
 PROCEDURE ipAddLocationData :
 /*------------------------------------------------------------------------------
@@ -2135,6 +2155,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160890.
     IF fIntVer(cThisEntry) LT 16089900 THEN
         RUN ipDataFix160899.
+    IF fIntVer(cThisEntry) LT 16100000 THEN
+        RUN ipDataFix161000.
 
     RUN ipStatus ("Completed Data Fixes").
     
@@ -2498,6 +2520,24 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
+PROCEDURE ipDataFix161000 :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161000...").
+
+    RUN ipAddJobMchSeq.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFixConfig C-Win 
 PROCEDURE ipDataFixConfig :
