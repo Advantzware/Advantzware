@@ -137,8 +137,7 @@ PROCEDURE CreateActRelLine:
         ASSIGN oplError = TRUE 
                opcMessage = "Release header record not found"
                .
-               MESSAGE "header not found"
-               VIEW-AS ALERT-BOX.
+
     END.      
         
     RUN sys/ref/nk1look.p (INPUT ipbf-oe-relh.company, "OEREORDR", "L" /* Logical */, NO /* check by cust */, 
@@ -165,8 +164,6 @@ PROCEDURE CreateActRelLine:
         ASSIGN oplError = TRUE 
                opcMessage = "Scheduled release record not found"
                .
-               MESSAGE "release not found"
-               VIEW-AS ALERT-BOX.
     END. 
     IF oplError THEN
         RETURN.
@@ -746,9 +743,6 @@ PROCEDURE ReleaseOrder :
              ASSIGN oplError = TRUE
                     opcMessage = cResultMsg
                     .
-             MESSAGE "header result" lResult SKIP 
-               "cmsg" cResultMsg
-             VIEW-AS ALERT-BOX.
              LEAVE REL-LINES.
            END.
            FIND FIRST bf-oe-relh NO-LOCK
@@ -758,8 +752,6 @@ PROCEDURE ReleaseOrder :
                 ASSIGN oplError = TRUE
                        opcMessage = "Actual release header not created."
                        .
-                MESSAGE "Error header not created"
-                VIEW-AS ALERT-BOX.
                 LEAVE REL-LINES.
            END.
 
@@ -768,9 +760,7 @@ PROCEDURE ReleaseOrder :
         VIEW-AS ALERT-BOX.
            iRelNo = iRelNo + 1.
            RUN CreateActRelLine (BUFFER bf-oe-rel, BUFFER bf-oe-relh, iRelNo, OUTPUT rOeRell, OUTPUT lResult, OUTPUT cResultMsg).
-                        MESSAGE "line result" lResult SKIP 
-               "cmsg" cResultMsg
-             VIEW-AS ALERT-BOX.
+
      END. 
      
 
@@ -892,7 +882,11 @@ PROCEDURE SetActualReleaseLocation:
     DEFINE VARIABLE cSelectedValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFgFile        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lcLocBin       AS CHARACTER NO-UNDO.
-        
+    DEFINE VARIABLE lRecFound      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnChar    AS CHARACTER NO-UNDO.
+    /* For premier, no tags are selected */
+    cSelectedValue = "NoTag".
+    
     FIND CURRENT ipbf-oe-rell EXCLUSIVE-LOCK NO-ERROR.
     FIND FIRST oe-ordl NO-LOCK
         WHERE oe-ordl.company EQ ipbf-oe-rel.company
@@ -925,15 +919,20 @@ PROCEDURE SetActualReleaseLocation:
     DO:
         CREATE sys-ctrl.
         ASSIGN
-            sys-ctrl.company = oe-relh.company
+            sys-ctrl.company = ipbf-oe-rel.company
             sys-ctrl.NAME    = "BOLWHSE"
             sys-ctrl.descrip = "Default Warehouse for Adding Release/BOL"
             sys-ctrl.log-fld = NO.
         MESSAGE "System control record NOT found. " sys-ctrl.descrip
             UPDATE sys-ctrl.char-fld.
     END.
-    IF AVAILABLE sys-ctrl THEN lcBolWhse = sys-ctrl.char-fld. 
-    
+    IF AVAILABLE sys-ctrl THEN lcBolWhse = sys-ctrl.char-fld.     
+        
+    RUN sys/ref/nk1look.p (INPUT ipbf-oe-rell.company, "addrelse", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    addrelse-cha = cReturnChar NO-ERROR.
+
     /* lcBolWhse is an NK1 flag. ipbf-oe-rel.spare-char-1 is a ship-from */
     /* chosen by the user, so should try to find a bin for it       */
     IF lcBolWhse EQ "SHIPTO" THEN 
@@ -948,8 +947,7 @@ PROCEDURE SetActualReleaseLocation:
                 ipbf-oe-rell.loc     = shipto.loc
                 ipbf-oe-rell.loc-bin = shipto.loc-bin
                 .
-    END.
-  
+    END.  
     ELSE 
     DO:
         FIND FIRST fg-bin NO-LOCK
@@ -1065,7 +1063,7 @@ PROCEDURE SetActualReleaseLocation:
                 WHERE fg-bin.company EQ ipbf-oe-rell.company
                   AND fg-bin.i-no    EQ ipbf-oe-rell.i-no
                 USE-INDEX co-ino NO-ERROR.
- 
+
         IF AVAILABLE fg-bin THEN 
         DO:        
             IF ipbf-oe-rell.loc EQ "" OR ipbf-oe-rell.loc-bin EQ "" THEN
@@ -1073,6 +1071,7 @@ PROCEDURE SetActualReleaseLocation:
                     ipbf-oe-rell.loc     = fg-bin.loc
                     ipbf-oe-rell.loc-bin = fg-bin.loc-bin
                     .
+
             IF addrelse-cha NE "No Tags" AND cSelectedValue NE "NoTag" THEN
                 ipbf-oe-rell.tag      = fg-bin.tag.
         
