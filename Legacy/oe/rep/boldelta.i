@@ -1,259 +1,282 @@
-/* ---------------------------------------------- oe/rep/bolxprt3.i           */
-/* PRINT detail                                                               */
+/* ---------------------------------------------- oe/rep/bolempir.i 12/99 FWK */
+/* PRINT Empire BOL                                                           */
 /* -------------------------------------------------------------------------- */
 
-v-tot-cases = 0.
+assign
+ v-tot-wt    = 0
+ v-tot-cases = 0
+ v-tot-palls = 0.
 
-FOR EACH tt-boll,
-      
-    FIRST itemfg
-    WHERE itemfg.company EQ cocode
-    AND itemfg.i-no    EQ tt-boll.i-no
-    NO-LOCK
+for each report where report.term-id eq v-term-id,
 
-    BREAK BY ( IF v-sort THEN  tt-boll.i-no ELSE "")
-    BY ( IF NOT v-sort THEN tt-boll.job-no + STRING(tt-boll.job-no2) ELSE "")
-    BY tt-boll.po-no
-    BY tt-boll.ord-no
-    BY tt-boll.line
-    BY tt-boll.cases DESCENDING:
-    IF ll-consol-bolls THEN 
-    DO:
-        {oe/rep/boldelta23.i}
+    first oe-boll where recid(oe-boll) eq report.rec-id,
+
+    first xoe-bolh where xoe-bolh.b-no eq oe-boll.b-no no-lock,
+
+    first itemfg
+    where itemfg.company eq oe-boll.company
+      and itemfg.i-no    eq oe-boll.i-no
+    no-lock
+
+    break by report.key-01 /* oe-boll.i-no*/
+          by report.key-02 /* oe-boll.ord-no*/
+          BY oe-boll.line
+          BY oe-boll.po-no
+          BY oe-boll.job-no
+          BY oe-boll.job-no2:
+
+    IF FIRST-OF(report.key-02) THEN DO:
+       ASSIGN v-ship-qty = 0
+              v-weight   = 0
+              v-ord-qty  = 0.
     END.
-    ELSE 
-    DO:
-        FIND FIRST oe-ordl
-            WHERE oe-ordl.company EQ cocode
-            AND oe-ordl.ord-no  EQ tt-boll.ord-no
-            AND oe-ordl.i-no    EQ tt-boll.i-no
-            AND oe-ordl.line    EQ tt-boll.line
-            NO-LOCK NO-ERROR.
 
-        FIND FIRST oe-ord
-            WHERE oe-ord.company EQ cocode
-            AND oe-ord.ord-no  EQ tt-boll.ord-no
-            NO-LOCK NO-ERROR.
+  ASSIGN
+   v-tot-pkgs = v-tot-pkgs + oe-boll.cases +
+                if oe-boll.partial gt 0 then 1 else 0
+   v-pal-cnt  = oe-boll.qty-case.
 
-            iTotShiped =  tt-boll.qty .  
-            iAmtPerBundle = oe-ordl.cas-cnt .
-            iBundlePerPallet = oe-ordl.cases-unit .
+  FIND FIRST fg-bin
+      WHERE fg-bin.company EQ oe-boll.company
+        AND fg-bin.i-no    EQ oe-boll.i-no
+        AND fg-bin.job-no  EQ oe-boll.job-no
+        AND fg-bin.job-no2 EQ oe-boll.job-no2
+        AND fg-bin.loc     EQ oe-boll.loc
+        AND fg-bin.loc-bin EQ oe-boll.loc-bin
+        AND fg-bin.tag     EQ oe-boll.tag
+      NO-LOCK NO-ERROR.
+  IF AVAIL fg-bin THEN
+    v-pal-cnt = v-pal-cnt                                                     *
+                (IF fg-bin.cases-unit   EQ 0 THEN 1 ELSE fg-bin.cases-unit)   *
+                (IF fg-bin.units-pallet EQ 0 THEN 1 ELSE fg-bin.units-pallet).
 
-             iQtyPerPallet = iAmtPerBundle * iBundlePerPallet .
-             iTotPallet = iTotShiped / iQtyPerPallet .
-	         iGrandBundlePerPallet = iGrandBundlePerPallet + ( iTotPallet * iBundlePerPallet)  .
-             v-tot-palls = v-tot-palls + iTotPallet .
-             iGrandTotShiped = iGrandTotShiped + tt-boll.qty .
+  v-pal-cnt = oe-boll.qty / v-pal-cnt.
 
+  {sys/inc/roundup.i v-pal-cnt}
 
-        IF v-printline >= 48 THEN 
-        DO:
-      
-            v-printline = 0.
-            PAGE {1}.
-            {oe/rep/boldelta22.i}
-        END.
+  v-tot-palls = v-tot-palls + v-pal-cnt.
 
-        IF tt-boll.qty-case NE 0 AND tt-boll.cases NE 0 THEN 
-        DO:
-            FIND FIRST w2 WHERE w2.cas-cnt EQ tt-boll.qty-case NO-ERROR.
-            IF NOT AVAILABLE w2 THEN CREATE w2.
-            ASSIGN
-                w2.cas-cnt = tt-boll.qty-case
-                w2.cases   = w2.cases + tt-boll.cases.
-        END.
+  if oe-boll.qty-case ne 0 and oe-boll.cases ne 0 then do:
+    find first w2 where w2.cas-cnt eq oe-boll.qty-case no-error.
+    if not avail w2 then create w2.
+    assign
+     w2.cas-cnt = oe-boll.qty-case
+     w2.cases   = w2.cases + oe-boll.cases.
+  end.
 
-        /*IF tt-boll.partial NE 0 THEN */
-        /*DO:                            */
-        /*    FIND FIRST w2 WHERE w2.cas-cnt EQ tt-boll.partial NO-ERROR.*/
-        /*    IF NOT AVAILABLE w2 THEN CREATE w2.*/
-        /*    ASSIGN                             */
-        /*        w2.cas-cnt = tt-boll.partial   */
-        /*        w2.cases   = w2.cases + 1.     */
-        /*END.*/
-
-        v-lines = 0.
-        FOR EACH w2 BREAK BY w2.cases:
-            v-lines = v-lines + 1.
-        END. 
-  
-        DO i = v-lines + 1 TO 4:
-            ASSIGN
-                v-part-dscr = ""
-                v-job-po    = "".
-
-            IF i EQ 1 THEN
-                ASSIGN
-                    v-part-dscr = oe-ordl.i-name
-                    v-job-po    = STRING(oe-ordl.ord-no) .
-
-            ELSE
-                IF i EQ 2 THEN
-                    ASSIGN
-                        v-part-dscr = oe-ordl.part-dscr1
-                        v-job-po    = tt-boll.po-no  .
+  if oe-boll.partial ne 0 then do:
+    find first w2 where w2.cas-cnt eq oe-boll.partial no-error.
+    if not avail w2 then create w2.
+    assign
+     w2.cas-cnt = oe-boll.partial
+     w2.cases   = w2.cases + 1.
+  end.
     
-                ELSE
-                    IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr2.
+  find first oe-ordl where oe-ordl.company eq cocode
+       and oe-ordl.ord-no  eq int(report.key-02)
+       and oe-ordl.i-no    eq report.key-01
+       no-lock no-error.
 
-                    ELSE
-                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr3.
-    
-            IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN v-lines = v-lines + 1.
-        END.
-  
-        v-lines = v-lines + 1.
-  
-        i = 0.
-        FOR EACH w2 BREAK BY w2.cases:
-            i = i + 1.
+  IF LAST(report.key-01) THEN do:
+      IF v-printline >= 40 THEN DO:
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/boldelta22.i}
+      END.
+  END.
+  ELSE
+      IF v-printline >= 44 THEN DO:
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/boldelta22.i}
+      END.
 
-            ASSIGN
-                v-part-dscr = ""
-                v-job-po    = "".
-
-            IF i EQ 1 THEN
-                ASSIGN
-                    v-part-dscr = oe-ordl.i-name
-                    v-job-po    =STRING(oe-ordl.ord-no)  .
-
-            ELSE
-                IF i EQ 2 THEN
-                    ASSIGN
-                        v-part-dscr = oe-ordl.part-dscr1
-                        v-job-po    = tt-boll.po-no .
-
-                ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr2.
-
-                    ELSE IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr3.
-
-            DISPLAY STRING(oe-ordl.ord-no)
-                WHEN i EQ 1
-                @ v-job-po
-                v-job-po WHEN i EQ 2
-                string(oe-ordl.qty) WHEN i EQ 1 @ cOrderQty
-                v-part-dscr
-                trim(string(iAmtPerBundle,"->>>>9")) WHEN LAST(w2.cases) @ cW2Cases
-                trim(string(iBundlePerPallet,"->>>>>9")) 
-                WHEN LAST(w2.cases) @ cBundlePerPallet
-                trim(string(iQtyPerPallet,"->>>>>>"))
-                WHEN LAST(w2.cases) @ cQtyPerPallet  
-                trim(string(iTotPallet,"->>>>"))  
-                WHEN LAST(w2.cases) @ cTotPallet  
-                trim(string(iTotShiped,"->>>>>>")) 
-                WHEN LAST(w2.cases) @ cBollQty
-                WITH FRAME bol-mid2.
-            DOWN  WITH FRAME bol-mid2.  
-            
-            v-printline = v-printline + 1.
-    
-            IF v-printline >= 48 THEN 
-            DO:
-        
-                v-printline = 0.
-                PAGE {1}.
-                {oe/rep/boldelta22.i}
-            END.
-            v-tot-cases = v-tot-cases + w2.cases.
-
-            DELETE w2.    
-        END. /* each w2 */
-
-        IF i < 4 THEN
-        DO i = i + 1 TO 4:
-            CLEAR FRAME bol-mid2 NO-PAUSE.
-
-            ASSIGN
-                v-part-dscr = ""
-                v-job-po    = "".
-
-            IF i EQ 1 THEN
-                ASSIGN
-                    v-part-dscr = oe-ordl.i-name
-                    v-job-po    = tt-boll.po-no.
-
-            ELSE
-                IF i EQ 2 THEN
-                    ASSIGN
-                        v-part-dscr = oe-ordl.part-dscr1
-                        v-job-po    = STRING(tt-boll.po-no).
-
-                ELSE
-                    IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr2.
-
-                    ELSE
-                        IF i EQ 4 THEN v-part-dscr = oe-ordl.part-dscr3.
-    
-            IF i = 2 AND v-job-po = "" THEN
-                v-job-po = STRING(tt-boll.po-no)                 .
-
-            IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN 
-            DO:
-        
-                IF v-printline >= 48 THEN 
-                DO:
           
-                    v-printline = 0.
-                    PAGE {1}.
-                    {oe/rep/boldelta22.i}
-                END. 
-                DISPLAY {1}
-                    v-job-po                            
-                    WHEN i EQ 2
-                    v-part-dscr              
-                    WITH FRAME bol-mid2.
-                DOWN {1} WITH FRAME bol-mid2. 
-                v-printline = v-printline + 1.
-            END.
+
+  v-job-no = "".
+  if avail oe-ordl and oe-ordl.job-no ne "" then
+     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
+                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+
+  ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
+         v-weight   = v-weight + oe-boll.weight
+         v-ord-qty = v-ord-qty + oe-ordl.qty.
+
+  IF lv-bolfmt-int = 1 THEN DO:  /* show summary per item */
+    IF LAST-OF(report.key-02) THEN DO:
+      i = 0.
+      FOR EACH w2 BREAK BY w2.cases * w2.cas-cnt DESC:
+        i = i + 1.
+        IF i eq 1 THEN ASSIGN v-part-dscr = oe-ordl.part-no
+                              v-job-po    = oe-boll.po-no.
+        ELSE
+        if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1 /*i-name*/
+                              v-job-po    = if oe-ordl.job-no eq "" then "" else
+                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+        ELSE
+        if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
+        ELSE
+        if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
+             
+        IF v-printline >= 46 THEN DO:
+          v-printline = 0.
+          PAGE {1}.
+          {oe/rep/boldelta22.i}
         END.
-  
-        PUT {1} SKIP(1).
+
+        IF FIRST(w2.cases * w2.cas-cnt) THEN 
+          PUT {1} oe-ordl.part-no
+                  v-job-po  AT 17 FORM "x(15)" 
+                  oe-boll.i-no AT 33 
+                  oe-ordl.i-name FORM "x(22)"
+                  w2.cases    AT 71 FORM "->>>9" " @"
+                  w2.cas-cnt    FORM "->>>>>9"
+                  SKIP.
+        ELSE PUT {1} 
+                 oe-ordl.ord-no
+                 oe-ordl.part-dscr1 FORM "x(30)" AT 33 
+                 w2.cases  AT 71 FORM "->>>9" " @"
+                 w2.cas-cnt FORM "->>>>>9" SKIP.
         v-printline = v-printline + 1.
-        tt-boll.printed = YES.
-  
-        IF v-print-components AND itemfg.alloc NE YES THEN
-            FOR EACH fg-set
-                WHERE fg-set.company EQ cocode
-                AND fg-set.set-no  EQ tt-boll.i-no
-                NO-LOCK,
-      
-                FIRST b-itemfg
-                WHERE b-itemfg.company EQ cocode
-                AND b-itemfg.i-no    EQ fg-set.part-no
-                NO-LOCK
-      
-                BREAK BY fg-set.set-no:
-      
-                {sys/inc/part-qty.i v-part-qty fg-set}
-
-                IF v-printline >= 48 THEN 
-                DO:
         
-                    v-printline = 0.
-                    PAGE {1}.
-                    {oe/rep/boldelta22.i}
-                END.
+        IF LAST(w2.cases * w2.cas-cnt) THEN DO:
+          IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
+            PUT {1} 
+                oe-ordl.ord-no
+                oe-ordl.part-dscr1 FORM "x(30)" AT 33 
+                SKIP.
+            v-printline = v-printline + 1.
+          END.
 
-                DISPLAY {1}
-                    STRING( oe-ordl.ord-no)
-                    STRING(oe-ordl.qty * v-part-qty,">>>,>>>,>>>") @ oe-ordl.qty
-                     b-itemfg.part-no                       @ v-part-dscr
-                     string(tt-boll.qty * v-part-qty)       @ cBollQty       
-                    WITH FRAME bol-mid2.
-                DOWN {1} WITH FRAME bol-mid2.
-                v-printline = v-printline + 1.
-                DISPLAY {1}
-                    fg-set.part-no                          @ v-job-po
-                    b-itemfg.i-name                         @ v-part-dscr
-                    WITH FRAME bol-mid2.
-                DOWN {1} WITH FRAME bol-mid2.
+          PUT {1}
+              "====================" AT 68 SKIP
+              v-tot-pkgs AT 71 FORM "->>>9"  " ="
+              v-ship-qty FORM "->>>>>z" SPACE(2)
+              oe-boll.p-c SPACE(1)
+              v-weight  FORM "->>>,>>9" SKIP.
+
+          ASSIGN
+             v-printline = v-printline + 2
+             v-tot-pkgs  = 0.
+
+          IF v-print-dept THEN
+          DO:
+             FOR EACH notes WHERE
+                 notes.rec_key EQ oe-ordl.rec_key AND
+                 CAN-DO(v-depts,notes.note_code)
+                 NO-LOCK
+                 BY notes.note_code:
+         
+                 v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
+                 {SYS/INC/ROUNDUP.I v-tmp-lines}
+
+                 IF notes.note_text <> "" THEN
+                    DO i = 1 TO v-tmp-lines:
+
+                       IF v-printline >= 46 THEN DO:
+                          v-printline = 0.
+                          PAGE {1}.
+                          {oe/rep/boldelta22.i}
+                       END.
+
+                       PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
+                       v-printline = v-printline + 1.
+                    END.
+             END.
+          END.
+        END.
+        v-tot-cases = v-tot-cases + w2.cases.
+        DELETE w2.
+      END.
+      PUT {1} SKIP(1).
+      v-printline = v-printline + 1.
+    END.
+  END.
+  /* end of summary mods */
+  ELSE DO:
+     DISPLAY  {1}
+          oe-ordl.part-no   WHEN AVAIL oe-ordl 
+          oe-boll.po-no 
+          oe-boll.i-no 
+          oe-ordl.i-name  FORM "x(19)"
+          oe-boll.cases FORM "->>,>>>" "@" SPACE(0)
+          oe-boll.qty-case FORM "->>>>>Z" SKIP          
+          oe-ordl.part-dscr1 AT 33 FORM "x(25)" SPACE(11)
+          v-1    FORM "->>,>>9"  when oe-boll.partial gt 0 "@" SPACE(0)
+          oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP
+     with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
+     down {1} with frame bol-mid1.
+
+     DISPLAY 
+         "====================" AT 69 SKIP
+         v-tot-pkgs AT 69 FORM "->>,>>9"  "=" SPACE(0)
+         oe-boll.qty FORM "->>>>>z" SPACE(2)
+         oe-boll.p-c SPACE(1)
+         oe-boll.weight FORM "->>>,>>9"  SKIP
+         with frame bol-mid2 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
+     down {1} with frame bol-mid2.
+
+     v-printline = v-printline + 5.
+
+     IF v-print-dept THEN
+     DO:
+        FOR EACH notes WHERE
+            notes.rec_key EQ oe-ordl.rec_key AND
+            CAN-DO(v-depts,notes.note_code)
+            NO-LOCK
+            BY notes.note_code:
+
+            v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.
+            {SYS/INC/ROUNDUP.I v-tmp-lines}
+            IF notes.note_text <> "" THEN
+               DO i = 1 TO v-tmp-lines:
+                  IF v-printline >= 46 THEN DO:
+                     v-printline = 0.
+                     PAGE {1}.
+                     {oe/rep/boldelta22.i}
+                  END.
+
+                  PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
+                  v-printline = v-printline + 1.
+               END.
+        END.
+     END.
+
+     put {1} skip(1).
+     ASSIGN
+        v-tot-cases = v-tot-cases + v-tot-pkgs
+        v-tot-pkgs  = 0.
+  END.
+  
+  if v-print-components then
+  for each fg-set
+      where fg-set.company eq cocode
+        and fg-set.set-no  eq oe-boll.i-no
+      no-lock,
+      
+      first xitemfg
+      where xitemfg.company eq cocode
+        and xitemfg.i-no    eq fg-set.part-no
+      no-lock
+      
+      break by fg-set.set-no:
+      
+    {sys/inc/part-qty.i v-part-qty fg-set}
     
-                PUT {1} SKIP(1).
-                v-printline = v-printline + 2.
-            END.
-    END. /* else */
-END. /* for each tt-boll */
+    put {1}
+        xitemfg.part-no
+        fg-set.part-no                  AT 33
+        xitemfg.i-name                        FORMAT "x(22)"
+        oe-boll.qty * v-part-qty        TO 80 FORMAT "->>>,>>9"
+        skip(1).
 
-v-tot-wt = oe-bolh.tot-wt.
+    v-printline = v-printline + 2.
+  end.
+
+  v-tot-wt = v-tot-wt + oe-boll.weight.
+
+  if oe-boll.weight eq 0 then
+    v-tot-wt = v-tot-wt + (oe-boll.qty / 100 * itemfg.weight-100).
+end. /* for each report */
 
 /* end ---------------------------------- copr. 1998  Advanced Software, Inc. */

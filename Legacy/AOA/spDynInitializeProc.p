@@ -3,7 +3,7 @@
 /* add dynamic initialize procedures in alphabetical order */
 /* always use a RETURN value of datatype character         */
 
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttField NO-UNDO
     FIELD AuditField AS CHARACTER 
@@ -14,8 +14,8 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE dynInitCompany:
-    RUN spGetCompany (OUTPUT cCompany).
-    RETURN cCompany.
+    RUN spGetSessionParam ("Company", OUTPUT cSessionValue).
+    RETURN cSessionValue.
 END PROCEDURE.
 
 PROCEDURE dynInitAuditDB:
@@ -77,6 +77,16 @@ PROCEDURE dynInitCompanyList:
     RETURN cCompanyList.
 END PROCEDURE.
 
+PROCEDURE dynInitLocation:
+    RUN spGetSessionParam ("Location", OUTPUT cSessionValue).
+    RETURN cSessionValue.
+END PROCEDURE.
+
+PROCEDURE dynInitSecure:
+    RUN spSetSessionParam ("Secure", "NO").
+    RETURN "NO".
+END PROCEDURE.
+
 PROCEDURE pAuditTable:
     DEFINE INPUT  PARAMETER iplFields AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcTables AS CHARACTER NO-UNDO.
@@ -107,10 +117,4 @@ PROCEDURE pAuditTable:
             opcTables = opcTables + "," + prgrms.prgmname.
         END. /* if can-find */
     END. /* each prgrms */
-END PROCEDURE.
-
-PROCEDURE spSetCompany:
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    
-    cCompany = ipcCompany.
 END PROCEDURE.

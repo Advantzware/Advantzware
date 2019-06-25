@@ -45,6 +45,15 @@ DEF VAR lv-pr-types AS CHAR INIT "FGLO" NO-UNDO.
 DEF VAR lv-pr-list AS CHAR INIT "Flexo,Gravure,Letterpress,Offset" NO-UNDO.
 DEF VAR lv-label AS CHAR EXTENT 10 NO-UNDO.
 DEF VAR ll-assem-part AS LOG NO-UNDO.
+DEFINE VARIABLE lPackCodeBtn AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CePackEnhanced", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPackCodeBtn = LOGICAL(cRtnChar) NO-ERROR.
 
 {custom/framechk.i NEW}
 
@@ -97,7 +106,7 @@ eb.i-dscr2[17] eb.i-%2[17] eb.layer-pad eb.lp-len eb.lp-wid eb.lp-up ~
 eb.spare-char-3 eb.divider eb.div-len eb.div-wid eb.div-up eb.spare-char-4 
 &Scoped-define ENABLED-TABLES eb
 &Scoped-define FIRST-ENABLED-TABLE eb
-&Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 RECT-28 RECT-29 RECT-30 
+&Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 RECT-28 RECT-29 RECT-30 btn_pack-code
 &Scoped-Define DISPLAYED-FIELDS eb.spare-int-3 eb.i-col eb.i-pass eb.i-coat ~
 eb.i-coat-p eb.i-coldscr eb.i-ps2[1] eb.i-code2[1] eb.i-dscr2[1] eb.i-%2[1] ~
 eb.i-ps2[2] eb.i-code2[2] eb.i-dscr2[2] eb.i-%2[2] eb.i-ps2[3] ~
@@ -203,6 +212,10 @@ DEFINE RECTANGLE RECT-29
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 47 BY 1.43.
+
+DEFINE BUTTON btn_pack-code 
+     LABEL "Enhanced Packing" 
+     SIZE 25 BY .90.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -558,6 +571,7 @@ DEFINE FRAME fold
      eb.side[17] AT ROW 16.24 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
           VIEW-AS FILL-IN 
          SIZE 4 BY .76
+     btn_pack-code AT ROW 1.05 COL 80  
      eb.cas-no AT ROW 1.95 COL 87 COLON-ALIGNED
           LABEL "Pack Code"
           VIEW-AS FILL-IN 
@@ -2143,6 +2157,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btn_pack-code
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_pack-code V-table-Win
+ON CHOOSE OF btn_pack-code IN FRAME fold
+DO: 
+  IF AVAIL eb THEN
+   RUN Est/EstPacking.w (INPUT ROWID(eb)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -3025,6 +3050,9 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN show-pr-type.
+
+  IF NOT lPackCodeBtn THEN
+    btn_pack-code:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
 
 END PROCEDURE.
 

@@ -1,5 +1,0 @@
-/* timeflds.i */
-
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN {&TIME-FIELDS}.
-END.

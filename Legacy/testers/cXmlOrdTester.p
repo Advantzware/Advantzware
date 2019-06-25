@@ -31,8 +31,9 @@ MESSAGE "Enter company: " UPDATE g_company.
 ASSIGN
     cocode = g_company
     locode = g_loc.
-
+.
 DEFINE VARIABLE monitorImportDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE importDirOverride AS CHARACTER NO-UNDO FORMAT "x(40)".
 DEFINE VARIABLE hTempTableHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hOutputProcs     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lFirstOrder      AS LOGICAL   NO-UNDO INIT YES.
@@ -40,7 +41,7 @@ DEFINE VARIABLE iNumOrders       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cHeaderCSVFile   AS CHARACTER NO-UNDO INIT "C:\tmp\OrderHeader.csv".
 DEFINE VARIABLE cDetailCSVFile   AS CHARACTER NO-UNDO INIT "C:\tmp\OrderLines.csv".
 
-
+MESSAGE "Enter override folder or blank:" UPDATE importDirOverride.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -83,7 +84,8 @@ PROCEDURE postMonitor:
 
     FOR EACH cXMLDir:
         monitorImportDir = cXMLDir.cXMLDir.
-    
+        IF importDirOverride GT "" THEN 
+          monitorImportDir = importDirOverride.
 
         INPUT FROM OS-DIR(monitorImportDir) NO-ECHO.
         REPEAT:

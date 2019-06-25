@@ -8,7 +8,7 @@ FIND FIRST est WHERE est.company EQ xquo.company
                  AND est.est-no  EQ xquo.est-no
                NO-LOCK NO-ERROR.
 
-
+cAddrDesc = "".
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   ASSIGN
    numfit       = 0

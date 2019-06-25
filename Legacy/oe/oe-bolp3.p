@@ -285,8 +285,9 @@ PROCEDURE ipCheckInvLn:
         AND NOT CAN-FIND(FIRST inv-head OF inv-line) :
        
         FIND FIRST bf-inv-head WHERE ROWID(bf-inv-head) EQ iprInvHeadRow NO-LOCK NO-ERROR.
-    
         IF AVAILABLE bf-inv-head THEN 
+            FIND FIRST bf-inv-line OF bf-inv-head NO-LOCK NO-ERROR.
+        IF AVAILABLE bf-inv-head AND AVAIL bf-inv-line AND bf-inv-line.b-no EQ inv-line.b-no THEN 
             iCorrectRno = bf-inv-head.r-no.
         ELSE
             iCorrectRno = 0.

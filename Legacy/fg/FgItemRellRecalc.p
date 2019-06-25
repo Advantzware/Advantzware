@@ -66,7 +66,7 @@ FOR EACH company NO-LOCK:
         g_company = company.company 
         g_loc     = locode
         .
-    RUN spSetCompany (g_company).
+    RUN spSetSessionParam ("Company", g_company).
     {sys/inc/oereordr.i}        
     FIND FIRST oe-ord WHERE oe-ord.company EQ company.company
         AND oe-ord.ord-date GE TODAY - 90 

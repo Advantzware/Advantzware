@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE op-company AS CHARACTER NO-UNDO.
 DEFINE VARIABLE op-carrier AS CHARACTER NO-UNDO.
 DEFINE VARIABLE op-loc AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE lValid AS LOGICAL NO-UNDO .
 &SCOPED-DEFINE proc-enable RUN proc-enable.
 
 /* _UIB-CODE-BLOCK-END */
@@ -57,8 +57,9 @@ DEFINE VARIABLE op-loc AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES truck
+&Scoped-define EXTERNAL-TABLES truck carrier
 &Scoped-define FIRST-EXTERNAL-TABLE truck
+&Scoped-define SECOND-EXTERNAL-TABLE carrier
 
 
 /* Need to scope the external tables to this procedure                  */
@@ -293,7 +294,23 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME truck.truck-code
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL truck.truck-code V-table-Win
+ON LEAVE OF truck.truck-code IN FRAME F-Main /* Truck */
+DO: 
+    IF LASTKEY NE -1 THEN DO:
+       RUN validate-truck-code NO-ERROR.
+       IF NOT lValid THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -328,12 +345,14 @@ PROCEDURE adm-row-available :
 
   /* Create a list of all the tables that we need to get.            */
   {src/adm/template/row-list.i "truck"}
+  {src/adm/template/row-list.i "carrier"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
   {src/adm/template/row-find.i "truck"}
+  {src/adm/template/row-find.i "carrier"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -415,6 +434,8 @@ PROCEDURE local-create-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
+  {methods/viewers/create/truck.i}
+
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
@@ -449,6 +470,9 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+
+    RUN validate-truck-code NO-ERROR.
+   IF NOT lValid THEN RETURN NO-APPLY.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -538,3 +562,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-truck-code V-table-Win 
+PROCEDURE validate-truck-code :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-truck FOR truck.
+ 
+ {methods/lValidateError.i YES}
+  lValid = YES.
+
+    DO WITH FRAME {&FRAME-NAME}:
+
+        FIND FIRST bf-truck WHERE bf-truck.company EQ carrier.company 
+                             AND bf-truck.carrier EQ carrier.carrier
+                             AND bf-truck.loc EQ carrier.loc
+                             AND bf-truck.truck-code = truck.truck-code:SCREEN-VALUE
+                             AND RECID(bf-truck) <> RECID(truck)
+                             NO-LOCK NO-ERROR.
+        IF AVAIL bf-truck THEN DO:
+           MESSAGE "Truck Code: " truck.truck-code:SCREEN-VALUE " already exists. Try other code." VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO truck.truck-code.
+           lValid = NO.
+        END.
+   
+   END.
+ {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

@@ -1674,7 +1674,7 @@ PROCEDURE spJasperQuery:
             ROWID(dynParamValue),
             dynSubject.queryStr,
             cTableName,
-            0, /* zero = no record limit */
+            dynParamValue.recordLimit, /* zero = no record limit */
             OUTPUT hQuery,
             OUTPUT lOK,
             OUTPUT cError

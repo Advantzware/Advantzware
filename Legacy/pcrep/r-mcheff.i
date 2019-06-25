@@ -250,6 +250,8 @@ FOR EACH mch-act NO-LOCK
                         AND item.i-no EQ job-mat.rm-i-no
                         AND (ITEM.mat-type = "B" /* OR ITEM.mat-type = "G" */) NO-LOCK:
 
+                        IF mach.p-type = "R" THEN
+                            ASSIGN tt-srt.lin-ft-hrs = (tt-srt.lin-ft-hrs + (mch-act.qty * job-mat.len / 12)) / mch-act.hours .
                       
                         IF mach.p-type = "R" OR mach.p-type = "S" THEN 
                         DO:
@@ -495,6 +497,7 @@ FOR EACH tt-srt USE-INDEX dept-idx
             '"' STRING(tt-srt.shift,">>>>") '",'
             '"' STRING(tt-srt.i-no) '",'
             '"' (IF AVAIL itemfg THEN STRING(itemfg.i-name) ELSE "") '",'
+            '"' (IF tt-srt.lin-ft-hrs NE 0 THEN STRING(tt-srt.lin-ft-hrs) ELSE "") '",'
             SKIP.
           
     END.

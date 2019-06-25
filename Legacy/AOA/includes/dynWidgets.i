@@ -94,7 +94,7 @@ PROCEDURE pComboBox:
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
 
     IF ipcLabel NE "" AND lShowLabel THEN
-    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow).
+    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, 1).
     CREATE COMBO-BOX ophWidget IN WIDGET-POOL ipcPoolName
       ASSIGN
         FRAME = iphFrame
@@ -117,7 +117,7 @@ PROCEDURE pComboBox:
       ON START-RESIZE
         PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
       ON VALUE-CHANGED
-        PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
+        PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
     END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     hLabel:COL = ophWidget:COL - hLabel:WIDTH.
@@ -423,7 +423,9 @@ PROCEDURE pCreateDynParameters :
                 ttDynAction.initializeProc  = dynParamSetDtl.initializeProc
                 ttDynAction.validateProc    = dynParamSetDtl.validateProc
                 ttDynAction.descriptionProc = dynParamSetDtl.descriptionProc
+                ttDynAction.initialValue    = dynParamSetDtl.initialValue
                 .
+            RUN spSetSessionParam (ttDynAction.paramName + "-Handle",STRING(hWidget:HANDLE)).
         END. /* if valid-handle */
         hWidget:HIDDEN = iplLive AND lIsVisible EQ NO.
         hWidget:MOVE-TO-TOP().
@@ -432,6 +434,12 @@ PROCEDURE pCreateDynParameters :
             hFrame:MOVE-TO-TOP().
         END. /* if last-of */
     END. /* each {1}SubjectParamSet */
+/*    OUTPUT TO c:\tmp\ttDynAction.txt.                                   */
+/*    FOR EACH ttDynAction BY ttDynAction.paramName:                      */
+/*        DISPLAY ttDynAction EXCEPT paramWidget WITH STREAM-IO WIDTH 500.*/
+/*    END.                                                                */
+/*    OUTPUT CLOSE.                                                       */
+/*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\ttDynAction.txt.              */
     /* get and set the output frame values */
     IF iplLive THEN DO:
         ASSIGN
@@ -500,7 +508,7 @@ PROCEDURE pEditor:
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.
@@ -525,7 +533,7 @@ PROCEDURE pFillIn:
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
 
     IF ipcLabel NE "" AND lShowLabel THEN
-    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow).
+    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight).
     CREATE FILL-IN ophWidget IN WIDGET-POOL ipcPoolName
         ASSIGN
             FRAME = iphFrame
@@ -681,11 +689,11 @@ PROCEDURE pRadioSet:
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON VALUE-CHANGED
-            PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.
@@ -757,12 +765,12 @@ PROCEDURE pSelectionList:
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
-      ON VALUE-CHANGED
-        PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
+          ON VALUE-CHANGED
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
     END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.
@@ -828,6 +836,6 @@ PROCEDURE pToggleBox:
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON VALUE-CHANGED
-            PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
 END PROCEDURE.

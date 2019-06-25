@@ -1904,8 +1904,10 @@ DO:
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       IF oe-ordl.price:SENSITIVE  THEN 
         APPLY "entry" TO oe-ordl.price.
-      ELSE
+      ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
         APPLY "entry" TO oe-ordl.pr-uom.
+      ELSE 
+          APPLY "entry" TO oe-ordl.disc.
                      
       RETURN NO-APPLY.
   END.
