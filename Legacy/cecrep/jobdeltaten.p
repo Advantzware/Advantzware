@@ -702,7 +702,7 @@ ASSIGN
   DO li = 1 TO 30:
       CREATE tt-formtext.
       ASSIGN tt-line-no = li
-          tt-length  = 82. 
+          tt-length  = 78. 
   END.
   RUN custom/formtext.p (lv-text).
   ASSIGN
@@ -843,7 +843,8 @@ PUT      "<=Start><R23.5><#PageStart2>"
     "<=PackingStart><R+3><RIGHT=C+8>Layers: <#Layers>"
     "<=PackingStart><R+4><RIGHT=C+8>Stacks: <#Stacks>"
     "<=PackingStart><R+5><RIGHT=C+8>Pattern: <#PatternCode>"
-    "<=PackingStart><R+6><C+1><#Pattern>"
+    "<=PackingStart><R+6><RIGHT=C+8>Desc: <#Pattern>"
+    "<=PackingStart><R+7><RIGHT=C+8>Pallet: <#Palletwl>"
     "<=PackingTR><#PatternImageStart>"
     "<=PatternImageStart><C+22><#PatternImageTR>"
     "<=PatternImageStart><R+10><#PatternImageBL>"
@@ -888,6 +889,8 @@ PUT      "<=Start><R23.5><#PageStart2>"
     "<=Stacks>" IF AVAILABLE xeb THEN STRING(xeb.stacks) ELSE "" FORMAT "x(6)"
     "<=PatternCode>" IF AVAILABLE xeb THEN STRING(xeb.stack-code) ELSE "" FORMAT "x(3)"
     "<=Pattern>" IF AVAILABLE xeb AND AVAILABLE stackPattern THEN stackPattern.stackDescription ELSE "" FORMAT "x(30)"
+    "<=Palletwl>" (IF AVAILABLE xeb THEN trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9")) ELSE "") format "x(15)"
     "<=ShipTo>" v-shipto  FORMAT "x(10)"
     "<=ShipName>" IF AVAILABLE shipto THEN shipto.ship-name ELSE "" FORMAT "x(30)"
     "<=ShipAdd1>" IF AVAILABLE shipto THEN shipto.ship-addr[1] ELSE "" FORMAT "x(30)"
