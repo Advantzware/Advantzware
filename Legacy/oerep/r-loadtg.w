@@ -7297,11 +7297,13 @@ FOR EACH  tt-fgrctd-created:
 
           /* These negative receipts should be changed to Rita=A per task 08211305 */
           FOR EACH fg-rcpth WHERE fg-rcpth.r-no EQ fg-rctd.r-no EXCLUSIVE-LOCK:
-            fg-rcpth.rita-code = "A".
+            IF fg-rctd.t-qty LT 0 THEN
+                fg-rcpth.rita-code = "A".
           END.
 
           FOR EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rctd.r-no EXCLUSIVE-LOCK:
-            fg-rdtlh.rita-code = "A".
+            IF fg-rctd.t-qty LT 0 THEN
+                fg-rdtlh.rita-code = "A".
           END.
 
         END. /* Avail fg-rctd for component */
