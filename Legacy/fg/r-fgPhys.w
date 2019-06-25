@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: jcrep\r-jobsum.w
+  File: fg/r-fgPhys.w
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -126,7 +126,7 @@ DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzz
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-rmPhys.csv" 
+DEFINE VARIABLE fi_file2 AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-fgPhys.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
