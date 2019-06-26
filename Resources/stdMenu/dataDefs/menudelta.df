@@ -11,7 +11,7 @@ ADD FIELD "menuID" OF "programMenu" AS integer
   FORMAT ">>>>>9"
   INITIAL "0"
   LABEL "Menu ID"
-  POSITION 1
+  POSITION 4
   MAX-WIDTH 4
   ORDER 10
 
@@ -19,7 +19,7 @@ ADD FIELD "shortname" OF "programMenu" AS character
   FORMAT "x(12)"
   INITIAL ""
   LABEL "Short Name"
-  POSITION 2
+  POSITION 5
   MAX-WIDTH 24
   HELP "Enter a short name for this menu item"
   ORDER 20
@@ -28,7 +28,7 @@ ADD FIELD "parentMenuID" OF "programMenu" AS integer
   FORMAT ">>>>>9"
   INITIAL "0"
   LABEL "Parent Menu ID"
-  POSITION 3
+  POSITION 6
   MAX-WIDTH 4
   HELP "Enter this menu's parent menuID"
   ORDER 30
@@ -37,7 +37,7 @@ ADD FIELD "menuPos" OF "programMenu" AS integer
   FORMAT ">>>>9"
   INITIAL "0"
   LABEL "Position"
-  POSITION 4
+  POSITION 7
   MAX-WIDTH 4
   ORDER 40
 
@@ -45,7 +45,7 @@ ADD FIELD "user_id" OF "programMenu" AS character
   FORMAT "X(8)"
   INITIAL ""
   LABEL "User ID's"
-  POSITION 5
+  POSITION 8
   MAX-WIDTH 16
   HELP "Enter User ID's"
   ORDER 50
@@ -53,7 +53,7 @@ ADD FIELD "user_id" OF "programMenu" AS character
 ADD FIELD "programID" OF "programMenu" AS character 
   FORMAT "x(24)"
   INITIAL ""
-  POSITION 6
+  POSITION 9
   MAX-WIDTH 48
   HELP "Enter the associated programID"
   ORDER 60
@@ -62,7 +62,7 @@ ADD FIELD "defMnemonic" OF "programMenu" AS character
   FORMAT "x(8)"
   INITIAL ""
   LABEL "Default Hotkey"
-  POSITION 7
+  POSITION 10
   MAX-WIDTH 16
   HELP "Enter a Hotkey for this menu"
   ORDER 70
@@ -71,7 +71,7 @@ ADD FIELD "menuText" OF "programMenu" AS character
   FORMAT "x(48)"
   INITIAL ""
   LABEL "Menu Text"
-  POSITION 8
+  POSITION 11
   MAX-WIDTH 96
   HELP "Enter the text to display for this menu"
   ORDER 80
@@ -80,7 +80,7 @@ ADD FIELD "menuImage" OF "programMenu" AS character
   FORMAT "x(60)"
   INITIAL ""
   LABEL "Menu Image"
-  POSITION 9
+  POSITION 12
   MAX-WIDTH 120
   HELP "Enter the path to the menu image"
   ORDER 90
@@ -89,7 +89,7 @@ ADD FIELD "menuToolTip" OF "programMenu" AS character
   FORMAT "x(32)"
   INITIAL ""
   LABEL "Tooltip"
-  POSITION 10
+  POSITION 13
   MAX-WIDTH 64
   HELP "Enter a tooltip for this menuID"
   ORDER 100
@@ -98,7 +98,7 @@ ADD FIELD "paramList" OF "programMenu" AS character
   FORMAT "x(60)"
   INITIAL ""
   LABEL "Param List"
-  POSITION 11
+  POSITION 14
   MAX-WIDTH 120
   HELP "Enter an optional parameter to send to the program"
   ORDER 110
