@@ -480,7 +480,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
         "<=Printed><B>" TODAY  "</B>"
         "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
-        "<=OrderCsr>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.user-id) ELSE "" 
+        "<=OrderCsr>" SPACE(1) IF AVAILABLE xoe-ord THEN STRING(xoe-ord.user-id) ELSE "" 
         "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
         "<FGColor=Blue><B>"
         /* "<=CustomerName>" cust.NAME FORMAT "x(30)"*/
@@ -498,7 +498,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=SheetsSize>" "W:" + trim(STRING({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
         "L:" + trim(STRING({sys/inc/k16v.i v-form-len},">>,>>9.99"))  FORMAT "x(30)"
 
-        "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
+        "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft ,">>,>>>,>>9.9<")) FORMAT "x(12)"
         "<=Scores><P9>" SUBSTRING(v-wid-score,1,34) FORMAT "x(35)" 
         "<=Scores2><P9>" SPACE (19) SUBSTRING(v-wid-score,35,34) FORMAT "x(35)"
         "<=ScoresLen>" SUBSTRING(v-len-score,1,34) FORMAT "x(35)" 
