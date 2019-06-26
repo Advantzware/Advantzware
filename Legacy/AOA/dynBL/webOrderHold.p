@@ -45,7 +45,8 @@ PROCEDURE pBusinessLogic:
     FOR EACH tag NO-LOCK
         WHERE tag.tagType EQ "HOLD"
           AND CAN-FIND(FIRST bTag
-                       WHERE bTag.tagType EQ "RELEASE") EQ NO,
+                       WHERE bTag.linkRecKey EQ tag.linkRecKey
+                         AND bTag.tagType    EQ "RELEASE") EQ NO,
         FIRST oe-ord NO-LOCK
         WHERE oe-ord.company EQ cCompany
           AND oe-ord.rec_key EQ tag.linkRecKey
