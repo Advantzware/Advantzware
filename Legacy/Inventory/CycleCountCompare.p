@@ -680,16 +680,16 @@ PROCEDURE pCheckCountDups:
     oplDups = lIsDups.
     IF lIsDups THEN 
     DO:
-        OUTPUT TO c:\tmp\dupCountTags.csv.
+        OUTPUT STREAM sOutput TO c:\tmp\dupCountTags.csv.
         FOR EACH ttDupTags: 
             PUT STREAM sOutput UNFORMATTED  
                 '="' ttDupTags.i-no '",'
                 '="' ttDupTags.tag '",'
-                '="' ttDupTags.transTypes '",'.              
+                '="' ttDupTags.transTypes '",' SKIP.              
         END.
-        OUTPUT CLOSE.
+        OUTPUT STREAM sOutput CLOSE.
     
-        MESSAGE "Cannot initialize because some tags were counted more than once." SKIP 
+        MESSAGE "Cannot post because some tags were counted more than once." SKIP 
             "Click OK to view duplicate tag records."
             VIEW-AS ALERT-BOX.
         OS-COMMAND NO-WAIT START excel.exe VALUE("c:\tmp\dupCountTags.csv").
@@ -961,12 +961,12 @@ PROCEDURE pCreateZeroCount:
             fg-rctd.units-pallet = 1 /* normal default */
             fg-rctd.cost-uom     = fg-bin.pur-uom.
             
-        FIND FIRST fg-rdtlh WHERE
-            fg-rdtlh.company = fg-bin.company AND
-            fg-rdtlh.tag = cTag AND
+        FIND FIRST fg-rdtlh NO-LOCK WHERE 
+            fg-rdtlh.company   = fg-bin.company AND
+            fg-rdtlh.tag       = ttCycleCountCompare.cTag AND
             fg-rdtlh.rita-code = "R"
             USE-INDEX tag
-            NO-LOCK NO-ERROR.
+            NO-ERROR.
 
         IF AVAILABLE fg-rdtlh THEN 
         DO:
@@ -979,8 +979,7 @@ PROCEDURE pCreateZeroCount:
                 ASSIGN 
                     fg-rctd.po-no   = fg-rcpth.po-no
                     fg-rctd.po-line = MAX(fg-rcpth.po-line, 1) /* verify this, make sure scan does this */
-                    fg-rctd.job-no  = fg-rcpth.job-no
-                    fg-rctd.job-no2 = fg-rcpth.job-no2.
+                    .
                 RELEASE fg-rcpth.
             END.
             
@@ -1230,6 +1229,7 @@ PROCEDURE postFG:
         
     DEFINE VARIABLE lDupsExist  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lRemoveZero AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPostWithDups AS LOGICAL NO-UNDO.
     
     MESSAGE 'Remove all zero counts (all locations)?' SKIP
         VIEW-AS ALERT-BOX
@@ -1238,8 +1238,13 @@ PROCEDURE postFG:
         RUN pRemoveZeroCounts .
 
     RUN pCheckCountDups (OUTPUT lDupsExist).
-    /* IF lDupsExist THEN 
-        RETURN. */
+    IF lDupsExist THEN DO:
+        MESSAGE 'Continue posting with duplicates?' SKIP
+            VIEW-AS ALERT-BOX
+            QUESTION BUTTONS YES-NO UPDATE lPostWithDups.
+        IF NOT lPostWithDups THEN 
+            RETURN.
+    END.
 
     RUN pCreateZeroCount.
     RUN pCreateTransfers.
