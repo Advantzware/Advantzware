@@ -1107,7 +1107,7 @@ DO:
         FIND FIRST ttUsers NO-LOCK WHERE 
             ttUsers.ttfuserAlias = SELF:SCREEN-VALUE AND
             ttUsers.ttfpdbname = "*" AND
-            ttUsers.ttfuserid NE users.user_id
+            ttUsers.ttfuserid NE users.user_id:SCREEN-VALUE IN FRAME f-main
             NO-ERROR.
         IF AVAIL ttUsers THEN DO:
             MESSAGE
