@@ -129,7 +129,7 @@ ADD INDEX "iUserID" ON "programMenu"
   AREA "Index"
   INDEX-FIELD "user_id" ASCENDING 
 
-ADD FIELD "programID" OF "prgrms" AS integer
+ADD FIELD "prgrmsID" OF "prgrms" AS integer
   FORMAT ">>>>>9"
   POSITION 34
   INITIAL "0"
