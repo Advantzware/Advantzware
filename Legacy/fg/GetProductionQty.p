@@ -72,7 +72,10 @@ DEFINE OUTPUT PARAMETER opdQty LIKE fg-rdtlh.qty NO-UNDO.
 
 
 /* ***************************  Main Block  *************************** */
-
+/* No production quantity without a job # */
+IF ipcJobNo EQ "" THEN 
+    RETURN. 
+    
 IF iplUseFGAct THEN DO:
     FIND FIRST itemfg
         WHERE itemfg.company EQ ipcCompany
@@ -101,44 +104,23 @@ IF iplUseFGAct THEN DO:
     END. /*avail job*/
 END. /*use FG Act*/
 ELSE DO:
-    IF ipcJobNo GT "" THEN DO:
-        FOR EACH fg-rcpth 
-            FIELDS(r-no rita-code)
-            WHERE fg-rcpth.company EQ ipcCompany
-              AND fg-rcpth.job-no EQ ipcJobNo
-              AND fg-rcpth.job-no2 EQ ipiJobNo2
-              AND fg-rcpth.i-no EQ ipcINo
-              AND fg-rcpth.rita-code EQ 'R' 
-            USE-INDEX job
-            NO-LOCK,
-            EACH fg-rdtlh FIELDS(qty)
-            WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
-              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-                NO-LOCK:
-                
-                opdQty = opdQty + fg-rdtlh.qty.
-    
-        END.  /*each fg history*/    
-    END.
-    ELSE DO:
-        FOR EACH fg-rcpth 
-            FIELDS(r-no rita-code)
-            WHERE fg-rcpth.company EQ ipcCompany
-              AND fg-rcpth.job-no EQ ipcJobNo
-              AND fg-rcpth.job-no2 EQ ipiJobNo2
-              AND fg-rcpth.i-no EQ ipcINo
-              AND fg-rcpth.rita-code EQ 'R' 
-            USE-INDEX i-no
-            NO-LOCK,
-            EACH fg-rdtlh FIELDS(qty)
-            WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
-              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-                NO-LOCK:
-                
-                opdQty = opdQty + fg-rdtlh.qty.
-    
-        END.  /*each fg history*/  
-    END.
+    FOR EACH fg-rcpth 
+        FIELDS(r-no rita-code)
+        WHERE fg-rcpth.company EQ ipcCompany
+          AND fg-rcpth.job-no EQ ipcJobNo
+          AND fg-rcpth.job-no2 EQ ipiJobNo2
+          AND fg-rcpth.i-no EQ ipcINo
+          AND fg-rcpth.rita-code EQ 'R' 
+        USE-INDEX job
+        NO-LOCK,
+        EACH fg-rdtlh FIELDS(qty)
+        WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
+          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+            NO-LOCK:
+            
+            opdQty = opdQty + fg-rdtlh.qty.
+
+    END.  /*each fg history*/    
 END.
 
 /* _UIB-CODE-BLOCK-END */
