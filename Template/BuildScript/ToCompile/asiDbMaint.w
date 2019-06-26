@@ -53,6 +53,7 @@ CREATE WIDGET-POOL.
 DEF STREAM usrStream.
 DEF STREAM logStream.
 
+DEF VAR cAdminPort2 AS CHAR NO-UNDO.
 DEF VAR cAllDbDirList AS CHAR NO-UNDO.
 DEF VAR cAllDbList AS CHAR NO-UNDO.
 DEF VAR cAllDbPortList AS CHAR NO-UNDO.
@@ -1140,6 +1141,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                         OUTPUT cDbBakList).
     RUN pGetEnvBakList (cDrive + "\" + cTopDir + "\" + cBackupDir + "\Environments",
                         OUTPUT cEnvBakList).
+    RUN pGetAdminSvcProps.
     
     ON ENTRY ANYWHERE DO:
         RUN pSetHelp (SELF:NAME).
@@ -1542,6 +1544,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadAdminSvcProps C-Win 
+PROCEDURE pGetAdminSvcProps :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF VAR cLine AS CHAR NO-UNDO.
+    
+    RUN pLog ("  Reading admin service props file " + slAvailDbs:{&SV}).
+
+    INPUT FROM VALUE (cDLCDir + "\properties\AdminServerPlugins.properties").
+    REPEAT:
+        IMPORT cLine.
+        ASSIGN 
+            cLine = TRIM(cLine).
+        IF ENTRY(1,cLine,"=") EQ "adminport" THEN 
+        DO:
+            ASSIGN
+                cAdminPort2 = ENTRY(2,cLine,"=").
+            LEAVE.
+        END.
+    END.
+    INPUT CLOSE.
+    IF cAdminPort2 = "" THEN ASSIGN 
+        cAdminPort2 = "20931".
+        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDbBakList C-Win 
 PROCEDURE pGetDbBakList :
 /*------------------------------------------------------------------------------
@@ -1689,6 +1724,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDbFileStats C-Win 
 PROCEDURE pGetDbFileStats :
@@ -2026,12 +2062,12 @@ PROCEDURE pRestoreDb :
     ASSIGN 
         cStopString = cDlcDir + "\bin\dbman" + 
             " -host " + cHostName + 
-            " -port " + "7042" + 
+            " -port " + cAdminPort2 + 
             " -database " + slAvailDbs:{&SV} + 
             " -stop"
         cStartString = cDlcDir + "\bin\dbman" + 
             " -host " + cHostName + 
-            " -port " + "7042" + 
+            " -port " + cAdminPort2 + 
             " -database " + slAvailDbs:{&SV} + 
             " -start"
             .
@@ -2070,7 +2106,7 @@ PROCEDURE pRestoreDb :
 
     IF lOnline THEN 
     DO:
-        STATUS DEFAULT "Restarting database server" + slAvailDbs:{&SV}.
+        STATUS DEFAULT "Restarting database server " + slAvailDbs:{&SV}.
         OS-COMMAND SILENT VALUE(cStartString).
         Waitblock3:
         DO WHILE SEARCH(cLockFile) EQ ?:
