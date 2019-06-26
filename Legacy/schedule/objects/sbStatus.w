@@ -39,6 +39,7 @@ DEFINE SHARED VARIABLE ID AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE sendChange AS LOGICAL NO-UNDO.
 DEFINE VARIABLE sbStatus AS CHARACTER NO-UNDO.
+DEFINE VARIABLE closeOK AS LOGICAL NO-UNDO INITIAL YES.
 
 SESSION:SET-WAIT-STATE('').
 
@@ -55,7 +56,7 @@ SESSION:SET-WAIT-STATE('').
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME detailFrame
 
 /* Custom List Definitions                                              */
@@ -143,7 +144,7 @@ IF NOT W-Win:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME detailFrame
-                                                                        */
+   FRAME-NAME                                                           */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -185,6 +186,8 @@ DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   IF sendChange THEN RUN sendChange IN h_Status.
+  IF closeOK THEN
+  OS-DELETE VALUE('{&updates}\' + ID + '\inUse.dat').
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -289,6 +292,20 @@ PROCEDURE enable_UI :
   VIEW FRAME detailFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-detailFrame}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE inUseClose W-Win 
+PROCEDURE inUseClose :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  closeOK = NO.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
