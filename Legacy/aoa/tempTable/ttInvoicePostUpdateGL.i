@@ -24,7 +24,7 @@ DEFINE TEMP-TABLE ttInvoicePostUpdateGL
     FIELD cost              AS DECIMAL   LABEL "Cost"          FORMAT "->>>,>>9.99<<<<"
     FIELD price             AS DECIMAL   LABEL "Price"         FORMAT "->>>,>>9.99<<<<" DECIMALS 6
     FIELD uom               AS CHARACTER LABEL "UOM"           FORMAT "x(3)"
-    FIELD TotPrice          AS DECIMAL   LABEL "Amt Per Ton"   FORMAT "9.9"
+    FIELD TotPrice          AS DECIMAL   LABEL "Amt Per Ton"   FORMAT "->>,>>>,>>9.99"
     FIELD profit            AS DECIMAL   LABEL "Profit"        FORMAT "->>>9.99%"
     .
 /* Invoice Post Update GL.rpa */
