@@ -184,7 +184,7 @@ PROCEDURE pGetSelectedColumns :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iColumn AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iColumn AS INTEGER NO-UNDO INITIAL 1.
     
     DEFINE BUFFER ttColumn FOR ttColumn.
     
