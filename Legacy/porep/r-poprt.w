@@ -1202,8 +1202,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      lines-per-page              = li-lineperpage
      lines-per-page:SCREEN-VALUE = STRING(li-lineperpage).
     
-    RUN pRunFormatValueChanged .
-
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.
@@ -1211,6 +1209,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT poexport-log THEN DISABLE tb_corr.
     APPLY "entry" TO begin_po-no IN FRAME {&FRAME-NAME}.
   END.
+
+  RUN pRunFormatValueChanged .
 
   IF NOT lAsiUser THEN
          RUN_format:HIDDEN IN FRAME FRAME-A = YES .
