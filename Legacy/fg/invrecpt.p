@@ -621,14 +621,14 @@ DEFINE VARIABLE lvErrMsg     AS CHARACTER   NO-UNDO.
    "type=literal,name=label11,row=2,col=18,enable=false,width=58,scrval=" + lcUserPrompt + ",FORMAT=X(58)" 
    
     /* Create an Invoice? */
-    /*+ "|type=literal,name=label10,row=2.2,col=26,enable=false,width=38,font=5,scrval=" + "Create Invoice for Drop Shipped Purchase Order?" + ",FORMAT=X(58)" */
-    + "|type=toggle,name=tb_addinv,row=2.2,col=23,enable=true,width=60,font=5,data-type=logical,scrval=yes,label=Create Invoice for Drop Shipped Purchase Order?"
+    + "|type=literal,name=label10,row=1.2,col=14,enable=false,width=38,font=5,scrval=" + "Note:  these options will apply to all lines on the Purchase Order." + ",FORMAT=X(68)" 
+    + "|type=toggle,name=tb_addinv,row=3.0,col=23,enable=true,width=60,font=5,data-type=logical,scrval=yes,label=Create Invoice for Drop Shipped Purchase Order?"
 
    
 
     /* Invoice Freight toggle box */
 /*    + "|type=literal,name=label9,row=5.7,col=26,enable=false,width=38,font=5,scrval=" + "INVOICE Freight? " + ",FORMAT=X(58)" */
-    + "|type=toggle,name=tb_invfrt,row=5.7,col=23,enable=true,width=25,font=5,data-type=logical,label=INVOICE Freight?,depfield=tb_addinv"
+    + "|type=toggle,name=tb_invfrt,row=5.7,col=23,enable=true,width=25,font=5,data-type=logical,label=Invoice Freight?,depfield=tb_addinv"
 
     + "|type=literal,name=label7,row=5.7,col=50,enable=true,width=58,font=5,scrval=" + "Billable Freight:" + ",FORMAT=X(58)" 
     + "|type=fill-in,name=fi_BillAmt,row=5.6,col=69,enable=true,width=15,font=5,data-type=decimal,depfield=tb_invfrt" 
@@ -640,7 +640,7 @@ DEFINE VARIABLE lvErrMsg     AS CHARACTER   NO-UNDO.
 
     + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true,width=12,height=3 " 
     /* Box Title */
-    + "|type=win,name=fi3,enable=true,width=100,label=         Freight For Invoice to be Created?,FORMAT=X(30),height=14".
+    + "|type=win,name=fi3,enable=true,width=100,label=         Drop Ship PO Receipt Options?,FORMAT=X(30),height=14".
 
     prompt-loop:
     DO WHILE TRUE:
