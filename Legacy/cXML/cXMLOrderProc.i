@@ -643,7 +643,10 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-  
+  EMPTY TEMP-TABLE ttOrdHead.
+  EMPTY TEMP-TABLE ttOrdLines.
+  EMPTY TEMP-TABLE ttOrdSchedShipments.
+
   RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
 
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
