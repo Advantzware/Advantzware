@@ -198,7 +198,7 @@ PROCEDURE dynValSalesRep:
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
-        CAN-FIND(FIRST item
+        CAN-FIND(FIRST sman
                  WHERE sman.company EQ cCompany
                    AND sman.sman    EQ iphWidget:SCREEN-VALUE)
         ).
@@ -244,7 +244,7 @@ PROCEDURE dynValUser:
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
-        CAN-FIND(FIRST item
+        CAN-FIND(FIRST users
                  WHERE users.user_id EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
@@ -254,7 +254,7 @@ PROCEDURE dynValVendor:
     RUN dynValReturn (iphWidget,
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
-        CAN-FIND(FIRST item
+        CAN-FIND(FIRST vend
                  WHERE vend.company EQ cCompany
                    AND vend.vend-no EQ iphWidget:SCREEN-VALUE)
         ).
