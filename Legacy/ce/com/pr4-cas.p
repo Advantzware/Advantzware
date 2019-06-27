@@ -227,6 +227,7 @@ for each xef where xef.company = xest.company
           where cas.typ  eq 7
             and cas.snum eq xeb.form-no
             and cas.bnum eq xeb.blank-no
+            AND cas.ino EQ ITEM.i-no
           no-error.
       if not avail cas then do:
          create cas.
