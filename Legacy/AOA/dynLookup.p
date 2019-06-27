@@ -72,6 +72,12 @@ cWhereClause = cQueryStr.
 
 DO idx = 1 TO EXTENT(dynParamValue.colName):
     IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+    IF dynParamValue.isCalcField[idx] THEN DO:
+        /* dynamic lookups cannot handle calculated fields */
+        /* future development logic to resolve added here  */
+        NEXT.
+    END. /* if iscalcfield */
+    ELSE
     ASSIGN
         cTableName = ENTRY(1,dynParamValue.colName[idx],".")
         cFieldName = ENTRY(2,dynParamValue.colName[idx],".")
