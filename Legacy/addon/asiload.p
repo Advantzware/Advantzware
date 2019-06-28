@@ -2,7 +2,7 @@
 DEF VAR ll-ans AS LOG NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 
-def temp-table tt-prg like prgrms.
+def temp-table tt-prg NO-UNDO like prgrms.
 def temp-table tt-ref like prgmxref.
 DEF TEMP-TABLE tt-emailcod LIKE emailcod.
 DEF TEMP-TABLE tt-reftable LIKE reftable.

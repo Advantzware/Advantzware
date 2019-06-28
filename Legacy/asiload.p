@@ -1,7 +1,7 @@
 /* asiload.p  Load new data into system files */
 /* Revised 6/22/17 - MYT - reformatted, added modules table entries */
 
-DEF TEMP-TABLE ttPrgms LIKE prgrms.
+DEF TEMP-TABLE ttPrgms NO-UNDO LIKE prgrms.
 DEF TEMP-TABLE ttPrgmxref LIKE prgmxref.
 DEF TEMP-TABLE ttEmailcod LIKE emailcod.
 DEF TEMP-TABLE ttPrgmxreftable LIKE reftable.

@@ -1,6 +1,7 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME wWin
+{adecomm/appserv.i}
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wWin 
 /*------------------------------------------------------------------------
 
@@ -34,6 +35,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{src/adm2/widgetprto.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -49,12 +52,12 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Data-Target,Data-Source,Page-Target,Update-Source,Update-Target,Filter-target,Filter-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS ls-proc Btn_OK Btn_Cancel RECT-1 
-&Scoped-Define DISPLAYED-OBJECTS ls-proc 
+&Scoped-Define ENABLED-OBJECTS btnRun IMAGE-1 
+&Scoped-Define DISPLAYED-OBJECTS fiNotes 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -69,43 +72,38 @@ CREATE WIDGET-POOL.
 /* Define the widget handle for the window                              */
 DEFINE VAR wWin AS WIDGET-HANDLE NO-UNDO.
 
+/* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_brwprgrmsutil AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_sdoprgrmsutil AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vwrprgrmsutil AS HANDLE NO-UNDO.
+
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
-     LABEL "Cancel" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
+DEFINE BUTTON btnRun 
+     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "&Run" 
+     SIZE 7 BY 1.91 TOOLTIP "Press here or dbl-click a rowto run the selected utility".
 
-DEFINE BUTTON Btn_OK AUTO-GO 
-     LABEL "Import" 
-     SIZE 15 BY 1.14
-     BGCOLOR 8 .
-
-DEFINE VARIABLE ls-proc AS CHARACTER FORMAT "X(256)":U 
-     LABEL "File to Import" 
+DEFINE VARIABLE fiNotes AS CHARACTER FORMAT "X(256)":U INITIAL "Notes:" 
      VIEW-AS FILL-IN 
-     SIZE 68 BY 1 NO-UNDO.
+     SIZE 10 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 96.4 BY 9.05.
+DEFINE IMAGE IMAGE-1
+     FILENAME "Resources/Graphics/32x32/door_exit.ico":U
+     STRETCH-TO-FIT
+     SIZE 7 BY 1.67 TOOLTIP "Press here to leave this function".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMain
-     ls-proc AT ROW 4.1 COL 19 COLON-ALIGNED
-     Btn_OK AT ROW 6.71 COL 24
-     Btn_Cancel AT ROW 6.71 COL 61
-     RECT-1 AT ROW 1 COL 1
-     "This Procedure will import All Program Master records" VIEW-AS TEXT
-          SIZE 64 BY .95 AT ROW 1.48 COL 21
-     "from the following file." VIEW-AS TEXT
-          SIZE 42 BY .95 AT ROW 2.67 COL 21
+     btnRun AT ROW 20.05 COL 96
+     fiNotes AT ROW 19.33 COL 5 NO-LABEL
+     IMAGE-1 AT ROW 20.29 COL 108
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 96.4 BY 9.48
-         FONT 6.
+         SIZE 125.8 BY 22.81.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -115,7 +113,7 @@ DEFINE FRAME fMain
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Container Links: Data-Target,Data-Source,Page-Target,Update-Source,Update-Target,Filter-target,Filter-Source
-   Other Settings: COMPILE
+   Other Settings: APPSERVER
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -125,9 +123,9 @@ DEFINE FRAME fMain
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
-         TITLE              = "Import Program Master Record"
-         HEIGHT             = 9.19
-         WIDTH              = 97.4
+         TITLE              = "Utility Launcher"
+         HEIGHT             = 22.81
+         WIDTH              = 125.8
          MAX-HEIGHT         = 28.81
          MAX-WIDTH          = 146.2
          VIRTUAL-HEIGHT     = 28.81
@@ -161,7 +159,12 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW wWin
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
-                                                                        */
+   FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN fiNotes IN FRAME fMain
+   NO-ENABLE ALIGN-L                                                    */
+ASSIGN 
+       fiNotes:READ-ONLY IN FRAME fMain        = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
 
@@ -176,7 +179,7 @@ THEN wWin:HIDDEN = yes.
 
 &Scoped-define SELF-NAME wWin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wWin wWin
-ON END-ERROR OF wWin /* Import Program Master Record */
+ON END-ERROR OF wWin /* Utility Launcher */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -189,7 +192,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wWin wWin
-ON WINDOW-CLOSE OF wWin /* Import Program Master Record */
+ON WINDOW-CLOSE OF wWin /* Utility Launcher */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -201,37 +204,27 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_OK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK wWin
-ON CHOOSE OF Btn_OK IN FRAME fMain /* Import */
+&Scoped-define SELF-NAME btnRun
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun wWin
+ON CHOOSE OF btnRun IN FRAME fMain /* Run */
 DO:
-  SESSION:SET-WAIT-STATE("general").  
-
-  FOR EACH prgrms:
-      DELETE prgrms.
-  END.
-
-         INPUT FROM VALUE(ls-proc) NO-ECHO.
-         REPEAT:
-             INSERT prgrms.
-         END.
-  MESSAGE "Procedure is completed." VIEW-AS ALERT-BOX .
-  SESSION:SET-WAIT-STATE("").
+    RUN chooseRun IN h_brwprgrmsutil.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME ls-proc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-proc wWin
-ON LEAVE OF ls-proc IN FRAME fMain /* File to Import */
+&Scoped-define SELF-NAME IMAGE-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL IMAGE-1 wWin
+ON MOUSE-SELECT-CLICK OF IMAGE-1 IN FRAME fMain
 DO:
-    ASSIGN {&self-name}.
+    APPLY 'close' TO THIS-PROCEDURE.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -257,6 +250,50 @@ PROCEDURE adm-create-objects :
                After SmartObjects are initialized, then SmartLinks are added.
   Parameters:  <none>
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE currentPage  AS INTEGER NO-UNDO.
+
+  ASSIGN currentPage = getCurrentPage().
+
+  CASE currentPage: 
+
+    WHEN 0 THEN DO:
+       RUN constructObject (
+             INPUT  'n:/repository/legacy/sdo/sdoprgrmsutil.wDB-AWARE':U ,
+             INPUT  FRAME fMain:HANDLE ,
+             INPUT  'AppServiceASInfoASUsePrompt?CacheDuration0CheckCurrentChangedyesDestroyStatelessyesDisconnectAppServernoServerOperatingModeNONEShareDatanoUpdateFromSourcenoForeignFieldsObjectNamesdoprgrmsutilOpenOnInityesPromptColumns(NONE)PromptOnDeleteyesRowsToBatch200RebuildOnReposnoToggleDataTargetsyes':U ,
+             OUTPUT h_sdoprgrmsutil ).
+       RUN repositionObject IN h_sdoprgrmsutil ( 21.24 , 3.00 ) NO-ERROR.
+       /* Size in AB:  ( 1.86 , 10.80 ) */
+
+       RUN constructObject (
+             INPUT  'n:/repository/legacy/brw/brwprgrmsutil.w':U ,
+             INPUT  FRAME fMain:HANDLE ,
+             INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
+             OUTPUT h_brwprgrmsutil ).
+       RUN repositionObject IN h_brwprgrmsutil ( 1.24 , 2.00 ) NO-ERROR.
+       RUN resizeObject IN h_brwprgrmsutil ( 17.38 , 124.00 ) NO-ERROR.
+
+       RUN constructObject (
+             INPUT  'n:/repository/legacy/vwr/vwrprgrmsutil.w':U ,
+             INPUT  FRAME fMain:HANDLE ,
+             INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
+             OUTPUT h_vwrprgrmsutil ).
+       RUN repositionObject IN h_vwrprgrmsutil ( 19.10 , 16.00 ) NO-ERROR.
+       /* Size in AB:  ( 3.86 , 74.00 ) */
+
+       /* Links to SmartDataBrowser h_brwprgrmsutil. */
+       RUN addLink ( h_sdoprgrmsutil , 'Data':U , h_brwprgrmsutil ).
+       RUN addLink ( h_brwprgrmsutil , 'Update':U , h_sdoprgrmsutil ).
+
+       /* Links to SmartDataViewer h_vwrprgrmsutil. */
+       RUN addLink ( h_sdoprgrmsutil , 'Data':U , h_vwrprgrmsutil ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjustTabOrder ( h_vwrprgrmsutil ,
+             h_brwprgrmsutil , 'AFTER':U ).
+    END. /* Page 0 */
+
+  END CASE.
 
 END PROCEDURE.
 
@@ -293,9 +330,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY ls-proc 
+  DISPLAY fiNotes 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE ls-proc Btn_OK Btn_Cancel RECT-1 
+  ENABLE btnRun IMAGE-1 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -314,6 +351,34 @@ PROCEDURE exitObject :
 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wWin 
+PROCEDURE initializeObject :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR iUserSecurityLevel AS INT NO-UNDO.
+
+    FIND FIRST users NO-LOCK WHERE 
+        users.user_id EQ USERID(LDBNAME(1))
+        NO-ERROR.
+    IF AVAIL users THEN ASSIGN 
+        iUserSecurityLevel = users.securityLevel.
+    ELSE ASSIGN 
+        iUserSecurityLevel = 0.
+        
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  RUN SUPER.
+
+  /* Code placed here will execute AFTER standard behavior.    */
+    RUN chgQryWhere IN h_sdoprgrmsutil ("can-do(prgrms.modeList,'UTIL') AND prgrms.securityLevelUser GE " + STRING(iUserSecurityLevel)).
 
 END PROCEDURE.
 
