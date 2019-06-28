@@ -564,7 +564,7 @@ FUNCTION convert-qty RETURNS DECIMAL
      assign   li-ord-qty = po-ordl.cons-qty
               li-due-qty = po-ordl.cons-qty - po-ordl.t-rec-qty. 
   else do:
-     cocode = itemfg.company.
+    
      run sys/ref/convquom.p(po-ordl.cons-uom, "EA",
                          0, po-ordl.s-len,
                          po-ordl.s-wid, 0,
@@ -597,7 +597,7 @@ FUNCTION vend-name RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   if not avail po-ordl then RETURN "".
   
-  find first vend where vend.company = itemFG.company and
+  find first vend where vend.company = cocode and
                         vend.vend-no = po-ord.vend-no no-lock no-error.
   ls-vend-name = if avail vend then vend.name else "N/A" .
   RETURN ls-vend-name .   /* Function return value. */
