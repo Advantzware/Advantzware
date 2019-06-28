@@ -83,7 +83,7 @@ RUN GetBarDirNKValues(OUTPUT opcDirectory,
     RUN GetUserDir(OUTPUT cDirectory). 
     IF cDirectory  NE "" THEN 
         ASSIGN
-            oplUserSpecific = YES.
+            oplUserSpecific = YES
             opcDirectory = cDirectory.
 
     IF NOT oplUserSpecific THEN
