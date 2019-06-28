@@ -981,6 +981,7 @@ PROCEDURE pJasperLastPageFooter :
             IF AVAILABLE dynParamValue THEN
             DO idx = 1 TO EXTENT(dynParamValue.paramName):
                 IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
+                IF dynParamValue.paramName[idx] BEGINS "svS" THEN NEXT.
                 ASSIGN
                     cParameter[iParameterRow] = IF dynParamValue.paramLabel[idx] EQ ? THEN REPLACE(dynParamValue.paramName[idx],"sv","")
                                                 ELSE dynParamValue.paramLabel[idx]

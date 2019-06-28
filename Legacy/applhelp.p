@@ -147,6 +147,13 @@ PROCEDURE pGetDynLookup:
            AND dynLookup.tableName EQ cFrameFile
            AND dynLookup.fieldName EQ cFrameField
          NO-ERROR.
+    IF NOT AVAILABLE dynLookup THEN
+    FIND FIRST dynLookup NO-LOCK
+         WHERE dynLookup.prgmName  EQ ""
+           AND dynLookup.tableDB   EQ cFrameDB
+           AND dynLookup.tableName EQ cFrameFile
+           AND dynLookup.fieldName EQ cFrameField
+         NO-ERROR.
 END PROCEDURE.
 
 PROCEDURE pGetLookups:
@@ -177,9 +184,17 @@ PROCEDURE pRunDynLookup:
         ELSE
         DO TRANSACTION:
             IF NOT AVAILABLE dynLookup THEN DO:
+                MESSAGE
+                    "Program:" cPrgmName SKIP(1)
+                    "DB:" cFrameDB SKIP
+                    "Table:" cFrameFile SKIP
+                    "Field:" cFrameField SKIP(1)
+                    "Restrict this Lookup to this Program Only?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                UPDATE lRestrict AS LOGICAL.
                 CREATE dynLookup.
                 ASSIGN
-                    dynLookup.prgmName  = cPrgmName
+                    dynLookup.prgmName  = IF lRestrict THEN cPrgmName ELSE ""
                     dynLookup.tableDB   = cFrameDB
                     dynLookup.tableName = cFrameFile
                     dynLookup.fieldName = cFrameField

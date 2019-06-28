@@ -190,6 +190,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     WHEN "Export" THEN
     RUN prodict/dump_d.p ("{&tables}","{&dataFolder}","").
     WHEN "Import" THEN DO:
+        DELETE FROM dynLookup.
         DELETE FROM dynParam.
         DELETE FROM dynParamSet.
         DELETE FROM dynParamSetDtl.
