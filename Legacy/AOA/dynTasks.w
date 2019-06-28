@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&Scoped-define program-id dynTask.
+&Scoped-define program-id tasksWin.
 
 /* Parameters Definitions ---                                           */
 
@@ -122,7 +122,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 162 BY 30.19
+         SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -132,7 +132,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -144,8 +144,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Dynamic User Tasks"
-         HEIGHT             = 30.19
-         WIDTH              = 162
+         HEIGHT             = 28.57
+         WIDTH              = 160
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -280,7 +280,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 30.00 , 162.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 28.57 , 160.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -306,7 +306,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_userparam ).
        RUN set-position IN h_userparam ( 2.43 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 28.76 , 160.00 ) */
+       /* Size in UIB:  ( 26.95 , 158.00 ) */
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_userparam ,
@@ -602,10 +602,10 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         HIDE FRAME {&FRAME-NAME}.
-        IF {&WINDOW-NAME}:HEIGHT LT 30.19 THEN
-        {&WINDOW-NAME}:HEIGHT = 30.19.
-        IF {&WINDOW-NAME}:WIDTH  LT 162   THEN
-        {&WINDOW-NAME}:WIDTH  = 162.
+        IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
+        {&WINDOW-NAME}:HEIGHT = 28.57.
+        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
+        {&WINDOW-NAME}:WIDTH  = 160.
         ASSIGN
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
