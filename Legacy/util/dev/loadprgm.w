@@ -213,7 +213,7 @@ DO:
 
          INPUT FROM VALUE(ls-proc) NO-ECHO.
          REPEAT:
-             INSERT prgrms.
+             IMPORT prgrms.
          END.
   MESSAGE "Procedure is completed." VIEW-AS ALERT-BOX .
   SESSION:SET-WAIT-STATE("").
