@@ -238,7 +238,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 1
-     estPacking.quantityPer AT ROW 7.62 COL 43 COLON-ALIGNED
+     estPacking.quantityPer AT ROW 7.62 COL 50 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEM-PAIRS "Case","C",
                      "Pallet","P",
