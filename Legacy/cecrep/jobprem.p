@@ -55,7 +55,8 @@ DEF VAR v-plate-loc LIKE prep.loc-bin NO-UNDO.
 DEF BUFFER bf-eb FOR eb.
 DEF SHARED VAR s-prt-set-header AS LOG NO-UNDO.
 DEF VAR tb_app-unprinted AS LOG NO-UNDO.
-DEFINE VARIABLE cMchEstRecKey AS CHARACTER NO-UNDO .
+/*DEFINE VARIABLE cMchEstRecKey AS CHARACTER NO-UNDO.*/
+DEFINE VARIABLE cJobMchID AS CHARACTER NO-UNDO.
 
 FUNCTION barCode RETURNS CHARACTER (ipBarCode AS CHARACTER):
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
@@ -628,11 +629,10 @@ do v-local-loop = 1 to v-local-copies:
         ELSE PUT "<=#8> Machine Routing        SU:    Start    Stop   Total    RUN:  Start   Stop    Total   QTY:   In      Out     Waste        Date" SKIP.
         PUT "<=#8><R+1><C+1><from><C+76><Line>" SKIP.
 
-
         i = 0.
-
         for each w-m WHERE w-m.dscr NE "" BREAK by w-m.dseq:
-            cMchEstRecKey = "".
+/*            cMchEstRecKey = "".*/
+            cJobMchID = "".
             FIND FIRST job-mch NO-LOCK
                 where job-mch.company eq cocode
                 and job-mch.job     eq job-hdr.job
@@ -641,13 +641,17 @@ do v-local-loop = 1 to v-local-copies:
                 AND job-mch.m-code  EQ w-m.m-code
                 and job-mch.frm     eq job-hdr.frm NO-ERROR .
               IF AVAIL job-mch THEN
-              cMchEstRecKey = LEFT-TRIM(job-mch.job-no) + "-"
-                            + STRING(job-mch.job-no2) + "."
-                            + STRING(job-mch.frm) + "."
-                            + STRING(job-mch.blank-no) + "."
-                            + STRING(job-mch.pass) + "."
-                            + STRING(job-mch.m-code)
-                            .
+/*              cMchEstRecKey = LEFT-TRIM(job-mch.job-no) + "-"*/
+/*                            + STRING(job-mch.job-no2) + "."  */
+/*                            + STRING(job-mch.frm) + "."      */
+/*                            + STRING(job-mch.blank-no) + "." */
+/*                            + STRING(job-mch.pass) + "."     */
+/*                            + STRING(job-mch.m-code)         */
+/*                            .                                */
+              cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
+                        + STRING(job-mch.job-no2) + "."
+                        + STRING(job-mch.job-mchID,"999999999")
+                        .
             IF NOT FIRST(w-m.dseq) THEN
                 i = i + 2.
             ELSE i = i + 1 .
@@ -673,7 +677,8 @@ do v-local-loop = 1 to v-local-copies:
                   fill("_",8) FORMAT "x(8)" TO 117
                   fill("_",8) FORMAT "x(8)" TO 129
                   "<=#8><R+" STRING(i + 1.7) "><#32><UNITS=INCHES><C20><FROM><C58><r+.6><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-                  cMchEstRecKey FORMAT "x(30)"
+/*                  cMchEstRecKey FORMAT "x(30)"*/
+                  cJobMchID FORMAT "x(19)"
                   ">"
                   .             
           v-lines = v-lines + 1.
