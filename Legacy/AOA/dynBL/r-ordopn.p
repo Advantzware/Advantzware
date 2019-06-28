@@ -80,6 +80,12 @@ PROCEDURE pBusinessLogic:
     DEFINE BUFFER bOERell FOR oe-rell.
     
     /* subject business logic */
+    IF lAllJobNo THEN
+    ASSIGN
+        cEndJobNo    = "999999"
+        iStartJobNo2 = 0
+        iEndJobNo2   = 99
+        .
     ASSIGN
         cStartJobNo  = LEFT-TRIM(cStartJobNo)
         cEndJobNo    = LEFT-TRIM(cEndJobNo)

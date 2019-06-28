@@ -79,7 +79,7 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 &Scoped-define outputObjects btnSave btnVisibleSets svRecipients ~
 svSetAlignment defaultOutputFormat svShowAll svShowReportHeader ~
 svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader ~
-svShowGroupFooter svShowParameters btnAddEmail 
+btnAddEmail svShowGroupFooter svShowParameters 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
 svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
@@ -119,7 +119,7 @@ DEFINE BUTTON btnVisibleSets
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 69 BY 2.38
+     SIZE 71 BY 2.38
      BGCOLOR 15 .
 
 DEFINE VARIABLE defaultOutputFormat AS CHARACTER 
@@ -147,7 +147,7 @@ DEFINE RECTANGLE RECT-PANEL
 
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 156 BY 1.19.
+     SIZE 158 BY 1.19.
 
 DEFINE VARIABLE svShowAll AS LOGICAL INITIAL yes 
      LABEL "Show ALL" 
@@ -193,42 +193,42 @@ DEFINE VARIABLE svShowReportHeader AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME paramFrame
-     SPACE(158.01) SKIP(5.25)
+     SPACE(160.01) SKIP(5.25)
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME outputFrame
-     btnSave AT ROW 1.48 COL 149 HELP
+     btnSave AT ROW 1.48 COL 151 HELP
           "Update/Save" WIDGET-ID 248
-     btnVisibleSets AT ROW 1.48 COL 141 HELP
+     btnVisibleSets AT ROW 1.48 COL 143 HELP
           "Show/Hide Parameter Sets" WIDGET-ID 660
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svSetAlignment AT ROW 1.71 COL 78 NO-LABEL WIDGET-ID 654
-     defaultOutputFormat AT ROW 2.43 COL 93 NO-LABEL WIDGET-ID 644
+     svSetAlignment AT ROW 1.71 COL 80 NO-LABEL WIDGET-ID 654
+     defaultOutputFormat AT ROW 2.43 COL 95 NO-LABEL WIDGET-ID 644
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 23 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 44 WIDGET-ID 4
      svShowPageHeader AT ROW 4.1 COL 65 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 103 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 123 WIDGET-ID 12
-     svShowParameters AT ROW 4.1 COL 142 WIDGET-ID 16
      btnAddEmail AT ROW 2.19 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
+     svShowGroupFooter AT ROW 4.1 COL 123 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      "Set Alignment" VIEW-AS TEXT
-          SIZE 13.6 BY .62 AT ROW 1 COL 78 WIDGET-ID 658
+          SIZE 13.6 BY .62 AT ROW 1 COL 80 WIDGET-ID 658
      "Default Output Format:" VIEW-AS TEXT
-          SIZE 23 BY 1 AT ROW 1.48 COL 93 WIDGET-ID 652
+          SIZE 23 BY 1 AT ROW 1.48 COL 95 WIDGET-ID 652
      "Email:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
-     RECT-PANEL AT ROW 1.24 COL 92 WIDGET-ID 256
+     RECT-PANEL AT ROW 1.24 COL 94 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 158 BY 5.24
+         SIZE 160 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
@@ -258,8 +258,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 27
-         WIDTH              = 158.2.
+         HEIGHT             = 28.91
+         WIDTH              = 160.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -320,8 +320,8 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
 /* SETTINGS FOR FRAME paramFrame
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
-       FRAME paramFrame:HEIGHT           = 26.95
-       FRAME paramFrame:WIDTH            = 158.
+       FRAME paramFrame:HEIGHT           = 28.76
+       FRAME paramFrame:WIDTH            = 160.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
