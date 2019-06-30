@@ -1755,10 +1755,8 @@ PROCEDURE pGetDbFileStats :
             cDbLongName = cLongFileName.
         ASSIGN 
             FILE-INFO:FILE-NAME = cLongFileName
-            iFileSize = iFileSize + FILE-INFO:FILE-SIZE.
+            iFileSize = FILE-INFO:FILE-SIZE / 1024000.
     END.
-    ASSIGN 
-        iFileSize = iFileSize / 1024000.
         
     IF rsDoWhat:{&SV} EQ "B" 
     AND tbEstimate:CHECKED THEN 

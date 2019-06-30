@@ -1,0 +1,108 @@
+ADD FIELD "misQtyPer" OF "ef" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 117
+  INITIAL "0"
+  LABEL "Misc Item Quantity Per Product"
+  EXTENT 6
+  DECIMALS 2
+  ORDER 1150
+  MAX-WIDTH 132
+
+ADD FIELD "estimateTypeID" OF "est" AS character
+  FORMAT "x(8)"
+  POSITION 78
+  INITIAL ""
+  LABEL "Estimate Type"
+  ORDER 660
+  MAX-WIDTH 16
+
+UPDATE TABLE "estRelease"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\estRelease.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\estRelease.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\estRelease.p" CRC "?"
+
+RENAME FIELD "compamy" OF "estRelease" TO "company"
+
+ADD FIELD "dimEachLen" OF "estRelease" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 27
+  INITIAL "0.00"
+  HELP "?"
+  LABEL "DimEachLen"
+  ORDER 260
+  MAX-WIDTH 15
+
+ADD FIELD "dimEachWid" OF "estRelease" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 28
+  INITIAL "0.00"
+  HELP "?"
+  LABEL "DimEachWid"
+  ORDER 270
+  MAX-WIDTH 15
+
+ADD FIELD "dimEachDep" OF "estRelease" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 29
+  INITIAL "0.00"
+  HELP "?"
+  LABEL "DimEachDep"
+  ORDER 280
+  MAX-WIDTH 15
+
+ADD FIELD "dimEachUOM" OF "estRelease" AS character
+  FORMAT "x(8)"
+  POSITION 30
+  INITIAL ""
+  HELP "?"
+  LABEL "DimEachUOM"
+  ORDER 290
+  MAX-WIDTH 16
+
+ADD FIELD "weightTarePerEach" OF "estRelease" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 31
+  INITIAL "0"
+  LABEL "Tare Weight of Each Product (avg)"
+  DECIMALS 2
+  ORDER 300
+  MAX-WIDTH 17
+
+ADD FIELD "weightNetPerEach" OF "estRelease" AS decimal
+  FORMAT "->,>>>,>>9.99"
+  POSITION 32
+  INITIAL "0"
+  LABEL "Net Weight of Each Product"
+  DECIMALS 2
+  ORDER 310
+  MAX-WIDTH 17
+
+ADD FIELD "weightTotalPerEach" OF "estRelease" AS decimal
+  FORMAT "->,>>>,>>9.99"
+  POSITION 33
+  INITIAL "0"
+  LABEL "Total Weight of Each Product (avg)"
+  DECIMALS 2
+  ORDER 320
+  MAX-WIDTH 17
+
+ADD FIELD "weightUoM" OF "estRelease" AS character
+  FORMAT "x(8)"
+  POSITION 34
+  INITIAL ""
+  LABEL "Weight UoM"
+  ORDER 330
+  MAX-WIDTH 16
+
+UPDATE FIELD "lActive" OF "fgcat"
+  INITIAL "yes"
+
+ADD INDEX "rec-id" ON "report"
+  AREA "Data"
+  INDEX-FIELD "rec-id" ASCENDING
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002242

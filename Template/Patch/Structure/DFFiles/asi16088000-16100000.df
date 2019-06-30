@@ -1,0 +1,2133 @@
+ADD TABLE "APIOutbound"
+  AREA "Data"
+  DUMP-NAME "apioutbound"
+
+ADD FIELD "rec_key" OF "APIOutbound" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "apiID" OF "APIOutbound" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "endPoint" OF "APIOutbound" AS character 
+  FORMAT "x(200)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 200
+  ORDER 30
+
+ADD FIELD "isSSLEnabled" OF "APIOutbound" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 5
+  MAX-WIDTH 1
+  ORDER 40
+
+ADD FIELD "authType" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 16
+  ORDER 50
+
+ADD FIELD "userName" OF "APIOutbound" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD FIELD "password" OF "APIOutbound" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "requestData" OF "APIOutbound" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 9
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 80
+
+ADD FIELD "requestDataType" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "requestVerb" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "clientID" OF "APIOutbound" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "isActive" OF "APIOutbound" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 13
+  MAX-WIDTH 1
+  ORDER 120
+
+ADD FIELD "createTime" OF "APIOutbound" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  POSITION 14
+  MAX-WIDTH 8
+  ORDER 130
+
+ADD FIELD "createBy" OF "APIOutbound" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  POSITION 15
+  MAX-WIDTH 16
+  ORDER 140
+
+ADD FIELD "requestHandler" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "responseHandler" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 17
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD INDEX "rec_key" ON "APIOutbound" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "apiClient" ON "APIOutbound" 
+  AREA "Index"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "clientID" ASCENDING 
+  INDEX-FIELD "isActive" ASCENDING 
+
+ADD INDEX "apiID" ON "APIOutbound" 
+  AREA "Data"
+  INDEX-FIELD "apiID" ASCENDING 
+
+ADD INDEX "apiVerb" ON "APIOutbound" 
+  AREA "Data"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "requestVerb" ASCENDING 
+  INDEX-FIELD "isActive" ASCENDING 
+
+ADD INDEX "createTime" ON "APIOutbound" 
+  AREA "Index"
+  INDEX-FIELD "createTime" DESCENDING 
+  INDEX-FIELD "createBy" ASCENDING 
+
+ADD TABLE "APIOutboundDetail"
+  AREA "Data"
+  DUMP-NAME "apioutbounddetail"
+
+ADD FIELD "apiID" OF "APIOutboundDetail" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "rec_key" OF "APIOutboundDetail" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 42
+  ORDER 20
+
+ADD FIELD "parentID" OF "APIOutboundDetail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "detailID" OF "APIOutboundDetail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "data" OF "APIOutboundDetail" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 6
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 50
+
+ADD INDEX "apiID" ON "APIOutboundDetail" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "apiID" ASCENDING 
+
+ADD INDEX "detailID" ON "APIOutboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "detailID" ASCENDING 
+
+ADD INDEX "parentID" ON "APIOutboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "parentID" ASCENDING 
+  INDEX-FIELD "detailID" ASCENDING 
+
+ADD INDEX "rec_key" ON "APIOutboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "APIOutboundEvent"
+  AREA "Data"
+  DUMP-NAME "apioutboundevent"
+
+ADD FIELD "rec_key" OF "APIOutboundEvent" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "apiID" OF "APIOutboundEvent" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "requestDateTime" OF "APIOutboundEvent" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  POSITION 4
+  MAX-WIDTH 8
+  ORDER 30
+
+ADD FIELD "requestData" OF "APIOutboundEvent" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 5
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 40
+
+ADD FIELD "responseData" OF "APIOutboundEvent" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 6
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 50
+
+ADD FIELD "callingProgram" OF "APIOutboundEvent" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD FIELD "success" OF "APIOutboundEvent" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 8
+  MAX-WIDTH 1
+  ORDER 70
+
+ADD FIELD "requestedBy" OF "APIOutboundEvent" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "errorMessage" OF "APIOutboundEvent" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD INDEX "rec_key" ON "APIOutboundEvent" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "apiID" ON "APIOutboundEvent" 
+  AREA "Data"
+  INDEX-FIELD "apiID" ASCENDING 
+
+ADD INDEX "requestDateTime" ON "APIOutboundEvent" 
+  AREA "Data"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "requestDateTime" DESCENDING 
+  INDEX-FIELD "success" DESCENDING 
+  INDEX-FIELD "requestedBy" DESCENDING 
+
+ADD TABLE "dynLookup"
+  AREA "Data"
+  LABEL "Dynamic Lookup"
+  DESCRIPTION "Dynamic Lookup"
+  DUMP-NAME "dynlookup"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/dynLookup.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/dynLookup.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/dynLookup.p" CRC "?" 
+
+ADD FIELD "prgmName" OF "dynLookup" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Program Name"
+  POSITION 2
+  MAX-WIDTH 20
+  HELP "Enter Program Name"
+  ORDER 10
+
+ADD FIELD "subjectID" OF "dynLookup" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  LABEL "Subject ID"
+  POSITION 3
+  MAX-WIDTH 4
+  HELP "Enter Subject ID"
+  ORDER 50
+
+ADD FIELD "user-id" OF "dynLookup" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "User ID"
+  POSITION 4
+  MAX-WIDTH 20
+  HELP "Enter User ID"
+  ORDER 60
+
+ADD FIELD "paramValueID" OF "dynLookup" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Parameter Value ID"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Value ID"
+  HELP "Enter Parameter Value ID"
+  ORDER 70
+
+ADD FIELD "fieldName" OF "dynLookup" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Field Name"
+  POSITION 6
+  MAX-WIDTH 40
+  HELP "Enter Field Name"
+  ORDER 40
+
+ADD FIELD "tableName" OF "dynLookup" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Table Name"
+  POSITION 7
+  MAX-WIDTH 40
+  HELP "Enter Table Name"
+  ORDER 30
+
+ADD FIELD "tableDB" OF "dynLookup" AS character 
+  FORMAT "x(8)"
+  INITIAL "ASI"
+  LABEL "Table DB"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter Table DB"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "dynLookup" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 9
+  MAX-WIDTH 42
+  HELP "Enter Rec Key Value"
+  ORDER 80
+
+ADD INDEX "pi-dynLookup" ON "dynLookup" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary Index by Program Name, DB, Table and Field"
+  INDEX-FIELD "prgmName" ASCENDING 
+  INDEX-FIELD "tableDB" ASCENDING 
+  INDEX-FIELD "tableName" ASCENDING 
+  INDEX-FIELD "fieldName" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "dynLookup" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "estPacking"
+  AREA "Data"
+  DUMP-NAME "estpacking"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estPacking.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estPacking.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estPacking.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estPacking" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "estPackingID" OF "estPacking" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Est Release ID"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "company" OF "estPacking" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 4
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "estimateNo" OF "estPacking" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 5
+  MAX-WIDTH 10
+  HELP "Enter Estimate Number."
+  ORDER 70
+
+ADD FIELD "formNo" OF "estPacking" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Form No"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 80
+
+ADD FIELD "blankNo" OF "estPacking" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Blank No"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "quantity" OF "estPacking" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Quantity"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 100
+
+ADD FIELD "quantityUOM" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Quantity UOM"
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 120
+
+ADD FIELD "rmItemID" OF "estPacking" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "RM Item ID"
+  POSITION 11
+  MAX-WIDTH 48
+  ORDER 130
+
+ADD FIELD "materialType" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Mat Type"
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 140
+
+ADD FIELD "dimLength" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Length"
+  POSITION 13
+  MAX-WIDTH 17
+  DECIMALS 6
+  ORDER 150
+
+ADD FIELD "dimWidth" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Width"
+  POSITION 14
+  MAX-WIDTH 17
+  DECIMALS 6
+  ORDER 160
+
+ADD FIELD "dimDepth" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Depth"
+  POSITION 15
+  MAX-WIDTH 17
+  DECIMALS 6
+  ORDER 170
+
+ADD FIELD "dimUOM" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Dim UOM"
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 180
+
+ADD FIELD "weightPerEach" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Weight/EA"
+  POSITION 17
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 190
+
+ADD FIELD "weightUOM" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Weight UOM"
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 200
+
+ADD FIELD "costOverriderPerUOM" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Cost Over Per UOM"
+  POSITION 19
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 210
+
+ADD FIELD "costOverrideUOM" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Cost Over UOM"
+  POSITION 20
+  MAX-WIDTH 16
+  ORDER 220
+
+ADD FIELD "quantityPer" OF "estPacking" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "QtyPer"
+  POSITION 21
+  MAX-WIDTH 2
+  ORDER 110
+
+ADD TABLE "estRelease"
+  AREA "Data"
+  DUMP-NAME "estrelease"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\estRelease.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\estRelease.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\estRelease.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estRelease" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "RecKey"
+  POSITION 2
+  MAX-WIDTH 48
+  ORDER 10
+
+ADD FIELD "estReleaseID" OF "estRelease" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Est Release ID"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "company" OF "estRelease" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "estimateNo" OF "estRelease" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 5
+  MAX-WIDTH 10
+  HELP "Enter Estimate Number."
+  ORDER 40
+
+ADD FIELD "formNo" OF "estRelease" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Form No"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "blankNo" OF "estRelease" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Blank No"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "quantity" OF "estRelease" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Quantity"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 70
+
+ADD FIELD "quantityRelease" OF "estRelease" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Qty Release"
+  POSITION 9
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "shipFromLocationID" OF "estRelease" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "From"
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "customerID" OF "estRelease" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Customer ID"
+  POSITION 11
+  MAX-WIDTH 48
+  ORDER 100
+
+ADD FIELD "shipToID" OF "estRelease" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "To"
+  POSITION 12
+  MAX-WIDTH 48
+  ORDER 110
+
+ADD FIELD "carrierID" OF "estRelease" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Carrier"
+  POSITION 13
+  MAX-WIDTH 16
+  ORDER 120
+
+ADD FIELD "carrierZone" OF "estRelease" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Zone"
+  POSITION 14
+  MAX-WIDTH 16
+  ORDER 130
+
+ADD FIELD "quantityPerSubUnit" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "Unit Count"
+  POSITION 15
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 140
+
+ADD FIELD "quantitySubUnitsPerUnit" OF "estRelease" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Unit/Pallet"
+  POSITION 16
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 150
+
+ADD FIELD "quantityOfUnits" OF "estRelease" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Pallets"
+  POSITION 17
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 160
+
+ADD FIELD "palletMultiplier" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99<<"
+  INITIAL "0"
+  LABEL "Oversize Pallet Multiplier"
+  POSITION 18
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 170
+
+ADD FIELD "monthsAtShipFrom" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Months at Ship From"
+  POSITION 19
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 180
+
+ADD FIELD "stackHeight" OF "estRelease" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Stack Height"
+  POSITION 20
+  MAX-WIDTH 4
+  ORDER 190
+
+ADD FIELD "storageCost" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Storage Cost/Pallet/Month at Ship From"
+  POSITION 21
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 200
+
+ADD FIELD "handlingCost" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Handling Cost/Pallet at Ship From"
+  POSITION 22
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 210
+
+ADD FIELD "freightCost" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Freight Cost"
+  POSITION 23
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 220
+
+ADD FIELD "handlingCostTotal" OF "estRelease" AS decimal 
+  FORMAT "->>>,>>9.99"
+  INITIAL "0"
+  LABEL "Handling Cost"
+  POSITION 24
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 230
+
+ADD FIELD "storageCostTotal" OF "estRelease" AS decimal 
+  FORMAT "->>>,>>9.99"
+  INITIAL "0"
+  LABEL "Storage Cost"
+  POSITION 25
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 240
+
+ADD FIELD "createRelease" OF "estRelease" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Create Release"
+  POSITION 26
+  MAX-WIDTH 1
+  ORDER 250
+
+ADD FIELD "dimEachLen" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "DimEachLen"
+  POSITION 27
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 260
+
+ADD FIELD "dimEachWid" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "DimEachWid"
+  POSITION 28
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 270
+
+ADD FIELD "dimEachDep" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "DimEachDep"
+  POSITION 29
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 280
+
+ADD FIELD "dimEachUOM" OF "estRelease" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "DimEachUOM"
+  POSITION 30
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 290
+
+ADD FIELD "weightTarePerEach" OF "estRelease" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Tare Weight of Each Product (avg)"
+  POSITION 31
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 300
+
+ADD FIELD "weightNetPerEach" OF "estRelease" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Net Weight of Each Product"
+  POSITION 32
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 310
+
+ADD FIELD "weightTotalPerEach" OF "estRelease" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Total Weight of Each Product (avg)"
+  POSITION 33
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 320
+
+ADD FIELD "weightUoM" OF "estRelease" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Weight UoM"
+  POSITION 34
+  MAX-WIDTH 16
+  ORDER 330
+
+ADD INDEX "iEstRelID" ON "estRelease" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "estReleaseID" ASCENDING 
+
+ADD INDEX "iCoShipFrom" ON "estRelease" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "shipFromLocationID" ASCENDING 
+
+ADD INDEX "iCoShipTo" ON "estRelease" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "customerID" ASCENDING 
+  INDEX-FIELD "shipToID" ASCENDING 
+
+ADD INDEX "iRecKey" ON "estRelease" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "iShipFrom" ON "estRelease" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "estimateNo" ASCENDING 
+  INDEX-FIELD "formNo" ASCENDING 
+  INDEX-FIELD "blankNo" ASCENDING 
+  INDEX-FIELD "quantity" ASCENDING 
+  INDEX-FIELD "shipFromLocationID" ASCENDING 
+
+ADD INDEX "iShipTo" ON "estRelease" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "estimateNo" ASCENDING 
+  INDEX-FIELD "formNo" ASCENDING 
+  INDEX-FIELD "blankNo" ASCENDING 
+  INDEX-FIELD "quantity" ASCENDING 
+  INDEX-FIELD "shipToID" ASCENDING 
+
+ADD TABLE "inventorySnapshot"
+  AREA "Data"
+  DESCRIPTION "Inventory Snapshot"
+  DUMP-NAME "inventorySnapshot"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\inventorySnapshot.p" CRC "14962" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\inventorySnapshot.p" CRC "2085" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\inventorySnapshot.p" CRC "25608" 
+
+ADD FIELD "inventorySnapshotID" OF "inventorySnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "inventorySnapshotID"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 10
+
+ADD FIELD "snapshotType" OF "inventorySnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "snapshotType"
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 20
+
+ADD FIELD "itemType" OF "inventorySnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "itemType"
+  POSITION 4
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 30
+
+ADD FIELD "company" OF "inventorySnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "company"
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 40
+
+ADD FIELD "warehouseID" OF "inventorySnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "warehouseID"
+  POSITION 6
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 50
+
+ADD FIELD "locationID" OF "inventorySnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "locationID"
+  POSITION 7
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 60
+
+ADD FIELD "inventoryStockStatus" OF "inventorySnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "inventoryStockStatus"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 70
+
+ADD FIELD "snapshotUser" OF "inventorySnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "snapshotUser"
+  POSITION 9
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 80
+
+ADD FIELD "snapshotTime" OF "inventorySnapshot" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "snapshotTime"
+  POSITION 10
+  MAX-WIDTH 8
+  HELP "?"
+  ORDER 90
+
+ADD FIELD "rec_key" OF "inventorySnapshot" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 42
+  ORDER 100
+
+ADD INDEX "inventorySnapshotID" ON "inventorySnapshot" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "inventorySnapshotID" ASCENDING 
+
+ADD INDEX "inventoryStockStatus" ON "inventorySnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "snapshotType" ASCENDING 
+  INDEX-FIELD "itemType" ASCENDING 
+  INDEX-FIELD "inventoryStockStatus" ASCENDING 
+
+ADD INDEX "itemType" ON "inventorySnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "itemType" ASCENDING 
+
+ADD INDEX "location" ON "inventorySnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "warehouseID" ASCENDING 
+  INDEX-FIELD "locationID" ASCENDING 
+
+ADD INDEX "locationType" ON "inventorySnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "warehouseID" ASCENDING 
+  INDEX-FIELD "locationID" ASCENDING 
+  INDEX-FIELD "snapshotType" ASCENDING 
+  INDEX-FIELD "itemType" ASCENDING 
+
+ADD INDEX "snapshotTime" ON "inventorySnapshot" 
+  AREA "Index"
+  INDEX-FIELD "snapshotTime" DESCENDING 
+  INDEX-FIELD "snapshotUser" ASCENDING 
+
+ADD INDEX "snapshotType" ON "inventorySnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "snapshotType" ASCENDING 
+
+ADD TABLE "inventoryStockSnapshot"
+  AREA "Data"
+  DESCRIPTION "Inventory Stock Snapshot"
+  DUMP-NAME "inventoryStockSnapshot"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\inventoryStockSnapshot.p" CRC "14980" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\inventoryStockSnapshot.p" CRC "55833" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\inventoryStockSnapshot.p" CRC "1025" 
+
+ADD FIELD "rec_key" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "rec_key"
+  POSITION 2
+  MAX-WIDTH 42
+  HELP "?"
+  ORDER 10
+
+ADD FIELD "inventoryStockID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "inventoryStockID"
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 20
+
+ADD FIELD "company" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 4
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 30
+
+ADD FIELD "rmItemID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "RMItemID"
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 40
+
+ADD FIELD "fgItemID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "FGItemID"
+  POSITION 6
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 50
+
+ADD FIELD "wipItemID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "WIPItemID"
+  POSITION 7
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 60
+
+ADD FIELD "primaryID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "PrimaryID"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 70
+
+ADD FIELD "itemType" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "ItemType"
+  POSITION 9
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 80
+
+ADD FIELD "jobID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "JobID"
+  POSITION 10
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 90
+
+ADD FIELD "jobID2" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "JobID2"
+  POSITION 11
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 100
+
+ADD FIELD "formNo" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "FormNo"
+  POSITION 12
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 110
+
+ADD FIELD "blankNo" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "BlankNo"
+  POSITION 13
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 120
+
+ADD FIELD "passNo" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "PassNo"
+  POSITION 14
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 130
+
+ADD FIELD "poID" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "PoID"
+  POSITION 15
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 140
+
+ADD FIELD "poLine" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "PoLine"
+  POSITION 16
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 150
+
+ADD FIELD "warehouseID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "WarehouseID"
+  POSITION 17
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 160
+
+ADD FIELD "locationID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "LocationID"
+  POSITION 18
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 170
+
+ADD FIELD "zoneID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "ZoneID"
+  POSITION 19
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 180
+
+ADD FIELD "quantity" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "Quantity"
+  POSITION 20
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 190
+
+ADD FIELD "quantityOriginal" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "QuantityOriginal"
+  POSITION 21
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 200
+
+ADD FIELD "quantityPerSubUnit" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "QuantityPerSubUnit"
+  POSITION 22
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 210
+
+ADD FIELD "quantitySubUnitsPerUnit" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "QuantitySubUnitsPerUnit"
+  POSITION 23
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 220
+
+ADD FIELD "quantityOfSubUnits" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "QuantityOfSubUnits"
+  POSITION 24
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 230
+
+ADD FIELD "quantityOfUnits" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "QuantityOfUnits"
+  POSITION 25
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 240
+
+ADD FIELD "quantityPartial" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "QuantityPartial"
+  POSITION 26
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 250
+
+ADD FIELD "quantityOfSubUnitsOriginal" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "QuantityOfSubUnitsOriginal"
+  POSITION 27
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 260
+
+ADD FIELD "quantityOfUnitsOriginal" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "QuantityOfUnitsOriginal"
+  POSITION 28
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 270
+
+ADD FIELD "quantityPartialOriginal" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "QuantityPartialOriginal"
+  POSITION 29
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 280
+
+ADD FIELD "quantityUOM" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "QuantityUOM"
+  POSITION 30
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 290
+
+ADD FIELD "costStandardPerUOM" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "CostStandardPerUOM"
+  POSITION 31
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 300
+
+ADD FIELD "costActualPerUOM" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "CostActualPerUOM"
+  POSITION 32
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 310
+
+ADD FIELD "costDetailID" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "CostDetailID"
+  POSITION 33
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 320
+
+ADD FIELD "costUOM" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "CostUOM"
+  POSITION 34
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 330
+
+ADD FIELD "createdTime" OF "inventoryStockSnapshot" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "CreatedTime"
+  POSITION 35
+  MAX-WIDTH 8
+  HELP "?"
+  ORDER 340
+
+ADD FIELD "createdBy" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "CreatedBy"
+  POSITION 36
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 350
+
+ADD FIELD "lastTransTime" OF "inventoryStockSnapshot" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "LastTransTime"
+  POSITION 37
+  MAX-WIDTH 8
+  HELP "?"
+  ORDER 360
+
+ADD FIELD "lastTransBy" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "LastTransBy"
+  POSITION 38
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 370
+
+ADD FIELD "consumedTime" OF "inventoryStockSnapshot" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "ConsumedTime"
+  POSITION 39
+  MAX-WIDTH 8
+  HELP "?"
+  ORDER 380
+
+ADD FIELD "consumedBy" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "ConsumedBy"
+  POSITION 40
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 390
+
+ADD FIELD "bolID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "BOLID"
+  POSITION 41
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 400
+
+ADD FIELD "machineID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "MachineID"
+  POSITION 42
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 410
+
+ADD FIELD "consumer" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Consumer"
+  POSITION 43
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 420
+
+ADD FIELD "sourceID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "SourceID"
+  POSITION 44
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 430
+
+ADD FIELD "sourceType" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "SourceType"
+  POSITION 45
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 440
+
+ADD FIELD "lot" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Lot"
+  POSITION 46
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 450
+
+ADD FIELD "customerID" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "CustomerID"
+  POSITION 47
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 460
+
+ADD FIELD "orderID" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "OrderID"
+  POSITION 48
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 470
+
+ADD FIELD "orderLine" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "OrderLine"
+  POSITION 49
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 480
+
+ADD FIELD "releaseID" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "ReleaseID"
+  POSITION 50
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 490
+
+ADD FIELD "releaseLine" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "ReleaseLine"
+  POSITION 51
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 500
+
+ADD FIELD "inventoryStatus" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "InventoryStatus"
+  POSITION 52
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 510
+
+ADD FIELD "dimEachLen" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "DimEachLen"
+  POSITION 53
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 520
+
+ADD FIELD "dimEachWid" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "DimEachWid"
+  POSITION 54
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 530
+
+ADD FIELD "dimEachDep" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "DimEachDep"
+  POSITION 55
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 540
+
+ADD FIELD "dimEachUOM" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "DimEachUOM"
+  POSITION 56
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 550
+
+ADD FIELD "inventoryStockLen" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "InventoryStockLen"
+  POSITION 57
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 560
+
+ADD FIELD "inventoryStockWid" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "InventoryStockWid"
+  POSITION 58
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 570
+
+ADD FIELD "inventoryStockDep" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "InventoryStockDep"
+  POSITION 59
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 580
+
+ADD FIELD "inventoryStockUOM" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "InventoryStockUOM"
+  POSITION 60
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 590
+
+ADD FIELD "basisWeight" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "BasisWeight"
+  POSITION 61
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 600
+
+ADD FIELD "basisWeightUOM" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "BasisWeightUOM"
+  POSITION 62
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 610
+
+ADD FIELD "weightTare" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "WeightTare"
+  POSITION 63
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 620
+
+ADD FIELD "weightNet" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "WeightNet"
+  POSITION 64
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 630
+
+ADD FIELD "weightTotal" OF "inventoryStockSnapshot" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0.00"
+  LABEL "WeightTotal"
+  POSITION 65
+  MAX-WIDTH 15
+  HELP "?"
+  ORDER 640
+
+ADD FIELD "weightUOM" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "WeightUOM"
+  POSITION 66
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 650
+
+ADD FIELD "stockIDAlias" OF "inventoryStockSnapshot" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "StockIDAlias"
+  POSITION 67
+  MAX-WIDTH 16
+  HELP "?"
+  ORDER 660
+
+ADD FIELD "inventorySnapshotID" OF "inventoryStockSnapshot" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "inventorySnapshotID"
+  POSITION 68
+  MAX-WIDTH 4
+  HELP "?"
+  ORDER 670
+
+ADD INDEX "job" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "jobID" ASCENDING 
+  INDEX-FIELD "jobID2" ASCENDING 
+  INDEX-FIELD "formNo" ASCENDING 
+  INDEX-FIELD "blankNo" ASCENDING 
+
+ADD INDEX "consumedTime" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "consumedTime" DESCENDING 
+  INDEX-FIELD "consumedBy" ASCENDING 
+
+ADD INDEX "createdTime" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "createdTime" DESCENDING 
+  INDEX-FIELD "createdBy" ASCENDING 
+
+ADD INDEX "custOrd" ON "inventoryStockSnapshot" 
+  AREA "Data"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "customerID" ASCENDING 
+  INDEX-FIELD "orderID" ASCENDING 
+
+ADD INDEX "fgitemID" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "fgItemID" ASCENDING 
+
+ADD INDEX "inventorySnapshotID" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "inventorySnapshotID" ASCENDING 
+
+ADD INDEX "inventoryStockID" ON "inventoryStockSnapshot" 
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "inventoryStockID" ASCENDING 
+
+ADD INDEX "ItemType" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "itemType" ASCENDING 
+
+ADD INDEX "lastTransTime" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "lastTransTime" DESCENDING 
+  INDEX-FIELD "lastTransBy" ASCENDING 
+
+ADD INDEX "location" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "warehouseID" ASCENDING 
+  INDEX-FIELD "locationID" ASCENDING 
+
+ADD INDEX "machineID" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "machineID" ASCENDING 
+
+ADD INDEX "poID" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "poID" ASCENDING 
+
+ADD INDEX "primaryID" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "primaryID" ASCENDING 
+
+ADD INDEX "rec_key" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "rmItemID" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "rmItemID" ASCENDING 
+
+ADD INDEX "stockIDAlias" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  DESCRIPTION "Stock ID Alias index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "stockIDAlias" ASCENDING 
+
+ADD INDEX "wipItemID" ON "inventoryStockSnapshot" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "wipItemID" ASCENDING 
+
+ADD FIELD "recordLimit" OF "dynParamValue" AS integer
+  FORMAT ">>,>>>,>>9"
+  POSITION 47
+  INITIAL "0"
+  HELP "Enter Record Limit"
+  LABEL "Record Limit"
+  ORDER 340
+  MAX-WIDTH 4
+
+ADD FIELD "recordLimit" OF "dynSubject" AS integer
+  FORMAT ">>,>>>,>>9"
+  POSITION 18
+  INITIAL "0"
+  HELP "Enter Record Limit"
+  LABEL "Record Limit"
+  ORDER 140
+  MAX-WIDTH 4
+
+ADD FIELD "createdDate" OF "e-item-vend" AS date
+  FORMAT "99/99/99"
+  POSITION 51
+  INITIAL ?
+  LABEL "Created Date"
+  ORDER 500
+  MAX-WIDTH 4
+
+ADD FIELD "createdID" OF "e-item-vend" AS character
+  FORMAT "x(16)"
+  POSITION 52
+  INITIAL ""
+  LABEL "Created By"
+  ORDER 510
+  MAX-WIDTH 32
+
+ADD FIELD "runCostDeviation" OF "e-item-vend" AS decimal
+  FORMAT "->>>,>>9.99"
+  POSITION 53
+  INITIAL "0"
+  LABEL "Cost Deviation"
+  EXTENT 10
+  DECIMALS 2
+  ORDER 520
+  MAX-WIDTH 240
+
+ADD FIELD "createdID" OF "e-itemfg-vend" AS character
+  FORMAT "x(16)"
+  POSITION 47
+  INITIAL ""
+  LABEL "Created By"
+  ORDER 460
+  MAX-WIDTH 32
+
+ADD FIELD "runCostDeviation" OF "e-itemfg-vend" AS decimal
+  FORMAT "->>>,>>9.99"
+  POSITION 48
+  INITIAL "0"
+  LABEL "Cost Deviation"
+  EXTENT 10
+  DECIMALS 2
+  ORDER 470
+  MAX-WIDTH 240
+
+ADD FIELD "createdDate" OF "e-itemfg-vend" AS date
+  FORMAT "99/99/99"
+  POSITION 49
+  INITIAL ?
+  LABEL "Created Date"
+  ORDER 450
+  MAX-WIDTH 4
+
+ADD FIELD "stackHeight" OF "eb" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 159
+  INITIAL "0"
+  LABEL "Stack Height"
+  ORDER 1550
+  MAX-WIDTH 4
+
+ADD FIELD "misQtyPer" OF "ef" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 117
+  INITIAL "0"
+  LABEL "Misc Item Quantity Per Product"
+  EXTENT 6
+  DECIMALS 2
+  ORDER 1150
+  MAX-WIDTH 132
+
+ADD FIELD "estimateTypeID" OF "est" AS character
+  FORMAT "x(8)"
+  POSITION 78
+  INITIAL ""
+  LABEL "Estimate Type"
+  ORDER 660
+  MAX-WIDTH 16
+
+ADD INDEX "job-no" ON "fg-bin"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by company, i-no, job-no, job-no2 and tag"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "i-no" ASCENDING
+  INDEX-FIELD "job-no" ASCENDING
+  INDEX-FIELD "job-no2" ASCENDING
+  INDEX-FIELD "tag" ASCENDING
+
+ADD FIELD "lActive" OF "fgcat" AS logical
+  FORMAT "yes/no"
+  POSITION 30
+  INITIAL "yes"
+  LABEL "Active"
+  COLUMN-LABEL "Active"
+  ORDER 290
+  MAX-WIDTH 1
+
+ADD FIELD "unitLength" OF "inventoryStock" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 68
+  INITIAL "0"
+  LABEL "Pallet Lenght"
+  DECIMALS 2
+  ORDER 671
+  MAX-WIDTH 17
+
+ADD FIELD "unitWidth" OF "inventoryStock" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 69
+  INITIAL "0"
+  LABEL "Pallet Width"
+  DECIMALS 2
+  ORDER 681
+  MAX-WIDTH 17
+
+ADD FIELD "unitHeight" OF "inventoryStock" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 70
+  INITIAL "0"
+  LABEL "Pallet Height"
+  DECIMALS 2
+  ORDER 691
+  MAX-WIDTH 17
+
+ADD FIELD "costStandardLab" OF "inventoryStock" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 71
+  INITIAL "0"
+  DECIMALS 2
+  ORDER 680
+  MAX-WIDTH 17
+
+ADD FIELD "costStandardVOH" OF "inventoryStock" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 72
+  INITIAL "0"
+  DECIMALS 2
+  ORDER 690
+  MAX-WIDTH 17
+
+ADD FIELD "costStandardFOH" OF "inventoryStock" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 73
+  INITIAL "0"
+  DECIMALS 2
+  ORDER 701
+  MAX-WIDTH 17
+
+ADD FIELD "costStandardMat" OF "inventoryStock" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 74
+  INITIAL "0"
+  DECIMALS 2
+  ORDER 670
+  MAX-WIDTH 17
+
+ADD FIELD "designID" OF "itemfg" AS character
+  FORMAT "x(15)"
+  POSITION 215
+  INITIAL ""
+  LABEL "Design ID"
+  ORDER 2110
+  MAX-WIDTH 30
+
+ADD FIELD "setupBy" OF "itemfg" AS character
+  FORMAT "x(16)"
+  POSITION 216
+  INITIAL ""
+  LABEL "Setup By"
+  ORDER 2120
+  MAX-WIDTH 32
+
+ADD FIELD "modifiedBy" OF "itemfg" AS character
+  FORMAT "x(16)"
+  POSITION 217
+  INITIAL ""
+  LABEL "Modified By"
+  ORDER 2130
+  MAX-WIDTH 32
+
+ADD FIELD "modifiedDate" OF "itemfg" AS date
+  FORMAT "99/99/99"
+  POSITION 218
+  INITIAL ?
+  LABEL "Modified.Date"
+  ORDER 2140
+  MAX-WIDTH 4
+
+ADD FIELD "palletVolume" OF "itemfg" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 219
+  INITIAL "0"
+  LABEL "Pallet Volume"
+  DECIMALS 2
+  ORDER 2150
+  MAX-WIDTH 17
+
+ADD FIELD "unitLength" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 220
+  INITIAL "0"
+  LABEL "Pallet Lenght"
+  DECIMALS 2
+  ORDER 2160
+  MAX-WIDTH 17
+
+ADD FIELD "unitWidth" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 221
+  INITIAL "0"
+  LABEL "Pallet Width"
+  DECIMALS 2
+  ORDER 2170
+  MAX-WIDTH 17
+
+ADD FIELD "unitHeight" OF "itemfg" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 222
+  INITIAL "0"
+  LABEL "Pallet Height"
+  DECIMALS 2
+  ORDER 2180
+  MAX-WIDTH 17
+
+ADD FIELD "poStatus" OF "itemfg" AS character
+  FORMAT "x(8)"
+  POSITION 223
+  INITIAL ""
+  LABEL "PO Status"
+  COLUMN-LABEL "PO Status"
+  ORDER 2190
+  MAX-WIDTH 16
+
+ADD FIELD "onHold" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 224
+  INITIAL "no"
+  LABEL "On Hold"
+  COLUMN-LABEL "On Hold"
+  ORDER 2200
+  MAX-WIDTH 1
+
+ADD FIELD "job-mchID" OF "job-mch" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 75
+  INITIAL "0"
+  LABEL "Job-mchID"
+  ORDER 840
+  MAX-WIDTH 4
+
+ADD FIELD "handlingCost" OF "loc" AS decimal
+  FORMAT "->,>>>,>>9.99"
+  POSITION 10
+  INITIAL "0"
+  LABEL "Handling Cost"
+  DECIMALS 2
+  ORDER 90
+  MAX-WIDTH 17
+
+ADD FIELD "storageCost" OF "loc" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 11
+  INITIAL "0"
+  LABEL "Storage Cost"
+  EXTENT 4
+  DECIMALS 2
+  ORDER 100
+  MAX-WIDTH 88
+
+ADD FIELD "price" OF "prep" AS decimal
+  FORMAT "->>>>,>>9.99"
+  POSITION 72
+  INITIAL "0"
+  LABEL "Price"
+  DECIMALS 2
+  ORDER 730
+  MAX-WIDTH 17
+
+ADD FIELD "inactive" OF "prep" AS logical
+  FORMAT "yes/no"
+  POSITION 73
+  INITIAL "no"
+  LABEL "Inactive"
+  ORDER 740
+  MAX-WIDTH 1
+
+ADD FIELD "commissionable" OF "prep" AS logical
+  FORMAT "yes/no"
+  POSITION 74
+  INITIAL "yes"
+  LABEL "Commisionable"
+  ORDER 750
+  MAX-WIDTH 1
+
+ADD FIELD "taxable" OF "prep" AS logical
+  FORMAT "yes/no"
+  POSITION 75
+  INITIAL "no"
+  HELP "Based on the master taxable flag for the FG item"
+  LABEL "Taxable"
+  ORDER 720
+  MAX-WIDTH 1
+
+DROP FIELD "p-wid" OF "prep"
+DROP FIELD "p-len" OF "prep"
+DROP FIELD "colors" OF "prep"
+DROP FIELD "plates" OF "prep"
+DROP FIELD "sts" OF "prep"
+DROP FIELD "procat" OF "prep"
+DROP FIELD "strip-loc" OF "prep"
+DROP FIELD "strip-loc-bin" OF "prep"
+DROP FIELD "blank-loc" OF "prep"
+DROP FIELD "blank-loc-bin" OF "prep"
+DROP FIELD "fileNo" OF "prep"
+
+ADD FIELD "notes" OF "prgrms" AS character
+  FORMAT "x(120)"
+  POSITION 35
+  INITIAL ""
+  LABEL "Notes"
+  ORDER 330
+  MAX-WIDTH 240
+
+ADD FIELD "modeList" OF "prgrms" AS character
+  FORMAT "x(24)"
+  POSITION 36
+  INITIAL ""
+  LABEL "Mode List"
+  ORDER 340
+  MAX-WIDTH 48
+
+ADD INDEX "rec-id" ON "report"
+  AREA "Data"
+  INDEX-FIELD "rec-id" ASCENDING
+
+ADD SEQUENCE "estPackingId_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "estReleaseID"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+  MIN-VAL ?
+  MAX-VAL 99999999
+
+ADD SEQUENCE "job-mch_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "prgrms_seq"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "snapshotid_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000045376

@@ -5,7 +5,7 @@
 "addrPhone" no no no no
 "ap-buy" yes yes no no
 "ap-chk" yes yes no no
-"ap-ctrl" yes yes no no
+"ap-ctrl" yes yes yes yes
 "ap-dis" yes yes no no
 "ap-disl" yes yes no no
 "ap-inv" yes yes no no
@@ -18,7 +18,7 @@
 "aphist" yes yes no no
 "ar-cash" yes yes no no
 "ar-cashl" yes yes no no
-"ar-ctrl" yes yes no no
+"ar-ctrl" yes yes yes yes
 "ar-inv" yes yes no no
 "ar-invl" yes yes no no
 "ar-invm" yes yes no no
@@ -37,7 +37,7 @@
 "buyer" yes yes no no
 "carr-mtx" yes yes no no
 "carrier" yes yes no no
-"ce-ctrl" yes yes no no
+"ce-ctrl" yes yes yes yes
 "clientid" no no no no
 "cmpltjob" yes yes no no
 "company" yes yes no no
@@ -60,7 +60,8 @@
 "cust-part" yes yes no no
 "cust-prod-sales" yes yes no no
 "custype" yes yes no no
-"db-ctrl" yes yes no no
+"cxml" yes yes yes yes
+"db-ctrl" yes yes yes yes
 "dep-table" no no no no
 "dept" yes yes no no
 "down-type" yes yes no no
@@ -139,7 +140,7 @@
 "fa-tags" yes yes no no
 "fg-act" yes yes no no
 "fg-bin" yes yes no no
-"fg-ctrl" yes yes no no
+"fg-ctrl" yes yes yes yes
 "fg-hist" yes yes no no
 "fg-rcpth" yes yes no no
 "fg-rcpts" yes yes no no
@@ -155,7 +156,7 @@
 "freight-class" yes yes no no
 "frt-class-desc-trans" yes yes no no
 "ftpConfig" no no no no
-"gl-ctrl" yes yes no no
+"gl-ctrl" yes yes yes yes
 "gl-freq" yes yes no no
 "gl-jrn" yes yes no no
 "gl-jrnl" yes yes no no
@@ -169,8 +170,10 @@
 "inv-head" yes yes no no
 "inv-line" yes yes yes yes
 "inv-misc" yes yes no no
+"inventorySnapshot" yes yes yes no
 "inventoryStock" yes yes yes no
 "inventoryStockAlias" yes yes yes no
+"inventoryStockSnapshot" yes yes yes no
 "inventoryTransaction" yes yes yes no
 "InvoiceLines" no no no no
 "item" yes yes no no
@@ -182,7 +185,7 @@
 "itemfg-ink" yes yes no no
 "itemfg-loc" yes yes no no
 "itemfgdtl" yes yes no no
-"jc-ctrl" yes yes no no
+"jc-ctrl" yes yes yes yes
 "job" yes yes no no
 "job-all" yes yes no no
 "job-brd" yes yes no no
@@ -211,7 +214,7 @@
 "loc" yes yes no no
 "location" no no no no
 "lookups" yes yes no no
-"mach" yes yes no no
+"mach" yes yes yes no
 "mach-adder" yes yes no no
 "mach-attach" yes yes no no
 "mach-attach-pat" yes yes no no
@@ -249,9 +252,9 @@
 "oe-bolh" yes yes yes no
 "oe-boll" yes yes no no
 "oe-boll-qty" yes yes no no
-"oe-ctrl" yes yes no no
+"oe-ctrl" yes yes yes yes
 "oe-ord" yes yes yes no
-"oe-ordl" yes yes no no
+"oe-ordl" yes yes yes no
 "oe-ordm" yes yes no no
 "oe-prmtx" yes yes no no
 "oe-rel" yes yes no no
@@ -276,14 +279,14 @@
 "permx" yes yes no no
 "phone" yes yes no no
 "po-all" yes yes no no
-"po-ctrl" yes yes no no
-"po-ord" yes yes no no
+"po-ctrl" yes yes yes yes
+"po-ord" yes yes yes yes
 "po-ordl" yes yes no no
 "po-ordl-add" yes yes no no
 "po-rcpts" yes yes no no
 "prep" yes yes no no
 "prgmxref" no no no no
-"prgrms" yes yes no no
+"prgrms" yes yes yes no
 "printer" yes yes no no
 "probe" yes yes no no
 "probeit" yes yes no no
@@ -308,10 +311,10 @@
 "report" no no no no
 "rfidtag" yes yes no no
 "rfq" yes yes no no
-"rfq-ctrl" yes yes no no
+"rfq-ctrl" yes yes yes yes
 "rfqitem" yes yes no no
 "rm-bin" yes yes no no
-"rm-ctrl" yes yes no no
+"rm-ctrl" yes yes yes yes
 "rm-rcpt" yes yes no no
 "rm-rcpth" yes yes no no
 "rm-rctd" yes yes no no
@@ -355,8 +358,8 @@
 "styleScoreXref" yes yes no no
 "surcharge" yes yes no no
 "susptype" yes yes no no
-"sys-ctrl" yes yes yes no
-"sys-ctrl-shipto" yes yes no no
+"sys-ctrl" yes yes yes yes
+"sys-ctrl-shipto" yes yes yes yes
 "systemConfigSetting" no no no no
 "systemConfigUsage" no no no no
 "tag" no no no no
