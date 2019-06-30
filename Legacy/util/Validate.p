@@ -228,7 +228,19 @@ PROCEDURE pIsValidFGBin:
         &ValidateTable = "fg-bin" 
         &ValidateField1 = "loc-bin"
         &ValidateField2 = "i-no"  
-        &ValidateMessage = "ShipTo ID"}
+        &ValidateMessage = "FG Bin Loc"}
+END PROCEDURE.
+
+PROCEDURE pIsValidFGBinForLoc:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates FG Bin
+     Notes: Input 1 = Bin location
+    ------------------------------------------------------------------------------*/
+        {util/dev/ValidateWith2Criteria.i 
+        &ValidateTable = "fg-bin" 
+        &ValidateField1 = "loc-bin"
+        &ValidateField2 = "loc"  
+        &ValidateMessage = "FG Bin Location for warehouse"}
 END PROCEDURE.
 
 PROCEDURE pIsValidSalesRep:

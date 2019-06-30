@@ -1,0 +1,780 @@
+<?xml version="1.0" ?>
+<ttViewerDesign file="UserInformation.xml" version="3.14 " columns="8">
+  <ttViewerDesignRow>
+        <ControlName>usrName</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>15,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrName</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrName_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Login Name:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>1,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrNum</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>6,1</ControlSize>
+        <ControlLocation>15,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrNum</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrNum_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Usr#:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>1,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrId</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>6,1</ControlSize>
+        <ControlLocation>15,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrId</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrId_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Connect Id:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>1,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrPID</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>15,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrPID</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrPID_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>PID:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>1,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrServ</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>5</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>15,5</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrServ</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>>>>>>>>>></proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrServ_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>5</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Server:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>1,5</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>sessionInfo</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>77,1</ControlSize>
+        <ControlLocation>15,6</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>sessionInfo</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(77)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>sessionInfo_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Session Info:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>1,6</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>TrxInfo</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>77,1</ControlSize>
+        <ControlLocation>15,7</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>TrxInfo</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(77)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>TrxInfo_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>TRX Info:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>1,7</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrLoginTm</ControlName>
+        <ControlColumn>4</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>30,1</ControlSize>
+        <ControlLocation>43,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrLoginTm</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(30)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrLoginTm_label</ControlName>
+        <ControlColumn>3</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Login Time:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>29,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrIPAddr</ControlName>
+        <ControlColumn>4</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>30,1</ControlSize>
+        <ControlLocation>43,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrIPAddr</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(30)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrIPAddr_label</ControlName>
+        <ControlColumn>3</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Device/IP:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>29,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrFullName</ControlName>
+        <ControlColumn>4</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>30,1</ControlSize>
+        <ControlLocation>43,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrFullName</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(30)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrFullName_label</ControlName>
+        <ControlColumn>3</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Full Name:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>29,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrPhone</ControlName>
+        <ControlColumn>4</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>30,1</ControlSize>
+        <ControlLocation>43,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrPhone</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(30)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrPhone_label</ControlName>
+        <ControlColumn>3</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Phone:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>29,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrEMail</ControlName>
+        <ControlColumn>4</ControlColumn>
+        <ControlRow>5</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>30,1</ControlSize>
+        <ControlLocation>43,5</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrEMail</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(30)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrEMail_label</ControlName>
+        <ControlColumn>3</ControlColumn>
+        <ControlRow>5</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>E-Mail:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>29,5</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrDBA</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>93,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrDBA</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrDBA_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Logical Rd:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>79,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrDBR</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>93,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrDBR</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrDBR_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Disk Reads:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>79,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrHR</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>93,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrHR</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrHR_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Hit%</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>79,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrDBW</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>93,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrDBW</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrDBW_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Logical Wr:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>79,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrBIRd</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>124,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrBIRd</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrBIRd_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>BI Reads:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>109,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrBIWr</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>124,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrBIWr</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrBIWr_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>BI Writes:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>109,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrAIRd</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>124,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrAIRd</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrAIRd_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>AI Reads:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>109,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrAIWr</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>124,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrAIWr</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrAIWr_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>AI Writes:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>109,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrRecLks</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>5</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>124,5</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>usrRecLks</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>usrRecLks_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>5</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Record Locks:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>13,1</ControlSize>
+        <ControlLocation>109,5</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+</ttViewerDesign>

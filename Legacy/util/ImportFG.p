@@ -332,6 +332,9 @@ PROCEDURE pValidate PRIVATE:
 
         IF oplValid AND ipbf-ttImportFG.Bin NE "" THEN 
             RUN pIsValidFGBin IN hdValidator (ipbf-ttImportFG.Bin, "", NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+
+        IF oplValid AND ipbf-ttImportFG.Bin NE "" THEN 
+            RUN pIsValidFGBinForLoc IN hdValidator (ipbf-ttImportFG.Bin, ipbf-ttImportFG.Warehouse, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
             
         IF oplValid AND ipbf-ttImportFG.SalesRepID NE "" THEN 
             RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportFG.SalesRepID, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -343,6 +346,10 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList IN hdValidator ("Stock Item", ipbf-ttImportFG.StockItem, "S,C", OUTPUT oplValid, OUTPUT cValidNote).            
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    IF ipbf-ttImportFG.UnitCount EQ 0 THEN
+        ASSIGN ipbf-ttImportFG.UnitCount = 1 . 
+    IF ipbf-ttImportFG.UnitsPerPallet EQ 0 THEN
+        ASSIGN ipbf-ttImportFG.UnitsPerPallet = 1 .
 
 END PROCEDURE.
 

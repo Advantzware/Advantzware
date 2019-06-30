@@ -311,8 +311,7 @@ DO:
   IF LASTKEY NE -1 THEN DO:
   {&methods/lValidateError.i YES}
     IF DEC(ar-cash.check-amt:SCREEN-VALUE) EQ 0 THEN DO:
-       MESSAGE "Check Amount cannot be 0." VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
+       MESSAGE "Warning: Check Amount is 0." VIEW-AS ALERT-BOX INFO.
     END.
     ELSE IF DEC(ar-cash.check-amt:SCREEN-VALUE) LT 0 AND
          CAN-FIND(FIRST ar-cashl OF ar-cash WHERE
@@ -709,9 +708,8 @@ PROCEDURE local-update-record :
      END.
 
      IF INPUT ar-cash.check-amt EQ 0 THEN DO:
-        MESSAGE "Check Amount cannot be 0." VIEW-AS ALERT-BOX ERROR.
+        MESSAGE "Warning: Check Amount is 0." VIEW-AS ALERT-BOX INFO.
         APPLY "entry" TO ar-cash.check-amt.
-        RETURN NO-APPLY.
      END.
      ELSE IF INPUT ar-cash.check-amt LT 0 AND
          CAN-FIND(FIRST ar-cashl OF ar-cash WHERE

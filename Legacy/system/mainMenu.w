@@ -1691,7 +1691,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageScheduler MAINMENU
 ON MOUSE-SELECT-CLICK OF imageScheduler IN FRAME FRAME-USER
 DO:
-    RUN spSetParamValueID (0).
+    RUN spSetSessionParam ("ParamValueID", "0").
     RUN Get_Procedure IN Persistent-Handle ("dynSched.", OUTPUT run-proc, YES).
 END.
 

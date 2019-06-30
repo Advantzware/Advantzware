@@ -13,9 +13,8 @@ IF AVAIL po-ord THEN DO:
   &SCOPED-DEFINE open-query                         ~
       OPEN QUERY {&browse-name}                     ~
           {&for-each1}                              ~
-            AND fg-rcpth.vend-no EQ po-ord.vend-no  ~
-            AND fg-rcpth.po-no   EQ TRIM(STRING(po-ord.po-no,">>>>>>>>>>")) ~
-              USE-INDEX vend NO-LOCK,               ~
+           and  fg-rcpth.po-no   EQ TRIM(STRING(po-ord.po-no,">>>>>>>>>>")) ~
+              USE-INDEX item-po NO-LOCK,               ~
               {&for-each2}
   
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.

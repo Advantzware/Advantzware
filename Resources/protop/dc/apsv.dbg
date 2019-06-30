@@ -1,0 +1,1383 @@
+        1   /*******************************************************************************
+        2    *******************************************************************************
+        3    **                                                                           **
+        4    **                                                                           **
+        5    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+        6    **  http://www.greenfieldtech.com                                            **
+        7    **                                                                           **
+        8    **  ProTop is free software; you can redistribute it and/or modify it        **
+        9    **  under the terms of the GNU General Public License (GPL) as published     **
+       10    **  by the Free Software Foundation; either version 2 of the License, or     **
+       11    **  at your option) any later version.                                       **
+       12    **                                                                           **
+       13    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       14    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       15    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       16    **  for more details.                                                        **
+       17    **                                                                           **
+       18    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       19    **  of use and alternative licensing options for this software.              **
+       20    **                                                                           **
+       21    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       22    **                                                                           **
+       23    **  See http://www.fsf.org for more information about the GPL.               **
+       24    **                                                                           **
+       25    **                                                                           **
+       26    *******************************************************************************
+       27    *******************************************************************************
+       28    *
+       29    * apsv.p
+       30    *
+       31    *
+       32    * appservers
+       33    *
+       34    *
+       35    * Author:
+       36    *
+       37    *      Tom Bascom, Greenfield Technologies
+       38    *      http://www.greenfieldtech.com
+       39    *      September 5, 2003
+       40    *
+       41    */
+       42   
+       43   
+       44   /*******************************************************************************
+       45    *******************************************************************************
+       46    **                                                                           **
+       47    **                                                                           **
+       48    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       49    **  http://www.greenfieldtech.com                                            **
+       50    **                                                                           **
+       51    **  ProTop is free software; you can redistribute it and/or modify it        **
+       52    **  under the terms of the GNU General Public License (GPL) as published     **
+       53    **  by the Free Software Foundation; either version 2 of the License, or     **
+       54    **  at your option) any later version.                                       **
+       55    **                                                                           **
+       56    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       57    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       58    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       59    **  for more details.                                                        **
+       60    **                                                                           **
+       61    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       62    **  of use and alternative licensing options for this software.              **
+       63    **                                                                           **
+       64    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       65    **                                                                           **
+       66    **  See http://www.fsf.org for more information about the GPL.               **
+       67    **                                                                           **
+       68    **                                                                           **
+       69    *******************************************************************************
+       70    *******************************************************************************
+       71    *
+       72    * protop.i
+       73    *
+       74    * Header file for protop family of programs
+       75    *
+       76    *
+       77    * Known Bugs & Issues:
+       78    *
+       79    *
+       80    * To Do:
+       81    *
+       82    *
+       83    * Author:
+       84    *
+       85    *      Tom Bascom, Greenfield Technologies
+       86    *      http://www.greenfieldtech.com
+       87    *      August 28, 2003
+       88    *
+       89    */
+       90   
+       91   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+       92   &global-define  FASTLOCK        true
+       93   &ELSE
+       94   &global-define  FASTLOCK        false
+       95   &ENDIF
+       96   
+       97   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+       98   &global-define  OE11            "yes"
+       99   &global-define  xDEBUGTT        false
+      100   &ENDIF
+      101   
+      102   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+      103   &global-define  NOSERIALIZE     serialize-hidden
+      104   &ENDIF
+      105   
+      106   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+      107   &global-define  BIGINT          int64
+      108   &ELSE
+      109   &global-define  BIGINT          decimal
+      110   &ENDIF
+      111   
+      112   
+      113   /* lib/v9.i
+      114    *
+      115    */
+      116   
+      117   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      118   &global-define  CPYLOB  "no"
+      119   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      120   &global-define  LNGCR   character
+      121   &global-define  DTZ     integer
+      122   &global-define  BIGINT  decimal
+      123   &ELSE
+      124   &global-define  OE10    "yes"
+      125   &global-define  NOW     now
+      126   &global-define  LNGCR   longchar
+      127   &global-define  DTZ     datetime-tz
+      128   &global-define  BIGINT  int64
+      129   &ENDIF
+      130    
+      131   
+      132   /* use extended _connect fields: -client, -cache*
+      133    */
+      134   
+      135   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      136   &global-define  CONNECTX        "yes"
+      137   &ELSE
+      138   &global-define  CONNECTX        "no"
+      139   &ENDIF
+      140   
+      141   define stream inStrm.
+      142   
+      143   define new global shared variable dbgMode as integer no-undo initial 1.
+      144   
+      145   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      146    *
+      147    * someday everyone will have OO and I will replace these with a gsv class
+      148    * or something of that ilk
+      149    *
+      150    */
+      151   
+      152   define new global shared variable pt_shortname   as character no-undo.
+      153   define new global shared variable pt_uniqName    as character no-undo.
+      154   define new global shared variable pt_server      as character no-undo.
+      155   define new global shared variable pt_resrcType   as character no-undo.
+      156   
+      157   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      158   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      159   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      160   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      161   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      162   
+      163   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      164   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      165   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      166   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      167   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      168   define new global shared variable pt_ioFileName  as character no-undo.
+      169   define new global shared variable pt_dfCmd       as character no-undo.
+      170   
+      171   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      172   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      173   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      174   
+      175   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      176   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      177   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      178   
+      179   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      180   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      181   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      182   
+      183   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      184   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      185   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      186   
+      187   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      188   
+      189   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      190   
+      191   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      192   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      193   
+      194   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      195    * 
+      196    */
+      197   
+      198   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      199   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      200   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      201   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      202   
+      203   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      204   
+      205                                                                                   /* corresponding to base checkpoint#    */
+      206   /** Global Shared Temp Table Definitions
+      207    **
+      208    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      209    ** And a shared temp-table is logically the same as a db table so who really cares?
+      210    **
+      211    **/
+      212   
+      213   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      214    */
+      215   
+      216   define new global shared temp-table tt_tbl no-undo
+      217     field xid      as integer                                             /* _File._File-Num              */
+      218     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      219     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      220     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      221     field tblname  as character                                           /* _File._File-Name             */
+      222     index xid-idx is unique primary xid.
+      223   
+      224   define new global shared temp-table tt_idx no-undo
+      225     field xid      as integer                                             /* _Index._Idx-Num              */
+      226     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      227     field idxname  as character                                           /* _Index._Idx-Name             */
+      228     field idxnote  as character
+      229     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      230     field tblnum   as integer                                             /* _File._File-Num              */
+      231     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      232     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      233     field tblname  as character                                           /* _File._File-Name             */
+      234     index xid-idx is unique primary xid.
+      235   
+      236   define new global shared temp-table tt_areaExtent no-undo
+      237     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      238     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      239   
+      240     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      241     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      242     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      243   
+      244     index ae-idx is unique primary areaNum extNum.
+      245   
+      246   define new global shared temp-table tt_area no-undo
+      247     field xid      as integer    format ">>>9"
+      248     field SANum    as integer    format ">>>9"        label "#"
+      249     field areaPool as character  format "x(2)"        label "BX"
+      250   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      251     field SAName   as character  format "x(30)"       label "Area Name"
+      252     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      253     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      254     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      255     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      256     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      257     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      258     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      259   
+      260     field blkszkb as integer     format ">>9"         label "BSZ"
+      261     field rpb     as integer     format ">>9"         label "RPB"
+      262     field clstrsz as integer     format ">>9"         label "CSZ"
+      263   
+      264     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      265     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      266     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      267   
+      268     field numExts as integer     format ">>>>9"       label "#Exts"
+      269     field hasVar  as logical     format "Yes/No"      label "Var?"
+      270   
+      271     field xnote   as character   format "x"           label "*"
+      272   
+      273     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      274     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      275   
+      276     index pctAlloc-idx is primary pctAlloc descending
+      277     index pctLastX-idx pctLastX pctAlloc descending
+      278     index allocGB-idx allocGB descending
+      279     index totGB-idx totGB descending
+      280     index xid-idx is unique xid
+      281     index SANum-idx is unique SANum
+      282     index SAName-idx is unique SAName
+      283   .
+      284   
+      285   *** Encrypted Source ***
+      286   *** Encrypted Source ***
+      287   *** Encrypted Source ***
+      288   *** Encrypted Source ***
+      289   *** Encrypted Source ***
+      290   *** Encrypted Source ***
+      291   *** Encrypted Source ***
+      292   *** Encrypted Source ***
+      293   *** Encrypted Source ***
+      294   *** Encrypted Source ***
+      295   *** Encrypted Source ***
+      296   *** Encrypted Source ***
+      297   *** Encrypted Source ***
+      298   *** Encrypted Source ***
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323   *** Encrypted Source ***
+      324   *** Encrypted Source ***
+      325   *** Encrypted Source ***
+      326   *** Encrypted Source ***
+      327   *** Encrypted Source ***
+      328   *** Encrypted Source ***
+      329   *** Encrypted Source ***
+      330   *** Encrypted Source ***
+      331   *** Encrypted Source ***
+      332   *** Encrypted Source ***
+      333   *** Encrypted Source ***
+      334   *** Encrypted Source ***
+      335   *** Encrypted Source ***
+      336   *** Encrypted Source ***
+      337   *** Encrypted Source ***
+      338   *** Encrypted Source ***
+      339   *** Encrypted Source ***
+      340   *** Encrypted Source ***
+      341   *** Encrypted Source ***
+      342   *** Encrypted Source ***
+      343   *** Encrypted Source ***
+      344   *** Encrypted Source ***
+      345   *** Encrypted Source ***
+      346   *** Encrypted Source ***
+      347   *** Encrypted Source ***
+      348   *** Encrypted Source ***
+      349   *** Encrypted Source ***
+      350   *** Encrypted Source ***
+      351   *** Encrypted Source ***
+      352   *** Encrypted Source ***
+      353   *** Encrypted Source ***
+      354   *** Encrypted Source ***
+      355    
+      356   
+      357   /*******************************************************************************
+      358    *******************************************************************************
+      359    **                                                                           **
+      360    **                                                                           **
+      361    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      362    **  http://www.greenfieldtech.com                                            **
+      363    **                                                                           **
+      364    **  ProTop is free software; you can redistribute it and/or modify it        **
+      365    **  under the terms of the GNU General Public License (GPL) as published     **
+      366    **  by the Free Software Foundation; either version 2 of the License, or     **
+      367    **  at your option) any later version.                                       **
+      368    **                                                                           **
+      369    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      370    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      371    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      372    **  for more details.                                                        **
+      373    **                                                                           **
+      374    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      375    **  of use and alternative licensing options for this software.              **
+      376    **                                                                           **
+      377    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      378    **                                                                           **
+      379    **  See http://www.fsf.org for more information about the GPL.               **
+      380    **                                                                           **
+      381    **                                                                           **
+      382    *******************************************************************************
+      383    *******************************************************************************
+      384    *
+      385    * protoplib.i
+      386    *
+      387    * ProTop infrastructure library definitions
+      388    *
+      389    */
+      390   
+      391   function uDateTime returns integer () in super.
+      392   function string2uDateTime returns integer( input p_text as character ) in super.
+      393   function searchDir returns character ( input xDir as character ) in super.
+      394   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      395   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      396   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      397   function myPID returns character () in super.
+      398   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      399   
+      400   /* end protoplib.i */
+      401    
+      402   
+      403   /*******************************************************************************
+      404    *******************************************************************************
+      405    **                                                                           **
+      406    **                                                                           **
+      407    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      408    **  http://www.greenfieldtech.com                                            **
+      409    **                                                                           **
+      410    **  ProTop is free software; you can redistribute it and/or modify it        **
+      411    **  under the terms of the GNU General Public License (GPL) as published     **
+      412    **  by the Free Software Foundation; either version 2 of the License, or     **
+      413    **  at your option) any later version.                                       **
+      414    **                                                                           **
+      415    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      416    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      417    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      418    **  for more details.                                                        **
+      419    **                                                                           **
+      420    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      421    **  of use and alternative licensing options for this software.              **
+      422    **                                                                           **
+      423    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      424    **                                                                           **
+      425    **  See http://www.fsf.org for more information about the GPL.               **
+      426    **                                                                           **
+      427    **                                                                           **
+      428    *******************************************************************************
+      429    *******************************************************************************
+      430    *
+      431    * vstlib.i
+      432    *
+      433    * VST library definitions
+      434    *
+      435    */
+      436   
+      437   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      438   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      439   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      440   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      441   
+      442   function connectFlags returns character ( input cnxId as integer ) in super.
+      443   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      444   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      445   
+      446   function isAIEnabled returns logical () in super.
+      447   function isReplSource returns logical () in super.
+      448   function isReplTarget returns logical () in super.
+      449   function isBackupRunning returns logical () in super.
+      450   function isWorkgroup returns logical () in super.
+      451   
+      452   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      453   
+      454   /* end vstlib.i */
+      455    
+      456   
+      457   function add2ds returns logical ( input h as handle ) in super.
+      458   function getTempTableHandle returns handle ( input n as character ) in super.
+      459   
+      460   /* end protop.i */
+      461    
+      462   
+      463   /*******************************************************************************
+      464    *******************************************************************************
+      465    **                                                                           **
+      466    **                                                                           **
+      467    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+      468    **  http://www.greenfieldtech.com                                            **
+      469    **                                                                           **
+      470    **  ProTop is free software; you can redistribute it and/or modify it        **
+      471    **  under the terms of the GNU General Public License (GPL) as published     **
+      472    **  by the Free Software Foundation; either version 2 of the License, or     **
+      473    **  at your option) any later version.                                       **
+      474    **                                                                           **
+      475    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      476    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      477    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      478    **  for more details.                                                        **
+      479    **                                                                           **
+      480    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      481    **  of use and alternative licensing options for this software.              **
+      482    **                                                                           **
+      483    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      484    **                                                                           **
+      485    **  See http://www.fsf.org for more information about the GPL.               **
+      486    **                                                                           **
+      487    **                                                                           **
+      488    *******************************************************************************
+      489    *******************************************************************************
+      490    *
+      491    * tick.i
+      492    *
+      493    *
+      494    * common routine to handle "clock ticks"
+      495    *
+      496    *
+      497    * Author:
+      498    *
+      499    *      Tom Bascom, Greenfield Technologies
+      500    *      http://www.greenfieldtech.com
+      501    *      January 21, 2012
+      502    *
+      503    */
+      504   
+      505   
+      506   /* lib/v9.i
+      507    *
+      508    */
+      509   
+      510   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      511   &global-define  CPYLOB  "no"
+      512   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      513   &global-define  LNGCR   character
+      514   &global-define  DTZ     integer
+      515   &global-define  BIGINT  decimal
+      516   &ELSE
+      517   &global-define  OE10    "yes"
+      518   &global-define  NOW     now
+      519   &global-define  LNGCR   longchar
+      520   &global-define  DTZ     datetime-tz
+      521   &global-define  BIGINT  int64
+      522   &ENDIF
+      523    
+      524   
+      525   define new global shared variable rawMode  as integer no-undo initial 5.
+      526   define new global shared variable timeMode as integer no-undo initial 2.
+      527   
+      528   define new global shared variable x as integer no-undo initial 5.
+      529   define new global shared variable z as decimal no-undo.
+      530   
+      531   define variable y as decimal no-undo.
+      532   
+      533   define variable initTick as integer no-undo.
+      534   define variable prevTick as integer no-undo.
+      535   
+      536   
+      537   procedure updTick:
+      538   
+      539   &IF DEFINED( OE10 ) &THEN
+      540     if initTick = 0 then initTick = mtime.
+      541     assign
+      542       x = rawMode /* ( if rawMode then 4 else 5 ) */
+      543       z = mtime - prevTick
+      544       z = ( if z >= 0 then z else 86400000 - prevTick + mtime )   /* handle rolling over midnight */
+      545       z = z / 1000
+      546       y = mtime - initTick
+      547       y = y / 1000
+      548       prevTick = mtime
+      549     .
+      550   &ELSE
+      551     if initTick = 0 then initTick = etime.
+      552     assign
+      553       x = rawMode /* ( if rawMode then 4 else 5 ) */
+      554       z = etime - prevTick
+      555       z = ( if z >= 0 then z else 5000 )   /* etime doesn't rollover at midnite -- but a mistaken etime(yes) somewhere would be bad... */
+      556       z = z / 1000
+      557       y = etime - initTick
+      558       y = y / 1000
+      559       prevTick = etime
+      560     .
+      561   &ENDIF
+      562   
+      563     /* if rawMode <> 5 then z = 1. */
+      564   
+      565     if timeMode = 1 then z = 1.
+      566   
+      567     return.
+      568   
+      569   end.
+      570   
+      571   /* end tick.i */
+      572    
+      573   
+      574   define output parameter dcDescription as character no-undo initial "AppSrvStatus".
+      575   
+      576   define temp-table tt_apsvList no-undo
+      577     field xid          as integer   format ">>9"             label "Id"
+      578     field asType       as character format "x(6)"            label "Type"                         /* apsv, webspeed...            */
+      579     field asName       as character format "x(20)"           label "Broker"
+      580     field asCommand    as character format "x(30)" extent 2  label "Command"  serialize-hidden      /* asbman -i &1 -query          */
+      581     field asMode       as character format "x(12)"           label "Mode"
+      582     field asPort       as integer   format ">>>>9"           label "Port"
+      583     field asPid        as integer   format ">>>>>>9"         label "PID"
+      584     field asMaxSrvInst as integer   format ">>>>>9"          label "MaxSrv"
+      585     field asActive     as integer   format ">>>>9"           label "Actv"
+      586     field asAvail      as integer   format ">>>>9"           label "Avail"
+      587     field asBusy       as integer   format ">>>>9"           label "Busy"
+      588     field asLocked     as integer   format ">>>>9"           label "Lckd"
+      589     field asSending    as integer   format ">>>>9"           label "Sndg"
+      590     field asStuck      as integer   format ">>>>9"           label "Stuck"
+      591     field zasSrInUse   as integer   format ">>>>9"           label "In Use"
+      592     field asSrUsePct   as integer   format ">>>>9%"          label "Srvr%"
+      593     field asMaxCliInst as integer   format ">>>>>9"          label "MaxCli"
+      594     field asActCli     as integer   format ">>>>>9"          label "ActCli"
+      595     field zasCliHWM    as integer   format ">>>>>9"          label "CliHWM"
+      596     field asClUsePct   as integer   format ">>>>9%"          label "Cli%"
+      597     field asCurrQ      as integer   format ">>>>9"           label "CurrQ"
+      598     field asMaxQ       as integer   format ">>>>9"           label "MaxQ"
+      599     field asMaxWt      as integer   format ">>>>>>>>9"       label "Max Wt"                       /* milliseconds */
+      600     field asAvgWt      as integer   format ">>>>>>9"         label "Avg Wt"                       /* milliseconds */
+      601     field asMaxLen     as integer   format ">>>>>>9"         label "Max Dur" serialize-hidden       /* milliseconds */
+      602     field asAvgLen     as integer   format ">>>>>9"          label "Avg Dur" serialize-hidden       /* milliseconds */
+      603     field asNote       as character format "x(80)"           label "Note"    serialize-hidden
+      604   
+      605     index xid-idx    is unique  xid
+      606     index asName-idx is unique  asName asType
+      607     index asType-idx is primary asType
+      608   .
+      609   
+      610   
+      611   /* lib/dumpTT.i
+      612    *
+      613    * simplified to a single line -- include should be eliminated.
+      614    *
+      615    */
+      616   
+      617   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 &THEN
+      618   /*** +++
+      619   file-info:file-name = "./ptdefs".
+      620   if file-info:full-pathname <> ? and index( file-info:file-type, "d" ) > 0 and index( file-info:file-type, "w" ) > 0 then
+      621     do:
+      622   
+      623       file-info:file-name = "./ptdefs/{1}.xsd".
+      624   
+      625       if true /* file-info:full-pathname = ? or file-info:file-size = 0 */ then
+      626         do:
+      627   
+      628           temp-table {1}:write-xmlschema(
+      629             "file",
+      630   /*        substitute( "ptdefs/&1.xsd", "{1}" ), */
+      631   /*        "./ptdefs/{1}.xsd", */
+      632             ( if opsys = "unix" then "./ptdefs/{1}.xsd" else ".~\ptdefs~\{1}.xsd" ),
+      633             true
+      634   
+      635         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2
+      636         &THEN
+      637             , ?, ?, ?
+      638         &ENDIF
+      639   
+      640       ).
+      641   
+      642       end.
+      643   
+      644     end.
+      645    +++ ***/
+      646   &ENDIF
+      647    
+      648   
+      649   /* also defined and used in lib/apsvcnx.p... so keep changes in sync!
+      650    */
+      651   
+      652   
+      653   /* lib/tt_apsv.i
+      654    *
+      655    */
+      656   
+      657   
+      658   define new global shared temp-table tt_apsv no-undo
+      659     field xid          as integer   format ">>9"         label "Id"
+      660     field apsvType     as character format "x(6)"        label "Type"
+      661     field apsvName     as character format "x(20)"       label "Broker"
+      662     field apsvStatus   as character format "x(12)"       label "Status"
+      663     field apsvPort     as integer   format ">>>>9"       label "Port"
+      664     field apsvPID      as integer   format ">>>>>>>>9"   label "PID"
+      665     field apsvUsr      as integer   format ">>>>9"       label "Usr#" initial ?
+      666   
+      667     field apsvReq      as integer   format "->>>>>>>9"   label "Requests"   /*    {&NOSERIALIZE} */
+      668   
+      669     field apsvDBAccess as integer   format "->>>>>>>9"   label "Blk Acc" 
+      670     field apsvOSRead   as integer   format "->>>>>>9"    label "OS Rd"       
+      671     field apsvOSWrite  as integer   format "->>>>>>9"    label "OS Wr"       
+      672     field apsvWait     as character format "x(4)"        label "Wait"
+      673   
+      674     field apsvLineNum  as integer   format "->>>>9"      label "Line#"
+      675     field apsvProc     as character format "x(42)"       label "Program Name"
+      676   
+      677   /*  field apsvRcvd     as integer   format "->>>>>>9"    label "Rcvd"       {&NOSERIALIZE}
+      678    *  field apsvSent     as integer   format "->>>>>>9"    label "Sent"       {&NOSERIALIZE}
+      679    */
+      680   
+      681     index xid-idx          is unique xid
+      682     index apsvStatus-idx   /* is primary */ apsvStatus descending apsvDBAccess descending apsvPort
+      683   
+      684   /* this TT is haunted by error 1422 */
+      685   
+      686     index apsvDBAccess-idx is primary apsvDBAccess /* descending */
+      687     index apsvReq-idx      apsvReq      /* descending */
+      688     index apsvOSRead-idx   apsvOSRead   /* descending */
+      689     index apsvOSWrite-idx  apsvOSWrite  /* descending */
+      690   
+      691   /* removing the indexes might make a difference if it comes back */
+      692   .
+      693    
+      694   
+      695   
+      696   /* lib/dumpTT.i
+      697    *
+      698    * simplified to a single line -- include should be eliminated.
+      699    *
+      700    */
+      701   
+      702   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 &THEN
+      703   /*** +++
+      704   file-info:file-name = "./ptdefs".
+      705   if file-info:full-pathname <> ? and index( file-info:file-type, "d" ) > 0 and index( file-info:file-type, "w" ) > 0 then
+      706     do:
+      707   
+      708       file-info:file-name = "./ptdefs/{1}.xsd".
+      709   
+      710       if true /* file-info:full-pathname = ? or file-info:file-size = 0 */ then
+      711         do:
+      712   
+      713           temp-table {1}:write-xmlschema(
+      714             "file",
+      715   /*        substitute( "ptdefs/&1.xsd", "{1}" ), */
+      716   /*        "./ptdefs/{1}.xsd", */
+      717             ( if opsys = "unix" then "./ptdefs/{1}.xsd" else ".~\ptdefs~\{1}.xsd" ),
+      718             true
+      719   
+      720         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2
+      721         &THEN
+      722             , ?, ?, ?
+      723         &ENDIF
+      724   
+      725       ).
+      726   
+      727       end.
+      728   
+      729     end.
+      730    +++ ***/
+      731   &ENDIF
+      732    
+      733   
+      734   define variable xasbmanDet   as character no-undo initial "PID State".                          /* if it exists etc/translate.cfg will over-ride these initial values   */
+      735   define variable xasbmanSend  as character no-undo initial "Sending".
+      736   
+      737   define variable xOperMode    as character no-undo initial "Operating Mode".
+      738   define variable xBrkrName    as character no-undo initial "Broker Name".
+      739   define variable xBrkrPort    as character no-undo initial "Broker Port".
+      740   define variable xBrkrPID     as character no-undo initial "Broker PID".
+      741   
+      742   define variable xActvAgnts   as character no-undo initial "Active Agents".
+      743   define variable xBusyAgnts   as character no-undo initial "Busy Agents".
+      744   define variable xLckdAgnts   as character no-undo initial "Locked Agents".
+      745   define variable xAvailAgnts  as character no-undo initial "Available Agents".
+      746   define variable xActvClnts   as character no-undo initial "Active Clients".
+      747   
+      748   define variable xActvSrvrs   as character no-undo initial "Active Servers".
+      749   define variable xBusySrvrs   as character no-undo initial "Busy Servers".
+      750   define variable xLckdSrvrs   as character no-undo initial "Locked Servers".
+      751   define variable xAvailSrvrs  as character no-undo initial "Available Servers".
+      752   
+      753   define variable xClientQ     as character no-undo initial "Client Queue".
+      754   define variable xRqWait      as character no-undo initial "Rq Wait".
+      755   define variable xRqDuration  as character no-undo initial "Rq Duration".
+      756   
+      757   define variable xMonthList   as character no-undo initial "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec".
+      758   
+      759   
+      760   define variable cfgFile as character no-undo.
+      761   define variable cfgDate as date      no-undo.
+      762   define variable cfgTime as integer   no-undo.
+      763   
+      764   procedure chkConfig:
+      765   
+      766     define variable inData as character no-undo extent 64.
+      767   
+      768     define variable i as integer no-undo.
+      769   
+      770     if cfgFile = "" or cfgFile = ? then run findCfgName( "appsrv", input-output cfgFile ).
+      771   
+      772     file-info:file-name = cfgFile.
+      773   
+      774     if file-info:full-pathname = ? then
+      775       do:
+      776         cfgFile = "".
+      777         return.
+      778       end.
+      779   
+      780     if cfgDate = file-info:file-mod-date and cfgTime = file-info:file-mod-time then return.
+      781   
+      782     message now cfgfile.
+      783     /*** pause. ***/
+      784   
+      785     assign
+      786       cfgDate = file-info:file-mod-date
+      787       cfgTime = file-info:file-mod-time
+      788     .
+      789   
+      790     empty temp-table tt_apsvList.
+      791   
+      792     input stream inStrm from value( file-info:full-pathname ).
+      793     cfgLoop: repeat on endkey undo, leave on error undo, leave:
+      794   
+      795       inData = "".
+      796   
+      797       do on error undo, leave cfgLoop
+      798          on endkey undo, leave cfgLoop:
+      799   
+      800         import stream inStrm inData.
+      801   
+      802       end.
+      803   
+      804       if inData[1] = "" or inData[1] begins "#" then next.
+      805       create tt_apsvList.
+      806       assign
+      807         i = i + 1
+      808         tt_apsvList.xid          = i
+      809         tt_apsvList.asType       = inData[1]
+      810         tt_apsvList.asName       = inData[2]
+      811         tt_apsvList.asCommand[1] = inData[3]
+      812       .
+      813   
+      814     end.
+      815     input stream inStrm close.
+      816   
+      817     return.
+      818   
+      819   end.
+      820   
+      821   
+      822   define variable transFile as character no-undo.
+      823   define variable transDate as date      no-undo.
+      824   define variable transTime as integer   no-undo.
+      825   
+      826   procedure chkTranslation:
+      827   
+      828     define variable inData as character no-undo extent 64.
+      829   
+      830     define variable i as integer no-undo.
+      831   
+      832     if transFile = "" or transFile = ? then run findCfgName( "translate", input-output transFile ).
+      833   
+      834     file-info:file-name = transFile.
+      835   
+      836     if file-info:full-pathname = ? then
+      837       do:
+      838         transFile = "".
+      839         return.
+      840       end.
+      841   
+      842     if transDate = file-info:file-mod-date and transTime = file-info:file-mod-time then return.
+      843   
+      844     assign
+      845       transDate = file-info:file-mod-date
+      846       transTime = file-info:file-mod-time
+      847     .
+      848   
+      849     input stream inStrm from value( file-info:full-pathname ).
+      850     apsvLoop: repeat on endkey undo, leave on error undo, leave:
+      851   
+      852       inData = "".
+      853   
+      854       do on error undo, leave apsvLoop
+      855          on endkey undo, leave apsvLoop:
+      856   
+      857         import stream inStrm inData.
+      858   
+      859       end.
+      860   
+      861       if inData[1] = "" or inData[1] begins "#" then next.
+      862   
+      863       case inData[1]:
+      864   
+      865         when "asbmanDet"  then xasbmanDet  = inData[2].
+      866         when "asbmanSend" then xasbmanSend = inData[2].
+      867   
+      868         when "OperMode"   then xOperMode   = inData[2].
+      869         when "BrkrName"   then xBrkrName   = inData[2].
+      870         when "BrkrPort"   then xBrkrPort   = inData[2].
+      871         when "BrkrPID"    then xBrkrPID    = inData[2].
+      872   
+      873         when "ActvAgnts"  then xActvAgnts  = inData[2].
+      874         when "BusyAgnts"  then xBusyAgnts  = inData[2].
+      875         when "LckdAgnts"  then xLckdAgnts  = inData[2].
+      876         when "AvailAgnts" then xAvailAgnts = inData[2].
+      877         when "ActvClnts"  then xActvClnts  = inData[2].
+      878   
+      879         when "ActvSrvrs"  then xActvSrvrs  = inData[2].
+      880         when "BusySrvrs"  then xBusySrvrs  = inData[2].
+      881         when "LckdSrvrs"  then xLckdSrvrs  = inData[2].
+      882         when "AvailSrvrs" then xAvailSrvrs = inData[2].
+      883   
+      884         when "ClientQ"    then xClientQ    = inData[2].
+      885         when "RqWait"     then xRqWait     = inData[2].
+      886         when "RqDuration" then xRqDuration = inData[2].
+      887   
+      888         when "monthList"  then xMonthList  = inData[2].
+      889   
+      890       end.
+      891   
+      892     end.
+      893     input stream inStrm close.
+      894   
+      895     return.
+      896   
+      897   end.
+      898   
+      899   
+      900   
+      901   procedure mon-init:
+      902   
+      903     if connected( "dictdb" ) then run lib/apsvcnx.p persistent.
+      904   
+      905     run chkConfig.
+      906     run chkTranslation.
+      907   
+      908     run updTick.
+      909   
+      910     return.
+      911   
+      912   end.
+      913   
+      914   define stream cmd.
+      915   define variable xxx      as integer   no-undo.
+      916   
+      917   procedure mon-update:
+      918   
+      919     define input parameter argList as character no-undo.
+      920   
+      921     define variable inData   as character no-undo extent 64.
+      922     define variable inLine   as character no-undo.
+      923     define variable inString as character no-undo.
+      924     define variable brkName  as character no-undo.
+      925     define variable xDetails as logical   no-undo.
+      926     define variable i        as integer   no-undo.
+      927     define variable numApSv  as integer   no-undo.
+      928   
+      929     define variable mth      as integer no-undo.
+      930     define variable dd       as integer no-undo.
+      931     define variable yyyy     as integer no-undo.
+      932     define variable hh       as integer no-undo.
+      933     define variable mm       as integer no-undo.
+      934   
+      935     define variable lastChg  as integer no-undo.
+      936   
+      937     define variable z_apsvReq      as decimal no-undo.
+      938     define variable z_apsvRcvd     as decimal no-undo.
+      939     define variable z_apsvSent     as decimal no-undo.
+      940     define variable z_apsvDBAccess as decimal no-undo.
+      941     define variable z_apsvOSRead   as decimal no-undo.
+      942     define variable z_apsvOSWrite  as decimal no-undo.
+      943   
+      944     run chkConfig.
+      945     run chkTranslation.
+      946   
+      947     run updTick.
+      948   
+      949     /* error 1422 haunts this TT and seems to only be cured by "empty TT" :(
+      950      *
+      951      * which is a problem because it destroys the tt_apsv/tt_xstat xid link
+      952      * currently the PID is being used as a unique id that related the two
+      953      * tables but that might not be a good idea -- it has not been carefully
+      954      * reviewed
+      955      */
+      956   
+      957     empty temp-table tt_apsv.
+      958   
+      959     numApSv = 0.
+      960   
+      961     for each tt_apsvList:
+      962   
+      963       assign
+      964         xDetails = no
+      965         brkName  = ""
+      966         asMode   = ""
+      967         asNote   = ""
+      968         numApSv  = numApSv + 1
+      969       .
+      970   
+      971       /*** message tt_apsvList.asType substitute( tt_apsvList.asCommand[1], tt_apsvList.asName ). ***/
+      972       /*** pause. ***/
+      973   
+      974       input stream cmd through value( substitute( tt_apsvList.asCommand[1], tt_apsvList.asName )).
+      975       as_loop: repeat:
+      976   
+      977         inData = "".
+      978         do on error undo, leave as_loop
+      979            on endkey undo, leave as_loop:
+      980   
+      981           import stream cmd inData.
+      982   
+      983           /*** message tt_apsvList.asType + ":" inData[1] inData[2] inData[3] inData[4]. ***/
+      984           /*** pause. ***/
+      985   
+      986         end.
+      987   
+      988         if inData[1] = "" or inData[1] = "OpenEdge" or inData[1] = "Progress" or inData[1] = "ulimit" then
+      989           do:
+      990             next as_loop.
+      991           end.
+      992   
+      993         /* inString is built so that we can more easily translate multi-word labels such as those
+      994          * in the header of asbman using BEGINS syntax
+      995          */
+      996   
+      997         inString = "".
+      998         do i = 1 to 8:                                    /* the first 8 "words" should be plenty */
+      999           inString = inString + inData[i] + " ".
+     1000         end.
+     1001         inString = trim( inString ).
+     1002   
+     1003         /* if an error is detected we want to try to capture the remaining output in the asNote field
+     1004          */
+     1005   
+     1006         if asNote <> "" then
+     1007           do:
+     1008   
+     1009             do i = 1 to 64:
+     1010               asNote = asNote + inData[i] + " ".
+     1011             end.
+     1012             asNote = trim( asNote ).
+     1013   
+     1014             do while true
+     1015                on error undo, leave as_loop
+     1016                on endkey undo, leave as_loop:
+     1017   
+     1018               inLine = ?.
+     1019               import stream cmd unformatted inLine.
+     1020   
+     1021               if inLine = ? then leave as_loop.
+     1022               asNote = asNote + "~n" + inLine.
+     1023   
+     1024             end.
+     1025   
+     1026           end.
+     1027   
+     1028         if inString = "" or inString = ? then
+     1029           do:
+     1030             message "no cmd data, this shouldn't actually be possible".
+     1031             pause.
+     1032             next.
+     1033           end.
+     1034   
+     1035         /* now parse specific app server types
+     1036          */
+     1037   
+     1038         case tt_apsvList.asType:
+     1039   
+     1040           /* proenv> proadsv -query
+     1041            * OpenEdge Release 10.2B07 as of Fri Sep  7 02:16:14 EDT 2012
+     1042            * AdminServer is alive. (8545)
+     1043            *
+     1044            * - or -
+     1045            *
+     1046            * OpenEdge Release 11.6.1 as of Fri Feb 19 18:20:45 EST 2016
+     1047            * AdminServer not alive. (8543)
+     1048            *
+     1049            *
+     1050            */
+     1051   
+     1052           when "admin" or when "proadsv" then
+     1053             do:
+     1054               if inData[4] = "(8545)" then
+     1055                 assign
+     1056                   asMode = "Alive"
+     1057                   asActive = 0
+     1058                   asBusy   = 0
+     1059                   asLocked = 0
+     1060                   asAvail  = 9999
+     1061                   .
+     1062                else if inData[4] = "(8543)" then
+     1063                 asMode = "Not Running".
+     1064                else
+     1065                 do:
+     1066                   /* asMode = "WTF?". */
+     1067                 end.
+     1068   /***
+     1069                else
+     1070                 do:                                               /* why isn't the admin server alive?    */
+     1071                   do i = 1 to 64:
+     1072                     asNote = asNote + inData[i] + " ".
+     1073                   end.
+     1074                   asNote = trim( asNote ).
+     1075                   asNote = asNote + "~n".
+     1076                 end.
+     1077    ***/
+     1078             end.
+     1079   
+     1080           /* proenv>nsman -i NS1 -query
+     1081            * OpenEdge Release 10.2B07 as of Fri Sep  7 02:16:14 EDT 2012
+     1082            * 
+     1083            * 
+     1084            * Connecting to Progress AdminServer using rmi://localhost:20931/Chimera (8280)
+     1085            * Searching for NS1 (8288)
+     1086            * Connecting to NS1  (8276)
+     1087            * 
+     1088            * NameServer NS1 running on Host USFL04EUS00V Port 5162 Timeout 30 seconds.
+     1089            * Application Service             UUID            Name            Host             Port   Weight  Timeout
+     1090            * 
+     1091            * WS.NewJS
+     1092            *         0026b2edc72dbc96:c7013c2:1436c2cab33:4f3d       WS.NewJS        USFL04EUS00V/10.83.25.190    6011       0       30
+     1093            * 
+     1094            * WS.eohslive
+     1095            *         0026b2edc72dbc96:c7013c2:1436c2cab33:af2        WS.eohslive     USFL04EUS00V/10.83.25.190    5050       0       30
+     1096            * 
+     1097            */
+     1098   
+     1099           when "ns" or when "nsman" then
+     1100             do:
+     1101               if inData[1] = "NameServer" and inData[2] = asName then
+     1102                 do:
+     1103                   asMode = "Not Running".
+     1104                   if inData[3] = "running" then
+     1105                     assign
+     1106                       asMode = "Running"
+     1107                       asActive = 0
+     1108                       asBusy   = 0
+     1109                       asLocked = 0
+     1110                       asAvail  = 9999
+     1111                   /*  asHost = inData[6] */
+     1112                       asPort = integer( inData[8] )
+     1113                     no-error.
+     1114                 end.
+     1115             end.
+     1116   
+     1117           /* proenv> asbman -i asESBLive -q -port 20999
+     1118            * OpenEdge Release 11.3.3 as of Thu Sep 25 19:00:15 EDT 2014
+     1119            * 
+     1120            * 
+     1121            * Connecting to Progress AdminServer using rmi://localhost:20999/Chimera (8280)
+     1122            * Searching for asESBLive (8288)
+     1123            * Connecting to asESBLive  (8276)
+     1124            * 
+     1125            * Broker Name                    : asESBLive
+     1126            * Operating Mode                 : State-free
+     1127            * Broker Status                  :  ACTIVE
+     1128            * Broker Port                    : 3192
+     1129            * Broker PID                     : 31025
+     1130            * Active Servers                 : 35
+     1131            * Busy Servers                   : 0
+     1132            * Locked Servers                 : 0
+     1133            * Available Servers              : 35
+     1134            * Active Clients (now, peak)     : (61, 61)
+     1135            * Client Queue Depth (cur, max)  : (0, 2)
+     1136            * Total Requests                 : 8411992
+     1137            * Rq Wait (max, avg)             : (148 ms, 0 ms)
+     1138            * Rq Duration (max, avg)         : (171731 ms, 55 ms)
+     1139            * 
+     1140            * PID   State     Port  nRq    nRcvd  nSent  Started          Last Change
+     1141            * 31273 AVAILABLE 02002 240362 240363 261090 Dec 27, 2015 12:26 Jan 8, 2016 16:47
+     1142            * 31276 AVAILABLE 02003 240361 240361 261050 Dec 27, 2015 12:26 Jan 8, 2016 16:47
+     1143            * 31279 AVAILABLE 02004 240348 240350 261749 Dec 27, 2015 12:26 Jan 8, 2016 16:47
+     1144            * 31282 AVAILABLE 02005 240345 240345 261031 Dec 27, 2015 12:26 Jan 8, 2016 16:47
+     1145            * ...
+     1146            */
+     1147   
+     1148           when "apsv"  or when "asbman" or                                        /* app servers                                  */
+     1149           when "sonic" or when "adaptman" or                                      /* sonic is just another app server...          */
+     1150           when "ws"    or when "wtbman" then                                      /* webspeed is just another app server...       */
+     1151             do:
+     1152   
+     1153               if inData[5] = "(8313)" or inData[5] = "(8281)" then
+     1154                 asMode = "Not Running".
+     1155   
+     1156   /* +++      if inData[1] = "PID" and inData[2] = "State" then */
+     1157               if inString begins xasbManDet then
+     1158                 do:
+     1159                   xDetails  = yes.
+     1160                   next.
+     1161                 end.
+     1162   
+     1163               if xDetails = yes then
+     1164                 do:
+     1165   
+     1166                   /* PID should be a unique idx...
+     1167                    *
+     1168                    * but that may be wishful thinking if app servers are running on 
+     1169                    * multiple machines
+     1170                    *
+     1171                    */
+     1172   
+     1173                   find tt_apsv where tt_apsv.apsvPID = integer( inData[1] ) no-error.
+     1174                   if not available tt_apsv then
+     1175                     do:
+     1176                       create tt_apsv.
+     1177                       assign
+     1178                         xxx = xxx + 1
+     1179                         tt_apsv.xid = integer( inData[1] ) /* xxx */
+     1180                       .
+     1181   
+     1182                     end.
+     1183   
+     1184                   assign
+     1185                     asSending = 0
+     1186                     asStuck   = 0
+     1187                   .
+     1188   
+     1189                   assign
+     1190                     apsvName    = brkName
+     1191                     apsvType    = tt_apsvList.asType
+     1192                     apsvPID     = integer( trim( inData[1] )) 
+     1193                     apsvStatus  = inData[2]
+     1194                     apsvPort    = integer( trim( inData[3] ))
+     1195   
+     1196                     /* asbman -help and the docs are wrong -- kbase 21131 says:
+     1197                      *
+     1198                      *   The nRq and nSent definitions should read:
+     1199                      *         nRq   - The number of requests sent to the server process.
+     1200                      *         nSent - The number of messages sent by the server process.
+     1201                      *  
+     1202                      *  The interpretation of these statistics varies depending on the operating mode
+     1203                      *  of the broker.
+     1204                      *  
+     1205                      *  a) For State-aware and State-reset AppServers, the number of requests
+     1206                      *  represents the number of connections made from the client to the AppServer.
+     1207                      *  After the connection, all traffic takes place directly between the client
+     1208                      *  and the AppServer -- the broker is not involved, so it does not keep any
+     1209                      *  statistics on requests or messages.
+     1210                      *  
+     1211                      *  b) For State-aware/reset, the number of connections, the number of
+     1212                      *  requests, and the number of messages will always be the same. That's
+     1213                      *  because each connection only involves one message in each direction.
+     1214                      *  
+     1215                      *  c) For Stateless AppServer mode, the broker handles all traffic between the
+     1216                      *  client and the AppServer, so it can keep more detailed statistics. In this
+     1217                      *  context, the following operations count as a request:
+     1218                      *  
+     1219                      *  -- the "connect()" to the AppServer
+     1220                      *  -- each "run()"
+     1221                      *  -- the "disconnect()"
+     1222                      *  
+     1223                      *  Each request can involve one or more request messages sent from the client
+     1224                      *  to the server (via the broker), followed by one or more response messages
+     1225                      *  sent from the server to the client (again, via the broker).
+     1226                      *  
+     1227                      *  The relative numbers seen in the nSent and nRcvd columns, as compared to
+     1228                      *  those in the nRq column, is strictly application and data dependent. If the
+     1229                      *  application generally sends small requests (under 8Kb) and small responses,
+     1230                      *  then nRq, nRcvd, and nSent will all be fairly close. If the application
+     1231                      *  transfers a lot of temp tables however, the numbers will differ more widely
+     1232                      *  since each temp table is transferred as a series of 8Kb packets.
+     1233                      *  
+     1234                      *  For WebSpeed, each web request involves sending a single message from the
+     1235                      *  client to the broker, so the values of nRq and nRcvd will always be equal.
+     1236                      *  The WebSpeed Broker does not handle any of the responses to the web
+     1237                      *  requests, so the nSent value will also be the same as nRq and nRcvd.
+     1238                      *  
+     1239                      *
+     1240                      ********************************************************************************
+     1241                      *
+     1242                      * thus, for ProTop's purposes, "requests" is clearly the most useful column
+     1243                      */
+     1244    
+     1245                     z_apsvReq   = integer( trim( inData[4] )) 
+     1246                     apsvReq     = z_apsvReq                               /* this is more useful as a total than as a rate        */
+     1247   
+     1248                     /* we might as well grab the others while we are here but that's just for kicks
+     1249                      */
+     1250   
+     1251                     z_apsvRcvd  = integer( trim( inData[5] )) 
+     1252                     z_apsvSent  = integer( trim( inData[6] )) 
+     1253   
+     1254                   no-error.
+     1255   
+     1256   /* +++          if inData[2] = "Sending" then */
+     1257                   if inString begins xasbManSend then
+     1258                     do:
+     1259   
+     1260                       assign
+     1261                         asSending = asSending + 1
+     1262                         lastChg   = ?
+     1263                         mth       = lookup( inData[11], xMonthList )
+     1264                         dd        = integer( right-trim( inData[12], "," ))
+     1265                         yyyy      = integer( inData[13])
+     1266                         hh        = integer( entry( 1, inData[14], ":" ))
+     1267                         mm        = integer( entry( 2, inData[14], ":" ))
+     1268                      /* lastChg   = datetime( mth, dd, yyyy, hh, mm )      */
+     1269                         lastChg   = ((  date( mth, dd, yyyy ) - 1/1/1970 ) * 86400 ) + ( hh * 3600 ) + ( mm * 60 )
+     1270                       no-error.
+     1271   
+     1272                    /* if interval( now, lastChg, "minutes" ) > 2 then asStuck = asStuck + 1.  */
+     1273   
+     1274                       if ( time -  lastChg ) > pt_appsrvStuck then asStuck = asStuck + 1.
+     1275   
+     1276                     end.
+     1277   
+     1278                   next.
+     1279   
+     1280                 end.      /* details      */
+     1281   /* +++ */
+     1282                else if inString begins xBrkrName   then brkName   = trim( inData[4] ).
+     1283                else if inString begins xOperMode   then asMode    = trim( inData[4] ).
+     1284                else if inString begins xBrkrPORT   then asPort    = integer( trim( inData[4] )) no-error.
+     1285                else if inString begins xBrkrPID    then asPID     = integer( trim( inData[4] )) no-error.
+     1286   
+     1287                /* webspeed "agents" */
+     1288   
+     1289                else if inString begins xActvAgnts  then asActive  = integer( trim( inData[4] )) no-error.
+     1290                else if inString begins xBusyAgnts  then asBusy    = integer( trim( inData[4] )) no-error.
+     1291                else if inString begins xLckdAgnts  then asLocked  = integer( trim( inData[4] )) no-error.
+     1292                else if inString begins xAvailAgnts then asAvail   = integer( trim( inData[4] )) no-error.
+     1293   
+     1294                /* app server "servers" */
+     1295   
+     1296                else if inString begins xActvSrvrs  then asActive  = integer( trim( inData[4] )) no-error.
+     1297                else if inString begins xBusySrvrs  then asBusy    = integer( trim( inData[4] )) no-error.
+     1298                else if inString begins xLckdSrvrs  then asLocked  = integer( trim( inData[4] )) no-error.
+     1299                else if inString begins xAvailSrvrs then asAvail   = integer( trim( inData[4] )) no-error.
+     1300   
+     1301                else if inString begins xActvClnts  then
+     1302                 assign
+     1303                   asActCli  = integer( trim( inData[6], "(, )" ))
+     1304                   zasCliHWM = integer( trim( inData[7], "(, )" ))
+     1305                 no-error.
+     1306                else if inString begins xClientQ then
+     1307                 assign
+     1308                   asCurrQ = integer( trim( inData[7], "(, )" ))
+     1309                   asMaxQ  = integer( trim( inData[8], "(, )" ))
+     1310                 no-error.
+     1311                else if inString begins xRqWait then
+     1312                 assign
+     1313                   asMaxWt = integer( trim( inData[6], "(, )" ))
+     1314                   asAvgWt = integer( trim( inData[8], "(, )" ))
+     1315                 no-error.
+     1316                else if inString begins xRqDuration then
+     1317                 assign
+     1318                   asMaxLen = integer( trim( inData[6], "(, )" ))
+     1319                   asAvgLen = integer( trim( inData[8], "(, )" ))
+     1320                 no-error.
+     1321   
+     1322             end.
+     1323   
+     1324         end.
+     1325   
+     1326       end.
+     1327   
+     1328       input stream cmd close.
+     1329   
+     1330       if tt_apsvList.asType = "apsv" or  tt_apsvList.asType = "asbman" or
+     1331          tt_apsvList.asType = "ws"   or  tt_apsvList.asType = "wtbman" then
+     1332         do:
+     1333   
+     1334           inData = "".
+     1335   
+     1336           input stream cmd through value( replace( substitute( tt_apsvList.asCommand[1], tt_apsvList.asName ), "-q", "-listallprops" )).
+     1337           repeat:
+     1338   
+     1339             import stream cmd unformatted inData[1].
+     1340   
+     1341             if       inData[1] begins "maxSrvrInstance" then
+     1342               tt_apsvList.asMaxSrvInst = integer( entry( 2, inData[1], "=" )) no-error.
+     1343              else if inData[1] begins "maxClientInstance" then
+     1344               tt_apsvList.asMaxCliInst = integer( entry( 2, inData[1], "=" )) no-error.
+     1345   
+     1346           end.
+     1347   
+     1348           input stream cmd close.
+     1349   
+     1350           if tt_apsvList.asMaxSrvInst > 0 and  tt_apsvList.asMaxSrvInst <> ? then 
+     1351              assign
+     1352                tt_apsvList.zasSrInUse = (  tt_apsvList.asBusy + tt_apsvList.asLocked )
+     1353                tt_apsvList.asSrUsePct = 100 * (( tt_apsvList.zasSrInUse ) / tt_apsvList.asMaxSrvInst )
+     1354              .
+     1355           if tt_apsvList.asSrUsePct = ? then tt_apsvList.asSrUsePct = 0.
+     1356   
+     1357           if tt_apsvList.asMaxCliInst > 0 and  tt_apsvList.asMaxCliInst <> ? then 
+     1358              tt_apsvList.asClUsePct = 100 * ((  tt_apsvList.asActCli ) / tt_apsvList.asMaxCliInst ).
+     1359           if tt_apsvList.asClUsePct = ? then tt_apsvList.asClUsePct = 0.
+     1360   
+     1361         end.
+     1362   
+     1363     end.
+     1364   
+     1365     publish "updAppSrvCnx" (
+     1366             input z_apsvDBAccess,
+     1367             input z_apsvOSRead,
+     1368             input z_apsvOSWrite,
+     1369             input z_apsvReq,
+     1370             input z_apsvRcvd,
+     1371             input z_apsvSent
+     1372     ).
+     1373   
+     1374     publish "resizeBrowse" ( "apsvstat", numApSv ).
+     1375   
+     1376     add2ds( temp-table tt_apsvList:default-buffer-handle ).
+     1377     add2ds( temp-table tt_apsv:default-buffer-handle ).
+     1378   
+     1379     return.
+     1380   
+     1381   end.
+     1382   
+     1383   return.

@@ -13,7 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE {1} TEMP-TABLE ttPriceHold
+DEFINE {1} {2} TEMP-TABLE ttPriceHold
     FIELD riLine               AS ROWID 
     FIELD cFGItemID            AS CHARACTER
     FIELD cCustID              AS CHARACTER 

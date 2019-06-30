@@ -15,6 +15,11 @@ def var v-blk-frm as char format "x(5)" NO-UNDO.
 DEF VAR li-qty LIKE c-qty NO-UNDO.
 DEFINE VARIABLE iCaseMult AS INTEGER     NO-UNDO.
 DEFINE VARIABLE dCaseQty LIKE c-qty NO-UNDO.
+DEFINE VARIABLE dPackQty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPackCostM AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPackCostTotal AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPackCostSetup AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cPackCostUOM AS CHARACTER NO-UNDO.
 
 def shared var v-summ as log NO-UNDO.
 
@@ -195,6 +200,62 @@ for each xef where xef.company = xest.company
 
       w-cas.units = w-cas.units + xeb.yld-qty.
    end.
+   
+   FOR EACH estPacking NO-LOCK 
+        WHERE estPacking.company EQ xeb.company
+        AND estPacking.estimateNo EQ xeb.est-no
+        AND estPacking.formNo EQ xeb.form-no
+        AND estPacking.blankNo EQ xeb.blank-no,
+        FIRST ITEM NO-LOCK 
+        WHERE item.company EQ estPacking.company
+        AND item.i-no EQ estPacking.rmItemID:
+        dPackQty = 0.
+        CASE estPacking.quantityPer:
+            WHEN "P" THEN DO:
+                li-qty = c-qty / xeb.cas-pal.
+                {sys/inc/roundup.i li-qty}
+                dPackQty = li-qty * estPacking.quantity.  /*per pallet*/
+            END.
+            WHEN "C" THEN 
+                dPackQty = estPacking.quantity * c-qty.
+            OTHERWISE 
+                dPackQty = estPacking.quantity.
+        END CASE. 
+
+        {sys/inc/roundup.i dPackQty}
+        find first cas
+          where cas.typ  eq 7
+            and cas.snum eq xeb.form-no
+            and cas.bnum eq xeb.blank-no
+            AND cas.ino EQ ITEM.i-no
+          no-error.
+      if not avail cas then do:
+         create cas.
+         assign
+            cas.typ  = 7
+            cas.id   = xeb.part-no
+            cas.snum = xeb.form-no
+            cas.bnum = xeb.blank-no
+            cas.ino  = item.i-no
+            cas.dscr = item.est-dscr.
+      end.     
+      ASSIGN
+         cas.qty = cas.qty + dPackQty
+         cas.cosm = cas.cosm + if xeb.yrprice then xeb.yld-qty else xeb.bl-qty.
+
+      release w-cas.
+      if v-summ then
+      find first w-cas where w-cas.i-no eq cas.ino no-error.
+
+      if not avail w-cas then do:
+        create w-cas.
+        assign
+         w-cas.i-no   = cas.ino
+         w-cas.rec-id = recid(cas).
+      end.
+
+      w-cas.units = w-cas.units + xeb.yld-qty.
+    END.
  end.
 end.
 
@@ -441,7 +502,7 @@ for each cas where cas.typ eq 6
 
    {est/matcost.i cas.t-qty cas.cost 6}
 
-   cas.cost = (cas.cost * cas.qty) + lv-setup-5.
+   cas.cost = (cas.cost * cas.qty) + lv-setup-6.
 
    ASSIGN
     zzz      = cas.cosm
@@ -522,6 +583,112 @@ for each cas where cas.typ eq 6,
            w-cas.cost                   to 80   format ">>>>,>>9.99"
            SKIP WITH STREAM-IO.
 end.
+
+for each cas where cas.typ eq 7
+    by cas.snum
+    by cas.bnum:
+
+   find first xeb
+       where xeb.company  eq cocode
+         and xeb.est-no   eq xest.est-no
+         and xeb.form-no  eq cas.snum
+         and xeb.blank-no eq cas.bnum
+       no-lock no-error.
+   find first item
+       {sys/look/itemW.i}
+         and item.i-no eq cas.ino
+       no-lock no-error.
+
+   cas.t-qty = 0.
+
+   FOR EACH xcas WHERE xcas.typ EQ 7 AND xcas.ino EQ cas.ino:
+     cas.t-qty = cas.t-qty + xcas.qty.
+   END.
+
+   {est/matcost.i cas.t-qty cas.cost 7}
+
+   cas.cost = (cas.cost * cas.qty) + lv-setup-7.
+
+   ASSIGN
+    zzz      = cas.cosm
+    /* cosm was set to tot # blanks this item; set to cost now */
+    cas.cosm = cas.cost / (cas.cosm / 1000)
+    v-cas-cnt = if xeb.cas-cnt eq 0 then (zzz / cas.qty) else xeb.cas-cnt.
+
+   {sys/inc/roundup.i v-cas-cnt}
+
+   find first brd where brd.form-no = cas.snum and
+                        brd.blank-no = cas.bnum and
+                        brd.i-no    = cas.ino
+                        no-error.
+   if not avail brd then do:
+      create brd.
+      assign brd.form-no = cas.snum
+             brd.blank-no = cas.bnum
+             brd.i-no    = cas.ino
+             brd.dscr    = cas.dscr
+             brd.basis-w = item.basis-w.
+   end.
+
+   ASSIGN
+      brd.qty = brd.qty + cas.qty
+      brd.qty-uom = "Ea"
+      brd.sc-uom  = "Ea"
+      brd.cost = cas.cost / cas.qty
+      brd.cost-m = cas.cosm
+      brd.amount = brd.amount + cas.cost.
+
+   find first w-cas where w-cas.rec-id eq recid(cas) no-error.
+   if not avail w-cas then
+   find first w-cas where w-cas.i-no eq cas.ino no-error.
+   if avail w-cas then
+     assign
+      w-cas.qty  = w-cas.qty  + cas.qty
+      w-cas.cost = w-cas.cost + cas.cost.
+      
+   zzz = 0.
+end.
+
+for each cas where cas.typ eq 7,
+
+    first w-cas where w-cas.rec-id eq recid(cas),
+
+    first item
+    {sys/look/itemW.i}
+      and item.i-no eq cas.ino
+    no-lock,
+
+    first xeb
+    where xeb.company  eq cocode
+      and xeb.est-no   eq xest.est-no
+      and xeb.form-no  eq cas.snum
+      and xeb.blank-no eq cas.bnum
+    no-lock
+
+    with no-labels no-box:
+
+   assign
+    v-blk-frm = if v-summ then "*"
+                else string(cas.snum,">9") + "-" + string(cas.bnum,"99")
+    v-cas-cnt = if xeb.cas-cnt ne 0 then xeb.cas-cnt
+                else w-cas.units / w-cas.qty.
+
+   {sys/inc/roundup.i v-cas-cnt}
+
+   IF NOT gEstSummaryOnly THEN
+   display v-blk-frm
+           item.i-name                          format "x(20)"
+           space(0)
+           w-cas.qty                    to 50   format ">>>>9"
+           "Ea"
+           cas.cosm                     to 69
+             when not v-summ
+           w-cas.cost / (w-cas.units / 1000)
+             when v-summ                @ cas.cosm
+           w-cas.cost                   to 80   format ">>>>,>>9.99"
+           SKIP WITH STREAM-IO.
+end.
+
 
 /**************** P A L L E T S *************************/
 for each xeb where xeb.company = xest.company
@@ -698,7 +865,7 @@ for each cas where cas.typ = 1:
    end.
 end.
 
-for each cas where cas.typ = 5 or cas.typ = 6:
+for each cas where cas.typ = 5 or cas.typ = 6 OR cas.typ EQ 7:
    find first blk where blk.id = cas.id and
                       blk.snum = cas.snum and
                       blk.bnum = cas.bnum no-error.

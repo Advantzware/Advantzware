@@ -20,7 +20,7 @@ ASSIGN
   gcompany  = ip-co-code
   g_company = ip-co-code.
 
-RUN spSetCompany (g_company).
+RUN spSetSessionParam ("Company", g_company).
 
 /*add new NK1 to v-std-list first, then add it to the "When" clause below */
 v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopup,AgeDays,OEFGADD,HighBalDays,"
@@ -37,7 +37,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "BitMap,CEMenu,BOLPartial,OEAutoDateUpdate,SSPostFGTransfer,FGUnderOver,FGSetAdjustReason,AdjustReason,ShipNotesExpanded,CTIDir,"
            + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal,TSShowPending,FGHistoryDate,CEUpdateCAD,"
            + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault,DynAuditField,DynTaskTicker,InvoiceSavePDF,BOLSavePDF,"
-           + "FGBinInquiry,CEAutoCalcMessage,CEReleases,FGVendCostEnhanced" 
+           + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
+           + "CePackEnhanced,BolPrint,OEPriceWarning"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -619,6 +620,11 @@ CASE ip-nk1-value:
         INPUT "Activate Estimate Auto-Calc warning",
         INPUT "" /* Char Value */, INPUT 1 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "OERequiredField" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "PO Received Date is Mandatory.",
+        INPUT "PO Received" /* Char Value */, INPUT 1 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
     WHEN "CEReleases" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Use Estimated Releases for Freight and Warehousing",
@@ -627,6 +633,46 @@ CASE ip-nk1-value:
     WHEN "FGVendCostEnhanced" THEN
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Display additional fields on the Finished Goods Vend Cost tab",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "Autorel" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Auto Release Default",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).      
+    WHEN "RELCREDT" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Check credit limit for past due invoices when adding release?",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
+    WHEN "PhysCnt" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Export counts as they are entered",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).       
+    WHEN "ProdAceBarScan" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Use Production Ace Bar Code Scanning",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "JobExport" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Use net quantity when exporting to CTI",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/). 
+    WHEN "CePackEnhanced" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Allows for multiple layers of packing details on the Ink/Pack tab",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "BolPrint" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Print Bill of Lading Headers on Plain Paper",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).     
+    WHEN "OEPriceWarning" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Warning message - if sell price is less than the cost",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.

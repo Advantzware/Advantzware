@@ -564,13 +564,41 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE externalStatusFile AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE externalStatusUserID AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE charHandle AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
+  externalStatusFile = SEARCH('{&updates}\' + ID + '\inUse.dat').
+  IF externalStatusFile NE ? THEN DO:
+    INPUT FROM VALUE(externalStatusFile) NO-ECHO.
+    IMPORT ^ externalStatusUserID.
+    INPUT CLOSE.
+    IF externalStatusUserID NE USERID('ASI') THEN DO:
+      MESSAGE
+        'External Status Checkoffs in Use by'
+        externalStatusUserID SKIP
+        'Please try again shortly.'
+      VIEW-AS ALERT-BOX.
+      IF VALID-HANDLE(adm-broker-hdl) THEN DO:
+        RUN get-link-handle IN adm-broker-hdl
+            (THIS-PROCEDURE,'CONTAINER-SOURCE':U,OUTPUT charHandle).
+        pHandle = WIDGET-HANDLE(charHandle).
+        IF VALID-HANDLE(pHandle) THEN
+        RUN inUseClose IN pHandle.
+        RETURN.
+      END. /* if valid-handle */
+    END. /* if search */
+  END. /* if different user */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  OUTPUT TO VALUE('{&updates}\' + ID + '\inUse.dat').
+  EXPORT NO USERID('ASI').
+  OUTPUT CLOSE.
   FOR EACH pendingJob NO-LOCK:
     CREATE ttblJob.
     BUFFER-COPY pendingJob EXCEPT jobType TO ttblJob

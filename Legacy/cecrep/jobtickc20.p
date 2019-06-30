@@ -256,7 +256,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=PartLabel><R+1><#Part>"
             "<=HeaderStart><C+22><R+0.6><#CustomerName>"
            
-            "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal ">"
+            "<=BarCodeStart><C+1><R+.3><FROM><C108><R3.9><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
             "<P14>                  "
             "<=JobLabel>Job #:"
             "<FGColor=Blue><B>   "
@@ -834,7 +834,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PartLabel><R+1><#Part>"
               "<=HeaderStart><C+35><R+0.6><#PrintedLabel>"
               "<=PrintedLabel><R+1><#PrintedDate>"
-              "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
+              "<=BarCodeStart><C+1><R+.3><FROM><C108><R3.9><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
               
               
               "<P14>"

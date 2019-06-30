@@ -1505,6 +1505,8 @@ DEF VAR v-cust-qty AS INT FORMAT "->>>,>>>,>>9".
 DEF VAR v-sales-rep AS CHAR NO-UNDO.
 DEF VAR sort-opt AS CHAR NO-UNDO INIT "C" FORMAT "!".
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE prt-cost AS LOGICAL INITIAL YES NO-UNDO.
+
 FORMAT
   itemfg.i-no LABEL "ITEM #"
   itemfg.i-name FORMAT "x(20)" LABEL "DESCRIPTION"
@@ -1522,7 +1524,17 @@ FIND FIRST fg-ctrl WHERE fg-ctrl.company EQ cocode NO-LOCK.
 
 
 DEF VAR cslist AS cha NO-UNDO.
+
+FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+     IF LOOKUP(ttRptSelected.TextList, "Total Cost") <> 0    THEN do:
+      IF NOT security-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
+      prt-cost = security-flag.
+    end.                                                                   
+END.
+
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+
+   IF ttRptSelected.TextList = "Total Cost" AND NOT prt-cost THEN NEXT. 
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
    THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
@@ -1564,12 +1576,6 @@ ASSIGN
  v-custown    = tb_inc-cust
  sort-opt     = SUBSTR(rd_sort,1,1)
  lSelected    = tb_cust-list.
-
-FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-     IF LOOKUP(ttRptSelected.TextList, "Total Cost") <> 0    THEN do:
-      IF NOT security-flag THEN RUN sys/ref/d-passwd.w (3, OUTPUT security-flag).
-    end.
-END.
 
 {sys/inc/print1.i}
 
@@ -1796,11 +1802,11 @@ EMPTY TEMP-TABLE tt-itemfg.
                                      WHEN "qty-pro"  THEN cVarValue = STRING(itemfg.q-prod-ptd,"->>,>>>,>>9")  .
                                      WHEN "qty-ship" THEN cVarValue = STRING(itemfg.q-ship-ptd,"->>,>>>,>>9") .
                                      WHEN "qty-onh"  THEN cVarValue = IF v-qty-onh NE ? THEN STRING(v-qty-onh,"->>,>>>,>>9") ELSE "". 
-                                     WHEN "ttl-cst"  THEN cVarValue = IF v-totcost NE ? THEN STRING(v-totcost,"->>,>>>,>>9.99") ELSE "".
+                                     WHEN "ttl-cst"  THEN cVarValue = IF prt-cost AND v-totcost NE ? THEN STRING(v-totcost,"->>,>>>,>>9.99") ELSE "".
                                      WHEN "ttl-val"  THEN cVarValue = IF v-ext NE ? THEN STRING(v-ext,"->>,>>>,>>9.99") ELSE "".
 
                                 END CASE.
-
+                                IF cTmpField = "ttl-cst" AND NOT prt-cost THEN NEXT.
                                 cExcelVarValue = cVarValue.
                                 cDisplay = cDisplay + cVarValue +
                                            FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1853,7 +1859,7 @@ EMPTY TEMP-TABLE tt-itemfg.
                                      WHEN "ttl-val"  THEN cVarValue = STRING(v-cust-ext,"->>,>>>,>>9.99") .
 
                                 END CASE.
-
+                                IF cTmpField = "ttl-cst" AND NOT prt-cost THEN NEXT.
                                 cExcelVarValue = cVarValue.
                                 cDisplay = cDisplay + cVarValue +
                                            FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1897,7 +1903,7 @@ EMPTY TEMP-TABLE tt-itemfg.
                                      WHEN "ttl-val"  THEN cVarValue = STRING(v-sub-ext,"->>,>>>,>>9.99") .
 
                                 END CASE.
-
+                                IF cTmpField = "ttl-cst" AND NOT prt-cost THEN NEXT.
                                 cExcelVarValue = cVarValue.
                                 cDisplay = cDisplay + cVarValue +
                                            FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 

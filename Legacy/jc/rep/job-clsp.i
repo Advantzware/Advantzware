@@ -1,8 +1,10 @@
-for each job-prep FIELDS(ml std-cost qty)
+for each job-prep FIELDS(ml std-cost qty simon)
     where job-prep.company eq cocode
       and job-prep.job     eq job.job
+      AND NOT CAN-DO("N,S",job-prep.simon)
     no-lock:
-
+    
+    
     if job-prep.ml then
     DO:
        v-est-mat-cost = v-est-mat-cost + (job-prep.std-cost * job-prep.qty).

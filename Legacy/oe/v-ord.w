@@ -98,6 +98,7 @@ DEF VAR llCreateFromEst AS LOGICAL NO-UNDO.
 DEF VAR oeDateAuto-log AS LOG NO-UNDO.
 DEF VAR oeDateAuto-char AS CHAR NO-UNDO.
 
+DEFINE VARIABLE OEPOReqDate AS LOGICAL NO-UNDO.
 DEFINE VARIABLE prodDateChanged AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dueDateChanged AS LOGICAL NO-UNDO.
 DEFINE VARIABLE scheduleHndl AS HANDLE NO-UNDO.
@@ -114,10 +115,6 @@ DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
 DEF VAR OEJobHold-log AS LOG NO-UNDO.
 DEF VAR lcReturn   AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG  NO-UNDO.
-RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
-    OUTPUT lcReturn, OUTPUT llRecFound).
-IF llRecFound THEN
-   OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
@@ -126,7 +123,7 @@ DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
@@ -188,6 +185,12 @@ RUN methods/prgsecur.p
      
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+   OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
+
 RUN sys/ref/nk1look.p (INPUT cocode, "OEPO#Xfer", "L" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -199,6 +202,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "L" /* Logical */, NO /* chec
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OERequiredField", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    OEPOReqDate = LOGICAL(cRtnChar) NO-ERROR.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -1553,6 +1562,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME oe-ord.poReceivedDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.poReceivedDate V-table-Win
+ON LEAVE OF oe-ord.poReceivedDate IN FRAME F-Main /* PO Received Date */
+DO:
+    DEFINE VARIABLE lOutError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-POReceivedDate(OUTPUT lOutError) NO-ERROR.
+        IF lOutError THEN RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME oe-ord.poReceivedDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.poReceivedDate V-table-Win
@@ -5416,6 +5438,7 @@ PROCEDURE local-update-record :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
+  DEFINE VARIABLE lOutError AS LOGICAL NO-UNDO.
 
 
   DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -5480,6 +5503,9 @@ PROCEDURE local-update-record :
 
      RUN valid-carrier NO-ERROR.
      IF NOT lErrorValid THEN RETURN NO-APPLY.
+
+     RUN valid-POReceivedDate(OUTPUT lOutError) NO-ERROR.
+        IF lOutError THEN RETURN NO-APPLY.
 
      {&methods/lValidateError.i YES}
          
@@ -5974,12 +6000,13 @@ DO WITH FRAME {&FRAME-NAME}:
         NO-ERROR.
     IF AVAILABLE bf-soldto THEN
         ASSIGN 
-            oe-ord.sold-name:SCREEN-VALUE = bf-soldto.sold-name
-            fiSoldAddress:SCREEN-VALUE = fBuildAddress(bf-soldto.sold-addr[1],
-                                                       bf-soldto.sold-addr[2],
-                                                       bf-soldto.sold-city,
-                                                       bf-soldto.sold-state,
-                                                       bf-soldto.sold-zip)
+            oe-ord.sold-name:SCREEN-VALUE = bf-soldto.sold-name .
+    IF AVAIL oe-ord THEN
+        fiSoldAddress:SCREEN-VALUE = fBuildAddress(oe-ord.sold-addr[1],
+                                                       oe-ord.sold-addr[2],
+                                                       oe-ord.sold-city,
+                                                       oe-ord.sold-state,
+                                                       oe-ord.sold-zip)
                                                        .
     cCode = oe-ord.ship-id:SCREEN-VALUE.
     FIND FIRST bf-shipto NO-LOCK
@@ -6690,6 +6717,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-POReceivedDate V-table-Win 
+PROCEDURE valid-POReceivedDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF OUTPUT PARAMETER oplPOReceDate AS LOG NO-UNDO.
+    {methods/lValidateError.i YES}
+  IF OEPOReqDate = YES AND (trim(oe-ord.poReceivedDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ "/  /"
+        OR trim(oe-ord.poReceivedDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}) EQ "")
+      THEN DO:
+      MESSAGE "PO Received Date is Mandatory." VIEW-AS ALERT-BOX INFO.
+      oplPOReceDate = YES.
+  END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
 PROCEDURE valid-due-date :

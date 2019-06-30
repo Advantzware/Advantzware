@@ -72,7 +72,10 @@ DEFINE OUTPUT PARAMETER opdQty LIKE fg-rdtlh.qty NO-UNDO.
 
 
 /* ***************************  Main Block  *************************** */
-
+/* No production quantity without a job # */
+IF ipcJobNo EQ "" THEN 
+    RETURN. 
+    
 IF iplUseFGAct THEN DO:
     FIND FIRST itemfg
         WHERE itemfg.company EQ ipcCompany

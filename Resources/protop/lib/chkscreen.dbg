@@ -1,0 +1,114 @@
+        1   /* lib/chkscreen.p
+        2    *
+        3    */
+        4   
+        5   define variable w as integer no-undo.
+        6   
+        7   w = current-window:width-chars.
+        8   
+        9   /* the last solely 80x24 terminal was manufactured in the stone-age -- every
+       10    * reasonable device and emulator is capable of larger screens -- even the
+       11    * ssh client on my phone can handle 132x48 (actually only 128 x 43 -- which
+       12    * is the limit that is *actually* enforced)
+       13    *
+       14    * update - 160 colums is now the minimum as of 3.3q (May 2017). that is the
+       15    * equivalent of 4 old style 80x24 terminals
+       16    *
+       17    * 48 rows is still the minimum height although 72 or even 96 are much better.
+       18    *
+       19    */
+       20   
+       21   if /* true or */ screen-lines > 200 and opsys begins "WIN" then
+       22     do:
+       23   
+       24   /* view-as alert-box will wrap text according to screen size -- this gives an idea of
+       25    * how many lines that might result in on an 80 column screen
+       26    *
+       27    *      '         1         2         3         4         5         6         7         8'
+       28    *      '12345678901234567890123456789012345678901234567890123456789012345678901234567890'
+       29    */
+       30   
+       31       message
+       32       /*  '  Your window size is 201 rows.  That probably means that your shortcut~'s   '         */
+       33           '  Your window size is' screen-lines 'rows.  That probably means that your shortcut~'s   '
+       34           '  "layout" properties are not properly set.                                 '
+       35           skip(1)
+       36           '  Right-click the "OE" Icon in the upper-left corner of the window, select  '
+       37           '  "Properties" from the drop-down menu and then select the "Layout" tab.    '
+       38           '  The "width" must be at least 160 and the "height" must be at least 48 in  '
+       39           '  *both* the "Screen Buffer Size" and the "Window Size" sections.           '
+       40           skip(1)
+       41           '  The default Screen Buffer Height of 300 is known to be too large.  The    '
+       42           '  actual limit is unknown but ProTop is known to work with 96 lines and     '
+       43           '  probably works with 128 but I do not have a screen that large right now   '
+       44           '  (hardware donations are happily accepted!)                                '
+       45         view-as alert-box
+       46       .
+       47   
+       48       quit.
+       49   
+       50     end.
+       51   
+       52   if /* true or */ w < 160 or screen-lines < 40 then      /* 'screen-lines' is 3 less than window size due to the message & status lines  */
+       53     do:
+       54   
+       55   /* view-as alert-box will wrap text according to screen size -- this gives an idea of
+       56    * how many lines that might result in on an 80 column screen
+       57    *
+       58    *      '         1         2         3         4         5         6         7         8'
+       59    *      '12345678901234567890123456789012345678901234567890123456789012345678901234567890'
+       60    *
+       61    *        _____        _______            ____   ____  _          
+       62    *       |  __ \      |__   __|          |___ \ |___ \| |         
+       63    *       | |__) | __ ___ | | ___  _ __     __) |  __) | | ____  __
+       64    *       |  ___/ '__/ _ \| |/ _ \| '_ \   |__ <  |__ <| |/ /\ \/ /
+       65    *       | |   | | | (_) | | (_) | |_) |  ___) | ___) |   <  >  < 
+       66    *       |_|   |_|  \___/|_|\___/| .__/  |____(_)____/|_|\_\/_/\_\
+       67    *                               | |                              
+       68    *                               |_|                              
+       69    */
+       70   
+       71       message
+       72       /*  ' ProTop thinks that your screen is 80 columns by 24 lines. Is it 1978?    ' */
+       73           ' Is it 1978? ProTop thinks that your screen is' w 'columns by' screen-lines + 3 'lines.    '
+       74           skip(1)
+       75           ' This window size is inadequate to be used with ProTop. You must have a   '
+       76           ' window that has at least 160 columns and 48 lines.                       '
+       77           skip(1)
+       78   
+       79   &IF opsys begins "unix" &THEN
+       80           ' Use "stty -a" to check your columns & rows settings.  You may have       '
+       81           ' dynamically resized your window to be too small.                         '
+       82           skip(1)
+       83           ' The supplied etc/protermcap.protop will dynamically handle XTERM screens '
+       84           ' on Linux, HP-UX and Solaris.                                             '
+       85           skip(1)
+       86           ' AIX requires pre-defined sizes. The default xterm on AIX is 160x48,      '
+       87           ' xterm60 is 160x60, xterm72 is 160x72, xterm84 is 160x84 and xterm96 is   '
+       88           ' 160x96.  Or you can supply your own protermcap entires if you prefer.    '
+       89   
+       90   &ENDIF
+       91   
+       92   &IF opsys begins "win" &THEN
+       93           ' Right-click the "OE" Icon in the upper-left corner of the window, select '
+       94           ' "Properties" from the drop-down menu and then select the "Layout" tab.   '
+       95           ' The "width" must be at least 160 and the "height" must be at least 48 in '
+       96           ' *both* the "Screen Buffer Size" and the "Window Size" sections.          '
+       97           skip(1)
+       98           ' The default Screen Buffer Height of 300 is known to be too large.  The   '
+       99           ' actual limit is unknown but ProTop is known to work with 96 lines and    '
+      100           ' probably works with 128 but I do not have a screen that large right now  '
+      101           ' (hardware donations are happily accepted!)                               '
+      102   &ENDIF
+      103   
+      104           skip(1)
+      105           ' Progress does not recognize screen size changes after a session is       '
+      106           ' started so you must resize *before* starting ProTop.                     '
+      107         view-as alert-box
+      108       .
+      109   
+      110       quit.
+      111   
+      112     end.
+      113   
+      114   return.

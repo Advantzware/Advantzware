@@ -31,6 +31,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE yellowColumnsName itemfgpo
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
@@ -40,6 +41,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/var.i "NEW" "GLOBAL SHARED"}
+{sys/inc/varasgn.i}
 
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -71,7 +73,6 @@ def var li-due-qty like po-ordl.cons-qty no-undo.
 &Scoped-define EXTERNAL-TABLES itemfg
 &Scoped-define FIRST-EXTERNAL-TABLE itemfg
 
-
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
@@ -84,7 +85,7 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table po-ordl.po-no ~
 vend-name() @ ls-vend-name po-ordl.due-date ~
 convert-qty(2, po-ordl.cons-qty) @ li-ord-qty ~
-convert-qty(1, po-ordl.cons-qty) @ li-due-qty po-ord.ship-id 
+convert-qty(1, po-ordl.cons-qty) @ li-due-qty po-ord.ship-id po-ord.loc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE po-ordl.company = itemfg.company  ~
   AND po-ordl.i-no = itemfg.i-no ~
@@ -114,14 +115,13 @@ po-ord.po-no eq po-ordl.po-no ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
 Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Prototypes ********************** */
 
@@ -154,6 +154,11 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 60 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 38 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -175,12 +180,13 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      po-ordl.po-no FORMAT ">>>>>9":U
-      vend-name() @ ls-vend-name COLUMN-LABEL "Vendor"
-      po-ordl.due-date FORMAT "99/99/9999":U
-      convert-qty(2, po-ordl.cons-qty) @ li-ord-qty COLUMN-LABEL "Qty Ordered"
-      convert-qty(1, po-ordl.cons-qty) @ li-due-qty COLUMN-LABEL "Qty Due"
-      po-ord.ship-id FORMAT "x(8)":U
+      po-ordl.po-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      vend-name() @ ls-vend-name COLUMN-LABEL "Vendor" 
+      po-ordl.due-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      convert-qty(2, po-ordl.cons-qty) @ li-ord-qty COLUMN-LABEL "Qty Ordered" 
+      convert-qty(1, po-ordl.cons-qty) @ li-due-qty COLUMN-LABEL "Qty Due" 
+      po-ord.ship-id FORMAT "x(8)":U LABEL-BGCOLOR 14
+      po-ord.loc FORMAT "x(5)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
@@ -194,6 +200,7 @@ DEFINE FRAME F-Main
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
+     fi_sortby AT ROW 19.33 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 19.33 COL 132 HELP
@@ -265,6 +272,15 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
+       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -293,6 +309,7 @@ po-ord.po-no eq po-ordl.po-no"
      _FldNameList[5]   > "_<CALC>"
 "convert-qty(1, po-ordl.cons-qty) @ li-due-qty" "Qty Due" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   = ASI.po-ord.ship-id
+     _FldNameList[7]   = ASI.po-ord.loc
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -344,6 +361,14 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+  RUN startSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
@@ -364,6 +389,10 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{custom/yellowColumns.i}
+
+{sys/inc/fgmaster.i}
+
 {sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -525,7 +554,7 @@ FUNCTION convert-qty RETURNS DECIMAL
     Notes:  
 ------------------------------------------------------------------------------*/
   DEF VAR li-qty AS DEC NO-UNDO.
-
+  
   if not avail po-ordl then RETURN li-qty.
   /*assign   li-ord-qty = po-ordl.cons-qty
            li-due-qty = po-ordl.cons-qty - po-ordl.t-rec-qty. 
@@ -535,7 +564,7 @@ FUNCTION convert-qty RETURNS DECIMAL
      assign   li-ord-qty = po-ordl.cons-qty
               li-due-qty = po-ordl.cons-qty - po-ordl.t-rec-qty. 
   else do:
-     cocode = itemfg.company.
+    
      run sys/ref/convquom.p(po-ordl.cons-uom, "EA",
                          0, po-ordl.s-len,
                          po-ordl.s-wid, 0,
@@ -553,7 +582,7 @@ FUNCTION convert-qty RETURNS DECIMAL
 
   li-qty = IF ip-type = 1 /*"Due"*/ THEN li-due-qty ELSE li-ord-qty.
   RETURN li-qty.
-
+                  
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,7 +597,7 @@ FUNCTION vend-name RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   if not avail po-ordl then RETURN "".
   
-  find first vend where vend.company = itemFG.company and
+  find first vend where vend.company = cocode and
                         vend.vend-no = po-ord.vend-no no-lock no-error.
   ls-vend-name = if avail vend then vend.name else "N/A" .
   RETURN ls-vend-name .   /* Function return value. */

@@ -66,15 +66,15 @@ PUT "<|10><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 "<R19><C22><FROM><R23><C22><LINE>" SKIP
 "<R19><C38><FROM><R23><C38><LINE>" SKIP
 "<R19><C52><FROM><R23><C52><LINE>" SKIP
-"<R19><C65><FROM><R23><C65><LINE>" SKIP
-"<R19><C73.5><FROM><R23><C73.5><LINE>" SKIP
+"<R19><C66.8><FROM><R23><C66.8><LINE>" SKIP
+"<R19><C74.5><FROM><R23><C74.5><LINE>" SKIP
 .
-PUT "<FArial><=4><C23>Expediteur <C39>Termes <C53>Representant <C66>Commande     " SKIP
-    "<FArial><=4><R+1><C2>Date Req. <C12>FOB <C23>Ship Via <C39>Terms <C53>Sales Person <C66>Order# <C74>Quote#" SKIP
+PUT "<FArial><=4><C23>Expediteur <C39>Termes <C53>Representant <C67>Commande     " SKIP
+    "<FArial><=4><R+1><C2>Date Req. <C12>FOB <C23>Ship Via <C39>Terms <C53>Sales Person <C67>Order# <C75>Quote#" SKIP
 "<FCourier New><=4><R+3> " lv-due-date FORM "99/99/9999" space(2)
 oe-ord.fob-code FORM "x(11)" SPACE(2) /* gdm 01060906 */
 v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(1)
-oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(5) v-salesman space(8) oe-ord.ord-no space(4) v-q-no SKIP.
+oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" "<C52.5>" v-salesman space(1) oe-ord.ord-no "<C75.5>" v-q-no SKIP.
 
 
 PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    

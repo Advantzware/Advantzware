@@ -1,0 +1,1734 @@
+        1   /*******************************************************************************
+        2    *******************************************************************************
+        3    **                                                                           **
+        4    **                                                                           **
+        5    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+        6    **  http://www.greenfieldtech.com                                            **
+        7    **                                                                           **
+        8    **  ProTop is free software; you can redistribute it and/or modify it        **
+        9    **  under the terms of the GNU General Public License (GPL) as published     **
+       10    **  by the Free Software Foundation; either version 2 of the License, or     **
+       11    **  at your option) any later version.                                       **
+       12    **                                                                           **
+       13    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       14    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       15    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       16    **  for more details.                                                        **
+       17    **                                                                           **
+       18    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       19    **  of use and alternative licensing options for this software.              **
+       20    **                                                                           **
+       21    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       22    **                                                                           **
+       23    **  See http://www.fsf.org for more information about the GPL.               **
+       24    **                                                                           **
+       25    **                                                                           **
+       26    *******************************************************************************
+       27    *******************************************************************************
+       28    *
+       29    * config.p
+       30    *
+       31    */
+       32   
+       33   
+       34   /*******************************************************************************
+       35    *******************************************************************************
+       36    **                                                                           **
+       37    **                                                                           **
+       38    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       39    **  http://www.greenfieldtech.com                                            **
+       40    **                                                                           **
+       41    **  ProTop is free software; you can redistribute it and/or modify it        **
+       42    **  under the terms of the GNU General Public License (GPL) as published     **
+       43    **  by the Free Software Foundation; either version 2 of the License, or     **
+       44    **  at your option) any later version.                                       **
+       45    **                                                                           **
+       46    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       47    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       48    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       49    **  for more details.                                                        **
+       50    **                                                                           **
+       51    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       52    **  of use and alternative licensing options for this software.              **
+       53    **                                                                           **
+       54    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       55    **                                                                           **
+       56    **  See http://www.fsf.org for more information about the GPL.               **
+       57    **                                                                           **
+       58    **                                                                           **
+       59    *******************************************************************************
+       60    *******************************************************************************
+       61    *
+       62    * protop.i
+       63    *
+       64    * Header file for protop family of programs
+       65    *
+       66    *
+       67    * Known Bugs & Issues:
+       68    *
+       69    *
+       70    * To Do:
+       71    *
+       72    *
+       73    * Author:
+       74    *
+       75    *      Tom Bascom, Greenfield Technologies
+       76    *      http://www.greenfieldtech.com
+       77    *      August 28, 2003
+       78    *
+       79    */
+       80   
+       81   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+       82   &global-define  FASTLOCK        true
+       83   &ELSE
+       84   &global-define  FASTLOCK        false
+       85   &ENDIF
+       86   
+       87   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+       88   &global-define  OE11            "yes"
+       89   &global-define  xDEBUGTT        false
+       90   &ENDIF
+       91   
+       92   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+       93   &global-define  NOSERIALIZE     serialize-hidden
+       94   &ENDIF
+       95   
+       96   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+       97   &global-define  BIGINT          int64
+       98   &ELSE
+       99   &global-define  BIGINT          decimal
+      100   &ENDIF
+      101   
+      102   
+      103   /* lib/v9.i
+      104    *
+      105    */
+      106   
+      107   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      108   &global-define  CPYLOB  "no"
+      109   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      110   &global-define  LNGCR   character
+      111   &global-define  DTZ     integer
+      112   &global-define  BIGINT  decimal
+      113   &ELSE
+      114   &global-define  OE10    "yes"
+      115   &global-define  NOW     now
+      116   &global-define  LNGCR   longchar
+      117   &global-define  DTZ     datetime-tz
+      118   &global-define  BIGINT  int64
+      119   &ENDIF
+      120    
+      121   
+      122   /* use extended _connect fields: -client, -cache*
+      123    */
+      124   
+      125   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      126   &global-define  CONNECTX        "yes"
+      127   &ELSE
+      128   &global-define  CONNECTX        "no"
+      129   &ENDIF
+      130   
+      131   define stream inStrm.
+      132   
+      133   define new global shared variable dbgMode as integer no-undo initial 1.
+      134   
+      135   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      136    *
+      137    * someday everyone will have OO and I will replace these with a gsv class
+      138    * or something of that ilk
+      139    *
+      140    */
+      141   
+      142   define new global shared variable pt_shortname   as character no-undo.
+      143   define new global shared variable pt_uniqName    as character no-undo.
+      144   define new global shared variable pt_server      as character no-undo.
+      145   define new global shared variable pt_resrcType   as character no-undo.
+      146   
+      147   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      148   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      149   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      150   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      151   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      152   
+      153   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      154   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      155   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      156   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      157   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      158   define new global shared variable pt_ioFileName  as character no-undo.
+      159   define new global shared variable pt_dfCmd       as character no-undo.
+      160   
+      161   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      162   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      163   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      164   
+      165   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      166   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      167   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      168   
+      169   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      170   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      171   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      172   
+      173   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      174   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      175   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      176   
+      177   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      178   
+      179   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      180   
+      181   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      182   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      183   
+      184   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      185    * 
+      186    */
+      187   
+      188   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      189   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      190   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      191   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      192   
+      193   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      194   
+      195                                                                                   /* corresponding to base checkpoint#    */
+      196   /** Global Shared Temp Table Definitions
+      197    **
+      198    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      199    ** And a shared temp-table is logically the same as a db table so who really cares?
+      200    **
+      201    **/
+      202   
+      203   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      204    */
+      205   
+      206   define new global shared temp-table tt_tbl no-undo
+      207     field xid      as integer                                             /* _File._File-Num              */
+      208     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      209     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      210     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      211     field tblname  as character                                           /* _File._File-Name             */
+      212     index xid-idx is unique primary xid.
+      213   
+      214   define new global shared temp-table tt_idx no-undo
+      215     field xid      as integer                                             /* _Index._Idx-Num              */
+      216     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      217     field idxname  as character                                           /* _Index._Idx-Name             */
+      218     field idxnote  as character
+      219     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      220     field tblnum   as integer                                             /* _File._File-Num              */
+      221     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      222     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      223     field tblname  as character                                           /* _File._File-Name             */
+      224     index xid-idx is unique primary xid.
+      225   
+      226   define new global shared temp-table tt_areaExtent no-undo
+      227     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      228     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      229   
+      230     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      231     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      232     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      233   
+      234     index ae-idx is unique primary areaNum extNum.
+      235   
+      236   define new global shared temp-table tt_area no-undo
+      237     field xid      as integer    format ">>>9"
+      238     field SANum    as integer    format ">>>9"        label "#"
+      239     field areaPool as character  format "x(2)"        label "BX"
+      240   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      241     field SAName   as character  format "x(30)"       label "Area Name"
+      242     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      243     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      244     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      245     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      246     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      247     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      248     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      249   
+      250     field blkszkb as integer     format ">>9"         label "BSZ"
+      251     field rpb     as integer     format ">>9"         label "RPB"
+      252     field clstrsz as integer     format ">>9"         label "CSZ"
+      253   
+      254     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      255     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      256     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      257   
+      258     field numExts as integer     format ">>>>9"       label "#Exts"
+      259     field hasVar  as logical     format "Yes/No"      label "Var?"
+      260   
+      261     field xnote   as character   format "x"           label "*"
+      262   
+      263     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      264     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      265   
+      266     index pctAlloc-idx is primary pctAlloc descending
+      267     index pctLastX-idx pctLastX pctAlloc descending
+      268     index allocGB-idx allocGB descending
+      269     index totGB-idx totGB descending
+      270     index xid-idx is unique xid
+      271     index SANum-idx is unique SANum
+      272     index SAName-idx is unique SAName
+      273   .
+      274   
+      275   *** Encrypted Source ***
+      276   *** Encrypted Source ***
+      277   *** Encrypted Source ***
+      278   *** Encrypted Source ***
+      279   *** Encrypted Source ***
+      280   *** Encrypted Source ***
+      281   *** Encrypted Source ***
+      282   *** Encrypted Source ***
+      283   *** Encrypted Source ***
+      284   *** Encrypted Source ***
+      285   *** Encrypted Source ***
+      286   *** Encrypted Source ***
+      287   *** Encrypted Source ***
+      288   *** Encrypted Source ***
+      289   *** Encrypted Source ***
+      290   *** Encrypted Source ***
+      291   *** Encrypted Source ***
+      292   *** Encrypted Source ***
+      293   *** Encrypted Source ***
+      294   *** Encrypted Source ***
+      295   *** Encrypted Source ***
+      296   *** Encrypted Source ***
+      297   *** Encrypted Source ***
+      298   *** Encrypted Source ***
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323   *** Encrypted Source ***
+      324   *** Encrypted Source ***
+      325   *** Encrypted Source ***
+      326   *** Encrypted Source ***
+      327   *** Encrypted Source ***
+      328   *** Encrypted Source ***
+      329   *** Encrypted Source ***
+      330   *** Encrypted Source ***
+      331   *** Encrypted Source ***
+      332   *** Encrypted Source ***
+      333   *** Encrypted Source ***
+      334   *** Encrypted Source ***
+      335   *** Encrypted Source ***
+      336   *** Encrypted Source ***
+      337   *** Encrypted Source ***
+      338   *** Encrypted Source ***
+      339   *** Encrypted Source ***
+      340   *** Encrypted Source ***
+      341   *** Encrypted Source ***
+      342   *** Encrypted Source ***
+      343   *** Encrypted Source ***
+      344   *** Encrypted Source ***
+      345    
+      346   
+      347   /*******************************************************************************
+      348    *******************************************************************************
+      349    **                                                                           **
+      350    **                                                                           **
+      351    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      352    **  http://www.greenfieldtech.com                                            **
+      353    **                                                                           **
+      354    **  ProTop is free software; you can redistribute it and/or modify it        **
+      355    **  under the terms of the GNU General Public License (GPL) as published     **
+      356    **  by the Free Software Foundation; either version 2 of the License, or     **
+      357    **  at your option) any later version.                                       **
+      358    **                                                                           **
+      359    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      360    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      361    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      362    **  for more details.                                                        **
+      363    **                                                                           **
+      364    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      365    **  of use and alternative licensing options for this software.              **
+      366    **                                                                           **
+      367    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      368    **                                                                           **
+      369    **  See http://www.fsf.org for more information about the GPL.               **
+      370    **                                                                           **
+      371    **                                                                           **
+      372    *******************************************************************************
+      373    *******************************************************************************
+      374    *
+      375    * protoplib.i
+      376    *
+      377    * ProTop infrastructure library definitions
+      378    *
+      379    */
+      380   
+      381   function uDateTime returns integer () in super.
+      382   function string2uDateTime returns integer( input p_text as character ) in super.
+      383   function searchDir returns character ( input xDir as character ) in super.
+      384   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      385   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      386   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      387   function myPID returns character () in super.
+      388   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      389   
+      390   /* end protoplib.i */
+      391    
+      392   
+      393   /*******************************************************************************
+      394    *******************************************************************************
+      395    **                                                                           **
+      396    **                                                                           **
+      397    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      398    **  http://www.greenfieldtech.com                                            **
+      399    **                                                                           **
+      400    **  ProTop is free software; you can redistribute it and/or modify it        **
+      401    **  under the terms of the GNU General Public License (GPL) as published     **
+      402    **  by the Free Software Foundation; either version 2 of the License, or     **
+      403    **  at your option) any later version.                                       **
+      404    **                                                                           **
+      405    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      406    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      407    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      408    **  for more details.                                                        **
+      409    **                                                                           **
+      410    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      411    **  of use and alternative licensing options for this software.              **
+      412    **                                                                           **
+      413    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      414    **                                                                           **
+      415    **  See http://www.fsf.org for more information about the GPL.               **
+      416    **                                                                           **
+      417    **                                                                           **
+      418    *******************************************************************************
+      419    *******************************************************************************
+      420    *
+      421    * vstlib.i
+      422    *
+      423    * VST library definitions
+      424    *
+      425    */
+      426   
+      427   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      428   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      429   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      430   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      431   
+      432   function connectFlags returns character ( input cnxId as integer ) in super.
+      433   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      434   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      435   
+      436   function isAIEnabled returns logical () in super.
+      437   function isReplSource returns logical () in super.
+      438   function isReplTarget returns logical () in super.
+      439   function isBackupRunning returns logical () in super.
+      440   function isWorkgroup returns logical () in super.
+      441   
+      442   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      443   
+      444   /* end vstlib.i */
+      445    
+      446   
+      447   function add2ds returns logical ( input h as handle ) in super.
+      448   function getTempTableHandle returns handle ( input n as character ) in super.
+      449   
+      450   /* end protop.i */
+      451    
+      452   
+      453   /*******************************************************************************
+      454    *******************************************************************************
+      455    **                                                                           **
+      456    **                                                                           **
+      457    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      458    **  http://www.greenfieldtech.com                                            **
+      459    **                                                                           **
+      460    **  ProTop is free software; you can redistribute it and/or modify it        **
+      461    **  under the terms of the GNU General Public License (GPL) as published     **
+      462    **  by the Free Software Foundation; either version 2 of the License, or     **
+      463    **  at your option) any later version.                                       **
+      464    **                                                                           **
+      465    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      466    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      467    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      468    **  for more details.                                                        **
+      469    **                                                                           **
+      470    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      471    **  of use and alternative licensing options for this software.              **
+      472    **                                                                           **
+      473    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      474    **                                                                           **
+      475    **  See http://www.fsf.org for more information about the GPL.               **
+      476    **                                                                           **
+      477    **                                                                           **
+      478    *******************************************************************************
+      479    *******************************************************************************
+      480    *
+      481    * protoplib.i
+      482    *
+      483    * ProTop infrastructure library definitions
+      484    *
+      485    */
+      486   
+      487   function uDateTime returns integer () in super.
+      488   function string2uDateTime returns integer( input p_text as character ) in super.
+      489   function searchDir returns character ( input xDir as character ) in super.
+      490   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      491   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      492   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      493   function myPID returns character () in super.
+      494   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      495   
+      496   /* end protoplib.i */
+      497    
+      498   
+      499   define output parameter dcDescription as character no-undo initial "Configuration".
+      500   
+      501   define temp-table tt_Configuration no-undo
+      502   
+      503     field dbLogName     as character label "DB Logical Name"
+      504     field dbPhysName    as character label "DB Physical Name"
+      505     field dbHost        as character label "DB Host Name"
+      506   
+      507     field xdbVersion    as character label "DB Version"
+      508     field dbUpTime      as character label "DB Up Time"
+      509     field dbBkUpAge     as character label "Backup Age"
+      510     field dbBlkSize     as integer   label "DB Block Size"      format ">>9 KB"
+      511     field aiBlkSize     as integer   label "AI Block Size"      format ">>9 KB"
+      512     field biBlkSize     as integer   label "BI Block Size"      format ">>9 KB"
+      513     field biClstrSize   as integer   label "BI Cluster Size"    format "->>>>>>>>9 MB"
+      514     field dbBuffers     as integer   label "DB Buffers (-B)"    format "->>>>>>>>>>>>9"
+      515     field aiBuffers     as integer   label "AI Buffers"         format "->>>>>>>>>>>>9"
+      516     field biBuffers     as integer   label "BI Buffers"         format "->>>>>>>>>>>>9"
+      517     field dbSize        as decimal   label "DB Size"            format "->>>>>>>>9.99 MB"
+      518     field allocBlks     as decimal   label "Alloc Blocks"       format "->>>>>>>>9.99 MB"
+      519     field dbEmpty       as integer   label "Empty Blocks"       format "->>>>>>>>>>>>9"
+      520     field varBlks       as decimal   label "Var Blocks"         format "->>>>>>>>9.99 MB"
+      521     field biSize        as decimal   label "BI Size"            format "->>>>>>>>9.99 MB"
+      522     field aiSize        as decimal   label "AI Size"            format "->>>>>>>>9.99 MB"
+      523   
+      524     field maxConnect    as integer   label "Connections (-n)"   format ">>>>>>>>9"
+      525     field maxServers    as integer   label "Servers (-Mn)"      format ">>>>>>9"
+      526     field cnxPerServ    as integer   label "Clients:Srv (-Ma)"  format ">>>>>9"
+      527     field dbSpin        as integer   label "Spin"               format "->>>>>>>>>>>>9"
+      528     field lkTableSize   as integer   label "Lock Table Size"    format "->>>>>>>>>>>>9"
+      529     field afterImaging  as character label "After-Imaging"
+      530     field dbIntegrity   as character label "Crash Protection"
+      531     field biIOMode      as character label "BI IO Mode (-r)"
+      532     field biDelay       as integer   label "BI Delay (-Mf)"     format ">>>>>9"
+      533     field biClstrAge    as integer   label "BI Clustr Age"      format ">>>>>9"
+      534     field directIO      as character label "Direct IO"
+      535     field db2PC         as character label "2PC"
+      536     field dbTainted     as character label "Tainted (-F)"
+      537     field dbIdxBld      as character label "Index Rebuild"
+      538     field dbSHMSeg      as integer   label "Num SHM Segs"       format ">>>>>>>>9"
+      539     field dbSHMSegSize  as decimal   label "SHM Seg Size"       format ">>>>>>>>>>9.99 MB"
+      540     field dbSHMSize     as decimal   label "SHM Size"           format ">>>>>>>>>>9.99 MB"
+      541   
+      542     field areaConfig    as character label "Area Config"        format "x(14)"
+      543     field schemaUsed    as character label "Schema Used"
+      544     field rpbSettings   as character label "RPB Settings"
+      545     field warnAreas     as integer   label "Area Full Warnings" format ">>>>9"
+      546     field worstArea     as decimal   label "Worst Area"         format ">>>>>>>>>>>>9.99%"
+      547     field aiAreas       as integer   label "AI Areas"           format ">>>>9"
+      548     field aiSettings    as character label "AI Area Type"
+      549     field aiSeq         as integer   label "AI Sequence#"       format ">>>>>>>>9"
+      550     field aiArchiver    as character label "AI Archiver"
+      551     field oeReplication as character label "OE Replication"
+      552     field largeFiles    as character label "Large Files"
+      553     field dbAuditing    as character label "DB Auditing"
+      554     field failClusters  as character label "Failover Clusters"
+      555     field numAreas      as integer   label "Num Areas"          format ">>>>9"
+      556     field numExtents    as integer   label "Num Extents"        format ">>>>9"
+      557     field lrgExtent     as decimal   label "Largest Extent"     format ">>>>>>>>>>9.99 MB"
+      558     field numTbl        as integer   label "Num Tables"         format "->>>>>>>>>>>>9"
+      559     field tblBase       as integer   label "Table Base"         format "->>>>>>>>>>>>9"
+      560     field tblRange      as integer   label "Table Range"        format "->>>>>>>>>>>>9"
+      561     field numIdx        as integer   label "Num Indexes"        format "->>>>>>>>>>>>9"
+      562     field idxBase       as integer   label "Index Base"         format "->>>>>>>>>>>>9"
+      563     field idxRange      as integer   label "Index Range"        format "->>>>>>>>>>>>9"
+      564     field numLOBs       as integer   label "Number of LOBs"     format "->>>>>>>>>>>>9"
+      565   
+      566     field biThold       as integer   label "BI Threshold"       format "->>>>>>>>>>>>9"
+      567     field biStall       as character label "BI Stall"           format "x(8)"
+      568     field aiStall       as character label "AI Stall"           format "x(8)"
+      569   
+      570     field minCnx        as integer   label "Min Connections"    format "->>>>>>>>>>>>9"
+      571     field maxMsg        as integer   label "Max Message Size"   format "->>>>>>>>>>>>9"
+      572   
+      573     field pfDelay       as character label "Prefetch Delay"     format "x(8)"
+      574     field pfFactor      as integer   label "Prefetch Factor"    format ">>9%"
+      575     field pfNumRecs     as integer   label "Prefetch Num Recs"  format ">>>>>>>>9"
+      576     field pfPriority    as integer   label "Prefetch Priority"  format ">>>>>>>>9"
+      577   
+      578     field nMsgWait      as integer   label "-nMsgwait"          format ">>>>>>>>9"
+      579     field lruSkips      as integer   label "LRU Skips"          format ">>>>>>>>9"
+      580     field lru2Skips     as integer   label "LRU2 Skips"         format ">>>>>>>>9"
+      581     field recSpaceDepth as integer   label "Rec Space Search"   format ">>>>>>>>9"
+      582     field b2            as integer   label "-B2"                format ">>>>>>>>9"
+      583   
+      584     field bpMax         as integer   label "-Bpmax"             format ">>>>>>>>9"
+      585     field hashTbl       as integer   label "-hash"              format ">>>>>>>>9"
+      586     field hashPct       as decimal   label "-hashPct"           format    ">>>>9%"
+      587     field semSets       as integer   label "-semsets"           format ">>>>>>>>9"
+      588     field omSize        as integer   label "-omsize"            format ">>>>>>>>9"
+      589     field pica          as integer   label "-pica"              format ">>>>>>>>9"
+      590     field excessSHM     as integer   label "-Mxs"               format ">>>>>>>>9"
+      591   
+      592     field dbSHMpinned   as character label "SHM Pinned"         format "x(8)"
+      593     field cpInternal    as character label "CP Internal"        format "x(8)"
+      594   
+      595     field dbProVersion  as character label "db Progress Version"
+      596   
+      597     field excessTbl     as integer   label "Excess Tbl"         format "->>>>>9"
+      598     field excessIdx     as integer   label "Excess Idx"         format "->>>>>9"
+      599     field osType        as character label "OS Type"            format "x(16)"            /* beware -- "name" is magic            */
+      600   
+      601     field lkTblHWMpct   as decimal   label "LkHWMTbl%"          format ">>>>>>>>9.99%"
+      602   
+      603     field ptVersion     as character label "ProTop Version"     format "x(16)" initial "
+      604   3.14
+      605    "
+      606     field deployType    as character label "Deployment Type"    format "x(16)"
+      607     field dbSHMFree     as decimal   label "Unused SHM"         format ">>>>>>>>>>9.99 MB"
+      608   
+      609     field proBits       as integer   label "Bits"               format ">>>9"
+      610     field lgFileDays    as integer   label "lgFileDays"         format ">>>>>9"
+      611     field lgFileSize    as int64 label "lgFileSize"         format ">>>>>>>>>>9.99 MB"
+      612     field dbaAge        as integer   label "dbanalys age"       format ">>>>>>>>>>>>>>>>>"
+      613     field dbaAsOf       as datetime-tz    label "dbanalys as of"
+      614     field dbaAsOfStr    as character label "dbanalys as of"     format "x(12)"
+      615   
+      616   &IF DEFINED( OE10 ) &THEN
+      617     field sqlStats      as integer   label "SQL upd stats"      format ">>>>>>>>>>>>>>>>>"
+      618     field sqlStatsTS    as datetime  label "SQL upd stats TS"
+      619     field sqlStatsStr   as character label "SQL upd stats"      format "x(12)"
+      620   &ENDIF
+      621   
+      622     field memCheck      as character label "-MemCheck"          format "x(12)"
+      623     field dbCheck       as character label "-DbCheck"           format "x(12)"
+      624   
+      625     field unMonTbl      as integer   label "unMonitored Tables"  format "->>>9"
+      626     field unMonIdx      as integer   label "unMonitored Indexes" format "->>>9"
+      627   
+      628     field proVersionDate as date     label "DLC Date" format "9999/99/99"
+      629     field proVersionAge  as decimal  label "DLC Age"  format ">>>>9.99"
+      630   
+      631     index dbLogName-idx is unique primary dbLogName
+      632   .
+      633   
+      634   
+      635   /* lib/dumpTT.i
+      636    *
+      637    * simplified to a single line -- include should be eliminated.
+      638    *
+      639    */
+      640   
+      641   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 &THEN
+      642   /*** +++
+      643   file-info:file-name = "./ptdefs".
+      644   if file-info:full-pathname <> ? and index( file-info:file-type, "d" ) > 0 and index( file-info:file-type, "w" ) > 0 then
+      645     do:
+      646   
+      647       file-info:file-name = "./ptdefs/{1}.xsd".
+      648   
+      649       if true /* file-info:full-pathname = ? or file-info:file-size = 0 */ then
+      650         do:
+      651   
+      652           temp-table {1}:write-xmlschema(
+      653             "file",
+      654   /*        substitute( "ptdefs/&1.xsd", "{1}" ), */
+      655   /*        "./ptdefs/{1}.xsd", */
+      656             ( if opsys = "unix" then "./ptdefs/{1}.xsd" else ".~\ptdefs~\{1}.xsd" ),
+      657             true
+      658   
+      659         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2
+      660         &THEN
+      661             , ?, ?, ?
+      662         &ENDIF
+      663   
+      664       ).
+      665   
+      666       end.
+      667   
+      668     end.
+      669    +++ ***/
+      670   &ENDIF
+      671    
+      672   
+      673   define new global shared variable dbgMode  as integer no-undo initial 1.
+      674   define new global shared variable monInt   as integer no-undo.                  /* monitor sampling interval                            */
+      675   
+      676   define new global shared variable bigB      as integer no-undo.
+      677   define new global shared variable bigB2     as integer no-undo.
+      678   define new global shared variable lruskips  as integer no-undo.
+      679   define new global shared variable lru2skips as integer no-undo.
+      680   
+      681   define variable isEnabled as logical no-undo.
+      682   
+      683   define variable bh as handle no-undo.
+      684   define variable bf as handle no-undo.
+      685   define variable qh as handle no-undo.
+      686   
+      687   define variable qc  as handle no-undo.
+      688   define variable bdb as handle no-undo.
+      689   define variable qdb as handle no-undo.
+      690   
+      691   define variable rbits        as integer no-undo.
+      692   define variable dbRecid      as recid   no-undo.
+      693   define variable xdbVersNum   as decimal no-undo.
+      694   
+      695   define variable dlcVersion   as character no-undo.
+      696   define variable proRelease   as character no-undo.
+      697   
+      698   define stream pv.
+      699   
+      700   
+      701   define variable hasClstrSz   as logical no-undo.
+      702   define variable hasDBFeature as logical no-undo.
+      703   define variable hasDBParams  as logical no-undo.
+      704   
+      705   procedure mon-init:
+      706   
+      707     define variable i as integer no-undo.
+      708     define variable j as integer no-undo.
+      709     define variable k as integer no-undo.
+      710     define variable v as integer no-undo.
+      711   
+      712     define variable z as character no-undo.
+      713     define variable tblCnt     as integer no-undo.
+      714     define variable idxCnt     as integer no-undo.
+      715     define variable so_idx     as integer no-undo.
+      716     define variable so_tbl     as integer no-undo.
+      717     define variable so_lob     as integer no-undo.
+      718     define variable t1         as logical no-undo.
+      719     define variable t2         as logical no-undo.
+      720     define variable fStatus    as character no-undo.
+      721   
+      722     define variable fx         as integer no-undo.
+      723     define variable vx         as integer no-undo.
+      724   
+      725     define variable area_bh    as handle  no-undo.
+      726     define variable area_bf1   as handle  no-undo.
+      727     define variable area_bf2   as handle  no-undo.
+      728   
+      729     define variable xLine      as character no-undo.
+      730     define variable winName    as character no-undo.
+      731     define variable winVers    as character no-undo.
+      732   
+      733     define variable numTbl    as integer no-undo.
+      734     define variable numIdx    as integer no-undo.
+      735     define variable numLOB    as integer no-undo.
+      736     define variable tblBase   as integer no-undo.
+      737     define variable idxBase   as integer no-undo. 
+      738     define variable tblRange  as integer no-undo.
+      739     define variable idxRange  as integer no-undo.
+      740     define variable minTblNum as integer no-undo.
+      741     define variable maxTblNum as integer no-undo.
+      742     define variable minIdxNum as integer no-undo.
+      743     define variable maxIdxNum as integer no-undo.
+      744     define variable unMonTbl  as integer no-undo.
+      745     define variable unMonIdx  as integer no-undo.
+      746     define variable excessTbl as integer no-undo.
+      747     define variable excessIdx as integer no-undo.
+      748     define variable hst       as integer no-undo.         /* "highest stats table"                */
+      749     define variable hsi       as integer no-undo.         /* "highest stats index"                */
+      750     define variable lxt       as integer no-undo.         /* "lowest table > -16384"              */
+      751     define variable lxi       as integer no-undo.         /* "lowest index"                       */
+      752     define variable hxi       as integer no-undo.         /* "highest index"                      */
+      753     define variable hxt       as integer no-undo.         /* "highest table < 32768"              */
+      754     define variable lmt       as integer no-undo.         /* "lowest monitored table"             */
+      755     define variable lmi       as integer no-undo.         /* "lowest monitored index"             */
+      756     define variable hmt       as integer no-undo.         /* "highest monitored table"            */
+      757     define variable hmi       as integer no-undo.         /* "highest monitored index"            */
+      758   
+      759     create tt_configuration.
+      760   
+      761     hasClstrSz = no.
+      762     find dictdb._File  no-lock where _File-Name = "_Area".
+      763     find dictdb._Field no-lock where _Field._File-recid = recid( _File ) and _Field-Name = "_Area-ClusterSize" no-error.
+      764     if available _Field then hasClstrSz = yes.
+      765   
+      766     hasDBFeature = no.
+      767     find dictdb._File no-lock where _File-Name = "_Database-Feature" no-error.
+      768     if available _File then
+      769       do:
+      770         hasDBFeature = yes.
+      771         create buffer bdb for table "dictdb._Database-Feature".
+      772         create query qdb.
+      773         qdb:set-buffers( bdb ).
+      774         qdb:query-prepare( "preselect each dictdb._Database-Feature" ).
+      775       end.
+      776   
+      777     hasDBParams = no.
+      778     find dictdb._File no-lock where _File-Name = "_DbParams" no-error.
+      779     if available _File then hasDBParams = yes.
+      780   
+      781     run chkStartup.
+      782   
+      783     if opsys begins "WIN" then
+      784       do:
+      785   
+      786         osType = "Windows".
+      787   
+      788         do on error  undo, leave
+      789            on endkey undo, leave:
+      790   
+      791           xLine = "".
+      792           input stream inStrm through value( 'wmic os get caption' ).
+      793           import stream inStrm unformatted xline.
+      794           import stream inStrm unformatted osType.
+      795           input stream inStrm close.
+      796           if osType begins "Microsoft Windows" then osType = "Win" + substring( osType, 18 ).
+      797   
+      798           xLine = "".
+      799           input stream inStrm through value( 'wmic os get version' ).
+      800           import stream inStrm unformatted xline.
+      801           import stream inStrm unformatted winVers.
+      802           input stream inStrm close.
+      803   
+      804           osType = osType + " " + winVers.
+      805   
+      806         end.
+      807   
+      808       end.
+      809      else
+      810       do:
+      811         input stream inStrm through value( "uname -a" ).
+      812         import stream inStrm osType.
+      813         input stream inStrm close.
+      814       end.
+      815   
+      816     input stream inStrm from value( "etc/deploy.cfg" ).
+      817     import stream inStrm deployType.
+      818     input stream inStrm close.
+      819   
+      820     /* this stuff should *rarely* change and some of it is very expensive to compute so just do it once here in mon-init
+      821      */
+      822   
+      823     find first dictdb._DB no-lock.
+      824     dbRecid = recid( _DB ).
+      825   
+      826     find dictdb._DbStatus no-lock.
+      827   
+      828     run getRangeData(
+      829       input-output numTbl,
+      830       input-output numIdx,
+      831       input-output numLOB,
+      832       input-output tblBase,
+      833       input-output idxBase,
+      834       input-output tblRange,
+      835       input-output idxRange,
+      836       input-output minTblNum,
+      837       input-output maxTblNum,
+      838       input-output minIdxNum,
+      839       input-output maxIdxNum,
+      840       input-output unMonTbl,
+      841       input-output unMonIdx,
+      842       input-output excessTbl,
+      843       input-output excessIdx,
+      844       input-output hst,
+      845       input-output hsi,
+      846       input-output lxt,
+      847       input-output lxi,
+      848       input-output hxi,
+      849       input-output hxt,
+      850       input-output lmt,
+      851       input-output lmi,
+      852       input-output hmt,
+      853       input-output hmi
+      854     ).
+      855   
+      856     assign
+      857       tt_configuration.numTbl    = numTbl
+      858       tt_configuration.numIdx    = numIdx
+      859       tt_configuration.numLOBs   = numLOB
+      860       tt_configuration.tblBase   = tblBase
+      861       tt_configuration.idxBase   = idxBase
+      862       tt_configuration.tblRange  = tblRange
+      863       tt_configuration.idxRange  = idxRange
+      864       tt_configuration.unMonTbl  = unMonTbl
+      865       tt_configuration.unMonIdx  = unMonIdx
+      866       tt_configuration.excessTbl = excessTbl
+      867       tt_configuration.excessIdx = excessIdx
+      868     .
+      869   
+      870     assign
+      871       xdbVersNum = decimal( substring( proversion, 1, index( proversion, "." ) + 1 ))
+      872       so_tbl     = 0
+      873       so_idx     = 0
+      874       so_lob     = 0
+      875       area_bh    = ?
+      876       area_bf1   = ?
+      877       area_bf2   = ?
+      878       rbits      = ?
+      879       t1         = no
+      880       t2         = no
+      881       tt_configuration.numAreas      = 0
+      882       tt_configuration.schemaUsed    = ""
+      883       tt_configuration.areaConfig    = "Default"
+      884       tt_configuration.aiArchiver    = "N/A"
+      885       tt_configuration.oeReplication = "N/A"
+      886       tt_configuration.failClusters  = "N/A"
+      887       tt_configuration.largeFiles    = "N/A"
+      888       tt_configuration.dbAuditing    = "N/A"
+      889       tt_configuration.rpbSettings   = "Homogenous"
+      890       tt_configuration.dbBlkSize     = _dbStatus-dbBlkSize / 1024
+      891     .
+      892   
+      893     find dictdb._Area no-lock where _Area._Area-number = 6.
+      894     if ( dbBlkSize <> 8 and  _Area-recbits = 5 ) or ( dbBlkSize = 8 and _Area-recbits = 6 ) then
+      895       tt_configuration.rpbSettings = "Default".
+      896      else
+      897       tt_configuration.rpbSettings = string( exp( 2, _Area-recbits )) + " rpb".
+      898   
+      899     for each dictdb._AreaStatus no-lock where not ( _areaStatus-Areaname matches "*After Image Area*" ),
+      900         dictdb._Area no-lock where dictdb._Area._Area-Number = dictdb._AreaStatus._AreaStatus-Areanum:
+      901   
+      902       if /* _AreaStatus-Areanum = 6 */ _areaStatus-Areaname = "Schema Area" then
+      903         do:
+      904           for each dictdb._StorageObject no-lock where _StorageObject._DB-Recid = dbRecid and _StorageObject._Area-number = 6
+      905                and _StorageObject._Object-num > 0  
+      906                and _StorageObject._Object-associate > 0:  
+      907             if       _StorageObject._Object-Type = 1 then so_tbl = so_tbl + 1.
+      908              else if _StorageObject._Object-Type = 2 then so_idx = so_idx + 1.
+      909              /*** else LOBs ***/
+      910              else /* if _StorageObject._Object-Type = 3 then */ so_lob = so_lob + 1.
+      911           end.
+      912           if so_tbl > 0 then tt_configuration.schemaUsed = "T: " + string( so_tbl ).
+      913           if so_idx > 0 then tt_configuration.schemaUsed = tt_configuration.schemaUsed + ( if tt_configuration.schemaUsed <> "" then " " else "" ) + "I: " + string( so_idx ).
+      914           if so_lob > 0 then tt_configuration.schemaUsed = tt_configuration.schemaUsed + ( if tt_configuration.schemaUsed <> "" then " " else "" ) + "L: " + string( so_lob ).
+      915           if tt_configuration.schemaUsed = "" then tt_configuration.schemaUsed = "Clean".
+      916         end.
+      917   
+      918       if _AreaStatus-Areanum > 6 and _areaStatus-Areaname <> "Schema Area" then
+      919         do:
+      920   
+      921           if rbits = ? then rbits = _Area-RecBits.
+      922           if _Area-RecBits <> rbits then tt_configuration.rpbSettings = "Mixed".
+      923   
+      924           if hasClstrSz = true then
+      925             do:
+      926               assign        
+      927                 area_bh  = buffer _Area:handle
+      928                 area_bf2 = area_bh:buffer-field( "_Area-ClusterSize" )
+      929               no-error.
+      930               if area_bf2:buffer-value  > 1 then t2 = true.
+      931               if area_bf2:buffer-value <= 1 then t1 = true.
+      932             end.
+      933           numAreas = numAreas + 1.
+      934         end.
+      935   
+      936     end.
+      937   
+      938     if tt_configuration.numAreas = 0 then
+      939       tt_configuration.areaConfig = "Default".
+      940      else
+      941       do:
+      942         if t1 = true  and t2 = true then
+      943           tt_configuration.areaConfig = "Extended:Mixed".
+      944          else
+      945           tt_configuration.areaConfig = ( if t2 = true then "Extended:Type2" else "Extended:Type1" ).
+      946       end.
+      947   
+      948     tt_configuration.dbHost = dbParam( ldbName( "DICTDB" )).
+      949   
+      950     if index( tt_configuration.dbHost, "-H " ) > 0 then
+      951       assign
+      952         tt_configuration.dbHost = entry( 2, entry( 1, substring( tt_configuration.dbHost, index( tt_configuration.dbHost, "-H " ))), " " )
+      953       .
+      954      else
+      955       do:
+      956         if       os-getenv( "PTSRV" )        <> ? then tt_configuration.dbHost = os-getenv( "PTSRV" ).
+      957          else if os-getenv( "HOST" )         <> ? then tt_configuration.dbHost = os-getenv( "HOST" ).
+      958          else if os-getenv( "HOSTNAME" )     <> ? then tt_configuration.dbHost = os-getenv( "HOSTNAME" ).
+      959          else if os-getenv( "COMPUTERNAME" ) <> ? then tt_configuration.dbHost = os-getenv( "COMPUTERNAME" ).
+      960          else
+      961           do:
+      962             if opsys begins "win" then
+      963               do:
+      964                 input stream inStrm through value( 'wmic os get csname' ).
+      965                 import stream inStrm unformatted ^.
+      966                 import stream inStrm unformatted tt_configuration.dbHost.
+      967                 input stream inStrm close.
+      968               end.
+      969              else
+      970               do:
+      971                 input stream inStrm through value( "uname -a" ).
+      972                 import stream inStrm ^ tt_configuration.dbHost.
+      973                 input stream inStrm close.
+      974               end.
+      975             if tt_configuration.dbHost = ? then tt_configuration.dbHost = "Unknown".
+      976           end.
+      977       end.
+      978   
+      979     /*
+      980      * OpenEdge Release 10.0B as of Thu Aug  5 21:48:48 EDT 2004
+      981      * OpenEdge Release 10.1A as of Tue Dec 20 22:50:49 EST 2005
+      982      * OpenEdge Release 10.1B as of Wed Jan 10 12:21:31 EST 2007
+      983      * OpenEdge Release 10.1C04 as of Fri May 29 22:13:10 EDT 2009
+      984      * OpenEdge Release 10.2B08 as of Tue Nov 12 19:07:41 EST 2013
+      985      * OpenEdge Release 10.2B08 as of Tue Nov 12 19:07:10 EST 2013
+      986      * OpenEdge Release 10.2B08 as of Tue Nov 12 19:07:41 EST 2013
+      987      * OpenEdge Release 10.2B as of Mon Dec 14 17:00:19 EST 2009
+      988      * OpenEdge Release 11.2 as of Wed Feb 13 19:00:20 EST 2013
+      989      * OpenEdge Release 11.3 as of Wed Jul 17 16:45:16 EDT 2013
+      990      * OpenEdge Release 11.4 as of Fri Jul 25 18:21:09 EDT 2014
+      991      * OpenEdge Release 11.5 as of Fri Dec  5 18:20:55 EST 2014
+      992      * OpenEdge Release 11.6 as of Fri Oct 16 18:22:20 EDT 2015
+      993      * OpenEdge Release 11.7.2 as of Tue Oct 24 18:20:59 EDT 2017
+      994      */
+      995   
+      996     proRelease = proversion.
+      997     if search( "version" ) <> ? then
+      998       do:
+      999         input stream pv from value( search( "version" )).
+     1000         repeat:
+     1001   
+     1002           dlcVersion = "".
+     1003           import stream pv unformatted dlcVersion.
+     1004   
+     1005           dlcVersion = replace( dlcVersion,  "  ", " " ) no-error.
+     1006           dlcVersion = replace( dlcVersion,  "  ", " " ) no-error.
+     1007   
+     1008           if dlcVersion <> "" and index( dlcVersion, proVersion ) > 0 then
+     1009             do:
+     1010               proRelease = trim( substring( dlcVersion, index( dlcVersion, proVersion ))).
+     1011               proRelease = entry( 1, proRelease, " " ).
+     1012             end.
+     1013   
+     1014           proVersionDate =
+     1015             date(
+     1016               lookup( entry( 7, dlcVersion, " " ), "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec" ),
+     1017               integer( entry( 8, dlcVersion, " " )),
+     1018               integer( entry( 11, dlcVersion, " " ))
+     1019             ) no-error.
+     1020           proVersionAge = today - proVersionDate.
+     1021   
+     1022         end.
+     1023       end.
+     1024     input stream pv close.
+     1025     proRelease = proRelease + ( if string( _dbStatus-ShmVers ) begins "64" then " 64bit" else " 32bit" ).
+     1026     proBits = ( if string( _dbStatus-ShmVers ) begins "64" then 64 else 32 ).
+     1027   
+     1028     find dictdb._Logging    no-lock.
+     1029     find dictdb._MstrBlk    no-lock.
+     1030   
+     1031     assign
+     1032       tt_configuration.dbLogName    = ldbName( "DICTDB" )
+     1033       tt_configuration.dbPhysName   = pdbName( "DICTDB" ) 
+     1034       tt_configuration.xdbVersion   = proRelease
+     1035       tt_configuration.dbProVersion = proRelease
+     1036       tt_configuration.dbBlkSize    = _dbStatus-dbBlkSize / 1024          /* KB   */
+     1037       tt_configuration.aiBlkSize    = _dbStatus-aiBlkSize / 1024          /* KB   */
+     1038       tt_configuration.biBlkSize    = _dbStatus-biBlkSize / 1024          /* KB   */
+     1039       tt_configuration.biClstrSize  = _dbStatus-biClSize  / 1024          /* MB   */      /* version dependent calculation needed? */
+     1040       tt_configuration.db2PC        =  _Logging-2PC
+     1041       tt_configuration.dbTainted    = ( if _dbStatus-Tainted = 0 then "Clean" else "Damaged" )
+     1042       tt_configuration.dbIdxBld     = ( if _MstrBlk-Tainted >= 32 then "Failed" else "Ok" )
+     1043       tt_configuration.dbSHMSeg     = 0
+     1044       tt_configuration.dbSHMSize    = 0
+     1045       tt_configuration.dbSHMSegSize = 0
+     1046       tt_configuration.dbSHMFree    = 0
+     1047     .
+     1048   
+     1049     tt_configuration.maxConnect   = integer( getStartUpX( "_Startup-MaxUsers",   "(-n)",  "Maximum Number of Users" )) no-error.
+     1050     tt_configuration.maxServers   = integer( getStartUpX( "_Startup-MaxServers", "(-Mn)", "Maximum Number of Servers" )) no-error.
+     1051     tt_configuration.cnxPerServ   = integer( getStartUpX( "_Startup-MaxClients", "(-Ma)", "Maximum Number of Clients Per Server" )) no-error.
+     1052     tt_configuration.biDelay      = integer( getStartUpX( "_Startup-BIDelay",    "(-Mf)", "Delay of Before-Image Flush" )) no-error.
+     1053     tt_configuration.biClstrAge   = integer( getStartUpX( "_Startup-BITrunc",    "(-G)",  "Before-Image Truncate Interval" )) no-error.
+     1054   
+     1055     tt_configuration.dbSpin       = integer( getStartUpX( "_Startup-spin",       "(-spin)",   "Current Spin Lock Tries" )) no-error.
+     1056     tt_configuration.dbBuffers    = integer( getStartUpX( "_Startup-Buffs",      "(-B)",      "Number of Database Buffers" )) no-error.
+     1057     tt_configuration.aiBuffers    = integer( getStartUpX( "_Startup-AIBuffs",    "(-aibufs)", "Number of After-Image Buffers" )) no-error.
+     1058     tt_configuration.biBuffers    = integer( getStartUpX( "_Startup-BIBuffs",    "(-bibufs)", "Number of Before-Image Buffers" )) no-error.
+     1059     tt_configuration.lkTableSize  = integer( getStartUpX( "_Startup-LockTable",  "(-L)",      "Current Size of Lock Table" )) no-error.
+     1060   
+     1061     tt_configuration.directIO     = ( if integer( getStartUpX( "_Startup-directIO",  "(-directio)", "Direct I/O"            )) = 0 then "No" else "Yes" ) no-error.
+     1062   
+     1063     /* dbParams reports 0 if -i or -r is NOT enabled, _startup reports 1
+     1064      */
+     1065   
+     1066     if hasDBParams = yes then
+     1067       do:
+     1068   
+     1069         if integer( getStartUpX( "_Startup-crashProt", "(-i)", "Crash Recovery" )) = 0 then
+     1070           tt_configuration.dbIntegrity = "Enabled".
+     1071          else
+     1072           tt_configuration.biIOMode = "Disabled".
+     1073   
+     1074         if integer( getStartUpX( "_Startup-biIO", "(-r)", "Before-Image File I/O" )) = 0 then
+     1075           tt_configuration.biIOMode = "Reliable".
+     1076          else
+     1077           tt_configuration.biIOMode = "Unreliable".
+     1078   
+     1079       end.
+     1080      else
+     1081       do:
+     1082   
+     1083         if integer( getStartUpX( "_Startup-crashProt", "(-i)", "Crash Recovery" )) = 1 then
+     1084           tt_configuration.dbIntegrity = "Enabled".
+     1085          else
+     1086           tt_configuration.biIOMode = "Disabled".
+     1087   
+     1088         if integer( getStartUpX( "_Startup-biIO", "(-r)", "Before-Image File I/O" )) = 1 then
+     1089           tt_configuration.biIOMode = "Reliable".
+     1090          else
+     1091           tt_configuration.biIOMode = "Unreliable".
+     1092   
+     1093       end.
+     1094   
+     1095     if tt_configuration.dbSpin < 0 then
+     1096         tt_configuration.dbSpin = tt_configuration.dbSpin + 65536.
+     1097   
+     1098     assign
+     1099       tt_configuration.afterImaging = ( if _Logging-AIBegin begins "-" then "Disabled" else "Enabled" )
+     1100       tt_configuration.aiSeq        = _Logging-AIGenNum
+     1101       tt_configuration.dbSize       =  ( _dbStatus-TotalBlks * tt_configuration.dbBlkSize ) / 1024
+     1102       tt_configuration.dbEmpty      =  _dbStatus-EmptyBlks
+     1103       tt_configuration.biSize       =  _Logging-BILogSize / 1024
+     1104       tt_configuration.aiSize       =  _Logging-AILogSize / 1024
+     1105       tt_configuration.lkTblHWMpct  = (( _dbStatus-MostLocks / tt_configuration.lkTableSize ) * 100 )
+     1106     .
+     1107   
+     1108     tt_configuration.excessSHM  = integer( getStartUpX( "_Startup-MemOverflow",       "(-Mxs)",              "Excess shared memory" )) no-error.
+     1109     tt_configuration.b2         = integer( getStartUpX( "_Startup-Alternate_Buffs",   "(-B2)",               "Database alternate buffers" )) no-error.
+     1110     tt_configuration.lruSkips   = integer( getStartUpX( "_Startup-LRU-Skips",         "(-lruskips)",         "LRU force skips" )) no-error.
+     1111     tt_configuration.lru2Skips  = integer( getStartUpX( "_Startup-LRU2-Skips",        "(-lru2skips)",        "LRU2 force skips" )) no-error.
+     1112     tt_configuration.pfFactor   = integer( getStartUpX( "_Startup-Prefetch-Factor",   "(-prefetchFactor)",   "Prefetch message fill percentage" )) no-error.
+     1113     tt_configuration.pfNumRecs  = integer( getStartUpX( "_Startup-Prefetch-Num-Recs", "(-prefetchNumRecs)",  "Minimum records in prefetch msg" )) no-error.
+     1114     tt_configuration.pfPriority = integer( getStartUpX( "_Startup-Prefetch-Priority", "(-prefetchPriority)", "Suspension queue poll priority" )) no-error.
+     1115     tt_configuration.nMsgWait   = integer( getStartUpX( "_Startup-NmsgWait",          "(-Nmsgwait)",         "Server network message wait time" )) no-error.
+     1116     tt_configuration.pfDelay    =          getStartupX( "_Startup-Prefetch-Delay",    "(-prefetchDelay)",    "Delay first prefetch message" ) no-error.
+     1117   
+     1118     tt_configuration.biThold       = integer( getStartUpX( "", "(-bithold)",  "" )) no-error.
+     1119     tt_configuration.minCnx        = integer( getStartUpX( "", "(-Mi)",       "" )) no-error.
+     1120     tt_configuration.maxMsg        = integer( getStartUpX( "", "(-Mm)",       "" )) no-error.
+     1121     tt_configuration.bpMax         = integer( getStartUpX( "", "(-Bpmax)",    "" )) no-error.
+     1122     tt_configuration.hashTbl       = integer( getStartUpX( "", "(-hash)",     "" )) no-error.
+     1123     tt_configuration.semSets       = integer( getStartUpX( "", "(-semsets)",  "" )) no-error.
+     1124     tt_configuration.omSize        = integer( getStartUpX( "", "(-omsize)",   "" )) no-error.
+     1125     tt_configuration.pica          = integer( getStartUpX( "", "(-pica)",     "" )) no-error.
+     1126     tt_configuration.recSpaceDepth = integer( getStartUpX( "", "(-recspacesearchdepth)", "" )) no-error.
+     1127   
+     1128     tt_configuration.dbSHMpinned   =          getStartUpX( "", "(-pinshm)", "locked in memory" ).
+     1129     tt_configuration.memCheck      =          getStartUpX( "", "(-MemCheck)",   "" ).
+     1130     tt_configuration.dbCheck       =          getStartUpX( "", "(-DbCheck)",    "" ).
+     1131     tt_configuration.cpInternal    =          getStartupX( "", "(-cpinternal)", "" ).
+     1132     tt_configuration.biStall       =          getStartupX( "", "(-bistall)",    "" ).
+     1133     tt_configuration.aiStall       =          getStartupX( "", "(-aistall)",    "" ).
+     1134   
+     1135     /* clean up the presentation
+     1136      */
+     1137   
+     1138     if num-entries( tt_configuration.pfDelay, ":" ) >= 3 then
+     1139       tt_configuration.pfDelay = trim( entry( 1, trim( entry( 3, tt_configuration.pfDelay, ":" )), " " ), "." ).
+     1140   
+     1141     if tt_configuration.pfDelay = "yes" then tt_configuration.pfDelay = "Enabled".
+     1142     if tt_configuration.pfDelay = "no"  then tt_configuration.pfDelay = "Disabled".
+     1143     if tt_configuration.pfDelay = ""    then tt_configuration.pfDelay = "N/A".
+     1144   
+     1145     assign
+     1146       tt_configuration.biThold       = 0  when tt_configuration.biThold = ?
+     1147       tt_configuration.minCnx        = 0  when tt_configuration.minCnx = ?
+     1148       tt_configuration.maxMsg        = 0  when tt_configuration.maxMsg = ?
+     1149       tt_configuration.bpMax         = 0  when tt_configuration.bpMax = ?
+     1150       tt_configuration.hashTbl       = 0  when tt_configuration.hashTbl = ?
+     1151       tt_configuration.semSets       = 0  when tt_configuration.semSets = ?
+     1152       tt_configuration.omSize        = 0  when tt_configuration.omSize = ?
+     1153       tt_configuration.pica          = 0  when tt_configuration.pica = ?
+     1154       tt_configuration.recSpaceDepth = 0  when tt_configuration.recSpaceDepth = ?
+     1155       tt_configuration.dbSHMpinned   = "" when tt_configuration.dbSHMpinned = ?
+     1156       tt_configuration.memCheck      = "N/A" when ( tt_configuration.memCheck = ? or tt_configuration.memCheck = "" )
+     1157       tt_configuration.dbCheck       = "N/A" when ( tt_configuration.dbCheck  = ? or tt_configuration.dbCheck  = "" )
+     1158     .
+     1159   
+     1160     tt_configuration.pica = tt_configuration.pica / 1024.                 /* -pica is specified in KB but reported in _dbParams in bytes  */
+     1161                                                                           /* worse - the .lg file reports -pica in MB :(                          */
+     1162   
+     1163     if tt_configuration.aiStall  begins "Not"       then tt_configuration.aiStall  = "Disabled".
+     1164     if tt_configuration.biStall  begins "Not"       then tt_configuration.biStall  = "Disabled".
+     1165     if tt_configuration.biStall       = "Disabled." then tt_configuration.biStall  = "Disabled".          /* note the "." */
+     1166   
+     1167     if tt_configuration.memCheck begins "Not"       then tt_configuration.memCheck = "Disabled".
+     1168     if tt_configuration.dbCheck  begins "Not"       then tt_configuration.dbCheck  = "Disabled".
+     1169   
+     1170     if tt_configuration.biClstrSize < 0 then                                              /* sometimes _dbStatus is fraked up...  */
+     1171       tt_configuration.biClstrSize = _logging-biclsize / ( 1024 * 1024 ).                 /* report MB                            */
+     1172   
+     1173   
+     1174     /*
+     1175      */
+     1176   
+     1177   
+     1178     /* global shared variables used by dc/b2.p
+     1179      */
+     1180   
+     1181     assign
+     1182       bigB      = tt_configuration.dbBuffers
+     1183       bigB2     = tt_configuration.b2
+     1184       lruSkips  = tt_configuration.lruSkips
+     1185       lru2Skips = tt_configuration.lru2Skips
+     1186     .
+     1187   
+     1188     for each dictdb._Segment no-lock:
+     1189       assign
+     1190         tt_configuration.dbSHMSeg     = tt_configuration.dbSHMSeg + 1
+     1191         tt_configuration.dbSHMSegSize = max( tt_configuration.dbSHMSegSize, _Segment-SegSize )
+     1192         tt_configuration.dbSHMSize    = tt_configuration.dbSHMSize + _Segment-SegSize
+     1193         tt_configuration.dbSHMFree    = tt_configuration.dbSHMFree + _Segment-ByteFree
+     1194       .
+     1195     end.
+     1196   
+     1197     assign
+     1198       tt_configuration.dbSHMSize    = ( tt_configuration.dbSHMSize / ( 1024 * 1024 ))
+     1199       tt_configuration.dbSHMSegSize = ( tt_configuration.dbSHMSegSize / ( 1024 * 1024 ))
+     1200       tt_configuration.dbSHMFree    = ( tt_configuration.dbSHMFree / ( 1024 * 1024 ))
+     1201     .
+     1202   
+     1203     assign
+     1204       fx    = 0
+     1205       vx    = 0
+     1206       tt_configuration.aiSettings    = "Disabled"
+     1207       tt_configuration.aiAreas       = 0
+     1208     .
+     1209   
+     1210     for each dictdb._AreaStatus no-lock where _areaStatus-Areaname matches "*After Image Area*",
+     1211         dictdb._Area no-lock where dictdb._Area._Area-Number = dictdb._AreaStatus._AreaStatus-Areanum:
+     1212   
+     1213       tt_configuration.aiAreas = tt_configuration.aiAreas + 1.
+     1214   
+     1215   /*
+     1216    *  for each dictdb._AreaExtent no-lock where _AreaExtent._Area-Number = _Area._Area-number:
+     1217    *    if _Extent-Type = 4 then vx = vx + 1. else fx = fx + 1.
+     1218    *  end.
+     1219    */
+     1220   
+     1221       for each tt_AreaExtent no-lock where tt_AreaExtent.areaNum = _Area._Area-number:
+     1222         if extType = 4 then vx = vx + 1. else fx = fx + 1.
+     1223       end.
+     1224   
+     1225       if       fx > 0 and vx = 0 then tt_configuration.aiSettings = "Fixed".
+     1226        else if vx > 0 and fx = 0 then tt_configuration.aiSettings = "Variable".
+     1227        else if vx > 0 and fx > 0 then tt_configuration.aiSettings = "Mixed".
+     1228   
+     1229     end.
+     1230   
+     1231     if xdbVersNum >= 9.1 then
+     1232       do:
+     1233         assign
+     1234           tt_configuration.oeReplication = "Available"        /* need a way to tell if these are enabled          */
+     1235           tt_configuration.failClusters  = "Available"        /* proutil dbName -C describe?                      */
+     1236           tt_configuration.largeFiles    = "Available"
+     1237         .
+     1238       end.
+     1239   
+     1240     if xdbVersNum >= 10.0 then
+     1241       do:
+     1242   
+     1243         qdb:query-open.
+     1244         qdb:get-next().
+     1245         do while not qdb:query-off-end:
+     1246   
+     1247           fStatus = "Available".
+     1248           if bdb:buffer-field( "_DBFeature_Enabled" ):buffer-value() = "1" then fStatus = "Enabled" no-error.
+     1249   
+     1250   /*      if _DBFeature_Active  = "1" then fStatus = "Active".  */
+     1251   
+     1252           case string( bdb:buffer-field( "_DBFeature_Name" ):buffer-value()):
+     1253             when "OpenEdge Replication"           then tt_configuration.oeReplication = fStatus.
+     1254             when "Failover Clusters"              then tt_configuration.failClusters  = fStatus.
+     1255             when "Large Files"                    then tt_configuration.largeFiles    = fStatus.
+     1256             when "Database Auditing"              then tt_configuration.dbAuditing    = fStatus.
+     1257             when "After Image Mangement/Archiver" then tt_configuration.aiArchiver    = fStatus.
+     1258           end.
+     1259   
+     1260           qdb:get-next().
+     1261   
+     1262         end.
+     1263       end.
+     1264   
+     1265   &IF DEFINED( OE10 ) &THEN
+     1266   
+     1267     file-info:file-name = "./dbanalys/" + pt_shortname + ".dba".
+     1268     if file-info:full-pathname <> ? then
+     1269       do:
+     1270   
+     1271         xLine = "".
+     1272         input stream inStrm from value( file-info:full-pathname ).
+     1273         repeat:
+     1274           import stream inStrm unformatted xline.
+     1275           if xline begins "Date:" then
+     1276             do:
+     1277               xline = replace( xLine, ":", " " ).
+     1278               xline = replace( xLine, "  ", " " ).
+     1279               dbaAsOf = datetime(
+     1280                 lookup( entry( 3, xLine, " " ), "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec" ),
+     1281                 integer( entry( 4, xLine, " " )),
+     1282                 integer( entry( 8, xLine, " " )),
+     1283                 integer( entry( 5, xLine, " " )),
+     1284                 integer( entry( 6, xLine, " " )),
+     1285                 integer( entry( 7, xLine, " " ))
+     1286               ).
+     1287               dbaAge = abs( interval( now, dbaAsOf, "days" )).
+     1288               dbaAsOfStr = string( dbaAsOf, "9999/99/99" ).
+     1289               leave.
+     1290             end.
+     1291         end.
+     1292         input stream inStrm close.
+     1293   
+     1294       end.
+     1295   
+     1296     for each _file no-lock:
+     1297       for each _systblstat no-lock where _tblId = _file-num and _property = 2:
+     1298         if _systblstat._val_ts <> ? then SQLstatsTS = max( datetime( _val_ts ), datetime( 1/1/1970 )).
+     1299       end.
+     1300     end.
+     1301   
+     1302     if SQLStatsTS = datetime( 1/1/1970 ) then
+     1303       assign
+     1304         SQLStatsTS  = ?
+     1305         SQLStats    = 0
+     1306         SQLStatsStr = ""
+     1307       .
+     1308      else
+     1309       assign
+     1310         SQLStats    = abs( interval( now, SQLStatsTS, "days" ))
+     1311         SQLStatsStr = string( SQLStatsTS, "9999/99/99" )
+     1312       .
+     1313   
+     1314   &ENDIF
+     1315   
+     1316     create query qh.
+     1317     qh:set-buffers( buffer tt_configuration:handle ).
+     1318     qh:query-prepare( "preselect each tt_configuration" ).
+     1319     qh:query-open. 
+     1320   
+     1321     if dbgMode >= 1 then message now "initial config scan complete".
+     1322   
+     1323     return.
+     1324   
+     1325   end.
+     1326   
+     1327   define variable lastRefresh as integer no-undo initial ?.
+     1328   
+     1329   procedure mon-update:
+     1330   
+     1331     define input parameter argList as character no-undo.
+     1332   
+     1333     define variable f  as integer no-undo.
+     1334     define variable ii as integer no-undo.
+     1335   
+     1336     define variable bf as handle  no-undo.
+     1337   
+     1338     define variable xLine       as character no-undo.
+     1339     define variable lgEarliest  as date no-undo.
+     1340   
+     1341     define variable chartList1  as character no-undo.
+     1342   
+     1343     define variable upDays      as integer no-undo.
+     1344     define variable upSecs      as integer no-undo.
+     1345     define variable currDT      as integer no-undo.
+     1346     define variable fBackUp     as integer no-undo.
+     1347     define variable iBackUp     as integer no-undo.
+     1348     define variable bkupDays    as integer no-undo.
+     1349     define variable bkupSecs    as integer no-undo.
+     1350   
+     1351     define variable bfree       as decimal no-undo.
+     1352     define variable used        as decimal no-undo.
+     1353     define variable blks-alloc  as decimal no-undo format ">>>>>>>>>>>>9".
+     1354     define variable pct-alloc   as decimal no-undo format ">>>>>>9%".
+     1355     define variable vsize       as decimal no-undo format ">>>>>>>>>>>>9".
+     1356   
+     1357     qh:query-close no-error.
+     1358     find tt_configuration no-error.
+     1359     if not available( tt_configuration ) then run mon-init.
+     1360   
+     1361     find first dictdb._ActSummary no-lock.
+     1362   
+     1363     assign
+     1364       upSecs = _Summary-upTime
+     1365       upDays = integer( truncate( upSecs / 86400, 0 ))
+     1366       upSecs = upSecs modulo 86400
+     1367       tt_configuration.dbUpTime  = ( if upDays > 0 then string( upDays ) + "d " else "" ) + string( upSecs, "hh:mm:ss" ).
+     1368     .
+     1369   
+     1370     find dictdb._DbStatus   no-lock.
+     1371     find dictdb._Logging    no-lock.
+     1372     find dictdb._MstrBlk    no-lock.
+     1373   
+     1374     assign
+     1375       currDT =  uDateTime()
+     1376       fBackUp = ( currDT - string2uDateTime( _dbStatus-fbDate ))
+     1377       iBackUp = ( currDT - string2uDateTime( _dbStatus-ibDate ))
+     1378     .
+     1379   
+     1380     if _dbStatus-fbDate = ? and _dbStatus-fbDate = ? then
+     1381       tt_configuration.dbBkUpAge  = "Never!".
+     1382      else
+     1383       do:
+     1384         bkupSecs = min( fBackUp, iBackUp ).
+     1385         if fBackup = ? then bkupSecs = iBackUp.
+     1386         if iBackup = ? then bkupSecs = fBackUp.
+     1387         assign
+     1388           bkupDays = integer( truncate( bkupSecs / 86400, 0 ))
+     1389           bkupSecs = bkupSecs modulo 86400
+     1390           tt_configuration.dbBkUpAge  = ( if bkupDays > 0 then string( bkupDays ) + "d " else "" ) + string( bkupSecs, "hh:mm" ).
+     1391         .
+     1392       end.
+     1393       
+     1394     if tt_configuration.dbBkUpAge = ? then tt_configuration.dbBkUpAge = "Unknown".
+     1395   
+     1396     assign
+     1397       upSecs = _Summary-upTime
+     1398       upDays = integer( truncate( upSecs / 86400, 0 ))
+     1399       upSecs = upSecs modulo 86400
+     1400       tt_configuration.dbUpTime  = ( if upDays > 0 then string( upDays ) + "d " else "" ) + string( upSecs, "hh:mm:ss" ).
+     1401     .
+     1402   
+     1403     /* the stuff below doesn't change very often -- so don't keep beating on the db/network
+     1404      */
+     1405   
+     1406     if lastRefresh <> ? and abs( time - lastRefresh ) < ( monInt * 10 ) then
+     1407       do:
+     1408         add2ds( temp-table tt_configuration:default-buffer-handle ).
+     1409         return.
+     1410      end.
+     1411   
+     1412     lastRefresh = time.
+     1413   
+     1414     if dbgMode >= 4 then message now "refreshing config info".
+     1415   
+     1416     publish "check-protop-config".
+     1417   
+     1418   
+     1419     /*
+     1420      * OpenEdge Release 10.0B as of Thu Aug  5 21:48:48 EDT 2004
+     1421      * OpenEdge Release 10.1A as of Tue Dec 20 22:50:49 EST 2005
+     1422      * OpenEdge Release 10.1B as of Wed Jan 10 12:21:31 EST 2007
+     1423      * OpenEdge Release 10.1C04 as of Fri May 29 22:13:10 EDT 2009
+     1424      * OpenEdge Release 10.2B08 as of Tue Nov 12 19:07:41 EST 2013
+     1425      * OpenEdge Release 10.2B08 as of Tue Nov 12 19:07:10 EST 2013
+     1426      * OpenEdge Release 10.2B08 as of Tue Nov 12 19:07:41 EST 2013
+     1427      * OpenEdge Release 10.2B as of Mon Dec 14 17:00:19 EST 2009
+     1428      * OpenEdge Release 11.2 as of Wed Feb 13 19:00:20 EST 2013
+     1429      * OpenEdge Release 11.3 as of Wed Jul 17 16:45:16 EDT 2013
+     1430      * OpenEdge Release 11.4 as of Fri Jul 25 18:21:09 EDT 2014
+     1431      * OpenEdge Release 11.5 as of Fri Dec  5 18:20:55 EST 2014
+     1432      * OpenEdge Release 11.6 as of Fri Oct 16 18:22:20 EDT 2015
+     1433      * OpenEdge Release 11.7.2 as of Tue Oct 24 18:20:59 EDT 2017
+     1434      */
+     1435   
+     1436     proRelease = proversion.
+     1437     if search( "version" ) <> ? then
+     1438       do:
+     1439         input stream pv from value( search( "version" )).
+     1440         repeat:
+     1441   
+     1442           dlcVersion = "".
+     1443           import stream pv unformatted dlcVersion.
+     1444   
+     1445           dlcVersion = replace( dlcVersion,  "  ", " " ) no-error.
+     1446           dlcVersion = replace( dlcVersion,  "  ", " " ) no-error.
+     1447   
+     1448           if dlcVersion <> "" and index( dlcVersion, proVersion ) > 0 then
+     1449             do:
+     1450               proRelease = trim( substring( dlcVersion, index( dlcVersion, proVersion ))).
+     1451               proRelease = entry( 1, proRelease, " " ).
+     1452             end.
+     1453   
+     1454           proVersionDate =
+     1455             date(
+     1456               lookup( entry( 7, dlcVersion, " " ), "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec" ),
+     1457               integer( entry( 8, dlcVersion, " " )),
+     1458               integer( entry( 11, dlcVersion, " " ))
+     1459             ) no-error.
+     1460           proVersionAge = today - proVersionDate.
+     1461   
+     1462         end.
+     1463       end.
+     1464     input stream pv close.
+     1465     proRelease = proRelease + ( if string( _dbStatus-ShmVers ) begins "64" then " 64bit" else " 32bit" ).
+     1466     proBits = ( if string( _dbStatus-ShmVers ) begins "64" then 64 else 32 ).
+     1467   
+     1468   
+     1469     assign
+     1470       tt_configuration.allocBlks     = 0
+     1471       tt_configuration.varBlks       = 0
+     1472       tt_configuration.warnAreas     = 0
+     1473       tt_configuration.worstArea     = 0
+     1474       tt_configuration.numExtents    = 0
+     1475       tt_configuration.lrgExtent     = 0
+     1476     .
+     1477   
+     1478     for each tt_area:
+     1479       if pctLastX > 90 then tt_configuration.warnAreas = tt_configuration.warnAreas + 1.
+     1480       tt_configuration.worstArea =max( tt_configuration.worstArea, pctAlloc ).
+     1481     end.
+     1482   
+     1483     file-info:file-name = pdbname(1) + ".lg".
+     1484     if file-info:full-pathname <> ? then
+     1485       do:
+     1486   
+     1487         tt_configuration.lgFileSize = ( file-info:file-size / ( 1024 * 1024 )).
+     1488   
+     1489         assign
+     1490           ii = 0
+     1491           lgEarliest = ?
+     1492         .
+     1493         input stream inStrm from value( file-info:full-pathname ).
+     1494         repeat:
+     1495           import stream inStrm xLine.
+     1496           ii = ii + 1.
+     1497           if substring( xLine, 30, 1 ) = "]" then                         /* verify that this is a line from an oe10+ .lg file    */
+     1498             do:
+     1499               lgEarliest = date( substring( xLine, 2, 10 )) no-error.     /* [2018/01/26@15:44:08.034-0500] P-4453...             */
+     1500               if lgEarliest <> ? then tt_configuration.lgFileDays = ( today - lgEarliest ) + 1.
+     1501               leave.
+     1502             end.
+     1503           if ii > 10 then leave. 
+     1504         end.
+     1505         input stream inStrm close.
+     1506   
+     1507       end.
+     1508   
+     1509     assign
+     1510       blks-alloc = 0
+     1511       vsize      = 0
+     1512     .
+     1513   
+     1514     for each dictdb._FileList no-lock:
+     1515   
+     1516       if _FileList-OpenMode = "UNBUF" then next.          /* skip bi extents                                              */
+     1517   
+     1518       assign
+     1519         tt_configuration.lrgExtent  = max( _FileList-Size, tt_configuration.lrgExtent )
+     1520         tt_configuration.numExtents = tt_configuration.numExtents + 1
+     1521       .
+     1522   
+     1523       if _FileList-OpenMode = "BOTHIO" then               /* works to identify variable data extents -- not for bi        */
+     1524         vsize = vsize + _FileList-Size.
+     1525        else
+     1526         blks-alloc = blks-alloc + _FileList-Size.
+     1527   
+     1528   /* this is strange -- why the substring?
+     1529    *
+     1530    *
+     1531    *  find first tt_AreaExtent no-lock where index( _FileList-Name, substring( extPath, 3 )) > 0 no-error.
+     1532    *  if available tt_areaExtent then
+     1533    *    do:
+     1534    *      if extType = 5 then
+     1535    *        vsize = vsize + _FileList-Size.
+     1536    *       else if extType >= 7 then
+     1537    *        blks-alloc = blks-alloc + _FileList-Size.
+     1538    *    end.
+     1539    *
+     1540    */
+     1541   
+     1542     end.
+     1543   
+     1544     assign
+     1545       tt_configuration.lrgExtent = tt_configuration.lrgExtent / ( 1024 * 1024 )           /* GB */
+     1546       tt_configuration.allocBlks = tt_configuration.allocBlks + ( blks-alloc / 1024 )
+     1547       tt_configuration.varBlks   = tt_configuration.varBlks   + ( vsize / 1024 )
+     1548     .
+     1549   
+     1550     /* these could change online (in some cases that might be slightly "aspirational")
+     1551      */
+     1552   
+     1553     if tt_configuration.dbBuffers <> integer( getStartUpX( "_Startup-Buffs", "(-B)", "Number of Database Buffers" )) then
+     1554       do:
+     1555   
+     1556         assign
+     1557           tt_configuration.dbSHMSeg  = 0
+     1558           tt_configuration.dbSHMSize = 0
+     1559           tt_configuration.dbSHMFree = 0
+     1560         .
+     1561   
+     1562         for each dictdb._Segment no-lock:
+     1563           assign
+     1564             tt_configuration.dbSHMSeg     = tt_configuration.dbSHMSeg + 1
+     1565             tt_configuration.dbSHMSegSize = max( tt_configuration.dbSHMSegSize, _Segment-SegSize )
+     1566             tt_configuration.dbSHMSize    = tt_configuration.dbSHMSize + _Segment-SegSize
+     1567             tt_configuration.dbSHMFree    = tt_configuration.dbSHMFree + _Segment-ByteFree
+     1568           .
+     1569         end.
+     1570   
+     1571         assign
+     1572           tt_configuration.dbSHMSize    = ( tt_configuration.dbSHMSize / ( 1024 * 1024 ))
+     1573           tt_configuration.dbSHMSegSize = ( tt_configuration.dbSHMSegSize / ( 1024 * 1024 ))
+     1574           tt_configuration.dbSHMFree    = ( tt_configuration.dbSHMFree / ( 1024 * 1024 ))
+     1575         .
+     1576   
+     1577       end.
+     1578   
+     1579     tt_configuration.dbSpin       = integer( getStartUpX( "_Startup-spin",       "(-spin)",   "Current Spin Lock Tries" )) no-error.
+     1580     tt_configuration.dbBuffers    = integer( getStartUpX( "_Startup-Buffs",      "(-B)",      "Number of Database Buffers" )) no-error.
+     1581     tt_configuration.aiBuffers    = integer( getStartUpX( "_Startup-AIBuffs",    "(-aibufs)", "Number of After-Image Buffers" )) no-error.
+     1582     tt_configuration.biBuffers    = integer( getStartUpX( "_Startup-BIBuffs",    "(-bibufs)", "Number of Before-Image Buffers" )) no-error.
+     1583     tt_configuration.lkTableSize  = integer( getStartUpX( "_Startup-LockTable",  "(-L)",      "Current Size of Lock Table" )) no-error.
+     1584   
+     1585     if tt_configuration.dbSpin < 0 then
+     1586         tt_configuration.dbSpin = tt_configuration.dbSpin + 65536.
+     1587   
+     1588     assign
+     1589       tt_configuration.lkTblHWMpct  = (( _dbStatus-MostLocks / tt_configuration.lkTableSize ) * 100 )
+     1590       tt_configuration.afterImaging = ( if _Logging-AIBegin begins "-" then "Disabled" else "Enabled" )
+     1591       tt_configuration.aiSeq        = _Logging-AIGenNum
+     1592       tt_configuration.dbSize       =  ( _dbStatus-TotalBlks * tt_configuration.dbBlkSize ) / 1024
+     1593       tt_configuration.dbEmpty      =  _dbStatus-EmptyBlks
+     1594       tt_configuration.biSize       =  _Logging-BILogSize / 1024
+     1595       tt_configuration.aiSize       =  _Logging-AILogSize / 1024
+     1596     .
+     1597   
+     1598     /* global shared variables used by dc/b2.p
+     1599      */
+     1600   
+     1601     assign
+     1602       bigB      = tt_configuration.dbBuffers
+     1603       bigB2     = tt_configuration.b2
+     1604       lruSkips  = tt_configuration.lruSkips
+     1605       lru2Skips = tt_configuration.lru2Skips
+     1606     .
+     1607   
+     1608     tt_configuration.hashPct = ( tt_configuration.hashTbl / ( bigB + bigB2 )) *  100.
+     1609   
+     1610     add2ds( temp-table tt_configuration:default-buffer-handle ).
+     1611   
+     1612     return.
+     1613   
+     1614   end.
+     1615   
+     1616   *** Encrypted Source ***
+     1617   *** Encrypted Source ***
+     1618   *** Encrypted Source ***
+     1619   *** Encrypted Source ***
+     1620   *** Encrypted Source ***
+     1621   *** Encrypted Source ***
+     1622   *** Encrypted Source ***
+     1623   *** Encrypted Source ***
+     1624   *** Encrypted Source ***
+     1625   *** Encrypted Source ***
+     1626   *** Encrypted Source ***
+     1627   *** Encrypted Source ***
+     1628   *** Encrypted Source ***
+     1629   *** Encrypted Source ***
+     1630   *** Encrypted Source ***
+     1631   *** Encrypted Source ***
+     1632   *** Encrypted Source ***
+     1633   *** Encrypted Source ***
+     1634   *** Encrypted Source ***
+     1635   *** Encrypted Source ***
+     1636   *** Encrypted Source ***
+     1637   *** Encrypted Source ***
+     1638   *** Encrypted Source ***
+     1639   *** Encrypted Source ***
+     1640   *** Encrypted Source ***
+     1641   *** Encrypted Source ***
+     1642   *** Encrypted Source ***
+     1643   *** Encrypted Source ***
+     1644   *** Encrypted Source ***
+     1645   *** Encrypted Source ***
+     1646   *** Encrypted Source ***
+     1647   *** Encrypted Source ***
+     1648   *** Encrypted Source ***
+     1649   *** Encrypted Source ***
+     1650   *** Encrypted Source ***
+     1651   *** Encrypted Source ***
+     1652   *** Encrypted Source ***
+     1653   *** Encrypted Source ***
+     1654   *** Encrypted Source ***
+     1655   *** Encrypted Source ***
+     1656   *** Encrypted Source ***
+     1657   *** Encrypted Source ***
+     1658   *** Encrypted Source ***
+     1659   *** Encrypted Source ***
+     1660   *** Encrypted Source ***
+     1661   *** Encrypted Source ***
+     1662   *** Encrypted Source ***
+     1663   *** Encrypted Source ***
+     1664   *** Encrypted Source ***
+     1665   *** Encrypted Source ***
+     1666   *** Encrypted Source ***
+     1667   *** Encrypted Source ***
+     1668   *** Encrypted Source ***
+     1669   *** Encrypted Source ***
+     1670   *** Encrypted Source ***
+     1671   *** Encrypted Source ***
+     1672   *** Encrypted Source ***
+     1673   *** Encrypted Source ***
+     1674   *** Encrypted Source ***
+     1675   *** Encrypted Source ***
+     1676   *** Encrypted Source ***
+     1677   *** Encrypted Source ***
+     1678   *** Encrypted Source ***
+     1679   *** Encrypted Source ***
+     1680   *** Encrypted Source ***
+     1681   *** Encrypted Source ***
+     1682   *** Encrypted Source ***
+     1683   *** Encrypted Source ***
+     1684   *** Encrypted Source ***
+     1685   *** Encrypted Source ***
+     1686   *** Encrypted Source ***
+     1687   *** Encrypted Source ***
+     1688   *** Encrypted Source ***
+     1689   *** Encrypted Source ***
+     1690   *** Encrypted Source ***
+     1691   *** Encrypted Source ***
+     1692   *** Encrypted Source ***
+     1693   *** Encrypted Source ***
+     1694   *** Encrypted Source ***
+     1695   *** Encrypted Source ***
+     1696   *** Encrypted Source ***
+     1697   *** Encrypted Source ***
+     1698   *** Encrypted Source ***
+     1699   *** Encrypted Source ***
+     1700   *** Encrypted Source ***
+     1701   *** Encrypted Source ***
+     1702   *** Encrypted Source ***
+     1703   *** Encrypted Source ***
+     1704   *** Encrypted Source ***
+     1705   *** Encrypted Source ***
+     1706   *** Encrypted Source ***
+     1707    
+     1708   *** Encrypted Source ***
+     1709   *** Encrypted Source ***
+     1710   *** Encrypted Source ***
+     1711   *** Encrypted Source ***
+     1712   *** Encrypted Source ***
+     1713   *** Encrypted Source ***
+     1714   *** Encrypted Source ***
+     1715   *** Encrypted Source ***
+     1716   *** Encrypted Source ***
+     1717   *** Encrypted Source ***
+     1718   *** Encrypted Source ***
+     1719   *** Encrypted Source ***
+     1720   *** Encrypted Source ***
+     1721   *** Encrypted Source ***
+     1722   *** Encrypted Source ***
+     1723   *** Encrypted Source ***
+     1724   *** Encrypted Source ***
+     1725   *** Encrypted Source ***
+     1726   *** Encrypted Source ***
+     1727   *** Encrypted Source ***
+     1728   *** Encrypted Source ***
+     1729   *** Encrypted Source ***
+     1730   *** Encrypted Source ***
+     1731   *** Encrypted Source ***
+     1732    
+     1733   
+     1734   return.

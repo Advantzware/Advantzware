@@ -294,7 +294,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      prep.no-of-impressions AT ROW 10.76 COL 41 COLON-ALIGNED
-          LABEL "Impressions"
+          LABEL "Impressions" FORMAT ">,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      prep.owner[2] AT ROW 10.76 COL 88 COLON-ALIGNED

@@ -62,13 +62,11 @@ FOR EACH po-ordl
       AND po-ordl.job-no2   EQ job.job-no2
       AND (po-ordl.s-num    EQ ip-form-no OR po-ordl.s-num EQ ?)
       AND po-ordl.item-type EQ YES
-      AND LOOKUP(po-ordl.stat,"O,P,U") GT 0
     USE-INDEX job-no NO-LOCK,
 
     FIRST po-ord WHERE
     po-ord.company EQ po-ordl.company AND
-    po-ord.po-no   EQ po-ordl.po-no AND
-    LOOKUP(po-ord.stat,"N,O,R,U") GT 0
+    po-ord.po-no   EQ po-ordl.po-no 
     NO-LOCK,
 
     FIRST item

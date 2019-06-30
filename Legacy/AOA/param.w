@@ -273,9 +273,9 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      btnParamBuilder AT ROW 1.48 COL 74 HELP
           "Parameter Builder" WIDGET-ID 286
-     dynParam.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 170
+     dynParam.paramName AT ROW 2.43 COL 20 COLON-ALIGNED WIDGET-ID 170 FORMAT "x(40)"
           VIEW-AS FILL-IN 
-          SIZE 22 BY 1
+          SIZE 50 BY 1
           BGCOLOR 15 
      dynParam.paramLabel AT ROW 3.62 COL 20 COLON-ALIGNED WIDGET-ID 168
           VIEW-AS FILL-IN 
@@ -317,6 +317,8 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
+     btnEditor AT ROW 24.33 COL 32 HELP
+          "Create New EDITOR" WIDGET-ID 192
      dynParam.paramHeight AT ROW 14.33 COL 20 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -325,26 +327,19 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParam.initialItems AT ROW 16.95 COL 20 COLON-ALIGNED WIDGET-ID 154
+     dynParam.initialItems AT ROW 16.95 COL 20 COLON-ALIGNED WIDGET-ID 154 FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 
+     btnFill-In AT ROW 24.33 COL 40 HELP
+          "Create New FILL-IN" WIDGET-ID 194
      dynParam.initializeProc AT ROW 18.14 COL 20 COLON-ALIGNED WIDGET-ID 296
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     dynParam.validateProc AT ROW 19.33 COL 20 COLON-ALIGNED WIDGET-ID 298
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
-          LIST-ITEMS "Item 1" 
-          DROP-DOWN-LIST
-          SIZE 50 BY 1
-     dynParam.descriptionProc AT ROW 20.52 COL 20 COLON-ALIGNED WIDGET-ID 300
-          LABEL "Descript Procedure"
-          VIEW-AS COMBO-BOX SORT INNER-LINES 5
-          LIST-ITEMS "Item 1" 
-          DROP-DOWN-LIST
-          SIZE 50 BY 1
+     btnRadio-Set AT ROW 24.33 COL 48 HELP
+          "Create New RADIO-SET" WIDGET-ID 196
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 76 ROW 1.95
@@ -353,12 +348,17 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnEditor AT ROW 24.33 COL 32 HELP
-          "Create New EDITOR" WIDGET-ID 192
-     btnFill-In AT ROW 24.33 COL 40 HELP
-          "Create New FILL-IN" WIDGET-ID 194
-     btnRadio-Set AT ROW 24.33 COL 48 HELP
-          "Create New RADIO-SET" WIDGET-ID 196
+     dynParam.validateProc AT ROW 19.33 COL 20 COLON-ALIGNED WIDGET-ID 298
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
+     dynParam.descriptionProc AT ROW 20.52 COL 20 COLON-ALIGNED WIDGET-ID 300
+          LABEL "Descript Procedure"
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
      btnSelection-List AT ROW 24.33 COL 56 HELP
           "Create New SELECTION-LIST" WIDGET-ID 198
      btnToggle-Box AT ROW 24.33 COL 64 HELP
@@ -495,7 +495,7 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX dynParam.descriptionProc IN FRAME viewFrame
    4 5 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN dynParam.initialItems IN FRAME viewFrame
-   4 5                                                                  */
+   4 5 EXP-FORMAT                                                       */
 /* SETTINGS FOR COMBO-BOX dynParam.initializeProc IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParam.initialValue IN FRAME viewFrame
@@ -511,7 +511,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN dynParam.paramLabel IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParam.paramName IN FRAME viewFrame
-   4 5                                                                  */
+   4 5 EXP-FORMAT                                                       */
 /* SETTINGS FOR COMBO-BOX dynParam.paramType IN FRAME viewFrame
    4 5                                                                  */
 /* SETTINGS FOR FILL-IN dynParam.paramWidth IN FRAME viewFrame

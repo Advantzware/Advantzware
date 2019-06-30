@@ -57,13 +57,37 @@ DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-prv-i-no LIKE fg-rctd.i-no NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChr AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFnd AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE physCnt-log AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckTag AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogFolder       AS CHARACTER NO-UNDO INIT "./custfiles/logs".
+DEFINE STREAM sPhysCntSave.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChr, OUTPUT lRecFnd).
+physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
+
 ASSIGN
  cocode = g_company
  locode = g_loc.
 {Inventory/ttInventory.i "NEW SHARED"}
+IF physCnt-log THEN
+DO: 
+    OS-CREATE-DIR VALUE(cLogFolder).
+    FIND FIRST _myconnection NO-LOCK.     
+    cPhysCntSaveFile = cLogFolder + "/" + USERID("ASI") + STRING(MONTH(TODAY),"99") 
+                       + STRING(DAY(TODAY), "99") + STRING(YEAR(TODAY))
+                       + STRING(TIME).
+    cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
+    MESSAGE "logfile" cPhysCntSavefile
+        VIEW-AS ALERT-BOX.
+    
+END.
 DO:
    {sys/inc/fgrecpt.i}
 END.
@@ -1624,6 +1648,31 @@ END PROCEDURE.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-end-update B-table-Win
+PROCEDURE local-end-update:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'end-update':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
 PROCEDURE local-exit:
 /*------------------------------------------------------------------------------
@@ -1638,8 +1687,7 @@ PROCEDURE local-exit:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    DELETE OBJECT hInventoryProcs.
-
+DELETE OBJECT hInventoryProcs.
 
 END PROCEDURE.
 	
@@ -1712,6 +1760,13 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
+  DO: 
+      OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
+      EXPORT STREAM sPhysCntSave fg-rctd.
+      OUTPUT STREAM sPhysCntSave CLOSE.
+  END.
+  
   DO:
       /*IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" */
       IF fgrecpt-int = 1 THEN  ll-crt-transfer = YES.
@@ -2140,8 +2195,17 @@ PROCEDURE valid-job-no :
                 RETURN ERROR.
              END.
          END.
-      END.
-    END.
+      END. /* Not avail Job Hdr */
+      FIND FIRST job-hdr
+            WHERE job-hdr.company EQ fg-rctd.company
+            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
+            NO-LOCK NO-ERROR.
+        IF AVAIL job-hdr AND job-hdr.opened = NO THEN 
+        DO:
+            MESSAGE "Warning: The job entered has a status of closed."
+            VIEW-AS ALERT-BOX.
+        END.
+    END. /* If job# not blank */
   END.
 
 END PROCEDURE.

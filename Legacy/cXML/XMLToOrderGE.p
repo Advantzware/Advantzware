@@ -53,7 +53,7 @@ FOR EACH ttNodes:
           NO-ERROR.    
     cPoNumber = ttNodes.nodeValue.
     
-      ttOrdHead.ttCustNo = getCustNo(cFromIdentity).
+      ttOrdHead.ttCustNo = getCustNo(cFromIdentity, "").
       ttOrdHead.ttorderID = cPoNumber.
  
   END.
@@ -150,13 +150,13 @@ FOR EACH ttNodes:
 /*      WHEN "PO109" OR WHEN "POC09" THEN                      */
 /*        ttOrdLines.ttitemSupplierPartID  = ttNodes.nodeValue.*/
       WHEN "PO107" OR WHEN "POC07" THEN DO:
-        ttOrdLines.ttitemManufacturerPartID = ttNodes.nodeValue.
+        ttOrdLines.ttitemSupplierPartID = ttNodes.nodeValue.
         FIND FIRST itemfg NO-LOCK 
             WHERE itemfg.company EQ cocode
-            AND itemfg.part-no EQ ttOrdLines.ttitemManufacturerPartID 
+            AND itemfg.part-no EQ ttOrdLines.ttitemSupplierPartID 
             NO-ERROR.
         IF AVAILABLE itemfg THEN 
-          ttOrdLines.ttitemSupplierPartID = itemfg.i-no.
+          ttOrdLines.ttitemManufacturerPartID = itemfg.i-no.
       END.
       WHEN "PID05" THEN 
             ttOrdLines.ttitemDescription  = ttNodes.nodeValue.         

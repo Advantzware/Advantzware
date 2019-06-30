@@ -90,6 +90,7 @@ DEF VAR iNumUsers AS INT NO-UNDO.
 DEF VAR iListEntry AS INT NO-UNDO.
 DEF VAR cIniLoc AS CHAR NO-UNDO.
 DEF VAR cUsrLine AS CHAR NO-UNDO.
+DEF VAR lAuditLicensed AS LOG NO-UNDO INITIAL TRUE.
 DEF VAR lConnectAudit AS LOG NO-UNDO.
 DEF VAR lFoundIni AS LOG NO-UNDO.
 DEF VAR lFoundUsr AS LOG NO-UNDO.
@@ -1133,8 +1134,10 @@ PROCEDURE ipUpgradeDBs :
             RETURN.
         END.
         ELSE DO:
-            RUN ipStatus ("    Unable to locate AUDIT delta file " + cDelta + ".  Continuing.").
-            RETURN.
+            IF lAuditLicensed EQ TRUE THEN DO:
+                RUN ipStatus ("    Unable to locate AUDIT delta file " + cDelta + ".  Continuing.").
+                RETURN.
+            END.
         END.
     END.
             
@@ -1192,8 +1195,19 @@ PROCEDURE ipUpgradeDBs :
     /* Connect to the database single user */
     RUN ipStatus ("    Connecting single-user mode").
     CONNECT VALUE(cStatement).
-    RUN ipStatus ("    Creating DICTDB alias").
-    CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iDbCtr)).
+
+    IF CONNECTED("updDB1") THEN DO:
+        RUN ipStatus ("    Creating DICTDB alias").
+        CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iDbCtr)).
+        IF iDBCtr EQ 1 THEN
+            CREATE ALIAS asi FOR DATABASE updDB1.
+        RUN asiAuditTest.r (OUTPUT lAuditLicensed).
+        DELETE ALIAS asi.
+    END.
+    
+    IF CONNECTED("updDB2") 
+    AND lAuditLicensed EQ FALSE THEN ASSIGN 
+        cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
     
     /* Load the delta */
     RUN ipStatus ("    Loading delta " + STRING(cFullDelta)).

@@ -4,12 +4,13 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: wip-menu.w
+  File: phy-menu.w
 
-  Description: Menu for the Work In Process tasks
+  Description: Menu for the Physical Scan count tasks
 
   Input Parameters:
-      <none>
+      ipcCompany   : Company Code
+      ipcLocation  : Lcoation code
 
   Output Parameters:
       <none>
@@ -33,8 +34,13 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE VARIABLE ipcCompany  AS CHARACTER NO-UNDO INITIAL "001".
-DEFINE VARIABLE ipcLocation AS CHARACTER NO-UNDO INITIAL "MAIN".
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+&ELSE
+    DEFINE VARIABLE ipcCompany  AS CHARACTER NO-UNDO INITIAL "001".
+    DEFINE VARIABLE ipcLocation AS CHARACTER NO-UNDO INITIAL "MAIN".
+&ENDIF
 
 /* Local Variable Definitions ---                                       */
 
@@ -212,7 +218,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCount C-Win
 ON CHOOSE OF btnCount IN FRAME DEFAULT-FRAME /* Scan By Tag */
 DO:   
-   RUN inventory\phy-count.w.
+    RUN inventory\phy-count.w (
+        INPUT ipcCompany,
+        INPUT ipcLocation
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -223,7 +232,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCountLoc C-Win
 ON CHOOSE OF btnCountLoc IN FRAME DEFAULT-FRAME /* Scan By Location */
 DO:
-   RUN inventory/phy-countLoc.w.
+    RUN inventory/phy-countLoc.w (
+        INPUT ipcCompany,
+        INPUT ipcLocation
+        ).    
 END.
 
 /* _UIB-CODE-BLOCK-END */

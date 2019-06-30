@@ -201,6 +201,7 @@ DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs AS HANDLE.
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -2530,12 +2531,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      
      .
 
-    IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
-       IF AVAIL users AND users.user_program[3] NE "" THEN
-           ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3]
-                  userLabelPath = users.USER_program[3].       
-    END.
+    
 
     FIND FIRST sys-ctrl NO-LOCK 
       WHERE sys-ctrl.company EQ gcompany 
@@ -2571,15 +2567,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         begin_form = 4.
     ELSE
        begin_form:VISIBLE = NO.
-
-     ASSIGN
-       begin_filename:SCREEN-VALUE = bardir-desc.
-
-    IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
-       IF AVAIL users AND users.user_program[3] NE "" THEN
-           ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3].                  
-    END.
+      
+       RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+       THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdOutputProcs).
+       
+       RUN GetBarDirFilePath(cocode, "", OUTPUT bardir-desc ).
+       THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdOutputProcs). 
+       
+        ASSIGN begin_filename:SCREEN-VALUE =  bardir-desc .
+   
     
      IF  PROGRAM-NAME(3) MATCHES "*/b-ordlt.*" THEN DO: 
       
@@ -2722,6 +2718,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             begin_rel:SENSITIVE = NO
             end_rel:SENSITIVE   = NO .
     END.
+     
   END.
   lForm = NO.
   iForm = 0.
@@ -7300,11 +7297,13 @@ FOR EACH  tt-fgrctd-created:
 
           /* These negative receipts should be changed to Rita=A per task 08211305 */
           FOR EACH fg-rcpth WHERE fg-rcpth.r-no EQ fg-rctd.r-no EXCLUSIVE-LOCK:
-            fg-rcpth.rita-code = "A".
+            IF fg-rctd.t-qty LT 0 THEN
+                fg-rcpth.rita-code = "A".
           END.
 
           FOR EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rctd.r-no EXCLUSIVE-LOCK:
-            fg-rdtlh.rita-code = "A".
+            IF fg-rctd.t-qty LT 0 THEN
+                fg-rdtlh.rita-code = "A".
           END.
 
         END. /* Avail fg-rctd for component */

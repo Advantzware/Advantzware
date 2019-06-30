@@ -449,6 +449,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAllocated B-table-Win
 ON CHOOSE OF btnAllocated IN FRAME F-Main /* View Allocated */
 DO:
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
+    IF AVAIL w-jobs THEN
+       cLocation =  w-jobs.loc .
+
     IF itemfg.q-alloc NE 0 THEN
         IF cFGBinInquiry EQ "Yes" THEN
         RUN AOA/dynGrid.p (13,
@@ -456,9 +460,7 @@ DO:
             "|fgItem^" + itemfg.i-no
             ).
         ELSE DO:
-            RUN oe/w-inqord.w PERSISTENT SET h_w-inqord (ROWID(itemfg), YES).
-            IF VALID-HANDLE(h_w-inqord) THEN
-            RUN adm-initialize IN h_w-inqord.
+           RUN oeinq/b-ordinfo.w(ROWID(itemfg), cLocation).
         END. /* else */
 END.
 
@@ -481,6 +483,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnJobs B-table-Win
 ON CHOOSE OF btnJobs IN FRAME F-Main /* View Jobs */
 DO:
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
+    IF AVAIL w-jobs THEN
+       cLocation =  w-jobs.loc .
     IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.
     IF itemfg.q-ono NE 0 THEN DO:
         FIND FIRST job-hdr NO-LOCK
@@ -500,14 +505,16 @@ DO:
                 "|fgItem^" + itemfg.i-no
                 ).
             ELSE
-            RUN jc/w-inqjob.w (ROWID(itemfg), YES).
+              RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).
+            /*RUN jc/w-inqjob.w (ROWID(itemfg), YES).*/
         ELSE DO:
             FIND FIRST fg-set NO-LOCK
                  WHERE fg-set.company EQ itemfg.company
                    AND fg-set.part-no EQ itemfg.i-no
                  NO-ERROR.
             IF AVAILABLE fg-set THEN
-            RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
+             RUN jcinq/b-jobinfo.w(ROWID(itemfg),cLocation).
+            /*RUN jc/w-inqjbc.w (ROWID(itemfg), YES).*/
         END.
         IF NOT AVAIL job-hdr AND NOT AVAIL fg-set THEN
             MESSAGE "No jobs for this item.." VIEW-AS ALERT-BOX INFORMATION . 
@@ -522,6 +529,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPO B-table-Win
 ON CHOOSE OF btnPO IN FRAME F-Main /* View POs */
 DO:
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
+    IF AVAIL w-jobs THEN
+       cLocation =  w-jobs.loc .
     IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.
     FIND FIRST po-ordl NO-LOCK
          WHERE po-ordl.company   EQ itemfg.company
@@ -539,7 +549,8 @@ DO:
             "|fgItem^" + itemfg.i-no
             ).
         ELSE
-        RUN po/w-inqpo.w (ROWID(itemfg), YES).
+        /*RUN po/w-inqpo.w (ROWID(itemfg), YES).*/
+         RUN poinq/b-poinfo.w (ROWID(itemfg), cLocation).
 END.
 
 /* _UIB-CODE-BLOCK-END */

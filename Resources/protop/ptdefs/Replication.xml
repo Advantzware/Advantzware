@@ -1,0 +1,1123 @@
+<?xml version="1.0" ?>
+<ttViewerDesign>
+  <ttViewerDesignRow>
+    <ControlName>dbStartTS</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,1</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>dbStartTS</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>dbStartTS_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>DB Start Time:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,1</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replStartTS</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,2</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>replStartTS</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replStartTS_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Repl Start:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,2</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replMethod</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,3</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>replMethod</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replMethod_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Method:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,3</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>numTargets</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,4</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>numTargets</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>numTargets_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText># of Targets:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,4</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>dbTRXId</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,5</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>dbTRXId</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>dbTRXId_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>DB TRX Id:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,5</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>blksSent</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,6</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>blksSent</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>->>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>blksSent_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Blocks Sent:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,6</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>lastBlkTS</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,7</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>lastBlkTS</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>lastBlkTS_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Last Block Sent:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,7</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent1</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,13</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>agent1</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent1_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Agent:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,13</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcHost1</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,14</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>srcHost1</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcHost1_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Source Host:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,14</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcPort1</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,15</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>srcPort1</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcPort1_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Port:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,15</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replDB1</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,16</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>replDB1</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replDB1_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Target DB:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,16</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replDB1StartTS</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,17</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>replDB1StartTS</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replDB1StartTS_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>DB Start:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,17</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent1ConnTS</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,18</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>agent1ConnTS</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent1ConnTS_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Agent Connect:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,18</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent1Status</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,19</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>agent1Status</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent1Status_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Status:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,19</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent1Comms</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,20</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>agent1Comms</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent1Comms_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Comms:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,20</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcDBTRX1</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,21</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>srcDBTRX1</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcDBTRX1_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>DB TRX Id:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,21</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1TRX</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,22</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl1TRX</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1TRX_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Repl TRX Id:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,22</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1BlksRecvd</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,23</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl1BlksRecvd</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1BlksRecvd_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Blocks Recvd:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,23</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1BlksPrcd</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,24</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl1BlksPrcd</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1BlksPrcd_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Blocks Pro'd:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,24</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1BlksACK</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,25</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl1BlksACK</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1BlksACK_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Blocks ACK'd:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,25</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1NotesPrcd</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>18,26</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl1NotesPrcd</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl1NotesPrcd_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Notes Proc'd:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>2,26</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent2</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,13</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>agent2</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent2_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Agent:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,13</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcHost2</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,14</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>srcHost2</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcHost2_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Source Host:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,14</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcPort2</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,15</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>srcPort2</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcPort2_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Port:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,15</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replDB2</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,16</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>replDB2</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replDB2_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Target DB:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,16</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replDB2StartTS</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,17</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>replDB2StartTS</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>replDB2StartTS_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>DB Start:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,17</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent2ConnTS</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,18</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>agent2ConnTS</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent2ConnTS_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Agent Connect:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,18</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent2Status</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,19</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>agent2Status</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent2Status_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Status:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,19</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent2Comms</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,20</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>agent2Comms</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType></proType>
+    <proFormat>x(40)</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>agent2Comms_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Comms:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,20</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcDBTRX2</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,21</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>srcDBTRX2</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>srcDBTRX2_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>DB TRX Id:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,21</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2TRX</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,22</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl2TRX</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2TRX_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Repl TRX Id:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,22</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2BlksRecvd</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,23</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl2BlksRecvd</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2BlksRecvd_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Blocks Recvd:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,23</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2BlksPrcd</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,24</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl2BlksPrcd</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2BlksPrcd_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Blocks Pro'd:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,24</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2BlksACK</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,25</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl2BlksACK</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2BlksACK_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Blocks ACK'd:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,25</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2NotesPrcd</ControlName>
+    <ControlType>System.Windows.Forms.TextBox</ControlType>
+    <ControlText/>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>40,1</ControlSize>
+    <ControlLocation>80,26</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties>Text</BindingProperties>
+    <BindingFields>repl2NotesPrcd</BindingFields>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+    <proType>decimal</proType>
+    <proFormat>>,>>>,>>>,>>9</proFormat>
+  </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+    <ControlName>repl2NotesPrcd_label</ControlName>
+    <ControlType>System.Windows.Forms.Label </ControlType>
+    <ControlText>Notes Proc'd:</ControlText>
+    <ControlMultiline>false</ControlMultiline>
+    <ControlSize>16,1</ControlSize>
+    <ControlLocation>62,26</ControlLocation>
+    <ControlDock>None</ControlDock>
+    <ControlAnchor>Top,Left</ControlAnchor>
+    <BindingProperties/>
+    <BindingFields/>
+    <DynamicControlName/>
+    <HAlign>Right</HAlign>
+  </ttViewerDesignRow>
+
+</ttViewerDesign>

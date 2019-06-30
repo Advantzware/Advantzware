@@ -843,6 +843,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddJobMchSeq C-Win
+PROCEDURE ipAddJobMchSeq:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF job-mch.
+    FOR EACH job-mch BY RECID(job-mch):
+        ASSIGN  
+            job-mchID = NEXT-VALUE(job-mch_seq).
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
 PROCEDURE ipAddLocationData :
 /*------------------------------------------------------------------------------
@@ -2135,6 +2155,10 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160890.
     IF fIntVer(cThisEntry) LT 16089900 THEN
         RUN ipDataFix160899.
+    IF fIntVer(cThisEntry) LT 16100000 THEN
+        RUN ipDataFix161000.
+
+    RUN ipDeleteAudit.
 
     RUN ipStatus ("Completed Data Fixes").
     
@@ -2492,20 +2516,29 @@ PROCEDURE ipDataFix160899 :
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
     RUN ipLoadJasperData.
-    
-    /* Remove audit file details if not licensed */
-    FIND FIRST module NO-LOCK WHERE 
-        module.module = "audit." AND 
-        module.is-Used = FALSE
-        NO-ERROR.
-    IF AVAIL module THEN DO:
-        RUN ipDeleteAudit.
-    END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
+PROCEDURE ipDataFix161000 :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161000...").
+
+    RUN ipAddJobMchSeq.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFixConfig C-Win 
 PROCEDURE ipDataFixConfig :
@@ -2695,27 +2728,77 @@ PROCEDURE ipDeleteAudit :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("    Deleting audit records (unlicensed)...").
+    DEF VAR lAuditLicensed AS LOG NO-UNDO INITIAL TRUE.
+    DEF VAR iElapsed AS INT NO-UNDO.
+    DEF VAR iDelCount AS INT NO-UNDO.
+    
+    DISABLE TRIGGERS FOR LOAD OF auditHdr.
+    DISABLE TRIGGERS FOR LOAD OF auditDtl.
+    DISABLE TRIGGERS FOR LOAD OF auditStack.
+    DISABLE TRIGGERS FOR LOAD OF auditTbl.
+    
+    FIND FIRST module NO-LOCK WHERE 
+        module.module EQ "Audit." OR
+        module.module EQ "Audit"
+        NO-ERROR.
+    IF NOT AVAIL module
+    OR module.is-used EQ FALSE THEN ASSIGN 
+        lAuditLicensed = FALSE.
+        
+    ASSIGN
+        iElapsed = etime(TRUE).
 
-    RUN ipStatus ("      Deleting audit headers...").
-    FOR EACH AuditHdr TABLE-SCAN:
-        DELETE AuditHdr.
+    IF NOT lAuditLicensed THEN DO:
+        RUN ipStatus ("    Deleting audit records (unlicensed)...").
+        RUN ipStatus ("      (10 minute limit on this process)").
+
+        RUN ipStatus ("      Deleting audit headers and details...").
+        FOR EACH AuditHdr TABLE-SCAN:
+            FOR EACH AuditDtl OF auditHdr:
+                DELETE AuditDtl.
+                ASSIGN
+                    iDelCount = iDelCount + 1.
+            END.
+            DELETE AuditHdr.
+            ASSIGN
+                iDelCount = iDelCount + 1.
+            IF etime GT 600000 THEN 
+                LEAVE.
+        END.
+        RUN ipStatus ("      Deleting audit stack...").
+        FOR EACH AuditStack TABLE-SCAN:
+            DELETE AuditStack.
+            ASSIGN
+                iDelCount = iDelCount + 1.
+            IF etime GT 600000 THEN 
+                LEAVE.
+        END.
+        FOR EACH AuditTbl:
+            ASSIGN
+                AuditTbl.AuditCreate = NO
+                AuditTbl.AuditDelete = NO
+                AuditTbl.AuditUpdate = NO
+                AuditTbl.AuditStack  = NO.
+        END.
     END.
-    RUN ipStatus ("      Deleting audit details...").
-    FOR EACH AuditDtl TABLE-SCAN:
-        DELETE AuditDtl.
+    ELSE DO:
+        RUN ipStatus ("    Deleting audit records older than 120 days...").
+        RUN ipStatus ("      (10 minute limit on this process)").
+        FOR EACH AuditHdr WHERE 
+            DATE(auditHdr.auditDateTime) LT TODAY - 120:
+            FOR EACH AuditDtl OF auditHdr:
+                DELETE AuditDtl.
+                ASSIGN
+                    iDelCount = iDelCount + 1.
+            END.
+            DELETE AuditHdr.
+            ASSIGN
+                iDelCount = iDelCount + 1.
+            IF etime GT 600000 THEN 
+                LEAVE.
+        END.
     END.
-    RUN ipStatus ("      Deleting audit stack...").
-    FOR EACH AuditStack TABLE-SCAN:
-        DELETE AuditStack.
-    END.
-    FOR EACH AuditTbl:
-        ASSIGN
-            AuditTbl.AuditCreate = NO
-            AuditTbl.AuditDelete = NO
-            AuditTbl.AuditUpdate = NO
-            AuditTbl.AuditStack  = NO.
-    END.
+    RUN ipStatus ("      Deleted " + STRING(iDelCount) + " audit records in " + STRING(eTime / 1000) + " seconds.").
 
 END PROCEDURE.
 

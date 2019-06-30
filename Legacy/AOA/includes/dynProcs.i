@@ -34,6 +34,9 @@ RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
 RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
+RUN spSetSessionParam ("Company", g_company).
+RUN spSetSessionParam ("Location", g_loc).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -91,10 +94,6 @@ END. /* row-display */
 {AOA/includes/pRunNow.i}
 {AOA/includes/pRunBusinessLogic.i}
 {AOA/includes/pSetDynParamValue.i "{1}"}
-
-RUN spSetCompany IN hDynDescripProc (g_company).
-RUN spSetCompany IN hDynInitProc (g_company).
-RUN spSetCompany IN hDynValProc (g_company).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -264,7 +263,7 @@ PROCEDURE pRunQuery:
         ROWID(dynParamValue),
         queryStr,
         cTableName,
-        IF ipcType EQ "Grid" THEN 2500 ELSE 0,
+        IF ipcType EQ "Grid" THEN 2500 ELSE dynParamValue.recordLimit,
         OUTPUT hQuery,
         OUTPUT lOK,
         OUTPUT cError
