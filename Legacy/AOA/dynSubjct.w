@@ -4747,6 +4747,8 @@ PROCEDURE pSaveResults :
                        + hQueryBrowse:GET-BROWSE-COLUMN(idx):NAME
             dSize      = hQueryBrowse:GET-BROWSE-COLUMN(idx):WIDTH-CHARS
             .
+        IF cDBName EQ "PROGRESST" THEN
+        cDBName = "ASI".
         IF hQueryBrowse:GET-BROWSE-COLUMN(idx):INDEX NE 0 THEN
         cFieldName = cFieldName
                    + "["
@@ -4760,9 +4762,8 @@ PROCEDURE pSaveResults :
                AND ttSubjectColumn.fieldName EQ cFieldName
              NO-ERROR.
         IF NOT AVAILABLE ttSubjectColumn THEN NEXT.
-        IF ttSubjectColumn.sortOrder  NE idx  OR
-          (ttSubjectColumn.columnSize NE 0    AND
-           ttSubjectColumn.columnSize NE dSize) THEN DO:
+        IF ttSubjectColumn.sortOrder  NE idx OR
+           ttSubjectColumn.columnSize NE dSize THEN DO:
             fSetSaveButton (YES).
             ASSIGN
                 ttSubjectColumn.sortOrder  = idx
