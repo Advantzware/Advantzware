@@ -1,0 +1,10 @@
+UPDATE TABLE "ftpConfig"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/ftpConfig.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/ftpConfig.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/ftpConfig.p" CRC "?"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000243

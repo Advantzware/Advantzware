@@ -1,0 +1,39 @@
+/* General */
+body             { background-color:#FFFFCC; color:#000066; font-family: Tahoma,Arial,Sans-Serif; font-size:75%; /*scrollbar-base-color:#CCCCCC;*/ }
+h1               { font-size:150%;  color:#FFFF66; background-color:#990000;}
+h2               { font-size:120%; }
+th               { text-align:left; color:#FFFF66; background-color:#990000;}
+tr               { font-size:100% }
+
+/* Links */
+a:link:hover,a:visited:hover,a.thlink:visited:hover,a.thlink:hover { color:#000066; background-color:transparent; }
+a:link,a:visited               { color:#990000; background-color:transparent; }
+a.thlink:visited,a.thlink:link { color:#FFFF66; background-color:#990000; }
+
+/* Alternate colours in tables */
+.oddrow,         { color:#000066; background-color:#cccc99; }
+.evenrow         { color:#000066; }
+.shadedrow       { color:#000066; background-color:#cccc99; }
+
+.navbar          { font-size:90%; font-weight:normal; color:#000066; background-color:#cccc99; }
+.separator       { height:1px; }
+.clearboth       { clear:both; }
+.tbdetcol        { float:left; width:45%; }
+.tbcol           { float:left; }
+.stylecombo      { height:18px; color:#000066; background-color:#cccc99; /*font-size:90%;*/ }
+
+/* styles for list of tables */
+.tablelist       { width:12%; height:100%; top:10px; position:fixed; overflow:auto; }
+.tabledetail     { position:absolute; left:13%; padding-left:3px; }
+.tablelistitem   { width:100%; float:left; }
+.tablelistheader { width:100%; float:left; color:#FFFF66; background-color:#990000; margin-bottom:3px; font-weight:bold; }
+.dbcombo         { float:left; height:18px; color:#000066; background-color:#cccc99; margin-top:5px; }
+
+/* Styles for progress sources */
+pre              { font-family:Courier,monospace; font-size:100%; }
+.progressCode    { background-color:#FFFFFF; color:#000000; border:0px; font-family:Courier,monospace; font-size:90%; white-space:pre; }
+.src-comment     { color:#006600; font-style:italic; background-color:#FFFFFF; }
+.src-prep        { color:#993333; background-color:#FFFFFF; }
+.src-keyword     { color:#000066; background-color:#FFFFFF; }
+.src-char        { color:#CC0000; background-color:#FFFFFF; }
+.src-number      { color:#CC0000; background-color:#FFFFFF; }
