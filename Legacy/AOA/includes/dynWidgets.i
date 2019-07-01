@@ -164,11 +164,11 @@ PROCEDURE pCreateDynParameters :
     END. /* if live */
     
     EMPTY TEMP-TABLE ttDynAction.
-    FOR EACH {1}SubjectParamSet
+    FOR EACH {1}SubjectParamSet NO-LOCK
         WHERE {1}SubjectParamSet.subjectID EQ dynSubject.subjectID,
          EACH dynParamSet NO-LOCK
         WHERE dynParamSet.paramSetID EQ {1}SubjectParamSet.paramSetID,
-         EACH dynParamSetDtl
+         EACH dynParamSetDtl NO-LOCK
         WHERE dynParamSetDtl.paramSetID EQ dynParamSet.paramSetID,
         FIRST dynParam NO-LOCK
         WHERE dynParam.paramID EQ dynParamSetDtl.paramID

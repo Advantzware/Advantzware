@@ -1081,6 +1081,7 @@ PROCEDURE pSaveSettings :
             user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE sysCtrlBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))                                              
             .
     END. /* do jdx */
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 
