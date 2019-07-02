@@ -620,7 +620,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       /* D4 Second instance */
     
       /* SCORE */
-      DO i = 10 TO 13:
+      DO i = 10 TO 12:
           IF AVAIL b-ref1 AND b-ref1.val[i] NE 0 THEN 
               PUT trunc(b-ref1.val[i],0)                  FORMAT ">>>"
                   ":"                                     FORMAT "x"
