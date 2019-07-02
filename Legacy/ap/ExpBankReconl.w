@@ -76,19 +76,14 @@ ASSIGN cTextListToDefault  = "Check/Journal#,Trans Date,Amount,Bank,Vendor#,Name
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME rd-fgexp
 
-/* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES reconcile
-
-/* Define KEY-PHRASE in case it is used by any query. */
-&Scoped-define KEY-PHRASE TRUE
-
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_chk-no end_chk-no ~
-begin_vend end_vend begin_date end_date sl_avail sl_selected Btn_Def ~
-Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+begin_vend end_vend begin_date end_date tb_ap-only sl_avail sl_selected ~
+Btn_Def Btn_Add Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_chk-no end_chk-no begin_vend ~
-end_vend begin_date end_date sl_avail sl_selected tb_excel tb_runExcel ~
-fi_file 
+end_vend begin_date end_date tb_ap-only sl_avail sl_selected tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -112,6 +107,7 @@ FUNCTION buildHeader RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -166,7 +162,7 @@ DEFINE VARIABLE end_chk-no AS CHARACTER FORMAT "X(13)" INITIAL "zzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999"  
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999" 
      LABEL "End Date" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
@@ -202,6 +198,11 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 31 BY 6.14 NO-UNDO.
 
+DEFINE VARIABLE tb_ap-only AS LOGICAL INITIAL yes 
+     LABEL "AP Pay Transaction Only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29.8 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
@@ -230,6 +231,7 @@ DEFINE FRAME rd-fgexp
           "Enter Beginning Delivery Zone" WIDGET-ID 146
      end_date AT ROW 6.52 COL 73 COLON-ALIGNED HELP
           "Enter Ending Delivery Zone" WIDGET-ID 148
+     tb_ap-only AT ROW 8.52 COL 69 RIGHT-ALIGNED WIDGET-ID 150
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 12.24 COL 64 NO-LABEL WIDGET-ID 28
      Btn_Def AT ROW 12.38 COL 44 HELP
@@ -248,13 +250,13 @@ DEFINE FRAME rd-fgexp
      btn-cancel AT ROW 21.71 COL 60.2 WIDGET-ID 12
      "Selected Columns" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 11.52 COL 64.4 WIDGET-ID 138
+     "Available Columns" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 10.52 COL 3 WIDGET-ID 86
-     "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.52 COL 9.4 WIDGET-ID 140
      RECT-6 AT ROW 10.76 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
      RECT-8 AT ROW 18.62 COL 2 WIDGET-ID 84
@@ -313,6 +315,12 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
+/* SETTINGS FOR TOGGLE-BOX tb_ap-only IN FRAME rd-fgexp
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_ap-only:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME rd-fgexp
    NO-ENABLE                                                            */
 ASSIGN 
@@ -336,7 +344,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-fgexp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
-ON HELP OF FRAME rd-fgexp /* Export Carrier Matrix to Excel */
+ON HELP OF FRAME rd-fgexp /* Export Bank Reconciliation to Excel */
 DO:
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ls-cur-val AS CHAR NO-UNDO.
@@ -371,7 +379,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
-ON WINDOW-CLOSE OF FRAME rd-fgexp /* Export Carrier Matrix to Excel */
+ON WINDOW-CLOSE OF FRAME rd-fgexp /* Export Bank Reconciliation to Excel */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -626,6 +634,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_ap-only
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ap-only rd-fgexp
+ON VALUE-CHANGED OF tb_ap-only IN FRAME rd-fgexp /* AP Pay Transaction Only */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel rd-fgexp
 ON VALUE-CHANGED OF tb_excel IN FRAME rd-fgexp /* Export To Excel? */
@@ -832,11 +851,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_chk-no end_chk-no begin_vend end_vend begin_date end_date 
-          sl_avail sl_selected tb_excel tb_runExcel fi_file 
+          tb_ap-only sl_avail sl_selected tb_excel tb_runExcel fi_file 
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_chk-no end_chk-no begin_vend end_vend 
-         begin_date end_date sl_avail sl_selected Btn_Def Btn_Add Btn_Remove 
-         btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+         begin_date end_date tb_ap-only sl_avail sl_selected Btn_Def Btn_Add 
+         Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -931,6 +950,7 @@ FOR EACH reconcile WHERE reconcile.tt-cleared EQ NO
     AND (reconcile.tt-date LE end_date OR end_date EQ ?)
     AND reconcile.tt-vend GE begin_vend 
     AND reconcile.tt-vend LE end_vend 
+    AND ((tb_ap-only AND reconcile.tt-type EQ 1) OR NOT tb_ap-only)
     NO-LOCK:
 
     v-excel-detail-lines = "".
@@ -1020,3 +1040,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
