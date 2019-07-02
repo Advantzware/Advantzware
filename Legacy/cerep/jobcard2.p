@@ -1573,6 +1573,8 @@ END FUNCTION.
                AND b-eb.est-no EQ job-hdr.est-no 
                AND b-eb.form-no EQ job-hdr.frm BREAK by b-eb.form-no :
    
+            IF FIRST(b-eb.form-no) THEN
+            PUT "<b>UDF's</b>" SKIP.
             FIND FIRST itemfg NO-LOCK
                  WHERE itemfg.company EQ cocode
                    AND itemfg.i-no EQ b-eb.stock-no
@@ -1582,13 +1584,14 @@ END FUNCTION.
                             WHERE mfvalues.rec_key EQ itemfg.rec_key) THEN
                 RUN UDF/UDF.p (cUDFGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
                 /* GPI UDF ID of 0004 */
-                FIND FIRST ttUDF WHERE ttUDF.udfID EQ "0004" NO-ERROR.
-                IF AVAILABLE ttUDF THEN do:
-                    IF FIRST(b-eb.form-no) THEN
-                        PUT "<b>UDF's</b>" SKIP .
-
-                    PUT UNFORMATTED "FG Item " itemfg.i-no FORMAT "x(15)"  "GRN: " ttUDF.udfValue.
-                END.
+                FIND FIRST ttUDF
+                     WHERE ttUDF.udfRecKey EQ itemfg.rec_key
+                       AND ttUDF.udfID EQ "0004"
+                     NO-ERROR.
+                PUT UNFORMATTED
+                    "FG Item " itemfg.i-no FORMAT "x(15)"
+                    "GRN: "
+                    IF AVAILABLE ttUDF THEN ttUDF.udfValue ELSE "".
                 PUT "" SKIP.
             END. /* if avail */
             ELSE /* no fg item */
@@ -2182,9 +2185,9 @@ END FUNCTION.
 /*                 SKIP.                                 */
 /*         END. /* xjob-mat */                           */
 
-     FOR EACH estPacking NO-LOCK 
-         WHERE estPacking.company  = cocode 
-         AND estPacking.estimateNo = eb.est-no  
+     FOR EACH estPacking NO-LOCK
+         WHERE estPacking.company  = cocode
+         AND estPacking.estimateNo = eb.est-no
          AND estPacking.FormNo     = eb.form-no
          AND estPacking.BlankNo    = eb.blank-No :
 
@@ -2195,7 +2198,7 @@ END FUNCTION.
 
          IF AVAIL ITEM THEN do:
              PUT ITEM.i-no SPACE(4)
-                 ITEM.i-name FORMAT "x(20)" SPACE(3)  
+                 ITEM.i-name FORMAT "x(20)" SPACE(3)
                  estPacking.dimLength FORMAT ">9.9999" " "
                  estPacking.dimWidth FORMAT ">9.9999" " "
                  estPacking.dimDepth FORMAT ">9.9999" " "
@@ -2203,7 +2206,6 @@ END FUNCTION.
              intLnCount = intLnCount + 1.
          END.
      END.
-
 
         PUT " " SKIP.      
 
