@@ -357,6 +357,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=OrderStart><R+8><#OrderBL>"
             "<=OrderStart><C108><R+8><#OrderEnd>"
             "<=OrderStart><R+0.5><RIGHT=C+10>Job Card printed: <#Printed>"
+            "<=OrderStart><R+0.5><RIGHT=C+25>Core Cart #: "
             "<=OrderStart><R+2><RIGHT=C+10>Our Order #: <#OrderNum>"
             "<=OrderStart><R+3><RIGHT=C+10>Customer PO: <#CustomerPO>"
             "<=OrderStart><R+4><RIGHT=C+10>Order Quantity: <#OrderQuantity>"
@@ -930,9 +931,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShippingStart><R+9><C+1><#ShipNotes4>"
               "<=PackingBL><#ItemImageStart>"
               "<=ItemImageStart><C108><#ItemImageTR>"
-              "<=ItemImageStart><R50><#ItemImageBL>"
-              "<=ItemImageStart><C108><R50><#ItemImageEnd>"
-              "<=PackingBL><FROM><R50><C108><RECT><|1> "
+              "<=ItemImageStart><R44><#ItemImageBL>"
+              "<=ItemImageStart><C108><R44><#ItemImageEnd>"
+              "<=PackingBL><FROM><R44><C108><RECT><|1> "
              
               "<=Pallet>" IF AVAILABLE bf-eb THEN bf-eb.tr-no ELSE "" FORMAT "x(10)" SPACE(3) 
               "<=OfUnits>" SPACE(1) TRIM(STRING(job-hdr.qty / bf-eb.cas-pal,">>>>>>>9")) FORMAT "x(10)"
