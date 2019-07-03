@@ -40,7 +40,7 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.securityLevel    = dynSubject.securityLevel
             dynParamValue.recordLimit      = dynSubject.recordLimit
             .
-        FOR EACH {1}SubjectParamSet
+        FOR EACH {1}SubjectParamSet NO-LOCK
             WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,
             EACH dynParamSetDtl NO-LOCK
             WHERE dynParamSetDtl.paramSetID EQ {1}SubjectParamSet.paramSetID,
