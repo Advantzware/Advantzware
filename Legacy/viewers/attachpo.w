@@ -465,11 +465,16 @@ PROCEDURE excute-program :
 ------------------------------------------------------------------------------*/
    DEF VAR lv-cmd AS cha NO-UNDO.
    DEF VAR tInt As Int No-undo.
-
+   
+   IF SEARCH(ATTACH.attach-file) eq ? then do:
+       MESSAGE "File or Image could not be found." VIEW-AS ALERT-BOX INFO .
+       RETURN NO-APPLY .
+   END.
+   
    lv-cmd = chr(34) + ATTACH.attach-file + " " + CHR(34).
    RUN ShellExecuteA(0, "open", ATTACH.attach-file, "", "", 0, OUTPUT tInt).
    IF tInt LE 32 THEN
-   DO:  
+   DO: 
       OS-COMMAND SILENT START value(trim(ATTACH.run-program)) value(lv-cmd).
    END.
 
