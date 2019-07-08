@@ -1,5 +1,5 @@
 /* ----------------------------------------------  */
-/*  cecrep/jobtickc20.p  Corrugated factory ticket  for Xprint landscape */
+/*  cecrep/jobhoney.p  Corrugated factory ticket  for Xprint landscape */
 /* -------------------------------------------------------------------------- */
 
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
@@ -55,25 +55,6 @@ DEFINE            VARIABLE v-note-length  AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-die-loc      AS cha       FORM "x(15)" NO-UNDO.
 DEFINE            VARIABLE v-plate-loc    AS CHARACTER FORM "X(8)" NO-UNDO.
 DEFINE            VARIABLE cImagePath     AS CHARACTER FORMAT "x(100)" NO-UNDO.
-DEFINE            VARIABLE cValleyImagePath1     AS CHARACTER FORMAT "x(100)" NO-UNDO.
-DEFINE            VARIABLE cValleyImagePath2     AS CHARACTER FORMAT "x(100)" NO-UNDO.
-DEFINE            VARIABLE cValleyImagePath3     AS CHARACTER FORMAT "x(100)" NO-UNDO.
-DEFINE            VARIABLE ls-image1             AS CHAR                      NO-UNDO.
-
-ASSIGN
-  ls-image1 = "images\valley1.png"
-  FILE-INFO:FILE-NAME = ls-image1
-  cValleyImagePath1 = FILE-INFO:FULL-PATHNAME .
-
-ASSIGN
-  ls-image1 = "images\valley2.png"
-  FILE-INFO:FILE-NAME = ls-image1
-  cValleyImagePath2 = FILE-INFO:FULL-PATHNAME .
-
-ASSIGN
-  ls-image1 = "images\valley3.png"
-  FILE-INFO:FILE-NAME = ls-image1
-  cValleyImagePath3 = FILE-INFO:FULL-PATHNAME .
 
 {custom/notesdef.i}
 {cecrep/jc-prem.i}
@@ -102,7 +83,7 @@ DEFINE BUFFER bf-itemfg         FOR itemfg .
 
 DEFINE BUFFER b-rt              FOR reftable.
 DEFINE BUFFER bf-box-design-hdr FOR box-design-hdr.
-
+DEFINE BUFFER bf-item FOR ITEM .
 DEFINE NEW SHARED WORKFILE wrk-ink
     FIELD i-code AS CHARACTER FORMAT "x(10)"
     FIELD form-no LIKE eb.form-no
@@ -275,7 +256,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=PartLabel><R+1><#Part>"
             "<=HeaderStart><C+22><R+0.6><#CustomerName>"
            
-            "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal ">"
+            "<=BarCodeStart><C+1><R+.3><FROM><C108><R3.9><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
             "<P14>                  "
             "<=JobLabel>Job #:"
             "<FGColor=Blue><B>   "
@@ -349,7 +330,7 @@ DO v-local-loop = 1 TO v-local-copies:
                       INPUT-OUTPUT v-lines,
                       RECID(xest),
                       IF AVAILABLE xeb THEN ROWID(xeb) ELSE ?,
-                          v-format).
+                         v-format).
               END.
               ELSE IF AVAILABLE box-design-hdr THEN DO:
                       cImagePath = box-design-hdr.box-image.
@@ -376,6 +357,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=OrderStart><R+8><#OrderBL>"
             "<=OrderStart><C108><R+8><#OrderEnd>"
             "<=OrderStart><R+0.5><RIGHT=C+10>Job Card printed: <#Printed>"
+            "<=OrderStart><R+0.5><RIGHT=C+25>Core Cart #: "
             "<=OrderStart><R+2><RIGHT=C+10>Our Order #: <#OrderNum>"
             "<=OrderStart><R+3><RIGHT=C+10>Customer PO: <#CustomerPO>"
             "<=OrderStart><R+4><RIGHT=C+10>Order Quantity: <#OrderQuantity>"
@@ -389,20 +371,21 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=QuantityStart><R+3><C+19><#UnderrunPct>"
             "<=QuantityStart><R+5><RIGHT=C+10>Set Quantity: <#SetQuantity> "
             "<=QuantityStart><R+6><RIGHT=C+10>Parts Per Set: <#QtyPerSet>"
-            "<=BoardStart><R+1><RIGHT=C+5>Board: <#Board>"
-              "<=BoardStart><R+2><RIGHT=C+5>Sheets: <#SheetsRequired>"
+            /*"<=BoardStart><R+1><RIGHT=C+5>Board: <#Board>"*/
+              "<=BoardStart><R+2><RIGHT=C+13><b>Qty Off Panel Line: </b> <#SheetsRequired>"
 /*              "<=BoardStart><R+2><RIGHT=C+20>Received: <#SheetsReceived>"*/
-              "<=BoardStart><R+3><RIGHT=C+5>Size: <#SheetsSize>"
-              "<=BoardStart><R+3><RIGHT=C+20>MSF: <#SheetsMSF>"
-              "<=BoardStart><R+4><RIGHT=C+5>Scores: <#Scores>"
-              "<=BoardStart><R+5><RIGHT=C+5>Adders:"
-              "<=BoardStart><R+5><C6><#Adders1><C20><#Adders2>"
-              "<=BoardStart><R+6><C6><#Adders3><C20><#Adders4>"
-              "<=BoardStart><R+7><RIGHT=C+5>PO: <#VendorPO>"
-              "<=BoardStart><R+7><RIGHT=C+20>Vendor: <#VendorCode>"
-              "<=DieStart><R+1><RIGHT=C+5>Die#: <#Die>"
-              "<=DieStart><R+2><RIGHT=C+5>Die Loc.: <#DieLocation>"
-              "<=DieStart><R+3><RIGHT=C+5>Imp.: <#Impressions>"
+              /*"<=BoardStart><R+3><RIGHT=C+5>Size: <#SheetsSize>"*/
+             /* "<=BoardStart><R+3><RIGHT=C+23>MSF: <#SheetsMSF>"*/
+             /* "<=BoardStart><R+4><RIGHT=C+5>Scores: <#Scores>"*/
+             /* "<=BoardStart><R+5><RIGHT=C+5>Adders:"*/
+             /* "<=BoardStart><R+5><C6><#Adders1><C20><#Adders2>"*/
+             /* "<=BoardStart><R+6><C6><#Adders3><C20><#Adders4>"*/
+              /*"<=BoardStart><R+7><RIGHT=C+5>PO: <#VendorPO>"       */
+             /* "<=BoardStart><R+7><RIGHT=C+20>Vendor: <#VendorCode>"*/
+              "<=DieStart><R+1><RIGHT=C+7>Cell Size#: <#Caliper>"
+              "<=DieStart><R+2><RIGHT=C+7>Die#: <#Die>"
+              "<=DieStart><R+3><RIGHT=C+7>Die Loc.: <#DieLocation>"
+              /*"<=DieStart><R+3><RIGHT=C+5>Imp.: <#Impressions>"*/
               "<=DieStart><R+4><RIGHT=C+6>Gross: "
               "<=DieStart><R+4><RIGHT=C+8>W: <#GrossWidth> "
               "<=DieStart><R+4><RIGHT=C+13>L: <#GrossLength>"
@@ -491,14 +474,30 @@ DO v-local-loop = 1 TO v-local-copies:
                           IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
                            ELSE 0 .
               dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
+         IF AVAILABLE xef THEN
+            FIND FIRST bf-item NO-LOCK
+            WHERE bf-item.company EQ xef.company
+              AND bf-item.i-no EQ xef.board NO-ERROR .
+         ELSE RELEASE bf-item .
+
+         IF AVAILABLE xeb THEN
+            FOR EACH probe NO-LOCK
+            WHERE probe.company EQ xeb.company 
+            AND ASI.probe.est-no EQ xeb.est-no 
+            AND probe.probe-date ne ? 
+            AND integer(probe.est-qty) EQ integer(xeb.eqty) :
+            v-sht-qty = probe.gsh-qty .
+            LEAVE.
+         END.
+
           
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
-              "<=Overrun>" STRING( (job-hdr.qty * iover-run) / 100,"->>>>>>9") /*FORMAT "->>,>>>,>>9"*/
-              "<=Underrun>" STRING( (job-hdr.qty * iunder-run) / 100,"->>>>>>9")  /*FORMAT "->>,>>>,>>9"*/
-              "<=OverrunPct>" lv-over-run /*FORMAT "99.9%"*/
-              "<=UnderrunPct>" lv-under-run /*FORMAT "99.9%"*/
+              "<=Overrun>" STRING( (job-hdr.qty * iover-run) / 100,"->>>>>>9") 
+              "<=Underrun>" STRING( (job-hdr.qty * iunder-run) / 100,"->>>>>>9")  
+              "<=OverrunPct>" lv-over-run 
+              "<=UnderrunPct>" lv-under-run 
               "<=SetQuantity>" iset-qty 
               "<=QtyPerSet>" IF AVAILABLE xeb THEN xeb.quantityPerSet ELSE  0
               "<=FGItemID>" IF AVAILABLE xeb THEN xeb.stock ELSE job-hdr.i-no FORMAT "x(15)" 
@@ -520,48 +519,48 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
               "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
               "<FGColor=Blue><B>"
-             /* "<=CustomerName>" cust.NAME FORMAT "x(30)"*/
               "</B><FGColor=Black>"
               "<=OrderQuantity>"  IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE 0 
               "<=OrderDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-date) ELSE "" 
               "<FGColor=Blue><B>"
               "<=OrderDueDate>"   IF AVAILABLE xoe-ord THEN STRING(xoe-ord.due-code) + "  " + STRING(xoe-ord.due-date) ELSE "" FORMAT "x(15)"
               "</B><FGColor=Black>"
-              "<B>"
+             /* "<B>"
               "<=Board>" v-form-dscr FORMAT "x(20)" 
-              "</B>"
+              "</B>"*/
               "<=SheetsRequired>" TRIM(STRING(v-sht-qty))   FORMAT "x(9)"
 /*              "<=SheetsReceived>"*/
-              "<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) + "  " +
-                              "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(30)"
+              /*"<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
+                              "L:" + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))  format "x(30)"*/
 
-              "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
-              "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
-              "<=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  string(string(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
-              "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  string(string(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"
-              "<=Adders3>" IF LENGTH(xef.adder[9]) GT 10 THEN  string(string(xef.adder[9],"x(17)") + "...") ELSE xef.adder[9]  FORMAT "x(20)"
-              "<=Adders4>" IF LENGTH(xef.adder[10]) GT 10 THEN  string(string(xef.adder[10],"x(17)") + "...") ELSE xef.adder[10]  FORMAT "x(20)"
-              "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" 
-              "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
+              /*"<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"*/
+              /*"<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" */
+              /*"<=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  string(string(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"*/
+              /*"<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  string(string(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)" */
+              /*"<=Adders3>" IF LENGTH(xef.adder[9]) GT 10 THEN  string(string(xef.adder[9],"x(17)") + "...") ELSE xef.adder[9]  FORMAT "x(20)"*/
+              /*"<=Adders4>" IF LENGTH(xef.adder[10]) GT 10 THEN  string(string(xef.adder[10],"x(17)") + "...") ELSE xef.adder[10]  FORMAT "x(20)" */
+              /*"<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" */
+              /*"<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)" */
               "<B>"
               "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(15)"
               "</B>"
               "<=DieLocation>" v-die-loc FORMAT "x(10)"
-              "<=Impressions>" TRIM(STRING(v-dc-qty))    FORMAT "x(7)"
-              "<=GrossWidth>" TRIM(STRING({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) FORMAT "x(8)"
-              "<=GrossLength>" TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>9.99")) FORMAT "x(8)"
+              "<=Caliper>" IF AVAIL bf-item THEN STRING(bf-item.cal,">>>>>9.999<<") ELSE "" FORMAT "x(10)" 
+              /*"<=Impressions>" TRIM(STRING(v-dc-qty))    FORMAT "x(7)"*/
+              "<=GrossWidth>" TRIM(STRING({sys/inc/k16v.i xef.gsh-wid},">>>>9.99")) FORMAT "x(8)"
+              "<=GrossLength>" TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>>9.99")) FORMAT "x(8)"
               "<=OutL>" STRING(xef.n-out-l) FORMAT "x(3)"
               "<=OutW>" STRING(xef.n-out)   FORMAT "x(3)"
-              "<=NetWidth>" TRIM(STRING({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) FORMAT "x(8)"
-              "<=NetLength>" TRIM(STRING({sys/inc/k16v.i xef.nsh-len},">>>9.99")) FORMAT "x(8)"
-              "<=DieWidth>" TRIM(STRING({sys/inc/k16v.i xef.trim-w},">>>9.99")) FORMAT "x(8)"
-              "<=DieLength>" TRIM(STRING({sys/inc/k16v.i xef.trim-l},">>>9.99")) FORMAT "x(8)"
+              "<=NetWidth>" TRIM(STRING({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) FORMAT "x(8)"
+              "<=NetLength>" TRIM(STRING({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) FORMAT "x(8)"
+              "<=DieWidth>" TRIM(STRING({sys/inc/k16v.i xef.trim-w},">>>>9.99")) FORMAT "x(8)"
+              "<=DieLength>" TRIM(STRING({sys/inc/k16v.i xef.trim-l},">>>>9.99")) FORMAT "x(8)"
               "<=UpL>" STRING(v-upw) FORMAT "x(8)"
               "<=UpW>" STRING(v-upl) FORMAT "x(8)"
-              "<=BlankWidth>" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>>9.99")) FORMAT "x(8)"
-              "<=BlankLength>" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>>9.99")) FORMAT "x(8)"
-              "<=SqFeet>"  if v-corr then string(xeb.t-sqin * .007,">>9.9999")
-                                  else string(xeb.t-sqin / 144,">>9.9999") FORMAT "x(8)"
+              "<=BlankWidth>" TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>>>9.99")) FORMAT "x(8)"
+              "<=BlankLength>" TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>>>9.99")) FORMAT "x(8)"
+              "<=SqFeet>"  if v-corr then string(xeb.t-sqin * .007,">>>>>>9.9999")
+                                  else string(xeb.t-sqin / 144,">>>>>>9.9999") FORMAT "x(12)"
                                   
               "<B>"
               "<=Plate>" IF AVAILABLE xeb THEN xeb.plate-no ELSE "" FORMAT "x(15)" 
@@ -805,15 +804,12 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Notes5>" v-dept-note[5] FORMAT "x(100)" SKIP
               "<=Notes6>" v-dept-note[6] FORMAT "x(100)"  SKIP
              
-              "<=SpecNotes1>" v-spec-note[1]  FORMAT "x(100)" SKIP
-              "<=SpecNotes2>" v-spec-note[2]  FORMAT "x(100)" SKIP
-              "<=SpecNotes3>" v-spec-note[3]  FORMAT "x(100)"  SKIP
-              "<=SpecNotes4>" v-spec-note[4]  FORMAT "x(100)"  SKIP
-              "<=SpecNotes5>" v-spec-note[5]  FORMAT "x(100)"  SKIP
-              "<=SpecNotes5>" v-spec-note[6]  FORMAT "x(100)"  SKIP
-              
-              
-             "<#ValleyImageStart><=ValleyImageStart><C+62><R36><#ValleyImage><C107><R58><IMAGE#ValleyImage=" cValleyImagePath1 "><=ValleyImage>"
+              "<=SpecNotes1>" v-spec-note[1] FORMAT "x(100)" SKIP
+              "<=SpecNotes2>" v-spec-note[2] FORMAT "x(100)" SKIP
+              "<=SpecNotes3>" v-spec-note[3] FORMAT "x(100)"  SKIP
+              "<=SpecNotes1>" v-spec-note[4] FORMAT "x(100)" SKIP
+              "<=SpecNotes2>" v-spec-note[5] FORMAT "x(100)" SKIP
+              "<=SpecNotes3>" v-spec-note[6] FORMAT "x(100)"  SKIP
               .
         
         PAGE.
@@ -828,9 +824,19 @@ DO v-local-loop = 1 TO v-local-copies:
                 AND shipto.cust-no EQ job-hdr.cust-no
                 AND shipto.ship-id EQ v-shipto NO-ERROR .
 
-       IF AVAILABLE xeb  THEN
+        IF AVAILABLE xeb AND est.est-type = 6 THEN
+            FIND FIRST bf-eb NO-LOCK 
+            WHERE bf-eb.company EQ xeb.company
+              AND bf-eb.est-no EQ xeb.est-no
+                AND bf-eb.blank-no EQ 0 NO-ERROR .
+
+        IF NOT AVAIL bf-eb AND AVAIL xeb THEN
+            FIND FIRST bf-eb NO-LOCK
+                WHERE ROWID(bf-eb) EQ ROWID(xeb) NO-ERROR .
+
+       IF AVAILABLE bf-eb  THEN
            FIND FIRST stackPattern NO-LOCK 
-            WHERE stackPattern.stackcode EQ xeb.stack-code NO-ERROR .
+            WHERE stackPattern.stackcode EQ bf-eb.stack-code NO-ERROR .
 
         PUT  "<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
@@ -840,9 +846,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=JobStart><C+20><R+3><#JobEnd>"
               "<=JobStart><FROM><RECT#JobEnd><|1>"
               "<=JobTR><#HeaderStart>"
-              "<=HeaderStart><C+53.5><#HeaderTR>"
+              "<=HeaderStart><C+58><#HeaderTR>"
               "<=HeaderStart><R+3><#HeaderBL>"
-              "<=HeaderStart><C+53.5><R+3><#HeaderEnd>"
+              "<=HeaderStart><C+58><R+3><#HeaderEnd>"
               "<=HeaderStart><FROM><RECT#HeaderEnd><|1>"
               "<=HeaderTR><#BarCodeStart>"
               "<=BarCodeStart><C108><R+3><#BarCodeEnd>"
@@ -857,7 +863,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PartLabel><R+1><#Part>"
               "<=HeaderStart><C+35><R+0.6><#PrintedLabel>"
               "<=PrintedLabel><R+1><#PrintedDate>"
-              "<=BarCodeStart><C+2><R+.3><FROM><C108><R3.9><BARCODE,TYPE=39,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
+              "<=BarCodeStart><C+1><R+.3><FROM><C108><R3.9><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
               
               
               "<P14>"
@@ -877,11 +883,12 @@ DO v-local-loop = 1 TO v-local-copies:
               
               "<=Start><R+3><#PageStart>"
               "<=PageStart><#PackingStart>"
-              "<=PackingStart><C+22><#PackingTR>"
+              "<=PackingStart><C+25><#PackingTR>"
               "<=PackingStart><R+10><#PackingBL>"
-              "<=PackingStart><C+22><R+10><#PackingEnd>"
+              "<=PackingStart><C+25><R+10><#PackingEnd>"
               "<=PackingTR><FROM><LINE#PackingEnd>"
               "<=PackingStart><R+1><RIGHT=C+6>Pallet: <#Pallet>"
+              "<=PackingStart><R+1><C+14># Of Units:<#OfUnits>"
               "<=PackingStart><R+2><RIGHT=C+6>Size: "
               "<=PackingStart><R+2><C9>L: <#PalletLength>"
               "<=PackingStart><R+2><C15>W: <#PalletWidth> "
@@ -899,9 +906,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingStart><R+8><RIGHT=C+6>Pattern: <#PatternCode>"
               "<=PackingStart><R+9><C+1><#Pattern>"
               "<=PackingTR><#PatternImageStart>"
-              "<=PatternImageStart><C+18><#PatternImageTR>"
+              "<=PatternImageStart><C+22><#PatternImageTR>"
               "<=PatternImageStart><R+10><#PatternImageBL>"
-              "<=PatternImageStart><C+18><R+10><#PatternImageEnd>"  
+              "<=PatternImageStart><C+22><R+10><#PatternImageEnd>"
               "<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAIL stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
               "<=PatternImageTR><FROM><LINE#PatternImageEnd><|1>"
               "<=PatternImageTR><#ShippingStart>"
@@ -924,23 +931,24 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShippingStart><R+9><C+1><#ShipNotes4>"
               "<=PackingBL><#ItemImageStart>"
               "<=ItemImageStart><C108><#ItemImageTR>"
-              "<=ItemImageStart><R50><#ItemImageBL>"
-              "<=ItemImageStart><C108><R50><#ItemImageEnd>"
-              "<=PackingBL><FROM><R50><C108><RECT><|1> "
+              "<=ItemImageStart><R44><#ItemImageBL>"
+              "<=ItemImageStart><C108><R44><#ItemImageEnd>"
+              "<=PackingBL><FROM><R44><C108><RECT><|1> "
              
-              "<=Pallet>" IF AVAILABLE xeb THEN xeb.tr-no ELSE "" FORMAT "x(10)" 
-              "<=PalletLength>" IF AVAILABLE xeb THEN STRING(xeb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
-              "<=PalletWidth>" IF AVAILABLE xeb THEN STRING(xeb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
+              "<=Pallet>" IF AVAILABLE bf-eb THEN bf-eb.tr-no ELSE "" FORMAT "x(10)" SPACE(3) 
+              "<=OfUnits>" SPACE(1) TRIM(STRING(job-hdr.qty / bf-eb.cas-pal,">>>>>>>9")) FORMAT "x(10)"
+              "<=PalletLength>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
+              "<=PalletWidth>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
               "<B>"
-              "<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)" 
-              "<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)" 
+              "<=CaseCount>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-cnt) ELSE "" FORMAT "x(5)" 
+              "<=PalletCount>" IF AVAILABLE bf-eb THEN STRING(bf-eb.cas-pal) ELSE "" FORMAT "x(6)" 
               "</B>"
-              "<=JobCases>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)"
-              "<=JobPallets>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)"
-              "<=Layers>" IF AVAILABLE xeb THEN STRING(xeb.tr-cas) ELSE "" FORMAT "x(4)"
-              "<=Stacks>" IF AVAILABLE xeb THEN STRING(xeb.stacks) ELSE "" FORMAT "x(6)"
-              "<=PatternCode>" IF AVAILABLE xeb THEN STRING(xeb.stack-code) ELSE "" FORMAT "x(3)"
-              "<=Pattern>" IF AVAILABLE xeb AND AVAILABLE stackPattern THEN stackPattern.stackDescription ELSE "" FORMAT "x(30)"
+              "<=JobCases>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-cnt) ELSE "" FORMAT "x(5)"
+              "<=JobPallets>" IF AVAILABLE bf-eb THEN STRING(bf-eb.cas-pal) ELSE "" FORMAT "x(6)"
+              "<=Layers>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-cas) ELSE "" FORMAT "x(4)"
+              "<=Stacks>" IF AVAILABLE bf-eb THEN STRING(bf-eb.stacks) ELSE "" FORMAT "x(6)"
+              "<=PatternCode>" IF AVAILABLE bf-eb THEN STRING(bf-eb.stack-code) ELSE "" FORMAT "x(3)"
+              "<=Pattern>" IF AVAILABLE bf-eb AND AVAILABLE stackPattern THEN stackPattern.stackDescription ELSE "" FORMAT "x(30)"
               "<=ShipTo>" v-shipto  FORMAT "x(10)"
               "<=ShipName>" IF AVAILABLE shipto THEN shipto.ship-name ELSE "" FORMAT "x(30)"
               "<=ShipAdd1>" IF AVAILABLE shipto THEN shipto.ship-addr[1] ELSE "" FORMAT "x(30)"
@@ -959,22 +967,10 @@ DO v-local-loop = 1 TO v-local-copies:
             ls-fgitem-img = bf-itemfg.box-image.
 
             PUT UNFORMATTED "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=" ls-fgitem-img "><=ItemImage>".
-            PUT UNFORMATTED "<#Valley2ImageStart><=Valley2ImageStart><C+73.6><R+.6><#Valley2Image><C125><R4.5><IMAGE#Valley2Image=" cValleyImagePath2 "><=Valley2Image>" .
-
-            PUT UNFORMATTED  "<#ValleyImageStart>"
-              "<=ValleyImageStart><C108><#ValleyImageTR>"
-              "<=ValleyImageStart><R49><#ValleyImageBL>"
-              "<=ValleyImageStart><C108><R49><#ValleyImageEnd>" .
-            PUT UNFORMATTED "<#ValleyImageStart><=ValleyImageStart><C+30><R+.5><#ValleyImage><C83><R15><IMAGE#ValleyImage=" cValleyImagePath3 "><=ValleyImage>" .
-            PUT UNFORMATTED "<#BoxLineMeStart><=BoxLineMeStart><C74.7><#BoxLineMeTR>"
-              "<=BoxLineMeStart><R4.3><#BoxLineMeBL>"
-              "<=BoxLineMeStart><C74.7><R4.3><#BoxLineMeEnd>"
-              "<=BoxLineMeTR><FROM><LINE#BoxLineMeEnd>" .
-            
-            
             PAGE.
+            RELEASE bf-eb.
 
-    END.  /* for each w-ef */
+    END.  /* for each w-ef */  
     IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN 
     DO: /* print set header */
         i = 0.

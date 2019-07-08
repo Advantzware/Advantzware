@@ -755,6 +755,10 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobtickc20.p (lv-format-c).
   END.
+  ELSE IF lv-format-c = "HoneyCell" THEN do:
+      PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
+      RUN cecrep/jobhoney.p (lv-format-c).
+  END.
   ELSE IF lv-format-c = "Delta10" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobdeltaten.p (lv-format-c).
