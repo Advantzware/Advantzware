@@ -443,6 +443,11 @@ PROCEDURE call-attach :
   DEF VAR tInt As Int No-undo.
    DEF VAR ls-image1 AS cha NO-UNDO.
    DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+  
+  IF SEARCH(ATTACH.attach-file) eq ? then do:
+      MESSAGE "File or Image could not be found." VIEW-AS ALERT-BOX INFO .
+      RETURN NO-APPLY .
+  END.
 
   lv-cmd = chr(34) + ATTACH.attach-file + " " + CHR(34).
   RUN ShellExecuteA(0, "open", ATTACH.attach-file, "", "", 0, OUTPUT tInt).
@@ -458,6 +463,7 @@ PROCEDURE call-attach :
          OS-COMMAND SILENT START value(ls-full-img1)  .
       END.
   END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
