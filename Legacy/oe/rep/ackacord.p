@@ -12,6 +12,8 @@ DEF INPUT PARAM ip-prt-revised AS LOG NO-UNDO.
 
 DEF  SHARED VAR spec-list AS CHAR NO-UNDO.
 DEF  SHARED VAR v-dept-codes AS CHAR NO-UNDO.
+DEFINE SHARED VARIABLE v-rs-whs-mths AS CHARACTER NO-UNDO.
+DEFINE SHARED VARIABLE v-tg-whs-mths AS LOG NO-UNDO.
 def var v-salesman as char format "x(3)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
 def var v-shipvia like carrier.dscr NO-UNDO.
@@ -553,22 +555,29 @@ PUT "<FCourier New>"          .
       assign
        v-totord        = 0
        oe-ord.ack-prnt = yes.
-/*       
-      PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P8> " SKIP        
-        v-billinst[1] SKIP
-        v-billinst[2] SKIP
-        v-billinst[3] SKIP
-        v-billinst[4] SKIP(1)
-        " ______________________________________(Please sign and fax back) " SKIP
-        "<=10><R-3>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.</B>" .
-*/      
+    
+    IF v-tg-whs-mths = TRUE  THEN do:
+          
       PUT "<FArial><R55><C1><#10><P12><B> Comments </B> <P8> " 
+        "<R56><C1>" v-billinst[1] 
+        "<R57><C1>" v-billinst[2] 
+        "<R58><C1>" v-billinst[3] 
+        "<R59><C1>" v-billinst[4] 
+        "<P8><R60><C1>Inventory not shipped within " v-rs-whs-mths FORMAT "X(1)" " months of the first acknowledged delivery date will"
+        "<P8><R61><C1>be billed and held for up to 3 months free of charge, and then must be shipped."
+        "<R63><C1>" " ______________________________________(Please sign and fax back) " 
+        "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.</B>" .
+    END.
+    ELSE DO:
+        PUT "<FArial><R55><C1><#10><P12><B> Comments </B> <P8> " 
         "<R56><C1>" v-billinst[1] 
         "<R57><C1>" v-billinst[2] 
         "<R58><C1>" v-billinst[3] 
         "<R59><C1>" v-billinst[4] 
         "<R61><C1>" " ______________________________________(Please sign and fax back) " 
         "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.</B>" .
+    END.
+       
       v-printline = v-printline + 6.
       IF v-printline <= 66 THEN page. /*PUT SKIP(60 - v-printline). */
 
