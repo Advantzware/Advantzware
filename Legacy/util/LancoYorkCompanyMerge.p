@@ -14,7 +14,7 @@ DEF STREAM logStream.
 
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cConvTypeList AS CHAR NO-UNDO INITIAL 
-    "Account,BankAcct,Carrier,Est-no,Item,ItemFg,Job,Loc,M-code,Release#,Company".
+    "Account,BankAcct,Carrier,Est-no,Item,ItemFg,Job,Loc,M-code,Release#,Company,Loadtag".
     
 
 DEF TEMP-TABLE ttFullTableList
@@ -251,6 +251,18 @@ PROCEDURE pBuildFieldLists:
                 RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
             END.
         END.
+    END.
+
+    /* Loadtag */
+    FOR EACH _field NO-LOCK WHERE 
+        _field._field-name = "tag" OR 
+        _field._field-name = "tag-no":
+        FIND _file OF _field NO-LOCK NO-ERROR.
+        IF AVAIL _file THEN 
+        DO:
+            RUN pBuildSingleFieldList ("Loadtag",_file._file-name,_field._field-name).
+            RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
+        END. 
     END.
 
     /* Loc */
@@ -801,6 +813,103 @@ PROCEDURE pConvertJobTable:
 
 END PROCEDURE.
 
+PROCEDURE pConvertLoadtagTable:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcTableName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcFieldList AS CHAR NO-UNDO.
+    
+    DEF VAR hBuffer AS HANDLE.
+    DEF VAR hQuery AS HANDLE.
+    DEF VAR hCoField AS HANDLE.
+    DEF VAR hTagField AS HANDLE.
+    DEF VAR hField AS HANDLE.
+    DEF VAR hExtent AS HANDLE.
+    DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR jCtr AS INT NO-UNDO.
+    DEF VAR cRepl AS CHAR NO-UNDO.
+    DEF VAR cNew AS CHAR NO-UNDO.
+    DEF VAR iRepl AS INT NO-UNDO.
+
+    RUN pStatus("   Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList).
+
+    CREATE BUFFER hBuffer FOR TABLE ipcTableName.
+    CREATE QUERY hQuery.
+    
+    hBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+        
+    hQuery:ADD-BUFFER(hBuffer).
+    hQuery:QUERY-PREPARE("FOR EACH " + ipcTableName + " BY ROWID(" + ipcTableName + ")").
+    hQuery:QUERY-OPEN ().
+        
+    checkCompany:
+    DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+        ASSIGN 
+            hCoField = hBuffer:BUFFER-FIELD (iCtr).
+        IF hCoField:NAME = "Company" 
+            OR hCoField:NAME = "cocode" THEN 
+            LEAVE checkCompany.
+    END.
+        
+    checkTagNo:
+    DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+        ASSIGN 
+            hTagField = hBuffer:BUFFER-FIELD (iCtr).
+        IF hTagField:NAME = "tag-no" THEN 
+            LEAVE checkTagNo.
+    END.
+
+    DO WHILE NOT hQuery:QUERY-OFF-END TRANSACTION:
+        hQuery:GET-NEXT(EXCLUSIVE-LOCK).
+        IF NOT hQuery:QUERY-OFF-END THEN 
+        DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+            ASSIGN 
+                hField = hBuffer:BUFFER-FIELD (iCtr).
+            IF CAN-DO(ipcFieldList,hField:NAME) THEN 
+            DO:
+                IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 THEN
+                DO:
+                    IF hCoField:BUFFER-VALUE EQ "002" THEN 
+                    DO:
+                        IF CAN-FIND(FIRST loadtag WHERE 
+                            loadtag.company EQ "001" AND 
+                            loadtag.tag-no EQ hField:BUFFER-VALUE) THEN DO:
+                            ASSIGN 
+                                cRepl = hField:BUFFER-VALUE
+                                iRepl = INTEGER(SUBSTRING(cRepl,16,1)) + 1
+                                cNew = STRING(iRepl,"9")
+                                cRepl = SUBSTRING(cRepl,1,15) + cNew + SUBSTRING(cRepl,17)
+                                hField:BUFFER-VALUE = cRepl.
+                        END. 
+                    END.
+                END.
+                ELSE 
+                DO jCtr = 1 TO hField:EXTENT:
+                    IF hCoField:BUFFER-VALUE EQ "002" THEN 
+                    DO:
+                        IF CAN-FIND(FIRST loadtag WHERE 
+                            loadtag.company EQ "001" AND 
+                            loadtag.tag-no EQ hField:STRING-VALUE(jctr)) THEN 
+                        DO:
+                            ASSIGN 
+                                cRepl = hField:STRING-VALUE(jctr)
+                                iRepl = INTEGER(SUBSTRING(cRepl,16,1)) + 1
+                                cNew = STRING(iRepl,"9")
+                                cRepl = SUBSTRING(cRepl,1,15) + cNew + SUBSTRING(cRepl,17)
+                                hField:BUFFER-VALUE(jctr) = cRepl.
+                        END. 
+                    END.
+                END.
+            END.
+        END.
+    END.
+
+
+
+END PROCEDURE.
+
 PROCEDURE pConvertRecsByType:
 /*------------------------------------------------------------------------------
  Purpose:   Runner proc for record conversion by element TYPE (Account, CustNo, etc.)
@@ -820,6 +929,7 @@ PROCEDURE pConvertRecsByType:
             WHEN "Item"     THEN RUN pConvertItemTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "ItemFg"   THEN RUN pConvertItemFGTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Job"      THEN RUN pConvertJobTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            WHEN "Loadtag"  THEN RUN pConvertLoadtagTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Loc"      THEN RUN pConvertLocTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "M-code"   THEN RUN pConvertMcodeTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Release#" THEN RUN pConvertRelease#Table (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
@@ -1005,10 +1115,10 @@ PROCEDURE pConvertCompanyTable:
     checkCompany:
     DO iCtr = 1 TO hBuffer:NUM-FIELDS:
         ASSIGN 
-            hCoField = hBuffer:BUFFER-FIELD (iCtr).
-        IF hCoField:NAME = "Company" 
-            OR hCoField:NAME = "cocode" THEN 
-            LEAVE checkCompany.
+            hField = hBuffer:BUFFER-FIELD (iCtr).
+        IF hField:NAME EQ "Company" 
+        OR hField:NAME EQ "cocode" THEN ASSIGN 
+            hCoField = hField.
     END.
         
     DO WHILE NOT hQuery:QUERY-OFF-END TRANSACTION:
