@@ -779,7 +779,7 @@ PROCEDURE pFindMatchingRelh :
            FOR EACH b2-oe-rell NO-LOCK 
                 WHERE b2-oe-rell.r-no EQ oe-relh.r-no
                 :
-               cFobDscr2 EQ b2-oe-rell.fob-code.
+               cFobDscr2 = b2-oe-rell.fob-code.
                /* Find of fob description for this oe-rell */
                IF (cFobDscr2 GT "" AND cFobDscr2 NE cRefDscr) OR
                   (cFobDscr2 EQ "" AND cRefDscr NE "") THEN
