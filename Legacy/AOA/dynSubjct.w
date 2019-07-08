@@ -4822,6 +4822,7 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 
