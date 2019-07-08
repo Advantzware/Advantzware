@@ -11,10 +11,11 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
-DEFINE INPUT  PARAMETER ipcAPIID        AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER iplcRequestData AS LONGCHAR  NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcAPIID         AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcParentProgram AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcEndPoint         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glIsSSLEnabled     AS LOGICAL   NO-UNDO.
@@ -40,7 +41,7 @@ DEFINE VARIABLE glAPIConfigFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 
 ASSIGN
-    gcParentProgram = PROGRAM-NAME(2)
+    gcParentProgram = ipcParentProgram
     glcRequestData  = iplcRequestData
     gdDateTime      = NOW
     .
@@ -167,8 +168,8 @@ COPY-LOB FILE gcResponseFile TO glcReponseData.
 RUN pReadResponse (
     INPUT  glcReponseData,
     INPUT  gcResponseDataType,
-    OUTPUT opcMessage,
-    OUTPUT oplSuccess
+    OUTPUT oplSuccess,
+    OUTPUT opcMessage
     ).
 
 /* add a record in APIOutboundEvent table here*/
@@ -195,8 +196,8 @@ PROCEDURE pReadResponse PRIVATE:
     
     DEFINE INPUT  PARAMETER iplcReponseData     AS LONGCHAR  NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReponseDataType  AS CHARACTER  NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReadMode   AS CHARACTER NO-UNDO.
@@ -221,8 +222,8 @@ PROCEDURE pReadResponse PRIVATE:
 
             RUN VALUE(gcResponseHandler) (
                 hdttJSON,
-                OUTPUT opcMessage,
-                OUTPUT oplSuccess
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
                 ).  
 
         END.

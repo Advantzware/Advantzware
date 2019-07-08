@@ -23,14 +23,25 @@ DEFINE VARIABLE cParentProgram AS CHARACTER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
+{api/ttArgs.i}
 
 /* ***************************  Main Block  *************************** */
 ASSIGN
     cParentProgram = PROGRAM-NAME(1)
-    cAPIID         = "AddVendor".
+    cAPIID         = "AddCustomer"
+    .
 
+FIND FIRST Cust NO-LOCK NO-ERROR.
+CREATE ttArgs.
+ASSIGN
+    ttArgs.argType = "ROWID"
+    ttArgs.argKey  = "cust"
+    ttArgs.argValue = STRING(ROWID(cust))
+    .
+    
 RUN api/PrepareOutboundRequest.p (
-    cAPIId,
+    INPUT TABLE ttArgs,
+    cAPIId,    
     OUTPUT lcRequestData,
     OUTPUT cMessage,
     OUTPUT lSuccess
@@ -51,6 +62,7 @@ ELSE
     RUN api/CallOutBoundAPI.p (
         cAPIId,
         lcRequestData,
+        cParentProgram,
         OUTPUT cMessage,
         OUTPUT lSuccess
         ).

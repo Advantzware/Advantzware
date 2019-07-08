@@ -72,10 +72,10 @@ CREATE WIDGET-POOL.
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btExit btFilter cbAPIId fiRequestDate ~
-cbSuccess btTest BROWSE-2 
-&Scoped-Define DISPLAYED-OBJECTS fiAPIIDLabel cbAPIId fiRequestDatelabel ~
-fiRequestDate fiSuccessLabel cbSuccess 
+&Scoped-Define ENABLED-OBJECTS RECT-13 btFilter btExit cbSuccess cbAPIId ~
+fiRequestDate btTest BROWSE-2 
+&Scoped-Define DISPLAYED-OBJECTS cbSuccess cbAPIId fiRequestDate ~
+fiAPIIDLabel fiRequestDatelabel fiSuccessLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -92,39 +92,42 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
-     SIZE 11 BY 2.14.
+     SIZE 11 BY 2.62.
 
 DEFINE BUTTON btFilter 
+     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
      LABEL "Filter" 
-     SIZE 15 BY 1.14.
+     SIZE 11 BY 2.62.
 
 DEFINE BUTTON btTest 
+     IMAGE-UP FILE "Graphics/32x32/add.ico":U
      LABEL "Test" 
-     SIZE 15 BY 1.14.
+     SIZE 11 BY 2.62.
 
-DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All","AddCustomer","AddVendor","AddProduct","AddPurchaseOrder","AddPicklist" 
      DROP-DOWN-LIST
-     SIZE 20.2 BY 1
-     FGCOLOR 9  NO-UNDO.
+     SIZE 30.4 BY 1.14
+     FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "ALL","FAILED","SUCCESS" 
      DROP-DOWN-LIST
      SIZE 16 BY 1
-     FGCOLOR 9  NO-UNDO.
+     FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1
+     SIZE 10.4 BY 1
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiRequestDate AS DATE FORMAT "99/99/9999":U 
+DEFINE VARIABLE fiRequestDate AS DATE FORMAT "99/99/99":U 
      VIEW-AS FILL-IN 
-     SIZE 16.4 BY 1 NO-UNDO.
+     SIZE 15 BY 1.14
+     FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiRequestDatelabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Date:" 
      VIEW-AS FILL-IN 
@@ -135,6 +138,10 @@ DEFINE VARIABLE fiSuccessLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Success:"
      VIEW-AS FILL-IN 
      SIZE 13 BY 1
      FONT 35 NO-UNDO.
+
+DEFINE RECTANGLE RECT-13
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 120 BY 5.48.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -147,36 +154,37 @@ DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 C-Win _FREEFORM
   QUERY BROWSE-2 NO-LOCK DISPLAY
       APIOutboundEvent.apiID COLUMN-LABEL "API ID" FORMAT "x(20)":U
-            WIDTH 21.2
+            WIDTH 30
       APIOutboundEvent.callingProgram COLUMN-LABEL "Calling Program" FORMAT "x(45)":U
-            WIDTH 46.2
+            WIDTH 56
       APIOutboundEvent.requestDateTime COLUMN-LABEL "Request Date" FORMAT "99/99/9999 HH:MM:SS":U
-            WIDTH 29.2
+            WIDTH 35
       APIOutboundEvent.success COLUMN-LABEL "Success" FORMAT "SUCCESS/FAILED":U
-            WIDTH 31.4
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 135 BY 13.71
-         FONT 34 ROW-HEIGHT-CHARS .7 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.2 BY 20.95
+         FONT 36 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btExit AT ROW 1.52 COL 130.2 WIDGET-ID 2
-     btFilter AT ROW 2.1 COL 111 WIDGET-ID 18
-     fiAPIIDLabel AT ROW 2.19 COL 4.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     cbAPIId AT ROW 2.19 COL 16.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fiRequestDatelabel AT ROW 2.19 COL 38.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fiRequestDate AT ROW 2.19 COL 59.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     fiSuccessLabel AT ROW 2.19 COL 76.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     cbSuccess AT ROW 2.19 COL 90.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     btTest AT ROW 3.38 COL 111 WIDGET-ID 20
-     BROWSE-2 AT ROW 4.71 COL 6 WIDGET-ID 200
+     btFilter AT ROW 1.91 COL 128 WIDGET-ID 18
+     btExit AT ROW 1.91 COL 154.2 WIDGET-ID 2
+     cbSuccess AT ROW 2.81 COL 103 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     cbAPIId AT ROW 2.86 COL 18.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiRequestDate AT ROW 2.86 COL 72.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     fiAPIIDLabel AT ROW 2.91 COL 7.6 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiRequestDatelabel AT ROW 2.91 COL 50.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiSuccessLabel AT ROW 2.91 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     btTest AT ROW 4.86 COL 128 WIDGET-ID 20
+     BROWSE-2 AT ROW 7.67 COL 6.8 WIDGET-ID 200
+     RECT-13 AT ROW 1.95 COL 7 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 144.2 BY 17.91 WIDGET-ID 100.
+         SIZE 170 BY 28.57
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -196,8 +204,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "API Outbound Event"
-         HEIGHT             = 17.91
-         WIDTH              = 144.2
+         HEIGHT             = 28.57
+         WIDTH              = 170
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.57
@@ -372,6 +380,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  RUn pInit.
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -413,13 +422,43 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiAPIIDLabel cbAPIId fiRequestDatelabel fiRequestDate fiSuccessLabel 
-          cbSuccess 
+  DISPLAY cbSuccess cbAPIId fiRequestDate fiAPIIDLabel fiRequestDatelabel 
+          fiSuccessLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btExit btFilter cbAPIId fiRequestDate cbSuccess btTest BROWSE-2 
+  ENABLE RECT-13 btFilter btExit cbSuccess cbAPIId fiRequestDate btTest 
+         BROWSE-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit C-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAPIIDListItems AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    cAPIIDListItems = "All".
+    
+    FOR EACH APIOutbound NO-LOCK
+        BREAK BY APIOutbound.apiID:
+        IF FIRST-OF(APIOutbound.apiID) THEN
+            cAPIIDListItems = cAPIIDListItems + "," + APIOutbound.apiID.
+    END.
+    
+    ASSIGN
+        cbAPIId:LIST-ITEMS   = cAPIIDListItems
+        cbAPIId:SCREEN-VALUE = "All"
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

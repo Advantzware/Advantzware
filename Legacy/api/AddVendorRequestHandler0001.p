@@ -10,24 +10,42 @@
     Created     : Tue Jun 07 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
-DEFINE OUTPUT       PARAMETER opcMessage       AS CHARACTER NO-UNDO.
-DEFINE OUTPUT       PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
-
-DEFINE	VARIABLE  company       AS  CHARACTER	NO-UNDO  INITIAL   "ASI".
-DEFINE	VARIABLE  customer      AS  CHARACTER	NO-UNDO  INITIAL   "S019".
-DEFINE	VARIABLE  supplierName  AS  CHARACTER	NO-UNDO  INITIAL   "BubbleFillerandCo".
-DEFINE	VARIABLE  groupCode     AS  CHARACTER	NO-UNDO  INITIAL   "1".
-
-                   
-ASSIGN  
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD3",  groupCode)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD2",  supplierName)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD1",  customer)
-    ioplcRequestData = REPLACE(ioplcRequestData, "vend.company",  company)
-    .
+    {api/ttArgs.i}
     
-ASSIGN
-    opcMessage = ""
-    oplSuccess = TRUE
-    .                       
+    DEFINE INPUT        PARAMETER TABLE            FOR ttArgs.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+
+    FIND FIRST ttArgs
+         WHERE ttArgs.argType  = "ROWID"
+           AND ttArgs.argKey   = "vend" NO-ERROR.
+    IF NOT AVAILABLE ttArgs THEN DO:
+        ASSIGN
+            opcMessage = "No valid vend record passed to handler"
+            oplSuccess = FALSE
+            .
+        RETURN.
+    END.
+    
+    FIND FIRST vend NO-LOCK
+         WHERE ROWID(vend) = TO-ROWID(ttArgs.argValue) NO-ERROR.
+    IF NOT AVAILABLE vend THEN DO:
+        ASSIGN
+            opcMessage = "Invalid vend ROWID passed to handler"
+            oplSuccess = FALSE
+            .
+        RETURN.
+    END.
+
+    ASSIGN  
+        ioplcRequestData = REPLACE(ioplcRequestData, "vend.type", vend.type)
+        ioplcRequestData = REPLACE(ioplcRequestData, "vend.name", vend.name)
+        ioplcRequestData = REPLACE(ioplcRequestData, "vend.vend-no", vend.vend-no)
+        ioplcRequestData = REPLACE(ioplcRequestData, "vend.company", vend.company)
+        .
+        
+    ASSIGN
+        opcMessage = ""
+        oplSuccess = TRUE
+        .

@@ -1,0 +1,5 @@
+DEFINE TEMP-TABLE ttArgs NO-UNDO
+    FIELDS argType  AS CHARACTER
+    FIELDS argkey   AS CHARACTER
+    FIELDS argValue AS CHARACTER
+    .

@@ -65,20 +65,21 @@ edResponseData fiErrorMessageLabel edErrorMessage
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 20 BY 2.62
      BGCOLOR 8 .
 
 DEFINE BUTTON btSubmit 
+     IMAGE-UP FILE "Graphics/32x32/check.ico":U
      LABEL "Submit" 
-     SIZE 15 BY 1.14
+     SIZE 20 BY 2.62
      BGCOLOR 8 .
 
-DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "AddCustomer","AddVendor","AddProduct","AddPurchaseOrder","AddPicklist" 
      DROP-DOWN-LIST
-     SIZE 27.2 BY 1
+     SIZE 31.2 BY 1.14
      FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE edEndpoint AS CHARACTER 
@@ -108,7 +109,7 @@ DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:"
 
 DEFINE VARIABLE fiAuthType AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 19 BY 1.19
+     SIZE 12.2 BY 1.19
      FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiClientID AS CHARACTER FORMAT "X(256)":U 
@@ -148,7 +149,7 @@ DEFINE VARIABLE fiRequestDataLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Reque
 
 DEFINE VARIABLE fiRequestVerb AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.19
+     SIZE 13.6 BY 1.19
      FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiRequestVerb-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Auth Type:" 
@@ -168,7 +169,7 @@ DEFINE VARIABLE fiResponseDataLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Resp
 
 DEFINE VARIABLE fiSSLEnabled AS LOGICAL FORMAT "YES/NO":U INITIAL NO 
      VIEW-AS FILL-IN 
-     SIZE 19 BY 1.19
+     SIZE 12.2 BY 1.19
      FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiSSLEnabledlb AS CHARACTER FORMAT "X(256)":U INITIAL "SSL Enabled:" 
@@ -182,24 +183,24 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 126 BY 22.86.
+     SIZE 126 BY 23.1.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     cbAPIId AT ROW 1.76 COL 21.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     fiSSLEnabled AT ROW 1.76 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
-     fiClientID AT ROW 1.76 COL 107.6 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     cbAPIId AT ROW 1.71 COL 21.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     fiSSLEnabled AT ROW 1.76 COL 76.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
+     fiClientID AT ROW 1.76 COL 109.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      fiAPIIDLabel AT ROW 1.81 COL 9.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     fiSSLEnabledlb AT ROW 1.86 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
-     fiClientIDlb AT ROW 1.86 COL 93.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     fiRequestVerb AT ROW 3.38 COL 114 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+     fiSSLEnabledlb AT ROW 1.86 COL 57.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
+     fiClientIDlb AT ROW 1.86 COL 94.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     fiRequestVerb AT ROW 3.38 COL 115.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
      fiReqDataType AT ROW 3.48 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     fiAuthType AT ROW 3.48 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     fiAuthType AT ROW 3.48 COL 76.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      fiReqDataTypelb AT ROW 3.52 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 74
-     fiRequestVerb-2 AT ROW 3.52 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     fiRequestVerblb AT ROW 3.52 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+     fiRequestVerb-2 AT ROW 3.52 COL 57.4 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     fiRequestVerblb AT ROW 3.52 COL 94.4 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      fiEndPointLabel AT ROW 5.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
      edEndpoint AT ROW 6.86 COL 11 NO-LABEL WIDGET-ID 14
      fiRequestDataLabel AT ROW 9.95 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
@@ -208,15 +209,16 @@ DEFINE FRAME Dialog-Frame
      edResponseData AT ROW 18.29 COL 11 NO-LABEL WIDGET-ID 10
      fiErrorMessageLabel AT ROW 24.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
      edErrorMessage AT ROW 25.76 COL 11 NO-LABEL WIDGET-ID 94
-     btSubmit AT ROW 29.52 COL 55
-     Btn_Cancel AT ROW 29.52 COL 74
+     btSubmit AT ROW 28.91 COL 43.2
+     Btn_Cancel AT ROW 28.95 COL 76.2
      RECT-1 AT ROW 1.33 COL 8 WIDGET-ID 84
      RECT-2 AT ROW 5.52 COL 8 WIDGET-ID 86
-     SPACE(5.79) SKIP(2.90)
+     SPACE(5.79) SKIP(3.42)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 
          TITLE "API Tester"
-         DEFAULT-BUTTON btSubmit CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+         CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -375,8 +377,9 @@ DO:
     RUN api/CallOutBoundAPI.p (
         cAPIId,
         lcRequestData,
-        OUTPUT cMessage,
-        OUTPUT lSuccess
+        PROGRAM-NAME(1),
+        OUTPUT lSuccess,
+        OUTPUT cMessage
         ). 
     SESSION:SET-WAIT-STATE(""). 
         
@@ -449,7 +452,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       edRequestData:WORD-WRAP  = TRUE
       edResponseData:WORD-WRAP = TRUE
       .
-
+  RUN pInit.
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -499,6 +502,34 @@ PROCEDURE enable_UI :
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit Dialog-Frame 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAPIIDListItems AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    FOR EACH APIOutbound NO-LOCK
+        BREAK BY APIOutbound.apiID:
+        IF FIRST-OF(APIOutbound.apiID) THEN
+            cAPIIDListItems = cAPIIDListItems + "," + APIOutbound.apiID.
+    END.
+    
+    ASSIGN
+        cAPIIDListItems      = TRIM(cAPIIDListItems,",")
+        cbAPIId:LIST-ITEMS   = cAPIIDListItems
+        .
+    MESSAGE cAPIIDListItems view-as alert-box.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

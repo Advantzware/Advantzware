@@ -10,57 +10,69 @@
     Created     : Tue Jun 07 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
-DEFINE OUTPUT       PARAMETER opcMessage       AS CHARACTER NO-UNDO.
-DEFINE OUTPUT       PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
-
-DEFINE VARIABLE company                   AS CHARACTER NO-UNDO INITIAL "ASI".
-DEFINE VARIABLE product                   AS CHARACTER NO-UNDO INITIAL "1019".
-DEFINE VARIABLE description               AS CHARACTER NO-UNDO INITIAL "Box T1".
-DEFINE VARIABLE itmsGrpCod                AS CHARACTER NO-UNDO INITIAL "1".
-DEFINE VARIABLE codeBars                  AS CHARACTER NO-UNDO INITIAL "765987".
-DEFINE VARIABLE cat01                     AS CHARACTER NO-UNDO INITIAL "CUST012".
-DEFINE VARIABLE cat02                     AS CHARACTER NO-UNDO INITIAL "A".
-DEFINE VARIABLE cat03                     AS CHARACTER NO-UNDO INITIAL "".
-DEFINE VARIABLE cat04                     AS CHARACTER NO-UNDO INITIAL "".
-DEFINE VARIABLE cat05                     AS CHARACTER NO-UNDO INITIAL "".
-DEFINE VARIABLE purchaseRestrictionDays   AS CHARACTER NO-UNDO INITIAL "180".
-DEFINE VARIABLE saleRestrictionDays       AS CHARACTER NO-UNDO INITIAL "180".
-DEFINE VARIABLE boxesXbed                 AS CHARACTER NO-UNDO INITIAL "1"  .
-DEFINE VARIABLE boxesXpallet              AS CHARACTER NO-UNDO INITIAL "100".
-DEFINE VARIABLE mainUnit                  AS CHARACTER NO-UNDO INITIAL "Each".
-DEFINE VARIABLE packUnit                  AS CHARACTER NO-UNDO INITIAL "Each".
-DEFINE VARIABLE unitsPerPack              AS CHARACTER NO-UNDO INITIAL "1".
-DEFINE VARIABLE refUnit                   AS CHARACTER NO-UNDO INITIAL "Each".
-DEFINE VARIABLE unitsPerSale              AS CHARACTER NO-UNDO INITIAL "1".
-DEFINE VARIABLE weight                    AS CHARACTER NO-UNDO INITIAL "2".
-DEFINE VARIABLE cardCode                  AS CHARACTER NO-UNDO INITIAL "1".
-
-ASSIGN
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD16",  cardCode)
-    ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.lockWeight",  weight)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD15",  unitsPerSale)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD14",  refUnit)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD13",  unitsPerPack)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD12",  packUnit)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD11",  mainUnit)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD10",  boxesXpallet)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD9",  boxesXbed)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD8",  saleRestrictionDays)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD7",  purchaseRestrictionDays)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD6",  cat05)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD5",  cat04)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD4",  cat03)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD3",  cat02)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD2",  cat01)
-    ioplcRequestData = REPLACE(ioplcRequestData, "TBD1",  codeBars)
-    ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.cc-code",  itmsGrpCod)
-    ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-dscr",  description)
-    ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.prod-code",  product)
-    ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.company",  company)
-    .
-
-ASSIGN
-    opcMessage = ""
-    oplSuccess = TRUE
-    .   
+    {api/ttArgs.i}
+    
+    DEFINE INPUT        PARAMETER TABLE            FOR ttArgs.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE codeBars                  AS CHARACTER NO-UNDO INITIAL "765987".
+    DEFINE VARIABLE cat05                     AS CHARACTER NO-UNDO INITIAL "".
+    DEFINE VARIABLE saleRestrictionDays       AS CHARACTER NO-UNDO INITIAL "180".
+    DEFINE VARIABLE boxesXbed                 AS CHARACTER NO-UNDO INITIAL "1"  .
+    DEFINE VARIABLE mainUnit                  AS CHARACTER NO-UNDO INITIAL "EA".
+    DEFINE VARIABLE packUnit                  AS CHARACTER NO-UNDO INITIAL "".
+    DEFINE VARIABLE refUnit                   AS CHARACTER NO-UNDO INITIAL "EA".
+    DEFINE VARIABLE unitsPerSale              AS CHARACTER NO-UNDO INITIAL "1".
+    DEFINE VARIABLE cardCode                  AS CHARACTER NO-UNDO INITIAL "1".
+    
+    FIND FIRST ttArgs
+         WHERE ttArgs.argType  = "ROWID"
+           AND ttArgs.argKey   = "itemfg" NO-ERROR.
+    IF NOT AVAILABLE ttArgs THEN DO:
+        ASSIGN
+            opcMessage = "No valid itemfg record passed to handler"
+            oplSuccess = FALSE
+            .
+        RETURN.
+    END.
+    
+    FIND FIRST itemfg NO-LOCK
+         WHERE ROWID(itemfg) = TO-ROWID(ttArgs.argValue) NO-ERROR.
+    IF NOT AVAILABLE itemfg THEN DO:
+        ASSIGN
+            opcMessage = "Invalid itemfg ROWID passed to handler"
+            oplSuccess = FALSE
+            .
+        RETURN.
+    END.
+    
+    ASSIGN
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD16", cardCode)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.weight-100", STRING(itemfg.weight-100 / 100))
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD15", unitsPerSale)
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD14", refUnit)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.case-count", STRING(itemfg.case-count))
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD12", packUnit)
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD11", mainUnit)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.case-pall", STRING(itemfg.case-pall))
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD9", boxesXbed)
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD8", saleRestrictionDays)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.lead-days", STRING(itemfg.lead-days))
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD6", cat05)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.spare-char-1", itemfg.spare-char-1)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.part-dscr2", itemfg.part-dscr2)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.part-dscr1", itemfg.part-dscr1)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.cust-no", itemfg.cust-no)
+        ioplcRequestData = REPLACE(ioplcRequestData, "TBD1", codeBars)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.procat", itemfg.procat)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-name", itemfg.i-name)
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-no", STRING(itemfg.i-no))
+        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.company", itemfg.company)
+        .
+    
+    ASSIGN
+        opcMessage = ""
+        oplSuccess = TRUE
+        .   

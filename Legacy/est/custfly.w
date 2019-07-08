@@ -33,6 +33,7 @@ def input parameter ip-cust-no like cust.cust-no no-undo.
 {custom/gloc.i}
 {methods/defines/hndldefs.i}
 {methods/defines/cust.i &NEW="NEW"}
+{api/ttArgs.i}
 
 assign gcompany = g_company
        gloc = g_loc.
@@ -1175,6 +1176,11 @@ DO:
   ASSIGN {&list-4}.
 
   run assign-cust.
+  
+  /* Call AddCustomer API Outbound */
+  RUN pCallAPIOutbound (
+      ROWID(cust)
+      ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1921,6 +1927,42 @@ PROCEDURE local-initialize :
   end case.
 
   END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound D-Dialog 
+PROCEDURE pCallAPIOutbound :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriCust AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE cAPIID             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParentProgram     AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttArgs.
+    
+    CREATE ttArgs.
+    ASSIGN
+        ttArgs.argType  = "ROWID"
+        ttArgs.argKey   = "cust"
+        ttArgs.argValue = STRING(ipriCust)
+        .    
+    
+    ASSIGN
+        cParentProgram = PROGRAM-NAME(1)
+        cAPIID         = "AddCustomer"
+        .
+            
+    RUN api/PrepareAndCallOutboundRequest.p (
+        INPUT TABLE ttArgs,
+        cAPIId,    
+        cParentProgram
+        ).     
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

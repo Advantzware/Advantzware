@@ -65,13 +65,15 @@ fiErrorMessageLabel edErrorMessage
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 20 BY 2.62
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
+     IMAGE-UP FILE "Graphics/32x32/check.ico":U
      LABEL "OK" 
-     SIZE 15 BY 1.14
+     SIZE 20 BY 2.62
      BGCOLOR 8 .
 
 DEFINE VARIABLE edEndpoint AS CHARACTER 
@@ -194,15 +196,16 @@ DEFINE FRAME Dialog-Frame
      edResponseData AT ROW 18.29 COL 11 NO-LABEL WIDGET-ID 10
      fiErrorMessageLabel AT ROW 24.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
      edErrorMessage AT ROW 25.76 COL 11 NO-LABEL WIDGET-ID 94
-     Btn_OK AT ROW 28.57 COL 55
-     Btn_Cancel AT ROW 28.57 COL 74
+     Btn_OK AT ROW 28.76 COL 41.2
+     Btn_Cancel AT ROW 28.76 COL 81
      RECT-1 AT ROW 1.33 COL 8 WIDGET-ID 84
      RECT-2 AT ROW 5.52 COL 8 WIDGET-ID 86
-     SPACE(7.79) SKIP(1.47)
+     SPACE(7.79) SKIP(3.23)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 
          TITLE "Request/Response"
-         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+         CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
