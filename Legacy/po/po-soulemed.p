@@ -97,6 +97,7 @@ DEF VAR v-fglist     AS CHAR NO-UNDO.
 DEF VAR v-inolist    AS CHAR NO-UNDO.
 DEF VAR v-cnt        AS INT  NO-UNDO.
 DEF VAR v-totflg     AS LOG  NO-UNDO.
+DEFINE VARIABLE lLastRec AS LOGICAL NO-UNDO .
 
 v-dash-line = fill ("_",80).
 
@@ -239,7 +240,7 @@ print-po-blok:
 
      FOR EACH po-ordl WHERE
          po-ordl.company EQ po-ord.company AND
-         po-ordl.po-no EQ po-ord.po-no BY po-ordl.line:
+         po-ordl.po-no EQ po-ord.po-no BREAK BY po-ordl.line:
 
       ASSIGN xg-flag = no.
 
@@ -379,10 +380,19 @@ print-po-blok:
         END.  /* v-shtsiz */        
       END. /* avail item and item.mat-type EQ "B" */
 
-      IF v-printline > 38 THEN DO:         
+      IF LAST(po-ordl.line) THEN do:
+          IF v-printline > 42 THEN DO:         
+              PAGE.
+              v-printline = 0.
+              {po/po-soulemed.i}
+          END.
+      END.
+      ELSE DO:
+          IF v-printline > 46 THEN DO:         
            PAGE.
            v-printline = 0.
            {po/po-soulemed.i}
+          END.
       END.
 
       v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99").
@@ -406,7 +416,7 @@ print-po-blok:
 
       v-printline = v-printline + 2.
 
-      ASSIGN v-line-number = v-line-number + 3.
+      ASSIGN v-line-number = v-line-number + 2.
 
       IF po-ordl.dscr[1] NE "" OR 
          v-adder[3] <> "" 
@@ -565,8 +575,12 @@ print-po-blok:
 
       v-tot-sqft = v-tot-sqft + (v-qty * 1000).
 
+      IF LAST(po-ordl.line) THEN
+          ASSIGN lLastRec = YES .
+      ELSE lLastRec = NO .
+
       /* SPEC NOTE FROM PO LINE  */
-      RUN get-notes (po-ordl.rec_key, "",2).
+      RUN get-notes (po-ordl.rec_key, "",2,lLastRec).
 
       /* SPEC NOTE FROM ITEM */
       IF v-print-sn THEN DO:          
@@ -581,7 +595,7 @@ print-po-blok:
                       ELSE "".
 
         IF lv-item-rec <> "" 
-          THEN RUN get-notes(lv-item-rec, "PO",2).
+          THEN RUN get-notes(lv-item-rec, "PO",2,lLastRec).
         
       END. /* IF v-print-sn === end of specnote print */
      END.  /* FOR EACH po-ordl record */
@@ -598,7 +612,7 @@ print-po-blok:
                     /*vend.tax-gr + "        :       " */ + 
                     STRING(po-ord.tax,"->>,>>9.99").
 
-     RUN get-notes (po-ord.rec_key, "",1).
+     RUN get-notes (po-ord.rec_key, "",1,YES).
 
      PUT "<R56.5><C60><#8><FROM><R+5><C+20><RECT> " 
          "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM "->>,>>9.99"
@@ -610,25 +624,27 @@ print-po-blok:
      PUT "<FArial><R52.5><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
          "<R54> SHIP ACCORDING TO APPROVED SPECIFICATIONS - NO CHANGES ARE TO BE MADE TO THE APPROVED" SKIP
          "<R55> SPECIFICATIONS OF THE PART NUMBER ON THIS PURCHASE ORDER WITHOUT SOULE MEDICAL APPROVAL." SKIP
-         "<R56>"
-         " Please acknowledge this order verifying price, freight terms, quantity, and delivery date." SKIP
-         " INVOICES WILL BE PAID ACCORDING TO THIS PURCHASE ORDER ONLY! If no" SKIP
-         " prices are on this order, please provide current pricing. No partial or back orders without" SKIP
-         " our permission. Prices on this order are firm unless notified otherwise." SKIP        
+         "<R56> Please acknowledge this order verifying price, freight terms, quantity, and delivery date." SKIP
+         "<R57> INVOICES WILL BE PAID ACCORDING TO THIS PURCHASE ORDER ONLY! If no" SKIP
+         "<R58> prices are on this order, please provide current pricing. No partial or back orders without" SKIP
+         "<R59> our permission. Prices on this order are firm unless notified otherwise." SKIP        
+         "<R60>*Deliveries accepted <B>7:00a.m - 3:30p.m</B>." SKIP      
+         "<R61>*Mark all units with purchase order number and quantity." SKIP 
+         "<R62>*If delivery date cannot be met call <B>(813)907-6002</B>." SKIP
+         "<R63>*or Fax <B>(813)907-6092</B>." SKIP  
          "<R64.5>"
          ' ____________________Please initial & Fax to "Buyer" ' SKIP
-        SKIP.
+        .
 
-     PUT "<FArial><R60><C1>*Deliveries accepted <B>7:00a.m - 3:30p.m</B>." SKIP      
+    /* PUT "<FArial><R60><C1>*Deliveries accepted <B>7:00a.m - 3:30p.m</B>." SKIP      
          " <R61><C1>*Mark all units with purchase order number and quantity." SKIP 
          " <R62><C1>*If delivery date cannot be met call <B>(813)907-6002</B>." SKIP
          " <R63><C1>*or Fax <B>(813)907-6092</B>." SKIP  
          
-        SKIP.
+        SKIP.*/
 
 
-     v-printline = v-printline + 6.
-     
+     v-printline = v-printline + 12.
      IF v-printline <= page-size THEN PUT SKIP(74 - v-printline).
 
      IF v-fgitm AND 
@@ -669,6 +685,7 @@ PROCEDURE get-notes:
     DEF INPUT PARAM ip-rec-key AS CHAR NO-UNDO.
     DEF INPUT PARAM ip-codes   AS CHAR NO-UNDO.
     DEF INPUT PARAM ip-skip    AS INT  NO-UNDO.
+    DEFINE INPUT PARAMETER iplLastPo AS LOGICAL NO-UNDO .
 
     DEF VAR v-licnt AS INT  NO-UNDO.
     DEF VAR v-icnt  AS INT  NO-UNDO.
@@ -715,6 +732,21 @@ PROCEDURE get-notes:
     FOR EACH tt-formtext:
 
        ASSIGN v-icnt = v-icnt + 1.
+
+      IF iplLastPo THEN do:
+          IF v-printline > 42 THEN DO:         
+              PAGE.
+              v-printline = 0.
+              {po/po-soulemed.i}
+          END.
+      END.
+      ELSE DO:
+          IF v-printline > 46 THEN DO:         
+           PAGE.
+           v-printline = 0.
+           {po/po-soulemed.i}
+          END.
+      END.
        
        IF v-icnt <= 4 THEN DO:
 
