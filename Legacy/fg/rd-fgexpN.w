@@ -62,13 +62,16 @@ DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
+DEF VAR cTextListToDefault AS cha NO-UNDO.
+
 ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer Name," +
                             "Estimate,Style,Category,Category Description,Description,Description 2,Description 3,Stock/Custom," +
                             "Die #,Plate #,UPC#,CAD #,Quality/SPC #,Stocked," +
                             "Set Header,Group,Exempt from Disc," +
                             "P/M,Sell Price,Sell Price UOM,Type Code,Currency," +
                             "Warehouse,Bin,Inventory Class,Cycle Count Code,Production Code," +
-                            "Count,Weight,Freeze Weight,Pk Note,Freight Class,Freight Class Desc," +
+                            "Count,Weight,Freeze Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone," +
+                            "StackHeight,PalletLen,PalletWid,PalletDep,StdPalletVol," +
                             "Std Material Cost,Std Labor Cost,Std Var OH Cost,Std Fix OH Cost," +
                             "Total Std Cost,Average Cost,Last Cost,Cost UOM,Full Cost," +
                             "Varied,Taxable,Status,Ship Method," +  
@@ -85,14 +88,20 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Total Sq In,Total Sq Ft,Color1,Color2,Color3,Color4,Color5," +
                             "Color6,Color7,Color8,Color9,Color10,Coating1,Coating2,Coating3," +
                             "Board Code,Board Name,Caliper,Case Code,Case Name,Case Qty,Skid Code," + 
-                            "Skid Name,Skid Qty,Spec Code1"
+                            "Skid Name,Skid Qty,Release Sequence,Units/Pall,Factor Invoice,Sales Rep," +
+                            "Spec Note 1 Group,Spec Note 1 Title,Spec Note 1 Note [Large]," +
+                            "Spec Note 2 Group,Spec Note 2 Title,Spec Note 2 Note [Large]," +
+                            "Spec Note 3 Group,Spec Note 3 Title,Spec Note 3 Note [Large]," +
+                            "Spec Note 4 Group,Spec Note 4 Title,Spec Note 4 Note [Large]," +
+                            "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large]"
             cFieldListToSelect = "i-no,i-name,part-no,cust-no,cust-name," +
                             "est-no,style,procat,procat-desc,part-dscr1,part-dscr2,part-dscr3,i-code," +
                             "die-no,plate-no,upc-no,cad-no,spc-no,stocked," +
                             "isaset,spare-char-1,exempt-disc," +
                             "pur-man,sell-price,sell-uom,type-code,curr-code[1]," +
                             "def-loc,def-loc-bin,class,cc-code,prod-code," + 
-                            "case-count,weight-100,spare-int-1,prod-notes,frt-class,frt-class-dscr," +
+                            "case-count,weight-100,spare-int-1,prod-notes,frt-class,frt-class-dscr,trno,spare-char-4," +
+                            "stackHeight,unitLength,unitWidth,unitHeight,palletVolume," +
                             "std-mat-cost,std-lab-cost,std-var-cost,std-fix-cost," +
                             "total-std-cost,avg-cost,last-cost,prod-uom,spare-dec-1," +
                             "spare-char-2,taxable,stat,ship-meth," + 
@@ -109,12 +118,34 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "t-sqin,t-sqft,col1,col2,col3,col4,col5," +
                             "col6,col7,col8,col9,col10,cat1,cat2,cat3," +
                             "brd-cd,brd-nam,calp,cas-cd,cas-nam,cas-qt,skid-cd," +
-                            "skid-nam,skid-qt,spec-cod1"
+                            "skid-nam,skid-qt,spare-int-2,case-pall,factored,spare-char-3," +
+                            "spc-grp1,spc-title1,spc-note1," +
+                            "spc-grp2,spc-title2,spc-note2," +
+                            "spc-grp3,spc-title3,spc-note3," +
+                            "spc-grp4,spc-title4,spc-note4," +
+                            "spc-grp5,spc-title5,spc-note5"
 /*         cFieldListToSelect = "itemfg.i-no,itemfg.i-name,itemfg.part-no,itemfg.cust-no," +                 */
 /*                             "itemfg.est-no,itemfg.style,itemfg.procat,itemfg.part-dscr1,itemfg.i-code," + */
 /*                             "itemfg.cad-no,itemfg.spc-no,itemfg.stocked,itemfg.q-onh"                     */
        .
 {sys/inc/ttRptSel.i}
+
+    ASSIGN cTextListToDefault  = "Item #,Customer,Customer Part #,Item Name," +
+                            "Description,Description 2,Description 3,Group,Exempt from Disc," +
+                            "Style,Die #,Plate #,CAD #,Quality/SPC #,UPC#,Release Sequence,Taxable," +
+                            "Varied,Status,P/M,Ship Method,Stock/Custom,Sell Price,Sell Price UOM," +
+                            "Currency,Category,Type Code,Warehouse,Bin,Inventory Class,Cycle Count Code," +
+                            "Count,Units/Pall,Production Code,Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone," +
+                            "StackHeight,PalletLen,PalletWid,PalletDep,StdPalletVol," +
+                            "Std Material Cost,Std Labor Cost,Std Var OH Cost,Std Fix OH Cost," +
+                            "Full Cost,Cost UOM,Stocked,Box Length,Box Width,Box Depth,Blank Length,Blank Width," +
+                            "Factor Invoice,Reorder Policy,Reorder Level,Minimum Order,Maximum Order," +
+                            "Purchased Qty UOM,Lead Time (Days),Beginning Date,Sales Rep," +
+                            "Spec Note 1 Group,Spec Note 1 Title,Spec Note 1 Note [Large]," +
+                            "Spec Note 2 Group,Spec Note 2 Title,Spec Note 2 Note [Large]," +
+                            "Spec Note 3 Group,Spec Note 3 Title,Spec Note 3 Note [Large]," +
+                            "Spec Note 4 Group,Spec Note 4 Title,Spec Note 4 Note [Large]," +
+                            "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large]" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -135,7 +166,7 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
 begin_i-name end_i-name begin_cust-part-no end_cust-part-no begin_cust ~
 end_cust begin_est end_est begin_style end_style begin_procat end_procat ~
 v-dept tb_active tb_inactive tb_spec sl_avail Btn_Add sl_selected ~
-Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel Btn_Def
 &Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no begin_i-name ~
 end_i-name begin_cust-part-no end_cust-part-no begin_cust end_cust ~
 begin_est end_est begin_style end_style begin_procat end_procat v-dept ~
@@ -195,6 +226,10 @@ DEFINE BUTTON btn-ok
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
+     SIZE 16 BY 1.
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
      SIZE 16 BY 1.
 
 DEFINE BUTTON btn_down 
@@ -374,13 +409,15 @@ DEFINE FRAME rd-fgexp
      tb_inactive AT ROW 11 COL 36.6 WIDGET-ID 160
      tb_spec AT ROW 11 COL 56 WIDGET-ID 164
      sl_avail AT ROW 14.14 COL 9 NO-LABEL WIDGET-ID 26
-     Btn_Add AT ROW 14.14 COL 44 HELP
+     Btn_Def AT ROW 14.29 COL 44 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 15.52 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
      sl_selected AT ROW 14.14 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Remove AT ROW 15.33 COL 44 HELP
+     Btn_Remove AT ROW 16.71 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 16.52 COL 44 WIDGET-ID 136
-     btn_down AT ROW 17.71 COL 44 WIDGET-ID 132
+     btn_Up AT ROW 17.91 COL 44 WIDGET-ID 136
+     btn_down AT ROW 19.10 COL 44 WIDGET-ID 132
      tb_excel AT ROW 20.81 COL 36 WIDGET-ID 32
      tb_runExcel AT ROW 20.81 COL 78 RIGHT-ALIGNED WIDGET-ID 34
      fi_file AT ROW 21.76 COL 34 COLON-ALIGNED HELP
@@ -774,6 +811,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
+ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  /* task 04041406 */ 
+  RUN DisplaySelectionList2 .
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down rd-fgexp
@@ -1100,6 +1150,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgexp 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+  
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList rd-fgexp 
 PROCEDURE DisplaySelectionList :
 /*------------------------------------------------------------------------------
@@ -1212,7 +1285,7 @@ PROCEDURE enable_UI :
          begin_cust-part-no end_cust-part-no begin_cust end_cust begin_est 
          end_est begin_style end_style begin_procat end_procat v-dept tb_active 
          tb_inactive tb_spec sl_avail Btn_Add sl_selected Btn_Remove btn_Up 
-         btn_down tb_runExcel fi_file btn-ok btn-cancel 
+         btn_down tb_runExcel fi_file btn-ok btn-cancel Btn_Def
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -1321,6 +1394,9 @@ DEF VAR v-tr-name AS cha INIT "" NO-UNDO.
 DEF VAR v-cas-no AS cha INIT "" NO-UNDO.
 DEF VAR v-cas-name AS cha INIT "" NO-UNDO.
 DEF VAR v-spec-note AS cha NO-UNDO.
+DEFINE VARIABLE cSpecGroup AS CHAR EXTENT 7 NO-UNDO.
+DEFINE VARIABLE cSpecTitle AS CHAR EXTENT 7 NO-UNDO.
+DEFINE VARIABLE cSpecNote AS CHAR EXTENT 7 NO-UNDO.
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
@@ -1370,10 +1446,17 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
 
 
      v-spec-note = "".
+     i = 0.
      IF tb_spec THEN do:
+         MAIN-NOTES:
          FOR EACH notes WHERE notes.rec_key = b-itemfg.rec_key AND
          can-do(v-dept,notes.note_code) NO-LOCK:
              IF AVAIL notes THEN v-spec-note = v-spec-note + " " + notes.note_text.
+             i = i + 1.
+             ASSIGN cSpecGroup[i] = notes.note_code
+                 cSpecTitle[i] = notes.note_title
+                 cSpecNote[i] = notes.note_text.
+                 IF i GE 6 THEN LEAVE MAIN-NOTES.
          END.
      END.
 
@@ -1484,7 +1567,7 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
 
     FOR EACH ttRptSelected:
 
-        IF LOOKUP(ttRptSelected.FieldList,"col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,cat1,cat2,cat3,brd-cd,brd-nam,calp,cas-cd,cas-nam,cas-qt,skid-cd,skid-nam,skid-qt,spec-cod1") = 0 THEN
+        IF LOOKUP(ttRptSelected.FieldList,"col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,cat1,cat2,cat3,brd-cd,brd-nam,calp,cas-cd,cas-nam,cas-qt,skid-cd,skid-nam,skid-qt,spec-cod1,spc-grp1,spc-title1,spc-note1,spc-grp2,spc-title2,spc-note2,spc-grp3,spc-title3,spc-note3,spc-grp4,spc-title4,spc-note4,spc-grp5,spc-title5,spc-note5") = 0 THEN
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue-itemfg(BUFFER b-itemfg,ttRptSelected.FieldList)).
         
@@ -1537,6 +1620,40 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(v-pallet-count)).
             WHEN "spec-cod1" THEN                                                              
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(v-spec-note).
+            WHEN "spc-grp1" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecGroup[1]).
+            WHEN "spc-title1" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecTitle[1]).
+            WHEN "spc-note1" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecNote[1]).
+
+            WHEN "spc-grp2" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecGroup[2]).
+            WHEN "spc-title2" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecTitle[2]).
+            WHEN "spc-note2" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecNote[2]).
+
+            WHEN "spc-grp3" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecGroup[3]).
+            WHEN "spc-title3" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecTitle[3]).
+            WHEN "spc-note3" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecNote[3]).
+
+            WHEN "spc-grp4" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecGroup[4]).
+            WHEN "spc-title4" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecTitle[4]).
+            WHEN "spc-note4" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecNote[4]).
+
+           WHEN "spc-grp5" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecGroup[5]).
+            WHEN "spc-title5" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecTitle[5]).
+            WHEN "spc-note5" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecNote[5]).
           END CASE.  
         END.
     END.
