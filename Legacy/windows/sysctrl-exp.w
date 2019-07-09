@@ -126,9 +126,9 @@ FUNCTION buildHeader RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-itemfg rd-sysexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-    ( BUFFER ipb-itemfg FOR sys-ctrl, ipc-field AS CHARACTER )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetValueExternalToSysCtrl rd-sysexp 
+FUNCTION fGetValueExternalToSysCtrl RETURNS CHARACTER
+    ( BUFFER ipb-sys-ctrl FOR sys-ctrl, ipc-field AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -846,7 +846,7 @@ PROCEDURE run-report :
 
         FOR EACH ttRptSelected:
             v-excel-detail-lines = v-excel-detail-lines + 
-                appendXLLine(getValue-itemfg(BUFFER b-sys-ctrl,ttRptSelected.FieldList)).
+                appendXLLine(fGetValueExternalToSysCtrl(BUFFER b-sys-ctrl,ttRptSelected.FieldList)).
         END.
 
         PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP. 
@@ -929,9 +929,9 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-itemfg rd-sysexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-    ( BUFFER ipb-itemfg FOR sys-ctrl, ipc-field AS CHARACTER ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetValueExternalToSysCtrl rd-sysexp 
+FUNCTION fGetValueExternalToSysCtrl RETURNS CHARACTER
+    ( BUFFER ipb-sys-ctrl FOR sys-ctrl, ipc-field AS CHARACTER ) :
     /*------------------------------------------------------------------------------
       Purpose:  Take a buffer and field name as string and return the value
         Notes:  
@@ -944,7 +944,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
     CASE ipc-field :
         WHEN "help-cont"  THEN DO:
             FIND FIRST hlp-head NO-LOCK 
-                WHERE hlp-head.fld-name EQ ipb-itemfg.name NO-ERROR.
+                WHERE hlp-head.fld-name EQ ipb-sys-ctrl.name NO-ERROR.
               lc-return = IF AVAIL hlp-head THEN hlp-head.help-txt ELSE "" .
             END.
         OTHERWISE 
@@ -954,7 +954,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 li-extent = INT(SUBSTRING(ipc-field,INDEX(ipc-field,"[") + 1, LENGTH(TRIM(ipc-field)) - INDEX(ipc-field,"[") - 1)).
                 ipc-field = SUBSTRING(ipc-field,1,INDEX(ipc-field,"[") - 1).
             END.
-            h-field = BUFFER ipb-itemfg:BUFFER-FIELD(ipc-field).
+            h-field = BUFFER ipb-sys-ctrl:BUFFER-FIELD(ipc-field).
             IF h-field:EXTENT = 0 THEN
                 lc-return = STRING(h-field:BUFFER-VALUE /*, h-field:FORMAT*/ ).
             ELSE
