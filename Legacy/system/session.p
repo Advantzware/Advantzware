@@ -442,6 +442,7 @@ PROCEDURE spDynAuditField:
     DEFINE INPUT  PARAMETER ipcFrameDB    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFrameFile  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFrameField AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditKey   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oprRowID      AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER opcErrorMsg   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplRunAudit   AS LOGICAL   NO-UNDO.
@@ -454,13 +455,16 @@ PROCEDURE spDynAuditField:
     DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lResults   AS LOGICAL   NO-UNDO.
     
-    FIND FIRST AuditHdr NO-LOCK
-         WHERE AuditHdr.AuditDB    EQ ipcFrameDB
-           AND AuditHdr.AuditTable EQ ipcFrameFile
-         NO-ERROR.
-    lResults = AVAILABLE AuditHdr AND
-               CAN-FIND(FIRST AuditDtl OF AuditHdr
-                        WHERE AuditDtl.AuditField EQ ipcFrameField).
+    FOR EACH AuditHdr NO-LOCK
+        WHERE AuditHdr.AuditDB    EQ ipcFrameDB
+          AND AuditHdr.AuditTable EQ ipcFrameFile
+          AND AuditHdr.AuditKey   EQ ipcAuditKey,
+        FIRST AuditDtl OF AuditHdr NO-LOCK
+        WHERE AuditDtl.AuditField EQ ipcFrameField
+        :
+        lResults = TRUE.
+        LEAVE.
+    END. /* each audithdr */
     RUN util/CheckModule.p ("ASI","Audit", NO, OUTPUT lContinue).
     IF lContinue THEN DO:
         IF CAN-FIND(FIRST AuditTbl
@@ -491,6 +495,7 @@ PROCEDURE spDynAuditField:
                                 cLookupTitle = "Audit Field History for Database: " + ipcFrameDB
                                              + " - Table: " + ipcFrameFile
                                              + " - Field: " + ipcFrameField
+                                             + " - Audit Key: " + ipcAuditKey
                                              .
                             DO idx = 1 TO EXTENT(dynParamValue.paramName):
                                 IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
@@ -501,6 +506,8 @@ PROCEDURE spDynAuditField:
                                     dynParamValue.paramValue[idx] = ipcFrameFile.
                                     WHEN "AuditField" THEN
                                     dynParamValue.paramValue[idx] = ipcFrameField.
+                                    WHEN "AuditKey" THEN
+                                    dynParamValue.paramValue[idx] = ipcAuditKey.
                                 END CASE.
                             END. /* do idx */
                             FIND CURRENT dynParamValue NO-LOCK.

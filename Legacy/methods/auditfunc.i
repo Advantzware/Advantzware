@@ -1,5 +1,7 @@
 /* auditfunc.i */
 
+&IF DEFINED(AuditFunctions) EQ 0 &THEN
+&Global-define AuditFunctions
 FUNCTION fFormatValue RETURNS CHARACTER (iphTable AS HANDLE, ipcField AS CHARACTER, ipiExtent AS INTEGER):
     DEFINE VARIABLE cStr AS CHARACTER NO-UNDO.
 
@@ -25,3 +27,4 @@ FUNCTION fAuditKey RETURNS CHARACTER (iphTable AS HANDLE, ipcIdxFields AS CHARAC
     
     RETURN cAuditKey.
 END FUNCTION.
+&ENDIF

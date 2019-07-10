@@ -53,11 +53,9 @@ RUN VALUE(run-proc) (b-prgrms.prgmname,help-page).
 &Scoped-define LABEL11 About
 &Scoped-define PROC11 ~
 RUN Get_Procedure IN Persistent-Handle ('about.',OUTPUT run-proc,yes).
-DEFINE VARIABLE hCallAudit AS HANDLE NO-UNDO.
 &Scoped-define ITEM12 Audit_Hist
 &Scoped-define LABEL12 Audit History
-&Scoped-define PROC12 ~
-RUN system/CallAudit.p PERSISTENT SET hCallAudit ('{&FIRST-EXTERNAL-TABLE}',hTable,'Window',PROGRAM-NAME(1)).
+&Scoped-define PROC12 RUN pCallAudit.
 &Scoped-define ITEM13 SysCtrlUsage
 &Scoped-define LABEL13 Sys Ctrl Usage
 &Scoped-define PROC13 ~

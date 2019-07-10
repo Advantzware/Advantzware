@@ -363,6 +363,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAudit Include
+PROCEDURE pCallAudit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "RECORD-SOURCE" "pCallAudit" "('Window')"}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset-g_rec_key Include 
 PROCEDURE Reset-g_rec_key :
 /*------------------------------------------------------------------------------

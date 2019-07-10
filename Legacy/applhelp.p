@@ -22,7 +22,7 @@ IF KEYLABEL(LASTKEY) EQ "CTRL-F" THEN DO:
 END. /* if ctrl-f */
 ELSE
 IF KEYLABEL(LASTKEY) EQ "CTRL-P" THEN
-RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
+    RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
 ELSE
 IF KEYLABEL(LASTKEY) EQ "F1" THEN DO: /* F1 function key */
     ASSIGN
@@ -184,17 +184,17 @@ PROCEDURE pRunDynLookup:
         ELSE
         DO TRANSACTION:
             IF NOT AVAILABLE dynLookup THEN DO:
-/*                MESSAGE                                         */
-/*                    "Program:" cPrgmName SKIP(1)                */
-/*                    "DB:" cFrameDB SKIP                         */
-/*                    "Table:" cFrameFile SKIP                    */
-/*                    "Field:" cFrameField SKIP(1)                */
-/*                    "Restrict this Lookup to this Program Only?"*/
-/*                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO       */
-/*                UPDATE lRestrict AS LOGICAL.                    */
+                MESSAGE
+                    "Program:" cPrgmName SKIP(1)
+                    "DB:" cFrameDB SKIP
+                    "Table:" cFrameFile SKIP
+                    "Field:" cFrameField SKIP(1)
+                    "Restrict this Lookup to this Program Only?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                UPDATE lRestrict AS LOGICAL.
                 CREATE dynLookup.
                 ASSIGN
-                    dynLookup.prgmName  = /*IF lRestrict THEN cPrgmName ELSE*/ ""
+                    dynLookup.prgmName  = IF lRestrict THEN cPrgmName ELSE ""
                     dynLookup.tableDB   = cFrameDB
                     dynLookup.tableName = cFrameFile
                     dynLookup.fieldName = cFrameField

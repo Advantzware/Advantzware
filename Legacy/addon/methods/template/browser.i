@@ -28,6 +28,7 @@ DEFINE VARIABLE find-auto AS LOGICAL NO-UNDO.
 
 {methods/defines/noreckey.i}
 {methods/high_low.i}
+{methods/auditfunc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -75,14 +76,7 @@ DEFINE VARIABLE find-auto AS LOGICAL NO-UNDO.
 
 /* ***************************  Main Block  *************************** */
 
-ON CTRL-A OF {&BROWSE-NAME} IN FRAME {&FRAME-NAME}
-DO:
-    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
-    
-    hTable = BUFFER {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:HANDLE.
-    RUN system/CallAudit.p ("{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}",hTable,"Browser",PROGRAM-NAME(1)).
-END.
-
+{methods/ctrl-a_browser.i}
 &IF "{&IAMWHAT}" = "" &THEN
   &IF DEFINED(BRWSDEFS) NE 0 &THEN
 {methods/browsers/{&BRWSDEFS}.i}
