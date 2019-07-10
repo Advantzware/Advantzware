@@ -1956,7 +1956,10 @@ FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  /************************ INTERNAL PROCEDURES ********************/
+  &Scoped-define sdPrgmName "oe/v-ord"
+  {methods/pSessionAuditKey.i}
+
+/************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5321,6 +5324,8 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN pSessionAuditKey.
+  
   DO WITH FRAME {&FRAME-NAME}:    
     IF NOT v-slow-ord AND NOT adm-new-record THEN DISABLE oe-ord.sold-id.
     

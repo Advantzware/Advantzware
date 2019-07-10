@@ -82,6 +82,12 @@ CASE ip-lookupField:
            INPUT "cust-no,name,city,state,type,sman,terr",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,
            /* Pipe separated list of return field values as output based on previous input list */
            OUTPUT op-returnFields,
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
@@ -116,6 +122,12 @@ CASE ip-lookupField:
            INPUT "i-no,i-name,cust-no,part-no,part-dscr1,part-dscr2,part-dscr3",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,
            /* Pipe separated list of return field values as output based on previous input list */
            OUTPUT op-returnFields,
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
@@ -150,6 +162,12 @@ CASE ip-lookupField:
            INPUT "company,job-no,job-no2,frm,blank-no,i-no,est-no,ord-no,cust-no,opened,due-date",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,
            /* Pipe separated list of return field values as output based on previous input list */
            OUTPUT op-returnFields,
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */

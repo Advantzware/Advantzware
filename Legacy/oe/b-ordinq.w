@@ -1278,6 +1278,7 @@ END.
 &SCOPED-DEFINE key-phrase oe-ordl.company EQ cocode
 &SCOPED-DEFINE cellColumnDat b-ordinq
 
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 {methods/browsers/setCellColumns.i}
 
@@ -1298,6 +1299,8 @@ SESSION:DATA-ENTRY-RETURN = YES.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
+&Scoped-define sdQuery {&BROWSE-NAME}
+{methods/pSessionAuditKey.i}
 {methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */

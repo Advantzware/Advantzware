@@ -74,18 +74,12 @@ DEFINE VAR copy-record AS LOG NO-UNDO.
 
 /* ***************************  Main Block  *************************** */
 
-ON CTRL-A OF FRAME {&FRAME-NAME}
-DO:
-    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
-    
-    hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
-    RUN system/CallAudit.p ("{&FIRST-EXTERNAL-TABLE}",hTable,"Viewer",PROGRAM-NAME(1)).
-END.
-
+{methods/ctrl-a_viewer.i}
 {methods/template/primflds.i}
 {methods/enhance.i}
 {methods/template/viewrhlp.i}
 {sys/inc/f3help.i}  /* asi field contents help */
+{methods/pSessionAuditKey.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -272,6 +266,7 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .  
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN pSessionAuditKey.
   {methods/viewers/rowavail.i}
 
 END PROCEDURE.
