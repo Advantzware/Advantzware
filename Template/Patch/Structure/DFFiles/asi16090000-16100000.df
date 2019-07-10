@@ -1,0 +1,583 @@
+ADD TABLE "APIOutbound"
+  AREA "Data"
+  DUMP-NAME "apioutbound"
+
+ADD FIELD "rec_key" OF "APIOutbound" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "apiID" OF "APIOutbound" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "endPoint" OF "APIOutbound" AS character 
+  FORMAT "x(200)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 200
+  ORDER 30
+
+ADD FIELD "isSSLEnabled" OF "APIOutbound" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 5
+  MAX-WIDTH 1
+  ORDER 40
+
+ADD FIELD "authType" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 16
+  ORDER 50
+
+ADD FIELD "userName" OF "APIOutbound" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD FIELD "password" OF "APIOutbound" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "requestData" OF "APIOutbound" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 9
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 80
+
+ADD FIELD "requestDataType" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD FIELD "requestVerb" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "clientID" OF "APIOutbound" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 110
+
+ADD FIELD "isActive" OF "APIOutbound" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 13
+  MAX-WIDTH 1
+  ORDER 120
+
+ADD FIELD "createTime" OF "APIOutbound" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  POSITION 14
+  MAX-WIDTH 8
+  ORDER 130
+
+ADD FIELD "createBy" OF "APIOutbound" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  POSITION 15
+  MAX-WIDTH 16
+  ORDER 140
+
+ADD FIELD "requestHandler" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 150
+
+ADD FIELD "responseHandler" OF "APIOutbound" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 17
+  MAX-WIDTH 16
+  ORDER 160
+
+ADD INDEX "rec_key" ON "APIOutbound" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "apiClient" ON "APIOutbound" 
+  AREA "Index"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "clientID" ASCENDING 
+  INDEX-FIELD "isActive" ASCENDING 
+
+ADD INDEX "apiID" ON "APIOutbound" 
+  AREA "Data"
+  INDEX-FIELD "apiID" ASCENDING 
+
+ADD INDEX "apiVerb" ON "APIOutbound" 
+  AREA "Data"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "requestVerb" ASCENDING 
+  INDEX-FIELD "isActive" ASCENDING 
+
+ADD INDEX "createTime" ON "APIOutbound" 
+  AREA "Index"
+  INDEX-FIELD "createTime" DESCENDING 
+  INDEX-FIELD "createBy" ASCENDING 
+
+ADD TABLE "APIOutboundDetail"
+  AREA "Data"
+  DUMP-NAME "apioutbounddetail"
+
+ADD FIELD "apiID" OF "APIOutboundDetail" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "rec_key" OF "APIOutboundDetail" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 42
+  ORDER 20
+
+ADD FIELD "parentID" OF "APIOutboundDetail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "detailID" OF "APIOutboundDetail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD FIELD "data" OF "APIOutboundDetail" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 6
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 50
+
+ADD INDEX "apiID" ON "APIOutboundDetail" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "apiID" ASCENDING 
+
+ADD INDEX "detailID" ON "APIOutboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "detailID" ASCENDING 
+
+ADD INDEX "parentID" ON "APIOutboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "parentID" ASCENDING 
+  INDEX-FIELD "detailID" ASCENDING 
+
+ADD INDEX "rec_key" ON "APIOutboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "APIOutboundEvent"
+  AREA "Data"
+  DUMP-NAME "apioutboundevent"
+
+ADD FIELD "rec_key" OF "APIOutboundEvent" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "apiID" OF "APIOutboundEvent" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 16
+  ORDER 20
+
+ADD FIELD "requestDateTime" OF "APIOutboundEvent" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  POSITION 4
+  MAX-WIDTH 8
+  ORDER 30
+
+ADD FIELD "requestData" OF "APIOutboundEvent" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 5
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 40
+
+ADD FIELD "responseData" OF "APIOutboundEvent" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 6
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 50
+
+ADD FIELD "callingProgram" OF "APIOutboundEvent" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD FIELD "success" OF "APIOutboundEvent" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 8
+  MAX-WIDTH 1
+  ORDER 70
+
+ADD FIELD "requestedBy" OF "APIOutboundEvent" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "errorMessage" OF "APIOutboundEvent" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 90
+
+ADD INDEX "rec_key" ON "APIOutboundEvent" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "apiID" ON "APIOutboundEvent" 
+  AREA "Data"
+  INDEX-FIELD "apiID" ASCENDING 
+
+ADD INDEX "requestDateTime" ON "APIOutboundEvent" 
+  AREA "Data"
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "requestDateTime" DESCENDING 
+  INDEX-FIELD "success" DESCENDING 
+  INDEX-FIELD "requestedBy" DESCENDING 
+
+ADD TABLE "estPacking"
+  AREA "Data"
+  DUMP-NAME "estpacking"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estPacking.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estPacking.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estPacking.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estPacking" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  LENGTH 0
+  ORDER 40
+
+ADD FIELD "estPackingID" OF "estPacking" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Est Release ID"
+  POSITION 3
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "company" OF "estPacking" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 4
+  MAX-WIDTH 6
+  HELP "Enter the company code."
+  ORDER 60
+  MANDATORY
+
+ADD FIELD "estimateNo" OF "estPacking" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 5
+  MAX-WIDTH 10
+  HELP "Enter Estimate Number."
+  ORDER 70
+
+ADD FIELD "formNo" OF "estPacking" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Form No"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 80
+
+ADD FIELD "blankNo" OF "estPacking" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Blank No"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "quantity" OF "estPacking" AS decimal 
+  FORMAT "->,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Quantity"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 100
+
+ADD FIELD "quantityUOM" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Quantity UOM"
+  POSITION 10
+  MAX-WIDTH 16
+  ORDER 120
+
+ADD FIELD "rmItemID" OF "estPacking" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "RM Item ID"
+  POSITION 11
+  MAX-WIDTH 48
+  ORDER 130
+
+ADD FIELD "materialType" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Mat Type"
+  POSITION 12
+  MAX-WIDTH 16
+  ORDER 140
+
+ADD FIELD "dimLength" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Length"
+  POSITION 13
+  MAX-WIDTH 17
+  DECIMALS 6
+  ORDER 150
+
+ADD FIELD "dimWidth" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Width"
+  POSITION 14
+  MAX-WIDTH 17
+  DECIMALS 6
+  ORDER 160
+
+ADD FIELD "dimDepth" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.9999<<"
+  INITIAL "0"
+  LABEL "Dim Depth"
+  POSITION 15
+  MAX-WIDTH 17
+  DECIMALS 6
+  ORDER 170
+
+ADD FIELD "dimUOM" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Dim UOM"
+  POSITION 16
+  MAX-WIDTH 16
+  ORDER 180
+
+ADD FIELD "weightPerEach" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Weight/EA"
+  POSITION 17
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 190
+
+ADD FIELD "weightUOM" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Weight UOM"
+  POSITION 18
+  MAX-WIDTH 16
+  ORDER 200
+
+ADD FIELD "costOverriderPerUOM" OF "estPacking" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Cost Over Per UOM"
+  POSITION 19
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 210
+
+ADD FIELD "costOverrideUOM" OF "estPacking" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Cost Over UOM"
+  POSITION 20
+  MAX-WIDTH 16
+  ORDER 220
+
+ADD FIELD "quantityPer" OF "estPacking" AS character 
+  FORMAT "x(1)"
+  INITIAL ""
+  LABEL "QtyPer"
+  POSITION 21
+  MAX-WIDTH 2
+  ORDER 110
+
+UPDATE FIELD "unitLength" OF "inventoryStock"
+  ORDER 671
+
+UPDATE FIELD "unitWidth" OF "inventoryStock"
+  ORDER 681
+
+UPDATE FIELD "unitHeight" OF "inventoryStock"
+  ORDER 691
+
+ADD FIELD "costStandardLab" OF "inventoryStock" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 71
+  INITIAL "0"
+  DECIMALS 2
+  ORDER 680
+  MAX-WIDTH 17
+
+ADD FIELD "costStandardVOH" OF "inventoryStock" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 72
+  INITIAL "0"
+  DECIMALS 2
+  ORDER 690
+  MAX-WIDTH 17
+
+ADD FIELD "costStandardFOH" OF "inventoryStock" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 73
+  INITIAL "0"
+  DECIMALS 2
+  ORDER 701
+  MAX-WIDTH 17
+
+ADD FIELD "costStandardMat" OF "inventoryStock" AS decimal
+  FORMAT "->>>,>>9.99<<"
+  POSITION 74
+  INITIAL "0"
+  DECIMALS 2
+  ORDER 670
+  MAX-WIDTH 17
+
+ADD FIELD "poStatus" OF "itemfg" AS character
+  FORMAT "x(8)"
+  POSITION 223
+  INITIAL ""
+  LABEL "PO Status"
+  COLUMN-LABEL "PO Status"
+  ORDER 2190
+  MAX-WIDTH 16
+
+ADD FIELD "onHold" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 224
+  INITIAL "no"
+  LABEL "On Hold"
+  COLUMN-LABEL "On Hold"
+  ORDER 2200
+  MAX-WIDTH 1
+
+ADD FIELD "job-mchID" OF "job-mch" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 75
+  INITIAL "0"
+  LABEL "Job-mchID"
+  ORDER 840
+  MAX-WIDTH 4
+
+ADD FIELD "notes" OF "prgrms" AS character
+  FORMAT "x(120)"
+  POSITION 35
+  INITIAL ""
+  LABEL "Notes"
+  ORDER 330
+  MAX-WIDTH 240
+
+ADD FIELD "modeList" OF "prgrms" AS character
+  FORMAT "x(24)"
+  POSITION 36
+  INITIAL ""
+  LABEL "Mode List"
+  ORDER 340
+  MAX-WIDTH 48
+
+ADD SEQUENCE "estPackingId_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "job-mch_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "prgrms_seq"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000011654

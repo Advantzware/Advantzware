@@ -13,7 +13,7 @@
     Description : ProdAce Interface
 
     Author(s)   : Ron Stark
-    Created     :  7.14.2017 copied from vorne.w
+    Created     : 7.14.2017 copied from vorne.w
     ReWritten   : 
     Notes       :
 ------------------------------------------------------------------------*/
@@ -57,6 +57,10 @@ DEFINE VARIABLE jobMchRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE lvShifts AS CHARACTER NO-UNDO INIT 'First,Second,Third,Fourth,Fifth,Sixth'.
 DEFINE VARIABLE lvPostProdAce AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lvHoldFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProdAceBarScan AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lProdAceBarScan AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResource AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttToggleBox NO-UNDO
     FIELD hToggleBox AS HANDLE
@@ -138,14 +142,14 @@ SESSION:SET-WAIT-STATE('').
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExportShifts btnReset btnSave btnImport ~
-btnExportEmployees setAllResources selectedShift selectedStartDate ~
-btnCalendar-1 selectedStartDateOption selectedEndDate btnCalendar-2 ~
-selectedEndDateOption selectedStartDueDate btnCalendar-3 ~
-selectedStartDueDateOption selectedEndDueDate btnCalendar-4 btnExportJobs ~
+&Scoped-Define ENABLED-OBJECTS btnSave btnExportShifts btnReset btnImport ~
+btnExportEmployees btnExportJobs setAllResources selectedShift ~
+btnExportMachines selectedStartDate btnCalendar-1 selectedStartDateOption ~
+selectedEndDate btnCalendar-2 selectedEndDateOption selectedStartDueDate ~
+btnCalendar-3 selectedStartDueDateOption selectedEndDueDate btnCalendar-4 ~
 selectedEndDueDateOption svAllJobNo svStartJobNo svStartJobNo2 svEndJobNo ~
-btnExportMachines svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType ~
-lvProdAceBlankEmployee lvResourceList 
+svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType lvProdAceBlankEmployee ~
+lvResourceList 
 &Scoped-Define DISPLAYED-OBJECTS setAllResources selectedShift ~
 selectedStartDate selectedStartDateOption selectedEndDate ~
 selectedEndDateOption selectedStartDueDate selectedStartDueDateOption ~
@@ -389,20 +393,24 @@ DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnSave AT ROW 20.52 COL 72 HELP
+          "Click to Save"
      btnExportShifts AT ROW 12.19 COL 72 HELP
           "Export Shifts to Production ACE" WIDGET-ID 18
      btnReset AT ROW 20.52 COL 64 HELP
           "Click to Reset Values"
-     btnSave AT ROW 20.52 COL 72 HELP
-          "Click to Save"
      btnImport AT ROW 5.52 COL 72 HELP
           "Import from Production Ace" WIDGET-ID 6
      btnExportEmployees AT ROW 12.19 COL 64 HELP
           "Export Employees to Production ACE" WIDGET-ID 14
+     btnExportJobs AT ROW 12.19 COL 48 HELP
+          "Export Jobs to Production ACE" WIDGET-ID 26
      setAllResources AT ROW 2.19 COL 85 HELP
           "Select to Toggle All Resources (On/Off)" WIDGET-ID 30
      selectedShift AT ROW 2.91 COL 3 HELP
           "Select Shift" NO-LABEL
+     btnExportMachines AT ROW 12.19 COL 56 HELP
+          "Export Machines to Production ACE" WIDGET-ID 4
      selectedStartDate AT ROW 2.91 COL 32 COLON-ALIGNED HELP
           "Enter Starting Date"
      btnCalendar-1 AT ROW 2.91 COL 50 WIDGET-ID 76
@@ -421,8 +429,6 @@ DEFINE FRAME DEFAULT-FRAME
      selectedEndDueDate AT ROW 9.81 COL 25 COLON-ALIGNED HELP
           "Enter Ending Due Date" WIDGET-ID 84
      btnCalendar-4 AT ROW 9.81 COL 43 WIDGET-ID 88
-     btnExportJobs AT ROW 12.19 COL 48 HELP
-          "Export Jobs to Production ACE" WIDGET-ID 26
      selectedEndDueDateOption AT ROW 9.81 COL 46 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 92
      svAllJobNo AT ROW 11 COL 27 HELP
@@ -433,8 +439,6 @@ DEFINE FRAME DEFAULT-FRAME
           "Enter Start Job Run" WIDGET-ID 180
      svEndJobNo AT ROW 13.14 COL 25 COLON-ALIGNED HELP
           "Enter End Job" WIDGET-ID 176
-     btnExportMachines AT ROW 12.19 COL 56 HELP
-          "Export Machines to Production ACE" WIDGET-ID 4
      svEndJobNo2 AT ROW 13.14 COL 36 COLON-ALIGNED HELP
           "Enter End Job Run" WIDGET-ID 182
      lvProdAceDir AT ROW 15.52 COL 21 COLON-ALIGNED
@@ -445,8 +449,8 @@ DEFINE FRAME DEFAULT-FRAME
      lvEmpLogin AT ROW 19.1 COL 24 NO-LABEL
      lvProdAceBlankEmployee AT ROW 20.29 COL 21 COLON-ALIGNED
      lvResourceList AT ROW 21.48 COL 21 COLON-ALIGNED
-     "Employee Login:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 19.1 COL 6
+     "Type:" VIEW-AS TEXT
+          SIZE 6 BY .81 AT ROW 17.91 COL 16
      " Select to Set Current (1st) Job Per Resource" VIEW-AS TEXT
           SIZE 52 BY .62 AT ROW 1.24 COL 85 WIDGET-ID 190
           FONT 6
@@ -466,8 +470,8 @@ DEFINE FRAME DEFAULT-FRAME
      " Import" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 4 WIDGET-ID 36
           FONT 6
-     "Type:" VIEW-AS TEXT
-          SIZE 6 BY .81 AT ROW 17.91 COL 16
+     "Employee Login:" VIEW-AS TEXT
+          SIZE 16 BY .81 AT ROW 19.1 COL 6
      " Configuration" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 14.57 COL 4 WIDGET-ID 38
           FONT 6
@@ -917,6 +921,12 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  RUN asiCommaList IN iphContainerHandle ('Company',OUTPUT cCompany).
+  RUN sys/ref/nk1look.p (
+      cCompany,"ProdAceBarScan","L",NO,NO,"","",
+       OUTPUT cProdAceBarScan,OUTPUT lProdAceBarScan
+      ).
+  lProdAceBarScan = lProdAceBarScan AND cProdAceBarScan EQ "YES".
   RUN getProdAceDatValues.
   ASSIGN
     selectedStartDate = TODAY
@@ -1142,6 +1152,8 @@ PROCEDURE createTtblProdAce :
   DEFINE VARIABLE lvChargeCode AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvFile AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvTemp AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iJobMchID AS INTEGER NO-UNDO.
 
   EMPTY TEMP-TABLE ttblStatus.
   ASSIGN 
@@ -1164,13 +1176,34 @@ PROCEDURE createTtblProdAce :
         lvProdAceData = REPLACE(lvProdAceData,', ',',')
         lvProdAceData = REPLACE(lvProdAceData,'"','')
         ttblStatus.dmiID = INT(ENTRY(1,lvProdAceData))
-        ttblStatus.job = ENTRY(2,lvProdAceData)
-        ttblStatus.blank-no = INT(ENTRY(2,ttblStatus.job,' '))
-        ttblStatus.pass = INT(ENTRY(3,ttblStatus.job,' '))
-        ttblStatus.job = ENTRY(1,ttblStatus.job,' ')
         ttblStatus.productID = ENTRY(3,lvProdAceData)
         ttblStatus.runID = INT(ENTRY(6,lvProdAceData))
         ttblStatus.runComplete = ENTRY(10,lvProdAceData) EQ 'C'
+        .
+      IF lProdAceBarScan THEN DO:
+          ASSIGN
+            cJobNo = ENTRY(2,lvProdAceData)
+            iJobMchID = INT(ENTRY(2,cJobNo,'.'))
+            .
+          FIND FIRST job-mch NO-LOCK
+               WHERE job-mch.job-mchID EQ iJobMchID
+               NO-ERROR.
+          IF AVAILABLE job-mch THEN
+          ASSIGN
+            ttblStatus.job = LEFT-TRIM(job-mch.job-no) + '-'
+                           + STRING(job-mch.job-no2) + '.'
+                           + STRING(job-mch.frm)
+            ttblStatus.blank-no = job-mch.blank-no
+            ttblStatus.pass = job-mch.pass
+            .
+      END. /* if prod ace bar scanning */
+      ELSE
+      ASSIGN
+        ttblStatus.job = ENTRY(2,lvProdAceData)
+        ttblStatus.blank-no = INT(ENTRY(3,ttblStatus.job,'.'))
+        ttblStatus.pass = INT(ENTRY(4,ttblStatus.job,'.'))
+        ttblStatus.job = ENTRY(1,ttblStatus.job,'.') + '.'
+                       + ENTRY(2,ttblStatus.job,'.')
         .
     END. /* repeat */
     OUTPUT STREAM sProdAce CLOSE.
@@ -1205,23 +1238,74 @@ PROCEDURE createTtblProdAce :
       PUT STREAM sHold UNFORMATTED lvProdAceData SKIP.
       NEXT.
     END. /* if prodAceshift ne */
+    lvProdAceResource = ttblResource.resource.
+/*    IF lProdAceBarScan THEN DO:                                     */
+/*        ASSIGN                                                      */
+/*            idx = LENGTH(ENTRY(2,lvProdAceData)) - 21               */
+/*            cEstOpRecKey = SUBSTRING(ENTRY(2,lvProdAceData),idx + 1)*/
+/*            cJobNo = SUBSTRING(ENTRY(2,lvProdAceData),1,idx)        */
+/*            iRunNo = INTEGER(ENTRY(2,cJobNo,"-"))                   */
+/*            cJobNo = ENTRY(1,cJobNo,"-")                            */
+/*            .                                                       */
+/*        FIND FIRST job-mch NO-LOCK                                  */
+/*             WHERE job-mch.company EQ cCompany                      */
+/*               AND job-mch.job-no EQ cJobNo                         */
+/*               AND job-mch.job-no2 EQ iRunNo                        */
+/*               AND job-mch.est-op_rec_key EQ cEstOpRecKey           */
+/*             NO-ERROR.                                              */
+/*        IF AVAILABLE job-mch THEN                                   */
+/*        ASSIGN                                                      */
+/*          lvProdAceJob   = LEFT-TRIM(job-mch.job-no) + '-'          */
+/*                         + STRING(job-mch.job-no2) + '.'            */
+/*                         + STRING(job-mch.frm)                      */
+/*          lvProdAceBlank = STRING(job-mch.blank-no)                 */
+/*          lvProdAcePass  = STRING(job-mch.pass)                     */
+/*          .                                                         */
+/*    END. /* if prod ace bar scanning */                             */
+/*    ELSE                                                            */
     ASSIGN
-      lvProdAceResource = ttblResource.resource
-      lvProdAceJob      = ENTRY(2,lvProdAceData)
-      lvProdAceForm     = ENTRY(2,lvProdAceJob,'.')
-      lvProdAceBlank    = ENTRY(3,lvProdAceJob,'.')
-      lvProdAcePass     = ENTRY(4,lvProdAceJob,'.')
-      lvProdAceJob      = ENTRY(1,lvProdAceJob,'.') + '.' + lvProdAceForm
-      .
-    IF NOT CAN-FIND(FIRST ttblJob
-                    WHERE ttblJob.resource EQ lvProdAceResource
-                      AND ttblJob.job EQ lvProdAceJob) AND
-       NOT CAN-FIND(FIRST pendingJob
-                    WHERE pendingJob.resource EQ lvProdAceResource
-                      AND pendingJob.job EQ lvProdAceJob) THEN DO:
-      PUT STREAM sError UNFORMATTED lvProdAceData SKIP.
-      NEXT.
-    END. /* cannot find job in SB */
+      lvProdAceJob   = ENTRY(2,lvProdAceData)
+      lvProdAceForm  = ENTRY(2,lvProdAceJob,'.')
+      lvProdAceBlank = ENTRY(3,lvProdAceJob,'.')
+      lvProdAcePass  = ENTRY(4,lvProdAceJob,'.')
+      cResource      = ENTRY(5,lvProdAceJob,'.')
+      lvProdAceJob   = ENTRY(1,lvProdAceJob,'.') + '.'
+                     + lvProdAceForm
+                     .
+    /* find ttblJob or pendingJob record, to change resource if needed */
+    IF lvProdAceResource NE cResource THEN DO:
+        FIND FIRST ttblJob
+             WHERE ttblJob.resource EQ cResource
+               AND ttblJob.job EQ lvProdAceJob
+               AND ttblJob.userField19 EQ lvProdAceBlank
+               AND ttblJob.userField20 EQ lvProdAcePass
+             NO-ERROR.
+        IF AVAILABLE ttblJob THEN
+        ttblJob.resource = lvProdAceResource.
+        ELSE DO:
+            FIND FIRST pendingJob
+                 WHERE pendingJob.resource EQ cResource
+                   AND pendingJob.job EQ lvProdAceJob
+                   AND pendingJob.userField19 EQ lvProdAceBlank
+                   AND pendingJob.userField20 EQ lvProdAcePass
+                 NO-ERROR.
+            IF AVAILABLE pendingJob THEN
+            pendingJob.resource = lvProdAceResource.
+            ELSE DO:
+                PUT STREAM sError UNFORMATTED lvProdAceData SKIP.
+                NEXT.
+            END. /* else */
+        END. /* else */
+    END. /* if resource change */
+/*    IF NOT CAN-FIND(FIRST ttblJob                                 */
+/*                    WHERE ttblJob.resource EQ lvProdAceResource   */
+/*                      AND ttblJob.job EQ lvProdAceJob) AND        */
+/*       NOT CAN-FIND(FIRST pendingJob                              */
+/*                    WHERE pendingJob.resource EQ lvProdAceResource*/
+/*                      AND pendingJob.job EQ lvProdAceJob) THEN DO:*/
+/*      PUT STREAM sError UNFORMATTED lvProdAceData SKIP.           */
+/*      NEXT.                                                       */
+/*    END. /* cannot find job in SB */                              */
     lvProdAceOperator = ''.
     DO idx = 21 TO NUM-ENTRIES(lvProdAceData):
       lvProdAceOperator[idx - 20] = IF ENTRY(idx,lvProdAceData) EQ '' THEN lvProdAceBlankEmployee
@@ -1381,13 +1465,13 @@ PROCEDURE enable_UI :
           svEndJobNo svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType 
           lvEmpLogin lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnExportShifts btnReset btnSave btnImport btnExportEmployees 
-         setAllResources selectedShift selectedStartDate btnCalendar-1 
-         selectedStartDateOption selectedEndDate btnCalendar-2 
-         selectedEndDateOption selectedStartDueDate btnCalendar-3 
-         selectedStartDueDateOption selectedEndDueDate btnCalendar-4 
-         btnExportJobs selectedEndDueDateOption svAllJobNo svStartJobNo 
-         svStartJobNo2 svEndJobNo btnExportMachines svEndJobNo2 lvProdAceDir 
+  ENABLE btnSave btnExportShifts btnReset btnImport btnExportEmployees 
+         btnExportJobs setAllResources selectedShift btnExportMachines 
+         selectedStartDate btnCalendar-1 selectedStartDateOption 
+         selectedEndDate btnCalendar-2 selectedEndDateOption 
+         selectedStartDueDate btnCalendar-3 selectedStartDueDateOption 
+         selectedEndDueDate btnCalendar-4 selectedEndDueDateOption svAllJobNo 
+         svStartJobNo svStartJobNo2 svEndJobNo svEndJobNo2 lvProdAceDir 
          lvImportDir lvProdAceType lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -1456,13 +1540,13 @@ PROCEDURE pExport :
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE asiCompany     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dStandardCycle AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cProductID     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cProdIDFile    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFile          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFile1         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE firstJobsList  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cProdAceWO     AS CHARACTER NO-UNDO.
     
     IF ipcType EQ 'Jobs' THEN DO WITH FRAME {&FRAME-NAME}:
         EMPTY TEMP-TABLE ttblProductID.
@@ -1508,56 +1592,121 @@ PROCEDURE pExport :
                           + '\mrp2jq'
                           + STRING(ttblResource.dmiID)
                           + '.tmp'
-                    idx = 0
+                    idx = 1
                     .
                 OUTPUT TO VALUE(cFile).
                 FIND FIRST ttToggleBox
                      WHERE ttToggleBox.rResource EQ ROWID(ttblResource)
                      .
-                IF ttToggleBox.hToggleBox:CHECKED THEN
-                firstJobsList = firstJobsList
-                              + STRING(ttblResource.dmiID,'999') + '|'
-                              + ttblJob.job + '.'
-                              + STRING(INT(ttblJob.userField19)) + '.'
-                              + STRING(INT(ttblJob.userField20))
-                              + ','
-                              .
+                IF ttToggleBox.hToggleBox:CHECKED THEN DO:
+                    IF lProdAceBarScan THEN DO:
+                        FIND FIRST job-mch NO-LOCK
+                             WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs))
+                             NO-ERROR.
+                        IF AVAILABLE job-mch THEN
+                        cProdAceWO = ENTRY(1,ttblJob.job,'.') + '.'
+                                   + STRING(job-mch.job-mchID,'999999999')
+                                   .
+                    END. /* if barscan */
+                    ELSE
+                    cProdAceWO = ttblJob.job + '.'
+                               + STRING(INT(ttblJob.userField19)) + '.'
+                               + STRING(INT(ttblJob.userField20)) + '.'
+                               + ttblJob.resource
+                               .
+                    firstJobsList = firstJobsList
+                                  + STRING(ttblResource.dmiID,'999') + '|'
+                                  + cProdAceWO
+                                  + ','
+                                  .
+                END. /* if togglebox */
             END. /* if first-of */
-            ASSIGN
-                cProductID = REPLACE(ttblJob.userField08,'<Multi Item>',
-                                     ttblJob.job + '.' + ttblResource.resource)
-                dStandardCycle = 60 / (INT(ttblJob.userField88) / 60)
-                .
-            IF dStandardCycle EQ ? THEN 
-            dStandardCycle = 1.
+            RUN pProductID (
+                ttblResource.dmiID,
+                ttblResource.resource,
+                ttblJob.userField08,
+                ttblJob.userField09,
+                LEFT-TRIM(ttblJob.userField104),
+                ttblJob.userField88,
+                OUTPUT cProductID
+                ).
+            IF lProdAceBarScan THEN DO:
+                FIND FIRST job-mch NO-LOCK
+                     WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs))
+                     NO-ERROR.
+                IF AVAILABLE job-mch THEN
+                cProdAceWO = ENTRY(1,ttblJob.job,'.') + '.'
+                           + STRING(job-mch.job-mchID,'999999999')
+                           .
+            END. /* if barscan */
+            ELSE
+            cProdAceWO = ttblJob.job + '.'
+                       + STRING(INT(ttblJob.userField19)) + '.'
+                       + STRING(INT(ttblJob.userField20)) + '.'
+                       + ttblJob.resource
+                       .
             idx = idx + 1.
             PUT UNFORMATTED 
                 idx ','
                 STRING(ttblResource.dmiID,'999') ',"'
-                ttblJob.job '.'
-                INT(ttblJob.userField19) '.'
-                INT(ttblJob.userField20) '","'
+                cProdAceWO '","'
                 cProductID '",'
                 REPLACE(ttblJob.userField15,',','') ',"",'
                 YEAR(ttblJob.dueDate)
                 STRING(MONTH(ttblJob.dueDate),'99')
-                STRING(DAY(ttblJob.dueDate),'99') ',"'
-                ENTRY(3,ttblJob.rowIDs)
-                '"'
+                STRING(DAY(ttblJob.dueDate),'99') ',""'
                 SKIP 
                 .
-            IF NOT CAN-FIND(FIRST ttblProductID
-                            WHERE ttblProductID.productID EQ cProductID
-                              AND ttblProductID.dmiID EQ ttblResource.dmiID) THEN DO:
-                CREATE ttblProductID.
-                ASSIGN 
-                    ttblProductID.productID = cProductID
-                    ttblProductID.dmiID = ttblResource.dmiID
-                    ttblProductID.productDesc = ttblJob.userField09
-                    ttblProductID.standardCycle = dStandardCycle
-                    .
-            END. /* if not can-find */
             IF LAST-OF(ttblResource.dmiID) THEN DO:
+                /* tack on pending jobs to end of machine job queue */
+                FOR EACH pendingJob
+                    WHERE pendingJob.resource     EQ ttblResource.resource
+                      AND pendingJob.jobSort      GE svStartJobNo
+                      AND pendingJob.jobSort      LE svEndJobNo
+                      AND pendingJob.dueDate      GE selectedStartDueDate
+                      AND pendingJob.dueDate      LE selectedEndDueDate
+                      AND pendingJob.jobCompleted EQ NO
+                      AND pendingJob.liveUpdate   EQ YES
+                    BY pendingJob.dueDate
+                    BY pendingJob.jobSort
+                    :
+                    RUN pProductID (
+                        ttblResource.dmiID,
+                        ttblResource.resource,
+                        pendingJob.userField08,
+                        pendingJob.userField09,
+                        LEFT-TRIM(pendingJob.userField104),
+                        pendingJob.userField88,
+                        OUTPUT cProductID
+                        ).
+                    IF lProdAceBarScan THEN DO:
+                        FIND FIRST job-mch NO-LOCK
+                             WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,pendingJob.rowIDs))
+                             NO-ERROR.
+                        IF AVAILABLE job-mch THEN
+                        cProdAceWO = ENTRY(1,pendingJob.job,'.') + '.'
+                                   + STRING(job-mch.job-mchID,'999999999')
+                                   .
+                    END. /* if barscan */
+                    ELSE
+                    cProdAceWO = pendingJob.job + '.'
+                               + STRING(INT(pendingJob.userField19)) + '.'
+                               + STRING(INT(pendingJob.userField20)) + '.'
+                               + ttblJob.resource
+                               .
+                    idx = idx + 1.
+                    PUT UNFORMATTED 
+                        idx ','
+                        STRING(ttblResource.dmiID,'999') ',"'
+                        cProdAceWO '","'
+                        cProductID '",'
+                        REPLACE(pendingJob.userField15,',','') ',"",'
+                        YEAR(pendingJob.dueDate)
+                        STRING(MONTH(pendingJob.dueDate),'99')
+                        STRING(DAY(pendingJob.dueDate),'99') ',""'
+                        SKIP 
+                        .
+                END. /* each pendingjob */
                 OUTPUT CLOSE.
                 OS-COPY VALUE(SEARCH(cFile)) VALUE(REPLACE(SEARCH(cFile),'.tmp','.dat')).
                 OS-DELETE VALUE(SEARCH(cFile)).
@@ -1713,6 +1862,46 @@ PROCEDURE pPopulateOptions :
         
         APPLY "VALUE-CHANGED":U TO svAllJobNo.
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProductID C-Win 
+PROCEDURE pProductID :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcDmiID     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcResource  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFGItem    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobRun    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSpeed     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcProductID AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dStandardCycle AS DECIMAL NO-UNDO.
+
+    ASSIGN
+        dStandardCycle = 60 / (INTEGER(ipcSpeed) / 60)
+        opcProductID   = REPLACE(ipcFGItem,'<Multi Item>',
+                                 ipcJobRun + '.' + ipcResource)
+        .
+    IF dStandardCycle EQ ? THEN 
+    dStandardCycle = 1.
+    IF NOT CAN-FIND(FIRST ttblProductID
+                    WHERE ttblProductID.productID EQ opcProductID
+                      AND ttblProductID.dmiID     EQ ipcDmiID) THEN DO:
+        CREATE ttblProductID.
+        ASSIGN 
+            ttblProductID.productID     = opcProductID
+            ttblProductID.dmiID         = ipcDmiID
+            ttblProductID.productDesc   = ipcItemName
+            ttblProductID.standardCycle = dStandardCycle
+            .
+    END. /* if not can-find */
 
 END PROCEDURE.
 

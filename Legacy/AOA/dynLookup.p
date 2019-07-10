@@ -9,6 +9,7 @@ DEFINE OUTPUT PARAMETER opcReturnValues AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcLookupField  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oprRecID        AS RECID     NO-UNDO.
 
+/*DEFINE VARIABLE cCalcFieldValue AS CHARACTER NO-UNDO.*/
 DEFINE VARIABLE cDate           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDisplayFields  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName      AS CHARACTER NO-UNDO.
@@ -27,8 +28,11 @@ DEFINE VARIABLE cTitle          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWhereClause    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidths         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtDate          AS DATE      NO-UNDO.
+DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iRecordLimit    AS INTEGER   NO-UNDO.
+
+/*RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.*/
 
 IF ipcUserID EQ "" THEN
 ipcUserID = "_default".
@@ -72,6 +76,20 @@ cWhereClause = cQueryStr.
 
 DO idx = 1 TO EXTENT(dynParamValue.colName):
     IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
+    IF dynParamValue.isCalcField[idx] THEN DO:
+        /* dynamic lookups cannot handle calculated fields */
+        /* future development logic to resolve added here  */
+/*        RUN spDynCalcField IN hDynCalcField (*/
+/*            ?,                               */
+/*            dynParamValue.calcProc[idx],     */
+/*            dynParamValue.calcParam[idx],    */
+/*            dynParamValue.dataType[idx],     */
+/*            dynParamValue.colFormat[idx],    */
+/*            OUTPUT cCalcFieldValue           */
+/*            ).                               */
+        NEXT.
+    END. /* if iscalcfield */
+    ELSE
     ASSIGN
         cTableName = ENTRY(1,dynParamValue.colName[idx],".")
         cFieldName = ENTRY(2,dynParamValue.colName[idx],".")

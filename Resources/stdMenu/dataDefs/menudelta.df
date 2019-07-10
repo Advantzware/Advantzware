@@ -1,0 +1,158 @@
+ADD TABLE "programMenu"
+  AREA "Data"
+  LABEL "Menu Master"
+  DESCRIPTION "Used to hold hierarchy of runnable programs"
+  DUMP-NAME "prgmmenu"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\programMenu.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\programMenu.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\programMenu.p" CRC "?" 
+
+ADD FIELD "menuID" OF "programMenu" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Menu ID"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "shortname" OF "programMenu" AS character
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Short Name"
+  POSITION 5
+  MAX-WIDTH 24
+  HELP "Enter a short name for this menu item"
+  ORDER 20
+
+ADD FIELD "parentMenuID" OF "programMenu" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Parent Menu ID"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter this menu's parent menuID"
+  ORDER 30
+
+ADD FIELD "menuPos" OF "programMenu" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Position"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "user_id" OF "programMenu" AS character 
+  FORMAT "X(8)"
+  INITIAL ""
+  LABEL "User ID's"
+  POSITION 8
+  MAX-WIDTH 16
+  HELP "Enter User ID's"
+  ORDER 50
+
+ADD FIELD "programID" OF "programMenu" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 48
+  HELP "Enter the associated programID"
+  ORDER 60
+
+ADD FIELD "defMnemonic" OF "programMenu" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Default Hotkey"
+  POSITION 10
+  MAX-WIDTH 16
+  HELP "Enter a Hotkey for this menu"
+  ORDER 70
+
+ADD FIELD "menuText" OF "programMenu" AS character 
+  FORMAT "x(48)"
+  INITIAL ""
+  LABEL "Menu Text"
+  POSITION 11
+  MAX-WIDTH 96
+  HELP "Enter the text to display for this menu"
+  ORDER 80
+
+ADD FIELD "menuImage" OF "programMenu" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Menu Image"
+  POSITION 12
+  MAX-WIDTH 120
+  HELP "Enter the path to the menu image"
+  ORDER 90
+
+ADD FIELD "menuToolTip" OF "programMenu" AS character
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Tooltip"
+  POSITION 13
+  MAX-WIDTH 64
+  HELP "Enter a tooltip for this menuID"
+  ORDER 100
+
+ADD FIELD "paramList" OF "programMenu" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Param List"
+  POSITION 14
+  MAX-WIDTH 120
+  HELP "Enter an optional parameter to send to the program"
+  ORDER 110
+
+ADD INDEX "iMenuID" ON "programMenu" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "menuID" ASCENDING 
+
+ADD INDEX "iShortName" ON "programMenu"
+  AREA "Index"
+  INDEX-FIELD "shortName" ASCENDING
+
+ADD INDEX "iParentSeq" ON "programMenu" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "parentMenuID" ASCENDING 
+  INDEX-FIELD "menuPos" ASCENDING 
+
+ADD INDEX "iStructure" ON "programMenu" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "parentMenuID" ASCENDING 
+  INDEX-FIELD "menuID" ASCENDING 
+
+ADD INDEX "iUserID" ON "programMenu" 
+  AREA "Index"
+  INDEX-FIELD "user_id" ASCENDING 
+
+ADD FIELD "prgrmsID" OF "prgrms" AS integer
+  FORMAT ">>>>>9"
+  POSITION 34
+  INITIAL "0"
+  LABEL "Program ID"
+  ORDER 330
+  MAX-WIDTH 4
+
+ADD SEQUENCE "prgrms_seq"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+ADD SEQUENCE "programMenu_seq"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000004348

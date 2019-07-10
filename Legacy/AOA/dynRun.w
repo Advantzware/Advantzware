@@ -243,18 +243,18 @@ DEFINE FRAME outputFrame
      svSetAlignment AT ROW 1.71 COL 79 NO-LABEL WIDGET-ID 646
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
-     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
-     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
-     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      btnCSV AT ROW 1.48 COL 103 HELP
           "Excel CSV" WIDGET-ID 140
-     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
-     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
+     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
      btnHTML AT ROW 1.48 COL 135 HELP
           "HTML" WIDGET-ID 144
+     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
+     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      btnView AT ROW 1.48 COL 151 HELP
           "Jasper Viewer" WIDGET-ID 148
+     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
      btnAddEmail AT ROW 2.19 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
      btnPrint AT ROW 1.48 COL 143 HELP
@@ -279,10 +279,10 @@ DEFINE FRAME outputFrame
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
 DEFINE FRAME resultsFrame
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
      btnSaveResults AT ROW 1 COL 2 HELP
           "Jasper Viewer" WIDGET-ID 254
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 6.48
@@ -755,14 +755,14 @@ PROCEDURE enable_UI :
           svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
   ENABLE btnRunResults svRecipients svSetAlignment svShowAll svShowReportHeader 
-         svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         btnCSV svShowGroupFooter svShowParameters btnHTML btnView btnAddEmail 
-         btnPrint btnDOCX btnPDF btnXLS 
+         btnCSV svShowReportFooter svShowPageHeader btnHTML svShowPageFooter 
+         svShowGroupHeader btnView svShowGroupFooter svShowParameters 
+         btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
-  ENABLE btnCloseResults btnSaveResults 
+  ENABLE btnSaveResults btnCloseResults 
       WITH FRAME resultsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
   VIEW C-Win.
@@ -835,6 +835,52 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveResults C-Win 
+PROCEDURE pSaveResults :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDBName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dSize      AS DECIMAL   NO-UNDO.
+    
+    DO TRANSACTION:
+        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+        DO idx = 1 TO hQueryBrowse:NUM-COLUMNS:
+            ASSIGN
+                cDBName    = hQueryBrowse:GET-BROWSE-COLUMN(idx):DBNAME
+                cTableName = hQueryBrowse:GET-BROWSE-COLUMN(idx):TABLE
+                cFieldName = cTableName + "."
+                           + hQueryBrowse:GET-BROWSE-COLUMN(idx):NAME
+                dSize      = hQueryBrowse:GET-BROWSE-COLUMN(idx):WIDTH-CHARS
+                .
+            IF cDBName EQ "PROGRESST" THEN
+            cDBName = "ASI".
+            IF hQueryBrowse:GET-BROWSE-COLUMN(idx):INDEX NE 0 THEN
+            cFieldName = cFieldName
+                       + "["
+                       + STRING(hQueryBrowse:GET-BROWSE-COLUMN(idx):INDEX)
+                       + "]"
+                       .
+            IF dynParamValue.colName[idx] NE cFieldName OR
+               dynParamValue.columnSize[idx] NE dSize THEN
+            ASSIGN 
+                dynParamValue.colName[idx]    = cFieldName
+                dynParamValue.columnSize[idx] = dSize
+                .
+        END. /* do idx */
+        FIND CURRENT dynParamValue NO-LOCK.
+    END. /* trans */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings C-Win 
 PROCEDURE pSaveSettings :
 /*------------------------------------------------------------------------------
@@ -878,6 +924,7 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 

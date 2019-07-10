@@ -348,7 +348,8 @@ DO v-local-loop = 1 TO v-local-copies:
                   RUN cec/desprntL20.p (RECID(xef),
                       INPUT-OUTPUT v-lines,
                       RECID(xest),
-                      IF AVAILABLE xeb THEN ROWID(xeb) ELSE ?).
+                      IF AVAILABLE xeb THEN ROWID(xeb) ELSE ?,
+                          v-format).
               END.
               ELSE IF AVAILABLE box-design-hdr THEN DO:
                       cImagePath = box-design-hdr.box-image.

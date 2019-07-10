@@ -80,19 +80,13 @@ DEFINE VARIABLE cDBName AS CHARACTER   NO-UNDO.
 RUN GetBarDirNKValues(OUTPUT opcDirectory,
                       OUTPUT iUserSpecific).
 
-    RUN GetUserDir(OUTPUT cDirectory). 
-    IF cDirectory  NE "" THEN 
+IF iUserSpecific EQ 1 THEN DO:
+    RUN GetUserDir(OUTPUT cDirectory).
+    IF cDirectory  NE "" AND cDirectory NE opcDirectory THEN 
         ASSIGN
             oplUserSpecific = YES.
             opcDirectory = cDirectory.
-
-    IF NOT oplUserSpecific THEN
-    ASSIGN opcDirectory = opcDirectory + "\" + USERID(LDBNAME(1)) .
-
-    FILE-INFO:FILE-NAME = opcDirectory .
-    if opcDirectory <> "" AND FILE-INFO:FILE-type eq ? then 
-        OS-CREATE-DIR VALUE(opcDirectory) NO-ERROR.
-
+END.
 IF ipcType NE "" THEN DO:
     RUN GetTypeInfo(INPUT ipcType,
                 OUTPUT opcDB,

@@ -1867,7 +1867,7 @@ PROCEDURE create-from-po :
     DEFINE VARIABLE ld                   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE li                   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lv-rno               LIKE fg-rctd.r-no NO-UNDO.
-    
+    DEFINE VARIABLE rwRowid              AS ROWID     NO-UNDO.
     DEFINE BUFFER b-fg-rctd FOR fg-rctd.
 
     poSelected = 0.
@@ -1950,10 +1950,16 @@ PROCEDURE create-from-po :
                 fg-rctd.ext-cost = dCostExtended
                 fg-rctd.frt-cost = dCostExtendedFreight
                 .
+            IF rwRowid EQ ? THEN
+                rwRowid = ROWID(fg-rctd) .
             RELEASE fg-rctd.
         END. /* for each */
     END. /* do with */
+
     lMultipleAdds = iCount GT 1.
+
+    IF NOT ip-set-parts AND lMultipleAdds THEN RUN fg/invrecpt.p (rwRowid, 1).
+    
     IF lMultipleAdds EQ NO AND op-rowid NE ? THEN
         FIND FIRST fg-rctd NO-LOCK
             WHERE ROWID(fg-rctd) EQ op-rowid

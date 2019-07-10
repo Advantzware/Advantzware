@@ -22,8 +22,6 @@
 DEFINE NEW SHARED VARIABLE cocode       AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE hdPriceProcs AS HANDLE    NO-UNDO.
 
-DEFINE BUFFER bOEOrdl FOR oe-ordl.
-
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 
 /* subject business logic */
@@ -64,6 +62,8 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iBOL#           AS INTEGER          NO-UNDO.
     DEFINE VARIABLE iInv#           AS INTEGER          NO-UNDO.
     
+    DEFINE BUFFER bOEOrdl FOR oe-ordl.
+
     cocode = cCompany.
     FOR EACH oe-ord NO-LOCK
         WHERE oe-ord.company  EQ cCompany
@@ -116,7 +116,7 @@ PROCEDURE pBusinessLogic:
                 oe-ordl.price,
                 oe-ordl.pr-uom,
                (IF AVAILABLE itemfg THEN itemfg.case-count ELSE 0),
-               (IF AVAILABLE itemfg THEN itemfg.case-count ELSE 0),
+                oe-ordl.disc,
                 OUTPUT dExtPrice
                 ).
             dTotFreight = dTotFreight

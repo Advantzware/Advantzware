@@ -1171,10 +1171,12 @@ PROCEDURE set-panel :
 
 
   RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'disable-button-target':U,OUTPUT char-hdl).
-  IF ip-switch EQ 0 THEN 
-    RUN disable-all IN WIDGET-HANDLE(char-hdl).
-  ELSE
-    RUN enable-all IN WIDGET-HANDLE(char-hdl) .
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+      IF ip-switch EQ 0 THEN 
+          RUN disable-all IN WIDGET-HANDLE(char-hdl).
+      ELSE
+          RUN enable-all IN WIDGET-HANDLE(char-hdl) .
+  END.
 
 END PROCEDURE.
 
