@@ -124,8 +124,28 @@ IF ERROR-STATUS:ERROR THEN DO:
     RETURN.
 END.
 
+IF SEARCH("curl.exe") EQ ? THEN DO:
+    ASSIGN 
+        opcMessage = "curl not found!".
+        oplSuccess = NO
+        .
+     
+    /* add a record in APIOutboundEvent table here*/
+    RUN pCreateAPIOutboundEvent (
+        INPUT ipcAPIID,
+        INPUT glcRequestData,
+        INPUT glcReponseData,
+        INPUT gcParentProgram,
+        INPUT oplSuccess,
+        INPUT opcMessage,
+        INPUT gdDateTime
+        ).
+        
+    RETURN. 
+END.
+        
 IF gcAuthType = "basic" THEN
-   gcCommand = 'curl --user '
+   gcCommand = SEARCH("curl.exe") + ' --user '
               + gcUserName + ':' + gcPassword + ' '
               + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
               + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
@@ -159,7 +179,7 @@ END.
 COPY-LOB glcRequestData TO FILE gcRequestFile.
 
 /* execute CURL command with required parameters to call the API */
-OS-COMMAND SILENT VALUE(gcCommand).
+DOS SILENT VALUE(gcCommand).
 
 /* Put Response Data from Temporary file into a variable */
 COPY-LOB FILE gcResponseFile TO glcReponseData.
