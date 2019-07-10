@@ -4587,7 +4587,7 @@ PROCEDURE pCallAPIOutbound :
     ASSIGN
         ttArgs.argType  = "ROWID"
         ttArgs.argKey   = "po-ord"
-        ttArgs.argValue = STRING(ROWID(po-ord))
+        ttArgs.argValue = STRING(ipriPoOrd)
         .    
             
     ASSIGN

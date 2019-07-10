@@ -77,7 +77,7 @@
             .
         RETURN.
     END.
-        
+ 
     FOR EACH oe-rell
         WHERE oe-rell.company EQ oe-relh.company
           AND oe-rell.r-no    EQ oe-relh.r-no:        
@@ -85,16 +85,16 @@
             lcDetailData = STRING(APIOutboundDetail.data)
             lcDetailData = REPLACE(lcDetailData, "TBD7", lotNumber)
             lcDetailData = REPLACE(lcDetailData, "TBD6", salesUnit)
-            lcDetailData = REPLACE(lcDetailData, "TBD5", STRING(oe-rell.qty-case))
-            lcDetailData = REPLACE(lcDetailData, "TBD4", oe-rell.loc)
-            lcDetailData = REPLACE(lcDetailData, "TBD3", STRING(oe-rell.qty))
-            lcDetailData = REPLACE(lcDetailData, "TBD2", STRING(oe-rell.i-no))
-            lcDetailData = REPLACE(lcDetailData, "TBD1", STRING(oe-rell.line))
+            lcDetailData = REPLACE(lcDetailData, "oe-rell.qty-case", STRING(oe-rell.qty-case))
+            lcDetailData = REPLACE(lcDetailData, "oe-rell.loc", oe-rell.loc)
+            lcDetailData = REPLACE(lcDetailData, "oe-rell.qty", STRING(oe-rell.qty))
+            lcDetailData = REPLACE(lcDetailData, "oe-rell.i-no", STRING(oe-rell.i-no))
+            lcDetailData = REPLACE(lcDetailData, "oe-rell.line", STRING(oe-rell.line))
             .
             
         lcConcatDetailData = lcConcatDetailData + "," + lcDetailData.
     END.      
-    
+
     lcConcatDetailData = TRIM(lcConcatDetailData,",").
     
     FIND FIRST cust NO-LOCK
@@ -111,7 +111,7 @@
          NO-ERROR.        
     IF AVAILABLE shipto THEN
         cCalcAddress     = shipto.ship-addr[1] + " " + shipto.ship-addr[2] + " " + shipto.ship-city + ", " + shipto.ship-state + " " + shipto.ship-zip.
-    
+
     ASSIGN
         ioplcRequestData = REPLACE(ioplcRequestData, "TBD16", lcDetailData)
         ioplcRequestData = REPLACE(ioplcRequestData, "TBD15", priority)
@@ -123,14 +123,14 @@
         ioplcRequestData = REPLACE(ioplcRequestData, "TBD9", cCardName)
         ioplcRequestData = REPLACE(ioplcRequestData, "oe-relh.cust-no", STRING(oe-relh.cust-no))
         ioplcRequestData = REPLACE(ioplcRequestData, "TBD7", reqDate)
-        ioplcRequestData = REPLACE(ioplcRequestData, "oe-relh.rel-date", STRING(oe-relh.rel-date))
+        ioplcRequestData = REPLACE(ioplcRequestData, "oe-relh.rel-date", IF oe-relh.rel-date EQ ? THEN "" ELSE STRING(oe-relh.rel-date))
         ioplcRequestData = REPLACE(ioplcRequestData, "TBD5", docStatus)
         ioplcRequestData = REPLACE(ioplcRequestData, "oe-relh.release#", STRING(oe-relh.release#))
         ioplcRequestData = REPLACE(ioplcRequestData, "oe-relh.r-no", STRING(oe-relh.r-no))
         ioplcRequestData = REPLACE(ioplcRequestData, "TBD2", docType)
         ioplcRequestData = REPLACE(ioplcRequestData, "oe-relh.company", oe-relh.company)
         .
-    
+        
     ASSIGN
         opcMessage = ""
         oplSuccess = TRUE

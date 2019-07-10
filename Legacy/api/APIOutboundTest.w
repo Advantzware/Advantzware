@@ -5,28 +5,28 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: api/ResponseDataViewer.w
+  File: api/APIOutboundTest.w
 
-  Description: Displays the Request/Response Data of a API Outbound Event
+  Description: Will allow the user to test the API Outbound events
 
   Input Parameters:
-      ipriOutboundEvent: ROWID of the APIOutboundEvent
 
   Output Parameters:
       <none>
 
-  Author: 
+  Author: Porandla Mithun
 
-  Created: 
+  Created: 06/22/2019
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
+{api/ttArgs.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO INITIAL "001".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -43,13 +43,12 @@
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 cbAPIId edRequestData ~
-Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS cbAPIId fiSSLEnabled fiClientID ~
-fiAPIIDLabel fiSSLEnabledlb fiClientIDlb fiRequestVerb fiReqDataType ~
-fiAuthType fiReqDataTypelb fiRequestVerb-2 fiRequestVerblb fiEndPointLabel ~
-edEndpoint fiRequestDataLabel edRequestData fiResponseDataLabel ~
-edResponseData fiErrorMessageLabel edErrorMessage 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 fiAPIId Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiSSLEnabled fiClientID fiAPIIDLabel ~
+fiAPIId fiSSLEnabledlb fiClientIDlb fiRequestVerb fiReqDataType fiAuthType ~
+fiReqDataTypelb fiRequestVerb-2 fiRequestVerblb fiPrimaryKeyLabel ~
+fiPrimaryKey fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData ~
+fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -76,11 +75,10 @@ DEFINE BUTTON btSubmit
      SIZE 20 BY 2.62
      BGCOLOR 8 .
 
-DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     DROP-DOWN-LIST
-     SIZE 31.2 BY 1.14
-     FGCOLOR 9 FONT 35 NO-UNDO.
+DEFINE BUTTON btUpdateRequest 
+     LABEL "Update Request" 
+     SIZE 23 BY 1.33
+     FONT 35.
 
 DEFINE VARIABLE edEndpoint AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
@@ -101,6 +99,11 @@ DEFINE VARIABLE edResponseData AS CHARACTER
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 119 BY 5.95
      FGCOLOR 9  NO-UNDO.
+
+DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 32.2 BY 1
+     FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
      VIEW-AS FILL-IN 
@@ -130,6 +133,16 @@ DEFINE VARIABLE fiEndPointLabel AS CHARACTER FORMAT "X(256)":U INITIAL "End Poin
 DEFINE VARIABLE fiErrorMessageLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Response Result:" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiPrimaryKey AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 32 BY 1
+     FGCOLOR 9 FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiPrimaryKeyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Primary Key:" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiReqDataType AS CHARACTER FORMAT "X(256)":U 
@@ -179,20 +192,24 @@ DEFINE VARIABLE fiSSLEnabledlb AS CHARACTER FORMAT "X(256)":U INITIAL "SSL Enabl
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 126 BY 3.81.
+     SIZE 126 BY 6.1.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 126 BY 23.1.
 
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 120 BY 1.91.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     cbAPIId AT ROW 1.71 COL 21.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      fiSSLEnabled AT ROW 1.76 COL 76.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
      fiClientID AT ROW 1.76 COL 109.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      fiAPIIDLabel AT ROW 1.81 COL 9.4 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiAPIId AT ROW 1.81 COL 22.4 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      fiSSLEnabledlb AT ROW 1.86 COL 57.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
      fiClientIDlb AT ROW 1.86 COL 94.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
      fiRequestVerb AT ROW 3.38 COL 115.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
@@ -201,23 +218,27 @@ DEFINE FRAME Dialog-Frame
      fiReqDataTypelb AT ROW 3.52 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 74
      fiRequestVerb-2 AT ROW 3.52 COL 57.4 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      fiRequestVerblb AT ROW 3.52 COL 94.4 COLON-ALIGNED NO-LABEL WIDGET-ID 70
-     fiEndPointLabel AT ROW 5.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     edEndpoint AT ROW 6.86 COL 11 NO-LABEL WIDGET-ID 14
-     fiRequestDataLabel AT ROW 9.95 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     edRequestData AT ROW 11.14 COL 11 NO-LABEL WIDGET-ID 2
-     fiResponseDataLabel AT ROW 17.1 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     edResponseData AT ROW 18.29 COL 11 NO-LABEL WIDGET-ID 10
-     fiErrorMessageLabel AT ROW 24.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
-     edErrorMessage AT ROW 25.76 COL 11 NO-LABEL WIDGET-ID 94
-     btSubmit AT ROW 28.91 COL 43.2
-     Btn_Cancel AT ROW 28.95 COL 76.2
+     btUpdateRequest AT ROW 5.33 COL 70.8 WIDGET-ID 108
+     fiPrimaryKeyLabel AT ROW 5.52 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     fiPrimaryKey AT ROW 5.52 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     fiEndPointLabel AT ROW 8 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     edEndpoint AT ROW 9.19 COL 11 NO-LABEL WIDGET-ID 14
+     fiRequestDataLabel AT ROW 12.1 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     edRequestData AT ROW 13.29 COL 11 NO-LABEL WIDGET-ID 2
+     fiResponseDataLabel AT ROW 19.24 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     edResponseData AT ROW 20.43 COL 11 NO-LABEL WIDGET-ID 10
+     fiErrorMessageLabel AT ROW 26.76 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+     edErrorMessage AT ROW 27.91 COL 11 NO-LABEL WIDGET-ID 94
+     btSubmit AT ROW 31.05 COL 43.2
+     Btn_Cancel AT ROW 31.1 COL 76.2
      RECT-1 AT ROW 1.33 COL 8 WIDGET-ID 84
-     RECT-2 AT ROW 5.52 COL 8 WIDGET-ID 86
-     SPACE(5.79) SKIP(3.42)
+     RECT-2 AT ROW 7.67 COL 8 WIDGET-ID 86
+     RECT-3 AT ROW 5.05 COL 11 WIDGET-ID 110
+     SPACE(8.79) SKIP(26.84)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 
-         TITLE "API Tester"
+         TITLE "Outbound API Tester"
          CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
@@ -244,6 +265,8 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON btSubmit IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btUpdateRequest IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR EDITOR edEndpoint IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
@@ -254,6 +277,8 @@ ASSIGN
 ASSIGN 
        edErrorMessage:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
+/* SETTINGS FOR EDITOR edRequestData IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR EDITOR edResponseData IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
@@ -286,6 +311,10 @@ ASSIGN
 ASSIGN 
        fiErrorMessageLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiPrimaryKey IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiPrimaryKeyLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiReqDataType IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 ASSIGN 
@@ -342,7 +371,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* API Tester */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Outbound API Tester */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -370,10 +399,11 @@ DO:
               
     ASSIGN
         lcRequestData = edRequestData:SCREEN-VALUE
-        cAPIID        = cbAPIId:SCREEN-VALUE
+        cAPIID        = fiAPIId:SCREEN-VALUE
         .
     
-    SESSION:SET-WAIT-STATE("GENERAL").  
+    SESSION:SET-WAIT-STATE("GENERAL").
+      
     RUN api/CallOutBoundAPI.p (
         cAPIId,
         lcRequestData,
@@ -382,9 +412,9 @@ DO:
         OUTPUT cMessage
         ). 
     SESSION:SET-WAIT-STATE(""). 
-        
+
     FIND LAST APIOutboundEvent NO-LOCK
-         WHERE APIOutboundEvent.apiID EQ cbAPIId:SCREEN-VALUE
+         WHERE APIOutboundEvent.apiID EQ fiAPIId:SCREEN-VALUE
          NO-ERROR.
     IF AVAILABLE APIOutboundEvent THEN
         ASSIGN
@@ -399,6 +429,11 @@ DO:
                                               12
             .
     
+    ASSIGN
+        btSubmit:SENSITIVE         = FALSE
+        edRequestData:SENSITIVE    = FALSE
+        .
+            
     MESSAGE edErrorMessage:SCREEN-VALUE VIEW-AS ALERT-BOX INFORMATION.
 END.
 
@@ -406,10 +441,191 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME cbAPIId
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbAPIId Dialog-Frame
-ON VALUE-CHANGED OF cbAPIId IN FRAME Dialog-Frame
+&Scoped-define SELF-NAME btUpdateRequest
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateRequest Dialog-Frame
+ON CHOOSE OF btUpdateRequest IN FRAME Dialog-Frame /* Update Request */
 DO:
+    DEFINE VARIABLE cAPIID             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParentProgram     AS CHARACTER NO-UNDO.   
+    
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
+ 
+    EMPTY TEMP-TABLE ttArgs.
+ 
+    cParentProgram = "api\APIOutboundTest.w".
+    
+    ASSIGN
+        btSubmit:SENSITIVE          = FALSE
+        edRequestData:SENSITIVE     = FALSE
+        .
+        
+    CASE fiAPIId:SCREEN-VALUE:
+        WHEN "AddCustomer" THEN DO:
+            FIND FIRST cust NO-LOCK
+                 WHERE cust.company EQ cCompany
+                   AND cust.cust-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
+            IF NOT AVAILABLE cust THEN DO:    
+                MESSAGE "Invalid Customer record" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+
+            CREATE ttArgs.
+            ASSIGN
+                ttArgs.argType  = "ROWID"
+                ttArgs.argKey   = "cust"
+                ttArgs.argValue = STRING(ROWID(cust))
+                .    
+                    
+            cAPIID = "AddCustomer".
+        END.
+        WHEN "AddVendor" THEN DO:
+            FIND FIRST vend NO-LOCK
+                 WHERE vend.company EQ cCompany
+                   AND vend.vend-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
+            IF NOT AVAILABLE vend THEN DO:    
+                MESSAGE "Invalid Vendor Number" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+
+            CREATE ttArgs.
+            ASSIGN
+                ttArgs.argType  = "ROWID"
+                ttArgs.argKey   = "vend"
+                ttArgs.argValue = STRING(ROWID(vend))
+                .    
+                    
+            cAPIID = "AddVendor".
+        END.
+        WHEN "AddProduct" THEN DO:
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ cCompany
+                   AND itemfg.i-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
+            IF NOT AVAILABLE itemfg THEN DO:    
+                MESSAGE "Invalid Item Number" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+
+            CREATE ttArgs.
+            ASSIGN
+                ttArgs.argType  = "ROWID"
+                ttArgs.argKey   = "itemfg"
+                ttArgs.argValue = STRING(ROWID(itemfg))
+                .    
+                    
+            cAPIID = "AddProduct".
+        END.
+        WHEN "AddPurchaseOrder" THEN DO:
+            FIND FIRST po-ord NO-LOCK
+                 WHERE po-ord.company EQ cCompany
+                   AND po-ord.po-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE) NO-ERROR.
+            IF NOT AVAILABLE po-ord THEN DO:    
+                MESSAGE "Invalid Purchase Order Number" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+            
+            CREATE ttArgs.
+            ASSIGN
+                ttArgs.argType  = "ROWID"
+                ttArgs.argKey   = "po-ord"
+                ttArgs.argValue = STRING(ROWID(po-ord))
+                .    
+                    
+            cAPIID = "AddPurchaseOrder".
+        END.
+        WHEN "AddPicklist" THEN DO:
+            FIND FIRST oe-relh NO-LOCK
+                WHERE oe-relh.company  EQ cCompany
+                  AND oe-relh.release# EQ INT(fiPrimaryKey:SCREEN-VALUE) NO-ERROR.
+            IF NOT AVAILABLE oe-relh THEN DO:
+                MESSAGE "Invalid Release Number" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+
+            CREATE ttArgs.
+            ASSIGN
+                ttArgs.argType  = "ROWID"
+                ttArgs.argKey   = "oe-relh"
+                ttArgs.argValue = STRING(ROWID(oe-relh))
+                .    
+            
+            cAPIID = "AddPicklist".
+        END.
+    END CASE.
+
+    RUN api/PrepareOutboundRequest.p (
+        INPUT TABLE ttArgs,
+        cAPIID,    
+        OUTPUT lcRequestData,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+
+    IF NOT lSuccess THEN DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
+        RETURN.
+    END.
+
+    ASSIGN
+        edRequestData:SCREEN-VALUE = STRING(lcRequestData)
+        btSubmit:SENSITIVE         = TRUE
+        edRequestData:SENSITIVE    = TRUE
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiAPIId
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiAPIId Dialog-Frame
+ON HELP OF fiAPIId IN FRAME Dialog-Frame
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        cCompany, 
+        "apiID", /* lookup field */
+        0,   /* Subject ID */
+        "",  /* User ID */
+        0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+    
+    IF lookupField NE "" THEN DO:
+        fiAPIId:SCREEN-VALUE = lookupField.
+        
+        APPLY "LEAVE" TO SELF.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiAPIId Dialog-Frame
+ON LEAVE OF fiAPIId IN FRAME Dialog-Frame
+DO:
+    ASSIGN
+        fiPrimaryKey:SENSITIVE      = FALSE
+        btSubmit:SENSITIVE          = FALSE
+        edRequestData:SENSITIVE     = FALSE
+        btUpdateRequest:SENSITIVE   = FALSE
+        fiPrimaryKey:SCREEN-VALUE   = ""
+        edEndpoint:SCREEN-VALUE     = ""
+        fiRequestVerb:SCREEN-VALUE  = ""
+        fiReqDataType:SCREEN-VALUE  = ""
+        fiSSLEnabled:SCREEN-VALUE   = "NO"
+        fiClientID:SCREEN-VALUE     = ""
+        fiAuthType:SCREEN-VALUE     = ""
+        edRequestData:SCREEN-VALUE  = ""
+        .
+        
     FIND FIRST APIOutbound NO-LOCK
          WHERE APIOutbound.apiID EQ SELF:SCREEN-VALUE NO-ERROR.
     IF AVAILABLE APIOutbound THEN DO:
@@ -421,9 +637,70 @@ DO:
             fiClientID:SCREEN-VALUE     = APIOutbound.clientID
             fiAuthType:SCREEN-VALUE     = APIOutbound.authType
             edRequestData:SCREEN-VALUE  = STRING(APIOutbound.requestData)
-            btSubmit:SENSITIVE          = TRUE
+            fiPrimaryKey:SENSITIVE      = TRUE
+            btUpdateRequest:SENSITIVE   = TRUE
             .  
+    END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiPrimaryKey
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPrimaryKey Dialog-Frame
+ON HELP OF fiPrimaryKey IN FRAME Dialog-Frame
+DO:
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnRECID AS RECID     NO-UNDO.
+    
+    CASE fiAPIID:SCREEN-VALUE:
+        WHEN "AddCustomer" THEN DO:
+            RUN windows/l-cust.w (
+                cCompany,
+                fiPrimaryKey:SCREEN-VALUE, 
+                OUTPUT cReturnValue
+                ).
+        END.
+        WHEN "AddVendor" THEN DO:
+            RUN windows/l-vendno.w (
+                cCompany,
+                "",     /* vend.active */
+                fiPrimaryKey:SCREEN-VALUE, 
+                OUTPUT cReturnValue
+                ).
+        END.
+        WHEN "AddProduct" THEN DO:
+            RUN windows/l-itemfg.w (
+                cCompany,
+                "",     /* cust-no */
+                fiPrimaryKey:SCREEN-VALUE, 
+                OUTPUT cReturnValue
+                ).
+        END.
+        WHEN "AddPurchaseOrder" THEN DO:
+            RUN windows/l-ponopo.w (
+                cCompany,
+                TRUE,     /* po-ord.active */
+                fiPrimaryKey:SCREEN-VALUE, 
+                OUTPUT cReturnValue
+                ).
+        END.
+        WHEN "AddPicklist" THEN DO:
+            RUN windows/l-oerelh.w (
+                cCompany,
+                fiPrimaryKey:SCREEN-VALUE, 
+                OUTPUT cReturnValue,
+                OUTPUT cReturnRECID
+                ).        
+        END.        
+    END CASE.
+    
+    IF cReturnValue NE "" THEN DO:
+        fiPrimaryKey:SCREEN-VALUE = ENTRY(1,cReturnValue).
+        APPLY "CHOOSE" TO btUpdateRequest.
     END.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -452,7 +729,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       edRequestData:WORD-WRAP  = TRUE
       edResponseData:WORD-WRAP = TRUE
       .
-  RUN pInit.
+
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -492,44 +769,16 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbAPIId fiSSLEnabled fiClientID fiAPIIDLabel fiSSLEnabledlb 
+  DISPLAY fiSSLEnabled fiClientID fiAPIIDLabel fiAPIId fiSSLEnabledlb 
           fiClientIDlb fiRequestVerb fiReqDataType fiAuthType fiReqDataTypelb 
-          fiRequestVerb-2 fiRequestVerblb fiEndPointLabel edEndpoint 
-          fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData 
-          fiErrorMessageLabel edErrorMessage 
+          fiRequestVerb-2 fiRequestVerblb fiPrimaryKeyLabel fiPrimaryKey 
+          fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData 
+          fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-1 RECT-2 cbAPIId edRequestData Btn_Cancel 
+  ENABLE RECT-1 RECT-2 RECT-3 fiAPIId Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit Dialog-Frame 
-PROCEDURE pInit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cAPIIDListItems AS CHARACTER NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    FOR EACH APIOutbound NO-LOCK
-        BREAK BY APIOutbound.apiID:
-        IF FIRST-OF(APIOutbound.apiID) THEN
-            cAPIIDListItems = cAPIIDListItems + "," + APIOutbound.apiID.
-    END.
-    
-    ASSIGN
-        cAPIIDListItems      = TRIM(cAPIIDListItems,",")
-        cbAPIId:LIST-ITEMS   = cAPIIDListItems
-        .
-    MESSAGE cAPIIDListItems view-as alert-box.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

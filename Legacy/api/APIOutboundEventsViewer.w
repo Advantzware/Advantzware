@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO INITIAL "001".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -61,8 +62,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-2 APIOutboundEvent.apiID APIOutboundEvent.callingProgram APIOutboundEvent.requestDateTime APIOutboundEvent.success   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH APIOutboundEvent NO-LOCK     WHERE (IF cbAPIID:SCREEN-VALUE EQ "All" THEN                TRUE            ELSE                APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE)       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)       BY APIOutboundEvent.requestDateTime DESCENDING
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK     WHERE (IF cbAPIID:SCREEN-VALUE EQ "All" THEN                TRUE            ELSE                APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE)       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)       BY APIOutboundEvent.requestDateTime DESCENDING.
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH APIOutboundEvent NO-LOCK     WHERE (IF fiAPIID:SCREEN-VALUE EQ "" THEN                TRUE            ELSE                APIOutboundEvent.apiID       EQ fiAPIID:SCREEN-VALUE)       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)       BY APIOutboundEvent.requestDateTime DESCENDING
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK     WHERE (IF fiAPIID:SCREEN-VALUE EQ "" THEN                TRUE            ELSE                APIOutboundEvent.apiID       EQ fiAPIID:SCREEN-VALUE)       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)       BY APIOutboundEvent.requestDateTime DESCENDING.
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 APIOutboundEvent
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 APIOutboundEvent
 
@@ -72,10 +73,10 @@ CREATE WIDGET-POOL.
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 btFilter btExit cbSuccess cbAPIId ~
-fiRequestDate btTest BROWSE-2 
-&Scoped-Define DISPLAYED-OBJECTS cbSuccess cbAPIId fiRequestDate ~
-fiAPIIDLabel fiRequestDatelabel fiSuccessLabel 
+&Scoped-Define ENABLED-OBJECTS RECT-13 btFilter btExit cbSuccess ~
+fiRequestDate fiAPIId btTest BROWSE-2 
+&Scoped-Define DISPLAYED-OBJECTS cbSuccess fiRequestDate fiAPIIDLabel ~
+fiAPIId fiRequestDatelabel fiSuccessLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -106,18 +107,17 @@ DEFINE BUTTON btTest
      LABEL "Test" 
      SIZE 11 BY 2.62.
 
-DEFINE VARIABLE cbAPIId AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     DROP-DOWN-LIST
-     SIZE 30.4 BY 1.14
-     FGCOLOR 9 FONT 35 NO-UNDO.
-
 DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "ALL","FAILED","SUCCESS" 
      DROP-DOWN-LIST
      SIZE 16 BY 1
      FGCOLOR 9 FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 30 BY 1
+     FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
      VIEW-AS FILL-IN 
@@ -172,9 +172,9 @@ DEFINE FRAME DEFAULT-FRAME
      btFilter AT ROW 1.91 COL 128 WIDGET-ID 18
      btExit AT ROW 1.91 COL 154.2 WIDGET-ID 2
      cbSuccess AT ROW 2.81 COL 103 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     cbAPIId AT ROW 2.86 COL 18.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      fiRequestDate AT ROW 2.86 COL 72.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      fiAPIIDLabel AT ROW 2.91 COL 7.6 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiAPIId AT ROW 2.91 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 24
      fiRequestDatelabel AT ROW 2.91 COL 50.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      fiSuccessLabel AT ROW 2.91 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      btTest AT ROW 4.86 COL 128 WIDGET-ID 20
@@ -252,10 +252,10 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE BROWSE-2
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK
-    WHERE (IF cbAPIID:SCREEN-VALUE EQ "All" THEN
+    WHERE (IF fiAPIID:SCREEN-VALUE EQ "" THEN
                TRUE
            ELSE
-               APIOutboundEvent.apiID       EQ cbAPIID:SCREEN-VALUE)
+               APIOutboundEvent.apiID       EQ fiAPIID:SCREEN-VALUE)
       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR
               fiRequestDate:SCREEN-VALUE EQ "" OR
               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN
@@ -356,6 +356,36 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiAPIId
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiAPIId C-Win
+ON HELP OF fiAPIId IN FRAME DEFAULT-FRAME
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        cCompany, 
+        "apiID", /* lookup field */
+        0,   /* Subject ID */
+        "",  /* User ID */
+        0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+    
+    IF lookupField NE "" THEN DO:
+        fiAPIId:SCREEN-VALUE = lookupField.
+        
+        APPLY "LEAVE" TO SELF.
+    END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -380,7 +410,6 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUn pInit.
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -422,43 +451,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbSuccess cbAPIId fiRequestDate fiAPIIDLabel fiRequestDatelabel 
+  DISPLAY cbSuccess fiRequestDate fiAPIIDLabel fiAPIId fiRequestDatelabel 
           fiSuccessLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 btFilter btExit cbSuccess cbAPIId fiRequestDate btTest 
+  ENABLE RECT-13 btFilter btExit cbSuccess fiRequestDate fiAPIId btTest 
          BROWSE-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit C-Win 
-PROCEDURE pInit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cAPIIDListItems AS CHARACTER NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    cAPIIDListItems = "All".
-    
-    FOR EACH APIOutbound NO-LOCK
-        BREAK BY APIOutbound.apiID:
-        IF FIRST-OF(APIOutbound.apiID) THEN
-            cAPIIDListItems = cAPIIDListItems + "," + APIOutbound.apiID.
-    END.
-    
-    ASSIGN
-        cbAPIId:LIST-ITEMS   = cAPIIDListItems
-        cbAPIId:SCREEN-VALUE = "All"
-        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

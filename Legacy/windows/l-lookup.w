@@ -27,10 +27,11 @@
     ip-queryString :Where clause to select specific records
     ip-outList     :List of fields for which the value is required to be 
                     returned when a row is selected in the browse
+    ip-recLimit    :Max Record Limit to prevent run away query
 
   Output Parameters:
-    op-returnFields:Pipe separated list of return field values as output 
-                    based on previous input list
+    op-returnFields:Pipe separated list of return field name and value as
+                    output based on previous input list
     op-lookupField :Single return value which is to be returned from 
                     the lookup - this will populate in the field from 
                     where the lookup was opened
@@ -49,6 +50,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
 DEFINE INPUT  PARAMETER ip-title          AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-lookupField    AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-table          AS CHARACTER NO-UNDO.
@@ -61,6 +63,7 @@ DEFINE INPUT  PARAMETER ip-filterList     AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-sortList       AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-queryString    AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ip-outList        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-recLimit       AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER op-returnFields   AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-lookupField    AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-recVal         AS RECID     NO-UNDO.
@@ -79,9 +82,9 @@ DEFINE VARIABLE h_filterFrame     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_firstFilterField AS HANDLE   NO-UNDO. 
 
 DEFINE VARIABLE li-count          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE li-maxBrRows      AS INTEGER   NO-UNDO INITIAL 16.
+DEFINE VARIABLE li-maxBrRows      AS INTEGER   NO-UNDO INITIAL 30.
 DEFINE VARIABLE li-pageCount      AS INTEGER   NO-UNDO INITIAL 0.
-DEFINE VARIABLE li-pageRecCount   AS INTEGER   NO-UNDO INITIAL 16.
+DEFINE VARIABLE li-pageRecCount   AS INTEGER   NO-UNDO INITIAL 30.
 
 /* This will come from setup later - hardcoded for now */
 DEFINE VARIABLE li-recLimit       AS INTEGER   NO-UNDO INITIAL 15000.
@@ -189,16 +192,16 @@ DEFINE BUTTON bt-prev
 DEFINE VARIABLE ls-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
      VIEW-AS FILL-IN 
-     SIZE 50 BY 1.14 NO-UNDO.
+     SIZE 46 BY 1.14 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 60 BY 1.91.
+     SIZE 56 BY 1.91.
 
 DEFINE BUTTON bt-filter 
-     IMAGE-UP FILE "Graphics/16x16/filterwindow.bmp":U
+     IMAGE-UP FILE "Graphics/32x32/filter_and_sort.ico":U
      LABEL "" 
-     SIZE 5.2 BY 1.14.
+     SIZE 8 BY 1.91 TOOLTIP "Toggle Column Filters".
 
 
 /* Browse definitions                                                   */
@@ -214,13 +217,13 @@ DEFINE BROWSE br-table
 
 DEFINE FRAME Dialog-Frame
      bt-cancel AT ROW 1.24 COL 104 WIDGET-ID 22
-     bt-clear AT ROW 1.24 COL 7 WIDGET-ID 24
-     ls-search AT ROW 1.62 COL 23 COLON-ALIGNED WIDGET-ID 32
+     bt-clear AT ROW 1.24 COL 11 WIDGET-ID 24
+     ls-search AT ROW 1.62 COL 27 COLON-ALIGNED WIDGET-ID 32
      br-table AT ROW 4.52 COL 1 WIDGET-ID 200
      bt-next AT ROW 1.24 COL 86 WIDGET-ID 26
      bt-ok AT ROW 1.24 COL 95 WIDGET-ID 28
      bt-prev AT ROW 1.24 COL 77 WIDGET-ID 30
-     RECT-1 AT ROW 1.24 COL 16 WIDGET-ID 20
+     RECT-1 AT ROW 1.24 COL 20 WIDGET-ID 20
      SPACE(37.00) SKIP(26.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -228,11 +231,11 @@ DEFINE FRAME Dialog-Frame
          TITLE BGCOLOR 15 FGCOLOR 1 "Help Information" WIDGET-ID 100.
 
 DEFINE FRAME filter-frame
-     bt-filter AT ROW 1.1 COL 1 WIDGET-ID 2
+     bt-filter AT ROW 1.24 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS THREE-D 
-         AT COL 1 ROW 1.1
-         SIZE 5.6 BY 1.28 WIDGET-ID 300.
+         AT COL 1 ROW 1
+         SIZE 10 BY 2.38 WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -319,24 +322,56 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON DEFAULT-ACTION OF br-table IN FRAME Dialog-Frame
 DO:
-    DEFINE VARIABLE h_lfield   AS HANDLE NO-UNDO.
+    DEFINE VARIABLE h_lfield AS HANDLE NO-UNDO.
      
-    IF h_browser:NUM-SELECTED-ROWS > 0 AND h_brBuffer:AVAILABLE THEN DO:
+    IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
       DO li-count = 1 TO NUM-ENTRIES(ip-outList):
           h_lfield = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE.
-          IF h_lfield:DATA-TYPE = "DATE" THEN
+          op-returnFields = op-returnFields + h_lfield:NAME + "|".
+          IF h_lfield:DATA-TYPE EQ "DATE" THEN
              op-returnFields = op-returnFields + 
-                              (IF h_lfield:BUFFER-VALUE = ? THEN "" 
+                              (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
                               ELSE h_lfield:BUFFER-VALUE) + "|".
           ELSE 
              op-returnFields = op-returnFields + h_lfield:BUFFER-VALUE + "|".
       END.
       ASSIGN
           op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
-          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE.      
+          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
+          .      
     END.
   
     APPLY "WINDOW-CLOSE" TO FRAME {&FRAME-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
+ON PAGE-DOWN OF br-table IN FRAME Dialog-Frame
+DO:
+  APPLY "CHOOSE":U TO bt-next.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
+ON PAGE-UP OF br-table IN FRAME Dialog-Frame
+DO:
+  APPLY "CHOOSE":U TO bt-prev.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
+ON RETURN OF br-table IN FRAME Dialog-Frame
+DO:
+    APPLY "DEFAULT-ACTION":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -658,8 +693,8 @@ PROCEDURE addFilterObjects :
         CREATE TOGGLE-BOX h_togglebox
         ASSIGN FRAME = h_filterFrame
             LABEL     = "Use Wildcards"
-            Y         = bt-filter:Y IN FRAME filter-frame + 4
-            COLUMN    = 40
+            Y         = bt-filter:Y IN FRAME filter-frame + 10
+            COLUMN    = 46
             SENSITIVE = TRUE
             VISIBLE   = TRUE
             TRIGGERS:
@@ -684,7 +719,7 @@ PROCEDURE addFilterObjects :
         ASSIGN FRAME = h_filterFrame
            LABEL     = "Find"
            ROW       = bt-filter:ROW IN FRAME filter-frame
-           COLUMN    = 7
+           COLUMN    = 11
            WIDTH     = bt-ok:WIDTH IN FRAME {&FRAME-NAME}
            HEIGHT    = bt-ok:HEIGHT IN FRAME {&FRAME-NAME}
            SENSITIVE = TRUE
@@ -899,7 +934,7 @@ PROCEDURE customizeBrowse :
 ------------------------------------------------------------------------------*/
     h_browser:ALLOW-COLUMN-SEARCHING = TRUE.
         
-    h_browser:BGCOLOR = 8.
+/*    h_browser:BGCOLOR = 8.*/
     h_browser:SENSITIVE = YES.
     
 END PROCEDURE.
@@ -1158,8 +1193,8 @@ PROCEDURE resizeFilterFrame :
     ELSE DO:
         ASSIGN
             h_filterFrame:BGCOLOR        = ?
-            h_filterFrame:VIRTUAL-HEIGHT = 1.28
-            h_filterFrame:VIRTUAL-WIDTH  = 5.6
+            h_filterFrame:VIRTUAL-HEIGHT = 2.2
+            h_filterFrame:VIRTUAL-WIDTH  = 9.5
             h_filterFrame:HEIGHT = h_filterFrame:VIRTUAL-HEIGHT
             h_filterFrame:WIDTH  = h_filterFrame:VIRTUAL-WIDTH.
             
@@ -1352,9 +1387,9 @@ PROCEDURE validateRecordLimit :
     h_lquery:QUERY-PREPARE(ls-lqueryString).
     h_lquery:QUERY-OPEN().
     
-    IF h_lquery:NUM-RESULTS > li-recLimit THEN
+    IF ip-recLimit GT 0 AND h_lquery:NUM-RESULTS GT ip-recLimit THEN
        ip-filterFirst = TRUE.
-       
+    
     DELETE OBJECT h_lquery.
        
 END PROCEDURE.
@@ -1492,4 +1527,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
