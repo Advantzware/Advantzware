@@ -1177,7 +1177,7 @@ DO:
 
   run assign-cust.
   
-  /* Call AddCustomer API Outbound */
+  /* Call SendCustomer API Outbound */
   RUN pCallAPIOutbound (
       ROWID(cust)
       ).  
@@ -1954,7 +1954,7 @@ PROCEDURE pCallAPIOutbound :
     
     ASSIGN
         cParentProgram = PROGRAM-NAME(1)
-        cAPIID         = "AddCustomer"
+        cAPIID         = "SendCustomer"
         .
             
     RUN api/PrepareAndCallOutboundRequest.p (

@@ -4592,7 +4592,7 @@ PROCEDURE pCallAPIOutbound :
             
     ASSIGN
         cParentProgram = PROGRAM-NAME(1)
-        cAPIID         = "AddPurchaseOrder"
+        cAPIID         = "SendPurchaseOrder"
         .
     RUN api/PrepareAndCallOutboundRequest.p (
         INPUT TABLE ttArgs,

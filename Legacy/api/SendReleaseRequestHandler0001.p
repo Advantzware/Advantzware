@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-    File        : api/AddPicklistRequestHandler0001.p
+    File        : api/SendReleaseRequestHandler0001.p
     Purpose     : Returns the request data for picklist addition
 
     Syntax      :

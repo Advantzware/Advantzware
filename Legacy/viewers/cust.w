@@ -2490,7 +2490,7 @@ PROCEDURE pCallAPIOutbound :
     
     ASSIGN
         cParentProgram = PROGRAM-NAME(1)
-        cAPIID         = "AddCustomer"
+        cAPIID         = "SendCustomer"
         .
             
     RUN api/PrepareAndCallOutboundRequest.p (

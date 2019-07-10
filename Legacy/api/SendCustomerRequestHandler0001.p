@@ -1,5 +1,5 @@
   /*------------------------------------------------------------------------
-    File        : api/AddCustomerRequestHandler0001.p
+    File        : api/SendCustomerRequestHandler0001.p
     Purpose     : Returns the request data for customer addition
 
     Syntax      :

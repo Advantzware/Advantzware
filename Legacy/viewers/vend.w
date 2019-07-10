@@ -1533,7 +1533,7 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
       run passNewVend IN widget-handle(container-hdl) (vend.vend-no:SCREEN-VALUE).
   END.
   
-    /* Call AddVendor API */
+    /* Call SendVendor API */
     IF lNewRec THEN  
         RUN pCallAPIOutbound (
               ROWID(vend)
@@ -1566,7 +1566,7 @@ PROCEDURE pCallAPIOutbound :
     
     ASSIGN
         cParentProgram = PROGRAM-NAME(1)
-        cAPIID         = "AddVendor"
+        cAPIID         = "SendVendor"
         .
             
     RUN api/PrepareAndCallOutboundRequest.p (

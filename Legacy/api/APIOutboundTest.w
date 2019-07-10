@@ -433,8 +433,6 @@ DO:
         btSubmit:SENSITIVE         = FALSE
         edRequestData:SENSITIVE    = FALSE
         .
-            
-    MESSAGE edErrorMessage:SCREEN-VALUE VIEW-AS ALERT-BOX INFORMATION.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -462,7 +460,7 @@ DO:
         .
         
     CASE fiAPIId:SCREEN-VALUE:
-        WHEN "AddCustomer" THEN DO:
+        WHEN "SendCustomer" THEN DO:
             FIND FIRST cust NO-LOCK
                  WHERE cust.company EQ cCompany
                    AND cust.cust-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
@@ -478,9 +476,9 @@ DO:
                 ttArgs.argValue = STRING(ROWID(cust))
                 .    
                     
-            cAPIID = "AddCustomer".
+            cAPIID = "SendCustomer".
         END.
-        WHEN "AddVendor" THEN DO:
+        WHEN "SendVendor" THEN DO:
             FIND FIRST vend NO-LOCK
                  WHERE vend.company EQ cCompany
                    AND vend.vend-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
@@ -496,9 +494,9 @@ DO:
                 ttArgs.argValue = STRING(ROWID(vend))
                 .    
                     
-            cAPIID = "AddVendor".
+            cAPIID = "SendVendor".
         END.
-        WHEN "AddProduct" THEN DO:
+        WHEN "SendFinishedGood" THEN DO:
             FIND FIRST itemfg NO-LOCK
                  WHERE itemfg.company EQ cCompany
                    AND itemfg.i-no EQ fiPrimaryKey:SCREEN-VALUE NO-ERROR.
@@ -514,9 +512,9 @@ DO:
                 ttArgs.argValue = STRING(ROWID(itemfg))
                 .    
                     
-            cAPIID = "AddProduct".
+            cAPIID = "SendFinishedGood".
         END.
-        WHEN "AddPurchaseOrder" THEN DO:
+        WHEN "SendPurchaseOrder" THEN DO:
             FIND FIRST po-ord NO-LOCK
                  WHERE po-ord.company EQ cCompany
                    AND po-ord.po-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE) NO-ERROR.
@@ -532,9 +530,9 @@ DO:
                 ttArgs.argValue = STRING(ROWID(po-ord))
                 .    
                     
-            cAPIID = "AddPurchaseOrder".
+            cAPIID = "SendPurchaseOrder".
         END.
-        WHEN "AddPicklist" THEN DO:
+        WHEN "SendRelease" THEN DO:
             FIND FIRST oe-relh NO-LOCK
                 WHERE oe-relh.company  EQ cCompany
                   AND oe-relh.release# EQ INT(fiPrimaryKey:SCREEN-VALUE) NO-ERROR.
@@ -550,7 +548,7 @@ DO:
                 ttArgs.argValue = STRING(ROWID(oe-relh))
                 .    
             
-            cAPIID = "AddPicklist".
+            cAPIID = "SendRelease".
         END.
     END CASE.
 
@@ -655,14 +653,14 @@ DO:
     DEFINE VARIABLE cReturnRECID AS RECID     NO-UNDO.
     
     CASE fiAPIID:SCREEN-VALUE:
-        WHEN "AddCustomer" THEN DO:
+        WHEN "SendCustomer" THEN DO:
             RUN windows/l-cust.w (
                 cCompany,
                 fiPrimaryKey:SCREEN-VALUE, 
                 OUTPUT cReturnValue
                 ).
         END.
-        WHEN "AddVendor" THEN DO:
+        WHEN "SendVendor" THEN DO:
             RUN windows/l-vendno.w (
                 cCompany,
                 "",     /* vend.active */
@@ -670,7 +668,7 @@ DO:
                 OUTPUT cReturnValue
                 ).
         END.
-        WHEN "AddProduct" THEN DO:
+        WHEN "SendFinishedGood" THEN DO:
             RUN windows/l-itemfg.w (
                 cCompany,
                 "",     /* cust-no */
@@ -678,7 +676,7 @@ DO:
                 OUTPUT cReturnValue
                 ).
         END.
-        WHEN "AddPurchaseOrder" THEN DO:
+        WHEN "SendPurchaseOrder" THEN DO:
             RUN windows/l-ponopo.w (
                 cCompany,
                 TRUE,     /* po-ord.active */
@@ -686,7 +684,7 @@ DO:
                 OUTPUT cReturnValue
                 ).
         END.
-        WHEN "AddPicklist" THEN DO:
+        WHEN "SendRelease" THEN DO:
             RUN windows/l-oerelh.w (
                 cCompany,
                 fiPrimaryKey:SCREEN-VALUE, 

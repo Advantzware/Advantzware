@@ -28,7 +28,7 @@ DEFINE VARIABLE cParentProgram AS CHARACTER NO-UNDO.
 /* ***************************  Main Block  *************************** */
 ASSIGN
     cParentProgram = PROGRAM-NAME(1)
-    cAPIID         = "AddCustomer"
+    cAPIID         = "SendCustomer"
     .
 
 FIND FIRST Cust NO-LOCK NO-ERROR.

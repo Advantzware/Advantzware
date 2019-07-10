@@ -93,32 +93,32 @@ PROCEDURE pPrepareRequest PRIVATE:
    DEFINE OUTPUT        PARAMETER opcMessage        AS CHARACTER NO-UNDO.
 
    CASE ipcAPIID:
-       WHEN "AddCustomer" THEN
-           RUN api/AddCustomer.p (
+       WHEN "SendCustomer" THEN
+           RUN api/SendCustomer.p (
                INPUT TABLE ttArgs,
                INPUT ipcRequestHandler,
                INPUT-OUTPUT oplcRequestData,
                OUTPUT oplSuccess,
                OUTPUT opcMessage
                ).
-        WHEN "AddProduct" THEN
-            RUN api/AddProduct.p (
+        WHEN "SendFinishedGood" THEN
+            RUN api/SendFinishedGood.p (
                 INPUT TABLE ttArgs,
                 INPUT ipcRequestHandler,
                 INPUT-OUTPUT oplcRequestData,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).
-        WHEN "AddVendor" THEN
-            RUN api/AddVendor.p (
+        WHEN "SendVendor" THEN
+            RUN api/SendVendor.p (
                 INPUT TABLE ttArgs,
                 INPUT ipcRequestHandler,
                 INPUT-OUTPUT oplcRequestData,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).
-        WHEN "AddPurchaseOrder" THEN
-            RUN api/AddPurchaseOrder.p (
+        WHEN "SendPurchaseOrder" THEN
+            RUN api/SendPurchaseOrder.p (
                 INPUT TABLE ttArgs,
                 INPUT ipcAPIID,
                 INPUT ipcRequestHandler,
@@ -126,8 +126,8 @@ PROCEDURE pPrepareRequest PRIVATE:
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).
-        WHEN "AddPicklist" THEN
-            RUN api/AddPicklist.p (
+        WHEN "SendRelease" THEN
+            RUN api/SendRelease.p (
                 INPUT TABLE ttArgs,
                 INPUT ipcAPIID,
                 INPUT ipcRequestHandler,

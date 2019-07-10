@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-    File        : api/AddVendorRequestHandler0001.p
+    File        : api/SendVendorRequestHandler0001.p
     Purpose     : Returns the request data for vendor addition
 
     Syntax      :

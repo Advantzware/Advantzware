@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-    File        : api/AddProduct.p
+    File        : api/SendFinishedGood.p
     Purpose     : Returns the request data for product addition
 
     Syntax      :
@@ -76,8 +76,8 @@
             ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.cust-no", itemfg.cust-no)
             ioplcRequestData = REPLACE(ioplcRequestData, "TBD1", codeBars)
             ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.procat", itemfg.procat)
-            ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-name", itemfg.i-name)
-            ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-no", STRING(itemfg.i-no))
+            ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-name", REPLACE(itemfg.i-name,'"',""))
+            ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-no", REPLACE(STRING(itemfg.i-no),'"',""))
             ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.company", itemfg.company)
             .
         

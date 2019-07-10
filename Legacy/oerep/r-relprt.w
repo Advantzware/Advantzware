@@ -1048,7 +1048,7 @@ END CASE.
     IF AVAIL oe-relh THEN DO:
         /* Call to API Outbound picklist */
         RUN pCallAPIOutbound (
-            ROWID(b-oe-relh)
+            ROWID(oe-relh)
             ).  
     END.
   
@@ -2031,7 +2031,7 @@ PROCEDURE pCallAPIOutbound :
     
     ASSIGN
         cParentProgram = PROGRAM-NAME(1)
-        cAPIID         = "AddPicklist"
+        cAPIID         = "SendRelease"
         .
 
     RUN api/PrepareAndCallOutboundRequest.p (

@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-    File        : api/AddPurchaseOrderRequestHandler0001.p
+    File        : api/SendPurchaseOrderRequestHandler0001.p
     Purpose     : Returns the request data for purchase order addition
 
     Syntax      :
