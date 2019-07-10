@@ -184,7 +184,7 @@ PROCEDURE pGetSelectedColumns :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iColumn AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iColumn AS INTEGER NO-UNDO INITIAL 1.
     
     DEFINE BUFFER ttColumn FOR ttColumn.
     
@@ -841,6 +841,7 @@ PROCEDURE pJasperJSON:
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
         
         OS-CREATE-DIR "users".
+        OS-CREATE-DIR "users\_default".
         OS-CREATE-DIR VALUE("users\" + aoaUserID).
         cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".json".
         OUTPUT TO VALUE(cJasperFile).
@@ -981,6 +982,7 @@ PROCEDURE pJasperLastPageFooter :
             IF AVAILABLE dynParamValue THEN
             DO idx = 1 TO EXTENT(dynParamValue.paramName):
                 IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
+                IF dynParamValue.paramName[idx] BEGINS "svS" THEN NEXT.
                 ASSIGN
                     cParameter[iParameterRow] = IF dynParamValue.paramLabel[idx] EQ ? THEN REPLACE(dynParamValue.paramName[idx],"sv","")
                                                 ELSE dynParamValue.paramLabel[idx]
@@ -1674,7 +1676,7 @@ PROCEDURE spJasperQuery:
             ROWID(dynParamValue),
             dynSubject.queryStr,
             cTableName,
-            0, /* zero = no record limit */
+            dynParamValue.recordLimit, /* zero = no record limit */
             OUTPUT hQuery,
             OUTPUT lOK,
             OUTPUT cError

@@ -659,7 +659,7 @@ DO:
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
-    RUN system/openlookup.p (ipcCompany, "job-no", OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
+    RUN system/openlookup.p (ipcCompany, "job-no", 0, "", 0, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
     SELF:SCREEN-VALUE = cFoundValue.
     APPLY "LEAVE":U TO SELF.
     ASSIGN

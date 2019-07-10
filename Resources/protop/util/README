@@ -1,0 +1,22 @@
+ProTop 3 util/*
+===============
+
+The programs in this directory communicate with the ProTop 3 back end web
+servers.
+
+This is necessary to provide the web browser interface.
+
+If you do not wish to have your monitoring data sent to these servers do
+not run these programs.
+
+If you chose to use the web interface you will need a "custId".  You can
+obtain a custId by emailing tom@wss.com.
+
+Your monitoring data is only be available to site administrators and
+to accounts whom you create logins for.  The only data transmitted to the
+back end is monitoring and db analysis data -- Progress VST metrics,
+database utility and operating system information.  No application data
+is transmitted.
+
+If your company would prefer an on-premise installation rather than a
+cloud based solution please contact tom@wss.com.

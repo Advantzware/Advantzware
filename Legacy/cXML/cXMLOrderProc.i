@@ -396,9 +396,12 @@ PROCEDURE genTempOrderLines:
                 cRequestedDeliveryDate = TRIM(ttNodes.nodeValue).
 
                 IF cRequestedDeliveryDate NE "" THEN
-                    dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
-                        ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
-                        ,INT(SUBSTR(cRequestedDeliveryDate,1,4))).                
+                    ASSIGN dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
+                             ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
+                             ,INT(SUBSTR(cRequestedDeliveryDate,1,4)))
+                           ttOrdLines.ttItemDueDate = cRequestedDeliveryDate
+                           .
+                                
             END.
             WHEN 'itemOut|quantity' THEN
                 ttOrdLines.ttItemQuantity = TRIM(ttNodes.nodeValue).
@@ -490,6 +493,11 @@ PROCEDURE genOrderLines:
   FOR EACH ttOrdLines WHERE 
       ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
       BY ttItemLineNumber:
+     ASSIGN cRequestedDeliveryDate = ttOrdLines.ttItemDueDate
+            dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
+                                     ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
+                                     ,INT(SUBSTR(cRequestedDeliveryDate,1,4)))        
+            NO-ERROR.
 
       ASSIGN 
               itemLineNumber                = ttOrdLines.ttItemLineNumber              
@@ -581,6 +589,9 @@ PROCEDURE genOrderLines:
        
       oe-ordl.cas-cnt = IF oe-ordl.qty LT itemfg.case-count THEN oe-ordl.qty ELSE itemfg.case-count.
       /* {oe/defwhsed.i oe-ordl} */
+      
+      IF oe-ordl.req-date EQ ? THEN 
+        oe-ordl.req-date = oe-ord.ord-date + 10.
 
       RUN CreateRelease (INPUT ipcShipToID,
                          INPUT "").
@@ -628,6 +639,12 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cDueDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lIsEdiXML AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+  RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
 
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
   FIND FIRST ttNodes NO-LOCK
@@ -750,6 +767,9 @@ PROCEDURE gencXMLOrder:
       RUN touchOrder (INPUT rOrdRec, OUTPUT cReturn).
  
       ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
+      
+      RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).
+      
   END. 
   
   RELEASE oe-ord.  

@@ -1,0 +1,799 @@
+        1   /*******************************************************************************
+        2    *******************************************************************************
+        3    **                                                                           **
+        4    **                                                                           **
+        5    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+        6    **  http://www.greenfieldtech.com                                            **
+        7    **                                                                           **
+        8    **  ProTop is free software; you can redistribute it and/or modify it        **
+        9    **  under the terms of the GNU General Public License (GPL) as published     **
+       10    **  by the Free Software Foundation; either version 2 of the License, or     **
+       11    **  at your option) any later version.                                       **
+       12    **                                                                           **
+       13    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       14    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       15    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       16    **  for more details.                                                        **
+       17    **                                                                           **
+       18    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       19    **  of use and alternative licensing options for this software.              **
+       20    **                                                                           **
+       21    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       22    **                                                                           **
+       23    **  See http://www.fsf.org for more information about the GPL.               **
+       24    **                                                                           **
+       25    **                                                                           **
+       26    *******************************************************************************
+       27    *******************************************************************************
+       28    *
+       29    * appmon.p
+       30    *
+       31    *
+       32    * application specific status
+       33    *
+       34    *   # etc/appmon.cfg
+       35    *   #
+       36    *   # id "app name" "script" "statusList"
+       37    *
+       38    *   1 "EB2 .NET Interface" "./bin/ebdotnet.sh" "Running,Down"
+       39    *   2 "QXtend Inbound Receiver" "./bin/qxtend.sh" "Running,Down" 
+       40    *
+       41    * the script returns an integer status code:  0 = success or "all is well",
+       42    * because codes start at 0, code + 1 is the index into the statusList for a
+       43    * description of any status.
+       44    *
+       45    * optionally the script may also return "notes" - any text beyond the code is shown
+       46    * as a note
+       47    *
+       48    *
+       49    * Author:
+       50    *
+       51    *      Tom Bascom, Greenfield Technologies
+       52    *      http://www.greenfieldtech.com
+       53    *      September 5, 2003
+       54    *
+       55    */
+       56   
+       57   
+       58   /*******************************************************************************
+       59    *******************************************************************************
+       60    **                                                                           **
+       61    **                                                                           **
+       62    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       63    **  http://www.greenfieldtech.com                                            **
+       64    **                                                                           **
+       65    **  ProTop is free software; you can redistribute it and/or modify it        **
+       66    **  under the terms of the GNU General Public License (GPL) as published     **
+       67    **  by the Free Software Foundation; either version 2 of the License, or     **
+       68    **  at your option) any later version.                                       **
+       69    **                                                                           **
+       70    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       71    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       72    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       73    **  for more details.                                                        **
+       74    **                                                                           **
+       75    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       76    **  of use and alternative licensing options for this software.              **
+       77    **                                                                           **
+       78    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       79    **                                                                           **
+       80    **  See http://www.fsf.org for more information about the GPL.               **
+       81    **                                                                           **
+       82    **                                                                           **
+       83    *******************************************************************************
+       84    *******************************************************************************
+       85    *
+       86    * protop.i
+       87    *
+       88    * Header file for protop family of programs
+       89    *
+       90    *
+       91    * Known Bugs & Issues:
+       92    *
+       93    *
+       94    * To Do:
+       95    *
+       96    *
+       97    * Author:
+       98    *
+       99    *      Tom Bascom, Greenfield Technologies
+      100    *      http://www.greenfieldtech.com
+      101    *      August 28, 2003
+      102    *
+      103    */
+      104   
+      105   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+      106   &global-define  FASTLOCK        true
+      107   &ELSE
+      108   &global-define  FASTLOCK        false
+      109   &ENDIF
+      110   
+      111   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+      112   &global-define  OE11            "yes"
+      113   &global-define  xDEBUGTT        false
+      114   &ENDIF
+      115   
+      116   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+      117   &global-define  NOSERIALIZE     serialize-hidden
+      118   &ENDIF
+      119   
+      120   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+      121   &global-define  BIGINT          int64
+      122   &ELSE
+      123   &global-define  BIGINT          decimal
+      124   &ENDIF
+      125   
+      126   
+      127   /* lib/v9.i
+      128    *
+      129    */
+      130   
+      131   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      132   &global-define  CPYLOB  "no"
+      133   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      134   &global-define  LNGCR   character
+      135   &global-define  DTZ     integer
+      136   &global-define  BIGINT  decimal
+      137   &ELSE
+      138   &global-define  OE10    "yes"
+      139   &global-define  NOW     now
+      140   &global-define  LNGCR   longchar
+      141   &global-define  DTZ     datetime-tz
+      142   &global-define  BIGINT  int64
+      143   &ENDIF
+      144    
+      145   
+      146   /* use extended _connect fields: -client, -cache*
+      147    */
+      148   
+      149   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      150   &global-define  CONNECTX        "yes"
+      151   &ELSE
+      152   &global-define  CONNECTX        "no"
+      153   &ENDIF
+      154   
+      155   define stream inStrm.
+      156   
+      157   define new global shared variable dbgMode as integer no-undo initial 1.
+      158   
+      159   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      160    *
+      161    * someday everyone will have OO and I will replace these with a gsv class
+      162    * or something of that ilk
+      163    *
+      164    */
+      165   
+      166   define new global shared variable pt_shortname   as character no-undo.
+      167   define new global shared variable pt_uniqName    as character no-undo.
+      168   define new global shared variable pt_server      as character no-undo.
+      169   define new global shared variable pt_resrcType   as character no-undo.
+      170   
+      171   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      172   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      173   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      174   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      175   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      176   
+      177   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      178   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      179   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      180   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      181   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      182   define new global shared variable pt_ioFileName  as character no-undo.
+      183   define new global shared variable pt_dfCmd       as character no-undo.
+      184   
+      185   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      186   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      187   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      188   
+      189   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      190   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      191   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      192   
+      193   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      194   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      195   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      196   
+      197   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      198   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      199   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      200   
+      201   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      202   
+      203   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      204   
+      205   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      206   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      207   
+      208   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      209    * 
+      210    */
+      211   
+      212   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      213   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      214   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      215   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      216   
+      217   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      218   
+      219                                                                                   /* corresponding to base checkpoint#    */
+      220   /** Global Shared Temp Table Definitions
+      221    **
+      222    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      223    ** And a shared temp-table is logically the same as a db table so who really cares?
+      224    **
+      225    **/
+      226   
+      227   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      228    */
+      229   
+      230   define new global shared temp-table tt_tbl no-undo
+      231     field xid      as integer                                             /* _File._File-Num              */
+      232     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      233     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      234     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      235     field tblname  as character                                           /* _File._File-Name             */
+      236     index xid-idx is unique primary xid.
+      237   
+      238   define new global shared temp-table tt_idx no-undo
+      239     field xid      as integer                                             /* _Index._Idx-Num              */
+      240     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      241     field idxname  as character                                           /* _Index._Idx-Name             */
+      242     field idxnote  as character
+      243     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      244     field tblnum   as integer                                             /* _File._File-Num              */
+      245     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      246     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      247     field tblname  as character                                           /* _File._File-Name             */
+      248     index xid-idx is unique primary xid.
+      249   
+      250   define new global shared temp-table tt_areaExtent no-undo
+      251     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      252     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      253   
+      254     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      255     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      256     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      257   
+      258     index ae-idx is unique primary areaNum extNum.
+      259   
+      260   define new global shared temp-table tt_area no-undo
+      261     field xid      as integer    format ">>>9"
+      262     field SANum    as integer    format ">>>9"        label "#"
+      263     field areaPool as character  format "x(2)"        label "BX"
+      264   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      265     field SAName   as character  format "x(30)"       label "Area Name"
+      266     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      267     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      268     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      269     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      270     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      271     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      272     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      273   
+      274     field blkszkb as integer     format ">>9"         label "BSZ"
+      275     field rpb     as integer     format ">>9"         label "RPB"
+      276     field clstrsz as integer     format ">>9"         label "CSZ"
+      277   
+      278     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      279     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      280     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      281   
+      282     field numExts as integer     format ">>>>9"       label "#Exts"
+      283     field hasVar  as logical     format "Yes/No"      label "Var?"
+      284   
+      285     field xnote   as character   format "x"           label "*"
+      286   
+      287     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      288     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      289   
+      290     index pctAlloc-idx is primary pctAlloc descending
+      291     index pctLastX-idx pctLastX pctAlloc descending
+      292     index allocGB-idx allocGB descending
+      293     index totGB-idx totGB descending
+      294     index xid-idx is unique xid
+      295     index SANum-idx is unique SANum
+      296     index SAName-idx is unique SAName
+      297   .
+      298   
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323   *** Encrypted Source ***
+      324   *** Encrypted Source ***
+      325   *** Encrypted Source ***
+      326   *** Encrypted Source ***
+      327   *** Encrypted Source ***
+      328   *** Encrypted Source ***
+      329   *** Encrypted Source ***
+      330   *** Encrypted Source ***
+      331   *** Encrypted Source ***
+      332   *** Encrypted Source ***
+      333   *** Encrypted Source ***
+      334   *** Encrypted Source ***
+      335   *** Encrypted Source ***
+      336   *** Encrypted Source ***
+      337   *** Encrypted Source ***
+      338   *** Encrypted Source ***
+      339   *** Encrypted Source ***
+      340   *** Encrypted Source ***
+      341   *** Encrypted Source ***
+      342   *** Encrypted Source ***
+      343   *** Encrypted Source ***
+      344   *** Encrypted Source ***
+      345   *** Encrypted Source ***
+      346   *** Encrypted Source ***
+      347   *** Encrypted Source ***
+      348   *** Encrypted Source ***
+      349   *** Encrypted Source ***
+      350   *** Encrypted Source ***
+      351   *** Encrypted Source ***
+      352   *** Encrypted Source ***
+      353   *** Encrypted Source ***
+      354   *** Encrypted Source ***
+      355   *** Encrypted Source ***
+      356   *** Encrypted Source ***
+      357   *** Encrypted Source ***
+      358   *** Encrypted Source ***
+      359   *** Encrypted Source ***
+      360   *** Encrypted Source ***
+      361   *** Encrypted Source ***
+      362   *** Encrypted Source ***
+      363   *** Encrypted Source ***
+      364   *** Encrypted Source ***
+      365   *** Encrypted Source ***
+      366   *** Encrypted Source ***
+      367   *** Encrypted Source ***
+      368   *** Encrypted Source ***
+      369    
+      370   
+      371   /*******************************************************************************
+      372    *******************************************************************************
+      373    **                                                                           **
+      374    **                                                                           **
+      375    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      376    **  http://www.greenfieldtech.com                                            **
+      377    **                                                                           **
+      378    **  ProTop is free software; you can redistribute it and/or modify it        **
+      379    **  under the terms of the GNU General Public License (GPL) as published     **
+      380    **  by the Free Software Foundation; either version 2 of the License, or     **
+      381    **  at your option) any later version.                                       **
+      382    **                                                                           **
+      383    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      384    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      385    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      386    **  for more details.                                                        **
+      387    **                                                                           **
+      388    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      389    **  of use and alternative licensing options for this software.              **
+      390    **                                                                           **
+      391    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      392    **                                                                           **
+      393    **  See http://www.fsf.org for more information about the GPL.               **
+      394    **                                                                           **
+      395    **                                                                           **
+      396    *******************************************************************************
+      397    *******************************************************************************
+      398    *
+      399    * protoplib.i
+      400    *
+      401    * ProTop infrastructure library definitions
+      402    *
+      403    */
+      404   
+      405   function uDateTime returns integer () in super.
+      406   function string2uDateTime returns integer( input p_text as character ) in super.
+      407   function searchDir returns character ( input xDir as character ) in super.
+      408   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      409   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      410   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      411   function myPID returns character () in super.
+      412   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      413   
+      414   /* end protoplib.i */
+      415    
+      416   
+      417   /*******************************************************************************
+      418    *******************************************************************************
+      419    **                                                                           **
+      420    **                                                                           **
+      421    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      422    **  http://www.greenfieldtech.com                                            **
+      423    **                                                                           **
+      424    **  ProTop is free software; you can redistribute it and/or modify it        **
+      425    **  under the terms of the GNU General Public License (GPL) as published     **
+      426    **  by the Free Software Foundation; either version 2 of the License, or     **
+      427    **  at your option) any later version.                                       **
+      428    **                                                                           **
+      429    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      430    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      431    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      432    **  for more details.                                                        **
+      433    **                                                                           **
+      434    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      435    **  of use and alternative licensing options for this software.              **
+      436    **                                                                           **
+      437    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      438    **                                                                           **
+      439    **  See http://www.fsf.org for more information about the GPL.               **
+      440    **                                                                           **
+      441    **                                                                           **
+      442    *******************************************************************************
+      443    *******************************************************************************
+      444    *
+      445    * vstlib.i
+      446    *
+      447    * VST library definitions
+      448    *
+      449    */
+      450   
+      451   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      452   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      453   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      454   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      455   
+      456   function connectFlags returns character ( input cnxId as integer ) in super.
+      457   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      458   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      459   
+      460   function isAIEnabled returns logical () in super.
+      461   function isReplSource returns logical () in super.
+      462   function isReplTarget returns logical () in super.
+      463   function isBackupRunning returns logical () in super.
+      464   function isWorkgroup returns logical () in super.
+      465   
+      466   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      467   
+      468   /* end vstlib.i */
+      469    
+      470   
+      471   function add2ds returns logical ( input h as handle ) in super.
+      472   function getTempTableHandle returns handle ( input n as character ) in super.
+      473   
+      474   /* end protop.i */
+      475    
+      476   
+      477   /*******************************************************************************
+      478    *******************************************************************************
+      479    **                                                                           **
+      480    **                                                                           **
+      481    **  Copyright 2003-2012 Tom Bascom, Greenfield Technologies                  **
+      482    **  http://www.greenfieldtech.com                                            **
+      483    **                                                                           **
+      484    **  ProTop is free software; you can redistribute it and/or modify it        **
+      485    **  under the terms of the GNU General Public License (GPL) as published     **
+      486    **  by the Free Software Foundation; either version 2 of the License, or     **
+      487    **  at your option) any later version.                                       **
+      488    **                                                                           **
+      489    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      490    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      491    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      492    **  for more details.                                                        **
+      493    **                                                                           **
+      494    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      495    **  of use and alternative licensing options for this software.              **
+      496    **                                                                           **
+      497    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      498    **                                                                           **
+      499    **  See http://www.fsf.org for more information about the GPL.               **
+      500    **                                                                           **
+      501    **                                                                           **
+      502    *******************************************************************************
+      503    *******************************************************************************
+      504    *
+      505    * tick.i
+      506    *
+      507    *
+      508    * common routine to handle "clock ticks"
+      509    *
+      510    *
+      511    * Author:
+      512    *
+      513    *      Tom Bascom, Greenfield Technologies
+      514    *      http://www.greenfieldtech.com
+      515    *      January 21, 2012
+      516    *
+      517    */
+      518   
+      519   
+      520   /* lib/v9.i
+      521    *
+      522    */
+      523   
+      524   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      525   &global-define  CPYLOB  "no"
+      526   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      527   &global-define  LNGCR   character
+      528   &global-define  DTZ     integer
+      529   &global-define  BIGINT  decimal
+      530   &ELSE
+      531   &global-define  OE10    "yes"
+      532   &global-define  NOW     now
+      533   &global-define  LNGCR   longchar
+      534   &global-define  DTZ     datetime-tz
+      535   &global-define  BIGINT  int64
+      536   &ENDIF
+      537    
+      538   
+      539   define new global shared variable rawMode  as integer no-undo initial 5.
+      540   define new global shared variable timeMode as integer no-undo initial 2.
+      541   
+      542   define new global shared variable x as integer no-undo initial 5.
+      543   define new global shared variable z as decimal no-undo.
+      544   
+      545   define variable y as decimal no-undo.
+      546   
+      547   define variable initTick as integer no-undo.
+      548   define variable prevTick as integer no-undo.
+      549   
+      550   
+      551   procedure updTick:
+      552   
+      553   &IF DEFINED( OE10 ) &THEN
+      554     if initTick = 0 then initTick = mtime.
+      555     assign
+      556       x = rawMode /* ( if rawMode then 4 else 5 ) */
+      557       z = mtime - prevTick
+      558       z = ( if z >= 0 then z else 86400000 - prevTick + mtime )   /* handle rolling over midnight */
+      559       z = z / 1000
+      560       y = mtime - initTick
+      561       y = y / 1000
+      562       prevTick = mtime
+      563     .
+      564   &ELSE
+      565     if initTick = 0 then initTick = etime.
+      566     assign
+      567       x = rawMode /* ( if rawMode then 4 else 5 ) */
+      568       z = etime - prevTick
+      569       z = ( if z >= 0 then z else 5000 )   /* etime doesn't rollover at midnite -- but a mistaken etime(yes) somewhere would be bad... */
+      570       z = z / 1000
+      571       y = etime - initTick
+      572       y = y / 1000
+      573       prevTick = etime
+      574     .
+      575   &ENDIF
+      576   
+      577     /* if rawMode <> 5 then z = 1. */
+      578   
+      579     if timeMode = 1 then z = 1.
+      580   
+      581     return.
+      582   
+      583   end.
+      584   
+      585   /* end tick.i */
+      586    
+      587   
+      588   define output parameter dcDescription as character no-undo initial "appActivity".
+      589   
+      590   define temp-table tt_appcfg no-undo
+      591     field xid        as integer   format ">>9"               label "Id"
+      592     field appName    as character format "x(40)"             label "Description"
+      593     field appScript  as character format "x(45)"             label "Script"
+      594     field statusList as character format "x(22)"             label "Status List"
+      595     index xid-idx       is unique xid
+      596   .
+      597   
+      598   define temp-table tt_app no-undo
+      599     field xid        as integer   format ">>9"               label "Id"
+      600     field appName    as character format "x(40)"             label "Description"
+      601     field appNote    as character format "x(88)"             label "Note"
+      602     field appStatus  as character format "x(20)"             label "Status"
+      603     field statCode   as integer   format ">>>9"              label "Code"
+      604   /*field numLines   as integer   format ">>>>9"             label "Lines" */
+      605     index appName-idx   is primary appName statCode ascending
+      606     index appStatus-idx appStatus statCode
+      607     index statCode-idx  statCode
+      608     index xid-idx       is unique xid
+      609   .
+      610   
+      611   
+      612   /* lib/dumpTT.i
+      613    *
+      614    * simplified to a single line -- include should be eliminated.
+      615    *
+      616    */
+      617   
+      618   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 &THEN
+      619   /*** +++
+      620   file-info:file-name = "./ptdefs".
+      621   if file-info:full-pathname <> ? and index( file-info:file-type, "d" ) > 0 and index( file-info:file-type, "w" ) > 0 then
+      622     do:
+      623   
+      624       file-info:file-name = "./ptdefs/{1}.xsd".
+      625   
+      626       if true /* file-info:full-pathname = ? or file-info:file-size = 0 */ then
+      627         do:
+      628   
+      629           temp-table {1}:write-xmlschema(
+      630             "file",
+      631   /*        substitute( "ptdefs/&1.xsd", "{1}" ), */
+      632   /*        "./ptdefs/{1}.xsd", */
+      633             ( if opsys = "unix" then "./ptdefs/{1}.xsd" else ".~\ptdefs~\{1}.xsd" ),
+      634             true
+      635   
+      636         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2
+      637         &THEN
+      638             , ?, ?, ?
+      639         &ENDIF
+      640   
+      641       ).
+      642   
+      643       end.
+      644   
+      645     end.
+      646    +++ ***/
+      647   &ENDIF
+      648    
+      649   
+      650   procedure mon-init:
+      651   
+      652   
+      653     define variable cfgFileName as character no-undo.
+      654     define variable xline       as character no-undo extent 16.
+      655   
+      656     run updTick.
+      657   
+      658     run findCfgName( "appmon", input-output cfgFileName ).
+      659   
+      660     file-info:file-name = cfgFileName.
+      661     if file-info:full-pathname = ? then return.
+      662   
+      663     input stream inStrm from value( file-info:full-pathname ).
+      664     repeat:
+      665   
+      666       xline = ?.
+      667       import stream inStrm xline.
+      668       if xline[1] <> ? and xline[1] <> "" and xline[1] <> "#" then
+      669         do:
+      670   
+      671           create tt_appcfg.
+      672           assign
+      673             tt_appcfg.xid        = integer( xline[1] )
+      674             tt_appcfg.appName    = xline[2]
+      675             tt_appcfg.appScript  = xline[3]
+      676             tt_appcfg.statusList = xline[4]
+      677             no-error
+      678           .
+      679   
+      680         end.
+      681   
+      682     end.
+      683     input stream inStrm close.
+      684   
+      685     return.
+      686   
+      687   end.
+      688   
+      689   
+      690   procedure mon-update:
+      691   
+      692     define input parameter argList as character no-undo.
+      693   
+      694     define variable inLine   as character no-undo.
+      695     define variable numLines as integer   no-undo.
+      696   
+      697     empty temp-table tt_app.
+      698   
+      699     for each tt_appcfg:
+      700   
+      701       create tt_app.
+      702       assign
+      703         tt_app.xid       = tt_appcfg.xid
+      704         tt_app.appName   = tt_appcfg.appName
+      705         tt_app.statCode  = -1
+      706         tt_app.appNote   = ""
+      707         numLines         = 0
+      708       .
+      709   
+      710       inLine = ?.
+      711       input stream inStrm through value( tt_appcfg.appScript ).
+      712       repeat:
+      713   
+      714         import stream inStrm unformatted inLine.
+      715         numLines = numLines + 1.
+      716   
+      717         if numLines = 1 then
+      718           do:
+      719   
+      720             tt_app.statCode = integer( entry( 1, inLine, " " )) no-error.
+      721             if tt_app.statCode < 0 or tt_app.statCode = ? then
+      722               tt_app.appStatus = "Status Check Failed".
+      723              else
+      724               do:
+      725                 if num-entries( tt_appcfg.statusList ) > tt_app.statCode then
+      726                   tt_app.appStatus = entry( tt_app.statCode + 1, tt_appcfg.statusList ).
+      727                  else
+      728                   tt_app.appStatus = "No Description".
+      729               end.
+      730   
+      731             tt_app.appNote = trim( ( if num-entries( inLine, " " ) <= 1 then "" else substring( inLine, index( inLine, " " ) + 1 ))).
+      732   
+      733           end.
+      734          else
+      735           do:
+      736   
+      737             tt_app.appNote = tt_app.appNote + "~n" + inLine.
+      738   
+      739           end.
+      740   
+      741       end.
+      742       input stream inStrm close.
+      743   
+      744     end.
+      745   
+      746     add2ds( temp-table tt_app:default-buffer-handle ).
+      747   
+      748     return.
+      749   
+      750   end.
+      751   
+      752   *** Encrypted Source ***
+      753   *** Encrypted Source ***
+      754   *** Encrypted Source ***
+      755   *** Encrypted Source ***
+      756   *** Encrypted Source ***
+      757   *** Encrypted Source ***
+      758   *** Encrypted Source ***
+      759   *** Encrypted Source ***
+      760   *** Encrypted Source ***
+      761   *** Encrypted Source ***
+      762   *** Encrypted Source ***
+      763   *** Encrypted Source ***
+      764   *** Encrypted Source ***
+      765   *** Encrypted Source ***
+      766   *** Encrypted Source ***
+      767   *** Encrypted Source ***
+      768   *** Encrypted Source ***
+      769   *** Encrypted Source ***
+      770   *** Encrypted Source ***
+      771   *** Encrypted Source ***
+      772   *** Encrypted Source ***
+      773   *** Encrypted Source ***
+      774   *** Encrypted Source ***
+      775   *** Encrypted Source ***
+      776   *** Encrypted Source ***
+      777   *** Encrypted Source ***
+      778   *** Encrypted Source ***
+      779   *** Encrypted Source ***
+      780   *** Encrypted Source ***
+      781   *** Encrypted Source ***
+      782   *** Encrypted Source ***
+      783   *** Encrypted Source ***
+      784   *** Encrypted Source ***
+      785   *** Encrypted Source ***
+      786   *** Encrypted Source ***
+      787   *** Encrypted Source ***
+      788   *** Encrypted Source ***
+      789   *** Encrypted Source ***
+      790   *** Encrypted Source ***
+      791   *** Encrypted Source ***
+      792   *** Encrypted Source ***
+      793   *** Encrypted Source ***
+      794   *** Encrypted Source ***
+      795   *** Encrypted Source ***
+      796   *** Encrypted Source ***
+      797    
+      798   
+      799   return.

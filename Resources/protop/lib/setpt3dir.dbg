@@ -1,0 +1,187 @@
+        1   /**********************************************************************
+        2    * Copyright (C) 2006-2019 by Consultingwerk Ltd. ("CW") -            *
+        3    * www.consultingwerk.de and other contributors as listed             *
+        4    * below.  All Rights Reserved.                                       *
+        5    *                                                                    *
+        6    *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+        7    *   KIND, either express or implied.                                 *
+        8    *                                                                    *
+        9    *  Contributors:                                                     *
+       10    *                                                                    *
+       11    **********************************************************************/
+       12   
+       13   /* in order to build packages on Linux this code must be distributed as
+       14    * xcode -- otherwise the OPSYS begins "win" test will fail...
+       15    *
+       16    * to make that work the plain text source is actually in lib/setpt3dir.x.p
+       17    * and the xcoded lib/setpt3dir.p is created thus:
+       18    * 
+       19    *   mkdir -p /tmp/lib 2> /dev/null
+       20    *   xcode -d /tmp lib/setpt3dir.p
+       21    *   cp /tmp/lib/setpt3dir.p lib/setpt3dir2.p
+       22    * 
+       23    * (lib/setpt3dir.p is provided as plain text source just in case anyone is curious)
+       24    *
+       25    */
+       26   
+       27   
+       28   /*------------------------------------------------------------------------
+       29       File        : set-protop-installdir.p
+       30       Purpose     : Sets the Protop install directory in the Windows registry
+       31   
+       32       Syntax      :
+       33   
+       34       Description : First attempts to store this at
+       35                     HKEY_LOCAL_SYSTEM\Software\White Star Software\Protop
+       36                     When the user has no access there, it attempts to write to
+       37                     HKEY_CURRENT_USER\Software\White Star Software\Protop
+       38   
+       39       Author(s)   : Mike Fechner / Consultingwerk Ltd.
+       40       Created     : Sat Jan 19 11:02:53 CET 2019
+       41       Notes       : SCL-2433
+       42     ----------------------------------------------------------------------*/
+       43   
+       44   /* ***************************  Definitions  ************************** */
+       45   
+       46   &IF OPSYS BEGINS "WIN":U AND (PROVERSION BEGINS "10.2B" OR INTEGER(ENTRY (1, PROVERSION, ".")) GE 11) &THEN
+       47   &SCOPED-DEFINE DotNetAccessible
+       48   &ENDIF
+       49   
+       50   &IF DEFINED (DotNetAccessible) NE 0 &THEN
+       51   ROUTINE-LEVEL ON ERROR UNDO, THROW.
+       52   
+       53   USING Progress.Lang.*   FROM PROPATH .
+       54   USING Microsoft.Win32.* FROM ASSEMBLY .
+       55   &ENDIF
+       56   
+       57   DEFINE INPUT  PARAMETER pcInstallDir AS CHARACTER NO-UNDO.
+       58   
+       59   /* ***************************  Main Block  *************************** */
+       60   
+       61   &IF DEFINED (DotNetAccessible) NE 0 &THEN
+       62   DO ON ERROR UNDO, THROW:
+       63       RUN setRegistryValue ("LocalMachine":U,
+       64                             "Software~\White Star Software~\ProTop":U,
+       65                             "installdir":U,
+       66                             pcInstallDir) .
+       67   
+       68       /* Mike Fechner, Consultingwerk Ltd. 19.01.2019
+       69          When the current user is not authorized to write to
+       70          the HKEY_LOCAL_SYSTEM, we'll store this under HKEY_CURRENT_USER
+       71          instead */
+       72       CATCH uncaught AS System.UnauthorizedAccessException:
+       73           RUN setRegistryValue ("User":U,
+       74                                 "Software~\White Star Software~\ProTop":U,
+       75                                 "installdir":U,
+       76                                 pcInstallDir) .
+       77       END CATCH.
+       78   END.
+       79   
+       80   CATCH err AS Progress.Lang.Error:
+       81       MESSAGE "Unhandled Error setting ProTop installdir in the Windows Registry":U SKIP
+       82               err:GetMessage(1)
+       83           VIEW-AS ALERT-BOX.
+       84   END CATCH.
+       85   
+       86   /**
+       87    * Purpose: Locates a root registry key
+       88    * Notes:
+       89    * @param pcRegistryKey The registry key
+       90    * @param (OUTPUT) The specified RegistryKey
+       91    */
+       92   PROCEDURE findRegistry:
+       93   
+       94       DEFINE INPUT  PARAMETER pcRegistryKey AS CHARACTER   NO-UNDO .
+       95       DEFINE OUTPUT PARAMETER poRegistryKey AS RegistryKey NO-UNDO .
+       96   
+       97       CASE pcRegistryKey:
+       98           WHEN "ClassesRoot":U OR WHEN "HKEY_CLASSES_ROOT":U OR WHEN "CLASSES":U THEN DO:
+       99               ASSIGN poRegistryKey = Microsoft.Win32.Registry:ClassesRoot .
+      100               RETURN .
+      101           END.
+      102           WHEN "CurrentConfig":U OR WHEN "HKEY_CURRENT_CONFIG":U OR WHEN "CONFIG":U THEN DO:
+      103               ASSIGN poRegistryKey = Microsoft.Win32.Registry:CurrentConfig .
+      104               RETURN .
+      105           END.
+      106           WHEN "CurrentUser":U OR WHEN "HKEY_CURRENT_USER":U OR WHEN "USER":U THEN DO:
+      107               ASSIGN poRegistryKey = Microsoft.Win32.Registry:CurrentUser .
+      108               RETURN .
+      109           END.
+      110           WHEN "DynData":U OR WHEN "HKEY_DYN_DATA":U THEN DO:
+      111               ASSIGN poRegistryKey = Microsoft.Win32.Registry:DynData .
+      112               RETURN .
+      113           END.
+      114           WHEN "LocalMachine":U OR WHEN "HKEY_LOCAL_MACHINE":U OR WHEN "MACHINE":U THEN DO:
+      115               ASSIGN poRegistryKey = Microsoft.Win32.Registry:LocalMachine .
+      116               RETURN .
+      117           END.
+      118           WHEN "PerformanceData":U OR WHEN "HKEY_PERFORMANCE_DATA":U THEN DO:
+      119               ASSIGN poRegistryKey = Microsoft.Win32.Registry:PerformanceData .
+      120               RETURN .
+      121           END.
+      122           WHEN "Users":U OR WHEN "HKEY_USERS":U THEN DO:
+      123               ASSIGN poRegistryKey = Microsoft.Win32.Registry:Users .
+      124               RETURN .
+      125           END.
+      126           OTHERWISE
+      127               UNDO, THROW NEW AppError (SUBSTITUTE ("Unknonw registry error &1":U, pcRegistryKey), 0) .
+      128       END CASE .
+      129   
+      130   
+      131   END PROCEDURE.
+      132   
+      133   /**
+      134    * Purpose: Locates a RegistryKey
+      135    * Notes:
+      136    * @param pcRegistryKey The registry key
+      137    * @param pcSubKey The registry sub key
+      138    * @param (OUTPUT) The specified RegistryKey
+      139    */
+      140   PROCEDURE findRegistryKey:
+      141   
+      142       DEFINE INPUT  PARAMETER pcRegistryKey  AS CHARACTER   NO-UNDO .
+      143       DEFINE INPUT  PARAMETER pcSubKey       AS CHARACTER   NO-UNDO .
+      144       DEFINE OUTPUT PARAMETER reg            AS RegistryKey NO-UNDO .
+      145   
+      146       DEFINE VARIABLE i   AS INTEGER NO-UNDO.
+      147   
+      148       ASSIGN pcSubKey = REPLACE(pcSubKey, "/":U, "~\":U) .
+      149   
+      150       RUN findRegistry(pcRegistryKey, OUTPUT reg) .
+      151   
+      152       IF NOT VALID-OBJECT(reg) THEN
+      153           RETURN ? .
+      154   
+      155       DO i = 1 TO NUM-ENTRIES(pcSubKey, "~\":U):
+      156           IF VALID-OBJECT (reg) THEN
+      157               ASSIGN reg = reg:CreateSubKey(ENTRY(i, pcSubKey, "~\":U)) .
+      158       END.
+      159   
+      160   END PROCEDURE.
+      161   
+      162   /**
+      163    * Purpose: Sets a value in the windows registry
+      164    * Notes:
+      165    * @param pcRegistryKey The registry key
+      166    * @param pcSubKey The registry sub key
+      167    * @param pcProperty The property name
+      168    * @param pcValue The property value to set
+      169    */
+      170   PROCEDURE setRegistryValue:
+      171   
+      172       DEFINE INPUT  PARAMETER pcRegistryKey AS CHARACTER NO-UNDO.
+      173       DEFINE INPUT  PARAMETER pcSubKey      AS CHARACTER NO-UNDO.
+      174       DEFINE INPUT  PARAMETER pcProperty    AS CHARACTER NO-UNDO.
+      175       DEFINE INPUT  PARAMETER pcValue       AS LONGCHAR  NO-UNDO.
+      176   
+      177       DEFINE VARIABLE regkey AS RegistryKey NO-UNDO .
+      178   
+      179       RUN findRegistryKey(pcRegistryKey, pcSubKey, OUTPUT regKey) .
+      180   
+      181       IF NOT VALID-OBJECT(regKey) THEN
+      182           UNDO, THROW NEW AppError (SUBSTITUTE ("Invalid registry key: &1~\&2":U, pcRegistryKey, pcSubKey), 0) .
+      183   
+      184       regKey:SetValue (pcProperty, pcValue) .
+      185   
+      186   END PROCEDURE.
+      187   &ENDIF

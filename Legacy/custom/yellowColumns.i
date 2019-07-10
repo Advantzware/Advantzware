@@ -1302,6 +1302,87 @@ PROCEDURE openQuery:
     IF sortColumn EQ "Unit Count" THEN STRING(w-bin.case-count, "9999999999")                             ELSE ~
                                        STRING(w-bin.partial-count, "-9999999999")  ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'itemfgpo' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Purchase Order#' THEN string(po-ordl.po-no) ELSE ~
+  IF sortColumn EQ 'Vendor' THEN string(vend-name())  ELSE ~
+  IF sortColumn EQ 'Whse' THEN string(po-ord.loc) ELSE ~
+  IF sortColumn EQ 'Due Date' THEN STRING(YEAR(po-ordl.due-date),'9999') + ~
+                                   STRING(MONTH(po-ordl.due-date),'99') + ~
+                                   STRING(DAY(po-ordl.due-date),'99') ELSE ~
+     po-ord.ship-id ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'd-po-inq#' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'PO#' THEN string(po-ordl.po-no,"999999999") ELSE ~
+  IF sortColumn EQ 'Vendor#' THEN string(po-ord.vend-no)  ELSE ~
+  IF sortColumn EQ 'Due Date' THEN STRING(YEAR(po-ordl.due-date),'9999') + ~
+                                   STRING(MONTH(po-ordl.due-date),'99') + ~
+                                   STRING(DAY(po-ordl.due-date),'99') ELSE ~
+  IF sortColumn EQ 'Ship To' THEN string(po-ord.ship-id) ELSE ~
+  IF sortColumn EQ 'Ship Name' THEN string(po-ord.ship-name) ELSE ~
+  IF sortColumn EQ 'Job#' THEN string(po-ordl.job-no) ELSE ~
+  IF sortColumn EQ 'Form#' THEN string(po-ordl.s-num) ELSE ~
+  IF sortColumn EQ 'Item#' THEN string(po-ordl.i-no) ELSE ~
+  IF sortColumn EQ 'Item Name' THEN string(po-ordl.i-name) ELSE ~
+  IF sortColumn EQ 'Width' THEN string(po-ordl.s-wid) ELSE ~
+  IF sortColumn EQ 'Length' THEN string(po-ordl.s-len) ELSE ~
+  IF sortColumn EQ 'Vendor Item#' THEN string(po-ordl.vend-i-no) ELSE ~
+  IF sortColumn EQ 'Qty Ordered' THEN string(po-ordl.ord-qty) ELSE ~
+  IF sortColumn EQ 'Ord UOM' THEN string(po-ordl.pr-qty-uom) ELSE ~
+  IF sortColumn EQ 'Qty Received' THEN string(po-ordl.t-rec-qty,"9999999999") ELSE ~
+  IF sortColumn EQ 'Rec. UOM' THEN string(po-ordl.cons-uom) ELSE ~
+  IF sortColumn EQ 'Unit Cost' THEN string(po-ordl.cost,"9999999999") ELSE ~
+  IF sortColumn EQ 'Uom' THEN string(po-ordl.pr-uom) ELSE ~
+  IF sortColumn EQ 'Buyer' THEN string(po-ord.buyer) ELSE ~
+  IF sortColumn EQ 'Customer#' THEN string(po-ordl.cust-no) ELSE ~
+  IF sortColumn EQ 'Line #' THEN string(po-ordl.LINE) ELSE ~
+     po-ord.ship-id ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'd-ordinfo#' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Order#' THEN string(oe-ordl.ord-no,"999999999") ELSE ~
+  IF sortColumn EQ 'Customer#' THEN string(oe-ordl.cust-no)  ELSE ~
+  IF sortColumn EQ 'Customer Name' THEN STRING(oe-ord.cust-name) ELSE ~
+  IF sortColumn EQ 'Order!Quantity' THEN string(oe-ordl.qty,"999999999") ELSE ~
+  IF sortColumn EQ 'Shipped!Quantity' THEN string(oe-ordl.ship-qty,"999999999") ELSE ~
+  IF sortColumn EQ 'Due Date' THEN STRING(YEAR(oe-ordl.req-date),'9999') + ~
+                                   STRING(MONTH(oe-ordl.req-date),'99') + ~
+                                   STRING(DAY(oe-ordl.req-date),'99') ELSE ~
+  IF sortColumn EQ 'FG Item#' THEN string(oe-ordl.i-no) ELSE ~
+  IF sortColumn EQ 'Cust Part #' THEN string(oe-ordl.part-no) ELSE ~
+  IF sortColumn EQ 'Cust Po#' THEN string(oe-ordl.po-no) ELSE ~
+  IF sortColumn EQ 'Order Po#' THEN string(oe-ordl.po-no) ELSE ~
+  IF sortColumn EQ 'Est #' THEN string(oe-ordl.est-no) ELSE ~
+  IF sortColumn EQ 'Job #' THEN string(oe-ordl.job-no) ELSE ~
+  IF sortColumn EQ 'Order Date' THEN STRING(YEAR(oe-ord.ord-date),'9999') + ~
+                                   STRING(MONTH(oe-ord.ord-date),'99') + ~
+                                   STRING(DAY(oe-ord.ord-date),'99') ELSE ~
+  IF sortColumn EQ 'Status' THEN string(oe-ord.stat) ELSE ~
+  IF sortColumn EQ 'Order!Quantity' THEN string(get-ord-qty (),"999999999") ELSE ~
+  IF sortColumn EQ 'Shipped!Quantity' THEN string(get-ship-qty(),"999999999") ELSE ~
+  IF sortColumn EQ 'Invoice!Quantity' THEN string(oe-ordl.inv-qty) ELSE ~
+  IF sortColumn EQ 'Item Name' THEN string(oe-ordl.i-name) ELSE ~
+  IF sortColumn EQ 'Order Line Cost' THEN string(oe-ordl.cost) ELSE ~
+     string(oe-ordl.ord-no,"999999999") ~{&SORTED}
+
+ &ELSEIF '{&yellowColumnsName}' EQ 'd-jobinfo#' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Job#' THEN string(job-hdr.job-no) ELSE ~
+  IF sortColumn EQ 'FG Item#' THEN string(job-hdr.i-no)  ELSE ~
+  IF sortColumn EQ 'Start Date' THEN STRING(YEAR(job.start-date),'9999') + ~
+                                   STRING(MONTH(job.start-date),'99') + ~
+                                   STRING(DAY(job.start-date),'99') ELSE ~
+  IF sortColumn EQ 'Close Date' THEN STRING(YEAR(job.close-date),'9999') + ~
+                                   STRING(MONTH(job.close-date),'99') + ~
+                                   STRING(DAY(job.close-date),'99') ELSE ~
+  IF sortColumn EQ 'Estimate#' THEN string(job-hdr.est-no) ELSE ~
+  IF sortColumn EQ 'Order#' THEN string(job-hdr.ord-no,"999999999") ELSE ~
+  IF sortColumn EQ 'Customer#' THEN string(job-hdr.cust-no) ELSE ~
+  IF sortColumn EQ 'Status' THEN string(job.stat) ELSE ~
+     string(job-hdr.job-no2,"9999") ~{&SORTED}
+
+
 /* btr - 02/15/2011  */
 &ELSEIF '{&yellowColumnsName}' EQ 'b-wipmach' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~

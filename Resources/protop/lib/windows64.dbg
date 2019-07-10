@@ -1,0 +1,216 @@
+        1   /* lib/windows64.p
+        2    *
+        3    * windows kernel calls
+        4    *
+        5    * use this when _progres is a 64 bit executable or when running source
+        6    *
+        7    */
+        8   
+        9   session:add-super-procedure( this-procedure ).
+       10   
+       11   return.
+       12   
+       13   
+       14   PROCEDURE CreateProcessA EXTERNAL "kernel32.dll":
+       15     &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 11.3 &THEN
+       16       DEFINE INPUT  PARAMETER lpApplicationName    AS LONG.
+       17       DEFINE INPUT  PARAMETER lpCommandline        AS CHAR.
+       18       DEFINE INPUT  PARAMETER lpProcessAttributes  AS LONG.
+       19       DEFINE INPUT  PARAMETER lpThreadAttributes   AS LONG.
+       20       DEFINE INPUT  PARAMETER bInheritHandles      AS LONG.
+       21       DEFINE INPUT  PARAMETER dCreationFlags       AS LONG.
+       22       DEFINE INPUT  PARAMETER lpEnvironment        AS LONG.
+       23       DEFINE INPUT  PARAMETER lpCurrentDirectory   AS LONG.
+       24       DEFINE INPUT  PARAMETER lpStartupInfo        AS LONG.
+       25       DEFINE INPUT  PARAMETER lpProcessInformation AS LONG.
+       26       DEFINE RETURN PARAMETER bResult              AS LONG.
+       27     &ELSE
+       28       &IF 64 = 64 &THEN
+       29         DEFINE INPUT  PARAMETER lpApplicationName    AS INT64.
+       30         DEFINE INPUT  PARAMETER lpCommandline        AS CHAR.
+       31         DEFINE INPUT  PARAMETER lpProcessAttributes  AS INT64.
+       32         DEFINE INPUT  PARAMETER lpThreadAttributes   AS INT64.
+       33         DEFINE INPUT  PARAMETER bInheritHandles      AS INT64.
+       34         DEFINE INPUT  PARAMETER dCreationFlags       AS INT64.
+       35         DEFINE INPUT  PARAMETER lpEnvironment        AS INT64.
+       36         DEFINE INPUT  PARAMETER lpCurrentDirectory   AS INT64.
+       37         DEFINE INPUT  PARAMETER lpStartupInfo        AS INT64.
+       38         DEFINE INPUT  PARAMETER lpProcessInformation AS INT64.
+       39         DEFINE RETURN PARAMETER bResult              AS INT64.
+       40       &ELSE
+       41         DEFINE INPUT  PARAMETER lpApplicationName    AS LONG.
+       42         DEFINE INPUT  PARAMETER lpCommandline        AS CHAR.
+       43         DEFINE INPUT  PARAMETER lpProcessAttributes  AS LONG.
+       44         DEFINE INPUT  PARAMETER lpThreadAttributes   AS LONG.
+       45         DEFINE INPUT  PARAMETER bInheritHandles      AS LONG.
+       46         DEFINE INPUT  PARAMETER dCreationFlags       AS LONG.
+       47         DEFINE INPUT  PARAMETER lpEnvironment        AS LONG.
+       48         DEFINE INPUT  PARAMETER lpCurrentDirectory   AS LONG.
+       49         DEFINE INPUT  PARAMETER lpStartupInfo        AS LONG.
+       50         DEFINE INPUT  PARAMETER lpProcessInformation AS LONG.
+       51         DEFINE RETURN PARAMETER bResult              AS LONG.
+       52       &ENDIF
+       53     &ENDIF
+       54   end procedure.
+       55   
+       56   procedure OpenProcess external "kernel32.dll" :
+       57     &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 11.3 &THEN
+       58       define input  parameter desiredAccess as long.
+       59       define input  parameter inheritFlag   as long.
+       60       define input  parameter pid           as long.
+       61       define return parameter procHdl       as long.
+       62     &ELSE
+       63       &IF 64 = 64 &THEN
+       64         define input  parameter desiredAccess as int64.
+       65         define input  parameter inheritFlag   as int64.
+       66         define input  parameter pid           as int64.
+       67         define return parameter procHdl       as int64.
+       68       &ELSE
+       69         define input  parameter desiredAccess as long.
+       70         define input  parameter inheritFlag   as long.
+       71         define input  parameter pid           as long.
+       72         define return parameter procHdl       as long.
+       73       &ENDIF
+       74     &ENDIF
+       75   end procedure.
+       76   
+       77   procedure TerminateProcess external "kernel32.dll" :
+       78     &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 11.3 &THEN
+       79       define input  parameter hProcess  as long.
+       80       define input  parameter uExitCode as long.
+       81       define return parameter retval    as long.
+       82     &ELSE
+       83       &IF 64 = 64 &THEN
+       84         define input  parameter hProcess  as int64.
+       85         define input  parameter uExitCode as int64.
+       86         define return parameter retval    as int64.
+       87       &ELSE
+       88         define input  parameter hProcess  as long.
+       89         define input  parameter uExitCode as long.
+       90         define return parameter retval    as long.
+       91       &ENDIF
+       92     &ENDIF
+       93   
+       94   end procedure.
+       95   
+       96   procedure CloseHandle external "kernel32.dll":
+       97     &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 11.3 &THEN
+       98       define input  parameter procHdl  as long.
+       99       define return parameter statcode as long.
+      100     &ELSE
+      101       &IF 64 = 64 &THEN
+      102         define input  parameter procHdl  as int64.
+      103         define return parameter statcode as int64.
+      104       &ELSE
+      105         define input  parameter procHdl  as long.
+      106         define return parameter statcode as long.
+      107       &ENDIF
+      108     &ENDIF
+      109   end.
+      110   
+      111   
+      112   procedure spawn:
+      113   
+      114     DEFINE INPUT  PARAMETER CommandLine as character NO-UNDO.
+      115     DEFINE INPUT  PARAMETER WorkingDir  as character NO-UNDO.
+      116     DEFINE OUTPUT PARAMETER PID         AS INTEGER   NO-UNDO.
+      117   
+      118     define variable wShowWindow   AS INTEGER NO-UNDO INITIAL 0.
+      119     define variable bResult       AS INTEGER NO-UNDO.
+      120     define variable ReturnValue   AS INTEGER NO-UNDO.
+      121     define variable lpStartupInfo AS MEMPTR  NO-UNDO.
+      122   
+      123     SET-SIZE ( lpStartupInfo )     = 68.
+      124   
+      125     &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 11.3 &THEN
+      126       PUT-LONG ( lpStartupInfo, 1 )  = 68.
+      127       PUT-LONG ( lpStartupInfo, 45 ) = 1. /* = STARTF_USESHOWWINDOW */
+      128     &ELSE
+      129       &IF 64 = 64 &THEN
+      130         PUT-INT64 ( lpStartupInfo, 1 )  = 68.
+      131         PUT-INT64 ( lpStartupInfo, 45 ) = 1. /* = STARTF_USESHOWWINDOW */
+      132       &ELSE
+      133         PUT-LONG ( lpStartupInfo, 1 )  = 68.
+      134         PUT-LONG ( lpStartupInfo, 45 ) = 1. /* = STARTF_USESHOWWINDOW */
+      135       &ENDIF
+      136     &ENDIF
+      137   
+      138     PUT-SHORT( lpStartupInfo, 49 ) = wShowWindow.
+      139   
+      140     define variable lpProcessInformation AS MEMPTR.
+      141     SET-SIZE( lpProcessInformation )   = 16.
+      142   
+      143     define variable lpWorkingDirectory AS MEMPTR.
+      144     IF WorkingDir NE "" THEN DO:
+      145       SET-SIZE( lpWorkingDirectory )     = 256.
+      146       PUT-STRING( lpWorkingDirectory, 1 ) = WorkingDir.
+      147     END.
+      148   
+      149     RUN CreateProcessA(
+      150       0,
+      151       CommandLine,
+      152       0,
+      153       0,
+      154       0,
+      155       0,
+      156       0,
+      157       ( IF WorkingDir = "" THEN 0 ELSE GET-POINTER-VALUE( lpWorkingDirectory )),
+      158       GET-POINTER-VALUE( lpStartupInfo ),
+      159       GET-POINTER-VALUE( lpProcessInformation ),
+      160       OUTPUT bResult
+      161     ).
+      162   
+      163     IF bResult <> 0 THEN     /* release kernel-objects hProcess and hThread: */
+      164       do:
+      165   
+      166         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 11.3 &THEN
+      167           PID = GET-LONG( lpProcessInformation, 9 ).
+      168           RUN CloseHandle ( input GET-LONG( lpProcessInformation, 1 ), OUTPUT ReturnValue ).
+      169           RUN CloseHandle ( input GET-LONG( lpProcessInformation, 5 ), OUTPUT ReturnValue ).
+      170         &ELSE
+      171           &IF 64 = 64 &THEN
+      172             PID = GET-INT64( lpProcessInformation, 9 ).
+      173             RUN CloseHandle ( input GET-INT64( lpProcessInformation, 1 ), OUTPUT ReturnValue ).
+      174             RUN CloseHandle ( input GET-INT64( lpProcessInformation, 5 ), OUTPUT ReturnValue ).
+      175           &ELSE
+      176             PID = GET-LONG( lpProcessInformation, 9 ).
+      177             RUN CloseHandle ( input GET-LONG( lpProcessInformation, 1 ), OUTPUT ReturnValue ).
+      178             RUN CloseHandle ( input GET-LONG( lpProcessInformation, 5 ), OUTPUT ReturnValue ).
+      179           &ENDIF
+      180         &ENDIF
+      181   
+      182       end.
+      183   
+      184     SET-SIZE( lpStartupInfo )        = 0.
+      185     SET-SIZE( lpProcessInformation ) = 0.
+      186     SET-SIZE( lpWorkingDirectory )   = 0.
+      187   
+      188   END PROCEDURE.
+      189   
+      190   procedure kill:
+      191   
+      192     &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 11.3 &THEN
+      193       define input parameter PID as integer no-undo.
+      194       define variable processHandle as integer no-undo.
+      195       define variable returnValue   as integer no-undo.
+      196     &ELSE
+      197       &IF 64 = 64 &THEN
+      198         define input parameter PID as int64 no-undo.
+      199         define variable processHandle as int64 no-undo.
+      200         define variable returnValue   as int64 no-undo.
+      201       &ELSE
+      202         define input parameter PID as integer no-undo.
+      203         define variable processHandle as integer no-undo.
+      204         define variable returnValue   as integer no-undo.
+      205       &ENDIF
+      206     &ENDIF
+      207   
+      208     run OpenProcess ( 1, 0, PID, OUTPUT ProcessHandle ).
+      209   
+      210     if processHandle NE 0 then
+      211       do:
+      212         run TerminateProcess ( processHandle, 0, output returnValue ).
+      213         run CloseHandle ( processHandle, output returnValue ).
+      214       end.
+      215   
+      216   end.

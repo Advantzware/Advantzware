@@ -59,12 +59,12 @@ PROCEDURE pInitDynParameters :
         .
     DO WHILE VALID-HANDLE(hWidget):
         CASE hWidget:TYPE:
-            WHEN "COMBO-BOX" OR
-            WHEN "RADIO-SET" OR
+            WHEN "COMBO-BOX"      OR
+            WHEN "RADIO-SET"      OR
             WHEN "SELECTION-LIST" OR
-            WHEN "TOGGLE-BOX" THEN
+            WHEN "TOGGLE-BOX"     THEN
                 APPLY "VALUE-CHANGED":U TO hWidget.
-            WHEN "EDITOR" OR
+            WHEN "EDITOR"  OR
             WHEN "FILL-IN" THEN
                 APPLY "LEAVE":U TO hWidget.
         END CASE.
@@ -118,11 +118,11 @@ PROCEDURE pParamAction :
                     WHEN "CHARACTER" THEN
                     ttDynAction.paramWidget:SCREEN-VALUE = CHR(254).
                     WHEN "DECIMAL" THEN
-                    ttDynAction.paramWidget:SCREEN-VALUE = "99999999.99".
+                    ttDynAction.paramWidget:SCREEN-VALUE = ttDynAction.initialValue.
                     WHEN "DATE" THEN
                     ttDynAction.paramWidget:SCREEN-VALUE = "12/31/2049".
                     WHEN "INTEGER" THEN
-                    ttDynAction.paramWidget:SCREEN-VALUE = "99999999".
+                    ttDynAction.paramWidget:SCREEN-VALUE = ttDynAction.initialValue.
                 END CASE.
                 WHEN "LOW" THEN
                 IF ttDynAction.paramWidget:FORMAT EQ "99:99" THEN
@@ -132,11 +132,11 @@ PROCEDURE pParamAction :
                     WHEN "CHARACTER" THEN
                     ttDynAction.paramWidget:SCREEN-VALUE = CHR(32).
                     WHEN "DECIMAL" THEN
-                    ttDynAction.paramWidget:SCREEN-VALUE = "-99999999.99".
+                    ttDynAction.paramWidget:SCREEN-VALUE = ttDynAction.initialValue.
                     WHEN "DATE" THEN
                     ttDynAction.paramWidget:SCREEN-VALUE = "1/1/1950".
                     WHEN "INTEGER" THEN
-                    ttDynAction.paramWidget:SCREEN-VALUE = "-99999999".
+                    ttDynAction.paramWidget:SCREEN-VALUE = ttDynAction.initialValue.
                 END CASE.
             END CASE.
         END. /* do idx */
@@ -223,7 +223,8 @@ PROCEDURE pSaveDynParamValues :
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         ASSIGN
             dynParamValue.outputFormat  = ipcOutputFormat
-            dynParamValue.securityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel")
+            dynParamValue.securityLevel = IF dynParamValue.user-id EQ "_default" THEN 0
+                                          ELSE DYNAMIC-FUNCTION("sfUserSecurityLevel")
             dynParamValue.paramName     = ""
             dynParamValue.paramLabel    = ""
             dynParamValue.paramValue    = ""

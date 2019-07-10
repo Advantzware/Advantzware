@@ -136,6 +136,15 @@ DEFINE VARIABLE    chWorkbook  AS COM-HANDLE NO-UNDO.
 
 DEF VAR cExcelOutput AS cha NO-UNDO.
 
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("oerep/r-bolprt.w","", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+IF lResult THEN ASSIGN lAsiUser = YES .
+
 RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cReturnChar, OUTPUT lRecfound).
@@ -160,13 +169,14 @@ end_job2 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box ~
 tb_GL tb_SW tb_approve spec_codes revsn_no tb_prt-label tb_committed ~
 tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req tb_freeze-note ~
 tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no td-show-parm ~
-tb_ExportXML btn-ok btn-cancel 
+tb_ExportXML btn-ok btn-cancel run_format
 &Scoped-Define DISPLAYED-OBJECTS begin_job1 begin_job2 end_job1 end_job2 ~
 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL ~
 tb_fgimage tb_SW spec_codes tb_prt-rev revsn_no tb_prt-mch rd_print-speed ~
 tb_prt-shipto tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header ~
 tb_prompt-ship dept_codes TB_sample_req tb_freeze-note tb_dept-note rd-dest ~
-lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm tb_ExportXML 
+lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm tb_ExportXML ~
+run_format
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -457,6 +467,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -506,8 +521,9 @@ DEFINE FRAME FRAME-A
      lv-ornt AT ROW 19.52 COL 56.6 NO-LABEL
      lv-font-no AT ROW 21.86 COL 54.6 COLON-ALIGNED
      lv-font-name AT ROW 21.86 COL 58.6 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.14 COL 56.6
-     tb_ExportXML AT ROW 23.86 COL 56.6 WIDGET-ID 20
+     td-show-parm AT ROW 23.14 COL 41
+     tb_ExportXML AT ROW 23.86 COL 41 WIDGET-ID 20
+     run_format AT ROW 23.76 COL 69 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 25.14 COL 26
      btn-cancel AT ROW 25.14 COL 57
      "Print Machine's Speed or Run Hour ?" VIEW-AS TEXT
@@ -1269,12 +1285,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_corr C-Win
 ON VALUE-CHANGED OF tb_corr IN FRAME FRAME-A /* Corrugated */
 DO:
+
   assign {&self-name}.
-/*
-  IF {&self-name} THEN spec_codes:HIDDEN = NO.
-  ELSE
-  IF lv-format-f NE "ASI" THEN spec_codes:HIDDEN = YES.
-*/  
+
+  IF tb_corr:SCREEN-VALUE EQ "Yes" THEN
+      ASSIGN run_format:SCREEN-VALUE = lv-format-c .
+  ELSE IF tb_fold:SCREEN-VALUE EQ "Yes" THEN
+      ASSIGN run_format:SCREEN-VALUE = lv-format-f .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1334,6 +1352,10 @@ END.
 ON VALUE-CHANGED OF tb_fold IN FRAME FRAME-A /* Folding Carton */
 DO:
   assign {&self-name}.
+  IF tb_fold:SCREEN-VALUE EQ "Yes" THEN
+      ASSIGN run_format:SCREEN-VALUE = lv-format-f .
+  ELSE IF tb_corr:SCREEN-VALUE EQ "Yes" THEN
+      ASSIGN run_format:SCREEN-VALUE = lv-format-c .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1530,6 +1552,57 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
+DO:
+   ASSIGN run_format.
+   
+   IF tb_fold:SCREEN-VALUE EQ "Yes" THEN do:
+       IF lv-format-f NE run_format THEN DO:
+           ASSIGN lv-format-f =  run_format.
+           RUN  pRunFormatValueChanged .
+       END.
+   END.
+   ELSE IF tb_corr:SCREEN-VALUE EQ "Yes" THEN do:
+       IF lv-format-c NE run_format THEN DO:
+           ASSIGN lv-format-c =  run_format.
+           RUN  pRunFormatValueChanged .
+       END.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Font */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+
+    IF tb_fold:SCREEN-VALUE EQ "Yes" THEN do:
+        RUN windows/l-syschrL.w (gcompany,"JOBCARDF",run_format:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val NE '' THEN
+            run_format:SCREEN-VALUE = ENTRY(1,char-val).
+        IF lv-format-f NE run_format:SCREEN-VALUE THEN DO:
+            ASSIGN lv-format-f =  run_format:SCREEN-VALUE.
+            RUN  pRunFormatValueChanged .
+        END.
+    END.
+    ELSE  do:
+        RUN windows/l-syschrL.w (gcompany,"JOBCARDC",run_format:SCREEN-VALUE,OUTPUT char-val).
+        IF char-val NE '' THEN
+            run_format:SCREEN-VALUE = ENTRY(1,char-val).
+        IF lv-format-c NE run_format:SCREEN-VALUE THEN DO:
+            ASSIGN lv-format-c =  run_format:SCREEN-VALUE.
+            RUN  pRunFormatValueChanged .
+        END.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1692,23 +1765,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       tb_ExportXML:HIDDEN  IN FRAME FRAME-A = NO.
   ELSE 
       tb_ExportXML:HIDDEN  IN FRAME FRAME-A = YES.
-      
-   IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,jobcardf 1,jobcardf 2") > 0 THEN
-     ASSIGN tb_fgimage:SENSITIVE = YES.
-    IF LOOKUP(lv-format-f,"jobcardf 1,jobcardf 2") > 0 THEN
-     ASSIGN tb_fgimage:SENSITIVE = YES.
-
-  IF LOOKUP(lv-format-c,"Protagon") > 0 THEN
-     ASSIGN 
-      tb_prt-rev:SENSITIVE = YES
-      revsn_no:HIDDEN IN FRAME FRAME-A = NO 
-      .
-
-  IF lv-format-c = "Artios" THEN
-     ASSIGN
-        tb_tray-2:HIDDEN = NO
-        tb_tray-2:SENSITIVE = YES.
-
+  
   FIND FIRST users WHERE
        users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
@@ -1719,19 +1776,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = "c:\tmp".
 
   RUN enable_UI.
-
-  IF lv-format-c = "PEACHTREE" THEN
-      ASSIGN
-         tb_tray-2:HIDDEN = YES
-         tb_tray-2:SENSITIVE = NO
-         tb_app-unprinted:HIDDEN = YES
-         tb_app-unprinted:SENSITIVE = NO
-         tb_make_hold:HIDDEN = NO
-         tb_make_hold:SENSITIVE = YES     .
-  ELSE
-      ASSIGN
-         tb_make_hold:HIDDEN = YES
-         tb_make_hold:SENSITIVE = NO.
   
 {methods/nowait.i}
   DO WITH FRAME {&frame-name}:
@@ -1745,25 +1789,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         end_job2:SCREEN-VALUE   = string(ip-job-no2)
         .
    &ENDIF
-    IF lv-format-c = "ColonialPL" OR lv-format-f = "Colonial" OR lv-format-f = "xml" THEN
-      ASSIGN
-        tb_draft:HIDDEN = NO
-        tb_draft:SENSITIVE = YES
-        /* tb_draft:SCREEN-VALUE = "NO"*/.
+  
 
          revsn_no:HIDDEN IN FRAME FRAME-A           = TRUE.
-     IF LOOKUP(lv-format-c,"Protagon") > 0 THEN
-     ASSIGN tb_prt-rev:SENSITIVE = YES
-             revsn_no:HIDDEN IN FRAME FRAME-A    = NO.
-
+   
     IF INDEX(PROGRAM-NAME(4),"mainmenu") GT 0 
       THEN ASSIGN fl-jobord = 0
                   fl-jobord:SCREEN-VALUE = "0".
-
-    /* gdm - 07130906 */
-    IF lv-format-f = "FibreFC" 
-      THEN ASSIGN fl-jobord = INT(fl-jobord:SCREEN-VALUE).
-      ELSE ASSIGN fl-jobord = 0.
 
     ASSIGN
        tb_approve:SCREEN-VALUE = "no"
@@ -1776,44 +1808,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_freeze-note:SENSITIVE = FALSE
        tb_freeze-note:CHECKED = FALSE
        lFreezeNoteVal = FALSE.
-
-    IF lv-format-c = "pacific" OR lv-format-c = "Allwest" THEN
-       ASSIGN
-          lv-ornt:SCREEN-VALUE = "L"
-          lv-font-no:SCREEN-VALUE = "13"
-          lv-font-name:SCREEN-VALUE = "Courier New Size=9 (13CPI)"
-          lines-per-page:SCREEN-VALUE = "48"
-          lines-per-page = 48.
-
-    /*IF tb_corr:SCREEN-VALUE EQ "No" AND lv-format-f NE "ASI" THEN spec_codes:HIDDEN = YES.*/
-
-    IF (tb_fold AND (lv-format-f = "Interpac"  OR lv-format-f = "Dayton" 
-                 OR lv-format-f = "Livngstn"  OR lv-format-f = "FibreFC"  OR lv-format-f = "HPB"
-                 OR lv-format-f = "metro"     or lv-format-f = "Indiana-XL" OR lv-format-f = "MidYork"
-                 OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" OR lv-format-f = "Ruffino" 
-                 OR lv-format-f = "Colonial"  OR lv-format-f = "xml"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
-                 OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
-                 OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
-                 OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
-                 OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
-        (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20")) THEN
-      assign 
-        tb_prt-mch:SENSITIVE      = YES
-        tb_prt-shipto:SENSITIVE   = YES
-        tb_prt-sellprc:SENSITIVE  = YES
-        rd_print-speed:SENSITIVE  = YES .            
-
-    ELSE do:
-        ASSIGN tb_prt-mch = NO
-               tb_prt-shipto = NO
-               tb_prt-sellprc = NO.
-        ASSIGN tb_prt-mch:SCREEN-VALUE = "no"
-               tb_prt-shipto:SCREEN-VALUE = "no"
-               tb_prt-sellprc:SCREEN-VALUE = "no" 
-               rd_print-speed:SCREEN-VALUE = "S".
-    END.
-
-    /*IF lv-format-c EQ "Artios" AND lv-format-f EQ "FibreFC" THEN DO:*/
+    
       plev = 1.
       REPEAT WHILE PROGRAM-NAME(plev) NE ?:
         IF PROGRAM-NAME(plev) MATCHES "*w-jobapp*" THEN DO:
@@ -1831,22 +1826,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          ASSIGN
             tb_app-unprinted:HIDDEN    = NO
             tb_app-unprinted:SENSITIVE = YES.
-
-    IF lv-format-c EQ "Artios" AND lv-format-f EQ "FibreFC" THEN
-       RUN split-ship-proc. /*only for Fibre*/
-
-    IF tb_corr = TRUE AND (lv-format-c = "Protagon" OR lv-format-c = "Hughes" OR lv-format-c = "Allwest") THEN DO:
-            TB_sample_req:HIDDEN = NO.
-            tb_dept-note:HIDDEN = YES.
-        END.
-    ELSE DO:
-            TB_sample_req:HIDDEN = YES.
-            tb_dept-note:HIDDEN = NO.
-        END.
-    IF tb_dept-note:SCREEN-VALUE = "YES" THEN
-        dept_codes:HIDDEN IN FRAME FRAME-A = NO.
-    ELSE
-        dept_codes:HIDDEN IN FRAME FRAME-A = YES.
 
     IF TRIM(begin_job1:SCREEN-VALUE) NE ""                          AND
        TRIM(begin_job1:SCREEN-VALUE) EQ TRIM(end_job1:SCREEN-VALUE) AND
@@ -1886,50 +1865,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
        END.  /* avail job-hdr */
     END.
-
-    IF lv-format-f EQ "Accord" 
-    OR lv-format-f EQ "Knight***" 
-    OR lv-format-f EQ "Carded" 
-    OR lv-format-f EQ "Carded2" 
-    OR lv-format-f EQ "Coburn" THEN ASSIGN 
-        tb_freeze-note:SCREEN-VALUE = "NO"
-        lFreezeNoteVal = FALSE
-        tb_freeze-note:SENSITIVE = NO.
-    
-    IF lv-format-f EQ "Prystup" THEN
-        tb_show-rel:HIDDEN IN FRAME FRAME-A = NO.
-    ELSE
-        tb_show-rel:HIDDEN IN FRAME FRAME-A = YES.
-    /* Task #: 02160708 - dgd 04/04/2007 - START */
-    if can-do ("Indiana-XL", lv-format-f) 
-      then run HideDeptBoxes (no).
-      else run HideDeptBoxes (yes).
-    /* Task #: 02160708 - dgd 04/04/2007 - END */
-
+  
       IF NOT tb_prt-rev THEN
         revsn_no:HIDDEN IN FRAME FRAME-A = YES .
       ELSE
         revsn_no:HIDDEN IN FRAME FRAME-A = NO .
-
-    tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,Valley,jobcardc 1,jobcardc 2,Printers,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
-    IF NOT tb_prt-set-header:SENSITIVE THEN
-      tb_prt-set-header:SCREEN-VALUE = "no".
-
-    IF LOOKUP(lv-format-c,"jobcardc 20,Valley20,Delta10") > 0 THEN
-     ASSIGN tb_fgimage:SENSITIVE = NO
-            tb_fgimage:SCREEN-VALUE = "yes" 
-            tb_box:SENSITIVE = NO
-            tb_box:SCREEN-VALUE = "yes" 
-            tb_prt-shipto:HIDDEN = YES 
-            tb_prt-label:HIDDEN = YES 
-            tb_freeze-note:HIDDEN = YES 
-            tb_prt-sellprc:HIDDEN = YES 
-            tb_committed:SCREEN-VALUE = "No"
-            tb_committed:HIDDEN  = YES 
-            tb_prompt-ship:HIDDEN = YES 
-            tb_prt-set-header:HIDDEN = YES 
-        .
-    
+   
     IF TRIM(begin_job1:SCREEN-VALUE) NE ""                          AND
        TRIM(begin_job1:SCREEN-VALUE) EQ TRIM(end_job1:SCREEN-VALUE) AND
        INT(begin_job2:SCREEN-VALUE)  EQ INT(end_job2:SCREEN-VALUE)  THEN DO:
@@ -1957,9 +1898,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_job1.    
   END.  
 
-
-
   RUN new-job-no.
+
+  RUN  pRunFormatValueChanged .
+  
+  IF NOT lAsiUser THEN do:
+      RUN_format:HIDDEN IN FRAME FRAME-A = YES .
+  END.
+  ELSE do:
+      IF tb_fold:SCREEN-VALUE IN FRAME FRAME-A EQ "Yes" THEN
+          RUN_format:SCREEN-VALUE IN FRAME FRAME-A = lv-format-f .
+      ELSE IF tb_corr:SCREEN-VALUE IN FRAME FRAME-A EQ "Yes" THEN
+          RUN_format:SCREEN-VALUE IN FRAME FRAME-A = lv-format-c .
+  END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -2602,14 +2553,14 @@ PROCEDURE enable_UI :
           tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header 
           tb_prompt-ship dept_codes TB_sample_req tb_freeze-note tb_dept-note 
           rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
-          tb_ExportXML 
+          tb_ExportXML run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_fold 
          tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_SW 
          tb_approve spec_codes revsn_no tb_prt-label tb_committed 
          tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req 
          tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no 
-         td-show-parm tb_ExportXML btn-ok btn-cancel 
+         td-show-parm tb_ExportXML btn-ok btn-cancel run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2804,7 +2755,9 @@ PROCEDURE new-job-no :
 
     ASSIGN
      tb_fold:SCREEN-VALUE = STRING(ll-fold)
-     tb_corr:SCREEN-VALUE = STRING(ll-corr).
+     tb_corr:SCREEN-VALUE = STRING(ll-corr)
+     tb_fold = ll-fold
+     tb_corr = ll-corr   .
 
     IF v-freezenotes-log EQ NO THEN DO:
         IF (lv-format-f NE "Accord" OR 
@@ -3203,6 +3156,185 @@ PROCEDURE split-ship-proc :
 
    END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
+PROCEDURE pRunFormatValueChanged :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        
+        IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,jobcardc 2,xprint,Valley,jobcardf 1,jobcardf 2") > 0 THEN
+            ASSIGN tb_fgimage:SENSITIVE = YES.
+        ELSE  ASSIGN tb_fgimage:SENSITIVE = NO.
+        IF LOOKUP(lv-format-f,"jobcardf 1,jobcardf 2") > 0 THEN
+            ASSIGN tb_fgimage:SENSITIVE = YES.
+        ELSE ASSIGN tb_fgimage:SENSITIVE = NO.
+        
+        IF LOOKUP(lv-format-c,"Protagon") > 0 THEN
+            ASSIGN 
+            tb_prt-rev:SENSITIVE = YES
+            revsn_no:HIDDEN IN FRAME FRAME-A = NO .
+        ELSE
+            ASSIGN tb_prt-rev:SENSITIVE = NO
+            revsn_no:HIDDEN IN FRAME FRAME-A = YES .
+        
+        IF lv-format-c = "Artios" THEN
+            ASSIGN
+            tb_tray-2:HIDDEN = NO
+            tb_tray-2:SENSITIVE = YES.
+        ELSE
+            ASSIGN
+            tb_tray-2:HIDDEN = YES
+            tb_tray-2:SENSITIVE = NO.
+
+
+        IF lv-format-c = "PEACHTREE" THEN
+            ASSIGN
+            tb_tray-2:HIDDEN = YES
+            tb_tray-2:SENSITIVE = NO
+            tb_app-unprinted:HIDDEN = YES
+            tb_app-unprinted:SENSITIVE = NO
+            tb_make_hold:HIDDEN = NO
+            tb_make_hold:SENSITIVE = YES     .
+        ELSE
+            ASSIGN
+                tb_make_hold:HIDDEN = YES
+                tb_make_hold:SENSITIVE = NO.
+
+            IF lv-format-c = "ColonialPL" OR lv-format-f = "Colonial" OR lv-format-f = "xml" THEN
+                ASSIGN
+                tb_draft:HIDDEN = NO
+                tb_draft:SENSITIVE = YES.
+            ELSE ASSIGN tb_draft:HIDDEN = YES
+                tb_draft:SENSITIVE = NO.
+            
+            IF LOOKUP(lv-format-c,"Protagon") > 0 THEN
+                ASSIGN tb_prt-rev:SENSITIVE = YES
+                revsn_no:HIDDEN IN FRAME FRAME-A    = NO.
+            ELSE ASSIGN
+                tb_prt-rev:SENSITIVE = NO
+                revsn_no:HIDDEN IN FRAME FRAME-A    = YES.
+
+            IF lv-format-f = "FibreFC" 
+                THEN ASSIGN fl-jobord = INT(fl-jobord:SCREEN-VALUE).
+            ELSE ASSIGN fl-jobord = 0.
+
+            IF lv-format-c = "pacific" OR lv-format-c = "Allwest" THEN
+                ASSIGN
+                lv-ornt:SCREEN-VALUE = "L"
+                lv-font-no:SCREEN-VALUE = "13"
+                lv-font-name:SCREEN-VALUE = "Courier New Size=9 (13CPI)"
+                lines-per-page:SCREEN-VALUE = "48"
+                lines-per-page = 48.
+
+            IF (tb_fold AND (lv-format-f = "Interpac"  OR lv-format-f = "Dayton" 
+                             OR lv-format-f = "Livngstn"  OR lv-format-f = "FibreFC"  OR lv-format-f = "HPB"
+                             OR lv-format-f = "metro"     or lv-format-f = "Indiana-XL" OR lv-format-f = "MidYork"
+                             OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" OR lv-format-f = "Ruffino" 
+                             OR lv-format-f = "Colonial"  OR lv-format-f = "xml"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
+                             OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
+                             OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
+                             OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
+                             OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
+                (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20"
+                              OR lv-format-c = "HoneyCell")) THEN
+                assign 
+                tb_prt-mch:SENSITIVE      = YES
+                tb_prt-shipto:SENSITIVE   = YES
+                tb_prt-sellprc:SENSITIVE  = YES
+                rd_print-speed:SENSITIVE  = YES .            
+            ELSE do:
+                ASSIGN tb_prt-mch = NO
+                    tb_prt-shipto = NO
+                    tb_prt-sellprc = NO.
+                ASSIGN tb_prt-mch:SCREEN-VALUE = "no"
+                    tb_prt-shipto:SCREEN-VALUE = "no"
+                    tb_prt-sellprc:SCREEN-VALUE = "no" 
+                    rd_print-speed:SCREEN-VALUE = "S".
+            END.
+
+            IF lv-format-c EQ "Artios" AND lv-format-f EQ "FibreFC" THEN
+                RUN split-ship-proc. /*only for Fibre*/
+            
+            IF tb_corr = TRUE AND (lv-format-c = "Protagon" OR lv-format-c = "Hughes" OR lv-format-c = "Allwest") THEN DO:
+                TB_sample_req:HIDDEN = NO.
+                tb_dept-note:HIDDEN = YES.
+            END.
+            ELSE DO:
+                TB_sample_req:HIDDEN = YES.
+                tb_dept-note:HIDDEN = NO.
+            END.
+            
+            IF tb_dept-note:SCREEN-VALUE = "YES" THEN
+                dept_codes:HIDDEN IN FRAME FRAME-A = NO.
+            ELSE
+                dept_codes:HIDDEN IN FRAME FRAME-A = YES.
+
+                IF lv-format-f EQ "Accord" 
+                    OR lv-format-f EQ "Knight***" 
+                    OR lv-format-f EQ "Carded" 
+                    OR lv-format-f EQ "Carded2" 
+                    OR lv-format-f EQ "Coburn" THEN ASSIGN 
+                    tb_freeze-note:SCREEN-VALUE = "NO"
+                    lFreezeNoteVal = FALSE
+                    tb_freeze-note:SENSITIVE = NO.
+                ELSE ASSIGN tb_freeze-note:SENSITIVE = YES.
+
+
+                IF lv-format-f EQ "Prystup" THEN
+                    tb_show-rel:HIDDEN IN FRAME FRAME-A = NO.
+                ELSE
+                    tb_show-rel:HIDDEN IN FRAME FRAME-A = YES.
+                    
+                    if can-do ("Indiana-XL", lv-format-f) 
+                        then run HideDeptBoxes (no).
+                    else run HideDeptBoxes (yes).
+                    
+                    IF NOT tb_prt-rev THEN
+                        revsn_no:HIDDEN IN FRAME FRAME-A = YES .
+                    ELSE
+                        revsn_no:HIDDEN IN FRAME FRAME-A = NO .
+
+                        tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,Valley,jobcardc 1,jobcardc 2,Printers,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
+                        IF NOT tb_prt-set-header:SENSITIVE THEN
+                            tb_prt-set-header:SCREEN-VALUE = "no".
+                        
+                        IF LOOKUP(lv-format-c,"jobcardc 20,Valley20,Delta10,HoneyCell") > 0 THEN
+                            ASSIGN tb_fgimage:SENSITIVE = NO
+                            tb_fgimage:SCREEN-VALUE = "yes" 
+                            tb_box:SENSITIVE = NO
+                            tb_box:SCREEN-VALUE = "yes" 
+                            tb_prt-shipto:HIDDEN = YES 
+                            tb_prt-label:HIDDEN = YES 
+                            tb_freeze-note:HIDDEN = YES 
+                            tb_prt-sellprc:HIDDEN = YES 
+                            tb_committed:SCREEN-VALUE = "No"
+                            tb_committed:HIDDEN  = YES 
+                            tb_prompt-ship:HIDDEN = YES 
+                            tb_prt-set-header:HIDDEN = YES .
+                        ELSE
+                            ASSIGN tb_fgimage:SENSITIVE = YES
+                            tb_fgimage:SCREEN-VALUE = "yes" 
+                            tb_box:SENSITIVE = YES
+                            tb_box:SCREEN-VALUE = "yes" 
+                            tb_prt-shipto:HIDDEN = NO 
+                            tb_prt-label:HIDDEN = NO 
+                            tb_freeze-note:HIDDEN = NO 
+                            tb_prt-sellprc:HIDDEN = NO 
+                            tb_committed:SCREEN-VALUE = "No"
+                            tb_committed:HIDDEN  = NO 
+                            tb_prompt-ship:HIDDEN = NO 
+                            tb_prt-set-header:HIDDEN = NO .
+        
+       
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

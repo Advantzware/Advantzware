@@ -93,7 +93,7 @@ v-po-no <> "" and attach.est-no = v-po-no) ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 btnRun browse-order ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table btnRun RECT-4 browse-order ~
 btCopyFromItem 
 
 /* Custom List Definitions                                              */
@@ -253,6 +253,10 @@ ASSIGN
 
 /* SETTINGS FOR RADIO-SET browse-order IN FRAME F-Main
    NO-DISPLAY                                                           */
+ASSIGN 
+       Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
+                "2".
+
 /* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -380,7 +384,7 @@ END.
 
 &Scoped-define SELF-NAME btnRun
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRun B-table-Win
-ON CHOOSE OF btnRun IN FRAME F-Main /* Run */
+ON CHOOSE OF btnRun IN FRAME F-Main
 DO:
   RUN call-attach.
 END.
@@ -439,6 +443,11 @@ PROCEDURE call-attach :
   DEF VAR tInt As Int No-undo.
    DEF VAR ls-image1 AS cha NO-UNDO.
    DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+  
+  IF SEARCH(ATTACH.attach-file) eq ? then do:
+      MESSAGE "File or Image could not be found." VIEW-AS ALERT-BOX INFO .
+      RETURN NO-APPLY .
+  END.
 
   lv-cmd = chr(34) + ATTACH.attach-file + " " + CHR(34).
   RUN ShellExecuteA(0, "open", ATTACH.attach-file, "", "", 0, OUTPUT tInt).
@@ -454,6 +463,7 @@ PROCEDURE call-attach :
          OS-COMMAND SILENT START value(ls-full-img1)  .
       END.
   END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

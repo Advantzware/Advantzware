@@ -1,9 +1,12 @@
 /* ctrl-f.i - rstark - 4.24.2019 */
 
+DEFINE VARIABLE cCtrlFAuditKey   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFCompany    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFErrorMsg   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCtrlFIdxFields  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFObjectName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFUserID     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hCtrlFTable      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lCtrlFResponse   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCtrlFRunAudit   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE rCtrlFRowID      AS ROWID     NO-UNDO.
@@ -13,8 +16,11 @@ IF FRAME-DB EQ "" AND FRAME-FILE EQ "" THEN
         "Widget Object: ~"" + FRAME-FIELD + "~""
     VIEW-AS ALERT-BOX TITLE "CTRL-F Object View".
 ELSE DO:
-    RUN spGetCompany (OUTPUT cCtrlFCompany).
-        
+    RUN spGetSessionParam ("Company", OUTPUT cCtrlFCompany).
+/*    &IF "{&FIRST-EXTERNAL-TABLE}" NE "" &THEN                   */
+/*    RUN nosweat/primFlds.p (FRAME-FILE, OUTPUT cCtrlFIdxFields).*/
+/*    hCtrlFTable = {&FIRST-EXTERNAL-TABLE}:HANDLE.               */
+/*    &ENDIF                                                      */
     RUN spDynAuditField (
         cCtrlFCompany,
         FRAME-DB,

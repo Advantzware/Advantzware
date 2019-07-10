@@ -124,6 +124,14 @@ DEFINE VARIABLE retcode        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("oerep/r-invprtoe.w","", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+IF lResult THEN ASSIGN lAsiUser = YES .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -802,7 +810,7 @@ PROCEDURE runReport5:
                         sys-ctrl-shipto.char-fld > ''
                         NO-LOCK NO-ERROR.
 
-                IF AVAILABLE sys-ctrl-shipto THEN
+                IF NOT lAsiUser AND AVAILABLE sys-ctrl-shipto THEN
                 DO:
                     
                     IF "{&head}" EQ "ar-inv" THEN
@@ -885,7 +893,7 @@ PROCEDURE runReport1:
             sys-ctrl-shipto.char-fld > ''
             NO-LOCK NO-ERROR.
 
-    IF AVAILABLE sys-ctrl-shipto THEN
+    IF NOT lAsiUser AND AVAILABLE sys-ctrl-shipto THEN
     DO:
         IF "{&head}" EQ "ar-inv" THEN
             RUN SetInvPostForm(sys-ctrl-shipto.char-fld). 
@@ -970,7 +978,7 @@ PROCEDURE output-to-mail :
                             sys-ctrl-shipto.char-fld > ''
                             NO-LOCK NO-ERROR.
 
-                    IF AVAILABLE sys-ctrl-shipto THEN
+                    IF NOT lAsiUser AND AVAILABLE sys-ctrl-shipto THEN
                     DO:
                         IF "{&head}" EQ "ar-inv" THEN
                             RUN SetInvPostForm(sys-ctrl-shipto.char-fld). 

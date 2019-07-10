@@ -1,0 +1,9 @@
+@echo off
+
+call C:\pt3\bin\protopenv.bat
+
+set DB=d:\db\dbname
+
+sc create OE_startAIW binpath= "%DLC%\bin\proaiw.bat %DB%" type=own type=interact
+sc start  OE_startAIW
+sc delete OE_startAIW

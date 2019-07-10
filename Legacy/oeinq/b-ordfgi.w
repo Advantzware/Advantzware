@@ -172,7 +172,7 @@ fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
 get-pallet-info (output li-qty-pal) @ li-pallets fg-rdtlh.stacks-unit ~
 fg-rdtlh.partial li-qty-pal @ li-qty-pal fg-rdtlh.stack-code ~
 fg-rdtlh.tot-wt fg-rdtlh.user-id fg-rcpth.b-no fg-rcpth.pur-uom ~
-display-ship() @ bol-ship fg-rcpth.post-date get-vend-no () @ vend-no ~
+display-ship() @ bol-ship fg-rcpth.post-date fg-rcpth.vend-no ~
 get-vend-info () @ vend-name get-fg-qty (1) @ iBinQtyBef ~
 get-fg-qty (2) @ iBinQty fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy ~
 fg-rdtlh.enteredDT fg-rcpth.po-line
@@ -440,7 +440,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 14
       fg-rcpth.post-date COLUMN-LABEL "Posted" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
-      get-vend-no () @ vend-no COLUMN-LABEL "Vendor" FORMAT "x(10)":U
+      fg-rcpth.vend-no COLUMN-LABEL "Vendor" FORMAT "x(10)":U
             WIDTH 9.4 LABEL-BGCOLOR 14
       get-vend-info () @ vend-name COLUMN-LABEL "Name" FORMAT "x(20)":U
             WIDTH 19.4 LABEL-BGCOLOR 14
@@ -668,8 +668,8 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 "display-ship() @ bol-ship" "BOL Cust" "x(14)" ? ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > ASI.fg-rcpth.post-date
 "fg-rcpth.post-date" "Posted" ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[28]   > "_<CALC>"
-"get-vend-no () @ vend-no" "Vendor" "x(10)" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[28]   > ASI.fg-rcpth.vend-no
+"fg-rcpth.vend-no" "Vendor" "x(10)" ? ? ? ? 14 ? ? no ? no no "9.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   > "_<CALC>"
 "get-vend-info () @ vend-name" "Name" "x(20)" ? ? ? ? 14 ? ? no ? no no "19.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   > "_<CALC>"

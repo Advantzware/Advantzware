@@ -376,6 +376,102 @@ PROCEDURE WriteToXprintRightAlign:
     RUN WriteToXprint(ipdR,ipdC, ipcText, NO, NO, YES).
    
 END PROCEDURE.
+
+PROCEDURE WriteToXprintRect:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdRFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRTo AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCTo AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+
+    cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
+            "><FROM><R" + STRING(ipdRTo) + "><C" + STRING(ipdCTo) + "><RECT>" . 
+    
+    RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+
+PROCEDURE WriteToXprintLine:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdRFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCTo AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+
+    cText = "<||><R" + STRING(ipdRFrom) + "><C" + STRING(ipdCFrom) +
+            "><FROM><C" + STRING(ipdCTo) + "><LINE>" . 
+   
+    RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+PROCEDURE ChangeXprintFont:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFont AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFontSize AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+    
+    IF ipcFont EQ "" THEN ipcFont = "Tahoma".
+
+     cText = "<F" + ipcFont + "><P" + TRIM(STRING(ipiFontSize,">9")) + ">". 
+    
+     RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+PROCEDURE WriteToXprintImage:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdRFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRSize AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCSize AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcImagePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+    
+    
+     cText = "<C" + STRING(ipdCFrom) + "><R" + string(ipdRFrom) + "><#1><R+" + STRING(ipdRSize) + 
+         "><C+" + STRING(ipdCSize) + "><IMAGE#1=" + ipcImagePath + ">" . 
+    
+     RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+PROCEDURE WriteToXprintBarCode:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdRFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCFrom AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdRSize AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCSize AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBarCodeValue AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBarCodeType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+ 
+    cText = "<R" + STRING(ipdRFrom) + "><#1><UNITS=INCHES><C" + STRING(ipdCFrom) + "><FROM><C+" + STRING(ipdCSize) + "><R+" +
+         STRING(ipdRSize) + "><BARCODE,TYPE=" + STRING(ipcBarCodeType) + ",CHECKSUM=NONE,VALUE= " + string(ipcBarCodeValue) + ">"  +
+         "<C" + STRING(ipdCFrom + 0.5) + ">" + ipcBarCodeValue .
+    
+    RUN WriteOutput(cText,YES,NO).
+   
+END PROCEDURE.
+
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION GetCurrentPage RETURNS INTEGER 

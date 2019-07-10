@@ -159,15 +159,19 @@
 "unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "" 900
 "run-xprint.r" "" "" "run xprint" "" 900
 "invLnChck.r" "OP" "" "Invoice Line Check" "" 900
-"autoCloseOrder.r" "" "" "Auto Close Order" "" 900
+"autoCloseOrder.r" "OE" "" "Auto Close Order" "This utility allows a user to close orders automatically based on a parameter settings used." 800
 "FGHistoryPurge.r" "FG" "" "FG History Purge/Consolidation" "This allows user to run a purge of FG History up to a date.  It will summarize all transactions up to that date and create an Inventory Count for each bin as of the date that represents all the previous transaction summary detail. 
 " 900
 "InvBolDateDiff.r" "UTIL" "" "Check and fix Invoice Bol Date Differences" "This utility provides the user the ability to view by BOL #, differences in the dates between a BOL and an Invoice.
 
 It also provides for the ability to change the date of a BOL." 900
 "CloseOrderTester.r" "OE" "" "Close Order Tester" "Tests orders to see why they are in current state" 900
+"arch-est.r" "CE" "" "Archive Estimates" "Archive and remove old estimates from the system.  This utility can be used to remove old estimates from the system, with the option to outpu these estimates to and archive file to allow for retoration if desired at a later time." 900
 "dupfgtagloc.r" "FG" "" "Duplicate FG Tags Locator" "" 900
 "UpdARInv.r" "AR" "NM" "Utility to Fix AR Invoice Data" "Set Security Level at 1000 on Customer Servers.
 Type Invoice# and Customer Code, then Press Tab Key.
 Program will import Data to be Updated.
 Save Button Will Save Changes." 1000
+"ftpTester.r" "EDI" "FF" "Ftp Tester" "" 900
+"ItemLocInvRecon.r" "FG" "" "Inventory Allocated Reconciliation Program" "This utility compares the quantity fields allocated by location to that of the FG item as a whole and exposes differences that can be corrected by running the Recalculation, but help find issues in code to correct." 900
+"TranMon.r" "UTIL" "" "Transaction Monitor Utility" "" 1000

@@ -1,0 +1,349 @@
+        1   /* idxoverlap.p
+        2    *
+        3    *******************************************************************************
+        4    **                                                                           **
+        5    **                                                                           **
+        6    **  Copyright 2003-2010 Tom Bascom, Greenfield Technologies                  **
+        7    **  http://www.greenfieldtech.com                                            **
+        8    **                                                                           **
+        9    **  The utilities in this directory are NOT part of the publicly             **
+       10    **  distributed ProTop release.                                              **
+       11    **                                                                           **
+       12    **  These utilities are provided as part of an active White Star Software,   **
+       13    **  LLC consulting engagement or in support of a DBAppraise, LLC monitoring  **
+       14    **  and alerting subscription.                                               **
+       15    **                                                                           **
+       16    **  Use or distribution of these utilities outside of that context is        **
+       17    **  prohibited.                                                              **
+       18    **                                                                           **
+       19    **                                                                           **
+       20    *******************************************************************************
+       21    *******************************************************************************
+       22    *
+       23    *
+       24    * scan the schema looking for potentially redundant indexes
+       25    *
+       26    * [m]bpro dbname -p idxoverlap.p > idxoverlap.err &
+       27    *
+       28    */
+       29   
+       30   define new global shared variable pt_shortname as character no-undo.
+       31   define new global shared variable pt_rptdir    as character no-undo.
+       32   
+       33   define variable n  as integer no-undo initial 4.                /* the number of columns for the report                 */
+       34   define variable c  as integer no-undo.                          /* current "virtual" column                             */
+       35   define variable x  as integer no-undo.                          /* last row ended with column x                         */
+       36   
+       37   define variable i  as integer no-undo.                          /* counter -- number of indexes for a table             */
+       38   define variable j  as integer no-undo.                          /* counter -- number of fields for an index             */
+       39   define variable k  as integer no-undo.                          /* miscellaneous counter                                */
+       40   
+       41   define variable ix as integer no-undo.                          /* number of indexes for a table                        */
+       42   define variable jx as integer no-undo.                          /* maximum depth of indexes for a table                 */
+       43   
+       44   define variable nx as decimal no-undo.                          /* number of redundant indexes                          */
+       45   define variable bx as decimal no-undo.                          /* total number of blocks in redundant indexes          */
+       46   
+       47   define variable tblFilter as character no-undo.
+       48   define variable rptName   as character no-undo.
+       49   define variable redName   as character no-undo.
+       50   
+       51   define stream inStrm.
+       52   define stream report.
+       53   define stream redundant.
+       54   
+       55   define temp-table ttIdxHdr
+       56     field idxId      as integer
+       57     field idxOrder   as integer
+       58     field idxOverlap as integer
+       59     field idxDepth   as integer   format ">9"
+       60     field idxName    as character
+       61     field idxDesc    as character format "x(27)"
+       62     field idxBlks    as integer   initial ?
+       63   .
+       64   
+       65   define temp-table ttIdxDet
+       66     field idxId     as integer
+       67     field idxOrder  as integer
+       68     field idxFamily as integer   format ">9"
+       69     field idxKeyNum as integer
+       70     field idxField  as character format "x(27)"
+       71   .
+       72   
+       73   define buffer z_ttIdxDet for ttIdxDet.
+       74   
+       75   if pt_shortname = "" or pt_shortname = ? then pt_shortname = ldbname( 1 ).
+       76   if pt_rptdir    = "" or pt_rptdir    = ? then
+       77     do:
+       78       file-info:file-name = "./rpt".
+       79       if file-info:full-pathname <> ? and file-info:file-type = "drw" then 
+       80         pt_rptdir    = "./rpt".
+       81        else
+       82         pt_rptdir    = ".".
+       83     end.
+       84   
+       85   /* message file-info:full-pathname file-info:file-type pt_rptdir. */
+       86   
+       87   if tblFilter = "" then tblFilter = "*".
+       88   
+       89   rptName = substitute( "&1/&2.idxoverlap.rpt", pt_rptdir, pt_shortname ).
+       90   redName = substitute( "&1/&2.redundant.rpt",  pt_rptdir, pt_shortname ).
+       91   
+       92   output stream report    to value( rptName ).
+       93   output stream redundant to value( redName ).
+       94   
+       95   file-info:file-name = substitute( "./dbanalys/&1.idx", pt_shortname ).
+       96   
+       97   for each _file no-lock where _hidden = no and _file._file-name matches tblFilter:
+       98   
+       99     empty temp-table ttIdxHdr.                                    /* we only need this info for a short time              */
+      100     empty temp-table ttIdxDet.
+      101   
+      102     assign
+      103       i  = 0                                                      /* reset the number of indexes in this table...         */
+      104       jx = 0                                                      /* ... and the maximum index depth                      */
+      105     .
+      106   
+      107     /* create sensible temp-tables describing indexes and the keys comprising them
+      108      */
+      109   
+      110     for each _index no-lock of _file:
+      111   
+      112       i = i + 1.
+      113   
+      114       create ttIdxHdr.
+      115       assign
+      116         ttIdxHdr.idxId    = i                                     /* assign a unique id to the index                      */
+      117         ttIdxHdr.idxOrder = 1                                     /* every index starts out at the same "order" (one)     */
+      118         ttIdxHdr.idxName  = _file-name + "." + _index-name        /* index name                                           */
+      119         ttIdxHdr.idxDesc  =                                       /* append some helpful characteristics to the name      */
+      120           _index._index-name + " " +
+      121           ( if recid( _index ) = _file._prime-index then "p" else "" ) +          /* "primary" index?                     */
+      122           ( if _index._unique  then "u" else "" ) +                               /* unique index?                        */
+      123           ( if _index._wordidx <> ? then "w" else "" )                            /* word index?                          */
+      124           /*** + string( _index._wordidx ) ***/
+      125       .
+      126   
+      127       j  = 0.
+      128   
+      129       for each _index-field no-lock of _index:
+      130   
+      131         j = j + 1.
+      132   
+      133         find _field no-lock where recid( _field ) = _index-field._field-recid.
+      134   
+      135         create ttIdxDet.
+      136         assign
+      137           ttIdxDet.idxId     = i                                  /* associate the index detail with its header           */
+      138           ttIdxDet.idxOrder  = 1                                  /* every index starts out at the same "order" (one)     */
+      139           ttIdxDet.idxKeyNum = j                                  /* assign the depth of this component                   */
+      140           ttIdxDet.idxField  =
+      141             _field._field-name +
+      142             ( if _index-field._ascending then "" else " <" )      /* indicate a *descending* component with " <"          */
+      143           ttIdxHdr.idxDepth  = j                                  /* record how many components are in this index         */
+      144           jx = max( j, jx )                                       /* keep track of the deepest index in this table        */
+      145         .
+      146   
+      147       end.
+      148   
+      149     end.
+      150   
+      151     ix = i.                                                       /* how many indexes does this table have?               */
+      152   
+      153     /* create placeholders for indexes that are "short"
+      154      */
+      155   
+      156     for each ttIdxHdr:                                            /* width of the table's indexes...                      */
+      157       do j = 1 to jx:                                             /* depth of the table's indexes...                      */
+      158         find ttIdxDet where                                       /* probe for a record at this level...                  */
+      159              ttIdxDet.idxId = ttIdxHdr.idxId and
+      160              ttIdxDet.idxKeyNum = j no-error.
+      161         if not available ttIdxDet then                            /* ... if there isn't one then ...                      */
+      162           do:
+      163             create ttIdxDet.                                      /* ... create a placeholder                             */
+      164             assign
+      165               ttIdxDet.idxId     = ttIdxHdr.idxId
+      166               ttIdxDet.idxOrder  = 1
+      167               ttIdxDet.idxKeyNum = j
+      168               ttIdxDet.idxField  = ""                             /* placeholder field name                               */
+      169             .
+      170           end.
+      171       end.
+      172     end.
+      173   
+      174     /* sort the indexes so that overlap is apparent
+      175      *
+      176      *  - at each level sort by "order" and then by field name
+      177      *  - because "order" starts as 1 (one) for all elements the first pass is a name sort
+      178      *  - indexes are grouped based on the field names at the level being examined
+      179      *  - a new "order" is established whenever the fieldname or the (pre-existing) order changes
+      180      *  - the index *header* order is whatever the latest (deepest) order is for that index
+      181      *  - the fields "family" is the order when that field was examined
+      182      *  - at the end of the level the order of the header is applied to all fields belonging to that index
+      183      *  - then the next level is examined until we are out of levels
+      184      *
+      185      */
+      186   
+      187     do j = 1 to jx:
+      188   
+      189       /* determine where the break points are for groups of indexes
+      190        */
+      191   
+      192       k = 0.
+      193       for each ttIdxDet where ttIdxDet.idxKeyNum = j break by ttIdxDet.IdxOrder by ttIdxDet.idxField:
+      194         if first-of( ttIdxDet.idxOrder ) or first-of( ttIdxDet.idxField ) then k = k + 1.
+      195      /* display j k ttIdxDet.idxField ttIdxDet.idxOrder. */
+      196         find ttIdxHdr where ttIdxHdr.idxId = ttIdxDet.idxId.
+      197         assign
+      198           ttIdxDet.idxFamily = k
+      199           ttIdxHdr.idxOrder  = k
+      200         .
+      201       end.
+      202   
+      203       /* propogate changes in an indexes "order" to all of its elements
+      204        */
+      205   
+      206       for each ttIdxHdr by ttIdxHdr.IdxOrder:
+      207         for each ttIdxDet where ttIdxDet.idxId = ttIdxHdr.idxId:
+      208           ttIdxDet.idxOrder = ttIdxHdr.idxOrder.
+      209         end.
+      210       end.
+      211   
+      212     end.
+      213   
+      214     /* determine the number of fields that overlap with at least one other index
+      215      */
+      216   
+      217     for each ttIdxHdr by ttIdxHdr.IdxOrder:
+      218       ttIdxHdr.idxOverlap = 0.                                            /* assume 0 overlap                             */
+      219       for each ttIdxDet where ttIdxDet.idxId = ttIdxHdr.idxId:
+      220         find z_ttIdxDet where                                             /* this will fail if there is more than 1...    */
+      221                z_ttIdxDet.idxKeyNum = ttIdxDet.idxKeyNum and
+      222                z_ttIdxDet.idxFamily = ttIdxDet.idxFamily no-error.
+      223             /* z_ttIdxDet.idxField  = ttIdxDet.idxField  */               /* the field check isn't really necessary       */
+      224         if ambiguous( z_ttIdxDet ) then                                   /* if it fails there is at least 1!             */
+      225           do:
+      226             ttIdxHdr.idxOverlap =  ttIdxHdr.idxOverlap + 1.
+      227          /* display ttIdxHdr.idxDesc ttIdxDet.idxField ttIdxHdr.idxOverlap. */
+      228           end.
+      229       end.
+      230       ttIdxHdr.idxDesc = ttIdxHdr.idxDesc + " " + string( ttIdxHdr.idxOverlap ).          /* visual cue for report        */
+      231     end.
+      232   
+      233     /* generate the report table by table as they are evaluated
+      234      */
+      235   
+      236     assign
+      237       x = -1                                                              /* column where we wrapped                      */
+      238       c =  0                                                              /* current (virtual) column                     */
+      239     .
+      240   
+      241     put stream report unformatted _file._file-name + " " + fill( "=", 132 - length( _file._file-name )) skip.
+      242     put stream report skip(1).
+      243   
+      244     do while c < ix:
+      245   
+      246       /* output index names
+      247        */
+      248   
+      249       c = 0.
+      250       for each ttIdxHdr no-lock by ttIdxHdr.idxOrder by ttIdxHdr.idxId:
+      251         c = c + 1.
+      252         if c > x then
+      253           put stream report ttIdxHdr.idxDesc space ttIdxHdr.idxDepth space(2).
+      254         if c > x and c modulo n = 0 then leave.
+      255       end.
+      256       put stream report skip.
+      257   
+      258       /* output a header-line underneath the index name
+      259        */
+      260   
+      261       c = 0.
+      262       for each ttIdxHdr no-lock by ttIdxHdr.idxOrder:
+      263         c = c + 1.
+      264         if c > x then
+      265           do:
+      266             if ttIdxHdr.idxDepth = ttIdxHdr.idxOverlap then
+      267               do:
+      268   
+      269                 put stream report unformatted fill( "*", 30 ) space(2).   /* the index completely overlaps another        */
+      270   
+      271                 /* attempt to get the size of the redundant index
+      272                  */
+      273   
+      274                 if file-info:full-pathname <> ? then
+      275                   do:
+      276   
+      277                     input stream inStrm through value( substitute( "grep -i '~"&1~"' &2 | awk '~{print $5~}'", ttIdxHdr.idxName, file-info:full-pathname )).
+      278                     import stream inStrm ttIdxHdr.idxBlks no-error.
+      279                     input stream inStrm close.
+      280   
+      281                     assign
+      282                       nx = nx + 1
+      283                       bx = bx + ttIdxHdr.idxBlks
+      284                     .
+      285   
+      286                   end.  
+      287             
+      288                 put stream redundant _file._file-name space(1) ttIdxHdr.idxDesc space(1).
+      289                 if ttIdxHdr.idxBlks <> ? then put stream redundant ttIdxHdr.idxBlks.
+      290                 put stream redundant skip.
+      291   
+      292               end.
+      293              else if ttIdxHdr.idxOverlap > 0 then
+      294               put stream report unformatted fill( "+", 30 ) space(2).     /* the index partially overlaps another         */
+      295              else
+      296               put stream report unformatted fill( "-", 30 ) space(2).     /* the index stands alone                       */
+      297           end.
+      298         if c > x and c modulo n = 0 then leave.
+      299       end.
+      300       put stream report skip.
+      301   
+      302       /* output the actual field names of index components prefixed by their "family" affiliations
+      303        */
+      304   
+      305       do j = 1 to jx:                                                     /* depth                                        */
+      306   
+      307         c = 0.
+      308         for each ttIdxDet where ttIdxDet.idxKeyNum = j by ttIdxDet.idxOrder by ttIdxDet.idxId:
+      309           c = c + 1.
+      310           if c > x then
+      311             if ttIdxDet.idxField = "" then
+      312               put stream report space(32).
+      313              else
+      314               put stream report                                           /* "family" is an indication of how close two   */
+      315                 ttIdxDet.idxFamily space(1)                               /* indexes are. even if they aren't completely  */
+      316                 ttIdxDet.idxField space(2)                                /* redundant a lot of common leading components */
+      317               .                                                           /* might be better expressed differently        */
+      318   
+      319           if c > x and c modulo n = 0 then leave.
+      320         end.
+      321   
+      322         put stream report skip.
+      323   
+      324       end.
+      325   
+      326       x = c.                                                              /* which column did we leave off at?            */
+      327   
+      328       put stream report skip(1).
+      329   
+      330     end.
+      331   
+      332     put stream report skip(2).
+      333   
+      334   end.
+      335   
+      336   output stream report close.
+      337   
+      338   if ix > 0 then
+      339     do:
+      340       put stream redundant skip(1).
+      341       put stream redundant unformatted
+      342         substitute( "&1 redundant indexes wasting a total of &2 blocks.", trim( string( nx, ">>,>>9" )), trim( string( bx, ">,>>>,>>>,>>9" )))
+      343         skip
+      344       .
+      345     end.
+      346   
+      347   output stream redundant close.
+      348   
+      349   return.

@@ -1,0 +1,22 @@
+        1   /* dumpdf.p
+        2    *
+        3    * dump schema
+        4    *
+        5    * 08/05/02     tom     created
+        6    *
+        7    * August 5, 2002 */
+        8   
+        9   define variable dfxname as character no-undo.
+       10   define variable dfzname as character no-undo.
+       11   
+       12   dfxname = session:parameter.
+       13   if dfxname = "" or dfxname = ? then dfxname = ldbname(1) + ".dfx".
+       14   
+       15   dfzname = replace( dfxname, "dfx", "df.noarea" ).
+       16   
+       17   run prodict/dump_df.p ( "ALL", input dfxname, "" ).
+       18   
+       19   if dfxname <> dfzname then
+       20     os-command value( substitute( 'grep -v "^  AREA " &1 > &2', dfxname, dfzname )).
+       21   
+       22   quit.

@@ -467,7 +467,7 @@ FOR EACH tt-cust,
                             + STRING(ar-cash.check-no,"9999999999")
                             + " Inv# " + STRING(ar-cashl.inv-no).
                     IF ar-cashl.amt-paid GT 0 AND
-                         (ar-cashl.voided EQ YES or
+                         (ar-cashl.voided EQ YES OR
                          CAN-FIND(FIRST gltrans
                                   WHERE gltrans.company EQ cust.company
                                     AND gltrans.jrnl    EQ "CASHRVD"
@@ -1051,66 +1051,67 @@ END. /* each tt-cust */
 
 dT1 = dGrandT[1] + dGrandT[2] + dGrandT[3] + dGrandT[4] + dGrandT[5].
 
-RUN AgedReceivablesCreateTotals (
-    "",
-    "",
-    "",
-    "Grand Total",
-    dT1,
-    dGrandT[1],
-    dGrandT[2],
-    dGrandT[3],
-    dGrandT[4],
-    dGrandT[5],
-    tt-cust.sorter
-    ).
-RUN AgedReceivablesCreateTotals (
-    "",
-    "",
-    "",
-    "Percentage Composition",
-    0,
-    (IF dT1 NE 0 THEN (dGrandT[1] / dT1) * 100 ELSE 0),
-    (IF dT1 NE 0 THEN (dGrandT[2] / dT1) * 100 ELSE 0),
-    (IF dT1 NE 0 THEN (dGrandT[3] / dT1) * 100 ELSE 0),
-    (IF dT1 NE 0 THEN (dGrandT[4] / dT1) * 100 ELSE 0),
-    (IF dT1 NE 0 THEN (dGrandT[5] / dT1) * 100 ELSE 0),
-    tt-cust.sorter
-    ).
-
-IF lSeparateFinanceCharges THEN DO:
-    ASSIGN
-        dT1Pri = dGrandTPri[1] + dGrandTPri[2] + dGrandTPri[3] + dGrandTPri[4] + dGrandTPri[5]
-        dT1Fc  = dGrandTFc[1]  + dGrandTFc[2]  + dGrandTFc[3]  + dGrandTFc[4]  + dGrandTFc[5]
-        .
+IF AVAILABLE tt-cust THEN DO:
     RUN AgedReceivablesCreateTotals (
         "",
         "",
         "",
-        "Principal Amount",
-        dT1Pri,
-        dGrandTPri[1],
-        dGrandTPri[2],
-        dGrandTPri[3],
-        dGrandTPri[4],
-        dGrandTPri[5],
+        "Grand Total",
+        dT1,
+        dGrandT[1],
+        dGrandT[2],
+        dGrandT[3],
+        dGrandT[4],
+        dGrandT[5],
         tt-cust.sorter
         ).
     RUN AgedReceivablesCreateTotals (
         "",
         "",
         "",
-        "Finance Charges",
-        dT1Fc,
-        dGrandTFc[1],
-        dGrandTFc[2],
-        dGrandTFc[3],
-        dGrandTFc[4],
-        dGrandTFc[5],
+        "Percentage Composition",
+        0,
+        (IF dT1 NE 0 THEN (dGrandT[1] / dT1) * 100 ELSE 0),
+        (IF dT1 NE 0 THEN (dGrandT[2] / dT1) * 100 ELSE 0),
+        (IF dT1 NE 0 THEN (dGrandT[3] / dT1) * 100 ELSE 0),
+        (IF dT1 NE 0 THEN (dGrandT[4] / dT1) * 100 ELSE 0),
+        (IF dT1 NE 0 THEN (dGrandT[5] / dT1) * 100 ELSE 0),
         tt-cust.sorter
         ).
-END. /* if separate finance charges */
-
+    
+    IF lSeparateFinanceCharges THEN DO:
+        ASSIGN
+            dT1Pri = dGrandTPri[1] + dGrandTPri[2] + dGrandTPri[3] + dGrandTPri[4] + dGrandTPri[5]
+            dT1Fc  = dGrandTFc[1]  + dGrandTFc[2]  + dGrandTFc[3]  + dGrandTFc[4]  + dGrandTFc[5]
+            .
+        RUN AgedReceivablesCreateTotals (
+            "",
+            "",
+            "",
+            "Principal Amount",
+            dT1Pri,
+            dGrandTPri[1],
+            dGrandTPri[2],
+            dGrandTPri[3],
+            dGrandTPri[4],
+            dGrandTPri[5],
+            tt-cust.sorter
+            ).
+        RUN AgedReceivablesCreateTotals (
+            "",
+            "",
+            "",
+            "Finance Charges",
+            dT1Fc,
+            dGrandTFc[1],
+            dGrandTFc[2],
+            dGrandTFc[3],
+            dGrandTFc[4],
+            dGrandTFc[5],
+            tt-cust.sorter
+            ).
+    END. /* if separate finance charges */
+END. /* avail tt-cust */
 
 PROCEDURE AgedReceivablesCreateTotals:
     DEFINE INPUT  PARAMETER ipcTotCustNo      AS CHARACTER NO-UNDO.

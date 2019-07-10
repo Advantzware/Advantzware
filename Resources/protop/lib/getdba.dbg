@@ -1,0 +1,2515 @@
+        1   /* lib/getdba.p
+        2    *
+        3    * read proutil dbanalys data, cache the results in dbname.dbx
+        4    *
+        5    * there is a lot of legacy cruft and sloppy coding hanging around in here -- it needs to be cleaned up some day.
+        6    *
+        7    * pro dbname -RO ; run lib/getdba.p ( "dbanalys/dbname.dba" )
+        8    *
+        9    */
+       10   
+       11   
+       12   /*******************************************************************************
+       13    *******************************************************************************
+       14    **                                                                           **
+       15    **                                                                           **
+       16    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       17    **  http://www.greenfieldtech.com                                            **
+       18    **                                                                           **
+       19    **  ProTop is free software; you can redistribute it and/or modify it        **
+       20    **  under the terms of the GNU General Public License (GPL) as published     **
+       21    **  by the Free Software Foundation; either version 2 of the License, or     **
+       22    **  at your option) any later version.                                       **
+       23    **                                                                           **
+       24    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       25    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       26    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       27    **  for more details.                                                        **
+       28    **                                                                           **
+       29    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       30    **  of use and alternative licensing options for this software.              **
+       31    **                                                                           **
+       32    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       33    **                                                                           **
+       34    **  See http://www.fsf.org for more information about the GPL.               **
+       35    **                                                                           **
+       36    **                                                                           **
+       37    *******************************************************************************
+       38    *******************************************************************************
+       39    *
+       40    * protop.i
+       41    *
+       42    * Header file for protop family of programs
+       43    *
+       44    *
+       45    * Known Bugs & Issues:
+       46    *
+       47    *
+       48    * To Do:
+       49    *
+       50    *
+       51    * Author:
+       52    *
+       53    *      Tom Bascom, Greenfield Technologies
+       54    *      http://www.greenfieldtech.com
+       55    *      August 28, 2003
+       56    *
+       57    */
+       58   
+       59   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+       60   &global-define  FASTLOCK        true
+       61   &ELSE
+       62   &global-define  FASTLOCK        false
+       63   &ENDIF
+       64   
+       65   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+       66   &global-define  OE11            "yes"
+       67   &global-define  xDEBUGTT        false
+       68   &ENDIF
+       69   
+       70   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+       71   &global-define  NOSERIALIZE     serialize-hidden
+       72   &ENDIF
+       73   
+       74   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+       75   &global-define  BIGINT          int64
+       76   &ELSE
+       77   &global-define  BIGINT          decimal
+       78   &ENDIF
+       79   
+       80   
+       81   /* lib/v9.i
+       82    *
+       83    */
+       84   
+       85   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+       86   &global-define  CPYLOB  "no"
+       87   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+       88   &global-define  LNGCR   character
+       89   &global-define  DTZ     integer
+       90   &global-define  BIGINT  decimal
+       91   &ELSE
+       92   &global-define  OE10    "yes"
+       93   &global-define  NOW     now
+       94   &global-define  LNGCR   longchar
+       95   &global-define  DTZ     datetime-tz
+       96   &global-define  BIGINT  int64
+       97   &ENDIF
+       98    
+       99   
+      100   /* use extended _connect fields: -client, -cache*
+      101    */
+      102   
+      103   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      104   &global-define  CONNECTX        "yes"
+      105   &ELSE
+      106   &global-define  CONNECTX        "no"
+      107   &ENDIF
+      108   
+      109   define stream inStrm.
+      110   
+      111   define new global shared variable dbgMode as integer no-undo initial 1.
+      112   
+      113   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      114    *
+      115    * someday everyone will have OO and I will replace these with a gsv class
+      116    * or something of that ilk
+      117    *
+      118    */
+      119   
+      120   define new global shared variable pt_shortname   as character no-undo.
+      121   define new global shared variable pt_uniqName    as character no-undo.
+      122   define new global shared variable pt_server      as character no-undo.
+      123   define new global shared variable pt_resrcType   as character no-undo.
+      124   
+      125   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      126   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      127   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      128   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      129   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      130   
+      131   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      132   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      133   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      134   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      135   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      136   define new global shared variable pt_ioFileName  as character no-undo.
+      137   define new global shared variable pt_dfCmd       as character no-undo.
+      138   
+      139   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      140   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      141   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      142   
+      143   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      144   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      145   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      146   
+      147   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      148   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      149   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      150   
+      151   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      152   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      153   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      154   
+      155   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      156   
+      157   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      158   
+      159   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      160   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      161   
+      162   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      163    * 
+      164    */
+      165   
+      166   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      167   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      168   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      169   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      170   
+      171   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      172   
+      173                                                                                   /* corresponding to base checkpoint#    */
+      174   /** Global Shared Temp Table Definitions
+      175    **
+      176    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      177    ** And a shared temp-table is logically the same as a db table so who really cares?
+      178    **
+      179    **/
+      180   
+      181   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      182    */
+      183   
+      184   define new global shared temp-table tt_tbl no-undo
+      185     field xid      as integer                                             /* _File._File-Num              */
+      186     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      187     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      188     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      189     field tblname  as character                                           /* _File._File-Name             */
+      190     index xid-idx is unique primary xid.
+      191   
+      192   define new global shared temp-table tt_idx no-undo
+      193     field xid      as integer                                             /* _Index._Idx-Num              */
+      194     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      195     field idxname  as character                                           /* _Index._Idx-Name             */
+      196     field idxnote  as character
+      197     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      198     field tblnum   as integer                                             /* _File._File-Num              */
+      199     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      200     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      201     field tblname  as character                                           /* _File._File-Name             */
+      202     index xid-idx is unique primary xid.
+      203   
+      204   define new global shared temp-table tt_areaExtent no-undo
+      205     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      206     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      207   
+      208     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      209     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      210     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      211   
+      212     index ae-idx is unique primary areaNum extNum.
+      213   
+      214   define new global shared temp-table tt_area no-undo
+      215     field xid      as integer    format ">>>9"
+      216     field SANum    as integer    format ">>>9"        label "#"
+      217     field areaPool as character  format "x(2)"        label "BX"
+      218   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      219     field SAName   as character  format "x(30)"       label "Area Name"
+      220     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      221     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      222     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      223     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      224     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      225     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      226     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      227   
+      228     field blkszkb as integer     format ">>9"         label "BSZ"
+      229     field rpb     as integer     format ">>9"         label "RPB"
+      230     field clstrsz as integer     format ">>9"         label "CSZ"
+      231   
+      232     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      233     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      234     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      235   
+      236     field numExts as integer     format ">>>>9"       label "#Exts"
+      237     field hasVar  as logical     format "Yes/No"      label "Var?"
+      238   
+      239     field xnote   as character   format "x"           label "*"
+      240   
+      241     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      242     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      243   
+      244     index pctAlloc-idx is primary pctAlloc descending
+      245     index pctLastX-idx pctLastX pctAlloc descending
+      246     index allocGB-idx allocGB descending
+      247     index totGB-idx totGB descending
+      248     index xid-idx is unique xid
+      249     index SANum-idx is unique SANum
+      250     index SAName-idx is unique SAName
+      251   .
+      252   
+      253   *** Encrypted Source ***
+      254   *** Encrypted Source ***
+      255   *** Encrypted Source ***
+      256   *** Encrypted Source ***
+      257   *** Encrypted Source ***
+      258   *** Encrypted Source ***
+      259   *** Encrypted Source ***
+      260   *** Encrypted Source ***
+      261   *** Encrypted Source ***
+      262   *** Encrypted Source ***
+      263   *** Encrypted Source ***
+      264   *** Encrypted Source ***
+      265   *** Encrypted Source ***
+      266   *** Encrypted Source ***
+      267   *** Encrypted Source ***
+      268   *** Encrypted Source ***
+      269   *** Encrypted Source ***
+      270   *** Encrypted Source ***
+      271   *** Encrypted Source ***
+      272   *** Encrypted Source ***
+      273   *** Encrypted Source ***
+      274   *** Encrypted Source ***
+      275   *** Encrypted Source ***
+      276   *** Encrypted Source ***
+      277   *** Encrypted Source ***
+      278   *** Encrypted Source ***
+      279   *** Encrypted Source ***
+      280   *** Encrypted Source ***
+      281   *** Encrypted Source ***
+      282   *** Encrypted Source ***
+      283   *** Encrypted Source ***
+      284   *** Encrypted Source ***
+      285   *** Encrypted Source ***
+      286   *** Encrypted Source ***
+      287   *** Encrypted Source ***
+      288   *** Encrypted Source ***
+      289   *** Encrypted Source ***
+      290   *** Encrypted Source ***
+      291   *** Encrypted Source ***
+      292   *** Encrypted Source ***
+      293   *** Encrypted Source ***
+      294   *** Encrypted Source ***
+      295   *** Encrypted Source ***
+      296   *** Encrypted Source ***
+      297   *** Encrypted Source ***
+      298   *** Encrypted Source ***
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323    
+      324   
+      325   /*******************************************************************************
+      326    *******************************************************************************
+      327    **                                                                           **
+      328    **                                                                           **
+      329    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      330    **  http://www.greenfieldtech.com                                            **
+      331    **                                                                           **
+      332    **  ProTop is free software; you can redistribute it and/or modify it        **
+      333    **  under the terms of the GNU General Public License (GPL) as published     **
+      334    **  by the Free Software Foundation; either version 2 of the License, or     **
+      335    **  at your option) any later version.                                       **
+      336    **                                                                           **
+      337    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      338    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      339    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      340    **  for more details.                                                        **
+      341    **                                                                           **
+      342    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      343    **  of use and alternative licensing options for this software.              **
+      344    **                                                                           **
+      345    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      346    **                                                                           **
+      347    **  See http://www.fsf.org for more information about the GPL.               **
+      348    **                                                                           **
+      349    **                                                                           **
+      350    *******************************************************************************
+      351    *******************************************************************************
+      352    *
+      353    * protoplib.i
+      354    *
+      355    * ProTop infrastructure library definitions
+      356    *
+      357    */
+      358   
+      359   function uDateTime returns integer () in super.
+      360   function string2uDateTime returns integer( input p_text as character ) in super.
+      361   function searchDir returns character ( input xDir as character ) in super.
+      362   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      363   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      364   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      365   function myPID returns character () in super.
+      366   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      367   
+      368   /* end protoplib.i */
+      369    
+      370   
+      371   /*******************************************************************************
+      372    *******************************************************************************
+      373    **                                                                           **
+      374    **                                                                           **
+      375    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      376    **  http://www.greenfieldtech.com                                            **
+      377    **                                                                           **
+      378    **  ProTop is free software; you can redistribute it and/or modify it        **
+      379    **  under the terms of the GNU General Public License (GPL) as published     **
+      380    **  by the Free Software Foundation; either version 2 of the License, or     **
+      381    **  at your option) any later version.                                       **
+      382    **                                                                           **
+      383    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      384    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      385    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      386    **  for more details.                                                        **
+      387    **                                                                           **
+      388    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      389    **  of use and alternative licensing options for this software.              **
+      390    **                                                                           **
+      391    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      392    **                                                                           **
+      393    **  See http://www.fsf.org for more information about the GPL.               **
+      394    **                                                                           **
+      395    **                                                                           **
+      396    *******************************************************************************
+      397    *******************************************************************************
+      398    *
+      399    * vstlib.i
+      400    *
+      401    * VST library definitions
+      402    *
+      403    */
+      404   
+      405   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      406   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      407   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      408   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      409   
+      410   function connectFlags returns character ( input cnxId as integer ) in super.
+      411   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      412   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      413   
+      414   function isAIEnabled returns logical () in super.
+      415   function isReplSource returns logical () in super.
+      416   function isReplTarget returns logical () in super.
+      417   function isBackupRunning returns logical () in super.
+      418   function isWorkgroup returns logical () in super.
+      419   
+      420   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      421   
+      422   /* end vstlib.i */
+      423    
+      424   
+      425   function add2ds returns logical ( input h as handle ) in super.
+      426   function getTempTableHandle returns handle ( input n as character ) in super.
+      427   
+      428   /* end protop.i */
+      429    
+      430   
+      431   
+      432   /* lib/dba.i
+      433    *
+      434    * temp tables used by the dbanalys parser
+      435    *
+      436    */
+      437   
+      438   define new global shared temp-table tblist no-undo
+      439     field order   as integer   format "->>9" initial -1
+      440     field tid     as integer
+      441     field tbl     as character format "x(30)"
+      442     field ar      as character format "x(30)"
+      443     field recs    as decimal   format ">>>>>>>>>>>9"
+      444     field tsz     as decimal   format ">>>>>>>>>>>9"
+      445     field isz     as decimal   format ">>>>>>>>>>>9"
+      446     field trd     as decimal   format ">>>>>>>>>>>9"
+      447     field tupd    as decimal   format ">>>>>>>>>9"
+      448     field frag    as decimal   format ">>>9.9"
+      449     field scat    as decimal   format ">9.9"
+      450     field b2      as logical
+      451     field rm      as decimal   format ">>>>>>>>>>>9"
+      452     field pctfrag as decimal   format ">>>9.99"
+      453     field avgrec  as decimal   format ">>>>9.99"
+      454     index idxTbl is unique tbl
+      455   .
+      456   
+      457   define new global shared temp-table ixlist no-undo
+      458     field order as integer   format "->>9" initial -1
+      459     field iid   as integer
+      460     field idx   as character format "x(30)"
+      461     field ar    as character format "x(30)"
+      462     field blks  as decimal   format ">>>>>>>>>>>9"
+      463     field pctut as decimal   format ">>>>>>>>>>>9"
+      464     field lvls  as decimal   format ">9"
+      465     index idxidx is unique idx
+      466   .
+      467    
+      468   
+      469   define new global shared variable dbgMode as integer no-undo initial 1.
+      470   
+      471   define variable r          as integer   no-undo.
+      472   define variable x          as character no-undo.
+      473   define variable y          as decimal   no-undo.
+      474   define variable z          as decimal   no-undo.
+      475   define variable xline      as character no-undo extent 512.
+      476   define variable curr_area  as character no-undo.
+      477   define variable doFixed    as logical   no-undo initial no.
+      478   define variable bSize      as integer   no-undo initial 4096.
+      479   
+      480   define variable ztblName as character no-undo.
+      481   define variable zidxName as character no-undo.
+      482   
+      483   define stream inStrm.
+      484   
+      485   
+      486   procedure getTableInfo:
+      487   
+      488     define input   parameter tblName as character no-undo.
+      489     define output  parameter numRecs as decimal   no-undo.
+      490     define output  parameter numRM   as decimal   no-undo.
+      491     define output  parameter fragPct as decimal   no-undo.
+      492     define output  parameter scatter as decimal   no-undo.
+      493     define output  parameter avgRow  as decimal   no-undo.
+      494   
+      495     find tblist where tbl = tblName no-error.
+      496     if available tblist then
+      497       assign
+      498         numRecs = tblist.recs
+      499         numRM   = tblist.rm
+      500         fragPct = ( if tblist.recs > 0 then ((( tblist.frag / tblist.recs ) - 1 ) * 100 ) else 0 )
+      501         scatter = tblist.scat
+      502         avgRow  = ( if tblist.recs > 0 then ( tblist.tsz / tblist.recs ) else 0 )
+      503       .
+      504   
+      505     return.
+      506   
+      507   end.
+      508   
+      509   
+      510   procedure getIndexInfo:
+      511   
+      512     define input   parameter idxName     as character no-undo.
+      513     define output  parameter idxLevels   as decimal   no-undo.
+      514     define output  parameter numBlocks   as decimal   no-undo.
+      515     define output  parameter pctUtilized as decimal   no-undo.
+      516   
+      517     find ixlist where idx = idxName no-error.
+      518     if available ixlist then
+      519       assign
+      520         idxLevels   = ixlist.lvls
+      521         numBlocks   = ixlist.blks
+      522         pctUtilized = ixlist.pctut
+      523       .
+      524   
+      525     return.
+      526   
+      527   end.
+      528   
+      529   
+      530   define variable dbxDate as date    no-undo.
+      531   define variable dbxTime as integer no-undo.
+      532   
+      533   procedure loadDBX:
+      534   
+      535     define input parameter dbxOutFile as character no-undo.
+      536   
+      537     file-info:file-name = right-trim( dbxOutFile, "dba" ) + "dbx".
+      538     if file-info:full-pathname = ? then
+      539       do:
+      540         if true /* dbgMode >= 5 */ then
+      541           message now "Unable to find:" dbxOutfile view-as alert-box.
+      542         return.
+      543       end.
+      544   
+      545     if dbxDate = file-info:file-mod-date and dbxTime = file-info:file-mod-time then
+      546       do:
+      547         /* message {&NOW} "already loaded:" file-info:file-name. pause. */
+      548         return.                                                                   /* we have already loaded this so just return   */
+      549       end.
+      550   
+      551     assign
+      552       dbxDate = file-info:file-mod-date
+      553       dbxTime = file-info:file-mod-time
+      554     .
+      555   
+      556     if dbgMode >= 2 then message now "Loading dbanalys data".
+      557   
+      558     /* message {&NOW} "loading:" right-trim( dbxOutFile, "dba" ) + "dbx". pause. */
+      559   
+      560     empty temp-table tblist.
+      561     empty temp-table ixlist.
+      562   
+      563     input stream inStrm from value( right-trim( dbxOutFile, "dba" ) + "dbx" ).
+      564     repeat:
+      565       create tblist.
+      566       import stream inStrm tblist.
+      567     end.
+      568     input stream inStrm close.
+      569   
+      570     input stream inStrm from value( right-trim( dbxOutFile, "dba" ) + "idx" ).
+      571     repeat:
+      572       create ixlist.
+      573       import stream inStrm ixlist.
+      574     end.
+      575     input stream inStrm close.
+      576   
+      577     for each tblist where tbl = "":
+      578       delete tblist.
+      579     end.
+      580   
+      581     for each ixlist where idx = "":
+      582       delete ixlist.
+      583     end.
+      584   
+      585     if dbgMode >= 4 then message now "Done loading dbanalys data".
+      586   
+      587     return.
+      588   
+      589   end.
+      590   
+      591   
+      592   define variable dbaDate as date    no-undo.
+      593   define variable dbaTime as integer no-undo.
+      594   
+      595   define variable dbaNag  as logical no-undo.
+      596   
+      597   procedure checkDBX:
+      598   
+      599     define variable dbaOutFile as character no-undo.
+      600   
+      601     dbaOutFile = search( "dbanalys/" + pt_shortname + ".dba" ).                   /* first look for dbanalys/pt_shortname.dba     */
+      602     if dbaOutFile = ? then
+      603       dbaOutFile = search( "dbanalys/" + ldbname(1) + ".dba" ).                   /* then look for dbanalys/ldbname(1).dba        */
+      604     if dbaOutFile = ? then
+      605       dbaOutFile = search( ldbname(1) + ".dba" ).                                 /* then look everywhere                         */
+      606   
+      607     /*** message {&NOW} "dbanalys:" dbaOutFile. pause. ***/
+      608   
+      609     file-info:file-name = dbaOutFile.
+      610     if file-info:full-pathname = ? then
+      611       do:
+      612   
+      613         if dbaNag = no then
+      614           do:
+      615   
+      616             dbaNag = yes.
+      617   
+      618             if session:batch = yes then
+      619               message now "Unable to find dbanalys:" pt_shortname "or" ldbname(1).
+      620              else
+      621               message color red
+      622                 skip(1)
+      623                 "   Unable to find dbanalys for:" pt_shortname "or" ldbname(1)  skip
+      624                 skip(1)
+      625                 "   ProTop uses this data to enrich the table and index activity screens.   " skip
+      626                 "   Without dbanalys data some features are limited.                        " skip
+      627                 skip(1)
+      628                 "   Ideally you will routinely run a fresh dbanalys at least weekly.        " skip
+      629                 skip(1)
+      630                 "   To run it offline use a command similar to:                             " skip
+      631                 skip(1)
+      632                 substitute( "  proutil &1 -C dbanalys > dbanalys/&2.dba  ", ldbname(1), ( if pt_shortname <> "" then pt_shortname else ldbname(1) )) skip
+      633                 skip(1)
+      634                 "   You can also run dbanalys directly within ProTop with the ~"A~" command.  " skip
+      635                 "   (But be aware that this command is IO intense - you may prefer to run   " skip
+      636                 "   it during non-peak hours.)                                              " skip
+      637                 skip(1)
+      638                 view-as alert-box
+      639                 title " No DB Analys "
+      640               .
+      641   
+      642           end.
+      643   
+      644         return.
+      645   
+      646       end.
+      647   
+      648     assign
+      649       dbaDate = file-info:file-mod-date
+      650       dbaTime = file-info:file-mod-time
+      651     .
+      652   
+      653     /* which is more recent:  .dba or .dbx?
+      654      */
+      655   
+      656     file-info:file-name = right-trim( dbaOutFile, "dba" ) + "dbx".
+      657     if file-info:full-pathname = ? or
+      658        dbaDate > file-info:file-mod-date or
+      659      ( dbaDate = file-info:file-mod-date and dbaTime > file-info:file-mod-time ) then
+      660       do:
+      661         /* message {&NOW} "parseDBA:" dbaOutFile. pause. */
+      662         run parseDBA( dbaOutFile ).
+      663       end.
+      664      else
+      665       do:
+      666         /* message {&NOW} "loadDBX:" dbaOutFile. pause. */
+      667         run loadDBX( dbaOutFile ).
+      668       end.
+      669   
+      670     return.
+      671   
+      672   end.
+      673   
+      674   
+      675   &IF DEFINED( OE10 ) &THEN
+      676   *** Encrypted Source ***
+      677   *** Encrypted Source ***
+      678   *** Encrypted Source ***
+      679   *** Encrypted Source ***
+      680   *** Encrypted Source ***
+      681   *** Encrypted Source ***
+      682   *** Encrypted Source ***
+      683   *** Encrypted Source ***
+      684   *** Encrypted Source ***
+      685   *** Encrypted Source ***
+      686   *** Encrypted Source ***
+      687   *** Encrypted Source ***
+      688   *** Encrypted Source ***
+      689   *** Encrypted Source ***
+      690   *** Encrypted Source ***
+      691   *** Encrypted Source ***
+      692   *** Encrypted Source ***
+      693   *** Encrypted Source ***
+      694   *** Encrypted Source ***
+      695   *** Encrypted Source ***
+      696   *** Encrypted Source ***
+      697   *** Encrypted Source ***
+      698   *** Encrypted Source ***
+      699   *** Encrypted Source ***
+      700   *** Encrypted Source ***
+      701   *** Encrypted Source ***
+      702   *** Encrypted Source ***
+      703   *** Encrypted Source ***
+      704   *** Encrypted Source ***
+      705   *** Encrypted Source ***
+      706   *** Encrypted Source ***
+      707   *** Encrypted Source ***
+      708   *** Encrypted Source ***
+      709   *** Encrypted Source ***
+      710   *** Encrypted Source ***
+      711   *** Encrypted Source ***
+      712   *** Encrypted Source ***
+      713   *** Encrypted Source ***
+      714   *** Encrypted Source ***
+      715   *** Encrypted Source ***
+      716   *** Encrypted Source ***
+      717   *** Encrypted Source ***
+      718   *** Encrypted Source ***
+      719   *** Encrypted Source ***
+      720   *** Encrypted Source ***
+      721   *** Encrypted Source ***
+      722   *** Encrypted Source ***
+      723   *** Encrypted Source ***
+      724   *** Encrypted Source ***
+      725   *** Encrypted Source ***
+      726   *** Encrypted Source ***
+      727   *** Encrypted Source ***
+      728   *** Encrypted Source ***
+      729   *** Encrypted Source ***
+      730   *** Encrypted Source ***
+      731   *** Encrypted Source ***
+      732   *** Encrypted Source ***
+      733   *** Encrypted Source ***
+      734   *** Encrypted Source ***
+      735   *** Encrypted Source ***
+      736   *** Encrypted Source ***
+      737   *** Encrypted Source ***
+      738   *** Encrypted Source ***
+      739   *** Encrypted Source ***
+      740   *** Encrypted Source ***
+      741   *** Encrypted Source ***
+      742   *** Encrypted Source ***
+      743   *** Encrypted Source ***
+      744   *** Encrypted Source ***
+      745   *** Encrypted Source ***
+      746   *** Encrypted Source ***
+      747   *** Encrypted Source ***
+      748   *** Encrypted Source ***
+      749   *** Encrypted Source ***
+      750   *** Encrypted Source ***
+      751   *** Encrypted Source ***
+      752   *** Encrypted Source ***
+      753   *** Encrypted Source ***
+      754   *** Encrypted Source ***
+      755   *** Encrypted Source ***
+      756   *** Encrypted Source ***
+      757   *** Encrypted Source ***
+      758   *** Encrypted Source ***
+      759   *** Encrypted Source ***
+      760   *** Encrypted Source ***
+      761   *** Encrypted Source ***
+      762   *** Encrypted Source ***
+      763   *** Encrypted Source ***
+      764   *** Encrypted Source ***
+      765   *** Encrypted Source ***
+      766   *** Encrypted Source ***
+      767   *** Encrypted Source ***
+      768   *** Encrypted Source ***
+      769   *** Encrypted Source ***
+      770   *** Encrypted Source ***
+      771   *** Encrypted Source ***
+      772   *** Encrypted Source ***
+      773   *** Encrypted Source ***
+      774   *** Encrypted Source ***
+      775   *** Encrypted Source ***
+      776   *** Encrypted Source ***
+      777   *** Encrypted Source ***
+      778   *** Encrypted Source ***
+      779   *** Encrypted Source ***
+      780   *** Encrypted Source ***
+      781   *** Encrypted Source ***
+      782   *** Encrypted Source ***
+      783   *** Encrypted Source ***
+      784   *** Encrypted Source ***
+      785   *** Encrypted Source ***
+      786   *** Encrypted Source ***
+      787   *** Encrypted Source ***
+      788   *** Encrypted Source ***
+      789   *** Encrypted Source ***
+      790   *** Encrypted Source ***
+      791   *** Encrypted Source ***
+      792   *** Encrypted Source ***
+      793   *** Encrypted Source ***
+      794   *** Encrypted Source ***
+      795   *** Encrypted Source ***
+      796   *** Encrypted Source ***
+      797   *** Encrypted Source ***
+      798   *** Encrypted Source ***
+      799   *** Encrypted Source ***
+      800   *** Encrypted Source ***
+      801   *** Encrypted Source ***
+      802   *** Encrypted Source ***
+      803   *** Encrypted Source ***
+      804   *** Encrypted Source ***
+      805   *** Encrypted Source ***
+      806   *** Encrypted Source ***
+      807   *** Encrypted Source ***
+      808   *** Encrypted Source ***
+      809   *** Encrypted Source ***
+      810   *** Encrypted Source ***
+      811   *** Encrypted Source ***
+      812   *** Encrypted Source ***
+      813   *** Encrypted Source ***
+      814   *** Encrypted Source ***
+      815   *** Encrypted Source ***
+      816   *** Encrypted Source ***
+      817   *** Encrypted Source ***
+      818   *** Encrypted Source ***
+      819   *** Encrypted Source ***
+      820   *** Encrypted Source ***
+      821   *** Encrypted Source ***
+      822   *** Encrypted Source ***
+      823   *** Encrypted Source ***
+      824   *** Encrypted Source ***
+      825   *** Encrypted Source ***
+      826   *** Encrypted Source ***
+      827   *** Encrypted Source ***
+      828   *** Encrypted Source ***
+      829   *** Encrypted Source ***
+      830   *** Encrypted Source ***
+      831   *** Encrypted Source ***
+      832   *** Encrypted Source ***
+      833   *** Encrypted Source ***
+      834   *** Encrypted Source ***
+      835   *** Encrypted Source ***
+      836   *** Encrypted Source ***
+      837   *** Encrypted Source ***
+      838   *** Encrypted Source ***
+      839   *** Encrypted Source ***
+      840   *** Encrypted Source ***
+      841   *** Encrypted Source ***
+      842   *** Encrypted Source ***
+      843   *** Encrypted Source ***
+      844   *** Encrypted Source ***
+      845   *** Encrypted Source ***
+      846   *** Encrypted Source ***
+      847   *** Encrypted Source ***
+      848   *** Encrypted Source ***
+      849   *** Encrypted Source ***
+      850   *** Encrypted Source ***
+      851   *** Encrypted Source ***
+      852   *** Encrypted Source ***
+      853   *** Encrypted Source ***
+      854   *** Encrypted Source ***
+      855   *** Encrypted Source ***
+      856   *** Encrypted Source ***
+      857   *** Encrypted Source ***
+      858   *** Encrypted Source ***
+      859   *** Encrypted Source ***
+      860   *** Encrypted Source ***
+      861   *** Encrypted Source ***
+      862   *** Encrypted Source ***
+      863   *** Encrypted Source ***
+      864   *** Encrypted Source ***
+      865   *** Encrypted Source ***
+      866   *** Encrypted Source ***
+      867   *** Encrypted Source ***
+      868   *** Encrypted Source ***
+      869   *** Encrypted Source ***
+      870   *** Encrypted Source ***
+      871   *** Encrypted Source ***
+      872   *** Encrypted Source ***
+      873   *** Encrypted Source ***
+      874   *** Encrypted Source ***
+      875   *** Encrypted Source ***
+      876   *** Encrypted Source ***
+      877   *** Encrypted Source ***
+      878   *** Encrypted Source ***
+      879   *** Encrypted Source ***
+      880   *** Encrypted Source ***
+      881   *** Encrypted Source ***
+      882   *** Encrypted Source ***
+      883   *** Encrypted Source ***
+      884   *** Encrypted Source ***
+      885   *** Encrypted Source ***
+      886   *** Encrypted Source ***
+      887   *** Encrypted Source ***
+      888   *** Encrypted Source ***
+      889   *** Encrypted Source ***
+      890   *** Encrypted Source ***
+      891   *** Encrypted Source ***
+      892   *** Encrypted Source ***
+      893   *** Encrypted Source ***
+      894   *** Encrypted Source ***
+      895   *** Encrypted Source ***
+      896   *** Encrypted Source ***
+      897   *** Encrypted Source ***
+      898   *** Encrypted Source ***
+      899   *** Encrypted Source ***
+      900   *** Encrypted Source ***
+      901   *** Encrypted Source ***
+      902   *** Encrypted Source ***
+      903   *** Encrypted Source ***
+      904   *** Encrypted Source ***
+      905   *** Encrypted Source ***
+      906   *** Encrypted Source ***
+      907   *** Encrypted Source ***
+      908   *** Encrypted Source ***
+      909   *** Encrypted Source ***
+      910   *** Encrypted Source ***
+      911   *** Encrypted Source ***
+      912   *** Encrypted Source ***
+      913   *** Encrypted Source ***
+      914   *** Encrypted Source ***
+      915   *** Encrypted Source ***
+      916   *** Encrypted Source ***
+      917   *** Encrypted Source ***
+      918   *** Encrypted Source ***
+      919   *** Encrypted Source ***
+      920   *** Encrypted Source ***
+      921   *** Encrypted Source ***
+      922   *** Encrypted Source ***
+      923   *** Encrypted Source ***
+      924   *** Encrypted Source ***
+      925   *** Encrypted Source ***
+      926   *** Encrypted Source ***
+      927   *** Encrypted Source ***
+      928   *** Encrypted Source ***
+      929   *** Encrypted Source ***
+      930   *** Encrypted Source ***
+      931   *** Encrypted Source ***
+      932   *** Encrypted Source ***
+      933   *** Encrypted Source ***
+      934   *** Encrypted Source ***
+      935   *** Encrypted Source ***
+      936   *** Encrypted Source ***
+      937   *** Encrypted Source ***
+      938   *** Encrypted Source ***
+      939   *** Encrypted Source ***
+      940   *** Encrypted Source ***
+      941   *** Encrypted Source ***
+      942   *** Encrypted Source ***
+      943   *** Encrypted Source ***
+      944   *** Encrypted Source ***
+      945   *** Encrypted Source ***
+      946   *** Encrypted Source ***
+      947   *** Encrypted Source ***
+      948   *** Encrypted Source ***
+      949   *** Encrypted Source ***
+      950   *** Encrypted Source ***
+      951   *** Encrypted Source ***
+      952   *** Encrypted Source ***
+      953   *** Encrypted Source ***
+      954   *** Encrypted Source ***
+      955   *** Encrypted Source ***
+      956   *** Encrypted Source ***
+      957   *** Encrypted Source ***
+      958   *** Encrypted Source ***
+      959   *** Encrypted Source ***
+      960   *** Encrypted Source ***
+      961   *** Encrypted Source ***
+      962   *** Encrypted Source ***
+      963   *** Encrypted Source ***
+      964   *** Encrypted Source ***
+      965   *** Encrypted Source ***
+      966   *** Encrypted Source ***
+      967   *** Encrypted Source ***
+      968   *** Encrypted Source ***
+      969   *** Encrypted Source ***
+      970   *** Encrypted Source ***
+      971   *** Encrypted Source ***
+      972   *** Encrypted Source ***
+      973   *** Encrypted Source ***
+      974   *** Encrypted Source ***
+      975   *** Encrypted Source ***
+      976   *** Encrypted Source ***
+      977   *** Encrypted Source ***
+      978   *** Encrypted Source ***
+      979   *** Encrypted Source ***
+      980   *** Encrypted Source ***
+      981   *** Encrypted Source ***
+      982   *** Encrypted Source ***
+      983   *** Encrypted Source ***
+      984   *** Encrypted Source ***
+      985   *** Encrypted Source ***
+      986   *** Encrypted Source ***
+      987   *** Encrypted Source ***
+      988   *** Encrypted Source ***
+      989   *** Encrypted Source ***
+      990   *** Encrypted Source ***
+      991   *** Encrypted Source ***
+      992   *** Encrypted Source ***
+      993   *** Encrypted Source ***
+      994   *** Encrypted Source ***
+      995   *** Encrypted Source ***
+      996   *** Encrypted Source ***
+      997   *** Encrypted Source ***
+      998   *** Encrypted Source ***
+      999   *** Encrypted Source ***
+     1000   *** Encrypted Source ***
+     1001   *** Encrypted Source ***
+     1002   *** Encrypted Source ***
+     1003   *** Encrypted Source ***
+     1004   *** Encrypted Source ***
+     1005   *** Encrypted Source ***
+     1006   *** Encrypted Source ***
+     1007   *** Encrypted Source ***
+     1008   *** Encrypted Source ***
+     1009   *** Encrypted Source ***
+     1010   *** Encrypted Source ***
+     1011   *** Encrypted Source ***
+     1012   *** Encrypted Source ***
+     1013   *** Encrypted Source ***
+     1014   *** Encrypted Source ***
+     1015   *** Encrypted Source ***
+     1016   *** Encrypted Source ***
+     1017   *** Encrypted Source ***
+     1018   *** Encrypted Source ***
+     1019   *** Encrypted Source ***
+     1020   *** Encrypted Source ***
+     1021   *** Encrypted Source ***
+     1022   *** Encrypted Source ***
+     1023   *** Encrypted Source ***
+     1024   *** Encrypted Source ***
+     1025   *** Encrypted Source ***
+     1026   *** Encrypted Source ***
+     1027   *** Encrypted Source ***
+     1028   *** Encrypted Source ***
+     1029   *** Encrypted Source ***
+     1030   *** Encrypted Source ***
+     1031   *** Encrypted Source ***
+     1032   *** Encrypted Source ***
+     1033   *** Encrypted Source ***
+     1034   *** Encrypted Source ***
+     1035   *** Encrypted Source ***
+     1036   *** Encrypted Source ***
+     1037   *** Encrypted Source ***
+     1038   *** Encrypted Source ***
+     1039   *** Encrypted Source ***
+     1040   *** Encrypted Source ***
+     1041   *** Encrypted Source ***
+     1042   *** Encrypted Source ***
+     1043   *** Encrypted Source ***
+     1044   *** Encrypted Source ***
+     1045   *** Encrypted Source ***
+     1046   *** Encrypted Source ***
+     1047   *** Encrypted Source ***
+     1048   *** Encrypted Source ***
+     1049   *** Encrypted Source ***
+     1050   *** Encrypted Source ***
+     1051   *** Encrypted Source ***
+     1052   *** Encrypted Source ***
+     1053   *** Encrypted Source ***
+     1054   *** Encrypted Source ***
+     1055   *** Encrypted Source ***
+     1056   *** Encrypted Source ***
+     1057   *** Encrypted Source ***
+     1058   *** Encrypted Source ***
+     1059   *** Encrypted Source ***
+     1060   *** Encrypted Source ***
+     1061   *** Encrypted Source ***
+     1062   *** Encrypted Source ***
+     1063   *** Encrypted Source ***
+     1064   *** Encrypted Source ***
+     1065   *** Encrypted Source ***
+     1066   *** Encrypted Source ***
+     1067   *** Encrypted Source ***
+     1068   *** Encrypted Source ***
+     1069   *** Encrypted Source ***
+     1070   *** Encrypted Source ***
+     1071   *** Encrypted Source ***
+     1072   *** Encrypted Source ***
+     1073   *** Encrypted Source ***
+     1074   *** Encrypted Source ***
+     1075   *** Encrypted Source ***
+     1076   *** Encrypted Source ***
+     1077   *** Encrypted Source ***
+     1078   *** Encrypted Source ***
+     1079   *** Encrypted Source ***
+     1080   *** Encrypted Source ***
+     1081   *** Encrypted Source ***
+     1082   *** Encrypted Source ***
+     1083   *** Encrypted Source ***
+     1084   *** Encrypted Source ***
+     1085   *** Encrypted Source ***
+     1086   *** Encrypted Source ***
+     1087   *** Encrypted Source ***
+     1088   *** Encrypted Source ***
+     1089   *** Encrypted Source ***
+     1090   *** Encrypted Source ***
+     1091   *** Encrypted Source ***
+     1092   *** Encrypted Source ***
+     1093   *** Encrypted Source ***
+     1094   *** Encrypted Source ***
+     1095   *** Encrypted Source ***
+     1096   *** Encrypted Source ***
+     1097   *** Encrypted Source ***
+     1098   *** Encrypted Source ***
+     1099   *** Encrypted Source ***
+     1100   *** Encrypted Source ***
+     1101   *** Encrypted Source ***
+     1102   *** Encrypted Source ***
+     1103   *** Encrypted Source ***
+     1104   *** Encrypted Source ***
+     1105   *** Encrypted Source ***
+     1106   *** Encrypted Source ***
+     1107   *** Encrypted Source ***
+     1108   *** Encrypted Source ***
+     1109   *** Encrypted Source ***
+     1110   *** Encrypted Source ***
+     1111   *** Encrypted Source ***
+     1112   *** Encrypted Source ***
+     1113   *** Encrypted Source ***
+     1114   *** Encrypted Source ***
+     1115   *** Encrypted Source ***
+     1116   *** Encrypted Source ***
+     1117   *** Encrypted Source ***
+     1118   *** Encrypted Source ***
+     1119   *** Encrypted Source ***
+     1120   *** Encrypted Source ***
+     1121   *** Encrypted Source ***
+     1122   *** Encrypted Source ***
+     1123   *** Encrypted Source ***
+     1124   *** Encrypted Source ***
+     1125   *** Encrypted Source ***
+     1126   *** Encrypted Source ***
+     1127   *** Encrypted Source ***
+     1128   *** Encrypted Source ***
+     1129   *** Encrypted Source ***
+     1130   *** Encrypted Source ***
+     1131   *** Encrypted Source ***
+     1132   *** Encrypted Source ***
+     1133   *** Encrypted Source ***
+     1134   *** Encrypted Source ***
+     1135   *** Encrypted Source ***
+     1136   *** Encrypted Source ***
+     1137   *** Encrypted Source ***
+     1138   *** Encrypted Source ***
+     1139   *** Encrypted Source ***
+     1140   *** Encrypted Source ***
+     1141   *** Encrypted Source ***
+     1142   *** Encrypted Source ***
+     1143   *** Encrypted Source ***
+     1144   *** Encrypted Source ***
+     1145   *** Encrypted Source ***
+     1146   *** Encrypted Source ***
+     1147   *** Encrypted Source ***
+     1148   *** Encrypted Source ***
+     1149   *** Encrypted Source ***
+     1150   *** Encrypted Source ***
+     1151   *** Encrypted Source ***
+     1152   *** Encrypted Source ***
+     1153   *** Encrypted Source ***
+     1154   *** Encrypted Source ***
+     1155   *** Encrypted Source ***
+     1156   *** Encrypted Source ***
+     1157   *** Encrypted Source ***
+     1158   *** Encrypted Source ***
+     1159   *** Encrypted Source ***
+     1160   *** Encrypted Source ***
+     1161   *** Encrypted Source ***
+     1162   *** Encrypted Source ***
+     1163   *** Encrypted Source ***
+     1164   *** Encrypted Source ***
+     1165   *** Encrypted Source ***
+     1166   *** Encrypted Source ***
+     1167   *** Encrypted Source ***
+     1168   *** Encrypted Source ***
+     1169   *** Encrypted Source ***
+     1170   *** Encrypted Source ***
+     1171   *** Encrypted Source ***
+     1172   *** Encrypted Source ***
+     1173   *** Encrypted Source ***
+     1174   *** Encrypted Source ***
+     1175   *** Encrypted Source ***
+     1176   *** Encrypted Source ***
+     1177   *** Encrypted Source ***
+     1178   *** Encrypted Source ***
+     1179   *** Encrypted Source ***
+     1180   *** Encrypted Source ***
+     1181   *** Encrypted Source ***
+     1182   *** Encrypted Source ***
+     1183   *** Encrypted Source ***
+     1184   *** Encrypted Source ***
+     1185   *** Encrypted Source ***
+     1186   *** Encrypted Source ***
+     1187   *** Encrypted Source ***
+     1188   *** Encrypted Source ***
+     1189   *** Encrypted Source ***
+     1190   *** Encrypted Source ***
+     1191   *** Encrypted Source ***
+     1192   *** Encrypted Source ***
+     1193   *** Encrypted Source ***
+     1194   *** Encrypted Source ***
+     1195   *** Encrypted Source ***
+     1196   *** Encrypted Source ***
+     1197   *** Encrypted Source ***
+     1198   *** Encrypted Source ***
+     1199   *** Encrypted Source ***
+     1200   *** Encrypted Source ***
+     1201   *** Encrypted Source ***
+     1202   *** Encrypted Source ***
+     1203   *** Encrypted Source ***
+     1204   *** Encrypted Source ***
+     1205   *** Encrypted Source ***
+     1206   *** Encrypted Source ***
+     1207   *** Encrypted Source ***
+     1208   *** Encrypted Source ***
+     1209   *** Encrypted Source ***
+     1210   *** Encrypted Source ***
+     1211   *** Encrypted Source ***
+     1212   *** Encrypted Source ***
+     1213   *** Encrypted Source ***
+     1214   *** Encrypted Source ***
+     1215   *** Encrypted Source ***
+     1216   *** Encrypted Source ***
+     1217   *** Encrypted Source ***
+     1218   *** Encrypted Source ***
+     1219   *** Encrypted Source ***
+     1220   *** Encrypted Source ***
+     1221   *** Encrypted Source ***
+     1222   *** Encrypted Source ***
+     1223   *** Encrypted Source ***
+     1224   *** Encrypted Source ***
+     1225   *** Encrypted Source ***
+     1226   *** Encrypted Source ***
+     1227   *** Encrypted Source ***
+     1228   *** Encrypted Source ***
+     1229   *** Encrypted Source ***
+     1230   *** Encrypted Source ***
+     1231   *** Encrypted Source ***
+     1232   *** Encrypted Source ***
+     1233   *** Encrypted Source ***
+     1234   *** Encrypted Source ***
+     1235   *** Encrypted Source ***
+     1236   *** Encrypted Source ***
+     1237   *** Encrypted Source ***
+     1238   *** Encrypted Source ***
+     1239   *** Encrypted Source ***
+     1240   *** Encrypted Source ***
+     1241   *** Encrypted Source ***
+     1242   *** Encrypted Source ***
+     1243   *** Encrypted Source ***
+     1244   *** Encrypted Source ***
+     1245   *** Encrypted Source ***
+     1246   *** Encrypted Source ***
+     1247   *** Encrypted Source ***
+     1248   *** Encrypted Source ***
+     1249   *** Encrypted Source ***
+     1250   *** Encrypted Source ***
+     1251   *** Encrypted Source ***
+     1252   *** Encrypted Source ***
+     1253   *** Encrypted Source ***
+     1254   *** Encrypted Source ***
+     1255   *** Encrypted Source ***
+     1256   *** Encrypted Source ***
+     1257   *** Encrypted Source ***
+     1258   *** Encrypted Source ***
+     1259   *** Encrypted Source ***
+     1260   *** Encrypted Source ***
+     1261   *** Encrypted Source ***
+     1262   *** Encrypted Source ***
+     1263   *** Encrypted Source ***
+     1264   *** Encrypted Source ***
+     1265   *** Encrypted Source ***
+     1266   *** Encrypted Source ***
+     1267   *** Encrypted Source ***
+     1268   *** Encrypted Source ***
+     1269   *** Encrypted Source ***
+     1270   *** Encrypted Source ***
+     1271   *** Encrypted Source ***
+     1272   *** Encrypted Source ***
+     1273   *** Encrypted Source ***
+     1274   *** Encrypted Source ***
+     1275   *** Encrypted Source ***
+     1276   *** Encrypted Source ***
+     1277   *** Encrypted Source ***
+     1278   *** Encrypted Source ***
+     1279   *** Encrypted Source ***
+     1280   *** Encrypted Source ***
+     1281   *** Encrypted Source ***
+     1282   *** Encrypted Source ***
+     1283   *** Encrypted Source ***
+     1284   *** Encrypted Source ***
+     1285   *** Encrypted Source ***
+     1286   *** Encrypted Source ***
+     1287   *** Encrypted Source ***
+     1288   *** Encrypted Source ***
+     1289   *** Encrypted Source ***
+     1290   *** Encrypted Source ***
+     1291   *** Encrypted Source ***
+     1292   *** Encrypted Source ***
+     1293   *** Encrypted Source ***
+     1294   *** Encrypted Source ***
+     1295   *** Encrypted Source ***
+     1296   *** Encrypted Source ***
+     1297   *** Encrypted Source ***
+     1298   *** Encrypted Source ***
+     1299   *** Encrypted Source ***
+     1300   *** Encrypted Source ***
+     1301   *** Encrypted Source ***
+     1302   *** Encrypted Source ***
+     1303   *** Encrypted Source ***
+     1304   *** Encrypted Source ***
+     1305   *** Encrypted Source ***
+     1306   *** Encrypted Source ***
+     1307   *** Encrypted Source ***
+     1308   *** Encrypted Source ***
+     1309   *** Encrypted Source ***
+     1310   *** Encrypted Source ***
+     1311   *** Encrypted Source ***
+     1312   *** Encrypted Source ***
+     1313   *** Encrypted Source ***
+     1314   *** Encrypted Source ***
+     1315   *** Encrypted Source ***
+     1316   *** Encrypted Source ***
+     1317   *** Encrypted Source ***
+     1318   *** Encrypted Source ***
+     1319   *** Encrypted Source ***
+     1320   *** Encrypted Source ***
+     1321   *** Encrypted Source ***
+     1322   *** Encrypted Source ***
+     1323   *** Encrypted Source ***
+     1324   *** Encrypted Source ***
+     1325   *** Encrypted Source ***
+     1326   *** Encrypted Source ***
+     1327   *** Encrypted Source ***
+     1328   *** Encrypted Source ***
+     1329   *** Encrypted Source ***
+     1330   *** Encrypted Source ***
+     1331   *** Encrypted Source ***
+     1332   *** Encrypted Source ***
+     1333   *** Encrypted Source ***
+     1334   *** Encrypted Source ***
+     1335   *** Encrypted Source ***
+     1336   *** Encrypted Source ***
+     1337   *** Encrypted Source ***
+     1338   *** Encrypted Source ***
+     1339   *** Encrypted Source ***
+     1340   *** Encrypted Source ***
+     1341   *** Encrypted Source ***
+     1342   *** Encrypted Source ***
+     1343   *** Encrypted Source ***
+     1344   *** Encrypted Source ***
+     1345   *** Encrypted Source ***
+     1346   *** Encrypted Source ***
+     1347   *** Encrypted Source ***
+     1348   *** Encrypted Source ***
+     1349   *** Encrypted Source ***
+     1350   *** Encrypted Source ***
+     1351   *** Encrypted Source ***
+     1352   *** Encrypted Source ***
+     1353   *** Encrypted Source ***
+     1354   *** Encrypted Source ***
+     1355   *** Encrypted Source ***
+     1356   *** Encrypted Source ***
+     1357   *** Encrypted Source ***
+     1358   *** Encrypted Source ***
+     1359   *** Encrypted Source ***
+     1360   *** Encrypted Source ***
+     1361   *** Encrypted Source ***
+     1362   *** Encrypted Source ***
+     1363   *** Encrypted Source ***
+     1364   *** Encrypted Source ***
+     1365   *** Encrypted Source ***
+     1366   *** Encrypted Source ***
+     1367   *** Encrypted Source ***
+     1368   *** Encrypted Source ***
+     1369   *** Encrypted Source ***
+     1370   *** Encrypted Source ***
+     1371   *** Encrypted Source ***
+     1372   *** Encrypted Source ***
+     1373   *** Encrypted Source ***
+     1374   *** Encrypted Source ***
+     1375   *** Encrypted Source ***
+     1376   *** Encrypted Source ***
+     1377   *** Encrypted Source ***
+     1378   *** Encrypted Source ***
+     1379   *** Encrypted Source ***
+     1380   *** Encrypted Source ***
+     1381   *** Encrypted Source ***
+     1382   *** Encrypted Source ***
+     1383   *** Encrypted Source ***
+     1384   *** Encrypted Source ***
+     1385   *** Encrypted Source ***
+     1386   *** Encrypted Source ***
+     1387   *** Encrypted Source ***
+     1388   *** Encrypted Source ***
+     1389   *** Encrypted Source ***
+     1390   *** Encrypted Source ***
+     1391   *** Encrypted Source ***
+     1392   *** Encrypted Source ***
+     1393   *** Encrypted Source ***
+     1394   *** Encrypted Source ***
+     1395   *** Encrypted Source ***
+     1396   *** Encrypted Source ***
+     1397   *** Encrypted Source ***
+     1398   *** Encrypted Source ***
+     1399   *** Encrypted Source ***
+     1400   *** Encrypted Source ***
+     1401   *** Encrypted Source ***
+     1402   *** Encrypted Source ***
+     1403   *** Encrypted Source ***
+     1404   *** Encrypted Source ***
+     1405   *** Encrypted Source ***
+     1406   *** Encrypted Source ***
+     1407   *** Encrypted Source ***
+     1408   *** Encrypted Source ***
+     1409   *** Encrypted Source ***
+     1410   *** Encrypted Source ***
+     1411   *** Encrypted Source ***
+     1412   *** Encrypted Source ***
+     1413   *** Encrypted Source ***
+     1414   *** Encrypted Source ***
+     1415   *** Encrypted Source ***
+     1416   *** Encrypted Source ***
+     1417   *** Encrypted Source ***
+     1418   *** Encrypted Source ***
+     1419   *** Encrypted Source ***
+     1420   *** Encrypted Source ***
+     1421   *** Encrypted Source ***
+     1422   *** Encrypted Source ***
+     1423   *** Encrypted Source ***
+     1424   *** Encrypted Source ***
+     1425   *** Encrypted Source ***
+     1426   *** Encrypted Source ***
+     1427   *** Encrypted Source ***
+     1428   *** Encrypted Source ***
+     1429   *** Encrypted Source ***
+     1430   *** Encrypted Source ***
+     1431   *** Encrypted Source ***
+     1432   *** Encrypted Source ***
+     1433   *** Encrypted Source ***
+     1434   *** Encrypted Source ***
+     1435   *** Encrypted Source ***
+     1436   *** Encrypted Source ***
+     1437   *** Encrypted Source ***
+     1438   *** Encrypted Source ***
+     1439   *** Encrypted Source ***
+     1440   *** Encrypted Source ***
+     1441   *** Encrypted Source ***
+     1442   *** Encrypted Source ***
+     1443   *** Encrypted Source ***
+     1444   *** Encrypted Source ***
+     1445   *** Encrypted Source ***
+     1446   *** Encrypted Source ***
+     1447   *** Encrypted Source ***
+     1448   *** Encrypted Source ***
+     1449   *** Encrypted Source ***
+     1450   *** Encrypted Source ***
+     1451   *** Encrypted Source ***
+     1452   *** Encrypted Source ***
+     1453   *** Encrypted Source ***
+     1454   *** Encrypted Source ***
+     1455   *** Encrypted Source ***
+     1456   *** Encrypted Source ***
+     1457   *** Encrypted Source ***
+     1458   *** Encrypted Source ***
+     1459   *** Encrypted Source ***
+     1460   *** Encrypted Source ***
+     1461   *** Encrypted Source ***
+     1462   *** Encrypted Source ***
+     1463   *** Encrypted Source ***
+     1464   *** Encrypted Source ***
+     1465   *** Encrypted Source ***
+     1466   *** Encrypted Source ***
+     1467   *** Encrypted Source ***
+     1468   *** Encrypted Source ***
+     1469   *** Encrypted Source ***
+     1470   *** Encrypted Source ***
+     1471   *** Encrypted Source ***
+     1472   *** Encrypted Source ***
+     1473   *** Encrypted Source ***
+     1474   *** Encrypted Source ***
+     1475   *** Encrypted Source ***
+     1476   *** Encrypted Source ***
+     1477   *** Encrypted Source ***
+     1478   *** Encrypted Source ***
+     1479   *** Encrypted Source ***
+     1480   *** Encrypted Source ***
+     1481   *** Encrypted Source ***
+     1482   *** Encrypted Source ***
+     1483   *** Encrypted Source ***
+     1484   *** Encrypted Source ***
+     1485   *** Encrypted Source ***
+     1486   *** Encrypted Source ***
+     1487   *** Encrypted Source ***
+     1488   *** Encrypted Source ***
+     1489   *** Encrypted Source ***
+     1490   *** Encrypted Source ***
+     1491   *** Encrypted Source ***
+     1492   *** Encrypted Source ***
+     1493   *** Encrypted Source ***
+     1494   *** Encrypted Source ***
+     1495   *** Encrypted Source ***
+     1496   *** Encrypted Source ***
+     1497   *** Encrypted Source ***
+     1498   *** Encrypted Source ***
+     1499   *** Encrypted Source ***
+     1500   *** Encrypted Source ***
+     1501   *** Encrypted Source ***
+     1502   *** Encrypted Source ***
+     1503   *** Encrypted Source ***
+     1504   *** Encrypted Source ***
+     1505   *** Encrypted Source ***
+     1506   *** Encrypted Source ***
+     1507   *** Encrypted Source ***
+     1508   *** Encrypted Source ***
+     1509   *** Encrypted Source ***
+     1510   *** Encrypted Source ***
+     1511   *** Encrypted Source ***
+     1512   *** Encrypted Source ***
+     1513   *** Encrypted Source ***
+     1514   *** Encrypted Source ***
+     1515   *** Encrypted Source ***
+     1516   *** Encrypted Source ***
+     1517   *** Encrypted Source ***
+     1518   *** Encrypted Source ***
+     1519   *** Encrypted Source ***
+     1520   *** Encrypted Source ***
+     1521   *** Encrypted Source ***
+     1522   *** Encrypted Source ***
+     1523   *** Encrypted Source ***
+     1524   *** Encrypted Source ***
+     1525   *** Encrypted Source ***
+     1526   *** Encrypted Source ***
+     1527   *** Encrypted Source ***
+     1528   *** Encrypted Source ***
+     1529   *** Encrypted Source ***
+     1530   *** Encrypted Source ***
+     1531   *** Encrypted Source ***
+     1532   *** Encrypted Source ***
+     1533   *** Encrypted Source ***
+     1534   *** Encrypted Source ***
+     1535   *** Encrypted Source ***
+     1536   *** Encrypted Source ***
+     1537   *** Encrypted Source ***
+     1538   *** Encrypted Source ***
+     1539   *** Encrypted Source ***
+     1540   *** Encrypted Source ***
+     1541   *** Encrypted Source ***
+     1542   *** Encrypted Source ***
+     1543   *** Encrypted Source ***
+     1544   *** Encrypted Source ***
+     1545   *** Encrypted Source ***
+     1546   *** Encrypted Source ***
+     1547   *** Encrypted Source ***
+     1548   *** Encrypted Source ***
+     1549   *** Encrypted Source ***
+     1550   *** Encrypted Source ***
+     1551   *** Encrypted Source ***
+     1552   *** Encrypted Source ***
+     1553   *** Encrypted Source ***
+     1554   *** Encrypted Source ***
+     1555   *** Encrypted Source ***
+     1556   *** Encrypted Source ***
+     1557   *** Encrypted Source ***
+     1558   *** Encrypted Source ***
+     1559   *** Encrypted Source ***
+     1560   *** Encrypted Source ***
+     1561   *** Encrypted Source ***
+     1562   *** Encrypted Source ***
+     1563   *** Encrypted Source ***
+     1564   *** Encrypted Source ***
+     1565   *** Encrypted Source ***
+     1566   *** Encrypted Source ***
+     1567   *** Encrypted Source ***
+     1568   *** Encrypted Source ***
+     1569   *** Encrypted Source ***
+     1570   *** Encrypted Source ***
+     1571   *** Encrypted Source ***
+     1572   *** Encrypted Source ***
+     1573   *** Encrypted Source ***
+     1574   *** Encrypted Source ***
+     1575   *** Encrypted Source ***
+     1576   *** Encrypted Source ***
+     1577   *** Encrypted Source ***
+     1578   *** Encrypted Source ***
+     1579   *** Encrypted Source ***
+     1580   *** Encrypted Source ***
+     1581   *** Encrypted Source ***
+     1582   *** Encrypted Source ***
+     1583   *** Encrypted Source ***
+     1584   *** Encrypted Source ***
+     1585   *** Encrypted Source ***
+     1586   *** Encrypted Source ***
+     1587   *** Encrypted Source ***
+     1588   *** Encrypted Source ***
+     1589   *** Encrypted Source ***
+     1590   *** Encrypted Source ***
+     1591   *** Encrypted Source ***
+     1592   *** Encrypted Source ***
+     1593   *** Encrypted Source ***
+     1594   *** Encrypted Source ***
+     1595   *** Encrypted Source ***
+     1596   *** Encrypted Source ***
+     1597   *** Encrypted Source ***
+     1598   *** Encrypted Source ***
+     1599   *** Encrypted Source ***
+     1600   *** Encrypted Source ***
+     1601   *** Encrypted Source ***
+     1602   *** Encrypted Source ***
+     1603   *** Encrypted Source ***
+     1604   *** Encrypted Source ***
+     1605   *** Encrypted Source ***
+     1606   *** Encrypted Source ***
+     1607   *** Encrypted Source ***
+     1608   *** Encrypted Source ***
+     1609   *** Encrypted Source ***
+     1610   *** Encrypted Source ***
+     1611   *** Encrypted Source ***
+     1612   *** Encrypted Source ***
+     1613   *** Encrypted Source ***
+     1614   *** Encrypted Source ***
+     1615   *** Encrypted Source ***
+     1616   *** Encrypted Source ***
+     1617   *** Encrypted Source ***
+     1618   *** Encrypted Source ***
+     1619   *** Encrypted Source ***
+     1620   *** Encrypted Source ***
+     1621   *** Encrypted Source ***
+     1622   *** Encrypted Source ***
+     1623   *** Encrypted Source ***
+     1624   *** Encrypted Source ***
+     1625   *** Encrypted Source ***
+     1626   *** Encrypted Source ***
+     1627   *** Encrypted Source ***
+     1628   *** Encrypted Source ***
+     1629   *** Encrypted Source ***
+     1630   *** Encrypted Source ***
+     1631   *** Encrypted Source ***
+     1632   *** Encrypted Source ***
+     1633   *** Encrypted Source ***
+     1634   *** Encrypted Source ***
+     1635   *** Encrypted Source ***
+     1636   *** Encrypted Source ***
+     1637   *** Encrypted Source ***
+     1638   *** Encrypted Source ***
+     1639   *** Encrypted Source ***
+     1640   *** Encrypted Source ***
+     1641   *** Encrypted Source ***
+     1642   *** Encrypted Source ***
+     1643   *** Encrypted Source ***
+     1644   *** Encrypted Source ***
+     1645   *** Encrypted Source ***
+     1646   *** Encrypted Source ***
+     1647   *** Encrypted Source ***
+     1648   *** Encrypted Source ***
+     1649   *** Encrypted Source ***
+     1650   *** Encrypted Source ***
+     1651   *** Encrypted Source ***
+     1652   *** Encrypted Source ***
+     1653   *** Encrypted Source ***
+     1654   *** Encrypted Source ***
+     1655   *** Encrypted Source ***
+     1656   *** Encrypted Source ***
+     1657   *** Encrypted Source ***
+     1658   *** Encrypted Source ***
+     1659   *** Encrypted Source ***
+     1660   *** Encrypted Source ***
+     1661   *** Encrypted Source ***
+     1662   *** Encrypted Source ***
+     1663   *** Encrypted Source ***
+     1664   *** Encrypted Source ***
+     1665   *** Encrypted Source ***
+     1666   *** Encrypted Source ***
+     1667   *** Encrypted Source ***
+     1668   *** Encrypted Source ***
+     1669   *** Encrypted Source ***
+     1670   *** Encrypted Source ***
+     1671   *** Encrypted Source ***
+     1672   *** Encrypted Source ***
+     1673   *** Encrypted Source ***
+     1674   *** Encrypted Source ***
+     1675   *** Encrypted Source ***
+     1676   *** Encrypted Source ***
+     1677   *** Encrypted Source ***
+     1678   *** Encrypted Source ***
+     1679   *** Encrypted Source ***
+     1680   *** Encrypted Source ***
+     1681   *** Encrypted Source ***
+     1682   *** Encrypted Source ***
+     1683   *** Encrypted Source ***
+     1684   *** Encrypted Source ***
+     1685   *** Encrypted Source ***
+     1686   *** Encrypted Source ***
+     1687   *** Encrypted Source ***
+     1688   *** Encrypted Source ***
+     1689   *** Encrypted Source ***
+     1690   *** Encrypted Source ***
+     1691   *** Encrypted Source ***
+     1692   *** Encrypted Source ***
+     1693   *** Encrypted Source ***
+     1694   *** Encrypted Source ***
+     1695   *** Encrypted Source ***
+     1696   *** Encrypted Source ***
+     1697   *** Encrypted Source ***
+     1698   *** Encrypted Source ***
+     1699   *** Encrypted Source ***
+     1700   *** Encrypted Source ***
+     1701   *** Encrypted Source ***
+     1702   *** Encrypted Source ***
+     1703   *** Encrypted Source ***
+     1704   *** Encrypted Source ***
+     1705   *** Encrypted Source ***
+     1706   *** Encrypted Source ***
+     1707   *** Encrypted Source ***
+     1708   *** Encrypted Source ***
+     1709   *** Encrypted Source ***
+     1710   *** Encrypted Source ***
+     1711   *** Encrypted Source ***
+     1712   *** Encrypted Source ***
+     1713   *** Encrypted Source ***
+     1714   *** Encrypted Source ***
+     1715   *** Encrypted Source ***
+     1716   *** Encrypted Source ***
+     1717   *** Encrypted Source ***
+     1718   *** Encrypted Source ***
+     1719   *** Encrypted Source ***
+     1720   *** Encrypted Source ***
+     1721   *** Encrypted Source ***
+     1722   *** Encrypted Source ***
+     1723   *** Encrypted Source ***
+     1724   *** Encrypted Source ***
+     1725   *** Encrypted Source ***
+     1726   *** Encrypted Source ***
+     1727   *** Encrypted Source ***
+     1728   *** Encrypted Source ***
+     1729   *** Encrypted Source ***
+     1730   *** Encrypted Source ***
+     1731   *** Encrypted Source ***
+     1732   *** Encrypted Source ***
+     1733   *** Encrypted Source ***
+     1734   *** Encrypted Source ***
+     1735   *** Encrypted Source ***
+     1736   *** Encrypted Source ***
+     1737   *** Encrypted Source ***
+     1738   *** Encrypted Source ***
+     1739   *** Encrypted Source ***
+     1740   *** Encrypted Source ***
+     1741   *** Encrypted Source ***
+     1742   *** Encrypted Source ***
+     1743   *** Encrypted Source ***
+     1744   *** Encrypted Source ***
+     1745   *** Encrypted Source ***
+     1746   *** Encrypted Source ***
+     1747   *** Encrypted Source ***
+     1748   *** Encrypted Source ***
+     1749   *** Encrypted Source ***
+     1750   *** Encrypted Source ***
+     1751   *** Encrypted Source ***
+     1752   *** Encrypted Source ***
+     1753   *** Encrypted Source ***
+     1754   *** Encrypted Source ***
+     1755   *** Encrypted Source ***
+     1756   *** Encrypted Source ***
+     1757   *** Encrypted Source ***
+     1758   *** Encrypted Source ***
+     1759   *** Encrypted Source ***
+     1760   *** Encrypted Source ***
+     1761   *** Encrypted Source ***
+     1762   *** Encrypted Source ***
+     1763   *** Encrypted Source ***
+     1764   *** Encrypted Source ***
+     1765   *** Encrypted Source ***
+     1766   *** Encrypted Source ***
+     1767   *** Encrypted Source ***
+     1768   *** Encrypted Source ***
+     1769   *** Encrypted Source ***
+     1770   *** Encrypted Source ***
+     1771   *** Encrypted Source ***
+     1772   *** Encrypted Source ***
+     1773   *** Encrypted Source ***
+     1774   *** Encrypted Source ***
+     1775   *** Encrypted Source ***
+     1776   *** Encrypted Source ***
+     1777   *** Encrypted Source ***
+     1778   *** Encrypted Source ***
+     1779   *** Encrypted Source ***
+     1780   *** Encrypted Source ***
+     1781   *** Encrypted Source ***
+     1782   *** Encrypted Source ***
+     1783   *** Encrypted Source ***
+     1784   *** Encrypted Source ***
+     1785   *** Encrypted Source ***
+     1786   *** Encrypted Source ***
+     1787   *** Encrypted Source ***
+     1788   *** Encrypted Source ***
+     1789   *** Encrypted Source ***
+     1790   *** Encrypted Source ***
+     1791   *** Encrypted Source ***
+     1792   *** Encrypted Source ***
+     1793   *** Encrypted Source ***
+     1794   *** Encrypted Source ***
+     1795   *** Encrypted Source ***
+     1796   *** Encrypted Source ***
+     1797   *** Encrypted Source ***
+     1798   *** Encrypted Source ***
+     1799   *** Encrypted Source ***
+     1800   *** Encrypted Source ***
+     1801   *** Encrypted Source ***
+     1802   *** Encrypted Source ***
+     1803   *** Encrypted Source ***
+     1804   *** Encrypted Source ***
+     1805   *** Encrypted Source ***
+     1806   *** Encrypted Source ***
+     1807   *** Encrypted Source ***
+     1808   *** Encrypted Source ***
+     1809   *** Encrypted Source ***
+     1810   *** Encrypted Source ***
+     1811   *** Encrypted Source ***
+     1812   *** Encrypted Source ***
+     1813   *** Encrypted Source ***
+     1814   *** Encrypted Source ***
+     1815   *** Encrypted Source ***
+     1816   *** Encrypted Source ***
+     1817   *** Encrypted Source ***
+     1818   *** Encrypted Source ***
+     1819   *** Encrypted Source ***
+     1820   *** Encrypted Source ***
+     1821   *** Encrypted Source ***
+     1822   *** Encrypted Source ***
+     1823   *** Encrypted Source ***
+     1824   *** Encrypted Source ***
+     1825   *** Encrypted Source ***
+     1826   *** Encrypted Source ***
+     1827   *** Encrypted Source ***
+     1828   *** Encrypted Source ***
+     1829   *** Encrypted Source ***
+     1830   *** Encrypted Source ***
+     1831   *** Encrypted Source ***
+     1832   *** Encrypted Source ***
+     1833   *** Encrypted Source ***
+     1834   *** Encrypted Source ***
+     1835   *** Encrypted Source ***
+     1836   *** Encrypted Source ***
+     1837   *** Encrypted Source ***
+     1838   *** Encrypted Source ***
+     1839   *** Encrypted Source ***
+     1840   *** Encrypted Source ***
+     1841   *** Encrypted Source ***
+     1842   *** Encrypted Source ***
+     1843   *** Encrypted Source ***
+     1844   *** Encrypted Source ***
+     1845   *** Encrypted Source ***
+     1846   *** Encrypted Source ***
+     1847   *** Encrypted Source ***
+     1848   *** Encrypted Source ***
+     1849   *** Encrypted Source ***
+     1850   *** Encrypted Source ***
+     1851   *** Encrypted Source ***
+     1852   *** Encrypted Source ***
+     1853   *** Encrypted Source ***
+     1854   *** Encrypted Source ***
+     1855   *** Encrypted Source ***
+     1856   *** Encrypted Source ***
+     1857   *** Encrypted Source ***
+     1858   *** Encrypted Source ***
+     1859   *** Encrypted Source ***
+     1860   *** Encrypted Source ***
+     1861   *** Encrypted Source ***
+     1862   *** Encrypted Source ***
+     1863   *** Encrypted Source ***
+     1864   *** Encrypted Source ***
+     1865   *** Encrypted Source ***
+     1866   *** Encrypted Source ***
+     1867   *** Encrypted Source ***
+     1868   *** Encrypted Source ***
+     1869   *** Encrypted Source ***
+     1870   *** Encrypted Source ***
+     1871   *** Encrypted Source ***
+     1872   *** Encrypted Source ***
+     1873   *** Encrypted Source ***
+     1874   *** Encrypted Source ***
+     1875   *** Encrypted Source ***
+     1876   *** Encrypted Source ***
+     1877   *** Encrypted Source ***
+     1878   *** Encrypted Source ***
+     1879   *** Encrypted Source ***
+     1880   *** Encrypted Source ***
+     1881   *** Encrypted Source ***
+     1882   *** Encrypted Source ***
+     1883   *** Encrypted Source ***
+     1884   *** Encrypted Source ***
+     1885   *** Encrypted Source ***
+     1886   *** Encrypted Source ***
+     1887   *** Encrypted Source ***
+     1888   *** Encrypted Source ***
+     1889   *** Encrypted Source ***
+     1890   *** Encrypted Source ***
+     1891   *** Encrypted Source ***
+     1892   *** Encrypted Source ***
+     1893   *** Encrypted Source ***
+     1894   *** Encrypted Source ***
+     1895   *** Encrypted Source ***
+     1896   *** Encrypted Source ***
+     1897   *** Encrypted Source ***
+     1898   *** Encrypted Source ***
+     1899   *** Encrypted Source ***
+     1900   *** Encrypted Source ***
+     1901   *** Encrypted Source ***
+     1902   *** Encrypted Source ***
+     1903   *** Encrypted Source ***
+     1904   *** Encrypted Source ***
+     1905   *** Encrypted Source ***
+     1906   *** Encrypted Source ***
+     1907   *** Encrypted Source ***
+     1908   *** Encrypted Source ***
+     1909   *** Encrypted Source ***
+     1910   *** Encrypted Source ***
+     1911   *** Encrypted Source ***
+     1912   *** Encrypted Source ***
+     1913   *** Encrypted Source ***
+     1914   *** Encrypted Source ***
+     1915   *** Encrypted Source ***
+     1916   *** Encrypted Source ***
+     1917   *** Encrypted Source ***
+     1918   *** Encrypted Source ***
+     1919   *** Encrypted Source ***
+     1920   *** Encrypted Source ***
+     1921   *** Encrypted Source ***
+     1922   *** Encrypted Source ***
+     1923   *** Encrypted Source ***
+     1924   *** Encrypted Source ***
+     1925   *** Encrypted Source ***
+     1926   *** Encrypted Source ***
+     1927   *** Encrypted Source ***
+     1928   *** Encrypted Source ***
+     1929   *** Encrypted Source ***
+     1930   *** Encrypted Source ***
+     1931   *** Encrypted Source ***
+     1932   *** Encrypted Source ***
+     1933   *** Encrypted Source ***
+     1934   *** Encrypted Source ***
+     1935   *** Encrypted Source ***
+     1936   *** Encrypted Source ***
+     1937   *** Encrypted Source ***
+     1938   *** Encrypted Source ***
+     1939   *** Encrypted Source ***
+     1940   *** Encrypted Source ***
+     1941   *** Encrypted Source ***
+     1942   *** Encrypted Source ***
+     1943   *** Encrypted Source ***
+     1944   *** Encrypted Source ***
+     1945   *** Encrypted Source ***
+     1946   *** Encrypted Source ***
+     1947   *** Encrypted Source ***
+     1948   *** Encrypted Source ***
+     1949   *** Encrypted Source ***
+     1950   *** Encrypted Source ***
+     1951   *** Encrypted Source ***
+     1952   *** Encrypted Source ***
+     1953   *** Encrypted Source ***
+     1954   *** Encrypted Source ***
+     1955   *** Encrypted Source ***
+     1956   *** Encrypted Source ***
+     1957   *** Encrypted Source ***
+     1958   *** Encrypted Source ***
+     1959   *** Encrypted Source ***
+     1960   *** Encrypted Source ***
+     1961   *** Encrypted Source ***
+     1962   *** Encrypted Source ***
+     1963   *** Encrypted Source ***
+     1964   *** Encrypted Source ***
+     1965   *** Encrypted Source ***
+     1966   *** Encrypted Source ***
+     1967   *** Encrypted Source ***
+     1968   *** Encrypted Source ***
+     1969   *** Encrypted Source ***
+     1970   *** Encrypted Source ***
+     1971   *** Encrypted Source ***
+     1972   *** Encrypted Source ***
+     1973   *** Encrypted Source ***
+     1974   *** Encrypted Source ***
+     1975   *** Encrypted Source ***
+     1976   *** Encrypted Source ***
+     1977   *** Encrypted Source ***
+     1978   *** Encrypted Source ***
+     1979   *** Encrypted Source ***
+     1980   *** Encrypted Source ***
+     1981   *** Encrypted Source ***
+     1982   *** Encrypted Source ***
+     1983   *** Encrypted Source ***
+     1984   *** Encrypted Source ***
+     1985   *** Encrypted Source ***
+     1986   *** Encrypted Source ***
+     1987   *** Encrypted Source ***
+     1988   *** Encrypted Source ***
+     1989   *** Encrypted Source ***
+     1990   *** Encrypted Source ***
+     1991   *** Encrypted Source ***
+     1992   *** Encrypted Source ***
+     1993   *** Encrypted Source ***
+     1994   *** Encrypted Source ***
+     1995   *** Encrypted Source ***
+     1996   *** Encrypted Source ***
+     1997   *** Encrypted Source ***
+     1998   *** Encrypted Source ***
+     1999   *** Encrypted Source ***
+     2000   *** Encrypted Source ***
+     2001   *** Encrypted Source ***
+     2002   *** Encrypted Source ***
+     2003   *** Encrypted Source ***
+     2004   *** Encrypted Source ***
+     2005   *** Encrypted Source ***
+     2006   *** Encrypted Source ***
+     2007   *** Encrypted Source ***
+     2008   *** Encrypted Source ***
+     2009   *** Encrypted Source ***
+     2010   *** Encrypted Source ***
+     2011   *** Encrypted Source ***
+     2012   *** Encrypted Source ***
+     2013   *** Encrypted Source ***
+     2014   *** Encrypted Source ***
+     2015   *** Encrypted Source ***
+     2016   *** Encrypted Source ***
+     2017   *** Encrypted Source ***
+     2018   *** Encrypted Source ***
+     2019   *** Encrypted Source ***
+     2020   *** Encrypted Source ***
+     2021   *** Encrypted Source ***
+     2022   *** Encrypted Source ***
+     2023   *** Encrypted Source ***
+     2024   *** Encrypted Source ***
+     2025   *** Encrypted Source ***
+     2026   *** Encrypted Source ***
+     2027   *** Encrypted Source ***
+     2028   *** Encrypted Source ***
+     2029   *** Encrypted Source ***
+     2030   *** Encrypted Source ***
+     2031   *** Encrypted Source ***
+     2032   *** Encrypted Source ***
+     2033   *** Encrypted Source ***
+     2034   *** Encrypted Source ***
+     2035   *** Encrypted Source ***
+     2036   *** Encrypted Source ***
+     2037   *** Encrypted Source ***
+     2038   *** Encrypted Source ***
+     2039   *** Encrypted Source ***
+     2040   *** Encrypted Source ***
+     2041   *** Encrypted Source ***
+     2042   *** Encrypted Source ***
+     2043   *** Encrypted Source ***
+     2044   *** Encrypted Source ***
+     2045   *** Encrypted Source ***
+     2046   *** Encrypted Source ***
+     2047   *** Encrypted Source ***
+     2048   *** Encrypted Source ***
+     2049   *** Encrypted Source ***
+     2050   *** Encrypted Source ***
+     2051   *** Encrypted Source ***
+     2052   *** Encrypted Source ***
+     2053   *** Encrypted Source ***
+     2054   *** Encrypted Source ***
+     2055   *** Encrypted Source ***
+     2056   *** Encrypted Source ***
+     2057   *** Encrypted Source ***
+     2058   *** Encrypted Source ***
+     2059   *** Encrypted Source ***
+     2060   *** Encrypted Source ***
+     2061   *** Encrypted Source ***
+     2062   *** Encrypted Source ***
+     2063   *** Encrypted Source ***
+     2064   *** Encrypted Source ***
+     2065   *** Encrypted Source ***
+     2066   *** Encrypted Source ***
+     2067   *** Encrypted Source ***
+     2068   *** Encrypted Source ***
+     2069   *** Encrypted Source ***
+     2070   *** Encrypted Source ***
+     2071   *** Encrypted Source ***
+     2072   *** Encrypted Source ***
+     2073   *** Encrypted Source ***
+     2074   *** Encrypted Source ***
+     2075   *** Encrypted Source ***
+     2076   *** Encrypted Source ***
+     2077   *** Encrypted Source ***
+     2078   *** Encrypted Source ***
+     2079   *** Encrypted Source ***
+     2080   *** Encrypted Source ***
+     2081   *** Encrypted Source ***
+     2082   *** Encrypted Source ***
+     2083   *** Encrypted Source ***
+     2084   *** Encrypted Source ***
+     2085   *** Encrypted Source ***
+     2086   *** Encrypted Source ***
+     2087   *** Encrypted Source ***
+     2088   *** Encrypted Source ***
+     2089   *** Encrypted Source ***
+     2090   *** Encrypted Source ***
+     2091   *** Encrypted Source ***
+     2092   *** Encrypted Source ***
+     2093   *** Encrypted Source ***
+     2094   *** Encrypted Source ***
+     2095   *** Encrypted Source ***
+     2096   *** Encrypted Source ***
+     2097   *** Encrypted Source ***
+     2098   *** Encrypted Source ***
+     2099   *** Encrypted Source ***
+     2100   *** Encrypted Source ***
+     2101   *** Encrypted Source ***
+     2102   *** Encrypted Source ***
+     2103   *** Encrypted Source ***
+     2104   *** Encrypted Source ***
+     2105   *** Encrypted Source ***
+     2106   *** Encrypted Source ***
+     2107   *** Encrypted Source ***
+     2108   *** Encrypted Source ***
+     2109   *** Encrypted Source ***
+     2110   *** Encrypted Source ***
+     2111   *** Encrypted Source ***
+     2112   *** Encrypted Source ***
+     2113   *** Encrypted Source ***
+     2114   *** Encrypted Source ***
+     2115   *** Encrypted Source ***
+     2116   *** Encrypted Source ***
+     2117   *** Encrypted Source ***
+     2118   *** Encrypted Source ***
+     2119   *** Encrypted Source ***
+     2120   *** Encrypted Source ***
+     2121   *** Encrypted Source ***
+     2122   *** Encrypted Source ***
+     2123   *** Encrypted Source ***
+     2124   *** Encrypted Source ***
+     2125   *** Encrypted Source ***
+     2126   *** Encrypted Source ***
+     2127   *** Encrypted Source ***
+     2128   *** Encrypted Source ***
+     2129   *** Encrypted Source ***
+     2130   *** Encrypted Source ***
+     2131   *** Encrypted Source ***
+     2132   *** Encrypted Source ***
+     2133   *** Encrypted Source ***
+     2134   *** Encrypted Source ***
+     2135   *** Encrypted Source ***
+     2136   *** Encrypted Source ***
+     2137   *** Encrypted Source ***
+     2138   *** Encrypted Source ***
+     2139   *** Encrypted Source ***
+     2140   *** Encrypted Source ***
+     2141   *** Encrypted Source ***
+     2142   *** Encrypted Source ***
+     2143   *** Encrypted Source ***
+     2144   *** Encrypted Source ***
+     2145   *** Encrypted Source ***
+     2146   *** Encrypted Source ***
+     2147   *** Encrypted Source ***
+     2148   *** Encrypted Source ***
+     2149   *** Encrypted Source ***
+     2150   *** Encrypted Source ***
+     2151   *** Encrypted Source ***
+     2152   *** Encrypted Source ***
+     2153   *** Encrypted Source ***
+     2154   *** Encrypted Source ***
+     2155   *** Encrypted Source ***
+     2156   *** Encrypted Source ***
+     2157   *** Encrypted Source ***
+     2158   *** Encrypted Source ***
+     2159   *** Encrypted Source ***
+     2160   *** Encrypted Source ***
+     2161   *** Encrypted Source ***
+     2162   *** Encrypted Source ***
+     2163   *** Encrypted Source ***
+     2164   *** Encrypted Source ***
+     2165   *** Encrypted Source ***
+     2166   *** Encrypted Source ***
+     2167   *** Encrypted Source ***
+     2168   *** Encrypted Source ***
+     2169   *** Encrypted Source ***
+     2170   *** Encrypted Source ***
+     2171   *** Encrypted Source ***
+     2172   *** Encrypted Source ***
+     2173   *** Encrypted Source ***
+     2174   *** Encrypted Source ***
+     2175   *** Encrypted Source ***
+     2176   *** Encrypted Source ***
+     2177   *** Encrypted Source ***
+     2178   *** Encrypted Source ***
+     2179   *** Encrypted Source ***
+     2180   *** Encrypted Source ***
+     2181   *** Encrypted Source ***
+     2182   *** Encrypted Source ***
+     2183   *** Encrypted Source ***
+     2184   *** Encrypted Source ***
+     2185   *** Encrypted Source ***
+     2186   *** Encrypted Source ***
+     2187   *** Encrypted Source ***
+     2188   *** Encrypted Source ***
+     2189   *** Encrypted Source ***
+     2190   *** Encrypted Source ***
+     2191   *** Encrypted Source ***
+     2192   *** Encrypted Source ***
+     2193   *** Encrypted Source ***
+     2194   *** Encrypted Source ***
+     2195   *** Encrypted Source ***
+     2196   *** Encrypted Source ***
+     2197   *** Encrypted Source ***
+     2198   *** Encrypted Source ***
+     2199   *** Encrypted Source ***
+     2200   *** Encrypted Source ***
+     2201   *** Encrypted Source ***
+     2202   *** Encrypted Source ***
+     2203   *** Encrypted Source ***
+     2204   *** Encrypted Source ***
+     2205   *** Encrypted Source ***
+     2206   *** Encrypted Source ***
+     2207   *** Encrypted Source ***
+     2208   *** Encrypted Source ***
+     2209   *** Encrypted Source ***
+     2210   *** Encrypted Source ***
+     2211   *** Encrypted Source ***
+     2212   *** Encrypted Source ***
+     2213   *** Encrypted Source ***
+     2214   *** Encrypted Source ***
+     2215   *** Encrypted Source ***
+     2216   *** Encrypted Source ***
+     2217   *** Encrypted Source ***
+     2218   *** Encrypted Source ***
+     2219   *** Encrypted Source ***
+     2220   *** Encrypted Source ***
+     2221   *** Encrypted Source ***
+     2222   *** Encrypted Source ***
+     2223   *** Encrypted Source ***
+     2224   *** Encrypted Source ***
+     2225   *** Encrypted Source ***
+     2226   *** Encrypted Source ***
+     2227   *** Encrypted Source ***
+     2228   *** Encrypted Source ***
+     2229   *** Encrypted Source ***
+     2230   *** Encrypted Source ***
+     2231   *** Encrypted Source ***
+     2232   *** Encrypted Source ***
+     2233   *** Encrypted Source ***
+     2234   *** Encrypted Source ***
+     2235   *** Encrypted Source ***
+     2236   *** Encrypted Source ***
+     2237   *** Encrypted Source ***
+     2238   *** Encrypted Source ***
+     2239   *** Encrypted Source ***
+     2240   *** Encrypted Source ***
+     2241   *** Encrypted Source ***
+     2242   *** Encrypted Source ***
+     2243   *** Encrypted Source ***
+     2244   *** Encrypted Source ***
+     2245   *** Encrypted Source ***
+     2246   *** Encrypted Source ***
+     2247   *** Encrypted Source ***
+     2248   *** Encrypted Source ***
+     2249   *** Encrypted Source ***
+     2250   *** Encrypted Source ***
+     2251   *** Encrypted Source ***
+     2252   *** Encrypted Source ***
+     2253   *** Encrypted Source ***
+     2254   *** Encrypted Source ***
+     2255   *** Encrypted Source ***
+     2256   *** Encrypted Source ***
+     2257   *** Encrypted Source ***
+     2258   *** Encrypted Source ***
+     2259   *** Encrypted Source ***
+     2260   *** Encrypted Source ***
+     2261   *** Encrypted Source ***
+     2262   *** Encrypted Source ***
+     2263   *** Encrypted Source ***
+     2264   *** Encrypted Source ***
+     2265   *** Encrypted Source ***
+     2266   *** Encrypted Source ***
+     2267   *** Encrypted Source ***
+     2268   *** Encrypted Source ***
+     2269   *** Encrypted Source ***
+     2270   *** Encrypted Source ***
+     2271   *** Encrypted Source ***
+     2272   *** Encrypted Source ***
+     2273   *** Encrypted Source ***
+     2274   *** Encrypted Source ***
+     2275   *** Encrypted Source ***
+     2276   *** Encrypted Source ***
+     2277   *** Encrypted Source ***
+     2278   *** Encrypted Source ***
+     2279   *** Encrypted Source ***
+     2280   *** Encrypted Source ***
+     2281   *** Encrypted Source ***
+     2282   *** Encrypted Source ***
+     2283   *** Encrypted Source ***
+     2284   *** Encrypted Source ***
+     2285   *** Encrypted Source ***
+     2286   *** Encrypted Source ***
+     2287   *** Encrypted Source ***
+     2288   *** Encrypted Source ***
+     2289   *** Encrypted Source ***
+     2290   *** Encrypted Source ***
+     2291   *** Encrypted Source ***
+     2292   *** Encrypted Source ***
+     2293   *** Encrypted Source ***
+     2294   *** Encrypted Source ***
+     2295   *** Encrypted Source ***
+     2296   *** Encrypted Source ***
+     2297   *** Encrypted Source ***
+     2298   *** Encrypted Source ***
+     2299   *** Encrypted Source ***
+     2300   *** Encrypted Source ***
+     2301   *** Encrypted Source ***
+     2302   *** Encrypted Source ***
+     2303   *** Encrypted Source ***
+     2304   *** Encrypted Source ***
+     2305   *** Encrypted Source ***
+     2306   *** Encrypted Source ***
+     2307   *** Encrypted Source ***
+     2308   *** Encrypted Source ***
+     2309   *** Encrypted Source ***
+     2310   *** Encrypted Source ***
+     2311   *** Encrypted Source ***
+     2312   *** Encrypted Source ***
+     2313   *** Encrypted Source ***
+     2314   *** Encrypted Source ***
+     2315   *** Encrypted Source ***
+     2316   *** Encrypted Source ***
+     2317   *** Encrypted Source ***
+     2318   *** Encrypted Source ***
+     2319   *** Encrypted Source ***
+     2320   *** Encrypted Source ***
+     2321   *** Encrypted Source ***
+     2322   *** Encrypted Source ***
+     2323   *** Encrypted Source ***
+     2324   *** Encrypted Source ***
+     2325   *** Encrypted Source ***
+     2326   *** Encrypted Source ***
+     2327   *** Encrypted Source ***
+     2328   *** Encrypted Source ***
+     2329   *** Encrypted Source ***
+     2330   *** Encrypted Source ***
+     2331   *** Encrypted Source ***
+     2332   *** Encrypted Source ***
+     2333   *** Encrypted Source ***
+     2334   *** Encrypted Source ***
+     2335   *** Encrypted Source ***
+     2336   *** Encrypted Source ***
+     2337   *** Encrypted Source ***
+     2338   *** Encrypted Source ***
+     2339   *** Encrypted Source ***
+     2340   *** Encrypted Source ***
+     2341   *** Encrypted Source ***
+     2342   *** Encrypted Source ***
+     2343   *** Encrypted Source ***
+     2344   *** Encrypted Source ***
+     2345   *** Encrypted Source ***
+     2346   *** Encrypted Source ***
+     2347   *** Encrypted Source ***
+     2348   *** Encrypted Source ***
+     2349   *** Encrypted Source ***
+     2350   *** Encrypted Source ***
+     2351   *** Encrypted Source ***
+     2352   *** Encrypted Source ***
+     2353   *** Encrypted Source ***
+     2354   *** Encrypted Source ***
+     2355   *** Encrypted Source ***
+     2356   *** Encrypted Source ***
+     2357   *** Encrypted Source ***
+     2358   *** Encrypted Source ***
+     2359   *** Encrypted Source ***
+     2360   *** Encrypted Source ***
+     2361   *** Encrypted Source ***
+     2362   *** Encrypted Source ***
+     2363   *** Encrypted Source ***
+     2364   *** Encrypted Source ***
+     2365   *** Encrypted Source ***
+     2366   *** Encrypted Source ***
+     2367   *** Encrypted Source ***
+     2368   *** Encrypted Source ***
+     2369   *** Encrypted Source ***
+     2370   *** Encrypted Source ***
+     2371   *** Encrypted Source ***
+     2372   *** Encrypted Source ***
+     2373   *** Encrypted Source ***
+     2374   *** Encrypted Source ***
+     2375   *** Encrypted Source ***
+     2376   *** Encrypted Source ***
+     2377   *** Encrypted Source ***
+     2378   *** Encrypted Source ***
+     2379   *** Encrypted Source ***
+     2380   *** Encrypted Source ***
+     2381   *** Encrypted Source ***
+     2382   *** Encrypted Source ***
+     2383   *** Encrypted Source ***
+     2384   *** Encrypted Source ***
+     2385   *** Encrypted Source ***
+     2386   *** Encrypted Source ***
+     2387   *** Encrypted Source ***
+     2388   *** Encrypted Source ***
+     2389   *** Encrypted Source ***
+     2390   *** Encrypted Source ***
+     2391   *** Encrypted Source ***
+     2392   *** Encrypted Source ***
+     2393   *** Encrypted Source ***
+     2394   *** Encrypted Source ***
+     2395   *** Encrypted Source ***
+     2396   *** Encrypted Source ***
+     2397   *** Encrypted Source ***
+     2398   *** Encrypted Source ***
+     2399   *** Encrypted Source ***
+     2400   *** Encrypted Source ***
+     2401   *** Encrypted Source ***
+     2402   *** Encrypted Source ***
+     2403   *** Encrypted Source ***
+     2404   *** Encrypted Source ***
+     2405   *** Encrypted Source ***
+     2406   *** Encrypted Source ***
+     2407   *** Encrypted Source ***
+     2408   *** Encrypted Source ***
+     2409   *** Encrypted Source ***
+     2410   *** Encrypted Source ***
+     2411   *** Encrypted Source ***
+     2412   *** Encrypted Source ***
+     2413   *** Encrypted Source ***
+     2414   *** Encrypted Source ***
+     2415   *** Encrypted Source ***
+     2416   *** Encrypted Source ***
+     2417   *** Encrypted Source ***
+     2418   *** Encrypted Source ***
+     2419   *** Encrypted Source ***
+     2420   *** Encrypted Source ***
+     2421   *** Encrypted Source ***
+     2422   *** Encrypted Source ***
+     2423   *** Encrypted Source ***
+     2424   *** Encrypted Source ***
+     2425   *** Encrypted Source ***
+     2426   *** Encrypted Source ***
+     2427   *** Encrypted Source ***
+     2428   *** Encrypted Source ***
+     2429   *** Encrypted Source ***
+     2430   *** Encrypted Source ***
+     2431   *** Encrypted Source ***
+     2432   *** Encrypted Source ***
+     2433   *** Encrypted Source ***
+     2434   *** Encrypted Source ***
+     2435   *** Encrypted Source ***
+     2436   *** Encrypted Source ***
+     2437   *** Encrypted Source ***
+     2438   *** Encrypted Source ***
+     2439   *** Encrypted Source ***
+     2440   *** Encrypted Source ***
+     2441   *** Encrypted Source ***
+     2442   *** Encrypted Source ***
+     2443   *** Encrypted Source ***
+     2444   *** Encrypted Source ***
+     2445   *** Encrypted Source ***
+     2446   *** Encrypted Source ***
+     2447   *** Encrypted Source ***
+     2448   *** Encrypted Source ***
+     2449   *** Encrypted Source ***
+     2450   *** Encrypted Source ***
+     2451   *** Encrypted Source ***
+     2452   *** Encrypted Source ***
+     2453   *** Encrypted Source ***
+     2454   *** Encrypted Source ***
+     2455   *** Encrypted Source ***
+     2456   *** Encrypted Source ***
+     2457   *** Encrypted Source ***
+     2458   *** Encrypted Source ***
+     2459   *** Encrypted Source ***
+     2460   *** Encrypted Source ***
+     2461   *** Encrypted Source ***
+     2462   *** Encrypted Source ***
+     2463   *** Encrypted Source ***
+     2464   *** Encrypted Source ***
+     2465   *** Encrypted Source ***
+     2466   *** Encrypted Source ***
+     2467   *** Encrypted Source ***
+     2468   *** Encrypted Source ***
+     2469   *** Encrypted Source ***
+     2470   *** Encrypted Source ***
+     2471   *** Encrypted Source ***
+     2472   *** Encrypted Source ***
+     2473   *** Encrypted Source ***
+     2474   *** Encrypted Source ***
+     2475   *** Encrypted Source ***
+     2476   *** Encrypted Source ***
+     2477   *** Encrypted Source ***
+     2478   *** Encrypted Source ***
+     2479   *** Encrypted Source ***
+     2480   *** Encrypted Source ***
+     2481   *** Encrypted Source ***
+     2482   *** Encrypted Source ***
+     2483   *** Encrypted Source ***
+     2484   *** Encrypted Source ***
+     2485   *** Encrypted Source ***
+     2486   *** Encrypted Source ***
+     2487   *** Encrypted Source ***
+     2488   *** Encrypted Source ***
+     2489   *** Encrypted Source ***
+     2490   *** Encrypted Source ***
+     2491   *** Encrypted Source ***
+     2492   *** Encrypted Source ***
+     2493   *** Encrypted Source ***
+     2494   *** Encrypted Source ***
+     2495   *** Encrypted Source ***
+     2496   *** Encrypted Source ***
+     2497   *** Encrypted Source ***
+     2498   *** Encrypted Source ***
+     2499   *** Encrypted Source ***
+     2500   *** Encrypted Source ***
+     2501   *** Encrypted Source ***
+     2502   *** Encrypted Source ***
+     2503   *** Encrypted Source ***
+     2504    
+     2505   &ENDIF
+     2506   
+     2507   /*** main block (constructor)
+     2508    ***
+     2509    ***/
+     2510   
+     2511   session:add-super-procedure( this-procedure ).
+     2512   
+     2513   run checkDBX.
+     2514   
+     2515   return.

@@ -1,0 +1,24 @@
+        1   /* genUpdateSQL.p
+        2    *
+        3    * mpro dbName -p util/genUpdateSQL.p -param "tmp/updSQLstats.sql"
+        4    *
+        5    * sqlexp -user userName -password passWord -db dnName -S servicePort -infile tmp/updSQLstats.sql -outfile tmp/updSQLtats.log
+        6    *
+        7    */
+        8   
+        9   output to value( ( if session:parameter <> "" then session:parameter else "updSQLstats.sql" )).
+       10   
+       11   for each _file no-lock where _hidden = no:
+       12   
+       13     put unformatted
+       14        "UPDATE TABLE STATISTICS AND INDEX STATISTICS AND ALL COLUMN STATISTICS FOR PUB."
+       15        '"' _file._file-name '"' ";"
+       16       skip
+       17     .
+       18     put unformatted "commit work;" skip.
+       19   
+       20   end.
+       21   
+       22   output close.
+       23   
+       24   return.

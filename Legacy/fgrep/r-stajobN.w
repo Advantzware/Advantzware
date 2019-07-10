@@ -128,16 +128,16 @@ ASSIGN cTextListToDefault  = "CUSTOMER,PO #,SREP,ITEM #,"
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-8 tb_cust-list btnCustList ~
 begin_cust end_cust begin_cust-po end_cust-po begin_slm end_slm ~
-begin_job-no begin_job-no2 end_job-no end_job-no2 rd_itm-code rd_ostat ~
-rd_smry-dtl tb_sort tb_inc-zero tb_inc-cust sl_avail sl_selected Btn_Def ~
-Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt td-show-parm ~
+begin_job-no begin_job-no2 end_job-no end_job-no2 rd_itm-code tb_inactive ~
+rd_ostat rd_smry-dtl tb_sort tb_inc-zero tb_inc-cust sl_avail sl_selected ~
+Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt td-show-parm ~
 lines-per-page lv-font-no tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust ~
 begin_cust-po end_cust-po begin_slm end_slm begin_job-no begin_job-no2 ~
-end_job-no end_job-no2 lbl_itm-code rd_itm-code lbl_ostat rd_ostat ~
-lbl_print rd_smry-dtl tb_sort tb_inc-zero tb_inc-cust sl_avail sl_selected ~
-rd-dest lv-ornt td-show-parm lines-per-page lv-font-no lv-font-name ~
-tb_excel tb_runExcel fi_file 
+end_job-no end_job-no2 lbl_itm-code rd_itm-code tb_inactive lbl_ostat ~
+rd_ostat lbl_print rd_smry-dtl tb_sort tb_inc-zero tb_inc-cust sl_avail ~
+sl_selected rd-dest lv-ornt td-show-parm lines-per-page lv-font-no ~
+lv-font-name tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -344,6 +344,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
+DEFINE VARIABLE tb_inactive AS LOGICAL INITIAL no 
+     LABEL "Included Inactive Items" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25.6 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_inc-cust AS LOGICAL INITIAL no 
      LABEL "Include Customer Owned Warehouse?" 
      VIEW-AS TOGGLE-BOX
@@ -398,6 +403,7 @@ DEFINE FRAME FRAME-A
           "Enter Ending Job Number" WIDGET-ID 52
      lbl_itm-code AT ROW 6.81 COL 19 COLON-ALIGNED NO-LABEL
      rd_itm-code AT ROW 6.81 COL 34 NO-LABEL
+     tb_inactive AT ROW 6.86 COL 93 RIGHT-ALIGNED WIDGET-ID 58
      lbl_ostat AT ROW 7.76 COL 17 COLON-ALIGNED NO-LABEL
      rd_ostat AT ROW 7.76 COL 34 NO-LABEL
      lbl_print AT ROW 8.67 COL 24.8 COLON-ALIGNED NO-LABEL
@@ -429,13 +435,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 28.38 COL 60
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 38
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.05 COL 3
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 12.91 COL 60.4 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.91 COL 60.4 WIDGET-ID 44
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 20.05 COL 3
      RECT-6 AT ROW 19.57 COL 1
      RECT-8 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -587,6 +593,12 @@ ASSIGN
    ALIGN-R                                                              */
 ASSIGN 
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_inactive IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_inactive:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_inc-cust IN FRAME FRAME-A
@@ -1122,6 +1134,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_inactive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inactive C-Win
+ON VALUE-CHANGED OF tb_inactive IN FRAME FRAME-A /* Included Inactive Items */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_inc-cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inc-cust C-Win
 ON VALUE-CHANGED OF tb_inc-cust IN FRAME FRAME-A /* Include Customer Owned Warehouse? */
@@ -1462,15 +1485,15 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust end_cust begin_cust-po end_cust-po begin_slm 
           end_slm begin_job-no begin_job-no2 end_job-no end_job-no2 lbl_itm-code 
-          rd_itm-code lbl_ostat rd_ostat lbl_print rd_smry-dtl tb_sort 
-          tb_inc-zero tb_inc-cust sl_avail sl_selected rd-dest lv-ornt 
+          rd_itm-code tb_inactive lbl_ostat rd_ostat lbl_print rd_smry-dtl 
+          tb_sort tb_inc-zero tb_inc-cust sl_avail sl_selected rd-dest lv-ornt 
           td-show-parm lines-per-page lv-font-no lv-font-name tb_excel 
           tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-8 tb_cust-list btnCustList begin_cust end_cust 
          begin_cust-po end_cust-po begin_slm end_slm begin_job-no begin_job-no2 
-         end_job-no end_job-no2 rd_itm-code rd_ostat rd_smry-dtl tb_sort 
-         tb_inc-zero tb_inc-cust sl_avail sl_selected Btn_Def Btn_Add 
+         end_job-no end_job-no2 rd_itm-code tb_inactive rd_ostat rd_smry-dtl 
+         tb_sort tb_inc-zero tb_inc-cust sl_avail sl_selected Btn_Def Btn_Add 
          Btn_Remove btn_Up btn_down rd-dest lv-ornt td-show-parm lines-per-page 
          lv-font-no tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -1709,6 +1732,7 @@ DEFINE VARIABLE vmat-cost AS DECIMAL NO-UNDO.
 DEFINE VARIABLE vmach-cost AS DECIMAL NO-UNDO.
 DEFINE VARIABLE vtot-costm AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
 DEFINE VARIABLE vtot-job-cost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lIncludeInactive AS LOGICAL NO-UNDO.
 
 DEFINE BUFFER boe-ordl FOR oe-ordl.
 DEFINE BUFFER bcust FOR cust.
@@ -1857,7 +1881,8 @@ ASSIGN
  zbal       = tb_inc-zero
  v-custown  = tb_inc-cust
  v-rec-dat  = NO /*tb_rcpt-date*/
- v-prt-cpn  = NO /*tb_part*/.
+ v-prt-cpn  = NO /*tb_part*/
+ lIncludeInactive = tb_Inactive .
 
 IF typex EQ "B" THEN typex = "A".
 

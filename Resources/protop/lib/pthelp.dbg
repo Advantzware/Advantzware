@@ -1,0 +1,61 @@
+        1   /* pthelp.p
+        2    *
+        3    */
+        4   
+        5   procedure protop_help:
+        6   
+        7     display
+        8       skip(1)
+        9       "                                       Command Keys are Case-Sensitive                                      " skip         /* 02 */
+       10       skip(1)
+       11       "  d = Performance Dashboard              c = Configuration Viewer         O = OS Info (if avail)            " skip         /* 04 */
+       12       skip(1)
+       13       "  t = Table Activity                     l = Latches and Resources        Q = SQL activity                  " skip         /* 06 */
+       14       "  i = Index Activity                     k = Checkpoints                  D = Disk Free Space               " skip         /* 07 */
+       15       "  u = User IO Activity                   b = Blocked Sessions             / = Sequences                     " skip         /* 08 */
+       16       "  x = Active Transactions                r = OE Replication Agents        N = Network Traffic               " skip         /* 09 */
+       17       "  L = Login Brokers                      s = Server Activity              m = Multi-Tenant Info             " skip         /* 10 */
+       18       "  a = Storage Areas                      f = File IO                      w = Who is Connected?             " skip         /* 11 */
+       19       " ^b = Buffer Pools                       B = BigB Guesstimator           ^a = After-Imaging Info            " skip         /* 12 */
+       20       '  j = PASOE                              @ = "Classic" App Servers        e = Application Specific          ' skip         /* 13 */
+       21       skip(1)
+       22       "  U = User Information Viewer            # = Set Usr#                     P = Set Process Id                " skip         /* 15 */
+       23       "                                         * = Client Statement Cache       C = Clear Client Statement Cache  " skip         /* 16 */
+       24       skip(1)
+       25       "  T = Show Table and Index Range Info    6 = Set Table Name               8 = Monitor Users of a Table      " skip         /* 18 */
+       26       "  A = Generate DBAnalys Output           7 = Set Index Name               9 = Monitor Users of an Index     " skip         /* 19 */
+       27       skip(1)
+       28       " ^p = programmer mode                   ^u = SQL update stats script     ^t = show session temp-tables      " skip         /* 21 */
+       29       " ^d = dump & load scripts               ^r = dbanalys review & reports    Y = show session user*stat        " skip         /* 22 */
+       30       "                                                                          y = run profiler on this session  " skip         /* 23 */
+       31       skip(1)
+       32       "  I = Set Refresh Interval               z = Modify Sort Columns          & = Show Global Properties        " skip         /* 25 */
+       33       skip(1)
+       34       "      R = Switch between Raw and Rate Sampling         S = Switch between Auto and On-Demand Sampling       " skip         /* 27 */
+       35       "      p = Pause to allow manual Screen Capture              M = Send Screen Capture as an e-mail            " skip         /* 28 */
+       36       "             Z = Set Top X Row Limit                           ^ = Modify _Lock Scan Limit                  " skip         /* 29 */
+       37       skip(1)
+       38       "                                         <space> = Refresh Sample                                           " skip         /* 31 */
+       39       "                                                h, ? = Help                                                 " skip         /* 32 */
+       40       "                                                  q = Quit                                                  " skip         /* 33 */
+       41       skip(1)
+       42      with
+       43       frame show-help
+       44       title " ProTop Help "
+       45       row ( if screen-lines >= 40 then 4 else 1 )
+       46       centered
+       47       width 110
+       48       overlay
+       49     .
+       50   
+       51     pause.
+       52   
+       53     hide frame show-help.
+       54   
+       55   end.
+       56   
+       57   session:add-super-procedure( this-procedure ).
+       58   
+       59   subscribe to "protop_help" anywhere run-procedure "protop_help".
+       60   
+       61   return.

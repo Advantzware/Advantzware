@@ -1,0 +1,57 @@
+Release Notes 3.3j
+==================
+
+0) Don't get used to this. It may not become a habit. I have done it twice
+in a row now though -- so there is some small hope ;)
+
+1) Added "no-error" to netstat data collector to fix some issues with that.
+
+2) Added "levels" to index activity. Modified lib/getdba.p to parse index
+levels from dbanalys.
+
+3) Added "rm chain" to table activity. Modified lib/getdba.p to parse rm
+chain info from dbanalys.
+
+4) Modified lib/install.p to properly prompt for unknown ("?") custId
+rather than "blank".
+
+5) Modified util/pt3web.p to reflect a more sensible set of data collectors
+for the batch data collector.  Renamed util/pt3web.p to util/pt3agent.p
+
+6) Added "numBI" and "dbBkUpFull" fields (number of active BI clusters and
+seconds since last full backup) to dc/dashboard.p and adjusted some display
+formats. Data is not yet on the screen.
+
+7) Updated and improved dc/apsv.p
+
+8) Added a bunch of .cfg files to etc in an effort to reduce hard coded
+values in programs.  Also added README.cfg to describe those.
+
+9) Made "friendlyName" the only unique key in etc/dblist.cfg.  This allows
+you to have multiple aliases for a db.
+
+10) Fiddled with the naming of log files and so forth.
+
+11) Horsed around with the auto-update feature.
+
+	- bin/pt3upd.sh (or .BAT) should now check for updates and
+	  download them if they are available.
+
+	- if it is running util/dbmonitor.p will do so automatically.
+
+	- auto-update uses the contents of etc/deploy.cfg to figure
+	  out if you are a "src", "rx" (xcode) or some sort of r-code
+	  site in order to avoid breaking your install.
+
+This still depends on me putting update packages on the website.  I may
+very well make new releases available for manual download before the
+auto-update package is available.
+
+12) Fixed a problem with dc/df.p that makes it appear as if ProTop is hung
+if you startup while a filesystem is hung. In some situations any process
+that touches a hung filesystem will also hang. So the initial os-command to
+get "df" data is now deferred until you use the "D" command to bring it up.
+This makes it very obvious where the problem is.  12a) also added "-l" to
+Linux "df" command but this may not be available on every platform and in
+some cases may not be desireable as the remote mounts may be important to
+see.

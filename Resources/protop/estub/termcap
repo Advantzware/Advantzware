@@ -1,0 +1,279 @@
+# termcap
+#
+#
+
+xterm|xterm terminal emulator (X Window System):\
+	:am:\
+	:up=\E[A:\
+	:cl=\E[H\E[2J:\
+	:cm=\E[%i%d;%dH:\
+	:ce=\E[K:\
+	:se=\E[27m:\
+	:so=\E[7m:\
+	:is=\E[!p\E[?3;4l\E[4l\E>:\
+	:ks=\E[?1h\E=:\
+	:ke=\E[?1l\E>:\
+	:vb=\E[?5h\E[?5l:\
+	:bt=\E[Z:\
+	:k1=\EOP:\
+	:k2=\EOQ:\
+	:k3=\EOR:\
+	:k4=\EOS:\
+	:k5=\E[15~:\
+	:k6=\E[17~:\
+	:k7=\E[18~:\
+	:k8=\E[19~:\
+	:k9=\E[20~:\
+	:kA=\E[21~:\
+	:kB=\E[22~:\
+	:kC=\E[23~:\
+	:kb=\E[90~:\
+	:kc=\E[91~:\
+	:kD=\E[3~:\
+	:kd=\EOB:\
+	:kE=\E[92~:\
+	:kF=\E[93~:\
+	:kH=\E[94~:\
+	:@7=\E[95~:\
+	:kh=\EOH:\
+	:kI=\E[2~:\
+	:kL=\E[96~:\
+	:kl=\EOD:\
+	:kN=\E[6~:\
+	:kP=\E[5~:\
+	:kR=\E[97:\
+	:kr=\EOC:\
+	:ku=\EOA:
+
+vt100|just in case someone is using an old executable that forces "vt100":\
+	:tc=xterm:
+
+# microemacs uses the following capabilities:
+#
+# static struct capbind capbind[] = {	/* Capability binding list	*/
+# 	{ "cl" },			/* Clear to end of page		*/
+# 	{ "cm" },			/* Cursor motion		*/
+# 	{ "ce" },			/* Clear to end of line		*/
+# 	{ "se" },			/* Standout ends		*/
+# 	{ "so" },			/* Standout (reverse video)	*/
+# 	{ "is" },			/* Initialize screen		*/
+# 	{ "ks" },			/* Keypad mode starts		*/
+# 	{ "ke" },			/* Keypad mode ends		*/
+# 	{ "vb" },			/* Visible bell			*/
+# 	{ "c0" },			/* Foreground color #0		*/
+# 	{ "c1" },			/* Foreground color #1		*/
+# 	{ "c2" },			/* Foreground color #2		*/
+# 	{ "c3" },			/* Foreground color #3		*/
+# 	{ "c4" },			/* Foreground color #4		*/
+# 	{ "c5" },			/* Foreground color #5		*/
+# 	{ "c6" },			/* Foreground color #6		*/
+# 	{ "c7" },			/* Foreground color #7		*/
+# 	{ "d0" },			/* Background color #0		*/
+# 	{ "d1" },			/* Background color #1		*/
+# 	{ "d2" },			/* Background color #2		*/
+# 	{ "d3" },			/* Background color #3		*/
+# 	{ "d4" },			/* Background color #4		*/
+# 	{ "d5" },			/* Background color #5		*/
+# 	{ "d6" },			/* Background color #6		*/
+# 	{ "d7" },			/* Background color #7		*/
+# 	{ "Sf" },			/* Set foreground color		*/
+# 	{ "Sb" },			/* Set background color		*/
+# };
+# 
+# static struct keybind keybind[] = {	/* Keybinding list		*/
+# 	{ "bt", SHFT|CTRL|'i' },	/* Back-tab key			*/
+# 	{ "k1", SPEC|'1' },		/* F1 key			*/
+# 	{ "k2", SPEC|'2' },		/* F2 key			*/
+# 	{ "k3", SPEC|'3' },		/* F3 key			*/
+# 	{ "k4", SPEC|'4' },		/* F4 key			*/
+# 	{ "k5", SPEC|'5' },		/* F5 key			*/
+# 	{ "k6", SPEC|'6' },		/* F6 key			*/
+# 	{ "k7", SPEC|'7' },		/* F7 key			*/
+# 	{ "k8", SPEC|'8' },		/* F8 key			*/
+# 	{ "k9", SPEC|'9' },		/* F9 key			*/
+# 	{ "kA", SPEC|'A' },		/* F10 key (tom - think hex)	*/
+#  	{ "kB", SPEC|'B' },		/* F11 key (tom - think hex)	*/
+#  	{ "kC", SPEC|'C' },		/* F12 key (tom - think hex)	*/
+# 	{ "kb", CTRL|'H' },		/* Backspace key		*/
+# 	{ "kc", CTRL|'L' },		/* Clear screen key		*/
+# 	{ "kD", SPEC|'d' },		/* Delete character key		*/
+# 	{ "kd", SPEC|'N' },		/* Down arrow key		*/
+# 	{ "kE", CTRL|'K' },		/* Clear to end of line key	*/
+# 	{ "kF", CTRL|'V' },		/* Scroll forward key		*/
+# 	{ "kH", SPEC|'>' },		/* Home down key		*/
+#  	{ "@7", SPEC|'>' },		/* Home down key	(kjc)	*/
+# 	{ "kh", SPEC|'<' },		/* Home key			*/
+# 	{ "kI", SPEC|'I' },		/* Insert character key		*/
+# 	{ "kL", CTRL|'K' },		/* Delete line key		*/
+# 	{ "kl", SPEC|'b' },		/* Left arrow key		*/
+# 	{ "kN", SPEC|'V' },		/* Next page key		*/
+# 	{ "kP", SPEC|'Z' },		/* Previous page key		*/
+# 	{ "kR", CTRL|'Z' },		/* Scroll backward key		*/
+# 	{ "kr", SPEC|'f' },		/* Right arrow key		*/
+# 	{ "ku", SPEC|'p' }		/* Up arrow key			*/
+# };
+#
+# color support - doesn't seem useful
+#
+#	:c0=\E[30m:\
+#	:c1=\E[31m:\
+#	:c2=\E[32m:\
+#	:c3=\E[33m:\
+#	:c4=\E[34m:\
+#	:c5=\E[35m:\
+#	:c6=\E[36m:\
+#	:c7=\E[37m:\
+#	:d0=\E[40m:\
+#	:d1=\E[41m:\
+#	:d2=\E[42m:\
+#	:d3=\E[43m:\
+#	:d4=\E[44m:\
+#	:d5=\E[45m:\
+#	:d6=\E[46m:\
+#	:d7=\E[47m:\
+#
+# reversed order -- makes something happen, still not very useful
+#
+#	:c0=\E[37m:\
+#	:c1=\E[36m:\
+#	:c2=\E[35m:\
+#	:c3=\E[34m:\
+#	:c4=\E[33m:\
+#	:c5=\E[32m:\
+#	:c6=\E[31m:\
+#	:c7=\E[30m:\
+#	:d0=\E[47m:\
+#	:d1=\E[46m:\
+#	:d2=\E[45m:\
+#	:d3=\E[44m:\
+#	:d4=\E[43m:\
+#	:d5=\E[42m:\
+#	:d6=\E[41m:\
+#	:d7=\E[40m:\
+
+
+#
+# apparently not used?
+#
+#	:Sf=\E[XXX:\
+#	:Sb=\E[YYY:\
+#
+#
+# this all seems to be junk that isn't actually being used
+#
+#	:bs:\
+#	:km:\
+#	:mi:\
+#	:ms:\
+#	:xn:\
+#	:co#80:\
+#	:li#24:\
+#	:it#8:\
+#	:AL=\E[%dL:\
+#	:DC=\E[%dP:\
+#	:DL=\E[%dM:\
+#	:DO=\E[%dB:\
+#	:IC=\E[%d@:\
+#	:K2=\EOE:\
+#	:LE=\E[%dD:\
+#	:RI=\E[%dC:\
+#	:SF=\E[%dS:\
+#	:SR=\E[%dT:\
+#	:UP=\E[%dA:\
+#	:ae=\E(B:\
+#	:al=\E[L:\
+#	:as=\E(0:\
+#	:bl=^G:\
+#	:cd=\E[J:\
+#	:cr=^M:\
+#	:cs=\E[%i%d;%dr:\
+#	:ct=\E[3g:dc=\E[P:\
+#	:dl=\E[M:\
+#	:do=^J:\
+#	:ec=\E[%dX:\
+#	:ei=\E[4l:\
+#	:ho=\E[H:\
+#	:im=\E[4h:\
+#	:kb=\177:\
+#	:le=^H:\
+#	:mb=\E[5m:\
+#	:md=\E[1m:\
+#	:me=\E[0m:\
+#	:mm=\E[?1034h:\
+#	:mo=\E[?1034l:\
+#	:mr=\E[7m:\
+#	:nd=\E[C:\
+#	:rc=\E8:\
+#	:sc=\E7:\
+#	:sf=^J:\
+#	:sr=\EM:\
+#	:st=\EH:\
+#	:ta=^I:\
+#	:te=\E[?1049l:\
+#	:ti=\E[?1049h:\
+#	:ue=\E[24m:\
+#	:us=\E[4m:\
+#	:ve=\E[?12l\E[?25h:\
+#	:vi=\E[?25l:\
+#	:vs=\E[?12;25h:
+#
+#
+# setting colors
+# ==============
+#
+# \E[0m: = "normal"
+#
+#       :COLOR 6 RED=\E[37m\E[41m:
+#
+# \E[ -- lead in string
+# "3" = set foreground color
+# "4" = set background color
+# "#" = color to set it to
+# "m" = close attribute changes
+# 
+# standard colors:
+#  0 Black
+#  1 Red
+#  2 Green
+#  3 Yellow
+#  4 Blue
+#  5 Magenta
+#  6 Cyan
+#  7 White
+#
+# Custom colors can be provided by exploiting the emulator's color palette
+#
+# ^[[30;5;47;5mBlack on Gray^[[0m
+#
+# PuTTY, for instance, defines a "Bold" flavor of each color which can be set
+# to any RGB value and which is triggered by the "standout" attribute ("5").
+#
+#	:COLOR 5 BLACK=\E[30m:\E[0m:\
+#       :COLOR 6 RED=\E[31m:\E[0m:\
+#       :COLOR 7 GREEN=\E[32m:\E[0m:\
+#       :COLOR 8 YELLOW=\E[33m:\E[0m:\
+#       :COLOR 9 BLUE=\E[34m:\E[0m:\
+#       :COLOR 10 MAGENTA=\E[35m:\E[0m:\
+#       :COLOR 11 CYAN=\E[36m:\E[0m:\
+#	:COLOR 12 WHITE=\E[5;37m:\E[0m:\
+#	:COLOR 13 GRAY=\E[5;5;47m:\E[0m:\
+#	:COLOR 14 CUSTOM1=\E[5;43m:\E[0m:\
+#	:COLOR 15 CUSTOM2=\E[5;45m:\E[0m:\
+#	:COLOR 20 BLACK/WHITE=\E[30;5;47m:\E[m:\
+#	:COLOR 21 RED/WHITE=\E[31;5;47m:\E[m:\
+#	:COLOR 22 GREEN/WHITE=\E[32;5;47m:\E[m:\
+#	:COLOR 23 YELLOW/WHITE=\E[33;5;47m:\E[m:\
+#	:COLOR 24 BLUE/WHITE=\E[34;5;47m:\E[m:\
+#	:COLOR 25 MAGENTA/WHITE=\E[35;5;47m:\E[m:\
+#	:COLOR 26 CYAN/WHITE=\E[36;5;47m:\E[m:\
+#	:COLOR 27 WHITE/WHITE=\E[5;37;5;47m:\E[m:\
+#	:COLOR 30 BLACK/BLACK=\E[30;40m:\E[m:\
+#	:COLOR 31 RED/BLACK=\E[31;40m:\E[m:\
+#	:COLOR 32 GREEN/BLACK=\E[32;40m:\E[m:\
+#	:COLOR 33 YELLOW/BLACK=\E[33;40m:\E[m:\
+#	:COLOR 34 BLUE/BLACK=\E[34;40m:\E[m:\
+#	:COLOR 35 MAGENTA/BLACK=\E[35;40m:\E[m:\
+#	:COLOR 36 CYAN/BLACK=\E[36;40m:\E[m:\
+#	:COLOR 37 WHITE/BLACK=\E[5;37;40m:\E[m:\
+#	...
+
