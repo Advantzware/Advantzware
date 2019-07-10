@@ -1,0 +1,854 @@
+<?xml version="1.0" ?>
+<ttViewerDesign file="OSInfo.xml" version="3.14 " columns="8">
+  <ttViewerDesignRow>
+        <ControlName>osName</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>50,1</ControlSize>
+        <ControlLocation>18,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>osName</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(50)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>osName_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>OS Name:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>2,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>osVersion</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>50,1</ControlSize>
+        <ControlLocation>18,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>osVersion</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(50)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>osVersion_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>OS Version:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>2,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>keVersion</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>50,1</ControlSize>
+        <ControlLocation>18,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>keVersion</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(50)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>keVersion_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Kernel Version:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>2,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>hostName</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>50,1</ControlSize>
+        <ControlLocation>18,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>hostName</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(50)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>hostName_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Host Name:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>2,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxFileSz</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>18,6</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>maxFileSz</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxFileSz_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Max File Size:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>2,6</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxStack</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>18,7</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>maxStack</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxStack_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Max Stack:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>2,7</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxDataSeg</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>8</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>18,8</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>maxDataSeg</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxDataSeg_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>8</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Max Data Seg:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>2,8</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxProcMem</ControlName>
+        <ControlColumn>2</ControlColumn>
+        <ControlRow>9</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>18,9</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>maxProcMem</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxProcMem_label</ControlName>
+        <ControlColumn>1</ControlColumn>
+        <ControlRow>9</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Max Proc Mem:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>2,9</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxOpenFl</ControlName>
+        <ControlColumn>4</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>48,8</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>maxOpenFl</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxOpenFl_label</ControlName>
+        <ControlColumn>3</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Max Open Files:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>32,8</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxProcs</ControlName>
+        <ControlColumn>4</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>48,9</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>maxProcs</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>maxProcs_label</ControlName>
+        <ControlColumn>3</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Max Processes:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>32,9</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>osUpTime</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>20,1</ControlSize>
+        <ControlLocation>80,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>osUpTime</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(20)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>osUpTime_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Up Time:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>63,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>osPageSize</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>20,1</ControlSize>
+        <ControlLocation>80,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>osPageSize</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType>decimal</proType>
+        <proFormat>>>>>>>>>>9</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>osPageSize_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>OS Page Size:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>63,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SHMMNI</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>20,1</ControlSize>
+        <ControlLocation>80,6</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>SHMMNI</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType></proType>
+        <proFormat>x(20)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SHMMNI_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Num Shm Segs:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>63,6</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SHMMAX</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>20,1</ControlSize>
+        <ControlLocation>80,7</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>SHMMAX</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType></proType>
+        <proFormat>x(20)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SHMMAX_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Max Shm Seg Sz:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>63,7</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SHMALL</ControlName>
+        <ControlColumn>6</ControlColumn>
+        <ControlRow>8</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>20,1</ControlSize>
+        <ControlLocation>80,8</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>SHMALL</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType></proType>
+        <proFormat>x(20)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SHMALL_label</ControlName>
+        <ControlColumn>5</ControlColumn>
+        <ControlRow>8</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Max Amnt Shm:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>63,8</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>memTotal</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>16,1</ControlSize>
+        <ControlLocation>116,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>memTotal</BindingFields>
+        <DynamicControlName/>
+        <HAlign>left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(16)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>memTotal_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>1</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>RAM:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>100,1</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>modelCPU</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>16,1</ControlSize>
+        <ControlLocation>116,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>modelCPU</BindingFields>
+        <DynamicControlName/>
+        <HAlign>left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(16)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>modelCPU_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>2</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>CPU Model:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>100,2</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>clkCPU</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>116,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>clkCPU</BindingFields>
+        <DynamicControlName/>
+        <HAlign>left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>clkCPU_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>3</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Clock Speed:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>100,3</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>numCPU</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>116,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>numCPU</BindingFields>
+        <DynamicControlName/>
+        <HAlign>left</HAlign>
+        <proType>character</proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>numCPU_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>4</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>#Cores:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>100,4</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SEMMNS</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>120,6</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>SEMMNS</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType></proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SEMMNS_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>6</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Tot Semaphores:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>104,6</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SEMMNI</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>120,7</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>SEMMNI</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType></proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SEMMNI_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>7</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Tot Sem Idents:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>104,7</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SEMMSL</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>8</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>120,8</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>SEMMSL</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType></proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SEMMSL_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>8</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Semaphores/Set:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>104,8</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SEMOPM</ControlName>
+        <ControlColumn>8</ControlColumn>
+        <ControlRow>9</ControlRow>
+        <ControlType>System.Windows.Forms.TextBox</ControlType>
+        <ControlText/>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>10,1</ControlSize>
+        <ControlLocation>120,9</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties>Text</BindingProperties>
+        <BindingFields>SEMOPM</BindingFields>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+        <proType></proType>
+        <proFormat>x(10)</proFormat>
+        <sparkLine>no</sparkLine>
+      </ttViewerDesignRow>
+
+  <ttViewerDesignRow>
+        <ControlName>SEMOPM_label</ControlName>
+        <ControlColumn>7</ControlColumn>
+        <ControlRow>9</ControlRow>
+        <ControlType>System.Windows.Forms.Label </ControlType>
+        <ControlText>Sem Ops/Call:</ControlText>
+        <ControlMultiline>false</ControlMultiline>
+        <ControlSize>15,1</ControlSize>
+        <ControlLocation>104,9</ControlLocation>
+        <ControlDock>None</ControlDock>
+        <ControlAnchor>Top,Left</ControlAnchor>
+        <BindingProperties/>
+        <BindingFields/>
+        <DynamicControlName/>
+        <HAlign>Right</HAlign>
+      </ttViewerDesignRow>
+
+</ttViewerDesign>

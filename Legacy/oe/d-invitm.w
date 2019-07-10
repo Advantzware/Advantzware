@@ -1436,11 +1436,12 @@ PROCEDURE update-total :
 
     ASSIGN xinv-head.t-inv-rev = xinv-head.t-inv-rev + inv-misc.amt.
 
-    IF oe-ctrl.prep-comm THEN DO:
       FIND FIRST prep
           WHERE prep.company EQ inv-misc.company
             AND prep.code    EQ inv-misc.charge
           NO-LOCK NO-ERROR.
+      IF AVAIL prep
+      AND prep.commissionable THEN 
       DO k = 1 TO 3:
         IF inv-misc.s-man[k] NE "" THEN DO:
               RUN custom/combasis.p (xinv-head.company, inv-misc.s-man[k],
@@ -1449,12 +1450,11 @@ PROCEDURE update-total :
                                  (IF AVAIL cust THEN cust.cust-no ELSE ""),
                                  OUTPUT v-basis).
 
-          ASSIGN xinv-head.t-comm = xinv-head.t-comm +
+              ASSIGN xinv-head.t-comm = xinv-head.t-comm +
                    ROUND((inv-misc.amt - IF v-basis EQ "G" THEN inv-misc.cost ELSE 0) *
                          (inv-misc.s-pct[k] / 100) * (inv-misc.s-comm[k] / 100),2).
         END.
       END.
-    END.
   END. /* FOR EACH inv-misc */
  
   if xinv-head.f-bill then do:

@@ -1455,27 +1455,6 @@ VIEW FRAME r-top.
           v-job-msf = v-job-msf +
                       (job-hdr.qty * (if avail itemfg then itemfg.t-sqft
                                                      else 1) / 1000).              
-
-/*         for each fg-act                                                     */
-/*             where fg-act.company eq cocode                                  */
-/*               and fg-act.job     eq job-hdr.job                             */
-/*               and fg-act.job-no  eq job-hdr.job-no                          */
-/*               and fg-act.job-no2 eq job-hdr.job-no2                         */
-/*               and fg-act.i-no    eq job-hdr.i-no                            */
-/*              no-lock:                                                       */
-/*                                                                             */
-/*            v-blanks[1] = v-blanks[1] + fg-act.qty.                          */
-/*                                                                             */
-/*                                                                             */
-/*             find first itemfg                                               */
-/*                 where itemfg.company eq cocode                              */
-/*                   and itemfg.i-no    eq job-hdr.i-no                        */
-/*                 no-lock no-error.                                           */
-/*             v-blnk-msf[1] = v-blnk-msf[1] +                                 */
-/*                           (fg-act.qty * (if avail itemfg then itemfg.t-sqft */
-/*                                                          else 1) / 1000).   */
-/*                                                                             */
-/*         end.                                                                */
       end.
 
       if avail est then

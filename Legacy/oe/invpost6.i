@@ -28,7 +28,7 @@ DEF VAR v-tag      LIKE oe-boll.tag.
 DEF VAR li-stupid  LIKE v-partial NO-UNDO.
 DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE FgKeepZeroBin-log AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE FgKeepZeroBin-log AS LOGICAL   NO-UNDO INITIAL TRUE.
 DEFINE VARIABLE rSaveFgBinRow AS ROWID NO-UNDO.
 
 /* For ship only history */
@@ -49,11 +49,8 @@ FIND {1}     WHERE RECID({1})     EQ v-recid2.
 FIND fg-bin  WHERE RECID(fg-bin)  EQ v-recid3 NO-ERROR.
 
 
-RUN sys/ref/nk1look.p (INPUT cocode, "FGKEEPZEROBIN", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound THEN
-    FgKeepZeroBin-log = LOGICAL(cRtnChar) NO-ERROR.
+ASSIGN 
+    FgKeepZeroBin-log = TRUE.
 
 FIND FIRST tt-bolh WHERE tt-bolh.b-no EQ tt-boll.b-no NO-LOCK.
 

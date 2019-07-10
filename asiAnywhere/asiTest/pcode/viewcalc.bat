@@ -1,0 +1,1 @@
+c:\progress\openedge\bin\mbpro -p d:\webapps\asinet\pcode\CorrugatedBox\printview.p -param %1 

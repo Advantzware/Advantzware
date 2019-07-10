@@ -1028,14 +1028,16 @@ DO:
     END.
     IF SELF:SCREEN-VALUE = "" THEN DO:
         MESSAGE
-            "You are setting this user's password" SKIP
-            "to BLANKS. Is this correct?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG.
-        IF NOT lBlanks AND NOT lAdd THEN DO:
+            "User password cannot be blank." SKIP
+            "Please enter a valid password."
+            VIEW-AS ALERT-BOX ERROR /*QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG*/.
+            RETURN NO-APPLY.
+
+        /*IF NOT lBlanks AND NOT lAdd THEN DO:
             ASSIGN
                 SELF:SCREEN-VALUE = _user._password.
             RETURN NO-APPLY.
-        END.
+        END.*/
     END.
     IF NOT lAdd THEN 
         RUN ipChangePassword (SELF:SCREEN-VALUE).
@@ -1105,7 +1107,7 @@ DO:
         FIND FIRST ttUsers NO-LOCK WHERE 
             ttUsers.ttfuserAlias = SELF:SCREEN-VALUE AND
             ttUsers.ttfpdbname = "*" AND
-            ttUsers.ttfuserid NE users.user_id
+            ttUsers.ttfuserid NE users.user_id:SCREEN-VALUE IN FRAME f-main
             NO-ERROR.
         IF AVAIL ttUsers THEN DO:
             MESSAGE

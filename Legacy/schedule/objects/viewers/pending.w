@@ -76,7 +76,7 @@ DEFINE BUFFER bPendingJob FOR pendingJob.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME jobID
 
@@ -84,7 +84,7 @@ DEFINE BUFFER bPendingJob FOR pendingJob.
 &Scoped-define INTERNAL-TABLES jobID pendingJob
 
 /* Definitions for BROWSE jobID                                         */
-&Scoped-define FIELDS-IN-QUERY-jobID jobID.job jobID.jobSelected jobID.dueDate   
+&Scoped-define FIELDS-IN-QUERY-jobID jobID.job jobID.jobSelected jobID.dueDate jobID.customer   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-jobID   
 &Scoped-define SELF-NAME jobID
 &Scoped-define QUERY-STRING-jobID FOR EACH jobID NO-LOCK   WHERE jobID.job BEGINS jobPhrase OR jobPhrase EQ '' BY jobID.jobSort
@@ -360,11 +360,12 @@ DEFINE BROWSE jobID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS jobID sObject _FREEFORM
   QUERY jobID DISPLAY
       jobID.job FORMAT 'X(19)' LABEL-BGCOLOR 14
-      jobID.jobSelected FORMAT 'Y/' LABEL 'S'
-      jobID.dueDate FORMAT '99/99/9999' LABEL 'Due' LABEL-BGCOLOR 14
+jobID.jobSelected FORMAT 'Y/' LABEL 'S'
+jobID.dueDate FORMAT '99/99/9999' LABEL 'Due' LABEL-BGCOLOR 14
+jobID.customer LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 39 BY 21.19.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 54 BY 21.19.
 
 DEFINE BROWSE pendingJob
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS pendingJob sObject _FREEFORM
@@ -381,7 +382,7 @@ DEFINE BROWSE pendingJob
   */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 78.6 BY 21.19.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 63.6 BY 21.19.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -398,7 +399,7 @@ DEFINE FRAME F-Main
      jobPhrase AT ROW 1.1 COL 4 COLON-ALIGNED
      dateTime AT ROW 2.19 COL 15 NO-LABEL
      jobID AT ROW 2.19 COL 33
-     pendingJob AT ROW 2.19 COL 72
+     pendingJob AT ROW 2.19 COL 87
      newDate AT ROW 3.38 COL 6 COLON-ALIGNED
      btnCalendar AT ROW 3.38 COL 27 HELP
           "Click to Access Popup Calendar"
@@ -467,7 +468,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
          HEIGHT             = 22.52
-         WIDTH              = 150.
+         WIDTH              = 150.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -489,13 +490,13 @@ END.
 /* SETTINGS FOR WINDOW sObject
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB jobID dateTime F-Main */
 /* BROWSE-TAB pendingJob jobID F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 22.52
-       FRAME F-Main:WIDTH            = 150.
+       FRAME F-Main:WIDTH            = 150.2.
 
 ASSIGN 
        btnComplete:PRIVATE-DATA IN FRAME F-Main     = 
@@ -1149,22 +1150,31 @@ PROCEDURE openQueryJobID :
   CASE columnLabel:
     WHEN 'job' THEN
       IF ascendingFlag THEN
-      OPEN QUERY jobID FOR EACH jobID NO-LOCK
+      OPEN QUERY jobID FOR EACH jobID
         WHERE jobID.job BEGINS jobPhrase OR jobPhrase EQ ''
         BY jobID.jobSort.
       ELSE
-      OPEN QUERY jobID FOR EACH jobID NO-LOCK
+      OPEN QUERY jobID FOR EACH jobID
         WHERE jobID.job BEGINS jobPhrase OR jobPhrase EQ ''
         BY jobID.jobSort DESCENDING.
     WHEN 'dueDate' THEN
       IF ascendingFlag THEN
-      OPEN QUERY jobID FOR EACH jobID NO-LOCK
+      OPEN QUERY jobID FOR EACH jobID
         WHERE jobID.job BEGINS jobPhrase OR jobPhrase EQ ''
         BY jobID.dueDate BY jobID.jobSort.
       ELSE
-      OPEN QUERY jobID FOR EACH jobID NO-LOCK
+      OPEN QUERY jobID FOR EACH jobID
         WHERE jobID.job BEGINS jobPhrase OR jobPhrase EQ ''
         BY jobID.dueDate DESCENDING BY jobID.jobSort DESCENDING.
+    WHEN 'customer' THEN
+      IF ascendingFlag THEN
+      OPEN QUERY jobID FOR EACH jobID
+        WHERE jobID.job BEGINS jobPhrase OR jobPhrase EQ ''
+        BY jobID.customer BY jobID.jobSort.
+      ELSE
+      OPEN QUERY jobID FOR EACH jobID
+        WHERE jobID.job BEGINS jobPhrase OR jobPhrase EQ ''
+        BY jobID.customer DESCENDING BY jobID.jobSort DESCENDING.
   END CASE.
 
 END PROCEDURE.
@@ -1374,15 +1384,15 @@ PROCEDURE setDateTime :
   DEFINE VARIABLE priorEndTime AS INTEGER NO-UNDO.
   DEFINE VARIABLE priorTimeSpan AS INTEGER NO-UNDO.
 
-  FOR EACH pendingJob EXCLUSIVE-LOCK
+  FOR EACH pendingJob
       BREAK BY pendingJob.job DESCENDING
             BY pendingJob.resourceSequence DESCENDING:
-    IF FIRST-OF(pendingJob.job) THEN
-    DO:
+    IF FIRST-OF(pendingJob.job) THEN DO:
       CREATE jobID.
       ASSIGN
         jobID.job = pendingJob.job
         jobID.jobSort = pendingJob.jobSort
+        jobID.customer = pendingJob.userField01
         priorEndDate = pendingJob.dueDate
         priorEndTime = pendingJob.dueTime
         priorTimeSpan = pendingDays * 86400.

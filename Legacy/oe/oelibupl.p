@@ -4052,6 +4052,7 @@ cocode = ip-cocode.
 locode = ip-locode.
 g_company = ip-cocode.
 g_loc     = ip-locode.
+RUN spSetSessionParam ("Company", g_company).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -762,7 +762,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
-  ENABLE btnCloseResults btnSaveResults 
+  ENABLE btnSaveResults btnCloseResults 
       WITH FRAME resultsFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-resultsFrame}
   VIEW C-Win.
@@ -835,6 +835,52 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveResults C-Win 
+PROCEDURE pSaveResults :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cDBName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dSize      AS DECIMAL   NO-UNDO.
+    
+    DO TRANSACTION:
+        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+        DO idx = 1 TO hQueryBrowse:NUM-COLUMNS:
+            ASSIGN
+                cDBName    = hQueryBrowse:GET-BROWSE-COLUMN(idx):DBNAME
+                cTableName = hQueryBrowse:GET-BROWSE-COLUMN(idx):TABLE
+                cFieldName = cTableName + "."
+                           + hQueryBrowse:GET-BROWSE-COLUMN(idx):NAME
+                dSize      = hQueryBrowse:GET-BROWSE-COLUMN(idx):WIDTH-CHARS
+                .
+            IF cDBName EQ "PROGRESST" THEN
+            cDBName = "ASI".
+            IF hQueryBrowse:GET-BROWSE-COLUMN(idx):INDEX NE 0 THEN
+            cFieldName = cFieldName
+                       + "["
+                       + STRING(hQueryBrowse:GET-BROWSE-COLUMN(idx):INDEX)
+                       + "]"
+                       .
+            IF dynParamValue.colName[idx] NE cFieldName OR
+               dynParamValue.columnSize[idx] NE dSize THEN
+            ASSIGN 
+                dynParamValue.colName[idx]    = cFieldName
+                dynParamValue.columnSize[idx] = dSize
+                .
+        END. /* do idx */
+        FIND CURRENT dynParamValue NO-LOCK.
+    END. /* trans */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings C-Win 
 PROCEDURE pSaveSettings :
 /*------------------------------------------------------------------------------
@@ -878,6 +924,7 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 

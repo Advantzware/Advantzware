@@ -75,7 +75,7 @@ ASSIGN cTextListToSelect = "Code,Desc.,Customer Name,Whse,Bin Loc,Dspsl Dt,Lst U
                             "Length,Width,Depth,Number Up,Die Width,Die Length,# of Impressions,Date Received," +  /*8*/
                             "FG Category,RM Category,RM Item #,Owner 1,Owner 1 %,Owner 2,Owner 2 %"  /*7*/
        cFieldListToSelect = "code,dscr,cust-name,ware,bin,dis-dt,lst-dt," +
-                             "mrkup,cst,ml,amtz,m-typ,use-est,uom,simon,c-typ,act-no,cad-no,file-no," +
+                             "mrkup,cst,ml,amtz,m-typ,use-est,uom,simon,c-typ,act-no,cad-no,file," +
                              "cust,lst-est,lst-job,has-not,prep.box-style,prep.spare-dec-1," +
                              "prep.carton-l,prep.carton-w,prep.carton-d,prep.number-up,prep.die-w,prep.die-l,prep.no-of-impressions,received-date," +
                              "prep.fgcat,prep.procat,prep.i-no,owner1,owner%1,owner2,owner%2"
@@ -1252,7 +1252,6 @@ PROCEDURE run-report :
                     WHEN  "c-typ"           THEN cVarValue = STRING(prep.cost-type) .
                     WHEN "act-no"           THEN cVarValue = STRING(prep.actnum) .
                     WHEN "cad-no"           THEN cVarValue =  STRING(prep.cadNo).
-                    WHEN "file-no"          THEN cVarValue =  STRING(prep.fileNo) .
                     WHEN "cust"             THEN cVarValue = prep.cust-no   .
                     WHEN "lst-est"          THEN cVarValue = prep.last-est-no  .
                     WHEN "lst-job"          THEN cVarValue = IF v-lst-job NE "-00" AND v-lst-job NE "" THEN  v-lst-job ELSE "" .
@@ -1262,6 +1261,7 @@ PROCEDURE run-report :
                     WHEN "owner2"           THEN cVarValue = STRING(prep.owner[2]) .
                     WHEN "owner%2"          THEN cVarValue = STRING(prep.owner-%[2]) .
                     WHEN "received-date"    THEN cVarValue = IF prep.received-date <> ?THEN  STRING(prep.received-date) ELSE "" .
+                    WHEN "file"             THEN cVarValue = STRING(prep.cad-image,"x(15)") .
                 END CASE.
                 
                 ASSIGN 

@@ -1,0 +1,1169 @@
+        1   /*******************************************************************************
+        2    *******************************************************************************
+        3    **                                                                           **
+        4    **                                                                           **
+        5    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+        6    **  http://www.greenfieldtech.com                                            **
+        7    **                                                                           **
+        8    **  ProTop is free software; you can redistribute it and/or modify it        **
+        9    **  under the terms of the GNU General Public License (GPL) as published     **
+       10    **  by the Free Software Foundation; either version 2 of the License, or     **
+       11    **  at your option) any later version.                                       **
+       12    **                                                                           **
+       13    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       14    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       15    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       16    **  for more details.                                                        **
+       17    **                                                                           **
+       18    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       19    **  of use and alternative licensing options for this software.              **
+       20    **                                                                           **
+       21    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       22    **                                                                           **
+       23    **  See http://www.fsf.org for more information about the GPL.               **
+       24    **                                                                           **
+       25    **                                                                           **
+       26    *******************************************************************************
+       27    *******************************************************************************
+       28    *
+       29    * osinfo.p
+       30    *
+       31    */
+       32   
+       33   
+       34   /*******************************************************************************
+       35    *******************************************************************************
+       36    **                                                                           **
+       37    **                                                                           **
+       38    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+       39    **  http://www.greenfieldtech.com                                            **
+       40    **                                                                           **
+       41    **  ProTop is free software; you can redistribute it and/or modify it        **
+       42    **  under the terms of the GNU General Public License (GPL) as published     **
+       43    **  by the Free Software Foundation; either version 2 of the License, or     **
+       44    **  at your option) any later version.                                       **
+       45    **                                                                           **
+       46    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+       47    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+       48    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+       49    **  for more details.                                                        **
+       50    **                                                                           **
+       51    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+       52    **  of use and alternative licensing options for this software.              **
+       53    **                                                                           **
+       54    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+       55    **                                                                           **
+       56    **  See http://www.fsf.org for more information about the GPL.               **
+       57    **                                                                           **
+       58    **                                                                           **
+       59    *******************************************************************************
+       60    *******************************************************************************
+       61    *
+       62    * protop.i
+       63    *
+       64    * Header file for protop family of programs
+       65    *
+       66    *
+       67    * Known Bugs & Issues:
+       68    *
+       69    *
+       70    * To Do:
+       71    *
+       72    *
+       73    * Author:
+       74    *
+       75    *      Tom Bascom, Greenfield Technologies
+       76    *      http://www.greenfieldtech.com
+       77    *      August 28, 2003
+       78    *
+       79    */
+       80   
+       81   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.4 &THEN
+       82   &global-define  FASTLOCK        true
+       83   &ELSE
+       84   &global-define  FASTLOCK        false
+       85   &ENDIF
+       86   
+       87   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 11.0 &THEN
+       88   &global-define  OE11            "yes"
+       89   &global-define  xDEBUGTT        false
+       90   &ENDIF
+       91   
+       92   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2 AND PROVERSION >= "10.2B" &THEN
+       93   &global-define  NOSERIALIZE     serialize-hidden
+       94   &ENDIF
+       95   
+       96   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1B" &THEN
+       97   &global-define  BIGINT          int64
+       98   &ELSE
+       99   &global-define  BIGINT          decimal
+      100   &ENDIF
+      101   
+      102   
+      103   /* lib/v9.i
+      104    *
+      105    */
+      106   
+      107   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) < 10.0 &THEN
+      108   &global-define  CPYLOB  "no"
+      109   &global-define  NOW     substitute( "&1 &2", today, string( time, "hh:mm:ss" ))
+      110   &global-define  LNGCR   character
+      111   &global-define  DTZ     integer
+      112   &global-define  BIGINT  decimal
+      113   &ELSE
+      114   &global-define  OE10    "yes"
+      115   &global-define  NOW     now
+      116   &global-define  LNGCR   longchar
+      117   &global-define  DTZ     datetime-tz
+      118   &global-define  BIGINT  int64
+      119   &ENDIF
+      120    
+      121   
+      122   /* use extended _connect fields: -client, -cache*
+      123    */
+      124   
+      125   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 AND PROVERSION >= "10.1C" &THEN
+      126   &global-define  CONNECTX        "yes"
+      127   &ELSE
+      128   &global-define  CONNECTX        "no"
+      129   &ENDIF
+      130   
+      131   define stream inStrm.
+      132   
+      133   define new global shared variable dbgMode as integer no-undo initial 1.
+      134   
+      135   /* The values for these are defined in etc/protop.cfg and set by lib/protop-cfg.p
+      136    *
+      137    * someday everyone will have OO and I will replace these with a gsv class
+      138    * or something of that ilk
+      139    *
+      140    */
+      141   
+      142   define new global shared variable pt_shortname   as character no-undo.
+      143   define new global shared variable pt_uniqName    as character no-undo.
+      144   define new global shared variable pt_server      as character no-undo.
+      145   define new global shared variable pt_resrcType   as character no-undo.
+      146   
+      147   define new global shared variable pt_tmpdir      as character no-undo initial "/tmp".
+      148   define new global shared variable pt_logdir      as character no-undo initial "/tmp".
+      149   define new global shared variable pt_rptdir      as character no-undo initial "/tmp".
+      150   define new global shared variable pt_logname     as character no-undo initial "&5.&2.&3".
+      151   define new global shared variable pt_mailcmd     as character no-undo initial 'mailx "-s &1" '.
+      152   
+      153   define new global shared variable pt_votrx       as integer   no-undo initial 1800.
+      154   define new global shared variable pt_lktbllim    as integer   no-undo initial 0.
+      155   define new global shared variable pt_bkupstale   as integer   no-undo initial 26.
+      156   define new global shared variable pt_bogomips    as integer   no-undo initial 1000000.
+      157   define new global shared variable pt_ioresp      as integer   no-undo initial 100.
+      158   define new global shared variable pt_ioFileName  as character no-undo.
+      159   define new global shared variable pt_dfCmd       as character no-undo.
+      160   
+      161   define new global shared variable pt_AICheckInterval   as integer no-undo initial 60.
+      162   define new global shared variable pt_PICACheckInterval as integer no-undo initial 60.
+      163   define new global shared variable pt_appsrvStuck       as integer no-undo initial 120.
+      164   
+      165   define new global shared variable pt_bibkupAlert as integer   no-undo.          /* alert on long bi backup phase                */
+      166   define new global shared variable pt_bibkupAlarm as integer   no-undo.          /* alarm on long bi backup phase                */
+      167   define new global shared variable pt_bibkupPage  as integer   no-undo.          /* page  on long bi backup phase                */
+      168   
+      169   define new global shared variable pt_bkupAlert   as integer   no-undo.          /* alert on long db backup                      */
+      170   define new global shared variable pt_bkupAlarm   as integer   no-undo.          /* alarm on long db backup                      */
+      171   define new global shared variable pt_bkupPage    as integer   no-undo.          /* page  on long db backup                      */
+      172   
+      173   define new global shared variable pt_userLock    as logical   no-undo.          /* enable _userLock  data?                      */
+      174   define new global shared variable pt_doZippy     as logical   no-undo.          /* enable "user experience" (aka "zippy")?      */
+      175   define new global shared variable pt_useRFUtil   as logical   no-undo.          /* use rfutil to gather after-imaging status?   */
+      176   
+      177   define new global shared variable pt_updAreaData as integer   no-undo.          /* how often should we report storage area xref details from dbanalys? */
+      178   
+      179   define new global shared variable pt_zoomTo      as integer no-undo.            /* new zoomed monInt                            */
+      180   
+      181   define new global shared variable ptDBName     as character no-undo.                    /* the db logical name          */
+      182   define new global shared variable rowLimit     as integer   no-undo initial 100.        /* 50?                          */
+      183   
+      184   /* do-sumSample() manipulates these -- ugly, ugly, ugly... (obsolete?)
+      185    * 
+      186    */
+      187   
+      188   define new global shared variable stime as integer no-undo.                     /* start time                           */
+      189   define new global shared variable ltime as integer no-undo.                     /* last time                            */
+      190   define new global shared variable xtime as integer no-undo.                     /* total time                           */
+      191   define new global shared variable itime as integer no-undo.                     /* iteration time                       */
+      192   
+      193   define new global shared variable chkp-base   as integer no-undo initial ?.     /* cover for the lack of a VST field    */
+      194   
+      195                                                                                   /* corresponding to base checkpoint#    */
+      196   /** Global Shared Temp Table Definitions
+      197    **
+      198    ** Yup, they're shared.  But this stuff makes no sense across session boundaries anyway.
+      199    ** And a shared temp-table is logically the same as a db table so who really cares?
+      200    **
+      201    **/
+      202   
+      203   /* cache _File and _Index records so that we don't keep hitting the db to translate
+      204    */
+      205   
+      206   define new global shared temp-table tt_tbl no-undo
+      207     field xid      as integer                                             /* _File._File-Num              */
+      208     field tstatid  as integer                                             /* _TableStat._TableStat-Id     */
+      209     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      210     field tblPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      211     field tblname  as character                                           /* _File._File-Name             */
+      212     index xid-idx is unique primary xid.
+      213   
+      214   define new global shared temp-table tt_idx no-undo
+      215     field xid      as integer                                             /* _Index._Idx-Num              */
+      216     field istatid  as integer                                             /* _IndexStat._IndexStat-Id     */
+      217     field idxname  as character                                           /* _Index._Idx-Name             */
+      218     field idxnote  as character
+      219     field idxRoot  as int64                                           /* _Storage-Object._Object-Root */
+      220     field tblnum   as integer                                             /* _File._File-Num              */
+      221     field areaNum  as integer                                             /* _Storage-Object._Area-Number */
+      222     field idxPool  as character                                           /* get-bits( _object-attrib, 7, 1 ) = 1 */
+      223     field tblname  as character                                           /* _File._File-Name             */
+      224     index xid-idx is unique primary xid.
+      225   
+      226   define new global shared temp-table tt_areaExtent no-undo
+      227     field areaNum  as integer                                             /* _areaExtent._Area-Number     */
+      228     field extNum   as integer                                             /* _areaExtent._Extent-Number   */
+      229   
+      230     field extSize  as decimal                                             /* _areaExtent._Extent-Size     */
+      231     field extType  as integer                                             /* _areaExtent._Extent-Type     */
+      232     field extPath  as character                                           /* _areaExtent._Extent-Path     */
+      233   
+      234     index ae-idx is unique primary areaNum extNum.
+      235   
+      236   define new global shared temp-table tt_area no-undo
+      237     field xid      as integer    format ">>>9"
+      238     field SANum    as integer    format ">>>9"        label "#"
+      239     field areaPool as character  format "x(2)"        label "BX"
+      240   /*field areaStatus-Id as {&BIGINT} format ">>>9"    label "Id" */
+      241     field SAName   as character  format "x(30)"       label "Area Name"
+      242     field allocGB  as decimal    format ">>>>>9.99"   label "Allocated"
+      243     field varGB    as decimal    format ">>>>>9.99"   label "Variable"
+      244     field totGB    as decimal    format ">>>>>>9.99"  label "Tot GB"
+      245     field hiGB     as decimal    format ">>>>>9.99"   label "Hi Water" serialize-hidden
+      246     field freeGB   as decimal    format ">>>>>9.99"   label "Free GB"
+      247     field pctAlloc as decimal    format ">>>>>9%"     label "%Alloc"
+      248     field pctLastX as decimal    format ">>>>9%"      label "%LastX"
+      249   
+      250     field blkszkb as integer     format ">>9"         label "BSZ"
+      251     field rpb     as integer     format ">>9"         label "RPB"
+      252     field clstrsz as integer     format ">>9"         label "CSZ"
+      253   
+      254     field numTbls as integer     format ">>>>9"       label "#Tbls"
+      255     field numIdxs as integer     format ">>>>9"       label "#Idxs"
+      256     field numLOBs as integer     format ">>>>9"       label "#LOBs"
+      257   
+      258     field numExts as integer     format ">>>>9"       label "#Exts"
+      259     field hasVar  as logical     format "Yes/No"      label "Var?"
+      260   
+      261     field xnote   as character   format "x"           label "*"
+      262   
+      263     field areaMaxPct as decimal  format ">>9.999%"    label "Max%"
+      264     field idx3264    as decimal  format ">>9.999%"    label "Bug%"
+      265   
+      266     index pctAlloc-idx is primary pctAlloc descending
+      267     index pctLastX-idx pctLastX pctAlloc descending
+      268     index allocGB-idx allocGB descending
+      269     index totGB-idx totGB descending
+      270     index xid-idx is unique xid
+      271     index SANum-idx is unique SANum
+      272     index SAName-idx is unique SAName
+      273   .
+      274   
+      275   *** Encrypted Source ***
+      276   *** Encrypted Source ***
+      277   *** Encrypted Source ***
+      278   *** Encrypted Source ***
+      279   *** Encrypted Source ***
+      280   *** Encrypted Source ***
+      281   *** Encrypted Source ***
+      282   *** Encrypted Source ***
+      283   *** Encrypted Source ***
+      284   *** Encrypted Source ***
+      285   *** Encrypted Source ***
+      286   *** Encrypted Source ***
+      287   *** Encrypted Source ***
+      288   *** Encrypted Source ***
+      289   *** Encrypted Source ***
+      290   *** Encrypted Source ***
+      291   *** Encrypted Source ***
+      292   *** Encrypted Source ***
+      293   *** Encrypted Source ***
+      294   *** Encrypted Source ***
+      295   *** Encrypted Source ***
+      296   *** Encrypted Source ***
+      297   *** Encrypted Source ***
+      298   *** Encrypted Source ***
+      299   *** Encrypted Source ***
+      300   *** Encrypted Source ***
+      301   *** Encrypted Source ***
+      302   *** Encrypted Source ***
+      303   *** Encrypted Source ***
+      304   *** Encrypted Source ***
+      305   *** Encrypted Source ***
+      306   *** Encrypted Source ***
+      307   *** Encrypted Source ***
+      308   *** Encrypted Source ***
+      309   *** Encrypted Source ***
+      310   *** Encrypted Source ***
+      311   *** Encrypted Source ***
+      312   *** Encrypted Source ***
+      313   *** Encrypted Source ***
+      314   *** Encrypted Source ***
+      315   *** Encrypted Source ***
+      316   *** Encrypted Source ***
+      317   *** Encrypted Source ***
+      318   *** Encrypted Source ***
+      319   *** Encrypted Source ***
+      320   *** Encrypted Source ***
+      321   *** Encrypted Source ***
+      322   *** Encrypted Source ***
+      323   *** Encrypted Source ***
+      324   *** Encrypted Source ***
+      325   *** Encrypted Source ***
+      326   *** Encrypted Source ***
+      327   *** Encrypted Source ***
+      328   *** Encrypted Source ***
+      329   *** Encrypted Source ***
+      330   *** Encrypted Source ***
+      331   *** Encrypted Source ***
+      332   *** Encrypted Source ***
+      333   *** Encrypted Source ***
+      334   *** Encrypted Source ***
+      335   *** Encrypted Source ***
+      336   *** Encrypted Source ***
+      337   *** Encrypted Source ***
+      338   *** Encrypted Source ***
+      339   *** Encrypted Source ***
+      340   *** Encrypted Source ***
+      341   *** Encrypted Source ***
+      342   *** Encrypted Source ***
+      343   *** Encrypted Source ***
+      344   *** Encrypted Source ***
+      345    
+      346   
+      347   /*******************************************************************************
+      348    *******************************************************************************
+      349    **                                                                           **
+      350    **                                                                           **
+      351    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      352    **  http://www.greenfieldtech.com                                            **
+      353    **                                                                           **
+      354    **  ProTop is free software; you can redistribute it and/or modify it        **
+      355    **  under the terms of the GNU General Public License (GPL) as published     **
+      356    **  by the Free Software Foundation; either version 2 of the License, or     **
+      357    **  at your option) any later version.                                       **
+      358    **                                                                           **
+      359    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      360    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      361    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      362    **  for more details.                                                        **
+      363    **                                                                           **
+      364    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      365    **  of use and alternative licensing options for this software.              **
+      366    **                                                                           **
+      367    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      368    **                                                                           **
+      369    **  See http://www.fsf.org for more information about the GPL.               **
+      370    **                                                                           **
+      371    **                                                                           **
+      372    *******************************************************************************
+      373    *******************************************************************************
+      374    *
+      375    * protoplib.i
+      376    *
+      377    * ProTop infrastructure library definitions
+      378    *
+      379    */
+      380   
+      381   function uDateTime returns integer () in super.
+      382   function string2uDateTime returns integer( input p_text as character ) in super.
+      383   function searchDir returns character ( input xDir as character ) in super.
+      384   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      385   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      386   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      387   function myPID returns character () in super.
+      388   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      389   
+      390   /* end protoplib.i */
+      391    
+      392   
+      393   /*******************************************************************************
+      394    *******************************************************************************
+      395    **                                                                           **
+      396    **                                                                           **
+      397    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      398    **  http://www.greenfieldtech.com                                            **
+      399    **                                                                           **
+      400    **  ProTop is free software; you can redistribute it and/or modify it        **
+      401    **  under the terms of the GNU General Public License (GPL) as published     **
+      402    **  by the Free Software Foundation; either version 2 of the License, or     **
+      403    **  at your option) any later version.                                       **
+      404    **                                                                           **
+      405    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      406    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      407    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      408    **  for more details.                                                        **
+      409    **                                                                           **
+      410    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      411    **  of use and alternative licensing options for this software.              **
+      412    **                                                                           **
+      413    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      414    **                                                                           **
+      415    **  See http://www.fsf.org for more information about the GPL.               **
+      416    **                                                                           **
+      417    **                                                                           **
+      418    *******************************************************************************
+      419    *******************************************************************************
+      420    *
+      421    * vstlib.i
+      422    *
+      423    * VST library definitions
+      424    *
+      425    */
+      426   
+      427   function aiInfo returns character ( input vAiFile as character, output vAiGenNum as integer ) in super.
+      428   function chkai returns integer ( output ai_exts as integer, output ai_full as integer, output ai_empty as integer ) in super.
+      429   function chkarea returns integer ( input threshold as decimal, output worst as decimal ) in super.
+      430   function chkptNum returns integer ( input-output oldbi as integer ) in super.
+      431   
+      432   function connectFlags returns character ( input cnxId as integer ) in super.
+      433   function connectName returns character ( input cnxId as integer, input cnxFlags as character ) in super.
+      434   function lastStatement returns character( input cnxId as integer, output lineNum as integer, output procName as character ) in super.
+      435   
+      436   function isAIEnabled returns logical () in super.
+      437   function isReplSource returns logical () in super.
+      438   function isReplTarget returns logical () in super.
+      439   function isBackupRunning returns logical () in super.
+      440   function isWorkgroup returns logical () in super.
+      441   
+      442   function getStartupX returns character ( input v as character, input p1 as character, input p2 as character ) in super.
+      443   
+      444   /* end vstlib.i */
+      445    
+      446   
+      447   function add2ds returns logical ( input h as handle ) in super.
+      448   function getTempTableHandle returns handle ( input n as character ) in super.
+      449   
+      450   /* end protop.i */
+      451    
+      452   
+      453   /*******************************************************************************
+      454    *******************************************************************************
+      455    **                                                                           **
+      456    **                                                                           **
+      457    **  Copyright 2003-2006 Tom Bascom, Greenfield Technologies                  **
+      458    **  http://www.greenfieldtech.com                                            **
+      459    **                                                                           **
+      460    **  ProTop is free software; you can redistribute it and/or modify it        **
+      461    **  under the terms of the GNU General Public License (GPL) as published     **
+      462    **  by the Free Software Foundation; either version 2 of the License, or     **
+      463    **  at your option) any later version.                                       **
+      464    **                                                                           **
+      465    **  ProTop is distributed in the hope that it will be useful, but WITHOUT    **
+      466    **  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    **
+      467    **  FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License     **
+      468    **  for more details.                                                        **
+      469    **                                                                           **
+      470    **  See TERMS.TXT for more information regarding the Terms and Conditions    **
+      471    **  of use and alternative licensing options for this software.              **
+      472    **                                                                           **
+      473    **  A copy of the GPL is in GPL.TXT which was provided with this package.    **
+      474    **                                                                           **
+      475    **  See http://www.fsf.org for more information about the GPL.               **
+      476    **                                                                           **
+      477    **                                                                           **
+      478    *******************************************************************************
+      479    *******************************************************************************
+      480    *
+      481    * protoplib.i
+      482    *
+      483    * ProTop infrastructure library definitions
+      484    *
+      485    */
+      486   
+      487   function uDateTime returns integer () in super.
+      488   function string2uDateTime returns integer( input p_text as character ) in super.
+      489   function searchDir returns character ( input xDir as character ) in super.
+      490   function unsignMe returns decimal ( input s as decimal, input i as integer ) in super.
+      491   function hr returns decimal ( input lr as decimal, input osr as decimal, output hr-str as character, output hr as decimal, output mr as decimal ) in super.
+      492   function do-SumSample returns logical ( output p_index as integer, output p_time  as integer ) in super.
+      493   function myPID returns character () in super.
+      494   function hilite returns logical ( input b as handle, input p_metric as character, input p_value as character, output p_attr as character ) in super.
+      495   
+      496   /* end protoplib.i */
+      497    
+      498   
+      499   define output parameter dcDescription as character no-undo initial "OSInfo".
+      500   
+      501   function getNum returns decimal ( s as character ):
+      502   
+      503     s = trim( s ).
+      504   
+      505     if       substring( s, length( s ), 1 ) = "T" then return decimal( substring( s, 1, length( s ) - 1 )) * 1024 * 1024 * 1024 * 1024.
+      506      else if substring( s, length( s ), 1 ) = "G" then return decimal( substring( s, 1, length( s ) - 1 )) * 1024 * 1024 * 1024.
+      507      else if substring( s, length( s ), 1 ) = "M" then return decimal( substring( s, 1, length( s ) - 1 )) * 1024 * 1024.
+      508      else if substring( s, length( s ), 1 ) = "K" then return decimal( substring( s, 1, length( s ) - 1 )) * 1024.
+      509      else if substring( s, length( s ), 1 ) = "B" then return decimal( substring( s, 1, length( s ) - 1 )).
+      510      else return decimal( s ).
+      511   
+      512   end.
+      513   
+      514   
+      515   /* lib/osinfo.i
+      516    *
+      517    * minimalist example:
+      518    *
+      519    *      {lib/v9.i}
+      520    *
+      521    *      define stream inStrm.           /* be wary of possible duplicates */
+      522    *
+      523    *      {lib/osinfo.i}
+      524    *
+      525    *      run osInfo.
+      526    *
+      527    *      for each tt_osInfo:
+      528    *        display tt_osInfo with side-labels 1 column.
+      529    *      end.
+      530    *
+      531    */
+      532   
+      533   define temp-table tt_OSInfo no-undo
+      534   
+      535     field hostName  as character label "Host"      format "x(30)"
+      536     field osName    as character label "OS"        format "x(100)"
+      537     field osVersion as character label "osVersion" format "x(30)"
+      538     field keVersion as character label "keVersion" format "x(30)"
+      539     field osUpTime  as character label "Up Time"   format "x(30)"
+      540   
+      541     field maxFileSz  as character label "Max File Size"   format "x(16)"
+      542     field maxOpenFl  as character label "Max Open Files"  format "x(16)"
+      543     field maxProcMem as character label "Max Proc Memory" format "x(16)"
+      544     field maxProcs   as character label "Max Processes"   format "x(16)"
+      545   
+      546     field maxStack   as character label "Max Stack"       format "x(16)"
+      547     field maxDataSeg as character label "Max Data Seg"    format "x(16)"
+      548   
+      549     field SEMMNS     as character initial "n/a" format "x(16)"
+      550     field SEMMNI     as character initial "n/a" format "x(16)"
+      551     field SEMMSL     as character initial "n/a" format "x(16)"
+      552     field SEMOPM     as character initial "n/a" format "x(16)"
+      553     field SHMMAX     as character initial "n/a" format "x(16)"
+      554     field SHMMNI     as character initial "n/a" format "x(16)"
+      555     field SHMALL     as character initial "n/a" format "x(16)"
+      556     field osPageSize as integer
+      557   
+      558     field modelCPU   as character format "x(30)"
+      559     field clkCPU     as character format "x(16)"
+      560     field numCPU     as character format "x(16)"
+      561     field memTotal   as character format "x(16)"
+      562   
+      563     field memBufs    as decimal format ">>>>>>>>>>>>>>>>>>>>9"
+      564     field memCached  as decimal format ">>>>>>>>>>>>>>>>>>>>9"
+      565     field memShared  as decimal format ">>>>>>>>>>>>>>>>>>>>9"
+      566     field memActive  as decimal format ">>>>>>>>>>>>>>>>>>>>9"
+      567     field memInAct   as decimal format ">>>>>>>>>>>>>>>>>>>>9"
+      568     field memFree    as decimal format ">>>>>>>>>>>>>>>>>>>>9"
+      569   
+      570     index hostName-idx is unique primary hostName
+      571   .
+      572   
+      573   define variable linuxPatch as logical initial yes.
+      574   
+      575   procedure getAIX:
+      576   
+      577     define variable inLine as character no-undo extent 16.
+      578     define variable xLine  as character no-undo.
+      579   
+      580     find tt_OSInfo no-error.
+      581   
+      582     return.
+      583   
+      584   end.
+      585   
+      586   procedure getSunOS:
+      587   
+      588     define variable inLine as character no-undo extent 16.
+      589     define variable xLine  as character no-undo.
+      590   
+      591     find tt_OSInfo no-error.
+      592   
+      593     /* $ uname -X
+      594      * System = SunOS
+      595      * Node = traxlive
+      596      * Release = 5.10
+      597      * KernelID = Generic_142900-03
+      598      * Machine = sun4u
+      599      * BusType = <unknown>
+      600      * Serial = <unknown>
+      601      * Users = <unknown>
+      602      * OEM# = 0
+      603      * Origin# = 1
+      604      * NumCPU = 48
+      605      */
+      606   
+      607     input stream inStrm through value( "uname -X" ).
+      608     repeat:
+      609   
+      610        xLine = "".
+      611        import stream inStrm unformatted xLine.
+      612   
+      613        if       index( xLine, "NumCPU" )   > 0 then numCPU    = trim( entry( 2, xLine, "=" )).
+      614         else if index( xLine, "Release" )  > 0 then osVersion = trim( entry( 2, xLine, "=" )).
+      615         else if index( xLine, "KernelID" ) > 0 then keVersion = trim( entry( 2, xLine, "=" )).
+      616   
+      617     end.
+      618     input stream inStrm close.
+      619   
+      620     /* $ nslookup traxlive
+      621      * Server:         10.1.8.21
+      622      * Address:        10.1.8.21#53
+      623      * 
+      624      * Name:   traxlive.intcomex.com
+      625      * Address: 10.1.10.178
+      626      */
+      627   
+      628     xLine = "".
+      629     input stream inStrm through value( "nslookup " + hostName + " | grep Name" ).
+      630     import stream inStrm unformatted xLine.
+      631     if index( xLine, hostName ) > 0 then hostName = trim( entry( 2, xLine, ":" )).
+      632     input stream inStrm close.
+      633   
+      634     /* $ /usr/sbin/prtconf | more
+      635      * System Configuration:  Sun Microsystems  sun4u
+      636      * Memory size: 131072 Megabytes
+      637      * System Peripherals (Software Nodes):
+      638      * 
+      639      * SUNW,SPARC-Enterprise
+      640      * ...
+      641      */
+      642   
+      643     xLine = "".
+      644     input stream inStrm through value( '/usr/sbin/prtconf | grep "Memory size:"' ).               /* reported in Megabytes...     */
+      645     import stream inStrm unformatted xLine.
+      646     memTotal = trim( entry( 3, xLine, " " )).
+      647     input stream inStrm close.
+      648   
+      649     memTotal = trim( string( decimal( memTotal ) / 1024, ">>>>>>>>9.99" )) + " GB" no-error.
+      650   
+      651     /*                            Old             Old       New         New
+      652      *  Resource control          tunable         default   Max value   default
+      653      *  ----------------------    -------------   -------   ---------   ----------
+      654      *  process.max-sem-ops       seminfo_semopm  10        INT_MAX     512
+      655      *  process.max-sem-nsems     seminfo_semmsl  25        SHRT_MAX    512
+      656      *  project.max-sem-ids       seminfo_semmni  10        2**24       128
+      657      *
+      658      *  project.max-shm-memory    shminfo_shmmax  0x800000  UINT64_MAX  1/4 physmem
+      659      *  project.max-shm-ids       shminfo_shmmni  100       2**24       128
+      660      *
+      661      *  $ prctl -n process.max-sem-ops $$
+      662      *  process: 21592: -bash
+      663      *  NAME    PRIVILEGE       VALUE    FLAG   ACTION                       RECIPIENT
+      664      *  process.max-sem-ops
+      665      *          privileged        512       -   deny                                 -
+      666      *          system          2.15G     max   deny                                 -
+      667      *
+      668      *  $ prctl -n process.max-sem-ops $PPID | grep privileged
+      669      *  semopm         privileged        512       -   deny 
+      670      *
+      671      *  $ prctl -n process.max-sem-ops -P $PPID | grep privileged
+      672      *  process.max-sem-ops privileged 512 - deny -
+      673      *
+      674      */
+      675   
+      676     inLine = "".
+      677     input stream inStrm through value( 'prctl -n process.max-sem-ops -P $PPID | grep privileged' ).
+      678     import stream inStrm inLine.
+      679     if inLine[2] <> "failed" then SEMOPM = trim( inLine[3] ).
+      680     input stream inStrm close.
+      681   
+      682     inLine = "".
+      683     input stream inStrm through value( 'prctl -n process.max-sem-nsems -P $PPID | grep privileged' ).
+      684     import stream inStrm inLine.
+      685     if inLine[2] <> "failed" then SEMMSL = trim( inLine[3] ).
+      686     input stream inStrm close.
+      687   
+      688     inLine = "".
+      689     input stream inStrm through value( 'prctl -n process.max-sem-ids $PPID | grep privileged' ).
+      690     import stream inStrm inLine.
+      691     if inLine[2] <> "failed" then SEMMNI = trim( inLine[3] ).
+      692     input stream inStrm close.
+      693   
+      694     inLine = "".
+      695     input stream inStrm through value( 'prctl -n process.max-shm-memory $PPID | grep privileged' ).
+      696     import stream inStrm inLine.
+      697     if inLine[2] <> "failed" then SHMMAX = trim( inLine[3] ).
+      698     input stream inStrm close.
+      699   
+      700     inLine = "".
+      701     input stream inStrm through value( 'prctl -n process.maxx-shm-ids $PPID | grep privileged' ).
+      702     import stream inStrm inLine.
+      703     if inLine[2] <> "failed" then SHMMNI = trim( inLine[3] ).
+      704     input stream inStrm close.
+      705   
+      706     osPageSize = 4096.
+      707   
+      708     /* $ psrinfo -v | grep "operates at" | head -1
+      709      *  The sparcv9 processor operates at 2530 MHz,
+      710      */
+      711   
+      712     inLine = "".
+      713     input stream inStrm through value( 'psrinfo -v | grep "operates at" | head -1' ).
+      714     import stream inStrm inLine.
+      715     if inLine[4] = "operates" then
+      716       assign
+      717         modelCPU = inLine[2]
+      718         clkCPU   = inLine[6] + " " + inline[7]
+      719       .
+      720     input stream inStrm close.
+      721   
+      722     return.
+      723   
+      724   end.
+      725   
+      726   procedure getHPUX:
+      727   
+      728     define variable inLine as character no-undo extent 16.
+      729     define variable xLine  as character no-undo.
+      730   
+      731     find tt_OSInfo no-error.
+      732   
+      733   /* "machinfo"... */
+      734   
+      735   
+      736   
+      737   /* HP-UX just has to be different :(
+      738    *
+      739    * $ uname -a
+      740    * 
+      741    * HP-UX uslvsheila02 B.11.31 U ia64 1827409880 unlimited-user license
+      742    * 
+      743    * $ ulimit -a
+      744    * time(seconds)        unlimited
+      745    * file(blocks)         unlimited
+      746    * data(kbytes)         3932160
+      747    * stack(kbytes)        262140
+      748    * memory(kbytes)       unlimited
+      749    * coredump(blocks)     4194303
+      750    * 
+      751    */
+      752   
+      753   /* In HP/UX v 11, the command to display kernel parameters is kctune and we can grep to see the semaphore settings.
+      754    *
+      755    * $ /usr/sbin/kconfig -v
+      756    * Configuration last_install
+      757    * Title         Created by last OS install
+      758    * Created       Tue Dec 14 12:29:49 2010 by root
+      759    *               by saving the running configuration
+      760    * Modified      Tue Dec 14 12:29:50 2010 by root
+      761    * Kernel Path   /stand/last_install/vmunix
+      762    * 
+      763    * $ /usr/sbin/kctune -c last_install | grep sem
+      764    *
+      765    * sema                 1
+      766    * semaem               16384
+      767    * semmap               (SEMMNI+2)
+      768    * semmni               200
+      769    * semmns               800
+      770    * semmnu               30
+      771    * semume               10
+      772    * semvmx               32767
+      773    */
+      774   
+      775     return.
+      776   
+      777   end.
+      778   
+      779   procedure getWIN32:
+      780   
+      781     define variable inLine as character   no-undo extent 16.
+      782     define variable xLine  as character   no-undo.
+      783   
+      784     define variable i      as integer     no-undo.
+      785   
+      786     define variable dtz    as datetime-tz no-undo.
+      787   
+      788     find tt_OSInfo no-error.
+      789   
+      790     xLine = "".
+      791     input stream inStrm through value( 'wmic os get csname' ).
+      792     import stream inStrm unformatted xLine.
+      793     import stream inStrm unformatted hostName.
+      794     input stream inStrm close.
+      795   
+      796     xLine = "".
+      797     input stream inStrm through value( 'wmic os get caption' ).
+      798     import stream inStrm unformatted xline.
+      799     import stream inStrm unformatted osName.
+      800     input stream inStrm close.
+      801     osName = substring( osName, 11 ).
+      802   
+      803     xLine = "".
+      804     input stream inStrm through value( 'wmic os get version' ).
+      805     import stream inStrm unformatted xline.
+      806     import stream inStrm unformatted osVersion.
+      807     input stream inStrm close.
+      808   
+      809     xLine = "".
+      810     input stream inStrm through value( 'wmic cpu get name' ).
+      811     import stream inStrm unformatted xline.
+      812     import stream inStrm unformatted modelCPU.
+      813     input stream inStrm close.
+      814     modelCPU = replace( modelCPU, "(R)", "" ).
+      815     modelCPU = replace( modelCPU, "(TM)", "" ).
+      816     i = index( modelCPU, "CPU" ).
+      817     if i > 0 then modelCPU = substring( modelCPU, 1, i - 2 ).
+      818     i = index( modelCPU, "processor" ).
+      819     if i > 0 then modelCPU = substring( modelCPU, 1, i - 2 ).
+      820   
+      821     xLine = "".
+      822     input stream inStrm through value( 'wmic cpu get maxclockspeed' ).
+      823     import stream inStrm unformatted xline.
+      824     import stream inStrm unformatted clkCPU.
+      825     input stream inStrm close.
+      826     clkCPU = trim( string( ( decimal( clkCPU ) / 1000.0 ), ">>>>>>9.99" )) + " Ghz".
+      827   
+      828     xLine = "".
+      829     input stream inStrm through value( 'wmic cpu get numberoflogicalprocessors' ).
+      830     import stream inStrm unformatted xline.
+      831     import stream inStrm unformatted numCPU.
+      832     input stream inStrm close.
+      833   
+      834     xLine = "".
+      835     input stream inStrm through value( 'wmic computersystem get totalphysicalmemory' ).
+      836     import stream inStrm unformatted xline.
+      837     import stream inStrm unformatted memTotal.
+      838     input stream inStrm close.
+      839     memTotal = trim( string( ( decimal( memTotal ) / ( 1024 * 1024 * 1024 )), ">>>>>>>9.99" )) + " GB".
+      840   
+      841     xLine = "".
+      842     input stream inStrm through value( 'wmic os get lastbootuptime' ).
+      843     import stream inStrm unformatted xline.
+      844     import stream inStrm unformatted osUpTime.
+      845     input stream inStrm close.
+      846   
+      847   &IF DEFINED( OE10 ) &THEN
+      848   
+      849     dtz = datetime-tz(
+      850       integer( substring( osUpTime,  5, 2 )),             /* month        */
+      851       integer( substring( osUpTime,  7, 2 )),             /* day          */
+      852       integer( substring( osUpTime,  1, 4 )),             /* year         */
+      853       integer( substring( osUpTime,  9, 2 )),             /* hours        */
+      854       integer( substring( osUpTime, 11, 2 )),             /* minutes      */
+      855       integer( substring( osUpTime, 13, 2 )),             /* seconds      */
+      856       integer( integer( substring( osUpTime, 16, 6 )) / 1000 ),   /* milliseconds */
+      857       integer( substring( osUpTime, 22 ))                 /* TZ           */
+      858     ).
+      859   
+      860     osUpTime =
+      861       string( abs ( interval( dtz, now, "days" )), ">>>>>>" ) + " " +
+      862       string( abs ( interval( dtz, now, "seconds" )), "hh:mm:ss" )
+      863     .
+      864   
+      865     osUpTime = trim( osUpTime ).
+      866   
+      867   &ENDIF
+      868   
+      869     return.
+      870   
+      871   end.
+      872   
+      873   procedure getLinux:
+      874   
+      875     define variable inLine as character no-undo extent 16.
+      876     define variable xLine  as character no-undo.
+      877   
+      878     find tt_OSInfo no-error.
+      879   
+      880     if search( "/etc/SuSE-release" ) <> ? then                 /* SuSE */
+      881       /* sample:
+      882       SUSE Linux Enterprise Server 10 (x86_64)
+      883       VERSION = 10
+      884       PATCHLEVEL = 2
+      885       */
+      886       do:
+      887         input stream inStrm from value( "/etc/SuSE-release" ).
+      888         import stream inStrm unformatted xLine.
+      889         osName = xline. /* substring( xLine, 1, 30 ). */
+      890         xLine = "".
+      891         import stream inStrm unformatted xLine.
+      892         osVersion = entry( 3, xLine, " " ) + ".".
+      893         xLine = "".
+      894         import stream inStrm unformatted xLine.
+      895         osVersion = osVersion + entry( 3, xLine, " " ).
+      896         input stream inStrm close.
+      897       end.
+      898      else if search( "/etc/centos-release" ) <> ? then          /* CentOS */
+      899       /* sample:
+      900       CentOS release 6.5 (Final)
+      901       */
+      902       do:
+      903         input stream inStrm through value( 'cut -b 1-25 "/etc/centos-release"' ).
+      904         import stream inStrm unformatted osName.
+      905         input stream inStrm close.
+      906         osVersion = entry( 3, osName, " " ).
+      907       end.
+      908      else if search( "/etc/redhat-release" ) <> ? then          /* RH (or a clone?) */
+      909       /* sample:
+      910       Red Hat Enterprise Linux Server release 6.3 (Santiago)
+      911       */
+      912       do:
+      913         input stream inStrm from value( "/etc/redhat-release" ).
+      914         import stream inStrm unformatted xLine.
+      915         input stream inStrm close.
+      916         osName = xLine. /* substring( xLine, 1, 25 ). */
+      917         osVersion = entry( 2, substring( xLine, index( xLine, "release" ) ), " " ).
+      918       end.
+      919      else                                                       /* some other Linux */
+      920       do:
+      921         input stream inStrm through value( 'uname' ).
+      922         import stream inStrm osName.
+      923         input stream inStrm close.
+      924       end.
+      925   
+      926     input stream inStrm from value( "/proc/sys/kernel/sem" ).
+      927     import stream inStrm SEMMSL SEMMNS SEMOPM SEMMNI.
+      928     input stream inStrm close.
+      929   
+      930     input stream inStrm from value( "/proc/sys/kernel/shmmax" ).
+      931     import stream inStrm SHMMAX.
+      932     input stream inStrm close.
+      933   
+      934     input stream inStrm through value( "getconf PAGESIZE" ).
+      935     import stream inStrm osPageSize.   /* in bytes */
+      936     input stream inStrm close.
+      937   
+      938     SHMMAX = string( decimal( SHMMAX ) / ( 1024 * 1024 * 1024 ), ">>>>>>>>>>>>>>>>>>>>9" ) + " GB".
+      939   
+      940     input stream inStrm from value( "/proc/sys/kernel/shmmni" ).
+      941     import stream inStrm SHMMNI.
+      942     input stream inStrm close.
+      943   
+      944     input stream inStrm from value( "/proc/sys/kernel/shmall" ).
+      945     import stream inStrm SHMALL.
+      946     input stream inStrm close.
+      947   
+      948     SHMALL = string(( decimal( SHMALL ) / ( 1024 * 1024 * 1024 )) * osPageSize, ">>>>>>>>>>>>>>>>>>>>9" ) + " GB".
+      949   
+      950     input stream inStrm from value( "/proc/cpuinfo" ).
+      951     repeat:
+      952       xLine = "".
+      953       import stream inStrm unformatted xLine.
+      954       if       xLine begins "model name" then modelCPU = entry( 2, xLine, ":" ).
+      955        else if xLine begins "cpu MHz"    then clkCPU   = trim( string( decimal( trim( entry( 2, xLine, ":" ))) / 1024, ">>>>>9.99" )).
+      956        else if xLine begins "core id"    then leave.
+      957     end.
+      958     input stream inStrm close.
+      959   
+      960     input stream inStrm through value( 'grep "processor" /proc/cpuinfo | wc -l' ).
+      961     import stream inStrm numCPU.
+      962     input stream inStrm close.
+      963   
+      964     clkCPU = clkCPU + " GHz".
+      965   
+      966     if modelCPU <> "" then
+      967       do:
+      968         assign
+      969           modelCPU = entry( 1, modelCPU, "@" )
+      970           modelCPU = replace( modelCPU, "(R)", "" )
+      971           modelCPU = replace( modelCPU, "Intel", "" )
+      972           modelCPU = replace( modelCPU, "CPU", "" )
+      973         .
+      974         do while index( modelCPU, "  " ) > 0:
+      975           modelCPU = replace( modelCPU, "  ", " " ).
+      976         end. 
+      977       end.
+      978   
+      979     input stream inStrm from value( "/proc/meminfo" ).
+      980     repeat:
+      981       xLine = "".
+      982       import stream inStrm unformatted xLine.
+      983       if       xLine begins "MemTotal"   then memTotal  = trim( string( decimal( entry( 1, trim( entry( 2, xLine, ":" )), " " )) / ( 1024 * 1024 ), ">>>>>>>>>>>>9.99 GB" )).
+      984     /*** this is more of a realtime dashboard -- nmon or top are much better for this
+      985      ***
+      986        else if xLine begins "MemFree"    then memFree   = decimal( entry( 1, trim( entry( 2, xLine, ":" )), " " )) / ( 1024 * 1024 ).
+      987        else if xLine begins "Buffers"    then memBufs   = decimal( entry( 1, trim( entry( 2, xLine, ":" )), " " )) / ( 1024 * 1024 ).
+      988        else if xLine begins "Cached"     then memCached = decimal( entry( 1, trim( entry( 2, xLine, ":" )), " " )) / ( 1024 * 1024 ).
+      989        else if xLine begins "Shmem"      then memShared = decimal( entry( 1, trim( entry( 2, xLine, ":" )), " " )) / ( 1024 * 1024 ).
+      990        else if xLine begins "Active:"    then memActive = decimal( entry( 1, trim( entry( 2, xLine, ":" )), " " )) / ( 1024 * 1024 ).
+      991        else if xLine begins "Inactive:"  then memInAct  = decimal( entry( 1, trim( entry( 2, xLine, ":" )), " " )) / ( 1024 * 1024 ).
+      992      ***
+      993      ***/
+      994        else if xLine begins "Slab" then leave.
+      995     end.
+      996     input stream inStrm close.
+      997   
+      998     input stream inStrm through value( "nslookup " + hostName + " | grep canonical" ).    /* Linux only?  */
+      999     import stream inStrm xLine.
+     1000     if index( xLine, hostName ) > 0 then hostName = xLine.
+     1001     input stream inStrm close.
+     1002   
+     1003     return.
+     1004   
+     1005   end.
+     1006   
+     1007   procedure osInfo:
+     1008   
+     1009     define variable inLine as character no-undo extent 16.
+     1010     define variable xLine  as character no-undo.
+     1011   
+     1012     find tt_OSInfo no-error.
+     1013     if not available( tt_osinfo ) then create tt_osinfo.
+     1014   
+     1015     if opsys begins "WIN" then
+     1016       assign
+     1017         osName = "Please apply the Linux patch ;)"
+     1018         linuxPatch = yes
+     1019       .
+     1020      else
+     1021       do:
+     1022         input stream inStrm through value( "uname -a" ).
+     1023         import stream inStrm osName hostName keVersion.
+     1024         input stream inStrm close.
+     1025       end.
+     1026   
+     1027     if opsys <> "WIN32" then
+     1028       do:
+     1029   
+     1030         input stream inStrm through value( "ulimit -a" ).         /* this should be portable across all unix implementations...   */
+     1031                                                                   /* except, of course, for HP-UX :(                              */
+     1032         repeat:
+     1033   
+     1034           /* $ ulimit -a
+     1035            * time(seconds)        unlimited
+     1036            * file(blocks)         unlimited
+     1037            * data(kbytes)         3932160
+     1038            * stack(kbytes)        262140
+     1039            * memory(kbytes)       unlimited
+     1040            * coredump(blocks)     4194303
+     1041            */
+     1042   
+     1043           xLine = "".
+     1044           import stream inStrm unformatted xLine.
+     1045   
+     1046           if index( xLine, "-f)" ) > 0 or xLine begins "file(blocks)" then
+     1047             do:
+     1048               maxFileSz  = trim( entry( 2, xLine, ")" )).                                                                                 /* ulimit -f    */
+     1049               if maxFileSz <> "unlimited" then 
+     1050                 maxFileSz  = string( decimal( maxFileSz ) / ( 1024 * 1024 * 2 )) + " GB" no-error.                                        /* ulimit value is in "blocks"  */
+     1051             end.
+     1052            else if index( xLine, "-n)" ) > 0 then maxOpenFl  = trim( entry( 2, xLine, ")" )) no-error.                                    /* ulimit -n    */
+     1053            else if index( xLine, "-u)" ) > 0 then maxProcs   = trim( entry( 2, xLine, ")" )) no-error.                                    /* ulimit -u    */
+     1054            else if index( xLine, "-s)" ) > 0 or xLine begins "stack(kbytes)"  then maxStack   = trim( entry( 2, xLine, ")" )) no-error.   /* ulimit -s    */
+     1055            else if index( xLine, "-d)" ) > 0 or xLine begins "data(kbytes)"   then maxDataSeg = trim( entry( 2, xLine, ")" )) no-error.   /* ulimit -d    */
+     1056            else if index( xLine, "-m)" ) > 0 or xLine begins "memory(kbytes)" then maxProcMem = trim( entry( 2, xLine, ")" )) no-error.   /* ulimit -m    */
+     1057   
+     1058   /***
+     1059    *      if       inLine[1] = "file"  and inLine[2] = "size"   then maxFileSz  = inLine[5].      /* ulimit -f    */
+     1060    *       else if inLine[1] = "open"  and inLine[2] = "files"  then maxOpenFl  = inLine[4].      /* ulimit -n    */
+     1061    *       else if inLine[1] = "max"   and inLine[2] = "memory" then maxProcMem = inLine[6].      /* ulimit -m    */
+     1062    *       else if inLine[1] = "max"   and inLine[2] = "user"   then maxProcs   = inLine[5].      /* ulimit -u    */
+     1063    *       else if inLine[1] = "stack" and inLine[2] = "size"   then maxStack   = inLine[5].      /* ulimit -s    */
+     1064    *       else if inLine[1] = "data"  and inLine[2] = "seg"    then maxDataSeg = inLine[6].      /* ulimit -d    */
+     1065    *       /*
+     1066    *       else if inLine[1] = "max"   and inLine[2] = "user"   then maxProcs   = inLine[5].      /* ulimit -     */
+     1067    *       else if inLine[1] = "max"   and inLine[2] = "user"   then maxProcs   = inLine[5].      /* ulimit -     */
+     1068    *        */
+     1069    ***/
+     1070   
+     1071         end.
+     1072         input stream inStrm close.
+     1073   
+     1074       end.
+     1075   
+     1076     if       osName = "Linux" then run getLinux.
+     1077      else if osName = "AIX"   then run getAIX.
+     1078      else if osName = "SunOS" then run getSunOS.
+     1079      else if osName = "HPUX"  then run getHPUX.
+     1080      else if opsys  = "WIN32" then run getWIN32.
+     1081   
+     1082     return.
+     1083   
+     1084   end.
+     1085   
+     1086    
+     1087   
+     1088   
+     1089   procedure mon-init:
+     1090   
+     1091     run osInfo.
+     1092   
+     1093     return.
+     1094   
+     1095   end.
+     1096   
+     1097   
+     1098   procedure mon-update:
+     1099   
+     1100     define input parameter argList as character no-undo.
+     1101   
+     1102     define variable inLine as character no-undo extent 16.
+     1103     define variable xLine  as character no-undo.
+     1104   
+     1105     find tt_OSInfo no-error.
+     1106     if not available( tt_osinfo ) then create tt_osinfo.
+     1107   
+     1108     if opsys begins "WIN" then
+     1109       do:
+     1110         if linuxPatch then
+     1111           osName = "Please apply the Linux patch ;)".
+     1112          else
+     1113           run getWIN32.
+     1114         linuxPatch = not( linuxPatch ).
+     1115       end.
+     1116      else
+     1117       do:
+     1118         input stream inStrm through value( "uptime" ).
+     1119         import stream inStrm unformatted xLine.
+     1120         input stream inStrm close.
+     1121         osUpTime = entry( 1, substring( xLine, index( xLine, "up" ) + 3 )).
+     1122       end.
+     1123   
+     1124     add2ds( temp-table tt_osinfo:default-buffer-handle ).
+     1125   
+     1126     return.
+     1127   
+     1128   end.
+     1129   
+     1130   
+     1131   /* lib/dumpTT.i
+     1132    *
+     1133    * simplified to a single line -- include should be eliminated.
+     1134    *
+     1135    */
+     1136   
+     1137   &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.1 &THEN
+     1138   /*** +++
+     1139   file-info:file-name = "./ptdefs".
+     1140   if file-info:full-pathname <> ? and index( file-info:file-type, "d" ) > 0 and index( file-info:file-type, "w" ) > 0 then
+     1141     do:
+     1142   
+     1143       file-info:file-name = "./ptdefs/{1}.xsd".
+     1144   
+     1145       if true /* file-info:full-pathname = ? or file-info:file-size = 0 */ then
+     1146         do:
+     1147   
+     1148           temp-table {1}:write-xmlschema(
+     1149             "file",
+     1150   /*        substitute( "ptdefs/&1.xsd", "{1}" ), */
+     1151   /*        "./ptdefs/{1}.xsd", */
+     1152             ( if opsys = "unix" then "./ptdefs/{1}.xsd" else ".~\ptdefs~\{1}.xsd" ),
+     1153             true
+     1154   
+     1155         &IF DECIMAL(SUBSTRING(PROVERSION,1,INDEX(PROVERSION,".") + 1)) >= 10.2
+     1156         &THEN
+     1157             , ?, ?, ?
+     1158         &ENDIF
+     1159   
+     1160       ).
+     1161   
+     1162       end.
+     1163   
+     1164     end.
+     1165    +++ ***/
+     1166   &ENDIF
+     1167    
+     1168   
+     1169   return.

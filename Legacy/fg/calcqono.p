@@ -6,7 +6,7 @@ DEF OUTPUT PARAM op-q-ono LIKE itemfg.q-ono NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg.
 DEF BUFFER b-po-ordl FOR po-ordl.
 
-DEF VAR ld-qty LIKE fg-act.qty NO-UNDO.
+DEF VAR ld-qty LIKE fg-bin.qty NO-UNDO.
 DEF VAR li-loop AS INT NO-UNDO.
 DEF VAR v-set-job-qty AS INT NO-UNDO.
 DEF VAR v-set-rcv-qty AS INT NO-UNDO.

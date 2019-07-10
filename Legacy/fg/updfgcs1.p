@@ -13,30 +13,41 @@ DEF BUFFER b-fg-rdtlh FOR fg-rdtlh.
 DEF BUFFER b-fg-bin   FOR fg-bin.
 DEFINE VARIABLE v-qty             AS INTEGER.
 DEFINE VARIABLE v-binqty          AS INTEGER.
-DEFINE VARIABLE v-date            AS DATE              INIT 01/01/0001.
+DEFINE VARIABLE v-date            AS DATE      INIT 01/01/0001.
 DEFINE VARIABLE v-uom             LIKE fg-rcpth.pur-uom.
 DEFINE VARIABLE v-cost-ea         AS DECIMAL.
-DEFINE VARIABLE v-cost            AS DECIMAL           EXTENT 8.
+DEFINE VARIABLE v-cost            AS DECIMAL   EXTENT 8.
 DEFINE VARIABLE v-r-no            LIKE fg-rcpth.r-no.
-DEFINE VARIABLE v-rec             AS LOGICAL           INIT NO.
-DEFINE VARIABLE ll-all-empty-bins AS LOGICAL           NO-UNDO.
-DEFINE VARIABLE v-last-fix        AS DECIMAL           NO-UNDO.
-DEFINE VARIABLE v-last-lab        AS DECIMAL           NO-UNDO.
-DEFINE VARIABLE v-last-mat        AS DECIMAL           NO-UNDO.
-DEFINE VARIABLE v-last-var        AS DECIMAL           NO-UNDO.
-DEFINE VARIABLE lvdTransDate      AS DATE              NO-UNDO.
-DEFINE VARIABLE v-recalc-if1      AS LOGICAL           NO-UNDO.
+DEFINE VARIABLE v-rec             AS LOGICAL   INIT NO.
+DEFINE VARIABLE ll-all-empty-bins AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-last-fix        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE v-last-lab        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE v-last-mat        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE v-last-var        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lvdTransDate      AS DATE      NO-UNDO.
+DEFINE VARIABLE v-recalc-if1      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE llFound           AS log.
 DEFINE VARIABLE ldSaveCost        LIKE fg-rdtlh.cost EXTENT 6 NO-UNDO.
-DEFINE VARIABLE cPgmStack         AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cPgmStack         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAuditCostChange  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iAuditID          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dPrevLastCost     LIKE itemfg.last-cost NO-UNDO.
+DEFINE VARIABLE dPrevMatCost      LIKE itemfg.std-mat-cost NO-UNDO.
+DEFINE VARIABLE dPrevLabCost      LIKE itemfg.std-lab-cost NO-UNDO.
+DEFINE VARIABLE dPrevVarCost      LIKE itemfg.std-var-cost NO-UNDO.
+DEFINE VARIABLE dPrevFixCost      LIKE itemfg.std-fix-cost NO-UNDO.
+DEFINE VARIABLE dPrevTotCost      LIKE itemfg.std-tot-cost NO-UNDO.
 {fg/fullset.i NEW}
 FUNCTION pgmStack RETURNS CHAR
   ( /* parameter-definitions */ )  FORWARD.
 
 cPgmStack = pgmStack().
 v-recalc-if1 = INDEX(cPgmStack,"fg/d-recost.w") > 0
-OR INDEX(cPgmStack,"fg/fgpstall.w") > 0.
-
+OR INDEX(cPgmStack,"fg/fgpstall.w") > 0
+OR INDEX(cPgmStack,"util/fxtrncst") > 0.
+  FIND prgrms NO-LOCK WHERE prgrms.prgmname = "updfgcs1." NO-ERROR.
+  IF AVAIL prgrms AND prgrms.track_usage THEN  
+      lAuditCostChange = TRUE.
 DISABLE TRIGGERS FOR LOAD OF itemfg.
     
     FIND itemfg WHERE RECID(itemfg) EQ ip-recid NO-LOCK.
@@ -365,7 +376,15 @@ DISABLE TRIGGERS FOR LOAD OF itemfg.
             run sys/ref/convcuom.p("EA", itemfg.prod-uom, 0, 0, 0, 0,
             v-cost[2], output itemfg.last-cost).
             */
-            
+
+            ASSIGN
+             dPrevLastCost = itemfg.last-cost 
+             dPrevMatCost  = itemfg.std-mat-cost 
+             dPrevLabCost  = itemfg.std-lab-cost 
+             dPrevVarCost  = itemfg.std-var-cost 
+             dPrevFixCost  = itemfg.std-fix-cost 
+             dPrevTotCost  = itemfg.std-tot-cost 
+             .
             IF v-recalc-if1 THEN
             itemfg.last-cost = v-cost[2].
          
@@ -401,7 +420,31 @@ DISABLE TRIGGERS FOR LOAD OF itemfg.
             itemfg.std-tot-cost   = itemfg.std-mat-cost + itemfg.std-lab-cost +
             itemfg.std-var-cost + itemfg.std-fix-cost
             itemfg.total-std-cost = itemfg.std-tot-cost.
+
+            IF  lAuditCostChange  AND 
+             (dPrevLastCost NE itemfg.last-cost OR
+             dPrevMatCost  NE itemfg.std-mat-cost OR 
+             dPrevLabCost  NE itemfg.std-lab-cost OR 
+             dPrevVarCost  NE itemfg.std-var-cost OR 
+             dPrevFixCost  NE itemfg.std-fix-cost OR 
+             dPrevTotCost  NE itemfg.std-tot-cost) THEN DO:
+                RUN spCreateAuditHdr (
+                    "LOG", /* audit type */
+                    "ASI",  /* audit db */
+                    "updfgcs1.", /* audit table */
+                    "",
+                    OUTPUT iAuditID
+                    ).
             
+                RUN spCreateAuditDtl (
+                    iAuditID,
+                    "updfgcs1.",       /* audit field */
+                    0,                 /* audit extent */
+                    STRING(dPrevTotCost), 
+                    STRING(itemfg.std-tot-cost), /* after value */
+                    NO         /* is an idx field */
+                    ).                 
+             END.  
           END.
           
         END. /* if v-qty ne 0 or ll-all-empty-bins */
@@ -521,47 +564,110 @@ DISABLE TRIGGERS FOR LOAD OF itemfg.
     end.
     */
     
-PROCEDURE cost-when-zero-qty:
+PROCEDURE cost-when-zero-qty:    
+DEFINE VARIABLE hCostProcs AS HANDLE NO-UNDO.
 DEF VAR lv-uom AS CHAR NO-UNDO.
+DEFINE VARIABLE dCostPerUOMTotal LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE dCostPerUOMDL LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE dCostPerUOMFO LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE dCostPerUOMVO LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE dCostPerUOMDM LIKE itemfg.avg-cost NO-UNDO.
+DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 
-    FOR EACH b-fg-rcpth
-      WHERE b-fg-rcpth.company   EQ itemfg.company
-      AND b-fg-rcpth.i-no      EQ itemfg.i-no
-      AND b-fg-rcpth.rita-code EQ "R"
-      USE-INDEX i-no NO-LOCK,
+RUN system/costProcs.p PERSISTENT SET hCostProcs.    
 
-      FIRST b-fg-rdtlh
-      WHERE b-fg-rdtlh.r-no    EQ b-fg-rcpth.r-no
-      AND b-fg-rdtlh.rita-code EQ b-fg-rcpth.rita-code
-      AND b-fg-rdtlh.qty     GT 0
-      NO-LOCK
-
-      BY b-fg-rcpth.trans-date desc
-      BY b-fg-rdtlh.trans-time DESC
-      BY b-fg-rcpth.r-no       desc
-      BY RECID(b-fg-rdtlh)     desc:
-
-      FIND FIRST fg-rctd WHERE fg-rctd.r-no = b-fg-rdtlh.r-no NO-LOCK NO-ERROR.
-
-      lv-uom = "EA".
-      IF AVAIL fg-rctd THEN
-          lv-uom = fg-rctd.cost-uom.
-      
-      IF lv-uom NE "M" THEN
-        ASSIGN itemfg.avg-cost = b-fg-rdtlh.cost.
-      ELSE
-        ASSIGN itemfg.avg-cost = b-fg-rdtlh.cost * 1000.
-
-      ASSIGN itemfg.std-mat-cost   = itemfg.avg-cost
-             itemfg.total-std-cost = itemfg.avg-cost
-             itemfg.last-cost      = itemfg.avg-cost.
-
-      /* If found the fg-rctd, assume we have the correct uom,
-         otherwise keep looking */
-      IF itemfg.avg-cost NE 0 AND AVAIL(fg-rctd) THEN
-        LEAVE.
-    END.
-
+IF NOT VALID-HANDLE(hCostProcs) THEN 
+    RETURN. 
+    
+    IF VALID-HANDLE(hCostProcs) THEN 
+        RUN GetCostForLastReceipt IN hCostProcs
+            (
+            INPUT itemfg.company,
+            INPUT itemfg.i-no,
+            OUTPUT dCostPerUOMTotal,
+            OUTPUT dCostPerUOMDL,
+            OUTPUT dCostPerUOMFO,
+            OUTPUT dCostPerUOMVO,
+            OUTPUT dCostPerUOMDM,  
+            OUTPUT cCostUOM,
+            OUTPUT lFound
+            ).
+                
+      lv-uom = itemfg.prod-uom.
+      IF cCostUOM EQ "" THEN cCostUOM = lv-uom.
+      IF cCostUom EQ lv-uom THEN       
+         ASSIGN itemfg.avg-cost     = dCostPerUOMTotal
+                itemfg.std-lab-cost = dCostPerUOMDL
+                itemfg.std-fix-cost = dCostPerUOMFO
+                itemfg.std-var-cost = dCostPerUOMVO
+                itemfg.std-mat-cost = dCostPerUOMDM
+               .
+      ELSE DO:
+          ASSIGN itemfg.avg-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                1,
+                1,
+                dCostPerUOMTotal
+                )            
+          itemfg.std-lab-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                1,
+                1,
+                dCostPerUOMDL
+                ) 
+          itemfg.std-fix-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                1,
+                1,
+                dCostPerUOMFO
+                ) 
+          itemfg.std-var-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                1,
+                1,
+                dCostPerUOMVO
+                ) 
+          itemfg.std-mat-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
+                cCostUom,
+                lv-uom,
+                itemfg.weight-100,
+                itemfg.t-len,
+                itemfg.t-wid,
+                itemfg.t-dep,
+                1,
+                1,
+                dCostPerUOMDM
+                )                                 
+                .
+      END. /* UOM conversions */
+       
+      ASSIGN itemfg.total-std-cost = itemfg.avg-cost
+             itemfg.last-cost      = itemfg.avg-cost
+             .
+    
+    DELETE OBJECT hCostProcs.
+    
 END PROCEDURE.
 
 FUNCTION pgmStack RETURNS CHAR

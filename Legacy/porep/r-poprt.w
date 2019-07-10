@@ -94,6 +94,16 @@ DEFINE BUFFER b1-po-ord   FOR po-ord.
 /* gdm - 11190804 */
 DEFINE BUFFER bf-attach FOR attach.
 
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("porep/r-poprt.w","", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+
+IF lResult THEN ASSIGN lAsiUser = YES .
+
 /* Variables */
 DEFINE VARIABLE vcErrorMsg AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
@@ -136,13 +146,13 @@ begin_vend-no end_vend-no tb_reprint tb_reprint-closed tb_delete ~
 tb_print-terms tb_spec tb_attachments tb_cust-code tb_corr tb_group-notes ~
 tb_mach tb_Summarize-by-item tb_grand-total tb_itemDescription ~
 tb_score-types tb_metric tb_print-prices rd-dest lv-ornt lines-per-page ~
-lv-font-no td-show-parm btn-ok btn-cancel 
+lv-font-no td-show-parm btn-ok btn-cancel run_format
 &Scoped-Define DISPLAYED-OBJECTS begin_po-no end_po-no begin_vend-no ~
 end_vend-no tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec ~
 tb_attachments tb_cust-code tb_corr tb_group-notes tb_mach ~
 tb_Summarize-by-item tb_grand-total tb_itemDescription tb_score-types ~
 tb_metric tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm 
+lv-font-name td-show-parm run_format
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -320,6 +330,10 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -354,6 +368,7 @@ DEFINE FRAME FRAME-A
      lv-font-no AT ROW 17.91 COL 34 COLON-ALIGNED
      lv-font-name AT ROW 18.86 COL 28 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 21.48 COL 31
+     run_format AT ROW 21.48 COL 65 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 23.62 COL 22
      btn-cancel AT ROW 23.62 COL 61
      "Output Destination" VIEW-AS TEXT
@@ -653,7 +668,7 @@ DO:
     END.
  
     /* If there is are vendor-specific forms, run this way */
-    IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+    IF NOT lAsiUser AND CAN-FIND(FIRST sys-ctrl-shipto WHERE
         sys-ctrl-shipto.company = cocode AND
         sys-ctrl-shipto.NAME = "POPRINT") THEN
         DO:
@@ -750,7 +765,7 @@ DO:
              BREAK BY b1-po-ord.company
                    BY b1-po-ord.vend-no
                    BY b1-po-ord.po-no :
-            IF FIRST-OF (b1-po-ord.vend-no) THEN DO:
+            IF FIRST-OF (b1-po-ord.vend-no) THEN DO:  
                 ASSIGN
                     v-print-fmt = vcDefaultForm
                     cPdfFilesAttach = "" 
@@ -1068,6 +1083,42 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
+DO:
+   ASSIGN run_format.
+        IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
+            ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
+                vcDefaultForm = v-print-fmt .
+            RUN SetPOPrintForm(v-print-fmt) .
+            RUN  pRunFormatValueChanged .
+        END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Font */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+
+    RUN windows/l-syschrL.w (gcompany,"POPrint",run_format:SCREEN-VALUE,OUTPUT char-val).
+    IF char-val NE '' THEN
+        run_format:SCREEN-VALUE = ENTRY(1,char-val).
+    IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
+        ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
+            vcDefaultForm = v-print-fmt.
+        RUN SetPOPrintForm(v-print-fmt) .
+        RUN  pRunFormatValueChanged .
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -1150,50 +1201,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ASSIGN
      lines-per-page              = li-lineperpage
      lines-per-page:SCREEN-VALUE = STRING(li-lineperpage).
-
-    IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
-
-    IF NOT CAN-DO('Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana',v-print-fmt) THEN DO:
-       IF v-print-fmt NE "CentBox" THEN
-          ASSIGN
-             tb_itemDescription = NO
-             tb_itemDescription:SCREEN-VALUE = 'NO'
-
-         tb_score-types              = CAN-DO("Premierx,PremierCX,PremierXFGItems,Fibrex,Lovepac,POPrint10-CAN,MWFibre,Protagon,Sultana",v-print-fmt)
-         tb_score-types:SCREEN-VALUE = STRING(tb_score-types)
-         tb_score-types:SENSITIVE    = YES.
-
-       DISABLE tb_itemDescription
-               tb_score-types.
-    END.
-
-    IF v-print-fmt EQ "CSC" THEN
-       ASSIGN
-          tb_score-types:SCREEN-VALUE = STRING(tb_score-types)
-          tb_score-types:SENSITIVE = YES.
-
-
-    IF v-print-fmt EQ "CentBox" THEN
-       ASSIGN
-          tb_itemDescription:LABEL = "Print P.O. Description Lines"
-          tb_itemDescription:SENSITIVE = YES.
-
-    IF LOOKUP(v-print-fmt,"xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,ppi,Packrite") = 0 THEN 
-       DISABLE tb_metric.
-
-   /* IF v-print-fmt NE "Indiana" OR v-print-fmt NE "Indiana" THEN*/
-        IF LOOKUP(v-print-fmt,"Indiana,Premierx,PremierCX,PremierXFGItems") = 0 THEN
-            ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
-                   tb_print-prices:SENSITIVE = NO.
-   
-    IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
-       DISABLE tb_cust-code tb_mach.
-
-    IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") NE 0 THEN 
-        tb_grand-total:HIDDEN = NO .
-    ELSE 
-        tb_grand-total:HIDDEN = YES .
-
+    
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.
@@ -1201,6 +1209,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF NOT poexport-log THEN DISABLE tb_corr.
     APPLY "entry" TO begin_po-no IN FRAME {&FRAME-NAME}.
   END.
+
+  RUN pRunFormatValueChanged .
+
+  IF NOT lAsiUser THEN
+         RUN_format:HIDDEN IN FRAME FRAME-A = YES .
+  ELSE 
+      RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1264,14 +1279,14 @@ PROCEDURE enable_UI :
           tb_cust-code tb_corr tb_group-notes tb_mach tb_Summarize-by-item 
           tb_grand-total tb_itemDescription tb_score-types tb_metric 
           tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm 
+          td-show-parm run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_po-no end_po-no begin_vend-no end_vend-no 
          tb_reprint tb_reprint-closed tb_delete tb_print-terms tb_spec 
          tb_attachments tb_cust-code tb_corr tb_group-notes tb_mach 
          tb_Summarize-by-item tb_grand-total tb_itemDescription tb_score-types 
          tb_metric tb_print-prices rd-dest lv-ornt lines-per-page lv-font-no 
-         td-show-parm btn-ok btn-cancel 
+         td-show-parm btn-ok btn-cancel run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1687,6 +1702,7 @@ PROCEDURE run-report :
     lPrintMach          =  tb_mach
     lPrintGrandTotMsf   = tb_grand-total   .
 
+  
   IF ip-sys-ctrl-shipto THEN
      ASSIGN
         v-start-vend = icVendNo
@@ -1787,7 +1803,7 @@ PROCEDURE run-report :
     RUN VALUE(v-program) (lv-multi-faxout,lines-per-page). 
   ELSE  
     RUN VALUE(v-program).
-
+ 
   FOR EACH reftable WHERE reftable.reftable EQ "vend.poexport" TRANSACTION:
     FIND FIRST vend
          WHERE vend.company   EQ reftable.company
@@ -1845,7 +1861,7 @@ PROCEDURE SetGlobalVariables :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-po-ord-no AS INTEGER NO-UNDO.
 
-  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
+  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
     THEN is-xprint-form = YES.
     ELSE is-xprint-form = NO.
 
@@ -1910,6 +1926,7 @@ PROCEDURE SetPOPrintForm :
     WHEN "asixprnt"     THEN ASSIGN v-program = "po/po-asix.p"      li-lineperpage = 80.  
     WHEN "PremierX"     THEN ASSIGN v-program = "po/po-xprem.p"     li-lineperpage = 80.  
     WHEN "PremierXFGItems"     THEN ASSIGN v-program = "po/po-xpremfg.p"     li-lineperpage = 80.  
+    WHEN "POPrint-Mex"  THEN ASSIGN v-program = "po/po-prntMex.p"     li-lineperpage = 80.  
     WHEN "PremierCX"    THEN ASSIGN v-program = "po/po-cxprem.p"     li-lineperpage = 80.
     WHEN "Protagon"     THEN ASSIGN v-program = "po/po-protg.p"     li-lineperpage = 85.  
     WHEN "Protagon2"    THEN ASSIGN v-program = "po/po-protg2.p"    li-lineperpage = 85.
@@ -2005,6 +2022,75 @@ PROCEDURE show-param :
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
   PAGE.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
+PROCEDURE pRunFormatValueChanged :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+
+        IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
+        ELSE ENABLE tb_spec .
+
+        IF NOT CAN-DO('Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,PremierXFGItems,POPrint-Mex',v-print-fmt) THEN DO:
+            IF v-print-fmt NE "CentBox" THEN
+                ASSIGN
+                tb_itemDescription = NO
+                tb_itemDescription:SCREEN-VALUE = 'NO'
+
+                tb_score-types              = CAN-DO("Fibrex,Lovepac,POPrint10-CAN,MWFibre,Protagon,Sultana",v-print-fmt)
+                tb_score-types:SCREEN-VALUE = STRING(tb_score-types)
+                tb_score-types:SENSITIVE IN FRAME {&FRAME-NAME}   = YES.
+            
+            DISABLE tb_itemDescription
+                tb_score-types.
+        END.
+        ELSE DO:
+             ENABLE tb_itemDescription
+                tb_score-types.
+        END.
+
+        IF v-print-fmt EQ "CSC" THEN
+            ASSIGN
+            tb_score-types:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+
+        IF v-print-fmt EQ "CentBox" THEN
+            ASSIGN
+            tb_itemDescription:LABEL = "Print P.O. Description Lines"
+            tb_itemDescription:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+        ELSE tb_itemDescription:LABEL = "Print FG Item Description 3 Line?" .
+        
+        IF LOOKUP(v-print-fmt,"xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,ppi,Packrite") = 0 THEN 
+            DISABLE tb_metric.
+        ELSE ENABLE tb_metric.
+
+        IF LOOKUP(v-print-fmt,"Indiana,Premierx,PremierCX,PremierXFGItems,POPrint-Mex") = 0 THEN
+            ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
+            tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+        ELSE ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
+            tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+
+        IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
+            DISABLE tb_cust-code tb_mach.
+        ELSE ENABLE tb_cust-code tb_mach.
+
+        IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") NE 0 THEN 
+            tb_grand-total:HIDDEN IN FRAME {&FRAME-NAME} = NO .
+        ELSE 
+            tb_grand-total:HIDDEN IN FRAME {&FRAME-NAME} = YES .
+
+        ASSIGN
+            lines-per-page              = li-lineperpage
+            lines-per-page:SCREEN-VALUE = STRING(li-lineperpage).
+            
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,0 +1,19 @@
+ADD FIELD "job-mchID" OF "job-mch" AS integer 
+  FORMAT ">>>>>>>>9"
+  INITIAL "0"
+  LABEL "Unique ID"
+  POSITION 75
+  MAX-WIDTH 4
+  HELP "Generated from sequencer job-mch_seq"
+  ORDER 840
+
+ADD INDEX "job-mchID" ON "job-mch" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by job-mchID"
+  INDEX-FIELD "job-mchID" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000016973

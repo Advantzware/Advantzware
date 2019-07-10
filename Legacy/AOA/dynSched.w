@@ -56,6 +56,7 @@ Task.dayOfWeek7
 {methods/defines/sortByDefs.i}
 
 DEFINE VARIABLE cMode              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSessionValue      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSuperProcedures   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hContainer         AS HANDLE    NO-UNDO.
@@ -626,8 +627,6 @@ DEFINE FRAME viewFrame
           LABEL "5"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfMonth[6] AT ROW 7.43 COL 68 WIDGET-ID 534
           LABEL "6"
           VIEW-AS TOGGLE-BOX
@@ -652,6 +651,8 @@ DEFINE FRAME viewFrame
           LABEL "11"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
      Task.dayOfMonth[12] AT ROW 8.38 COL 60 WIDGET-ID 546
           LABEL "12"
           VIEW-AS TOGGLE-BOX
@@ -660,8 +661,6 @@ DEFINE FRAME viewFrame
           LABEL "13"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
      Task.dayOfMonth[14] AT ROW 8.38 COL 76 WIDGET-ID 550
           LABEL "14"
           VIEW-AS TOGGLE-BOX
@@ -694,14 +693,16 @@ DEFINE FRAME viewFrame
           LABEL "21"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
      Task.dayOfMonth[22] AT ROW 10.29 COL 28 WIDGET-ID 570
           LABEL "22"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
      Task.dayOfMonth[23] AT ROW 10.29 COL 36 WIDGET-ID 576
           LABEL "23"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
+     Task.dayOfMonth[24] AT ROW 10.29 COL 44 WIDGET-ID 578
+          LABEL "24"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -712,20 +713,16 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     Task.dayOfMonth[24] AT ROW 10.29 COL 44 WIDGET-ID 578
-          LABEL "24"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
      Task.dayOfMonth[25] AT ROW 10.29 COL 52 WIDGET-ID 566
           LABEL "25"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
      Task.dayOfMonth[26] AT ROW 10.29 COL 60 WIDGET-ID 568
           LABEL "26"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      Task.dayOfMonth[27] AT ROW 10.29 COL 68 WIDGET-ID 572
           LABEL "27"
           VIEW-AS TOGGLE-BOX
@@ -759,12 +756,12 @@ DEFINE FRAME viewFrame
      btnCalendar-1 AT ROW 12.43 COL 30 WIDGET-ID 76
      startDateOption AT ROW 12.43 COL 33 COLON-ALIGNED HELP
           "Select Start Receipt Date Option" NO-LABEL WIDGET-ID 74
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
      Task.endDate AT ROW 13.62 COL 12 COLON-ALIGNED WIDGET-ID 506
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
      btnCalendar-2 AT ROW 13.62 COL 30 WIDGET-ID 78
      endDateOption AT ROW 13.62 COL 33 COLON-ALIGNED HELP
           "Select End Receipt Date Option" NO-LABEL WIDGET-ID 70
@@ -799,6 +796,8 @@ DEFINE FRAME viewFrame
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 125 BY 2.14
           BGCOLOR 15 
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -807,6 +806,8 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
      btnAdd AT ROW 19.86 COL 23 HELP
           "Add" WIDGET-ID 20
      btnCancel AT ROW 19.86 COL 55 HELP
@@ -821,10 +822,10 @@ DEFINE FRAME viewFrame
           "Update/Save" WIDGET-ID 18
      "Frequency:" VIEW-AS TEXT
           SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
-     "Format:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
+     "Format:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -1794,7 +1795,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            NO-ERROR.
       IF AVAILABLE users THEN
       iUserSecurityLevel = users.securityLevel.
-      RUN spGetParamValueID (OUTPUT iParamValueID).
+      RUN spGetSessionParam ("ParamValueID", OUTPUT cSessionValue).
+      iParamValueID = INTEGER(cSessionValue).
       RUN enable_UI.
       DYNAMIC-FUNCTION('fDateOptions',startDateOption:HANDLE).
       DYNAMIC-FUNCTION('fDateOptions',endDateOption:HANDLE).
@@ -1816,6 +1818,7 @@ END.
 
 {AOA/includes/pCalcNextRun.i}
 
+&Scoped-define sdBrowseName taskBrowse
 {methods/sortByProc.i "pByEndDate" "Task.endDate"}
 {methods/sortByProc.i "pByFrequency" "Task.frequency"}
 {methods/sortByProc.i "pByFromTime" "Task.cFromTime"}
@@ -1825,7 +1828,7 @@ END.
 {methods/sortByProc.i "pByNextDate" "Task.nextDate"}
 {methods/sortByProc.i "pByNextTime" "Task.cNextTime"}
 {methods/sortByProc.i "pByPrgmName" "Task.prgmName"}
-{methods/sortByProc.i "pBySchedule" "Task.scheduled"}
+{methods/sortByProc.i "pByScheduled" "Task.scheduled"}
 {methods/sortByProc.i "pBySecurityLevel" "Task.securityLevel"}
 {methods/sortByProc.i "pByStartDate" "Task.startDate"}
 {methods/sortByProc.i "pByTaskFormat" "Task.taskFormat"}
@@ -2419,6 +2422,7 @@ PROCEDURE pSaveSettings :
             user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE taskBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))
             .
     END. /* do jdx */
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 

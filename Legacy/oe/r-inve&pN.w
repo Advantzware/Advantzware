@@ -131,6 +131,7 @@ DEFINE VARIABLE v-print-fmt AS cha NO-UNDO.
 DEFINE VARIABLE ll-warned AS LOG NO-UNDO.
 DEFINE VARIABLE v-ttl-tax AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-ttl-rate AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cItemFgCat LIKE itemfg.procat NO-UNDO.
 
 DEFINE TEMP-TABLE w-report NO-UNDO LIKE report.
 
@@ -2116,9 +2117,10 @@ PROCEDURE list-post-inv :
       TRANSACTION
 
       BY w-report.key-01:
-          
+ 
         /* Create eddoc for invoice if required */
-        RUN ed/asi/o810hook.p (recid(inv-head), no, no).     
+        RUN ed/asi/o810hook.p (recid(inv-head), no, no).    
+        
         FIND FIRST edmast NO-LOCK
             WHERE edmast.cust EQ inv-head.cust-no
             NO-ERROR.
@@ -2132,7 +2134,7 @@ PROCEDURE list-post-inv :
                     WHERE edcode.partner EQ edmast.partnerGrp
                     NO-ERROR.
         END.  
-        
+     
         IF AVAIL edcode AND edcode.sendFileOnPrint THEN    
             RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).    
               
@@ -2634,7 +2636,7 @@ PROCEDURE run-report :
         END.
 
         IF v-contsrvc-export-found THEN
-        DO:
+        DO: 
            OUTPUT TO VALUE(v-exp-file).
            RUN oe/rep/expconts.p .
            OUTPUT CLOSE.

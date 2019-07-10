@@ -1,0 +1,22 @@
+*** README ***
+
+The files in this directory are expected to be named:
+
+	dbAlias.dba
+
+"dbAlias" is the unique, user-defined, alias of the db as defined in
+etc/dblist.cfg.
+
+This "friendly name" is the first item displayed in the upper left corner
+of the ProTop screen if a friendly name was used (it will say "Direct" if
+a db path was used).
+
+In this way you can have multiple *.dba files from databases that have the
+same physical name.
+
+If ProTop does not find a match it will look for a match to ldbname.dba.
+This will work so long as there is only one instance of a given ldbname on
+the server.
+
+The files are read by the data collector on the server-side.  For direct
+connections this is the same machine that the client runs on.

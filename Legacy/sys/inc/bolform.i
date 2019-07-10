@@ -35,6 +35,11 @@
              v-program      = "oe/rep/bolpremx.p"
              is-xprint-form = YES
              lines-per-page = 72.
+       WHEN "BOLFMT-Mex" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolfmtMex.p"
+             is-xprint-form = YES
+             lines-per-page = 72. 
        WHEN "RFCX" THEN
           ASSIGN
              v-program      = "oe/rep/bolrfcx.p"
@@ -218,7 +223,7 @@
              lines-per-page = 66.
        WHEN "APC" THEN ASSIGN v-program = "oe/rep/bolxapc.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "P&PX" THEN ASSIGN v-program = "oe/rep/bolpnpx.p" is-xprint-form = YES lines-per-page = 66.
-       WHEN "Delta" THEN ASSIGN v-program = "oe/rep/boldelta.p" is-xprint-form = YES lines-per-page = 66.
+       WHEN "Delta2" THEN ASSIGN v-program = "oe/rep/boldelta.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Xprint2" OR WHEN "bolfmt 2" THEN ASSIGN v-program = "oe/rep/bolxprt2.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "bolfmt 20" THEN ASSIGN v-program = "oe/rep/bolxprt20.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "bolfmt 30" THEN ASSIGN v-program = "oe/rep/bolstnd30.p" is-xprint-form = YES lines-per-page = 66.

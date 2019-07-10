@@ -1,8 +1,12 @@
 /* ctrl-f.i - rstark - 4.24.2019 */
 
+DEFINE VARIABLE cCtrlFAuditKey   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCtrlFCompany    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFErrorMsg   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCtrlFIdxFields  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFObjectName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFUserID     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hCtrlFTable      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lCtrlFResponse   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCtrlFRunAudit   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE rCtrlFRowID      AS ROWID     NO-UNDO.
@@ -10,10 +14,11 @@ DEFINE VARIABLE rCtrlFRowID      AS ROWID     NO-UNDO.
 IF FRAME-DB EQ "" AND FRAME-FILE EQ "" THEN
     MESSAGE
         "Widget Object: ~"" + FRAME-FIELD + "~""
-        VIEW-AS ALERT-BOX TITLE "CTRL-F Object View".
+    VIEW-AS ALERT-BOX TITLE "CTRL-F Object View".
 ELSE DO:
+    RUN spGetSessionParam ("Company", OUTPUT cCtrlFCompany).
     RUN spDynAuditField (
-        g_company,
+        cCtrlFCompany,
         FRAME-DB,
         FRAME-FILE,
         FRAME-FIELD,
@@ -38,14 +43,14 @@ ELSE DO:
         ASSIGN
             cCtrlFErrorMsg   = CHR(10) + CHR(10) + cCtrlFErrorMsg
             cCtrlFObjectName = "Database: " + FRAME-DB + CHR(10) 
-                        + "Table: " + FRAME-FILE + CHR(10)
-                        + "Field: " + FRAME-FIELD
-                        + (IF FRAME-INDEX NE 0 THEN "["
-                        + STRING(FRAME-INDEX) + "]" ELSE "")
-                        .
+                             + "Table: " + FRAME-FILE + CHR(10)
+                             + "Field: " + FRAME-FIELD
+                             + (IF FRAME-INDEX NE 0 THEN "["
+                             + STRING(FRAME-INDEX) + "]" ELSE "")
+                             .
         MESSAGE
             cCtrlFObjectName
             cCtrlFErrorMsg
-            VIEW-AS ALERT-BOX TITLE "CTRL-F Field View".
+        VIEW-AS ALERT-BOX TITLE "CTRL-F Field View".
     END. /* else */
 END. /* else */

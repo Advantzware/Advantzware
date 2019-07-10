@@ -1,0 +1,9 @@
+function writeStyleChooser()
+{
+ document.write("Style:"); 
+ document.write("<select class='stylecombo' onchange='var tmpVal=this.selectedIndex;eval(this.options[tmpVal].value);this.options[tmpVal].selected=true;'>"); 
+ document.write("  <option value=''> </option>");
+ document.write("  <option value='parent.location = \"../db3/00-index.html\";'>db3</option>");
+ document.write("  <option value='parent.location = \"../sports2000/00-index.html\";'>sports2000</option>");
+ document.write("  <option value='window.location = \"../dwp/00-index.html\";'>dwp</option>");
+}

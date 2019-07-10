@@ -77,12 +77,12 @@ DEF STREAM excel.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_date ~
 end_date begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no ~
-end_rm-no percent_chg rd_i-code rd_pur-man rd_round-EA rd_round tb_prmtx ~
-tb_undo fi_file td_imported btn-process btn-cancel 
+end_rm-no td_only-fgitem percent_chg td_imported rd_i-code rd_pur-man ~
+rd_round-EA rd_round tb_prmtx tb_undo fi_file btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_date end_date ~
 begin_part-no end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no ~
-percent_chg rd_i-code lbl_i-code rd_pur-man lbl_pur-man rd_round-EA ~
-rd_round tb_prmtx tb_undo fi_file td_imported
+td_only-fgitem percent_chg td_imported rd_i-code lbl_i-code rd_pur-man ~
+lbl_pur-man rd_round-EA rd_round tb_prmtx tb_undo fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -156,6 +156,12 @@ DEFINE VARIABLE end_rm-no AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-priceitm.csv" 
+     LABEL "File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FGCOLOR 9 .
+
 DEFINE VARIABLE lbl_i-code AS CHARACTER FORMAT "X(256)":U INITIAL "Item Code?" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
@@ -205,7 +211,7 @@ DEFINE VARIABLE rd_round-EA AS CHARACTER INITIAL "P"
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 14.67.
+     SIZE 93 BY 15.86.
 
 DEFINE VARIABLE tb_prmtx AS LOGICAL INITIAL no 
      LABEL "Update Price Matrix?" 
@@ -217,16 +223,16 @@ DEFINE VARIABLE tb_undo AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-priceitm.csv" 
-     LABEL "File Name" 
-     VIEW-AS FILL-IN 
-     SIZE 43 BY 1
-     FGCOLOR 9 .
-
 DEFINE VARIABLE td_imported AS LOGICAL INITIAL no 
      LABEL "Include Contract Pricing Customers?" 
      VIEW-AS TOGGLE-BOX
      SIZE 40.8 BY .81 NO-UNDO.
+
+DEFINE VARIABLE td_only-fgitem AS LOGICAL INITIAL no 
+     LABEL "Only Quotes with FG Item?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40.8 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -250,33 +256,34 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Board Code" WIDGET-ID 16
      end_rm-no AT ROW 6.24 COL 73 COLON-ALIGNED HELP
           "Enter Ending Board Code" WIDGET-ID 18
-    td_imported AT ROW 8.1 COL 10 
-    percent_chg AT ROW 8.05 COL 70 COLON-ALIGNED HELP
+     td_only-fgitem AT ROW 7.9 COL 10 WIDGET-ID 20
+     percent_chg AT ROW 9 COL 70 COLON-ALIGNED HELP
           "Enter a Negative or Positive Percentage"
-     rd_i-code AT ROW 9.24 COL 38 NO-LABEL
-     lbl_i-code AT ROW 9.29 COL 23 COLON-ALIGNED NO-LABEL
-     rd_pur-man AT ROW 10.43 COL 38 NO-LABEL
-     lbl_pur-man AT ROW 10.48 COL 19 COLON-ALIGNED NO-LABEL
-     rd_round-EA AT ROW 11.62 COL 38 NO-LABEL WIDGET-ID 2
-     rd_round AT ROW 12.81 COL 38 NO-LABEL
-     tb_prmtx AT ROW 14.05 COL 35
+     td_imported AT ROW 9.05 COL 10
+     rd_i-code AT ROW 10.19 COL 38 NO-LABEL
+     lbl_i-code AT ROW 10.24 COL 23 COLON-ALIGNED NO-LABEL
+     rd_pur-man AT ROW 11.38 COL 38 NO-LABEL
+     lbl_pur-man AT ROW 11.43 COL 19 COLON-ALIGNED NO-LABEL
+     rd_round-EA AT ROW 12.57 COL 38 NO-LABEL WIDGET-ID 2
+     rd_round AT ROW 13.76 COL 38 NO-LABEL
+     tb_prmtx AT ROW 15 COL 35
      tb_undo AT ROW 15.24 COL 35
-     fi_file AT ROW 15.24 COL 28 COLON-ALIGNED HELP
+     fi_file AT ROW 16.19 COL 28 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-process AT ROW 17.38 COL 23
-     btn-cancel AT ROW 17.38 COL 55
+     btn-process AT ROW 18.48 COL 23
+     btn-cancel AT ROW 18.48 COL 55
      "For all other UOM, round up to:" VIEW-AS TEXT
-          SIZE 30 BY .71 AT ROW 12.95 COL 7 WIDGET-ID 12
-     "For UOM=EA, round up to:" VIEW-AS TEXT
-          SIZE 26 BY .71 AT ROW 11.76 COL 11 WIDGET-ID 14
+          SIZE 30 BY .71 AT ROW 13.91 COL 7 WIDGET-ID 12
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 1.24 COL 5
           BGCOLOR 2 
+     "For UOM=EA, round up to:" VIEW-AS TEXT
+          SIZE 26 BY .71 AT ROW 12.71 COL 11 WIDGET-ID 14
      RECT-17 AT ROW 2.05 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 94.2 BY 18.48.
+         SIZE 94.2 BY 19.86.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -296,11 +303,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Global Quote Price Change"
-         HEIGHT             = 18.48
+         HEIGHT             = 19.86
          WIDTH              = 94.2
-         MAX-HEIGHT         = 19.76
+         MAX-HEIGHT         = 19.86
          MAX-WIDTH          = 98.2
-         VIRTUAL-HEIGHT     = 19.76
+         VIRTUAL-HEIGHT     = 19.86
          VIRTUAL-WIDTH      = 98.2
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -330,16 +337,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -361,6 +358,14 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -378,6 +383,10 @@ ASSIGN
 
 ASSIGN 
        end_rm-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR FILL-IN lbl_i-code IN FRAME FRAME-A
@@ -419,19 +428,22 @@ ASSIGN
 ASSIGN 
        tb_undo:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-ASSIGN 
-       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
+
 ASSIGN 
        td_imported:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       td_only-fgitem:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -496,6 +508,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_part-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_part-no C-Win
+ON HELP OF begin_part-no IN FRAME FRAME-A /* Beginning Cust Part# */
+DO:
+    DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
+
+    run est/l-ebrfqP.w (cocode, locode, begin_part-no:screen-value, output lv-eb-tmpid) .
+           FIND FIRST eb NO-LOCK WHERE RECID(eb) = lv-eb-tmpid NO-ERROR.
+                 IF AVAIL eb THEN ASSIGN begin_part-no:SCREEN-VALUE = eb.part-no.
+    
+ END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_rm-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_rm-no C-Win
 ON LEAVE OF begin_rm-no IN FRAME FRAME-A /* Beginning Board Code */
@@ -512,17 +540,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_file
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
-DO:
-     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,11 +601,38 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_part-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_part-no C-Win
+ON HELP OF end_part-no IN FRAME FRAME-A /* Ending Cust Part# */
+DO:
+    DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
+
+    run est/l-ebrfqP.w (cocode, locode, end_part-no:screen-value, output lv-eb-tmpid) .
+           FIND FIRST eb NO-LOCK WHERE RECID(eb) = lv-eb-tmpid NO-ERROR.
+                 IF AVAIL eb THEN ASSIGN end_part-no:SCREEN-VALUE = eb.part-no.
+    
+ END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_rm-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_rm-no C-Win
 ON LEAVE OF end_rm-no IN FRAME FRAME-A /* Ending Board Code */
 DO:
   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* File Name */
+DO:
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -647,36 +691,29 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_part-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_part-no C-Win
-ON HELP OF begin_part-no IN FRAME FRAME-A
+&ANALYZE-RESUME 
+  
+&Scoped-define SELF-NAME td_only-fgitem
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td_only-fgitem C-Win
+ON VALUE-CHANGED OF td_only-fgitem IN FRAME FRAME-A /* Update Only quote with FG Item? */
 DO:
-    DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
+  assign {&self-name}.
+  IF td_only-fgitem:SCREEN-VALUE EQ "NO" THEN
+        ASSIGN
+        begin_fg-cat:SENSITIVE = NO 
+        end_fg-cat:SENSITIVE = NO 
+        begin_fg-cat:SCREEN-VALUE = "" 
+        end_fg-cat:SCREEN-VALUE = "zzzzz" 
+       .
+  ELSE
+      ASSIGN
+        begin_fg-cat:SENSITIVE = YES 
+        end_fg-cat:SENSITIVE = YES   .
+END.
 
-    run est/l-ebrfqP.w (cocode, locode, begin_part-no:screen-value, output lv-eb-tmpid) .
-           FIND FIRST eb NO-LOCK WHERE RECID(eb) = lv-eb-tmpid NO-ERROR.
-                 IF AVAIL eb THEN ASSIGN begin_part-no:SCREEN-VALUE = eb.part-no.
-    
- END.
- /* _UIB-CODE-BLOCK-END */
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME end_part-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_part-no C-Win
-ON HELP OF end_part-no IN FRAME FRAME-A
-DO:
-    DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
-
-    run est/l-ebrfqP.w (cocode, locode, end_part-no:screen-value, output lv-eb-tmpid) .
-           FIND FIRST eb NO-LOCK WHERE RECID(eb) = lv-eb-tmpid NO-ERROR.
-                 IF AVAIL eb THEN ASSIGN end_part-no:SCREEN-VALUE = eb.part-no.
-    
- END.
- /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -714,6 +751,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     tb_undo:HIDDEN  = YES .
+    IF td_only-fgitem:SCREEN-VALUE EQ "No" THEN
+        ASSIGN
+        begin_fg-cat:SENSITIVE = NO 
+        end_fg-cat:SENSITIVE = NO 
+        begin_fg-cat:SCREEN-VALUE = "" 
+        end_fg-cat:SCREEN-VALUE = "zzzzz" .
     APPLY "entry" TO begin_cust.
   END.
 
@@ -758,14 +801,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_date end_date begin_part-no end_part-no 
-          begin_fg-cat end_fg-cat begin_rm-no end_rm-no percent_chg rd_i-code 
-          lbl_i-code rd_pur-man lbl_pur-man rd_round-EA rd_round tb_prmtx 
-          tb_undo fi_file td_imported
+          begin_fg-cat end_fg-cat begin_rm-no end_rm-no td_only-fgitem 
+          percent_chg td_imported rd_i-code lbl_i-code rd_pur-man lbl_pur-man 
+          rd_round-EA rd_round tb_prmtx tb_undo fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_cust end_cust begin_date end_date begin_part-no 
-         end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no percent_chg 
-         rd_i-code rd_pur-man rd_round-EA rd_round tb_prmtx tb_undo fi_file  
-         td_imported btn-process btn-cancel 
+         end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no 
+         td_only-fgitem percent_chg td_imported rd_i-code rd_pur-man 
+         rd_round-EA rd_round tb_prmtx tb_undo fi_file btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -964,13 +1007,21 @@ for each quotehd
 
   RELEASE itemfg.
 
-  IF ll-new-file THEN DO:
+  IF ll-new-file AND NOT td_only-fgitem THEN DO:
     lv-part-no = quoteitm.part-no.
     RUN custom/getcpart.p (quotehd.company, quotehd.cust-no,
                            INPUT-OUTPUT lv-part-no, INPUT-OUTPUT lv-rowid).
   END.
+  ELSE do:
+      FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company  EQ quoteitm.company
+          AND itemfg.i-no  EQ quoteitm.i-no
+          AND itemfg.i-no  NE "" NO-ERROR.
+      IF AVAIL itemfg THEN
+        lv-rowid = ROWID(itemfg) .
+  END.
 
-  IF lv-rowid EQ ? THEN
+  IF lv-rowid EQ ? AND NOT td_only-fgitem THEN
     FIND FIRST itemfg
         WHERE itemfg.company  EQ quoteitm.company
           AND itemfg.part-no  EQ quoteitm.part-no
@@ -981,31 +1032,28 @@ for each quotehd
   ELSE
     FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
 
-  IF ( NOT AVAIL itemfg AND 
+  IF ( NOT AVAIL itemfg AND NOT td_only-fgitem AND
       CAN-FIND(FIRST eb
               WHERE eb.company EQ quotehd.company
                 AND eb.est-no  EQ quotehd.est-no
-                AND eb.part-no EQ  quoteitm.part-no
-                AND eb.procat   GE begin_fg-cat
-                AND eb.procat   LE end_fg-cat) )                    OR
+                AND eb.part-no EQ  quoteitm.part-no ) )               OR
      CAN-FIND(FIRST itemfg
               WHERE ROWID(itemfg)   EQ lv-rowid
-                AND itemfg.procat   GE begin_fg-cat
-                AND itemfg.procat   LE end_fg-cat
+                AND (itemfg.procat   GE begin_fg-cat OR NOT td_only-fgitem)
+                AND (itemfg.procat   LE end_fg-cat OR NOT td_only-fgitem)
                 AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
                 AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
                 AND lv-rowid        NE ?)                             OR
-     CAN-FIND(FIRST itemfg
+     ( NOT td_only-fgitem AND
+      CAN-FIND(FIRST itemfg
               WHERE itemfg.company  EQ quoteitm.company
                 AND itemfg.part-no  EQ quoteitm.part-no
                 AND itemfg.part-no  NE ""
                 AND (itemfg.cust-no EQ quotehd.cust-no OR
                      itemfg.i-code  EQ "S")
-                AND itemfg.procat   GE begin_fg-cat
-                AND itemfg.procat   LE end_fg-cat
                 AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
                 AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
-                AND lv-rowid        EQ ?)                             THEN
+                AND lv-rowid        EQ ?))                             THEN
   for each quoteqty
       where quoteqty.company eq quoteitm.company
         and quoteqty.loc     eq quoteitm.loc
@@ -1105,13 +1153,21 @@ for each quotehd
 
   RELEASE itemfg.
 
-  IF ll-new-file THEN DO:
+  IF ll-new-file AND NOT td_only-fgitem THEN DO:
     lv-part-no = quoteitm.part-no.
     RUN custom/getcpart.p (quotehd.company, quotehd.cust-no,
                            INPUT-OUTPUT lv-part-no, INPUT-OUTPUT lv-rowid).
   END.
+  ELSE do:
+      FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company  EQ quoteitm.company
+          AND itemfg.i-no  EQ quoteitm.i-no
+          AND itemfg.i-no  NE "" NO-ERROR.
+      IF AVAIL itemfg THEN
+          lv-rowid = ROWID(itemfg) .
+  END.
 
-  IF lv-rowid EQ ? THEN
+  IF lv-rowid EQ ? AND NOT td_only-fgitem THEN
     FIND FIRST itemfg
         WHERE itemfg.company  EQ quoteitm.company
           AND itemfg.part-no  EQ quoteitm.part-no
@@ -1122,31 +1178,28 @@ for each quotehd
   ELSE
     FIND itemfg WHERE ROWID(itemfg) EQ lv-rowid NO-LOCK NO-ERROR.
 
-  IF ( NOT AVAIL itemfg AND 
+  IF ( NOT AVAIL itemfg AND NOT td_only-fgitem AND 
       CAN-FIND(FIRST eb
               WHERE eb.company EQ quotehd.company
                 AND eb.est-no  EQ quotehd.est-no
-                AND eb.part-no EQ  quoteitm.part-no
-                AND eb.procat   GE begin_fg-cat
-                AND eb.procat   LE end_fg-cat) )                      OR
+                AND eb.part-no EQ  quoteitm.part-no) )               OR
      CAN-FIND(FIRST itemfg
               WHERE ROWID(itemfg)   EQ lv-rowid
-                AND itemfg.procat   GE begin_fg-cat
-                AND itemfg.procat   LE end_fg-cat
+                AND (itemfg.procat   GE begin_fg-cat OR NOT td_only-fgitem)
+                AND (itemfg.procat   LE end_fg-cat OR NOT td_only-fgitem)
                 AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
                 AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
                 AND lv-rowid        NE ?)                             OR
-     CAN-FIND(FIRST itemfg
+     (NOT td_only-fgitem AND
+      CAN-FIND(FIRST itemfg
               WHERE itemfg.company  EQ quoteitm.company
                 AND itemfg.part-no  EQ quoteitm.part-no
                 AND itemfg.part-no  NE ""
                 AND (itemfg.cust-no EQ quotehd.cust-no OR
                      itemfg.i-code  EQ "S")
-                AND itemfg.procat   GE begin_fg-cat
-                AND itemfg.procat   LE end_fg-cat
                 AND (itemfg.i-code  EQ rd_i-code OR rd_i-code EQ "A")
                 AND (itemfg.pur-man EQ rd_pur-man OR rd_pur-man EQ ?)
-                AND lv-rowid        EQ ?)                             THEN
+                AND lv-rowid        EQ ?))                             THEN
   for each quoteqty
       where quoteqty.company eq quoteitm.company
         and quoteqty.loc     eq quoteitm.loc

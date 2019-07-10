@@ -28,6 +28,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+ASSIGN
+ cocode = g_company
+ locode = g_loc.
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -43,20 +46,40 @@ DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
+DEFINE BUFFER bf-po-ordl FOR po-ordl .
 
 &SCOPED-DEFINE item-key-phrase TRUE
 DEF VAR ll-crt-transfer AS LOG NO-UNDO.
 DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-org-cases AS INT NO-UNDO.
+DEFINE VARIABLE cRtnChr AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFnd AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 {Inventory/ttInventory.i "NEW SHARED"}
+DEFINE VARIABLE physCnt-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO INIT "./custfiles/logs".
+
+DEFINE STREAM sPhysCntSave.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChr, OUTPUT lRecFnd).
+physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
 
-
+IF physCnt-log THEN 
+DO: 
+    OS-CREATE-DIR VALUE(cLogFolder).
+    FIND FIRST _myconnection NO-LOCK.     
+    cPhysCntSaveFile = cLogFolder + "/" + USERID("ASI") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY), "99") + STRING(YEAR(TODAY)).
+    cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
+       
+END.
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -82,10 +105,11 @@ fg-rctd.loc-bin fg-rctd.cases fg-rctd.qty-case fg-rctd.cases-unit ~
 fg-rctd.partial fg-rctd.t-qty fg-rctd.i-no fg-rctd.i-name fg-rctd.job-no ~
 fg-rctd.job-no2 fg-rctd.rct-date ~
 STRING(fg-rctd.trans-time,'HH:MM') @ trans-time fg-rctd.created-by ~
-fg-rctd.updated-by fg-rctd.r-no fg-rctd.po-no 
+fg-rctd.updated-by fg-rctd.r-no fg-rctd.po-no fg-rctd.po-line 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rctd.tag ~
 fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases fg-rctd.qty-case ~
-fg-rctd.cases-unit fg-rctd.partial fg-rctd.rct-date fg-rctd.po-no 
+fg-rctd.cases-unit fg-rctd.partial fg-rctd.rct-date fg-rctd.po-no ~
+fg-rctd.po-line
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
@@ -187,6 +211,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 15
       fg-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>>":U WIDTH 12
       fg-rctd.po-no FORMAT "x(9)":U
+      fg-rctd.po-line COLUMN-LABEL "Po Ln#" FORMAT ">9":U
   ENABLE
       fg-rctd.tag
       fg-rctd.loc
@@ -197,6 +222,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.partial
       fg-rctd.rct-date
       fg-rctd.po-no
+      fg-rctd.po-line
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 143 BY 12.38
@@ -281,6 +307,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+     fg-rctd.po-line:VISIBLE in browse {&browse-name} = NO .
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -329,6 +357,8 @@ fg-rctd.rita-code = ""C"""
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > asi.fg-rctd.po-no
 "fg-rctd.po-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[19]   > asi.fg-rctd.po-line
+"fg-rctd.po-line" "Po Ln#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -478,6 +508,7 @@ DO:
                     fg-rctd.partial:SCREEN-VALUE = IF AVAIL fg-bin THEN STRING(fg-bin.partial-count)
                                                    ELSE string(loadtag.partial)
                     fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = string(loadtag.po-no)
+                    fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = string(loadtag.LINE)
                     .
               fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
                                 INT(fg-rctd.cases:SCREEN-VALUE) *
@@ -839,6 +870,20 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF fg-rctd.po-no IN BROWSE Browser-Table
+DO:
+    IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+        RUN pNewPoLine .
+     END.
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 &UNDEFINE SELF-NAME
@@ -1271,6 +1316,16 @@ PROCEDURE local-assign-record :
   IF fg-rctd.pur-uom = "" THEN
       fg-rctd.pur-uom = fg-rctd.cost-uom.
 
+  IF fg-rctd.po-no NE "" AND fg-rctd.po-line EQ 0 THEN do:
+      FIND FIRST bf-po-ordl NO-LOCK
+          WHERE bf-po-ordl.company   EQ g_company
+            AND bf-po-ordl.po-no     EQ integer(fg-rctd.po-no) 
+            AND bf-po-ordl.i-no EQ fg-rctd.i-no NO-ERROR .
+      
+      IF AVAIL bf-po-ordl THEN
+          fg-rctd.po-line = bf-po-ordl.LINE .
+  END.
+
   /* 04241305 - take cost from job or PO */
 
   IF fg-rctd.ext-cost EQ ? THEN fg-rctd.ext-cost = 0.
@@ -1474,6 +1529,13 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   DO:
+      IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
+      DO: 
+          OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
+          EXPORT STREAM sPhysCntSave fg-rctd.
+          OUTPUT STREAM sPhysCntSave CLOSE.
+      END.
+      
       /*IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" */
       FIND FIRST loadtag WHERE loadtag.company = g_company
                  AND loadtag.ITEM-type = NO
@@ -2068,7 +2130,8 @@ PROCEDURE valid-tag :
             fg-rctd.rct-date:SCREEN-VALUE = IF fg-rctd.rct-date:SCREEN-VALUE = "" THEN STRING(TODAY) ELSE fg-rctd.rct-date:SCREEN-VALUE  
             fg-rctd.partial:SCREEN-VALUE = IF AVAIL fg-bin THEN STRING(fg-bin.partial-count)
                                            ELSE string(loadtag.partial)     
-            fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no).
+            fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no)
+            fg-rctd.po-line:SCREEN-VALUE IN BROWSE {&browse-name} = string(loadtag.LINE) .     
 
      fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(
                                 INT(fg-rctd.cases:SCREEN-VALUE) *
@@ -2186,7 +2249,15 @@ PROCEDURE validate-record :
            END.
     END.
   END.
-
+  FIND FIRST job-hdr
+      WHERE job-hdr.company EQ fg-rctd.company
+      AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
+      NO-LOCK NO-ERROR.
+  IF AVAIL job-hdr AND job-hdr.opened = NO THEN 
+  DO:
+      MESSAGE "Warning: The job entered has a status of closed."
+          VIEW-AS ALERT-BOX.
+  END.
 
 END PROCEDURE.
 
@@ -2252,7 +2323,30 @@ PROCEDURE validTagForItem:
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pNewPoLine B-table-Win
+PROCEDURE pNewPoLine:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST bf-po-ordl NO-LOCK
+            WHERE bf-po-ordl.company   EQ g_company
+              AND bf-po-ordl.po-no     EQ integer(fg-rctd.po-no:SCREEN-VALUE  IN BROWSE {&browse-name}) 
+              AND bf-po-ordl.i-no EQ fg-rctd.i-no:SCREEN-VALUE  IN BROWSE {&browse-name} NO-ERROR .
+        IF AVAIL bf-po-ordl THEN
+            ASSIGN fg-rctd.po-line:SCREEN-VALUE  IN BROWSE {&browse-name} = STRING(bf-po-ordl.LINE) . 
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 
 /* ************************  Function Implementations ***************** */

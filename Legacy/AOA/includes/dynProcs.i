@@ -34,6 +34,9 @@ RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
 RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
+RUN spSetSessionParam ("Company", g_company).
+RUN spSetSessionParam ("Location", g_loc).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -91,10 +94,6 @@ END. /* row-display */
 {AOA/includes/pRunNow.i}
 {AOA/includes/pRunBusinessLogic.i}
 {AOA/includes/pSetDynParamValue.i "{1}"}
-
-RUN spSetCompany IN hDynDescripProc (g_company).
-RUN spSetCompany IN hDynInitProc (g_company).
-RUN spSetCompany IN hDynValProc (g_company).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -252,29 +251,34 @@ PROCEDURE pRunQuery:
     
     DEFINE BUFFER {1}SubjectTable FOR {1}SubjectTable.    
 
-    FOR EACH {1}SubjectTable
+    FOR EACH {1}SubjectTable NO-LOCK
         WHERE {1}SubjectTable.subjectID EQ dynSubject.subjectID
            BY {1}SubjectTable.sortOrder
         :
         cTableName = cTableName + {1}SubjectTable.tableName + ",".
     END. /* each {1}SubjectTable */
-    cTableName = TRIM(cTableName,",").
-    IF dynSubject.businessLogic EQ "" THEN
-    RUN AOA/dynQuery.p (
-        ROWID(dynParamValue),
-        queryStr,
-        cTableName,
-        IF ipcType EQ "Grid" THEN 100 ELSE 0,
-        OUTPUT hQuery,
-        OUTPUT lOK,
-        OUTPUT cError
-        ).
-    ELSE
-    RUN pRunBusinessLogic (
-        OUTPUT hQuery,
-        OUTPUT lOK,
-        OUTPUT cError
-        ).
+    ASSIGN
+        cTableName = TRIM(cTableName,",")
+        lOK        = TRUE
+        .
+    IF ipcType EQ "Grid" THEN DO:
+        IF dynSubject.businessLogic EQ "" THEN
+        RUN AOA/dynQuery.p (
+            ROWID(dynParamValue),
+            queryStr,
+            cTableName,
+            IF ipcType EQ "Grid" THEN 2500 ELSE dynParamValue.recordLimit,
+            OUTPUT hQuery,
+            OUTPUT lOK,
+            OUTPUT cError
+            ).
+        ELSE
+        RUN pRunBusinessLogic (
+            OUTPUT hQuery,
+            OUTPUT lOK,
+            OUTPUT cError
+            ).
+    END. /* if not grid,print,view */
     IF lOK THEN DO:
         IF iplRun THEN DO:
             RUN pSetParamValueDefault.

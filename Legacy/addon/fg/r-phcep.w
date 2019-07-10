@@ -410,7 +410,8 @@ DO:
          tg_account
          tg_show-inv
          v-post-date = post-date
-         v-gl = tg_account.
+         v-gl = tg_account
+         tran-date = post-date .
 
   IF tg_account THEN DO:
      RUN fg/d-fginvp.w (OUTPUT tran-date, OUTPUT tran-period).

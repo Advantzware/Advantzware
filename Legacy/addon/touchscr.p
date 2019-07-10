@@ -79,6 +79,7 @@ IF tslogin-log THEN DO:
        NO-LOCK NO-ERROR.
   IF AVAIL usercomp THEN do:
     g_company = usercomp.company.
+    RUN spSetSessionParam ("Company", g_company).
     FIND FIRST ASI.usercomp WHERE usercomp.user_id = USERID(ldbname(1)) AND
             usercomp.company = g_company AND
             usercomp.loc NE "" AND usercomp.loc_default = yes

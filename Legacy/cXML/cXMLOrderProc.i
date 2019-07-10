@@ -305,89 +305,12 @@ PROCEDURE assignOrderHeader:
 
 END PROCEDURE.
 
-PROCEDURE genTempOrderHeader:
-    DEFINE INPUT  PARAMETER iprOeOrd AS ROWID NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcShipToID AS CHARACTER NO-UNDO.
+PROCEDURE genTempOrderHeader:  
     DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE payLoadID                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE fromIdentity                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE toIdentity                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE senderIdentity              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE orderDate                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE orderID                     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE totalMoney                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE paymentPCard                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE paymentExpiration           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToID                    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToName                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToAddress1              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToAddress2              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToCity                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToState                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToZip                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToContact               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shiptoCountry               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToEmail                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToPhone                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE shipToAreaCode              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE billToID                    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE billToName                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE billToAddress1              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE billToAddress2              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE billToCity                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE billToState                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE billToZip                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE custNo                      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemLineNumber              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemQuantity                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemSupplierPartID          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemManufacturerPartID      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemSupplierPartAuxiliaryID AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemMoney                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemDescription             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE itemUnitOfMeasure           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount                      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iNextOrderNumber            LIKE oe-ord.ord-no NO-UNDO.
-    DEFINE VARIABLE iNextShipNo                 LIKE shipto.ship-no NO-UNDO.
-    DEFINE VARIABLE dItemQtyEach                LIKE oe-ordl.qty NO-UNDO.
-    DEFINE VARIABLE cShipToTaxCode              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE rOrdRec                     AS ROWID     NO-UNDO.
-
-    DEFINE BUFFER bf-shipto       FOR shipto.
-    DEFINE BUFFER bf-shipto-state FOR shipto.
     EMPTY TEMP-TABLE ttOrdHead.
-    ASSIGN
-        payLoadID         = getNodeValue('cXML','payloadID')
-        fromIdentity      = getNodeValue('From','Identity')
-        toIdentity        = getNodeValue('To','Identity')
-        senderIdentity    = getNodeValue('Sender','Identity')
-        orderDate         = getNodeValue('OrderRequestHeader','orderDate')
-        orderID           = getNodeValue('OrderRequestHeader','orderID')
-        totalMoney        = getNodeValue('Total','Money')
-        paymentPCard      = getNodeValue('Payment','number')
-        paymentExpiration = getNodeValue('Payment','expiration')
-        shipToID          = getNodeValue('shipTo','AddressID')
-        shipToName        = getNodeValue('shipTo','Name')
-        shipToContact     = getNodeValue('shipTo','DeliverTo')
-        shipToAddress1    = getNodeValue('shipTo','Street|1')
-        shipToAddress2    = getNodeValue('shipTo','Street|2')
-        shipToCity        = getNodeValue('shipTo','City')
-        shipToState       = getNodeValue('shipTo','State')
-        shipToZip         = getNodeValue('shipTo','PostalCode')
-        shipToCountry     = getNodeValue('Country','isoCountryCode')
-        shipToEmail       = getNodeValue('Address','Email')
-        shipToAreaCode    = getNodeValue('TelephoneNumber','AreaOrCityCode')
-        shipToPhone       = getNodeValue('TelephoneNumber','Number')
-        billToID          = getNodeValue('billTo','AddressID')
-        billToName        = getNodeValue('billTo','Name')
-        billToAddress1    = getNodeValue('billTo','Street|1')
-        billToAddress2    = getNodeValue('billTo','Street|2')
-        billToCity        = getNodeValue('billTo','City')
-        billToState       = getNodeValue('billTo','State')
-        billToZip         = getNodeValue('billTo','PostalCode')
-        custNo            = getCustNo(fromIdentity)
-        .
+
+    
     CREATE ttOrdHead.
     ASSIGN
         ttOrdHead.ttPayLoadID         = getNodeValue('cXML','payloadID')
@@ -419,14 +342,13 @@ PROCEDURE genTempOrderHeader:
         ttOrdHead.ttbillToState       = getNodeValue('billTo','State')
         ttOrdHead.ttbillToZip         = getNodeValue('billTo','PostalCode')
         ttOrdHead.ttDocType           = "PO"
-        ttOrdHead.ttcustNo            = getCustNo(fromIdentity)
+        ttOrdHead.ttcustNo            = getCustNo(ttOrdHead.ttfromIdentity, ttOrdHead.ttshipToID)
         .             
-    
+        opcReturnValue =  'Success'.
 END PROCEDURE.
 
 PROCEDURE genTempOrderLines:
     DEFINE INPUT  PARAMETER iprOeOrd AS ROWID NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE itemLineNumber              AS CHARACTER NO-UNDO. 
@@ -436,10 +358,12 @@ PROCEDURE genTempOrderLines:
     DEFINE VARIABLE dRequestedDeliveryDate      AS DATE      NO-UNDO.    
     DEFINE VARIABLE iCurrentLineNum             AS INTEGER NO-UNDO.
     DEFINE VARIABLE cNodeParentName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cFailedReason AS CHARACTER NO-UNDO.
     
     FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
 
-
+    lSuccess = TRUE. 
     EMPTY TEMP-TABLE ttOrdLines.
     FOR EACH ttNodes:
         IF AVAILABLE oe-ord THEN 
@@ -472,25 +396,17 @@ PROCEDURE genTempOrderLines:
                 cRequestedDeliveryDate = TRIM(ttNodes.nodeValue).
 
                 IF cRequestedDeliveryDate NE "" THEN
-                    dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
-                        ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
-                        ,INT(SUBSTR(cRequestedDeliveryDate,1,4))).                
+                    ASSIGN dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
+                             ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
+                             ,INT(SUBSTR(cRequestedDeliveryDate,1,4)))
+                           ttOrdLines.ttItemDueDate = cRequestedDeliveryDate
+                           .
+                                
             END.
             WHEN 'itemOut|quantity' THEN
                 ttOrdLines.ttItemQuantity = TRIM(ttNodes.nodeValue).
-            WHEN 'itemID|supplierPartID' THEN DO:
+            WHEN 'itemID|supplierPartID' THEN
                 ttOrdLines.ttItemSupplierPartID = TRIM(ttNodes.nodeValue).
-                FIND FIRST itemfg NO-LOCK
-                    WHERE itemfg.company EQ cocode
-                    AND itemfg.i-no    EQ TRIM(ttOrdLines.ttItemSupplierPartID) NO-ERROR.
-                IF NOT AVAILABLE itemfg THEN 
-                DO:
-                    &IF DEFINED(monitorActivity) NE 0 &THEN
-                    RUN monitorActivity ('ERROR: Item ' + TRIM(itemSupplierPartID) + ' not found.',YES,'').
-                    &ENDIF
-                    NEXT.
-                END.
-            END.
             WHEN 'itemID|supplierPartAuxiliaryID'THEN
                 ttOrdLines.ttItemSupplierPartAuxiliaryID = TRIM(ttNodes.nodeValue).
             WHEN 'unitPrice|money'THEN
@@ -499,12 +415,47 @@ PROCEDURE genTempOrderLines:
                 ttOrdLines.ttItemDescription = TRIM(ttNodes.nodeValue).
             WHEN  'itemDetail|unitOfMeasure' THEN
                 ttOrdLines.ttItemUnitOfMeasure = TRIM(ttNodes.nodeValue).
-            WHEN  'itemDetail|ManufacturerPartID' THEN  
+            WHEN  'itemDetail|ManufacturerPartID' THEN DO:
                 ttOrdLines.ttItemManufacturerPartID = TRIM(ttNodes.nodeValue).
-        END CASE.
-        
+            END.
+                
+        END CASE.        
 
-   END.    
+    END.  
+     
+    FOR EACH ttOrdLines NO-LOCK 
+        WHERE ttOrdLines.ttpayLoadID      EQ ttOrdHead.ttpayLoadID
+        :
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no    EQ TRIM(ttOrdLines.ttItemManufacturerPartID) 
+             NO-ERROR.
+
+        /* Manufacturer part is being assigned to oe-ordl.i-no */
+        IF NOT AVAIL itemfg THEN DO:
+             FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ cocode
+                   AND itemfg.cust-no EQ ttOrdHead.ttcustNo
+                   AND itemfg.part-no EQ TRIM(ttOrdLines.ttItemSupplierPartID) 
+                 NO-ERROR.
+             IF AVAIL itemfg THEN 
+                 ttOrdLines.ttItemManufacturerPartID = itemfg.i-no.
+        END.
+        IF NOT AVAIL itemfg THEN DO:
+            ASSIGN 
+                lSuccess = FALSE
+                cFailedReason = " Item not found - Order not loaded " + TRIM(ttOrdLines.ttItemManufacturerPartID) + ' / ' + ttOrdLines.ttItemSupplierPartID
+                .
+            &IF DEFINED(monitorActivity) NE 0 &THEN
+            RUN monitorActivity ('Error: Item ' + TRIM(ttOrdLines.ttItemManufacturerPartID) + ' / ' + ttOrdLines.ttItemSupplierPartID + '/' + ttOrdHead.ttcustno + ' not found.',YES,'').
+            &ENDIF      
+        END.    
+    END.
+    IF lSuccess EQ FALSE THEN DO:
+         EMPTY TEMP-TABLE ttOrdLines.
+         EMPTY TEMP-TABLE ttOrdHead.
+    END.
+    opcReturnValue = IF lSuccess THEN  'Success' ELSE cFailedReason.
 END PROCEDURE.
 
 PROCEDURE genOrderLines:
@@ -528,6 +479,7 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE cShipToTaxCode AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cRequestedDeliveryDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE dRequestedDeliveryDate AS DATE NO-UNDO.
+  DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
 
   FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
   FIND FIRST cust WHERE cust.cust-no EQ oe-ord.cust-no 
@@ -541,6 +493,11 @@ PROCEDURE genOrderLines:
   FOR EACH ttOrdLines WHERE 
       ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
       BY ttItemLineNumber:
+     ASSIGN cRequestedDeliveryDate = ttOrdLines.ttItemDueDate
+            dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
+                                     ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
+                                     ,INT(SUBSTR(cRequestedDeliveryDate,1,4)))        
+            NO-ERROR.
 
       ASSIGN 
               itemLineNumber                = ttOrdLines.ttItemLineNumber              
@@ -556,7 +513,7 @@ PROCEDURE genOrderLines:
 
       FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ cocode
-              AND itemfg.i-no    EQ TRIM(itemSupplierPartID) NO-ERROR.
+              AND itemfg.i-no    EQ TRIM(itemManufacturerPartID) NO-ERROR.
       CREATE oe-ordl.
       ASSIGN
         oe-ordl.company   = oe-ord.company
@@ -574,8 +531,8 @@ PROCEDURE genOrderLines:
         oe-ordl.over-pct  = oe-ord.over-pct   
         oe-ordl.under-pct = oe-ord.under-pct
         oe-ordl.line      = INT(itemLineNumber)
-        oe-ordl.i-no      = TRIM(itemSupplierPartID)
-        oe-ordl.part-no   = itemManufacturerPartID
+        oe-ordl.i-no      = itemManufacturerPartID
+        oe-ordl.part-no   = TRIM(itemSupplierPartID)
         oe-ordl.qty       = DEC(itemQuantity)
         oe-ordl.pr-uom    = itemUnitOfMeasure
         oe-ordl.price     = DEC(itemMoney)
@@ -610,17 +567,31 @@ PROCEDURE genOrderLines:
           oe-ordl.spare-dec-1 = oe-ordl.qty
           oe-ordl.spare-char-2 = oe-ordl.pr-uom
           oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
+          oe-ordl.pr-uom = (IF oe-ordl.pr-uom EQ "PF" OR oe-ordl.pr-uom EQ "PLT" THEN "CS" ELSE oe-ordl.pr-uom)
           .
-        IF oe-ordl.pr-uom EQ "CS" OR oe-ordl.pr-uom EQ "PLT" THEN
-        oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
+        IF oe-ordl.pr-uom EQ "CS" THEN
+            oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
         ELSE IF oe-ordl.pr-uom EQ "C" THEN oe-ordl.qty = oe-ordl.qty * 100.
-        ELSE oe-ordl.qty = oe-ordl.qty * 1000.
+        ELSE DO:
+           FIND FIRST uom NO-LOCK 
+            WHERE uom.uom EQ oe-ordl.pr-uom NO-ERROR.
+            IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
+                dMultiplier = uom.mult.
+            ELSE 
+                dMultiplier = 1.
+            IF NOT AVAIL uom THEN 
+                dMultiplier = 1000.  /* original default */
+            oe-ordl.qty = oe-ordl.qty * dMultiplier.
+        END.
       END.
       ELSE 
       oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
        
       oe-ordl.cas-cnt = IF oe-ordl.qty LT itemfg.case-count THEN oe-ordl.qty ELSE itemfg.case-count.
       /* {oe/defwhsed.i oe-ordl} */
+      
+      IF oe-ordl.req-date EQ ? THEN 
+        oe-ordl.req-date = oe-ord.ord-date + 10.
 
       RUN CreateRelease (INPUT ipcShipToID,
                          INPUT "").
@@ -656,6 +627,7 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE fromIdentity AS CHARACTER NO-UNDO.
   DEFINE VARIABLE orderDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE custNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE shipToID AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE iNextOrderNumber LIKE oe-ord.ord-no NO-UNDO.
   DEFINE VARIABLE iNextShipNo LIKE shipto.ship-no   NO-UNDO.
@@ -667,6 +639,12 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cDueDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lIsEdiXML AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+  RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
 
   RUN XMLOutput/XMLParser.p (ipcXMLFile).
   FIND FIRST ttNodes NO-LOCK
@@ -681,7 +659,9 @@ PROCEDURE gencXMLOrder:
         fromIdentity = getNodeValue('From','Identity')
         orderDate = getNodeValue('OrderRequestHeader','orderDate')
         orderID = getNodeValue('OrderRequestHeader','orderID')
-        custNo = getCustNo(fromIdentity)
+        shipToID = getNodeValue('shipTo','AddressID')
+        custNo = getCustNo(fromIdentity, shipToID)
+        
         .
       FIND FIRST oe-ord NO-LOCK
            WHERE oe-ord.company EQ cocode
@@ -719,8 +699,13 @@ PROCEDURE gencXMLOrder:
           opcReturnValue = 'Part Number is missing from XML file' .
           RETURN.
       END. 
-      RUN genTempOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).                                                                                              
-      RUN genTempOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).  
+      RUN genTempOrderHeader (OUTPUT cReturn).                                                                                              
+      RUN genTempOrderLines (INPUT rOrdRec, OUTPUT cReturn).  
+      IF cReturn NE "Success" THEN DO:
+          opcReturnValue = cReturn.
+          RETURN.
+      END. 
+      
   END.  
   ELSE DO:
       ASSIGN 
@@ -734,7 +719,7 @@ PROCEDURE gencXMLOrder:
 
       ASSIGN 
           orderdate = SUBSTRING(orderDate, 1, 4) + "-" + substring(orderDate, 5, 2) + "-" + substring(orderDate, 7, 2) /* "2018 11 05" */
-          custNo = getCustNo(fromIdentity)
+          custNo = getCustNo(fromIdentity, "" /* Custno by shipto */)
           .
       FIND FIRST cust NO-LOCK
           WHERE cust.company EQ cocode
@@ -782,6 +767,9 @@ PROCEDURE gencXMLOrder:
       RUN touchOrder (INPUT rOrdRec, OUTPUT cReturn).
  
       ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
+      
+      RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).
+      
   END. 
   
   RELEASE oe-ord.  

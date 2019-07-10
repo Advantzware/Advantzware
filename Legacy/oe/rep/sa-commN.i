@@ -347,8 +347,8 @@
               
         END.
 
-        IF ar-invl.misc AND NOT oe-ctrl.prep-comm THEN v-slsc[1] = 0.
-
+        IF ar-invl.misc AND AVAILABLE prep AND NOT prep.commissionable THEN v-slsc[1] = 0.
+        
         RUN custom/combasis.p (cocode, tt-report.key-01, cust.type,
                                (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
                                cust.cust-no,
@@ -477,12 +477,13 @@
              v-amt = v-amt * ld-inv-pct.
            END.
           
+           IF ar-invl.misc AND AVAILABLE prep AND NOT prep.commissionable THEN v-slsc[1] = 0.
+
            RUN custom/combasis.p (cocode, tt-report.key-01, cust.type,
                                   (IF AVAIL itemfg THEN itemfg.procat ELSE ""), 0,
                                   cust.cust-no,
                                    OUTPUT v-basis).
           
-           IF ar-invl.misc AND NOT oe-ctrl.prep-comm THEN v-slsc[1] = 0.
         END.
 
         ELSE DO:
@@ -670,7 +671,7 @@
                  WHEN "cat" THEN cVarValue = STRING(v-procat).
                  WHEN "qty" THEN cVarValue = string(v-qty,"->>>>>>>9"). 
                  WHEN "sel-pric" THEN cVarValue = string(v-amt,"->>>>>>>9.99") .
-                 WHEN "totl-cst" THEN cVarValue = string(v-cost,"->>>>>>>9.99").
+                 WHEN "totl-cst" THEN cVarValue = IF v-print-cost THEN string(v-cost,"->>>>>>>9.99") ELSE "".
                  WHEN "v-gp" THEN cVarValue = string(v-gp,"->>>>9.99") .
                  WHEN "v-camt" THEN cVarValue = string(v-camt,"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-comm,"->>>9.99") .
@@ -680,7 +681,7 @@
                  WHEN "ware-house" THEN cVarValue = IF cWhse NE "" THEN cWhse ELSE "".
                  WHEN "ship-id" THEN cVarValue = STRING(v-ship-id).
             END CASE.
-            
+            IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -787,7 +788,7 @@
                  WHEN "cat" THEN cVarValue = "".
                  WHEN "qty" THEN cVarValue = "". 
                  WHEN "sel-pric" THEN cVarValue = string(v-tot-samt[1],"->>>>>>>9.99") .
-                 WHEN "totl-cst" THEN cVarValue = string(v-tot-cost[1],"->>>>>>>9.99").
+                 WHEN "totl-cst" THEN cVarValue = IF v-print-cost THEN string(v-tot-cost[1],"->>>>>>>9.99") ELSE "".
                  WHEN "v-gp" THEN cVarValue = string(v-gp,"->>>>9.99") .
                  WHEN "v-camt" THEN cVarValue = string(v-tot-camt[1],"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-comm,"->>>9.99") .
@@ -797,7 +798,7 @@
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "".                       
               END CASE.
-              
+              IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -951,7 +952,7 @@
                  WHEN "cat" THEN cVarValue = STRING(tt-slsrp.scat).
                  WHEN "qty" THEN cVarValue = "". 
                  WHEN "sel-pric" THEN cVarValue = string(tt-slsrp.samt,"->>>>>>>9.99") .
-                 WHEN "totl-cst" THEN cVarValue = string(v-srs-cost,"->>>>>>>9.99").
+                 WHEN "totl-cst" THEN cVarValue = IF v-print-cost THEN string(v-srs-cost,"->>>>>>>9.99") ELSE "".
                  WHEN "v-gp" THEN cVarValue = string(v-srs-gp,"->>>>9.99") .
                  WHEN "v-camt" THEN cVarValue = string(tt-slsrp.camt,"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-srs-comm,"->>>9.99") .
@@ -961,7 +962,7 @@
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "".
               END CASE.
-              
+              IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1040,7 +1041,7 @@
                  WHEN "cat" THEN cVarValue = "".
                  WHEN "qty" THEN cVarValue = "". 
                  WHEN "sel-pric" THEN cVarValue = string(v-tot-samt[2],"->>>>>>>9.99") .
-                 WHEN "totl-cst" THEN cVarValue = string(v-tot-cost[2],"->>>>>>>9.99").
+                 WHEN "totl-cst" THEN cVarValue = IF v-print-cost THEN string(v-tot-cost[2],"->>>>>>>9.99") ELSE "".
                  WHEN "v-gp" THEN cVarValue = string(v-gp,"->>>>9.99") .
                  WHEN "v-camt" THEN cVarValue = string(v-tot-camt[2],"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-comm,"->>>9.99") .
@@ -1050,7 +1051,7 @@
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "".                  
               END CASE.
-              
+              IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1177,7 +1178,7 @@
                  WHEN "cat" THEN cVarValue = "".
                  WHEN "qty" THEN cVarValue = "". 
                  WHEN "sel-pric" THEN cVarValue = string(v-tot-samt[3],"->>>>>>>9.99") .
-                 WHEN "totl-cst" THEN cVarValue = string(v-tot-cost[3],"->>>>>>>9.99").
+                 WHEN "totl-cst" THEN cVarValue = IF v-print-cost THEN string(v-tot-cost[3],"->>>>>>>9.99") ELSE "".
                  WHEN "v-gp" THEN cVarValue = string(v-cost,"->>>>9.99") .
                  WHEN "v-camt" THEN cVarValue = string(v-tot-camt[3],"->>>>>9.99").
                  WHEN "v-comm" THEN cVarValue = string(v-comm,"->>>9.99") .
@@ -1187,7 +1188,7 @@
                  WHEN "ware-house" THEN cVarValue = "".
                  WHEN "ship-id" THEN cVarValue = "".                   
               END CASE.
-              
+              IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
               cExcelVarValue = cVarValue.
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 

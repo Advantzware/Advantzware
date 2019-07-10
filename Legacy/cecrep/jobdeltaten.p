@@ -295,8 +295,8 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=QuantityTR><FROM><LINE#QuantityEnd>"
         "<=QuantityBL><#BoardStart>"
         "<=BoardStart><C+32><#BoardTR>"
-        "<=BoardStart><R+9><#BoardBL>"
-        "<=BoardStart><C+32><R+9><#BoardEnd>"
+        "<=BoardStart><R+11><#BoardBL>"
+        "<=BoardStart><C+32><R+11><#BoardEnd>"
         "<=BoardTR><FROM><LINE#BoardEnd><|1>"
         "<=BoardBL><#BoxImageStart>"
         "<=BoardTR><#DieStart>"
@@ -331,7 +331,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=OrderStart><R+8><#OrderBL>"
         "<=OrderStart><C108><R+8><#OrderEnd>"
         "<=OrderStart><R+0.5><RIGHT=C+14>Job Card printed: <#Printed>"
-        "<=OrderStart><R+2><RIGHT=C+14>Our Order #: <#OrderNum>"
+        "<=OrderStart><R+2><RIGHT=C+14>Our Order #: <#OrderNum><C+12>CSR:<#OrderCsr>"
         "<=OrderStart><R+3><RIGHT=C+14>Customer PO: <#CustomerPO>"
         "<=OrderStart><R+4><RIGHT=C+14>Order Quantity: <#OrderQuantity>"
         "<=OrderStart><R+5><RIGHT=C+14>Order Date: <#OrderDate>"
@@ -348,14 +348,16 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=BoardStart><R+2><RIGHT=C+6>Sheets: <#SheetsRequired>"
         /*              "<=BoardStart><R+2><RIGHT=C+20>Received: <#SheetsReceived>"*/
         "<=BoardStart><R+3><RIGHT=C+6>Size: <#SheetsSize>"
-        "<=BoardStart><R+3><RIGHT=C+24>MSF: <#SheetsMSF>"
+        "<=BoardStart><R+3><RIGHT=C+24>Tot Sq Ft: <#SheetsMSF>"
         "<=BoardStart><R+4><RIGHT=C+9>Wid Scores: <#Scores>"
-        "<=BoardStart><R+5><RIGHT=C+9>Len Scores: <#ScoresLen>"
-        "<=BoardStart><R+6><RIGHT=C+6>Adders:"
-        "<=BoardStart><R+6><C6><#Adders1><C20><#Adders2>"
-        "<=BoardStart><R+7><C6><#Adders3><C20><#Adders4>"
-        "<=BoardStart><R+8><RIGHT=C+5>PO: <#VendorPO>"
-        "<=BoardStart><R+8><RIGHT=C+21>Vendor: <#VendorCode>"
+        "<=BoardStart><R+5><RIGHT=C+9> <#Scores2>"
+        "<=BoardStart><R+6><RIGHT=C+9>Len Scores: <#ScoresLen>"
+        "<=BoardStart><R+7><RIGHT=C+9> <#ScoresLen2>"
+        "<=BoardStart><R+8><RIGHT=C+6>Adders:"
+        "<=BoardStart><R+8><C6><#Adders1><C20><#Adders2>"
+        "<=BoardStart><R+9><C6><#Adders3><C20><#Adders4>"
+        "<=BoardStart><R+10><RIGHT=C+5>PO: <#VendorPO>"
+        "<=BoardStart><R+10><RIGHT=C+21>Vendor: <#VendorCode>"
         "<=DieStart><R+1><RIGHT=C+8>Die#: <#Die>"
         "<=DieStart><R+2><RIGHT=C+8>Die Loc.: <#DieLocation>"
         "<=DieStart><R+3><RIGHT=C+8>Joint: <#JointImpressions>"
@@ -478,6 +480,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
         "<=Printed><B>" TODAY  "</B>"
         "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
+        "<=OrderCsr>" SPACE(1) IF AVAILABLE xoe-ord THEN STRING(xoe-ord.user-id) ELSE "" 
         "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
         "<FGColor=Blue><B>"
         /* "<=CustomerName>" cust.NAME FORMAT "x(30)"*/
@@ -495,9 +498,11 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=SheetsSize>" "W:" + trim(STRING({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
         "L:" + trim(STRING({sys/inc/k16v.i v-form-len},">>,>>9.99"))  FORMAT "x(30)"
 
-        "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
-        "<=Scores><P9>" STRING(v-wid-score) FORMAT "x(30)" 
-        "<=ScoresLen>" STRING(v-len-score) FORMAT "x(36)" 
+        "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft ,">>,>>>,>>9.9<")) FORMAT "x(12)"
+        "<=Scores><P9>" SUBSTRING(v-wid-score,1,34) FORMAT "x(35)" 
+        "<=Scores2><P9>" SPACE (19) SUBSTRING(v-wid-score,35,34) FORMAT "x(35)"
+        "<=ScoresLen>" SUBSTRING(v-len-score,1,34) FORMAT "x(35)" 
+        "<=ScoresLen2>" SPACE (19) SUBSTRING(v-len-score,35,34) FORMAT "x(35)"
         "<P8><=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  STRING(STRING(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
         "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  STRING(STRING(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"
         "<=Adders3>" IF LENGTH(xef.adder[9]) GT 10 THEN  STRING(STRING(xef.adder[9],"x(17)") + "...") ELSE xef.adder[9]  FORMAT "x(20)"
@@ -683,41 +688,33 @@ ASSIGN
     lv-got-return   = 0
     v-dept-note     = "" 
     v-prev-note-rec = ?.
-   
-FOR EACH notes WHERE notes.rec_key = job.rec_key AND
+
+  lv-text = "".   
+  FOR EACH notes WHERE notes.rec_key = job.rec_key and
     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
-    ((v-dept-log AND lookup(notes.note_code,v-dept-codes) NE 0) OR NOT v-dept-log)
-    NO-LOCK:
-    IF v-prev-note-rec <> ? AND
-        v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
+    ((v-dept-log AND lookup(notes.note_code,v-dept-codes) NE 0) OR NOT v-dept-log)  ,
+    FIRST dept WHERE dept.code = notes.note_code NO-LOCK 
+    BY notes.note_code:
 
-    DO i = 1 TO LENGTH(notes.note_text):
-        IF i - j >= v-note-length THEN ASSIGN j             = i
-                lv-got-return = lv-got-return + 1.
-
-        v-tmp-lines = ( i - j ) / v-note-length.
-        {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-        k = v-tmp-lines + lv-got-return + 
-            IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-        IF k < 20 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
-            ELSE "" .              
-
-        IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-            THEN 
-        DO:
-            lv-got-return = lv-got-return + 1.
-            j = i.
-        END.         
-    END.
-            
-    ASSIGN 
-        v-prev-note-rec = RECID(notes)
-        j               = 0
-        lv-got-return   = 0.
-
-
-END.
+    lv-text = lv-text + "<B>" + caps(dept.dscr) + ":</B>" + CHR(10) + 
+        "  " + notes.note_text + CHR(10).          
+  END.
+  DO li = 1 TO 30:
+      CREATE tt-formtext.
+      ASSIGN tt-line-no = li
+          tt-length  = 78. 
+  END.
+  RUN custom/formtext.p (lv-text).
+  ASSIGN
+      i = 0
+      v-inst2 = ""
+      v-dept-note = "".
+  
+  FOR EACH tt-formtext:
+      i = i + 1.
+      IF  i <= 30 THEN v-dept-note[i] = tt-formtext.tt-text.      
+  END.
+   
         
 ASSIGN
     v-inst        = ""
@@ -824,7 +821,7 @@ IF AVAILABLE xeb  THEN
         WHERE stackPattern.stackcode EQ xeb.stack-code NO-ERROR .
 
 
-PUT      "<=Start><R21.5><#PageStart2>"
+PUT      "<=Start><R23.5><#PageStart2>"
     "<=PageStart2><#PackingStart>"
     "<=PackingStart><C+25><#PackingTR>"
     "<=PackingStart><R+10><#PackingBL>"
@@ -834,19 +831,20 @@ PUT      "<=Start><R21.5><#PageStart2>"
     "<=PackingStart><R+2><RIGHT=C+8>Size: "
     "<=PackingStart><R+2><C10>L:<#PalletLength>"
     "<=PackingStart><R+2><C17>W:<#PalletWidth> "
-    "<=PackingStart><R+3><C11>Per"
-    "<=PackingStart><R+3><C17>Job Total"
-    "<=PackingStart><R+4><RIGHT=C+8>Per Case:"
-    "<=PackingStart><R+4><C11><#CaseCount>"
-    "<=PackingStart><R+4><C17><#JobCases>"
-    "<=PackingStart><R+5><RIGHT=C+8>Per Pallet:"
-    "<=PackingStart><R+5><C11><#PalletCount>"
-    "<=PackingStart><R+5><C17><#JobPallets>"
-    "<=PackingStart><FROM><RECT#ShippingEnd><|1>"
-    "<=PackingStart><R+6><RIGHT=C+8>Layers: <#Layers>"
-    "<=PackingStart><R+7><RIGHT=C+8>Stacks: <#Stacks>"
-    "<=PackingStart><R+8><RIGHT=C+8>Pattern: <#PatternCode>"
-    "<=PackingStart><R+9><C+1><#Pattern>"
+    /*"<=PackingStart><R+3><C11>Per"*/
+    /*"<=PackingStart><R+3><C17>Job Total"*/
+    /*"<=PackingStart><R+4><RIGHT=C+8>Per Case:"*/
+    /*"<=PackingStart><R+4><C11><#CaseCount>"*/
+    /*"<=PackingStart><R+4><C17><#JobCases>"*/
+    /*"<=PackingStart><R+5><RIGHT=C+8>Per Pallet:"*/
+    /*"<=PackingStart><R+5><C11><#PalletCount>"*/
+    /*"<=PackingStart><R+5><C17><#JobPallets>"*/
+    /*"<=PackingStart><FROM><RECT#ShippingEnd><|1>"*/
+    "<=PackingStart><R+3><RIGHT=C+8>Layers: <#Layers>"
+    "<=PackingStart><R+4><RIGHT=C+8>Stacks: <#Stacks>"
+    "<=PackingStart><R+5><RIGHT=C+8>Pattern: <#PatternCode>"
+    "<=PackingStart><R+6><RIGHT=C+8>Desc: <#Pattern>"
+    "<=PackingStart><R+7><RIGHT=C+8>Pallet: <#Palletwl>"
     "<=PackingTR><#PatternImageStart>"
     "<=PatternImageStart><C+22><#PatternImageTR>"
     "<=PatternImageStart><R+10><#PatternImageBL>"
@@ -854,7 +852,7 @@ PUT      "<=Start><R21.5><#PageStart2>"
     "<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAILABLE stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
     "<=PatternImageTR><FROM><#PatternImageEnd><|1>"
     "<=PatternImageTR>"
-    "<=Start><R32><#ShippingStart>"
+    "<=Start><R33><#ShippingStart>"
     "<=ShippingStart><C1><#ShippingTR>"
     "<=ShippingStart><R+10><#ShippingBL>"
     "<=ShippingStart><C1><R+10><#ShippingEnd>"
@@ -881,16 +879,18 @@ PUT      "<=Start><R21.5><#PageStart2>"
     "<=Pallet>" IF AVAILABLE xeb THEN xeb.tr-no ELSE "" FORMAT "x(10)" 
     "<=PalletLength>" IF AVAILABLE xeb THEN STRING(xeb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
     "<=PalletWidth>" IF AVAILABLE xeb THEN STRING(xeb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
-    "<B>"
-    "<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)" 
-    "<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)" 
-    "</B>"
-    "<=JobCases>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)"
-    "<=JobPallets>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)"
+    /*"<B>"*/
+    /*"<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)" */
+    /*"<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)" */
+    /*"</B>"*/
+    /*"<=JobCases>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)"*/
+    /*"<=JobPallets>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)"*/
     "<=Layers>" IF AVAILABLE xeb THEN STRING(xeb.tr-cas) ELSE "" FORMAT "x(4)"
     "<=Stacks>" IF AVAILABLE xeb THEN STRING(xeb.stacks) ELSE "" FORMAT "x(6)"
     "<=PatternCode>" IF AVAILABLE xeb THEN STRING(xeb.stack-code) ELSE "" FORMAT "x(3)"
     "<=Pattern>" IF AVAILABLE xeb AND AVAILABLE stackPattern THEN stackPattern.stackDescription ELSE "" FORMAT "x(30)"
+    "<=Palletwl>" (IF AVAILABLE xeb THEN trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9")) ELSE "") format "x(15)"
     "<=ShipTo>" v-shipto  FORMAT "x(10)"
     "<=ShipName>" IF AVAILABLE shipto THEN shipto.ship-name ELSE "" FORMAT "x(30)"
     "<=ShipAdd1>" IF AVAILABLE shipto THEN shipto.ship-addr[1] ELSE "" FORMAT "x(30)"
@@ -911,7 +911,7 @@ ls-fgitem-img = bf-itemfg.box-image.
 PUT UNFORMATTED 
     "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=" ls-fgitem-img "><=ItemImage>".
              
-PUT "<R31.7><C1><FROM><R31.7><C62><LINE> " .
+PUT "<R33.7><C1><FROM><R33.7><C62><LINE> " .
         
 PAGE.
 

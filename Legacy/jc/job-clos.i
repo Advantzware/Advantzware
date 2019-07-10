@@ -22,16 +22,12 @@ DEF VAR ll-set AS LOG NO-UNDO.
         EXCLUSIVE-LOCK NO-ERROR.
 
       v-fin-qty = 0.
-      FOR EACH fg-act FIELDS(qty)
-          WHERE fg-act.company EQ cocode
-            AND fg-act.job     EQ job.job
-            AND fg-act.job-no  EQ job.job-no
-            AND fg-act.job-no2 EQ job.job-no2
-            AND fg-act.i-no    EQ job-hdr.i-no
-          NO-LOCK:
-
-        v-fin-qty = v-fin-qty + fg-act.qty.
-      END.
+      RUN fg/GetProductionQty.p (INPUT cocode,
+                                   INPUT job-hdr.job-no,
+                                   INPUT job-hdr.job-no2,
+                                   INPUT job-hdr.i-no,
+                                   INPUT NO,
+                                   OUTPUT v-fin-qty ).      
 
       IF v-fin-qty LT job-hdr.qty THEN DO:
         IF AVAIL itemfg THEN DO:

@@ -412,7 +412,7 @@ PROCEDURE check-est-type :
 
   
   op-log = AVAIL est AND
-           ((est.est-type GT 2 AND est.est-type LE 4) OR est.est-type GT 6).
+           ((est.est-type GE 2 AND est.est-type LE 4) OR est.est-type GT 6).
 
   IF op-log THEN RUN hide-program-objects.
 

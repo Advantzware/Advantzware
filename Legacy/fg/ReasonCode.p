@@ -3,9 +3,11 @@
 PROCEDURE pBuildReasonCode:
     DEFINE INPUT  PARAMETER ipCodeType  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opComboList AS CHARACTER NO-UNDO.   
+    DEFINE VARIABLE cInitVal AS CHARACTER NO-UNDO.
   
      /* ensure blank option avaiable */
-     opComboList = ",".
+     ASSIGN cInitVal = ","
+            opComboList = cInitVal.
      FOR EACH rejct-cd NO-LOCK
          WHERE rejct-cd.type EQ ipCodeType
          BREAK BY rejct-cd.type
@@ -16,6 +18,7 @@ PROCEDURE pBuildReasonCode:
                      + rejct-cd.code + ","
                      .
     END. /* each rejct-cd */
-    opComboList = TRIM(opComboList,",").
+    IF opComboList NE cInitVal THEN 
+      opComboList = TRIM(opComboList,",").
         
 END PROCEDURE.

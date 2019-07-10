@@ -1,0 +1,43 @@
+        1   /* lib/mergedblist.p
+        2    *
+        3    * merge local etc/dblist.cfg with portal resources
+        4    *
+        5    */
+        6   
+        7   define input-output parameter custId  as character   no-undo.
+        8   define input        parameter host    as character   no-undo.
+        9   define input        parameter opMode  as character   no-undo.           /* "POST" = send merged list back to portal             */
+       10   define output       parameter mergeStatus as logical no-undo.
+       11   
+       12   define new global shared variable logLevel as integer no-undo initial 5.
+       13   
+       14   
+       15   /* main body
+       16    */
+       17   
+       18   publish "logMsg" ( 0, substitute( "&1: &2 &3", "lib/mergelist", custId, host )).
+       19   
+       20   run getDBList ( custId, host ).
+       21   
+       22   run readDBList.
+       23   run mergeDBList ( custId ).
+       24   
+       25   mergeStatus = true.
+       26   
+       27   if index( opMode, "POST" ) > 0 and custId <>  "" and custId <> ? and custId <> "local" then
+       28     do:
+       29       publish "logMsg" ( 0, substitute( "&1: &2 host = &3 custId = &4", "lib/mergedblist.p", "posting etc/dblist.cfg to portal", host, custId )).
+       30       run postdblist ( custId, host, output mergeStatus ).
+       31     end.
+       32   
+       33   if mergeStatus = false then
+       34     do:
+       35       publish "logMsg" ( 0, substitute( "&1: &2 &3 &4", "lib/mergedblist.p", "failed", custId, host )).
+       36     end.
+       37    else
+       38     do:
+       39       publish "logMsg" ( 0, substitute( "&1: &2", "lib/mergedblist.p", "saving etc/dblist.cfg" )).
+       40       run saveDBList.                                                             /* do this *after* the post to ensure that the server timestamp is later than the portal timestamp      */
+       41     end.
+       42   
+       43   return.

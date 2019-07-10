@@ -2,6 +2,7 @@
 DEF PARAM BUFFER io-job FOR job.
 DEF PARAM BUFFER io-job-comp FOR reftable.
 DEF PARAM BUFFER io-job-hdr FOR job-hdr.
+DEFINE VARIABLE iRecQty AS INTEGER NO-UNDO .
 
 DEF INPUT-OUTPUT PARAM io-sets AS INT NO-UNDO.
 
@@ -63,12 +64,12 @@ IF AVAIL io-job-hdr THEN DO:
     LEAVE.
   END.
 
-  FOR EACH fg-act NO-LOCK
-      WHERE fg-act.company EQ io-job-hdr.company
-        AND fg-act.job-no  EQ io-job-hdr.job-no
-        AND fg-act.job-no2 EQ io-job-hdr.job-no2
-        AND fg-act.i-no    EQ io-job-hdr.i-no:
-    io-sets = io-sets - fg-act.qty.
-  END.
+   RUN fg/GetProductionQty.p (INPUT io-job-hdr.company,
+                                   INPUT io-job-hdr.job-no,
+                                   INPUT io-job-hdr.job-no2,
+                                   INPUT io-job-hdr.i-no,
+                                   INPUT NO,
+                                   OUTPUT iRecQty).
+   io-sets = io-sets - iRecQty . 
 END.
 

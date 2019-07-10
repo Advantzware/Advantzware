@@ -40,7 +40,6 @@ CREATE WIDGET-POOL.
 &scoped-define item_spec FGITEM
 
 DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
-DEF VAR h_fileload AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -131,7 +130,7 @@ DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-spcard AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-locw AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_export-2 AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -284,9 +283,7 @@ ON WINDOW-CLOSE OF W-Win /* Finished Goods Item Inventory */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-    IF VALID-HANDLE(h_fileload) THEN
-     DELETE OBJECT h_fileload.
-
+    
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -471,7 +468,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-upditm ).
-       RUN set-position IN h_p-upditm ( 23.19 , 58.00 ) NO-ERROR.
+       RUN set-position IN h_p-upditm ( 25.49 , 58.00 ) NO-ERROR.
        RUN set-size IN h_p-upditm ( 2.14 , 59.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -479,7 +476,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_p-calcc ).
-       RUN set-position IN h_p-calcc ( 23.19 , 117.00 ) NO-ERROR.
+       RUN set-position IN h_p-calcc ( 25.49 , 117.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -487,7 +484,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-spcard ).
-       RUN set-position IN h_v-spcard ( 23.19 , 134.00 ) NO-ERROR.
+       RUN set-position IN h_v-spcard ( 25.49 , 134.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 15.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -495,7 +492,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest-2 ).
-       RUN set-position IN h_v-navest-2 ( 23.43 , 12.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest-2 ( 25.73 , 12.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -617,6 +614,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 4 */
     WHEN 5 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export-2 ).
+       RUN set-position IN h_export-2 ( 1.00 , 21.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/itemfg.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -651,6 +656,8 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-locw ( 27.56 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.10 , 95.00 ) */
 
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('13':U) NO-ERROR.
 
        /* Links to SmartViewer h_itemfg. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_itemfg ).
@@ -659,6 +666,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'repo-query':U , h_locw ).
        RUN add-link IN adm-broker-hdl ( h_itemfg2 , 'Record':U , h_locw ).
        RUN add-link IN adm-broker-hdl ( h_locw , 'ViewDetail':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_locw , 'export-xl':U , h_export-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_itemfg ,
@@ -834,7 +844,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updven ).
-       RUN set-position IN h_p-updven ( 22.43 , 65.00 ) NO-ERROR.
+       RUN set-position IN h_p-updven ( 24.23 , 65.00 ) NO-ERROR.
        RUN set-size IN h_p-updven ( 2.14 , 59.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -842,7 +852,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_pricechg ).
-       RUN set-position IN h_pricechg ( 22.43 , 127.00 ) NO-ERROR.
+       RUN set-position IN h_pricechg ( 24.23 , 127.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 17.20 ) */
 
        /* Initialize other pages that this page requires. */
@@ -1269,8 +1279,8 @@ PROCEDURE import-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-RUN util/updatefg.w PERSISTENT SET h_fileload.
-RUN adm-initialize IN h_fileload.
+ RUN util/dev/impFG.p .
+ RUN local-open-query IN h_b-itemfg .
 
 END PROCEDURE.
 
@@ -1358,9 +1368,7 @@ PROCEDURE local-destroy :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE(h_fileload) THEN
-     DELETE OBJECT h_fileload.
-  
+      
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -1378,8 +1386,6 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-    IF VALID-HANDLE(h_fileload) THEN
-     DELETE OBJECT h_fileload.
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.

@@ -19,6 +19,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLookupTitle        AS CHARACTER NO-UNDO INITIAL ?.
 DEFINE VARIABLE cMnemonic           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProgramID          AS CHARACTER NO-UNDO.
@@ -26,11 +28,18 @@ DEFINE VARIABLE cUserID             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hMainMenuHandle     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
 /* cue card variables */
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lNext               AS LOGICAL   NO-UNDO.
 
+DEFINE TEMP-TABLE ttSessionParam NO-UNDO
+    FIELD sessionParam AS CHARACTER
+    FIELD sessionValue AS CHARACTER
+        INDEX sessionParam IS PRIMARY UNIQUE sessionParam
+        .
 {system/ttSysCtrlUsage.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -60,6 +69,19 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetBeginSearch Procedure
+FUNCTION sfGetBeginSearch RETURNS CHARACTER 
+  ( INPUT ipcString AS CHAR ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
@@ -199,7 +221,6 @@ FIND FIRST users NO-LOCK
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
-
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
@@ -433,8 +454,6 @@ PROCEDURE spDynAuditField:
     DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lResults   AS LOGICAL   NO-UNDO.
     
-    DEFINE BUFFER bDynParamValue FOR dynParamValue.
-
     FIND FIRST AuditHdr NO-LOCK
          WHERE AuditHdr.AuditDB    EQ ipcFrameDB
            AND AuditHdr.AuditTable EQ ipcFrameFile
@@ -491,6 +510,14 @@ PROCEDURE spDynAuditField:
                             ASSIGN
                                 oplRunAudit  = YES
                                 oprRowID     = ROWID(dynParamValue)
+                            WHERE dynSubject.subjectID EQ iSubjectID) THEN DO:
+                    RUN spGetDynParamValue (iSubjectID, OUTPUT oprRowID, OUTPUT opcErrorMsg).
+                    IF AVAILABLE dynParamValue THEN DO:
+                        IF lResults THEN
+                        DO TRANSACTION:
+                            FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+                            ASSIGN
+                                oplRunAudit  = YES
                                 cLookupTitle = "Audit Field History for Database: " + ipcFrameDB
                                              + " - Table: " + ipcFrameFile
                                              + " - Field: " + ipcFrameField
@@ -506,6 +533,7 @@ PROCEDURE spDynAuditField:
                                     dynParamValue.paramValue[idx] = ipcFrameField.
                                 END CASE.
                             END. /* do idx */
+                            FIND CURRENT dynParamValue NO-LOCK.
                         END. /* if results exist */
                         ELSE
                         opcErrorMsg = "No Audit Field History Exists".
@@ -543,6 +571,56 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetDynParamValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetDynParamValue Procedure
+PROCEDURE spGetDynParamValue:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiSubjectID AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oprRowID     AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcErrorMsg  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bDynParamValue FOR dynParamValue.
+    
+    FIND FIRST dynParamValue NO-LOCK
+         WHERE dynParamValue.subjectID    EQ ipiSubjectID
+           AND dynParamValue.user-id      EQ USERID("ASI")
+           AND dynParamValue.paramValueID EQ 0
+         NO-ERROR.
+    IF NOT AVAILABLE dynParamValue THEN DO:
+        FIND FIRST bDynParamValue NO-LOCK
+             WHERE bDynParamValue.subjectID    EQ ipiSubjectID
+               AND bDynParamValue.user-id      EQ "_default"
+               AND bDynParamValue.paramValueID EQ 0
+             NO-ERROR.
+        IF AVAILABLE bDynParamValue THEN
+        DO TRANSACTION:
+            CREATE dynParamValue.
+            BUFFER-COPY bDynParamValue TO dynParamValue
+                ASSIGN
+                    dynParamValue.user-id          = USERID("ASI")
+                    dynParamValue.paramDescription = "User Default"
+                    dynParamValue.outputFormat     = "Grid"
+                    oprRowID                       = ROWID(dynParamValue)
+                    .
+            FIND CURRENT dynParamValue NO-LOCK.
+        END. /* if avail */
+        ELSE
+        opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
+    END. /* if not avail */
+    ELSE
+    oprRowID = ROWID(dynParamValue).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spGetLookupTitle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetLookupTitle Procedure
@@ -563,21 +641,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetSession) = 0 &THEN
 
-&IF DEFINED(EXCLUDE-spGetParamValueID) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetParamValueID Procedure
-PROCEDURE spGetParamValueID:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSession Procedure
+PROCEDURE spGetSessionParam:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opiParamValueID AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSessionValue AS CHARACTER NO-UNDO.
     
-    opiParamValueID = iParamValueID.
+    FIND FIRST ttSessionParam
+         WHERE ttSessionParam.sessionParam EQ ipcSessionParam
+         NO-ERROR.
+    IF AVAILABLE ttSessionParam THEN
+    opcSessionValue = ttSessionParam.sessionValue.
 
 END PROCEDURE.
 	
@@ -744,6 +825,7 @@ PROCEDURE spSetDismiss:
             xCueCard.cueType   = bCueCard.cueType
             xCueCard.cueTextID = bCueCardText.cueTextID
             .
+        RELEASE xCueCard.
     END. /* each bcuecardtext */
     iCueOrder = 99999.
     RUN spNextCue (iphWidget).
@@ -903,6 +985,7 @@ default_LeftDown,default_Left,information,default_SidebarCollapse,default_Sideba
                     xCueCard.cueType   = cueCard.cueType
                     xCueCard.cueTextID = cueCardText.cueTextID
                     .
+                RELEASE xCueCard.
                 NEXT.
             END. /* if securitylevel */
             /* calculate the cue card screen position */
@@ -1125,17 +1208,25 @@ END PROCEDURE.
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-spSetParamValueID) = 0 &THEN
+&IF DEFINED(EXCLUDE-spSetSessionParam) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetParamValueID Procedure
-PROCEDURE spSetParamValueID:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spSetSessionParam Procedure
+PROCEDURE spSetSessionParam:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiParamValueID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSessionParam AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSessionValue AS CHARACTER NO-UNDO.
     
-    iParamValueID = ipiParamValueID.
+    FIND FIRST ttSessionParam
+         WHERE ttSessionParam.sessionParam EQ ipcSessionParam
+         NO-ERROR.
+    IF NOT AVAILABLE ttSessionParam THEN DO:
+        CREATE ttSessionParam.
+        ttSessionParam.sessionParam = ipcSessionParam.
+    END. /* if not avail */
+    ttSessionParam.sessionValue = ipcSessionValue.
 
 END PROCEDURE.
 	
@@ -1188,6 +1279,36 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetBeginSearch) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetBeginSearch Procedure
+FUNCTION sfGetBeginSearch RETURNS CHARACTER 
+  ( INPUT ipcString AS CHAR ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iAstPos AS INTEGER NO-UNDO.
+ 
+  iAstPos = INDEX(ipcString, "*").
+
+  IF iAstPos GT 0 THEN 
+     cResult = SUBSTRING(ipcString, 1, iAstPos - 1).
+  ELSE
+     cResult = ipcString.
+
+  RETURN cResult.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfWebCharacters) = 0 &THEN
 
@@ -1377,6 +1498,7 @@ FUNCTION sfUserSecurityLevel RETURNS INTEGER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+/*    RETURN 9999. /* do not remove, used by rstark to access subjectID 0 */*/
     RETURN IF AVAILABLE users THEN users.securityLevel ELSE 0.
 
 END FUNCTION.
@@ -1385,4 +1507,3 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-

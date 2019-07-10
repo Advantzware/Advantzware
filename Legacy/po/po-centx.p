@@ -63,7 +63,7 @@ DEF VAR vs-ord-qty AS cha NO-UNDO.
 DEF VAR g_company AS CHAR NO-UNDO.
 
 g_company = cocode.
-
+RUN spSetSessionParam ("Company", g_company).
 
 DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-qty AS DEC DECIMALS 3 EXTENT 20

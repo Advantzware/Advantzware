@@ -158,8 +158,10 @@ PROCEDURE postMonitor:
     DEFINE VARIABLE AsnHotFolderIn-char  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE AsnHotFolderOut-char AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFullFilePath             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hFtpProcs AS HANDLE NO-UNDO.
     
     
+    RUN system/ftpProcs.p PERSISTENT SET hFtpProcs.
     
     AsnHotFolderIn-char = monitorImportdir.
     AsnHotFolderOut-char = AsnHotFolderIn-char + "\processed".
@@ -177,12 +179,9 @@ PROCEDURE postMonitor:
     ELSE    
       cFormat = cPathIn.
     /* Execute ftp to download files */
-    RUN custom/InboundFTP.p (INPUT cFormat, INPUT "TagMon", INPUT cPathIn, INPUT  "*.dat" /* filespec */).
-   
-    RUN monitorActivity ('Check New Tag Files ' + monitorImportDir,YES,'').
-    
-      
-    RUN monitorActivity ('Check dir ' + cPathIn,YES,'').
+    RUN pExecFtp IN hFtpProcs (INPUT cocode, INPUT "TagMon", INPUT cFormat, INPUT cPathIn, INPUT  "*.dat" /* filespec */).
+    DELETE OBJECT hFtpProcs.    
+          
     INPUT FROM OS-DIR(cPathIn).
     REPEAT:
         IMPORT monitorFile ^ attrList.
@@ -197,7 +196,7 @@ PROCEDURE postMonitor:
         RUN processTemptable.
         RUN clearTempTable.
         
-        RUN monitorActivity ('Processing ' + monitorFile,YES,'').
+        RUN monitorActivity ('Processing ' + monitorFile,YES,'TagMon').
     END. /* os-dir repeat */
     INPUT CLOSE.
   
@@ -260,10 +259,7 @@ PROCEDURE processResultFlatFile:
   OS-COPY VALUE(cFullFilePath) VALUE(cNewFilePath).    
 
   IF INTEGER(OS-ERROR) EQ 0 THEN  
-      OS-DELETE VALUE(cFullFilePath).              
-            
-  RUN monitorActivity ('Processing Result File' ,YES,'').
-
+      OS-DELETE VALUE(cFullFilePath).                         
     
 END PROCEDURE.
 

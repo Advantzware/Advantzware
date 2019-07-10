@@ -92,8 +92,6 @@ DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_prtsyscl AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_prtsyscl-5 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_sys-ctrl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_sys-ctrl-2 AS HANDLE NO-UNDO.
@@ -357,15 +355,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_export ).
        RUN set-position IN h_export ( 1.00 , 77.30 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/prtsyscl.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_prtsyscl ).
-       RUN set-position IN h_prtsyscl ( 1.00 , 93.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/sys-ctrl.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -382,26 +372,14 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_sys-ctrl. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_sys-ctrl ).
-       RUN add-link IN adm-broker-hdl ( h_prtsyscl , 'getInfo':U , h_sys-ctrl ).
-       RUN add-link IN adm-broker-hdl ( h_prtsyscl-5 , 'getInfo':U , h_sys-ctrl ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_prtsyscl ,
-             h_options , 'AFTER':U ).
+       
        /*RUN adjust-tab-order IN adm-broker-hdl ( h_movecol-3 ,
              h_export , 'AFTER':U ).*/
        RUN adjust-tab-order IN adm-broker-hdl ( h_sys-ctrl ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/prtsyscl.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_prtsyscl-5 ).
-       RUN set-position IN h_prtsyscl-5 ( 1.00 , 93.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/sys-ctrl.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -439,8 +417,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'getsec':U , h_sys-ctrl-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_prtsyscl-5 ,
-             h_options , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_sys-ctrl-2 ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,

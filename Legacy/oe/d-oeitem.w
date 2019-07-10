@@ -162,7 +162,7 @@ DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
-{oe/ttPriceHold.i "NEW SHARED"}
+
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
@@ -183,6 +183,7 @@ DEF VAR v-relflg AS LOG NO-UNDO.
 /* gdm - 11090905*/
 DEF VAR v-ponoUp AS LOG NO-UNDO.
 DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lOEPriceWarning AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 
@@ -246,6 +247,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
                        OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
 oeDateAuto-char = v-rtn-char NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceWarning", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT v-rec-found).
+IF v-rec-found THEN
+lOEPriceWarning = LOGICAL(v-rtn-char) NO-ERROR.
 
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -1904,8 +1911,10 @@ DO:
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       IF oe-ordl.price:SENSITIVE  THEN 
         APPLY "entry" TO oe-ordl.price.
-      ELSE
+      ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
         APPLY "entry" TO oe-ordl.pr-uom.
+      ELSE 
+          APPLY "entry" TO oe-ordl.disc.
                      
       RETURN NO-APPLY.
   END.
@@ -2778,9 +2787,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
  
  IF ip-type NE "view" THEN DO:
     IF llOEPrcChg-sec OR fIsCustPriceHoldExempt(oe-ordl.company, oe-ordl.cust-no, oe-ordl.ship-id) THEN  
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES.
-    ELSE DO:        
-       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = YES
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = YES .
+    ELSE DO:  
+     ASSIGN
+       oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO
+       oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.    
         
  END.
@@ -4010,7 +4023,9 @@ ASSIGN
            itemfg.isaset     = xeb.form-no EQ 0
            itemfg.procat     = xeb.procat
            itemfg.alloc      = xeb.set-is-assembled
-           itemfg.pur-man    = xeb.pur-man.
+           itemfg.pur-man    = xeb.pur-man
+           itemfg.trno       = xeb.tr-no 
+           itemfg.spare-char-4 = xeb.dest-code.
 
     /*IF xeb.pur-man THEN itemfg.pur-uom = "EA".*/
 
@@ -6624,7 +6639,8 @@ PROCEDURE OnSaveButton :
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF (decimal(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
+    IF lOEPriceWarning AND
+     (decimal(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
         MESSAGE "Warning: Sell Price is less than the cost." VIEW-AS ALERT-BOX WARNING .
 
     APPLY "go" TO FRAME {&FRAME-NAME}.

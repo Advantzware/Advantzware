@@ -66,6 +66,7 @@ DEF VAR locode AS CHAR NO-UNDO.
 cocode = ipToCompany.
 g_company = ipToCompany.
 locode  = g_loc .
+RUN spSetSessionParam ("Company", g_company).
 
 {sys/inc/oeship.i}
 {sys/inc/shiptorep.i}

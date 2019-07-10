@@ -8,7 +8,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: 
+  File:       Lookup for the loadtags never received, only created
 
   Description: 
 
@@ -30,43 +30,66 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def input parameter ip-company like itemfg.company no-undo.
-DEF INPUT PARAMETER ip-itemtype LIKE loadtag.item-type NO-UNDO.
-def input parameter ip-cur-val as cha no-undo.
-def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
-DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
+DEFINE INPUT PARAMETER ip-company LIKE itemfg.company NO-UNDO.
+DEFINE INPUT PARAMETER ip-itemtype LIKE loadtag.item-type NO-UNDO.
+DEFINE INPUT PARAMETER ip-cur-val AS character NO-UNDO.
+DEFINE OUTPUT PARAMETER op-char-val AS character NO-UNDO. /* string i-code + i-name */
+DEFINE OUTPUT PARAMETER op-rec-val AS RECID NO-UNDO.
 
-def var lv-type-dscr as cha no-undo.
-&scoped-define fld-name-1 loadtag.tag-no
-&scoped-define fld-name-2 loadtag.i-no
-&scoped-define fld-name-3 trim(loadtag.job-no)
-&scoped-define SORTBY-1 BY loadtag.tag-no
-&scoped-define SORTBY-2 BY loadtag.i-no
-&scoped-define SORTBY-3 BY loadtag.job-no
+DEFINE VARIABLE lv-type-dscr AS cha NO-UNDO.
+DEFINE VARIABLE ll-casetag AS LOG NO-UNDO.
+
+DEFINE TEMP-TABLE tt-loadtag-temp 
+     FIELD rfidtag AS CHARACTER 
+     FIELD tag-no AS CHARACTER 
+     FIELD i-no AS CHARACTER 
+     FIELD i-name AS CHARACTER 
+     FIELD job-no AS CHARACTER 
+     FIELD job-no2 AS INTEGER 
+     FIELD loc AS CHARACTER 
+     FIELD loc-bin AS CHARACTER 
+     FIELD ord-no AS INTEGER
+     FIELD po-no AS INTEGER
+     FIELD qty AS DECIMAL
+     FIELD qty-case AS INTEGER
+     FIELD pallet-count AS INTEGER
+     FIELD company AS CHARACTER
+     FIELD item-type AS LOGICAL 
+     FIELD rec_id AS RECID
+      .
+
+&scoped-define fld-name-1 tt-loadtag-temp.tag-no
+&scoped-define fld-name-2 tt-loadtag-temp.i-no
+&scoped-define fld-name-3 trim(tt-loadtag-temp.job-no)
+&scoped-define SORTBY-1 BY tt-loadtag-temp.tag-no
+&scoped-define SORTBY-2 BY tt-loadtag-temp.i-no
+&scoped-define SORTBY-3 BY tt-loadtag-temp.job-no
 
 /*&scoped-define datatype-1 integer*/
 
 &global-define IAMWHAT LOOKUP
-DEF var lv-first-time as log init yes no-undo.
 
+DEFINE VARIABLE lv-first-time AS LOG INIT YES NO-UNDO.
 
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED }
 {sys/inc/varasgn.i}
 
 
-    DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
-    DEF VAR period_pos AS INTEGER NO-UNDO.
 
-    IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
-       INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
-       INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
+DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
+DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
+
+IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
+    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
+    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
     v-prgmname = USERID("NOSWEAT") + "..".
-    ELSE
+ELSE
     ASSIGN
-      period_pos = INDEX(PROGRAM-NAME(1),".")
-      v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
-      v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
+        period_pos = INDEX(PROGRAM-NAME(1),".")
+        v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
+        v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -79,55 +102,32 @@ DEF var lv-first-time as log init yes no-undo.
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Dialog-Frame
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES loadtag fg-bin rfidtag
+&Scoped-define INTERNAL-TABLES tt-loadtag-temp 
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 rfidtag.rfidtag loadtag.tag-no ~
-loadtag.i-no loadtag.i-name loadtag.job-no loadtag.job-no2 loadtag.loc ~
-loadtag.loc-bin loadtag.ord-no loadtag.po-no loadtag.qty loadtag.qty-case ~
-loadtag.pallet-count 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-loadtag-temp.rfidtag tt-loadtag-temp.tag-no tt-loadtag-temp.i-no ~
+tt-loadtag-temp.i-name tt-loadtag-temp.job-no tt-loadtag-temp.job-no2 tt-loadtag-temp.loc tt-loadtag-temp.loc-bin ~
+tt-loadtag-temp.ord-no tt-loadtag-temp.po-no tt-loadtag-temp.qty tt-loadtag-temp.qty-case ~
+tt-loadtag-temp.pallet-count 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH loadtag WHERE ~{&KEY-PHRASE} ~
-      AND loadtag.company = ip-company and ~
-loadtag.item-type = ip-itemtype NO-LOCK, ~
-      FIRST fg-bin WHERE fg-bin.company = loadtag.company ~
-  AND fg-bin.i-no = loadtag.i-no ~
-  AND fg-bin.job-no = loadtag.job-no ~
-  AND fg-bin.job-no2 = loadtag.job-no2 ~
-/*  AND fg-bin.loc = loadtag.loc ~
-  AND fg-bin.loc-bin = loadtag.loc-bin ~
-*/ ~
-  AND fg-bin.tag = loadtag.tag-no ~
-  /*AND fg-bin.qty > 0*/ NO-LOCK, ~
-      EACH rfidtag OF loadtag NO-LOCK ~
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-loadtag-temp WHERE ~{&KEY-PHRASE} ~
+      AND tt-loadtag-temp.company = ip-company and ~
+tt-loadtag-temp.item-type = ip-itemtype NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH loadtag WHERE ~{&KEY-PHRASE} ~
-      AND loadtag.company = ip-company and ~
-loadtag.item-type = ip-itemtype NO-LOCK, ~
-      FIRST fg-bin WHERE fg-bin.company = loadtag.company ~
-  AND fg-bin.i-no = loadtag.i-no ~
-  AND fg-bin.job-no = loadtag.job-no ~
-  AND fg-bin.job-no2 = loadtag.job-no2 ~
-/*  AND fg-bin.loc = loadtag.loc ~
-  AND fg-bin.loc-bin = loadtag.loc-bin ~
-*/ ~
-  AND fg-bin.tag = loadtag.tag-no ~
-  /*AND fg-bin.qty > 0*/ NO-LOCK, ~
-      EACH rfidtag OF loadtag NO-LOCK ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH tt-loadtag-temp WHERE ~{&KEY-PHRASE} ~
+      AND tt-loadtag-temp.company = ip-company and ~
+tt-loadtag-temp.item-type = ip-itemtype NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 loadtag fg-bin rfidtag
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 loadtag
-&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 fg-bin
-&Scoped-define THIRD-TABLE-IN-QUERY-BROWSE-1 rfidtag
-
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-loadtag-temp 
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-loadtag-temp
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
@@ -177,34 +177,33 @@ DEFINE VARIABLE rd-sort AS INTEGER
      SIZE 56 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 137 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-      loadtag, 
-      fg-bin, 
-      rfidtag SCROLLING.
+      tt-loadtag-temp
+     SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      rfidtag.rfidtag COLUMN-LABEL "RFID Tag" FORMAT "x(12)":U
-      loadtag.tag-no FORMAT "X(23)":U
-      loadtag.i-no FORMAT "x(15)":U
-      loadtag.i-name FORMAT "x(30)":U
-      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      loadtag.job-no2 COLUMN-LABEL "" FORMAT ">9":U
-      loadtag.loc FORMAT "x(5)":U
-      loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      loadtag.ord-no FORMAT ">>>>>9":U
-      loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U
-      loadtag.qty COLUMN-LABEL "Qty" FORMAT "->>>,>>>,>>9.9<<<<<":U
-      loadtag.qty-case FORMAT "->,>>>,>>9":U
-      loadtag.pallet-count FORMAT "->,>>>,>>9":U
+      tt-loadtag-temp.rfidtag COLUMN-LABEL "RFID Tag" FORMAT "x(12)":U
+      tt-loadtag-temp.tag-no COLUMN-LABEL "Tag#" FORMAT "X(23)":U
+      tt-loadtag-temp.i-no COLUMN-LABEL "Item#" FORMAT "x(15)":U
+      tt-loadtag-temp.i-name COLUMN-LABEL "Name" FORMAT "x(30)":U
+      tt-loadtag-temp.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
+      tt-loadtag-temp.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      tt-loadtag-temp.loc COLUMN-LABEL "Warehouse" FORMAT "x(5)":U
+      tt-loadtag-temp.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
+      tt-loadtag-temp.ord-no COLUMN-LABEL "Order#" FORMAT ">>>>>9":U
+      tt-loadtag-temp.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>9":U
+      tt-loadtag-temp.qty COLUMN-LABEL "Qty" FORMAT "->>>>>>9.9<<":U
+      tt-loadtag-temp.qty-case COLUMN-LABEL "Qty/Case" FORMAT "->,>>>,>>9":U
+      tt-loadtag-temp.pallet-count COLUMN-LABEL "Pallet Count" FORMAT "->,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 137 BY 11.19
@@ -215,7 +214,7 @@ DEFINE BROWSE BROWSE-1
 
 DEFINE FRAME Dialog-Frame
      BROWSE-1 AT ROW 1 COL 1
-     rd-sort AT ROW 12.67 COL 14 NO-LABEL
+     rd-sort AT ROW 12.67 COL 14 NO-LABELS
      bt-clear AT ROW 14.1 COL 2
      lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 69
@@ -245,14 +244,11 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-   FRAME-NAME                                                           */
+                                                                        */
 /* BROWSE-TAB BROWSE-1 1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
-
-ASSIGN 
-       BROWSE-1:COLUMN-RESIZABLE IN FRAME Dialog-Frame       = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -262,40 +258,38 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.loadtag,ASI.fg-bin WHERE ASI.loadtag ...,ASI.rfidtag OF ASI.loadtag"
+     _TblList          = "ASI.tt-loadtag-temp"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _TblOptList       = ", FIRST,"
-     _Where[1]         = "ASI.loadtag.company = ip-company and
-loadtag.item-type = ip-itemtype"
-     _JoinCode[2]      = "ASI.fg-bin.company = ASI.loadtag.company
-  AND ASI.fg-bin.i-no = ASI.loadtag.i-no
-  AND ASI.fg-bin.job-no = ASI.loadtag.job-no
-  AND ASI.fg-bin.job-no2 = ASI.loadtag.job-no2
-/*  AND ASI.fg-bin.loc = ASI.loadtag.loc
-  AND ASI.fg-bin.loc-bin = ASI.loadtag.loc-bin
-*/
-  AND ASI.fg-bin.tag = ASI.loadtag.tag-no
-  /*AND ASI.fg-bin.qty > 0*/"
-     _FldNameList[1]   > ASI.rfidtag.rfidtag
-"rfidtag.rfidtag" "RFID Tag" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.loadtag.tag-no
-"loadtag.tag-no" ? "X(23)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = ASI.loadtag.i-no
-     _FldNameList[4]   = ASI.loadtag.i-name
-     _FldNameList[5]   > ASI.loadtag.job-no
-"loadtag.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.loadtag.job-no2
-"loadtag.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   = ASI.loadtag.loc
-     _FldNameList[8]   > ASI.loadtag.loc-bin
-"loadtag.loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   = ASI.loadtag.ord-no
-     _FldNameList[10]   > ASI.loadtag.po-no
-"loadtag.po-no" "PO#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.loadtag.qty
-"loadtag.qty" "Qty" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   = ASI.loadtag.qty-case
-     _FldNameList[13]   = ASI.loadtag.pallet-count
+     _TblOptList       = ", FIRST OUTER"
+     _Where[1]         = "ASI.tt-loadtag-temp.company = ip-company and
+loadtag.item-type = ip-itemtype and
+loadtag.is-case-tag = ll-casetag
+
+"
+     _FldNameList[1]   > ASI.tt-loadtag-temp.tag-no
+"tag-no" "Tag#" ? "X(23)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[2]   = ASI.tt-loadtag-temp.i-no
+"i-no" "Item#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""     
+     _FldNameList[3]   = ASI.tt-loadtag-temp.i-name
+"i-name" "Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""     
+     _FldNameList[4]   > ASI.tt-loadtag-temp.job-no
+"job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[5]   > ASI.tt-loadtag-temp.job-no2
+"job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[6]   = ASI.tt-loadtag-temp.loc
+"loc" "Warehouse" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""     
+     _FldNameList[7]   > ASI.tt-loadtag-temp.loc-bin
+"loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[8]   = ASI.tt-loadtag-temp.ord-no
+"ord-no" "Order#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""     
+     _FldNameList[9]   > ASI.tt-loadtag-temp.po-no
+"po-no" "PO#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[10]   > ASI.tt-loadtag-temp.qty
+"qty" "Qty" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[11]   = ASI.tt-loadtag-temp.qty-case
+"qty-case" "Qty/Case" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""     
+     _FldNameList[12]   = ASI.tt-loadtag-temp.pallet-count
+"pallet-count" "Pallet Count" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""     
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -308,7 +302,7 @@ loadtag.item-type = ip-itemtype"
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* RFID tag Information */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Loagtag Information */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -322,11 +316,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON ANY-PRINTABLE OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   if lv-first-time then assign lv-search:screen-value = ""
-                                lv-first-time = no.
+  IF lv-first-time THEN ASSIGN lv-search:screen-value = ""
+                                lv-first-time = NO.
                                 
-   lv-search:screen-value = lv-search:screen-value + keylabel(lastkey).
-   apply "leave" to lv-search.
+   lv-search:screen-value = lv-search:screen-value + keylabel(LASTKEY).
+   APPLY "leave" TO lv-search.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,13 +330,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = rfidtag.rfidtag + "," +
-                 loadtag.tag-no + "," +
-                 loadtag.i-no + ","   +
-                 loadtag.job-no + "," +
-                 STRING(loadtag.job-no2).
-   op-rec-val = RECID(rfidtag).
-   apply "window-close" to frame {&frame-name}. 
+   op-char-val = tt-loadtag-temp.rfidtag + "," +
+                 tt-loadtag-temp.tag-no + "," +
+                 tt-loadtag-temp.i-no + ","   +
+                 tt-loadtag-temp.job-no + "," +
+                 STRING(tt-loadtag-temp.job-no2).
+   op-rec-val = tt-loadtag-temp.rec_id.
+   APPLY "window-close" TO FRAME {&frame-name}. 
       
 END.
 
@@ -354,12 +348,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-clear Dialog-Frame
 ON CHOOSE OF bt-clear IN FRAME Dialog-Frame /* Clear Find */
 DO:
-    assign lv-search:screen-value = "".
+    ASSIGN lv-search:screen-value = "".
            lv-search = "".
-    case rd-sort:
-        {srtord.i 1}
-        {srtord.i 2}
-    end.
+           RUN pBuildSearch .
+    CASE rd-sort:
+        {srtord2.i 1}
+        {srtord2.i 2}
+        {srtord2.i 3}
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,13 +366,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = rfidtag.rfidtag + "," +
-                 loadtag.tag-no + "," +
-                 loadtag.i-no + ","   +
-                 loadtag.job-no + "," +
-                 STRING(loadtag.job-no2).
-   op-rec-val = RECID(rfidtag).
-   apply "window-close" to frame {&frame-name}. 
+   op-char-val = tt-loadtag-temp.rfidtag + "," +
+                 tt-loadtag-temp.tag-no + "," +
+                 tt-loadtag-temp.i-no + ","   +
+                 tt-loadtag-temp.job-no + "," +
+                 STRING(tt-loadtag-temp.job-no2).
+   op-rec-val = tt-loadtag-temp.rec_id.
+   APPLY "window-close" TO FRAME {&frame-name}. 
       
 END.
 
@@ -387,17 +383,18 @@ END.
 &Scoped-define SELF-NAME lv-search
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-search Dialog-Frame
 ON LEAVE OF lv-search IN FRAME Dialog-Frame /* Search */
-or return of lv-search
+OR RETURN OF lv-search
 DO:
-    assign rd-sort 
+    ASSIGN rd-sort 
            lv-search.
+     RUN pBuildSearch . 
     &scoped-define IAMWHAT Search
     &scoped-define where-statement BEGINS lv-search 
-    case rd-sort:
+    CASE rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
         {srtord2.i 3}
-    end.      
+    END.      
     
 END.
 
@@ -409,23 +406,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-sort Dialog-Frame
 ON VALUE-CHANGED OF rd-sort IN FRAME Dialog-Frame
 DO:
-     assign rd-sort.
-    &scoped-define IAMWHAT LOOKUP    
-    
-    case rd-sort:
+    ASSIGN rd-sort
+           lv-search.
+    &scoped-define IAMWHAT LOOKUP  
+    RUN pBuildSearch .
+    CASE rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
         {srtord2.i 3}
-    end.    
-    /*APPLY "choose" TO bt-clear.
+    END.    
+   /* APPLY "choose" TO bt-clear.
     APPLY "entry" TO BROWSE {&browse-name}.
-    RETURN NO-APPLY.
-    */
+    RETURN NO-APPLY.                       */
     lv-search = "".
     lv-search:SCREEN-VALUE = "".
     RUN new-rd-sort.
-
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -440,7 +435,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 
@@ -450,15 +445,20 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
-  /* &scoped-define key-phrase {&fld-name-2} >= ip-cur-val
-    lv-search:screen-value in frame {&frame-name} = ip-cur-val.*/
-    DO WITH FRAME {&FRAME-NAME}:
+  
+  
+   /*&scoped-define key-phrase {&fld-name-2} >= ip-cur-val
+   lv-search:screen-value in frame {&frame-name} = ip-cur-val.*/
+   
+   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     lv-search:SCREEN-VALUE = "".
   END.
-
+  
+  RUN pBuildSearch .
+  
    RUN enable_UI.
-   RUN NEW-rd-sort.
+   RUN new-rd-sort.
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -516,22 +516,130 @@ PROCEDURE new-rd-sort :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
   /* redefined for lookup */
   &scoped-define IAMWHAT LOOKUP   
          
   DO WITH FRAME {&FRAME-NAME}:
-    assign rd-sort.
-    case rd-sort:
-        {srtord2.i 1}
-        {srtord2.i 2}
-        {srtord2.i 3}
-    end.    
+    ASSIGN rd-sort.
+    CASE rd-sort:
+        {srtord.i 1}
+        {srtord.i 2}
+        {srtord.i 3}
+    END.    
   END.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   APPLY 'entry' TO BROWSE {&browse-name}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildSearch Dialog-Frame 
+PROCEDURE pBuildSearch :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
+    DEFINE VARIABLE cTagNo AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE iItemNo AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE iJobNo AS CHARACTER NO-UNDO .
+
+ DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN rd-sort.   
+    IF rd-sort EQ 1 THEN
+        ASSIGN cTagNo = lv-search .
+    ELSE IF rd-sort EQ 2 THEN
+        ASSIGN iItemNo = lv-search .
+    ELSE IF rd-sort EQ 3 THEN
+        ASSIGN iJobNo = lv-search .
+  
+    EMPTY TEMP-TABLE tt-loadtag-temp .
+  
+/*    Refactored this to improve index usage.  There will only be one sort order, and it will*/
+/*    determine which field is searched, and therefore which index to use.                   */
+    
+    IF rd-sort EQ 1 THEN DO:
+        FOR EACH loadtag NO-LOCK WHERE 
+            loadtag.company = ip-company AND 
+            loadtag.item-type = ip-itemtype AND
+            loadtag.tag-no BEGINS cTagNo, 
+        FIRST fg-bin NO-LOCK WHERE 
+            fg-bin.company = loadtag.company AND 
+            fg-bin.i-no = loadtag.i-no AND 
+            fg-bin.job-no = loadtag.job-no AND 
+            fg-bin.job-no2 = loadtag.job-no2 AND 
+            fg-bin.tag = loadtag.tag-no,
+            EACH rfidtag OF loadtag NO-LOCK BY loadtag.tag-no :
+            
+            CREATE tt-loadtag-temp .
+            
+            BUFFER-COPY loadtag TO tt-loadtag-temp .
+            ASSIGN tt-loadtag-temp.rfidtag = rfidtag.rfidtag
+                   tt-loadtag-temp.rec_id = RECID(rfidtag).
+            ASSIGN 
+                iCount = iCount + 1 .
+
+            IF iCount GE 500 THEN LEAVE .
+        END.
+    END.
+    ELSE IF rd-sort EQ 2 THEN DO: 
+        FOR EACH loadtag NO-LOCK WHERE 
+            loadtag.company = ip-company AND 
+            loadtag.item-type = ip-itemtype AND
+            loadtag.i-no BEGINS iItemNo, 
+            FIRST fg-bin NO-LOCK WHERE 
+            fg-bin.company = loadtag.company AND 
+            fg-bin.i-no = loadtag.i-no AND 
+            fg-bin.job-no = loadtag.job-no AND 
+            fg-bin.job-no2 = loadtag.job-no2 AND 
+            fg-bin.tag = loadtag.tag-no,
+            EACH rfidtag OF loadtag NO-LOCK BY loadtag.i-no:
+            
+            CREATE tt-loadtag-temp .
+            BUFFER-COPY loadtag TO tt-loadtag-temp .
+            ASSIGN tt-loadtag-temp.rfidtag = rfidtag.rfidtag
+                   tt-loadtag-temp.rec_id = RECID(rfidtag).
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 500 THEN LEAVE .
+        END.
+    END.
+    ELSE IF rd-sort EQ 3 THEN DO:
+        FOR EACH loadtag NO-LOCK WHERE 
+            loadtag.company = ip-company AND 
+            loadtag.item-type = ip-itemtype AND
+            loadtag.job-no BEGINS iJobNo, 
+            FIRST fg-bin NO-LOCK WHERE 
+            fg-bin.company = loadtag.company AND 
+            fg-bin.i-no = loadtag.i-no AND 
+            fg-bin.job-no = loadtag.job-no AND 
+            fg-bin.job-no2 = loadtag.job-no2 AND 
+            fg-bin.tag = loadtag.tag-no,
+            EACH rfidtag OF loadtag NO-LOCK BY loadtag.job-no :
+            
+            CREATE tt-loadtag-temp .
+           
+            BUFFER-COPY loadtag TO tt-loadtag-temp .  
+            ASSIGN tt-loadtag-temp.rfidtag = rfidtag.rfidtag
+                tt-loadtag-temp.rec_id = RECID(rfidtag).
+            ASSIGN 
+                iCount = iCount + 1 .
+            IF iCount GE 500 THEN LEAVE .
+        END.
+    END.
+ END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 

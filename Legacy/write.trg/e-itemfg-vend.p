@@ -48,3 +48,8 @@ IF {&TABLENAME}.company NE ""     AND
 END.
 
 {custom/e-itemfg-edit.i {&TABLENAME}}
+ 
+ASSIGN 
+    {&TABLENAME}.updated-date = TODAY 
+    {&TABLENAME}.updated-id = USERID("asi")
+    .

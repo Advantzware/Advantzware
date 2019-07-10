@@ -1,21 +1,25 @@
 # @name         Batch &Rename...
-# @command      powershell.exe -ExecutionPolicy Bypass -File "%EXTENSION_PATH%" -sessionUrl "!S" -remotePath "!/" -pattern "%Pattern%" -replacement "%Replacement%" -pause -sessionLogPath "%SessionLogPath%" %PreviewMode% !& 
-# @description  Renames remote file using regular expression
+# @command      powershell.exe -ExecutionPolicy Bypass -File "%EXTENSION_PATH%" ^
+#                   -sessionUrl "!S" -remotePath "!/" -pattern "%Pattern%" ^
+#                   -replacement "%Replacement%" -pause -sessionLogPath "%SessionLogPath%" ^
+#                   %PreviewMode% !& 
+# @description  Renames remote files using a regular expression
 # @flag         RemoteFiles
-# @version      1
+# @version      4
 # @homepage     https://winscp.net/eng/docs/library_example_advanced_rename
-# @require      WinSCP 5.8.4
+# @require      WinSCP 5.13
 # @option       - -run group "Rename"
 # @option         Pattern -run textbox "Replace file name part matching this pattern:"
 # @option         Replacement -run textbox "with:"
 # @option       - -run -config group "Options"
-# @option         PreviewMode -run -config checkbox "&Preview changes" "-previewMode" "-previewMode"
+# @option         PreviewMode -run -config checkbox "&Preview changes" "-previewMode" ^
+#                     "-previewMode"
 # @option       - -config group "Logging"
 # @option         SessionLogPath -config sessionlogfile
 # @optionspage  https://winscp.net/eng/docs/library_example_advanced_rename#options
 
 param (
-    # Use Generate URL function to obtain a value for -sessionUrl parameter.
+    # Use Generate Session URL function to obtain a value for -sessionUrl parameter.
     $sessionUrl = "sftp://user:mypassword;fingerprint=ssh-rsa-xx-xx-xx@example.com/",
     [Parameter(Mandatory = $True)]
     $remotePath,
@@ -39,7 +43,7 @@ try
         foreach ($file in $files)
         {
             $newName = $file -replace $pattern, $replacement
-            Write-Host ("{0} => {1}" -f $file, $newName)
+            Write-Host "$file => $newName"
             if ($newName -ne $file)
             {
                 $anyChange = $True
@@ -98,10 +102,10 @@ try
             foreach ($file in $files)
             {
                 $newName = $file -replace $pattern, $replacement
-                Write-Host ("{0} => {1}" -f $file, $newName)
+                Write-Host "$file => $newName"
 
-                $fullName = $session.CombinePaths($remotePath, $file)
-                $fullNewName = $session.CombinePaths($remotePath, $newName)
+                $fullName = [WinSCP.RemotePath]::CombinePaths($remotePath, $file)
+                $fullNewName = [WinSCP.RemotePath]::CombinePaths($remotePath, $newName)
                 $session.MoveFile($fullName, $fullNewName)
             }
         }
@@ -116,9 +120,9 @@ try
 
     $result = 0
 }
-catch [Exception]
+catch
 {
-    Write-Host $_.Exception.Message
+    Write-Host "Error: $($_.Exception.Message)"
     $result = 1
 }
 

@@ -91,7 +91,7 @@ DEFINE QUERY external_tables FOR ar-inv.
 &Scoped-Define ENABLED-FIELDS ar-inv.cust-no ar-inv.ship-id ar-inv.inv-no ~
 ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.tax-code ar-inv.terms ~
 ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ar-inv.carrier ~
-ar-inv.freight 
+ar-inv.f-bill
 &Scoped-define ENABLED-TABLES ar-inv
 &Scoped-define FIRST-ENABLED-TABLE ar-inv
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalendar-2 tbEdiInvoice RECT-1 RECT-5 
@@ -99,7 +99,7 @@ ar-inv.freight
 ar-inv.po-no ar-inv.inv-date ar-inv.due-date ar-inv.printed ar-inv.tax-code ar-inv.terms ~
 ar-inv.period ar-inv.terms-d ar-inv.cust-name ar-inv.disc-% ar-inv.disc-days ~
 ar-inv.carrier ar-inv.freight ar-inv.tax-amt ar-inv.gross ar-inv.disc-taken ~
-ar-inv.paid ar-inv.due ar-inv.curr-code[1] ar-inv.ex-rate 
+ar-inv.paid ar-inv.due ar-inv.curr-code[1] ar-inv.ex-rate ar-inv.f-bill
 &Scoped-define DISPLAYED-TABLES ar-inv
 &Scoped-define FIRST-DISPLAYED-TABLE ar-inv
 &Scoped-Define DISPLAYED-OBJECTS ship_name tbEdiInvoice 
@@ -229,6 +229,10 @@ DEFINE FRAME F-Main
      ar-inv.carrier AT ROW 5.52 COL 56 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
+     ar-inv.f-bill AT ROW 2.91 COL 78 COLON-ALIGNED
+          LABEL "Bill Freight"
+          VIEW-AS TOGGLE-BOX
+          SIZE 15 BY 1
      ar-inv.freight AT ROW 2.91 COL 105 COLON-ALIGNED
           LABEL "Freight"
           VIEW-AS FILL-IN 
@@ -343,6 +347,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ar-inv.ex-rate IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN ar-inv.freight IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN ar-inv.f-bill IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.gross IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
@@ -798,10 +804,10 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ar-inv.f-bill = ar-inv.freight GT 0.
+  /*ar-inv.f-bill = ar-inv.freight GT 0.*/
   
   DO WITH FRAME {&FRAME-NAME}:     
-     ar-inv.ediInvoice = tbEdiInvoice:SCREEN-VALUE EQ "YES".    
+     ar-inv.ediInvoice = tbEdiInvoice:SCREEN-VALUE EQ "YES".  
   END. 
   IF adm-adding-record THEN DO:
     FIND FIRST cust WHERE cust.company = g_company
@@ -1025,8 +1031,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    IF AVAIL ar-inv AND NOT ar-inv.f-bill THEN
-      ar-inv.freight:SCREEN-VALUE = "".
+          
     IF AVAILABLE ar-inv THEN 
     FIND FIRST shipto NO-LOCK
         WHERE shipto.company EQ ar-inv.company

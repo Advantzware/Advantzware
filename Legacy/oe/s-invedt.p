@@ -128,6 +128,7 @@ DEFINE VARIABLE cfreightCode AS CHARACTER NO-UNDO.
 
 /* gdm - 10130810 */
 DEF VAR v_misc-amt  AS CHAR NO-UNDO.
+DEFINE VARIABLE cItemFgCat LIKE itemfg.procat NO-UNDO.
 
 def buffer xinv-line for inv-line.
 

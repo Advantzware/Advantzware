@@ -732,24 +732,39 @@ DO:
             RETURN.
         END.
 
+    IF fg-rdtlh.cust-no:MODIFIED THEN 
+    DO:
         RUN valid-cust-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    END.
+    
+    IF fg-rcpth.i-no:MODIFIED THEN 
+    DO:
         RUN valid-i-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    END.
+    
+    IF fg-rdtlh.loc:MODIFIED THEN 
+    DO:
         RUN valid-loc NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    END.
+    
+    IF fg-rdtlh.loc-bin:MODIFIED THEN 
+    DO:
         RUN valid-loc-bin NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    END.
+    
+    IF fg-rdtlh.tag:MODIFIED THEN 
+    DO:
+        MESSAGE "MOD" VIEW-AS ALERT-BOX.
         RUN valid-tag NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
         RUN valid-tag-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
+    END.    
+
         RUN update-record .
 
         op-rowid = ROWID(fg-rcpth).
@@ -766,8 +781,12 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cases Dialog-Frame
 ON LEAVE OF fg-rdtlh.cases IN FRAME Dialog-Frame /* Units */
 DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
         RUN reCalcQty.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -776,9 +795,13 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cases Dialog-Frame
 ON RETURN OF fg-rdtlh.cases IN FRAME Dialog-Frame /* Units */
 DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
         RUN reCalcQty.
   
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -789,7 +812,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.cust-no Dialog-Frame
 ON LEAVE OF fg-rdtlh.cust-no IN FRAME Dialog-Frame /* Customer */
 DO:
-        IF LASTKEY NE -1 THEN 
+        IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
         DO:
             RUN valid-cust-no NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -804,12 +828,13 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rcpth.i-no Dialog-Frame
 ON LEAVE OF fg-rcpth.i-no IN FRAME Dialog-Frame /* FG Item# */
 DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
             RUN valid-i-no NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-        END.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -834,12 +859,16 @@ ON LEAVE OF fg-rcpth.job-no IN FRAME Dialog-Frame /* Job */
 DO:
         DEFINE VARIABLE lv-job-no AS CHARACTER NO-UNDO.
 
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
 
         ASSIGN
             lv-job-no = TRIM({&self-name}:SCREEN-VALUE )
-   lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
-   {&self-name}:SCREEN-VALUE  = lv-job-no.
+           lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
+            {&self-name}:SCREEN-VALUE  = lv-job-no.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -863,8 +892,9 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.loc Dialog-Frame
 ON LEAVE OF fg-rdtlh.loc IN FRAME Dialog-Frame /* Warehouse */
 DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
             RUN valid-loc NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         END.
@@ -878,8 +908,9 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.loc-bin Dialog-Frame
 ON LEAVE OF fg-rdtlh.loc-bin IN FRAME Dialog-Frame /* Bin */
 DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
             RUN valid-loc-bin NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         END.
@@ -893,8 +924,12 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.partial Dialog-Frame
 ON LEAVE OF fg-rdtlh.partial IN FRAME Dialog-Frame /* Partial */
 DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
         RUN reCalcQty.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -903,10 +938,13 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.partial Dialog-Frame
 ON RETURN OF fg-rdtlh.partial IN FRAME Dialog-Frame /* Partial */
 DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
         RUN reCalcQty.
    
     END.
-
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -918,14 +956,17 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.qty Dialog-Frame
 ON LEAVE OF fg-rdtlh.qty IN FRAME Dialog-Frame /* Quantity */
 DO:
-        /*   fg-rdtlh.cases:SCREEN-VALUE   =                        */
-        /*       string(INTEGER(fg-rdtlh.qty:SCREEN-VALUE  ) /      */
-        /*              INTEGER(fg-rdtlh.qty-case:SCREEN-VALUE  )). */
-        /*                                                                                  */
+    /*   fg-rdtlh.cases:SCREEN-VALUE   =                        */
+    /*       string(INTEGER(fg-rdtlh.qty:SCREEN-VALUE  ) /      */
+    /*              INTEGER(fg-rdtlh.qty-case:SCREEN-VALUE  )). */
+    /*                                                                                  */
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
         RUN reCalcUnits.
 
     END.
-
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -933,9 +974,12 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.qty Dialog-Frame
 ON RETURN OF fg-rdtlh.qty IN FRAME Dialog-Frame /* Quantity */
 DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
         RUN reCalcUnits.
     END.
-
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -944,10 +988,13 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.qty-case Dialog-Frame
 ON LEAVE OF fg-rdtlh.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
 DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
 
         RUN reCalcQty.
     END.
-
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -955,11 +1002,14 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.qty-case Dialog-Frame
 ON RETURN OF fg-rdtlh.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
 DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
 
         RUN reCalcQty.
    
     END.
-
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -970,8 +1020,9 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.tag Dialog-Frame
 ON LEAVE OF fg-rdtlh.tag IN FRAME Dialog-Frame /* Tag# */
 DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
             RUN valid-tag NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
             RUN valid-tag-no NO-ERROR.
@@ -986,11 +1037,14 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.tag Dialog-Frame
 ON RETURN OF fg-rdtlh.tag IN FRAME Dialog-Frame /* Tag# */
 DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
         RUN valid-tag-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     END.
-
+END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1132,14 +1186,15 @@ PROCEDURE display-item :
         fi_pallet = get-pallet-info (OUTPUT li-qty-pal) .
         fi_qty-pallet = li-qty-pal .
         fi_bol-ship = display-ship() .
-        fi_vend-no = get-vend-no () .
+        fi_vend-no = fg-rcpth.vend-no .
         fi_vend-name = get-vend-info ().
         fi_BenQtyBef = get-fg-qty (1) .
         fi_ben-qty = get-fg-qty (2) .
 
         RUN build-type-list .
 
-        DISPLAY  fg-rcpth.i-no fg-rcpth.po-no 
+        /* This is unneccesary, and falsely sets the MODIFIED attribute to TRUE */
+        DISPLAY  /* fg-rcpth.i-no fg-rcpth.po-no 
             fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date 
             fg-rcpth.rita-code 
             fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin fg-rdtlh.qty fg-rdtlh.tag 
@@ -1149,7 +1204,8 @@ PROCEDURE display-item :
             fg-rdtlh.tot-wt fg-rdtlh.user-id /*fg-rcpth.b-no*/ fg-rcpth.pur-uom 
             fg-rcpth.post-date  
             fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy 
-            fg-rdtlh.enteredDT fg-rcpth.po-line fi_tr-time fi_bol-no fi_pallet fi_qty-pallet
+            fg-rdtlh.enteredDT fg-rcpth.po-line */ 
+            fi_tr-time fi_bol-no fi_pallet fi_qty-pallet
             fi_bol-ship fi_vend-no fi_vend-name fi_BenQtyBef fi_ben-qty
             WITH FRAME Dialog-Frame.
     END.
@@ -1696,16 +1752,11 @@ FUNCTION get-vend-info RETURNS CHARACTER
         Notes:  
     ------------------------------------------------------------------------------*/
 
-    FIND FIRST po-ord
-        WHERE po-ord.company EQ cocode
-        AND po-ord.po-no    EQ int(fg-rcpth.po-no)
-        NO-LOCK NO-ERROR.  
-
-    IF AVAILABLE po-ord THEN 
+    IF AVAILABLE fg-rcpth THEN 
     DO:
         FIND FIRST vend
             WHERE vend.company EQ cocode
-            AND vend.vend-no    EQ po-ord.vend-no
+            AND vend.vend-no    EQ fg-rcpth.vend-no
             NO-LOCK NO-ERROR.  
 
         IF AVAILABLE vend THEN

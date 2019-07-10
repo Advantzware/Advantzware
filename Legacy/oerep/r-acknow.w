@@ -1227,7 +1227,7 @@ DO:
        tb_prt-bom:SENSITIVE = NO
        tb_prt-bom:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
             THEN ASSIGN
             tb_itempo:HIDDEN = NO
             tb_hide_sell:HIDDEN = NO
@@ -1238,14 +1238,14 @@ DO:
             tb_itempo:HIDDEN = YES
             tb_hide_sell:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
             THEN ASSIGN
             tb_untcnt:HIDDEN = NO 
             tb_untcnt:SENSITIVE = YES.
         ELSE ASSIGN 
             tb_untcnt:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
             THEN ASSIGN
             tb_shpnot:HIDDEN = NO 
             tb_shpnot:SENSITIVE = YES. 
@@ -1283,7 +1283,7 @@ DO:
        tb_act-rel:SENSITIVE = NO
        tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-    IF v-print-fmt = "Dee" THEN
+    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord"  THEN
       ASSIGN
          TG_whs-mths:SENSITIVE = YES. 
 
@@ -1327,7 +1327,7 @@ DO:
                 tb_ship-to:SENSITIVE = NO
                 tb_ship-to:SCREEN-VALUE = "NO".
     END.
-    IF LOOKUP(v-print-fmt,"PremierX") <> 0 THEN DO:
+    IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN DO:
         IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
             tb_act-rel:SCREEN-VALUE EQ "NO" THEN
             ASSIGN
@@ -1841,7 +1841,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_act-rel:SENSITIVE = NO
        tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-    IF v-print-fmt = "Dee" THEN
+    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord" THEN
       ASSIGN
          TG_whs-mths:SENSITIVE = YES. 
 
@@ -1874,7 +1874,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              TG_print-pen-notes:HIDDEN     = YES
              TG_print-pen-notes:SENSITIVE  = YES.
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
          THEN ASSIGN
            tb_itempo:HIDDEN = NO
            tb_hide_sell:HIDDEN = NO. 
@@ -1882,20 +1882,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            tb_itempo:HIDDEN = YES
            tb_hide_sell:HIDDEN = YES .
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierCX" THEN
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" THEN
         ASSIGN
         tb_itm-tot:HIDDEN = NO . 
     ELSE
         tb_itm-tot:HIDDEN = YES  . 
 
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierCX"
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
          THEN ASSIGN
            tb_untcnt:HIDDEN = NO .
         ELSE ASSIGN 
            tb_untcnt:HIDDEN = YES .
 
-    IF v-print-fmt EQ "PremierX"
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
             THEN ASSIGN
             tb_shpnot:HIDDEN = NO .
         ELSE ASSIGN 
@@ -1982,7 +1982,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 tb_ship-to:SENSITIVE = NO
                 tb_ship-to:SCREEN-VALUE = "NO".
     END.
-    IF LOOKUP(v-print-fmt,"PremierX") <> 0 THEN DO:
+    IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN DO:
         IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
             tb_act-rel:SCREEN-VALUE EQ "NO" THEN
             ASSIGN
@@ -3145,6 +3145,7 @@ PROCEDURE SetOEAckForm :
        WHEN "Ruddx" THEN ASSIGN v-program = "oe/rep/ackruddx.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Shelby" THEN ASSIGN v-program = "oe/rep/ackshlby.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "PremierX" THEN ASSIGN v-program = "oe/rep/ackxprem.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "AckHead-Mex" THEN ASSIGN v-program = "oe/rep/ackpremMex.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "ACPI" THEN ASSIGN v-program = "oe/rep/ackacpi.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "PremierCX" THEN ASSIGN v-program = "oe/rep/ackcxprem.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Century" THEN ASSIGN v-program = "oe/rep/ackcentx.p" is-xprint-form = YES lines-per-page = 65.
@@ -3201,7 +3202,7 @@ PROCEDURE SetShipToToggle :
                     tb_ship-to:SCREEN-VALUE = "NO".
         END. /*specific format check*/
 
-        IF LOOKUP(v-print-fmt,"PremierX") <> 0 THEN DO:
+        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN DO:
             IF tb_sch-rel OR tb_act-rel THEN
                 tb_shpnot:SENSITIVE = YES.
             IF tb_sch-rel EQ NO AND tb_act-rel EQ NO THEN
@@ -3315,7 +3316,7 @@ PROCEDURE RUN_format-value-changed :
        tb_act-rel:SENSITIVE = NO
        tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-    IF v-print-fmt = "Dee" THEN
+    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord" THEN
       ASSIGN
          TG_whs-mths:SENSITIVE = YES. 
 
@@ -3348,7 +3349,7 @@ PROCEDURE RUN_format-value-changed :
              TG_print-pen-notes:HIDDEN     = YES
              TG_print-pen-notes:SENSITIVE  = YES.
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
          THEN ASSIGN
            tb_itempo:HIDDEN = NO
            tb_hide_sell:HIDDEN = NO. 
@@ -3356,20 +3357,20 @@ PROCEDURE RUN_format-value-changed :
            tb_itempo:HIDDEN = YES
            tb_hide_sell:HIDDEN = YES .
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierCX" THEN
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" THEN
         ASSIGN
         tb_itm-tot:HIDDEN = NO . 
     ELSE
         tb_itm-tot:HIDDEN = YES  . 
 
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierCX"
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
          THEN ASSIGN
            tb_untcnt:HIDDEN = NO .
         ELSE ASSIGN 
            tb_untcnt:HIDDEN = YES .
 
-    IF v-print-fmt EQ "PremierX"
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
             THEN ASSIGN
             tb_shpnot:HIDDEN = NO .
         ELSE ASSIGN 
@@ -3456,7 +3457,7 @@ PROCEDURE RUN_format-value-changed :
                 tb_ship-to:SENSITIVE = NO
                 tb_ship-to:SCREEN-VALUE = "NO".
     END.
-    IF LOOKUP(v-print-fmt,"PremierX") <> 0 THEN DO:
+    IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN DO:
         IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
             tb_act-rel:SCREEN-VALUE EQ "NO" THEN
             ASSIGN

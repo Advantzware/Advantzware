@@ -49,6 +49,7 @@ DEF var time_stamp AS ch.
 ASSIGN time_stamp = string(TIME, "hh:mmam").
 
 DEF var v-ford-no AS int FORMAT ">>>>>>" extent 2 no-undo.
+DEF var v-ford-line AS int FORMAT ">>" extent 2 no-undo.
 def var v-orders as char format "x(78)" extent 10.
 DEF var v-fitem AS char FORMAT "x(15)" extent 2 init ["","zzzzzzzzzzzzzzz"].
 DEF var v-po-no-source AS char FORMAT "!" init "R".
@@ -200,6 +201,7 @@ DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs AS HANDLE.
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -295,13 +297,13 @@ begin_form btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to ~
 end_ship-to tb_close tb_print-view begin_rel end_rel RECT-7 RECT-8 RECT-11 ~
 RECT-12 
 &Scoped-Define DISPLAYED-OBJECTS tbPartSelect loadtagFunction tb_ret ~
-tb_reprint-tag v-ord-list v-job-list begin_ord-no end_ord-no begin_job ~
-begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
-begin_date end_date rd_comps v-dept-list tb_dept-note tb_rel tb_over ~
-tb_16ths tb_ship-id v-ship-id scr-auto-print scr-freeze-label ~
-scr-label-file begin_labels begin_form begin_filename typeLabel statusLabel ~
-lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to end_ship-to tb_close ~
-tb_print-view begin_rel end_rel 
+tb_reprint-tag v-ord-list v-job-list begin_ord-no begin_poLine end_ord-no ~
+end_poLine begin_job begin_job2 end_job end_job2 begin_i-no end_i-no ~
+rd_order-sts rd_print begin_date end_date rd_comps v-dept-list tb_dept-note ~
+tb_rel tb_over tb_16ths tb_ship-id v-ship-id scr-auto-print ~
+scr-freeze-label scr-label-file begin_labels begin_form begin_filename ~
+typeLabel statusLabel lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to ~
+end_ship-to tb_close tb_print-view begin_rel end_rel 
 
 /* Custom List Definitions                                              */
 /* jobFields,NonReprint,List-3,List-4,List-5,F1                         */
@@ -403,6 +405,11 @@ DEFINE VARIABLE begin_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_poLine AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "Ln" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_rel AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
      LABEL "From Release" 
      VIEW-AS FILL-IN 
@@ -437,6 +444,11 @@ DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      LABEL "To Order#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_poLine AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "Ln" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_rel AS INTEGER FORMAT ">>>>>>9":U INITIAL 9999999 
      LABEL "To Release" 
@@ -610,8 +622,10 @@ DEFINE FRAME FRAME-A
      v-job-list AT ROW 5.95 COL 56 NO-LABEL
      begin_ord-no AT ROW 8.62 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
+     begin_poLine AT ROW 8.62 COL 45 COLON-ALIGNED WIDGET-ID 34
      end_ord-no AT ROW 8.62 COL 64 COLON-ALIGNED HELP
           "Enter Ending Order Number"
+     end_poLine AT ROW 8.62 COL 89 COLON-ALIGNED WIDGET-ID 34
      begin_job AT ROW 9.76 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job2 AT ROW 9.76 COL 36 COLON-ALIGNED HELP
@@ -667,9 +681,6 @@ DEFINE FRAME FRAME-A
           FONT 6
      "Print Set Components for:" VIEW-AS TEXT
           SIZE 26 BY 1 AT ROW 16.67 COL 4
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.1 COL 3
-          BGCOLOR 2 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -677,6 +688,9 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.1 COL 3
+          BGCOLOR 2 
      " Enter Jobs separated by comma" VIEW-AS TEXT
           SIZE 42 BY .62 AT ROW 5.29 COL 56
      "Data Parameters:" VIEW-AS TEXT
@@ -775,6 +789,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN begin_ord-no IN FRAME FRAME-A
    2                                                                    */
+/* SETTINGS FOR FILL-IN begin_poLine IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN begin_rel IN FRAME FRAME-A
    2                                                                    */
 /* SETTINGS FOR FILL-IN begin_ship-to IN FRAME FRAME-A
@@ -805,6 +821,8 @@ ASSIGN
    1 2                                                                  */
 /* SETTINGS FOR FILL-IN end_ord-no IN FRAME FRAME-A
    2                                                                    */
+/* SETTINGS FOR FILL-IN end_poLine IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN end_rel IN FRAME FRAME-A
    2                                                                    */
 /* SETTINGS FOR FILL-IN end_ship-to IN FRAME FRAME-A
@@ -1199,6 +1217,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no C-Win
 ON VALUE-CHANGED OF begin_ord-no IN FRAME FRAME-A /* From Order# */
 DO:  
+    
    FIND FIRST oe-ordl NO-LOCK
        WHERE oe-ordl.company EQ cocode
          AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
@@ -1217,6 +1236,27 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_poLine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_poLine C-Win
+ON VALUE-CHANGED OF begin_poLine IN FRAME FRAME-A /* From Order# */
+DO:  
+    RUN get-po-info ("REFRESH").
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_poLine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_poLine C-Win
+ON VALUE-CHANGED OF end_poLine IN FRAME FRAME-A /* From Order# */
+DO:  
+    RUN get-po-info ("REFRESH").
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
@@ -1945,6 +1985,10 @@ DO:
         end_job:SCREEN-VALUE = ''
         end_job2:SCREEN-VALUE = ''.
       DISABLE {&jobFields}.
+      ENABLE begin_poLine end_poLine. 
+      ASSIGN begin_poline:HIDDEN = FALSE
+             end_poline:HIDDEN = FALSE 
+             . 
     END.
     WHEN 'Order' THEN DO WITH FRAME {&FRAME-NAME}:
       ASSIGN
@@ -1953,6 +1997,10 @@ DO:
         end_ord-no:LABEL = REPLACE(end_ord-no:LABEL,'PO','Order')
         statusLabel:SCREEN-VALUE = REPLACE(statusLabel:SCREEN-VALUE,'PO','Order').
       ENABLE {&jobFields}.
+      DISABLE begin_poLine end_poLine.
+      ASSIGN begin_poline:HIDDEN = TRUE
+             end_poline:HIDDEN = TRUE
+             . 
     END.
   END CASE.
 END.
@@ -2249,7 +2297,7 @@ DO:
 
     ELSE /*loadtagFunction:SCREEN-VALUE ne "order"*/
        IF NUM-ENTRIES(v-ord-list:SCREEN-VALUE) EQ 1 AND v-bardir THEN
-          RUN get-po-info.
+          RUN get-po-info ("INITIAL").
 
 END.
 
@@ -2342,6 +2390,7 @@ END.
 
 
 &UNDEFINE SELF-NAME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
@@ -2482,12 +2531,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      
      .
 
-    IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
-       IF AVAIL users AND users.user_program[3] NE "" THEN
-           ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3]
-                  userLabelPath = users.USER_program[3].       
-    END.
+    
 
     FIND FIRST sys-ctrl NO-LOCK 
       WHERE sys-ctrl.company EQ gcompany 
@@ -2523,15 +2567,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         begin_form = 4.
     ELSE
        begin_form:VISIBLE = NO.
-
-     ASSIGN
-       begin_filename:SCREEN-VALUE = bardir-desc.
-
-    IF bardir-int = 1 THEN DO:
-       FIND FIRST users WHERE users.user_id EQ USERID("NOSWEAT") NO-LOCK NO-ERROR.
-       IF AVAIL users AND users.user_program[3] NE "" THEN
-           ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3].                  
-    END.
+      
+       RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+       THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdOutputProcs).
+       
+       RUN GetBarDirFilePath(cocode, "", OUTPUT bardir-desc ).
+       THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdOutputProcs). 
+       
+        ASSIGN begin_filename:SCREEN-VALUE =  bardir-desc .
+   
     
      IF  PROGRAM-NAME(3) MATCHES "*/b-ordlt.*" THEN DO: 
       
@@ -2674,6 +2718,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             begin_rel:SENSITIVE = NO
             end_rel:SENSITIVE   = NO .
     END.
+     
   END.
   lForm = NO.
   iForm = 0.
@@ -4675,13 +4720,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tbPartSelect loadtagFunction tb_ret tb_reprint-tag v-ord-list 
-          v-job-list begin_ord-no end_ord-no begin_job begin_job2 end_job 
-          end_job2 begin_i-no end_i-no rd_order-sts rd_print begin_date end_date 
-          rd_comps v-dept-list tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
-          v-ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels 
-          begin_form begin_filename typeLabel statusLabel lbl_po-no tb_xfer-lot 
-          tb_override-mult begin_ship-to end_ship-to tb_close tb_print-view 
-          begin_rel end_rel 
+          v-job-list begin_ord-no begin_poLine end_ord-no end_poLine begin_job 
+          begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print 
+          begin_date end_date rd_comps v-dept-list tb_dept-note tb_rel tb_over 
+          tb_16ths tb_ship-id v-ship-id scr-auto-print scr-freeze-label 
+          scr-label-file begin_labels begin_form begin_filename typeLabel 
+          statusLabel lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to 
+          end_ship-to tb_close tb_print-view begin_rel end_rel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tbPartSelect loadtagFunction tb_ret tb_reprint-tag v-ord-list 
          v-job-list begin_ord-no end_ord-no begin_job begin_job2 end_job 
@@ -5493,15 +5538,16 @@ PROCEDURE from-po :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
     FOR EACH po-ordl NO-LOCK WHERE po-ordl.company EQ po-ord.company
                              AND po-ordl.po-no EQ po-ord.po-no
                              AND po-ordl.item-type EQ NO
                              AND po-ordl.i-no GE v-fitem[1]
                              AND po-ordl.i-no LE v-fitem[2]
+                             AND po-ordl.line GE v-ford-line[1]
+                             AND po-ordl.line LE v-ford-line[2]
                            USE-INDEX po-no BREAK BY po-ordl.i-no:
 
-    IF FIRST-OF(po-ordl.i-no) THEN DO:
+    // IF FIRST-OF(po-ordl.i-no) THEN DO:
       FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
                                 AND cust.cust-no EQ po-ordl.cust-no NO-ERROR.
       FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
@@ -5634,7 +5680,7 @@ PROCEDURE from-po :
         ELSE
             w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +
                            (IF CAN-DO("SSLABEL,CentBox",v-loadtag) THEN 0 ELSE 1).
-    END. /* first-of */
+    // END. /* first-of */
   END. /* each po-ordl */
 
 
@@ -6210,14 +6256,19 @@ PROCEDURE get-po-info :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER ipcState AS CHARACTER NO-UNDO.
 DEF VAR v-poord LIKE po-ord.po-no NO-UNDO.
 
 DEF VAR v-lncnt AS INT NO-UNDO.
 
 DEF VAR v-frstitem LIKE oe-ordl.i-no NO-UNDO INIT "ZZZZZZZZZZZZZZZZZ".
 DEF VAR v-lastitem LIKE oe-ordl.i-no NO-UNDO INIT "".
-
-ASSIGN v-poord = INT(ENTRY(1,v-ord-list:SCREEN-VALUE IN FRAME {&FRAME-NAME})).
+DEFINE VARIABLE iBeginLine AS INTEGER NO-UNDO INIT 99.
+DEFINE VARIABLE iEndLine AS INTEGER NO-UNDO INIT 99.
+ASSIGN v-poord = INT(ENTRY(1,v-ord-list:SCREEN-VALUE IN FRAME {&FRAME-NAME}))
+       iBeginLine = INTEGER(begin_poLine:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       iEndLine = INTEGER(end_poLine:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+       .
 
 FIND FIRST bf-po-ord NO-LOCK 
   WHERE bf-po-ord.company EQ cocode 
@@ -6227,8 +6278,12 @@ IF AVAIL bf-po-ord THEN DO:
   FOR EACH bf-po-ordl NO-LOCK
     WHERE bf-po-ordl.company EQ bf-po-ord.company
       AND bf-po-ordl.po-no  EQ bf-po-ord.po-no
-     BREAK BY bf-po-ordl.i-no:
-    ASSIGN v-lncnt = v-lncnt + 1.
+      AND (bf-po-ordl.line GE iBeginLine OR ipcState EQ "Initial")
+      AND (bf-po-ordl.line LE iEndLine OR ipcState EQ "Initial")
+      
+     BREAK BY bf-po-ordl.i-no BY bf-po-ordl.line :
+    IF FIRST-OF(bf-po-ordl.i-no) THEN 
+      ASSIGN v-lncnt = v-lncnt + 1.
 
     IF bf-po-ordl.i-no LT v-frstitem THEN v-frstitem = bf-po-ordl.i-no.
     IF bf-po-ordl.i-no GT v-lastitem THEN v-lastitem = bf-po-ordl.i-no.                                                                           .
@@ -6241,14 +6296,20 @@ IF AVAIL bf-po-ord THEN DO:
         AND bf-po-ordl.po-no  EQ bf-po-ord.po-no NO-ERROR.
 
   ASSIGN begin_ord-no:SCREEN-VALUE = STRING(bf-po-ordl.po-no) 
-         end_ord-no:SCREEN-VALUE   = STRING(bf-po-ordl.po-no).
+         end_ord-no:SCREEN-VALUE   = STRING(bf-po-ordl.po-no)
+         .
+  IF ipcState EQ "Initial" THEN 
+      ASSIGN 
+         begin_poLine:SCREEN-VALUE = "1"
+         end_poLine:SCREEN-VALUE   = "99"
+         .
 
   IF v-lncnt EQ 1 THEN DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN begin_i-no:SCREEN-VALUE = bf-po-ordl.i-no
            end_i-no:SCREEN-VALUE   = bf-po-ordl.i-no.           
-
-    APPLY "LEAVE" TO END_i-no.
+    IF ipcState EQ "Initial" THEN 
+      APPLY "LEAVE" TO END_i-no.
 
   END.
   ELSE DO:
@@ -6265,15 +6326,16 @@ IF AVAIL bf-po-ord THEN DO:
 /*       AND bf-po-ordl.po-no  EQ bf-po-ord.po-no NO-ERROR. */
 /*    ASSIGN v-lastitem = bf-po-ordl.i-no.                  */
 
-   ASSIGN begin_i-no:SCREEN-VALUE = v-frstitem
+     ASSIGN begin_i-no:SCREEN-VALUE = v-frstitem
           end_i-no:SCREEN-VALUE   = v-lastitem.
-
-   APPLY "LEAVE" TO END_i-no.
-
-   MESSAGE 
-      "There are multiple Fg Items in this PO." skip
-      "     Please select an FG Item."
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     IF ipcState EQ "Initial" THEN DO:
+       APPLY "LEAVE" TO END_i-no.
+    
+       MESSAGE 
+          "There are multiple Fg Items in this PO." skip
+          "     Please select an FG Item."
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+     END.
   END.
 
 END.
@@ -7115,9 +7177,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCostFromPO C-Win
-PROCEDURE pGetCostFromPO PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetCostFromPO C-Win 
+PROCEDURE pGetCostFromPO PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -7138,8 +7199,8 @@ PROCEDURE pGetCostFromPO PRIVATE:
     DEFINE VARIABLE lFound            AS LOGICAL.
     
     RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, ipcFGItemID, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
-    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0, opdCostPerUOM).
-    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0, dCostFreight).
+    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM).
+    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight).
     ASSIGN 
         opdCostTotal        = ipdQty * dCostPerEA
         opdCostTotalFreight = ipdQty * dCostFreightPerEA.
@@ -7148,11 +7209,9 @@ PROCEDURE pGetCostFromPO PRIVATE:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-all C-Win 
 PROCEDURE post-all :
@@ -7238,11 +7297,13 @@ FOR EACH  tt-fgrctd-created:
 
           /* These negative receipts should be changed to Rita=A per task 08211305 */
           FOR EACH fg-rcpth WHERE fg-rcpth.r-no EQ fg-rctd.r-no EXCLUSIVE-LOCK:
-            fg-rcpth.rita-code = "A".
+            IF fg-rctd.t-qty LT 0 THEN
+                fg-rcpth.rita-code = "A".
           END.
 
           FOR EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rctd.r-no EXCLUSIVE-LOCK:
-            fg-rdtlh.rita-code = "A".
+            IF fg-rctd.t-qty LT 0 THEN
+                fg-rdtlh.rita-code = "A".
           END.
 
         END. /* Avail fg-rctd for component */

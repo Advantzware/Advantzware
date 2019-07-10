@@ -54,6 +54,15 @@ DEFINE TEMP-TABLE ttImportFG
     FIELD ProductionCode          AS CHARACTER FORMAT "x(6)" COLUMN-LABEL "Prod Code" HELP "Optional - Size:6"   
     FIELD LbsPer100               AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Lbs/100" HELP "Optional - Decimal"
     FIELD PackingNote             AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Pk Note" HELP "Optional - Size:20"
+    FIELD FrtClass                AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Freight Class" HELP "Optional - Size:8"
+    FIELD FrtClassDscr            AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Freight Class Desc" HELP "Optional - Size:30"
+    FIELD TrNo                    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Pallet#" HELP "Optional - Size:10"
+    FIELD Zone                    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Zone" HELP "Optional - Size:12"
+    FIELD StackHeight             AS INTEGER   FORMAT "->>>>>9" COLUMN-LABEL "Stack Height" HELP "Optional - Integer"
+    FIELD PalletLen               AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Pallet (L)" HELP "Optional - Decimal"
+    FIELD PalletWid               AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Pallet (W)" HELP "Optional - Decimal"
+    FIELD PalletDep               AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Pallet (D)" HELP "Optional - Decimal"
+    FIELD StdPalletVol            AS DECIMAL   FORMAT "->>>>>>>9.99" COLUMN-LABEL "Std. Pallet Volume(In3)" HELP "Optional - Decimal"
     FIELD StdCostMaterial         AS DECIMAL   FORMAT ">>>>>>.99" COLUMN-LABEL "Std Mat'l Cost" HELP "Optional - Decimal"
     FIELD StdCostLabor            AS DECIMAL   FORMAT ">>>>>>.99" COLUMN-LABEL "Std Labor Cost" HELP "Optional - Decimal"
     FIELD StdCostVariableOverhead AS DECIMAL   FORMAT ">>>>>>.99" COLUMN-LABEL "Std Var OH Cost" HELP "Optional - Decimal"
@@ -196,8 +205,17 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportFG.OrderMaximum, iplIgnoreBlanks, INPUT-OUTPUT itemfg.ord-max).
     RUN pAssignValueC (ipbf-ttImportFG.PurchasedQuantityUOM, YES, INPUT-OUTPUT itemfg.pur-uom).
     RUN pAssignValueI (ipbf-ttImportFG.LeadTimeDays, iplIgnoreBlanks, INPUT-OUTPUT itemfg.lead-days).
-    RUN pAssignValueDate (ipbf-ttImportFG.BeginningDate, iplIgnoreBlanks, INPUT-OUTPUT itemfg.beg-date).       
+    RUN pAssignValueDate (ipbf-ttImportFG.BeginningDate, iplIgnoreBlanks, INPUT-OUTPUT itemfg.beg-date).  
 
+    RUN pAssignValueC (ipbf-ttImportFG.FrtClass, iplIgnoreBlanks, INPUT-OUTPUT itemfg.frt-class).
+    RUN pAssignValueC (ipbf-ttImportFG.FrtClassDscr, iplIgnoreBlanks, INPUT-OUTPUT itemfg.frt-class-dscr).
+    RUN pAssignValueC (ipbf-ttImportFG.TrNo, iplIgnoreBlanks, INPUT-OUTPUT itemfg.trno).
+    RUN pAssignValueC (ipbf-ttImportFG.Zone, iplIgnoreBlanks, INPUT-OUTPUT itemfg.spare-char-4).
+    RUN pAssignValueI (ipbf-ttImportFG.StackHeight, iplIgnoreBlanks, INPUT-OUTPUT itemfg.stackHeight).
+    RUN pAssignValueD (ipbf-ttImportFG.PalletLen, iplIgnoreBlanks, INPUT-OUTPUT itemfg.unitLength).
+    RUN pAssignValueD (ipbf-ttImportFG.PalletWid, iplIgnoreBlanks, INPUT-OUTPUT itemfg.unitWidth).
+    RUN pAssignValueD (ipbf-ttImportFG.PalletDep, iplIgnoreBlanks, INPUT-OUTPUT itemfg.unitHeight).
+    RUN pAssignValueD (ipbf-ttImportFG.StdPalletVol, iplIgnoreBlanks, INPUT-OUTPUT itemfg.palletVolume).
     
     /*Recalculate derived values*/
     ASSIGN 
@@ -217,15 +235,15 @@ PROCEDURE pProcessRecord PRIVATE:
     END.    
 
     IF ipbf-ttImportFG.SpecNote1Note NE "" THEN 
-        RUN util/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote1Note, ipbf-ttImportFG.SpecNote1Title, ipbf-ttImportFG.SpecNote1Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote1Note, ipbf-ttImportFG.SpecNote1Title, ipbf-ttImportFG.SpecNote1Group, "S", OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote2Note NE "" THEN 
-        RUN util/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote2Note, ipbf-ttImportFG.SpecNote2Title, ipbf-ttImportFG.SpecNote2Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote2Note, ipbf-ttImportFG.SpecNote2Title, ipbf-ttImportFG.SpecNote2Group, "S", OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote3Note NE "" THEN 
-        RUN util/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote3Note, ipbf-ttImportFG.SpecNote3Title, ipbf-ttImportFG.SpecNote3Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote3Note, ipbf-ttImportFG.SpecNote3Title, ipbf-ttImportFG.SpecNote3Group, "S", OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote4Note NE "" THEN 
-        RUN util/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote4Note, ipbf-ttImportFG.SpecNote4Title, ipbf-ttImportFG.SpecNote4Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote4Note, ipbf-ttImportFG.SpecNote4Title, ipbf-ttImportFG.SpecNote4Group, "S", OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote5Note NE "" THEN 
-        RUN util/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote5Note, ipbf-ttImportFG.SpecNote5Title, ipbf-ttImportFG.SpecNote5Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (itemfg.rec_key, ipbf-ttImportFG.SpecNote5Note, ipbf-ttImportFG.SpecNote5Title, ipbf-ttImportFG.SpecNote5Group, "S", OUTPUT riNote).
     
 
     
@@ -332,6 +350,9 @@ PROCEDURE pValidate PRIVATE:
 
         IF oplValid AND ipbf-ttImportFG.Bin NE "" THEN 
             RUN pIsValidFGBin IN hdValidator (ipbf-ttImportFG.Bin, "", NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+
+        IF oplValid AND ipbf-ttImportFG.Bin NE "" THEN 
+            RUN pIsValidFGBinForLoc IN hdValidator (ipbf-ttImportFG.Bin, ipbf-ttImportFG.Warehouse, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
             
         IF oplValid AND ipbf-ttImportFG.SalesRepID NE "" THEN 
             RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportFG.SalesRepID, NO, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -341,8 +362,15 @@ PROCEDURE pValidate PRIVATE:
         
         IF oplValid AND ipbf-ttImportFG.StockItem NE "" THEN   
             RUN pIsValidFromList IN hdValidator ("Stock Item", ipbf-ttImportFG.StockItem, "S,C", OUTPUT oplValid, OUTPUT cValidNote).            
+
+        IF oplValid AND ipbf-ttImportFG.TrNo NE "" THEN   
+            RUN pIsValidItemForType IN hdValidator (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).            
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    IF ipbf-ttImportFG.UnitCount EQ 0 THEN
+        ASSIGN ipbf-ttImportFG.UnitCount = 1 . 
+    IF ipbf-ttImportFG.UnitsPerPallet EQ 0 THEN
+        ASSIGN ipbf-ttImportFG.UnitsPerPallet = 1 .
 
 END PROCEDURE.
 

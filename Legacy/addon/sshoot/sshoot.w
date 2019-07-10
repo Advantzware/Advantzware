@@ -104,7 +104,7 @@ DEFINE BUTTON btn-wip
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 37 BY 13.1.
+     SIZE 37 BY 10.95 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -120,7 +120,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 37.2 BY 13.1.
+         SIZE 37.2 BY 13.27.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -140,11 +140,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Sharp Shooter Menu"
-         HEIGHT             = 13.1
+         HEIGHT             = 13.27
          WIDTH              = 37.2
-         MAX-HEIGHT         = 16.43
+         MAX-HEIGHT         = 14.43
          MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 16.43
+         VIRTUAL-HEIGHT     = 14.43
          VIRTUAL-WIDTH      = 80
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -264,7 +264,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
+         
 
 &Scoped-define SELF-NAME btn-rm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rm C-Win

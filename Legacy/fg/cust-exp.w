@@ -68,10 +68,11 @@ DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
+/* Removed Prep Tax Code - 16.8.9 - Tkt#48289 - MYT - 4/30/19 */
 ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Sales Rep,Sales Rep Name," +
                            "Flat Comm%,Area Code,Phone#,Broker Comm%,Fax#,Prefix,Country,Terms,Terms Dscr,Cr Acct#,Grace Days,$,Credit Rating," +
                            "Price Level,Credit Limit,Credit Hold,Order Limit,Finance Charges,Discount%,Auto Reprice,Currency,EDI,Factored,Invoice Per," +
-                           "Taxable,Tax Prep Code,Tax Code,Tax Dscr,Tax Resale#,Exp,Freight Payment,FOB,Partial Ship,Location,Location Dscr,Carrier,Carrier Dscr," +
+                           "Taxable,Tax Code,Tax Dscr,Tax Resale#,Exp,Freight Payment,FOB,Partial Ship,Location,Location Dscr,Carrier,Carrier Dscr," +
                            "Delivery Zone,Delivery Dscr,Territory,Territory Dscr,Pallet ID,Underrun%,Pallet,Overrun%,Case/Bundle,Mark-up,No Load Tags,Whse Days," +
                            "PO# Mandatory,Pallet Positions,Show Set Parts,Sales PTD,Sales YDT,Sales LYear,Cost PTD,Cost YDT,Cost LYear,Profits PTD,Profits YDT,Profits LYear," +
                            "Profit Percent PTD,Profit Percent YDT,Profit Percent LYear,Commissions PTD,Commissions YDT,Commissions LYear,MSF PTD,MSF YDT,MSF LYear," +
@@ -81,7 +82,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
       cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
                            "cust-level,cr-lim,cr-hold,ord-lim,fin-chg,disc,auto-reprice,curr-code,an-edi-cust,factored,inv-meth," +
-                           "sort,spare-char-1,tax-gr,tax-dscr,tax-id,date-field[2],frt-pay,fob-code,ship-part,loc,loc-dscr,carrier,carrier-dscr," +
+                           "sort,tax-gr,tax-dscr,tax-id,date-field[2],frt-pay,fob-code,ship-part,loc,loc-dscr,carrier,carrier-dscr," +
                            "del-zone,del-dscr,terr,terr-dscr,spare-int-1,under-pct,pallet,over-pct,case-bundle,markup,int-field[1],ship-days," +
                            "po-mand,manf-day,show-set,ptd-sales,ytd-sales,lyr-sales,cost[1],cost[5],cost[6],ptd-profit,ytd-profit,lyr-profit," +
                            "ptd-profit-pct,ytd-profit-pct,lyr-profit-pct,comm[1],comm[5],comm[6],total-msf,ytd-msf,lyytd-msf," +
@@ -95,7 +96,7 @@ ASSIGN cTextListToSelect = "Customer,Name,Status,Address1,Address2,City,State,Zi
                                  "Contact,Date Added,CSR,Cr Acct#,Credit Rating,Order Limit,Discount%,Currency,Finance Charges," +
                                  "Auto Reprice,EDI,Factored,Grace Days,$,Invoice Per,Freight Payment,FOB,Location,Carrier,Delivery Zone," + 
                                  "Territory,Pallet ID,Overrun%,Underrun%,Pallet,Case/Bundle,Mark-up,No Load Tags,Whse Days,Pallet Positions," +
-                                 "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Code,Tax Resale#,Exp," +
+                                 "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Code,Tax Resale#,Exp," +
                                  "Email,Group,Broker Comm%,Flat Comm%,Prefix" .
 
 /* _UIB-CODE-BLOCK-END */

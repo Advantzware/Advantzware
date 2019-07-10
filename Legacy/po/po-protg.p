@@ -111,6 +111,7 @@ DEF VAR v-out-qty AS DEC NO-UNDO.
 DEFINE VAR v-ord-no AS CHAR NO-UNDO.
 DEF VAR v-vend-no AS CHAR NO-UNDO.
 DEF VAR v-curr-dscr AS CHAR NO-UNDO.
+DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
 DEFINE BUFFER buf-vend FOR vend.
 DEFINE BUFFER buf-cust FOR cust.
 
@@ -122,7 +123,8 @@ v-dash-line = fill ("_",80).
 
 {po/po-print.f}
 {ce/msfcalc.i}
-
+DEFINE VARIABLE hdJobProcs AS HANDLE    NO-UNDO.
+RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 assign v-hdr = "VEND ITEM".
        
        
@@ -348,7 +350,12 @@ find first company where company.company eq cocode NO-LOCK.
           end. /* v-shtsiz */        
           
         end. /* avail item and item.mat-type eq "B" */
-       
+
+        cMachCode = "" .
+        lPrintMach = NO .
+
+        RUN GetOperation IN hdJobProcs (cocode, po-ordl.job-no, INTEGER(po-ordl.job-no2),INTEGER(po-ordl.s-num),"Internal", INPUT-OUTPUT cMachCode).
+        
         v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
                     ELSE "").
@@ -475,9 +482,13 @@ find first company where company.company eq cocode NO-LOCK.
         
         IF TRIM(v-lstloc) NE "" THEN
            PUT v-lstloc AT 7 FORM "x(15)".
-
-        PUT po-ordl.dscr[1] AT 25  FORM "x(30)" .
-            /*v-adder[2] FORM "x(8)" SPACE(1)*/
+        IF po-ordl.dscr[1] NE "" THEN
+            PUT po-ordl.dscr[1] AT 25  FORM "x(30)" .
+        ELSE do:
+            PUT cMachCode AT 25  FORM "x(30)" .  
+            lPrintMach = YES .
+        END.
+        
             
         ASSIGN
            v-printline = v-printline + 1
@@ -493,6 +504,14 @@ find first company where company.company eq cocode NO-LOCK.
           v-line-number = v-line-number + 1
           v-printline = v-printline + 1.
         end.
+
+        IF NOT lPrintMach AND cMachCode NE "" THEN DO:
+            PUT cMachCode AT 25  FORM "x(30)" .  
+            lPrintMach = YES .
+       ASSIGN
+           v-line-number = v-line-number + 1
+           v-printline = v-printline + 1.
+        END.
     
         /*if po-ordl.dscr[2] ne "" OR v-adder[4] <> "" then do:
           put " " v-adder[4] AT 56 skip.

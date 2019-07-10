@@ -14,6 +14,12 @@ DEF VAR li-qty LIKE c-qty NO-UNDO.
 DEF VAR v-t-win AS DEC DECIMALS 4 NO-UNDO.
 DEF VAR v-li AS INT NO-UNDO.
 DEFINE VARIABLE iCaseMult AS INTEGER NO-UNDO.
+DEFINE VARIABLE dPackQty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPackCostM AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPackCostTotal AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPackCostSetup AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cPackCostUOM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dCostPerM AS DECIMAL NO-UNDO FORMAT ">>>>9.99".
 
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-cost FOR reftable.
@@ -220,8 +226,8 @@ ELSE
               p-cost / (qty / 1000) format ">>>>9.99" to 68
               p-cost format ">,>>>,>>9.99" to 80 SKIP WITH STREAM-IO.
    end.
-
-   if xeb.cas-no ne "" then do with frame ac5 no-box no-labels:
+   
+   if xeb.cas-no ne "" then do with frame ac5 no-box NO-LABELS: 
       p-cost = 0.
 
       /* pallet */
@@ -281,9 +287,73 @@ ELSE
          BRD.cost-m = p-cost / (qty / 1000).
 
       if p-cost ne 0 then
-      display item.i-name p-qty format ">>>>>9" to 48 "Ea."
+      display item.i-name p-qty format ">>>>>9" to 48 
+              "Ea."
               p-cost / (qty / 1000) format ">>>>9.99" to 68
               p-cost format ">,>>>,>>9.99" to 80 SKIP WITH STREAM-IO.
    end.
+
+    FOR EACH estPacking NO-LOCK 
+        WHERE estPacking.company EQ xeb.company
+        AND estPacking.estimateNo EQ xeb.est-no
+        AND estPacking.formNo EQ xeb.form-no
+        AND estPacking.blankNo EQ xeb.blank-no,
+        FIRST ITEM NO-LOCK 
+        WHERE item.company EQ estPacking.company
+        AND item.i-no EQ estPacking.rmItemID
+            WITH FRAME ac6 NO-BOX NO-LABELS:
+        dPackQty = 0.
+        CASE estPacking.quantityPer:
+            WHEN "P" THEN 
+                dPackQty = estPacking.quantity * p-qty.
+            WHEN "C" THEN 
+                dPackQty = estPacking.quantity * c-qty.
+            OTHERWISE 
+                dPackQty = estPacking.quantity.
+        END CASE. 
+
+        {sys/inc/roundup.i dPackQty}
+      
+        IF estPacking.costOverriderPerUOM NE 0 THEN 
+            dPackCostTotal = estPacking.costOverriderPerUOM * dPackQty.
+        ELSE DO:   
+            {est/matcost.i dPackQty dPackCostTotal estPacking}      
+            dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.
+        END.      
+        ASSIGN
+            dm-tot[4] = dm-tot[4] + dPackCostTotal / (qty / 1000)
+            dm-tot[5] = dm-tot[5] + dPackCostTotal
+            .
+        FIND FIRST BRD 
+            WHERE BRD.form-no EQ xeb.form-no
+            AND BRD.blank-no EQ xeb.blank-no 
+            AND BRD.i-no EQ estPacking.rmItemID
+            NO-ERROR.
+        IF NOT AVAILABLE BRD THEN 
+        DO:
+            CREATE BRD.
+            ASSIGN 
+                BRD.form-no = xeb.form-no
+                BRD.blank-no = xeb.blank-no
+                BRD.i-no    = estPacking.rmItemID
+                BRD.dscr    = item.est-dscr
+                BRD.basis-w = item.basis-w
+                .
+        END.
+        ASSIGN
+            BRD.qty = dPackQty  
+            BRD.qty-uom = "Ea"
+            BRD.sc-uom  = "Ea"
+            BRD.cost = dPackCostTotal / dPackQty
+            BRD.cost-m = dPackCostTotal / (qty / 1000)
+            .
+        IF dPackCostTotal NE 0 THEN
+             DISPLAY item.i-name dPackQty FORMAT ">>>>>9" TO 48 
+              "Ea."
+              dPackCostTotal / (qty / 1000) FORMAT ">>>>9.99" TO 68
+              dPackCostTotal FORMAT ">,>>>,>>9.99" TO 80 SKIP WITH STREAM-IO
+              .
+        
+    END.
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */

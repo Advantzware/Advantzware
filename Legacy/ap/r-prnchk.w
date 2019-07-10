@@ -75,6 +75,16 @@ DEFINE VARIABLE glRemittance AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE gcRemittanceDefault AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcPDFFile AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcDefVend AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
+
+DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
+DEF VAR lResult AS LOG NO-UNDO.
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("ap/r-prnchk.w","", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+
+IF lResult THEN ASSIGN lAsiUser = YES .
+
 
 {custom/xprint.i}
 
@@ -219,6 +229,10 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -240,6 +254,7 @@ DEFINE FRAME FRAME-A
      lv-font-no AT ROW 15.29 COL 38 COLON-ALIGNED
      lv-font-name AT ROW 16.43 COL 32 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 18.1 COL 34
+     run_format AT ROW 18.1 COL 65 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 21 COL 19
      btn-cancel AT ROW 21 COL 57
      "Selection Parameters" VIEW-AS TEXT
@@ -360,6 +375,9 @@ ASSIGN
 ASSIGN 
        start_check-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN
+         RUN_format:HIDDEN IN FRAME FRAME-A = YES .
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -523,16 +541,16 @@ DO:
           where ap-chk.company   eq cocode
             and ap-chk.vend-no   ge begin_vend-no
             and ap-chk.vend-no   le end_vend-no
-            and ap-chk.man-check eq no
+            and ap-chk.man-check eq NO
             and can-find(first ap-sel
                          where ap-sel.company   eq cocode
                            and ap-sel.vend-no   eq ap-chk.vend-no
-                           and ap-sel.man-check eq no)) THEN
+                           and ap-sel.man-check eq NO)) THEN
            for each b-ap-chk
               where b-ap-chk.company   eq cocode
                 and b-ap-chk.vend-no   ge begin_vend-no
                 and b-ap-chk.vend-no   le end_vend-no
-                and b-ap-chk.man-check eq no
+                and b-ap-chk.man-check eq NO
                 and can-find(first ap-sel
                              where ap-sel.company   eq cocode
                                and ap-sel.vend-no   eq b-ap-chk.vend-no
@@ -552,10 +570,12 @@ DO:
                           AND sys-ctrl-shipto.cust-vend-no = b-ap-chk.vend-no 
                           AND sys-ctrl-shipto.char-fld > '' 
                         NO-LOCK NO-ERROR.
-                    IF AVAIL sys-ctrl-shipto THEN
+                    IF NOT lAsiUser AND AVAIL sys-ctrl-shipto THEN do:
                         RUN SetChkForm (sys-ctrl-shipto.char-fld,NO).
-                    ELSE
+                    END.
+                    ELSE do:
                         RUN SetChkForm (vcDefaultForm,NO). 
+                    END.
 
                     RUN run-report(b-ap-chk.vend-no, TRUE).
                     RUN GenerateReport.
@@ -730,6 +750,39 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
+DO:
+   ASSIGN run_format.
+
+   IF vcDefaultForm NE run_format THEN DO:
+       ASSIGN vcDefaultForm = run_format .
+      RUN SetChkForm (vcDefaultForm,NO).
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Font */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+    
+    RUN windows/l-syschrL.w (gcompany,"CHKFMT",run_format:SCREEN-VALUE,OUTPUT char-val).
+     IF char-val NE '' THEN
+      run_format:SCREEN-VALUE = ENTRY(1,char-val).
+     IF vcDefaultForm NE run_format:SCREEN-VALUE THEN DO:
+       ASSIGN vcDefaultForm = ENTRY(1,char-val) .
+      RUN SetChkForm (vcDefaultForm,NO).
+     END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -780,9 +833,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*             start_check-no = giCheckNoSTD                                */
 /*             tb_ach = NO.                                                 */
 /*   END.                                                                   */
-  ASSIGN
+  
+    
+    ASSIGN
      check-date = TODAY
-     vcDefaultForm = sys-ctrl.char-fld.
+     vcDefaultForm = sys-ctrl.char-fld .
 
   RUN SetChkForm(INPUT sys-ctrl.char-fld,NO).
   RUN GetRemittanceForm(INPUT cocode,
@@ -797,7 +852,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i "AND lv-field-hdl:NAME EQ 'rd-dest'"}
     APPLY "entry" TO check-date.
+
   END.
+
+  IF NOT lAsiUser THEN
+         RUN_format:HIDDEN IN FRAME FRAME-A = YES .
+  ELSE do: 
+      ASSIGN
+          RUN_format:HIDDEN IN FRAME FRAME-A = NO 
+          RUN_format:SCREEN-VALUE IN FRAME FRAME-A = vcDefaultForm 
+          RUN_format:SENSITIVE  IN FRAME {&FRAME-NAME} = YES .     
+     END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.

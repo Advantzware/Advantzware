@@ -1,0 +1,289 @@
+        1   /* userTableStats.p
+        2    *
+        3    * track userTableStats for the current session
+        4    *
+        5    */
+        6   
+        7   /* the public temp tables
+        8    */
+        9   
+       10   
+       11   /* userstats.i
+       12    *
+       13    * support for lib/usertablestats.p
+       14    *
+       15    */
+       16   
+       17   define temp-table tt_usrTblInfo no-undo
+       18     field tblName as character format "x(30)"
+       19     field tblRd   as int64
+       20     field tblCr   as int64
+       21     field tblUp   as int64
+       22     field tblDl   as int64
+       23     index tblName-idx is unique tblName
+       24   .
+       25   
+       26   define temp-table tt_usrIdxInfo
+       27     field idxName as character format "x(41)"
+       28     field idxRd   as int64
+       29     field idxCr   as int64
+       30     field idxDl   as int64
+       31     index idxName-idx is unique idxName
+       32   .
+       33    
+       34   
+       35   /* internal temp tables
+       36    */
+       37   
+       38   define temp-table tt_usrTblInfoX no-undo
+       39     field xId     as integer
+       40     field tblNum  as integer
+       41     field tblName as character format "x(20)"
+       42     field tblRd   as int64 extent 2                       /* [1] = previous value, [2] = incremental value        */
+       43     field tblCr   as int64 extent 2    
+       44     field tblUp   as int64 extent 2
+       45     field tblDl   as int64 extent 2
+       46     index tblNum-idx  is unique tblNum
+       47     index tblName-idx is unique tblName
+       48   .
+       49   
+       50   define temp-table tt_usrIdxInfoX
+       51     field xId     as integer
+       52     field idxNum  as integer
+       53     field idxName as character format "x(40)"
+       54     field idxRd   as int64 extent 2
+       55     field idxCr   as int64 extent 2
+       56     field idxDl   as int64 extent 2
+       57     index idxNum-idx  is unique idxNum
+       58     index idxName-idx is unique idxName
+       59   .
+       60   
+       61   define variable myUserNum   as integer no-undo.
+       62   define variable myUserid    as integer no-undo.
+       63   
+       64   define variable firstTblId as integer no-undo.
+       65   define variable lastTblId  as integer no-undo.
+       66   
+       67   define variable tblBase     as integer no-undo.
+       68   define variable tblRange    as integer no-undo.
+       69   define variable tblUsed     as integer no-undo.
+       70   
+       71   define variable firstIdxId  as integer no-undo.
+       72   define variable lastIdxId   as integer no-undo.
+       73   
+       74   define variable idxBase     as integer no-undo.
+       75   define variable idxRange    as integer no-undo.
+       76   define variable idxUsed     as integer no-undo.
+       77   
+       78   /* who am i? (this should probably be an input parameter)
+       79    */
+       80   
+       81   find dictdb._myConnect no-lock.
+       82   
+       83   /* VSTs are keyed by "id", userNum is userId + 1 -- or, depending on your POV, userId is userNum - 1 
+       84    *
+       85    * in any event efficient VST access is always by the "id" field so make sure to use it!
+       86    *
+       87    */
+       88   
+       89   myUserNum = _myConn-UserId.
+       90   myUserid  = _myConn-UserId + 1.
+       91   
+       92   /* how many tables are there and what are the starting and ending offsets?
+       93    *
+       94    * -tablerangesize and -indexrangesize both default to 50, if you have more
+       95    * than 50 tables or indexes the appropriate *rangesize parameter will need
+       96    * to be increased
+       97    *
+       98    */
+       99    
+      100   find first dictdb._tableStat no-lock.
+      101   tblBase = recid( _tableStat ).
+      102   
+      103   find last _tableStat no-lock.
+      104   tblRange = recid( _tableStat ).
+      105   
+      106   tblUsed = 0.
+      107   for each _tablestat no-lock:
+      108     find first dictdb._file no-lock where _file-num = _tablestat-id no-error.
+      109     if available( _file ) then tblUsed = tblUsed + 1.
+      110   end.
+      111   
+      112   assign
+      113     firstTblId = myUserNum * tblRange
+      114     lastTblId  = firstTblId + tblRange /* min( tblRange, tblUsed ) */
+      115     firstTblId = firstTblId + 1
+      116   .
+      117   
+      118   /* how many indexes are there?  what are the starting and ending offsets?
+      119    */
+      120   
+      121   find first dictdb._indexStat no-lock.
+      122   idxBase = recid( _indexStat ).
+      123   
+      124   find last _indexStat no-lock.
+      125   idxRange = recid( _indexStat ).
+      126   
+      127   idxUsed = 0.
+      128   for each _indexStat no-lock:
+      129     find first dictdb._index no-lock where _idx-num = _indexStat-id no-error.
+      130     if available( _index ) then idxUsed = idxUsed + 1.
+      131   end.
+      132   
+      133   assign
+      134     firstIdxId = myUserNum * idxRange
+      135     lastIdxId  = firstIdxId + idxRange /* min( idxRange, idxUsed ) */
+      136     firstIdxId = firstIdxId + 1
+      137   .
+      138   
+      139   /* initialize user stats
+      140    */
+      141   
+      142   run getUStats ( output table tt_usrTblInfo by-reference, output table tt_usrIdxInfo by-reference ).
+      143   
+      144   session:add-super-procedure( this-procedure ).
+      145   
+      146   return.
+      147   
+      148   
+      149   /************************************************************/
+      150   
+      151   
+      152   /* get user table & index stats
+      153    *
+      154    * the first time this is run it will initialize the baseline (that is why it is run at startup).
+      155    *
+      156    */
+      157   
+      158   procedure getUStats:
+      159   
+      160     define output parameter table for tt_usrTblInfo.
+      161     define output parameter table for tt_usrIdxInfo.
+      162   
+      163     define variable t as integer no-undo.
+      164     define variable i as integer no-undo.
+      165   
+      166     t  = 0.
+      167   
+      168     for each dictdb._userTableStat no-lock where _UserTableStat-Id >= firstTblId and _UserTableStat-Id <= lastTblId:
+      169   
+      170       t = t + 1.
+      171       /* if t > tblUsed then leave. */
+      172   
+      173       find tt_usrTblInfoX where tt_usrTblInfoX.xId = _userTableStat-id no-error.
+      174   
+      175       if available tt_usrTblInfoX then
+      176         assign
+      177   
+      178           tt_usrTblInfoX.tblRd[2] = _userTableStat-read   - tt_usrTblInfoX.tblRd[1]
+      179           tt_usrTblInfoX.tblRd[1] = _userTableStat-read
+      180   
+      181           tt_usrTblInfoX.tblCr[2] = _userTableStat-create - tt_usrTblInfoX.tblCr[1]
+      182           tt_usrTblInfoX.tblCr[1] = _userTableStat-create
+      183   
+      184           tt_usrTblInfoX.tblUp[2] = _userTableStat-update - tt_usrTblInfoX.tblUp[1]
+      185           tt_usrTblInfoX.tblUp[1] = _userTableStat-update
+      186   
+      187           tt_usrTblInfoX.tblDl[2] = _userTableStat-delete - tt_usrTblInfoX.tblDl[1]
+      188           tt_usrTblInfoX.tblDl[1] = _userTableStat-delete
+      189         .
+      190        else
+      191         do:
+      192           find first _file no-lock where _file-num = _userTableStat-num no-error.
+      193           if not available _file then
+      194             do:
+      195               /* message "wtf? tbl...". */
+      196               /* pause. */
+      197               next.
+      198             end.
+      199           create tt_usrTblInfoX.
+      200           assign
+      201             tt_usrTblInfoX.xId      = _userTableStat-id
+      202             tt_usrTblInfoX.tblNum   = _userTableStat-num
+      203             tt_usrTblInfoX.tblName  = ( if available _file then _file-name else string( _userTableStat-num ))
+      204             tt_usrTblInfoX.tblRd[1] = _userTableStat-read
+      205             tt_usrTblInfoX.tblCr[1] = _userTableStat-create
+      206             tt_usrTblInfoX.tblUp[1] = _userTableStat-update
+      207             tt_usrTblInfoX.tblDl[1] = _userTableStat-delete
+      208           .
+      209         end.
+      210   
+      211     end.
+      212   
+      213     i = 0.
+      214   
+      215     for each dictdb._userIndexStat no-lock where _UserIndexStat-id >= firstIdxId and _userIndexStat-id <= lastIdxId:
+      216   
+      217       i = i + 1.
+      218       if i > idxUsed then leave.
+      219   
+      220       find tt_usrIdxInfoX where tt_usrIdxInfoX.xId = _UserIndexStat-id no-error.
+      221       if available tt_usrIdxInfoX then
+      222         assign
+      223           tt_usrIdxInfoX.idxRd[2]  = _userIndexStat-read   - tt_usrIdxInfoX.idxRd[1]
+      224           tt_usrIdxInfoX.idxRd[1]  = _userIndexStat-read
+      225   
+      226           tt_usrIdxInfoX.idxCr[2]  = _userIndexStat-create - tt_usrIdxInfoX.idxCr[1]
+      227           tt_usrIdxInfoX.idxCr[1]  = _userIndexStat-create
+      228   
+      229           tt_usrIdxInfoX.idxDl[2]  = _userIndexStat-delete - tt_usrIdxInfoX.idxDl[1]
+      230           tt_usrIdxInfoX.idxDl[1]  = _userIndexStat-delete
+      231         .
+      232        else
+      233         do:
+      234           find first _index no-lock where _idx-num = _UserIndexStat-num no-error.
+      235           if available _index then find first _file no-lock of _index no-error.
+      236           if not available _index /* or not available _file */ then
+      237             do:
+      238               /* message "wtf? idx...". */
+      239               /* pause. */
+      240               next.
+      241             end.
+      242           create tt_usrIdxInfoX.
+      243           assign
+      244             tt_usrIdxInfoX.xId      = _userIndexStat-id
+      245             tt_usrIdxInfoX.idxNum   = _UserIndexStat-num
+      246             tt_usrIdxInfoX.idxName  = substitute( "&1.&2", ( if available _file then _file-name else "xxx" ), _index-name )
+      247             tt_usrIdxInfoX.idxRd[1] = _userIndexStat-read
+      248             tt_usrIdxInfoX.idxCr[1] = _userIndexStat-create
+      249             tt_usrIdxInfoX.idxDl[1] = _userIndexStat-delete
+      250           .
+      251         end.
+      252   
+      253     end.
+      254   
+      255     /* translate the internal representation into something more useful
+      256      */
+      257   
+      258     empty temp-table tt_usrTblInfo.
+      259     empty temp-table tt_usrIdxInfo.
+      260   
+      261     /* copy the incremental values to a user friendly TT
+      262      */
+      263   
+      264     for each tt_usrTblInfoX where tt_usrTblInfoX.tblRd[2] > 0 or tt_usrTblInfoX.tblCr[2] > 0 or tt_usrTblInfoX.tblUp[2] > 0 or tt_usrTblInfoX.tblDl[2] > 0 by tt_usrTblInfoX.tblRd[2] descending:
+      265       find tt_usrTblInfo where tt_usrTblInfo.tblName = tt_usrTblInfoX.tblName no-error.
+      266       if not available tt_usrTblInfo then create tt_usrTblInfo.
+      267       assign
+      268         tt_usrTblInfo.tblName = tt_usrTblInfoX.tblName
+      269         tt_usrTblInfo.tblRd   = tt_usrTblInfoX.tblRd[2]
+      270         tt_usrTblInfo.tblCr   = tt_usrTblInfoX.tblCr[2]
+      271         tt_usrTblInfo.tblUp   = tt_usrTblInfoX.tblUp[2]
+      272         tt_usrTblInfo.tblDl   = tt_usrTblInfoX.tblDl[2]
+      273       .
+      274     end.
+      275   
+      276     for each tt_usrIdxInfoX where tt_usrIdxInfoX.idxRd[2] > 0 or tt_usrIdxInfoX.idxCr[2] > 0 or tt_usrIdxInfoX.idxDl[2] > 0 by tt_usrIdxInfoX.idxRd[2] descending:
+      277       find tt_usrIdxInfo where tt_usrIdxInfo.idxName = tt_usrIdxInfoX.idxName no-error.
+      278       if not available tt_usrIdxInfo then create tt_usrIdxInfo.
+      279       assign
+      280         tt_usrIdxInfo.idxName = tt_usrIdxInfoX.idxName
+      281         tt_usrIdxInfo.idxRd   = tt_usrIdxInfoX.idxRd[2]
+      282         tt_usrIdxInfo.idxCr   = tt_usrIdxInfoX.idxCr[2]
+      283         tt_usrIdxInfo.idxDl   = tt_usrIdxInfoX.idxDl[2]
+      284       .
+      285     end.
+      286   
+      287     return.
+      288   
+      289   end.

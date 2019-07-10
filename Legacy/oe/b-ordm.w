@@ -40,10 +40,6 @@ assign cocode = g_company
 {oe/d-selmis.i NEW}
 {sys/inc/ceprepprice.i}
 
-DO TRANSACTION:
-{sys/inc/OEPrepTaxCode.i}
-END.
- 
 
 DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL NO-UNDO.
@@ -138,7 +134,8 @@ oe-ordm.form-no oe-ordm.blank-no
 FUNCTION fGetTaxable RETURNS LOGICAL 
     (ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER) FORWARD.
+    ipcShipto AS CHARACTER,
+     ipcPrepCode AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -991,18 +988,21 @@ PROCEDURE local-create-record :
    oe-ordm.s-pct[3]  = oe-ord.s-pct[3]
    oe-ordm.s-comm[3] = oe-ord.s-comm[3] .
 
-  IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ NO THEN DO:             /*Task# 11271302*/  
-      ASSIGN
-          oe-ordm.s-comm[1] = 0
-          oe-ordm.s-comm[2] = 0     
-          oe-ordm.s-comm[3] = 0.
-  END.
-
   FIND FIRST ar-ctrl WHERE ar-ctrl.company = oe-ord.company NO-LOCK NO-ERROR.
   IF AVAIL ar-ctrl THEN oe-ordm.actnum = ar-ctrl.sales.
   FIND FIRST cust OF oe-ord NO-LOCK.
-
-  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id).
+  FIND FIRST prep NO-LOCK 
+            WHERE prep.company EQ oe-ord.company 
+            AND prep.code    EQ oe-ordm.charge
+            NO-ERROR.
+    
+    IF AVAILABLE prep AND NOT prep.commissionable THEN
+        ASSIGN 
+            oe-ordm.s-comm[1] = 0 
+            oe-ordm.s-comm[2] = 0
+            oe-ordm.s-comm[3] = 0
+            .
+  oe-ordm.tax = fGetTaxable(cocode, oe-ord.cust-no, oe-ord.ship-id, oe-ordm.charge).
   
   i = 0 .
   FOR EACH bf-ordl OF oe-ord NO-LOCK:
@@ -1476,14 +1476,15 @@ END PROCEDURE.
 FUNCTION fGetTaxable RETURNS LOGICAL 
     (ipcCompany AS CHARACTER,
     ipcCust AS CHARACTER,
-    ipcShipto AS CHARACTER):
+    ipcShipto AS CHARACTER, 
+    ipcPrepCode AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

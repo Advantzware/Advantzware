@@ -120,13 +120,26 @@ DEFINE VARIABLE retcode        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCopyPDFFile   AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("oerep/r-invprtoe.w","", OUTPUT lResult).
+DELETE OBJECT hPgmSecurity.
+IF lResult THEN ASSIGN lAsiUser = YES .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.                       
-
+RUN sys/ref/nk1look.p (INPUT cocode, "InvoiceSavePDF", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCopyPdfFile = logical(cRtnChar) NO-ERROR .
 /* Build a Table to keep sequence of pdf files */
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
     FIELD tt-FileCtr  AS INT
@@ -174,12 +187,13 @@ v-prgmname = ipcPrgmnameOverride.
 begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint ~
 tb_posted tb_setcomp tb_prt-inst tb_qty-all rd_sort tb_BatchMail ~
 tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no ~
-tb_email-orig tb_override-email td-show-parm btn-ok btn-cancel 
+tb_email-orig tb_override-email td-show-parm btn-ok btn-cancel run_format
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust begin_inv ~
 end_inv begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst ~
 tb_qty-all lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest ~
 lv-ornt lines-per-page lv-font-no lv-font-name tb_email-orig ~
-tb_override-email td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel 
+tb_override-email td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel ~
+run_format
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -439,6 +453,10 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -490,10 +508,11 @@ DEFINE FRAME FRAME-A
      lines-per-page AT ROW 17.05 COL 83 COLON-ALIGNED
      lv-font-no AT ROW 18.29 COL 33 COLON-ALIGNED
      lv-font-name AT ROW 19.24 COL 27 COLON-ALIGNED NO-LABEL
-     tb_email-orig AT ROW 20.57 COL 30.2 WIDGET-ID 14
+     tb_email-orig AT ROW 20.33 COL 30 WIDGET-ID 14
      tb_override-email AT ROW 20.62 COL 60 WIDGET-ID 18
-     td-show-parm AT ROW 21.95 COL 30
-     tb_splitPDF AT ROW 21.95 COL 60 WIDGET-ID 26
+     td-show-parm AT ROW 21.43 COL 30
+     tb_splitPDF AT ROW 22.48 COL 30 WIDGET-ID 26
+     run_format AT ROW 22.18 COL 66 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 23.86 COL 23
      btn-cancel AT ROW 23.86 COL 56
      fiEndDateLabel AT ROW 4.52 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
@@ -867,7 +886,7 @@ DO:
             ASSIGN {&DISPLAYED-OBJECTS}
                 tb_collate lv-scr-num-copies
                 tb_cust-copy tb_office-copy tb_sman-copy
-            /* gdm - 12080817 */ tb_setcomp tbPostedAR
+                /* gdm - 12080817 */ tb_setcomp tbPostedAR
                 .
             ASSIGN tb_prt-dupl = LOGICAL(tb_prt-dupl:SCREEN-VALUE).
             IF begin_bol:SENSITIVE THEN 
@@ -1043,7 +1062,8 @@ DO:
             tb_splitPDF        ,
             tb_qty-all         ,
             tb_cust-list       ,
-            tb_prt-dupl        
+            tb_prt-dupl        ,
+            NO /* Pdf only */
             ).
 
         IF begin_bol EQ end_bol THEN 
@@ -1099,7 +1119,7 @@ DO:
 
         IF NOT rd-dest:SCREEN-VALUE = '5' AND NOT rd-dest:SCREEN-VALUE = '1' THEN
         DO:
-
+           
           RUN runReport5 (INPUT lv-fax-type).
           
         END. /*not rd-dest = 5*/
@@ -1144,9 +1164,55 @@ DO:
         DO:
            RUN runReport1 (INPUT lv-fax-type).            
             
-        END.  /* rd-dest:Screen-value = 1*/
+    END.  /* rd-dest:Screen-value = 1*/
 
-
+    IF tb_posted AND lCopyPdfFile THEN DO:
+    RUN assignSelections
+        (begin_bol          ,
+        begin_cust         ,
+        begin_date         ,
+        begin_inv          ,
+        end_bol            ,
+        end_cust           ,
+        end_date           ,
+        end_inv            ,
+        fi_broker-bol      ,
+        fi_depts           ,
+        lbl_sort           ,
+        lines-per-page     ,
+        lv-font-name       ,
+        lv-font-no         ,
+        lv-scr-num-copies  ,
+        lv-ornt            ,
+        5 /*rd-dest */           ,
+        rd_sort            ,
+        rs_no_PN           ,
+        tb_attachBOL       ,
+        YES /*tb_BatchMail */       ,
+        tb_collate         ,
+        tb_cust-copy       ,
+        tb_email-orig      ,
+        tb_HideDialog      ,
+        tb_office-copy     ,
+        tb_override-email  ,
+        tb_posted          ,
+        tb_print-dept      ,
+        tb_prt-inst        ,
+        tb_prt-zero-qty    ,
+        tb_reprint         ,
+        tb_setcomp         ,
+        tb_sman-copy       ,
+        td-show-parm       ,
+        tbPostedAR         ,
+        YES /* tb_splitPDF */       ,
+        tb_qty-all         ,
+        tb_cust-list       ,
+        tb_prt-dupl        ,
+        YES /* Pdf only */
+        ).
+RUN BatchMail (begin_cust, end_cust).
+        END.
+        
         IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
         OS-DELETE VALUE(init-dir + "\Invoice.pdf").
         /* Implement in persistent procedure 
@@ -1577,6 +1643,41 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
+DO:
+   ASSIGN run_format.
+
+   IF v-print-fmt NE run_format THEN DO:
+       ASSIGN v-print-fmt =  run_format
+              vcDefaultForm = v-print-fmt.
+      RUN  pRunFormatValueChanged .
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Font */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+    
+    RUN windows/l-syschrL.w (gcompany,"INVPRINT",run_format:SCREEN-VALUE,OUTPUT char-val).
+     IF char-val NE '' THEN
+      run_format:SCREEN-VALUE = ENTRY(1,char-val).
+     IF v-print-fmt NE run_format:SCREEN-VALUE THEN DO:
+       ASSIGN v-print-fmt =  run_format:SCREEN-VALUE
+              vcDefaultForm = v-print-fmt.
+      RUN  pRunFormatValueChanged .
+     END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1685,7 +1786,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              tbPostedAR:SENSITIVE = NO
              .
      
-    IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
+   /* IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
 
     IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
         ASSIGN tb_print-dept:HIDDEN    = NO
@@ -1708,10 +1809,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             fi_broker-bol:SENSITIVE = YES
             fi_broker-bol:HIDDEN    = NO.
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
         ASSIGN
             tb_prt-zero-qty:SENSITIVE = YES
-            tb_prt-zero-qty:HIDDEN    = NO.
+            tb_prt-zero-qty:HIDDEN    = NO.*/
 
     RUN enable_UI.
 
@@ -1721,13 +1822,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
 
-    IF LOOKUP(v-print-fmt,"Peachtreefgl3,SouleMed,SoulePO,Peachtree") GT 0 THEN
+    /*IF LOOKUP(v-print-fmt,"Peachtreefgl3,SouleMed,SoulePO,Peachtree") GT 0 THEN
         ASSIGN rs_no_PN:HIDDEN    = FALSE
-            rs_no_PN:SENSITIVE = TRUE.
+            rs_no_PN:SENSITIVE = TRUE.*/
 
     DO WITH FRAME {&FRAME-NAME}:
 
-        IF LOOKUP(v-print-fmt,"PremierX,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
+      /*  IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
             ASSIGN
                 tb_cust-copy:HIDDEN      = NO
                 tb_cust-copy:SENSITIVE   = YES
@@ -1746,8 +1847,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ASSIGN
                 tb_setcomp:HIDDEN    = YES
                 tb_setcomp:SENSITIVE = NO
-                tb_setcomp           = NO.
+                tb_setcomp           = NO.*/
         DISABLE lines-per-page.
+
+        RUN  pRunFormatValueChanged .
 
         {custom/usrprint.i}
         
@@ -1763,18 +1866,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
           IF tb_BatchMail:SCREEN-VALUE = "YES" THEN
-  ASSIGN 
-     tb_splitPDF:HIDDEN = NO
-     tb_splitPDF:SENSITIVE = YES
-     .
-ELSE
-  ASSIGN 
-     tb_splitPDF:HIDDEN = YES
-     tb_splitPDF:SENSITIVE = NO
-     .        
-  IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
+              ASSIGN 
+              tb_splitPDF:HIDDEN = NO
+              tb_splitPDF:SENSITIVE = YES
+              .
+          ELSE
+              ASSIGN 
+                  tb_splitPDF:HIDDEN = YES
+                  tb_splitPDF:SENSITIVE = NO.        
+
+  /*IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
          ASSIGN tb_qty-all:HIDDEN = NO .
-     ELSE tb_qty-all:HIDDEN = YES .
+     ELSE tb_qty-all:HIDDEN = YES .*/
 
 lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
 IF glPaperless THEN 
@@ -1863,6 +1966,11 @@ ASSIGN
     tb_email-orig:SCREEN-VALUE  IN FRAME frame-a = "NO"
     tb_email-orig                                = NO.
 END.
+
+IF NOT lAsiUser THEN
+    RUN_format:HIDDEN IN FRAME FRAME-A = YES .
+ELSE 
+    RUN_format:SCREEN-VALUE IN FRAME FRAME-A = v-print-fmt .
 
 IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1968,13 +2076,13 @@ PROCEDURE enable_UI :
           tb_reprint tb_posted tb_setcomp tb_prt-inst tb_qty-all lbl_sort 
           rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt 
           lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email 
-          td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel 
+          td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_inv 
          end_inv begin_date end_date tb_reprint tb_posted tb_setcomp 
          tb_prt-inst tb_qty-all rd_sort tb_BatchMail tb_HideDialog tb_attachBOL 
          rd-dest lv-ornt lines-per-page lv-font-no tb_email-orig 
-         tb_override-email td-show-parm btn-ok btn-cancel 
+         tb_override-email td-show-parm btn-ok btn-cancel run_format
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2111,6 +2219,118 @@ PROCEDURE SetCustRange :
        .
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
+PROCEDURE pRunFormatValueChanged :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+
+         IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
+         ELSE lv-prt-bypass = YES.
+
+         IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
+             ASSIGN tb_print-dept:HIDDEN    = NO
+             tb_print-dept:SENSITIVE = YES
+             fi_depts:HIDDEN         = NO
+             fi_depts:SENSITIVE      = YES.
+         ELSE
+             ASSIGN tb_print-dept:HIDDEN    = YES
+             tb_print-dept:SENSITIVE = NO
+             fi_depts:HIDDEN         = YES
+             fi_depts:SENSITIVE      = NO.
+         
+         IF v-print-fmt EQ "Shamrock" THEN
+             ASSIGN tb_prt-dupl:HIDDEN    = NO
+             tb_prt-dupl:SENSITIVE = YES.
+         ELSE
+             ASSIGN tb_prt-dupl:HIDDEN    = YES
+             tb_prt-dupl:SENSITIVE = NO.
+
+         IF (v-print-fmt EQ "Packrite" OR  
+             v-print-fmt EQ "Hughes" OR
+             v-print-fmt EQ "NStock" OR 
+             v-print-fmt EQ "nStockLogo") THEN
+             ASSIGN tb_setcomp:HIDDEN = NO.
+         ELSE ASSIGN tb_setcomp:HIDDEN = YES.
+         
+         IF LOOKUP(v-print-fmt,"Capitol,APC,ALLWEST,Bell,Loylang,PrestigeLLB,RFCX,Soule,SouleMed,SoulePO,LoylangJIT,LoylangBSF,Printers,Protagon,Protagon2") GT 0 THEN
+             ASSIGN
+             fi_broker-bol:SENSITIVE = YES
+             fi_broker-bol:HIDDEN    = NO.
+         ELSE
+             ASSIGN
+             fi_broker-bol:SENSITIVE = NO
+             fi_broker-bol:HIDDEN    = YES.
+         
+         IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
+             ASSIGN
+             tb_prt-zero-qty:SENSITIVE = YES
+             tb_prt-zero-qty:HIDDEN    = NO.
+         ASSIGN
+             tb_prt-zero-qty:SENSITIVE = NO
+             tb_prt-zero-qty:HIDDEN    = YES.
+
+         IF LOOKUP(v-print-fmt,"Peachtreefgl3,SouleMed,SoulePO,Peachtree") GT 0 THEN
+             ASSIGN rs_no_PN:HIDDEN    = FALSE
+             rs_no_PN:SENSITIVE = TRUE.
+         ELSE
+             ASSIGN rs_no_PN:HIDDEN    = TRUE
+             rs_no_PN:SENSITIVE = FALSE.
+
+         IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree,PremierS") > 0 THEN
+            ASSIGN
+                tb_cust-copy:HIDDEN      = NO
+                tb_cust-copy:SENSITIVE   = YES
+                tb_office-copy:HIDDEN    = NO
+                tb_office-copy:SENSITIVE = YES
+                tb_sman-copy:HIDDEN      = NO
+                tb_sman-copy:SENSITIVE   = YES.
+         ELSE
+             ASSIGN
+                tb_cust-copy:HIDDEN      = YES
+                tb_cust-copy:SENSITIVE   = NO
+                tb_office-copy:HIDDEN    = YES
+                tb_office-copy:SENSITIVE = NO
+                tb_sman-copy:HIDDEN      = YES
+                tb_sman-copy:SENSITIVE   = NO.
+
+         IF v-print-fmt EQ "Fibrex" THEN
+            ASSIGN
+                tb_collate:HIDDEN           = NO
+                tb_collate:SENSITIVE        = YES
+                lv-scr-num-copies:HIDDEN    = NO
+                lv-scr-num-copies:SENSITIVE = YES.
+         ELSE
+             ASSIGN
+                tb_collate:HIDDEN           = YES
+                tb_collate:SENSITIVE        = NO
+                lv-scr-num-copies:HIDDEN    = YES
+                lv-scr-num-copies:SENSITIVE = NO.
+
+         IF v-print-fmt EQ "Protagon" OR v-print-fmt EQ "Protagon2"  THEN
+            ASSIGN
+                tb_setcomp:HIDDEN    = YES
+                tb_setcomp:SENSITIVE = NO
+                tb_setcomp           = NO.
+         ELSE
+             ASSIGN
+                tb_setcomp:HIDDEN    = NO
+                tb_setcomp:SENSITIVE = YES
+                tb_setcomp           = YES.
+
+         IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
+             ASSIGN tb_qty-all:HIDDEN = NO .
+         ELSE tb_qty-all:HIDDEN = YES .
+       
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -479,49 +479,64 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 DO:
-  DEFINE VARIABLE v-qty    AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE ll        AS LOGICAL     NO-UNDO.
-  DEFINE VARIABLE op-error  AS LOGICAL     NO-UNDO.
+    DEFINE VARIABLE v-qty    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE ll        AS LOGICAL     NO-UNDO.
+    DEFINE VARIABLE op-error  AS LOGICAL     NO-UNDO.
 
-  IF ip-type EQ "view" THEN DO: 
-     APPLY "go" TO FRAME {&FRAME-NAME}.
-     RETURN.
-  END.
- /* Code placed here will execute PRIOR to standard behavior. */
+    IF ip-type EQ "view" THEN DO: 
+        APPLY "go" TO FRAME {&FRAME-NAME}.
+        RETURN.
+    END.
 
-  RUN valid-i-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF rm-rcpth.i-no:MODIFIED THEN 
+    DO:
+        RUN valid-i-no NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+    IF rm-rdtlh.tag:MODIFIED THEN 
+    DO:
+        RUN valid-tag-no NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+    IF rm-rcpth.po-no:MODIFIED THEN 
+    DO:
+        RUN valid-po-no NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+    IF rm-rcpth.job-no:MODIFIED THEN 
+    DO:
+        RUN valid-job-no NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+    IF rm-rcpth.job-no2:MODIFIED THEN 
+    DO:
+        RUN valid-job-no2 NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+    IF rm-rdtlh.loc:MODIFIED THEN 
+    DO:
+        RUN valid-loc NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+    IF rm-rdtlh.loc-bin:MODIFIED THEN 
+    DO:
+        RUN valid-loc-bin NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+    IF rm-rdtlh.cost:MODIFIED THEN 
+    DO:
+        RUN valid-cost NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
+    IF rm-rcpth.rita-code:MODIFIED THEN 
+    DO:
+        RUN valid-code NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
 
-  RUN valid-tag-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN update-record.
 
-  RUN valid-po-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-job-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-job-no2 NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-loc NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-loc-bin NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-cost NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  RUN valid-code NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-
-
-  RUN update-record.
-
-APPLY "go" TO FRAME {&FRAME-NAME}.
-
+    APPLY "go" TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,7 +549,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.i-no Dialog-Frame
 ON LEAVE OF rm-rcpth.i-no IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 
+  AND SELF:MODIFIED THEN DO:
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -547,7 +563,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.tag Dialog-Frame
 ON LEAVE OF rm-rdtlh.tag IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       
     RUN valid-tag-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -561,7 +579,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.cost Dialog-Frame
 ON LEAVE OF rm-rdtlh.cost IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       RUN valid-cost NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -575,7 +595,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.po-no Dialog-Frame
 ON LEAVE OF rm-rcpth.po-no IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       
     RUN valid-po-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -589,7 +611,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.job-no Dialog-Frame
 ON LEAVE OF rm-rcpth.job-no IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       
     RUN valid-job-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -603,7 +627,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.rita-code Dialog-Frame
 ON LEAVE OF rm-rcpth.rita-code IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       
     RUN valid-code NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -618,7 +644,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.USER-ID Dialog-Frame
 ON LEAVE OF rm-rdtlh.USER-ID IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       
     RUN valid-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -632,7 +660,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.loc Dialog-Frame
 ON LEAVE OF rm-rdtlh.loc IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       
     RUN valid-loc NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -646,7 +676,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.loc-bin Dialog-Frame
 ON LEAVE OF rm-rdtlh.loc-bin IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       
     RUN valid-loc-bin NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -660,7 +692,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.job-no2 Dialog-Frame
 ON LEAVE OF rm-rcpth.job-no2 IN FRAME Dialog-Frame /* Item# */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+    IF LASTKEY NE -1 
+        AND SELF:MODIFIED THEN 
+    DO:
       
     RUN valid-job-no2 NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -785,11 +819,14 @@ PROCEDURE display-item :
         RUN pAdjReason.
         fi_ext-cost = DEC(rm-rdtlh.qty ) * DEC(rm-rdtlh.cost ) .
         fi_cost-uom = rm-rcpth.pur-uom .
-        DISPLAY  rm-rcpth.i-no rm-rcpth.po-no 
+        
+        /* This is unneccesary, and falsely sets the MODIFIED attribute to TRUE */
+        DISPLAY /* rm-rcpth.i-no rm-rcpth.po-no 
             rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date 
             rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag rm-rdtlh.qty 
-            rm-rcpth.pur-uom rm-rdtlh.cost  fi_cost-uom 
-            rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] fi_ext-cost 
+            rm-rcpth.pur-uom rm-rdtlh.cost   
+            rm-rdtlh.tag2 rm-rdtlh.user-id rm-rdtlh.receiver-no rm-rdtlh.reject-code[1] */
+            fi_cost-uom fi_ext-cost 
             WITH FRAME Dialog-Frame.
     END.
 
