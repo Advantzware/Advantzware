@@ -3763,30 +3763,12 @@ PROCEDURE ipLoadPrograms :
                 {&tablename}.can_delete = '*'.
         END.
         ELSE DO:
-            ASSIGN 
-                {&tablename}.prgtitle = tt{&tablename}.prgtitle
-                {&tablename}.run_persistent = tt{&tablename}.run_persistent
-                {&tablename}.dir_group = tt{&tablename}.dir_group
-                {&tablename}.use_colors = tt{&tablename}.use_colors
-                {&tablename}.use_fonts = tt{&tablename}.use_fonts
-                {&tablename}.track_usage = tt{&tablename}.track_usage
-                {&tablename}.popup = tt{&tablename}.popup
-                {&tablename}.prgm_ver = tt{&tablename}.prgm_ver
-                {&tablename}.menu_item = tt{&tablename}.MENU_item
-                {&tablename}.mfgroup = tt{&tablename}.mfgroup
-                {&tablename}.menuOrder = tt{&tablename}.menuOrder
-                {&tablename}.menuLevel = tt{&tablename}.menuLevel
-                {&tablename}.itemParent = tt{&tablename}.itemParent
-                {&tablename}.mnemonic = tt{&tablename}.mnemonic
-                {&tablename}.systemType = tt{&tablename}.systemType
-                {&tablename}.menuImage = tt{&tablename}.menuImage
-                {&tablename}.translation = tt{&tablename}.translation.
-             DO i = 1 TO 13:
-                ASSIGN 
-                    {&tablename}.widget_bgc[i] = tt{&tablename}.WIDGET_bgc[i]
-                    {&tablename}.widget_fgc[i] = tt{&tablename}.WIDGET_fgc[i]
-                    {&tablename}.widget_font[i] = tt{&tablename}.WIDGET_font[i].
-            END.
+            BUFFER-COPY tt{&tableName} EXCEPT
+                can_run
+                can_create
+                can_update
+                can_delete
+                TO {&tableName}. 
         END.
     END.
     INPUT CLOSE.
