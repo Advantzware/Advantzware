@@ -195,7 +195,7 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
 
       end. /* avail oe-bolh */
 
-      IF NOT v-reprint OR xinv-head.inv-no EQ 0 THEN
+      IF (NOT v-reprint AND NOT iplPrntDupl) OR xinv-head.inv-no EQ 0 THEN
         RUN oe/get-inv#.p (ROWID(xinv-head)).
 
       DO TRANSACTION:
