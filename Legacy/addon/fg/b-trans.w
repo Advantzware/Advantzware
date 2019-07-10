@@ -1908,7 +1908,7 @@ PROCEDURE new-bin :
        fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.tag)
        fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}  = CAPS(fg-bin.cust-no).
   END.
-
+/*Change*/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
