@@ -42,7 +42,7 @@ DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
-/*{methods/prgsecur.i}*/
+{methods/prgsecur.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -235,7 +235,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-
+{sys/inc/f3helpw.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -810,8 +810,8 @@ PROCEDURE allow-create :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER op-flag AS LOGICAL NO-UNDO.
-  op-flag = yes.
+  &Scoped-define ACCESSTYPE create
+  {methods/template/security.i}
 
 END PROCEDURE.
 
@@ -825,12 +825,9 @@ PROCEDURE allow-delete :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  /*&Scoped-define ACCESSTYPE delete
+  &Scoped-define ACCESSTYPE delete
    {methods/template/security.i}
-  */
-  DEFINE OUTPUT PARAMETER op-flag AS LOGICAL NO-UNDO.
-  op-flag = yes.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -843,11 +840,9 @@ PROCEDURE allow-update :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-/*&Scoped-define ACCESSTYPE delete
+&Scoped-define ACCESSTYPE update
   {methods/template/security.i}
-*/
-DEFINE OUTPUT PARAMETER op-flag AS LOGICAL NO-UNDO.
-op-flag = yes.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
