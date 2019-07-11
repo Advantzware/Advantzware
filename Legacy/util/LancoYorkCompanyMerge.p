@@ -14,7 +14,7 @@ DEF STREAM logStream.
 
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cConvTypeList AS CHAR NO-UNDO INITIAL 
-    "Account,BankAcct,Carrier,Est-no,Item,ItemFg,Job,Loc,M-code,Release#,Company,Loadtag".
+    "Account,BankAcct,Carrier,Est-no,Item,ItemFg,Job,Loc,M-code,Release#,Loadtag,Company".
     
 
 DEF TEMP-TABLE ttFullTableList
@@ -645,6 +645,36 @@ PROCEDURE pConsolidateAmounts:
         END.
     END.
 
+    RUN pStatus("   Consolidating amount fields in itemfg table").
+    FOR EACH itemfg WHERE 
+        itemfg.company = "001" AND 
+        itemfg.mat-type NE "8":
+        FIND bitemfg EXCLUSIVE WHERE 
+            bitemfg.company = "002" AND 
+            bitemfg.i-no = itemfg.i-no
+            NO-ERROR.
+        IF AVAIL bitemfg THEN 
+        DO:
+            ASSIGN 
+                itemfg.beg-bal = itemfg.beg-bal + bitemfg.beg-bal
+                itemfg.q-onh = itemfg.q-onh + bitemfg.q-onh
+                itemfg.q-ono = itemfg.q-ono + bitemfg.q-ono
+                itemfg.q-comm = itemfg.q-comm + bitemfg.q-comm
+                itemfg.q-back = itemfg.q-back + bitemfg.q-back
+                itemfg.q-avail = itemfg.q-avail + bitemfg.q-avail
+                itemfg.last-count = itemfg.last-count + bitemfg.last-count
+                itemfg.q-ptd = itemfg.q-ptd + bitemfg.q-ptd
+                itemfg.q-ytd = itemfg.q-ytd + bitemfg.q-ytd
+                itemfg.q-lyr = itemfg.q-lyr + bitemfg.q-lyr
+                itemfg.u-ptd = itemfg.u-ptd + bitemfg.u-ptd
+                itemfg.u-ytd = itemfg.u-ytd + bitemfg.u-ytd
+                itemfg.u-lyr = itemfg.u-lyr + bitemfg.u-lyr
+                itemfg.pur-cnt = itemfg.pur-cnt + bitemfg.pur-cnt
+                .
+            DELETE bitemfg.
+        END.
+    END.
+
 
     RUN pStatus("   Consolidating amount fields in vend table").
     FOR EACH vend WHERE 
@@ -928,7 +958,9 @@ PROCEDURE pConvertRecsByType:
             WHEN "Est-no"   THEN RUN pConvertEstNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Item"     THEN RUN pConvertItemTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "ItemFg"   THEN RUN pConvertItemFGTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            /* Jobs are just merged
             WHEN "Job"      THEN RUN pConvertJobTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            */
             WHEN "Loadtag"  THEN RUN pConvertLoadtagTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Loc"      THEN RUN pConvertLocTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "M-code"   THEN RUN pConvertMcodeTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
@@ -1878,6 +1910,7 @@ PROCEDURE pDeleteSimpleMerges:
         DELETE {&cTable}.
     END.
 
+/*
 &scoped-def ctable item
     RUN pStatus("   Removing " + "{&cTable}" + " records").
     DISABLE TRIGGERS FOR LOAD OF {&cTable}.
@@ -1885,7 +1918,7 @@ PROCEDURE pDeleteSimpleMerges:
         {&cTable}.company EQ "002":
         DELETE {&cTable}.
     END.
-
+*/
 &scoped-def ctable item-bom
     RUN pStatus("   Removing " + "{&cTable}" + " records").
     DISABLE TRIGGERS FOR LOAD OF {&cTable}.
@@ -1893,7 +1926,7 @@ PROCEDURE pDeleteSimpleMerges:
         {&cTable}.company EQ "002":
         DELETE {&cTable}.
     END.
-
+/*
 &scoped-def ctable itemfg
     RUN pStatus("   Removing " + "{&cTable}" + " records").
     DISABLE TRIGGERS FOR LOAD OF {&cTable}.
@@ -1901,7 +1934,7 @@ PROCEDURE pDeleteSimpleMerges:
         {&cTable}.company EQ "002":
         DELETE {&cTable}.
     END.
-
+*/
 &scoped-def ctable item-spec
     RUN pStatus("   Removing " + "{&cTable}" + " records").
     DISABLE TRIGGERS FOR LOAD OF {&cTable}.
