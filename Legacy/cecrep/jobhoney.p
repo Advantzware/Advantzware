@@ -357,7 +357,6 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=OrderStart><R+8><#OrderBL>"
             "<=OrderStart><C108><R+8><#OrderEnd>"
             "<=OrderStart><R+0.5><RIGHT=C+10>Job Card printed: <#Printed>"
-            "<=OrderStart><R+0.5><RIGHT=C+25>Core Cart #: "
             "<=OrderStart><R+2><RIGHT=C+10>Our Order #: <#OrderNum>"
             "<=OrderStart><R+3><RIGHT=C+10>Customer PO: <#CustomerPO>"
             "<=OrderStart><R+4><RIGHT=C+10>Order Quantity: <#OrderQuantity>"
@@ -796,6 +795,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+12><#SpecNotes4>"
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
               "<=NotesStart><C+1><R+17><#SpecNotes6>"
+              "<=NotesStart><R+27><RIGHT=C+35>Core Cart #: "
              
               "<P8><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
@@ -936,7 +936,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingBL><FROM><R44><C108><RECT><|1> "
              
               "<=Pallet>" IF AVAILABLE bf-eb THEN bf-eb.tr-no ELSE "" FORMAT "x(10)" SPACE(3) 
-              "<=OfUnits>" SPACE(1) TRIM(STRING(job-hdr.qty / bf-eb.cas-pal,">>>>>>>9")) FORMAT "x(10)"
+              "<=OfUnits>" SPACE(1) TRIM(STRING(job-hdr.qty / bf-eb.tr-cnt,">>>>>>>9")) FORMAT "x(10)"
               "<=PalletLength>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
               "<=PalletWidth>" IF AVAILABLE bf-eb THEN STRING(bf-eb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
               "<B>"
