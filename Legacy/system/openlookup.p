@@ -1,14 +1,10 @@
 /*------------------------------------------------------------------------
-
   File: system\openlookup.p
-
   Description: This is a wrapper program to call generic dynamic lookup
                windows\l-lookup.w
-
   Input Parameters:
     ip-company     :The company code
     ip-lookupField :The source field for which the lookup screen is called for
-
   Output Parameters:
     op-returnFields:Pipe separated list of return field values as output 
                     based on previous input list
@@ -17,9 +13,7 @@
                     where the lookup was opened
     op-recVal      :RecID of the row selected when a row is selected 
                     in the browse
-
   Author: Mithun Porandla
-
   Created: 13th March 2019
 ------------------------------------------------------------------------*/
 
@@ -174,4 +168,39 @@ CASE ip-lookupField:
            OUTPUT op-lookupField,
            /* RecID of the row selected when a row is selected in the browse */
            OUTPUT op-recVal) NO-ERROR.
+    WHEN "apiID" THEN 
+        RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Outbound API ID",
+           /* The source field for which the lookup screen is called for */
+           INPUT "apiID",
+           /* DB Table from which data is to be fetched */
+           INPUT "APIOutbound",
+           /* List of fields which are required in the query */
+           INPUT "apiID,endPoint,isSSLEnabled,authType,requestVerb,clientID,isActive", 
+           /* List of fields which should be displayed in the browse */ 
+           INPUT "apiID,endPoint,isSSLEnabled,authType,requestVerb,clientID,isActive",
+           /* List of field labels to override the default database field label */
+           INPUT "",
+           /* List of field formats to override the default database field format */
+           INPUT "X(30),X(60)",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT "",
+           /* List of fields for which field level search is enabled */
+           INPUT "apiID,isSSLEnabled,authType,requestVerb,clientID,isActive",
+           /* List of fields for which sorting is enabled */
+           INPUT "apiID",
+           /* Where clause to select specific records */
+           INPUT "" ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "apiID",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal
+           ).           
 END CASE.

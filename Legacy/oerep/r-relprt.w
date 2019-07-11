@@ -41,6 +41,7 @@ DEF VAR cRptFile AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {oe/rep/oe-pick1.i new}
+{api/ttArgs.i}
 
 ASSIGN
  cocode = gcompany
@@ -1041,6 +1042,16 @@ END CASE.
     MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
   END.
 
+    FIND FIRST oe-relh NO-LOCK
+        WHERE oe-relh.company  EQ cocode
+          AND oe-relh.release# EQ INT(begin_relnum:SCREEN-VALUE) NO-ERROR.
+    IF AVAIL oe-relh THEN DO:
+        /* Call to API Outbound picklist */
+        RUN pCallAPIOutbound (
+            ROWID(oe-relh)
+            ).  
+    END.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1992,6 +2003,42 @@ IF is-xprint-form THEN DO:
   ELSE RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound C-Win 
+PROCEDURE pCallAPIOutbound :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriOerelh AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE cAPIID             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParentProgram     AS CHARACTER NO-UNDO.   
+    
+    EMPTY TEMP-TABLE ttArgs.
+
+    CREATE ttArgs.
+    ASSIGN
+        ttArgs.argType  = "ROWID"
+        ttArgs.argKey   = "oe-relh"
+        ttArgs.argValue = STRING(ipriOerelh)
+        .    
+    
+    ASSIGN
+        cParentProgram = PROGRAM-NAME(1)
+        cAPIID         = "SendRelease"
+        .
+
+    RUN api/PrepareAndCallOutboundRequest.p (
+        INPUT TABLE ttArgs,
+        cAPIId,    
+        cParentProgram
+        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
