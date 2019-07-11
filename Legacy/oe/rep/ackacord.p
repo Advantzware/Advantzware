@@ -564,7 +564,7 @@ PUT "<FCourier New>"          .
         "<R58><C1>" v-billinst[3] 
         "<R59><C1>" v-billinst[4] 
         "<P8><R60><C1>Inventory not shipped within " v-rs-whs-mths FORMAT "X(1)" " months of the first acknowledged delivery date will"
-        "<P8><R61><C1>be billed and held for up to 3 months free of charge, and then must be shipped."
+        "<P8><R61><C1>be billed and held for up to " v-rs-whs-mths FORMAT "X(1)" " months free of charge, and then must be shipped."
         "<R63><C1>" " ______________________________________(Please sign and fax back) " 
         "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.</B>" .
     END.
