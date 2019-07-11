@@ -4,13 +4,15 @@
 &Global-define AuditFunctions
 FUNCTION fFormatValue RETURNS CHARACTER (iphTable AS HANDLE, ipcField AS CHARACTER, ipiExtent AS INTEGER):
     DEFINE VARIABLE cStr AS CHARACTER NO-UNDO.
-
-    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(ipiExtent),
+    DEFINE VARIABLE lDataType AS LOGICAL NO-UNDO.
+     
+    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(ipiExtent) ,
                   iphTable:BUFFER-FIELD(ipcField):FORMAT) NO-ERROR.
     /* error raised if invalid format for field value */
-    IF ERROR-STATUS:NUM-MESSAGES NE 0 OR iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN 
-    cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(ipiExtent).
-    
+    lDataType = IF iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN TRUE ELSE FALSE NO-ERROR .
+    IF ERROR-STATUS:NUM-MESSAGES NE 0 OR lDataType THEN 
+    cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(ipiExtent) NO-ERROR .
+   
     cStr = LEFT-TRIM(TRIM(cStr)).
     
     RETURN cStr.
