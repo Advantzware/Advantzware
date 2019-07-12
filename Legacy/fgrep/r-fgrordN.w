@@ -70,6 +70,17 @@ DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE cItemLoc AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFgRecordReport AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPrintFooterMsg AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGReorderReport", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFgRecordReport = cRtnChar NO-ERROR. 
+
 
 ASSIGN cTextListToSelect = "ITEM #,CUST PART #,DESC,PROD CAT,UOM,REORD LVL,QTY ON HAND,WHSE," + 
                            "QTY ALLOC,QTY ORD,MIN ORD QTY,MAX ORD QTY,QTY AVAIL,SELL PRC,SUGT REORDER QTY," +

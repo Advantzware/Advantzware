@@ -6,7 +6,9 @@ DEFINE VARIABLE hftJobPros AS HANDLE NO-UNDO.
 
 RUN jc/JobProcs.p PERSISTENT SET hftJobPros.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftJobPros).
+ASSIGN lPrintFooterMsg = NO.
 
+MAIN-FGITEM:
 for each itemfg
    where itemfg.company    eq cocode
      and itemfg.cust-no    ge v-cust[1]
@@ -56,6 +58,21 @@ for each itemfg
        /*Added for premier mod 08291201*/
     FIND FIRST cust WHERE cust.company = itemfg.company
         AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
+    
+    FIND FIRST sys-ctrl-shipto
+        WHERE sys-ctrl-shipto.company      = cocode
+        AND sys-ctrl-shipto.NAME         = "FGReorderReport"
+        AND sys-ctrl-shipto.cust-vend-no = itemfg.cust-no
+        NO-LOCK NO-ERROR.
+    IF AVAILABLE sys-ctrl-shipto THEN DO: 
+        ASSIGN lPrintFooterMsg = YES.
+        NEXT MAIN-FGITEM.
+    END.
+    IF cFgRecordReport NE "" AND cFgRecordReport EQ itemfg.cust-no THEN DO: 
+        ASSIGN lPrintFooterMsg = YES.
+        NEXT MAIN-FGITEM.
+    END.
+        
 
     IF AVAIL cust AND cust.ACTIVE NE "X" THEN do:
     FOR EACH cust-part WHERE cust-part.company = itemfg.company   
@@ -484,4 +501,6 @@ for each itemfg
        IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
     END.
 end. /* each itemfg */
+IF lPrintFooterMsg EQ YES THEN
+    PUT SKIP(1) "Some customers have been excluded from the report based on the setting NK1 = FGReorderReport" .
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftJobPros).
