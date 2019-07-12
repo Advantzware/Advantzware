@@ -39,7 +39,6 @@ CREATE WIDGET-POOL.
 {custom/format.i}
 
 {sys/inc/var.i new shared}
-{api/ttArgs.i}
 
 assign
  cocode = g_company
@@ -1532,49 +1531,6 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
       run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output container-hdl).
       run passNewVend IN widget-handle(container-hdl) (vend.vend-no:SCREEN-VALUE).
   END.
-  
-    /* Call SendVendor API */
-    IF lNewRec THEN  
-        RUN pCallAPIOutbound (
-              ROWID(vend)
-              ). 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound V-table-Win 
-PROCEDURE pCallAPIOutbound :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipriVend AS ROWID NO-UNDO.
-    
-    DEFINE VARIABLE cAPIID             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParentProgram     AS CHARACTER NO-UNDO.   
-    
-    EMPTY TEMP-TABLE ttArgs.
-    
-    CREATE ttArgs.
-    ASSIGN
-        ttArgs.argType  = "ROWID"
-        ttArgs.argKey   = "vend"
-        ttArgs.argValue = STRING(ipriVend)
-        .    
-    
-    ASSIGN
-        cParentProgram = PROGRAM-NAME(1)
-        cAPIID         = "SendVendor"
-        .
-            
-    RUN api/PrepareAndCallOutboundRequest.p (
-        INPUT TABLE ttArgs,
-        cAPIId,    
-        cParentProgram
-        ).
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

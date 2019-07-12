@@ -32,7 +32,6 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
-{api/ttArgs.i}
 
 DEFINE BUFFER bitemfg FOR itemfg.
 
@@ -2325,12 +2324,7 @@ PROCEDURE local-update-record :
     ELSE 
         IF char-hdl NE ""
             THEN RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6).
-            
-  /* This is to make call to Outbound API for adding new itemfg */
-  IF ll-new-record EQ TRUE THEN
-      RUN pCallAPIOutbound (
-          ROWID(itemfg)
-          ).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2413,42 +2407,6 @@ PROCEDURE new-type :
         END.
     END.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound V-table-Win 
-PROCEDURE pCallAPIOutbound :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipriItemfg AS ROWID NO-UNDO.
-    
-    DEFINE VARIABLE cAPIID             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParentProgram     AS CHARACTER NO-UNDO.   
-    
-    EMPTY TEMP-TABLE ttArgs.
-
-    CREATE ttArgs.
-    ASSIGN
-        ttArgs.argType  = "ROWID"
-        ttArgs.argKey   = "itemfg"
-        ttArgs.argValue = STRING(ipriItemfg)
-        .    
-    
-    ASSIGN
-        cParentProgram = PROGRAM-NAME(1)
-        cAPIID         = "SendFinishedGood"
-        .
-
-    RUN api/PrepareAndCallOutboundRequest.p (
-        INPUT TABLE ttArgs,
-        cAPIId,    
-        cParentProgram
-        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

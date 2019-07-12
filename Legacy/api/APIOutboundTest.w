@@ -468,13 +468,12 @@ DO:
                 MESSAGE "Invalid Customer record" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
-
-            CREATE ttArgs.
-            ASSIGN
-                ttArgs.argType  = "ROWID"
-                ttArgs.argKey   = "cust"
-                ttArgs.argValue = STRING(ROWID(cust))
-                .    
+            
+            RUN pCreateArgs (
+                "ROWID",
+                "cust",
+                STRING(ROWID(cust))
+                ).
                     
             cAPIID = "SendCustomer".
         END.
@@ -487,12 +486,11 @@ DO:
                 RETURN.
             END.
 
-            CREATE ttArgs.
-            ASSIGN
-                ttArgs.argType  = "ROWID"
-                ttArgs.argKey   = "vend"
-                ttArgs.argValue = STRING(ROWID(vend))
-                .    
+            RUN pCreateArgs (
+                "ROWID",
+                "vend",
+                STRING(ROWID(vend))
+                ).
                     
             cAPIID = "SendVendor".
         END.
@@ -505,12 +503,11 @@ DO:
                 RETURN.
             END.
 
-            CREATE ttArgs.
-            ASSIGN
-                ttArgs.argType  = "ROWID"
-                ttArgs.argKey   = "itemfg"
-                ttArgs.argValue = STRING(ROWID(itemfg))
-                .    
+            RUN pCreateArgs (
+                "ROWID",
+                "itemfg",
+                STRING(ROWID(itemfg))
+                ).
                     
             cAPIID = "SendFinishedGood".
         END.
@@ -522,14 +519,13 @@ DO:
                 MESSAGE "Invalid Purchase Order Number" VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
-            
-            CREATE ttArgs.
-            ASSIGN
-                ttArgs.argType  = "ROWID"
-                ttArgs.argKey   = "po-ord"
-                ttArgs.argValue = STRING(ROWID(po-ord))
-                .    
-                    
+
+            RUN pCreateArgs (
+                "ROWID",
+                "po-ord",
+                STRING(ROWID(po-ord))
+                ).
+                                
             cAPIID = "SendPurchaseOrder".
         END.
         WHEN "SendRelease" THEN DO:
@@ -541,12 +537,11 @@ DO:
                 RETURN.
             END.
 
-            CREATE ttArgs.
-            ASSIGN
-                ttArgs.argType  = "ROWID"
-                ttArgs.argKey   = "oe-relh"
-                ttArgs.argValue = STRING(ROWID(oe-relh))
-                .    
+            RUN pCreateArgs (
+                "ROWID",
+                "oe-relh",
+                STRING(ROWID(oe-relh))
+                ).
             
             cAPIID = "SendRelease".
         END.
@@ -554,7 +549,7 @@ DO:
 
     RUN api/PrepareOutboundRequest.p (
         INPUT TABLE ttArgs,
-        cAPIID,    
+        cAPIID,
         OUTPUT lcRequestData,
         OUTPUT lSuccess,
         OUTPUT cMessage
@@ -566,9 +561,11 @@ DO:
     END.
 
     ASSIGN
-        edRequestData:SCREEN-VALUE = STRING(lcRequestData)
-        btSubmit:SENSITIVE         = TRUE
-        edRequestData:SENSITIVE    = TRUE
+        edRequestData:SCREEN-VALUE  = STRING(lcRequestData)
+        btSubmit:SENSITIVE          = TRUE
+        edRequestData:SENSITIVE     = TRUE
+        edResponseData:SCREEN-VALUE = ""
+        edErrorMessage:SCREEN-VALUE = ""
         .
 END.
 
@@ -649,53 +646,81 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPrimaryKey Dialog-Frame
 ON HELP OF fiPrimaryKey IN FRAME Dialog-Frame
 DO:
-    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cReturnRECID AS RECID     NO-UNDO.
-    
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+          
     CASE fiAPIID:SCREEN-VALUE:
         WHEN "SendCustomer" THEN DO:
-            RUN windows/l-cust.w (
-                cCompany,
-                fiPrimaryKey:SCREEN-VALUE, 
-                OUTPUT cReturnValue
-                ).
+            /* Customer lookup */
+            RUN system/openlookup.p (
+                cCompany, 
+                "cust-no", /* lookup field */
+                0,   /* Subject ID */
+                "",  /* User ID */
+                0,   /* Param value ID */
+                OUTPUT returnFields, 
+                OUTPUT lookupField, 
+                OUTPUT recVal
+                ). 
         END.
         WHEN "SendVendor" THEN DO:
-            RUN windows/l-vendno.w (
-                cCompany,
-                "",     /* vend.active */
-                fiPrimaryKey:SCREEN-VALUE, 
-                OUTPUT cReturnValue
-                ).
+            /* Vendor lookup */
+            RUN system/openlookup.p (
+                cCompany, 
+                "vend-no", /* lookup field */
+                0,   /* Subject ID */
+                "",  /* User ID */
+                0,   /* Param value ID */
+                OUTPUT returnFields, 
+                OUTPUT lookupField, 
+                OUTPUT recVal
+                ). 
         END.
         WHEN "SendFinishedGood" THEN DO:
-            RUN windows/l-itemfg.w (
-                cCompany,
-                "",     /* cust-no */
-                fiPrimaryKey:SCREEN-VALUE, 
-                OUTPUT cReturnValue
-                ).
+            /* Finished Good lookup */
+            RUN system/openlookup.p (
+                cCompany, 
+                "i-no", /* lookup field */
+                0,   /* Subject ID */
+                "",  /* User ID */
+                0,   /* Param value ID */
+                OUTPUT returnFields, 
+                OUTPUT lookupField, 
+                OUTPUT recVal
+                ). 
         END.
         WHEN "SendPurchaseOrder" THEN DO:
-            RUN windows/l-ponopo.w (
-                cCompany,
-                TRUE,     /* po-ord.active */
-                fiPrimaryKey:SCREEN-VALUE, 
-                OUTPUT cReturnValue
-                ).
+            /* Purchase Order lookup */
+            RUN system/openlookup.p (
+                cCompany, 
+                "po-no", /* lookup field */
+                0,   /* Subject ID */
+                "",  /* User ID */
+                0,   /* Param value ID */
+                OUTPUT returnFields, 
+                OUTPUT lookupField, 
+                OUTPUT recVal
+                ). 
         END.
         WHEN "SendRelease" THEN DO:
-            RUN windows/l-oerelh.w (
-                cCompany,
-                fiPrimaryKey:SCREEN-VALUE, 
-                OUTPUT cReturnValue,
-                OUTPUT cReturnRECID
-                ).        
+            /* Release lookup */
+            RUN system/openlookup.p (
+                cCompany, 
+                "release#", /* lookup field */
+                0,   /* Subject ID */
+                "",  /* User ID */
+                0,   /* Param value ID */
+                OUTPUT returnFields, 
+                OUTPUT lookupField, 
+                OUTPUT recVal
+                ).      
         END.        
     END CASE.
-    
-    IF cReturnValue NE "" THEN DO:
-        fiPrimaryKey:SCREEN-VALUE = ENTRY(1,cReturnValue).
+
+    IF lookupField NE "" THEN DO:
+        fiPrimaryKey:SCREEN-VALUE   = ENTRY(1,lookupField).
+        
         APPLY "CHOOSE" TO btUpdateRequest.
     END.
     RETURN NO-APPLY.
@@ -777,6 +802,28 @@ PROCEDURE enable_UI :
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateArgs Dialog-Frame 
+PROCEDURE pCreateArgs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcKey   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValue AS CHARACTER NO-UNDO.
+    
+    CREATE ttArgs.
+    ASSIGN
+        ttArgs.argType  = ipcType
+        ttArgs.argKey   = ipcKey
+        ttArgs.argValue = ipcValue
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
