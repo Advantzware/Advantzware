@@ -33,6 +33,7 @@ DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE dQty LIKE oe-ordl.qty NO-UNDO.
 /*ASSIGN ls-image1 = "images\pacific1.bmp"
        ls-image2 = "images\pacific2.bmp".
 
@@ -235,10 +236,29 @@ find first company where company.company eq cocode no-lock no-error.
             assign v-printline = 20.          
         end.
 
+        ASSIGN dQty = oe-ordl.qty .
+
+        find first eb
+            where eb.company  eq oe-ordl.company
+            and eb.est-no   eq oe-ordl.est-no
+            and eb.form-no  eq 0
+            no-lock no-error.
+
+        if AVAILABLE eb AND (eb.est-type eq 2 or eb.est-type eq 6) then do:
+            for each fg-set
+                where fg-set.company eq oe-ordl.company
+                and fg-set.part-no  eq oe-ordl.i-no
+                AND fg-set.set-no EQ eb.stock-no
+                no-lock:
+                dQty = oe-ordl.qty * fg-set.QtyPerSet.
+            END.
+        END.
+
+
         put v-line FORM ">>>9" SPACE(3)
                 oe-ordl.i-no  SPACE(2)             
                 oe-ordl.i-name SPACE(2)
-                oe-ordl.qty SPACE(2)
+                dQty SPACE(2)
                 oe-ordl.price  FORM "->,>>>,>>9.99<<<<" SPACE(5)
                 oe-ordl.pr-uom  SKIP
             .
