@@ -853,7 +853,7 @@ PROCEDURE ipAddJobMchSeq:
     DISABLE TRIGGERS FOR LOAD OF job-mch.
     FOR EACH job-mch BY RECID(job-mch):
         ASSIGN  
-            job-mchID = NEXT-VALUE(job-mch_seq).
+            job-mch.job-mchID = NEXT-VALUE(job-mch_seq).
     END.
 
 END PROCEDURE.
@@ -1114,6 +1114,15 @@ PROCEDURE ipAuditSysCtrl :
     IF AVAIL auditTbl THEN ASSIGN 
         auditTbl.auditCreate = TRUE 
         auditTbl.auditDelete = TRUE 
+            auditTbl.auditUpdate = TRUE 
+            .
+
+    FIND FIRST auditTbl EXCLUSIVE WHERE
+        auditTbl.auditTable EQ "sys-ctrl-shipto"
+        NO-ERROR.
+    IF AVAIL auditTbl THEN ASSIGN 
+            auditTbl.auditCreate = TRUE 
+            auditTbl.auditDelete = TRUE 
         auditTbl.auditUpdate = TRUE 
         .
                 
@@ -1129,97 +1138,99 @@ PROCEDURE ipBackupDataFiles :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcType AS CHAR NO-UNDO.
+    
     RUN ipStatus ("  Backing up data files").
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
 
 &SCOPED-DEFINE cFile AuditTbl
 
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl-shipto
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile emailcod
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile lookups
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile module
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile prgmxref
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile prgrms
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile translation
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile userlanguage
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile xusermenu
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile cueCard
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile cueCardText
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
@@ -4399,6 +4410,7 @@ PROCEDURE ipProcessAll :
         iopiStatus = iopiStatus + 5
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
     
+    RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
     RUN ipStatus ("Patch Application Complete").
 
     ASSIGN
@@ -5029,7 +5041,7 @@ PROCEDURE ipUpdateMaster :
     ASSIGN 
         lSuccess = FALSE.
 
-    RUN ipBackupDataFiles IN THIS-PROCEDURE.
+    RUN ipBackupDataFiles IN THIS-PROCEDURE ("OLD").
     
     IF SEARCH(cUpdDataDir + "\prgrms.d") <> ? THEN
         RUN ipLoadPrograms IN THIS-PROCEDURE.
