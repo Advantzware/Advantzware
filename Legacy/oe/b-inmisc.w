@@ -46,6 +46,7 @@ ASSIGN cocode = g_company
  DEF BUFFER bf-misc FOR inv-misc.
  DEF VAR v-tax AS DEC NO-UNDO.
  DEFINE VARIABLE rRowidNew AS ROWID NO-UNDO .
+ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -117,6 +118,19 @@ fi_AutoFindLabel
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTaxableMisc B-table-Win
+FUNCTION fGetTaxableMisc RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER,
+   ipcPrepCode AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -901,14 +915,20 @@ PROCEDURE local-create-record :
   IF AVAIL ar-ctrl THEN inv-misc.actnum = ar-ctrl.sales.
   FIND FIRST cust OF inv-head NO-LOCK NO-ERROR.
   inv-misc.tax = cust.SORT = "Y" AND inv-head.tax-gr <> "".
-
-  FIND FIRST oe-ctrl NO-LOCK
-       WHERE oe-ctrl.company = inv-head.company
-      NO-ERROR.
-  IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
-      ASSIGN
-      inv-misc.tax = oe-ctrl.prep-chrg 
-      inv-misc.spare-char-1  = inv-head.tax-gr   .
+  
+  FIND FIRST prep NO-LOCK 
+            WHERE prep.company EQ cocode 
+            AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}
+            NO-ERROR.
+    IF AVAILABLE prep AND NOT prep.commissionable THEN
+        ASSIGN 
+            inv-misc.s-comm[1] = 0 
+            inv-misc.s-comm[2] = 0
+            inv-misc.s-comm[3] = 0
+            .
+        
+    ASSIGN inv-misc.spare-char-1 = inv-head.tax-gr
+           inv-misc.tax          = fGetTaxableMisc(cocode, inv-head.cust-no, inv-head.sold-no, inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}) .
 
   IF AVAIL inv-line THEN
       ASSIGN inv-misc.spare-char-2 = inv-line.i-no
@@ -1027,11 +1047,12 @@ PROCEDURE new-charge :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    FIND prep
+    FIND FIRST prep
         WHERE prep.company EQ cocode
           AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
     IF AVAIL prep THEN DO:
+      inv-misc.tax:SCREEN-VALUE = STRING(prep.taxable).
       inv-misc.dscr:SCREEN-VALUE IN BROWSE {&browse-name} = prep.dscr.
 
       FIND FIRST account
@@ -1040,6 +1061,7 @@ PROCEDURE new-charge :
             AND account.type    EQ "R"
           NO-LOCK NO-ERROR.
        IF AVAIL account THEN inv-misc.actnum:SCREEN-VALUE IN BROWSE {&browse-name} = prep.actnum.
+       RUN new-comm (0).
     END.
   END.
 
@@ -1067,6 +1089,8 @@ PROCEDURE new-comm :
         WHERE prep.company EQ inv-head.company 
           AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
+  IF AVAILABLE prep AND prep.commissionable THEN 
+        DO:
 
     DO li = 1 TO IF ip-int EQ 0 THEN 3 ELSE ip-int:
       lv = IF li EQ 1 THEN inv-misc.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} ELSE
@@ -1087,6 +1111,13 @@ PROCEDURE new-comm :
         END CASE.
       END.
     END.
+   END.  /*IF AVAIL oe-ctrl AND oe-ctrl.prep-comm EQ YES THEN do:  */           
+   ELSE
+       ASSIGN 
+           inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = '0'
+           inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = '0'
+           inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = '0'
+           . 
   END.
 
 END PROCEDURE.
@@ -1118,29 +1149,36 @@ PROCEDURE new-s-man :
             AND sman.sman    EQ lv-sman
           NO-LOCK NO-ERROR.
       IF AVAIL sman THEN DO:
+          FIND FIRST prep NO-LOCK
+              WHERE prep.company EQ cocode 
+              AND prep.code    EQ inv-misc.charge:SCREEN-VALUE IN BROWSE {&browse-name}
+              NO-ERROR.
         IF ip-int EQ 3 THEN DO:
           IF DEC(inv-misc.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
             inv-misc.s-pct[3]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DEC(inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-
+          IF DEC(inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
+              IF AVAILABLE prep AND prep.commissionable THEN 
+                  inv-misc.s-comm[3]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
+          END.
           RUN new-comm (3).
         END.
         ELSE
         IF ip-int EQ 2 THEN DO:
           IF DEC(inv-misc.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
             inv-misc.s-pct[2]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DEC(inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-
+          IF DEC(inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
+              IF AVAILABLE prep AND prep.commissionable THEN 
+                  inv-misc.s-comm[2]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
+          END.
           RUN new-comm (2).
         END.
         ELSE DO:
           IF DEC(inv-misc.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
             inv-misc.s-pct[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "100".
-          IF DEC(inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
-            inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
-
+          IF DEC(inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN do:
+              IF AVAILABLE prep AND prep.commissionable THEN 
+                  inv-misc.s-comm[1]:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(sman.scomm).
+          END.
           RUN new-comm (1).
         END.
       END.
@@ -1569,5 +1607,31 @@ PROCEDURE valid-tax-gr :
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTaxableMisc V-table-Win
+FUNCTION fGetTaxableMisc RETURNS LOGICAL 
+  ( ipcCompany AS CHARACTER,
+    ipcCust AS CHARACTER,
+    ipcShipto AS CHARACTER, 
+    ipcPrepCode AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+
+    RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdTaxProcs).
+ 
+    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdTaxProcs).
+
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
