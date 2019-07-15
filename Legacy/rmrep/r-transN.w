@@ -72,7 +72,7 @@ ASSIGN cTextListToSelect = "DATE,ITEM,DESCRIPTION,P.O.#,TY,Job #,TAG#,REC QTY,WH
            cFieldListToSelect = "trans-date,i-no,i-name,po-no,rita-code,v-job-no,tag,qty,loc,loc-bin,loc2,loc-bin2,cost,v-value," +
                                 "poqty,due,vend,per,form,cust,fgitem,itemdesc,ovrpct,undpct,tons,qty,Reason,Reason-cd,Reason-dscr," +
                                 "sheet-size,vend-tag"
-           cFieldLength = "8,10,30,8,2,10,20,10,5,8,6,8,10,10," + "12,8,20,12,4,25,15,30,7,7,12,10,30,11,25," + "25,20"
+           cFieldLength = "8,10,30,8,2,9,20,10,5,8,6,8,10,10," + "12,8,20,12,4,25,15,30,7,7,12,10,30,11,25," + "25,20"
            cFieldType = "c,c,c,c,c,c,c,i,c,c,c,c,i,i," + "i,c,c,c,i,c,c,c,i,i,i,i,c,c,c," + "c,c"
            .
 
