@@ -229,7 +229,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     END.
     ELSE
     IF i EQ 10  THEN DO:                
-       
+           IF AVAILABLE ef THEN 
            DO j = 1 TO 6:
                IF ef.adder[j] NE "" THEN
                    cAddrDesc[j] = cAddrDesc[j] + ef.adder[j].
