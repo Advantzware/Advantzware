@@ -843,6 +843,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddJobMchSeq C-Win
+PROCEDURE ipAddJobMchSeq:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF job-mch.
+    FOR EACH job-mch BY RECID(job-mch):
+        ASSIGN  
+            job-mch.job-mchID = NEXT-VALUE(job-mch_seq).
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipAddLocationData C-Win 
 PROCEDURE ipAddLocationData :
 /*------------------------------------------------------------------------------
@@ -1096,6 +1116,15 @@ PROCEDURE ipAuditSysCtrl :
         auditTbl.auditDelete = TRUE 
         auditTbl.auditUpdate = TRUE 
         .
+
+    FIND FIRST auditTbl EXCLUSIVE WHERE
+        auditTbl.auditTable EQ "sys-ctrl-shipto"
+        NO-ERROR.
+    IF AVAIL auditTbl THEN ASSIGN 
+            auditTbl.auditCreate = TRUE 
+            auditTbl.auditDelete = TRUE 
+        auditTbl.auditUpdate = TRUE 
+        .
                 
 END PROCEDURE.
 
@@ -1109,97 +1138,99 @@ PROCEDURE ipBackupDataFiles :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcType AS CHAR NO-UNDO.
+    
     RUN ipStatus ("  Backing up data files").
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl.
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
 
 &SCOPED-DEFINE cFile AuditTbl
 
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl-shipto
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile emailcod
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile lookups
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile module
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile prgmxref
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile prgrms
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile translation
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile userlanguage
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile xusermenu
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile cueCard
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile cueCardText
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ".bak") NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
@@ -2133,8 +2164,10 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160880.
     IF fIntVer(cThisEntry) LT 16089000 THEN 
         RUN ipDataFix160890.
-    IF fIntVer(cThisEntry) LT 16089900 THEN
-        RUN ipDataFix160899.
+    IF fIntVer(cThisEntry) LT 16100000 THEN
+        RUN ipDataFix161000.
+    IF fIntVer(cThisEntry) LT 99999999 THEN
+        RUN ipDataFix999999.
 
     RUN ipStatus ("Completed Data Fixes").
     
@@ -2481,13 +2514,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
-PROCEDURE ipDataFix160899 :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 160899...").
+PROCEDURE ipDataFix161000 :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161000...").
+
+    RUN ipAddJobMchSeq.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
+PROCEDURE ipDataFix999999 :
+    /*------------------------------------------------------------------------------
+     Purpose:   These procedures should run on every update
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 999999...").
 
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
@@ -2498,6 +2548,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFixConfig C-Win 
 PROCEDURE ipDataFixConfig :
@@ -2688,6 +2739,8 @@ PROCEDURE ipDeleteAudit :
  Notes:
 ------------------------------------------------------------------------------*/
     DEF VAR lAuditLicensed AS LOG NO-UNDO INITIAL TRUE.
+    DEF VAR iElapsed AS INT NO-UNDO.
+    DEF VAR iDelCount AS INT NO-UNDO.
     
     DISABLE TRIGGERS FOR LOAD OF auditHdr.
     DISABLE TRIGGERS FOR LOAD OF auditDtl.
@@ -2695,26 +2748,41 @@ PROCEDURE ipDeleteAudit :
     DISABLE TRIGGERS FOR LOAD OF auditTbl.
     
     FIND FIRST module NO-LOCK WHERE 
-        module.module EQ "Audit."
+        module.module EQ "Audit." OR
+        module.module EQ "Audit"
         NO-ERROR.
     IF NOT AVAIL module
     OR module.is-used EQ FALSE THEN ASSIGN 
         lAuditLicensed = FALSE.
         
+    ASSIGN
+        iElapsed = etime(TRUE).
+        
     IF NOT lAuditLicensed THEN DO:
         RUN ipStatus ("    Deleting audit records (unlicensed)...").
 
-        RUN ipStatus ("      Deleting audit headers...").
+        RUN ipStatus ("      (30 minute limit on this process)").
+
+        RUN ipStatus ("      Deleting audit headers and details...").
         FOR EACH AuditHdr TABLE-SCAN:
+            FOR EACH AuditDtl OF auditHdr:
+                DELETE AuditDtl.
+                ASSIGN
+                    iDelCount = iDelCount + 1.
+            END.
             DELETE AuditHdr.
-        END.
-        RUN ipStatus ("      Deleting audit details...").
-        FOR EACH AuditDtl TABLE-SCAN:
-            DELETE AuditDtl.
+            ASSIGN
+                iDelCount = iDelCount + 1.
+            IF etime GT 108000000 THEN 
+                LEAVE.
         END.
         RUN ipStatus ("      Deleting audit stack...").
         FOR EACH AuditStack TABLE-SCAN:
             DELETE AuditStack.
+            ASSIGN
+                iDelCount = iDelCount + 1.
+            IF etime GT 108000000 THEN 
+                LEAVE.
         END.
         FOR EACH AuditTbl:
             ASSIGN
@@ -2725,15 +2793,23 @@ PROCEDURE ipDeleteAudit :
         END.
     END.
     ELSE DO:
-        RUN ipStatus ("    Deleting audit records older than 120 days...").
+        RUN ipStatus ("    Deleting audit records older than 180 days...").
+        RUN ipStatus ("      (30 minute limit on this process)").
         FOR EACH AuditHdr WHERE 
-            DATE(auditHdr.auditDateTime) LT TODAY - 120:
+            DATE(auditHdr.auditDateTime) LT TODAY - 180:
             FOR EACH AuditDtl OF auditHdr:
                 DELETE AuditDtl.
+                ASSIGN
+                    iDelCount = iDelCount + 1.
             END.
             DELETE AuditHdr.
+            ASSIGN
+                iDelCount = iDelCount + 1.
+            IF etime GT 108000000 THEN 
+                LEAVE.
         END.
     END.
+    RUN ipStatus ("      Deleted " + STRING(iDelCount,">,>>>,>>>,>>9") + " audit records in " + STRING(INTEGER(eTime / 1000)) + " seconds.").
 
 END PROCEDURE.
 
@@ -3763,12 +3839,12 @@ PROCEDURE ipLoadPrograms :
                 {&tablename}.can_delete = '*'.
         END.
         ELSE DO:
-            BUFFER-COPY tt{&tableName} EXCEPT
-                can_run
-                can_create
-                can_update
-                can_delete
-                TO {&tableName}. 
+            BUFFER-COPY tt{&tablename} EXCEPT
+                tt{&tablename}.can_run
+                tt{&tablename}.can_create
+                tt{&tablename}.can_update
+                tt{&tablename}.can_delete
+                TO {&tablename}.
         END.
     END.
     INPUT CLOSE.
@@ -4315,6 +4391,8 @@ PROCEDURE ipProcessAll :
     ELSE ASSIGN 
         iopiStatus = iopiStatus + 5
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
+    
+    RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
     
     RUN ipStatus ("Patch Application Complete").
 
@@ -4946,7 +5024,7 @@ PROCEDURE ipUpdateMaster :
     ASSIGN 
         lSuccess = FALSE.
 
-    RUN ipBackupDataFiles IN THIS-PROCEDURE.
+    RUN ipBackupDataFiles IN THIS-PROCEDURE ("OLD").
     
     IF SEARCH(cUpdDataDir + "\prgrms.d") <> ? THEN
         RUN ipLoadPrograms IN THIS-PROCEDURE.
