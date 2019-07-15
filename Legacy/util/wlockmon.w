@@ -418,6 +418,10 @@ PROCEDURE ipMonitor :
     DEF VAR cDisp AS CHAR NO-UNDO.
     DEF VAR a AS INT NO-UNDO.
     DEF VAR deDuration AS DEC NO-UNDO.
+    DEF VAR iIdxCt AS INT NO-UNDO.
+    DEF VAR hIdxFld AS HANDLE EXTENT 50 NO-UNDO.
+    DEF VAR cKeyString AS CHAR NO-UNDO.
+    
     runmon:
     REPEAT WHILE lStart:
         PROCESS EVENTS.
@@ -478,65 +482,65 @@ PROCEDURE ipMonitor :
             CREATE BUFFER hbRecKey FOR TABLE ttLocks2.ttfTable.
             CREATE QUERY hqRecKey.
             hqRecKey:SET-BUFFERS(hbRecKey).
-            hqRecKey:QUERY-PREPARE("for each " + ttLocks2.ttfTable + " where recid(" + ttLocks2.ttfTable + 
+            hqRecKey:QUERY-PREPARE("preselect each " + ttLocks2.ttfTable + " where recid(" + ttLocks2.ttfTable + 
                                    ") = " + string(ttLocks2.ttfLock-RECID)).
             hqRecKey:QUERY-OPEN.
-            hqRecKey:GET-FIRST.
-            FIND _lock WHERE
-                _lock._lock-ID EQ ttLocks2.ttfLock-ID
-                NO-LOCK NO-ERROR.
-            IF AVAIL _lock THEN DO:
-                
-                FIND users NO-LOCK WHERE
-                    users.user_id EQ _lock._lock-name
-                    NO-ERROR.
-                IF AVAIL users THEN ASSIGN
-                    cName = users.user_id + " - " + users.user_name.
-                ELSE ASSIGN
-                    cName = _lock._lock-name.
-                
-                FIND FIRST _file WHERE
-                    _file._file-number = _lock._lock-table
-                    USE-INDEX _file-number
+            IF hqRecKey:NUM-RESULTS NE 0 THEN DO:
+                hqRecKey:GET-FIRST.
+                FIND _lock WHERE
+                    _lock._lock-ID EQ ttLocks2.ttfLock-ID
                     NO-LOCK NO-ERROR.
-                IF AVAIL _file THEN FIND FIRST _index OF _file WHERE 
-                    RECID(_index) = _file._prime-index
-                    NO-LOCK NO-ERROR.
+                IF AVAIL _lock THEN 
+                DO:
                 
-                IF AVAIL _index THEN DO:
-                    FIND FIRST _index-field OF _index NO-LOCK NO-ERROR.
-                    IF AVAIL _index-field THEN DO:
-                        FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
-                        IF AVAIL _field THEN ASSIGN
-                           hbhRecKey1 = hbRecKey:BUFFER-FIELD(_field._field-physpos) NO-ERROR.
-                        FIND NEXT _index-field OF _index NO-LOCK NO-ERROR.
-                        IF AVAIL _index-field THEN DO:
+                    FIND users NO-LOCK WHERE
+                        users.user_id EQ _lock._lock-name
+                        NO-ERROR.
+                    IF AVAIL users THEN ASSIGN
+                            cName = users.user_id.
+                    ELSE ASSIGN
+                            cName = _lock._lock-name.
+                
+                    FIND FIRST _file WHERE
+                        _file._file-number = _lock._lock-table
+                        USE-INDEX _file-number
+                        NO-LOCK NO-ERROR.
+                    IF AVAIL _file THEN FIND FIRST _index OF _file WHERE 
+                            RECID(_index) = _file._prime-index
+                            NO-LOCK NO-ERROR.
+                
+                    IF AVAIL _index THEN 
+                    DO:
+                        ASSIGN 
+                            iIdxCt = 1.
+                        FOR EACH _index-field OF _index NO-LOCK:
                             FIND FIRST _field OF _index-field NO-LOCK NO-ERROR.
                             IF AVAIL _field THEN ASSIGN
-                                hbhRecKey2 = hbRecKey:BUFFER-FIELD(_field._field-physpos) NO-ERROR.
-                        END.
-                    END.
-                END.                
-                IF AVAIL (_file) THEN ASSIGN
-                    cDisp = FILL(" ",124)
-                    SUBSTRING(cDisp,1,26) = SUBSTRING(cName,1,26)
-                    SUBSTRING(cDisp,28,12) = IF AVAIL users THEN STRING(users.phone,"999-999-9999") ELSE ""
-                    SUBSTRING(cDisp,42,8) = SUBSTRING(_lock._lock-Tty,1,8)
-                    SUBSTRING(cDisp,52,20) = SUBSTRING(_file._file-name,1,20)
-                    SUBSTRING(cDisp,74,22) = (IF VALID-HANDLE(hbhRecKey1) AND hbhRecKey1:STRING-VALUE NE ? THEN TRIM(hbhRecKey1:STRING-VALUE) ELSE "") + "|" + 
-                                             (IF VALID-HANDLE(hbhRecKey2) AND hbhRecKey2:STRING-VALUE NE ? THEN TRIM(hbhRecKey2:STRING-VALUE) ELSE "")
-                    SUBSTRING(cDisp,98,4) = IF INDEX(_lock._lock-flags,"X") > 0 THEN "EXCL" ELSE
+                                hIdxFld[iIdxCt] = hbRecKey:BUFFER-FIELD(_field._field-physpos) 
+                                cKeyString = cKeyString + hIdxFld[iIdxCt]:BUFFER-VALUE + "|" NO-ERROR.
+                            ASSIGN 
+                                iIdxCt = iIdxCt + 1. 
+                        END.      
+                        ASSIGN 
+                            cKeyString = TRIM(cKeyString,"|").                      
+                    END.                
+                    IF AVAIL (_file) THEN ASSIGN
+                            cDisp = FILL(" ",124)
+                            SUBSTRING(cDisp,1,12) = SUBSTRING(cName,1,12)
+                            SUBSTRING(cDisp,14,8) = SUBSTRING(_lock._lock-Tty,1,8)
+                            SUBSTRING(cDisp,24,20) = SUBSTRING(_file._file-name,1,20)
+                            SUBSTRING(cDisp,46,50) = cKeyString
+                            SUBSTRING(cDisp,98,4) = IF INDEX(_lock._lock-flags,"X") > 0 THEN "EXCL" ELSE
                                             IF INDEX(_lock._lock-flags,"S") > 0 THEN "SHRD" ELSE
                                             IF INDEX(_lock._lock-flags,"U") > 0 THEN "UPGR" ELSE
                                             IF INDEX(_lock._lock-flags,"L") > 0 THEN "LIMB" ELSE
                                             IF INDEX(_lock._lock-flags,"Q") > 0 THEN "QUED" ELSE
                                             ""
-                    SUBSTRING(cDisp,104,12) = ttLocks2.ttfDispTime.
-                slLockList:ADD-LAST(cDisp).
-                IF VALID-HANDLE(hbhRecKey1) THEN DELETE OBJECT hbhRecKey1.
-                IF VALID-HANDLE(hbhRecKey2) THEN DELETE OBJECT hbhRecKey2.
-                DELETE OBJECT hqRecKey.
-                DELETE OBJECT hbRecKey.            
+                            SUBSTRING(cDisp,104,12) = ttLocks2.ttfDispTime.
+                    slLockList:ADD-LAST(cDisp).
+                    DELETE OBJECT hqRecKey.
+                    DELETE OBJECT hbRecKey.            
+                END.
             END.
         END.
         WAIT-FOR 'CHOOSE' OF bStop PAUSE INTEGER(fiInterval:SCREEN-VALUE).

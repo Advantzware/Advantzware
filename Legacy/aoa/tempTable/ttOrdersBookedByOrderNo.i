@@ -35,6 +35,6 @@ DEFINE TEMP-TABLE ttOrdersBookedByOrderNo NO-UNDO
     FIELD unitBoard    AS INTEGER   LABEL "Units Board"    FORMAT "->>>>>>,>>9"
     FIELD unitWaste    AS DECIMAL   LABEL "Unit Waste"     FORMAT "->>>>,>>9.99"
     FIELD lossp        AS DECIMAL   LABEL "Loss"           FORMAT ">>9.99%"
-    FIELD bolNo        AS INTEGER   LABEL "BOL No"         FORMAT ">>>>>>>>"
-    FIELD invoiceNo    AS INTEGER   LABEL "Invoice No"     FORMAT ">>>>>>"
+    FIELD bolNo        AS INTEGER   LABEL "BOL No"         FORMAT ">>>>>>>9"
+    FIELD invoiceNo    AS INTEGER   LABEL "Invoice No"     FORMAT ">>>>>9"
     .

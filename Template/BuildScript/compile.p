@@ -82,12 +82,14 @@ ELSE ASSIGN
     propath = cDir + "\Template\BuildScript\ToCompile," + cDir + "\Legacy," + cDir + "\Resources," + propath
     .
 
+COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiDbMaint.w") SAVE INTO value(cTarget).
 COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiLogin.w") SAVE INTO value(cTarget).
 COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiUpdate.w") SAVE INTO value(cTarget).
 COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiUpdateDb.w") SAVE INTO value(cTarget).
 
 CONNECT VALUE(cConnectDb).
 COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\prerun.p") SAVE INTO value(cTarget).
+COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiAuditTest.p") SAVE INTO value(cTarget).
 
 CONNECT VALUE(cConnectAud).
 COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiUpdateEnv.w") SAVE INTO value(cTarget).

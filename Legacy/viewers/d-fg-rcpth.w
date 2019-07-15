@@ -615,7 +615,7 @@ DO:
                 END.     
             WHEN "job-no" THEN 
                 DO:
-                    RUN windows/l-jobno.w (g_company, "",lw-focus:SCREEN-VALUE, OUTPUT char-val,OUTPUT hlp-recid).     
+                    RUN windows/l-jobno.w (g_company,lw-focus:SCREEN-VALUE, OUTPUT char-val,OUTPUT hlp-recid).     
                     ASSIGN 
                         fg-rcpth.job-no:SCREEN-VALUE = ENTRY(1,char-val).
                     ASSIGN 
@@ -1186,7 +1186,7 @@ PROCEDURE display-item :
         fi_pallet = get-pallet-info (OUTPUT li-qty-pal) .
         fi_qty-pallet = li-qty-pal .
         fi_bol-ship = display-ship() .
-        fi_vend-no = get-vend-no () .
+        fi_vend-no = fg-rcpth.vend-no .
         fi_vend-name = get-vend-info ().
         fi_BenQtyBef = get-fg-qty (1) .
         fi_ben-qty = get-fg-qty (2) .
@@ -1752,16 +1752,11 @@ FUNCTION get-vend-info RETURNS CHARACTER
         Notes:  
     ------------------------------------------------------------------------------*/
 
-    FIND FIRST po-ord
-        WHERE po-ord.company EQ cocode
-        AND po-ord.po-no    EQ int(fg-rcpth.po-no)
-        NO-LOCK NO-ERROR.  
-
-    IF AVAILABLE po-ord THEN 
+    IF AVAILABLE fg-rcpth THEN 
     DO:
         FIND FIRST vend
             WHERE vend.company EQ cocode
-            AND vend.vend-no    EQ po-ord.vend-no
+            AND vend.vend-no    EQ fg-rcpth.vend-no
             NO-LOCK NO-ERROR.  
 
         IF AVAILABLE vend THEN

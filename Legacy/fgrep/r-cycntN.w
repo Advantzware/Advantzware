@@ -1470,7 +1470,7 @@ PROCEDURE get-first-date :
               fg-rdtlh.cust-no EQ fg-bin.cust-no))
       USE-INDEX rm-rdtl NO-LOCK
 
-      BY fg-rcpth.trans-date
+      BY fg-rcpth.trans-date DESC
       BY fg-rdtlh.trans-time:
 
     op-date = fg-rcpth.trans-date.
@@ -1496,7 +1496,7 @@ PROCEDURE get-first-date :
         AND fg-rcpth.job-no2   EQ fg-bin.job-no2
       USE-INDEX r-no NO-LOCK
 
-      BY fg-rcpth.trans-date
+      BY fg-rcpth.trans-date DESC
       BY fg-rdtlh.trans-time:
 
     op-date = fg-rcpth.trans-date.

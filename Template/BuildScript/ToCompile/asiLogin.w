@@ -228,7 +228,7 @@ IF SEARCH(cMapDir + "\" + cAdminDir + "\advantzware.ini") EQ ? THEN DO:
 END.
 
 /* Find the .usr file containing user-level settings */
-RUN ipFindIniFile ("N:\Admin\advantzware.usr",
+RUN ipFindIniFile ("..\advantzware.usr",
                    OUTPUT cUsrLoc).
 ASSIGN 
     FILE-INFO:FILE-NAME = cUsrLoc

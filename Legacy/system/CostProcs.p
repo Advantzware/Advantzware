@@ -344,7 +344,7 @@ PROCEDURE pGetCostForHistoryRecord PRIVATE:
                 AND itemfg.i-no EQ ipbf-fg-rcpth.i-no
                 NO-ERROR.
             IF AVAILABLE itemfg THEN 
-                opcCostUOM = itemfg.pur-uom.
+                opcCostUOM = itemfg.prod-uom.
         END.        
         
 END PROCEDURE.

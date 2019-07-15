@@ -180,11 +180,8 @@ PROCEDURE postMonitor:
       cFormat = cPathIn.
     /* Execute ftp to download files */
     RUN pExecFtp IN hFtpProcs (INPUT cocode, INPUT "TagMon", INPUT cFormat, INPUT cPathIn, INPUT  "*.dat" /* filespec */).
-    DELETE OBJECT hFtpProcs.
-    RUN monitorActivity ('Check New Tag Files ' + monitorImportDir,YES,'').
-    
-      
-    RUN monitorActivity ('Check dir ' + cPathIn,YES,'').
+    DELETE OBJECT hFtpProcs.    
+          
     INPUT FROM OS-DIR(cPathIn).
     REPEAT:
         IMPORT monitorFile ^ attrList.
@@ -199,7 +196,7 @@ PROCEDURE postMonitor:
         RUN processTemptable.
         RUN clearTempTable.
         
-        RUN monitorActivity ('Processing ' + monitorFile,YES,'').
+        RUN monitorActivity ('Processing ' + monitorFile,YES,'TagMon').
     END. /* os-dir repeat */
     INPUT CLOSE.
   
@@ -262,10 +259,7 @@ PROCEDURE processResultFlatFile:
   OS-COPY VALUE(cFullFilePath) VALUE(cNewFilePath).    
 
   IF INTEGER(OS-ERROR) EQ 0 THEN  
-      OS-DELETE VALUE(cFullFilePath).              
-            
-  RUN monitorActivity ('Processing Result File' ,YES,'').
-
+      OS-DELETE VALUE(cFullFilePath).                         
     
 END PROCEDURE.
 

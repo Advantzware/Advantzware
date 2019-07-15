@@ -94,7 +94,7 @@ PROCEDURE pComboBox:
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
 
     IF ipcLabel NE "" AND lShowLabel THEN
-    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow).
+    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, 1).
     CREATE COMBO-BOX ophWidget IN WIDGET-POOL ipcPoolName
       ASSIGN
         FRAME = iphFrame
@@ -117,7 +117,7 @@ PROCEDURE pComboBox:
       ON START-RESIZE
         PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
       ON VALUE-CHANGED
-        PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
+        PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
     END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     hLabel:COL = ophWidget:COL - hLabel:WIDTH.
@@ -127,8 +127,9 @@ PROCEDURE pCreateDynParameters :
     DEFINE INPUT PARAMETER iphFrame AS HANDLE  NO-UNDO.
     DEFINE INPUT PARAMETER iplLive  AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE cParamName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInitItems  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamLabel AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamName  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dCol        AS DECIMAL   NO-UNDO INITIAL 1.
     DEFINE VARIABLE dRow        AS DECIMAL   NO-UNDO INITIAL 1.
@@ -163,11 +164,11 @@ PROCEDURE pCreateDynParameters :
     END. /* if live */
     
     EMPTY TEMP-TABLE ttDynAction.
-    FOR EACH {1}SubjectParamSet
+    FOR EACH {1}SubjectParamSet NO-LOCK
         WHERE {1}SubjectParamSet.subjectID EQ dynSubject.subjectID,
          EACH dynParamSet NO-LOCK
         WHERE dynParamSet.paramSetID EQ {1}SubjectParamSet.paramSetID,
-         EACH dynParamSetDtl
+         EACH dynParamSetDtl NO-LOCK
         WHERE dynParamSetDtl.paramSetID EQ dynParamSet.paramSetID,
         FIRST dynParam NO-LOCK
         WHERE dynParam.paramID EQ dynParamSetDtl.paramID
@@ -208,6 +209,7 @@ PROCEDURE pCreateDynParameters :
                           ELSE dynParam.paramName
             cParamLabel = dynParamSetDtl.paramLabel
             cParamValue = dynParamSetDtl.initialValue
+            cInitItems  = dynParamSetDtl.initialItems
             .
         CASE svSetAlignment:
             WHEN "Custom" THEN
@@ -228,7 +230,7 @@ PROCEDURE pCreateDynParameters :
         IF dynParamSetDtl.initializeProc NE "" AND
            CAN-DO(hDynInitProc:INTERNAL-ENTRIES,dynParamSetDtl.initializeProc) THEN DO:
             RUN VALUE(dynParamSetDtl.initializeProc) IN hDynInitProc.
-            cParamValue = RETURN-VALUE.
+            cInitItems = RETURN-VALUE.
         END. /* if initializeProc */
         IF FIRST-OF({1}SubjectParamSet.paramSetID) AND
            dynParamSet.setRectangle THEN DO:
@@ -264,7 +266,7 @@ PROCEDURE pCreateDynParameters :
                 dCol,
                 dRow,
                 dynParamSetDtl.paramWidth,
-                dynParamSetDtl.initialItems,
+                cInitItems,
                 dynParam.paramFormat,
                 cParamValue,
                 dynParam.innerLines,
@@ -306,6 +308,8 @@ PROCEDURE pCreateDynParameters :
                 END. /* if use a calendar */
             END. /* editor */
             WHEN "FILL-IN" THEN DO:
+                IF NOT lSensitive THEN
+                cParamValue = cInitItems.
                 RUN pFillIn (
                     cPoolName,
                     hFrame,
@@ -362,7 +366,7 @@ PROCEDURE pCreateDynParameters :
                 hFrame,
                 cParamLabel,
                 cParamName,
-                dynParamSetDtl.initialItems,
+                cInitItems,
                 CAN-DO(dynParamSetDtl.action,"HORIZONTAL"),
                 dCol,
                 dRow,
@@ -384,7 +388,7 @@ PROCEDURE pCreateDynParameters :
                 dynParamSetDtl.paramWidth,
                 dynParamSetDtl.paramHeight,
                 CAN-DO(dynParamSetDtl.action,"MULTISELECT"),
-                dynParamSetDtl.initialItems,
+                cInitItems,
                 cParamValue,
                 lSensitive,
                 lIsVisible,
@@ -419,7 +423,9 @@ PROCEDURE pCreateDynParameters :
                 ttDynAction.initializeProc  = dynParamSetDtl.initializeProc
                 ttDynAction.validateProc    = dynParamSetDtl.validateProc
                 ttDynAction.descriptionProc = dynParamSetDtl.descriptionProc
+                ttDynAction.initialValue    = dynParamSetDtl.initialValue
                 .
+            RUN spSetSessionParam (ttDynAction.paramName + "-Handle",STRING(hWidget:HANDLE)).
         END. /* if valid-handle */
         hWidget:HIDDEN = iplLive AND lIsVisible EQ NO.
         hWidget:MOVE-TO-TOP().
@@ -428,6 +434,12 @@ PROCEDURE pCreateDynParameters :
             hFrame:MOVE-TO-TOP().
         END. /* if last-of */
     END. /* each {1}SubjectParamSet */
+/*    OUTPUT TO c:\tmp\ttDynAction.txt.                                   */
+/*    FOR EACH ttDynAction BY ttDynAction.paramName:                      */
+/*        DISPLAY ttDynAction EXCEPT paramWidget WITH STREAM-IO WIDTH 500.*/
+/*    END.                                                                */
+/*    OUTPUT CLOSE.                                                       */
+/*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\ttDynAction.txt.              */
     /* get and set the output frame values */
     IF iplLive THEN DO:
         ASSIGN
@@ -496,7 +508,7 @@ PROCEDURE pEditor:
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.
@@ -521,7 +533,7 @@ PROCEDURE pFillIn:
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
 
     IF ipcLabel NE "" AND lShowLabel THEN
-    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow).
+    hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight).
     CREATE FILL-IN ophWidget IN WIDGET-POOL ipcPoolName
         ASSIGN
             FRAME = iphFrame
@@ -677,11 +689,11 @@ PROCEDURE pRadioSet:
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON VALUE-CHANGED
-            PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.
@@ -753,12 +765,12 @@ PROCEDURE pSelectionList:
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
-      ON VALUE-CHANGED
-        PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
+          ON VALUE-CHANGED
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
     END TRIGGERS.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
-        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow)
+        hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)
         hLabel:COL = ipdCol - hLabel:WIDTH
         .
 END PROCEDURE.
@@ -824,6 +836,6 @@ PROCEDURE pToggleBox:
           ON START-RESIZE
             PERSISTENT RUN pSetSaveReset IN THIS-PROCEDURE (YES).
           ON VALUE-CHANGED
-            PERSISTENT RUN pParamAction IN THIS-PROCEDURE (ophWidget:HANDLE).
+            PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
         END TRIGGERS.
 END PROCEDURE.

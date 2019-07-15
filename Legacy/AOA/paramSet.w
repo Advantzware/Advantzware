@@ -186,8 +186,8 @@ DEFINE QUERY dynParamSetBrowse FOR
 DEFINE BROWSE dynParamSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS dynParamSetBrowse s-object _FREEFORM
   QUERY dynParamSetBrowse DISPLAY
-      dynParamSet.paramSetID LABEL-BGCOLOR 14
 dynParamSet.setName LABEL-BGCOLOR 14
+dynParamSet.paramSetID LABEL-BGCOLOR 14
 dynParamSet.setTitle LABEL-BGCOLOR 14
 dynParamSet.paramSetType
 /* _UIB-CODE-BLOCK-END */
@@ -630,7 +630,8 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {&OPEN-QUERY-{&BROWSE-NAME}}
+  cColumnLabel = "setName".
+  RUN pReopenBrowse.
   IF AVAILABLE dynParamSet THEN
   {methods/run_link.i "CONTAINER" "pSetParamSetID" "(dynParamSet.paramSetID)"}
   ENABLE {&transInit} WITH FRAME viewFrame.
@@ -1016,6 +1017,7 @@ PROCEDURE pSaveSettings :
             user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE taskBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))
             .
     END. /* do jdx */
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 

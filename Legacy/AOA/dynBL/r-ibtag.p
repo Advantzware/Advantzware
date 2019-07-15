@@ -10,6 +10,7 @@
 /* Temp-Table Definitions ---                                           */
 
 DEFINE TEMP-TABLE ttTempTable NO-UNDO
+    FIELD firstRouting AS CHARACTER FORMAT "x(6)"             LABEL "First Resource"
     FIELD warehouse    AS CHARACTER FORMAT "x(5)"             LABEL "Whse"
     FIELD itemNo       AS CHARACTER FORMAT "x(15)"            LABEL "FG Item"
     FIELD descrip      AS CHARACTER FORMAT "x(30)"            LABEL "Description"
@@ -39,7 +40,6 @@ DEFINE TEMP-TABLE ttTempTable NO-UNDO
     FIELD rollWid      AS DECIMAL   FORMAT ">,>>99.999"       LABEL "Roll WID"
     FIELD sheetSize    AS CHARACTER FORMAT "x(20)"            LABEL "Sheet Size"
     FIELD addr         AS CHARACTER FORMAT "x(30)"            LABEL "Adders"
-    FIELD firstRouting AS CHARACTER FORMAT "x(6)"             LABEL "Routing"
     .
 DEFINE TEMP-TABLE ttRM-Bin NO-UNDO LIKE rm-bin
     FIELD trans-date LIKE rm-rcpth.trans-date

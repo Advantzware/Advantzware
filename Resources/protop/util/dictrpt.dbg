@@ -1,0 +1,169 @@
+        1   /* dictrpt.p
+        2    *
+        3    * simple, concise dictionary report
+        4    *
+        5    * this program can be run either stand-alone or from within ProTop via the ctrl-d command
+        6    *
+        7    *
+        8    * december 9, 1988 */
+        9   
+       10   define new global shared variable pt_rptdir      as character no-undo initial ".".
+       11   define new global shared variable pt_shortname   as character no-undo.
+       12   
+       13   define variable i          as integer   no-undo.
+       14   define variable idx-member as character no-undo.
+       15   define variable rptOut     as character no-undo.
+       16   
+       17   form header
+       18        "Table                           Indexes Field                           Order  Type         Extent   Format           " skip
+       19        "----------------------------------------------------------------------------------------------------------------------" skip
+       20     with frame page-header
+       21          no-labels
+       22          page-top
+       23          width 132
+       24          no-attr-space.
+       25   
+       26   form _file._file-name   format "x(30)"
+       27        idx-member
+       28        _field._field-name format "x(30)"
+       29        _field._order      space( 4 )
+       30        _field._data-type
+       31        _field._extent     space( 8 )
+       32        _field._format
+       33     with frame field-list
+       34          down
+       35          no-box
+       36          no-labels
+       37          width 132
+       38          no-attr-space.
+       39   
+       40   rptOut = substitute( "&1/&2.dict.rpt", pt_rptdir, max( pt_shortname, ldbname(1))).
+       41   
+       42   output to value( rptOut ) page-size 80.
+       43   
+       44   view frame page-header.
+       45   
+       46   for each _file no-lock where
+       47         _file._file-num > 0 and
+       48         _file._file-num < 10000
+       49       by _file._file-name:
+       50   
+       51     for each _field no-lock where
+       52           _field._file-recid = recid( _file )
+       53         break by _field._file-recid by _field._order:
+       54   
+       55       if ( line-counter > page-size ) then page.
+       56       if ( first-of( _field._file-recid ) and ( line-counter > ( page-size - 4 ))) then page.  /* don't start a table unless we can print a few lines.... */
+       57   
+       58       if ( first-of( _field._file-recid ) or
+       59            (( line-counter > ( page-size - 4 )) and ( first-of( _field._file-recid ))) or
+       60            ( line-counter <= 1 )) then display _file._file-name with frame field-list.
+       61   
+       62       /* index membership of the field    */
+       63   
+       64       i = 0.
+       65       idx-member = "".
+       66       for each _index where _index._file-recid = recid( _file ) no-lock:
+       67         for each _index-field where _index-field._index-recid = recid( _index ) and _index-field._field-recid = recid( _field ) no-lock:
+       68           if _index._unique then
+       69             if recid( _index ) = _file._prime-index then
+       70               substring( idx-member, 8 - i, 1 ) = "U".
+       71              else
+       72               substring( idx-member, 8 - i, 1 ) = "u".
+       73            else
+       74             if recid( _index ) = _file._prime-index then
+       75               substring( idx-member, 8 - i, 1 ) = "+".
+       76              else
+       77               substring( idx-member, 8 - i, 1 ) = "*".
+       78         end.
+       79         i = i + 1.
+       80         if i = 8 then leave.
+       81       end.
+       82   
+       83       display idx-member                  /* display field attributes      */
+       84               _field._field-name
+       85               _field._order
+       86               _field._data-type
+       87               _field._extent
+       88               _field._format
+       89         with frame field-list.
+       90   
+       91       down 1 with frame field-list.
+       92   
+       93     end.
+       94   
+       95     down 1 with frame field-list.         /* a blank line between tables  */
+       96   
+       97   end.
+       98   
+       99   hide frame page-header.
+      100   page.
+      101   
+      102   for each _sequence no-lock:
+      103     display
+      104       _seq-Name format  "x(40)"          label "Name"
+      105       _seq-Num  format  ">>>9"           label "Num"
+      106       _seq-Init format  "->>>>>>>>>>>>9" label "Init"
+      107       _seq-Incr format  "->>>>>>9"       label "Incr"
+      108       _seq-Min  format  "->>>>>>>>>>>>9" label "Min"
+      109       _seq-Max                           label "Max"
+      110       _cycle-Ok                          label "Cyc"
+      111      with width 132
+      112     .
+      113   end.
+      114   
+      115   page.
+      116   
+      117   for each _file no-lock where
+      118         _file._file-num > 0 and
+      119         _file._file-num < 10000:
+      120   
+      121     for each _field no-lock
+      122         where _field._file-recid = recid( _file )
+      123           and _data-type = "recid":
+      124   
+      125       display
+      126         _file-name
+      127         _field-name
+      128         _data-type
+      129        with
+      130         frame recid_fields
+      131         width 132
+      132         down
+      133       .
+      134   
+      135     end.
+      136   
+      137   end.
+      138   
+      139   for each _file no-lock where
+      140         _file._file-num > 0 and
+      141         _file._file-num < 10000:
+      142   
+      143     for each _field no-lock
+      144         where _field._file-recid = recid( _file )
+      145           and _data-type matches "*lob*":
+      146   
+      147       find first _storageobject no-lock where _object-type = 3 and _object-number = _fld-stlen.
+      148       find first _area no-lock where _area._area-number = _storageObject._area-number.
+      149   
+      150       display
+      151         _file-name
+      152         _field-name
+      153         _data-type
+      154         _area-name
+      155        with
+      156         frame lob_fields
+      157         width 132
+      158         down
+      159       .
+      160   
+      161     end.
+      162   
+      163   end.
+      164   
+      165   output close.
+      166   
+      167   /** message "Output is in" rptOut view-as alert-box. **/
+      168   
+      169   return.

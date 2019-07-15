@@ -1,0 +1,37 @@
+Release Notes 3.3n
+==================
+
+0) Don't get used to this. Really. It is just a coicidence that these are
+getting created.
+
+1) Fixed the "A" command to create dbanalys/friendlyName.dba rather than
+logicalName.dba.
+
+2) Added etc/crontab* to the install tailoring process.
+
+3) Renamed the various "here documents" used when screen-scraping PROMON
+to follow an etc/promon.* naming convention.
+
+4) Consolidated the various backend server names and established a default
+value so that etc/protop.cfg does not need to be updated.
+
+5) Eliminated the use of etc/email.cfg -- mailcmd is now in etc/protop.cfg
+and the Windows COM interface is no longer used.
+
+6) Fixed screen width issues on the "User Info" screen and added missing
+columns to Session Index Activity
+
+7) Enhanced replication agent monitoring (the "r" screen) to work on both
+source and target.  (The target will only report its own data.)
+
+8) Fixed a bug with etime() overflowing.
+
+9) Fixed a bug in the install logic that was preventing etc\protop.ini
+from being tailored for Windows.
+
+10) Added bin/localenv for safe local environment extensions
+
+11) Fixed some bugs related to detecting "stale" flag files
+
+12) Accomodated proxy servers
+

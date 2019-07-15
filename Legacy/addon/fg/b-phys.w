@@ -28,6 +28,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+ASSIGN
+ cocode = g_company
+ locode = g_loc.
 
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
@@ -50,14 +53,33 @@ DEF VAR ll-crt-transfer AS LOG NO-UNDO.
 DEF VAR lv-org-loc AS cha NO-UNDO.
 DEF VAR lv-org-loc-bin AS cha NO-UNDO.
 DEF VAR lv-org-cases AS INT NO-UNDO.
+DEFINE VARIABLE cRtnChr AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFnd AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckCount AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 {Inventory/ttInventory.i "NEW SHARED"}
+DEFINE VARIABLE physCnt-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO INIT "./custfiles/logs".
+
+DEFINE STREAM sPhysCntSave.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChr, OUTPUT lRecFnd).
+physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
 
-
+IF physCnt-log THEN 
+DO: 
+    OS-CREATE-DIR VALUE(cLogFolder).
+    FIND FIRST _myconnection NO-LOCK.     
+    cPhysCntSaveFile = cLogFolder + "/" + USERID("ASI") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY), "99") + STRING(YEAR(TODAY)).
+    cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
+       
+END.
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -1507,6 +1529,13 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   DO:
+      IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
+      DO: 
+          OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
+          EXPORT STREAM sPhysCntSave fg-rctd.
+          OUTPUT STREAM sPhysCntSave CLOSE.
+      END.
+      
       /*IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" */
       FIND FIRST loadtag WHERE loadtag.company = g_company
                  AND loadtag.ITEM-type = NO
@@ -2220,7 +2249,15 @@ PROCEDURE validate-record :
            END.
     END.
   END.
-
+  FIND FIRST job-hdr
+      WHERE job-hdr.company EQ fg-rctd.company
+      AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
+      NO-LOCK NO-ERROR.
+  IF AVAIL job-hdr AND job-hdr.opened = NO THEN 
+  DO:
+      MESSAGE "Warning: The job entered has a status of closed."
+          VIEW-AS ALERT-BOX.
+  END.
 
 END PROCEDURE.
 

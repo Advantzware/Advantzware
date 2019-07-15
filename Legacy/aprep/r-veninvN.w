@@ -70,10 +70,10 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "Inv#,Account,Vendor,Name,Description,Date,Amount,Line Amount"
-       cFieldListToSelect = "inv,act,vend,ven-nam,dscr,date,amt,line-amt"
-       cFieldLength = "12,25,8,30,30,10,19,19"
-       cFieldType = "c,c,c,c,c,c,i,i" 
+ASSIGN cTextListToSelect = "Inv#,Account,Vendor,Name,Description,Date,Amount,Line Amount,Currency Code"
+       cFieldListToSelect = "inv,act,vend,ven-nam,dscr,date,amt,line-amt,curr-code"
+       cFieldLength = "12,25,8,30,30,10,19,19,13"
+       cFieldType = "c,c,c,c,c,c,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1345,6 +1345,7 @@ END.
                          WHEN "date"                   THEN cVarValue = STRING(tt-ap-inv.inv-date).
                          WHEN "amt"              THEN cVarValue = STRING(tt-ap-inv.net,"->>>,>>>,>>>,>>9.99").
                          WHEN "line-amt"           THEN cVarValue = STRING(ap-invl.amt,"->>>,>>>,>>>,>>9.99") .
+                         WHEN "curr-code"                  THEN cVarValue = STRING(tt-ap-inv.curr-code[1]).
 
                     END CASE.
 
@@ -1386,6 +1387,7 @@ END.
                          WHEN "date"                   THEN cVarValue = "".
                          WHEN "amt"              THEN cVarValue =  STRING(lv-gtotal[1],"->>>,>>>,>>>,>>9.99") .
                          WHEN "line-amt"           THEN cVarValue = STRING(lv-total[1],"->>>,>>>,>>>,>>9.99") .
+                         WHEN "curr-code"                  THEN cVarValue = "".
 
                     END CASE.
 
@@ -1437,6 +1439,7 @@ END.
                          WHEN "date"                   THEN cVarValue = "".
                          WHEN "amt"              THEN cVarValue =  STRING(lv-gtotal[2],"->>>,>>>,>>>,>>9.99") .
                          WHEN "line-amt"           THEN cVarValue = STRING(lv-total[2],"->>>,>>>,>>>,>>9.99") .
+                         WHEN "curr-code"                  THEN cVarValue = "".
 
                     END CASE.
 

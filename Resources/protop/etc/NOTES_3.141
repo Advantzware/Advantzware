@@ -1,0 +1,26 @@
+Release Notes 3.141
+===================
+
+-1) In case you've skipped a few releases -- ProTop ChUI now requires a
+minimum screen size of 160 columns by 48 rows -- 4x an old 80x24 green
+screen.
+
+0) Don't get used to this. Really. It is just a coincidence that these
+release notes are getting created. You have been warned.
+
+1) Updated db startup parameter discovery to accomodate the purging of
+_Startup and _Statbase with oe12.
+
+2) Modified the r-code build process to not compile lib/setpt3dir.p. The
+build is executed on Linux but that code contains Windows specific
+pre-processors which (obviously on retrospection) fail if you compile on
+Linux. The solution is to provide xcoded source for that program rather
+than r-code.  (Source code deployments are not impacted.)
+
+3) Fixed an issue with formatting the messages.cfg download command.
+
+4) Modified bin/pt3upd.sh to no longer bark when it is overwritten by
+extracting an update tar file on top of itself (shell scripts hate that
+for some reason).  If you see an error at the end of pt3upd.sh just
+run it again.  That will very likely cure the problem.
+

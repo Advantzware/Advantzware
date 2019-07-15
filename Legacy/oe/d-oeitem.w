@@ -183,6 +183,7 @@ DEF VAR v-relflg AS LOG NO-UNDO.
 /* gdm - 11090905*/
 DEF VAR v-ponoUp AS LOG NO-UNDO.
 DEFINE VARIABLE lv-change-inv-po AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lOEPriceWarning AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 
@@ -246,6 +247,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
                        OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
 oeDateAuto-char = v-rtn-char NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEPriceWarning", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT v-rtn-char, OUTPUT v-rec-found).
+IF v-rec-found THEN
+lOEPriceWarning = LOGICAL(v-rtn-char) NO-ERROR.
 
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -1904,8 +1911,10 @@ DO:
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
       IF oe-ordl.price:SENSITIVE  THEN 
         APPLY "entry" TO oe-ordl.price.
-      ELSE
+      ELSE IF oe-ordl.pr-uom:SENSITIVE THEN
         APPLY "entry" TO oe-ordl.pr-uom.
+      ELSE 
+          APPLY "entry" TO oe-ordl.disc.
                      
       RETURN NO-APPLY.
   END.
@@ -6630,7 +6639,8 @@ PROCEDURE OnSaveButton :
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF (decimal(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
+    IF lOEPriceWarning AND
+     (decimal(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN
         MESSAGE "Warning: Sell Price is less than the cost." VIEW-AS ALERT-BOX WARNING .
 
     APPLY "go" TO FRAME {&FRAME-NAME}.

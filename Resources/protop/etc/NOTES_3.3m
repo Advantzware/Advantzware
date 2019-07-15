@@ -1,0 +1,18 @@
+Release Notes 3.3m
+==================
+
+0) Don't get used to this. Really.
+
+1) Enhanced the install routine.  Fixed some bugs and added "rpt" directory.
+
+2) The update process should work much better. bin/pt3upd.sh or
+bin\pt3upd.bat *should* make it much simpler to update.
+
+3) The automated update process is also being worked on and might even function
+properly -- we'll see about that when 3.3n is ready ;)
+
+4) If you are running on Solaris, HPUX or AIX you should try to get curl or
+wget installed and edit etc/protop.cfg to indicate which one you have.  The
+update process works much better with one of those than with http.
+
+5) Removed some unfortunate hard-coded references to "tmp/"

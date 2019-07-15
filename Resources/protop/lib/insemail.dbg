@@ -1,0 +1,39 @@
+        1   /* lib/insemail.p
+        2    *
+        3    */
+        4   
+        5   define input-output parameter emailId as character no-undo format "x(250)".
+        6   define input-output parameter compId  as character no-undo format "x(250)".
+        7   
+        8   emailId_loop: do while true
+        9     on error undo, leave
+       10     on endkey undo, leave
+       11     on stop undo, leave:
+       12   
+       13     update
+       14       skip(1)
+       15       " A valid email address is required in order to send instructions to complete your portal setup. " skip
+       16       skip(1)
+       17       emailId view-as fill-in size 30 by 1 label "    Email ID" skip
+       18       compId  view-as fill-in size 30 by 1 label "Company Name" skip
+       19       skip(1)
+       20      with
+       21       frame updEmailId
+       22       title " New custId email address "
+       23       centered
+       24       row 3
+       25       width 110
+       26       side-labels
+       27     .
+       28   
+       29     if emailId = "" or emailId = ? or length( emailId ) > 1 and index( emailId, "@" ) = 0 then
+       30       do:
+       31         message 'That does not look like a valid email. At least try something with an "@".'.
+       32         next emailId_loop.
+       33       end.
+       34   
+       35     if emailId <> "" and  emailId <> ? then leave.
+       36   
+       37   end.
+       38   
+       39   return.

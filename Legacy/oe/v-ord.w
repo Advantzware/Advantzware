@@ -1956,7 +1956,10 @@ FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  /************************ INTERNAL PROCEDURES ********************/
+  &Scoped-define sdPrgmName "oe/v-ord"
+  {methods/pSessionAuditKey.i}
+
+/************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5321,6 +5324,8 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN pSessionAuditKey.
+  
   DO WITH FRAME {&FRAME-NAME}:    
     IF NOT v-slow-ord AND NOT adm-new-record THEN DISABLE oe-ord.sold-id.
     
@@ -6000,12 +6005,13 @@ DO WITH FRAME {&FRAME-NAME}:
         NO-ERROR.
     IF AVAILABLE bf-soldto THEN
         ASSIGN 
-            oe-ord.sold-name:SCREEN-VALUE = bf-soldto.sold-name
-            fiSoldAddress:SCREEN-VALUE = fBuildAddress(bf-soldto.sold-addr[1],
-                                                       bf-soldto.sold-addr[2],
-                                                       bf-soldto.sold-city,
-                                                       bf-soldto.sold-state,
-                                                       bf-soldto.sold-zip)
+            oe-ord.sold-name:SCREEN-VALUE = bf-soldto.sold-name .
+    IF AVAIL oe-ord THEN
+        fiSoldAddress:SCREEN-VALUE = fBuildAddress(oe-ord.sold-addr[1],
+                                                       oe-ord.sold-addr[2],
+                                                       oe-ord.sold-city,
+                                                       oe-ord.sold-state,
+                                                       oe-ord.sold-zip)
                                                        .
     cCode = oe-ord.ship-id:SCREEN-VALUE.
     FIND FIRST bf-shipto NO-LOCK

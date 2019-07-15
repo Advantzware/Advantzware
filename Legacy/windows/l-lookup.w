@@ -27,10 +27,14 @@
     ip-queryString :Where clause to select specific records
     ip-outList     :List of fields for which the value is required to be 
                     returned when a row is selected in the browse
+    ip-recLimit    :Max Record Limit to prevent run away query
+    ip-subjectID   :Dynamic Subject ID
+    ip-userid      :Dynamic User ID
+    ip-paramValueID:Dynamic Parameter Value ID
 
   Output Parameters:
-    op-returnFields:Pipe separated list of return field values as output 
-                    based on previous input list
+    op-returnFields:Pipe separated list of return field name and value as
+                    output based on previous input list
     op-lookupField :Single return value which is to be returned from 
                     the lookup - this will populate in the field from 
                     where the lookup was opened
@@ -49,53 +53,52 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE INPUT  PARAMETER ip-title          AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-lookupField    AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-table          AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-fieldList      AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-displayList    AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-labelList      AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-formatList     AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-widthList      AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-filterList     AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-sortList       AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-queryString    AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ip-outList        AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER op-returnFields   AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER op-lookupField    AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER op-recVal         AS RECID     NO-UNDO.
+
+DEFINE INPUT  PARAMETER ip-title        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-lookupField  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-table        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-fieldList    AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-displayList  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-labelList    AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-formatList   AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-widthList    AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-filterList   AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-sortList     AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-queryString  AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-outList      AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-recLimit     AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ip-subjectID    AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ip-userid       AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-paramValueID AS INTEGER   NO-UNDO.
+DEFINE OUTPUT PARAMETER op-returnFields AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER op-lookupField  AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER op-recVal       AS RECID     NO-UNDO.
  
-DEFINE VARIABLE h_query           AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_ttquery         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brquery         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_buffer          AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_ttbuffer        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brbuffer        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_tt              AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brtt            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_browser         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_dialogFrame     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_filterFrame     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_firstFilterField AS HANDLE   NO-UNDO. 
-
-DEFINE VARIABLE li-count          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE li-maxBrRows      AS INTEGER   NO-UNDO INITIAL 30.
-DEFINE VARIABLE li-pageCount      AS INTEGER   NO-UNDO INITIAL 0.
-DEFINE VARIABLE li-pageRecCount   AS INTEGER   NO-UNDO INITIAL 30.
-
-/* This will come from setup later - hardcoded for now */
-DEFINE VARIABLE li-recLimit       AS INTEGER   NO-UNDO INITIAL 15000.
-
-DEFINE VARIABLE ls-sortBy         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-sortType       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-queryString    AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE ll-filterOpen     AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-filterFirst    AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-filterFlag     AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-ttLoaded       AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-useMatches     AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-continue       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE h_query            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_ttquery          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brquery          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_buffer           AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_ttbuffer         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brbuffer         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_tt               AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brtt             AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_browser          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_dialogFrame      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_filterFrame      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_firstFilterField AS HANDLE    NO-UNDO. 
+DEFINE VARIABLE li-count           AS INTEGER   NO-UNDO.
+DEFINE VARIABLE li-maxBrRows       AS INTEGER   NO-UNDO INITIAL 30.
+DEFINE VARIABLE li-pageCount       AS INTEGER   NO-UNDO INITIAL 0.
+DEFINE VARIABLE li-pageRecCount    AS INTEGER   NO-UNDO INITIAL 30.
+DEFINE VARIABLE ls-sortBy          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-sortType        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-queryString     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ll-filterOpen      AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-filterFirst     AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-filterFlag      AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-ttLoaded        AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-useMatches      AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-continue        AS LOGICAL   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -198,7 +201,7 @@ DEFINE RECTANGLE RECT-1
 DEFINE BUTTON bt-filter 
      IMAGE-UP FILE "Graphics/32x32/filter_and_sort.ico":U
      LABEL "" 
-     SIZE 8 BY 1.91.
+     SIZE 8 BY 1.91 TOOLTIP "Toggle Column Filters".
 
 
 /* Browse definitions                                                   */
@@ -231,8 +234,8 @@ DEFINE FRAME filter-frame
      bt-filter AT ROW 1.24 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS THREE-D 
-         AT COL 1 ROW 1.1
-         SIZE 10 BY 2.29 WIDGET-ID 300.
+         AT COL 1 ROW 1
+         SIZE 10 BY 2.38 WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -319,21 +322,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON DEFAULT-ACTION OF br-table IN FRAME Dialog-Frame
 DO:
-    DEFINE VARIABLE h_lfield   AS HANDLE NO-UNDO.
+    DEFINE VARIABLE h_lfield AS HANDLE NO-UNDO.
      
-    IF h_browser:NUM-SELECTED-ROWS > 0 AND h_brBuffer:AVAILABLE THEN DO:
+    IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
       DO li-count = 1 TO NUM-ENTRIES(ip-outList):
           h_lfield = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE.
-          IF h_lfield:DATA-TYPE = "DATE" THEN
+          op-returnFields = op-returnFields + h_lfield:NAME + "|".
+          IF h_lfield:DATA-TYPE EQ "DATE" THEN
              op-returnFields = op-returnFields + 
-                              (IF h_lfield:BUFFER-VALUE = ? THEN "" 
+                              (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
                               ELSE h_lfield:BUFFER-VALUE) + "|".
           ELSE 
              op-returnFields = op-returnFields + h_lfield:BUFFER-VALUE + "|".
       END.
       ASSIGN
           op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
-          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE.      
+          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
+          .      
     END.
   
     APPLY "WINDOW-CLOSE" TO FRAME {&FRAME-NAME}.
@@ -357,6 +362,16 @@ END.
 ON PAGE-UP OF br-table IN FRAME Dialog-Frame
 DO:
   APPLY "CHOOSE":U TO bt-prev.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
+ON RETURN OF br-table IN FRAME Dialog-Frame
+DO:
+    APPLY "DEFAULT-ACTION":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -508,27 +523,23 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
-
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    
+    IF ip-subjectID NE 0 THEN DO:
+    END. /* if subject id ne 0 */
     RUN validateParameters NO-ERROR.
     IF ERROR-STATUS:ERROR THEN DO:
         RETURN ERROR.
-    END.   
-
+    END.
     RUN init.
-
-    RUN enable_UI.
-    
-    RUN resizeWindow.
-    
+    RUN enable_UI.    
+    RUN resizeWindow.    
     IF ll-filterFirst THEN DO:
         RUN resizeFilterFrame.        
         RUN openFilterQuery.    
@@ -537,15 +548,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN buildTempTable.
         RUN openSearchQuery.
         APPLY 'ENTRY' TO ls-search IN FRAME {&FRAME-NAME}.
-    END.
-  
+    END.  
     ASSIGN 
         bt-clear:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME}  = TRUE
         ls-search:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
-        bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME}   = FALSE.
-  
-    RUN customizeBrowse.
-  
+        bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME}   = FALSE
+        .  
+    RUN customizeBrowse.  
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -785,7 +794,7 @@ PROCEDURE buildTempTable :
                         IF h_field:DATA-TYPE = "LOGICAL" THEN 
                         ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE, h_field:FORMAT) + "|".
                         ELSE IF h_field:DATA-TYPE = "DATE" THEN 
-                        ls-allData = ls-allData + STRING((if h_field:BUFFER-VALUE = ? then '' else h_field:BUFFER-VALUE), h_field:FORMAT) + "|".
+                        ls-allData = ls-allData + STRING((IF h_field:BUFFER-VALUE = ? THEN '' ELSE h_field:BUFFER-VALUE), h_field:FORMAT) + "|".
                         ELSE 
                         ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE) + "|".
         END.
@@ -798,7 +807,7 @@ PROCEDURE buildTempTable :
     
     SESSION:SET-WAIT-STATE("").
     
-    ll-ttLoaded = true.
+    ll-ttLoaded = TRUE.
 
 END PROCEDURE.
 
@@ -987,7 +996,7 @@ PROCEDURE init :
     
     CREATE QUERY h_brquery.
      
-    h_browser = br-table:HANDLE in FRAME {&FRAME-NAME}.
+    h_browser = br-table:HANDLE IN FRAME {&FRAME-NAME}.
     
     h_dialogFrame = FRAME {&FRAME-NAME}:HANDLE.
     h_dialogFrame:TITLE = ip-title.
@@ -1021,7 +1030,7 @@ PROCEDURE nextPage :
     li-pageRecCount = li-maxBrRows.
     
     bt-next:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.   
-    DO li-count = 1 to li-maxBrRows:
+    DO li-count = 1 TO li-maxBrRows:
        h_ipquery:GET-NEXT().
        IF h_ipquery:QUERY-OFF-END THEN DO:
           bt-next:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.        
@@ -1102,7 +1111,7 @@ PROCEDURE prevPage :
     h_brbuffer:EMPTY-TEMP-TABLE().
     
     h_ipquery:REPOSITION-BACKWARD ((li-maxBrRows * 2) - li-pageRecCount).
-    DO li-count = 1 to li-maxBrRows:
+    DO li-count = 1 TO li-maxBrRows:
        h_ipquery:GET-NEXT().
        IF h_ipquery:QUERY-OFF-END THEN
           LEAVE.
@@ -1203,7 +1212,7 @@ PROCEDURE resizeWindow :
     DEFINE VARIABLE li-width-pixels   AS INTEGER NO-UNDO.
     DEFINE VARIABLE li-add-width      AS INTEGER NO-UNDO.
   
-    DO li-count = 1 to h_browser:NUM-COLUMNS:
+    DO li-count = 1 TO h_browser:NUM-COLUMNS:
         li-width-pixels = li-width-pixels + 
                         h_browser:GET-BROWSE-COLUMN(li-count):WIDTH-PIXELS.
     END.
@@ -1372,9 +1381,9 @@ PROCEDURE validateRecordLimit :
     h_lquery:QUERY-PREPARE(ls-lqueryString).
     h_lquery:QUERY-OPEN().
     
-    IF h_lquery:NUM-RESULTS > li-recLimit THEN
+    IF ip-recLimit GT 0 AND h_lquery:NUM-RESULTS GT ip-recLimit THEN
        ip-filterFirst = TRUE.
-       
+    
     DELETE OBJECT h_lquery.
        
 END PROCEDURE.
@@ -1512,4 +1521,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

@@ -30,7 +30,8 @@ DEFINE VARIABLE find-auto  AS LOGICAL NO-UNDO.
 {methods/high_low.i}
 {custom/browser2.i}  /* YSK for table joined browser */
 {custom/resizdef.i} /* resizing widgets */
-    
+{methods/auditfunc.i}
+
 DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEFINE VARIABLE period_pos   AS INTEGER         NO-UNDO.
 DEFINE VARIABLE ll-order-set AS LOGICAL         NO-UNDO.
@@ -92,14 +93,7 @@ ASSIGN
 
 /* ***************************  Main Block  *************************** */
 
-ON CTRL-A OF {&BROWSE-NAME} IN FRAME {&FRAME-NAME}
-DO:
-    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
-    
-    hTable = BUFFER {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:HANDLE.
-    RUN system/CallAudit.p ("{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}",hTable,"Browser",PROGRAM-NAME(1)).
-END.
-
+{methods/ctrl-a_browser.i}
 &IF "{&IAMWHAT}" = "" &THEN
   &IF DEFINED(BRWSDEFS) NE 0 &THEN
 {methods/browsers/{&BRWSDEFS}.i}

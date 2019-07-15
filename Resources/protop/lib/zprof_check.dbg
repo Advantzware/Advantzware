@@ -1,0 +1,36 @@
+        1   /* zprof_check.p
+        2    *
+        3    * simple stand-alone non-persistent profiler control
+        4    *
+        5    * run lib/zprof_check.p ( "baseName", "description", zFlush ).
+        6    *
+        7    * check for baseName.zprof in session:temp-directory -- if it exists start profiling, if it does not then end profiling
+        8    *
+        9    * if baseName is blank or unknown then check for "zprof.zprof"
+       10    *
+       11    */
+       12   
+       13   define input parameter zBaseName    as character no-undo.
+       14   define input parameter zDescription as character no-undo.
+       15   define input parameter zFlush       as logical   no-undo.
+       16   
+       17   define new global shared variable profilerStart        as datetime  no-undo.
+       18   define new global shared variable profilerDescription  as character no-undo.
+       19   define new global shared variable profilerBaseName     as character no-undo.
+       20   define new global shared variable dbgMode              as integer   no-undo initial 3.
+       21   
+       22   define variable flagFile as character no-undo.
+       23   
+       24   if zBaseName = "" or zBaseName = ? then
+       25     flagFile = "zprof".
+       26    else
+       27     flagFile = zBaseName.
+       28   
+       29   file-info:file-name = session:temp-directory + "/" + flagFile + ".zprof".
+       30   if file-info:full-pathname = ? then
+       31     run lib/zprof_off.p.
+       32    else
+       33     run lib/zprof_on.p ( zBaseName, zDescription, zFlush ).
+       34     
+       35   
+       36   return.

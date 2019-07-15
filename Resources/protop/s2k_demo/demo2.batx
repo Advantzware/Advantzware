@@ -1,0 +1,20 @@
+@echo off
+
+set DBNAME=sports2000
+
+set PROPATH=.
+
+call promon %DBNAME% < %PROTOP%\etc\promon.csc_on > NUL 2>&1
+
+start /b _progres -b %DBNAME% -rand 2 -p churn.p -param 0 -U readalot -P abc123 > churn0.log   2>&1 &
+start /b _progres -b %DBNAME% -rand 2 -p churn.p -param 1 -U chugger  -P abc123 > churn1.log   2>&1 &
+
+start /b _progres -b %DBNAME% -rand 2 -p lockalot.p       -U lockalot -P abc123 > lockalot.log 2>&1 &
+
+start /b _progres -b %DBNAME% -rand 2 -p updorder.p       -U updorder -P abc123  > updorder.log 2>&1 &
+start /b _progres -b %DBNAME% -rand 2 -p badtrx.p         -U badtrx   -P abc123  > badtrx.log   2>&1 &
+
+start /b _progres -b %DBNAME% -rand 2 -p blocker.p        -U blocker  -P abc123  > blocker.log  2>&1 &
+sleep 2
+
+start /b _progres -b %DBNAME% -rand 2 -p victim.p         -U victim   -P abc123  > victim.log   2>&1 &

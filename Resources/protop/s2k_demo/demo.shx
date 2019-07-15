@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# demo some common code issues that ProTop can help with
+
+DB=s2k
+
+export PROPATH="."
+
+if [ ! -f ${DB}.db ]
+then
+	prodb ${DB} sports2000
+fi
+
+DBPF=
+
+if [ -f ${DB}.pf ]
+then
+	DBPF="-pf ${DB}.pf"
+fi
+
+if [ ! -f ${DB}.lk ]
+then
+
+	proserve ${DB} -spin 10000 -B 2000 -n 125 ${DBPF}
+
+	probiw ${DB}
+	proapw ${DB}
+
+fi
+
+sleep 5
+
+promon ${DB} < ${PROTOP}/etc/promon.csc_on > /dev/null 2>&1
+
+sleep 1
+
+_progres -b ${DB} -rand 2 -p churn.p -param 0 > churn0.log 2>&1 &
+sleep 1
+
+_progres -b ${DB} -rand 2 -p churn.p -param 1 > churn1.log 2>&1 &
+sleep 1
+
+_progres -b ${DB} -rand 2 -p lockalot.p > lockalot.log 2>&1 &
+sleep 1
+
+_progres -b ${DB} -rand 2 -p updorder.p > updorder.log 2>&1 &
+sleep 1
+
+_progres -b ${DB} -rand 2 -p badtrx.p   > badtrx.log   2>&1 &
+sleep 1
+
+_progres -b ${DB} -rand 2 -p blocker.p  > blocker.log  2>&1 &
+sleep 1
+
+_progres -b ${DB} -rand 2 -p victim.p   > victim.log   2>&1 &
+sleep 1
+

@@ -1487,12 +1487,37 @@ PROCEDURE local-assign-record :
   END.
 
   /* 10021210 */
-  FIND FIRST shipto WHERE shipto.company EQ cocode
-                      AND shipto.cust-no EQ ls-drop-custno
-                      AND shipto.ship-id EQ po-ord.ship-id
-                      NO-LOCK NO-ERROR.
-     IF AVAILABLE shipto AND shipto.loc GT "" THEN
-         po-ord.loc = shipto.loc.
+  IF po-ord.TYPE NE "D" THEN do:
+      FIND FIRST cust NO-LOCK
+           WHERE cust.company EQ cocode
+             AND cust.active = "X" NO-ERROR.
+      IF AVAIL cust AND cust.loc NE "" THEN
+          ASSIGN po-ord.loc = cust.loc .
+  END.
+  ELSE do:
+      IF ls-drop-custno NE "" THEN do:
+          FIND FIRST shipto WHERE shipto.company EQ cocode
+              AND shipto.cust-no EQ ls-drop-custno
+              AND shipto.ship-id EQ po-ord.ship-id
+              NO-LOCK NO-ERROR.
+          IF AVAILABLE shipto AND shipto.loc GT "" THEN
+              po-ord.loc = shipto.loc.
+          ELSE do:
+              FIND FIRST cust NO-LOCK
+                  WHERE cust.company EQ cocode
+                    AND cust.cust-no = ls-drop-custno NO-ERROR.
+              IF AVAIL cust AND cust.loc NE "" THEN
+                  po-ord.loc = cust.loc.
+          END.
+      END.
+      ELSE do:
+          FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
+              AND vend.vend-no EQ INPUT po-ord.ship-id
+              NO-ERROR.
+          IF AVAILABLE vend AND vend.loc NE "" THEN 
+              po-ord.loc = vend.loc.
+      END.
+  END.
 
   IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy*/
      po-ord.opened = YES.
@@ -1726,7 +1751,7 @@ PROCEDURE local-create-record :
   DISPLAY lv_vend-name lv_vend-add1 lv_vend-add2 lv_vend-city
           lv_vend-state lv_vend-zip lv_vend-area-code lv_vend-phone
     WITH FRAME {&FRAME-NAME}.
-
+  
   FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
   IF AVAILABLE company THEN ASSIGN po-ord.ship-id      = company.company
                                    po-ord.ship-name    = company.NAME

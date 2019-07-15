@@ -1114,6 +1114,15 @@ PROCEDURE ipAuditSysCtrl :
     IF AVAIL auditTbl THEN ASSIGN 
         auditTbl.auditCreate = TRUE 
         auditTbl.auditDelete = TRUE 
+            auditTbl.auditUpdate = TRUE 
+            .
+
+    FIND FIRST auditTbl EXCLUSIVE WHERE
+        auditTbl.auditTable EQ "sys-ctrl-shipto"
+        NO-ERROR.
+    IF AVAIL auditTbl THEN ASSIGN 
+            auditTbl.auditCreate = TRUE 
+            auditTbl.auditDelete = TRUE 
         auditTbl.auditUpdate = TRUE 
         .
 
@@ -2760,9 +2769,7 @@ PROCEDURE ipDeleteAudit :
         
     IF NOT lAuditLicensed THEN DO:
         RUN ipStatus ("    Deleting audit records (unlicensed)...").
-
         RUN ipStatus ("      (30 minute limit on this process)").
-
         RUN ipStatus ("      Deleting audit headers and details...").
         FOR EACH AuditHdr TABLE-SCAN:
             FOR EACH AuditDtl OF auditHdr:

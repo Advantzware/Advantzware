@@ -90,6 +90,7 @@ DEF VAR iNumUsers AS INT NO-UNDO.
 DEF VAR iListEntry AS INT NO-UNDO.
 DEF VAR cIniLoc AS CHAR NO-UNDO.
 DEF VAR cUsrLine AS CHAR NO-UNDO.
+DEF VAR lAuditLicensed AS LOG NO-UNDO INITIAL TRUE.
 DEF VAR lConnectAudit AS LOG NO-UNDO.
 DEF VAR lFoundIni AS LOG NO-UNDO.
 DEF VAR lFoundUsr AS LOG NO-UNDO.
@@ -1073,6 +1074,7 @@ PROCEDURE ipUpgradeDBs :
     DEF VAR cStatement AS CHAR NO-UNDO.
     DEF VAR cDeltaDf AS CHAR NO-UNDO.
     DEF VAR cLockFile AS CHAR NO-UNDO.
+    DEF VAR cDbLogFile AS CHAR NO-UNDO.
     DEF VAR cNewList AS CHAR NO-UNDO.
     DEF VAR cNewSel AS CHAR NO-UNDO.
     DEF VAR cThisEntry AS CHAR NO-UNDO.
@@ -1167,7 +1169,12 @@ PROCEDURE ipUpgradeDBs :
         cLockFile = cDbDrive + "\" +
                      cTopDir + "\" + cDbDirAlone + "\" + 
                      cThisDir + "\" +
-                     fiDBName:{&SV} + ".lk".
+                     fiDBName:{&SV} + ".lk"
+        cDbLogFile = cDbDrive + "\" +
+                     cTopDir + "\" + cDbDirAlone + "\" + 
+                     cThisDir + "\" +
+                     fiDBName:{&SV} + ".lg"
+                     .
     
     /* Unserve the database */
     RUN ipStatus ("    Stopping database service").
@@ -1191,12 +1198,26 @@ PROCEDURE ipUpgradeDBs :
             lSuccess = FALSE.
         RETURN.
     END.
+
+    /* Remove the log file */
+    OS-DELETE VALUE(cDbLogFile).
         
     /* Connect to the database single user */
     RUN ipStatus ("    Connecting single-user mode").
     CONNECT VALUE(cStatement).
-    RUN ipStatus ("    Creating DICTDB alias").
-    CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iDbCtr)).
+
+    IF CONNECTED("updDB1") THEN DO:
+        RUN ipStatus ("    Creating DICTDB alias").
+        CREATE ALIAS DICTDB FOR DATABASE VALUE("updDB" + STRING(iDbCtr)).
+        IF iDBCtr EQ 1 THEN
+            CREATE ALIAS asi FOR DATABASE updDB1.
+        RUN asiAuditTest.r (OUTPUT lAuditLicensed).
+        DELETE ALIAS asi.
+    END.
+    
+    IF CONNECTED("updDB2") 
+    AND lAuditLicensed EQ FALSE THEN ASSIGN 
+        cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
     
     IF CONNECTED("updDB1") THEN DO:
         FIND FIRST module NO-LOCK WHERE 
@@ -1212,7 +1233,7 @@ PROCEDURE ipUpgradeDBs :
     /* Load the delta */
     RUN ipStatus ("    Loading delta " + STRING(cFullDelta)).
     RUN prodict/load_df.p (cFullDelta). 
-    
+        
     /* Disconnect it */
     RUN ipStatus ("    Disconnecting").
     DISCONNECT VALUE("updDB" + STRING(iDbCtr)).

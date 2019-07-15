@@ -1573,6 +1573,8 @@ END FUNCTION.
                AND b-eb.est-no EQ job-hdr.est-no 
                AND b-eb.form-no EQ job-hdr.frm BREAK by b-eb.form-no :
    
+            IF FIRST(b-eb.form-no) THEN
+            PUT "<b>UDF's</b>" SKIP.
             FIND FIRST itemfg NO-LOCK
                  WHERE itemfg.company EQ cocode
                    AND itemfg.i-no EQ b-eb.stock-no
@@ -1582,13 +1584,14 @@ END FUNCTION.
                             WHERE mfvalues.rec_key EQ itemfg.rec_key) THEN
                 RUN UDF/UDF.p (cUDFGroup, itemfg.rec_key, OUTPUT TABLE ttUDF).
                 /* GPI UDF ID of 0004 */
-                FIND FIRST ttUDF WHERE ttUDF.udfID EQ "0004" NO-ERROR.
-                IF AVAILABLE ttUDF THEN do:
-                    IF FIRST(b-eb.form-no) THEN
-                        PUT "<b>UDF's</b>" SKIP .
-
-                    PUT UNFORMATTED "FG Item " itemfg.i-no FORMAT "x(15)"  "GRN: " ttUDF.udfValue.
-                END.
+                FIND FIRST ttUDF
+                     WHERE ttUDF.udfRecKey EQ itemfg.rec_key
+                       AND ttUDF.udfID EQ "0004"
+                     NO-ERROR.
+                PUT UNFORMATTED
+                    "FG Item " itemfg.i-no FORMAT "x(15)"
+                    "GRN: "
+                    IF AVAILABLE ttUDF THEN ttUDF.udfValue ELSE "".
                 PUT "" SKIP.
             END. /* if avail */
             ELSE /* no fg item */
@@ -1937,7 +1940,7 @@ END FUNCTION.
 
 
           PUT  "<C1>Corrugated"  SKIP
-            "<C1><u>RM Item #  </u> <u>Length </u> <u>Width  </u> <u>Depth  </u> <u>No. of Cases</u>  <u>Case Count</u>"  SKIP.
+            "<C1><u>RM Item #  </u>   <u>Description         </u>  <u> Length </u> <u> Width </u> <u> Depth </u> <u>   Qty </u>  <u> Case or Pallet Count </u>"  SKIP.
         
         FOR EACH xjob-mat NO-LOCK
             WHERE xjob-mat.company EQ job-hdr.company
@@ -1981,14 +1984,16 @@ END FUNCTION.
             {sys/inc/roundup.i ld-qty-disp}
 
             PUT "<C1>" 
-                item.i-no
-								space(2)
+                item.i-no  FORMAT "x(10)"
+								space(4)
+                item.i-name FORMAT "x(20)" 
+                SPACE(3)
                 item.case-l
                 " "
                 item.case-w
                 " "
                 item.case-d
-                "  "
+                " "
                 STRING(ld-qty-disp,">>,>>9") 
                 "       ".
                 IF AVAIL b-oe-ordl AND b-oe-ordl.cas-cnt <> 0 THEN
@@ -2023,8 +2028,8 @@ END FUNCTION.
 
         RUN PRpage (intLnCount).
 
-        PUT "<C1>Pallet"           SKIP
-            "<C1><u>RM Item #</u> <u>Name                         </u> <u>Length  </u> <u>Width  </u>  <u>No of Pallets</u>"  SKIP.
+        /*PUT "<C1>Pallet"           SKIP
+            "<C1><u>RM Item #</u> <u>Name                         </u> <u>Length  </u> <u>Width  </u>  <u>No of Pallets</u>"  SKIP.*/
         ASSIGN v-pallet-log = NO.
         FOR EACH xjob-mat NO-LOCK
             WHERE xjob-mat.company EQ job-hdr.company
@@ -2048,12 +2053,14 @@ END FUNCTION.
             {sys/inc/roundup.i ld-qty-disp}
             ASSIGN v-pallet-log = YES .
             PUT "<C1>"
-                item.i-no              
-                item.i-name  
+                item.i-no  FORMAT "x(10)" space(4)
+                item.i-name FORMAT "x(20)" SPACE(3)  
                 item.case-l
-                "  "
+                " "
                  item.case-w
-                "  "
+                " "
+                item.case-d
+                " "
                 STRING(ld-qty-disp,">>,>>9")                                            
                 SKIP.
           END.
@@ -2076,16 +2083,24 @@ END FUNCTION.
           
             intLnCount = intLnCount + 1.
 
-           PUT "<C1>Layer Pads"           SKIP
-            "<C1><u>RM Item # </u> <u>Length  </u> <u>Width  </u> <u>Depth  </u>  <u> Qty    </u>"  SKIP.
-            PUT "<C1>" eb.layer-pad "  "  eb.lp-len   " "  eb.lp-wid " " .
+            FIND FIRST item NO-LOCK
+            WHERE item.company  EQ eb.company
+              AND item.i-no     EQ eb.layer-pad  NO-ERROR .
+            IF AVAIL ITEM AND  eb.layer-pad NE "" THEN do:
+           /*PUT "<C1>Layer Pads"           SKIP*/
+           /* "<C1><u>RM Item # </u> <u>Length  </u> <u>Width  </u> <u>Depth  </u>  <u> Qty    </u>"  SKIP.*/
+            PUT "<C1>" eb.layer-pad FORMAT "x(10)" space(4)
+                 ITEM.i-name FORMAT "x(20)" SPACE(3)  
+                  eb.lp-len 
+                 " "  eb.lp-wid " " .
                 IF AVAIL reftable THEN PUT reftable.val[1] FORMAT ">9.9999" .
                  ELSE PUT "       " .
              IF eb.spare-char-3 EQ "P" THEN 
-                PUT (lp-up * casqty / eb.cas-pal) FORMAT ">>,>>>,>>>"   SKIP .
+                PUT (lp-up * casqty / eb.cas-pal) FORMAT ">>>>>>9"   SKIP .
              ELSE 
-                 PUT (lp-up * casqty) FORMAT ">>,>>>,>>>"   SKIP .
-             intLnCount = intLnCount + 2.
+                 PUT (lp-up * casqty) FORMAT ">>>>>>9"   SKIP .
+             intLnCount = intLnCount + 1.
+            END.
          END.
 
         intLnCount = 3.
@@ -2106,8 +2121,8 @@ END FUNCTION.
 
         RUN PRpage (intLnCount).
                                                 
-        PUT "<C1>Adhesive"   SKIP          /*RDR*/                                         
-             "<C1><u>RM Item #</u> <u>Description</u> "  SKIP.
+        /*PUT "<C1>Adhesive"   SKIP          /*RDR*/                                         
+             "<C1><u>RM Item #</u> <u>Description</u> "  SKIP.*/
 
       /*  FIND FIRST xjob-mat
             WHERE xjob-mat.company EQ job-hdr.company
@@ -2147,7 +2162,7 @@ END FUNCTION.
             NO-LOCK NO-ERROR.
         IF AVAIL ITEM THEN
             PUT "<C1>"
-                item.i-no
+                item.i-no FORMAT "x(10)" SPACE(4)
 		        item.i-name                                        
                 SKIP.
 
@@ -2169,6 +2184,28 @@ END FUNCTION.
 /*                 item.i-name                           */
 /*                 SKIP.                                 */
 /*         END. /* xjob-mat */                           */
+
+     FOR EACH estPacking NO-LOCK
+         WHERE estPacking.company  = cocode
+         AND estPacking.estimateNo = eb.est-no
+         AND estPacking.FormNo     = eb.form-no
+         AND estPacking.BlankNo    = eb.blank-No :
+
+         FIND FIRST ITEM NO-LOCK
+             WHERE item.company  EQ cocode
+             AND item.i-no     EQ estPacking.rmItemID
+             NO-ERROR.
+
+         IF AVAIL ITEM THEN do:
+             PUT ITEM.i-no SPACE(4)
+                 ITEM.i-name FORMAT "x(20)" SPACE(3)
+                 estPacking.dimLength FORMAT ">9.9999" " "
+                 estPacking.dimWidth FORMAT ">9.9999" " "
+                 estPacking.dimDepth FORMAT ">9.9999" " "
+                 estPacking.quantity FORMAT ">>>>>9" SKIP.
+             intLnCount = intLnCount + 1.
+         END.
+     END.
 
         PUT " " SKIP.      
 
