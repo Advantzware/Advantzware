@@ -615,7 +615,7 @@ DO:
                 END.     
             WHEN "job-no" THEN 
                 DO:
-                    RUN windows/l-jobno.w (g_company, "",lw-focus:SCREEN-VALUE, OUTPUT char-val,OUTPUT hlp-recid).     
+                    RUN windows/l-jobno.w (g_company,lw-focus:SCREEN-VALUE, OUTPUT char-val,OUTPUT hlp-recid).     
                     ASSIGN 
                         fg-rcpth.job-no:SCREEN-VALUE = ENTRY(1,char-val).
                     ASSIGN 
