@@ -91,6 +91,10 @@ DEF VAR cha-val AS cha NO-UNDO.
 
 DEF VAR ls-image1    AS CHAR                NO-UNDO.
 DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCardImage AS CHARACTER FORMAT "x(200)" NO-UNDO .
+DEFINE VARIABLE lCardImage AS LOGICAL NO-UNDO .
 
 ASSIGN 
  ls-image1 = "images/Quality_Check_SheetRevC.jpg" .
@@ -98,6 +102,14 @@ ASSIGN
 FILE-INFO:FILE-NAME = ls-image1.
 ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
 
+RUN sys/ref/nk1look.p (INPUT cocode, "JobCardImage", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+cCardImage =  cRtnChar .
+RUN sys/ref/nk1look.p (INPUT cocode, "JobCardImage", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+lCardImage = LOGICAL(cRtnChar) NO-ERROR .
 
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
@@ -856,6 +868,10 @@ do v-local-loop = 1 to v-local-copies:
 
     end.  /* each job */
     end.  /* end v-local-loop  */
+
+    IF lCardImage THEN DO:
+         PUT UNFORMATTED "<R1><C2><#26><R50><C110><IMAGE#21=" cCardImage ">" SKIP.
+    END.
  
         hide all no-pause.
 
