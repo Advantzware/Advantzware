@@ -13,8 +13,10 @@
 DEF STREAM logStream.
 
 DEF VAR iCtr AS INT NO-UNDO.
+DEF VAR iLast001Job AS INT NO-UNDO.
+DEF VAR iLast001oereth AS INT NO-UNDO.
 DEF VAR cConvTypeList AS CHAR NO-UNDO INITIAL 
-    "Account,BankAcct,Carrier,Est-no,Item,ItemFg,Job,Loc,M-code,Release#,Loadtag,Company".
+    "BankAcct,Account,Carrier,Est-no,Item,ItemFg,Job,Loc,M-code,Release#,Loadtag,Company".
     
 
 DEF TEMP-TABLE ttFullTableList
@@ -51,23 +53,85 @@ FUNCTION fGetNextRecKey RETURNS CHARACTER PRIVATE
 
 
 /* ***************************  Main Block  *************************** */
-    
+DEF BUFFER bar-ledger FOR ar-ledger.    
+DEF BUFFER boe-reth FOR oe-reth.  
+DEF BUFFER boe-retl FOR oe-retl.  
+
 RUN pStatus("Initialize").
 
+FIND last job WHERE job.company = "001".
+ASSIGN 
+    iLast001job = job.job.
+    
 RUN pBuildFullTableList.
 RUN pBuildFieldLists.
 RUN pOutputPreMerge.
+/*
 RUN pConsolidateAmounts.
 RUN pLoadCoAFromCSV ("c:\tmp\LYAccountConversion.csv").
 RUN pBuildNewCoA.
 
+DISABLE TRIGGERS FOR LOAD OF oe-reth.
+DISABLE TRIGGERS FOR LOAD OF oe-retl.
+DISABLE TRIGGERS FOR LOAD OF ar-ledger.
+DISABLE TRIGGERS FOR LOAD OF ar-cash.
+DISABLE TRIGGERS FOR LOAD OF ar-cashl.
+
+RUN pStatus("  Reassigning oe-retx.r-no.").
+FOR EACH oe-reth WHERE 
+    oe-reth.company EQ "002"
+    USE-INDEX rec_key:
+    IF CAN-FIND(FIRST boe-reth WHERE 
+        boe-reth.company EQ "001" AND 
+        boe-reth.r-no EQ oe-reth.r-no) THEN DO:
+        FOR EACH ar-cashl WHERE 
+            ar-cashl.company EQ oe-reth.company AND 
+            ar-cashl.cust-no EQ oe-reth.cust-no AND 
+            ar-cashl.returnRno EQ oe-reth.r-no
+            USE-INDEX rec_key:
+            ASSIGN 
+                ar-cashl.returnRno = ar-cashl.returnRno + 100.
+        END.  
+        FOR EACH oe-retl WHERE 
+            oe-retl.company EQ oe-reth.company AND 
+            oe-retl.r-no EQ oe-reth.r-no:
+            ASSIGN 
+                oe-retl.r-no = oe-retl.r-no + 100.
+        END.
+        ASSIGN 
+            oe-reth.r-no = oe-reth.r-no + 100.
+    END.
+END.
+
+RUN pStatus("  Reassigning ar-ledger check-nos.").
+FOR EACH ar-ledger WHERE 
+    ar-ledger.company = "002"
+    USE-INDEX rec_key:
+    IF CAN-FIND (FIRST bar-ledger WHERE 
+        bar-ledger.company = "001" AND 
+        bar-ledger.cust-no = ar-ledger.cust-no AND 
+        bar-ledger.ref-date = ar-ledger.ref-date AND 
+        bar-ledger.ref-num = ar-ledger.ref-num) THEN DO:
+        FOR EACH ar-cash WHERE 
+            ar-cash.company = "002" AND 
+            ar-cash.cust-no = ar-ledger.cust-no AND 
+            ar-cash.check-no = INTEGER(SUBSTRING(ar-ledger.ref-num, 6))
+            USE-INDEX rec_key:
+            ASSIGN 
+                 ar-cash.check-no = ar-cash.check-no + 1000000000.
+        END.
+        ASSIGN 
+            SUBSTRING(ar-ledger.ref-num,6,1) = "1".
+    END.
+END.
+*/
 DO iCtr = 1 TO NUM-ENTRIES(cConvTypeList):
     RUN pConvertRecsByType (ENTRY(iCtr,cConvTypeList)).
 END.
-
+/*
 RUN pDeleteSimpleMerges.
 RUN pCleanup.
-
+*/
 RUN pStatus("Conversion Complete").
 
 MESSAGE 
@@ -100,7 +164,8 @@ PROCEDURE pBuildFieldLists:
         _field._help MATCHES "account*" OR
         _field._help MATCHES "acct*" OR  
         _field._help MATCHES "*account*" OR
-        _field._help MATCHES "*acct*" 
+        _field._help MATCHES "*acct*" OR 
+        _field._field-name EQ "check-act"
         :
         IF _field._label MATCHES "*desc*" 
             OR _field._label MATCHES "*period*" 
@@ -132,6 +197,8 @@ PROCEDURE pBuildFieldLists:
             THEN NEXT.
         FIND _file OF _field NO-LOCK NO-ERROR.
         IF _file._hidden THEN NEXT.
+        IF _file._file-name EQ "bank" 
+        AND _field._field-name EQ "check-act" THEN NEXT.
         IF AVAIL _file THEN DO:
             RUN pBuildSingleFieldList ("Account",_file._file-name,_field._field-name).
             RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
@@ -143,6 +210,8 @@ PROCEDURE pBuildFieldLists:
         _field._field-name = "check-act" 
         OR _field._field-name EQ "bk-act":
         FIND _file OF _field NO-LOCK NO-ERROR.
+        IF _file._file-name EQ "ap-pay" 
+        AND _field._field-name EQ "check-act" THEN NEXT.
         IF AVAIL _file THEN 
         DO:
             RUN pBuildSingleFieldList ("BankAcct",_file._file-name,_field._field-name).
@@ -723,6 +792,9 @@ PROCEDURE pConvertBankAccountTable:
     DEF VAR hExtent AS HANDLE.
     DEF VAR iCtr AS INT NO-UNDO.
     DEF VAR jCtr AS INT NO-UNDO.
+    
+    /* ap-pay uses the GL account, NOT the bank acct */
+    IF ipcTableName EQ "ap-pay" THEN RETURN.
 
     RUN pStatus("   Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList).
     
@@ -807,14 +879,6 @@ PROCEDURE pConvertJobTable:
             LEAVE checkCompany.
     END.
         
-    checkJobNo:
-    DO iCtr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hJobField = hBuffer:BUFFER-FIELD (iCtr).
-        IF hJobField:NAME = "job-no" THEN 
-            LEAVE checkJobNo.
-    END.
-
     DO WHILE NOT hQuery:QUERY-OFF-END TRANSACTION:
         hQuery:GET-NEXT(EXCLUSIVE-LOCK).
         IF NOT hQuery:QUERY-OFF-END THEN 
@@ -823,17 +887,22 @@ PROCEDURE pConvertJobTable:
                 hField = hBuffer:BUFFER-FIELD (iCtr).
             IF CAN-DO(ipcFieldList,hField:NAME) THEN 
             DO:
-                IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 THEN
+                IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 
+                AND hCoField:BUFFER-VALUE = "002" THEN
                 DO:
-                    ASSIGN 
-                        hField:BUFFER-VALUE = INTEGER(TRIM(hJobField:BUFFER-VALUE)).
+                    IF CAN-FIND (FIRST job WHERE 
+                        job.company = "001" AND 
+                        job.job = hField:BUFFER-VALUE) THEN ASSIGN 
+                            hField:BUFFER-VALUE = hField:BUFFER-VALUE + iLast001job.
                 END.
                 ELSE 
                 DO jCtr = 1 TO hField:EXTENT:
                     IF hCoField:BUFFER-VALUE EQ "002" THEN 
                     DO:
-                        ASSIGN 
-                            hField:BUFFER-VALUE(jCtr) = INTEGER(TRIM(hJobField:BUFFER-VALUE)).
+                        IF CAN-FIND (FIRST job WHERE 
+                            job.company = "001" AND 
+                            job.job = hField:BUFFER-VALUE(jCtr)) THEN ASSIGN 
+                                hField:BUFFER-VALUE(jCtr) = hField:BUFFER-VALUE(jCtr) + iLast001Job.
                     END.
                 END.
             END.
@@ -951,22 +1020,25 @@ PROCEDURE pConvertRecsByType:
     FOR EACH ttTablesWithMergeFields WHERE 
         ttTablesWithMergeFields.cFieldType = ipcType:
         CASE ipcType:
+            /*
             WHEN "Account"  THEN RUN pConvertAccountTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "BankAcct" THEN RUN pConvertBankAccountTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Carrier"  THEN RUN pConvertCarrierTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            
             WHEN "Company"  THEN RUN pConvertCompanyTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Est-no"   THEN RUN pConvertEstNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Item"     THEN RUN pConvertItemTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "ItemFg"   THEN RUN pConvertItemFGTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            /* Jobs are just merged
-            WHEN "Job"      THEN RUN pConvertJobTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             */
+            WHEN "Job"      THEN RUN pConvertJobTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            /*
             WHEN "Loadtag"  THEN RUN pConvertLoadtagTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Loc"      THEN RUN pConvertLocTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "M-code"   THEN RUN pConvertMcodeTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Release#" THEN RUN pConvertRelease#Table (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             /* Customers are just merged 
             WHEN "CustNo"   THEN RUN pConvertCustTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            */
             */
         END.            
     END.        
@@ -1910,15 +1982,15 @@ PROCEDURE pDeleteSimpleMerges:
         DELETE {&cTable}.
     END.
 
-/*
-&scoped-def ctable item
-    RUN pStatus("   Removing " + "{&cTable}" + " records").
-    DISABLE TRIGGERS FOR LOAD OF {&cTable}.
-    FOR EACH {&cTable} WHERE 
-        {&cTable}.company EQ "002":
-        DELETE {&cTable}.
-    END.
-*/
+    /*
+    &scoped-def ctable item
+        RUN pStatus("   Removing " + "{&cTable}" + " records").
+        DISABLE TRIGGERS FOR LOAD OF {&cTable}.
+        FOR EACH {&cTable} WHERE 
+            {&cTable}.company EQ "002":
+            DELETE {&cTable}.
+        END.
+    */
 &scoped-def ctable item-bom
     RUN pStatus("   Removing " + "{&cTable}" + " records").
     DISABLE TRIGGERS FOR LOAD OF {&cTable}.
@@ -1926,15 +1998,15 @@ PROCEDURE pDeleteSimpleMerges:
         {&cTable}.company EQ "002":
         DELETE {&cTable}.
     END.
-/*
-&scoped-def ctable itemfg
-    RUN pStatus("   Removing " + "{&cTable}" + " records").
-    DISABLE TRIGGERS FOR LOAD OF {&cTable}.
-    FOR EACH {&cTable} WHERE 
-        {&cTable}.company EQ "002":
-        DELETE {&cTable}.
-    END.
-*/
+    /*
+    &scoped-def ctable itemfg
+        RUN pStatus("   Removing " + "{&cTable}" + " records").
+        DISABLE TRIGGERS FOR LOAD OF {&cTable}.
+        FOR EACH {&cTable} WHERE 
+            {&cTable}.company EQ "002":
+            DELETE {&cTable}.
+        END.
+    */
 &scoped-def ctable item-spec
     RUN pStatus("   Removing " + "{&cTable}" + " records").
     DISABLE TRIGGERS FOR LOAD OF {&cTable}.
