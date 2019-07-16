@@ -12,10 +12,10 @@ PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
 PUT "<C1><#2><P10>" 
             "<FCourier New>"
-  /*  SPACE(12) " " SKIP
-    SPACE(12) " " SKIP */
-    SPACE(12) " " 
-    SKIP(2)
+    SPACE(10) "REMIT TO: Welch Packaging Group, Inc." SKIP
+            SPACE(10) "          Po Box 856421" SKIP
+            SPACE(10) "          Minneapolis, MN 55485-6421"
+    SKIP(1)
     space(10) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
     SPACE(12) cust.name v-shipto-name AT 64 skip
     SPACE(12) cust.addr[1]   v-shipto-addr[1] AT 64 SKIP
