@@ -5207,6 +5207,7 @@ PROCEDURE local-assign-record :
   DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.  
   DEF VAR cNewRep AS CHAR NO-UNDO.
   DEFINE VARIABLE is2PieceBox AS LOG NO-UNDO.
+  DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
   
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
@@ -5305,7 +5306,9 @@ PROCEDURE local-assign-record :
   END.
 
   IF ll-new-shipto THEN DO:
-    RUN windows/d-shpfly.w (ROWID(eb)).
+    RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
+    IF eb.ship-id NE cShipFromFlyFile THEN
+        ASSIGN eb.ship-id = cShipFromFlyFile .
     IF eb.ship-id NE "TEMP" THEN
     FIND FIRST shipto
         WHERE shipto.company EQ cocode

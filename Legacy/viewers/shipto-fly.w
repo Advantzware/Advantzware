@@ -525,7 +525,7 @@ DO:
           when "tax-code" then do:
             run windows/l-stax.w  (gcompany,focus:screen-value, output char-val). 
             if char-val <> "" then 
-              focus:screen-value in frame {&frame-name} = entry(1,char-val).
+              shipto.tax-code:screen-value in frame {&frame-name} = entry(1,char-val).
           end.
           when "loc" then do:
             run windows/l-loc.w  (gcompany,focus:screen-value, output char-val). 
@@ -1584,6 +1584,24 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetShipTo V-table-Win 
+PROCEDURE pGetShipTo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcShipto AS CHARACTER NO-UNDO .
+    IF AVAIL shipto THEN
+        ASSIGN opcShipto = shipto.ship-id . 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
