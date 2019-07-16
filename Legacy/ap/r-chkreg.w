@@ -87,8 +87,11 @@ DEF VAR lLocked AS LOG NO-UNDO.
 DEF VAR cUsr AS INT NO-UNDO.
 DEF VAR cName AS CHAR NO-UNDO.
 DEF VAR cDevice AS CHAR NO-UNDO.
+DEFINE VARIABLE cApCheckTextFile AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cApCheckCsvFile AS CHARACTER NO-UNDO .
 
 DEF STREAM excel.
+DEFINE STREAM ap-excel.
 
 DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id    AS ROWID
                                FIELD ex-rate   LIKE currency.ex-rate INIT 1
@@ -148,12 +151,13 @@ END.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd_sort tb_prt-acc ~
-tb_void fi_CheckFile tb_APcheckFile lv-ornt rd-dest lines-per-page ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+tb_void rd_print-apfile tb_APcheckFile fi_CheckFile lv-ornt rd-dest ~
+lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period lbl_sort rd_sort ~
-tb_prt-acc tb_void fi_CheckFile tb_APcheckFile lv-ornt rd-dest ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file 
+tb_prt-acc tb_void rd_print-apfile tb_APcheckFile fi_CheckFile lv-ornt ~
+rd-dest lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -231,6 +235,13 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To File", 3
      SIZE 20 BY 3.81 NO-UNDO.
 
+DEFINE VARIABLE rd_print-apfile AS CHARACTER INITIAL "Text" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Text", "Text",
+"CSV", "CSV"
+     SIZE 22 BY 1 NO-UNDO.
+
 DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Automatic" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -244,36 +255,36 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 9.29.
+     SIZE 94 BY 10.48.
 
-DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL no 
      LABEL "Create AP Check File?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_prt-acc AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_prt-acc AS LOGICAL INITIAL no 
      LABEL "Print Invoice & GL Account Detail?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_void AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_void AS LOGICAL INITIAL no 
      LABEL "Void Skipped Checks?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -288,32 +299,33 @@ DEFINE FRAME FRAME-A
      rd_sort AT ROW 5.19 COL 51 NO-LABEL
      tb_prt-acc AT ROW 6.48 COL 20
      tb_void AT ROW 7.67 COL 20
-     fi_CheckFile AT ROW 8.86 COL 45.4 COLON-ALIGNED HELP
-          "Enter File Name" NO-LABEL WIDGET-ID 2
+     rd_print-apfile AT ROW 8.86 COL 54 NO-LABEL WIDGET-ID 6
      tb_APcheckFile AT ROW 8.95 COL 20.2 WIDGET-ID 4
-     lv-ornt AT ROW 11.05 COL 29 NO-LABEL
-     rd-dest AT ROW 11.95 COL 8 NO-LABEL
-     lines-per-page AT ROW 12.19 COL 82 COLON-ALIGNED
-     lv-font-no AT ROW 12.48 COL 32 COLON-ALIGNED
-     lv-font-name AT ROW 13.43 COL 26 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 14.57 COL 28
-     tb_excel AT ROW 15.57 COL 48.2 RIGHT-ALIGNED
-     tb_runExcel AT ROW 15.57 COL 69.2 RIGHT-ALIGNED
-     fi_file AT ROW 16.38 COL 26 COLON-ALIGNED HELP
+     fi_CheckFile AT ROW 10.05 COL 44 COLON-ALIGNED HELP
+          "Enter File Name" NO-LABEL WIDGET-ID 2
+     lv-ornt AT ROW 12.1 COL 29 NO-LABEL
+     rd-dest AT ROW 13 COL 8 NO-LABEL
+     lines-per-page AT ROW 13.24 COL 82 COLON-ALIGNED
+     lv-font-no AT ROW 13.52 COL 32 COLON-ALIGNED
+     lv-font-name AT ROW 14.48 COL 26 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 15.62 COL 28
+     tb_excel AT ROW 16.62 COL 48.2 RIGHT-ALIGNED
+     tb_runExcel AT ROW 16.62 COL 69.2 RIGHT-ALIGNED
+     fi_file AT ROW 17.43 COL 26 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 18.14 COL 24
-     btn-cancel AT ROW 18.38 COL 58
+     btn-ok AT ROW 19.19 COL 24
+     btn-cancel AT ROW 19.43 COL 58
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11 COL 3
-     RECT-6 AT ROW 10.52 COL 1
+          SIZE 18 BY .62 AT ROW 12.05 COL 3
+     RECT-6 AT ROW 11.57 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 19.71.
+         SIZE 95.2 BY 20.24.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -333,21 +345,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "A/P Checks Register"
-         HEIGHT             = 20.19
+         HEIGHT             = 20.71
          WIDTH              = 95.4
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -367,15 +379,13 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 ASSIGN 
        fi_CheckFile:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -393,6 +403,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       rd_print-apfile:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 ASSIGN 
        rd_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -416,7 +430,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -430,7 +444,7 @@ THEN C-Win:HIDDEN = NO.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -479,9 +493,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
   DEF VAR lv-bank-file AS cha NO-UNDO.
-
-  /* gdm - 05210901 */
-  ASSIGN  fi_CheckFile:SCREEN-VALUE = fi_CheckFile.
+  
+  IF rd_print-apfile:SCREEN-VALUE EQ "Text" THEN
+    fi_CheckFile:SCREEN-VALUE = cApCheckTextFile.
+  ELSE
+    fi_CheckFile:SCREEN-VALUE = cApCheckCsvFile.
 
   RUN check-date.
   IF v-invalid THEN RETURN NO-APPLY.
@@ -674,11 +690,36 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_print-apfile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_print-apfile C-Win
+ON VALUE-CHANGED OF rd_print-apfile IN FRAME FRAME-A
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME rd_sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
 DO:
   ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rd_print-apfile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_print-apfile C-Win
+ON VALUE-CHANGED OF rd_print-apfile IN FRAME FRAME-A
+DO:
+  ASSIGN {&self-name}.
+  IF rd_print-apfile:SCREEN-VALUE EQ "Text" THEN
+    fi_CheckFile:SCREEN-VALUE = cApCheckTextFile.
+  ELSE
+    fi_CheckFile:SCREEN-VALUE = cApCheckCsvFile.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -693,9 +734,11 @@ DO:
 
     IF TRIM(v-fileFormat) NE "" AND 
        {&self-name}
-      THEN ASSIGN fi_CheckFile:HIDDEN = NO.
-      ELSE ASSIGN fi_CheckFile:HIDDEN = YES.
-
+      THEN ASSIGN fi_CheckFile:HIDDEN = NO
+                  rd_print-apfile:HIDDEN = NO.
+      ELSE ASSIGN fi_CheckFile:HIDDEN = YES
+                  rd_print-apfile:HIDDEN = YES .
+     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -843,7 +886,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   /* gdm - 05210901 */
   ASSIGN tb_APcheckFile:HIDDEN IN FRAME {&FRAME-NAME} = YES
-         fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}  = YES.
+         fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}  = YES
+         rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = YES .
 
   FIND FIRST sys-ctrl NO-LOCK 
     WHERE sys-ctrl.company EQ cocode
@@ -925,14 +969,24 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                STRING(TODAY,"99999999") + 
                                STRING(TIME) + ".txt"
                fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = fi_CheckFile.
+     
+     cApCheckTextFile = fi_CheckFile .
+     cApCheckCsvFile = SUBSTRING(fi_CheckFile,1,INDEX(fi_CheckFile,".") - 1) + ".csv" .
+
+     IF rd_print-apfile:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Text" THEN
+         fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cApCheckTextFile.
+     ELSE fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cApCheckCsvFile.
 
      ASSIGN fi_CheckFile:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
-
+    
      IF tb_APcheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" 
-       THEN ASSIGN fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME} = NO.
-       ELSE ASSIGN fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-
-     ASSIGN fi_CheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = fi_CheckFile.
+       THEN ASSIGN fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME} = NO
+                   rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = NO .
+       ELSE ASSIGN fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME} = YES
+                   rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+  END.
+  ELSE DO:
+       tb_APcheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No" .
   END.
   /* gdm - 05210901 end */
 
@@ -1203,13 +1257,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-date tran-period lbl_sort rd_sort tb_prt-acc tb_void fi_CheckFile 
-          tb_APcheckFile lv-ornt rd-dest lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+  DISPLAY tran-date tran-period lbl_sort rd_sort tb_prt-acc tb_void 
+          rd_print-apfile tb_APcheckFile fi_CheckFile lv-ornt rd-dest 
+          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tran-date rd_sort tb_prt-acc tb_void fi_CheckFile 
-         tb_APcheckFile lv-ornt rd-dest lines-per-page lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 tran-date rd_sort tb_prt-acc tb_void rd_print-apfile 
+         tb_APcheckFile fi_CheckFile lv-ornt rd-dest lines-per-page lv-font-no 
+         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1288,7 +1343,69 @@ PROCEDURE output-to-screen :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay C-Win 
+PROCEDURE PositivePay :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes: gdm - 05210901
+------------------------------------------------------------------------------*/
+
+IF tb_APcheckFile THEN DO:
+
+    FIND FIRST bank NO-LOCK
+        WHERE bank.company EQ cocode
+          AND bank.bank-code EQ ap-sel.bank-code NO-ERROR.
+ IF rd_print-apfile EQ "Text" THEN do:
+   PUT STREAM checkFile UNFORMATTED
+    "D"
+     STRING(INT(ap-sel.bank-code),"999")                         /* Bank Number    */
+     STRING(INT(REPLACE(bank.bk-act,"-","")), "9999999999")      /* Account Number */
+     STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
+     STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") 
+                                                                 /* Amount         */ 
+     IF ap-sel.check-date NE ? 
+        THEN STRING(YEAR(ap-sel.check-date),"9999") +  
+             STRING(MONTH(ap-sel.check-date),"99")  +     
+             STRING(DAY(ap-sel.check-date),"99")   
+        ELSE "00000000"                                          /* Issue Date     */
+     FILL(" ",30)                                                /* Additinal data */ 
+     IF TRIM(vend.name) NE ""
+       THEN
+        TRIM(vend.name) + FILL(" ",(80 - LENGTH(TRIM(vend.name))))
+       ELSE FILL(" ",80)                                         /* Payee NAME     */
+     IF ap-sel.vend-no EQ "VOID"
+          THEN "V" ELSE FILL(" ",1)                                       /* Void Indicator */
+    SKIP.
+ END.
+ ELSE DO: /* excel output */
+
+      PUT STREAM ap-excel UNFORMATTED
+           '"' "D"     '",'  /* Bank Number    */
+           '"' STRING(INT(ap-sel.bank-code),"999")                     '",' /* Bank code */
+           '"' STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999") '",'  /* Account Number   */
+           '"' STRING(INT(ap-sel.check-no),"9999999999")   '",'  /* Check Number     */
+           '"' STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") '",'  /* Amount */
+           '"'  IF ap-sel.check-date NE ? THEN STRING(YEAR(ap-sel.check-date),"9999") + 
+                STRING(MONTH(ap-sel.check-date),"99")  + STRING(DAY(ap-sel.check-date),"99")  ELSE "00000000" 
+                FILL(" ",30)   '",'  /* Issue Date     */
+           '"' IF TRIM(vend.name) NE "" THEN TRIM(vend.name) + 
+               FILL(" ",(80 - LENGTH(TRIM(vend.name)))) ELSE FILL(" ",80)     '",'  /* Payee NAME    */
+           '"' IF ap-sel.vend-no EQ "VOID" THEN "V" ELSE FILL(" ",1)     '",'  /* Void Indicator    */
+
+               SKIP .
+ END.
+
+END.
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay-knight C-Win 
 PROCEDURE PositivePay-knight :
@@ -1306,6 +1423,7 @@ IF tb_APcheckFile THEN DO:
 
      v-check-date = IF ap-sel.man-check THEN ap-sel.pre-date ELSE ap-sel.check-date .
 
+  IF rd_print-apfile EQ "Text" THEN do:
      PUT STREAM checkFile UNFORMATTED
      IF ap-sel.vend-no EQ "VOID"
           THEN "V" ELSE "I"      ","                                 /* Void Indicator */
@@ -1323,51 +1441,17 @@ IF tb_APcheckFile THEN DO:
      FILL(" ",30)                                              /* Additinal data */ 
      
     SKIP.
-
-END.
-
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay C-Win 
-PROCEDURE PositivePay :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes: gdm - 05210901
-------------------------------------------------------------------------------*/
-
-IF tb_APcheckFile THEN DO:
-
-    FIND FIRST bank NO-LOCK
-        WHERE bank.company EQ cocode
-          AND bank.bank-code EQ ap-sel.bank-code NO-ERROR.
-
-   PUT STREAM checkFile UNFORMATTED
-    "D"
-     STRING(INT(ap-sel.bank-code),"999")                         /* Bank Number    */
-     STRING(INT(REPLACE(bank.bk-act,"-","")), "9999999999")      /* Account Number */
-     STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */
-     STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") 
-                                                                 /* Amount         */ 
-     IF ap-sel.check-date NE ? 
-        THEN STRING(YEAR(ap-sel.check-date),"9999") +  
-             STRING(MONTH(ap-sel.check-date),"99")  +     
-             STRING(DAY(ap-sel.check-date),"99")   
-        ELSE "00000000"                                          /* Issue Date     */
-     FILL(" ",30)                                                /* Additinal data */ 
-     IF TRIM(vend.name) NE ""
-       THEN
-        TRIM(vend.name) + FILL(" ",(80 - LENGTH(TRIM(vend.name))))
-       ELSE FILL(" ",80)                                         /* Payee NAME     */
-     IF ap-sel.vend-no EQ "VOID"
-          THEN "V" ELSE FILL(" ",1)                                       /* Void Indicator */
-    SKIP.
-
+  END.
+  ELSE DO: /* ap excel output */
+      PUT STREAM ap-excel UNFORMATTED
+           '"' IF ap-sel.vend-no EQ "VOID" THEN "V" ELSE "I" '",'  /* Void Indicator */
+           '"' STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999")  '",' /* Account Number */
+           '"' STRING(INT(ap-sel.check-no))  '",'  /* Check Number   */
+           '"' IF TRIM(vend.name) NE "" THEN TRIM(vend.name) ELSE FILL(" ",10) '",'  /* Payee NAME     */
+           '"' TRIM(STRING(v-amt-paid,"->>>>>>>9.99")) '",'  /* Void Indicator */
+           '"'  IF v-check-date NE ? THEN STRING(v-check-date,"99/99/9999") ELSE "00000000" FILL(" ",30)   '",'  /* Issue Date     */
+               SKIP .
+  END.
 END.
 
 
@@ -1668,7 +1752,8 @@ tmpstore   = FILL("_",125).
 DEF VAR v-line-amt LIKE ap-invl.amt NO-UNDO.
 DEF VAR v-frgt-amt LIKE ap-inv.freight NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cAPFileName AS CHARACTER NO-UNDO .
 
 FORMAT HEADER
        "Check    Vendor"
@@ -1704,17 +1789,32 @@ EMPTY TEMP-TABLE tt-post.
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Check Number,Vendor Number,Name,Check Date,Invoice Date,"
               + "Number,Due,Discount Taken,Check Amt Paid,Pre-Issued Date".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
 /* gdm - 05210901 */
-IF tb_APcheckFile 
-  THEN OUTPUT STREAM checkFile TO VALUE(fi_CheckFile).
-/* gdm - 05210901 end */
+IF tb_APcheckFile THEN do:
+   
+    IF rd_print-apfile EQ "Text" THEN
+        OUTPUT STREAM checkFile TO VALUE(fi_CheckFile).
+    ELSE do:
+       RUN sys/ref/ExcelNameExt.p (INPUT fi_CheckFile,OUTPUT cAPFileName) .
+        OUTPUT STREAM ap-excel TO VALUE(cAPFileName).
+        IF v-fileFormat EQ "Positive Pay" THEN
+           excelheader = "Bank No,Bank Code,Account Number,Check Number,Amount,Issue Date,Payee Name,Void Indicator" .
+        ELSE
+            excelheader = "Void Indicator,Account Number,Check Number,Payee Name,Amount,Issue Date" .
+             
+        PUT STREAM ap-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+
+    END.
+END. /* gdm - 05210901 end */
 
   IF td-show-parm THEN RUN show-param.
 
@@ -1931,8 +2031,12 @@ DISPLAY "*** GRAND TOTALS ***" AT 50
         "NUMBER OF CHECKS WRITTEN " ctr
     WITH NO-LABELS NO-BOX NO-UNDERLINE FRAME b WIDTH 132 STREAM-IO.
 
-IF tb_APcheckFile 
-  THEN OUTPUT STREAM checkFile CLOSE.
+IF tb_APcheckFile THEN do:
+    IF rd_print-apfile EQ "Text" THEN
+        OUTPUT STREAM checkFile CLOSE.
+    ELSE 
+        OUTPUT STREAM ap-excel CLOSE.
+END.
 
 IF tb_excel THEN
    PUT STREAM excel UNFORMATTED
@@ -2145,7 +2249,7 @@ END.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
