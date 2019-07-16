@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER opcShipTo AS CHARACTER NO-UNDO .
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
@@ -161,6 +162,9 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* Add New Shipto for Customer: */
 DO:
   DEF VAR ll AS LOG NO-UNDO.
 
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "new-record-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN pGetShipTo IN WIDGET-HANDLE(char-hdl) (OUTPUT opcShipTo).
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "check-save-source", OUTPUT char-hdl).
 
