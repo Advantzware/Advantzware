@@ -1625,11 +1625,10 @@ FUNCTION fGetTaxableMisc RETURNS LOGICAL
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdTaxProcs).
+    IF NOT VALID-HANDLE(hdTaxProcs) THEN 
+        RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
  
     RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
-    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdTaxProcs).
 
 END FUNCTION.
 	
