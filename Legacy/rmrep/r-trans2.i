@@ -172,7 +172,7 @@
                      WHEN "i-name" THEN cVarValue = string(rm-rcpth.i-name,"x(30)") .
                      WHEN "po-no" THEN cVarValue = STRING(rm-rcpth.po-no,"x(8)") .
                      WHEN "rita-code" THEN cVarValue = STRING(rm-rcpth.rita-code,"x(2)").
-                     WHEN "v-job-no" THEN cVarValue =     STRING(v-job-no,"x(10)").
+                     WHEN "v-job-no" THEN cVarValue =     STRING(v-job-no,"x(9)").
                      WHEN "tag" THEN cVarValue = STRING(rm-rdtlh.tag,"x(20)").
                      WHEN "qty" THEN cVarValue = STRING(ld-rqty,"->>>>>9.99<<").
                      WHEN "loc" THEN cVarValue = STRING(rm-rdtlh.loc,"x(5)") .
@@ -202,7 +202,7 @@
                      WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
                  END CASE.
                  
-                 cExcelVarValue = cVarValue.  
+                 cExcelVarValue = IF cTmpField EQ "v-job-no" THEN trim(cVarValue) ELSE cVarValue. 
                  cDisplay = cDisplay + cVarValue +
                      FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                  cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
