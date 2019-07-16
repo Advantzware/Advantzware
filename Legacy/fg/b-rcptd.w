@@ -923,7 +923,8 @@ PROCEDURE get-matrix :
         DO: /* in update mode - use screen-value */
             IF INTEGER(fg-rctd.po-no:SCREEN-VALUE) NE 0 THEN 
             DO:  
-                RUN pDisplayPO(ip-first-disp).
+                // This was incorrectly copied from the update dialog
+                // RUN pDisplayPO(ip-first-disp).
  
             END.
            
