@@ -69,6 +69,7 @@ DEF VAR lv-line-print AS INT INIT 44 NO-UNDO.
 DEF VAR lv-due-date AS DATE NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE dSetItemQty AS DECIMAL NO-UNDO .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -224,7 +225,7 @@ find first company where company.company eq cocode no-lock no-error.
                 no-underline stream-io width 90.
        */
 {oe/rep/ackxprnt10.i}
-
+      dSetItemQty = 0 .
       for each oe-ordl
           where oe-ordl.company eq oe-ord.company
             and oe-ordl.ord-no  eq oe-ord.ord-no
@@ -245,12 +246,14 @@ find first company where company.company eq cocode no-lock no-error.
             no-lock no-error.
 
         if AVAILABLE eb AND (eb.est-type eq 2 or eb.est-type eq 6) then do:
+            IF eb.stock-no EQ oe-ordl.i-no THEN
+                dSetItemQty = oe-ordl.qty .
             for each fg-set
                 where fg-set.company eq oe-ordl.company
                 and fg-set.part-no  eq oe-ordl.i-no
                 AND fg-set.set-no EQ eb.stock-no
                 no-lock:
-                dQty = oe-ordl.qty * fg-set.QtyPerSet.
+                dQty = dSetItemQty * fg-set.QtyPerSet.
             END.
         END.
 
