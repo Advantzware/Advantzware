@@ -1096,6 +1096,7 @@ DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cFieldName AS cha NO-UNDO.
 DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 DEFINE VARIABLE lLineTotal AS LOGICAL NO-UNDO .
+DEFINE VARIABLE dvalue            AS DECIMAL   NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 DO WITH FRAME {&FRAME-NAME}:
@@ -1130,6 +1131,7 @@ IF tb_excel THEN
   IF tb_excel THEN 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 
+   dvalue     = 0 .
     
    FOR EACH ar-invl NO-LOCK 
      WHERE ar-invl.company EQ cocode AND ar-invl.posted EQ YES
@@ -1184,11 +1186,16 @@ IF tb_excel THEN
            cExcelVarValue = "".
 
        distot[1]    = 0 .
+
+       IF ar-invl.dscr[1] NE "EA" THEN
+           RUN sys/ref/convcuom.p (ar-invl.dscr[1], "EA", 0, 0, 0, 0,
+                                   ar-invl.cost, OUTPUT dvalue).
+       ELSE dvalue = ar-invl.cost .
      
        ASSIGN
        distot[1] = distot[1] + ar-inv.disc-taken 
        Amounttot[1] = Amounttot[1] + amount 
-       costot[1] = costot[1] + ar-invl.cost .
+       costot[1] = (ar-invl.inv-qty * dvalue).
 
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
        cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
