@@ -955,7 +955,7 @@ PROCEDURE pCRUD :
                     DISABLE btnReset.
                 END. /* add */
                 ASSIGN
-                    dynParamSetDtl.paramID:SENSITIVE = iphMode:LABEL NE "Update"
+                    dynParamSetDtl.paramID:SENSITIVE = iphMode:LABEL EQ "Add"
                     FRAME viewFrame:TITLE = iphMode:LABEL
                     btnUpdate:LABEL = "Save"
                     .
