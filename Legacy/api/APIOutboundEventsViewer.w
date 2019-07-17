@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -38,7 +37,17 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO INITIAL "001".
+DEFINE TEMP-TABLE ttAPIOutboundEvent NO-UNDO
+    FIELDS retryEvent AS LOGICAL
+    FIELDS apiID AS CHARACTER
+    FIELDS callingProgram AS CHARACTER
+    FIELDS requestDateTime AS DATETIME
+    FIELDS success AS LOGICAL
+    FIELDS eventRowID AS ROWID
+    .
+    
+DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO INITIAL "001".
+DEFINE VARIABLE lReTrigger  AS LOGICAL   NO-UNDO INITIAL FALSE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -56,16 +65,18 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO INITIAL "001".
 &Scoped-define BROWSE-NAME BROWSE-2
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES APIOutboundEvent
+&Scoped-define INTERNAL-TABLES ttAPIOutboundEvent
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 APIOutboundEvent.apiID APIOutboundEvent.callingProgram APIOutboundEvent.requestDateTime APIOutboundEvent.success   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttAPIOutboundEvent.retryEvent ttAPIOutboundEvent.apiID ttAPIOutboundEvent.callingProgram ttAPIOutboundEvent.requestDateTime ttAPIOutboundEvent.success   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttAPIOutboundEvent.retryEvent   
+&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttAPIOutboundEvent
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttAPIOutboundEvent
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH APIOutboundEvent NO-LOCK     WHERE (IF fiAPIID:SCREEN-VALUE EQ "" THEN                TRUE            ELSE                APIOutboundEvent.apiID       EQ fiAPIID:SCREEN-VALUE)       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)       BY APIOutboundEvent.requestDateTime DESCENDING
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK     WHERE (IF fiAPIID:SCREEN-VALUE EQ "" THEN                TRUE            ELSE                APIOutboundEvent.apiID       EQ fiAPIID:SCREEN-VALUE)       AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR               fiRequestDate:SCREEN-VALUE EQ "" OR               fiRequestDate:SCREEN-VALUE EQ "/  /" THEN                TRUE            ELSE                DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))       AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN                TRUE            ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN                APIOutboundEvent.success = TRUE            ELSE                APIOutboundEvent.success = FALSE)       BY APIOutboundEvent.requestDateTime DESCENDING.
-&Scoped-define TABLES-IN-QUERY-BROWSE-2 APIOutboundEvent
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 APIOutboundEvent
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttAPIOutboundEvent       BY ttAPIOutboundEvent.requestDateTime DESCENDING
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttAPIOutboundEvent       BY ttAPIOutboundEvent.requestDateTime DESCENDING.
+&Scoped-define TABLES-IN-QUERY-BROWSE-2 ttAPIOutboundEvent
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttAPIOutboundEvent
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
@@ -73,10 +84,12 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO INITIAL "001".
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-13 btFilter btExit cbSuccess ~
-fiRequestDate fiAPIId btTest BROWSE-2 
-&Scoped-Define DISPLAYED-OBJECTS cbSuccess fiRequestDate fiAPIIDLabel ~
-fiAPIId fiRequestDatelabel fiSuccessLabel 
+&Scoped-Define ENABLED-OBJECTS RECT-13 btTest btExit btFilter btAPIIDLookup ~
+cbSuccess fiAPIId btExport btRestart btBeginRequestDateCal ~
+btEndRequestDateCal fiBeginRequestDate fiEndRequestDate BROWSE-2 
+&Scoped-Define DISPLAYED-OBJECTS cbSuccess fiAPIIDLabel fiAPIId ~
+fiSuccessLabel fiBeginRequestDate fiEndRequestDate fiBeginRequestDatelabel ~
+fiEndRequestDatelabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -92,20 +105,45 @@ fiAPIId fiRequestDatelabel fiSuccessLabel
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btAPIIDLookup 
+     IMAGE-UP FILE "Graphics/16x16/magnifying_glass.gif":U NO-CONVERT-3D-COLORS
+     LABEL "" 
+     SIZE 4.6 BY 1.1.
+
+DEFINE BUTTON btBeginRequestDateCal 
+     IMAGE-UP FILE "Graphics\16x16\calendar.bmp":U
+     LABEL "" 
+     SIZE 5.2 BY 1.24.
+
+DEFINE BUTTON btEndRequestDateCal 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 5.2 BY 1.24.
+
 DEFINE BUTTON btExit 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Exit" 
-     SIZE 11 BY 2.62.
+     SIZE 11 BY 2.62 TOOLTIP "Exit".
+
+DEFINE BUTTON btExport 
+     IMAGE-UP FILE "Graphics/32x32/file_excel.ico":U
+     LABEL "Export" 
+     SIZE 11 BY 2.62 TOOLTIP "Export Data".
 
 DEFINE BUTTON btFilter 
      IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
      LABEL "Filter" 
-     SIZE 11 BY 2.62.
+     SIZE 9 BY 2.14 TOOLTIP "Filter".
+
+DEFINE BUTTON btRestart 
+     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
+     LABEL "Restart" 
+     SIZE 9 BY 2.14 TOOLTIP "Retry Event(s)".
 
 DEFINE BUTTON btTest 
      IMAGE-UP FILE "Graphics/32x32/add.ico":U
      LABEL "Test" 
-     SIZE 11 BY 2.62.
+     SIZE 11 BY 2.62 TOOLTIP "Add Outbound Event".
 
 DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -116,7 +154,7 @@ DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "ALL"
 
 DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1
+     SIZE 30 BY 1 TOOLTIP "API ID"
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
@@ -124,14 +162,24 @@ DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:"
      SIZE 10.4 BY 1
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiRequestDate AS DATE FORMAT "99/99/99":U 
+DEFINE VARIABLE fiBeginRequestDate AS DATE FORMAT "99/99/99":U 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1.14
+     SIZE 15 BY 1.14 TOOLTIP "Begin Request Date"
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiRequestDatelabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Date:" 
+DEFINE VARIABLE fiBeginRequestDatelabel AS CHARACTER FORMAT "X(256)":U INITIAL "Begin Request Date:" 
      VIEW-AS FILL-IN 
-     SIZE 21 BY 1
+     SIZE 27.4 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiEndRequestDate AS DATE FORMAT "99/99/99":U 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.14 TOOLTIP "End Request Date"
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiEndRequestDatelabel AS CHARACTER FORMAT "X(256)":U INITIAL "End Request Date:" 
+     VIEW-AS FILL-IN 
+     SIZE 27.4 BY 1
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiSuccessLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Success:" 
@@ -140,46 +188,59 @@ DEFINE VARIABLE fiSuccessLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Success:"
      FONT 35 NO-UNDO.
 
 DEFINE RECTANGLE RECT-13
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 120 BY 5.48.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 119 BY 6.05.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-2 FOR 
-      APIOutboundEvent SCROLLING.
+      ttAPIOutboundEvent SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 C-Win _FREEFORM
   QUERY BROWSE-2 NO-LOCK DISPLAY
-      APIOutboundEvent.apiID COLUMN-LABEL "API ID" FORMAT "x(20)":U
+      ttAPIOutboundEvent.retryEvent COLUMN-LABEL "[ ] All" 
+            WIDTH 10 VIEW-AS TOGGLE-BOX
+      ttAPIOutboundEvent.apiID COLUMN-LABEL "API ID" FORMAT "x(20)":U
             WIDTH 30
-      APIOutboundEvent.callingProgram COLUMN-LABEL "Calling Program" FORMAT "x(45)":U
+      ttAPIOutboundEvent.callingProgram COLUMN-LABEL "Calling Program" FORMAT "x(45)":U
             WIDTH 56
-      APIOutboundEvent.requestDateTime COLUMN-LABEL "Request Date" FORMAT "99/99/9999 HH:MM:SS":U
-            WIDTH 35
-      APIOutboundEvent.success COLUMN-LABEL "Success" FORMAT "SUCCESS/FAILED":U
+      ttAPIOutboundEvent.requestDateTime COLUMN-LABEL "Last Request Date" FORMAT "99/99/9999 HH:MM:SS.SSS":U
+            WIDTH 40
+      ttAPIOutboundEvent.success COLUMN-LABEL "Success" FORMAT "SUCCESS/FAILED":U
+      ENABLE ttAPIOutboundEvent.retryEvent
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.2 BY 20.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.2 BY 20.24
          FONT 36 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btFilter AT ROW 1.91 COL 128 WIDGET-ID 18
-     btExit AT ROW 1.91 COL 154.2 WIDGET-ID 2
-     cbSuccess AT ROW 2.81 COL 103 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     fiRequestDate AT ROW 2.86 COL 72.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     fiAPIIDLabel AT ROW 2.91 COL 7.6 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     fiAPIId AT ROW 2.91 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-     fiRequestDatelabel AT ROW 2.91 COL 50.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fiSuccessLabel AT ROW 2.91 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     btTest AT ROW 4.86 COL 128 WIDGET-ID 20
-     BROWSE-2 AT ROW 7.67 COL 6.8 WIDGET-ID 200
-     RECT-13 AT ROW 1.95 COL 7 WIDGET-ID 22
+     btTest AT ROW 1.86 COL 129 WIDGET-ID 20
+     btExit AT ROW 1.86 COL 154.2 WIDGET-ID 2
+     btFilter AT ROW 2.14 COL 115.4 WIDGET-ID 18
+     btAPIIDLookup AT ROW 2.67 COL 50.8 WIDGET-ID 46
+     cbSuccess AT ROW 2.67 COL 73 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     fiAPIIDLabel AT ROW 2.71 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiAPIId AT ROW 2.71 COL 18.2 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     fiSuccessLabel AT ROW 2.71 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     btExport AT ROW 4.81 COL 129 WIDGET-ID 44
+     btRestart AT ROW 5.05 COL 115.4 WIDGET-ID 26
+     btBeginRequestDateCal AT ROW 5.43 COL 52 WIDGET-ID 40
+     btEndRequestDateCal AT ROW 5.43 COL 104.8 WIDGET-ID 42
+     fiBeginRequestDate AT ROW 5.48 COL 34.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     fiEndRequestDate AT ROW 5.48 COL 87.4 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     fiBeginRequestDatelabel AT ROW 5.52 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiEndRequestDatelabel AT ROW 5.52 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     BROWSE-2 AT ROW 8.38 COL 6.8 WIDGET-ID 200
+     "Filter" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.29 COL 14 WIDGET-ID 30
+          FONT 35
+     RECT-13 AT ROW 1.62 COL 7 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -203,7 +264,7 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "API Outbound Event"
+         TITLE              = "API Outbound Events"
          HEIGHT             = 28.57
          WIDTH              = 170
          MAX-HEIGHT         = 33.57
@@ -232,10 +293,15 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-2 btTest DEFAULT-FRAME */
+/* BROWSE-TAB BROWSE-2 fiEndRequestDatelabel DEFAULT-FRAME */
+ASSIGN 
+       BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
 /* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiRequestDatelabel IN FRAME DEFAULT-FRAME
+/* SETTINGS FOR FILL-IN fiBeginRequestDatelabel IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiEndRequestDatelabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSuccessLabel IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -251,24 +317,8 @@ THEN C-Win:HIDDEN = no.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
 /* Query rebuild information for BROWSE BROWSE-2
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK
-    WHERE (IF fiAPIID:SCREEN-VALUE EQ "" THEN
-               TRUE
-           ELSE
-               APIOutboundEvent.apiID       EQ fiAPIID:SCREEN-VALUE)
-      AND (IF fiRequestDate:SCREEN-VALUE EQ ?  OR
-              fiRequestDate:SCREEN-VALUE EQ "" OR
-              fiRequestDate:SCREEN-VALUE EQ "/  /" THEN
-               TRUE
-           ELSE
-               DATE(APIOutboundEvent.requestDateTime) EQ DATE(fiRequestDate:SCREEN-VALUE))
-      AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN
-               TRUE
-           ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN
-               APIOutboundEvent.success = TRUE
-           ELSE
-               APIOutboundEvent.success = FALSE)
-      BY APIOutboundEvent.requestDateTime DESCENDING.
+OPEN QUERY {&SELF-NAME} FOR EACH ttAPIOutboundEvent
+      BY ttAPIOutboundEvent.requestDateTime DESCENDING.
      _END_FREEFORM
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Query            is OPENED
@@ -283,7 +333,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundEvent NO-LOCK
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* API Outbound Event */
+ON END-ERROR OF C-Win /* API Outbound Events */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -296,7 +346,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* API Outbound Event */
+ON WINDOW-CLOSE OF C-Win /* API Outbound Events */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -312,11 +362,81 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 C-Win
 ON DEFAULT-ACTION OF BROWSE-2 IN FRAME DEFAULT-FRAME
 DO:
-    IF AVAILABLE APIOutboundEvent THEN DO:
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
         RUN api\ResponseDataViewer.w (
-            ROWID(APIOutboundEvent)
+            ttAPIOutboundEvent.eventRowID
             ).
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 C-Win
+ON START-SEARCH OF BROWSE-2 IN FRAME DEFAULT-FRAME
+DO:
+    IF SELF:CURRENT-COLUMN:NAME EQ "retryEvent" THEN DO:
+        lReTrigger = NOT lReTrigger.
+        
+        FOR EACH ttAPIOutboundEvent:
+            ttAPIOutboundEvent.retryEvent = lReTrigger.
+        END.
+        
+        SELF:CURRENT-COLUMN:LABEL = IF lReTrigger THEN
+                                        "[*] All"
+                                    ELSE
+                                        "[ ] All".
+                                        
+        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}    
+    END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btAPIIDLookup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAPIIDLookup C-Win
+ON CHOOSE OF btAPIIDLookup IN FRAME DEFAULT-FRAME
+DO:
+    APPLY "HELP" TO fiAPIId.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btBeginRequestDateCal
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btBeginRequestDateCal C-Win
+ON CHOOSE OF btBeginRequestDateCal IN FRAME DEFAULT-FRAME
+DO: 
+    DEFINE VARIABLE cCalendarDate AS CHARACTER NO-UNDO.
+
+    RUN pChooseDate (
+        OUTPUT cCalendarDate
+        ).
+ 
+    IF cCalendarDate NE '' THEN
+        fiBeginRequestDate:SCREEN-VALUE = cCalendarDate.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btEndRequestDateCal
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btEndRequestDateCal C-Win
+ON CHOOSE OF btEndRequestDateCal IN FRAME DEFAULT-FRAME
+DO:
+    DEFINE VARIABLE cCalendarDate AS CHARACTER NO-UNDO.
+
+    RUN pChooseDate (
+        OUTPUT cCalendarDate
+        ).
+ 
+    IF cCalendarDate NE '' THEN
+        fiEndRequestDate:SCREEN-VALUE = cCalendarDate.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -334,10 +454,190 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btExport
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExport C-Win
+ON CHOOSE OF btExport IN FRAME DEFAULT-FRAME /* Export */
+DO:
+    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFilePath     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lHeader       AS LOGICAL   NO-UNDO INITIAL TRUE.
+    DEFINE VARIABLE cSysCtrlName  AS CHARACTER NO-UNDO INITIAL "APIExport".
+    
+    RUN sys/ref/nk1look.p (
+        cCompany,             /* Company Code */
+        cSysCtrlName,         /* sys-ctrl name */
+        "C",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        FALSE,                /* Use ship-to */
+        FALSE,                /* ship-to vendor */
+        "",                   /* ship-to vendor value */
+        "",                   /* shi-id value */
+        OUTPUT cFilePath,
+        OUTPUT lRecFound
+        ).
+    
+    IF NOT lRecFound OR cFilePath EQ "" THEN
+        cFilePath = "C:\temp\".
+    
+    cFullFilePath = IF fiAPIID:SCREEN-VALUE NE "" THEN
+                        fiAPIID:SCREEN-VALUE
+                    ELSE
+                        "ALL".
+    
+    cFullFilePath = cFilePath
+                  + cFullFilePath
+                  + STRING(YEAR(TODAY)) 
+                  + STRING(MONTH(TODAY),"99") 
+                  + STRING(DAY(TODAY),"99") 
+                  + "_"
+                  + REPLACE(STRING(TIME,"HH:MM:SS"),":","")
+                  + ".csv".
+                  
+    OUTPUT TO VALUE(cFullFilePath).
+    IF lHeader THEN
+        EXPORT DELIMITER ","
+            "API ID"
+            "Calling Program"
+            "Last Request Date"
+            "Status"
+            .
+            
+    FOR EACH ttAPIOutboundEvent:
+        EXPORT DELIMITER ","
+            ttAPIOutboundEvent.apiID
+            ttAPIOutboundEvent.callingProgram
+            STRING(ttAPIOutboundEvent.requestDateTime, "99/99/9999 HH:MM:SS.SSS")
+            STRING(ttAPIOutboundEvent.success, "SUCCESS/FAILURE")
+            .   
+    END.
+    OUTPUT CLOSE.  
+    
+    MESSAGE "Export complete. File saved to " cFullFilePath
+        VIEW-AS ALERT-BOX INFORMATION. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btFilter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFilter C-Win
 ON CHOOSE OF btFilter IN FRAME DEFAULT-FRAME /* Filter */
 DO:
+    IF fiBeginRequestDate:SCREEN-VALUE NE ?  AND
+       fiBeginRequestDate:SCREEN-VALUE NE "" AND
+       fiBeginRequestDate:SCREEN-VALUE NE "/  /" AND
+       fiEndRequestDate:SCREEN-VALUE NE ?  AND
+       fiEndRequestDate:SCREEN-VALUE NE "" AND
+       fiEndRequestDate:SCREEN-VALUE NE "/  /" AND
+       DATE(fiEndRequestDate:SCREEN-VALUE) LT DATE(fiBeginRequestDate:SCREEN-VALUE) THEN DO:
+        MESSAGE "Begin Request Date cannot be greater than End Request Date" 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.       
+    
+    EMPTY TEMP-TABLE ttAPIOutboundEvent.
+    FOR EACH APIOutboundEvent NO-LOCK
+        WHERE (IF fiAPIID:SCREEN-VALUE EQ "ALL" OR fiAPIID:SCREEN-VALUE EQ "" THEN
+                   TRUE
+               ELSE
+                   APIOutboundEvent.apiID       EQ fiAPIID:SCREEN-VALUE)
+          AND (IF fiBeginRequestDate:SCREEN-VALUE EQ ?  OR
+                  fiBeginRequestDate:SCREEN-VALUE EQ "" OR
+                  fiBeginRequestDate:SCREEN-VALUE EQ "/  /" THEN
+                  TRUE
+               ELSE
+                  DATE(APIOutboundEvent.requestDateTime) GE DATE(fiBeginRequestDate:SCREEN-VALUE))
+          AND (IF fiEndRequestDate:SCREEN-VALUE EQ ?  OR
+                  fiEndRequestDate:SCREEN-VALUE EQ "" OR
+                  fiEndRequestDate:SCREEN-VALUE EQ "/  /" THEN
+                  TRUE
+               ELSE
+                  DATE(APIOutboundEvent.requestDateTime) LE DATE(fiEndRequestDate:SCREEN-VALUE))
+          AND (IF cbSuccess:SCREEN-VALUE = "ALL" THEN
+                   TRUE
+               ELSE IF cbSuccess:SCREEN-VALUE = "SUCCESS" THEN
+                   APIOutboundEvent.success = TRUE
+               ELSE
+                   APIOutboundEvent.success = FALSE)
+        BY APIOutboundEvent.requestDateTime DESCENDING:
+        CREATE ttAPIOutboundEvent.
+        BUFFER-COPY APIOutboundEvent TO ttAPIOutboundEvent.
+        ttAPIOutboundEvent.eventRowID = ROWID(APIOutboundEvent).        
+    END.
+    
+    {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btRestart
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRestart C-Win
+ON CHOOSE OF btRestart IN FRAME DEFAULT-FRAME /* Restart */
+DO: 
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTotalEvents   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSuccessEvents AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFailureEvents AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER buf_ttAPIOutboundEvent FOR ttAPIOutboundEvent.
+        
+    FIND FIRST buf_ttAPIOutboundEvent
+         WHERE buf_ttAPIOutboundEvent.retryEvent
+           AND NOT buf_ttAPIOutboundEvent.success
+         NO-ERROR.
+    IF NOT AVAILABLE buf_ttAPIOutboundEvent THEN
+        RETURN.
+        
+    SESSION:SET-WAIT-STATE("GENERAL").
+
+    FOR EACH buf_ttAPIOutboundEvent
+        WHERE buf_ttAPIOutboundEvent.retryEvent
+         BY buf_ttAPIOutboundEvent.requestDateTime:
+        ASSIGN
+            buf_ttAPIOutboundEvent.retryEvent = FALSE
+            .
+  
+        IF buf_ttAPIOutboundEvent.success THEN
+            NEXT.
+  
+        RUN api/PrepareAndCallOutboundRequest.p (
+            buf_ttAPIOutboundEvent.apiID,
+            "APIOutboundEvent",
+            STRING(buf_ttAPIOutboundEvent.eventRowID),
+            TRUE, /* Re-trigger */
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+  
+        FIND FIRST APIOutboundEvent NO-LOCK
+             WHERE ROWID(APIOutboundEvent) EQ buf_ttAPIOutboundEvent.eventRowID NO-ERROR.
+        IF AVAILABLE APIOutboundEvent THEN
+            ASSIGN
+                buf_ttAPIOutboundEvent.callingProgram  = APIOutboundEvent.callingProgram
+                buf_ttAPIOutboundEvent.requestDateTime = APIOutboundEvent.requestDateTime
+                buf_ttAPIOutboundEvent.success         = APIOutboundEvent.success
+                .
+  
+        iTotalEvents = iTotalEvents + 1.
+  
+        IF lSuccess THEN
+            iSuccessEvents = iSuccessEvents + 1.
+        ELSE
+            iFailureEvents = iFailureEvents + 1.
+    END.
+       
+    SESSION:SET-WAIT-STATE("").
+     
+    MESSAGE "Outbound Event(s) updated" SKIP
+            "Total Records attempted:" iTotalEvents SKIP
+            "Total Success Records:" iSuccessEvents SKIP
+            "Total Failed Records:" iFailureEvents
+       VIEW-AS ALERT-BOX INFORMATION.
+    
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
 END.
 
@@ -409,10 +709,19 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN enable_UI.
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
+    RUN enable_UI.
+
+    /* Fetch current day's records to temp-table when launched */
+    ASSIGN
+        fiAPIID:SCREEN-VALUE            = "All"
+        fiBeginRequestDate:SCREEN-VALUE = STRING(TODAY)
+        fiEndRequestDate:SCREEN-VALUE   = STRING(TODAY)
+        .
+    APPLY "CHOOSE" TO btFilter.    
+
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -451,14 +760,31 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbSuccess fiRequestDate fiAPIIDLabel fiAPIId fiRequestDatelabel 
-          fiSuccessLabel 
+  DISPLAY cbSuccess fiAPIIDLabel fiAPIId fiSuccessLabel fiBeginRequestDate 
+          fiEndRequestDate fiBeginRequestDatelabel fiEndRequestDatelabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-13 btFilter btExit cbSuccess fiRequestDate fiAPIId btTest 
-         BROWSE-2 
+  ENABLE RECT-13 btTest btExit btFilter btAPIIDLookup cbSuccess fiAPIId 
+         btExport btRestart btBeginRequestDateCal btEndRequestDateCal 
+         fiBeginRequestDate fiEndRequestDate BROWSE-2 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChooseDate C-Win 
+PROCEDURE pChooseDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcCalendarDate AS CHARACTER NO-UNDO.
+
+    RUN nosweat/popupcal2.w (OUTPUT opcCalendarDate).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -44,12 +44,12 @@ DEFINE INPUT PARAMETER ipriOutboundEvent AS ROWID NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 edEndpoint edRequestData ~
-edResponseData edErrorMessage Btn_OK Btn_Cancel 
+edResponseData edErrorMessage edNotes Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiRequestVerb fiSSLEnabled fiClientID ~
 fiRequestVerblb fiSSLEnabledlb fiClientIDlb fiReqDataType fiAuthType ~
 fiReqDataTypelb fiRequestVerb-2 fiEndPointLabel edEndpoint ~
 fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData ~
-fiErrorMessageLabel edErrorMessage 
+fiErrorMessageLabel edErrorMessage fiNotesLabel edNotes 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -81,19 +81,24 @@ DEFINE VARIABLE edEndpoint AS CHARACTER
      SIZE 119 BY 2.62
      FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE edErrorMessage AS CHARACTER 
+DEFINE VARIABLE edErrorMessage AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 119 BY 2.48
      FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE edRequestData AS CHARACTER 
+DEFINE VARIABLE edNotes AS LONGCHAR 
+     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
+     SIZE 119 BY 4.38
+     FGCOLOR 9  NO-UNDO.
+
+DEFINE VARIABLE edRequestData AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
      SIZE 119 BY 5.71
      FGCOLOR 9  NO-UNDO.
 
-DEFINE VARIABLE edResponseData AS CHARACTER 
+DEFINE VARIABLE edResponseData AS LONGCHAR 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
-     SIZE 119 BY 5.95
+     SIZE 119 BY 4.05
      FGCOLOR 9  NO-UNDO.
 
 DEFINE VARIABLE fiAuthType AS CHARACTER FORMAT "X(256)":U 
@@ -119,6 +124,11 @@ DEFINE VARIABLE fiEndPointLabel AS CHARACTER FORMAT "X(256)":U INITIAL "End Poin
 DEFINE VARIABLE fiErrorMessageLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Response Result:" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiNotesLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Notes:" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiReqDataType AS CHARACTER FORMAT "X(256)":U 
@@ -172,35 +182,37 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 126 BY 22.86.
+     SIZE 126 BY 25.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiRequestVerb AT ROW 1.76 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 82
-     fiSSLEnabled AT ROW 1.76 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
-     fiClientID AT ROW 1.76 COL 107.6 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     fiRequestVerblb AT ROW 1.86 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 70
-     fiSSLEnabledlb AT ROW 1.86 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
-     fiClientIDlb AT ROW 1.86 COL 93.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-     fiReqDataType AT ROW 3.48 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     fiAuthType AT ROW 3.48 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
-     fiReqDataTypelb AT ROW 3.52 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 74
-     fiRequestVerb-2 AT ROW 3.52 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 72
-     fiEndPointLabel AT ROW 5.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     edEndpoint AT ROW 6.86 COL 11 NO-LABEL WIDGET-ID 14
-     fiRequestDataLabel AT ROW 9.95 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     edRequestData AT ROW 11.14 COL 11 NO-LABEL WIDGET-ID 2
-     fiResponseDataLabel AT ROW 17.1 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     edResponseData AT ROW 18.29 COL 11 NO-LABEL WIDGET-ID 10
-     fiErrorMessageLabel AT ROW 24.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
-     edErrorMessage AT ROW 25.76 COL 11 NO-LABEL WIDGET-ID 94
-     Btn_OK AT ROW 28.76 COL 41.2
-     Btn_Cancel AT ROW 28.76 COL 81
-     RECT-1 AT ROW 1.33 COL 8 WIDGET-ID 84
-     RECT-2 AT ROW 5.52 COL 8 WIDGET-ID 86
-     SPACE(7.79) SKIP(3.23)
+     fiRequestVerb AT ROW 1.57 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 82
+     fiSSLEnabled AT ROW 1.57 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 60
+     fiClientID AT ROW 1.57 COL 107.6 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     fiRequestVerblb AT ROW 1.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+     fiSSLEnabledlb AT ROW 1.67 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
+     fiClientIDlb AT ROW 1.67 COL 93.4 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     fiReqDataType AT ROW 3.29 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     fiAuthType AT ROW 3.29 COL 71.8 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     fiReqDataTypelb AT ROW 3.33 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+     fiRequestVerb-2 AT ROW 3.33 COL 52.4 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     fiEndPointLabel AT ROW 5.24 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     edEndpoint AT ROW 6.33 COL 11 NO-LABEL WIDGET-ID 14
+     fiRequestDataLabel AT ROW 9.05 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     edRequestData AT ROW 10.14 COL 11 NO-LABEL WIDGET-ID 2
+     fiResponseDataLabel AT ROW 15.95 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     edResponseData AT ROW 17.05 COL 11 NO-LABEL WIDGET-ID 10
+     fiErrorMessageLabel AT ROW 21.19 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+     edErrorMessage AT ROW 22.29 COL 11 NO-LABEL WIDGET-ID 94
+     fiNotesLabel AT ROW 24.91 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+     edNotes AT ROW 26 COL 11 NO-LABEL WIDGET-ID 98
+     Btn_OK AT ROW 31 COL 41.2
+     Btn_Cancel AT ROW 31 COL 81
+     RECT-1 AT ROW 1.14 COL 8 WIDGET-ID 84
+     RECT-2 AT ROW 5.1 COL 8 WIDGET-ID 86
+     SPACE(7.79) SKIP(2.94)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 
@@ -236,6 +248,9 @@ ASSIGN
        edErrorMessage:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 ASSIGN 
+       edNotes:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+ASSIGN 
        edRequestData:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 ASSIGN 
@@ -265,6 +280,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fiErrorMessageLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiNotesLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiNotesLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiReqDataType IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -352,6 +372,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
       edRequestData:WORD-WRAP  = TRUE
       edResponseData:WORD-WRAP = TRUE
+      edNotes:WORD-WRAP        = TRUE
       .
 
   RUN enable_UI.
@@ -398,9 +419,10 @@ PROCEDURE enable_UI :
           fiClientIDlb fiReqDataType fiAuthType fiReqDataTypelb fiRequestVerb-2 
           fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData 
           fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
+          fiNotesLabel edNotes 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-1 RECT-2 edEndpoint edRequestData edResponseData edErrorMessage 
-         Btn_OK Btn_Cancel 
+         edNotes Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -426,6 +448,7 @@ PROCEDURE pInit :
         ASSIGN
             edRequestData:SCREEN-VALUE  = STRING(APIOutboundEvent.requestData)
             edResponseData:SCREEN-VALUE = STRING(APIOutboundEvent.responseData)                    
+            edNotes:SCREEN-VALUE        = STRING(APIOutboundEvent.notes)
             edErrorMessage:SCREEN-VALUE = IF APIOutboundEvent.success THEN
                                               "SUCCESS:" + "~n" + APIOutboundEvent.errorMessage
                                           ELSE

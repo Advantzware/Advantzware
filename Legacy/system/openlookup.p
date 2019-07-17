@@ -196,6 +196,12 @@ CASE ip-lookupField:
            INPUT "apiID",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
            /* Pipe separated list of return field values as output based on previous input list */
            OUTPUT op-returnFields,
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
@@ -231,6 +237,12 @@ CASE ip-lookupField:
            INPUT "vend-no,name",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
            /* Pipe separated list of return field values as output based on previous input list */
            OUTPUT op-returnFields,
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
@@ -265,6 +277,12 @@ CASE ip-lookupField:
            INPUT "po-no",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
            /* Pipe separated list of return field values as output based on previous input list */
            OUTPUT op-returnFields,
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
@@ -299,6 +317,12 @@ CASE ip-lookupField:
            INPUT "release#",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
            /* Pipe separated list of return field values as output based on previous input list */
            OUTPUT op-returnFields,
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
