@@ -121,8 +121,8 @@ FOR EACH tt-boll,
             v-relpc     = IF tt-boll.p-c THEN "C" ELSE "P".
 
             PUT
-                "<C2>" TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>")) 
-                "<C11>" STRING(w2.cases,"->>>9") + " @ "
+                "<C2>" TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>"))
+                "<C12>" STRING(w2.cases,"->>>9") + " @ "
                 "<C17>" STRING(w2.cas-cnt,">>>>>>")
                 "<C24>" STRING(tt-boll.qty) + " [" + STRING(v-relpc) + "]"
                 "<C35>" v-job-po FORMAT "x(15)".
