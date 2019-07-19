@@ -92,7 +92,7 @@ DEF STREAM excel.
 begin_slsmn end_slsmn tb_cust-list btnCustList begin_cust-no end_cust-no ~
 begin_fg-cat end_fg-cat tb_detailed tb_rem-cents rd_sum-by tb_fin-chg ~
 rd_fg-cp rd-dest td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+btn-cancel
 &Scoped-Define DISPLAYED-OBJECTS as-of-date begin_inv-date begin_slsmn ~
 end_slsmn tb_cust-list begin_cust-no end_cust-no begin_fg-cat end_fg-cat ~
 tb_detailed tb_rem-cents lbl_sum-by rd_sum-by tb_fin-chg lbl_print rd_fg-cp ~
@@ -179,7 +179,7 @@ DEFINE VARIABLE lbl_sum-by AS CHARACTER FORMAT "X(256)":U INITIAL "Summary By?"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 70 
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 50 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
@@ -925,6 +925,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
+    ASSIGN lines-per-page = 50
+        lines-per-page:SCREEN-VALUE = "50" .
     APPLY "entry" TO as-of-date.
   END.
 
@@ -1067,7 +1069,7 @@ PROCEDURE enable_UI :
   ENABLE RECT-6 RECT-7 as-of-date begin_inv-date begin_slsmn end_slsmn 
          tb_cust-list btnCustList begin_cust-no end_cust-no begin_fg-cat 
          end_fg-cat tb_detailed tb_rem-cents rd_sum-by tb_fin-chg rd_fg-cp 
-         rd-dest td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         rd-dest td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1230,7 +1232,6 @@ END.
 DO WITH FRAME r-detail:
   tt-report.key-05:LABEL = rd_fg-cp.
 END.
-
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
