@@ -1614,6 +1614,10 @@ PROCEDURE copy-misc :
       END.
     END.
   END.
+  ELSE DO:
+      MESSAGE "The copy is only available for multiple forms."
+          VIEW-AS ALERT-BOX INFORMATION.
+  END.
 
 END PROCEDURE.
 
