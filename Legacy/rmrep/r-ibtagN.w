@@ -2041,12 +2041,10 @@ SESSION:SET-WAIT-STATE ("general").
             and job-mat.job-no2 eq job-hdr.job-no2
             AND job-mat.job-no NE ""
             and job-mat.frm     eq job-hdr.frm
-            and can-find(first item where item.company  eq cocode
-                         and item.i-no     eq job-mat.i-no) NO-LOCK:
-
+            and job-mat.i-no EQ item.i-no NO-LOCK:
+           
             ASSIGN 
-            v-msf = IF job-mat.wid GT 0 THEN v-lf-qty * job-mat.wid / 12 / 1000
-                ELSE tt-rm-bin.qty * job-mat.wid * job-mat.len / 144 / 1000 .
+            v-msf =  tt-rm-bin.qty * job-mat.wid * job-mat.len / 144 / 1000 .
             v-tons = v-MSF * job-mat.basis-w / 2000 /*Lbs*/.
         END.
     END.
