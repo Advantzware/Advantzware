@@ -281,7 +281,7 @@ DEFINE VARIABLE tb_ord-no AS INTEGER FORMAT ">>>>>9" INITIAL 0
 
 DEFINE VARIABLE tb_po-no AS INTEGER FORMAT ">>>>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 8.8 BY 1
+     SIZE 9.6 BY 1
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_rfidtag AS CHARACTER FORMAT "X(24)" 
@@ -356,9 +356,9 @@ DEFINE FRAME F-Main
           "Enter Bin Location where Item is Stocked" NO-LABEL
      tb_job-no AT ROW 1.71 COL 58 COLON-ALIGNED HELP
           "Job Number." NO-LABEL
-     tb_job-no2 AT ROW 1.71 COL 67 COLON-ALIGNED HELP
+     tb_job-no2 AT ROW 1.71 COL 66.6 COLON-ALIGNED HELP
           "Enter Job sub-number." NO-LABEL
-     tb_po-no AT ROW 1.71 COL 71 COLON-ALIGNED NO-LABEL
+     tb_po-no AT ROW 1.71 COL 70.40 COLON-ALIGNED NO-LABEL
      tb_ord-no AT ROW 1.71 COL 80 COLON-ALIGNED NO-LABEL
      tb_i-no AT ROW 1.71 COL 89 COLON-ALIGNED HELP
           "Enter Item Number." NO-LABEL
