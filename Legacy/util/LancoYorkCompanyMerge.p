@@ -13,10 +13,8 @@
 DEF STREAM logStream.
 
 DEF VAR iCtr AS INT NO-UNDO.
-DEF VAR iLast001Job AS INT NO-UNDO.
-DEF VAR iLast001oereth AS INT NO-UNDO.
 DEF VAR cConvTypeList AS CHAR NO-UNDO INITIAL 
-    "BankAcct,Account,Carrier,Est-no,Item,ItemFg,Job,Loc,M-code,Release#,Loadtag,Company".
+    "BankAcct,Account,Carrier,check-No,Est-no,inv-no,Item,ItemFg,Job,Loc,M-code,ra-no,Release#,Loadtag,Company".
     
 
 DEF TEMP-TABLE ttFullTableList
@@ -59,14 +57,10 @@ DEF BUFFER boe-retl FOR oe-retl.
 
 RUN pStatus("Initialize").
 
-FIND last job WHERE job.company = "001".
-ASSIGN 
-    iLast001job = job.job.
-    
 RUN pBuildFullTableList.
 RUN pBuildFieldLists.
 RUN pOutputPreMerge.
-/*
+
 RUN pConsolidateAmounts.
 RUN pLoadCoAFromCSV ("c:\tmp\LYAccountConversion.csv").
 RUN pBuildNewCoA.
@@ -124,14 +118,23 @@ FOR EACH ar-ledger WHERE
             SUBSTRING(ar-ledger.ref-num,6,1) = "1".
     END.
 END.
-*/
+
+RUN pStatus("  Reassigning gl-jrn initial dates.").
+FOR EACH gl-jrn WHERE 
+    gl-jrn.company = "002" AND 
+    gl-jrn.tr-date = 7/31/18
+    USE-INDEX rec_key:
+    ASSIGN 
+        gl-jrn.tr-date = 7/30/18.
+END.
+
 DO iCtr = 1 TO NUM-ENTRIES(cConvTypeList):
     RUN pConvertRecsByType (ENTRY(iCtr,cConvTypeList)).
 END.
-/*
+
 RUN pDeleteSimpleMerges.
 RUN pCleanup.
-*/
+
 RUN pStatus("Conversion Complete").
 
 MESSAGE 
@@ -230,6 +233,19 @@ PROCEDURE pBuildFieldLists:
             RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
         END. 
     END.
+    
+    /* Check-no - ap tables only */
+    FOR EACH _field NO-LOCK WHERE 
+        _field._field-name = "check-no":
+        FIND _file OF _field NO-LOCK NO-ERROR.
+        IF _file._hidden THEN NEXT.
+        IF NOT _file._file-name BEGINS "ap" THEN NEXT.
+        IF AVAIL _file THEN 
+        DO:
+            RUN pBuildSingleFieldList ("Check-No",_file._file-name,_field._field-name).
+            RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
+        END. 
+    END.
         
     /* CustNo - Customers will just be merged so this is unnecessary */
     FOR EACH _field NO-LOCK WHERE 
@@ -263,11 +279,13 @@ PROCEDURE pBuildFieldLists:
         _field._field-name = "i-no":
         IF _field._help MATCHES "*finished*"
             OR _field._help MATCHES "*F/G*" 
+            OR _field._help MATCHES "Finished*"
+            OR _field._help MATCHES "*Finished*"
+            OR _field._help MATCHES "*Finished"
             OR _field._help MATCHES "finished*"
             OR _field._help MATCHES "F/G*"
             OR _field._help MATCHES "*finished"
-            OR _field._help MATCHES "*F/G"THEN 
-        DO:
+            OR _field._help MATCHES "*F/G"THEN DO:
             FIND _file OF _field NO-LOCK NO-ERROR.
             IF _file._hidden THEN NEXT.
             IF AVAIL _file THEN 
@@ -281,8 +299,7 @@ PROCEDURE pBuildFieldLists:
                 OR _field._help MATCHES "Raw*"
                 OR _field._label MATCHES "RM*"
                 OR _field._help MATCHES "*Raw"
-                OR _field._label MATCHES "*RM" THEN 
-        DO:
+                OR _field._label MATCHES "*RM" THEN DO:
             FIND _file OF _field NO-LOCK NO-ERROR.
             IF _file._hidden THEN NEXT.
             IF AVAIL _file THEN 
@@ -291,8 +308,7 @@ PROCEDURE pBuildFieldLists:
                 RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
             END. 
         END.
-        ELSE 
-        DO:
+        ELSE DO:
             FIND _file OF _field NO-LOCK NO-ERROR.
             IF _file._hidden THEN NEXT.
             IF AVAIL _file 
@@ -306,10 +322,23 @@ PROCEDURE pBuildFieldLists:
             DO:
                 RUN pBuildSingleFieldList ("Item",_file._file-name,_field._field-name).
                 RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
-            END. 
+                    END. 
+            END.
+    END.
+    RUN pBuildSingleFieldList ("ItemFG","oe-ordl","i-no").
+
+    /* inv-no */
+    FOR EACH _field WHERE _field-name = "inv-no":
+        FIND _file OF _field NO-LOCK.
+        IF _file._hidden THEN NEXT.
+        IF NOT _file._file-name BEGINS "ap" THEN NEXT.
+        IF AVAIL _file THEN 
+        DO:
+            RUN pBuildSingleFieldList ("inv-no",_file._file-name,_field._field-name).
+            RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
         END.
     END.
-
+        
     /* Job */
     FOR EACH _field WHERE _field._field-name = "job":
         IF _field._data-type = "integer" THEN DO:
@@ -327,6 +356,7 @@ PROCEDURE pBuildFieldLists:
         _field._field-name = "tag" OR 
         _field._field-name = "tag-no":
         FIND _file OF _field NO-LOCK NO-ERROR.
+        IF _field._field-name EQ "tag" AND SUBSTRING(_file._file-name,1,1) LT "v" THEN NEXT. 
         IF AVAIL _file THEN 
         DO:
             RUN pBuildSingleFieldList ("Loadtag",_file._file-name,_field._field-name).
@@ -381,6 +411,18 @@ PROCEDURE pBuildFieldLists:
         IF AVAIL _file THEN 
         DO:
             RUN pBuildSingleFieldList ("M-code",_file._file-name,_field._field-name).
+            RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
+        END. 
+    END.
+
+    /* ra-no */    
+    FOR EACH _field NO-LOCK WHERE 
+        _field._field-name = "ra-no":
+        FIND _file OF _field NO-LOCK NO-ERROR.
+        IF _file._hidden THEN NEXT.
+        IF AVAIL _file THEN 
+        DO:
+            RUN pBuildSingleFieldList ("ra-no",_file._file-name,_field._field-name).
             RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
         END. 
     END.
@@ -890,19 +932,15 @@ PROCEDURE pConvertJobTable:
                 IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 
                 AND hCoField:BUFFER-VALUE = "002" THEN
                 DO:
-                    IF CAN-FIND (FIRST job WHERE 
-                        job.company = "001" AND 
-                        job.job = hField:BUFFER-VALUE) THEN ASSIGN 
-                            hField:BUFFER-VALUE = hField:BUFFER-VALUE + iLast001job.
+                    ASSIGN 
+                        hField:BUFFER-VALUE = hField:BUFFER-VALUE + 2000.
                 END.
                 ELSE 
                 DO jCtr = 1 TO hField:EXTENT:
                     IF hCoField:BUFFER-VALUE EQ "002" THEN 
                     DO:
-                        IF CAN-FIND (FIRST job WHERE 
-                            job.company = "001" AND 
-                            job.job = hField:BUFFER-VALUE(jCtr)) THEN ASSIGN 
-                                hField:BUFFER-VALUE(jCtr) = hField:BUFFER-VALUE(jCtr) + iLast001Job.
+                        ASSIGN 
+                            hField:BUFFER-VALUE(jCtr) = hField:BUFFER-VALUE(jCtr) + 2000.
                     END.
                 END.
             END.
@@ -1024,21 +1062,21 @@ PROCEDURE pConvertRecsByType:
             WHEN "Account"  THEN RUN pConvertAccountTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "BankAcct" THEN RUN pConvertBankAccountTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Carrier"  THEN RUN pConvertCarrierTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            
-            WHEN "Company"  THEN RUN pConvertCompanyTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            WHEN "Check-no" THEN RUN pConvertCheckNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Est-no"   THEN RUN pConvertEstNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            WHEN "inv-no"   THEN RUN pConvertInvNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Item"     THEN RUN pConvertItemTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "ItemFg"   THEN RUN pConvertItemFGTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            */
             WHEN "Job"      THEN RUN pConvertJobTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            /*
-            WHEN "Loadtag"  THEN RUN pConvertLoadtagTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Loc"      THEN RUN pConvertLocTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "M-code"   THEN RUN pConvertMcodeTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            WHEN "ra-no"    THEN RUN pConvertRaNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Release#" THEN RUN pConvertRelease#Table (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            */
+            WHEN "Loadtag"  THEN RUN pConvertLoadtagTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            WHEN "Company"  THEN RUN pConvertCompanyTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             /* Customers are just merged 
             WHEN "CustNo"   THEN RUN pConvertCustTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            */
             */
         END.            
     END.        
@@ -1177,6 +1215,77 @@ PROCEDURE pConvertCarrierTable:
                         hField:BUFFER-VALUE(jCtr) = "P" + SUBSTRING(hField:BUFFER-VALUE(jCtr),1,4) NO-ERROR.
                     ELSE IF hCoField:BUFFER-VALUE EQ "002" THEN ASSIGN  
                         hField:BUFFER-VALUE(jCtr) = "C" + SUBSTRING(hField:BUFFER-VALUE(jCtr),1,4) NO-ERROR.
+                END.
+            END.
+        END.
+    END.
+
+END PROCEDURE.
+
+
+PROCEDURE pConvertCheckNoTable:
+    /*------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcTableName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcFieldList AS CHAR NO-UNDO.
+    
+    DEF VAR hBuffer AS HANDLE.
+    DEF VAR hQuery AS HANDLE.
+    DEF VAR hCoField AS HANDLE.
+    DEF VAR hField AS HANDLE.
+    DEF VAR hExtent AS HANDLE.
+    DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR jCtr AS INT NO-UNDO.
+    DEF VAR iIntVal AS INT NO-UNDO.
+
+    RUN pStatus("   Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList).
+    
+    CREATE BUFFER hBuffer FOR TABLE ipcTableName.
+    CREATE QUERY hQuery.
+    
+    hBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+        
+    hQuery:ADD-BUFFER(hBuffer).
+    hQuery:QUERY-PREPARE("FOR EACH " + ipcTableName + " BY ROWID(" + ipcTableName + ")").
+    hQuery:QUERY-OPEN ().
+        
+    checkCompany:
+    DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+        ASSIGN 
+            hCoField = hBuffer:BUFFER-FIELD (iCtr).
+        IF hCoField:NAME = "Company" 
+            OR hCoField:NAME = "cocode" THEN 
+            LEAVE checkCompany.
+    END.
+        
+    DO WHILE NOT hQuery:QUERY-OFF-END TRANSACTION:
+        hQuery:GET-NEXT(EXCLUSIVE-LOCK).
+        IF NOT hQuery:QUERY-OFF-END THEN 
+        DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+            ASSIGN 
+                hField = hBuffer:BUFFER-FIELD (iCtr).
+            IF CAN-DO(ipcFieldList,hField:NAME) THEN 
+            DO:
+                IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 THEN 
+                DO:
+                    IF hCoField:BUFFER-VALUE EQ "002" THEN DO:
+                        IF hField:DATA-TYPE = "INTEGER" 
+                        AND hField:BUFFER-VALUE GE 800000
+                        AND hField:BUFFER-VALUE LT 900000 THEN ASSIGN  
+                            hField:BUFFER-VALUE = hField:BUFFER-VALUE + 10000 NO-ERROR.
+                        ELSE 
+                    END.
+                END.
+                ELSE 
+                DO jCtr = 1 TO hField:EXTENT:
+                    IF hCoField:BUFFER-VALUE EQ "002" THEN 
+                    DO:
+                        IF hField:DATA-TYPE = "INTEGER" 
+                            AND hField:BUFFER-VALUE(jctr) GE 800000
+                            AND hField:BUFFER-VALUE(jctr) LT 900000 THEN ASSIGN  
+                                hField:BUFFER-VALUE(jctr) = hField:BUFFER-VALUE(jctr) + 10000 NO-ERROR.
+                        ELSE 
+                    END.
                 END.
             END.
         END.
@@ -1432,6 +1541,72 @@ PROCEDURE pConvertEstNoTable:
 END PROCEDURE.
 
 
+PROCEDURE pConvertInvNoTable:
+    /*------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcTableName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcFieldList AS CHAR NO-UNDO.
+    
+    DEF VAR hBuffer AS HANDLE.
+    DEF VAR hQuery AS HANDLE.
+    DEF VAR hCoField AS HANDLE.
+    DEF VAR hField AS HANDLE.
+    DEF VAR hExtent AS HANDLE.
+    DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR jCtr AS INT NO-UNDO.
+    DEF VAR iIntVal AS INT NO-UNDO.
+
+    RUN pStatus("   Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList).
+    
+    CREATE BUFFER hBuffer FOR TABLE ipcTableName.
+    CREATE QUERY hQuery.
+    
+    hBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+        
+    hQuery:ADD-BUFFER(hBuffer).
+    hQuery:QUERY-PREPARE("FOR EACH " + ipcTableName + " BY ROWID(" + ipcTableName + ")").
+    hQuery:QUERY-OPEN ().
+        
+    checkCompany:
+    DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+        ASSIGN 
+            hCoField = hBuffer:BUFFER-FIELD (iCtr).
+        IF hCoField:NAME = "Company" 
+            OR hCoField:NAME = "cocode" THEN 
+            LEAVE checkCompany.
+    END.
+        
+    DO WHILE NOT hQuery:QUERY-OFF-END TRANSACTION:
+        hQuery:GET-NEXT(EXCLUSIVE-LOCK).
+        IF NOT hQuery:QUERY-OFF-END THEN 
+        DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+            ASSIGN 
+                hField = hBuffer:BUFFER-FIELD (iCtr).
+            IF CAN-DO(ipcFieldList,hField:NAME) THEN 
+            DO:
+                IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 THEN 
+                DO:
+                    IF hCoField:BUFFER-VALUE EQ "002" THEN 
+                    DO:
+                        ASSIGN  
+                            hField:BUFFER-VALUE = "x" + hField:BUFFER-VALUE NO-ERROR.
+                    END.
+                END.
+                ELSE 
+                DO jCtr = 1 TO hField:EXTENT:
+                    IF hCoField:BUFFER-VALUE EQ "002" THEN 
+                    DO:
+                        ASSIGN  
+                            hField:BUFFER-VALUE(jctr) = "x" + hField:BUFFER-VALUE(jctr) NO-ERROR.
+                    END.
+                END.
+            END.
+        END.
+    END.
+
+END PROCEDURE.
+
+
 PROCEDURE pConvertItemTable:
 /*------------------------------------------------------------------------------
  Purpose:   Convert all RM-itemno-type fields in each record of a single table
@@ -1542,7 +1717,7 @@ PROCEDURE pConvertItemFGTable:
     DEF VAR hExtent AS HANDLE.
     DEF VAR iCtr AS INT NO-UNDO.
     DEF VAR jCtr AS INT NO-UNDO.
-
+    
     RUN pStatus("   Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList).
 
     CREATE BUFFER hBuffer FOR TABLE ipcTableName.
@@ -1573,12 +1748,18 @@ PROCEDURE pConvertItemFGTable:
             DO:
                 IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 THEN 
                 DO:
-                    IF hCoField:BUFFER-VALUE EQ "002" THEN ASSIGN  
+                    IF hCoField:BUFFER-VALUE EQ "002" 
+                    AND CAN-FIND (FIRST itemfg WHERE 
+                        itemfg.company EQ "001" AND 
+                        itemfg.i-no EQ hField:BUFFER-VALUE) THEN ASSIGN  
                         hField:BUFFER-VALUE = SUBSTRING("z" + hField:BUFFER-VALUE,1,15) NO-ERROR.
                 END.
                 ELSE 
                 DO jCtr = 1 TO hField:EXTENT:
-                    IF hCoField:BUFFER-VALUE EQ "002" THEN ASSIGN  
+                    IF hCoField:BUFFER-VALUE EQ "002" 
+                    AND CAN-FIND (FIRST itemfg WHERE 
+                        itemfg.company EQ "001" AND 
+                        itemfg.i-no EQ hField:BUFFER-VALUE(jctr)) THEN ASSIGN    
                         hField:BUFFER-VALUE(jCtr) = SUBSTRING("z" + hField:BUFFER-VALUE(jCtr),1,15) NO-ERROR.
                 END.
             END.
@@ -1769,6 +1950,65 @@ PROCEDURE pConvertMcodeTable:
     END.
 
 END PROCEDURE.
+
+PROCEDURE pConvertRaNoTable:
+    /*------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcTableName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcFieldList AS CHAR NO-UNDO.
+    
+    DEF VAR hBuffer AS HANDLE.
+    DEF VAR hQuery AS HANDLE.
+    DEF VAR hCoField AS HANDLE.
+    DEF VAR hField AS HANDLE.
+    DEF VAR hExtent AS HANDLE.
+    DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR jCtr AS INT NO-UNDO.
+
+    RUN pStatus("   Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList).
+    
+    CREATE BUFFER hBuffer FOR TABLE ipcTableName.
+    CREATE QUERY hQuery.
+    
+    hBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+        
+    hQuery:ADD-BUFFER(hBuffer).
+    hQuery:QUERY-PREPARE("FOR EACH " + ipcTableName + " BY ROWID(" + ipcTableName + ")").
+    hQuery:QUERY-OPEN ().
+        
+    checkCompany:
+    DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+        ASSIGN 
+            hCoField = hBuffer:BUFFER-FIELD (iCtr).
+        IF hCoField:NAME = "Company" 
+            OR hCoField:NAME = "cocode" THEN 
+            LEAVE checkCompany.
+    END.
+        
+    DO WHILE NOT hQuery:QUERY-OFF-END TRANSACTION:
+        hQuery:GET-NEXT(EXCLUSIVE-LOCK).
+        IF NOT hQuery:QUERY-OFF-END THEN 
+        DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+            ASSIGN 
+                hField = hBuffer:BUFFER-FIELD (iCtr).
+            IF CAN-DO(ipcFieldList,hField:NAME) THEN 
+            DO:
+                IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 THEN 
+                DO:
+                    IF hCoField:BUFFER-VALUE EQ "002"  THEN ASSIGN  
+                        hField:BUFFER-VALUE = hField:BUFFER-VALUE + 50 NO-ERROR.
+                END.
+                ELSE 
+                DO jCtr = 1 TO hField:EXTENT:
+                    IF hCoField:BUFFER-VALUE EQ "002" THEN ASSIGN  
+                        hField:BUFFER-VALUE(jCtr) = hField:BUFFER-VALUE(jCtr) + 50 NO-ERROR.
+                END.
+            END.
+        END.
+    END.
+
+END PROCEDURE.
+
 
 PROCEDURE pConvertRelease#Table:
     /*------------------------------------------------------------------------------
