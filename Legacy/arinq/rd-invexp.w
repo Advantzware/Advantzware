@@ -30,12 +30,14 @@ DEFINE INPUT PARAMETER pcinvFrom    AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER pcitemFrom   AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER pcbolFrom    AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER pcpoFrom     AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER pcDateFrom   AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER pcCustTo     AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER pcinvTo      AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER pcitemTo     AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER pcbolTo      AS INTEGER NO-UNDO.
 DEFINE INPUT PARAMETER pcpoTo       AS CHARACTER NO-UNDO.
-
+DEFINE INPUT PARAMETER pcDateTo     AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcLink      AS CHARACTER NO-UNDO .  
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE list-name AS cha NO-UNDO.
@@ -77,6 +79,7 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
 DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Account#,Acc Desc,FG Item#,Item Name," +
                             "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Code,Term Code,Term Desc," +
@@ -101,6 +104,11 @@ ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Accoun
 
 {sys/inc/ttRptSel.i}
 
+    ASSIGN cTextListToDefault  = "Customer,Shipto,Invoice#,Cust Po#,Inv Date,Due Date,Tax Code,Term Code,Discount,Disc Days," +
+                                 "Carrier,Freight,Line,GL Account#,FG Item#,Item Name,Item Desccription,Customer Lot#,Invoice Qty," +
+                                 "Cons Uom,Price,Uom,Amount,Line Discount,Cost,Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2," + 
+                                 "Comm2,Sls Rep3,% of Sales3,Comm3,Tax" .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -119,7 +127,7 @@ ASSIGN cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Accoun
 &Scoped-Define ENABLED-OBJECTS RECT-7 RECT-8 RECT-9 begin_inv-no end_inv-no ~
 begin_cust-no end_cust-no begin_i-no end_i-no begin_bol-no end_bol-no ~
 begin_po-no end_po-no begin_date end_date sl_avail sl_selected Btn_Add ~
-Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel Btn_Def
 &Scoped-Define DISPLAYED-OBJECTS begin_inv-no end_inv-no begin_cust-no ~
 end_cust-no begin_i-no end_i-no begin_bol-no end_bol-no begin_po-no ~
 end_po-no begin_date end_date sl_avail sl_selected tb_excel tb_runExcel ~
@@ -175,6 +183,10 @@ DEFINE BUTTON Btn_Add
 
 DEFINE BUTTON btn_down 
      LABEL "Move Down" 
+     SIZE 16 BY 1.
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
      SIZE 16 BY 1.
 
 DEFINE BUTTON Btn_Remove 
@@ -313,12 +325,14 @@ DEFINE FRAME Dialog-Frame
           "Enter Ending Invoice Date" WIDGET-ID 120
      sl_avail AT ROW 10.1 COL 6.6 NO-LABELS WIDGET-ID 26
      sl_selected AT ROW 10.1 COL 62.6 NO-LABELS WIDGET-ID 28
-     Btn_Add AT ROW 10.57 COL 43.6 HELP
+     Btn_Def AT ROW 10.10 COL 43.6 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 11.15 COL 43.6 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 11.76 COL 43.6 HELP
+     Btn_Remove AT ROW 12.20 COL 43.6 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 12.95 COL 43.6 WIDGET-ID 40
-     btn_down AT ROW 14.14 COL 43.6 WIDGET-ID 42
+     btn_Up AT ROW 13.25 COL 43.6 WIDGET-ID 40
+     btn_down AT ROW 14.35 COL 43.6 WIDGET-ID 42
      tb_excel AT ROW 16.86 COL 36 WIDGET-ID 32
      tb_runExcel AT ROW 16.86 COL 78 RIGHT-ALIGNED WIDGET-ID 34
      fi_file AT ROW 17.86 COL 34 COLON-ALIGNED HELP
@@ -628,6 +642,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def Dialog-Frame
+ON CHOOSE OF Btn_Def IN FRAME Dialog-Frame /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  /* task 04041406 */ 
+  RUN DisplaySelectionList2 .
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down Dialog-Frame
@@ -848,20 +876,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
-      /* IF auto_find NE "" THEN
-           ASSIGN
-           begin_cust-no:SCREEN-VALUE  = pcCustFrom     
-           begin_item-cat:SCREEN-VALUE = pccatfrom       
-           begin_item:SCREEN-VALUE     = pcItemFrom        
-           begin_type:SCREEN-VALUE     = pctypeFrom     
-           end_cust-no:SCREEN-VALUE    = pcCustTo           
-           end_item-cat:SCREEN-VALUE   = pccatto           
-           end_item:SCREEN-VALUE       = pcItemTo        
-           end_type:SCREEN-VALUE       = pctypeTo   .*/
     
-    APPLY "entry" TO begin_inv-no.
-
-
+       IF ipcLink EQ "AU5" THEN
+           ASSIGN
+           begin_cust-no:SCREEN-VALUE = pcCustFrom  
+           begin_inv-no:SCREEN-VALUE  = string(pcinvFrom)
+           begin_date:SCREEN-VALUE    = pcDateFrom  
+           end_cust-no:SCREEN-VALUE   = IF pcCustTo NE "" THEN pcCustTo ELSE "zzzzzzzz"
+           end_inv-no:SCREEN-VALUE    = string(pcinvTo) 
+           end_date:SCREEN-VALUE    = pcDateTo  .         
+                                                            
+    APPLY "entry" TO begin_inv-no.                          
+                                                            
+                                                              
   END.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -885,6 +912,29 @@ PROCEDURE disable_UI :
 ------------------------------------------------------------------------------*/
   /* Hide all frames. */
   HIDE FRAME Dialog-Frame.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgexp 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+  
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -982,7 +1032,7 @@ PROCEDURE enable_UI :
   ENABLE RECT-7 RECT-8 RECT-9 begin_inv-no end_inv-no begin_cust-no end_cust-no 
          begin_i-no end_i-no begin_bol-no end_bol-no begin_po-no end_po-no 
          begin_date end_date sl_avail sl_selected Btn_Add Btn_Remove btn_Up 
-         btn_down tb_runExcel fi_file btn-ok btn-cancel 
+         btn_down tb_runExcel fi_file btn-ok btn-cancel Btn_Def
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
