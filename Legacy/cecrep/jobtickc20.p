@@ -317,11 +317,10 @@ DO v-local-loop = 1 TO v-local-copies:
                   FIND FIRST bf-box-design-hdr NO-LOCK
                       WHERE bf-box-design-hdr.design-no EQ xstyle.design-no
                       NO-ERROR.
-                  IF AVAILABLE bf-box-design-hdr AND AVAILABLE box-design-hdr
-                      AND bf-box-design-hdr.box-image EQ box-design-hdr.box-image THEN
+                  IF AVAILABLE bf-box-design-hdr AND AVAILABLE box-design-hdr THEN
                       lPrintScores = YES.
-
-              END.
+                 END.
+              
               IF lPrintScores THEN 
               DO:
                   PUT SKIP(1)
