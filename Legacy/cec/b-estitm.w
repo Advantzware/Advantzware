@@ -6752,7 +6752,18 @@ PROCEDURE pCreateFormFromImport :
   END.
   
   RUN est/BuildEstimate.p ("C", OUTPUT riEb).
+  FOR EACH eb WHERE eb.company EQ cocode 
+        AND eb.est-no EQ est.est-no NO-LOCK .
   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+     RUN init-box-design IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
+
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN
+     RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) ("B").
+   END.
+
   RUN dispatch('open-query').
     lDummy = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
   
