@@ -506,10 +506,21 @@ DO:
   def var char-val as cha no-undo.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
+  DEFINE VARIABLE oprRecid as RECID no-undo.
 
   lw-focus = FOCUS.
 
   case lw-focus:name :   
+      when "fi_inv-no" then do:
+          run windows/l-arinv.w (cocode,"",fi_inv-no:screen-value, output char-val, OUTPUT oprRecid).
+          if char-val ne "" then 
+              fi_inv-no:screen-value = entry(1,char-val).
+      END.
+      when "end_inv-no" then do:
+          run windows/l-arinv.w (cocode,"",end_inv-no:screen-value, output char-val, OUTPUT oprRecid).
+          if char-val ne "" then 
+              end_inv-no:screen-value = entry(1,char-val).
+      END.
       when "begin_sman" then do:
           run windows/l-sman.w (cocode, output char-val).
           if char-val ne "" then 
