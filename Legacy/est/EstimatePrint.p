@@ -106,20 +106,20 @@ PROCEDURE pBuildSections PRIVATE:
     IF AVAILABLE ttEstHeader THEN 
     DO:
         ASSIGN 
-            ttEstHeader.dtPrintDateTime = NOW
-            ttEstHeader.cPrinter        = USERID("asi")
+            ttEstHeader.printDateTime = NOW
+            ttEstHeader.printedBy     = USERID("asi")
             . 
         IF ipcSectionStyle BEGINS "By Form" THEN 
         DO:
             FOR EACH ttEstForm NO-LOCK 
-                WHERE ttEstForm.estHeaderID EQ ttEstHeader.estHeaderID
-                AND ttEstForm.iFormNo NE 0
-                BY ttEstForm.iFormNo
+                WHERE ttEstForm.estCostHeaderID EQ ttEstHeader.estCostHeaderID
+                AND ttEstForm.formNo NE 0
+                BY ttEstForm.formNo
                 :
                 iSectionCount = iSectionCount + 1.
                 CREATE ttSection.
                 ASSIGN 
-                    ttSection.rec_keyParent = ttEstForm.estFormID
+                    ttSection.rec_keyParent = ttEstForm.rec_key
                     ttSection.iSequence     = iSectionCount
                     ttSection.cType         = "Form"
                     .
@@ -132,17 +132,17 @@ PROCEDURE pBuildSections PRIVATE:
                 ASSIGN 
                     ttSection.cType         = "Consolidated"
                     ttSection.iSequence     = iSectionCount
-                    ttSection.rec_keyParent = ttEstHeader.estHeaderID
+                    ttSection.rec_keyParent = ttEstHeader.rec_key
                     .
             END.
-        IF CAN-DO("Set,Combo,Tandem",ttEstHeader.cEstType) AND INDEX(ipcSectionBy,"with Summary") GT 0 THEN 
+        IF CAN-DO("Set,Combo,Tandem",ttEstHeader.estType) AND INDEX(ipcSectionBy,"with Summary") GT 0 THEN 
         DO:
             iSectionCount = iSectionCount + 1.
             CREATE ttSection.
             ASSIGN   
                 ttSection.cType         = "Summary"
                 ttSection.iSequence     = IF INDEX(ipcSectionBy,"with Summary First") GT 0 THEN 0 ELSE iSectionCount
-                ttSection.rec_keyParent = ttEstHeader.estHeaderID
+                ttSection.rec_keyParent = ttEstHeader.rec_key
                 .
         END.
     END.
@@ -153,16 +153,16 @@ PROCEDURE pPrintForm PRIVATE:
      Purpose: Processes the output for a given form
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcEstFormID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstFormRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO. 
 
     FIND FIRST ttEstForm NO-LOCK 
-        WHERE ttEstForm.estFormID EQ ipcEstFormID
+        WHERE ttEstForm.rec_key EQ ipcEstFormRecKey
         NO-ERROR.
     IF AVAILABLE ttEstForm THEN 
         FIND FIRST ttEstHeader NO-LOCK
-            WHERE ttEstHeader.estHeaderID EQ ttEstForm.estHeaderID
+            WHERE ttEstHeader.estCostHeaderID EQ ttEstForm.estCostHeaderID
             NO-ERROR.
     IF NOT AVAILABLE ttEstHeader THEN RETURN.
 
@@ -201,15 +201,15 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
         RUN pWriteToCoordinates(iopiRowCount, iItemColumn4, "Style / Part #", NO, YES, NO).
     END.
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iItemColumn1, ipbf-ttEstBlank.dQtyRequired, 9, 0, YES, YES, YES, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-ttEstItem.cItemName , 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-ttEstItem.cSize , 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-ttEstItem.cStyle, 16, NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iItemColumn1, ipbf-ttEstBlank.qtyRequired, 9, 0, YES, YES, YES, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-ttEstItem.itemName , 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-ttEstItem.sizeDesc , 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-ttEstItem.styleDesc, 16, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinates(iopiRowCount, iItemColumn1, fFormatNumber(ipbf-ttEstBlank.iFormNo,2, 0, YES) + "-" + fFormatNumber(ipbf-ttEstBlank.iBlankNo,2, 0, YES), NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-ttEstItem.cItemDescription1, 20 , NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-ttEstItem.cColor, 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-ttEstItem.cCustomerPart, 16, NO, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iItemColumn1, fFormatNumber(ipbf-ttEstBlank.formNo,2, 0, YES) + "-" + fFormatNumber(ipbf-ttEstBlank.blankNo,2, 0, YES), NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-ttEstItem.itemDescription1, 20 , NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-ttEstItem.colorDesc, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-ttEstItem.customerPart, 16, NO, NO, NO).
     
 END PROCEDURE.
 
@@ -230,11 +230,11 @@ PROCEDURE pPrintItemInfoForForm PRIVATE:
        
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     FOR EACH ttEstBlank NO-LOCK 
-        WHERE ttEstBlank.estFormID EQ ipbf-ttEstForm.estFormID,
+        WHERE ttEstBlank.estCostFormID EQ ipbf-ttEstForm.estCostFormID,
         FIRST ttEstItem NO-LOCK 
-        WHERE ttEstItem.estItemID EQ ttEstBlank.estItemID
-        BREAK BY ttEstBlank.iBlankNo:
-        IF FIRST(ttEstBlank.iBlankNo) THEN 
+        WHERE ttEstItem.estCostItemID EQ ttEstBlank.estCostItemID
+        BREAK BY ttEstBlank.blankNo:
+        IF FIRST(ttEstBlank.blankNo) THEN 
         DO:
             RUN pPrintItemInfoHeader(BUFFER ttEstItem, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pPrintItemInfoDetail(BUFFER ttEstItem, BUFFER ttEstBlank, YES, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -259,24 +259,24 @@ PROCEDURE pPrintItemInfoHeader PRIVATE:
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iCustomerColumn, "Customer:", NO, NO, YES).
-    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.cCustomerName, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.customerName, 20, NO, NO, NO).
     RUN pWriteToCoordinates(iopiRowCount, iShipToColumn, "Ship To:", NO, NO, YES).
-    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.cShipToName, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.shipToName, 20, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.cCustomerAddress1, 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.cShipToAddress1, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.customerAddress1, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.shipToAddress1, 20, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.cCustomerAddress2, 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.cShipToAddress2, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.customerAddress2, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.shipToAddress2, 20, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.cCustomerAddress3, 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.cShipToAddress3, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.customerAddress3, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.shipToAddress3, 20, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iCustomerColumn, "Customer ID:", NO, NO, YES).
-    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.cCustomerID, 8, YES, NO,NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 9, ipbf-ttEstItem.cShipToID, 8, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 1, ipbf-ttEstItem.customerID, 8, YES, NO,NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iCustomerColumn + 9, ipbf-ttEstItem.shipToID, 8, NO, NO, NO).
     RUN pWriteToCoordinates(iopiRowCount, iShipToColumn, "Salesperson:", NO, NO, YES).
-    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.cSalesgroupName, 20, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-ttEstItem.salesgroupName, 20, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
 
@@ -302,14 +302,14 @@ PROCEDURE pPrintPageHeader PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
     RUN pWriteToCoordinates(iopiRowCount, iEstimateColumn, "Estimate #: ", NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iEstimateColumn + 1, ipbf-ttEstHeader.cEstNo, YES, NO, NO).
-    RUN pWriteToCoordinates(iopiRowCount, iPageLabelColumn, "Printed: " + STRING(ipbf-ttEstHeader.dtPrintDateTime,"99/99/9999 HH:MM A") + " by " + ipbf-ttEstHeader.cPrinter , NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iEstimateColumn + 1, ipbf-ttEstHeader.estNo, YES, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iPageLabelColumn, "Printed: " + STRING(ipbf-ttEstHeader.printDateTime,"99/99/9999 HH:MM A") + " by " + ipbf-ttEstHeader.printedBy , NO, NO, YES).
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
     RUN pWriteToCoordinates(iopiRowCount, iEstimateColumn, "Type: ", NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iEstimateColumn + 1, ipbf-ttEstHeader.cEstType, YES, NO, NO).
-    RUN pWriteToCoordinates(iopiRowCount, iPageLabelColumn, "Calculated: " + STRING(ipbf-ttEstHeader.dtCalcDateTime,"99/99/9999 HH:MM A") + " by " + ipbf-ttEstHeader.cCalculator , NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iEstimateColumn + 1, ipbf-ttEstHeader.estType, YES, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iPageLabelColumn, "Calculated: " + STRING(ipbf-ttEstHeader.calcDateTime,"99/99/9999 HH:MM A") + " by " + ipbf-ttEstHeader.calculatedBy , NO, NO, YES).
 
     
 END PROCEDURE.
@@ -344,34 +344,33 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE VARIABLE lLineStarted   AS LOGICAL   NO-UNDO.
 
     FIND FIRST bf-PrimaryttEstHeader NO-LOCK 
-        WHERE bf-PrimaryttEstHeader.estHeaderID EQ ipbf-ttEstForm.estHeaderID
+        WHERE bf-PrimaryttEstHeader.estCostHeaderID EQ ipbf-ttEstForm.estCostHeaderID
         NO-ERROR.
     IF NOT AVAILABLE bf-PrimaryttEstHeader THEN LEAVE.
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    iRowStart = iopiRowCount /*Store reset Point*/
-        .
+    iRowStart = iopiRowCount. /*Store reset Point*/
         
     ASSIGN 
         iQtyCountTotal               = 1
-        cScopeRecKey[iQtyCountTotal] = ipbf-ttEstForm.estFormID
-        cQtyHeader[iQtyCountTotal]   = fFormatNumber(ipbf-ttEstForm.dQtyFGOnForm, 7, 0, YES)
+        cScopeRecKey[iQtyCountTotal] = ipbf-ttEstForm.rec_key
+        cQtyHeader[iQtyCountTotal]   = fFormatNumber(ipbf-ttEstForm.qtyFGOnForm, 7, 0, YES)
         .
     IF iplPerQuantity THEN 
     DO:
         FOR EACH ttEstHeader NO-LOCK
-            WHERE ttEstHeader.cEstNo EQ bf-PrimaryttEstHeader.cEstNo
-            AND ttEstHeader.estHeaderID NE bf-PrimaryttEstHeader.estHeaderID
+            WHERE ttEstHeader.estNo EQ bf-PrimaryttEstHeader.estNo
+            AND ttEstHeader.estCostHeaderID NE bf-PrimaryttEstHeader.estCostHeaderID
             ,
             FIRST ttEstForm NO-LOCK 
-            WHERE ttEstForm.estHeaderID EQ ttEstHeader.estHeaderID
-            AND ttEstForm.iFormNo EQ ipbf-ttEstForm.iFormNo
+            WHERE ttEstForm.estCostHeaderID EQ ttEstHeader.estCostHeaderID
+            AND ttEstForm.formNo EQ ipbf-ttEstForm.formNo
             :
             ASSIGN 
                 iQtyCountTotal               = iQtyCountTotal + 1
-                cScopeRecKey[iQtyCountTotal] = ttEstForm.estFormID
-                cQtyHeader[iQtyCountTotal]   = fFormatNumber(ttEstForm.dQtyFGOnForm, 7, 0, YES)
+                cScopeRecKey[iQtyCountTotal] = ttEstForm.rec_key
+                cQtyHeader[iQtyCountTotal]   = fFormatNumber(ttEstForm.qtyFGOnForm, 7, 0, YES)
                 .
             IF iQtyCountTotal EQ giQtyMaxColumn THEN LEAVE. 
         END.
@@ -383,35 +382,35 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         END.
     END.
     ELSE 
-    DO:
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "*** Totals for Qty: " +  fFormatNumber(ipbf-ttEstForm.dQtyFGOnForm, 7, 0, YES), YES, YES, NO).
+    DO: 
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "*** Totals for Qty: " +  fFormatNumber(ipbf-ttEstForm.qtyFGOnForm, 7, 0, YES), YES, YES, NO).
         RUN pWriteToCoordinates(iopiRowCount, iColumn2 , "Per M" , YES, YES, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn2 + iColumnWidth, "Total", YES, YES, YES).
     END.    
     
-    FOR EACH ttEstCostGroupLevel NO-LOCK
-        BY ttEstCostGroupLevel.iCostGroupLevel:
-        FOR EACH ttEstCostGroup NO-LOCK 
-            WHERE ttEstCostGroup.iCostGroupLevel EQ ttEstCostGroupLevel.iCostGroupLevel
-            BY ttEstCostGroup.iSequence:
+    FOR EACH estCostGroupLevel NO-LOCK
+        BY estCostGroupLevel.estCostGroupLevelID:
+        FOR EACH estCostGroup NO-LOCK 
+            WHERE estCostGroup.estCostGroupLevelID EQ estCostGroupLevel.estCostGroupLevelID
+            BY estCostGroup.costGroupSequence:
             
             IF iplPerQuantity THEN 
             DO: /*Print values for each quantity (per M)*/
                 lLineStarted = NO.
                 DO iQtyCount = 1 TO iQtyCountTotal:
                     FIND FIRST ttEstCostSummary NO-LOCK 
-                        WHERE ttEstCostSummary.estCostGroupID EQ ttEstCostGroup.estCostGroupID
-                        AND ttEstCostSummary.cScope EQ cScopeRecKey[iQtyCount]
+                        WHERE ttEstCostSummary.estCostGroupID EQ estCostGroup.estCostGroupID  
+                        AND ttEstCostSummary.scopeRecKey EQ cScopeRecKey[iQtyCount]
                         NO-ERROR.
                     IF AVAILABLE ttEstCostSummary THEN DO:
-                        IF ttEstCostSummary.dCostTotal NE 0 THEN DO:
+                        IF ttEstCostSummary.costTotal NE 0 THEN DO:
                             IF NOT lLineStarted THEN DO: 
                                 lLineStarted = YES.
                                 RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                                RUN pWriteToCoordinates(iopiRowCount, iColumn1, ttEstCostGroup.cGroupLabel, NO, NO, NO).
+                                RUN pWriteToCoordinates(iopiRowCount, iColumn1, estCostGroup.costGroupLabel, NO, NO, NO).
                             END.                        
-                            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + (iQtyCount - 1) * iColumnWidth ,ttEstCostSummary.dCostPerM , 6, 2, NO, YES, NO, NO, YES).
-                            dCostPerM[iQtyCount] = dCostPerM[iQtyCount] + ttEstCostSummary.dCostPerM.
+                            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + (iQtyCount - 1) * iColumnWidth ,ttEstCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
+                            dCostPerM[iQtyCount] = dCostPerM[iQtyCount] + ttEstCostSummary.costTotalPerMFinished.
                         END.
                     END.
                 END.
@@ -419,26 +418,26 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
             ELSE 
             DO:  /*Print only the values for the subject quantity (per M and Totals)*/ 
                 FIND FIRST ttEstCostSummary NO-LOCK 
-                    WHERE ttEstCostSummary.estCostGroupID EQ ttEstCostGroup.estCostGroupID
-                    AND ttEstCostSummary.cScope EQ ipbf-ttEstForm.estFormID
+                    WHERE ttEstCostSummary.estCostGroupID EQ estCostGroup.estCostGroupID
+                    AND ttEstCostSummary.scopeRecKey EQ ipbf-ttEstForm.rec_key
                     NO-ERROR.
                 IF AVAILABLE ttEstCostSummary THEN 
                 DO:
-                    IF ttEstCostSummary.dCostTotal NE 0 THEN DO:            
+                    IF ttEstCostSummary.costTotal NE 0 THEN DO:            
                         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                        RUN pWriteToCoordinates(iopiRowCount, iColumn1, ttEstCostGroup.cGroupLabel, NO, NO, NO).
-                        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 , ttEstCostSummary.dCostPerM , 6, 2, NO, YES, NO, NO, YES).
-                        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + iColumnWidth, ttEstCostSummary.dCostTotal , 6, 2, NO, YES, NO, NO, YES).
+                        RUN pWriteToCoordinates(iopiRowCount, iColumn1, estCostGroup.costGroupLabel, NO, NO, NO).
+                        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 , ttEstCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
+                        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + iColumnWidth, ttEstCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
                         ASSIGN 
-                            dCostTotal = dCostTotal + ttEstCostSummary.dCostTotal
-                            dCostTotalPerM = dCostTotalPerM + ttEstCostSummary.dCostPerM
+                            dCostTotal = dCostTotal + ttEstCostSummary.costTotal
+                            dCostTotalPerM = dCostTotalPerM + ttEstCostSummary.costTotalPerMFinished
                             .
                     END.
                 END.
             END.
         END.
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, ttEstCostGroupLevel.cCostGroupLevelDescription, YES, NO, NO).    
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, estCostGroupLevel.estCostGroupLevelDesc, YES, NO, NO).    
         IF iplPerQuantity THEN
         DO: /*Print values for each quantity (per M)*/
             DO iQtyCount = 1 TO iQtyCountTotal:
@@ -481,60 +480,60 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn6, "Weight", NO, YES, YES).
      
     FOR EACH ttEstBlank NO-LOCK 
-        WHERE ttEstBlank.estFormID EQ ipbf-ttEstForm.estFormID:
+        WHERE ttEstBlank.estCostFormID EQ ipbf-ttEstForm.estCostFormID:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Blank #" + TRIM(STRING(ttEstBlank.iBlankNo,">>9")) + ":", NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstBlank.dBlankWidth, 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstBlank.dBlankLength, 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, ttEstBlank.cUOMDimension , NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstBlank.dBlankArea, 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstBlank.cUOMArea , NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstBlank.iNumOut, 4, 0, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstBlank.dWeight, 5, 4, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstBlank.cUOMWeight, NO, NO, NO).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Blank #" + TRIM(STRING(ttEstBlank.blankNo,">>9")) + ":", NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstBlank.blankWidth, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstBlank.blankLength, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, ttEstBlank.dimUOM , NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstBlank.blankArea, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstBlank.areaUOM , NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstBlank.numOut, 4, 0, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstBlank.weight, 5, 4, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstBlank.weightUOM, NO, NO, NO).
     END.
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Die:", NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstForm.dDieWidth, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstForm.dDieLength,4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, ttEstForm.cUOMDimension , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstForm.dDieArea, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstForm.cUOMArea , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstForm.dWeightDie, 5, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.cUOMWeightDie, NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstForm.dieWidth, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstForm.dieLength,4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, ttEstForm.dimUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstForm.areaUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstForm.weightDie, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.weightDieUOM, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Net:", NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstForm.dNetWidth, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstForm.dNetLength,4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, ttEstForm.cUOMDimension , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstForm.dNetArea, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstForm.cUOMArea , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstForm.iNumOutNet, 4, 0, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstForm.dWeightNet, 5, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.cUOMWeightNet, NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstForm.netWidth, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstForm.netLength,4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, ttEstForm.dimUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstForm.netArea, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstForm.areaUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstForm.numOutNet, 4, 0, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstForm.weightNet, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.weightNetUOM, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Gross:", NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstForm.dGrossWidth, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstForm.dGrossLength, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, ttEstForm.cUOMDimension , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstForm.dGrossArea, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstForm.cUOMArea , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstForm.dWeightGross, 5, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.cUOMWeightGross, NO, NO, NO).
-    IF ttEstForm.dRollWidth NE 0 THEN 
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstForm.grossWidth, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstForm.grossLength, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, ttEstForm.dimUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstForm.areaUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstForm.weightGross, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.weightGrossUOM, NO, NO, NO).
+    IF ttEstForm.rollWidth NE 0 THEN 
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Roll:", NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn2, TRIM(STRING(ttEstForm.dRollWidth,">>>9.99999")) , NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn2, TRIM(STRING(ttEstForm.rollWidth,">>>9.99999")) , NO, NO, YES).
     END.
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Totals->", YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn2,  "Sheets:", YES, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + 1, ttEstForm.dGrossQtyRequiredTotal, 9, 0, YES, YES, YES, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstForm.dGrossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstForm.cUOMGrossQtyRequiredTotalArea , YES, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstForm.dGrossQtyRequiredTotalWeight, 5, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.cUOMGrossQtyRequiredTotalWeight, NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + 1, ttEstForm.grossQtyRequiredTotal, 9, 0, YES, YES, YES, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, ttEstForm.grossQtyRequiredTotalAreaUOM , YES, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstForm.grossQtyRequiredTotalWeight, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, ttEstForm.grossQtyRequiredTotalWeightUOM, NO, NO, NO).
 END PROCEDURE.
 
 PROCEDURE pPrintMaterialInfoForForm PRIVATE:
@@ -572,59 +571,59 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         dTotal = 0
         . 
     FOR EACH ttEstMaterial NO-LOCK 
-        WHERE ttEstMaterial.estHeaderID EQ ipbf-ttEstForm.estHeaderID 
-        AND ttEstMaterial.estFormID EQ ipbf-ttEstForm.estFormID
-        BY ttEstMaterial.iFormNo
-        BY ttEstMaterial.iBlankNo
-        BY ttEstMaterial.iSequence:
+        WHERE ttEstMaterial.estCostHeaderID EQ ipbf-ttEstForm.estCostHeaderID 
+        AND ttEstMaterial.estCostFormID EQ ipbf-ttEstForm.estCostFormID
+        BY ttEstMaterial.formNo
+        BY ttEstMaterial.blankNo
+        BY ttEstMaterial.sequenceOfMaterial:
 
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, fFormatNumber(ttEstMaterial.iFormNo,2, 0, YES) + "-" + fFormatNumber(ttEstMaterial.iBlankNo,2, 0, YES), NO, NO, YES).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, ttEstMaterial.cItemName, 30, NO, NO, NO).
-        IF ttEstMaterial.lIsPrimarySubstrate THEN 
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, fFormatNumber(ttEstMaterial.formNo,2, 0, YES) + "-" + fFormatNumber(ttEstMaterial.blankNo,2, 0, YES), NO, NO, YES).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, ttEstMaterial.itemName, 30, NO, NO, NO).
+        IF ttEstMaterial.isPrimarySubstrate THEN 
         DO:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.dQtyRequiredNoWasteInCostUOM, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.cCostUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dCostPerUOM, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cCostUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.qtyRequiredNoWasteInCostUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.costUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.costUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, 0, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedNoWaste, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalNoWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.costTotalPerMFinishedNoWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.costTotalNoWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  SU Waste",NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.dQtyRequiredSetupWaste, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.cQtyUOMWaste, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.dCostSetup, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedSetupWaste, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalSetupWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.qtyRequiredSetupWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.qtyUOMWaste, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.costSetup, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.costTotalPerMFinishedSetupWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.costTotalSetupWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  Run Waste",NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.dQtyRequiredRunWaste, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.cQtyUOMWaste, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.qtyRequiredRunWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.qtyUOMWaste, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, 0, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinishedRunWaste, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotalRunWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.costTotalPerMFinishedRunWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.costTotalRunWaste, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
-                dTotalPerM = dTotalPerM + ttEstMaterial.dCostTotalPerMFinishedNoWaste
-                dTotal = dTotal + ttEstMaterial.dCostTotalNoWaste
-                dTotalPerM = dTotalPerM + ttEstMaterial.dCostTotalPerMFinishedSetupWaste
-                dTotal = dTotal + ttEstMaterial.dCostTotalNoWaste
-                dTotalPerM = dTotalPerM + ttEstMaterial.dCostTotalPerMFinishedRunWaste
-                dTotal = dTotal + ttEstMaterial.dCostTotalNoWaste
+                dTotalPerM = dTotalPerM + ttEstMaterial.costTotalPerMFinishedNoWaste
+                dTotal = dTotal + ttEstMaterial.costTotalNoWaste
+                dTotalPerM = dTotalPerM + ttEstMaterial.costTotalPerMFinishedSetupWaste
+                dTotal = dTotal + ttEstMaterial.costTotalNoWaste
+                dTotalPerM = dTotalPerM + ttEstMaterial.costTotalPerMFinishedRunWaste
+                dTotal = dTotal + ttEstMaterial.costTotalNoWaste
                 .
         END.
         ELSE 
         DO:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.dQtyRequiredTotal, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.cQtyUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.dCostPerUOM, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.cCostUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.dCostSetup, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.dCostTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.dCostTotal, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMaterial.qtyRequiredTotal, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, ttEstMaterial.qtyUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, ttEstMaterial.costUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMaterial.costSetup, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMaterial.costTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMaterial.costTotal, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
-                dTotalPerM = dTotalPerM + ttEstMaterial.dCostTotalPerMFinished
-                dTotal = dTotal + ttEstMaterial.dCostTotal
+                dTotalPerM = dTotalPerM + ttEstMaterial.costTotalPerMFinished
+                dTotal = dTotal + ttEstMaterial.costTotal
                 .
         END.
     END.
@@ -662,12 +661,12 @@ PROCEDURE pPrintMiscInfoForForm PRIVATE:
         dTotal = 0
         . 
     FOR EACH ttEstMisc NO-LOCK 
-        WHERE ttEstMisc.estFormID EQ ipbf-ttEstForm.estFormID
-        AND ((ipcType EQ "Misc" AND NOT ttEstMisc.lIsPrep) OR (ipcType EQ "Prep" AND ttEstMisc.lIsPrep))
-        AND LOOKUP(ttEstMisc.cSIMON, "I,M") GT 0
-        BREAK BY ttEstMisc.iFormNo
-        BY ttEstMisc.iBlankNo:
-        IF FIRST-OF(ttEstMisc.iFormNo) THEN 
+        WHERE ttEstMisc.estCostFormID EQ ipbf-ttEstForm.estCostFormID
+        AND ((ipcType EQ "Misc" AND NOT ttEstMisc.isPrep) OR (ipcType EQ "Prep" AND ttEstMisc.isPrep))
+        AND LOOKUP(ttEstMisc.SIMON, "I,M") GT 0
+        BREAK BY ttEstMisc.formNo
+        BY ttEstMisc.blankNo:
+        IF FIRST-OF(ttEstMisc.formNo) THEN 
         DO:
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -675,25 +674,25 @@ PROCEDURE pPrintMiscInfoForForm PRIVATE:
             RUN pWriteToCoordinates(iopiRowCount, iColumn2, "Type", NO, YES, NO).
             RUN pWriteToCoordinates(iopiRowCount, iColumn3, "SU Cost", NO, YES, YES).
             RUN pWriteToCoordinates(iopiRowCount, iColumn4, "Cost Per", NO, YES, YES).
-            RUN pWriteToCoordinates(iopiRowCount, iColumn5, ttEstMisc.cPercentType, NO, YES, YES).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn5, ttEstMisc.profitPercentType, NO, YES, YES).
             RUN pWriteToCoordinates(iopiRowCount, iColumn6, "Cost/M", NO, YES, YES).
             RUN pWriteToCoordinates(iopiRowCount, iColumn7, "Total Cost", NO, YES, YES).
         END.    
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
        
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, fFormatNumber(ttEstMisc.iFormNo,2, 0, YES) + "-" + fFormatNumber(ttEstMisc.iBlankNo,2, 0, YES), NO, NO, YES).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, ttEstMisc.cCostDescription, 20, NO, NO, NO).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn2, ttEstMisc.cCostType, 4, NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMisc.dCostSetup, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMisc.dCostPerUOM, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn4, ttEstMisc.cCostUOM, 3, NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMisc.dProfitPercent, 3, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn5 + 1, ttEstMisc.cSIMON, 1, NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMisc.dCostTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMisc.dCostTotal, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, fFormatNumber(ttEstMisc.formNo,2, 0, YES) + "-" + fFormatNumber(ttEstMisc.blankNo,2, 0, YES), NO, NO, YES).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, ttEstMisc.costDescription, 20, NO, NO, NO).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn2, ttEstMisc.costType, 4, NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstMisc.costSetup, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstMisc.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn4, ttEstMisc.costUOM, 3, NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstMisc.profitPercent, 3, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn5 + 1, ttEstMisc.SIMON, 1, NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstMisc.costTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstMisc.costTotal, 7, 2, NO, YES, NO, NO, YES).
         ASSIGN 
-            dTotalPerM = dTotalPerM + ttEstMisc.dCostTotalPerMFinished
-            dTotal = dTotal + ttEstMisc.dCostTotal
+            dTotalPerM = dTotalPerM + ttEstMisc.costTotalPerMFinished
+            dTotal = dTotal + ttEstMisc.costTotal
             .    
     END.
     IF dTotal NE 0 THEN 
@@ -741,23 +740,23 @@ PROCEDURE pPrintOperationsInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn8, "Total Cost", NO, YES, YES).
      
     FOR EACH ttEstOperation NO-LOCK 
-        WHERE ttEstOperation.estFormID EQ ipbf-ttEstForm.estFormID
-        BY ttEstOperation.iSequence: 
+        WHERE ttEstOperation.estCostFormID EQ ipbf-ttEstForm.estCostFormID
+        BY ttEstOperation.sequenceOfOperation: 
    
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, fFormatNumber(ttEstOperation.iFormNo,2, 0, YES) + "-" + fFormatNumber(ttEstOperation.iBlankNo,2, 0, YES), NO, NO, YES).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, ttEstOperation.cOperationName, 20, NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstOperation.dHoursSetup, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstOperation.dHoursRun, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstOperation.dSpeed, 7, 0, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstOperation.dCostPerHourTotalRun, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstOperation.dCostTotalSetup, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstOperation.dCostTotalRun, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn8, ttEstOperation.dCostTotal, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, fFormatNumber(ttEstOperation.formNo,2, 0, YES) + "-" + fFormatNumber(ttEstOperation.blankNo,2, 0, YES), NO, NO, YES).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, ttEstOperation.operationName, 20, NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, ttEstOperation.hoursSetup, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, ttEstOperation.hoursRun, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, ttEstOperation.speed, 7, 0, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, ttEstOperation.costPerHourTotalRun, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, ttEstOperation.costTotalSetup, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, ttEstOperation.costTotalRun, 7, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn8, ttEstOperation.costTotal, 7, 2, NO, YES, NO, NO, YES).
         ASSIGN 
-            dTotalSetup = dTotalSetup + ttEstOperation.dCostTotalSetup
-            dTotalRun = dTotalRun + ttEstOperation.dCostTotalRun
-            dTotal = dTotal + ttEstOperation.dCostTotal
+            dTotalSetup = dTotalSetup + ttEstOperation.costTotalSetup
+            dTotalRun = dTotalRun + ttEstOperation.costTotalRun
+            dTotal = dTotal + ttEstOperation.costTotal
             .
         
     END.
@@ -775,13 +774,13 @@ PROCEDURE pPrintSummary PRIVATE:
      Purpose: Prints the Set Summary seciton for the set header
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcEstHeaderID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstHeaderRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
     
 
     FIND FIRST ttEstHeader NO-LOCK 
-        WHERE ttEstHeader.estHeaderID EQ ipcEstHeaderID
+        WHERE ttEstHeader.rec_key EQ ipcEstHeaderRecKey
         NO-ERROR.
     IF NOT AVAILABLE ttEstHeader THEN RETURN.
     
@@ -789,10 +788,10 @@ PROCEDURE pPrintSummary PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
     FOR FIRST ttEstBlank NO-LOCK 
-        WHERE ttEstBlank.estHeaderID EQ ttEstHeader.estHeaderID
-        AND ttEstBlank.iBlankNo EQ 0,
+        WHERE ttEstBlank.estCostHeaderID EQ ttEstHeader.estCostHeaderID
+        AND ttEstBlank.blankNo EQ 0,
         FIRST ttEstItem NO-LOCK 
-        WHERE ttEstItem.estItemID EQ ttEstBlank.estItemID:
+        WHERE ttEstItem.estCostItemID EQ ttEstBlank.estCostItemID:
         
         RUN pPrintItemInfoHeader(BUFFER ttEstItem, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pPrintItemInfoDetail(BUFFER ttEstItem, YES, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -811,7 +810,7 @@ PROCEDURE pPrintSummary PRIVATE:
     DEFINE VARIABLE dCostValue     AS DECIMAL   EXTENT 10.
        
     FIND FIRST bf-PrimaryttEstHeader NO-LOCK 
-        WHERE bf-PrimaryttEstHeader.estHeaderID EQ ipcEstHeaderID
+        WHERE bf-PrimaryttEstHeader.rec_key EQ ipcEstHeaderRecKey
         NO-ERROR.
     IF NOT AVAILABLE bf-PrimaryttEstHeader THEN LEAVE.
     
@@ -822,17 +821,17 @@ PROCEDURE pPrintSummary PRIVATE:
         
     ASSIGN 
         iQtyCountTotal               = 1
-        cScopeRecKey[iQtyCountTotal] = bf-PrimaryttEstHeader.estHeaderID
-        cQtyHeader[iQtyCountTotal]   = fFormatNumber(bf-PrimaryttEstHeader.dQtyMaster, 7, 0, YES)
+        cScopeRecKey[iQtyCountTotal] = bf-PrimaryttEstHeader.rec_key
+        cQtyHeader[iQtyCountTotal]   = fFormatNumber(bf-PrimaryttEstHeader.qtyMaster, 7, 0, YES)
         .
     FOR EACH ttEstHeader NO-LOCK
-        WHERE ttEstHeader.cEstNo EQ bf-PrimaryttEstHeader.cEstNo
-        AND ttEstHeader.estHeaderID NE bf-PrimaryttEstHeader.estHeaderID
+        WHERE ttEstHeader.estNo EQ bf-PrimaryttEstHeader.estNo
+        AND ttEstHeader.estCostHeaderID NE bf-PrimaryttEstHeader.estCostHeaderID
         :
         ASSIGN 
             iQtyCountTotal               = iQtyCountTotal + 1
-            cScopeRecKey[iQtyCountTotal] = ttEstHeader.estHeaderID
-            cQtyHeader[iQtyCountTotal]   = fFormatNumber(ttEstHeader.dQtyMaster, 7, 0, YES)
+            cScopeRecKey[iQtyCountTotal] = ttEstHeader.rec_key
+            cQtyHeader[iQtyCountTotal]   = fFormatNumber(ttEstHeader.qtyMaster, 7, 0, YES)
             .
         IF iQtyCountTotal EQ giQtyMaxColumn THEN LEAVE. 
     END.
@@ -845,12 +844,12 @@ PROCEDURE pPrintSummary PRIVATE:
     END.
       
     FOR EACH ttEstBlank NO-LOCK
-        WHERE ttEstBlank.estHeaderID EQ bf-PrimaryttEstHeader.estHeaderID
-        AND ttEstBlank.iBlankNo NE 0,
+        WHERE ttEstBlank.estCostHeaderID EQ bf-PrimaryttEstHeader.estCostHeaderID
+        AND ttEstBlank.blankNo NE 0,
         FIRST ttEstItem NO-LOCK 
-        WHERE ttEstItem.estItemID EQ ttEstBlank.estItemID:
+        WHERE ttEstItem.estCostItemID EQ ttEstBlank.estCostItemID:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1, ttEstItem.cItemName, 20, NO, NO, NO).   
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn1, ttEstItem.itemName, 20, NO, NO, NO).   
             
         DO iQtyCount = 1 TO iQtyCountTotal:
             /*Get the correct summary - Total Price Per Item*/ 
