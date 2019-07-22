@@ -207,6 +207,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     DEFINE VARIABLE li-next-line AS INTEGER NO-UNDO.
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+    DEFINE VARIABLE lCreateRecItem AS LOGICAL NO-UNDO .
     DEFINE BUFFER bQuoteItm FOR quoteitm.
 
     FIND FIRST quotehd EXCLUSIVE-LOCK
@@ -280,17 +281,25 @@ PROCEDURE pProcessRecord PRIVATE:
          quoteitm.line = li-next-line
          quoteitm.upd-date = TODAY
          quoteitm.upd-user = USERID(LDBNAME(1)) .
+        ASSIGN lCreateRecItem = YES .
     END.
 
       RUN pAssignValueC (ipbf-ttImportQuote.CustPart, YES, INPUT-OUTPUT quoteitm.part-no).
-      RUN pAssignValueI (ipbf-ttImportQuote.Qty, YES, INPUT-OUTPUT quoteitm.qty).
-      RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.price).
-      RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.uom).
       RUN pAssignValueC (ipbf-ttImportQuote.ItemDscr, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.part-dscr1).
       RUN pAssignValueC (ipbf-ttImportQuote.ItemDscr2, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.part-dscr2).
       RUN pAssignValueC (ipbf-ttImportQuote.Dimensions, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.size).
       RUN pAssignValueC (ipbf-ttImportQuote.board, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.i-dscr).
       RUN pAssignValueC (ipbf-ttImportQuote.color1, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.i-coldscr).
+
+      IF lCreateRecItem EQ YES THEN do:
+          RUN pAssignValueI (ipbf-ttImportQuote.Qty, YES, INPUT-OUTPUT quoteitm.qty).
+          RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.price).
+          RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.uom).
+      END.
+      ELSE IF ipbf-ttImportQuote.Qty EQ quoteitm.qty THEN do:
+         RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.price).
+         RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT quoteitm.uom).
+      END.
 
       RUN custom/getcpart.p (quotehd.company, quotehd.cust-no,
                              INPUT-OUTPUT quoteitm.part-no, INPUT-OUTPUT lv-rowid).
@@ -324,21 +333,21 @@ PROCEDURE pProcessRecord PRIVATE:
           AND quoteqty.line EQ quoteitm.line
           AND quoteqty.qty EQ ipbf-ttImportQuote.Qty NO-ERROR . 
 
-      IF NOT AVAILABLE quoteqty THEN DO:
-          CREATE quoteqty .
-          ASSIGN quoteqty.company = quoteitm.company
-              quoteqty.loc = quoteitm.loc
-              quoteqty.q-no = quoteitm.q-no
-              quoteqty.line = quoteitm.line
-              quoteqty.quote-date = TODAY
-              quoteqty.quote-user = USERID(LDBNAME(1)) .
+      IF NOT AVAILABLE quoteqty AND lCreateRecItem EQ YES THEN DO:              
+         CREATE quoteqty .                           
+         ASSIGN quoteqty.company = quoteitm.company  
+             quoteqty.loc = quoteitm.loc             
+             quoteqty.q-no = quoteitm.q-no           
+             quoteqty.line = quoteitm.line           
+             quoteqty.quote-date = TODAY             
+             quoteqty.quote-user = USERID(LDBNAME(1)) .
+      END.                                              
+      IF AVAIL quoteqty THEN do:
+        /*RUN pAssignValueI (ipbf-ttImportQuote.qty, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.qty).*/
+        RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.price).
+        RUN pAssignValueD (ipbf-ttImportQuote.profit, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.profit).
+        RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.uom).
       END.
-      
-      RUN pAssignValueI (ipbf-ttImportQuote.qty, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.qty).
-      RUN pAssignValueD (ipbf-ttImportQuote.price, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.price).
-      RUN pAssignValueD (ipbf-ttImportQuote.profit, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.profit).
-      RUN pAssignValueC (ipbf-ttImportQuote.UOM, iplIgnoreBlanks, INPUT-OUTPUT quoteqty.uom).
-
       
 END PROCEDURE.
 

@@ -1006,7 +1006,12 @@ FOR EACH quotehd
           AND quotehd.sman     LE end_slm
           AND quotehd.quo-date GE begin_date    
           AND quotehd.quo-date LE end_date NO-LOCK,
-       EACH quoteitm OF quotehd WHERE  NO-LOCK:
+       EACH quoteitm OF quotehd WHERE  NO-LOCK,
+       EACH quoteqty NO-LOCK
+         WHERE quoteqty.company EQ quoteitm.company 
+          AND quoteqty.loc EQ quoteitm.loc 
+          AND quoteqty.q-no EQ quoteitm.q-no 
+          AND quoteqty.line EQ quoteitm.line  :
 
     v-excel-detail-lines = "".
     ASSIGN
@@ -1029,25 +1034,16 @@ FOR EACH quotehd
      IF AVAILABLE eb THEN
          IF NOT(eb.procat GE begin_procat AND eb.procat LE end_procat) THEN NEXT MAIN.
 
-     FIND FIRST quoteqty NO-LOCK
-          WHERE quoteqty.company = quoteitm.company
-          AND quoteqty.loc = quoteitm.loc
-          AND quoteqty.q-no = quoteitm.q-no
-          AND quoteqty.line = quoteitm.line  USE-INDEX qt-qty  NO-ERROR.
+    
      
-     IF AVAILABLE quoteqty THEN ASSIGN
+     ASSIGN
           iQty = INTEGER(quoteqty.qty)
           dPrice = DECIMAL(quoteqty.price)
           dProfit = DECIMAL(quoteqty.profit) 
           cUom   = quoteqty.uom .
-     ELSE IF AVAILABLE quoteitm THEN ASSIGN
-          iQty = INTEGER(quoteitm.qty)
-          dPrice = DECIMAL(quoteitm.price) 
-          cUom  = quoteitm.uom.
-                                
+    
 
     FOR EACH ttRptSelected:
-
         
           CASE ttRptSelected.FieldList:                                                              
             WHEN "quote" THEN                                                                
