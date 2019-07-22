@@ -407,7 +407,7 @@ PROCEDURE spCueCardClose:
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
     UPDATE lInactivateCueCards AS LOGICAL.
     IF lInactivateCueCards THEN
-    RUN spInactivateCueCards.
+    RUN spInactivateCueCards (cueCard.cueType).
     IF lInactivateCueCards EQ ? THEN
     RETURN NO-APPLY.
     iCueOrder = 99999.
@@ -686,12 +686,14 @@ PROCEDURE spInactivateCueCards:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCueType AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER bCueCard     FOR cueCard.
     DEFINE BUFFER bCueCardText FOR cueCardText.
     
     FOR EACH bCueCardText NO-LOCK,
         FIRST bCueCard NO-LOCK
-        WHERE bCueCard.cueType EQ cueCard.cueType
+        WHERE bCueCard.cueType EQ ipcCueType
         :
         IF CAN-FIND(FIRST xCueCard
                     WHERE xCueCard.user_id   EQ USERID("ASI")

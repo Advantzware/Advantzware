@@ -142,8 +142,8 @@ Mnemonic
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,colorPallet                */
-&Scoped-define searchFilters menuTreeFilter btnMoveDown searchSelections ~
-btnMoveUp btnRemove btnFavorite svFavoriteText 
+&Scoped-define searchFilters menuTreeFilter btnMoveDown btnMoveUp ~
+searchSelections btnRemove btnFavorite svFavoriteText 
 &Scoped-define colorPallet colorChoice-0 colorChoice-1 colorChoice-2 ~
 colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 ~
 colorChoice-8 colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 ~
@@ -631,12 +631,12 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 73 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 106 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     "Location:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.71 COL 66
-     "Company:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 4
      "User ID:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.71 COL 99
+     "Company:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.71 COL 4
+     "Location:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.71 COL 66
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
@@ -667,6 +667,48 @@ DEFINE FRAME FRAME-USER
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
          BGCOLOR 15 .
+
+DEFINE FRAME searchFrame
+     BtnFavorites AT ROW 1 COL 1 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 54
+     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     btnMoveDown AT ROW 5.76 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
+     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
+     btnMoveUp AT ROW 3.38 COL 1 HELP
+          "Move Favorite Up" WIDGET-ID 56
+     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
+     btnRemove AT ROW 4.57 COL 1 HELP
+          "Remove Favorite" WIDGET-ID 26
+     btnSearch AT ROW 1 COL 51 HELP
+          "Search Menu / Edit Favorites" WIDGET-ID 40
+     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
+     btnClear AT ROW 13.86 COL 100 HELP
+          "Clear Search Filters" WIDGET-ID 42
+     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     "FAVORITES" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
+          BGCOLOR 15 
+     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 3.38
+         SIZE 108 BY 14.05
+         FGCOLOR 1  WIDGET-ID 600.
+
+DEFINE FRAME menuTreeFrame
+     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
+     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
+     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 4.57
+         SIZE 55 BY 24.91
+         BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME userSettingsFrame
      btnCancel AT ROW 20.52 COL 12 HELP
@@ -700,6 +742,31 @@ DEFINE FRAME userSettingsFrame
           "Copy From User to Selected User(s)" WIDGET-ID 94
      btnInactivateCueCards AT ROW 21.48 COL 27 HELP
           "Activate Inactive Cue Cards" WIDGET-ID 468
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
+          FONT 37
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
+          FONT 35
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
+     " Copy From User" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
+          FONT 33
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
      "3" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
      "BG Color:" VIEW-AS TEXT
@@ -711,31 +778,6 @@ DEFINE FRAME userSettingsFrame
           FGCOLOR 0 FONT 6
      " HotKey (Mnemonic)" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
-          FONT 33
-     " Copy From User" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
-          FONT 35
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
-          FONT 37
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
@@ -786,48 +828,6 @@ DEFINE FRAME userSettingsFrame
          SIZE 103 BY 25.95
          BGCOLOR 15 FGCOLOR 1 
          TITLE "User Settings" WIDGET-ID 200.
-
-DEFINE FRAME menuTreeFrame
-     svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-     menuTreeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 84
-     upgradeMsg AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 86
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 4.57
-         SIZE 55 BY 24.91
-         BGCOLOR 15  WIDGET-ID 100.
-
-DEFINE FRAME searchFrame
-     BtnFavorites AT ROW 1 COL 1 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 54
-     menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
-     searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
-     btnMoveUp AT ROW 3.38 COL 1 HELP
-          "Move Favorite Up" WIDGET-ID 56
-     btnRemove AT ROW 4.57 COL 1 HELP
-          "Remove Favorite" WIDGET-ID 26
-     btnSearch AT ROW 1 COL 51 HELP
-          "Search Menu / Edit Favorites" WIDGET-ID 40
-     btnFavorite AT ROW 13.62 COL 52 WIDGET-ID 46
-     btnClear AT ROW 13.86 COL 100 HELP
-          "Clear Search Filters" WIDGET-ID 42
-     svFavoriteText AT ROW 13.86 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     "FAVORITES" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.24 COL 21 WIDGET-ID 62
-          BGCOLOR 15 
-     RECT-23 AT ROW 1 COL 6 WIDGET-ID 60
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 3.38
-         SIZE 108 BY 14.05
-         FGCOLOR 1  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1373,7 +1373,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnInactivateCueCards MAINMENU
 ON CHOOSE OF btnInactivateCueCards IN FRAME userSettingsFrame /* Inactivate Active Cue Cards */
 DO:
-    RUN pInactivateCueCards.
+    RUN spInactivateCueCards ("System").
+    MESSAGE
+        "Cue Cards Inactivated"
+    VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2201,8 +2204,8 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites menuTreeFilter favoritesList btnMoveDown searchSelections 
-         btnMoveUp btnRemove btnSearch btnFavorite 
+  ENABLE BtnFavorites menuTreeFilter btnMoveDown favoritesList btnMoveUp 
+         searchSelections btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
@@ -2603,44 +2606,6 @@ PROCEDURE pGetUserSettings :
     END. /* avail prgrms */
     
     RUN pWinReSize.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInactivateCueCards MAINMENU 
-PROCEDURE pInactivateCueCards :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE BUFFER bCueCard     FOR cueCard.
-    DEFINE BUFFER bCueCardText FOR cueCardText.
-    
-    DO TRANSACTION:
-        FOR EACH bCueCardText NO-LOCK,
-            FIRST bCueCard NO-LOCK
-            WHERE bCueCard.cueType EQ "System"
-            :
-            IF CAN-FIND(FIRST xCueCard
-                        WHERE xCueCard.user_id   EQ USERID("ASI")
-                          AND xCueCard.cueType   EQ bCueCard.cueType
-                          AND xCueCard.cueTextID EQ bCueCardText.cueTextID) THEN
-            NEXT.
-            CREATE xCueCard.
-            ASSIGN
-                xCueCard.user_id   = USERID("ASI")
-                xCueCard.cueType   = bCueCard.cueType
-                xCueCard.cueTextID = bCueCardText.cueTextID
-                .
-            RELEASE xCueCard.
-        END. /* each bcuecardtext */
-    END. /* do trans */
-    MESSAGE
-        "Cue Cards Inactivated"
-    VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
 
