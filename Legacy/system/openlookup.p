@@ -218,21 +218,21 @@ CASE ip-lookupField:
            /* DB Table from which data is to be fetched */
            INPUT "vend",
            /* List of fields which are required in the query */
-           INPUT "company,vend-no,name,city,state,active", 
+           INPUT "company,vend-no,name,city,state,active,type,loc", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "company,vend-no,name,city,state,active",
+           INPUT "vend-no,name,city,state,type,loc",
            /* List of field labels to override the default database field label */
            INPUT "",
            /* List of field formats to override the default database field format */
-           INPUT ",X(20),X(50)",
+           INPUT "X(20),X(50)",
            /* List of browse column width values to override the default column width in browse */
            INPUT "",
            /* List of fields for which field level search is enabled */
            INPUT "vend-no,name,city,state",
            /* List of fields for which sorting is enabled */
-           INPUT "vend-no,name,city,state,active",
+           INPUT "vend-no,name,city,state",
            /* Where clause to select specific records */
-           INPUT "vend.company EQ '" + ip-company + "'" ,
+           INPUT "vend.company EQ '" + ip-company + "'" + " AND vend.active EQ 'A'",
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
            INPUT "vend-no,name",
            /* Max record limit to prevent run away query */
