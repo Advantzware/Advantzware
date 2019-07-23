@@ -1390,6 +1390,9 @@ PROCEDURE get-first-r-no :
   FOR EACH bq-fg-rctd FIELDS(r-no)
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "R"
+        AND ((lv-do-what = "delete" AND fg-rctd.t-qty < 0) or
+             (lv-do-what <> "delete" AND fg-rctd.t-qty >= 0))
+        AND fg-rctd.SetHeaderRno EQ 0      
         AND bq-fg-rctd.r-no      LT lv-frst-rno
       USE-INDEX rita-code NO-LOCK
       BY bq-fg-rctd.r-no:
@@ -1401,6 +1404,9 @@ PROCEDURE get-first-r-no :
   FOR EACH bq-fg-rctd FIELDS(r-no)
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "E"
+        AND ((lv-do-what = "delete" AND fg-rctd.t-qty < 0) or
+             (lv-do-what <> "delete" AND fg-rctd.t-qty >= 0))
+        AND fg-rctd.SetHeaderRno EQ 0        
         AND bq-fg-rctd.r-no      LT lv-frst-rno
       USE-INDEX rita-code NO-LOCK
       BY bq-fg-rctd.r-no:

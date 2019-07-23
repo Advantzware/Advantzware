@@ -13,11 +13,6 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE dynInitCompany:
-    RUN spGetSessionParam ("Company", OUTPUT cSessionValue).
-    RETURN cSessionValue.
-END PROCEDURE.
-
 PROCEDURE dynInitAuditDB:
     DEFINE VARIABLE cDBs AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx  AS INTEGER   NO-UNDO.
@@ -64,6 +59,11 @@ PROCEDURE dynInitAuditUser:
         cUsers = cUsers + "," + users.user_id.
     END. /* each users */
     RETURN cUsers.
+END PROCEDURE.
+
+PROCEDURE dynInitCompany:
+    RUN spGetSessionParam ("Company", OUTPUT cSessionValue).
+    RETURN cSessionValue.
 END PROCEDURE.
 
 PROCEDURE dynInitCompanyList:

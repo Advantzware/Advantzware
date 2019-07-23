@@ -1074,6 +1074,7 @@ PROCEDURE ipUpgradeDBs :
     DEF VAR cStatement AS CHAR NO-UNDO.
     DEF VAR cDeltaDf AS CHAR NO-UNDO.
     DEF VAR cLockFile AS CHAR NO-UNDO.
+    DEF VAR cDbLogFile AS CHAR NO-UNDO.
     DEF VAR cNewList AS CHAR NO-UNDO.
     DEF VAR cNewSel AS CHAR NO-UNDO.
     DEF VAR cThisEntry AS CHAR NO-UNDO.
@@ -1167,7 +1168,12 @@ PROCEDURE ipUpgradeDBs :
         cLockFile = cDbDrive + "\" +
                      cTopDir + "\" + cDbDirAlone + "\" + 
                      cThisDir + "\" +
-                     fiDBName:{&SV} + ".lk".
+                     fiDBName:{&SV} + ".lk"
+        cDbLogFile = cDbDrive + "\" +
+                     cTopDir + "\" + cDbDirAlone + "\" + 
+                     cThisDir + "\" +
+                     fiDBName:{&SV} + ".lg"
+                     .
     
     /* Unserve the database */
     RUN ipStatus ("    Stopping database service").
@@ -1191,6 +1197,9 @@ PROCEDURE ipUpgradeDBs :
             lSuccess = FALSE.
         RETURN.
     END.
+
+    /* Remove the log file */
+    OS-DELETE VALUE(cDbLogFile).
         
     /* Connect to the database single user */
     RUN ipStatus ("    Connecting single-user mode").
@@ -1212,7 +1221,7 @@ PROCEDURE ipUpgradeDBs :
     /* Load the delta */
     RUN ipStatus ("    Loading delta " + STRING(cFullDelta)).
     RUN prodict/load_df.p (cFullDelta). 
-    
+        
     /* Disconnect it */
     RUN ipStatus ("    Disconnecting").
     DISCONNECT VALUE("updDB" + STRING(iDbCtr)).

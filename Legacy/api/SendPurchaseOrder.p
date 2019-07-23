@@ -109,12 +109,12 @@
         ASSIGN
             ioplcRequestData = REPLACE(ioplcRequestData, "TBD12", lcConcatDetailData)
             ioplcRequestData = REPLACE(ioplcRequestData, "TBD11", "localhost") /* lastRequestIP */
-            ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.due-date", STRING(po-ord.due-date))
+            ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.due-date", IF po-ord.due-date NE ? THEN STRING(po-ord.due-date) ELSE "")
             ioplcRequestData = REPLACE(ioplcRequestData, "TBD9", "123")       /* numatcard*/
             ioplcRequestData = REPLACE(ioplcRequestData, "cCardName", cCardName)
             ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.vend-no", po-ord.vend-no)
-            ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.last-ship-date", STRING(po-ord.last-ship-date))
-            ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.po-date", STRING(po-ord.po-date))
+            ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.last-ship-date", IF po-ord.last-ship-date NE ? THEN STRING(po-ord.last-ship-date) ELSE "")
+            ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.po-date", IF po-ord.po-date NE ? THEN STRING(po-ord.po-date) ELSE "")
             ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.stat", po-ord.stat)
             ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.po-no", STRING(po-ord.po-no))
             ioplcRequestData = REPLACE(ioplcRequestData, "po-ord.po-no", STRING(po-ord.po-no))

@@ -30,7 +30,6 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {methods/defines/cust.i &NEW="NEW"}
-{api/ttArgs.i}
 
 DEF VAR ll-secure AS LOG NO-UNDO.
 
@@ -2452,52 +2451,12 @@ PROCEDURE local-update-record :
       RUN fg/custfobudt.w(ROWID(cust)) .
   END.
 
-  /* This is to make call to Outbound API for adding new customer*/
-  IF ll-new-record THEN
-      RUN pCallAPIOutbound (
-          ROWID(cust)
-          ).   
 
   IF ll-new-record THEN DO:
     /* Reposition browse to new record so other tabs are refreshed */
     {methods/run_link.i "RECORD-SOURCE" "repo-query2" "(INPUT ROWID(cust))"} 
   END.
-END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound V-table-Win 
-PROCEDURE pCallAPIOutbound :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipriCust AS ROWID NO-UNDO.
-    
-    DEFINE VARIABLE cAPIID             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParentProgram     AS CHARACTER NO-UNDO.   
-    
-    EMPTY TEMP-TABLE ttArgs.
-    
-    CREATE ttArgs.
-    ASSIGN
-        ttArgs.argType  = "ROWID"
-        ttArgs.argKey   = "cust"
-        ttArgs.argValue = STRING(ipriCust)
-        .    
-    
-    ASSIGN
-        cParentProgram = PROGRAM-NAME(1)
-        cAPIID         = "SendCustomer"
-        .
-            
-    RUN api/PrepareAndCallOutboundRequest.p (
-        INPUT TABLE ttArgs,
-        cAPIId,    
-        cParentProgram
-        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2610,45 +2569,6 @@ PROCEDURE update-sman :
    */
    RUN windows/w-updsmn.w (cust.cust-no).
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
-PROCEDURE valid-carrier :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&frame-name}:
-    cust.carrier:SCREEN-VALUE = CAPS(cust.carrier:SCREEN-VALUE).
-
-     FIND FIRST carrier  
-        WHERE carrier.company EQ g_company 
-        AND carrier.loc     EQ cust.loc:SCREEN-VALUE
-        AND carrier.carrier EQ cust.carrier:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
-    IF AVAIL carrier THEN DO:
-        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
-            MESSAGE "Please note: Carrier " cust.carrier:SCREEN-VALUE " is valid but currently inactive"
-            VIEW-AS ALERT-BOX INFO.
-            APPLY "entry" TO cust.carrier.
-            RETURN ERROR.
-        END.
-    END.
-
-    IF NOT AVAIL carrier THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO cust.carrier.
-      RETURN ERROR.
-    END.
-  END.
-
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3135,6 +3055,45 @@ PROCEDURE zip-carrier :
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&frame-name}:
+    cust.carrier:SCREEN-VALUE = CAPS(cust.carrier:SCREEN-VALUE).
+
+     FIND FIRST carrier  
+        WHERE carrier.company EQ g_company 
+        AND carrier.loc     EQ cust.loc:SCREEN-VALUE
+        AND carrier.carrier EQ cust.carrier:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " cust.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+            APPLY "entry" TO cust.carrier.
+            RETURN ERROR.
+        END.
+    END.
+
+    IF NOT AVAIL carrier THEN DO:
+      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO cust.carrier.
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

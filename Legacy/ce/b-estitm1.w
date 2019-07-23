@@ -3474,6 +3474,7 @@ PROCEDURE local-assign-record :
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR lv-box-des AS CHAR INIT "S" NO-UNDO.
   DEF VAR cNewRep AS CHAR NO-UNDO.
+  DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAIL eb THEN FIND eb WHERE RECID(eb) = lv-eb-recid NO-LOCK NO-ERROR.
@@ -3519,7 +3520,9 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-shipto THEN DO:
-    RUN windows/d-shpfly.w (ROWID(eb)).
+    RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
+    IF eb.ship-id NE cShipFromFlyFile THEN
+        ASSIGN eb.ship-id = cShipFromFlyFile .
     IF eb.ship-id NE "TEMP" THEN
     FIND FIRST shipto
         WHERE shipto.company EQ cocode

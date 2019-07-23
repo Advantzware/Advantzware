@@ -4061,7 +4061,6 @@ PROCEDURE valid-po-no :
             IF ip-type EQ 1 AND
                 AVAILABLE po-ord AND
                 adm-adding-record AND
-                fg-rctd.tag:SCREEN-VALUE EQ "" AND
                 NOT CAN-FIND(FIRST tt-fg-rctd) THEN 
             DO:
                 RUN fg/d-selpos.w (ROWID(po-ord), NO).

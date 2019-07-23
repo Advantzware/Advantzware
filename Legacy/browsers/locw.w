@@ -84,6 +84,20 @@ DEFINE VARIABLE h_w-inqord     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cPrintAvailQty AS CHARACTER NO-UNDO INITIAL "2".
 DEFINE VARIABLE cFGBinInquiry  AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGDefaultQtyDisplay", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound THEN do:
+    IF INTEGER(cRtnChar) GT 0 AND INTEGER(cRtnChar) LE 4 THEN
+        cPrintAvailQty = cRtnChar NO-ERROR. 
+    ELSE cPrintAvailQty = "2" .
+END.
+
+
 &SCOPED-DEFINE for-each1    ~
     FOR EACH w-jobs WHERE ((w-jobs.qtyAvailable NE 0 AND cPrintAvailQty EQ "2" ) ~
      OR (w-jobs.qtyAvailable LT 0 AND cPrintAvailQty EQ "3") OR (w-jobs.qtyAvailable EQ 0 AND cPrintAvailQty EQ "4" ) ~

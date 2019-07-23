@@ -37,6 +37,7 @@ def var v-po-no             like oe-bolh.po-no.
 def var v-job-no            as   char format "x(9)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 DEF VAR v-ship-phone        AS   CHAR FORMAT "X(13)" NO-UNDO.
+DEFINE VARIABLE cTrailer AS CHARACTER FORMAT "x(19)" NO-UNDO.
 
 def var v-ship-name  like shipto.ship-name.
 def var v-ship-addr  like shipto.ship-addr.
@@ -181,6 +182,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
      v-ship-phone   = IF shipto.area-code + shipto.phone <> "" THEN
                       "(" + shipto.area-code + ")" + string(shipto.phone,"xxx-xxxx")
                       ELSE ""
+     cTrailer = oe-bolh.trailer
     v-phone = IF oe-bolh.area-code + oe-bolh.phone <> "" THEN 
               "(" + oe-bolh.area-code + ")" + string(oe-bolh.phone,"xxx-xxxx")
               ELSE ""

@@ -1,0 +1,71 @@
+ADD TABLE "APIInboundDetail"
+  AREA "Data"
+  DUMP-NAME "APIInboundDetail"
+
+ADD FIELD "apiRoute" OF "APIInboundDetail" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 16
+  ORDER 10
+
+ADD FIELD "rec_key" OF "APIInboundDetail" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 42
+  ORDER 20
+
+ADD FIELD "parentID" OF "APIInboundDetail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "detailType" OF "APIInboundDetail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD FIELD "data" OF "APIInboundDetail" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 6
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "1252"
+  CLOB-COLLATION "BASIC"
+  CLOB-TYPE 2
+  ORDER 50
+
+ADD FIELD "detailID" OF "APIInboundDetail" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 40
+
+ADD INDEX "apiRoute" ON "APIInboundDetail" 
+  AREA "Index"
+  PRIMARY
+  INDEX-FIELD "apiRoute" ASCENDING 
+
+ADD INDEX "detailID" ON "APIInboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "apiRoute" ASCENDING 
+  INDEX-FIELD "detailID" ASCENDING 
+
+ADD INDEX "parentID" ON "APIInboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "apiRoute" ASCENDING 
+  INDEX-FIELD "parentID" ASCENDING 
+  INDEX-FIELD "detailID" ASCENDING 
+
+ADD INDEX "rec_key" ON "APIInboundDetail" 
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING 
+

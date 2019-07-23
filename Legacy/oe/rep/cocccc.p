@@ -419,6 +419,8 @@ FOR EACH report
 
             IF cCertFormat EQ "CCC3" THEN
                 gchWorkSheet:Range("B13"):VALUE = string(itemfg.i-no + " / " + itemfg.part-no) .
+            ELSE IF cCertFormat NE "CCC4" THEN
+                gchWorkSheet:Range("B13"):VALUE = itemfg.i-no .
             ELSE IF cCertFormat NE "CCC3" THEN
                 gchWorkSheet:Range("B13"):VALUE = itemfg.part-no .
 

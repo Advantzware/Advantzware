@@ -1543,7 +1543,7 @@ PROCEDURE RMItems :
            AND job-mat.job-no2    = job-hdr.job-no2
            AND job-mat.frm        = job-hdr.frm
            AND job-mat.i-no       = item.i-no
-            BY rm-rctd.s-num:
+            BY rm-rctd.rct-date:
       
         IF viLine < 25 THEN
         DO: 
@@ -1580,7 +1580,7 @@ PROCEDURE RMItems :
            AND job-mat.job-no   = job-hdr.job-no
            AND job-mat.job-no2  = job-hdr.job-no2
            AND job-mat.frm      = job-hdr.frm
-           AND job-mat.i-no     = item.i-no:
+           AND job-mat.i-no     = item.i-no BY rm-rcpth.trans-date:
         IF viLine < 25 THEN
         DO: 
 
