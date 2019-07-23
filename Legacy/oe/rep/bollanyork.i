@@ -124,7 +124,8 @@ FOR EACH tt-boll,
                 "<C2>" TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>"))
                 "<C12>" STRING(w2.cases,"->>>9") + " @ "
                 "<C17>" STRING(w2.cas-cnt,">>>>>>")
-                "<C24>" STRING(tt-boll.qty) + " [" + STRING(v-relpc) + "]"
+                "<C24>" STRING(tt-boll.qty) 
+                "<C31>" " [" + STRING(v-relpc) + "]"
                 "<C35>" v-job-po FORMAT "x(15)".
             IF i EQ 1 THEN
                 PUT "<C48>" oe-ordl.ord-no  .
