@@ -1137,7 +1137,14 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "new-record-target", OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RETURN NO-APPLY.
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do: 
+      MESSAGE "Resetting the ship to back to customer default" VIEW-AS ALERT-BOX INFO .
+      FIND CURRENT shipto EXCLUSIVE-LOCK NO-ERROR .
+      IF AVAIL shipto THEN
+          DELETE shipto .
+      RUN pCloseWindow IN WIDGET-HANDLE(char-hdl) .
+      RETURN NO-APPLY .
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -1320,6 +1327,12 @@ ASSIGN
                         INPUT ip-shipnotes,
                         INPUT shipto.rec_key).
   END.     
+
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "new-record-target", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do: 
+      RUN pCloseWindow IN WIDGET-HANDLE(char-hdl) .
+  END.
+
 
 END PROCEDURE.
 
