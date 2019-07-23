@@ -367,13 +367,20 @@ for each job-hdr NO-LOCK
         v-cust-name = IF AVAIL oe-ord THEN oe-ord.cust-name 
                       ELSE IF AVAIL cust THEN cust.name
                       ELSE job-hdr.cust-no.
+        IF v-shipto[3] EQ "" THEN
+            ASSIGN v-shipto[3] = v-shipto[4]
+                   v-shipto[4] = "" .
 
         PUT "<B>Customer Name:</B>" v-cust-name 
             "<B>REQ DATE:   DUE DATE:   Estimate:" SKIP
             "Shipto:</B>" v-shipto[1] v-req-date AT 49 v-due-date AT 61 TRIM(job-hdr.est-no) FORMAT "x(8)" AT 74
             SKIP
             v-shipto[2] AT 7 SKIP
-            v-shipto[4] AT 7 SKIP
+            v-shipto[3] AT 7 SKIP .
+
+        IF v-shipto[4] NE "" THEN
+            PUT v-shipto[4] AT 7 SKIP .
+        PUT 
             v-fill SKIP.     
 
         v-line = if avail est                            and
