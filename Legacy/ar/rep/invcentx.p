@@ -81,6 +81,8 @@ DEF VAR ln-cnt AS INT NO-UNDO.
 DEF VAR lv-bol-no LIKE ar-invl.bol-no NO-UNDO.
 DEF BUFFER xar-inv FOR ar-inv.
 DEFINE SHARED VARIABLE LvOutputSelection AS CHAR NO-UNDO.
+DEFINE VARIABLE cCustName  AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE cCustAddr  AS CHARACTER FORMAT "x(30)" EXTENT 3 NO-UNDO.
 
 IF LvOutputSelection EQ "Email" THEN
 DO:
@@ -156,6 +158,13 @@ find first company where company.company eq cocode NO-LOCK.
                      AND cust.cust-no = ar-inv.cust-no NO-LOCK 
         break by report.key-01
               by report.key-02:
+
+         IF AVAIL cust THEN
+             ASSIGN
+             cCustName = cust.name
+             cCustAddr[1] = cust.addr[1]
+             cCustAddr[2] = cust.addr[2]
+             cCustAddr[3] = cust.city + ", " + cust.state + "  " + cust.zip .
 
       assign  v-shipto-name = ar-inv.sold-name
               v-shipto-addr[1] = ar-inv.sold-addr[1]

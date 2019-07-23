@@ -111,6 +111,9 @@ DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 
+DEFINE VARIABLE cCustName  AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE cCustAddr  AS CHARACTER FORMAT "x(30)" EXTENT 3 NO-UNDO.
+
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
 IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN lv-display-comp = YES.
@@ -154,13 +157,20 @@ find first company where company.company eq cocode NO-LOCK.
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
 
+      IF AVAIL cust THEN
+          ASSIGN
+          cCustName = cust.name
+          cCustAddr[1] = cust.addr[1]
+          cCustAddr[2] = cust.addr[2]
+          cCustAddr[3] = cust.city + ", " + cust.state + "  " + cust.zip .
+
       assign  v-shipto-name = xinv-head.sold-name
-              v-shipto-addr[1] = xinv-head.sold-addr[1]
-              v-shipto-addr[2] = xinv-head.sold-addr[2]
-              v-shipto-city = xinv-head.sold-city
-              v-shipto-state = xinv-head.sold-state
-              v-shipto-zip = xinv-head.sold-zip
-              v-del-no = 0.
+          v-shipto-addr[1] = xinv-head.sold-addr[1]
+          v-shipto-addr[2] = xinv-head.sold-addr[2]
+          v-shipto-city = xinv-head.sold-city
+          v-shipto-state = xinv-head.sold-state
+          v-shipto-zip = xinv-head.sold-zip
+          v-del-no = 0.
 
       find first oe-bolh where oe-bolh.company = xinv-head.company and
           oe-bolh.bol-no = xinv-head.bol-no use-index bol-no no-lock no-error.

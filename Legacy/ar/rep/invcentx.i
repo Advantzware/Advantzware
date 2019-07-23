@@ -5,10 +5,15 @@ IF LvOutputSelection EQ "Email" THEN
    PUT "<C3><R1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP.
 PUT "<P10><R15><C1><#2>"
             SPACE(12) "Bill To:" SPACE(50) "Ship To:" SKIP(1)
+            SPACE(12) cCustName v-shipto-name AT 71 skip
+            SPACE(12) cCustAddr[1]   v-shipto-addr[1] AT 71 SKIP
+            SPACE(12) cCustAddr[2]  v-shipto-addr[2] AT 71 SKIP
+            SPACE(12) cCustAddr[3]   v-sold-addr3 AT 71 SKIP.
+           /* SPACE(12) "Bill To:" SPACE(50) "Ship To:" SKIP(1)
             SPACE(12) ar-inv.cust-name v-shipto-name AT 71 skip
             SPACE(12) ar-inv.addr[1]   v-shipto-addr[1] AT 71 SKIP
             SPACE(12) ar-inv.addr[2]  v-shipto-addr[2] AT 71 SKIP
-            SPACE(12) v-addr3   v-sold-addr3 AT 71 SKIP.
+            SPACE(12) v-addr3   v-sold-addr3 AT 71 SKIP.*/
 v-printline = v-printline + 18.
 
 PUT "<||3></B><P10><R8><C50><#3><FROM><R14><C80><RECT><||3>" SKIP.
