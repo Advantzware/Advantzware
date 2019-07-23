@@ -14,7 +14,7 @@ DEF STREAM logStream.
 
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cConvTypeList AS CHAR NO-UNDO INITIAL 
-    "BankAcct,Account,Carrier,check-No,Est-no,inv-no,Item,ItemFg,Job,Loc,M-code,ra-no,Release#,Loadtag,Company".
+    "Loc,BankAcct,Account,Carrier,check-No,Est-no,inv-no,Item,ItemFg,Job,M-code,ra-no,Release#,Loadtag,Company".
     
 
 DEF TEMP-TABLE ttFullTableList
@@ -325,7 +325,6 @@ PROCEDURE pBuildFieldLists:
                     END. 
             END.
     END.
-    RUN pBuildSingleFieldList ("ItemFG","oe-ordl","i-no").
 
     /* inv-no */
     FOR EACH _field WHERE _field-name = "inv-no":
@@ -610,8 +609,8 @@ PROCEDURE pCleanup:
     FIND oe-ctrl WHERE 
         oe-ctrl.company = "001"
         EXCLUSIVE.
-    FIND LAST oe-ord NO-LOCK.
-    FIND LAST bolh NO-LOCK.
+    FIND LAST oe-ord NO-LOCK USE-INDEX ord-no.
+    FIND LAST bolh NO-LOCK USE-INDEX bol-no.
     ASSIGN 
         oe-ctrl.n-ord = oe-ord.ord-no + 1
         oe-ctrl.n-bol = bolh.bol-no + 1.
@@ -627,16 +626,11 @@ PROCEDURE pCleanup:
     ASSIGN 
         ar-ctrl.last-inv = inv-head.inv-no
         iCtr = 0.
-    FOR EACH ar-ctrl:
-        ASSIGN iCtr = iCtr + 1.
-        IF ictr = 1 THEN NEXT.
-        DELETE ar-ctrl.
-    END.
     
     FIND po-ctrl WHERE 
         po-ctrl.company = "001"
-    EXCLUSIVE.
-    FIND LAST po-ord NO-LOCK.
+        EXCLUSIVE.
+    FIND LAST po-ord NO-LOCK USE-INDEX po-no.
     ASSIGN 
         po-ctrl.next-po-no = po-ord.po-no + 1.
 
@@ -651,12 +645,14 @@ PROCEDURE pConsolidateAmounts:
     DEF BUFFER bCust FOR cust.
     DEF BUFFER bItem FOR ITEM.
     DEF BUFFER bItemfg FOR itemfg.
+    DEF BUFFER bItemfg-loc FOR itemfg-loc.
     DEF BUFFER bVend FOR vend.
     
     DISABLE TRIGGERS FOR LOAD OF account.
     DISABLE TRIGGERS FOR LOAD OF cust.
     DISABLE TRIGGERS FOR LOAD OF item.
     DISABLE TRIGGERS FOR LOAD OF itemfg.
+    DISABLE TRIGGERS FOR LOAD OF itemfg-loc.
     DISABLE TRIGGERS FOR LOAD OF vend.
     DISABLE TRIGGERS FOR LOAD OF location.
         
@@ -758,8 +754,7 @@ PROCEDURE pConsolidateAmounts:
 
     RUN pStatus("   Consolidating amount fields in itemfg table").
     FOR EACH itemfg WHERE 
-        itemfg.company = "001" AND 
-        itemfg.mat-type NE "8":
+        itemfg.company = "001":
         FIND bitemfg EXCLUSIVE WHERE 
             bitemfg.company = "002" AND 
             bitemfg.i-no = itemfg.i-no
@@ -782,6 +777,75 @@ PROCEDURE pConsolidateAmounts:
                 itemfg.u-lyr = itemfg.u-lyr + bitemfg.u-lyr
                 itemfg.pur-cnt = itemfg.pur-cnt + bitemfg.pur-cnt
                 .
+            /*    
+            FOR EACH itemfg-loc WHERE 
+                itemfg-loc.company EQ itemfg.company AND 
+                itemfg-loc.i-no EQ itemfg.i-no AND 
+                itemfg-loc.loc EQ "main":
+                FIND bitemfg-loc EXCLUSIVE WHERE 
+                    bitemfg-loc.company = "002" AND 
+                    bitemfg-loc.i-no = itemfg.i-no AND 
+                    bitemfg-loc.loc EQ "MAIN"
+                    NO-ERROR.
+                IF AVAIL bitemfg-loc THEN DO:
+                    ASSIGN 
+                        itemfg-loc.q-adj = itemfg-loc.q-adj + bitemfg-loc.q-adj
+                        itemfg-loc.q-adj-ptd = itemfg-loc.q-adj-ptd + bitemfg-loc.q-adj-ptd
+                        itemfg-loc.q-adj-ytd = itemfg-loc.q-adj-ytd + bitemfg-loc.q-adj-ytd
+                        
+                        itemfg-loc.q-alloc = itemfg-loc.q-alloc + bitemfg-loc.q-alloc
+                        itemfg-loc.q-alloc-ptd = itemfg-loc.q-alloc-ptd + bitemfg-loc.q-alloc-ptd
+                        itemfg-loc.q-alloc-ytd = itemfg-loc.q-alloc-ytd + bitemfg-loc.q-alloc-ytd
+                        
+                        itemfg-loc.q-avail = itemfg-loc.q-avail + bitemfg-loc.q-avail
+                        itemfg-loc.q-back = itemfg-loc.q-back + bitemfg-loc.q-back
+                        
+                        itemfg-loc.q-cogs = itemfg-loc.q-cogs + bitemfg-loc.q-cogs
+                        itemfg-loc.q-cogs-ptd = itemfg-loc.q-cogs-ptd + bitemfg-loc.q-cogs-ptd
+                        itemfg-loc.q-cogs-ytd = itemfg-loc.q-cogs-ytd + bitemfg-loc.q-cogs-ytd
+
+                        itemfg-loc.q-comm = itemfg-loc.q-comm + bitemfg-loc.q-comm
+                        
+                        itemfg-loc.q-inv = itemfg-loc.q-inv + bitemfg-loc.q-inv
+                        itemfg-loc.q-inv-ptd = itemfg-loc.q-inv-ptd + bitemfg-loc.q-inv-ptd
+                        itemfg-loc.q-inv-ytd = itemfg-loc.q-inv-ytd + bitemfg-loc.q-inv-ytd
+
+                        itemfg-loc.q-lyr = itemfg-loc.q-lyr + bitemfg-loc.q-lyr
+                        itemfg-loc.q-onh = itemfg-loc.q-onh + bitemfg-loc.q-onh
+                        itemfg-loc.q-ono = itemfg-loc.q-ono + bitemfg-loc.q-ono
+                        
+                        itemfg-loc.q-ord = itemfg-loc.q-ord + bitemfg-loc.q-ord
+                        itemfg-loc.q-ord-ptd = itemfg-loc.q-ord-ptd + bitemfg-loc.q-ord-ptd
+                        itemfg-loc.q-ord-ytd = itemfg-loc.q-ord-ytd + bitemfg-loc.q-ord-ytd
+
+                        itemfg-loc.q-prod = itemfg-loc.q-prod + bitemfg-loc.q-prod
+                        itemfg-loc.q-prod-ptd = itemfg-loc.q-prod-ptd + bitemfg-loc.q-prod-ptd
+                        itemfg-loc.q-prod-ytd = itemfg-loc.q-prod-ytd + bitemfg-loc.q-prod-ytd
+
+                        itemfg-loc.q-ptd = itemfg-loc.q-ptd + bitemfg-loc.q-ptd
+                        
+                        itemfg-loc.q-rec = itemfg-loc.q-rec + bitemfg-loc.q-rec
+                        itemfg-loc.q-rec-ptd = itemfg-loc.q-rec-ptd + bitemfg-loc.q-rec-ptd
+                        itemfg-loc.q-rec-ytd = itemfg-loc.q-rec-ytd + bitemfg-loc.q-rec-ytd
+                        
+                        itemfg-loc.q-rel = itemfg-loc.q-rel + bitemfg-loc.q-rel
+                        itemfg-loc.q-rel-ptd = itemfg-loc.q-rel-ptd + bitemfg-loc.q-rel-ptd  
+                        itemfg-loc.q-rel-ytd = itemfg-loc.q-rel-ytd + bitemfg-loc.q-rel-ytd  
+        
+                        itemfg-loc.q-ship = itemfg-loc.q-ship + bitemfg-loc.q-ship
+                        itemfg-loc.q-ship-ptd = itemfg-loc.q-ship-ptd + bitemfg-loc.q-ship-ptd  
+                        itemfg-loc.q-ship-ytd = itemfg-loc.q-ship-ytd + bitemfg-loc.q-ship-ytd  
+
+                        itemfg-loc.q-tran = itemfg-loc.q-tran + bitemfg-loc.q-tran
+                        itemfg-loc.q-tran-ptd = itemfg-loc.q-tran-ptd + bitemfg-loc.q-tran-ptd  
+                        itemfg-loc.q-tran-ytd = itemfg-loc.q-tran-ytd + bitemfg-loc.q-tran-ytd  
+
+                        itemfg-loc.q-ytd = itemfg-loc.q-ytd + bitemfg-loc.q-ytd
+                        .
+                    DELETE bitemfg-loc.
+                END.
+            END.
+            */
             DELETE bitemfg.
         END.
     END.
@@ -1058,24 +1122,22 @@ PROCEDURE pConvertRecsByType:
     FOR EACH ttTablesWithMergeFields WHERE 
         ttTablesWithMergeFields.cFieldType = ipcType:
         CASE ipcType:
-            /*
             WHEN "Account"  THEN RUN pConvertAccountTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "BankAcct" THEN RUN pConvertBankAccountTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Carrier"  THEN RUN pConvertCarrierTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Check-no" THEN RUN pConvertCheckNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            WHEN "Company"  THEN RUN pConvertCompanyTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Est-no"   THEN RUN pConvertEstNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "inv-no"   THEN RUN pConvertInvNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Item"     THEN RUN pConvertItemTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            WHEN "ItemFg"   THEN RUN pConvertItemFGTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Job"      THEN RUN pConvertJobTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            WHEN "Loadtag"  THEN RUN pConvertLoadtagTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Loc"      THEN RUN pConvertLocTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "M-code"   THEN RUN pConvertMcodeTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "ra-no"    THEN RUN pConvertRaNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Release#" THEN RUN pConvertRelease#Table (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            */
-            WHEN "Loadtag"  THEN RUN pConvertLoadtagTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            WHEN "Company"  THEN RUN pConvertCompanyTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
-            /* Customers are just merged 
+            /* These are just merged - don't convert 
+            WHEN "ItemFg"   THEN RUN pConvertItemFGTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "CustNo"   THEN RUN pConvertCustTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             */
         END.            
@@ -2414,15 +2476,15 @@ PROCEDURE pDeleteSimpleMerges:
         {&cTable}.company EQ "002":
         DELETE {&cTable}.
     END.
-
-&scoped-def ctable company
-    RUN pStatus("   Removing " + "{&cTable}" + " records").
-    DISABLE TRIGGERS FOR LOAD OF {&cTable}.
-    FOR EACH {&cTable} WHERE 
-        {&cTable}.company EQ "002":
-        DELETE {&cTable}.
-    END.
-
+    /*
+    &scoped-def ctable company
+        RUN pStatus("   Removing " + "{&cTable}" + " records").
+        DISABLE TRIGGERS FOR LOAD OF {&cTable}.
+        FOR EACH {&cTable} WHERE 
+            {&cTable}.company EQ "002":
+            DELETE {&cTable}.
+        END.
+    */
 END PROCEDURE.
 
 PROCEDURE pLoadCoAFromCSV:
