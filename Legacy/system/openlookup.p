@@ -258,19 +258,19 @@ CASE ip-lookupField:
            /* DB Table from which data is to be fetched */
            INPUT "po-ord",
            /* List of fields which are required in the query */
-           INPUT "company,po-no,po-date,vend-no,cust-no,stat", 
+           INPUT "company,po-no,po-date,vend-no,cust-no,stat,opened", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "company,po-no,po-date,vend-no,stat",
+           INPUT "po-no,po-date,vend-no,stat,opened",
            /* List of field labels to override the default database field label */
-           INPUT "",
+           INPUT ",,,,Opened",
            /* List of field formats to override the default database field format */
            INPUT "",
            /* List of browse column width values to override the default column width in browse */
-           INPUT ",20,20,30",
+           INPUT "20,20,30,10",
            /* List of fields for which field level search is enabled */
-           INPUT "po-no,vend-no,stat",
+           INPUT "po-no,po-date,vend-no,stat,opened",
            /* List of fields for which sorting is enabled */
-           INPUT "po-no,vend-no,stat",
+           INPUT "po-no|DESCENDING,po-date,vend-no,stat,opened",
            /* Where clause to select specific records */
            INPUT "po-ord.company EQ '" + ip-company + "'" ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
@@ -298,19 +298,19 @@ CASE ip-lookupField:
            /* DB Table from which data is to be fetched */
            INPUT "oe-relh",
            /* List of fields which are required in the query */
-           INPUT "company,release#,rel-date,o-no,cust-no,ship-id,po-no", 
+           INPUT "company,release#,rel-date,posted,stat,cust-no,ship-id,carrier", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "company,release#,rel-date,o-no,cust-no,ship-id",
+           INPUT "release#,posted,stat,cust-no,ship-id,rel-date,carrier",
            /* List of field labels to override the default database field label */
            INPUT "",
            /* List of field formats to override the default database field format */
            INPUT "",
            /* List of browse column width values to override the default column width in browse */
-           INPUT ",20,,20,20,20",
+           INPUT "15,10,15,16,16",
            /* List of fields for which field level search is enabled */
-           INPUT "company,release#,rel-date,o-no,cust-no,ship-id",
+           INPUT "release#,rel-date,posted,cust-no,ship-id",
            /* List of fields for which sorting is enabled */
-           INPUT "release#,rel-date",
+           INPUT "release#|DESCENDING,rel-date,posted,stat",
            /* Where clause to select specific records */
            INPUT "oe-relh.company EQ '" + ip-company + "'" ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
