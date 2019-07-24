@@ -1125,6 +1125,15 @@ PROCEDURE ipAuditSysCtrl :
             auditTbl.auditDelete = TRUE 
         auditTbl.auditUpdate = TRUE 
         .
+
+    FIND FIRST auditTbl EXCLUSIVE WHERE
+        auditTbl.auditTable EQ "sys-ctrl-shipto"
+        NO-ERROR.
+    IF AVAIL auditTbl THEN ASSIGN 
+            auditTbl.auditCreate = TRUE 
+            auditTbl.auditDelete = TRUE 
+        auditTbl.auditUpdate = TRUE 
+        .
                 
 END PROCEDURE.
 
@@ -2164,16 +2173,12 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160880.
     IF fIntVer(cThisEntry) LT 16089000 THEN 
         RUN ipDataFix160890.
-    IF fIntVer(cThisEntry) LT 16089900 THEN
-        RUN ipDataFix160899.
     IF fIntVer(cThisEntry) LT 16100000 THEN
         RUN ipDataFix161000.
-    IF fIntVer(cThisEntry) LT 16110000 THEN
-        RUN ipDataFix161100.
+    IF fIntVer(cThisEntry) LT 99999999 THEN
+        RUN ipDataFix999999.
 
-    RUN ipDeleteAudit.
-
-    RUN ipStatus ("Completed Data Fixes").
+RUN ipStatus ("Completed Data Fixes").
     
     ASSIGN 
         lSuccess = TRUE.
@@ -2518,26 +2523,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
-PROCEDURE ipDataFix160899 :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 160899...").
-
-    RUN ipUseOldNK1.
-    RUN ipAuditSysCtrl.
-    RUN ipLoadJasperData.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161000 C-Win 
 PROCEDURE ipDataFix161000 :
     /*------------------------------------------------------------------------------
      Purpose:
@@ -2546,6 +2533,25 @@ PROCEDURE ipDataFix161000 :
     RUN ipStatus ("  Data Fix 161000...").
 
     RUN ipAddJobMchSeq.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
+PROCEDURE ipDataFix999999 :
+    /*------------------------------------------------------------------------------
+     Purpose:   These procedures should run on every update
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 999999...").
+
+    RUN ipUseOldNK1.
+    RUN ipAuditSysCtrl.
+    RUN ipLoadJasperData.
+    RUN ipDeleteAudit.
 
 END PROCEDURE.
 
@@ -2776,11 +2782,10 @@ PROCEDURE ipDeleteAudit :
         
     ASSIGN
         iElapsed = etime(TRUE).
-
+        
     IF NOT lAuditLicensed THEN DO:
         RUN ipStatus ("    Deleting audit records (unlicensed)...").
-        RUN ipStatus ("      (10 minute limit on this process)").
-
+        RUN ipStatus ("      (30 minute limit on this process)").
         RUN ipStatus ("      Deleting audit headers and details...").
         FOR EACH AuditHdr TABLE-SCAN:
             FOR EACH AuditDtl OF auditHdr:
@@ -2791,7 +2796,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditHdr.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 600000 THEN 
+            IF etime GT 108000000 THEN 
                 LEAVE.
         END.
         RUN ipStatus ("      Deleting audit stack...").
@@ -2799,7 +2804,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditStack.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 600000 THEN 
+            IF etime GT 108000000 THEN 
                 LEAVE.
         END.
         FOR EACH AuditTbl:
@@ -2811,10 +2816,10 @@ PROCEDURE ipDeleteAudit :
         END.
     END.
     ELSE DO:
-        RUN ipStatus ("    Deleting audit records older than 120 days...").
-        RUN ipStatus ("      (10 minute limit on this process)").
+        RUN ipStatus ("    Deleting audit records older than 180 days...").
+        RUN ipStatus ("      (30 minute limit on this process)").
         FOR EACH AuditHdr WHERE 
-            DATE(auditHdr.auditDateTime) LT TODAY - 120:
+            DATE(auditHdr.auditDateTime) LT TODAY - 180:
             FOR EACH AuditDtl OF auditHdr:
                 DELETE AuditDtl.
                 ASSIGN
@@ -2823,11 +2828,11 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditHdr.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 600000 THEN 
+            IF etime GT 108000000 THEN 
                 LEAVE.
         END.
     END.
-    RUN ipStatus ("      Deleted " + STRING(iDelCount) + " audit records in " + STRING(eTime / 1000) + " seconds.").
+    RUN ipStatus ("      Deleted " + STRING(iDelCount,">,>>>,>>>,>>9") + " audit records in " + STRING(INTEGER(eTime / 1000)) + " seconds.").
 
 END PROCEDURE.
 
@@ -3884,30 +3889,12 @@ PROCEDURE ipLoadPrograms :
                 {&tablename}.can_delete = '*'.
         END.
         ELSE DO:
-            ASSIGN 
-                {&tablename}.prgtitle = tt{&tablename}.prgtitle
-                {&tablename}.run_persistent = tt{&tablename}.run_persistent
-                {&tablename}.dir_group = tt{&tablename}.dir_group
-                {&tablename}.use_colors = tt{&tablename}.use_colors
-                {&tablename}.use_fonts = tt{&tablename}.use_fonts
-                {&tablename}.track_usage = tt{&tablename}.track_usage
-                {&tablename}.popup = tt{&tablename}.popup
-                {&tablename}.prgm_ver = tt{&tablename}.prgm_ver
-                {&tablename}.menu_item = tt{&tablename}.MENU_item
-                {&tablename}.mfgroup = tt{&tablename}.mfgroup
-                {&tablename}.menuOrder = tt{&tablename}.menuOrder
-                {&tablename}.menuLevel = tt{&tablename}.menuLevel
-                {&tablename}.itemParent = tt{&tablename}.itemParent
-                {&tablename}.mnemonic = tt{&tablename}.mnemonic
-                {&tablename}.systemType = tt{&tablename}.systemType
-                {&tablename}.menuImage = tt{&tablename}.menuImage
-                {&tablename}.translation = tt{&tablename}.translation.
-             DO i = 1 TO 13:
-                ASSIGN 
-                    {&tablename}.widget_bgc[i] = tt{&tablename}.WIDGET_bgc[i]
-                    {&tablename}.widget_fgc[i] = tt{&tablename}.WIDGET_fgc[i]
-                    {&tablename}.widget_font[i] = tt{&tablename}.WIDGET_font[i].
-            END.
+            BUFFER-COPY tt{&tablename} EXCEPT
+                tt{&tablename}.can_run
+                tt{&tablename}.can_create
+                tt{&tablename}.can_update
+                tt{&tablename}.can_delete
+                TO {&tablename}.
         END.
     END.
     INPUT CLOSE.
@@ -4456,6 +4443,7 @@ PROCEDURE ipProcessAll :
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
     
     RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
+    
     RUN ipStatus ("Patch Application Complete").
 
     ASSIGN
