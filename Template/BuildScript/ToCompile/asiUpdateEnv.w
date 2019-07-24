@@ -2168,6 +2168,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160899.
     IF fIntVer(cThisEntry) LT 16100000 THEN
         RUN ipDataFix161000.
+    IF fIntVer(cThisEntry) LT 16110000 THEN
+        RUN ipDataFix161100.
 
     RUN ipDeleteAudit.
 
@@ -2535,7 +2537,7 @@ END PROCEDURE.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160899 C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161000 C-Win 
 PROCEDURE ipDataFix161000 :
     /*------------------------------------------------------------------------------
      Purpose:
@@ -2544,6 +2546,22 @@ PROCEDURE ipDataFix161000 :
     RUN ipStatus ("  Data Fix 161000...").
 
     RUN ipAddJobMchSeq.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161100 C-Win 
+PROCEDURE ipDataFix161100 :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161100...").
+
+    RUN ipFixBlankOrdlShipIDs.
 
 END PROCEDURE.
 
@@ -3018,6 +3036,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBlankOrdlShipIDs C-Win
+PROCEDURE ipFixBlankOrdlShipIDs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+    RUN ipStatus("   Fix blank oe-ordl ship-ids").
+    FOR EACH oe-ordl EXCLUSIVE-LOCK
+        WHERE oe-ordl.ship-id EQ ""
+        :
+        FIND FIRST oe-ord NO-LOCK WHERE 
+            oe-ord.company EQ oe-ordl.company AND 
+            oe-ord.ord-no EQ oe-ordl.ord-no
+            NO-ERROR.
+        IF AVAIL oe-ord THEN ASSIGN 
+            oe-ordl.ship-id = oe-ord.ship-id.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixFrtPay C-Win

@@ -3355,6 +3355,7 @@ IF AVAIL oe-ord THEN DO:
     bf-oe-ordl.ord-no    = oe-ord.ord-no
     bf-oe-ordl.type-code = oe-ord.type
     bf-oe-ordl.cust-no   = oe-ord.cust-no
+    bf-oe-ordl.ship-id   = oe-ord.ship-id
     bf-oe-ordl.po-no     = oe-ord.po-no
     bf-oe-ordl.req-code  = oe-ord.due-code
     bf-oe-ordl.req-date  = oe-ord.due-date
