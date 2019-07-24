@@ -944,8 +944,9 @@ PROCEDURE spRunCueCard :
 "default_LeftUp,default_Up,default_RightUp,default_Right,default_RightDown,default_Down,~
 default_LeftDown,default_Left,information,default_SidebarCollapse,default_SidebarExpand".
     
-    IF iphFrame:SENSITIVE EQ NO THEN RETURN.
-    
+    IF NOT VALID-HANDLE(iphContainer) THEN RETURN.
+    IF NOT VALID-HANDLE(iphFrame) THEN RETURN.
+    IF iphFrame:SENSITIVE EQ NO THEN RETURN.    
     IF lCueCardActive THEN RETURN.
     
     cCueCardPool = "CueCardPool" + STRING(TIME,"99999").
