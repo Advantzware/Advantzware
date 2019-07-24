@@ -2178,7 +2178,7 @@ PROCEDURE ipDataFix :
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
-    RUN ipStatus ("Completed Data Fixes").
+RUN ipStatus ("Completed Data Fixes").
     
     ASSIGN 
         lSuccess = TRUE.
@@ -2552,6 +2552,22 @@ PROCEDURE ipDataFix999999 :
     RUN ipAuditSysCtrl.
     RUN ipLoadJasperData.
     RUN ipDeleteAudit.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161100 C-Win 
+PROCEDURE ipDataFix161100 :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161100...").
+
+    RUN ipFixBlankOrdlShipIDs.
 
 END PROCEDURE.
 
@@ -3025,6 +3041,33 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixBlankOrdlShipIDs C-Win
+PROCEDURE ipFixBlankOrdlShipIDs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+    RUN ipStatus("   Fix blank oe-ordl ship-ids").
+    FOR EACH oe-ordl EXCLUSIVE-LOCK
+        WHERE oe-ordl.ship-id EQ ""
+        :
+        FIND FIRST oe-ord NO-LOCK WHERE 
+            oe-ord.company EQ oe-ordl.company AND 
+            oe-ord.ord-no EQ oe-ordl.ord-no
+            NO-ERROR.
+        IF AVAIL oe-ord THEN ASSIGN 
+            oe-ordl.ship-id = oe-ord.ship-id.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixFrtPay C-Win

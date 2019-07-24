@@ -14,6 +14,7 @@
 DEFINE INPUT  PARAMETER ipcAPIID         AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcParentProgram AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplcResponseData AS LONGCHAR  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
 
@@ -23,7 +24,7 @@ DEFINE VARIABLE gcAuthType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcUserName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcPassword         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glcRequestData     AS LONGCHAR  NO-UNDO.
-DEFINE VARIABLE glcReponseData     AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE glcResponseData    AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE gcRequestDataType  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcResponseDataType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcResponseHandler  AS CHARACTER NO-UNDO.
@@ -70,18 +71,7 @@ IF NOT glAPIConfigFound THEN DO:
         opcMessage = "Config for API ID " + ipcAPIID + " not available or inactive in APIOutbound table"
         oplSuccess = NO
         .
-        
-    /* add a record in APIOutboundEvent table here*/
-    RUN pCreateAPIOutboundEvent (
-        INPUT ipcAPIID,
-        INPUT glcRequestData,
-        INPUT glcReponseData,
-        INPUT gcParentProgram,
-        INPUT oplSuccess,
-        INPUT opcMessage,
-        INPUT gdDateTime
-        ).
-        
+                
     RETURN.
 END.
 
@@ -109,18 +99,7 @@ IF ERROR-STATUS:ERROR THEN DO:
         opcMessage = "ERROR: " + ERROR-STATUS:GET-MESSAGE(1) + "~nAPIID [ " + ipcAPIID + " ]".
         oplSuccess = NO
         .
-        
-    /* add a record in APIOutboundEvent table here*/
-    RUN pCreateAPIOutboundEvent (
-        INPUT ipcAPIID,
-        INPUT glcRequestData,
-        INPUT glcReponseData,
-        INPUT gcParentProgram,
-        INPUT oplSuccess,
-        INPUT opcMessage,
-        INPUT gdDateTime
-        ).
-        
+                
     RETURN.
 END.
 
@@ -129,18 +108,7 @@ IF SEARCH("curl.exe") EQ ? THEN DO:
         opcMessage = "curl not found!".
         oplSuccess = NO
         .
-     
-    /* add a record in APIOutboundEvent table here*/
-    RUN pCreateAPIOutboundEvent (
-        INPUT ipcAPIID,
-        INPUT glcRequestData,
-        INPUT glcReponseData,
-        INPUT gcParentProgram,
-        INPUT oplSuccess,
-        INPUT opcMessage,
-        INPUT gdDateTime
-        ).
-        
+             
     RETURN. 
 END.
         
@@ -159,19 +127,7 @@ IF gcCommand = '' THEN DO:
         opcMessage = "Invalid Authentication Type [ " + gcAuthType + " ] found in config in APIOutbound table for APIID [ " + ipcAPIID  + " ]".
         oplSuccess = NO
         .
-        
-        
-    /* add a record in APIOutboundEvent table here*/
-    RUN pCreateAPIOutboundEvent (
-        INPUT ipcAPIID,
-        INPUT glcRequestData,
-        INPUT glcReponseData,
-        INPUT gcParentProgram,
-        INPUT oplSuccess,
-        INPUT opcMessage,
-        INPUT gdDateTime
-        ).
-        
+                        
     RETURN. 
 END.
 
@@ -182,25 +138,16 @@ COPY-LOB glcRequestData TO FILE gcRequestFile.
 DOS SILENT VALUE(gcCommand).
 
 /* Put Response Data from Temporary file into a variable */
-COPY-LOB FILE gcResponseFile TO glcReponseData.
+COPY-LOB FILE gcResponseFile TO glcResponseData.
 
-/* read Response  */
+oplcResponseData = glcResponseData.
+
+/* Read Response  */
 RUN pReadResponse (
-    INPUT  glcReponseData,
+    INPUT  glcResponseData,
     INPUT  gcResponseDataType,
     OUTPUT oplSuccess,
     OUTPUT opcMessage
-    ).
-
-/* add a record in APIOutboundEvent table here*/
-RUN pCreateAPIOutboundEvent (
-    INPUT ipcAPIID,
-    INPUT glcRequestData,
-    INPUT glcReponseData,
-    INPUT gcParentProgram,
-    INPUT oplSuccess,
-    INPUT opcMessage,
-    INPUT gdDateTime
     ).
 
 /* delete temporary files */
@@ -260,31 +207,5 @@ PROCEDURE pReadResponse PRIVATE:
 
     IF VALID-HANDLE(hdttJSON) THEN
         DELETE OBJECT hdttJSON.
-
-END PROCEDURE.
-
-
-PROCEDURE pCreateAPIOutboundEvent PRIVATE:
-   /*------------------------------------------------------------------------------
-   Purpose: Loads data into CreateAPIOutboundEvent 
-   Notes:
-   ------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ipcAPIID        AS CHARACTER NO-UNDO.
-   DEFINE INPUT PARAMETER iplcRequestData AS LONGCHAR  NO-UNDO.
-   DEFINE INPUT PARAMETER iplcReponseData AS LONGCHAR  NO-UNDO.
-   DEFINE INPUT PARAMETER ipcProgramName  AS CHARACTER NO-UNDO.
-   DEFINE INPUT PARAMETER iplSuccess      AS LOGICAL   NO-UNDO.
-   DEFINE INPUT PARAMETER ipcMessage      AS CHARACTER NO-UNDO.
-   DEFINE INPUT PARAMETER ipcDateTime     AS DATETIME  NO-UNDO.
-
-   RUN api/CreateAPIOutboundEvent.p (
-       INPUT ipcAPIID,
-       INPUT glcRequestData,
-       INPUT glcReponseData,
-       INPUT gcParentProgram,
-       INPUT oplSuccess,
-       INPUT opcMessage,
-       INPUT gdDateTime
-       ).
 
 END PROCEDURE.

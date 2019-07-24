@@ -70,6 +70,7 @@ DEF VAR cEnvBakSize AS CHAR NO-UNDO.
 DEF VAR cEnvLongBakList AS CHAR NO-UNDO.
 DEF VAR cOrigDirName AS CHAR NO-UNDO FORMAT "X(256)".
 DEF VAR cOrigPropath AS CHAR NO-UNDO.
+DEF VAR cPort AS CHAR NO-UNDO.
 DEF VAR iBufferSize AS INT NO-UNDO INITIAL 256.
 DEF VAR iCurrAvail AS INT NO-UNDO.
 DEF VAR iDbBakSize AS INT NO-UNDO.
@@ -761,6 +762,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
 ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* Execute */
 DO:
+    IF rsDoWhat:{&SV} EQ "R"  
+    AND fiUserID:{&SV} EQ "Admin"
+    AND INDEX(slAvailDbs:{&SV},"prod") NE 0 THEN DO:
+        MESSAGE 
+            "You are not allowed to replace your existing PROD database." SKIP 
+            "Please contact ASI Support for assistance."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            slAvailDbs:{&SV} = ?.
+        RETURN NO-APPLY.
+        RUN pLog("Can't overwrite PROD DB.  Prevented.").
+    END.
+
     RUN pLog("User chose the EXECUTE button").
     RUN pClickOK.
 END.
@@ -793,7 +807,6 @@ DO:
         RETURN NO-APPLY.
     END. 
     
-    RUN pLog("User entered a valid password").
     ASSIGN 
         btn_OK:SENSITIVE = TRUE.
     
@@ -822,7 +835,6 @@ DO:
         APPLY 'entry' TO SELF.
         RETURN NO-APPLY.
     END.  
-    RUN pLog("User entered a valid userid").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1183,10 +1195,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                         ELSE 10
         rDisk:TOOLTIP = "Avail=" + STRING(iDiskFreeSpace,">>>,>>>,>>9") + " MB"
         rUsed:TOOLTIP = "Used=" + STRING(iDiskUsedSpace,">>>,>>>,>>9") + " MB"
-        tbEstimate:CHECKED = iDiskFreeSpace LT 200
-        tbEstimate:SENSITIVE = iDiskFreeSpace LT 200. /* If LT 200MB avail, force estimate checking */
+        .
+    IF iDiskFreeSpace LT 200 THEN ASSIGN   /* If LT 200MB avail, force estimate checking */ 
+        tbEstimate:CHECKED = TRUE 
+        tbEstimate:SENSITIVE = FALSE. 
         
     APPLY 'value-changed' TO rsDoWhat {&IN}.
+    APPLY 'entry' TO fiUserID {&IN}.
 
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1304,6 +1319,12 @@ PROCEDURE pBackupDB :
         RETURN.
     END.
 
+    RUN pGetDbBakList (cDrive + "\" + cTopDir + "\" + cBackupDir + "\Databases",
+                       OUTPUT cDbBakList).
+    ASSIGN 
+        slAvailDbBaks:LIST-ITEMS = cDbBakList.
+
+
     RUN pLog("  Backup complete").
     STATUS DEFAULT "Database Backup completed".
     
@@ -1359,7 +1380,14 @@ PROCEDURE pBackupEnv :
             cCmdLine1 = c7zLoc + " a " + cTgtLoc + " " + cSrcLoc.
         OS-COMMAND SILENT VALUE(cCmdLine1).
     END.
-{&Woff}    
+    {&Woff}    
+
+    RUN pGetEnvBakList (cDrive + "\" + cTopDir + "\" + cBackupDir + "\Environments",
+                        OUTPUT cEnvBakList).
+    ASSIGN 
+        slAvailEnvBaks:LIST-ITEMS = cEnvBakList.
+
+
     RUN pLog("  Backup complete").
     STATUS DEFAULT "Environment Backup complete".
 
@@ -1544,9 +1572,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadAdminSvcProps C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAdminSvcProps C-Win 
 PROCEDURE pGetAdminSvcProps :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1563,19 +1591,24 @@ PROCEDURE pGetAdminSvcProps :
         DO:
             ASSIGN
                 cAdminPort2 = ENTRY(2,cLine,"=").
-            LEAVE.
+        END.
+        IF ENTRY(1,cLine,"=") EQ "port" THEN 
+        DO:
+            ASSIGN
+                cPort = ENTRY(2,cLine,"=").
         END.
     END.
     INPUT CLOSE.
+    IF cPort = "" THEN ASSIGN 
+        cPort = "20931".
     IF cAdminPort2 = "" THEN ASSIGN 
-        cAdminPort2 = "20931".
+        cAdminPort2 = "7843".
         
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDbBakList C-Win 
 PROCEDURE pGetDbBakList :
@@ -1724,7 +1757,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDbFileStats C-Win 
 PROCEDURE pGetDbFileStats :
@@ -2060,18 +2092,19 @@ PROCEDURE pRestoreDb :
     ASSIGN 
         cStopString = cDlcDir + "\bin\dbman" + 
             " -host " + cHostName + 
-            " -port " + cAdminPort2 + 
+            " -port " + cPort + 
             " -database " + slAvailDbs:{&SV} + 
             " -stop"
         cStartString = cDlcDir + "\bin\dbman" + 
             " -host " + cHostName + 
-            " -port " + cAdminPort2 + 
+            " -port " + cPort + 
             " -database " + slAvailDbs:{&SV} + 
             " -start"
             .
 {&Won}
     IF lOnline THEN DO:
         STATUS DEFAULT "Stopping database server " + slAvailDbs:{&SV}.
+        
         OS-COMMAND SILENT VALUE(cStopString).
        
         /* May have to wait for DB to shut down */

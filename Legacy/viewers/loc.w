@@ -70,7 +70,8 @@ location.subCode3 location.subCode1 location.subCode4 location.countryCode ~
 location.subCode2 location.geoLat location.geoLong location.phone ~
 location.externalID[1] location.fax location.email location.notes ~
 loc.active loc.handlingCost loc.storageCost[1] loc.storageCost[2] ~
-loc.storageCost[3] loc.storageCost[4]
+loc.storageCost[3] loc.storageCost[4] loc.OWNER loc.division ~
+loc.locationSquareFeet loc.palletCapacity
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
@@ -82,11 +83,12 @@ location.streetAddr[3] location.subCode3 location.subCode1 ~
 location.subCode4 location.countryCode location.subCode2 location.geoLat ~
 location.geoLong location.phone location.externalID[1] location.fax ~
 location.email location.notes loc.active loc.handlingCost loc.storageCost[1]  ~
-loc.storageCost[2] loc.storageCost[3] loc.storageCost[4]
+loc.storageCost[2] loc.storageCost[3] loc.storageCost[4] loc.OWNER loc.division ~
+loc.locationSquareFeet loc.palletCapacity
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
-&Scoped-Define DISPLAYED-OBJECTS rsBinType fsStDesc fsCtyDesc 
+&Scoped-Define DISPLAYED-OBJECTS rsBinType
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -122,14 +124,6 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE fsCtyDesc AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 37 BY .95 NO-UNDO.
-
-DEFINE VARIABLE fsStDesc AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 42 BY .95 NO-UNDO.
-
 DEFINE VARIABLE rsBinType AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -185,15 +179,13 @@ DEFINE FRAME F-Main
           LABEL "St/Prov"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     fsStDesc AT ROW 7.24 COL 23 COLON-ALIGNED NO-LABEL
-     location.subCode4 AT ROW 8.14 COL 12 COLON-ALIGNED
+     location.subCode4 AT ROW 7.24 COL 34.4 COLON-ALIGNED
           LABEL "Zip/Post"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.countryCode AT ROW 8.19 COL 39 COLON-ALIGNED
+     location.countryCode AT ROW 7.24 COL 60.60 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY .95
-     fsCtyDesc AT ROW 8.19 COL 48 COLON-ALIGNED NO-LABEL
      loc.handlingCost AT ROW 2.43 COL 78 COLON-ALIGNED
           LABEL "Handling" FORMAT "->,>>>,>>9.99"
           VIEW-AS FILL-IN 
@@ -214,15 +206,27 @@ DEFINE FRAME F-Main
           LABEL "Storage 4" FORMAT "->>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     location.subCode2 AT ROW 9.33 COL 12 COLON-ALIGNED
+    loc.OWNER AT ROW 7.19 COL 78 COLON-ALIGNED
+          LABEL "Owner"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     loc.locationSquareFeet AT ROW 8.43 COL 39 COLON-ALIGNED
+          LABEL "Location Gross"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     loc.palletCapacity AT ROW 8.43 COL 70 COLON-ALIGNED
+          LABEL "Pallets"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     location.subCode2 AT ROW 9.57 COL 12 COLON-ALIGNED
           LABEL "County"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     location.geoLat AT ROW 9.33 COL 39 COLON-ALIGNED
+     location.geoLat AT ROW 9.57 COL 39 COLON-ALIGNED
           LABEL "Lat"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.geoLong AT ROW 9.33 COL 70 COLON-ALIGNED
+     location.geoLong AT ROW 9.57 COL 70 COLON-ALIGNED
           LABEL "Long"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
@@ -237,6 +241,10 @@ DEFINE FRAME F-Main
           LABEL "Fax"
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
+     loc.division AT ROW 11.48 COL 67 COLON-ALIGNED
+          LABEL "Division"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      location.email AT ROW 12.43 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 73 BY 1
@@ -251,6 +259,8 @@ DEFINE FRAME F-Main
           SIZE 10 BY .62 AT ROW 3.86 COL 3
      "Notes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 14.1 COL 5
+     "Capacity:" VIEW-AS TEXT
+          SIZE 11.40 BY .62 AT ROW 8.62 COL 2.80
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -325,10 +335,6 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN location.fax IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN fsCtyDesc IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fsStDesc IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN location.geoLat IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN location.geoLong IN FRAME F-Main
@@ -415,6 +421,15 @@ DO:
                         lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
                 END.   
             END.
+        WHEN "owner" THEN
+        DO:
+            RUN windows/l-vendno.w (g_company, "A", FOCUS:SCREEN-VALUE, OUTPUT char-val).
+            IF char-val NE "" THEN 
+                DO :
+                ASSIGN 
+                    lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+            END.
+        END.
     END CASE.
   
 END.

@@ -125,9 +125,9 @@ for each report where report.term-id eq v-term-id,
         END.
 
         IF FIRST(w2.cases * w2.cas-cnt) THEN 
-          PUT {1} oe-ordl.part-no
+          PUT {1} oe-ordl.ord-no /*oe-ordl.part-no*/
                   v-job-po  AT 17 FORM "x(15)" 
-                  oe-boll.i-no AT 33 
+                  oe-ordl.part-no /*oe-boll.i-no*/ AT 33 
                   oe-ordl.i-name FORM "x(22)"
                   w2.cases    AT 71 FORM "->>>9" " @"
                   w2.cas-cnt    FORM "->>>>>9"
@@ -142,7 +142,7 @@ for each report where report.term-id eq v-term-id,
         IF LAST(w2.cases * w2.cas-cnt) THEN DO:
           IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
             PUT {1} 
-                oe-ordl.ord-no
+                /*oe-ordl.ord-no*/
                 oe-ordl.part-dscr1 FORM "x(30)" AT 33 
                 SKIP.
             v-printline = v-printline + 1.
@@ -151,8 +151,8 @@ for each report where report.term-id eq v-term-id,
           PUT {1}
               "====================" AT 68 SKIP
               v-tot-pkgs AT 71 FORM "->>>9"  " ="
-              v-ship-qty FORM "->>>>>z" SPACE(2)
-              oe-boll.p-c SPACE(1)
+              v-ship-qty FORM "->>>>>z" SPACE(3)
+              /*oe-boll.p-c SPACE(1)*/
               v-weight  FORM "->>>,>>9" SKIP.
 
           ASSIGN
@@ -195,9 +195,9 @@ for each report where report.term-id eq v-term-id,
   /* end of summary mods */
   ELSE DO:
      DISPLAY  {1}
-          oe-ordl.part-no   WHEN AVAIL oe-ordl 
-          oe-boll.po-no 
-          oe-boll.i-no 
+          oe-ordl.ord-no   WHEN AVAIL oe-ordl 
+          oe-boll.po-no AT 17
+          oe-ordl.part-no   WHEN AVAIL oe-ordl /*oe-boll.i-no*/ 
           oe-ordl.i-name  FORM "x(19)"
           oe-boll.cases FORM "->>,>>>" "@" SPACE(0)
           oe-boll.qty-case FORM "->>>>>Z" SKIP          
@@ -210,8 +210,8 @@ for each report where report.term-id eq v-term-id,
      DISPLAY 
          "====================" AT 69 SKIP
          v-tot-pkgs AT 69 FORM "->>,>>9"  "=" SPACE(0)
-         oe-boll.qty FORM "->>>>>z" SPACE(2)
-         oe-boll.p-c SPACE(1)
+         oe-boll.qty FORM "->>>>>z" SPACE(4)
+         /*oe-boll.p-c SPACE(1)*/
          oe-boll.weight FORM "->>>,>>9"  SKIP
          with frame bol-mid2 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
      down {1} with frame bol-mid2.

@@ -363,6 +363,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN 
     BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
+ASSIGN 
+       BROWSE-1:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 1.
+
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 

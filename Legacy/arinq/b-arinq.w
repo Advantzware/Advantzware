@@ -1464,7 +1464,7 @@ PROCEDURE export-xl :
         bolTo     = ar-invl.bol-no
         poTo      = ar-invl.po-no . 
 
- RUN arinq/rd-invexp.w (CustFrom,invFrom,itemFrom,bolFrom,poFrom,CustTo,invTo,itemTo,bolTo,poTo) .
+ RUN arinq/rd-invexp.w (CustFrom,invFrom,itemFrom,bolFrom,poFrom,"",CustTo,invTo,itemTo,bolTo,poTo,"","") .
 
 END PROCEDURE.
 

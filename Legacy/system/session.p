@@ -221,6 +221,7 @@ FIND FIRST users NO-LOCK
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
+
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
@@ -401,6 +402,14 @@ PROCEDURE spCueCardClose:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
+    MESSAGE 
+        "Inactivate ALL Cue Cards?"
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
+    UPDATE lInactivateCueCards AS LOGICAL.
+    IF lInactivateCueCards THEN
+    RUN spInactivateCueCards (cueCard.cueType).
+    IF lInactivateCueCards EQ ? THEN
+    RETURN NO-APPLY.
     iCueOrder = 99999.
     RUN spNextCue (iphWidget).
 
@@ -664,6 +673,44 @@ PROCEDURE spGetTaskFilter:
 
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spInactivateCueCards) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spInactivateCueCards Procedure
+PROCEDURE spInactivateCueCards:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCueType AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bCueCard     FOR cueCard.
+    DEFINE BUFFER bCueCardText FOR cueCardText.
+    
+    FOR EACH bCueCardText NO-LOCK,
+        FIRST bCueCard NO-LOCK
+        WHERE bCueCard.cueType EQ ipcCueType
+        :
+        IF CAN-FIND(FIRST xCueCard
+                    WHERE xCueCard.user_id   EQ USERID("ASI")
+                      AND xCueCard.cueType   EQ bCueCard.cueType
+                      AND xCueCard.cueTextID EQ bCueCardText.cueTextID) THEN
+        NEXT.
+        CREATE xCueCard.
+        ASSIGN
+            xCueCard.user_id   = USERID("ASI")
+            xCueCard.cueType   = bCueCard.cueType
+            xCueCard.cueTextID = bCueCardText.cueTextID
+            .
+        RELEASE xCueCard.
+    END. /* each bcuecardtext */
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

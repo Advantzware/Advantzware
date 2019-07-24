@@ -1962,7 +1962,18 @@ PROCEDURE display-item :
         ENABLE  Btn_Cancel Btn_OK WITH FRAME Dialog-Frame.
     END.
 
+   IF ip-type EQ "add" THEN DO:
+       DO WITH FRAME {&FRAME-NAME}:
+            DISABLE oe-rel.qty .
+       END.
+   END.
+
     IF ip-type EQ "update" THEN DO:
+        IF tt-report.q-rel EQ 0 THEN
+            DO WITH FRAME {&FRAME-NAME}:
+            DISABLE oe-rel.qty .
+        END.
+                
         RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
         RUN epCanAccess IN hPgmSecurity ("oe/d-ordrel.w", "", OUTPUT lResult).
         DELETE OBJECT hPgmSecurity.

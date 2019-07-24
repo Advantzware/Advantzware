@@ -88,18 +88,18 @@ DEFINE QUERY external_tables FOR po-ord.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table po-ordl.i-no po-ordl.i-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.ord-qty po-ordl.cost ~
-po-ordl.cust-no po-ordl.due-date po-ordl.item-type po-ordl.LINE ~
+po-ordl.cust-no po-ordl.due-date po-ordl.item-type ~
 getOrdQty() @ po-ordl.ord-qty getCost() @ po-ordl.cost po-ordl.spare-int-1 ~
-po-ordl.spare-int-2 
+po-ordl.spare-int-2 po-ordl.line po-ordl.company 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE  ~{&KEY-PHRASE} AND po-ordl.company eq po-ord.company and ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH po-ordl WHERE po-ordl.company eq po-ord.company and ~
 po-ordl.po-no eq po-ord.po-no ~
-      AND po-ordl.line GT 0 AND ~
+      AND ~{&KEY-PHRASE} and po-ordl.line GT 0 AND ~
 ASI.po-ordl.line LT 99999999 NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE  ~{&KEY-PHRASE} AND po-ordl.company eq po-ord.company and ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE po-ordl.company eq po-ord.company and ~
 po-ordl.po-no eq po-ord.po-no ~
-      AND po-ordl.line GT 0 AND ~
+      AND ~{&KEY-PHRASE} and po-ordl.line GT 0 AND ~
 ASI.po-ordl.line LT 99999999 NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table po-ordl
@@ -179,7 +179,8 @@ DEFINE QUERY Browser-Table FOR
       po-ordl.cost
       po-ordl.spare-int-1
       po-ordl.spare-int-2
-      po-ordl.LINE) SCROLLING.
+      po-ordl.line
+      po-ordl.company) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -201,7 +202,8 @@ DEFINE BROWSE Browser-Table
       getCost() @ po-ordl.cost COLUMN-LABEL "Unit Cost" FORMAT "->,>>>,>>9.99<<<<":U
       po-ordl.spare-int-1 FORMAT "->,>>>,>>9":U
       po-ordl.spare-int-2 FORMAT "->,>>>,>>9":U
-      po-ordl.LINE  COLUMN-LABEL "Line #" FORMAT ">>>9":U
+      po-ordl.line COLUMN-LABEL "Line #" FORMAT "99":U
+      po-ordl.company FORMAT "x(3)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 13.33
@@ -281,14 +283,16 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
        po-ordl.spare-int-1:VISIBLE IN BROWSE Browser-Table = FALSE
-       po-ordl.spare-int-2:VISIBLE IN BROWSE Browser-Table = FALSE.
+       po-ordl.spare-int-2:VISIBLE IN BROWSE Browser-Table = FALSE
+       po-ordl.line:VISIBLE IN BROWSE Browser-Table = FALSE
+       po-ordl.company:VISIBLE IN BROWSE Browser-Table = FALSE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -330,6 +334,8 @@ ASI.po-ordl.line LT 99999999"
 "po-ordl.spare-int-2" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.po-ordl.line
 "po-ordl.line" "Line #" ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[16]   > ASI.po-ordl.company
+"po-ordl.company" ? ? "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -609,6 +615,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   v-spec = NO . 
+   IF AVAIL po-ordl THEN
+        v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = po-ordl.rec_key ).
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'specpo-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -777,7 +807,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
 PROCEDURE spec-book-image-proc :
 /*------------------------------------------------------------------------------
@@ -818,31 +847,6 @@ PROCEDURE spec-book-image-proc :
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
-PROCEDURE dept-pan-image-proc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEF VAR v-spec AS LOG NO-UNDO.
-   DEF VAR char-hdl AS CHAR NO-UNDO.
-
-   v-spec = NO . 
-   IF AVAIL po-ordl THEN
-        v-spec = CAN-FIND(FIRST notes WHERE
-               notes.rec_key = po-ordl.rec_key ).
-
-   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'specpo-target':U, OUTPUT char-hdl).
-
-   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

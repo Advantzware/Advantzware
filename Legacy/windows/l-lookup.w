@@ -588,10 +588,10 @@ PROCEDURE addBrowseCols :
            NUM-ENTRIES(ip-widthList) >= li-count AND
            ENTRY(li-count, ip-widthList) <> "" THEN
            h_colHandle:WIDTH-CHARS = INTEGER(ENTRY(li-count, ip-widthList)).
-        
         IF h_colHandle:DATA-TYPE = "DATE" AND
            INDEX(ip-filterList, h_colHandle:NAME) > 0 AND 
-           h_colHandle:WIDTH-CHARS < 20 THEN
+           (h_colHandle:WIDTH-CHARS < 20 OR
+            h_colHandle:WIDTH-CHARS EQ ?) THEN
            h_colHandle:WIDTH-CHARS = 20.
            
     END.
@@ -679,7 +679,11 @@ PROCEDURE addFilterObjects :
                                          ENTRY(1,h_field:FORMAT,"/") + "," + "2" + "," +
                                          ENTRY(2,h_field:FORMAT,"/") + "," + "3"
                        PRIVATE-DATA    = h_field:NAME
-                       SCREEN-VALUE    = "1".                      
+                       SCREEN-VALUE    = "1"
+                       TRIGGERS:
+                           ON VALUE-CHANGED PERSISTENT RUN openFilterQuery IN THIS-PROCEDURE.
+                       END TRIGGERS
+                       .                      
                 END.
             END.
         END.
@@ -744,8 +748,11 @@ PROCEDURE attachQuery :
     
     IF ip-sortList <> "" THEN
         ASSIGN 
-            ls-sortBy   = ENTRY(1,ip-sortList)
-            ls-sortType = "".
+            ls-sortBy   = ENTRY(1,ENTRY(1,ip-sortList),"|")
+            ls-sortType = IF NUM-ENTRIES(ENTRY(1,ip-sortList),"|") EQ 2 THEN 
+                              "DESCENDING"
+                          ELSE
+                              "".
 
     h_brquery:QUERY-PREPARE("FOR EACH" + " " + h_brbuffer:NAME + " " + "NO-LOCK").
     h_brquery:QUERY-OPEN().
@@ -1329,9 +1336,16 @@ PROCEDURE validateParameters :
         RETURN ERROR.
     END.
     
+    /* check if sort list input paramater is empty */
+    IF ip-sortList = "" THEN DO:
+        MESSAGE "Sort field list not supplied"
+            VIEW-AS ALERT-BOX.
+        RETURN ERROR.
+    END.
+    
     /* check if sort list fields are available in the display list */
     DO li-count = 1 TO NUM-ENTRIES(ip-sortList):
-        IF INDEX(ip-displayList, ENTRY(li-count,ip-sortList)) = 0 THEN
+        IF INDEX(ip-displayList, ENTRY(1,ENTRY(li-count,ip-sortList),"|")) = 0 THEN
             ls-fields = ls-fields + " " + ENTRY(li-count,ip-sortList).
     END.
 
@@ -1421,10 +1435,10 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
                                      ELSE 
                                      "BEGINS" + " " + "'" + h_widget:SCREEN-VALUE + "'".
             ELSE IF h_widget:DATA-TYPE = "INTEGER" THEN
-                ls-datatypeString = "=" + " " + "INT" + "(" + h_widget:SCREEN-VALUE + ")".
+                ls-datatypeString = "=" + " " + "INTEGER" + "('" + h_widget:SCREEN-VALUE + "')".
             ELSE IF h_widget:DATA-TYPE = "DECIMAL" THEN
-                ls-datatypeString = "=" + " " + "DECIMAL" + "(" + h_widget:SCREEN-VALUE + ")".
-            
+                ls-datatypeString = "=" + " " + "DECIMAL" + "('" + h_widget:SCREEN-VALUE + "')".
+
             ASSIGN
               ls-returnQueryString = ls-returnQueryString + " " + 
                               (IF ls-returnQueryString = "" AND ip-queryString = "" THEN "WHERE" ELSE "AND") + " " +

@@ -42,7 +42,7 @@ DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
-{methods/prgsecur.i}
+{methods/prgsecur.i "WIN"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

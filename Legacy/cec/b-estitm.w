@@ -5207,6 +5207,7 @@ PROCEDURE local-assign-record :
   DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.  
   DEF VAR cNewRep AS CHAR NO-UNDO.
   DEFINE VARIABLE is2PieceBox AS LOG NO-UNDO.
+  DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
   
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
@@ -5305,7 +5306,9 @@ PROCEDURE local-assign-record :
   END.
 
   IF ll-new-shipto THEN DO:
-    RUN windows/d-shpfly.w (ROWID(eb)).
+    RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
+    IF eb.ship-id NE cShipFromFlyFile THEN
+        ASSIGN eb.ship-id = cShipFromFlyFile .
     IF eb.ship-id NE "TEMP" THEN
     FIND FIRST shipto
         WHERE shipto.company EQ cocode
@@ -6749,7 +6752,18 @@ PROCEDURE pCreateFormFromImport :
   END.
   
   RUN est/BuildEstimate.p ("C", OUTPUT riEb).
+  FOR EACH eb WHERE eb.company EQ cocode 
+        AND eb.est-no EQ est.est-no NO-LOCK .
   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+     RUN init-box-design IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
+
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN
+     RUN build-box IN WIDGET-HANDLE(ENTRY(1,char-hdl)) ("B").
+   END.
+
   RUN dispatch('open-query').
     lDummy = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
   

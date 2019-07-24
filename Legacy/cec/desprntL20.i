@@ -216,17 +216,8 @@ for each ef
           IF ef.xgrain = "N" THEN "Vertical" ELSE "Horizontal" .
        v-hdr = v-hdr +  "  Style:" + eb.style + ", " +
            IF AVAIL style THEN style.dscr ELSE "".
-       if ipcFormat EQ "HoneyCell" THEN Do:
-           IF LENGTH(v-hdr) GE 90 THEN
-               v-hdr = v-hdr + " Machine Direction" .
-           else 
-               v-hdr = v-hdr + "      Machine Direction <----------" .
-       END.
-
-       IF ipcFormat EQ "HoneyCell"  THEN
-           put {1} v-hdr FORMAT "x(112)" skip.
-       ELSE
-           put {1} v-hdr format "x(120)" skip.
+       
+        put {1} v-hdr format "x(120)" skip.
 
   if v-triad then
        put {1} space(6) v-lcum-score-c space(2) "Totals" skip.

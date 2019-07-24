@@ -38,7 +38,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal,TSShowPending,FGHistoryDate,CEUpdateCAD,"
            + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault,DynAuditField,DynTaskTicker,InvoiceSavePDF,BOLSavePDF,"
            + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
-           + "CePackEnhanced,BolPrint,OEPriceWarning"
+           + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -675,6 +675,16 @@ CASE ip-nk1-value:
         INPUT "Warning message - if sell price is less than the cost",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "JobCardImage" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Job card image options",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "FGDefaultQtyDisplay" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default for FG Inventory Inquiry Quantity value",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
 ELSE
 CASE ip-nk1-value:
@@ -690,6 +700,8 @@ CASE ip-nk1-value:
     WHEN "apcrmemo" THEN DO: {sys\inc\apcrmemo.i} END.
     WHEN "apdesc" THEN DO: {sys\inc\apdesc.i} END.
     WHEN "apinvmsg" THEN DO: {sys\inc\apinvmsg.i} END.
+    WHEN "apiconfig" THEN DO: {sys\inc\apiconfig.i} END.
+    WHEN "apiexport" THEN DO: {sys\inc\apiexport.i} END.
     WHEN "aplockbx" THEN DO: {sys\inc\aplockbx.i} END.
     WHEN "appaper" THEN DO: {sys\inc\appaper.i} END.
     WHEN "apsecure" THEN DO: {sys\inc\apsecure.i} END.

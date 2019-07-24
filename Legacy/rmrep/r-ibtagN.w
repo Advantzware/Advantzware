@@ -2032,10 +2032,29 @@ SESSION:SET-WAIT-STATE ("general").
     END.
     
 
-    ASSIGN 
-        v-msf = IF ITEM.r-wid GT 0 THEN v-lf-qty * ITEM.r-wid / 12 / 1000
-                ELSE tt-rm-bin.qty * ITEM.s-wid * ITEM.s-len / 144 / 1000
-        v-tons = v-MSF * ITEM.basis-w / 2000 /*Lbs*/
+    v-msf = 0.
+    v-tons = 0.
+    IF ITEM.i-code EQ "E" THEN DO:
+        FOR EACH job-mat WHERE job-mat.company eq cocode
+            and job-mat.job     eq job-hdr.job
+            and job-mat.job-no  eq job-hdr.job-no
+            and job-mat.job-no2 eq job-hdr.job-no2
+            AND job-mat.job-no NE ""
+            and job-mat.frm     eq job-hdr.frm
+            and job-mat.i-no EQ item.i-no NO-LOCK:
+           
+            ASSIGN 
+            v-msf =  tt-rm-bin.qty * job-mat.wid * job-mat.len / 144 / 1000 .
+            v-tons = v-MSF * job-mat.basis-w / 2000 /*Lbs*/.
+        END.
+    END.
+    ELSE DO:
+        ASSIGN 
+            v-msf = IF ITEM.r-wid GT 0 THEN v-lf-qty * ITEM.r-wid / 12 / 1000
+                ELSE tt-rm-bin.qty * ITEM.s-wid * ITEM.s-len / 144 / 1000 .
+            v-tons = v-MSF * ITEM.basis-w / 2000 /*Lbs*/.
+    END.
+   ASSIGN
         v-CostMsf = tt-rm-bin.qty * v-cost / v-msf 
         v-cum-tons = v-cum-tons + v-tons
         v-cum-MSF = v-cum-MSF + v-msf.
