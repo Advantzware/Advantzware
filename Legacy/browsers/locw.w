@@ -97,6 +97,19 @@ IF lRecFound THEN do:
     ELSE cPrintAvailQty = "2" .
 END.
 
+DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+RUN methods/prgsecur.p
+	    (INPUT "loc.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAccess, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 
 &SCOPED-DEFINE for-each1    ~
     FOR EACH w-jobs WHERE ((w-jobs.qtyAvailable NE 0 AND cPrintAvailQty EQ "2" ) ~
@@ -873,6 +886,11 @@ PROCEDURE local-initialize :
         BROWSE br_table:SELECT-FOCUSED-ROW() NO-ERROR.
         BROWSE br_table:SELECT-ROW(1) NO-ERROR.
     END.
+
+    IF NOT lAccess THEN
+        btnAddLocation:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
+         
+
     APPLY "FOCUS":U TO btnBinDetails IN FRAME {&FRAME-NAME}.
     /*
     APPLY "ENTRY":U TO BROWSE br_table.
