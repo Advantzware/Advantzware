@@ -431,9 +431,14 @@ PROCEDURE local-delete-record :
 
     /* Code placed here will execute PRIOR to standard behavior. */
     {custom/askdel.i}
-    /* Dispatch standard ADM method.                             */
+    
+    FOR EACH APIOutboundDetail EXCLUSIVE-LOCK
+       WHERE APIOutboundDetail.apiID = APIOutbound.apiID:
+        DELETE APIOutboundDetail.
+    END.
+    /* Dispatch standard ADM method.                             */    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-
+        
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pUpdateMessageText (
         "Record deleted successfully!",    /* Message Text */
@@ -593,6 +598,11 @@ PROCEDURE pDisplayFields :
             tgSSLEnabled:CHECKED           = APIOutbound.isSSLEnabled
             cbAuthType:SCREEN-VALUE        = APIOutbound.authType
             edRequestData:SCREEN-VALUE     = STRING(APIOutbound.requestData)
+            .
+    ELSE
+        ASSIGN
+            edEndPoint:SCREEN-VALUE        = ""
+            edRequestData:SCREEN-VALUE     = ""
             .
 END PROCEDURE.
 

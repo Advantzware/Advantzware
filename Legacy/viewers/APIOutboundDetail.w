@@ -224,13 +224,6 @@ ASSIGN
 
  
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartViewerCues" V-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartViewer,ab,49270
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -425,7 +418,9 @@ PROCEDURE pDisplayFields :
     END.
         
     IF AVAILABLE APIOutboundDetail THEN
-        edData:SCREEN-VALUE = STRING(APIOutboundDetail.data).        
+        edData:SCREEN-VALUE = STRING(APIOutboundDetail.data).
+    ELSE
+        edData:SCREEN-VALUE = "".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

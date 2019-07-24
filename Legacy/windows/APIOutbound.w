@@ -79,6 +79,7 @@ DEFINE VARIABLE h_apioutbound AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbound-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbounddetail AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbounddetail-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exit-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
@@ -107,7 +108,6 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 3
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -225,6 +225,14 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/exit.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_exit-2 ).
+       RUN set-position IN h_exit-2 ( 2.14 , 162.80 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'src/adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Outbound|View Outbound|Detail' + ',
@@ -236,6 +244,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             h_exit-2 , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -455,6 +466,19 @@ PROCEDURE local-exit :
    
    RETURN.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Exit W-Win 
+PROCEDURE Select_Exit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN local-exit.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
