@@ -123,6 +123,7 @@ DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -214,6 +215,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEShip", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cOeShipChar = cRtnChar NO-ERROR.
+
 /* transaction */
 {sys/inc/f16to32.i}
 
@@ -4587,6 +4595,7 @@ PROCEDURE local-assign-record :
 
     DEF    VAR      dCalcDueDate      AS DATE    NO-UNDO.
     DEF    VAR      dCalcPromDate     AS DATE    NO-UNDO.
+    DEFINE VARIABLE cOldShipTo AS CHARACTER NO-UNDO .
     DEF BUFFER b-oe-rel    FOR oe-rel.
     DEF BUFFER due-job-hdr FOR job-hdr.
     DEF BUFFER bf-oe-ordl  FOR oe-ordl.
@@ -4641,7 +4650,8 @@ PROCEDURE local-assign-record :
 
     ASSIGN
         lv-date   = oe-ord.due-date
-        lv-ord-no = oe-ord.ord-no.
+        lv-ord-no = oe-ord.ord-no
+        cOldShipTo = oe-ord.ship-id .
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -4651,13 +4661,13 @@ PROCEDURE local-assign-record :
     IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
 
 
-    IF dueDateChanged AND OEDateAuto-char = "colonial" THEN 
+    IF (dueDateChanged AND OEDateAuto-char = "colonial") OR ( cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
         FOR EACH oe-ordl 
             WHERE oe-ordl.company EQ oe-ord.company
             AND oe-ordl.ord-no  EQ oe-ord.ord-no
             NO-LOCK:
-
+            IF dueDateChanged AND OEDateAuto-char = "colonial" THEN
             FOR EACH oe-rel 
                 WHERE oe-rel.company EQ oe-ordl.company
                 AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -4682,6 +4692,10 @@ PROCEDURE local-assign-record :
                 /* Only consider first one */
                 LEAVE.
             END. /* each oe-rel */
+
+            IF cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id THEN
+                RUN pUpdateRelShipID .
+
         END. /* Each oe-ordl */
     END.  /* if dueDateChanged...*/
 
@@ -7163,6 +7177,54 @@ DO WITH FRAME {&FRAME-NAME}:
     END.
 END.
     {&methods/lValidateError.i NO} 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRelShipID V-table-Win 
+PROCEDURE pUpdateRelShipID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-oe-rel FOR oe-rel .
+  FOR EACH oe-rel NO-LOCK
+      WHERE oe-rel.company EQ oe-ordl.company
+      AND oe-rel.ord-no  EQ oe-ordl.ord-no
+      AND oe-rel.i-no    EQ oe-ordl.i-no
+      BY oe-rel.rel-date:
+
+      IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN 
+          DO:
+          FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
+          FIND FIRST shipto NO-LOCK
+              WHERE shipto.company EQ cocode
+              AND shipto.cust-no EQ oe-ord.cust-no
+              AND (shipto.ship-id = oe-ord.ship-id ) NO-ERROR .
+          
+          IF AVAIL shipto AND AVAIL bf-oe-rel THEN do:
+              ASSIGN bf-oe-rel.ship-id = oe-ord.ship-id
+                  bf-oe-rel.ship-no      = shipto.ship-no
+                  bf-oe-rel.ship-id      = shipto.ship-id
+                  bf-oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                  bf-oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                  bf-oe-rel.ship-city    = shipto.ship-city
+                  bf-oe-rel.ship-state   = shipto.ship-state
+                  bf-oe-rel.ship-zip     = shipto.ship-zip
+                  bf-oe-rel.ship-i[1] = shipto.notes[1]
+                  bf-oe-rel.ship-i[2] = shipto.notes[2]
+                  bf-oe-rel.ship-i[3] = shipto.notes[3]
+                  bf-oe-rel.ship-i[4] = shipto.notes[4]
+                  bf-oe-rel.spare-char-1 = shipto.loc.
+              RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
+          END.
+
+          FIND CURRENT bf-oe-rel NO-LOCK.
+          RELEASE bf-oe-rel.
+      END.
+  END. /* each oe-rel **/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
