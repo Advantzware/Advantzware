@@ -51,17 +51,19 @@ DEFINE STREAM excel.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
-ASSIGN cTextListToSelect = "Machine Code,Machine Description,Department(1),Department(2),Department(3),Department(4),Location,Schedule Machine,Dept. Sequence," +
-                            "Mach Seq,Feed,Run Spoilage %,MR Waste,Lag TIME,Use Lineal Feet in RUN Matrix,Labor Rate,Labor Rate(2),Labor Rate(3),MIN Charge,Setup Crew,Run Crew," +
-                            "Default,Setup D.L.,Var OH,Fixed OH,MR Total,Run D.L.,Var OH,Fixed OH,Run Total Rate,Front-To-Back(MIN),Front-To-Back(MAX),Side-To-Side(MIN WIDTH),Side-To-Side(MAX Width)," +
-                            "Side-To-Side(Trim Lgth),Front-To-Back(Trim),Caliper/Depth(MIN),Caliper/Depth(Max),Run Qty(MIN),Run Qty(MAX),Slot/Score Panel(MIN),Slot/Score Panel(Max),Min Panel (Hd-Hd),Max Panel (Hd-Hd)," +
-                            "Slot SIZE(MIN),Slot Size(Max),Printer Type,Washup Hrs,Color/Pass,Max # of colors,Coater on Press,MR Waste per Color,Ink Waste Lbs\MR,Lbs/Color,Tandem MR/Plate,/Fountain,MAX Num WIDTH,MAX Num on Length," +
-                            "Industry,Gang Jobs?,Plain Jobs Only,Inactive"
+ASSIGN cTextListToSelect = "Machine Code,Machine Description,Department(1),Department(2),Department(3),Department(4),Location,Schedule Machine,Dept. Sequence," +   /* 9 */
+                            "Mach Seq,Feed,Run Spoilage %,MR Waste,Lag TIME,Use Lineal Feet in RUN Matrix,Labor Rate,Labor Rate(2),Labor Rate(3),MIN Charge,Setup Crew,Run Crew," + /*12*/
+                            "Default,Setup D.L.,Var OH,Fixed OH,MR Total,Run D.L.,Run Var OH,Run Fixed OH,Run Total Rate,Front-To-Back(MIN),Front-To-Back(MAX),Side-To-Side(MIN WIDTH),Side-To-Side(MAX Width)," +  /* 13  */
+                            "Side-To-Side(Trim Lgth),Front-To-Back(Trim),Caliper/Depth(MIN),Caliper/Depth(Max),Run Qty(MIN),Run Qty(MAX),Slot/Score Panel(MIN),Slot/Score Panel(Max),Min Panel (Hd-Hd),Max Panel (Hd-Hd)," +  /* 10  */
+                            "Slot SIZE(MIN),Slot Size(Max),Printer Type,Washup Hrs,Color/Pass,Max # of colors,Coater on Press,MR Waste per Color,Ink Waste Lbs\MR,Lbs/Color,Tandem MR/Plate,/Fountain,MAX Num WIDTH,MAX Num on Length," +  /* 14 */
+                            "Industry,Gang Jobs?,Plain Jobs Only,Inactive"  /*  4 */
 
-      cFieldListToSelect = "m-code ,m-dscr,dept[1],dept[2],dept[3],dept[4],loc,sch-m-code,d-seq,m-seq,p-type,run-spoil,mr-waste,daily-prod-hours,therm," +
-                            "lab-rate[1],lab-rate[2],lab-rate[3],mrk-rate,mr-crusiz,run-crusiz,lab-drate,mr-rate,mr-varoh,mr-fixoh,mr-trate,run-rate,run-varoh,run-fixoh," +
-                            "run-trate,min-len,max-len,min-wid,max-wid,min-triml,min-trimw,min-cal,max-cal,min-run,max-run,min-pan-l,max-pan-l,min-pan-w,max-pan-w,min-dep,max-dep," +
-                            "pr-type,washup,col-pass,max-color,coater,col-wastesh,ink-waste,col-wastelb,tan-mrp,tan-mrf,num-wid,num-len,industry,gang-jobs,plan-job,Obsolete"
+      cFieldListToSelect = "m-code,m-dscr,dept[1],dept[2],dept[3],dept[4],loc,sch-m-code,d-seq," + /* 9  */ 
+                           "m-seq,p-type,run-spoil,mr-waste,daily-prod-hours,therm,lab-rate[1],lab-rate[2],lab-rate[3],mrk-rate,mr-crusiz,run-crusiz," + /* 12 */
+                           "lab-drate,mr-rate,mr-varoh,mr-fixoh,mr-trate,run-rate,run-varoh,run-fixoh,run-trate,min-len,max-len,min-wid,max-wid," + /* 13 */
+                           "min-triml,min-trimw,min-cal,max-cal,min-run,max-run,min-pan-l,max-pan-l,min-pan-w,max-pan-w," + /* 10*/
+                           "min-dep,max-dep,pr-type,washup,col-pass,max-color,coater,col-wastesh,ink-waste,col-wastelb,tan-mrp,tan-mrf,num-wid,num-len," + /* 14*/
+                           "industry,gang-jobs,plan-job,Obsolete" /* 4*/
 
                             .                        
 {sys/inc/ttRptSel.i}
