@@ -258,19 +258,19 @@ CASE ip-lookupField:
            /* DB Table from which data is to be fetched */
            INPUT "po-ord",
            /* List of fields which are required in the query */
-           INPUT "company,po-no,po-date,vend-no,cust-no,stat,opened", 
+           INPUT "company,po-no,po-date,vend-no,cust-no,opened", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "po-no,po-date,vend-no,stat,opened",
+           INPUT "po-no,po-date,vend-no,opened",
            /* List of field labels to override the default database field label */
-           INPUT ",,,,Opened",
+           INPUT ",,,Status",
            /* List of field formats to override the default database field format */
            INPUT "",
            /* List of browse column width values to override the default column width in browse */
-           INPUT "20,20,30,10",
+           INPUT "20,20,30",
            /* List of fields for which field level search is enabled */
-           INPUT "po-no,po-date,vend-no,stat,opened",
+           INPUT "po-no,po-date,vend-no,opened",
            /* List of fields for which sorting is enabled */
-           INPUT "po-no|DESCENDING,po-date,vend-no,stat,opened",
+           INPUT "po-no|DESCENDING,po-date,vend-no,opened",
            /* Where clause to select specific records */
            INPUT "po-ord.company EQ '" + ip-company + "'" ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
