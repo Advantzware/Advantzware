@@ -700,6 +700,8 @@ CASE ip-nk1-value:
     WHEN "apcrmemo" THEN DO: {sys\inc\apcrmemo.i} END.
     WHEN "apdesc" THEN DO: {sys\inc\apdesc.i} END.
     WHEN "apinvmsg" THEN DO: {sys\inc\apinvmsg.i} END.
+    WHEN "apiconfig" THEN DO: {sys\inc\apiconfig.i} END.
+    WHEN "apiexport" THEN DO: {sys\inc\apiexport.i} END.
     WHEN "aplockbx" THEN DO: {sys\inc\aplockbx.i} END.
     WHEN "appaper" THEN DO: {sys\inc\appaper.i} END.
     WHEN "apsecure" THEN DO: {sys\inc\apsecure.i} END.
