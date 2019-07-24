@@ -43,7 +43,7 @@ IF AVAILABLE APIOutbound THEN DO:
         
     IF NOT lRecFound THEN DO:
        ASSIGN
-           opcMessage = "No API Configuration available in sys-ctrl table"
+           opcMessage = "No API Configuration '" + cSysCtrlName + "' available in sys-ctrl table"
            oplSuccess = FALSE
            .
        RETURN.
@@ -52,7 +52,7 @@ IF AVAILABLE APIOutbound THEN DO:
     IF APIOutbound.requestHandler NE "" THEN DO:
         IF INDEX(APIOutbound.requestHandler,STRING(INTEGER(cReturnValue),"9999")) EQ 0 THEN DO:
             ASSIGN
-                opcMessage = "Mismatch in APIOutbound and sys-ctrl request handler code for " + APIOutbound.clientID
+                opcMessage = "Mismatch in APIOutbound and '" + cSysCtrlName + "' sys-ctrl request handler code for " + APIOutbound.clientID
                 oplSuccess = FALSE
                 .
             RETURN.
@@ -62,7 +62,7 @@ IF AVAILABLE APIOutbound THEN DO:
     IF APIOutbound.responseHandler NE "" THEN DO:
         IF INDEX(APIOutbound.responseHandler,STRING(INTEGER(cReturnValue),"9999")) EQ 0 THEN DO:
             ASSIGN
-                opcMessage = "Mismatch in APIOutbound and sys-ctrl response handler code for " + APIOutbound.clientID
+                opcMessage = "Mismatch in APIOutbound and '" + cSysCtrlName + "' sys-ctrl response handler code for " + APIOutbound.clientID
                 oplSuccess = FALSE
                 .
             RETURN.

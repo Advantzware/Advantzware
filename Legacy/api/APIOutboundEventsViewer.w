@@ -477,7 +477,7 @@ DO:
         ).
     
     IF NOT lRecFound OR cFilePath EQ "" THEN
-        cFilePath = "C:\temp\".
+        cFilePath = "C:\BA\Label\".
     
     cFullFilePath = IF fiAPIID:SCREEN-VALUE NE "" THEN
                         fiAPIID:SCREEN-VALUE
@@ -512,8 +512,12 @@ DO:
     END.
     OUTPUT CLOSE.  
     
-    MESSAGE "Export complete. File saved to " cFullFilePath
-        VIEW-AS ALERT-BOX INFORMATION. 
+    MESSAGE "Export complete. File saved to " cFullFilePath SKIP
+        "Open file?"
+        VIEW-AS ALERT-BOX INFORMATION BUTTONS YES-NO-CANCEL UPDATE lOpen AS LOGICAL.
+    
+    IF lOpen THEN
+        OS-COMMAND SILENT VALUE(cFullFilePath).
 END.
 
 /* _UIB-CODE-BLOCK-END */
