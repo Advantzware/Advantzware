@@ -1946,8 +1946,8 @@ PROCEDURE SendMail-1:
             list-name  = cAccumFileList.
 
 
-    IF vSoldToNo <> "" THEN 
-        ASSIGN icRecType = "SoldTo"     
+    IF vSoldToNo <> "" THEN
+        ASSIGN icRecType = IF icRecType EQ "Customer1" THEN "SoldTo1" ELSE "SoldTo"      
             icIdxKey  = icIdxKey + "|" + (vSoldToNo) +
                        IF vShipToNo <> "" THEN "|" + vShipToNo ELSE "".
     IF list-name EQ ? OR icIdxKey EQ ? OR vcSubject = ? OR vcMailBody = ? THEN 
