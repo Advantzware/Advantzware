@@ -1026,19 +1026,6 @@ DO:
         ASSIGN SELF:SCREEN-VALUE = "".
         RETURN NO-APPLY.
     END.
-    IF SELF:SCREEN-VALUE = "" THEN DO:
-        MESSAGE
-            "User password cannot be blank." SKIP
-            "Please enter a valid password."
-            VIEW-AS ALERT-BOX ERROR /*QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG*/.
-            RETURN NO-APPLY.
-
-        /*IF NOT lBlanks AND NOT lAdd THEN DO:
-            ASSIGN
-                SELF:SCREEN-VALUE = _user._password.
-            RETURN NO-APPLY.
-        END.*/
-    END.
     IF NOT lAdd THEN 
         RUN ipChangePassword (SELF:SCREEN-VALUE).
 END.
