@@ -166,7 +166,7 @@ DO:
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN pGetShipTo IN WIDGET-HANDLE(char-hdl) (OUTPUT opcShipTo).
 
-  IF opcShipTo EQ "" AND AVAIL cust THEN
+  IF opcShipTo EQ "" AND AVAIL cust AND lv-ship-id EQ "" THEN
       ASSIGN opcShipTo = cust.cust-no .
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "check-save-source", OUTPUT char-hdl).

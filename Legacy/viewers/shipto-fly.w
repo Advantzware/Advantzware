@@ -46,7 +46,7 @@ DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiFilledArraySize AS INTEGER NO-UNDO.
 DEFINE VARIABLE oldShiptoNote AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE cCheckShipForBlank AS CHARACTER NO-UNDO .
 {sys/inc/var.i NEW SHARED}
 
 &scoped-define copy-proc proc-copy
@@ -1138,7 +1138,8 @@ PROCEDURE local-cancel-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "new-record-target", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do: 
-      MESSAGE "Resetting the ship to back to customer default" VIEW-AS ALERT-BOX INFO .
+      IF cCheckShipForBlank EQ "" THEN
+          MESSAGE "Resetting the ship to back to customer default" VIEW-AS ALERT-BOX INFO .
       FIND CURRENT shipto EXCLUSIVE-LOCK NO-ERROR .
       IF AVAIL shipto THEN
           DELETE shipto .
@@ -1571,6 +1572,8 @@ PROCEDURE update-shipto :
   DEF INPUT PARAM ip-ship-city  LIKE shipto.ship-city  NO-UNDO.
   DEF INPUT PARAM ip-ship-state LIKE shipto.ship-state NO-UNDO.
   DEF INPUT PARAM ip-ship-zip   LIKE shipto.ship-zip   NO-UNDO.
+
+  cCheckShipForBlank = ip-ship-id .
 
   FIND CURRENT shipto.
   ASSIGN
