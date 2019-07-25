@@ -1565,39 +1565,29 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_qty-uom d-oeitem
 ON LEAVE OF fi_qty-uom IN FRAME d-oeitem
 DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-uom (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-uom (FOCUS) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    RUN leave-qty NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
+        RUN leave-qty NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.
 
-  IF  oescreen-log 
-      AND oe-ordl.spare-char-2:SCREEN-VALUE EQ "" 
-      AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
-      ASSIGN
-        asi.oe-ordl.spare-dec-1:SENSITIVE = YES
-        asi.oe-ordl.spare-char-2:SENSITIVE = YES.
+    IF  oescreen-log 
+    AND oe-ordl.spare-char-2:SCREEN-VALUE EQ "" 
+    AND oe-ordl.est-no:SCREEN-VALUE EQ "" THEN ASSIGN
+        oe-ordl.spare-char-2:SCREEN-VALUE = fi_qty-uom:SCREEN-VALUE.
 
-      asi.oe-ordl.spare-char-2:SCREEN-VALUE = fi_qty-uom:SCREEN-VALUE.
-
-      ASSIGN
-        asi.oe-ordl.spare-dec-1:SENSITIVE = NO
-        asi.oe-ordl.spare-char-2:SENSITIVE = NO.
-  END.
-
-  IF oescreen-log 
-     AND asi.oe-ordl.est-no:SCREEN-VALUE EQ ""
+    IF oescreen-log 
+    AND asi.oe-ordl.est-no:SCREEN-VALUE EQ ""
     AND oescreen-cha EQ "item-qty" THEN DO:
-
-    IF oe-ordl.price:SENSITIVE  THEN 
-      APPLY "entry" TO oe-ordl.price.
-    ELSE
-      APPLY "entry" TO oe-ordl.pr-uom.
-    
-    RETURN NO-APPLY.
-  END.
+        IF oe-ordl.price:SENSITIVE  THEN 
+            APPLY "entry" TO oe-ordl.price.
+        ELSE IF oe-ordl.pr-uom:SENSITIVE THEN 
+            APPLY "entry" TO oe-ordl.pr-uom.
+        ELSE APPLY 'entry' TO oe-ordl.part-no. 
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
