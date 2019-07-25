@@ -1456,6 +1456,7 @@ PROCEDURE ipCheckPwd :
     DEF VAR iHasSC AS INT NO-UNDO.
     DEF VAR iHasLen AS INT NO-UNDO.
     DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR cMsg AS CHAR NO-UNDO.
     
     ASSIGN
         lPwdOK = YES.
@@ -1529,15 +1530,17 @@ PROCEDURE ipCheckPwd :
     OR iHasNC LT usercontrol.minNC
     OR iHasSC LT usercontrol.minSC THEN DO:
         ASSIGN
-            lPwdOK = NO.
+            lPwdOK = NO
+            cMsg = "The password you entered does not meet requirements." + CHR(10) + 
+                    IF (iHasLen LT usercontrol.minPasswordLen) THEN "Minimum Length: " + STRING(usercontrol.minPasswordLen) + " - Yours has " + STRING(iHasLen) + CHR(10) ELSE "" +
+                    IF (iHasLC LT usercontrol.minLC) THEN "Minimum lower case: " + STRING(usercontrol.minLC) + " - Yours has " + STRING(iHasLC) + CHR(10) ELSE "" +
+                    IF (iHasUC LT usercontrol.minUC) THEN "Minimum UPPER case: " + STRING(usercontrol.minUC) + " - Yours has " + STRING(iHasUC) + CHR(10) ELSE "" +
+                    IF (iHasNC LT usercontrol.minNC) THEN "Minimum numeric chars: " + STRING(usercontrol.minNC) + " - Yours has " + STRING(iHasNC) + CHR(10) ELSE "" +
+                    IF (iHasSC LT usercontrol.minSC) THEN "Minimum special chars: " + STRING(usercontrol.minSC) + " - Yours has " + STRING(iHasSC) + CHR(10) ELSE "" +
+                    "Please try again." 
+                    .
         MESSAGE
-            "The password you entered does not meet requirements." SKIP
-            "Minimum Length = " + STRING(usercontrol.minPasswordLen) + " - Yours has " + STRING(iHasLen) SKIP
-            "Minimum lower case = " + STRING(usercontrol.minLC) + " - Yours has " + STRING(iHasLC)  SKIP
-            "Minimum UPPER case = " + STRING(usercontrol.minUC) + " - Yours has " + STRING(iHasUC)  SKIP
-            "Minimum numeric chars = " + STRING(usercontrol.minNC) + " - Yours has " + STRING(iHasNC)  SKIP
-            "Minimum special chars = " + STRING(usercontrol.minSC) + " - Yours has " + STRING(iHasSC) SKIP
-            "Please try again." 
+            cMsg
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
