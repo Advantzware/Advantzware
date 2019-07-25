@@ -64,6 +64,8 @@ DEF TEMP-TABLE tt-sched NO-UNDO
     FIELD carrier LIKE po-ord.carrier  
     FIELD m-code LIKE job-mch.m-code   
     FIELD rec_key LIKE po-ordl.rec_key
+    FIELD buyer LIKE po-ord.buyer
+    FIELD USER-ID LIKE po-ord.USER-ID
     INDEX job job-no job-no2
     INDEX i-no i-no
     INDEX vend vend-no.
@@ -81,11 +83,11 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "JOB NO,ITEM NO,ITEM NAME,VEND NO,VEND NAME,P/O#,P/O DATE,UOM," +  /*8*/
-                               "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER,FIRST RESOURCE" /*5*/
+                               "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER,FIRST RESOURCE,BUYER ID,USER ID" /*7*/
            cFieldListToSelect = "lv-job-no,tt-sched.i-no,tt-sched.i-name,tt-sched.vend-no,tt-sched.vend-name,tt-sched.po-no,tt-sched.po-date,tt-sched.cons-uom," +
-                                "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier,tt-sched.m-code"
-           cFieldLength = "10,15,30,8,30,8,10,4," + "15,15,8,13,7,14"
-           cFieldType = "c,c,c,c,c,c,c,c," + "i,i,c,i,c,c"
+                                "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier,tt-sched.m-code,tt-sched.buyer,tt-sched.user-id"
+           cFieldLength = "10,15,30,8,30,8,10,4," + "15,15,8,13,7,14,10,8"
+           cFieldType = "c,c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c"
            .
         ASSIGN cTextListToDefault  = "JOB NO,ITEM NO,ITEM NAME,VEND NO,P/O#,P/O DATE,UOM," +  /*8*/
                                      "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER"  . /*5*/
@@ -110,15 +112,17 @@ ASSIGN cTextListToSelect = "JOB NO,ITEM NO,ITEM NAME,VEND NO,VEND NAME,P/O#,P/O 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_vend-no end_vend-no ~
 begin_due-date end_due-date begin_procat end_procat begin_cat end_cat ~
-rd_show select-mat tb_type-1 tb_type-2 tb_type-3 tb_late tb_printNotes ~
-sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest ~
-lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
-btn-ok btn-cancel 
+begin_buyer end_buyer begin_user-id end_user-id rd_show select-mat ~
+tb_type-1 tb_type-2 tb_type-3 tb_late tb_printNotes sl_avail Btn_Def ~
+sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
+lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_vend-no end_vend-no begin_due-date ~
-end_due-date begin_procat end_procat begin_cat end_cat lbl_show rd_show ~
-select-mat tb_type-1 tb_type-2 tb_type-3 tb_late mat-types tb_printNotes ~
-sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+end_due-date begin_procat end_procat begin_cat end_cat begin_buyer ~
+end_buyer begin_user-id end_user-id lbl_show rd_show select-mat tb_type-1 ~
+tb_type-2 tb_type-3 tb_late mat-types tb_printNotes sl_avail sl_selected ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -171,6 +175,11 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 14 BY 1.
 
+DEFINE VARIABLE begin_buyer AS CHARACTER FORMAT "X(10)":U 
+     LABEL "Beginning Buyer ID" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning FG Category" 
      VIEW-AS FILL-IN 
@@ -186,8 +195,18 @@ DEFINE VARIABLE begin_procat AS CHARACTER FORMAT "X(6)":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
+DEFINE VARIABLE begin_user-id AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Beginning User ID" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_vend-no AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Vendor#" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_buyer AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzz" 
+     LABEL "Ending Buyer ID" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
@@ -203,6 +222,11 @@ DEFINE VARIABLE end_due-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
 
 DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending RM Category" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_user-id AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
+     LABEL "Ending User ID" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
@@ -272,7 +296,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 11.43.
+     SIZE 95 BY 13.1.
 
 DEFINE VARIABLE select-mat AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -336,66 +360,74 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Vendor Number"
      end_vend-no AT ROW 2.67 COL 69 COLON-ALIGNED HELP
           "Enter Ending Vendor number"
-     begin_due-date AT ROW 3.67 COL 28 COLON-ALIGNED HELP
+     begin_due-date AT ROW 3.62 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Due Date"
-     end_due-date AT ROW 3.67 COL 69 COLON-ALIGNED HELP
+     end_due-date AT ROW 3.62 COL 69 COLON-ALIGNED HELP
           "Enter ending Due Date"
-     begin_procat AT ROW 4.67 COL 28 COLON-ALIGNED
-     end_procat AT ROW 4.67 COL 69 COLON-ALIGNED HELP
+     begin_procat AT ROW 4.57 COL 28 COLON-ALIGNED
+     end_procat AT ROW 4.57 COL 69 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_cat AT ROW 5.67 COL 28 COLON-ALIGNED HELP
+     begin_cat AT ROW 5.52 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Category"
-     end_cat AT ROW 5.67 COL 69 COLON-ALIGNED HELP
+     end_cat AT ROW 5.52 COL 69 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     lbl_show AT ROW 7 COL 1 COLON-ALIGNED NO-LABEL
-     rd_show AT ROW 7 COL 11 NO-LABEL
-     select-mat AT ROW 7.71 COL 66 NO-LABEL
-     tb_type-1 AT ROW 8.14 COL 15 WIDGET-ID 152
-     tb_type-2 AT ROW 8.14 COL 29.2 WIDGET-ID 154
-     tb_type-3 AT ROW 8.14 COL 45.6 WIDGET-ID 156
-     tb_late AT ROW 9.38 COL 15
-     mat-types AT ROW 9.62 COL 62 COLON-ALIGNED
-     tb_printNotes AT ROW 10.33 COL 15
-     sl_avail AT ROW 13.14 COL 11.4 NO-LABEL WIDGET-ID 146
-     Btn_Def AT ROW 13.14 COL 45.8 HELP
+     begin_buyer AT ROW 6.48 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Category" WIDGET-ID 160
+     end_buyer AT ROW 6.48 COL 69 COLON-ALIGNED HELP
+          "Enter Ending Order Number" WIDGET-ID 162
+     begin_user-id AT ROW 7.43 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Category" WIDGET-ID 164
+     end_user-id AT ROW 7.43 COL 69 COLON-ALIGNED HELP
+          "Enter Ending Order Number" WIDGET-ID 166
+     lbl_show AT ROW 8.67 COL 1.2 COLON-ALIGNED NO-LABEL
+     rd_show AT ROW 8.67 COL 11.2 NO-LABEL
+     select-mat AT ROW 9.38 COL 66.2 NO-LABEL
+     tb_type-1 AT ROW 9.81 COL 15.2 WIDGET-ID 152
+     tb_type-2 AT ROW 9.81 COL 29.4 WIDGET-ID 154
+     tb_type-3 AT ROW 9.81 COL 45.8 WIDGET-ID 156
+     tb_late AT ROW 11.05 COL 15.2
+     mat-types AT ROW 11.29 COL 62.2 COLON-ALIGNED
+     tb_printNotes AT ROW 12 COL 15.2
+     sl_avail AT ROW 14.81 COL 11.4 NO-LABEL WIDGET-ID 146
+     Btn_Def AT ROW 14.81 COL 45.8 HELP
           "Default Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 13.14 COL 62.8 NO-LABEL WIDGET-ID 148
-     Btn_Add AT ROW 14.33 COL 45.8 HELP
+     sl_selected AT ROW 14.81 COL 62.8 NO-LABEL WIDGET-ID 148
+     Btn_Add AT ROW 16 COL 45.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 138
-     Btn_Remove AT ROW 15.52 COL 45.8 HELP
+     Btn_Remove AT ROW 17.19 COL 45.8 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 142
-     btn_Up AT ROW 16.71 COL 45.8 WIDGET-ID 144
-     btn_down AT ROW 17.91 COL 45.8 WIDGET-ID 140
-     rd-dest AT ROW 19.67 COL 7 NO-LABEL
-     lv-ornt AT ROW 19.91 COL 32 NO-LABEL
-     lines-per-page AT ROW 19.91 COL 85 COLON-ALIGNED
-     lv-font-no AT ROW 21.81 COL 36 COLON-ALIGNED
-     lv-font-name AT ROW 22.76 COL 30 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.95 COL 32
-     tb_excel AT ROW 25.38 COL 52 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.38 COL 73 RIGHT-ALIGNED
-     fi_file AT ROW 26.19 COL 30 COLON-ALIGNED HELP
+     btn_Up AT ROW 18.38 COL 45.8 WIDGET-ID 144
+     btn_down AT ROW 19.57 COL 45.8 WIDGET-ID 140
+     rd-dest AT ROW 21.33 COL 7 NO-LABEL
+     lv-ornt AT ROW 21.57 COL 32 NO-LABEL
+     lines-per-page AT ROW 21.57 COL 85 COLON-ALIGNED
+     lv-font-no AT ROW 23.48 COL 36 COLON-ALIGNED
+     lv-font-name AT ROW 24.43 COL 30 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 25.62 COL 32
+     tb_excel AT ROW 27.05 COL 52 RIGHT-ALIGNED
+     tb_runExcel AT ROW 27.05 COL 73 RIGHT-ALIGNED
+     fi_file AT ROW 27.86 COL 30 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 27.76 COL 26
-     btn-cancel AT ROW 27.76 COL 56
+     btn-ok AT ROW 29.43 COL 26
+     btn-cancel AT ROW 29.43 COL 56
      "Po Type?" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 8.29 COL 3.6 WIDGET-ID 158
-     "Select/Deselect RM Types" VIEW-AS TEXT
-          SIZE 31 BY 1 AT ROW 6.76 COL 64
-          FONT 6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.19 COL 4
+          SIZE 10 BY .62 AT ROW 9.95 COL 3.8 WIDGET-ID 158
+     "Export Selection" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 14.1 COL 4 WIDGET-ID 150
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.48 COL 6
           BGCOLOR 2 
-     "Export Selection" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.43 COL 4 WIDGET-ID 150
-     RECT-6 AT ROW 19.1 COL 1
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.86 COL 4
+     "Select/Deselect RM Types" VIEW-AS TEXT
+          SIZE 31 BY 1 AT ROW 8.43 COL 64.2
+          FONT 6
+     RECT-6 AT ROW 20.76 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 95.8 BY 28.19.
+         SIZE 96.2 BY 30.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -415,8 +447,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Scheduled Receipts"
-         HEIGHT             = 28.19
-         WIDTH              = 95.8
+         HEIGHT             = 30.33
+         WIDTH              = 96.2
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -449,15 +481,9 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
+ASSIGN 
+       begin_buyer:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        begin_cat:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -472,7 +498,23 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_user-id:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_vend-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       end_buyer:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -485,6 +527,10 @@ ASSIGN
 
 ASSIGN 
        end_procat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_user-id:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -536,9 +582,6 @@ THEN C-Win:HIDDEN = no.
 &ANALYZE-RESUME
 
 
-
-
-
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME C-Win
@@ -566,6 +609,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_buyer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_buyer C-Win
+ON LEAVE OF begin_buyer IN FRAME FRAME-A /* Beginning Buyer ID */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME begin_cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cat C-Win
@@ -599,6 +651,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_user-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_user-id C-Win
+ON LEAVE OF begin_user-id IN FRAME FRAME-A /* Beginning User ID */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME begin_vend-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend-no C-Win
@@ -755,6 +816,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_buyer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_buyer C-Win
+ON LEAVE OF end_buyer IN FRAME FRAME-A /* Ending Buyer ID */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME end_cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cat C-Win
@@ -781,6 +851,16 @@ END.
 &Scoped-define SELF-NAME end_procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_procat C-Win
 ON LEAVE OF end_procat IN FRAME FRAME-A /* Ending RM Category */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_user-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_user-id C-Win
+ON LEAVE OF end_user-id IN FRAME FRAME-A /* Ending User ID */
 DO:
   assign {&self-name}.
 END.
@@ -1248,16 +1328,18 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_vend-no end_vend-no begin_due-date end_due-date begin_procat 
-          end_procat begin_cat end_cat lbl_show rd_show select-mat tb_type-1 
-          tb_type-2 tb_type-3 tb_late mat-types tb_printNotes sl_avail 
-          sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          end_procat begin_cat end_cat begin_buyer end_buyer begin_user-id 
+          end_user-id lbl_show rd_show select-mat tb_type-1 tb_type-2 tb_type-3 
+          tb_late mat-types tb_printNotes sl_avail sl_selected rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_vend-no end_vend-no begin_due-date end_due-date 
-         begin_procat end_procat begin_cat end_cat rd_show select-mat tb_type-1 
-         tb_type-2 tb_type-3 tb_late tb_printNotes sl_avail Btn_Def sl_selected 
-         Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         begin_procat end_procat begin_cat end_cat begin_buyer end_buyer 
+         begin_user-id end_user-id rd_show select-mat tb_type-1 tb_type-2 
+         tb_type-3 tb_late tb_printNotes sl_avail Btn_Def sl_selected Btn_Add 
+         Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no 
+         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1528,6 +1610,10 @@ DISPLAY "" WITH FRAME r-top.
       WHERE po-ord.company EQ cocode
         AND po-ord.vend-no GE v-s-vend
         AND po-ord.vend-no LE v-e-vend
+        AND po-ord.buyer GE begin_buyer
+        AND po-ord.buyer LE end_buyer
+        AND po-ord.USER-ID GE begin_user-id
+        AND po-ord.USER-ID LE end_user-id
         AND ((po-ord.TYPE = "R" AND tb_type-1) OR  (po-ord.TYPE = "D" AND tb_type-2) OR (po-ord.TYPE = "S" AND tb_type-3))
         /*and (lookup(po-ord.stat,stat-list) gt 0 or v-po-stat eq "A")*/
         AND ((po-ord.opened AND v-po-stat EQ "O") OR
@@ -1652,7 +1738,9 @@ DISPLAY "" WITH FRAME r-top.
         tt-sched.due-date  = po-ordl.due-date
         tt-sched.carrier   = po-ord.carrier
         tt-sched.rec_key   = po-ordl.rec_key
-        tt-sched.m-code    = IF AVAILABLE job-mch THEN job-mch.m-code ELSE "".
+        tt-sched.m-code    = IF AVAILABLE job-mch THEN job-mch.m-code ELSE ""
+        tt-sched.buyer   = po-ord.buyer
+        tt-sched.USER-ID   = po-ord.USER-ID.
 
        /*IF v-sort EQ "V" THEN DO:*/
           FIND FIRST vend NO-LOCK

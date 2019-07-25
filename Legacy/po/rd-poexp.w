@@ -78,7 +78,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "Vendor Name,Vendor Address 1,Vendor Address 2,Vendor City,Vendor State,Vendor Zip," +
                             "Setup,Discount,GL Number,Overrun,Underrun," +
                             "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
-                            "RM Item Code,FG Item Code,Style from Job"
+                            "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID"
        cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
                             "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
                             "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
@@ -92,7 +92,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "vend.name,vend.add1,vend.add2,vend.city,vend.state,vend.zip," +
                             "po-ordl.setup,po-ordl.disc,po-ordl.actnum,po-ordl.over-pct,po-ordl.under-pct," +
                             "po-ordl.cust-no,po-ordl.ord-no,po-ordl.dfuncCustfromOrder,po-ordl.dfuncFGFromJob,cust-part,adders," +
-                            "rm-item,fg-item,style-job"
+                            "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id"
     .
 
 /*vend.name
@@ -135,13 +135,15 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS rd_open-closed rd_printed begin_po end_po ~
 begin_vend-no end_vend-no begin_item end_item begin_vend-i-no end_vend-i-no ~
-begin_job begin_job2 end_job end_job2 begin_date end_date sl_avail Btn_Def Btn_Add ~
-sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok ~
-btn-cancel RECT-6 RECT-7 RECT-8 begin_po-date end_po-date 
+begin_job begin_job2 end_job end_job2 begin_date end_date sl_avail Btn_Def ~
+Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok ~
+btn-cancel begin_po-date end_po-date RECT-6 RECT-7 RECT-8 begin_buyer ~
+end_buyer begin_user-id end_user-id 
 &Scoped-Define DISPLAYED-OBJECTS rd_open-closed rd_printed begin_po end_po ~
 begin_vend-no end_vend-no begin_item end_item begin_vend-i-no end_vend-i-no ~
 begin_job begin_job2 end_job end_job2 begin_date end_date sl_avail ~
-sl_selected tb_excel tb_runExcel fi_file begin_po-date end_po-date 
+sl_selected tb_excel tb_runExcel fi_file begin_po-date end_po-date ~
+begin_buyer end_buyer begin_user-id end_user-id 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -238,6 +240,11 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
+DEFINE VARIABLE begin_buyer AS CHARACTER FORMAT "X(10)" 
+     LABEL "From Buyer ID" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/1901 
      LABEL "From Due Date" 
      VIEW-AS FILL-IN 
@@ -267,6 +274,11 @@ DEFINE VARIABLE begin_po-date AS DATE FORMAT "99/99/9999" INITIAL 01/01/1901
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_user-id AS CHARACTER FORMAT "X(8)" 
+     LABEL "From User ID" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE begin_vend-i-no AS CHARACTER FORMAT "X(15)" 
      LABEL "From Vendor Item #" 
      VIEW-AS FILL-IN 
@@ -274,6 +286,11 @@ DEFINE VARIABLE begin_vend-i-no AS CHARACTER FORMAT "X(15)"
 
 DEFINE VARIABLE begin_vend-no AS CHARACTER FORMAT "X(8)" 
      LABEL "From Vendor #" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_buyer AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzz" 
+     LABEL "To Buyer ID" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -303,6 +320,11 @@ DEFINE VARIABLE end_po AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999
 
 DEFINE VARIABLE end_po-date AS DATE FORMAT "99/99/9999" INITIAL 12/31/2099 
      LABEL "To PO Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_user-id AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "To User ID" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -344,7 +366,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 10.48.
+     SIZE 101 BY 12.62.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -352,11 +374,11 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 31 BY 5.10 NO-UNDO.
+     SIZE 31 BY 5.1 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 31 BY 5.10 NO-UNDO.
+     SIZE 31 BY 5.1 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
@@ -375,68 +397,81 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes
 
 DEFINE FRAME rd-poexp
      rd_open-closed AT ROW 1.57 COL 34 NO-LABEL WIDGET-ID 2
-     rd_printed AT ROW 2.67 COL 34 NO-LABEL WIDGET-ID 126
-     begin_po AT ROW 3.62 COL 28 COLON-ALIGNED HELP
+     rd_printed AT ROW 2.48 COL 34 NO-LABEL WIDGET-ID 126
+     begin_po AT ROW 3.52 COL 28 COLON-ALIGNED HELP
           "Enter Beginning PO Number" WIDGET-ID 120
-     end_po AT ROW 3.62 COL 71 COLON-ALIGNED HELP
+     end_po AT ROW 3.52 COL 71 COLON-ALIGNED HELP
           "Enter Ending PO Number" WIDGET-ID 122
-     begin_vend-no AT ROW 4.81 COL 28 COLON-ALIGNED HELP
+     begin_vend-no AT ROW 4.71 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number" WIDGET-ID 6
-     end_vend-no AT ROW 4.81 COL 71 COLON-ALIGNED HELP
+     end_vend-no AT ROW 4.71 COL 71 COLON-ALIGNED HELP
           "Enter Ending Vendor Number" WIDGET-ID 16
-     begin_item AT ROW 5.95 COL 28 COLON-ALIGNED HELP
+     begin_item AT ROW 5.86 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Item Number" WIDGET-ID 100
-     end_item AT ROW 5.95 COL 71 COLON-ALIGNED HELP
+     end_item AT ROW 5.86 COL 71 COLON-ALIGNED HELP
           "Enter Ending Item Number" WIDGET-ID 102
-     begin_vend-i-no AT ROW 7.1 COL 28 COLON-ALIGNED HELP
+     begin_vend-i-no AT ROW 7 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Vendor Item Number" WIDGET-ID 104
-     end_vend-i-no AT ROW 7.1 COL 71 COLON-ALIGNED HELP
+     end_vend-i-no AT ROW 7 COL 71 COLON-ALIGNED HELP
           "Enter Ending Vendor Item Number" WIDGET-ID 106
-     begin_job AT ROW 8.24 COL 28 COLON-ALIGNED HELP
+     begin_job AT ROW 8.14 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 108
-     begin_job2 AT ROW 8.24 COL 41.2 COLON-ALIGNED HELP
+     begin_job2 AT ROW 8.14 COL 41.2 COLON-ALIGNED HELP
           "Enter Beginning Job Number" NO-LABEL WIDGET-ID 116
-     end_job AT ROW 8.24 COL 71 COLON-ALIGNED HELP
+     end_job AT ROW 8.14 COL 71 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 110
-     end_job2 AT ROW 8.24 COL 84 COLON-ALIGNED HELP
+     end_job2 AT ROW 8.14 COL 84 COLON-ALIGNED HELP
           "Enter Ending Job Number" NO-LABEL WIDGET-ID 118
-     begin_date AT ROW 9.38 COL 28 COLON-ALIGNED HELP
+     begin_date AT ROW 9.29 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Due Date" WIDGET-ID 112
-     end_date AT ROW 9.33 COL 71 COLON-ALIGNED HELP
+     end_date AT ROW 9.24 COL 71 COLON-ALIGNED HELP
           "Enter Ending Due Date" WIDGET-ID 114
-     sl_avail AT ROW 13.05 COL 9 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 13.29 COL 44 HELP
+     sl_avail AT ROW 15.1 COL 9 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 15.33 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 14.24 COL 44 HELP
+     Btn_Add AT ROW 16.29 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
-     sl_selected AT ROW 13.05 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Remove AT ROW 15.19 COL 44 HELP
+     sl_selected AT ROW 15.1 COL 64 NO-LABEL WIDGET-ID 28
+     Btn_Remove AT ROW 17.24 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 16.14 COL 44 WIDGET-ID 136
-     btn_down AT ROW 17.1 COL 44 WIDGET-ID 132
-     tb_excel AT ROW 18.86 COL 36 WIDGET-ID 32
-     tb_runExcel AT ROW 18.86 COL 78 RIGHT-ALIGNED WIDGET-ID 34
-     fi_file AT ROW 19.81 COL 34 COLON-ALIGNED HELP
+     btn_Up AT ROW 18.19 COL 44 WIDGET-ID 136
+     btn_down AT ROW 19.14 COL 44 WIDGET-ID 132
+     tb_excel AT ROW 20.91 COL 36 WIDGET-ID 32
+     tb_runExcel AT ROW 20.91 COL 78 RIGHT-ALIGNED WIDGET-ID 34
+     fi_file AT ROW 21.86 COL 34 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 22
-     btn-ok AT ROW 21.71 COL 30 WIDGET-ID 14
-     btn-cancel AT ROW 21.71 COL 60.2 WIDGET-ID 12
-     begin_po-date AT ROW 10.48 COL 28 COLON-ALIGNED HELP
+     btn-ok AT ROW 23.76 COL 30 WIDGET-ID 14
+     btn-cancel AT ROW 23.76 COL 60.2 WIDGET-ID 12
+     begin_po-date AT ROW 10.38 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Due Date" WIDGET-ID 142
-     end_po-date AT ROW 10.43 COL 71 COLON-ALIGNED HELP
+     end_po-date AT ROW 10.33 COL 71 COLON-ALIGNED HELP
           "Enter Ending Due Date" WIDGET-ID 144
+     begin_buyer AT ROW 11.43 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Vendor Number" WIDGET-ID 146
+     end_buyer AT ROW 11.43 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Vendor Number" WIDGET-ID 148
+     begin_user-id AT ROW 12.52 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Vendor Number" WIDGET-ID 150
+     end_user-id AT ROW 12.52 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Vendor Number" WIDGET-ID 152
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 12.33 COL 10 WIDGET-ID 140
+          SIZE 29 BY .62 AT ROW 14.38 COL 10 WIDGET-ID 140
      "Selected Columns" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.33 COL 63.4 WIDGET-ID 138
+          SIZE 34 BY .62 AT ROW 14.38 COL 63.4 WIDGET-ID 138
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE  WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME rd-poexp
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
      "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 11.38 COL 3 WIDGET-ID 86
-     RECT-6 AT ROW 11.62 COL 2 WIDGET-ID 30
+          SIZE 17 BY .62 AT ROW 13.43 COL 3 WIDGET-ID 86
+     RECT-6 AT ROW 13.67 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
-     RECT-8 AT ROW 18.38 COL 2 WIDGET-ID 84
-     SPACE(2.39) SKIP(2.09)
+     RECT-8 AT ROW 20.43 COL 2 WIDGET-ID 84
+     SPACE(2.39) SKIP(2.42)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Export POs to Excel" WIDGET-ID 100.
@@ -464,6 +499,10 @@ ASSIGN
        FRAME rd-poexp:HIDDEN           = TRUE.
 
 ASSIGN 
+       begin_buyer:PRIVATE-DATA IN FRAME rd-poexp     = 
+                "parm".
+
+ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME rd-poexp     = 
                 "parm".
 
@@ -484,11 +523,19 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_user-id:PRIVATE-DATA IN FRAME rd-poexp     = 
+                "parm".
+
+ASSIGN 
        begin_vend-i-no:PRIVATE-DATA IN FRAME rd-poexp     = 
                 "parm".
 
 ASSIGN 
        begin_vend-no:PRIVATE-DATA IN FRAME rd-poexp     = 
+                "parm".
+
+ASSIGN 
+       end_buyer:PRIVATE-DATA IN FRAME rd-poexp     = 
                 "parm".
 
 ASSIGN 
@@ -509,6 +556,10 @@ ASSIGN
 
 ASSIGN 
        end_po-date:PRIVATE-DATA IN FRAME rd-poexp     = 
+                "parm".
+
+ASSIGN 
+       end_user-id:PRIVATE-DATA IN FRAME rd-poexp     = 
                 "parm".
 
 ASSIGN 
@@ -537,9 +588,6 @@ ASSIGN
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-
- 
-
 
 
 /* ************************  Control Triggers  ************************ */
@@ -604,6 +652,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_buyer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_buyer rd-poexp
+ON LEAVE OF begin_buyer IN FRAME rd-poexp /* From Buyer ID */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date rd-poexp
@@ -658,6 +715,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_user-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_user-id rd-poexp
+ON LEAVE OF begin_user-id IN FRAME rd-poexp /* From User ID */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME begin_vend-i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend-i-no rd-poexp
@@ -784,6 +850,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_buyer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_buyer rd-poexp
+ON LEAVE OF end_buyer IN FRAME rd-poexp /* To Buyer ID */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date rd-poexp
@@ -839,6 +914,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_user-id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_user-id rd-poexp
+ON LEAVE OF end_user-id IN FRAME rd-poexp /* To User ID */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME end_vend-i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vend-i-no rd-poexp
@@ -1143,13 +1227,15 @@ PROCEDURE enable_UI :
   DISPLAY rd_open-closed rd_printed begin_po end_po begin_vend-no end_vend-no 
           begin_item end_item begin_vend-i-no end_vend-i-no begin_job begin_job2 
           end_job end_job2 begin_date end_date sl_avail sl_selected tb_excel 
-          tb_runExcel fi_file begin_po-date end_po-date 
+          tb_runExcel fi_file begin_po-date end_po-date begin_buyer end_buyer 
+          begin_user-id end_user-id 
       WITH FRAME rd-poexp.
   ENABLE rd_open-closed rd_printed begin_po end_po begin_vend-no end_vend-no 
          begin_item end_item begin_vend-i-no end_vend-i-no begin_job begin_job2 
-         end_job end_job2 begin_date end_date sl_avail Btn_Def Btn_Add sl_selected 
-         Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
-         RECT-6 RECT-7 RECT-8 begin_po-date end_po-date 
+         end_job end_job2 begin_date end_date sl_avail Btn_Def Btn_Add 
+         sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok 
+         btn-cancel begin_po-date end_po-date RECT-6 RECT-7 RECT-8 begin_buyer 
+         end_buyer begin_user-id end_user-id 
       WITH FRAME rd-poexp.
   VIEW FRAME rd-poexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-poexp}
@@ -1258,7 +1344,11 @@ FOR EACH po-ordl WHERE po-ordl.company = cocode
     EACH po-ord WHERE po-ord.company = cocode
         AND po-ord.po-no = po-ordl.po-no
         AND po-ord.po-date GE begin_po-date
-        AND po-ord.po-date LE end_po-date,
+        AND po-ord.po-date LE end_po-date
+        AND po-ord.buyer GE begin_buyer
+        AND po-ord.buyer LE end_buyer
+        AND po-ord.USER-ID GE begin_user-id
+        AND po-ord.USER-ID LE end_user-id,
     EACH vend WHERE vend.company EQ cocode
           AND vend.vend-no EQ po-ord.vend-no
     NO-LOCK:
