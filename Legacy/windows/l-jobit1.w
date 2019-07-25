@@ -425,8 +425,7 @@ FOR EACH job
        CAN-FIND(FIRST itemfg
                 WHERE itemfg.company EQ job-hdr.company
                   AND itemfg.i-no    EQ job-hdr.i-no
-                  AND itemfg.isaset  EQ YES
-                  AND itemfg.alloc   NE YES) THEN
+                  AND itemfg.isaset  EQ YES ) THEN
     FOR EACH reftable
         WHERE reftable.reftable EQ "jc/jc-calc.p"
           AND reftable.company  EQ job-hdr.company
