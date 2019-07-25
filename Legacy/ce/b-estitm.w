@@ -3927,6 +3927,7 @@ PROCEDURE local-copy-record :
               RUN New_Record IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
 
               ll-dumb = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
+              lv-copy-what = "" .
           END.
       END.
   END.
