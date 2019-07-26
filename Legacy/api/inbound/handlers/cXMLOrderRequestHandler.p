@@ -1,10 +1,10 @@
 /*------------------------------------------------------------------------
-    File        : api/inbound/handlers/AmazoncXMLRequestHandler.p
-    Purpose     : This accepts Amazon cXML
+    File        : api/inbound/handlers/cXMLOrderRequestHandler.p
+    Purpose     : To create cXML based purchase orders
 
     Syntax      :
 
-    Description : This accepts Amazon cXML
+    Description : To create cXML based purchase orders
 
     Author(s)   : Vishnu Vellanki
     Created     : Tue July 25 07:33:22 EDT 2019
@@ -23,14 +23,14 @@ DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
 
-            
-/* Put Request Data from a variable into a Temporary file */
-COPY-LOB iplcRequestData TO FILE "C:\tmp\cXML.xml".
-
-/* More code to be added for processing the cXML */
+RUN cXML/gencXMLOrder.p (
+    iplcRequestData,
+    NO, /* Add records to temp-table only */
+    OUTPUT oplSuccess,
+    OUTPUT opcMessage
+    ) NO-ERROR.
 
 ASSIGN
-    opcMessage = "Success"
     oplcResponseData  = '~{"response_code": 200,"response_message":"' + opcMessage + '"}'. 
     .
 
