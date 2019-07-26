@@ -38,7 +38,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "TSBREAKSQTY,CERouteFromStyle,Tasker,CEUpdate,LoadTagLimit,RMHistoryBrowse,CeSizeVal,TSShowPending,FGHistoryDate,CEUpdateCAD,"
            + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault,DynAuditField,DynTaskTicker,InvoiceSavePDF,BOLSavePDF,"
            + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
-           + "CePackEnhanced,BolPrint,OEPriceWarning"
+           + "CePackEnhanced,BolPrint,OEPriceWarning,CEVersion,CEFormat,CEFormatFont"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -674,6 +674,21 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Warning message - if sell price is less than the cost",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "CEVersion" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Version of Estimate Calculation and Printing",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "CEFormat" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Format for Estimate Printing",
+        INPUT "By Form with Summary First" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+    WHEN "CEFormatFont" THEN
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Font for Estimate Printing",
+        INPUT "Calibri" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
 ELSE

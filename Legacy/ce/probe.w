@@ -158,13 +158,27 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glEstimateCalcNew AS LOGICAL NO-UNDO.
+DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
+    OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
-  
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+    glEstimateCalcNew = lRecFound AND cRtnChar EQ "New".
+ RUN sys/ref/nk1look.p (INPUT cocode, "CEFormat", "C" /* Character */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT gcEstimateFormat, OUTPUT lRecFound).
+  RUN sys/ref/nk1look.p (INPUT cocode, "CEFormatFont", "C" /* Character */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT gcEstimateFont, OUTPUT lRecFound).
+    
 RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
 
   lv-cebrowse-dir = tmp-dir.
@@ -984,10 +998,10 @@ PROCEDURE calc-fields :
                    (v-com / 100)   
      ld-fullc    = DEC(probe.full-cost:SCREEN-VALUE IN BROWSE {&browse-name}) -
                    ld-commc
-     /*ld-brd-m    = DEC(reftable.val[2]:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brd-%    = DEC(reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brdcm    = DEC(reftable.val[4]:SCREEN-VALUE IN BROWSE {&browse-name})
-     ld-brdc$    = DEC(reftable.val[5]:SCREEN-VALUE IN BROWSE {&browse-name})*/.
+            /*ld-brd-m    = DEC(reftable.val[2]:SCREEN-VALUE IN BROWSE {&browse-name})
+            ld-brd-%    = DEC(reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name})
+            ld-brdcm    = DEC(reftable.val[4]:SCREEN-VALUE IN BROWSE {&browse-name})
+            ld-brdc$    = DEC(reftable.val[5]:SCREEN-VALUE IN BROWSE {&browse-name})*/.
 
     IF lv-changed EQ "S" THEN DO:
         ASSIGN
@@ -1111,9 +1125,9 @@ PROCEDURE calc-fields :
        probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name}   = lv-nprof
        probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name} = lv-gprof
        probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}   = lv-price
-       /*reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brd-%
-       reftable.val[4]:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brdcm
-       reftable.val[5]:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brdc$*/.
+                /*reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brd-%
+                reftable.val[4]:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brdcm
+                reftable.val[5]:SCREEN-VALUE IN BROWSE {&browse-name}    = lv-brdc$*/.
 
       /*IF lv-changed EQ "BC$" THEN
         APPLY "entry" TO reftable.val[5] IN BROWSE {&browse-name}.
@@ -2508,6 +2522,56 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalculateEstimate B-table-Win
+PROCEDURE pCalculateEstimate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Runs the calculation program to build the calculated estimate data
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO.
+
+    FIND FIRST probe NO-LOCK 
+        WHERE probe.company EQ est.company
+        AND probe.est-no EQ est.est-no
+        NO-ERROR.
+    IF AVAIL probe THEN 
+        RUN est/d-probeu.w (OUTPUT lPurge).
+
+    RUN est\EstimateCalcProcs.p (est.company, est.est-no, lPurge).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintEstimate B-table-Win
+PROCEDURE pPrintEstimate PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Estimate Print from DB Tables, not text files
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-probe FOR probe.
+
+DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+DEFINE VARIABLE cOutputFile AS CHARACTER NO-UNDO.
+
+ASSIGN 
+    iEstCostHeaderID = INT64(ipbf-probe.spare-char-2)
+    cOutputFile = SESSION:TEMP-DIRECTORY + ipbf-probe.spare-char-2 + ".xpr"
+    .    
+RUN est\EstimatePrint.p (iEstCostHeaderID, cOutputFile, gcEstimateFormat, gcEstimateFont).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resort-query B-table-Win 
 PROCEDURE resort-query :
 /*------------------------------------------------------------------------------
@@ -2959,7 +3023,10 @@ PROCEDURE printProbe :
   {est/checkuse.i}
 
   PAUSE 2 NO-MESSAGE.
-
+  IF probe.spare-char-2 NE "" THEN DO: 
+    RUN pPrintEstimate(BUFFER probe).
+    RETURN.  
+  END.
   /* notes print*/
   IF ipPrompt THEN DO:
     RUN est/d-estprt.w (OUTPUT v-prt-note,OUTPUT v-prt-box,OUTPUT v-from-dept,
@@ -2982,7 +3049,7 @@ PROCEDURE printProbe :
         lv-cebrowse-dir = probe.spare-char-1.
     ELSE 
         lv-cebrowse-dir = cCEBrowseBaseDir.
-        
+
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name eq "CEPrint" no-lock no-error.
   ASSIGN
@@ -3248,6 +3315,7 @@ PROCEDURE run-whatif :
   DEF VAR tmp-outfile AS cha NO-UNDO.
   DEF VAR viewfile AS cha NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
+  
 
   {est/checkuse.i}
   EMPTY TEMP-TABLE xprep.
@@ -3258,7 +3326,18 @@ PROCEDURE run-whatif :
   vprint = yes.
   lv-eb-recid = recid(eb).
   lv-ef-recid = recid(ef).
-  
+    IF glEstimateCalcNew THEN DO:
+      RUN pCalculateEstimate. 
+      SESSION:SET-WAIT-STATE ("") .
+      FIND eb NO-LOCK 
+        WHERE RECID(eb) EQ lv-eb-recid.
+      FIND ef NO-LOCK 
+        WHERE RECID(ef) EQ lv-ef-recid.
+      FIND CURRENT est NO-LOCK NO-ERROR.
+      RUN dispatch ("open-query").
+      RUN dispatch ("open-query").
+      RETURN.
+  END.
   FOR EACH mclean:
     DELETE mclean.
   END.
@@ -3339,9 +3418,9 @@ PROCEDURE save-fields :
      lv-nprof   = probe.net-profit:SCREEN-VALUE IN BROWSE {&browse-name}
      lv-gprof   = probe.gross-profit:SCREEN-VALUE IN BROWSE {&browse-name}
      lv-price   = probe.sell-price:SCREEN-VALUE IN BROWSE {&browse-name}
-     /*lv-brd-%   = reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-brdcm   = reftable.val[4]:SCREEN-VALUE IN BROWSE {&browse-name}
-     lv-brdc$   = reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name}*/.
+            /*lv-brd-%   = reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name}
+            lv-brdcm   = reftable.val[4]:SCREEN-VALUE IN BROWSE {&browse-name}
+            lv-brdc$   = reftable.val[3]:SCREEN-VALUE IN BROWSE {&browse-name}*/.
 
     IF probe.comm:VISIBLE IN BROWSE {&browse-name} THEN
        lv-comm = probe.comm:SCREEN-VALUE IN BROWSE {&browse-name}.
@@ -3565,8 +3644,8 @@ PROCEDURE update-item :
          probe.full-cost    = ROUND(ld-tot-full / qm,2)
          probe.net-profit   = (1 - (probe.full-cost / probe.sell-price)) * 100
          probe.gross-profit = (1 - (probe.fact-cost / probe.sell-price)) * 100
-         /*probe.net-profit   = probe.net-profit   - v-com
-         probe.gross-profit = probe.gross-profit - v-com*/.
+                    /*probe.net-profit   = probe.net-profit   - v-com
+                    probe.gross-profit = probe.gross-profit - v-com*/.
 
         IF ll-use-margin THEN
         DO:
@@ -3588,7 +3667,7 @@ PROCEDURE update-item :
               probe.full-cost = ld-fullc
               probe.net-profit = (1 - (probe.full-cost / probe.sell-price)) * 100
               probe.gross-profit = (1 - (probe.fact-cost / probe.sell-price)) * 100
-              /*probe.market-price = ld-marg%*/.
+                        /*probe.market-price = ld-marg%*/.
         END.
         ELSE
            probe.market-price = probe.net-profit + probe.comm.
