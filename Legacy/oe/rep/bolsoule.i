@@ -20,9 +20,9 @@ for each report where report.term-id eq v-term-id,
     no-lock
 
     break by report.key-01 /* oe-boll.i-no*/
-          by report.key-02 /* oe-boll.ord-no*/
-          BY oe-boll.line
           BY oe-boll.po-no
+          by report.key-02 /* oe-boll.ord-no*/
+          BY oe-boll.line          
           BY oe-boll.job-no
           BY oe-boll.job-no2:
 
