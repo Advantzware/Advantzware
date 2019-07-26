@@ -20,7 +20,8 @@ DO:
     shipto.loc = cust.loc
     shipto.tax-code = cust.tax-gr
     shipto.tax-mandatory = cust.sort EQ "Y"
-    shipto.spare-char-1  = cust.sman .
+    shipto.spare-char-1  = cust.sman
+    shipto.isdefault  = Yes .
   CREATE soldto.
   ASSIGN
     soldto.company = cust.company

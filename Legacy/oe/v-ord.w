@@ -1650,34 +1650,8 @@ END.
 ON LEAVE OF oe-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
   IF LASTKEY NE -1 AND oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:
-   {&methods/lValidateError.i YES}
-    FIND FIRST shipto NO-LOCK 
-        WHERE shipto.company EQ g_company 
-        AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-        AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
-        NO-ERROR.
-    IF AVAIL shipto THEN DO:
-       ASSIGN            
-             oe-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
-             fiShipName:SCREEN-VALUE          = shipto.ship-name
-             fiShipAddress:SCREEN-VALUE       = fBuildAddress(shipto.ship-addr[1],
-                                                               shipto.ship-addr[2],
-                                                               shipto.ship-city,
-                                                               shipto.ship-state,
-                                                                shipto.ship-zip).
-         IF shipto.tax-code NE "" THEN
-         oe-ord.tax-gr:screen-value    =  shipto.tax-code .
-
-         IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
-            MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
-            VIEW-AS ALERT-BOX.
-            
-       END.      
-    ELSE DO:
-         MESSAGE "Invalid Ship To. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    END.
-   {&methods/lValidateError.i NO}
+      RUN valid-ship-id (1) NO-ERROR.
+      IF NOT lErrorValid THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -3616,12 +3590,13 @@ PROCEDURE display-cust-detail :
     FIND FIRST shipto NO-LOCK
         WHERE shipto.company EQ cocode
           AND shipto.cust-no EQ cust.cust-no
-          AND shipto.ship-id EQ cust.cust-no NO-ERROR.  
+          AND shipto.isDefault EQ YES  NO-ERROR.  
 
     IF NOT AVAIL shipto THEN
         FIND FIRST shipto NO-LOCK
           WHERE shipto.company EQ cocode
-           AND shipto.cust-no EQ cust.cust-no NO-ERROR.
+           AND shipto.cust-no EQ cust.cust-no
+           AND shipto.statusCode NE "I" NO-ERROR.
 
     IF AVAIL shipto THEN
        ASSIGN 
@@ -5488,6 +5463,11 @@ PROCEDURE local-update-record :
        IF RETURN-VALUE NE "" THEN RETURN NO-APPLY.
      END.
 
+     IF oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:
+         RUN valid-ship-id (0) NO-ERROR.
+         IF NOT lErrorValid THEN RETURN NO-APPLY.
+     END.
+
      RUN valid-ord-no NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -7177,6 +7157,53 @@ DO WITH FRAME {&FRAME-NAME}:
     END.
 END.
     {&methods/lValidateError.i NO} 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
+PROCEDURE valid-ship-id :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiCheck AS INTEGER NO-UNDO .
+{&methods/lValidateError.i YES}
+    ASSIGN lErrorValid = YES .
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST shipto NO-LOCK 
+          WHERE shipto.company EQ g_company 
+          AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+          AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+          NO-ERROR.
+
+      IF NOT AVAIL shipto THEN DO:
+          MESSAGE "Invalid Ship To. Try help. " VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-ord.ship-id.
+          ASSIGN lErrorValid = NO .
+      END.  
+      IF AVAIL shipto AND shipto.statusCode = "I" THEN DO:
+          MESSAGE "The Ship To is inactive and cannot be used on an order. " VIEW-AS ALERT-BOX INFO.
+          APPLY "entry" TO oe-ord.ship-id.
+          ASSIGN lErrorValid = NO .
+      END.
+      IF AVAIL shipto AND ipiCheck EQ 1 AND lErrorValid THEN DO:
+          ASSIGN            
+              oe-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
+              fiShipName:SCREEN-VALUE          = shipto.ship-name
+              fiShipAddress:SCREEN-VALUE       = fBuildAddress(shipto.ship-addr[1],
+                                                               shipto.ship-addr[2],
+                                                               shipto.ship-city,
+                                                               shipto.ship-state,
+                                                                shipto.ship-zip).
+             IF shipto.tax-code NE "" THEN
+                 oe-ord.tax-gr:screen-value    =  shipto.tax-code .
+      END.
+  END.
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

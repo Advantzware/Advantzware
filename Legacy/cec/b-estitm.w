@@ -1142,14 +1142,14 @@ DO WITH FRAME {&FRAME-NAME}:
       FIND FIRST shipto
           WHERE shipto.company EQ cust.company
             AND shipto.cust-no EQ cust.cust-no
-            AND shipto.ship-id EQ cust.cust-no
+            AND shipto.isDefault EQ YES
           NO-LOCK NO-ERROR.
 
       IF NOT AVAIL shipto THEN
       FIND FIRST shipto
           WHERE shipto.company EQ cust.company
             AND shipto.cust-no EQ cust.cust-no
-            AND shipto.ship-no EQ 1
+            AND shipto.statusCode NE "I"
           NO-LOCK NO-ERROR.
 
       IF AVAIL shipto THEN eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.ship-id.
@@ -8185,11 +8185,12 @@ PROCEDURE valid-ship-id :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST shipto
-                    WHERE shipto.company EQ gcompany
-                      AND shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND shipto.ship-id EQ eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}) AND
-       NOT ll-new-shipto                                             THEN DO:
+    FIND FIRST shipto NO-LOCK
+        WHERE shipto.company EQ gcompany
+        AND shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        AND shipto.ship-id EQ eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}  NO-ERROR .
+
+    IF NOT AVAIL shipto AND NOT ll-new-shipto                     THEN DO:
       MESSAGE "            Invalid entry, try help...             " SKIP(1)
               "                        OR                         " SKIP(1)
               "Do you wish to add this Shipto ID to this Customer?"
@@ -8199,6 +8200,12 @@ PROCEDURE valid-ship-id :
         APPLY "entry" TO eb.ship-id IN BROWSE {&browse-name}.
         RETURN ERROR.
       END.
+    END.
+    IF AVAIL shipto AND shipto.statusCode = "I" THEN DO:
+        MESSAGE "The ship to is inactive and cannot be used on an Estimate." 
+            VIEW-AS ALERT-BOX INFORMATION .
+        APPLY "entry" TO eb.ship-id IN BROWSE {&browse-name}.
+        RETURN ERROR.
     END.
   END.
 

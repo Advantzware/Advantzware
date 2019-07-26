@@ -53,6 +53,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE oeDateAuto-char AS CHARACTER NO-UNDO .
 DEFINE VARIABLE oeDateAuto-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lCheckDefault AS LOGICAL NO-UNDO.
 {sys/inc/var.i NEW SHARED}
 
 &scoped-define copy-proc proc-copy
@@ -170,7 +171,7 @@ shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
 shipto.bill 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
-&Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber 
+&Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber tg_default
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -178,7 +179,7 @@ shipto.bill
 &Scoped-define ADM-ASSIGN-FIELDS shipto.tax-mandatory shipto.exportCustID 
 &Scoped-define DISPLAY-FIELD shipto.ship-state shipto.tax-code shipto.loc ~
 shipto.carrier shipto.dest-code 
-&Scoped-define List-5 tg_inactive faxAreaCode faxNumber 
+&Scoped-define List-5 tg_inactive faxAreaCode faxNumber tg_default
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -239,11 +240,11 @@ DEFINE VARIABLE fi_sname AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 108 BY 10.24.
+     SIZE 108 BY 11.24.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 40 BY 18.81.
+     SIZE 40 BY 19.81.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -254,45 +255,51 @@ DEFINE VARIABLE tg_inactive AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 13.4 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tg_default AS LOGICAL INITIAL no 
+     LABEL "Default" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.4 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tg_inactive AT ROW 10.05 COL 42 WIDGET-ID 8
-     fi_sname AT ROW 13 COL 77.6 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     tg_inactive AT ROW 10.05 COL 72 WIDGET-ID 8
+     fi_sname AT ROW 12.95 COL 77.6 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      shipto.ship-id AT ROW 10 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           FONT 4
-     shipto.ship-name AT ROW 10.95 COL 14.6 COLON-ALIGNED FORMAT "x(50)"
+     shipto.contact AT ROW 10.95 COL 14.6 COLON-ALIGNED
+          LABEL "Contact"
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+     shipto.ship-name AT ROW 11.91 COL 14.6 COLON-ALIGNED FORMAT "x(50)"
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           FONT 4
-     shipto.ship-addr[1] AT ROW 12 COL 14.6 COLON-ALIGNED
+     shipto.ship-addr[1] AT ROW 12.86 COL 14.6 COLON-ALIGNED
           LABEL "Address" FORMAT "x(50)"
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           FONT 4
-     shipto.ship-addr[2] AT ROW 13 COL 14.6 COLON-ALIGNED NO-LABEL FORMAT "x(50)"
+     shipto.ship-addr[2] AT ROW 13.81 COL 14.6 COLON-ALIGNED NO-LABEL FORMAT "x(50)"
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           FONT 4
-     shipto.ship-city AT ROW 13.95 COL 14.6 COLON-ALIGNED
+     shipto.ship-city AT ROW 14.86 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
           FONT 4
-     shipto.ship-state AT ROW 13.95 COL 34.6 COLON-ALIGNED NO-LABEL
+     shipto.ship-state AT ROW 14.86 COL 34.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5.4 BY 1
           FONT 4
-     shipto.ship-zip AT ROW 13.95 COL 39.6 COLON-ALIGNED NO-LABEL
+     shipto.ship-zip AT ROW 14.86 COL 39.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           FONT 4
-     shipto.contact AT ROW 10 COL 68.6 COLON-ALIGNED
-          LABEL "Contact"
-          VIEW-AS FILL-IN 
-          SIZE 32 BY 1
+     tg_default AT ROW 10.05 COL 87.8 WIDGET-ID 8
      shipto.area-code AT ROW 11.05 COL 68.6 COLON-ALIGNED
           LABEL "Phone" FORMAT "(xxx)"
           VIEW-AS FILL-IN 
@@ -300,34 +307,34 @@ DEFINE FRAME F-Main
      shipto.phone AT ROW 11.05 COL 76.4 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     faxAreaCode AT ROW 12.05 COL 68.6 COLON-ALIGNED AUTO-RETURN 
-     faxNumber AT ROW 12.05 COL 76.4 COLON-ALIGNED NO-LABEL
-     shipto.spare-char-1 AT ROW 13 COL 68.6 COLON-ALIGNED
+     faxAreaCode AT ROW 12.00 COL 68.6 COLON-ALIGNED AUTO-RETURN 
+     faxNumber AT ROW 12.00 COL 76.4 COLON-ALIGNED NO-LABEL
+     shipto.spare-char-1 AT ROW 12.95 COL 68.6 COLON-ALIGNED
           LABEL "SalesGrp" FORMAT "xxx"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     shipto.tax-code AT ROW 13.95 COL 68.6 COLON-ALIGNED
+     shipto.tax-code AT ROW 13.91 COL 68.6 COLON-ALIGNED
           LABEL "Tax Code"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           FONT 4
-     shipto.tax-mandatory AT ROW 14.19 COL 87.8
+     shipto.tax-mandatory AT ROW 14.14 COL 87.8
           LABEL "Taxable"
           VIEW-AS TOGGLE-BOX
           SIZE 21.8 BY .81
-     shipto.notes[1] AT ROW 15.67 COL 5 COLON-ALIGNED NO-LABEL
+     shipto.notes[1] AT ROW 16.67 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
-     shipto.notes[2] AT ROW 16.52 COL 5 COLON-ALIGNED NO-LABEL
+     shipto.notes[2] AT ROW 17.52 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
-     shipto.notes[3] AT ROW 17.48 COL 5 COLON-ALIGNED NO-LABEL
+     shipto.notes[3] AT ROW 18.48 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
-     shipto.notes[4] AT ROW 18.38 COL 5 COLON-ALIGNED NO-LABEL
+     shipto.notes[4] AT ROW 19.38 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 100.6 BY 1
-     ship_note AT ROW 14.91 COL 5 NO-LABEL
+     ship_note AT ROW 15.91 COL 5 NO-LABEL
      shipto.loc AT ROW 1.62 COL 125 COLON-ALIGNED
           LABEL "Warehouse"
           VIEW-AS FILL-IN 
@@ -427,15 +434,15 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY .81
      "N" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.62 COL 3.2
+          SIZE 3 BY .62 AT ROW 16.62 COL 3.2
      "O" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 16.33 COL 3.2
+          SIZE 3 BY .62 AT ROW 17.33 COL 3.2
      "T" VIEW-AS TEXT
-          SIZE 3 BY .48 AT ROW 17.05 COL 3.2
+          SIZE 3 BY .48 AT ROW 18.05 COL 3.2
      "E" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 17.76 COL 3.2
+          SIZE 3 BY .62 AT ROW 18.76 COL 3.2
      "S" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 18.52 COL 3.2
+          SIZE 3 BY .62 AT ROW 19.52 COL 3.2
      "Shp Meth.:" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 17.95 COL 112.4
      RECT-1 AT ROW 9.81 COL 2
@@ -474,7 +481,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 19.86
+         HEIGHT             = 20.86
          WIDTH              = 149.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -571,6 +578,8 @@ ASSIGN
    2 EXP-LABEL                                                          */
 /* SETTINGS FOR TOGGLE-BOX tg_inactive IN FRAME F-Main
    NO-ENABLE 5                                                          */
+/* SETTINGS FOR TOGGLE-BOX tg_default IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -920,7 +929,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME shipto.tax-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.tax-code V-table-Win
 ON LEAVE OF shipto.tax-code IN FRAME F-Main /* Tax Code */
@@ -936,6 +944,52 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tg_default
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_default V-table-Win
+ON VALUE-CHANGED OF tg_default IN FRAME F-Main /* Default */
+DO:
+    DEFINE BUFFER bfShipto FOR shipto.
+    
+        FIND FIRST bfShipto NO-LOCK
+            WHERE bfShipto.company       EQ cocode
+            AND bfShipto.cust-no       EQ shipto.cust-no
+            AND bfshipto.isdefault     EQ YES
+            AND ROWID(bfShipto)        NE ROWID(shipto) NO-ERROR.   
+        
+        IF AVAIL bfShipto AND tg_default:SCREEN-VALUE EQ "Yes" THEN DO:
+            MESSAGE "ShipTo ID" bfShipto.ship-id "is marked as the default Ship To for this customer." +
+                "Do you want to make this Ship To the new default?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                UPDATE lCheckDefault.
+            IF NOT lCheckDefault THEN
+            ASSIGN tg_default:SCREEN-VALUE = "No" .
+        END.
+        ELSE IF tg_default:SCREEN-VALUE EQ "No" AND NOT AVAIL bfShipto  THEN DO:
+            MESSAGE "Customer must have 1 default shipto."
+                VIEW-AS ALERT-BOX INFORMATION.
+            ASSIGN tg_default:SCREEN-VALUE = "Yes" .
+        END.
+
+  {methods/dispflds.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+&Scoped-define SELF-NAME tg_inactive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_inactive V-table-Win
+ON VALUE-CHANGED OF tg_inactive IN FRAME F-Main /* Default */
+DO:
+   IF tg_default:SCREEN-VALUE EQ "Yes" AND tg_inactive:SCREEN-VALUE EQ "Yes" THEN DO:
+       MESSAGE "The default ship to cannot be made inactive" VIEW-AS ALERT-BOX INFORMATION .
+       tg_inactive:SCREEN-VALUE = "No".
+   END.
+
+  {methods/dispflds.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1066,7 +1120,7 @@ PROCEDURE enable-shipto :
       ENABLE
        shipto.bill
        shipto.broker.
-    ENABLE tg_inactive faxareacode faxnumber.
+    ENABLE tg_inactive tg_default faxareacode faxnumber.
     IF glShipNotesExpanded EQ YES THEN DO:
        ENABLE ship_note.
     END.
@@ -1182,6 +1236,7 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER ycust FOR cust.
   DEF BUFFER yshipto FOR shipto.
+  DEFINE BUFFER bf-Shipto FOR shipto.
   Define Variable hNotesProcs as Handle NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
    IF shipto.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" AND AVAIL cust THEN do:
@@ -1195,6 +1250,7 @@ PROCEDURE local-assign-record :
         fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sman.sname
         fi_sname = sman.sname .
    END.
+
    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1243,14 +1299,36 @@ PROCEDURE local-assign-record :
   shipto.fax = faxAreaCode + faxNumber.
     IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
      RUN AddTagInactive(shipto.rec_key,"shipto").
-     shipto.statusCode = "I".
   END.
   ELSE IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO: 
      RUN ClearTagsInactive(shipto.rec_key).
-     shipto.statusCode = "".
   END.
-    
-  disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+
+  IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" THEN
+    shipto.statusCode = "I".
+  ELSE shipto.statusCode = "".
+  
+  IF tg_default:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes" THEN
+      ASSIGN shipto.isDefault = YES.
+  ELSE ASSIGN shipto.isDefault = NO.
+   
+   IF lCheckDefault EQ YES AND tg_default:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes" THEN DO:
+
+       FIND FIRST bf-Shipto NO-LOCK
+       WHERE bf-Shipto.company       EQ cocode
+       AND bf-Shipto.cust-no       EQ shipto.cust-no
+       AND bf-Shipto.isdefault     EQ YES
+       AND ROWID(bf-Shipto)        NE ROWID(shipto) NO-ERROR.
+
+       FIND CURRENT bf-Shipto EXCLUSIVE-LOCK.
+       IF AVAIL bf-Shipto THEN
+           ASSIGN bf-Shipto.isdefault = NO.
+       FIND CURRENT bf-Shipto EXCLUSIVE-LOCK.
+       lCheckDefault = NO .
+   END.
+   
+
+  disable tg_inactive tg_default faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
   IF adm-new-record THEN DO:
      IF v-cust-log THEN 
@@ -1282,7 +1360,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE ship_note WITH FRAME {&FRAME-NAME}.
-  disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
+  disable tg_inactive tg_default faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -1327,7 +1405,7 @@ PROCEDURE local-delete-record :
   DEF BUFFER b-cust   FOR cust.
   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
-  IF shipto.cust-no EQ shipto.ship-id THEN DO:
+  IF shipto.isDefault THEN DO:
 
 
     /* Default shipto can be deleted if not used and if it is a duplicate */
@@ -1433,12 +1511,12 @@ PROCEDURE local-display-fields :
         faxNumber = SUBSTR(shipto.fax,4)
         fi_sname = getSalesmanName(shipto.spare-char-1)
             tg_inactive = DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO
-        .
+        tg_default = shipto.isDefault .
 
-      DISPLAY tg_inactive faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
+      DISPLAY tg_inactive tg_default faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
         
   END.
-  
+ 
   RUN enable_notes.
   ASSIGN ship_note = "".
   IF glShipNotesExpanded THEN DO:
