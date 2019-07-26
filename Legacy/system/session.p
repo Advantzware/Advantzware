@@ -946,7 +946,7 @@ default_LeftDown,default_Left,information,default_SidebarCollapse,default_Sideba
     
     IF NOT VALID-HANDLE(iphContainer) THEN RETURN.
     IF NOT VALID-HANDLE(iphFrame) THEN RETURN.
-    IF iphFrame:SENSITIVE EQ NO THEN RETURN.    
+    IF iphFrame:SENSITIVE EQ NO THEN RETURN.
     IF lCueCardActive THEN RETURN.
     
     cCueCardPool = "CueCardPool" + STRING(TIME,"99999").
@@ -1277,6 +1277,38 @@ PROCEDURE spSetTaskFilter:
         cProgramID = ipcProgramID
         cUserID    = ipcUserID
         .
+    CASE cMnemonic:
+        WHEN "BR" THEN
+        cMnemonic = "SS".
+        WHEN "DR" THEN
+        cMnemonic = "DC".
+        WHEN "ER" THEN
+        cMnemonic = "EQ".
+        WHEN "FR" THEN
+        cMnemonic = "FT".
+        WHEN "GR" THEN
+        cMnemonic = "GL".
+        WHEN "HR" THEN
+        cMnemonic = "HS".
+        WHEN "IR" THEN
+        cMnemonic = "FG".
+        WHEN "JR" THEN
+        cMnemonic = "JC".
+        WHEN "MR" THEN
+        cMnemonic = "RM".
+        WHEN "NR" THEN
+        cMnemonic = "NS".
+        WHEN "OR" THEN
+        cMnemonic = "OE".
+        WHEN "PR" THEN
+        cMnemonic = "PO".
+        WHEN "QL" THEN
+        cMnemonic = "QR".
+        WHEN "TR" THEN
+        cMnemonic = "TS".
+        WHEN "VR" THEN
+        cMnemonic = "AP".
+    END CASE.
 
 END PROCEDURE.
 	
