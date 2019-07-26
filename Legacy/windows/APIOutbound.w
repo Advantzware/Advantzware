@@ -250,7 +250,7 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'n:/repository/legacy/browsers/apioutbound.w':U ,
+             INPUT  'browsers/apioutbound.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_apioutbound ).
