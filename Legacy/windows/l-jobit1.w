@@ -396,7 +396,8 @@ PROCEDURE build-table :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEF VAR li AS INT NO-UNDO.
-
+DEFINE VARIABLE lCheckUnassemble AS LOGICAL NO-UNDO .
+DEFINE BUFFER bf-itemfg FOR itemfg .
 
 FOR EACH tt-job-hdr:
   DELETE tt-job-hdr.
@@ -418,15 +419,25 @@ FOR EACH job
       NO-LOCK
       BREAK BY job-hdr.job:
 
-    CREATE tt-job-hdr.
-    BUFFER-COPY job-hdr TO tt-job-hdr.
+      ASSIGN lCheckUnassemble = NO .
+
+      FIND FIRST bf-itemfg NO-LOCK
+           WHERE bf-itemfg.company EQ job-hdr.company
+             AND bf-itemfg.i-no    EQ job-hdr.i-no
+             AND bf-itemfg.isaset  EQ YES
+             AND bf-itemfg.alloc   EQ YES NO-ERROR .  /* bf-itemfg.alloc EQ YES use for unassemble */
+       lCheckUnassemble = IF AVAIL bf-itemfg THEN TRUE ELSE FALSE .
+
+    IF NOT lCheckUnassemble THEN do:
+        CREATE tt-job-hdr.
+        BUFFER-COPY job-hdr TO tt-job-hdr.
+    END.
 
     IF FIRST(job-hdr.job)                    AND
        CAN-FIND(FIRST itemfg
                 WHERE itemfg.company EQ job-hdr.company
                   AND itemfg.i-no    EQ job-hdr.i-no
-                  AND itemfg.isaset  EQ YES
-                  AND itemfg.alloc   NE YES) THEN
+                  AND itemfg.isaset  EQ YES ) THEN
     FOR EACH reftable
         WHERE reftable.reftable EQ "jc/jc-calc.p"
           AND reftable.company  EQ job-hdr.company
@@ -435,7 +446,7 @@ FOR EACH job
         NO-LOCK
         BREAK BY reftable.reftable:
 
-      IF FIRST(reftable.reftable) THEN
+      IF FIRST(reftable.reftable) AND NOT lCheckUnassemble THEN
         ASSIGN
          tt-job-hdr.frm      = 0
          tt-job-hdr.blank-no = 0.
