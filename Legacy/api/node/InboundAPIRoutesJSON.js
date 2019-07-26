@@ -73,12 +73,12 @@ function routeNotFound(res){
 /* ----------------------------- routes handlers ---------------------------------*/
 
 //This route is for fetching the inventory details
-router.get('/getInventory', (req,res) => {
+router.post('/getinventory', (req,res) => {
     handleRoute(req, res)
 });
 
 //This will create an inventory transfer record
-router.post('/createInventoryTransfer', (req,res) => {
+router.post('/createinventorytransfer', (req,res) => {
     handleRoute(req, res)
 });
 

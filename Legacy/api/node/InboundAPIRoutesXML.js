@@ -34,14 +34,23 @@ function handleRoute(req,res){
 					responseCode = 400
 				    response = lib.XMLResponse(responseCode,"Invalid XML Request Data");
 			    }
-				else{
-					response = JSON.parse(lib.callJavaProgram(req,config,XMLRequestData));
-					responseCode = response.response_code;
-					response = lib.XMLResponse(response.response_code,response.response_message);
-					 
-					if (responseCode === 500 || responseCode === 404){
-						// writes the request data to csv file in case AppServer is down
-						lib.CSVFileDataCreate(req,XMLRequestData,response);
+				else{					
+					response = lib.callJavaProgram(req,config,XMLRequestData);
+					if (response.length > 0) {
+						response = JSON.parse(response);					
+						if (!response) {
+							response = {"response_code":500,"response_message":"Internal Server Error"};
+						}
+						responseCode = response.response_code;					
+						response = lib.XMLResponse(response.response_code,response.response_message);
+						if (responseCode === 500 || responseCode === 404){
+							// writes the request data to csv file in case AppServer is down
+							lib.CSVFileDataCreate(req,XMLRequestData,response);
+						}
+					}
+					else {
+						responseCode = 500;
+						response = lib.XMLResponse(responseCode,"Internal Server Error");						
 					}
 				}
             }
@@ -53,7 +62,7 @@ function handleRoute(req,res){
     }
     catch ( e ) {
 		res.setHeader('Content-Type', 'text/xml');
-		response = lib.XMLResponse(400,"Bad response" + e);
+		response = lib.XMLResponse(400,"Bad response " + e);
         res.status(400).send(response);
         res.end();      
     }   
@@ -68,7 +77,7 @@ function routeNotFound(res){
 /* ----------------------------- routes  ---------------------------------*/
 
 //This route is for fetching the inventory details
-router.post('/amazoncXML', (req,res) => {
+router.post('/cxmlorder', (req,res) => {
 	handleRoute(req,res);
 });
 
