@@ -1650,6 +1650,17 @@ PROCEDURE pConvertInvNoTable:
                 DO:
                     IF hCoField:BUFFER-VALUE EQ "002" THEN 
                     DO:
+                        IF ipcTableName EQ "ap-inv" THEN DO:
+                            FIND FIRST ap-ledger EXCLUSIVE WHERE 
+                                ap-ledger.company  EQ ap-inv.company AND 
+                                ap-ledger.vend-no  EQ ap-inv.vend-no AND 
+                                ap-ledger.ref-date EQ ap-inv.inv-date AND 
+                                ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)
+                                NO-ERROR.
+                            IF AVAIL ap-ledger THEN ASSIGN 
+                                ap-ledger.refnum = ("INV# x" + ap-inv.inv-no).
+                            RELEASE ap-ledger.
+                        END.
                         ASSIGN  
                             hField:BUFFER-VALUE = "x" + hField:BUFFER-VALUE NO-ERROR.
                     END.
