@@ -67,6 +67,7 @@ DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEF  SHARED VAR s-prt-fgimage AS LOG NO-UNDO.
 DEFINE  SHARED VARIABLE v-dept-codes AS CHAR NO-UNDO.
 DEFINE  SHARED VAR v-dept-log AS LOG NO-UNDO.
+DEFINE BUFFER bf-itemfg         FOR itemfg .
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -223,6 +224,10 @@ do v-local-loop = 1 to v-local-copies:
           end.
 
         end. /*brick format*/
+        IF AVAIL xeb THEN
+            FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ xeb.company
+             AND bf-itemfg.i-no EQ xeb.stock-no NO-ERROR .
 
         ASSIGN lv-over-run = IF AVAIL xoe-ordl THEN trim(string(xoe-ordl.over-pct,">>9.99%")) ELSE
                              IF AVAIL xoe-ord  THEN trim(string(xoe-ord.over-pct,">>9.99%"))  ELSE ""
@@ -596,10 +601,10 @@ do v-local-loop = 1 to v-local-copies:
         ELSE PAGE.
         /* print fgitem's image */
         IF s-prt-fgimage THEN DO:        
-            ls-fgitem-img = itemfg.box-image.
+            ls-fgitem-img = IF AVAIL bf-itemfg THEN bf-itemfg.box-image ELSE "".
 
             PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" /*v-qa-text*/ SKIP
-                "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
+                "<=12><R+1><C5>FG Item: " (IF AVAIL bf-itemfg THEN bf-itemfg.i-no ELSE "") " " ( IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "")
                 "<=12><R+3><C1><FROM><C106><LINE><||3>"
                 "<=12><R+5><C5><#21><R+40><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 
             PAGE.
