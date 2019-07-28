@@ -230,9 +230,9 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
                          WHEN "posted"   THEN cVarValue = STRING(work-item.press-1,">>,>>>,>>9") .
                          WHEN "finished"  THEN cVarValue = STRING(work-item.qty-prod,">>,>>>,>>9") .
                          WHEN "allowed"   THEN cVarValue = STRING(v-qty-all,">>,>>>,>>9") .
-                         WHEN "act-spoil"  THEN cVarValue = STRING(v-act-spo,">,>>>,>>9") .
+                         WHEN "act-spoil"  THEN cVarValue = STRING(v-act-spo,"->,>>>,>>9") .
 
-                         WHEN "act-spoil%"    THEN cVarValue = string(v-a-spo-p,">>>>9") .
+                         WHEN "act-spoil%"    THEN cVarValue = string(v-a-spo-p,"->>>>9") .
                          WHEN "est-spoil"   THEN cVarValue = string(v-est-spo,">>>>>>>9-").
                          WHEN "est-spoil-per"   THEN cVarValue = STRING(v-e-spo-p,">>>>>9").
                          WHEN "over-run"  THEN cVarValue = STRING(v-over-pct,">>>>>9") .
@@ -335,9 +335,9 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
                          WHEN "posted"   THEN cVarValue = STRING(v-t-prs,">>,>>>,>>9") .
                          WHEN "finished"  THEN cVarValue = STRING(v-t-prod,">>,>>>,>>9") .
                          WHEN "allowed"   THEN cVarValue = STRING(v-t-all,">>,>>>,>>9") .
-                         WHEN "act-spoil"  THEN cVarValue = STRING(v-act-spo,">,>>>,>>9") .
+                         WHEN "act-spoil"  THEN cVarValue = STRING(v-act-spo,"->,>>>,>>9") .
 
-                         WHEN "act-spoil%"    THEN cVarValue = string(v-a-spo-p,">>>>9") .
+                         WHEN "act-spoil%"    THEN cVarValue = string(v-a-spo-p,"->>>>9") .
                          WHEN "est-spoil"   THEN cVarValue = string(v-t-est-spo,">>>>>>>9-").
                          WHEN "est-spoil-per"   THEN cVarValue = STRING(v-e-spo-p,">>>9.9").
                          WHEN "over-run"  THEN cVarValue = STRING(v-over-pct,">>>9.9") .

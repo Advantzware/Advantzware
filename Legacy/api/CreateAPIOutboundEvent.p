@@ -15,4 +15,13 @@ ASSIGN
     APIOutboundEvent.success         = iplSuccess
     APIOutboundEvent.errorMessage    = ipcMessage
     APIOutboundEvent.requestDateTime = ipcDateTime
+    APIOutboundEvent.notes           = STRING(ipcDateTime) 
+                                     + " - " 
+                                     + USERID("ASI") 
+                                     + " - "
+                                     + "Initial Trigger"
+                                     + " - "
+                                     + STRING(iplSuccess, "SUCCESS/FAILURE")
+                                     + " - "
+                                     + ipcMessage
     .

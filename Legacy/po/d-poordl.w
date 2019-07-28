@@ -6155,6 +6155,7 @@ PROCEDURE validate-i-no :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lStatus AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         IF CAN-FIND(FIRST w-po-ordl) THEN ll-item-validated = YES.
         DO WITH FRAME {&FRAME-NAME}:
@@ -6217,7 +6218,18 @@ PROCEDURE validate-i-no :
                             VIEW-AS ALERT-BOX ERROR.
                         APPLY "entry" TO po-ordl.i-no.
                         RETURN ERROR.
-                    END.     
+                    END.   
+                    RUN fg/GetItemfgPoStatus.p (INPUT cocode,
+                        INPUT po-ordl.i-no:SCREEN-VALUE,"",YES,
+                        OUTPUT lStatus).
+                   
+                     IF NOT lStatus THEN 
+                    DO:
+                        MESSAGE po-ordl.i-no:SCREEN-VALUE + " has Locked Po Status. Purchase Order cannot be placed for locked Po Status."
+                            VIEW-AS ALERT-BOX ERROR.
+                        APPLY "entry" TO po-ordl.i-no.
+                        RETURN ERROR.
+                    END.   
                 END.
                 ll-item-validated = YES.
                 APPLY 'VALUE-CHANGED' TO po-ordl.ord-qty.

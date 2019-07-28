@@ -68,6 +68,8 @@ def var v-c-zip          like company.zip.
 def var v-c-phone        as   char format "x(30)". 
 def var v-c-fax          as   char format "x(30)".
 def var v-c-email        like cust.email.
+DEFINE VARIABLE cBillNotes LIKE inv-head.bill-i NO-UNDO.
+DEF BUFFER bf-inv-head FOR inv-head.
 
 def var end-page as int.
 
@@ -470,6 +472,36 @@ form " " to 80
          assign v-fob = "Origin".
         else
          assign v-fob = "Destination".
+
+         ASSIGN 
+            cBillNotes[1] = ""
+            cBillNotes[2] = ""
+            cBillNotes[3] = ""
+            cBillNotes[4] = "".
+        IF xinv-head.multi-invoice THEN
+            FOR EACH bf-inv-head 
+                WHERE bf-inv-head.company EQ xinv-head.company
+                  AND bf-inv-head.bol-no EQ xinv-head.bol-no
+                  AND bf-inv-head.cust-no EQ xinv-head.cust-no
+                  AND NOT bf-inv-head.multi-invoice
+                  AND bf-inv-head.stat NE "H"
+                NO-LOCK
+                BREAK BY bf-inv-head.inv-date DESC:
+                ASSIGN 
+                    cBillNotes[1] = bf-inv-head.bill-i[1]
+                    cBillNotes[2] = bf-inv-head.bill-i[2]
+                    cBillNotes[3] = bf-inv-head.bill-i[3]
+                    cBillNotes[4] = bf-inv-head.bill-i[4]
+                    .
+                LEAVE.
+            END.
+        ELSE 
+            ASSIGN
+                cBillNotes[1] = xinv-head.bill-i[1]
+                cBillNotes[2] = xinv-head.bill-i[2]
+                cBillNotes[3] = xinv-head.bill-i[3]
+                cBillNotes[4] = xinv-head.bill-i[4]
+                .
 
         find FIRST carrier where carrier.company eq inv-head.company and
           carrier.carrier eq inv-head.carrier no-lock no-error.
@@ -903,25 +935,10 @@ form " " to 80
         end. /* each inv-misc */
 
         if v-prntinst then do:
-/*
-         do i = 1 to 4:
-          if inv-head.bill-i[i] ne "" then do:
-            if v-printline ge end-page then
-            do:
-              put skip(end-page + 4 - v-printline) "* CONTINUED *" at 68 SKIP.
-              assign v-printline = 0.
-              page.
-            end.
-
-            put inv-head.bill-i[i] at 5 skip.
-            assign v-printline = v-printline + 1.
-          end.
-         end. /* 1 to 4 */
-*/
-            {custom/notesprt.i inv-head v-inst 4}
+           
             DO i = 1 TO 4:
-               IF v-inst[i] <> "" THEN DO:                             
-                  PUT v-inst[i] SKIP.
+               IF cBillNotes[i] <> "" THEN DO:                             
+                  PUT cBillNotes[i] SKIP.
                   v-printline = v-printline + 1.
                END.
             END.

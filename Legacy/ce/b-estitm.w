@@ -3441,6 +3441,7 @@ PROCEDURE local-assign-record :
   DEF VAR ld-markup AS DEC NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR lv-box-des AS CHAR INIT "S" NO-UNDO.
+  DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAIL eb THEN FIND eb WHERE RECID(eb) = lv-eb-recid NO-LOCK NO-ERROR.
@@ -3481,7 +3482,11 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-shipto THEN DO:
-    RUN windows/d-shpfly.w (ROWID(eb)).
+    RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
+    IF cShipFromFlyFile EQ "" THEN
+         cShipFromFlyFile = lv-hld-ship .
+    IF eb.ship-id NE cShipFromFlyFile THEN
+        ASSIGN eb.ship-id = cShipFromFlyFile .
     IF eb.ship-id NE "TEMP" THEN
     FIND FIRST shipto
         WHERE shipto.company EQ cocode
@@ -3924,6 +3929,7 @@ PROCEDURE local-copy-record :
               RUN New_Record IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
 
               ll-dumb = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
+              lv-copy-what = "" .
           END.
       END.
   END.

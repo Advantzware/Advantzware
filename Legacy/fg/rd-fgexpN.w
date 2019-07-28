@@ -93,7 +93,8 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Spec Note 2 Group,Spec Note 2 Title,Spec Note 2 Note [Large]," +
                             "Spec Note 3 Group,Spec Note 3 Title,Spec Note 3 Note [Large]," +
                             "Spec Note 4 Group,Spec Note 4 Title,Spec Note 4 Note [Large]," +
-                            "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large]"
+                            "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large]," +
+                            "Setup By UserId,Setup Date,Modified By,Modified Date"
             cFieldListToSelect = "i-no,i-name,part-no,cust-no,cust-name," +
                             "est-no,style,procat,procat-desc,part-dscr1,part-dscr2,part-dscr3,i-code," +
                             "die-no,plate-no,upc-no,cad-no,spc-no,stocked," +
@@ -123,7 +124,8 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "spc-grp2,spc-title2,spc-note2," +
                             "spc-grp3,spc-title3,spc-note3," +
                             "spc-grp4,spc-title4,spc-note4," +
-                            "spc-grp5,spc-title5,spc-note5"
+                            "spc-grp5,spc-title5,spc-note5," +
+                            "setupBy,setupDate,modifiedBy,modifiedDate"
 /*         cFieldListToSelect = "itemfg.i-no,itemfg.i-name,itemfg.part-no,itemfg.cust-no," +                 */
 /*                             "itemfg.est-no,itemfg.style,itemfg.procat,itemfg.part-dscr1,itemfg.i-code," + */
 /*                             "itemfg.cad-no,itemfg.spc-no,itemfg.stocked,itemfg.q-onh"                     */

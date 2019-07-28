@@ -135,10 +135,10 @@ DO:
             IF w2.cases NE 0 THEN 
             DO:
                 PUT "<C12>" STRING(w2.cases,"->>>9") + " @ "
-                    "<C16>" STRING(w2.cas-cnt,">>>,>>>").
+                    "<C17>" STRING(w2.cas-cnt,">>>,>>>").
             END.
             IF i EQ 1 THEN
-                PUT "<C21>" string(v-tot-case-qty,"->>,>>>,>>>") + " [" + STRING(v-relpc) + "]" FORMAT "x(16)" .
+                PUT "<C23>" string(v-tot-case-qty,"->>,>>>,>>>") + "[" + STRING(v-relpc) + "]" FORMAT "x(16)" .
             IF i EQ 1 THEN
             PUT "<C35>" w2.job-po FORMAT "x(15)" .
             .

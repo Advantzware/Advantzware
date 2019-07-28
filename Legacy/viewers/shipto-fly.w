@@ -46,7 +46,7 @@ DEFINE VARIABLE glShipNotesExpanded AS LOGICAL NO-UNDO.
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiFilledArraySize AS INTEGER NO-UNDO.
 DEFINE VARIABLE oldShiptoNote AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE cCheckShipForBlank AS CHARACTER NO-UNDO .
 {sys/inc/var.i NEW SHARED}
 
 &scoped-define copy-proc proc-copy
@@ -525,7 +525,7 @@ DO:
           when "tax-code" then do:
             run windows/l-stax.w  (gcompany,focus:screen-value, output char-val). 
             if char-val <> "" then 
-              focus:screen-value in frame {&frame-name} = entry(1,char-val).
+              shipto.tax-code:screen-value in frame {&frame-name} = entry(1,char-val).
           end.
           when "loc" then do:
             run windows/l-loc.w  (gcompany,focus:screen-value, output char-val). 
@@ -1137,7 +1137,15 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "new-record-target", OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RETURN NO-APPLY.
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do: 
+      IF cCheckShipForBlank EQ "" THEN
+          MESSAGE "Resetting the ship to back to customer default" VIEW-AS ALERT-BOX INFO .
+      FIND CURRENT shipto EXCLUSIVE-LOCK NO-ERROR .
+      IF AVAIL shipto THEN
+          DELETE shipto .
+      RUN pCloseWindow IN WIDGET-HANDLE(char-hdl) .
+      RETURN NO-APPLY .
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -1320,6 +1328,12 @@ ASSIGN
                         INPUT ip-shipnotes,
                         INPUT shipto.rec_key).
   END.     
+
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "new-record-target", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do: 
+      RUN pCloseWindow IN WIDGET-HANDLE(char-hdl) .
+  END.
+
 
 END PROCEDURE.
 
@@ -1559,6 +1573,8 @@ PROCEDURE update-shipto :
   DEF INPUT PARAM ip-ship-state LIKE shipto.ship-state NO-UNDO.
   DEF INPUT PARAM ip-ship-zip   LIKE shipto.ship-zip   NO-UNDO.
 
+  cCheckShipForBlank = ip-ship-id .
+
   FIND CURRENT shipto.
   ASSIGN
    shipto.ship-id      = ip-ship-id
@@ -1584,6 +1600,24 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetShipTo V-table-Win 
+PROCEDURE pGetShipTo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcShipto AS CHARACTER NO-UNDO .
+    IF AVAIL shipto THEN
+        ASSIGN opcShipto = shipto.ship-id . 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :

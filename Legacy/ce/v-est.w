@@ -1841,6 +1841,7 @@ PROCEDURE local-assign-record :
   DEF VAR lv-prev-style AS cha NO-UNDO.
   DEF VAR lv-box-des AS CHAR INIT "S" NO-UNDO.
   DEF VAR lv-t-sqin LIKE eb.t-sqin NO-UNDO.
+  DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
 
   DEF BUFFER b-est FOR est.
   DEF BUFFER b-eb FOR eb.
@@ -1865,7 +1866,12 @@ PROCEDURE local-assign-record :
   FIND CURRENT ef.
 
   IF ll-new-shipto THEN DO WITH FRAME {&FRAME-NAME}:
-    RUN windows/d-shpfly.w (ROWID(eb)).
+    RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
+    IF cShipFromFlyFile EQ "" THEN
+         cShipFromFlyFile = lv-hld-ship .
+    IF eb.ship-id NE cShipFromFlyFile THEN
+        ASSIGN eb.ship-id = cShipFromFlyFile
+               eb.ship-id:SCREEN-VALUE = cShipFromFlyFile .
     RUN display-shipto.
     ASSIGN
      eb.ship-id

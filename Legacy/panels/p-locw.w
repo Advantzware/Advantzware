@@ -31,6 +31,25 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+{methods/defines/hndldefs.i}
+{sys/inc/var.i new shared}
+
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
+
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFgDefQtyDis AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGDefaultQtyDisplay", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound THEN
+    cFgDefQtyDis = cRtnChar NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -221,9 +240,15 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).
   &ENDIF         
   DO WITH FRAME {&FRAME-NAME}:
-        rdDisplayAvail = "2" .
-        rdDisplayAvail:SCREEN-VALUE = "2" .
-    END.
+      IF INTEGER(cFgDefQtyDis) GT 0 AND INTEGER(cFgDefQtyDis) LE 4 THEN
+          ASSIGN
+          rdDisplayAvail = cFgDefQtyDis 
+          rdDisplayAvail:SCREEN-VALUE = cFgDefQtyDis .
+      ELSE
+          ASSIGN
+          rdDisplayAvail = "2" 
+          rdDisplayAvail:SCREEN-VALUE = "2" .
+  END.
   
   /************************ INTERNAL PROCEDURES ********************/
 

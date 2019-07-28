@@ -42,7 +42,7 @@ DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
-{methods/prgsecur.i}
+{methods/prgsecur.i "WIN"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1051,6 +1051,11 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  IF access-close THEN DO:  /* YSK  not leave window on after closed */
+      APPLY 'CLOSE' TO THIS-PROCEDURE.
+      RETURN.
+  END.
+
   DEFINE VARIABLE IsASet AS LOGICAL NO-UNDO.
   
   RUN IsASet IN h_itemfg (OUTPUT IsASet).

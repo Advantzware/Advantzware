@@ -78,7 +78,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel 
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel btn-copy 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -98,9 +98,9 @@ DEFINE BUTTON Btn-Cancel
      SIZE 9 BY 1.29
      FONT 4.
 
-/*DEFINE BUTTON btn-copy 
+DEFINE BUTTON btn-copy 
      LABEL "&Copy" 
-     SIZE 9 BY 1.29.*/
+     SIZE 9 BY 1.29.
 
 DEFINE BUTTON Btn-Save 
      LABEL "&Save" 
@@ -109,7 +109,7 @@ DEFINE BUTTON Btn-Save
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 21 BY 1.76.
+     SIZE 31 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -117,7 +117,7 @@ DEFINE RECTANGLE RECT-1
 DEFINE FRAME Panel-Frame
      Btn-Save AT ROW 1.24 COL 2
      Btn-Cancel AT ROW 1.24 COL 11
-/*     btn-copy AT ROW 1.24 COL 20*/
+     btn-copy AT ROW 1.24 COL 20
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -214,22 +214,22 @@ END.
 &ANALYZE-RESUME
 
 
-/*&Scoped-define SELF-NAME btn-copy*/
-/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy C-WIn*/
-/*ON CHOOSE OF btn-copy IN FRAME Panel-Frame /* Copy */*/
-/*DO:*/
-/*   DO WITH FRAME Panel-Frame:*/
-/*      def var source-str as cha no-undo.*/
-/*      RUN get-link-handle IN adm-broker-hdl */
-/*          (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).*/
+&Scoped-define SELF-NAME btn-copy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy C-WIn
+ON CHOOSE OF btn-copy IN FRAME Panel-Frame /* Copy */
+DO:
+   DO WITH FRAME Panel-Frame:
+      def var source-str as cha no-undo.
+      RUN get-link-handle IN adm-broker-hdl 
+          (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
+     
+      IF VALID-HANDLE(widget-handle(source-str)) THEN 
+          run copy-misc in widget-handle(source-str). 
+   END.
+END.
 
-/*      IF VALID-HANDLE(widget-handle(source-str)) THEN */
-/*          run copy-misc in widget-handle(source-str). */
-/*   END.*/
-/*END.*/
-
-/*/* _UIB-CODE-BLOCK-END */*/
-/*&ANALYZE-RESUME*/
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME Btn-Save
@@ -253,14 +253,14 @@ DO:
      DO WITH FRAME Panel-Frame:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
-	  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"upd-miscsub-eb-target",OUTPUT char-hdl).
-            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
-		RUN pUpdateRecord IN WIDGET-HANDLE(char-hdl) .
-	    end.
-            ELSE DO:
-		RUN new-state('update-begin':U).
-                ASSIGN add-active = no.
-	    END.
+            RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"upd-miscsub-eb-target",OUTPUT char-hdl).
+              IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+                  RUN pUpdateRecord IN WIDGET-HANDLE(char-hdl) .
+              END.
+              ELSE DO:
+                  RUN new-state('update-begin':U).
+                  ASSIGN add-active = no.
+              END.
         END.
         ELSE 
         DO: /* Save */
@@ -304,7 +304,6 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -570,9 +569,8 @@ DO WITH FRAME Panel-Frame:
 
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT v-can-update THEN ASSIGN btn-save:SENSITIVE = NO.
-/*    IF NOT v-can-update THEN ASSIGN btn-copy:SENSITIVE = NO.*/
+    IF NOT v-can-update THEN ASSIGN btn-copy:SENSITIVE = NO.
   END.
-     
 
 END. /* DO WITH FRAME */
 END PROCEDURE.
@@ -638,4 +636,5 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

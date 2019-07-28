@@ -811,6 +811,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SpecNotes2>" v-spec-note[5] FORMAT "x(100)" SKIP
               "<=SpecNotes3>" v-spec-note[6] FORMAT "x(100)"  SKIP
               .
+              PUT "<R48><C45>MACHINE DIRECTION<-------  " .
         
         PAGE.
 
@@ -931,9 +932,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=ShippingStart><R+9><C+1><#ShipNotes4>"
               "<=PackingBL><#ItemImageStart>"
               "<=ItemImageStart><C108><#ItemImageTR>"
-              "<=ItemImageStart><R44><#ItemImageBL>"
-              "<=ItemImageStart><C108><R44><#ItemImageEnd>"
-              "<=PackingBL><FROM><R44><C108><RECT><|1> "
+              "<=ItemImageStart><R49><#ItemImageBL>"
+              "<=ItemImageStart><C108><R49><#ItemImageEnd>"
+              "<=PackingBL><FROM><R49><C108><RECT><|1> "
              
               "<=Pallet>" IF AVAILABLE bf-eb THEN bf-eb.tr-no ELSE "" FORMAT "x(10)" SPACE(3) 
               "<=OfUnits>" SPACE(1) TRIM(STRING(job-hdr.qty / bf-eb.tr-cnt,">>>>>>>9")) FORMAT "x(10)"
@@ -967,6 +968,43 @@ DO v-local-loop = 1 TO v-local-copies:
             ls-fgitem-img = bf-itemfg.box-image.
 
             PUT UNFORMATTED "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=" ls-fgitem-img "><=ItemImage>".
+                PUT "<FArial><=51><R15><C78><b> Quality Control Punch List  </b> ". 
+                PUT "<FArial><=51><R16><C68><FROM><R+2><C78><RECT> ". 
+                PUT "<FArial><=51><R16><C78><FROM><R+2><C88><RECT> " .
+                PUT "<FArial><=51><R16><C88><FROM><R+2><C98><RECT> " .
+                PUT "<FArial><=51><R16><C98><FROM><R+2><C107><RECT> " SKIP .
+                PUT "<R16><C70><b>                             Operator  </b>" .
+                PUT "<R17><C70><b> Machine              Initials                      Frequency              Quantity <b>" .
+
+            j = 17 .
+            DO i = 1 TO 12:
+                j = j + 1. 
+                PUT "<FArial><=5><R" STRING(j) "><C68><FROM><R+1><C78><RECT> ". 
+                PUT "<FArial><=5><R" STRING(j) "><C78><FROM><R+1><C88><RECT> " .
+                PUT "<FArial><=5><R" STRING(j) "><C88><FROM><R+1><C98><RECT> " .
+                PUT "<FArial><=5><R" STRING(j) "><C98><FROM><R+1><C107><RECT> " SKIP.
+             END. /* i 1 to 12*/
+
+
+             PUT "<R31><C70><b> Strapper Qc   ________________" .
+             PUT "<R32><C70><b> Shipper Qc    ________________" .
+             PUT "<FArial><=51><R34><C68><FROM><R+1><C78><RECT> ". 
+                   PUT "<FArial><=51><R34><C78><FROM><R+1><C88><RECT> " .
+                   PUT "<FArial><=51><R34><C88><FROM><R+1><C98><RECT> " .
+                   PUT "<FArial><=51><R34><C98><FROM><R+1><C107><RECT> " SKIP .
+                   PUT "<R34><C70><b> # of Units              Qty/Unit               Total Shipped         Date Shipped </b>" . 
+
+               j = 34 .
+               DO i = 1 TO 12:
+                   j = j + 1. 
+                   PUT "<FArial><=5><R" STRING(j) "><C68><FROM><R+1><C78><RECT> ". 
+                   PUT "<FArial><=5><R" STRING(j) "><C78><FROM><R+1><C88><RECT> " .
+                   PUT "<FArial><=5><R" STRING(j) "><C88><FROM><R+1><C98><RECT> " .
+                   PUT "<FArial><=5><R" STRING(j) "><C98><FROM><R+1><C107><RECT> " SKIP.
+                END. /* i 1 to 12*/
+
+
+
             PAGE.
             RELEASE bf-eb.
 

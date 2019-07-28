@@ -150,15 +150,15 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      prgrms.prgmname FORMAT "X(10)":U
-      prgrms.prgtitle FORMAT "X(30)":U
-      prgrms.dir_group FORMAT "X(20)":U
-      prgrms.menu_item FORMAT "yes/no":U
-      prgrms.menuOrder FORMAT ">>>9":U
-      prgrms.menuLevel FORMAT ">>9":U
-      prgrms.mnemonic COLUMN-LABEL "Hotkey" FORMAT "x(6)":U
-      prgrms.itemParent FORMAT "x(10)":U
-      prgrms.systemType FORMAT "x(8)":U
+      prgrms.prgmname FORMAT "X(10)":U WIDTH 22.2
+      prgrms.prgtitle FORMAT "X(30)":U WIDTH 35.2
+      prgrms.dir_group FORMAT "X(20)":U WIDTH 16.4
+      prgrms.menu_item FORMAT "yes/no":U WIDTH 6.2
+      prgrms.menuOrder FORMAT ">>>9":U WIDTH 8.2
+      prgrms.menuLevel FORMAT "->,>>>,>>9":U WIDTH 11.2
+      prgrms.mnemonic COLUMN-LABEL "Hotkey" FORMAT "x(6)":U WIDTH 9.2
+      prgrms.itemParent FORMAT "x(10)":U WIDTH 12.2
+      prgrms.systemType FORMAT "x(8)":U WIDTH 9.2
       prgrms.can_run COLUMN-LABEL "View ID's" FORMAT "X(30)":U
       prgrms.can_create COLUMN-LABEL "Add ID's" FORMAT "X(30)":U
       prgrms.can_update FORMAT "X(30)":U
@@ -274,30 +274,36 @@ ASSIGN
      _TblList          = "ASI.prgrms"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = ASI.prgrms.prgmname
-     _FldNameList[2]   = ASI.prgrms.prgtitle
+     _FldNameList[1]   > ASI.prgrms.prgmname
+"prgrms.prgmname" ? ? "character" ? ? ? ? ? ? no ? no no "22.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.prgrms.prgtitle
+"prgrms.prgtitle" ? ? "character" ? ? ? ? ? ? no ? no no "35.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.prgrms.dir_group
-"dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   = ASI.prgrms.menu_item
-     _FldNameList[5]   = ASI.prgrms.menuOrder
-     _FldNameList[6]   = ASI.prgrms.menuLevel
+"prgrms.dir_group" ? "X(20)" "character" ? ? ? ? ? ? no ? no no "16.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.prgrms.menu_item
+"prgrms.menu_item" ? ? "logical" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.prgrms.menuOrder
+"prgrms.menuOrder" ? ? "integer" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.prgrms.menuLevel
+"prgrms.menuLevel" ? ? "integer" ? ? ? ? ? ? no ? no no "11.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.prgrms.mnemonic
-"mnemonic" "Hotkey" "x(6)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.mnemonic" "Hotkey" "x(6)" "character" ? ? ? ? ? ? no ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.prgrms.itemParent
-"itemParent" ? "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   = ASI.prgrms.systemType
+"prgrms.itemParent" ? "x(10)" "character" ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > ASI.prgrms.systemType
+"prgrms.systemType" ? ? "character" ? ? ? ? ? ? no ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.prgrms.can_run
-"can_run" "View ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.can_run" "View ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.prgrms.can_create
-"can_create" "Add ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.can_create" "Add ID's" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.prgrms.can_update
-"can_update" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.can_update" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.prgrms.can_delete
-"can_delete" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.can_delete" ? "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   = ASI.prgrms.track_usage
      _FldNameList[15]   = ASI.prgrms.popup
      _FldNameList[16]   > ASI.prgrms.mfgroup
-"mfgroup" "Parent(s)" "X(50)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"prgrms.mfgroup" "Parent(s)" "X(50)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

@@ -40,8 +40,8 @@
                 "<R20><C23><FROM><R22><C23><LINE>" SKIP
                 "<R20><C42><FROM><R22><C42><LINE>"                
                 "<R20><C58><FROM><R22><C58><LINE>" SKIP 
-                "<R20><C64><FROM><R22><C64><LINE>" 
-                "<R20><C75.2><FROM><R22><C75.2><LINE>" SKIP            
+                "<R20><C63.5><FROM><R22><C63.5><LINE>" 
+                "<R20><C75><FROM><R22><C75><LINE>" SKIP            
                 
             "<=5><R+1> Part# / Job#            PO#          Description               Lot#               PAL      Unit-Quantity  Total" SKIP(1)
             .

@@ -87,17 +87,17 @@ RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
 inv-line.job-no inv-line.job-no2 inv-line.est-no inv-line.i-no ~
 inv-line.part-no inv-line.i-name inv-line.qty inv-line.part-dscr1 ~
 inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.price ~
-inv-line.pr-uom inv-line.sman[1] inv-line.sname[1] inv-line.comm-amt[1] ~
+inv-line.pr-uom inv-line.sman[1] inv-line.sname[1] inv-line.s-pct[1] inv-line.comm-amt[1] ~
 inv-line.cost inv-line.cas-cnt inv-line.sman[2] inv-line.sname[2] ~
-inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] ~
-inv-line.comm-amt[3] inv-line.tax inv-line.t-price 
+inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] ~
+inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax inv-line.t-price 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame inv-line.ord-no ~
 inv-line.po-no inv-line.job-no inv-line.job-no2 inv-line.est-no ~
 inv-line.i-no inv-line.part-no inv-line.i-name inv-line.qty ~
 inv-line.part-dscr1 inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty ~
-inv-line.price inv-line.sman[1] inv-line.comm-amt[1] inv-line.cost ~
-inv-line.sman[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] ~
-inv-line.comm-amt[3] inv-line.tax 
+inv-line.price inv-line.sman[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost ~
+inv-line.sman[2] inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] ~
+inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame inv-line
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame inv-line
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH inv-line SHARE-LOCK
@@ -111,9 +111,9 @@ inv-line.comm-amt[3] inv-line.tax
 inv-line.job-no inv-line.job-no2 inv-line.est-no inv-line.i-no ~
 inv-line.part-no inv-line.i-name inv-line.qty inv-line.part-dscr1 ~
 inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.price ~
-inv-line.sman[1] inv-line.comm-amt[1] inv-line.cost inv-line.sman[2] ~
-inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.comm-amt[3] ~
-inv-line.tax 
+inv-line.sman[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.sman[2] ~
+inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.s-pct[3] ~
+inv-line.comm-amt[3] inv-line.tax 
 &Scoped-define ENABLED-TABLES inv-line
 &Scoped-define FIRST-ENABLED-TABLE inv-line
 &Scoped-Define ENABLED-OBJECTS RECT-39 RECT-40 btn_ok btn_done btn_cancel 
@@ -121,10 +121,10 @@ inv-line.tax
 inv-line.job-no inv-line.job-no2 inv-line.est-no inv-line.i-no ~
 inv-line.part-no inv-line.i-name inv-line.qty inv-line.part-dscr1 ~
 inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.price ~
-inv-line.pr-uom inv-line.sman[1] inv-line.sname[1] inv-line.comm-amt[1] ~
+inv-line.pr-uom inv-line.sman[1] inv-line.sname[1] inv-line.s-pct[1] inv-line.comm-amt[1] ~
 inv-line.cost inv-line.cas-cnt inv-line.sman[2] inv-line.sname[2] ~
-inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] ~
-inv-line.comm-amt[3] inv-line.tax inv-line.t-price 
+inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] ~
+inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax inv-line.t-price 
 &Scoped-define DISPLAYED-TABLES inv-line
 &Scoped-define FIRST-DISPLAYED-TABLE inv-line
 &Scoped-Define DISPLAYED-OBJECTS lv-bolno fi_comm-lbl
@@ -177,7 +177,7 @@ DEFINE VARIABLE lv-bolno AS CHARACTER FORMAT "X(8)":U
 
 DEFINE RECTANGLE RECT-39
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 54 BY 4.52.
+     SIZE 60 BY 4.52.
 
 DEFINE RECTANGLE RECT-40
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -255,7 +255,10 @@ DEFINE FRAME Dialog-Frame
      inv-line.sname[1] AT ROW 8.86 COL 88 NO-LABEL WIDGET-ID 10
           VIEW-AS FILL-IN 
           SIZE 29 BY 1
-     inv-line.comm-amt[1] AT ROW 8.86 COL 115 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9.99"
+     inv-line.s-pct[1] AT ROW 8.86 COL 113.3 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 8.7 BY 1
+     inv-line.comm-amt[1] AT ROW 8.86 COL 122 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      inv-line.cost AT ROW 9.57 COL 25 COLON-ALIGNED
@@ -272,7 +275,10 @@ DEFINE FRAME Dialog-Frame
      inv-line.sname[2] AT ROW 9.81 COL 88 NO-LABEL WIDGET-ID 12
           VIEW-AS FILL-IN 
           SIZE 29 BY 1
-     inv-line.comm-amt[2] AT ROW 9.86 COL 115 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9.99"
+     inv-line.s-pct[2] AT ROW 9.81 COL 113.3 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 8.7 BY 1
+     inv-line.comm-amt[2] AT ROW 9.81 COL 122 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      inv-line.disc AT ROW 10.52 COL 25 COLON-ALIGNED FORMAT ">>9.99%"
@@ -290,7 +296,10 @@ DEFINE FRAME Dialog-Frame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-     inv-line.comm-amt[3] AT ROW 10.86 COL 115 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9.99"
+     inv-line.s-pct[3] AT ROW 10.76 COL 113.3 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 8.7 BY 1
+     inv-line.comm-amt[3] AT ROW 10.76 COL 122 COLON-ALIGNED NO-LABEL FORMAT "->>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      inv-line.tax AT ROW 11 COL 54
@@ -307,8 +316,11 @@ DEFINE FRAME Dialog-Frame
      "Code" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 8.14 COL 81
           FGCOLOR 9 
+     "% Sale" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 8.14 COL 115 WIDGET-ID 8
+          FGCOLOR 9
      /*"Comm $" VIEW-AS TEXT
-          SIZE 11 BY .62*/ fi_comm-lbl NO-LABEL AT ROW 8.14 COL 117
+          SIZE 11 BY .62*/ fi_comm-lbl AT ROW 8.14 COL 124 NO-LABEL
           FGCOLOR 9 
      "Sales Rep Name" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 8.14 COL 88 WIDGET-ID 8
@@ -350,6 +362,12 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN inv-line.cas-cnt IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+/* SETTINGS FOR FILL-IN inv-line.s-pct[1] IN FRAME Dialog-Frame
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN inv-line.s-pct[2] IN FRAME Dialog-Frame
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN inv-line.s-pct[3] IN FRAME Dialog-Frame
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN inv-line.comm-amt[1] IN FRAME Dialog-Frame
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN inv-line.comm-amt[2] IN FRAME Dialog-Frame
@@ -445,7 +463,7 @@ DO:
                       apply "entry" to inv-line.part-no.
                end.             
           end.
-          when "s-man" then do:
+          when "sman" then do:
              run windows/l-sman.w (g_company, output char-val).
              if char-val <> "" then do:
                 case focus:index:
@@ -979,13 +997,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        btn_cancel:HIDDEN  = YES.
 
     ELSE DO:
-      ENABLE inv-line.po-no inv-line.disc.
+      ENABLE inv-line.po-no inv-line.disc inv-line.sman[1] inv-line.sman[2] inv-line.sman[3]
+             inv-line.s-pct[1] inv-line.s-pct[2] inv-line.s-pct[3] inv-line.comm-amt[1] inv-line.comm-amt[2]
+             inv-line.comm-amt[3].
 
       IF inv-head.tax-gr NE "" THEN ENABLE inv-line.tax.
 
-      IF inv-line.sman[1] NE "" THEN ENABLE inv-line.comm-amt[1].
+     /* IF inv-line.sman[1] NE "" THEN ENABLE inv-line.comm-amt[1].
       IF inv-line.sman[2] NE "" THEN ENABLE inv-line.comm-amt[2].
-      IF inv-line.sman[3] NE "" THEN ENABLE inv-line.comm-amt[3].
+      IF inv-line.sman[3] NE "" THEN ENABLE inv-line.comm-amt[3].*/
 
       IF inv-line.ord-no EQ 0 THEN DO:
         ENABLE inv-line.ship-qty
@@ -1128,9 +1148,9 @@ PROCEDURE display-item :
           inv-line.est-no inv-line.i-no inv-line.part-no inv-line.i-name 
           inv-line.qty inv-line.part-dscr1 inv-line.ship-qty inv-line.part-dscr2 
           inv-line.inv-qty inv-line.price inv-line.pr-uom inv-line.sman[1] 
-          inv-line.sname[1] inv-line.comm-amt[1] inv-line.cost inv-line.cas-cnt inv-line.sman[2] 
-          inv-line.sname[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] 
-          inv-line.comm-amt[3] inv-line.t-price inv-line.tax fi_comm-lbl
+          inv-line.sname[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.cas-cnt inv-line.sman[2] 
+          inv-line.sname[2] inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.sname[3] 
+          inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.t-price inv-line.tax fi_comm-lbl
           WITH FRAME Dialog-Frame.
 
      FIND FIRST oe-bolh WHERE oe-bolh.company = inv-line.company AND
@@ -1190,18 +1210,18 @@ PROCEDURE enable_UI :
           inv-line.est-no inv-line.i-no inv-line.part-no inv-line.i-name 
           inv-line.qty inv-line.part-dscr1 inv-line.ship-qty inv-line.part-dscr2 
           inv-line.inv-qty inv-line.price inv-line.pr-uom inv-line.sman[1] 
-          inv-line.sname[1] inv-line.comm-amt[1] inv-line.cost inv-line.cas-cnt 
-          inv-line.sman[2] inv-line.sname[2] inv-line.comm-amt[2] inv-line.disc 
-          inv-line.sman[3] inv-line.sname[3] inv-line.comm-amt[3] inv-line.tax 
+          inv-line.sname[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.cas-cnt 
+          inv-line.sman[2] inv-line.sname[2] inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc 
+          inv-line.sman[3] inv-line.sname[3] inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax 
           inv-line.t-price 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-39 RECT-40 inv-line.ord-no inv-line.po-no inv-line.job-no 
          inv-line.job-no2 inv-line.est-no inv-line.i-no inv-line.part-no 
          inv-line.i-name inv-line.qty inv-line.part-dscr1 inv-line.ship-qty 
          inv-line.part-dscr2 inv-line.inv-qty inv-line.price inv-line.sman[1] 
-         inv-line.comm-amt[1] inv-line.cost inv-line.sman[2] 
-         inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] 
-         inv-line.comm-amt[3] inv-line.tax btn_ok btn_done btn_cancel 
+         inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.sman[2] 
+         inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] 
+         inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax btn_ok btn_done btn_cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

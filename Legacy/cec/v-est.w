@@ -3050,6 +3050,7 @@ PROCEDURE local-assign-record :
   DEF VAR v-dec2 AS DEC NO-UNDO.
   DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.
   DEF VAR v-count AS INT NO-UNDO.
+  DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
 
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
@@ -3074,7 +3075,14 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-shipto THEN DO WITH FRAME {&FRAME-NAME}:
-    RUN windows/d-shpfly.w (ROWID(eb)).
+
+    RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
+    IF cShipFromFlyFile EQ "" THEN
+         cShipFromFlyFile = lv-hld-ship .
+    IF eb.ship-id NE cShipFromFlyFile THEN
+        ASSIGN eb.ship-id = cShipFromFlyFile
+                eb.ship-id:SCREEN-VALUE = cShipFromFlyFile .
+    
     RUN display-shipto.
     ASSIGN
      eb.ship-id

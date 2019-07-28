@@ -1087,6 +1087,7 @@ PROCEDURE ipUpgradeDBs :
     DEF VAR lAlternate AS LOG NO-UNDO.
     DEF VAR cFullDelta AS CHAR NO-UNDO.
     DEF VAR cThisPort AS CHAR NO-UNDO.
+    DEF VAR lAuditLicensed AS LOG NO-UNDO INITIAL TRUE.
 
     RUN ipStatus ("  Upgrading database " + fiDbName:{&SV}).
 
@@ -1214,6 +1215,17 @@ PROCEDURE ipUpgradeDBs :
         DELETE ALIAS asi.
     END.
     
+    IF CONNECTED("updDB2") 
+    AND lAuditLicensed EQ FALSE THEN ASSIGN 
+        cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
+    
+    IF CONNECTED("updDB1") THEN DO:
+        FIND FIRST module NO-LOCK WHERE 
+            module.module = "audit."
+            NO-ERROR.
+        IF AVAIL module THEN ASSIGN 
+            lAuditLicensed = module.is-Used. 
+    END.
     IF CONNECTED("updDB2") 
     AND lAuditLicensed EQ FALSE THEN ASSIGN 
         cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
