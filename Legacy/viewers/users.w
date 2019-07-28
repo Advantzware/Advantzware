@@ -1021,6 +1021,9 @@ ON LEAVE OF fiPassword IN FRAME F-Main /* Password */
 OR RETURN OF fiPassword
 DO:
     DEF VAR lPwdOK AS LOG NO-UNDO.
+    
+    IF LASTKEY EQ -1 THEN RETURN.
+    
     RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
     IF NOT lPwdOK THEN DO:
         ASSIGN SELF:SCREEN-VALUE = "".
