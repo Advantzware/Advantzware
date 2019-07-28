@@ -128,6 +128,30 @@ FOR EACH gl-jrn WHERE
         gl-jrn.tr-date = 7/30/18.
 END.
 
+RUN pStatus("  Reassigning ap-ledger Ref nos.").
+FOR EACH ap-inv NO-LOCK WHERE
+    ap-inv.company EQ "002":
+    FIND FIRST ap-ledger EXCLUSIVE WHERE 
+        ap-ledger.company  EQ ap-inv.company AND
+        ap-ledger.vend-no  EQ ap-inv.vend-no AND 
+        ap-ledger.ref-date EQ ap-inv.inv-date AND 
+        ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)
+        NO-ERROR.
+    IF AVAIL ap-ledger THEN ASSIGN 
+        ap-ledger.refnum = ("INV# x" + ap-inv.inv-no).
+    RELEASE ap-ledger.
+END. 
+
+RUN pStatus("  Reassigning ap-payl inv-nos.").
+FOR EACH ap-pay NO-LOCK WHERE
+    ap-pay.company EQ "002":
+    FOR EACH ap-payl OF ap-pay:
+        ASSIGN 
+            ap-payl.inv-no = "x" + ap-payl.inv-no.
+    END.
+END.
+
+
 DO iCtr = 1 TO NUM-ENTRIES(cConvTypeList):
     RUN pConvertRecsByType (ENTRY(iCtr,cConvTypeList)).
 END.
@@ -1650,17 +1674,6 @@ PROCEDURE pConvertInvNoTable:
                 DO:
                     IF hCoField:BUFFER-VALUE EQ "002" THEN 
                     DO:
-                        IF ipcTableName EQ "ap-inv" THEN DO:
-                            FIND FIRST ap-ledger EXCLUSIVE WHERE 
-                                ap-ledger.company  EQ ap-inv.company AND 
-                                ap-ledger.vend-no  EQ ap-inv.vend-no AND 
-                                ap-ledger.ref-date EQ ap-inv.inv-date AND 
-                                ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)
-                                NO-ERROR.
-                            IF AVAIL ap-ledger THEN ASSIGN 
-                                ap-ledger.refnum = ("INV# x" + ap-inv.inv-no).
-                            RELEASE ap-ledger.
-                        END.
                         ASSIGN  
                             hField:BUFFER-VALUE = "x" + hField:BUFFER-VALUE NO-ERROR.
                     END.
