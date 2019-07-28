@@ -5307,6 +5307,8 @@ PROCEDURE local-assign-record :
 
   IF ll-new-shipto THEN DO:
     RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
+    IF cShipFromFlyFile EQ "" THEN
+         cShipFromFlyFile = lv-hld-ship .
     IF eb.ship-id NE cShipFromFlyFile THEN
         ASSIGN eb.ship-id = cShipFromFlyFile .
     IF eb.ship-id NE "TEMP" THEN
