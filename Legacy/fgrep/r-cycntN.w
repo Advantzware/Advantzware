@@ -1455,6 +1455,7 @@ PROCEDURE get-first-date :
   IF fg-bin.tag EQ "" THEN
   FOR EACH fg-rcpth
       WHERE fg-rcpth.company   EQ fg-bin.company
+        AND fg-rcpth.rita-code EQ "R"
         AND fg-rcpth.i-no      EQ fg-bin.i-no
         AND fg-rcpth.job-no    EQ fg-bin.job-no
         AND fg-rcpth.job-no2   EQ fg-bin.job-no2
@@ -1481,6 +1482,7 @@ PROCEDURE get-first-date :
   FOR EACH fg-rdtlh
       WHERE fg-rdtlh.company   EQ fg-bin.company
         AND fg-rdtlh.loc       EQ fg-bin.loc
+        AND fg-rdtlh.rita-code EQ "R"
         AND fg-rdtlh.tag       EQ fg-bin.tag
         AND fg-rdtlh.cust-no   EQ fg-bin.cust-no
         AND (TRIM(fg-bin.job-no) NE "" OR
