@@ -1,0 +1,15 @@
+ADD FIELD "showCueCards" OF "users" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Show Cue Cards"
+  POSITION 55
+  MAX-WIDTH 1
+  COLUMN-LABEL "Cue Cards"
+  HELP "Toggle to Show/Not Show Cue Cards"
+  ORDER 501
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000010103
