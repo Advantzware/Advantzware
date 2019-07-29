@@ -302,9 +302,9 @@ CASE ip-lookupField:
            /* List of fields which should be displayed in the browse */ 
            INPUT "release#,posted,stat,cust-no,ship-id,rel-date,carrier",
            /* List of field labels to override the default database field label */
-           INPUT "",
+           INPUT ",,,,,Release Date",
            /* List of field formats to override the default database field format */
-           INPUT "",
+           INPUT ",YES/NO",
            /* List of browse column width values to override the default column width in browse */
            INPUT "15,10,15,16,16",
            /* List of fields for which field level search is enabled */
