@@ -855,16 +855,14 @@ PROCEDURE pGetParamValue :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttDynParamValue.
     RUN spGetTaskFilter (OUTPUT cMnemonic, OUTPUT cPrgmName, OUTPUT cUserID).
-    FOR EACH prgrms NO-LOCK
-        WHERE prgrms.mnemonic BEGINS cMnemonic,
-        EACH dynParamValue NO-LOCK
-        WHERE dynParamValue.prgmName      EQ prgrms.prgmname
+    FOR EACH dynParamValue NO-LOCK
+        WHERE dynParamValue.module BEGINS cMnemonic
           AND dynParamValue.securityLevel LE DYNAMIC-FUNCTION("sfUserSecurityLevel")
         WITH FRAME filterFrame:
         CREATE ttDynParamValue.
         ASSIGN
             ttDynParamValue.subjectID        = dynParamValue.subjectID
-            ttDynParamValue.mnemonic         = prgrms.mnemonic
+            ttDynParamValue.mnemonic         = dynParamValue.module
             ttDynParamValue.paramDescription = dynParamValue.paramDescription
             ttDynParamValue.prgmName         = dynParamValue.prgmName
             ttDynParamValue.paramTitle       = dynParamValue.paramTitle
