@@ -1650,34 +1650,26 @@ END.
 ON LEAVE OF oe-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
   IF LASTKEY NE -1 AND oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:
-   {&methods/lValidateError.i YES}
-    FIND FIRST shipto NO-LOCK 
-        WHERE shipto.company EQ g_company 
-        AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-        AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
-        NO-ERROR.
-    IF AVAIL shipto THEN DO:
-       ASSIGN            
-             oe-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
-             fiShipName:SCREEN-VALUE          = shipto.ship-name
-             fiShipAddress:SCREEN-VALUE       = fBuildAddress(shipto.ship-addr[1],
+      RUN valid-ship-id  NO-ERROR.
+      IF NOT lErrorValid THEN RETURN NO-APPLY.
+      FIND FIRST shipto NO-LOCK 
+          WHERE shipto.company EQ g_company 
+          AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+          AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+          NO-ERROR.
+      IF AVAIL shipto THEN DO:
+          ASSIGN            
+              oe-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
+              fiShipName:SCREEN-VALUE          = shipto.ship-name
+              fiShipAddress:SCREEN-VALUE       = fBuildAddress(shipto.ship-addr[1],
                                                                shipto.ship-addr[2],
                                                                shipto.ship-city,
                                                                shipto.ship-state,
-                                                                shipto.ship-zip).
-         IF shipto.tax-code NE "" THEN
-         oe-ord.tax-gr:screen-value    =  shipto.tax-code .
-
-         IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
-            MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
-            VIEW-AS ALERT-BOX.
+                                                               shipto.ship-zip).
+           IF shipto.tax-code NE "" THEN
+               oe-ord.tax-gr:screen-value    =  shipto.tax-code .
             
        END.      
-    ELSE DO:
-         MESSAGE "Invalid Ship To. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    END.
-   {&methods/lValidateError.i NO}
   END.
 END.
 
@@ -5493,6 +5485,11 @@ PROCEDURE local-update-record :
        IF RETURN-VALUE NE "" THEN RETURN NO-APPLY.
      END.
 
+     IF oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:
+         RUN valid-ship-id NO-ERROR.
+         IF NOT lErrorValid THEN RETURN NO-APPLY.
+     END.
+
      RUN valid-ord-no NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -7187,6 +7184,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
+PROCEDURE valid-ship-id :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cNoteMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+
+{&methods/lValidateError.i YES}
+    ASSIGN lErrorValid = YES .
+  DO WITH FRAME {&FRAME-NAME}:
+     
+      RUN pIsValidShiptoID IN hdValidator (oe-ord.cust-no:SCREEN-VALUE,oe-ord.ship-id:SCREEN-VALUE, NO, cocode, OUTPUT lValid, OUTPUT cNoteMessage).
+      IF NOT lValid THEN do:
+          IF cNoteMessage EQ "ShipTo ID is Inactive." THEN
+              ASSIGN cNoteMessage = "The ShipTo is inactive and cannot be used on an Order." .
+          MESSAGE cNoteMessage VIEW-AS ALERT-BOX INFO.
+          APPLY "entry" TO oe-ord.ship-id.
+          ASSIGN lErrorValid = NO .
+      END.
+      
+  END.
+   {&methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRelShipID V-table-Win 
 PROCEDURE pUpdateRelShipID :
 /*------------------------------------------------------------------------------
@@ -7234,6 +7264,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

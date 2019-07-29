@@ -937,6 +937,22 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tg_inactive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_inactive V-table-Win
+ON VALUE-CHANGED OF tg_inactive IN FRAME F-Main /* Default */
+DO:
+   IF shipto.ship-id:SCREEN-VALUE EQ cust.cust-no THEN DO:
+       MESSAGE "The default ship to cannot be made inactive" VIEW-AS ALERT-BOX INFORMATION .
+       tg_inactive:SCREEN-VALUE = "No".
+   END.
+
+  {methods/dispflds.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 

@@ -4927,11 +4927,11 @@ PROCEDURE valid-ship-id :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST shipto
+    FIND FIRST shipto NO-LOCK
                     WHERE shipto.company EQ cocode
                       AND shipto.cust-no EQ eb.cust-no:SCREEN-VALUE
-                      AND shipto.ship-id EQ eb.ship-id:SCREEN-VALUE) AND
-       NOT ll-new-shipto                                             THEN DO:
+                      AND shipto.ship-id EQ eb.ship-id:SCREEN-VALUE NO-ERROR .
+     IF NOT AVAIL shipto AND  NOT ll-new-shipto                    THEN DO:
       MESSAGE "            Invalid entry, try help...             " SKIP(1)
               "                        OR                         " SKIP(1)
               "Do you wish to add this Shipto ID to this Customer?"
@@ -4941,6 +4941,12 @@ PROCEDURE valid-ship-id :
         APPLY "entry" TO eb.ship-id.
         RETURN ERROR.
       END.
+    END.
+    IF AVAIL shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN DO:
+        MESSAGE "The Ship To is inactive and cannot be used on an Estimate." 
+            VIEW-AS ALERT-BOX INFORMATION .
+        APPLY "entry" TO eb.ship-id .
+        RETURN ERROR.
     END.
   END.
 
