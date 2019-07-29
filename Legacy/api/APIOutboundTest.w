@@ -43,8 +43,8 @@ DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO INITIAL "001".
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btPrimaryKeyLookup btAPIIDLookup RECT-1 ~
-RECT-2 RECT-3 fiAPIId Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 btAPIIDLookup fiAPIId ~
+btPrimaryKeyLookup Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiSSLEnabled fiClientID fiAPIIDLabel ~
 fiAPIId fiSSLEnabledlb fiClientIDlb fiRequestVerb fiReqDataType fiAuthType ~
 fiReqDataTypelb fiRequestVerb-2 fiRequestVerblb fiPrimaryKeyLabel ~
@@ -65,7 +65,7 @@ fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btAPIIDLookup 
-     IMAGE-UP FILE "Graphics/16x16/magnifying_glass.gif":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
+     IMAGE-UP FILE "Graphics/16x16/magnifying_glass.gif":U NO-CONVERT-3D-COLORS
      LABEL "" 
      SIZE 4.6 BY 1.1.
 
@@ -76,7 +76,7 @@ DEFINE BUTTON Btn_Cancel AUTO-END-KEY
      BGCOLOR 8 .
 
 DEFINE BUTTON btPrimaryKeyLookup 
-     IMAGE-UP FILE "Graphics/16x16/magnifying_glass.gif":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
+     IMAGE-UP FILE "Graphics/16x16/magnifying_glass.gif":U NO-CONVERT-3D-COLORS
      LABEL "" 
      SIZE 4.6 BY 1.1.
 
@@ -217,7 +217,6 @@ DEFINE RECTANGLE RECT-3
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btPrimaryKeyLookup AT ROW 5.48 COL 65.8 WIDGET-ID 112
      btAPIIDLookup AT ROW 1.76 COL 55.2 WIDGET-ID 46
      fiSSLEnabled AT ROW 1.76 COL 79.6 COLON-ALIGNED NO-LABEL WIDGET-ID 60
      fiClientID AT ROW 1.76 COL 109.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
@@ -232,6 +231,7 @@ DEFINE FRAME Dialog-Frame
      fiRequestVerb-2 AT ROW 3.52 COL 60.2 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      fiRequestVerblb AT ROW 3.52 COL 94.4 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      btUpdateRequest AT ROW 5.33 COL 74.2 WIDGET-ID 108
+     btPrimaryKeyLookup AT ROW 5.48 COL 65.8 WIDGET-ID 112
      fiPrimaryKeyLabel AT ROW 5.52 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 102
      fiPrimaryKey AT ROW 5.52 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 104
      fiEndPointLabel AT ROW 8 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
@@ -852,7 +852,7 @@ PROCEDURE enable_UI :
           fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData 
           fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
       WITH FRAME Dialog-Frame.
-  ENABLE btPrimaryKeyLookup btAPIIDLookup RECT-1 RECT-2 RECT-3 fiAPIId 
+  ENABLE RECT-1 RECT-2 RECT-3 btAPIIDLookup fiAPIId btPrimaryKeyLookup 
          Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
