@@ -4793,14 +4793,14 @@ PROCEDURE new-cust-no :
       FIND FIRST shipto
           WHERE shipto.company EQ cust.company
             AND shipto.cust-no EQ cust.cust-no
-            AND shipto.isDefault EQ YES 
+            AND shipto.ship-id EQ cust.cust-no 
           NO-LOCK NO-ERROR.
 
       IF NOT AVAIL shipto THEN
       FIND FIRST shipto
           WHERE shipto.company EQ cust.company
             AND shipto.cust-no EQ cust.cust-no
-            AND shipto.statusCode NE "I"
+            AND shipto.ship-no EQ 1
           NO-LOCK NO-ERROR.
 
       IF AVAIL shipto THEN eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.ship-id.

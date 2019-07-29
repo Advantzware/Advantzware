@@ -3614,7 +3614,7 @@ PROCEDURE display-cust-detail :
         FIND FIRST shipto NO-LOCK
           WHERE shipto.company EQ cocode
            AND shipto.cust-no EQ cust.cust-no
-           AND shipto.statusCode NE "I" NO-ERROR.
+           AND shipto.ship-id EQ cust.cust-no NO-ERROR.
 
     IF AVAIL shipto THEN
        ASSIGN 
