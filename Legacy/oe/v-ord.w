@@ -4588,6 +4588,7 @@ PROCEDURE local-assign-record :
     DEF    VAR      dCalcDueDate      AS DATE    NO-UNDO.
     DEF    VAR      dCalcPromDate     AS DATE    NO-UNDO.
     DEFINE VARIABLE cOldShipTo AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
     DEF BUFFER b-oe-rel    FOR oe-rel.
     DEF BUFFER due-job-hdr FOR job-hdr.
     DEF BUFFER bf-oe-ordl  FOR oe-ordl.
@@ -4655,10 +4656,11 @@ PROCEDURE local-assign-record :
 
     IF (dueDateChanged AND OEDateAuto-char = "colonial") OR ( cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
+        lcheckflg = NO .
         FOR EACH oe-ordl 
             WHERE oe-ordl.company EQ oe-ord.company
             AND oe-ordl.ord-no  EQ oe-ord.ord-no
-            NO-LOCK:
+            NO-LOCK BREAK BY oe-ordl.i-no :
             IF dueDateChanged AND OEDateAuto-char = "colonial" THEN
             FOR EACH oe-rel 
                 WHERE oe-rel.company EQ oe-ordl.company
@@ -4686,9 +4688,10 @@ PROCEDURE local-assign-record :
             END. /* each oe-rel */
 
             IF cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id THEN do:
-                MESSAGE "Do you want to automatically update all releases with the new ship to address?" 
+                IF FIRST(oe-ordl.i-no) THEN
+                   MESSAGE "Do you want to automatically update all releases with the new ship to address?" 
                     VIEW-AS ALERT-BOX QUESTION 
-                    BUTTONS YES-NO UPDATE lcheckflg AS LOGICAL .
+                    BUTTONS YES-NO UPDATE lcheckflg  .
                 IF lcheckflg EQ YES THEN
                     RUN pUpdateRelShipID .
             END.
