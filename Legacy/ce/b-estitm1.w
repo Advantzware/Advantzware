@@ -920,62 +920,35 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cust-no br-estitm _BROWSE-COLUMN B-table-Win
 ON LEAVE OF eb.cust-no IN BROWSE br-estitm /* Cust. # */
 DO:
-  IF LASTKEY NE -1 THEN DO: /*eb.cust-no:screen-value in browse {&browse-name} <> "" and */
-    IF SELF:MODIFIED THEN RUN new-cust-no.
+    DEF VAR cShipID AS CHAR NO-UNDO.
 
-    IF NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
-    THEN DO:
-       IF eb.cust-no:screen-value = "" THEN DO:
-           MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR. 
-           RETURN NO-APPLY.
-       END.
-       MESSAGE "Customer " eb.cust-no:screen-value "does not exist. Do you want to add it?"
+    IF LASTKEY NE -1 THEN DO: /*eb.cust-no:screen-value in browse {&browse-name} <> "" and */
+        IF SELF:MODIFIED THEN RUN new-cust-no.
+
+        IF NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
+        THEN DO:
+            IF eb.cust-no:screen-value = "" THEN DO:
+                MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR. 
+                RETURN NO-APPLY.
+            END.
+            MESSAGE "Customer " eb.cust-no:screen-value "does not exist. Do you want to add it?"
                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
-       IF NOT ll-ans THEN  RETURN NO-APPLY.
+            IF NOT ll-ans THEN  RETURN NO-APPLY.
        
-       RUN est/custfly.w (eb.cust-no:screen-value).    
-       IF NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
-       THEN RETURN NO-APPLY.
+            RUN est/custfly.w (eb.cust-no:screen-value).    
+            IF NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
+            THEN RETURN NO-APPLY.
+        END.
 
+        RUN valid-cust-user NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+        IF ls-add-what EQ "Est" 
+        AND eb.ship-id:SCREEN-VALUE EQ "" THEN 
+            RUN iGetDefaultShipTo (INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT cShipID).      
+        ASSIGN 
+            eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = cShipID.
     END.
-
-    RUN valid-cust-user NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-      IF ls-add-what EQ "Est" 
-          AND eb.ship-id:SCREEN-VALUE EQ "" THEN 
-      DO:
-          FIND cust NO-LOCK WHERE 
-              cust.company EQ gcompany AND 
-              cust.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
-              NO-ERROR.
-
-          IF AVAIL cust THEN 
-          DO:
-              FIND FIRST shipto NO-LOCK WHERE 
-                  shipto.company EQ gcompany AND 
-                  shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} AND 
-                  shipto.isDefault EQ TRUE  
-                  NO-ERROR.
-              IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                      shipto.company EQ gcompany AND 
-                      shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} AND 
-                      shipto.ship-id EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      NO-ERROR.
-              IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                      shipto.company EQ gcompany AND 
-                      shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      NO-ERROR.
-              IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                      shipto.company EQ gcompany AND 
-                      shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} AND 
-                      shipto.ship-no EQ 1
-                      NO-ERROR.
-              IF AVAIL shipto THEN ASSIGN 
-                      eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.ship-id.
-          END.
-      END.
-  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3382,6 +3355,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE iGetDefaultShipID B-table-Win
+PROCEDURE iGetDefaultShipID:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcCustNo AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opcShipID AS CHAR NO-UNDO.
+    
+    FIND cust NO-LOCK WHERE 
+        cust.company EQ gcompany AND 
+        cust.cust-no EQ ipcCustNo
+        NO-ERROR.
+
+    IF AVAIL cust THEN 
+    DO:
+        FIND FIRST shipto NO-LOCK WHERE 
+            shipto.company EQ gcompany AND 
+            shipto.cust-no EQ cust.cust-no AND 
+            shipto.isDefault EQ TRUE  
+            NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ gcompany AND 
+                shipto.cust-no EQ cust.cust-no AND 
+                shipto.ship-id EQ cust.cust-no
+                NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ gcompany AND 
+                shipto.cust-no EQ cust.cust-no
+                NO-ERROR.
+        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ gcompany AND 
+                shipto.cust-no EQ cust.cust-no AND 
+                shipto.ship-no EQ 1
+                NO-ERROR.
+        IF AVAIL shipto THEN ASSIGN 
+                opcShipID = shipto.ship-id.
+    END.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win 
 PROCEDURE local-add-record :
 /*------------------------------------------------------------------------------
@@ -3556,6 +3574,12 @@ PROCEDURE local-assign-record :
     RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
     IF cShipFromFlyFile EQ "" THEN
          cShipFromFlyFile = lv-hld-ship .
+    IF cShipFromFlyFile EQ "" THEN 
+          RUN iGetDefaultShipID (INPUT eb.cust-no, OUTPUT cShipFromFlyFile).
+             
+    IF eb.ship-id NE cShipFromFlyFile THEN
+          ASSIGN eb.ship-id = cShipFromFlyFile .
+
     IF eb.ship-id NE cShipFromFlyFile THEN
         ASSIGN eb.ship-id = cShipFromFlyFile .
     IF eb.ship-id NE "TEMP" THEN
