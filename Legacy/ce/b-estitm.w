@@ -923,6 +923,38 @@ DO:
 
     RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+    IF ls-add-what EQ "Est" 
+    AND eb.ship-id:SCREEN-VALUE EQ "" THEN DO:
+        FIND cust NO-LOCK WHERE 
+            cust.company EQ gcompany AND 
+            cust.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            NO-ERROR.
+
+        IF AVAIL cust THEN DO:
+            FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ gcompany AND 
+                shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} AND 
+                shipto.isDefault EQ TRUE  
+                NO-ERROR.
+            IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ gcompany AND 
+                shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} AND 
+                shipto.ship-id EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                NO-ERROR.
+            IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ gcompany AND 
+                shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                NO-ERROR.
+            IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
+                shipto.company EQ gcompany AND 
+                shipto.cust-no EQ eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} AND 
+                shipto.ship-no EQ 1
+                NO-ERROR.
+            IF AVAIL shipto THEN ASSIGN 
+                eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.ship-id.
+        END.
+    END.
   END.
 END.
 
