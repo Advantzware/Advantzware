@@ -2388,7 +2388,7 @@ PROCEDURE SetInvForm:
                 lines-per-page = 45.
         WHEN "Pacific" THEN
             ASSIGN
-                v-program      = "oe/rep/invpacif.p"
+                v-program      = "oe/rep/invpacific.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Xprint" OR 
@@ -2971,7 +2971,7 @@ PROCEDURE SetInvPostForm:
                 lines-per-page = 45.
         WHEN "Pacific" THEN
             ASSIGN
-                v-program      = "ar/rep/invpacif.p"
+                v-program      = "ar/rep/invpacific.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Xprint" OR 
