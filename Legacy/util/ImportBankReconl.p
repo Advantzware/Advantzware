@@ -95,22 +95,15 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportBankReconl.Vendor EQ "" THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Key Field Blank: Vendor.".
-    END.
-    IF oplValid THEN 
-    DO:
         IF ipbf-ttImportBankReconl.Cleared EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Cleared.".
     END.
    
-    
-     ASSIGN 
-         opcNote = "Update record - Cleared fields to be overwritten" .
+    IF oplValid THEN 
+        ASSIGN 
+        opcNote = "Update record - Cleared fields to be overwritten" .
 
     
 END PROCEDURE.
