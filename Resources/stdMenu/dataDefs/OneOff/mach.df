@@ -1,0 +1,14 @@
+ADD FIELD "sbName" OF "mach" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Schedule Board Name"
+  POSITION 115
+  MAX-WIDTH 120
+  HELP "Enter Schedule Board Name"
+  ORDER 1090
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000026018
