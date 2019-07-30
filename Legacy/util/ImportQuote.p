@@ -68,6 +68,7 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cValidNote  AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
+    DEFINE VARIABLE lCheckInt AS LOGICAL NO-UNDO .
 
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
@@ -142,6 +143,11 @@ PROCEDURE pValidate PRIVATE:
                 .
         
     END.
+     lCheckInt = IF INTEGER(ipbf-ttImportQuote.SalesGroup) NE ? THEN TRUE ELSE FALSE NO-ERROR .
+     IF length(ipbf-ttImportQuote.SalesGroup) EQ 1 AND lCheckInt THEN
+        ASSIGN ipbf-ttImportQuote.SalesGroup = "00" + ipbf-ttImportQuote.SalesGroup .
+     ELSE IF length(ipbf-ttImportQuote.SalesGroup) EQ 2 AND lCheckInt  THEN
+        ASSIGN ipbf-ttImportQuote.SalesGroup = "0" + ipbf-ttImportQuote.SalesGroup . 
 
    
     /*Field level validation*/
