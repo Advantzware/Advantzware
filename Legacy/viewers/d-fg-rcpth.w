@@ -40,6 +40,16 @@ ASSIGN
 DEFINE VARIABLE ll-order-warned AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE li-pallets      AS INTEGER NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lAdjustReason-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
+
+RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+lAdjustReason-log = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -763,7 +773,10 @@ DO:
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         RUN valid-tag-no NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    END.    
+    END.
+
+    RUN valid-reason NO-ERROR .
+    IF lCheckError THEN RETURN NO-APPLY.
 
         RUN update-record .
 
@@ -1060,6 +1073,19 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fg-rdtlh.reject-code[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.reject-code[1] Dialog-Frame
+ON LEAVE OF fg-rdtlh.reject-code[1] IN FRAME Dialog-Frame /* Reason */
+DO:
+  IF LASTKEY NE -1 THEN DO: MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .
+    RUN valid-reason NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -1133,8 +1159,8 @@ PROCEDURE build-type-list :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hPgmReason AS HANDLE    NO-UNDO.
     &IF DEFINED(FWD-VERSION) EQ 0 &THEN
-    DEFINE VARIABLE cComboList AS CHARACTER NO-UNDO .
-     
+    
+    ASSIGN cComboList = ""  .
     RUN "fg/ReasonCode.p" PERSISTENT SET hPgmReason.
     RUN pBuildReasonCode IN hPgmReason ("ADJ",OUTPUT cComboList).
     DELETE OBJECT hPgmReason.
@@ -1572,6 +1598,30 @@ PROCEDURE valid-tag-no :
         END.
     END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-reason Dialog-Frame 
+PROCEDURE valid-reason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  lCheckError = NO .
+  DO WITH FRAME {&FRAME-NAME}:
+   
+    IF cComboList NE "" AND lAdjustReason-log AND (fg-rdtlh.reject-code[1]:SCREEN-VALUE  EQ "" OR fg-rdtlh.reject-code[1]:SCREEN-VALUE EQ ? ) 
+        AND fg-rcpth.rita-code:SCREEN-VALUE EQ "A" THEN DO:
+      MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO fg-rdtlh.reject-code[1] .
+      lCheckError = YES .
+    END.
+  
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
