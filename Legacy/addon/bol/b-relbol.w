@@ -1481,7 +1481,10 @@ PROCEDURE create-temp-rel :
          oe-rell.qty     = dScanQty
          oe-rell.cases   = TRUNC((oe-rell.qty - oe-rell.partial) /
                                  oe-rell.qty-case,0)
-         oe-rell.partial = oe-rell.qty - (oe-rell.cases * oe-rell.qty-case).
+         oe-rell.partial = oe-rell.qty - (oe-rell.cases * oe-rell.qty-case)
+         oe-rell.enteredBy = USERID("ASI")
+         oe-rell.enteredDT = DATETIME(TODAY, MTIME)
+         .
 
          /* e-mail logic */         
          RUN build-email ("ADDED", RECID(bf-tmp),0,0).
@@ -1526,7 +1529,10 @@ PROCEDURE create-temp-rel :
         BUFFER-COPY oe-rell TO tt-rell
         ASSIGN
            tt-rell.release# = oe-relh.release#
-           tt-rell.row-id   = ROWID(oe-rell).
+           tt-rell.row-id   = ROWID(oe-rell)
+           tt-rell.enteredBy = USERID("ASI")
+           tt-rell.enteredDT = DATETIME(TODAY, MTIME) 
+           .
     END.
   END.
 
@@ -1584,7 +1590,8 @@ PROCEDURE create-temp-rel :
               tt-relbol.oerell-row = ROWID(oe-rell)
               tt-relbol.line = IF AVAIL oe-ordl THEN oe-ordl.LINE ELSE 0
               tt-relbol.po-no = oe-rell.po-no
-              tt-relbol.seq   = v-next-seq.
+              tt-relbol.seq   = v-next-seq              
+              .
     
               RELEASE tt-relbol.
           END.
