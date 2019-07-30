@@ -103,7 +103,6 @@ DEFINE VARIABLE cRtnChar              AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE lRecFound             AS LOGICAL       NO-UNDO .
 DEFINE VARIABLE clvtext               AS CHARACTER     NO-UNDO .
 
-
 RUN sys/ref/s-codes.p (OUTPUT lv-s-codes, OUTPUT lv-s-dscrs).
 
 {oe/chkordl.i NEW}
@@ -861,6 +860,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         DEFINE VARIABLE lMatchingSRecordFound AS LOG       NO-UNDO.
         DEFINE BUFFER bf-add-oe-rel FOR oe-rel.
         DEFINE VARIABLE cPreRelDate AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lErrorMsg AS LOGICAL NO-UNDO.
 
         IF ip-type EQ "view" THEN 
         DO: 
@@ -870,6 +870,13 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         /* Code placed here will execute PRIOR to standard behavior. */
 
         /* Code placed here will execute PRIOR to standard behavior. */
+
+        RUN pCheckFobFrt(OUTPUT lErrorMsg) NO-ERROR.
+        IF lErrorMsg EQ NO THEN do:
+            APPLY "entry" TO tt-report.frt-pay IN FRAME {&FRAME-NAME}.
+            RETURN NO-APPLY.
+        END.
+        
         RUN valid-s-code NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -2247,10 +2254,7 @@ PROCEDURE pCreateNewRel :
             oe-rel.carrier      = /*if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
                               else*/ v-carrier
             oe-rel.r-no         = v-nxt-r-no
-            oe-rel.spare-char-1 = v-shipfrom
-            oe-rel.frt-pay  = oe-ord.frt-pay
-            oe-rel.fob-code = oe-ord.fob-code
-            .                                                                                                              .
+            oe-rel.spare-char-1 = v-shipfrom.                                                                                                              .
 
         IF oereleas-cha EQ "LastShip" THEN
             oe-rel.rel-date = oe-ord.last-date.
@@ -3659,6 +3663,36 @@ PROCEDURE valid-ship-id :
             
     END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckFobFrt Dialog-Frame 
+PROCEDURE pCheckFobFrt :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE ll-ansf  AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER opErrorMsg AS LOGICAL INIT YES NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF tt-report.frt-pay:SCREEN-VALUE NE "" OR tt-report.flute:SCREEN-VALUE NE "" THEN DO:
+            IF (tt-report.frt-pay:SCREEN-VALUE NE oe-ord.frt-pay AND tt-report.frt-pay:SCREEN-VALUE NE "") OR
+                (tt-report.flute:SCREEN-VALUE NE SUBSTRING(oe-ord.fob-code,1,1) AND tt-report.flute:SCREEN-VALUE NE "")  THEN
+                DO:
+                MESSAGE "Releases cannot be merged unless they have the same FOB and Freight terms," +
+                    "so automatically added releases leave these set blank which uses the values for the order." +
+                    "Are you sure these should you want these to be set here?'" 
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                    UPDATE ll-ansf.
+                
+                ASSIGN opErrorMsg = ll-ansf.
+            END.
+        END.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
