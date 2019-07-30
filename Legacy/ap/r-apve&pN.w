@@ -1565,7 +1565,7 @@ do transaction on error undo postit:
             end.
           end.
 
-          run fg/updfgcst.p (po-ordl.i-no).
+          /* run fg/updfgcst.p (po-ordl.i-no).  (see #52404) */
         end.
       end.
 
