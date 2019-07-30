@@ -825,7 +825,7 @@ PROCEDURE finish-assign :
   DEF VAR lv-blk LIKE eb.blank-no INIT 0 NO-UNDO.
 
   DEF BUFFER multbl FOR reftable.
-
+  DEFINE BUFFER bf-reftable FOR reftable.
 
   FIND CURRENT eb.
   FIND CURRENT est.
@@ -876,6 +876,12 @@ PROCEDURE finish-assign :
           AND xeb.form-no EQ xef.form-no
           AND ROWID(xeb)  NE ROWID(eb)
           AND xeb.yld-qty NE v-qty * xeb.num-up
+          AND CAN-FIND(FIRST bf-reftable WHERE bf-reftable.reftable EQ reftable.reftable
+          AND bf-reftable.company EQ reftable.company
+          AND bf-reftable.loc EQ reftable.loc
+          AND bf-reftable.code EQ reftable.code
+          AND bf-reftable.val[1] EQ reftable.val[1]
+          AND bf-reftable.val[3] EQ INT(RECID(xeb)))
         BY xeb.blank-no:
       /*IF xeb.yld-qty LT xeb.bl-qty THEN xeb.yld-qty = xeb.bl-qty.*/
       IF xeb.yld-qty EQ 0 THEN xeb.yld-qty = xeb.bl-qty.
@@ -1181,7 +1187,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN finish-assign.
-
+ 
   RUN dispatch ("open-query").
 
   RUN repo-query (lv-rowid).
