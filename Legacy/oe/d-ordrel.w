@@ -3653,9 +3653,13 @@ PROCEDURE valid-ship-id :
                 END.     /* Task 10241303 */
 
             END.
-    /*IF AVAILABLE shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
-          MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
-          VIEW-AS ALERT-BOX.*/
+
+            IF AVAILABLE shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN do: 
+                MESSAGE "The ShipTo is inactive and cannot be used on an Order Release."
+                    VIEW-AS ALERT-BOX.
+                APPLY "entry" TO oe-rel.ship-id IN FRAME {&FRAME-NAME}.
+                RETURN ERROR.
+            END.
             
     END.
 
