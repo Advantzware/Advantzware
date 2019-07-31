@@ -4687,7 +4687,7 @@ PROCEDURE local-assign-record :
                 LEAVE.
             END. /* each oe-rel */
 
-            IF cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id THEN do:
+            IF cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id AND NOT adm-new-record THEN do:
                 IF FIRST(oe-ordl.i-no) THEN
                    MESSAGE "Do you want to automatically update all releases with the new ship to address?" 
                     VIEW-AS ALERT-BOX QUESTION 
