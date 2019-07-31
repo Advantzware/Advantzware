@@ -3687,9 +3687,9 @@ PROCEDURE pCheckFobFrt :
             IF (tt-report.frt-pay:SCREEN-VALUE NE oe-ord.frt-pay AND tt-report.frt-pay:SCREEN-VALUE NE "") OR
                 (tt-report.flute:SCREEN-VALUE NE SUBSTRING(oe-ord.fob-code,1,1) AND tt-report.flute:SCREEN-VALUE NE "")  THEN
                 DO:
-                MESSAGE "Releases cannot be merged unless they have the same FOB and Freight terms," +
-                    "so automatically added releases leave these set blank which uses the values for the order." +
-                    "Are you sure these should you want these to be set here?'" 
+                MESSAGE "If you change the FOB and/or Frt Pay values for this release it can only be merged with other releases with the same values." +
+                    "If you leave these values blank then the FOB and Frt Pay values from the Order will be used to merge releases." +
+                    "Are you sure you want to change these values?"
                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                     UPDATE ll-ansf.
                 
