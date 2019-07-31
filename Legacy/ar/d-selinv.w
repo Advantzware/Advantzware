@@ -324,7 +324,7 @@ DO:
 
         v-amt-paid-inv-no  = 0.
 
-        IF NOT ip-is-memo AND ld-applied GT ar-cash.check-amt THEN
+        IF NOT ip-is-memo AND ld-applied GT ar-cash.check-amt AND ar-cash.check-amt NE 0 THEN
         FOR EACH tt-inv WHERE tt-inv.selekt,
             FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
             BY tt-inv.seq-no DESC:
