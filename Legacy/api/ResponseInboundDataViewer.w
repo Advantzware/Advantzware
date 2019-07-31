@@ -45,11 +45,11 @@ DEFINE INPUT PARAMETER ipriInboundEvent AS ROWID NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 edDescription edRequestData ~
 edResponseData edErrorMessage Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiReqDataTypelb fiReqDataType ~
-fiRequestVerblb fiRequestVerb ficanBeQueuedlbb fiCanBeQueued ~
-fiReqAPIRoutelb fiapiRoute fiRecordSourcelb fiRecordSource ~
-fiDescriptionLabel edDescription fiRequestDataLabel edRequestData ~
-fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
+&Scoped-Define DISPLAYED-OBJECTS fiReqDataType fiRequestVerb fiCanBeQueued ~
+fiReqDataTypelb fiRequestVerblb ficanBeQueuedlbb fiapiRoute fiRecordSource ~
+fiReqAPIRoutelb fiRecordSourcelb fiDescriptionLabel edDescription ~
+fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData ~
+fiErrorMessageLabel edErrorMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -65,13 +65,15 @@ fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Cancel" 
-     SIZE 15 BY 1.14
+     SIZE 20 BY 2.62
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
+     IMAGE-UP FILE "Graphics/32x32/check.ico":U NO-CONVERT-3D-COLORS
      LABEL "OK" 
-     SIZE 15 BY 1.14
+     SIZE 20 BY 2.62
      BGCOLOR 8 .
 
 DEFINE VARIABLE edDescription AS CHARACTER 
@@ -96,7 +98,7 @@ DEFINE VARIABLE edResponseData AS CHARACTER
 
 DEFINE VARIABLE fiapiRoute AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1.19
+     SIZE 56.2 BY 1.19
      FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiCanBeQueued AS CHARACTER FORMAT "X(256)":U 
@@ -109,7 +111,7 @@ DEFINE VARIABLE ficanBeQueuedlbb AS CHARACTER FORMAT "X(256)":U INITIAL "Can Be 
      SIZE 21.4 BY 1
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiDescriptionLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API Route Description:" 
+DEFINE VARIABLE fiDescriptionLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID Description:" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1
      FONT 35 NO-UNDO.
@@ -129,9 +131,9 @@ DEFINE VARIABLE fiRecordSourcelb AS CHARACTER FORMAT "X(256)":U INITIAL "Record 
      SIZE 21.2 BY 1
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiReqAPIRoutelb AS CHARACTER FORMAT "X(256)":U INITIAL "API Route:" 
+DEFINE VARIABLE fiReqAPIRoutelb AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 11 BY 1
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiReqDataType AS CHARACTER FORMAT "X(256)":U 
@@ -139,9 +141,9 @@ DEFINE VARIABLE fiReqDataType AS CHARACTER FORMAT "X(256)":U
      SIZE 19 BY 1.19
      FGCOLOR 9 FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiReqDataTypelb AS CHARACTER FORMAT "X(256)":U INITIAL "Req Datatype:" 
+DEFINE VARIABLE fiReqDataTypelb AS CHARACTER FORMAT "X(256)":U INITIAL "Request Datatype:" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 26 BY 1
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiRequestDataLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Data:" 
@@ -170,39 +172,40 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 128 BY 22.86.
+     SIZE 128 BY 24.86.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiReqDataTypelb AT ROW 1.71 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 120
-     fiReqDataType AT ROW 1.71 COL 27.2 COLON-ALIGNED NO-LABEL WIDGET-ID 118
-     fiRequestVerblb AT ROW 1.71 COL 54.4 COLON-ALIGNED NO-LABEL WIDGET-ID 124
-     fiRequestVerb AT ROW 1.71 COL 76.4 COLON-ALIGNED NO-LABEL WIDGET-ID 122
-     ficanBeQueuedlbb AT ROW 1.71 COL 96.4 COLON-ALIGNED NO-LABEL WIDGET-ID 116
-     fiCanBeQueued AT ROW 1.71 COL 120 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     fiReqDataType AT ROW 1.71 COL 32.4 COLON-ALIGNED NO-LABEL WIDGET-ID 118
+     fiRequestVerb AT ROW 1.71 COL 75.2 COLON-ALIGNED NO-LABEL WIDGET-ID 122
+     fiCanBeQueued AT ROW 1.76 COL 120 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     fiReqDataTypelb AT ROW 1.81 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 120
+     fiRequestVerblb AT ROW 1.81 COL 54.4 COLON-ALIGNED NO-LABEL WIDGET-ID 124
+     ficanBeQueuedlbb AT ROW 1.86 COL 98 COLON-ALIGNED NO-LABEL WIDGET-ID 116
+     fiapiRoute AT ROW 3.76 COL 17.8 COLON-ALIGNED NO-LABEL WIDGET-ID 126
+     fiRecordSource AT ROW 3.76 COL 97.4 COLON-ALIGNED NO-LABEL WIDGET-ID 110
      fiReqAPIRoutelb AT ROW 3.86 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 128
-     fiapiRoute AT ROW 3.86 COL 27.2 COLON-ALIGNED NO-LABEL WIDGET-ID 126
-     fiRecordSourcelb AT ROW 3.86 COL 54.4 COLON-ALIGNED NO-LABEL WIDGET-ID 112
-     fiRecordSource AT ROW 3.86 COL 76.4 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     fiDescriptionLabel AT ROW 5.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     edDescription AT ROW 6.86 COL 11 NO-LABEL WIDGET-ID 14
-     fiRequestDataLabel AT ROW 9.95 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     edRequestData AT ROW 11.14 COL 11 NO-LABEL WIDGET-ID 2
-     fiResponseDataLabel AT ROW 17.1 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     edResponseData AT ROW 18.29 COL 11 NO-LABEL WIDGET-ID 10
-     fiErrorMessageLabel AT ROW 24.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
-     edErrorMessage AT ROW 25.76 COL 11 NO-LABEL WIDGET-ID 94
-     Btn_OK AT ROW 28.57 COL 55
-     Btn_Cancel AT ROW 28.57 COL 74
+     fiRecordSourcelb AT ROW 3.86 COL 75.4 COLON-ALIGNED NO-LABEL WIDGET-ID 112
+     fiDescriptionLabel AT ROW 6.33 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     edDescription AT ROW 7.52 COL 11 NO-LABEL WIDGET-ID 14
+     fiRequestDataLabel AT ROW 10.91 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     edRequestData AT ROW 12.1 COL 11 NO-LABEL WIDGET-ID 2
+     fiResponseDataLabel AT ROW 18.57 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     edResponseData AT ROW 19.76 COL 11 NO-LABEL WIDGET-ID 10
+     fiErrorMessageLabel AT ROW 26.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+     edErrorMessage AT ROW 27.76 COL 11 NO-LABEL WIDGET-ID 94
+     Btn_OK AT ROW 31 COL 41
+     Btn_Cancel AT ROW 31 COL 81
      RECT-1 AT ROW 1.48 COL 7 WIDGET-ID 84
-     RECT-2 AT ROW 5.52 COL 7 WIDGET-ID 86
-     SPACE(6.79) SKIP(1.47)
+     RECT-2 AT ROW 5.91 COL 7 WIDGET-ID 86
+     SPACE(6.79) SKIP(3.03)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 
          TITLE "Inbound Request/Response"
-         DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
+         CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -391,9 +394,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiReqDataTypelb fiReqDataType fiRequestVerblb fiRequestVerb 
-          ficanBeQueuedlbb fiCanBeQueued fiReqAPIRoutelb fiapiRoute 
-          fiRecordSourcelb fiRecordSource fiDescriptionLabel edDescription 
+  DISPLAY fiReqDataType fiRequestVerb fiCanBeQueued fiReqDataTypelb 
+          fiRequestVerblb ficanBeQueuedlbb fiapiRoute fiRecordSource 
+          fiReqAPIRoutelb fiRecordSourcelb fiDescriptionLabel edDescription 
           fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData 
           fiErrorMessageLabel edErrorMessage 
       WITH FRAME Dialog-Frame.
@@ -444,7 +447,7 @@ PROCEDURE pInit :
                fiReqDataType:SCREEN-VALUE  = APIInbound.requestDataType
                edDescription:SCREEN-VALUE  = APIInbound.description
                fiapiRoute:SCREEN-VALUE     = APIInbound.apiRoute
-               fiCanBeQueued:SCREEN-VALUE  = STRING(APIInbound.canBeQueued)
+               fiCanBeQueued:SCREEN-VALUE  = STRING(APIInbound.canBeQueued,"YES/NO")
                 .
     END.
 END PROCEDURE.

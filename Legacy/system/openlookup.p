@@ -209,6 +209,47 @@ CASE ip-lookupField:
            /* RecID of the row selected when a row is selected in the browse */
            OUTPUT op-recVal
            ).
+    WHEN "apiRoute" THEN 
+        RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Inbound API ID",
+           /* The source field for which the lookup screen is called for */
+           INPUT "apiRoute",
+           /* DB Table from which data is to be fetched */
+           INPUT "APIInbound",
+           /* List of fields which are required in the query */
+           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,isActive", 
+           /* List of fields which should be displayed in the browse */ 
+           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,isActive",
+           /* List of field labels to override the default database field label */
+           INPUT "API Route,Request Verb,Request Data Type,Queued?,Active",
+           /* List of field formats to override the default database field format */
+           INPUT "X(40),X(20),X(20),YES/NO,YES/NO",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT "",
+           /* List of fields for which field level search is enabled */
+           INPUT "apiRoute,requestVerb,requestDataType,canBeQueued,isActive",
+           /* List of fields for which sorting is enabled */
+           INPUT "apiRoute",
+           /* Where clause to select specific records */
+           INPUT "" ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "apiRoute",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal
+           ).           
    WHEN "vend-no" THEN
        RUN windows\l-lookup.w
            (/* Title of the lookup screen */

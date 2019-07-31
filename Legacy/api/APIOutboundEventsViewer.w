@@ -37,6 +37,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{methods/defines/globdefs.i}
+{methods/defines/hndldefs.i}
+
+DEFINE VARIABLE lReTrigger    AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
+
 DEFINE TEMP-TABLE ttAPIOutboundEvent NO-UNDO
     FIELDS retryEvent AS LOGICAL
     FIELDS apiID AS CHARACTER
@@ -45,9 +51,13 @@ DEFINE TEMP-TABLE ttAPIOutboundEvent NO-UNDO
     FIELDS success AS LOGICAL
     FIELDS eventRowID AS ROWID
     .
-    
-DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO INITIAL "001".
-DEFINE VARIABLE lReTrigger  AS LOGICAL   NO-UNDO INITIAL FALSE.
+
+DEFINE TEMP-TABLE ttPrintAPIOutboundEvent NO-UNDO
+    FIELDS apiID AS CHARACTER LABEL "API ID"
+    FIELDS callingProgram AS CHARACTER LABEL "Calling Program"
+    FIELDS requestDateTime AS DATETIME LABEL "Request Date"
+    FIELDS success AS LOGICAL LABEL "Success?"
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -214,7 +224,7 @@ DEFINE BROWSE BROWSE-2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 158.2 BY 20.24
-         FONT 36 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
+         FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -447,6 +457,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit C-Win
 ON CHOOSE OF btExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
+    IF VALID-HANDLE(hdOutputProcs) THEN
+        DELETE PROCEDURE hdOutputProcs.
+        
     APPLY "WINDOW-CLOSE" TO CURRENT-WINDOW.
 END.
 
@@ -461,11 +474,10 @@ DO:
     DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFilePath     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lHeader       AS LOGICAL   NO-UNDO INITIAL TRUE.
     DEFINE VARIABLE cSysCtrlName  AS CHARACTER NO-UNDO INITIAL "APIExport".
     
     RUN sys/ref/nk1look.p (
-        cCompany,             /* Company Code */
+        g_company,            /* Company Code */
         cSysCtrlName,         /* sys-ctrl name */
         "C",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
         FALSE,                /* Use ship-to */
@@ -493,25 +505,20 @@ DO:
                   + REPLACE(STRING(TIME,"HH:MM:SS"),":","")
                   + ".csv".
                   
-    OUTPUT TO VALUE(cFullFilePath).
-    IF lHeader THEN
-        EXPORT DELIMITER ","
-            "API ID"
-            "Calling Program"
-            "Last Request Date"
-            "Status"
-            .
-            
-    FOR EACH ttAPIOutboundEvent:
-        EXPORT DELIMITER ","
-            ttAPIOutboundEvent.apiID
-            ttAPIOutboundEvent.callingProgram
-            STRING(ttAPIOutboundEvent.requestDateTime, "99/99/9999 HH:MM:SS.SSS")
-            STRING(ttAPIOutboundEvent.success, "SUCCESS/FAILURE")
-            .   
-    END.
-    OUTPUT CLOSE.  
+
+    EMPTY TEMP-TABLE ttPrintAPIOutboundEvent.
     
+    FOR EACH ttAPIOutboundEvent:
+        CREATE ttPrintAPIOutboundEvent.
+        BUFFER-COPY ttAPIOutboundEvent TO ttPrintAPIOutboundEvent.
+    END.
+    
+    RUN TempTableToCSV IN hdOutputProcs (
+        INPUT TEMP-TABLE ttPrintAPIOutboundEvent:HANDLE,
+        INPUT cFullFilePath,
+        INPUT TRUE /* Export Header */
+        ).
+            
     MESSAGE "Export complete. File saved to " cFullFilePath SKIP
         "Open file?"
         VIEW-AS ALERT-BOX INFORMATION BUTTONS YES-NO-CANCEL UPDATE lOpen AS LOGICAL.
@@ -669,7 +676,7 @@ DO:
     DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
   
     RUN system/openlookup.p (
-        cCompany, 
+        g_company, 
         "apiID", /* lookup field */
         0,   /* Subject ID */
         "",  /* User ID */
@@ -723,7 +730,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiEndRequestDate:SCREEN-VALUE   = STRING(TODAY)
         .
     APPLY "CHOOSE" TO btFilter.    
-
+    
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
