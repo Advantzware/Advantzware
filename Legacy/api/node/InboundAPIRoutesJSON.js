@@ -82,6 +82,11 @@ router.post('/createinventorytransfer', (req,res) => {
     handleRoute(req, res)
 });
 
+//This will creates an inventory stock alias for po
+router.post('/createinventorystockaliasforpo', (req,res) => {
+    handleRoute(req, res)
+});
+
 // validation for undefined routes for POST
 router.post('*', function(req, res) {
 	routeNotFound(res);
