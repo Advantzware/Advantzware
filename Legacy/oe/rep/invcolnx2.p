@@ -6,7 +6,7 @@ DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
-
+{custom/notesdef.i}
 DEF SHARED VAR v-fr-tax AS LOGICAL INITIAL NO NO-UNDO.
 
 DEF VAR v-salesman     AS CHAR FORMAT "x(14)" NO-UNDO.
@@ -96,6 +96,8 @@ def var v-billto-state as char format "x(2)" NO-UNDO.
 def var v-billto-zip as char format "x(10)" NO-UNDO.
 def var v-job-no AS CHAR FORMAT "x(13)" no-undo.
 DEFINE VARIABLE cBillNotes LIKE inv-head.bill-i NO-UNDO.
+DEFINE VARIABLE cNotes AS CHARACTER EXTENT 60 FORMAT "x(80)" NO-UNDO.
+DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
 
 DEF BUFFER xinv-head FOR inv-head.
 DEF BUFFER xinv-line FOR inv-line.
@@ -681,18 +683,33 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
          END.
       END. /* each inv-misc */
 
+      ASSIGN cNotes = ""
+          iNotesLine = 0.
+
       IF v-prntinst THEN do:
 
         DO i = 1 TO 4:
-
           IF cBillNotes[i] NE "" THEN DO:
-
-            PUT cBillNotes[i] AT 10 SKIP.
+            PUT "<C1>" cBillNotes[i] SKIP.
             ASSIGN v-printline = v-printline + 1.
           END.
         END. /* 1 to 4 */
-      END.
 
+        {custom/notesprtA.i inv-head cNotes 60}
+            PUT SKIP(1) .
+        DO i = 1 TO 60:
+            IF v-printline > 47 THEN do:           
+                PAGE.
+                {oe/rep/invcolnx2.i}
+                    v-printline = 21.
+            END.
+            IF cNotes[i] NE "" THEN do:
+                PUT "<C1>" cNotes[i] FORMAT "x(80)" SKIP .
+                v-printline = v-printline + 1 .
+            END.
+        END.
+      END.
+      
       /* T O T A L S */
       ASSIGN tmp1  = 0
              tmp2  = ?
