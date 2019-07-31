@@ -38,14 +38,15 @@ RUN pOnOffProfiler.
 FIND FIRST estCostHeader NO-LOCK
     WHERE estCostHeader.company EQ gcCompany
     AND estCostHeader.estimateNo EQ gcEstimate
+    AND estCostHeader.quantityMaster EQ 20000
     NO-ERROR.
-//RUN est\EstimatePrint.p (estCostHeader.estCostHeaderID, gcOutputFile, "By Form with Summary First","Calibri").
-FOR EACH probe EXCLUSIVE-LOCK 
-    WHERE probe.company EQ gcCompany
-    AND probe.est-no EQ gcEstimate:
-        DISPLAY probe.sell-price probe.gross-profit probe.net-profit probe.probe-date STRING(probe.probe-time,"HH:MM:SS").
-        DELETE probe.
-END.
+RUN est\EstimatePrint.p (estCostHeader.estCostHeaderID, gcOutputFile, "By Form with Summary First Mult Qty","Calibri").
+/*FOR EACH probe EXCLUSIVE-LOCK                                                                                             */
+/*    WHERE probe.company EQ gcCompany                                                                                      */
+/*    AND probe.est-no EQ gcEstimate:                                                                                       */
+/*        DISPLAY probe.sell-price probe.gross-profit probe.net-profit probe.probe-date STRING(probe.probe-time,"HH:MM:SS").*/
+/*        DELETE probe.                                                                                                     */
+/*END.                                                                                                                      */
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pOnOffProfiler :
