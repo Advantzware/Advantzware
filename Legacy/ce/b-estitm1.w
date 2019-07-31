@@ -944,10 +944,11 @@ DO:
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
         IF ls-add-what EQ "Est" 
-        AND eb.ship-id:SCREEN-VALUE EQ "" THEN 
-            RUN iGetDefaultShipTo (INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT cShipID).      
-        ASSIGN 
-            eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = cShipID.
+        AND eb.ship-id:SCREEN-VALUE EQ "" THEN DO:
+            RUN pGetDefaultShipID (INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT cShipID).      
+            ASSIGN 
+                eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = cShipID.
+        END.
     END.
 END.
 
@@ -3356,8 +3357,8 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE iGetDefaultShipID B-table-Win
-PROCEDURE iGetDefaultShipID:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win
+PROCEDURE pGetDefaultShipID:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -3575,7 +3576,7 @@ PROCEDURE local-assign-record :
     IF cShipFromFlyFile EQ "" THEN
          cShipFromFlyFile = lv-hld-ship .
     IF cShipFromFlyFile EQ "" THEN 
-          RUN iGetDefaultShipID (INPUT eb.cust-no, OUTPUT cShipFromFlyFile).
+          RUN pGetDefaultShipID (INPUT eb.cust-no, OUTPUT cShipFromFlyFile).
              
     IF eb.ship-id NE cShipFromFlyFile THEN
           ASSIGN eb.ship-id = cShipFromFlyFile .
