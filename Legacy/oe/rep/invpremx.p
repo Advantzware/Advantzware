@@ -46,6 +46,7 @@ DEF VAR v-pc AS cha NO-UNDO. /* partial or complete */
 DEFINE VARIABLE dLineTaxableAmt AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dLineTaxAmt AS DECIMAL DECIMALS 3 NO-UNDO.
 DEFINE VARIABLE dLineTaxRate AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
 def buffer xinv-head for inv-head .
 def buffer xinv-line for inv-line .
 DEF BUFFER b-inv-head FOR inv-head.
@@ -105,6 +106,7 @@ DEF VAR cInvDate AS CHAR NO-UNDO.
 DEF VAR dOrigQty AS DEC NO-UNDO.
 DEFINE VARIABLE cOrigUOM AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cXMLShipTo AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
@@ -158,6 +160,11 @@ RUN XMLOutput (lXMLOutput,'','','Header').
             cTaxCode = 'Sales Tax'
             cCompanyID = ''
             .
+  RUN sys/ref/nk1look.p (INPUT company.company, "CaseUOMList", "C" /* Logical */, NO /* check by cust */, 
+            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+            OUTPUT cRtnChar, OUTPUT lRecFound).
+  cCaseUomList = cRtnChar.
+
   RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
             INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
             OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -645,7 +652,7 @@ END.
                         dOrigQty = oe-ordl.spare-dec-1
                         cOrigUom = oe-ordl.spare-char-2
                         .
-                    IF (cOrigUom EQ 'CS' OR cOrigUom EQ 'PF' OR cOrigUom EQ 'PLT')
+                    IF (cOrigUom EQ 'CS' OR LOOKUP(cCaseUOMList, cOrigUom) GT 0)
                         AND dOrigQty NE inv-line.qty
                         AND oe-ordl.cas-cnt NE 0 THEN 
                             dOrigQty = inv-line.inv-qty / oe-ordl.cas-cnt.
