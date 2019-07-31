@@ -1077,7 +1077,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.reject-code[1] Dialog-Frame
 ON LEAVE OF fg-rdtlh.reject-code[1] IN FRAME Dialog-Frame /* Reason */
 DO:
-  IF LASTKEY NE -1 THEN DO: MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .
+  IF LASTKEY NE -1 THEN DO:
     RUN valid-reason NO-ERROR.
     IF lCheckError THEN RETURN NO-APPLY.
   END.
