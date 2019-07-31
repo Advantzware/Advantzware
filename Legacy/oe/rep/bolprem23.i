@@ -28,7 +28,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
                     dOrigQty = oe-ordl.spare-dec-1
                     cOrigUom = oe-ordl.spare-char-2
                     .
-                IF (cOrigUom EQ 'CS' OR cOrigUom EQ 'PF' OR cOrigUom EQ "PLT")
+                IF (cOrigUom EQ 'CS' OR LOOKUP(cCaseUOMList, cOrigUom) GT 0)
                     AND dOrigQty NE tt-boll.qty 
                     AND oe-ordl.cas-cnt NE 0 THEN DO:
                     dOrigQty = tt-boll.qty / oe-ordl.cas-cnt.
