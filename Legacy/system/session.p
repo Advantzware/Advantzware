@@ -222,6 +222,29 @@ FIND FIRST users NO-LOCK
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spActivateCueCards Procedure
+PROCEDURE spActivateCueCards:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO TRANSACTION:
+        FOR EACH xCueCard EXCLUSIVE-LOCK
+            WHERE xCueCard.user_id EQ USERID("ASI")
+            :
+            DELETE xCueCard.
+        END. /* each xcuecard */
+    END. /* do trans */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
@@ -406,8 +429,12 @@ PROCEDURE spCueCardClose:
         "Inactivate ALL Cue Cards?"
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
     UPDATE lInactivateCueCards AS LOGICAL.
-    IF lInactivateCueCards THEN
-    RUN spInactivateCueCards (cueCard.cueType).
+    IF lInactivateCueCards THEN DO TRANSACTION:
+        FIND CURRENT users EXCLUSIVE-LOCK.
+        users.showCueCard = NO.
+        FIND CURRENT users NO-LOCK.
+        RUN spInactivateCueCards (cueCard.cueType).
+    END. /* if inactivate cue cards */
     IF lInactivateCueCards EQ ? THEN
     RETURN NO-APPLY.
     iCueOrder = 99999.
@@ -946,7 +973,7 @@ default_LeftDown,default_Left,information,default_SidebarCollapse,default_Sideba
     
     IF NOT VALID-HANDLE(iphContainer) THEN RETURN.
     IF NOT VALID-HANDLE(iphFrame) THEN RETURN.
-    IF iphFrame:SENSITIVE EQ NO THEN RETURN.
+    IF iphFrame:SENSITIVE EQ NO THEN RETURN.    
     IF lCueCardActive THEN RETURN.
     
     cCueCardPool = "CueCardPool" + STRING(TIME,"99999").
