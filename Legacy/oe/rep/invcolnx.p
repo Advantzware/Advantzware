@@ -12,6 +12,7 @@ def var v-salesname as char format "x(30)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
 def var v-shipvia like carrier.dscr NO-UNDO.
 
+DEF VAR cNotesRecKey AS CHAR NO-UNDO.
 def var v-addr3 as char format "x(30)" NO-UNDO.
 def var v-sold-addr3 as char format "x(30)" NO-UNDO.
 def var v-shipto-name as char format "x(30)" NO-UNDO.
@@ -54,6 +55,7 @@ DEF VAR cBillNotes LIKE inv-head.bill-i NO-UNDO.
 def buffer xinv-head for inv-head .
 def buffer xinv-line for inv-line .
 DEF BUFFER bf-inv-head FOR inv-head.
+DEF BUFFER n-inv-head FOR inv-head.
 
 def workfile w-sman
   field sman as char format "x(4)".
@@ -193,6 +195,7 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
                     cBillNotes[2] = bf-inv-head.bill-i[2]
                     cBillNotes[3] = bf-inv-head.bill-i[3]
                     cBillNotes[4] = bf-inv-head.bill-i[4]
+                    cNotesRecKey = bf-inv-head.rec_key
                     .
                 LEAVE.
             END.
@@ -589,8 +592,16 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
                  v-printline = v-printline + 1.
               END.
            END.
-
-           {custom/notesprtA.i inv-head cNotes 60}
+           
+           FIND n-inv-head WHERE 
+                n-inv-head.company EQ xinv-head.company AND 
+                n-inv-head.bol-no EQ xinv-head.bol-no AND 
+                n-inv-head.cust-no EQ xinv-head.cust-no AND 
+                n-inv-head.rec_key EQ cNotesRecKey 
+                NO-LOCK NO-ERROR.
+            
+           {custom/notesprtA.i n-inv-head cNotes 60}
+           
                PUT SKIP(1) .
            DO i = 1 TO 60:
                IF v-printline > 47 THEN do:           
