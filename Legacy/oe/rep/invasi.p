@@ -72,6 +72,8 @@ DEFINE VARIABLE cBillNotes LIKE inv-head.bill-i NO-UNDO.
 DEF BUFFER bf-inv-head FOR inv-head.
 
 def var end-page as int.
+DEFINE VARIABLE cNotes AS CHARACTER EXTENT 60 FORMAT "x(80)" NO-UNDO.
+DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
 
 def buffer xinv-head for inv-head.
 def buffer xinv-line for inv-line.
@@ -934,6 +936,9 @@ form " " to 80
                v-printline = v-printline + 2.
         end. /* each inv-misc */
 
+        ASSIGN cNotes = ""
+            iNotesLine = 0.
+
         if v-prntinst then do:
            
             DO i = 1 TO 4:
@@ -941,6 +946,21 @@ form " " to 80
                   PUT cBillNotes[i] SKIP.
                   v-printline = v-printline + 1.
                END.
+            END.
+
+            {custom/notesprtA.i inv-head cNotes 60}
+                PUT SKIP(1) .
+            DO i = 1 TO 60:
+                if v-printline ge end-page then
+                    do:
+                    put skip(end-page + 4 - v-printline) "* CONTINUED *" at 68 SKIP.
+                    assign v-printline = 0.
+                    page.
+                END.
+                IF cNotes[i] NE "" THEN do:
+                    PUT cNotes[i] FORMAT "x(80)" SKIP .
+                    v-printline = v-printline + 1 .
+                END.
             END.
         END.
         
