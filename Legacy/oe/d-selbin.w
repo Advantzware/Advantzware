@@ -622,9 +622,7 @@ DO:
          DO:
             {oe/sel-binsrel.i "oe-rel"}
          END.
-         ASSIGN 
-           oe-rell.enteredBy = USERID("asi")
-           oe-rell.enteredDT = DATETIME(TODAY, MTIME)   
+         ASSIGN   
            op-rowid-list = op-rowid-list + STRING(ROWID(oe-rell)) + ","
           .
        END.

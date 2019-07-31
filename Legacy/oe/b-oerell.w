@@ -1212,10 +1212,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN     
-    oe-rell.enteredBy = USERID("asi")
-    oe-rell.enteredDT = DATETIME(TODAY, MTIME)
-    . 
+
   IF adm-new-record AND NOT adm-adding-record THEN DO:
     EMPTY TEMP-TABLE w-oe-rell.
 
