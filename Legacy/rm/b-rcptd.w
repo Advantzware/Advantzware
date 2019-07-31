@@ -2744,8 +2744,6 @@ PROCEDURE local-assign-record :
     ASSIGN
         v-copy-mode       = NO
         v-copy-mode-dec-1 = NO
-        rm-rctd.enteredBy:SCREEN-VALUE IN BROWSE {&browse-name} = USERID("asi")
-        rm-rctd.enteredDT:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DATETIME(TODAY, MTIME),"99/99/99") 
         .
 
     /* Dispatch standard ADM method.                             */

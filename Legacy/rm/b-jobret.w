@@ -1415,8 +1415,6 @@ PROCEDURE local-assign-record :
   ASSIGN
    rm-rctd.cost     = ld-std-cost
    rm-rctd.cost-uom = ld-cost-uom
-   rm-rctd.enteredBy = USERID("asi")
-   rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
    .
 
   IF INT(rm-rctd.po-no) NE 0 THEN

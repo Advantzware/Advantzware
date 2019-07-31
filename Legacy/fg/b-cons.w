@@ -1379,9 +1379,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
    fg-rctd.t-qty = (fg-rctd.cases * fg-rctd.qty-case) + fg-rctd.partial
-   fg-rctd.tag2  = lv-tag2
-   fg-rctd.enteredBy = USERID("asi")
-   fg-rctd.enteredDT = DATETIME(TODAY, MTIME)    
+   fg-rctd.tag2  = lv-tag2  
    .
 
   FIND FIRST itemfg

@@ -1055,10 +1055,7 @@ PROCEDURE local-assign-record:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    ASSIGN 
-        fg-rctd.enteredBy = USERID("asi")
-        fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
-        .
+
 
 
 END PROCEDURE.

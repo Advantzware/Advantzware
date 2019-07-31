@@ -493,8 +493,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         ASSIGN 
             rm-rctd.tag2      = lv-tag2
-            rm-rctd.enteredBy = USERID("asi")
-            rm-rctd.enteredDT = DATETIME(TODAY, MTIME)  .
+             .
         FIND CURRENT rm-rctd NO-LOCK NO-ERROR .
         op-rowid = ROWID(rm-rctd).
 
