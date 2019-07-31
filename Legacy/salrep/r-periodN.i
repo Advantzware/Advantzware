@@ -383,14 +383,18 @@
       end.
 
       if v-pct le 0 or v-pct eq ? then v-pct = 1.
+
+      
       
       IF FIRST-OF(tt-report.key-04) THEN
           ASSIGN
           dPerSales = v-pct
           dPerAmt = v-amt .
       ELSE ASSIGN 
-          dPerSales = dPerSales + v-pct .
+          dPerSales = dPerSales + v-pct
+          dPerAmt = dPerAmt + v-amt .
 
+      
       IF LAST-OF(tt-report.key-04) THEN DO:
           IF dPerSales GT 1 THEN
               ASSIGN dPerSales = 1 .
@@ -705,7 +709,8 @@ ASSIGN dPerAmt = 0 .
       END.
       ELSE do:
            ASSIGN
-           dPerSales = dPerSales + v-pct .
+           dPerSales = dPerSales + v-pct 
+           dPerAmt = dPerAmt + v-amt.
          
       END.
      
@@ -772,7 +777,7 @@ ASSIGN dPerAmt = 0 .
       END.
 
       ELSE
-      IF AVAIL ar-invl THEN DO:
+      IF AVAIL ar-invl AND TRIM(SUBSTR(ar-cashl.dscr,INDEX(ar-cashl.dscr,"oe return") + 12,10)) NE "ITEMS" THEN DO:
         ld-inv-pct = 0.
         FOR EACH b-ar-invl WHERE b-ar-invl.x-no EQ ar-invl.x-no NO-LOCK:
           ld-inv-pct = ld-inv-pct + b-ar-invl.amt.
