@@ -972,8 +972,6 @@ PROCEDURE local-assign-statement :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   ASSIGN fg-rctd.trans-time   = TIME 
-         fg-rctd.enteredBy = USERID("asi")
-         fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
          fg-rctd.reject-code[1] = fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
          .
 

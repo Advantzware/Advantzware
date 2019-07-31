@@ -633,8 +633,6 @@ DO:
          
          ASSIGN
            oe-boll.weight = oe-boll.qty / 100 * itemfg.weight-100
-           oe-boll.enteredBy = USERID("asi")
-           oe-boll.enteredDT = DATETIME(TODAY, MTIME)  
            .
          IF NOT AVAIL oe-ordl THEN
          FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
