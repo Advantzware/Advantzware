@@ -587,11 +587,11 @@ CASE ip-nk1-value:
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
    WHEN "DynAuditField" THEN DO:
         FIND FIRST dynSubject NO-LOCK
-             WHERE dynSubject.subjectTitle EQ "Audit Field Lookup"
+             WHERE dynSubject.subjectTitle EQ "Audit Field Query"
              NO-ERROR.
         RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
             INPUT "Dynamic Audit Field History",
-            INPUT "Audit Field Lookup" /* Char Value */,
+            INPUT "Audit Field Query" /* Char Value */,
             INPUT IF AVAILABLE dynSubject THEN dynSubject.subjectID ELSE 0 /* Int value */,
             INPUT YES /* Logical value */, INPUT 0 /* dec value*/).
    END. /* do dynauditfield */
