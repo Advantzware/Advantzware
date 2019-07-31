@@ -1,0 +1,4 @@
+UPDATE TABLE "APIOutboundEvent"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\apiOutboundEvent.p" CRC ? 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\apiOutboundEvent.p" CRC ? 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\apiOutboundEvent.p" CRC ?

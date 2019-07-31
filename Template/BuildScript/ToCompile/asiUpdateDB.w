@@ -1219,17 +1219,6 @@ PROCEDURE ipUpgradeDBs :
     AND lAuditLicensed EQ FALSE THEN ASSIGN 
         cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
     
-    IF CONNECTED("updDB1") THEN DO:
-        FIND FIRST module NO-LOCK WHERE 
-            module.module = "audit."
-            NO-ERROR.
-        IF AVAIL module THEN ASSIGN 
-            lAuditLicensed = module.is-Used. 
-    END.
-    IF CONNECTED("updDB2") 
-    AND lAuditLicensed EQ FALSE THEN ASSIGN 
-        cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
-    
     /* Load the delta */
     RUN ipStatus ("    Loading delta " + STRING(cFullDelta)).
     RUN prodict/load_df.p (cFullDelta). 

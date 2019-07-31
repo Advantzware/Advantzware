@@ -94,4 +94,3 @@ COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiAuditTest.p") SAVE INTO
 CONNECT VALUE(cConnectAud).
 COMPILE VALUE(cDir + "\Template\BuildScript\ToCompile\asiUpdateEnv.w") SAVE INTO value(cTarget).
 
-
