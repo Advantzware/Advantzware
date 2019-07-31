@@ -159,6 +159,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glEstimateCalcNew AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
 DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
 
@@ -172,6 +173,10 @@ IF lRecFound THEN
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
     glEstimateCalcNew = lRecFound AND cRtnChar EQ "New".
+ RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "I" /* Character */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+    glEstimateCalcNewPrompt = glEstimateCalcNew AND lRecFound AND cRtnChar EQ "1".
  RUN sys/ref/nk1look.p (INPUT cocode, "CEFormat", "C" /* Character */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT gcEstimateFormat, OUTPUT lRecFound).
@@ -3315,7 +3320,7 @@ PROCEDURE run-whatif :
   DEF VAR tmp-outfile AS cha NO-UNDO.
   DEF VAR viewfile AS cha NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
-  
+  DEFINE VARIABLE lUseNew AS LOGICAL NO-UNDO.
 
   {est/checkuse.i}
   EMPTY TEMP-TABLE xprep.
@@ -3326,18 +3331,28 @@ PROCEDURE run-whatif :
   vprint = yes.
   lv-eb-recid = recid(eb).
   lv-ef-recid = recid(ef).
-    IF glEstimateCalcNew THEN DO:
-      RUN pCalculateEstimate. 
-      SESSION:SET-WAIT-STATE ("") .
-      FIND eb NO-LOCK 
-        WHERE RECID(eb) EQ lv-eb-recid.
-      FIND ef NO-LOCK 
-        WHERE RECID(ef) EQ lv-ef-recid.
-      FIND CURRENT est NO-LOCK NO-ERROR.
-      RUN dispatch ("open-query").
-      RUN dispatch ("open-query").
-      RETURN.
-  END.
+    
+    IF glEstimateCalcNew THEN 
+    DO:
+        IF glEstimateCalcNewPrompt THEN 
+            MESSAGE "Use New Estimate Calculation and Print Format?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "New Estimating System" UPDATE lUseNew.
+        ELSE lUseNew = YES.
+        IF lUseNew THEN 
+        DO:
+            RUN pCalculateEstimate. 
+            SESSION:SET-WAIT-STATE ("") .
+            FIND eb NO-LOCK 
+                WHERE RECID(eb) EQ lv-eb-recid.
+            FIND ef NO-LOCK 
+                WHERE RECID(ef) EQ lv-ef-recid.
+            FIND CURRENT est NO-LOCK NO-ERROR.
+            RUN dispatch ("open-query").
+            RUN dispatch ("open-query").
+            RETURN.
+        END.
+    END.
+  
   FOR EACH mclean:
     DELETE mclean.
   END.

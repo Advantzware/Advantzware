@@ -82,7 +82,7 @@ PROCEDURE pBuildSections PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     DEFINE INPUT PARAMETER ipcSectionBy AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFormatStyle AS CHARACTER NO-UNDO.
-
+    
     DEFINE VARIABLE iSectionCount AS INTEGER NO-UNDO.
     
     DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
@@ -105,6 +105,8 @@ PROCEDURE pBuildSections PRIVATE:
         NO-ERROR.
     IF AVAILABLE bf-estCostHeader THEN 
     DO:
+        IF CAN-DO("Single,Set",bf-estCostHeader.estType) AND INDEX(ipcSectionBy, "Mult Qty") GT 0 THEN
+            glShowAllQuantities = YES.
         FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
         ASSIGN 
             bf-estCostHeader.printDateTime = NOW
@@ -496,8 +498,8 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostBlank.blankArea, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, estCostBlank.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostBlank.numOut, 4, 0, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostBlank.weight, 5, 4, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, estCostBlank.weightUOM, NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostBlank.weight * 1000, 5, 4, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, estCostBlank.weightUOM + "/M", NO, NO, NO).
     END.
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Die:", NO, NO, YES).
