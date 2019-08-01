@@ -4,6 +4,7 @@
 
 &SCOPED-DEFINE fmt
 &SCOPED-DEFINE incl2 10 /* used in bolprem2.i */
+DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
 {oe/rep/bolprmbr.i}
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
