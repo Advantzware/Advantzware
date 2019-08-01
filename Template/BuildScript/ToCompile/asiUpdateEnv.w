@@ -3900,9 +3900,16 @@ PROCEDURE ipLoadPrograms :
     INPUT CLOSE.
         
     /* Delete records no longer used */
-    FOR EACH {&tablename} EXCLUSIVE WHERE 
-        NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.prgmname = {&tablename}.prgmname ):
-        DELETE {&tablename}.
+    FOR EACH {&tablename} EXCLUSIVE:
+        FIND FIRST tt{&tablename} WHERE
+            tt{&tablename}.prgmname = {&tablename}.prgmname 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN ASSIGN
+            {&tablename}.prgmname = "x" + {&tablename}.prgmname
+            {&tablename}.menu_item = false
+            {&tablename}.securityLevelDefault = 9999
+            {&tablename}.securityLevelUser = 9999
+            {&tablename}.mnemonic = "".
     END.
     
     EMPTY TEMP-TABLE tt{&tablename}.
