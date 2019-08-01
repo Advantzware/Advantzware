@@ -221,6 +221,30 @@ FIND FIRST users NO-LOCK
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spActivateCueCards Procedure
+PROCEDURE spActivateCueCards:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO TRANSACTION:
+        FOR EACH xCueCard EXCLUSIVE-LOCK
+            WHERE xCueCard.user_id EQ USERID("ASI")
+            :
+            DELETE xCueCard.
+        END. /* each xcuecard */
+    END. /* do trans */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
@@ -401,6 +425,18 @@ PROCEDURE spCueCardClose:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
+    MESSAGE 
+        "Inactivate ALL Cue Cards?"
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
+    UPDATE lInactivateCueCards AS LOGICAL.
+    IF lInactivateCueCards THEN DO TRANSACTION:
+        FIND CURRENT users EXCLUSIVE-LOCK.
+        users.showCueCard = NO.
+        FIND CURRENT users NO-LOCK.
+        RUN spInactivateCueCards (cueCard.cueType).
+    END. /* if inactivate cue cards */
+    IF lInactivateCueCards EQ ? THEN
+    RETURN NO-APPLY.
     iCueOrder = 99999.
     RUN spNextCue (iphWidget).
 
@@ -442,6 +478,7 @@ PROCEDURE spDynAuditField:
     DEFINE INPUT  PARAMETER ipcFrameDB    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFrameFile  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFrameField AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAuditKey   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oprRowID      AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER opcErrorMsg   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplRunAudit   AS LOGICAL   NO-UNDO.
@@ -454,13 +491,16 @@ PROCEDURE spDynAuditField:
     DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lResults   AS LOGICAL   NO-UNDO.
     
-    FIND FIRST AuditHdr NO-LOCK
-         WHERE AuditHdr.AuditDB    EQ ipcFrameDB
-           AND AuditHdr.AuditTable EQ ipcFrameFile
-         NO-ERROR.
-    lResults = AVAILABLE AuditHdr AND
-               CAN-FIND(FIRST AuditDtl OF AuditHdr
-                        WHERE AuditDtl.AuditField EQ ipcFrameField).
+    FOR EACH AuditHdr NO-LOCK
+        WHERE AuditHdr.AuditDB    EQ ipcFrameDB
+          AND AuditHdr.AuditTable EQ ipcFrameFile
+          AND AuditHdr.AuditKey   EQ ipcAuditKey,
+        FIRST AuditDtl OF AuditHdr NO-LOCK
+        WHERE AuditDtl.AuditField EQ ipcFrameField
+        :
+        lResults = TRUE.
+        LEAVE.
+    END. /* each audithdr */
     RUN util/CheckModule.p ("ASI","Audit", NO, OUTPUT lContinue).
     IF lContinue THEN DO:
         IF CAN-FIND(FIRST AuditTbl
@@ -491,6 +531,7 @@ PROCEDURE spDynAuditField:
                                 cLookupTitle = "Audit Field History for Database: " + ipcFrameDB
                                              + " - Table: " + ipcFrameFile
                                              + " - Field: " + ipcFrameField
+                                             + " - Audit Key: " + ipcAuditKey
                                              .
                             DO idx = 1 TO EXTENT(dynParamValue.paramName):
                                 IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
@@ -501,6 +542,8 @@ PROCEDURE spDynAuditField:
                                     dynParamValue.paramValue[idx] = ipcFrameFile.
                                     WHEN "AuditField" THEN
                                     dynParamValue.paramValue[idx] = ipcFrameField.
+                                    WHEN "AuditKey" THEN
+                                    dynParamValue.paramValue[idx] = ipcAuditKey.
                                 END CASE.
                             END. /* do idx */
                             FIND CURRENT dynParamValue NO-LOCK.
@@ -657,6 +700,44 @@ PROCEDURE spGetTaskFilter:
 
 END PROCEDURE.
 	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spInactivateCueCards) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spInactivateCueCards Procedure
+PROCEDURE spInactivateCueCards:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCueType AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bCueCard     FOR cueCard.
+    DEFINE BUFFER bCueCardText FOR cueCardText.
+    
+    FOR EACH bCueCardText NO-LOCK,
+        FIRST bCueCard NO-LOCK
+        WHERE bCueCard.cueType EQ ipcCueType
+        :
+        IF CAN-FIND(FIRST xCueCard
+                    WHERE xCueCard.user_id   EQ USERID("ASI")
+                      AND xCueCard.cueType   EQ bCueCard.cueType
+                      AND xCueCard.cueTextID EQ bCueCardText.cueTextID) THEN
+        NEXT.
+        CREATE xCueCard.
+        ASSIGN
+            xCueCard.user_id   = USERID("ASI")
+            xCueCard.cueType   = bCueCard.cueType
+            xCueCard.cueTextID = bCueCardText.cueTextID
+            .
+        RELEASE xCueCard.
+    END. /* each bcuecardtext */
+
+END PROCEDURE.
+    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -890,8 +971,9 @@ PROCEDURE spRunCueCard :
 "default_LeftUp,default_Up,default_RightUp,default_Right,default_RightDown,default_Down,~
 default_LeftDown,default_Left,information,default_SidebarCollapse,default_SidebarExpand".
     
-    IF iphFrame:SENSITIVE EQ NO THEN RETURN.
-    
+    IF NOT VALID-HANDLE(iphContainer) THEN RETURN.
+    IF NOT VALID-HANDLE(iphFrame) THEN RETURN.
+    IF iphFrame:SENSITIVE EQ NO THEN RETURN.    
     IF lCueCardActive THEN RETURN.
     
     cCueCardPool = "CueCardPool" + STRING(TIME,"99999").
@@ -1222,6 +1304,38 @@ PROCEDURE spSetTaskFilter:
         cProgramID = ipcProgramID
         cUserID    = ipcUserID
         .
+    CASE cMnemonic:
+        WHEN "BR" THEN
+        cMnemonic = "SS".
+        WHEN "DR" THEN
+        cMnemonic = "DC".
+        WHEN "ER" THEN
+        cMnemonic = "EQ".
+        WHEN "FR" THEN
+        cMnemonic = "FT".
+        WHEN "GR" THEN
+        cMnemonic = "GL".
+        WHEN "HR" THEN
+        cMnemonic = "HS".
+        WHEN "IR" THEN
+        cMnemonic = "FG".
+        WHEN "JR" THEN
+        cMnemonic = "JC".
+        WHEN "MR" THEN
+        cMnemonic = "RM".
+        WHEN "NR" THEN
+        cMnemonic = "NS".
+        WHEN "OR" THEN
+        cMnemonic = "OE".
+        WHEN "PR" THEN
+        cMnemonic = "PO".
+        WHEN "QL" THEN
+        cMnemonic = "QR".
+        WHEN "TR" THEN
+        cMnemonic = "TS".
+        WHEN "VR" THEN
+        cMnemonic = "AP".
+    END CASE.
 
 END PROCEDURE.
 	

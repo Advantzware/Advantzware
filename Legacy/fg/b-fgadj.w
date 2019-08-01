@@ -360,7 +360,7 @@ fg-rctd.rita-code = ""A"""
      _FldNameList[18]   > ASI.fg-rctd.updated-by
 "updated-by" "Last Updated By" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > asi.fg-rctd.reject-code[1]
-"reject-code[1]" "Reason" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "Item 1, Item 1" 5 yes 0 no no
+"reject-code[1]" "Reason" "x(55)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "Item 1, Item 1" 5 yes 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -538,29 +538,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fg-rctd.reject-code[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* Reason */
-DO: 
-   IF AVAIL fg-rctd AND fg-rctd.reject-code[1] EQ "" THEN
-       ASSIGN fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "" .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fg-rctd.reject-code[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* Reason */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-reason NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF fg-rctd.i-no IN BROWSE Browser-Table /* Item No */
@@ -730,6 +707,31 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fg-rctd.reject-code[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* Reason */
+DO: 
+   IF AVAIL fg-rctd AND fg-rctd.reject-code[1] EQ "" THEN
+       ASSIGN fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "" .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* Reason */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-reason NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -801,8 +803,10 @@ PROCEDURE build-type-list :
     DELETE OBJECT hPgmReason.
 
     DO WITH FRAME {&FRAME-NAME}:
+        IF lAdjustReason-log EQ NO THEN
+        cComboList = cComboList + ",".
         ASSIGN
-            fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList + "," .
+            fg-rctd.reject-code[1]:LIST-ITEM-PAIRS IN BROWSE {&browse-name} = cComboList.
     END.
     &ENDIF
       
@@ -968,8 +972,7 @@ PROCEDURE local-assign-statement :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   ASSIGN fg-rctd.trans-time   = TIME 
-         fg-rctd.enteredBy = USERID("asi")
-         fg-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+         fg-rctd.reject-code[1] = fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
          .
 
   /* Code placed here will execute AFTER standard behavior.    */
@@ -1372,29 +1375,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-reason B-table-Win 
-PROCEDURE valid-reason :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    IF cComboList NE "" AND lAdjustReason-log AND fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
-    THEN DO:
-      MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO fg-rctd.reject-code[1] IN BROWSE {&browse-name}.
-      RETURN ERROR.
-    END.
-  END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-loc-bin-tag B-table-Win 
 PROCEDURE valid-job-loc-bin-tag :
 /*------------------------------------------------------------------------------
@@ -1437,6 +1417,28 @@ PROCEDURE valid-job-loc-bin-tag :
         APPLY "entry" TO fg-rctd.tag IN BROWSE {&browse-name}.
       ELSE
         APPLY "entry" TO fg-rctd.cust-no IN BROWSE {&browse-name}.
+      RETURN ERROR.
+    END.
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-reason B-table-Win 
+PROCEDURE valid-reason :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    IF cComboList NE "" AND lAdjustReason-log AND fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
+    THEN DO:
+      MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO fg-rctd.reject-code[1] IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
   END.

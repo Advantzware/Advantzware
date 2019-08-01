@@ -340,7 +340,9 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
      /* Setting this allows relmerge logic to combine properly if the user */
      /* has manually changed the loc on fg-rctd                            */
      IF AVAIL(po-ord) AND po-ord.type EQ "D" THEN
-       oe-rel.spare-char-1 = fg-rctd.loc.
+       ASSIGN
+         oe-rel.qty          = fg-rctd.t-qty
+         oe-rel.spare-char-1 = fg-rctd.loc.
      
     /* 07011402 {oe/findrelh.i oe-rel oe-rel.cust-no} */
     RUN oe/actrelmerg.p (INPUT ROWID(oe-rel), INPUT "FINDRELH", INPUT-OUTPUT iocPrompt, OUTPUT vrRelh).

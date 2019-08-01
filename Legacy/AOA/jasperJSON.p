@@ -26,6 +26,7 @@ iphQuery:QUERY-OPEN.
 iphQuery:GET-FIRST().
 IF NOT iphQuery:QUERY-OFF-END THEN DO:
     OS-CREATE-DIR "users".
+    OS-CREATE-DIR "users\_default".
     OS-CREATE-DIR VALUE("users\" + ipcUserID).
     OS-CREATE-DIR VALUE("users\" + ipcUserID + "\Jasper").
     opcJasperFile = "users\" + ipcUserID + "\"

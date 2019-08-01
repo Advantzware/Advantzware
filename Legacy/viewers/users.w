@@ -116,18 +116,18 @@ DEFINE BUFFER bttUsers FOR ttUsers.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS users.positionMnemonic users.showMnemonic ~
-users.menuSize users.userLanguage users.user_name users.phone-cnty ~
-users.fax-cnty users.image_filename users.user_program[1] ~
+&Scoped-Define ENABLED-FIELDS users.showCueCards users.positionMnemonic ~
+users.showMnemonic users.menuSize users.userLanguage users.user_name ~
+users.phone-cnty users.fax-cnty users.image_filename users.user_program[1] ~
 users.user_program[2] users.user_program[3] users.track_usage ~
 users.use_colors users.use_fonts users.developer users.isLocked ~
 users.userImage[1] users.showMenuImages 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
-&Scoped-Define DISPLAYED-FIELDS users.positionMnemonic users.showMnemonic ~
-users.menuSize users.userLanguage users.user_id users.user_name ~
-users.userAlias users.phone-cnty users.phone users.fax-cnty users.fax ~
-users.image_filename users.user_program[1] users.user_program[2] ~
+&Scoped-Define DISPLAYED-FIELDS users.showCueCards users.positionMnemonic ~
+users.showMnemonic users.menuSize users.userLanguage users.user_id ~
+users.user_name users.userAlias users.phone-cnty users.phone users.fax-cnty ~
+users.fax users.image_filename users.user_program[1] users.user_program[2] ~
 users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
 users.developer users.securityLevel users.isActive users.isLocked ~
 users.userImage[1] users.showMenuImages 
@@ -393,6 +393,9 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     users.showCueCards AT ROW 16 COL 54 WIDGET-ID 532
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY .81
      users.positionMnemonic AT ROW 16.71 COL 66 NO-LABEL WIDGET-ID 126
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -473,17 +476,17 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
-     users.user_program[3] AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 36
-          LABEL "Document Path" FORMAT "x(100)"
-          VIEW-AS FILL-IN 
-          SIZE 60 BY 1
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     users.user_program[3] AT ROW 9.57 COL 21 COLON-ALIGNED WIDGET-ID 36
+          LABEL "Document Path" FORMAT "x(100)"
+          VIEW-AS FILL-IN 
+          SIZE 60 BY 1
+          BGCOLOR 15 FONT 4
      users.track_usage AT ROW 11.95 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 19.8 BY 1
@@ -529,8 +532,16 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     " At Login User Can Select:" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
+          FONT 4
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
+          BGCOLOR 15 
      "HotKey (Mnemonic):" VIEW-AS TEXT
           SIZE 20 BY 1 AT ROW 16.71 COL 3 WIDGET-ID 124
+     "Options:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
      "Pos.:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 16.71 COL 61 WIDGET-ID 130
      "Databases:" VIEW-AS TEXT
@@ -548,11 +559,17 @@ DEFINE FRAME F-Main
      "(Area)" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 108
           BGCOLOR 15 
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 18.14 COL 38 WIDGET-ID 512
      "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
           FONT 1
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 18.14 COL 38 WIDGET-ID 512
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      "2" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 18.14 COL 31 WIDGET-ID 514
      "Menu Level 1" VIEW-AS TEXT
@@ -563,25 +580,11 @@ DEFINE FRAME F-Main
           SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 520
      "Phone: (Country)" VIEW-AS TEXT
           SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 19.57 COL 48 WIDGET-ID 522
           FGCOLOR 0 FONT 6
      "FAX: (Country)" VIEW-AS TEXT
           SIZE 14 BY 1 AT ROW 4.81 COL 17 WIDGET-ID 94
-     " At Login User Can Select:" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
-          FONT 4
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 3.62 COL 40 WIDGET-ID 96
-          BGCOLOR 15 
-     "Options:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 12.19 COL 14 WIDGET-ID 42
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
      cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
      colorChoice-0 AT ROW 18.86 COL 53 WIDGET-ID 472
@@ -1021,23 +1024,13 @@ ON LEAVE OF fiPassword IN FRAME F-Main /* Password */
 OR RETURN OF fiPassword
 DO:
     DEF VAR lPwdOK AS LOG NO-UNDO.
+    
+    IF LASTKEY EQ -1 THEN RETURN.
+    
     RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
     IF NOT lPwdOK THEN DO:
         ASSIGN SELF:SCREEN-VALUE = "".
         RETURN NO-APPLY.
-    END.
-    IF SELF:SCREEN-VALUE = "" THEN DO:
-        MESSAGE
-            "User password cannot be blank." SKIP
-            "Please enter a valid password."
-            VIEW-AS ALERT-BOX ERROR /*QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG*/.
-            RETURN NO-APPLY.
-
-        /*IF NOT lBlanks AND NOT lAdd THEN DO:
-            ASSIGN
-                SELF:SCREEN-VALUE = _user._password.
-            RETURN NO-APPLY.
-        END.*/
     END.
     IF NOT lAdd THEN 
         RUN ipChangePassword (SELF:SCREEN-VALUE).
@@ -1456,6 +1449,7 @@ PROCEDURE ipCheckPwd :
     DEF VAR iHasSC AS INT NO-UNDO.
     DEF VAR iHasLen AS INT NO-UNDO.
     DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR cMsg AS CHAR NO-UNDO.
     
     ASSIGN
         lPwdOK = YES.
@@ -1529,15 +1523,17 @@ PROCEDURE ipCheckPwd :
     OR iHasNC LT usercontrol.minNC
     OR iHasSC LT usercontrol.minSC THEN DO:
         ASSIGN
-            lPwdOK = NO.
+            lPwdOK = NO
+            cMsg = "The password you entered does not meet requirements." + CHR(10) + 
+                    (IF (iHasLen LT usercontrol.minPasswordLen) THEN ("Minimum Length: " + STRING(usercontrol.minPasswordLen) + " - Yours has " + STRING(iHasLen) + CHR(10)) ELSE "") +
+                    (IF (iHasLC LT usercontrol.minLC) THEN ("Minimum lower case: " + STRING(usercontrol.minLC) + " - Yours has " + STRING(iHasLC) + CHR(10)) ELSE "") +
+                    (IF (iHasUC LT usercontrol.minUC) THEN ("Minimum UPPER case: " + STRING(usercontrol.minUC) + " - Yours has " + STRING(iHasUC) + CHR(10)) ELSE "") +
+                    (IF (iHasNC LT usercontrol.minNC) THEN ("Minimum numeric chars: " + STRING(usercontrol.minNC) + " - Yours has " + STRING(iHasNC) + CHR(10)) ELSE "") +
+                    (IF (iHasSC LT usercontrol.minSC) THEN ("Minimum special chars: " + STRING(usercontrol.minSC) + " - Yours has " + STRING(iHasSC) + CHR(10)) ELSE "") +
+                    "Please try again." 
+                    .
         MESSAGE
-            "The password you entered does not meet requirements." SKIP
-            "Minimum Length = " + STRING(usercontrol.minPasswordLen) + " - Yours has " + STRING(iHasLen) SKIP
-            "Minimum lower case = " + STRING(usercontrol.minLC) + " - Yours has " + STRING(iHasLC)  SKIP
-            "Minimum UPPER case = " + STRING(usercontrol.minUC) + " - Yours has " + STRING(iHasUC)  SKIP
-            "Minimum numeric chars = " + STRING(usercontrol.minNC) + " - Yours has " + STRING(iHasNC)  SKIP
-            "Minimum special chars = " + STRING(usercontrol.minSC) + " - Yours has " + STRING(iHasSC) SKIP
-            "Please try again." 
+            cMsg
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
@@ -2264,6 +2260,13 @@ PROCEDURE local-update-record :
             users.menuBGColor[3] = BGColor-3:BGCOLOR
             .
     END.
+    
+    CASE users.showCueCard:
+        WHEN NO THEN
+        RUN spInactivateCueCards ("System").
+        WHEN YES THEN
+        RUN spActivateCueCards.
+    END CASE.
 
     RUN ipWriteUsrFile.
     EMPTY TEMP-TABLE ttUsers.

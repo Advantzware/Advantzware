@@ -120,7 +120,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 157.4 BY 22.38.
+         SIZE 160 BY 28.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -142,12 +142,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "FG Item"
-         HEIGHT             = 22.38
-         WIDTH              = 157.4
-         MAX-HEIGHT         = 24.14
-         MAX-WIDTH          = 172
-         VIRTUAL-HEIGHT     = 24.14
-         VIRTUAL-WIDTH      = 172
+         HEIGHT             = 28.57
+         WIDTH              = 160
+         MAX-HEIGHT         = 28.57
+         MAX-WIDTH          = 160
+         VIRTUAL-HEIGHT     = 28.57
+         VIRTUAL-WIDTH      = 160
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -261,7 +261,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 22.38 , 157.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 28.57 , 159.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -273,7 +273,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_itemfg ).
-       RUN set-position IN h_itemfg ( 2.67 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_itemfg ( 2.67 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 17.14 , 144.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -283,7 +283,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-upditm ).
-       RUN set-position IN h_p-upditm ( 20.52 , 30.00 ) NO-ERROR.
+       RUN set-position IN h_p-upditm ( 23.52 , 30.00 ) NO-ERROR.
        RUN set-size IN h_p-upditm ( 2.14 , 82.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -291,7 +291,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_p-calcc ).
-       RUN set-position IN h_p-calcc ( 20.52 , 113.00 ) NO-ERROR.
+       RUN set-position IN h_p-calcc ( 23.52 , 113.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -299,7 +299,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-spcard ).
-       RUN set-position IN h_v-spcard ( 20.52 , 130.00 ) NO-ERROR.
+       RUN set-position IN h_v-spcard ( 23.52 , 130.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 15.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -355,7 +355,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_p-calcq ).
-       RUN set-position IN h_p-calcq ( 17.67 , 85.00 ) NO-ERROR.
+       RUN set-position IN h_p-calcq ( 17.97 , 85.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 17.20 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -363,7 +363,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_p-overq ).
-       RUN set-position IN h_p-overq ( 17.67 , 103.00 ) NO-ERROR.
+       RUN set-position IN h_p-overq ( 17.97 , 113.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 17.20 ) */
 
        /* Initialize other pages that this page requires. */
@@ -440,7 +440,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_fgijob ).
-       RUN set-position IN h_fgijob ( 3.62 , 16.00 ) NO-ERROR.
+       RUN set-position IN h_fgijob ( 2.92 , 16.00 ) NO-ERROR.
        /* Size in UIB:  ( 5.00 , 118.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -460,7 +460,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_p-fg-bj ).
-       RUN set-position IN h_p-fg-bj ( 18.14 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_p-fg-bj ( 8.14 , 70.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 65.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -624,7 +624,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updven ).
-       RUN set-position IN h_p-updven ( 20.57 , 65.00 ) NO-ERROR.
+       RUN set-position IN h_p-updven ( 22.57 , 65.00 ) NO-ERROR.
        RUN set-size IN h_p-updven ( 2.38 , 54.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -632,7 +632,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_pricechg ).
-       RUN set-position IN h_pricechg ( 20.57 , 120.00 ) NO-ERROR.
+       RUN set-position IN h_pricechg ( 22.57 , 120.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 17.20 ) */
 
        /* Initialize other pages that this page requires. */

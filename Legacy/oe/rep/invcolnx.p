@@ -6,12 +6,13 @@ DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
-
+{custom/notesdef.i}
 def var v-salesman as char format "x(14)" NO-UNDO.
 def var v-salesname as char format "x(30)" NO-UNDO.
 def var v-fob as char format "x(27)" NO-UNDO.
 def var v-shipvia like carrier.dscr NO-UNDO.
 
+DEF VAR cNotesRecKey AS CHAR NO-UNDO.
 def var v-addr3 as char format "x(30)" NO-UNDO.
 def var v-sold-addr3 as char format "x(30)" NO-UNDO.
 def var v-shipto-name as char format "x(30)" NO-UNDO.
@@ -54,6 +55,7 @@ DEF VAR cBillNotes LIKE inv-head.bill-i NO-UNDO.
 def buffer xinv-head for inv-head .
 def buffer xinv-line for inv-line .
 DEF BUFFER bf-inv-head FOR inv-head.
+DEF BUFFER n-inv-head FOR inv-head.
 
 def workfile w-sman
   field sman as char format "x(4)".
@@ -116,6 +118,8 @@ def var v-billto-addr3 as char format "x(30)" NO-UNDO.
 def var v-billto-city as char format "x(15)" NO-UNDO.
 def var v-billto-state as char format "x(2)" NO-UNDO.
 def var v-billto-zip as char format "x(10)" NO-UNDO.
+DEFINE VARIABLE cNotes AS CHARACTER EXTENT 60 FORMAT "x(80)" NO-UNDO.
+DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
 
     find first company where company.company = cocode no-lock no-error.
 
@@ -191,6 +195,7 @@ def var v-billto-zip as char format "x(10)" NO-UNDO.
                     cBillNotes[2] = bf-inv-head.bill-i[2]
                     cBillNotes[3] = bf-inv-head.bill-i[3]
                     cBillNotes[4] = bf-inv-head.bill-i[4]
+                    cNotesRecKey = bf-inv-head.rec_key
                     .
                 LEAVE.
             END.
@@ -572,6 +577,9 @@ def var v-billto-zip as char format "x(10)" NO-UNDO.
 
         end. /* each inv-misc */
 
+        ASSIGN cNotes = ""
+               iNotesLine = 0.
+
         if v-prntinst then do:
          DO i = 1 TO 4:
              IF cBillNotes[i] <> "" THEN DO:
@@ -584,8 +592,30 @@ def var v-billto-zip as char format "x(10)" NO-UNDO.
                  v-printline = v-printline + 1.
               END.
            END.
-        end.
-
+           
+           FIND n-inv-head WHERE 
+                n-inv-head.company EQ xinv-head.company AND 
+                n-inv-head.bol-no EQ xinv-head.bol-no AND 
+                n-inv-head.cust-no EQ xinv-head.cust-no AND 
+                n-inv-head.rec_key EQ cNotesRecKey 
+                NO-LOCK NO-ERROR.
+            
+           {custom/notesprtA.i n-inv-head cNotes 60}
+           
+               PUT SKIP(1) .
+           DO i = 1 TO 60:
+               IF v-printline > 47 THEN do:           
+                   PAGE.
+                   {oe/rep/invcolnx.i}  /* xprint form */
+                       v-printline = 21.
+               END.
+               IF cNotes[i] NE "" THEN do:
+                   PUT "<C1>" cNotes[i] FORMAT "x(80)" SKIP .
+                   v-printline = v-printline + 1 .
+               END.
+           END.
+        END.
+        
         /* T O T A L S */
        assign
            tmp1  = 0

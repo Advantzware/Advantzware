@@ -107,7 +107,7 @@ itemfg.spare-char-4 itemfg.stackHeight itemfg.unitLength itemfg.unitWidth ~
 itemfg.unitHeight itemfg.std-mat-cost itemfg.std-lab-cost ~
 itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom ~
-itemfg.palletVolume 
+itemfg.palletVolume itemfg.poStatus
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
@@ -127,7 +127,7 @@ itemfg.unitLength itemfg.unitWidth itemfg.unitHeight itemfg.std-mat-cost ~
 itemfg.std-lab-cost itemfg.std-var-cost itemfg.std-fix-cost ~
 itemfg.spare-dec-1 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost ~
 itemfg.prod-uom itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate ~
-itemfg.palletVolume 
+itemfg.palletVolume itemfg.poStatus
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tg-Freeze-weight fi_type-dscr 
@@ -214,6 +214,13 @@ DEFINE FRAME F-Main
           LABEL "Rel Seq" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
+     itemfg.poStatus  AT ROW 16.91 COL 50 COLON-ALIGNED
+     LABEL "Po Status" 
+     VIEW-AS COMBO-BOX INNER-LINES 3 
+        LIST-ITEM-PAIRS "Default","Default",
+                     "Locked","Locked",
+                     "NoAuto","NoAuto"
+        DROP-DOWN-LIST
      itemfg.setupDate AT ROW 19.86 COL 15.4 COLON-ALIGNED
           LABEL "Setup Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
@@ -632,6 +639,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN itemfg.poStatus IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.stackHeight IN FRAME F-Main

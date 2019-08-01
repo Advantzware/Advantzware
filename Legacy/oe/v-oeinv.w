@@ -1876,6 +1876,13 @@ PROCEDURE valid-sold-no :
              shipto.ship-id EQ inv-head.sold-no:SCREEN-VALUE
              NO-LOCK NO-ERROR.
 
+        IF AVAIL shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key)  THEN do:
+            MESSAGE "The Ship To is inactive and cannot be used on an Invoice. "
+                  VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+              APPLY "entry" TO inv-head.sold-no.
+              RETURN ERROR.
+        END.
+
         IF AVAIL shipto THEN
            assign inv-head.sold-no:SCREEN-VALUE  = shipto.ship-id
                   inv-head.sold-name:SCREEN-VALUE = shipto.ship-name

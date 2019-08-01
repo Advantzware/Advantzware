@@ -493,26 +493,23 @@ DO:
             AND oe-ordl.job-no2 EQ job-hdr.job-no2
             AND oe-ordl.i-no    EQ tt-reftable.code2 /*job-hdr.i-no*/
             NO-LOCK NO-ERROR.
-        IF AVAILABLE oe-ordl THEN
-            FIND FIRST oe-rel
-                WHERE oe-rel.company EQ cocode
-                AND oe-rel.ord-no  EQ oe-ordl.ord-no
-                AND oe-rel.i-no    EQ oe-ordl.i-no
-                AND oe-rel.line    EQ oe-ordl.line
-                NO-LOCK NO-ERROR.
-        IF AVAILABLE oe-rel THEN 
+
+        FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
+            AND oe-ord.ord-no  EQ job-hdr.ord-no NO-LOCK NO-ERROR.
+        
+        IF AVAILABLE oe-ord THEN 
         DO:
             FIND FIRST shipto
                 WHERE shipto.company EQ cocode
-                AND shipto.cust-no EQ oe-rel.cust-no
-                AND shipto.ship-id EQ oe-rel.ship-id
+                AND shipto.cust-no EQ oe-ord.cust-no
+                AND shipto.ship-id EQ oe-ord.ship-id
                 NO-LOCK NO-ERROR.  
             IF AVAILABLE shipto THEN
                 ASSIGN v-shipto[1] = shipto.ship-name 
                     v-shipto[2] = shipto.ship-addr[1]
                     v-shipto[3] = shipto.ship-addr[2]
-                    v-shipto[4] = TRIM(oe-rel.ship-city) + ", " +
-                                   oe-rel.ship-state + "  " + oe-rel.ship-zip.          
+                    v-shipto[4] = TRIM(shipto.ship-city) + ", " +
+                                   shipto.ship-state + "  " + shipto.ship-zip.          
         END.
     END.
 
@@ -1293,36 +1290,36 @@ FOR EACH ef
             IF NOT AVAILABLE tt-key2 THEN CREATE tt-key2.                                       
             V-PRT-UP = v-up * ef.n-out-l.
             
-            IF PAGE-SIZE - LINE-COUNTER < 1 THEN PAGE. 
+            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
             PUT "<#6>"
-                "QTY: " v-ord-qty FORM ">>>>,>>9" " " (IF AVAIL oe-ord THEN oe-ord.under-pct ELSE 0) " Unders/ " (IF AVAIL oe-ord THEN oe-ord.over-pct ELSE 0) " Over"  "<C47>" "SIZE: " /*AT 47 */ "<C53>" v-size[1] FORM "x(35)"  SKIP
+                "QTY: " xjob-hdr.qty /*v-ord-qty*/ FORM ">>>>,>>9" " " (IF AVAIL oe-ord THEN oe-ord.under-pct ELSE 0) " Unders/ " (IF AVAIL oe-ord THEN oe-ord.over-pct ELSE 0) " Over"  "<C47>" "SIZE: " /*AT 47 */ "<C53>" v-size[1] FORM "x(35)"  SKIP
                 "DESC:  " v-dsc[1] FORM "x(30)"  "<C38>" "STYLE:  " v-stypart SKIP
                 v-dsc[2] AT 7    FORM "x(30)"  "<C45>" tt-key2.tt-style[1] FORM "x(25)" SKIP
                 v-dsc[3] AT 7    FORM "x(30)"  "<C45>" tt-key2.tt-style[2] FORM "x(25)" SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 1 THEN PAGE. 
+            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
             PUT
                 "PRINT " v-prt-up FORM ">>>9" ", CUT " v-up FORM ">>>9" " UP"   "<C38>" "LAST JOB RUN:  "  SKIP
                 "PLATE#:  " bf-eb.plate-no "<C38>" "DIE#:  " "<C43>" bf-eb.die-no FORMAT "x(20)" SKIP
                 "CUSTOMER PART#:  " bf-eb.part-no   "<C38>" "CAD#:  " bf-eb.cad-no SKIP
                 "PO:  " v-po-no       "<C38>" "PRTD:  " bf-eb.i-coldscr SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 1 THEN PAGE. 
+            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
             PUT
                 "DEL:  " v-del-date      SKIP
                 "SHIP TO:  " v-shipto[1]   
                 SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 1 THEN PAGE. 
+            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
             PUT
                 v-shipto[2] AT 8 
                 "<C38>" "PACK:  "  bf-eb.cas-cnt "        PER CASE:  " bf-eb.cas-no  SKIP
                 v-shipto[3] AT 8  "<C38>PACK: " bf-eb.cas-pal FORM ">>9" "<C47>PER PALLET" SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 1 THEN PAGE.
+            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE.
             PUT       
                 v-shipto[4] AT 8  "<C38>AQL:  "  tt-key2.tt-aql FORM "x(25)"
                 SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 1 THEN PAGE. 
+            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
             PUT
                 "FG ITEM:  " bf-eb.stock-no SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 1 THEN PAGE. 
+            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
             PUT v-fill2 SKIP.
                 
             IF AVAILABLE tt-key2 THEN DELETE tt-key2.

@@ -127,6 +127,7 @@ DEF VAR cOrderDate          AS CHAR NO-UNDO.
 DEF VAR dOrigQty            AS DEC NO-UNDO.
 DEF VAR cOrigUom            AS CHAR NO-UNDO.
 DEFINE VARIABLE cXMLShipTo AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cImageFooter AS CHARACTER FORMAT "x(200)" NO-UNDO.
@@ -141,6 +142,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 
+RUN sys/ref/nk1look.p (INPUT cocode, "CaseUOMList", "C" /* Logical */, NO /* check by cust */, 
+     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+     OUTPUT cRtnChar, OUTPUT lRecFound).
+cCaseUomList = cRtnChar.  
+  
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 form 

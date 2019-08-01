@@ -622,9 +622,7 @@ DO:
          DO:
             {oe/sel-binsrel.i "oe-rel"}
          END.
-         ASSIGN 
-           oe-rell.enteredBy = USERID("asi")
-           oe-rell.enteredDT = DATETIME(TODAY, MTIME)   
+         ASSIGN   
            op-rowid-list = op-rowid-list + STRING(ROWID(oe-rell)) + ","
           .
        END.
@@ -635,8 +633,6 @@ DO:
          
          ASSIGN
            oe-boll.weight = oe-boll.qty / 100 * itemfg.weight-100
-           oe-boll.enteredBy = USERID("asi")
-           oe-boll.enteredDT = DATETIME(TODAY, MTIME)  
            .
          IF NOT AVAIL oe-ordl THEN
          FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode

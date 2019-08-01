@@ -355,6 +355,8 @@ for each itemfg
                               ASSIGN cVarValue = STRING(v-reord-qty - li-avg-hist,"->,>>>,>>9")  
                                  cExcelVarValue = "".
                           END.
+			              WHEN "opt-qty" THEN ASSIGN cVarValue = STRING(v-alloc-qty - li-avg-hist,"->>,>>>,>>>,>>9") 
+				              cExcelVarValue = "". 
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
                           WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
@@ -455,6 +457,8 @@ for each itemfg
                                  ASSIGN cVarValue = STRING(v-reord-qty - li-avg-hist,"->,>>>,>>9") 
                                     cExcelVarValue = "".
                           END.
+			              WHEN "opt-qty" THEN ASSIGN cVarValue = STRING(v-alloc-qty - li-avg-hist,"->>,>>>,>>>,>>9")   
+                              cExcelVarValue = "".
                            WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
                           WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")

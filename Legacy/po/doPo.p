@@ -213,7 +213,8 @@ DEFINE TEMP-TABLE w-job-mat NO-UNDO like job-mat
     field estPrepEQty  AS DEC
     field estPrepLine  as int
     field miscType     as int
-    field miscInd      as char.
+    field miscInd      as char
+    FIELD fg-part-no   AS CHARACTER.
 
 DEFINE TEMP-TABLE tt-itemfg NO-UNDO 
     FIELD isaset       LIKE itemfg.isaset
@@ -3448,13 +3449,17 @@ PROCEDURE promptCreatePoLine :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-  
+  DEFINE VARIABLE lCheckFgItemPoStatus AS LOGICAL NO-UNDO .
     IF gvlDebug THEN             
         PUT STREAM sDebug UNFORMATTED "Prompt create PO line " w-job-mat.i-no  SKIP.
-  
+
+    IF NOT w-job-mat.this-is-a-rm THEN
+        RUN fg/GetItemfgPoStatus.p (INPUT cocode,
+                                    INPUT w-job-mat.rm-i-no,w-job-mat.fg-part-no,NO,
+                                    OUTPUT lCheckFgItemPoStatus).
     gvlChoice = NO.
     IF gvcVendNo EQ "" 
-        AND ((v-autopo-sec AND w-job-mat.this-is-a-rm) OR (v-autofg-sec AND NOT w-job-mat.this-is-a-rm)) 
+        AND ((v-autopo-sec AND w-job-mat.this-is-a-rm) OR (v-autofg-sec AND NOT w-job-mat.this-is-a-rm AND lCheckFgItemPoStatus )) 
         AND NOT w-job-mat.isaset THEN 
     DO ON ENDKEY UNDO, LEAVE:
 
@@ -4566,6 +4571,7 @@ PROCEDURE wJobFromttItemfg :
                 w-job-mat.rm-i-no      = itemfg.i-no
                 w-job-mat.i-no         = itemfg.i-no
                 w-job-mat.fg-i-no      = itemfg.i-no
+                w-job-mat.fg-part-no   = bf-ordl.part-no
                 w-job-mat.est-no       = bf-ordl.est-no
                 w-job-mat.frm          = tt-itemfg.form-no
                 w-job-mat.blank-no     = tt-itemfg.blank-no

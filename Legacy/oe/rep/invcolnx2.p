@@ -6,7 +6,7 @@ DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
-
+{custom/notesdef.i}
 DEF SHARED VAR v-fr-tax AS LOGICAL INITIAL NO NO-UNDO.
 
 DEF VAR v-salesman     AS CHAR FORMAT "x(14)" NO-UNDO.
@@ -95,9 +95,13 @@ def var v-billto-city as char format "x(15)" NO-UNDO.
 def var v-billto-state as char format "x(2)" NO-UNDO.
 def var v-billto-zip as char format "x(10)" NO-UNDO.
 def var v-job-no AS CHAR FORMAT "x(13)" no-undo.
+DEFINE VARIABLE cBillNotes LIKE inv-head.bill-i NO-UNDO.
+DEFINE VARIABLE cNotes AS CHARACTER EXTENT 60 FORMAT "x(80)" NO-UNDO.
+DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
 
 DEF BUFFER xinv-head FOR inv-head.
 DEF BUFFER xinv-line FOR inv-line.
+DEF BUFFER bf-inv-head FOR inv-head.
 
 DEF TEMP-TABLE w-sman
   FIELD sman AS CHAR FORMAT "x(4)".
@@ -187,6 +191,35 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         THEN ASSIGN v-fob = "Origin".
         ELSE ASSIGN v-fob = "Destination".
 
+        ASSIGN 
+            cBillNotes[1] = ""
+            cBillNotes[2] = ""
+            cBillNotes[3] = ""
+            cBillNotes[4] = "".
+        IF xinv-head.multi-invoice THEN
+            FOR EACH bf-inv-head 
+                WHERE bf-inv-head.company EQ xinv-head.company
+                  AND bf-inv-head.bol-no EQ xinv-head.bol-no
+                  AND bf-inv-head.cust-no EQ xinv-head.cust-no
+                  AND NOT bf-inv-head.multi-invoice
+                  AND bf-inv-head.stat NE "H"
+                NO-LOCK
+                BREAK BY bf-inv-head.inv-date DESC:
+                ASSIGN 
+                    cBillNotes[1] = bf-inv-head.bill-i[1]
+                    cBillNotes[2] = bf-inv-head.bill-i[2]
+                    cBillNotes[3] = bf-inv-head.bill-i[3]
+                    cBillNotes[4] = bf-inv-head.bill-i[4]
+                    .
+                LEAVE.
+            END.
+        ELSE 
+            ASSIGN
+                cBillNotes[1] = xinv-head.bill-i[1]
+                cBillNotes[2] = xinv-head.bill-i[2]
+                cBillNotes[3] = xinv-head.bill-i[3]
+                cBillNotes[4] = xinv-head.bill-i[4]
+                .
 
       FIND FIRST carrier NO-LOCK 
         WHERE carrier.company EQ inv-head.company 
@@ -650,18 +683,33 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
          END.
       END. /* each inv-misc */
 
+      ASSIGN cNotes = ""
+          iNotesLine = 0.
+
       IF v-prntinst THEN do:
 
         DO i = 1 TO 4:
-
-          IF inv-head.bill-i[i] NE "" THEN DO:
-
-            PUT inv-head.bill-i[i] AT 10 SKIP.
+          IF cBillNotes[i] NE "" THEN DO:
+            PUT "<C1>" cBillNotes[i] SKIP.
             ASSIGN v-printline = v-printline + 1.
           END.
         END. /* 1 to 4 */
-      END.
 
+        {custom/notesprtA.i inv-head cNotes 60}
+            PUT SKIP(1) .
+        DO i = 1 TO 60:
+            IF v-printline > 47 THEN do:           
+                PAGE.
+                {oe/rep/invcolnx2.i}
+                    v-printline = 21.
+            END.
+            IF cNotes[i] NE "" THEN do:
+                PUT "<C1>" cNotes[i] FORMAT "x(80)" SKIP .
+                v-printline = v-printline + 1 .
+            END.
+        END.
+      END.
+      
       /* T O T A L S */
       ASSIGN tmp1  = 0
              tmp2  = ?

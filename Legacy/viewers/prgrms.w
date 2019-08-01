@@ -173,11 +173,11 @@ DEFINE RECTANGLE RECT-2
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     prgrms.prgmname AT ROW 1.24 COL 13 COLON-ALIGNED FORMAT "X(16)"
+     prgrms.prgmname AT ROW 1.24 COL 13 COLON-ALIGNED FORMAT "X(32)"
           VIEW-AS FILL-IN 
-          SIZE 26 BY 1
+          SIZE 39 BY 1
           BGCOLOR 15 FONT 4
-     prgrms.prgtitle AT ROW 1.24 COL 46 COLON-ALIGNED FORMAT "X(60)"
+     prgrms.prgtitle AT ROW 1.24 COL 59 COLON-ALIGNED FORMAT "X(60)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 FONT 4
@@ -276,16 +276,16 @@ DEFINE FRAME F-Main
      F-2 AT ROW 15.76 COL 31 NO-LABEL WIDGET-ID 12
      "Delete:" VIEW-AS TEXT
           SIZE 7.6 BY .62 AT ROW 9.33 COL 7
-     " Menu Fields" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 28
-     "View:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 3.62 COL 9
-     "Parent(s):" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 11.24 COL 5
-     "Update:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 7.43 COL 7
      "Add:" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 5.52 COL 10
+     "Update:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 7.43 COL 7
+     "Parent(s):" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 11.24 COL 5
+     "View:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 3.62 COL 9
+     " Menu Fields" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 28
      RECT-1 AT ROW 1 COL 1
      cMenuImage AT ROW 14.57 COL 101 WIDGET-ID 18
      RECT-2 AT ROW 13.19 COL 1 WIDGET-ID 26

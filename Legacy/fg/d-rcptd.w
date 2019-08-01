@@ -591,7 +591,7 @@ ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
                         ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN 
                             DO:
                                 RUN windows/l-jobit1.w (fg-rctd.company,fg-rctd.job-no:SCREEN-VALUE,fg-rctd.job-no2:screen-value, FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT rec-val).
-                                IF char-val <> ""  THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+                                IF char-val <> ""  THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val). 
                                 IF rec-val <> ? THEN 
                                 DO:
                                     FIND tt-job-hdr WHERE RECID(tt-job-hdr) = rec-val NO-LOCK NO-ERROR.
@@ -628,6 +628,7 @@ ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
                                 fg-rctd.job-no2:screen-value = ENTRY(2,char-val)
                                 fg-rctd.i-no:SCREEN-VALUE    = ENTRY(3,char-val)
                                 .
+                        RUN  pGetUnassembledItem(cocode , ENTRY(3,char-val)) .
                         IF rec-val <> ? THEN 
                         DO:
                             FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
@@ -1011,9 +1012,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         ASSIGN
             fg-rctd.t-qty     = DEC(ls-tmp-qty)
             fg-rctd.pur-uom   = ls-tmp-uom
-            fg-rctd.cost-uom  = ls-tmp-uom
-            fg-rctd.enteredBy = USERID("asi")
-            fg-rctd.enteredDT = DATETIME(TODAY, MTIME)                      
+            fg-rctd.cost-uom  = ls-tmp-uom                    
             fg-rctd.ext-cost  = fg-rctd.std-cost * fg-rctd.t-qty /
                       (IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
         IF fg-rctd.po-no GT "" THEN 
@@ -3136,6 +3135,7 @@ PROCEDURE new-job-no :
                                                 job-hdr.std-lab-cost +
                                                 job-hdr.std-fix-cost +
                                                 job-hdr.std-var-cost).
+                      RUN  pGetUnassembledItem(cocode , job-hdr.i-no) .
 
                     RUN get-def-values.
 
@@ -4061,7 +4061,6 @@ PROCEDURE valid-po-no :
             IF ip-type EQ 1 AND
                 AVAILABLE po-ord AND
                 adm-adding-record AND
-                fg-rctd.tag:SCREEN-VALUE EQ "" AND
                 NOT CAN-FIND(FIRST tt-fg-rctd) THEN 
             DO:
                 RUN fg/d-selpos.w (ROWID(po-ord), NO).
@@ -4504,6 +4503,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnassembledItem Dialog-Frame 
+PROCEDURE pGetUnassembledItem :
+    /*------------------------------------------------------------------------------
+    Purpose:     
+    Parameters:  <none>
+    Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
+    DEFINE BUFFER bf-itemfg FOR itemfg .
+DO WITH FRAME {&FRAME-NAME}: 
+    FIND FIRST bf-itemfg NO-LOCK
+        WHERE bf-itemfg.company EQ ipcCompany
+          AND bf-itemfg.i-no    EQ ipcFGItem
+          AND bf-itemfg.isaset  EQ YES
+          AND bf-itemfg.alloc   EQ YES NO-ERROR .  /* bf-itemfg.alloc EQ YES use for unassemble */
+    IF AVAIL bf-itemfg THEN
+        FIND FIRST fg-set NO-LOCK
+        WHERE fg-set.company = bf-itemfg.company 
+        AND fg-set.set-no = bf-itemfg.i-no NO-ERROR .
+    IF AVAIL bf-itemfg AND AVAIL fg-set THEN
+        fg-rctd.i-no:SCREEN-VALUE     = fg-set.part-no .
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

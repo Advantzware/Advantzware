@@ -5,6 +5,7 @@
 
 def input parameter v-est-id as recid no-undo.
 DEF INPUT PARAMETER v-eb-rowid AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipcFormat as CHARACTER NO-UNDO.
 
 def var li-num-of-line as int no-undo.
 def {2} shared var v-out1-id       as   recid          no-undo.
@@ -209,13 +210,15 @@ for each ef
           "     Design #: " +
           trim(string(if avail style and box-design-hdr.design-no eq 0 then
                         style.design-no else box-design-hdr.design-no,">>>")) +
-          "   " + box-design-hdr.DESCRIPTION + "    CorrDir:"  +
-          IF ef.xgrain = "N" THEN "Vertical" ELSE "Horizontal"
-   v-hdr = v-hdr +
-           "  Style: " + eb.style + ", " +
+          "   " + box-design-hdr.DESCRIPTION  .
+       if ipcFormat NE "HoneyCell" THEN
+        v-hdr = v-hdr + "    CorrDir:"  +
+          IF ef.xgrain = "N" THEN "Vertical" ELSE "Horizontal" .
+       v-hdr = v-hdr +  "  Style:" + eb.style + ", " +
            IF AVAIL style THEN style.dscr ELSE "".
+       
+        put {1} v-hdr format "x(120)" skip.
 
-  put {1} v-hdr skip.
   if v-triad then
        put {1} space(6) v-lcum-score-c space(2) "Totals" skip.
 

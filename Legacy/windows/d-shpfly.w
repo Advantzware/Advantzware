@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+DEFINE OUTPUT PARAMETER opcShipTo AS CHARACTER NO-UNDO .
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
@@ -54,7 +55,7 @@ DEF VAR lv-ship-addr  LIKE shipto.ship-addr  NO-UNDO.
 DEF VAR lv-ship-city  LIKE shipto.ship-city  NO-UNDO.
 DEF VAR lv-ship-state LIKE shipto.ship-state NO-UNDO.
 DEF VAR lv-ship-zip   LIKE shipto.ship-zip   NO-UNDO.
-
+DEFINE VARIABLE lCheckCancel AS LOGICAL NO-UNDO .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -161,12 +162,19 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* Add New Shipto for Customer: */
 DO:
   DEF VAR ll AS LOG NO-UNDO.
 
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "new-record-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN pGetShipTo IN WIDGET-HANDLE(char-hdl) (OUTPUT opcShipTo).
+
+  IF opcShipTo EQ "" AND AVAIL cust AND lv-ship-id EQ "" THEN
+      ASSIGN opcShipTo = cust.cust-no .
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "check-save-source", OUTPUT char-hdl).
 
   RUN check-save IN WIDGET-HANDLE(char-hdl) (OUTPUT ll).
 
-  IF NOT ll THEN RETURN NO-APPLY.
+  IF NOT lCheckCancel THEN
+      IF NOT ll THEN RETURN NO-APPLY.
 
   APPLY "go":U TO FRAME {&FRAME-NAME}.
 END.
@@ -503,6 +511,21 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCloseWindow D-Dialog 
+PROCEDURE pCloseWindow :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+     ASSIGN lCheckCancel = YES .
+    apply "window-close" to frame {&frame-name}. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

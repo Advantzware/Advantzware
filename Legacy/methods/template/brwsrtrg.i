@@ -16,18 +16,23 @@
 {methods/template/brwsord.i 13}
 
 &Scoped-define SELF-NAME auto_find
-ON LEAVE OF {&SELF-NAME} IN FRAME {&FRAME-NAME} /* Auto Find */
-DO:
-  ASSIGN
-    {&SELF-NAME}
-    find-auto = yes.
-  APPLY "ANY-PRINTABLE" TO {&BROWSE-NAME}.
-  find-auto = no.
-END.
+/*ON LEAVE OF {&SELF-NAME} IN FRAME {&FRAME-NAME} /* Auto Find */*/
+/*DO:                                                            */
+/*  ASSIGN                                                       */
+/*    {&SELF-NAME}                                               */
+/*    find-auto = yes.                                           */
+/*  APPLY "ANY-PRINTABLE" TO {&BROWSE-NAME}.                     */
+/*  find-auto = no.                                              */
+/*END.                                                           */
 
 ON RETURN OF {&SELF-NAME} IN FRAME {&FRAME-NAME} /* Auto Find */
 DO:
-  APPLY "LEAVE" TO {&SELF-NAME}.
+/*  APPLY "LEAVE" TO {&SELF-NAME}.*/
+  ASSIGN
+    {&SELF-NAME}
+    find-auto = YES.
+  APPLY "ANY-PRINTABLE" TO {&BROWSE-NAME}.
+  find-auto = NO.
 END.
 
 &Scoped-define SELF-NAME browse-order

@@ -47,6 +47,7 @@ DEF TEMP-TABLE tt-inv FIELD selekt AS LOG LABEL "Selected"
                       FIELD check-no AS INT
                       FIELD row-id2 AS ROWID
                       FIELD x-no LIKE ar-inv.x-no.
+DEF BUFFER btt-inv FOR tt-inv.
 
 DEF TEMP-TABLE tt-invl LIKE ar-invl.
 
@@ -177,8 +178,7 @@ DEFINE FRAME D-Dialog
      SPACE(57.19) SKIP(0.71)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "AR Invoice Selection"
-         DEFAULT-BUTTON Btn_OK.
+         TITLE "AR Invoice Selection".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -383,7 +383,6 @@ DO:
               "Do you want to include discounts even if past terms date?" VIEW-AS ALERT-BOX QUESTION
               BUTTON YES-NO-CANCEL UPDATE ll-ans.
     END.
-
     IF ll-ans OR (NOT ip-is-memo AND NOT ll-ans) THEN DO:
         ASSIGN
          op-cancel      = YES
@@ -395,15 +394,15 @@ DO:
           IF AVAIL tt-inv THEN tt-inv.selekt = YES.
         END.
 
-        FOR EACH tt-inv WHERE tt-inv.selekt,
-            FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
+        FOR EACH btt-inv WHERE btt-inv.selekt,
+            FIRST ar-inv WHERE ROWID(ar-inv) EQ btt-inv.row-id NO-LOCK
             BREAK BY ar-inv.due:
 
            ASSIGN
             op-cancel       = NO
             li-seq-no       = li-seq-no + 1
-            tt-inv.seq-no   = li-seq-no
-            tt-inv.amt-disc = 0.
+            btt-inv.seq-no   = li-seq-no
+            btt-inv.amt-disc = 0.
            
            IF NOT ip-is-memo AND
               (ll-ans OR
@@ -424,35 +423,35 @@ DO:
                       ar-inv.tax-amt) * (IF ld-net1 = 0 OR ld-net2 = 0 THEN 1 ELSE ld-net2 / ld-net1).
                                                  
              IF ld-due NE 0 THEN
-               tt-inv.amt-disc = IF ar-inv.disc-% = 0 THEN 0 ELSE ROUND(ld-due * (ar-inv.disc-% / 100),2).
+               btt-inv.amt-disc = IF ar-inv.disc-% = 0 THEN 0 ELSE ROUND(ld-due * (ar-inv.disc-% / 100),2).
            END.
 
            ASSIGN
-            tt-inv.amt-paid = ar-inv.due
-            ld-applied      = ld-applied + (tt-inv.amt-paid - tt-inv.amt-disc).
+            btt-inv.amt-paid = ar-inv.due
+            ld-applied      = ld-applied + (btt-inv.amt-paid - btt-inv.amt-disc).
         END.   /* each tt-inv */
 
         v-amt-paid-inv-no  = 0.
 
-        IF NOT ip-is-memo AND ld-applied GT ar-cash.check-amt THEN
-        FOR EACH tt-inv WHERE tt-inv.selekt,
-            FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
-            BY tt-inv.seq-no DESC:
+        IF NOT ip-is-memo AND ld-applied GT ar-cash.check-amt AND ar-cash.check-amt NE 0 THEN
+        FOR EACH btt-inv WHERE btt-inv.selekt,
+            FIRST ar-inv WHERE ROWID(ar-inv) EQ btt-inv.row-id NO-LOCK
+            BY btt-inv.seq-no DESC:
+
            ASSIGN
-            ld-applied    = ld-applied - (tt-inv.amt-paid - tt-inv.amt-disc)
-            tt-inv.selekt = NO.
+            ld-applied    = ld-applied - (btt-inv.amt-paid - btt-inv.amt-disc)
+            btt-inv.selekt = NO.
 
            IF ld-applied LE ar-cash.check-amt THEN DO:
              tt-inv.amt-paid = ar-cash.check-amt - ld-applied + tt-inv.amt-disc.
              IF tt-inv.amt-paid NE 0 THEN tt-inv.selekt = YES.
 
-             v-amt-paid-inv-no = tt-inv.inv-no.
+             v-amt-paid-inv-no = btt-inv.inv-no.
              LEAVE.
            END.
         END.
 
-        FOR EACH tt-inv WHERE tt-inv.selekt:
-         
+        FOR EACH btt-inv WHERE btt-inv.selekt:
            FOR EACH ar-cashl OF ar-cash NO-LOCK BY ar-cashl.line DESCENDING:
               li-next-line = ar-cashl.LINE.
               LEAVE.
@@ -485,23 +484,23 @@ DO:
            end.
 
            ASSIGN
-            ar-cashl.inv-no = tt-inv.inv-no
-            ar-cashl.inv-date = tt-inv.inv-date
-            ar-cashl.amt-due = tt-inv.due
-            ar-cashl.amt-paid = tt-inv.amt-paid
-            ar-cashl.amt-disc = tt-inv.amt-disc.
+            ar-cashl.inv-no = btt-inv.inv-no
+            ar-cashl.inv-date = btt-inv.inv-date
+            ar-cashl.amt-due = btt-inv.due
+            ar-cashl.amt-paid = btt-inv.amt-paid
+            ar-cashl.amt-disc = btt-inv.amt-disc.
 
            /*CM*/
-           IF tt-inv.check-no >= 90000000 AND
-              tt-inv.check-no <= 99999999 THEN
+           IF btt-inv.check-no >= 90000000 AND
+              btt-inv.check-no <= 99999999 THEN
               ar-cashl.inv-no = v-amt-paid-inv-no.
 
            IF ip-is-memo OR
-              (tt-inv.check-no >= 90000000 AND
-              tt-inv.check-no <= 99999999) THEN
+              (btt-inv.check-no >= 90000000 AND
+              btt-inv.check-no <= 99999999) THEN
               ar-cashl.amt-paid = ar-cashl.amt-paid * -1.
 
-           FIND b-cashl WHERE ROWID(b-cashl) EQ tt-inv.row-id NO-LOCK NO-ERROR.
+           FIND b-cashl WHERE ROWID(b-cashl) EQ btt-inv.row-id NO-LOCK NO-ERROR.
            IF AVAIL b-cashl THEN DO:
              FIND FIRST ar-c-memo
                  WHERE ar-c-memo.reftable = "ar-cashl.ar-cashl"

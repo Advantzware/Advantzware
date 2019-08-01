@@ -251,29 +251,34 @@ PROCEDURE pRunQuery:
     
     DEFINE BUFFER {1}SubjectTable FOR {1}SubjectTable.    
 
-    FOR EACH {1}SubjectTable
+    FOR EACH {1}SubjectTable NO-LOCK
         WHERE {1}SubjectTable.subjectID EQ dynSubject.subjectID
            BY {1}SubjectTable.sortOrder
         :
         cTableName = cTableName + {1}SubjectTable.tableName + ",".
     END. /* each {1}SubjectTable */
-    cTableName = TRIM(cTableName,",").
-    IF dynSubject.businessLogic EQ "" THEN
-    RUN AOA/dynQuery.p (
-        ROWID(dynParamValue),
-        queryStr,
-        cTableName,
-        IF ipcType EQ "Grid" THEN 2500 ELSE dynParamValue.recordLimit,
-        OUTPUT hQuery,
-        OUTPUT lOK,
-        OUTPUT cError
-        ).
-    ELSE
-    RUN pRunBusinessLogic (
-        OUTPUT hQuery,
-        OUTPUT lOK,
-        OUTPUT cError
-        ).
+    ASSIGN
+        cTableName = TRIM(cTableName,",")
+        lOK        = TRUE
+        .
+    IF ipcType EQ "Grid" THEN DO:
+        IF dynSubject.businessLogic EQ "" THEN
+        RUN AOA/dynQuery.p (
+            ROWID(dynParamValue),
+            queryStr,
+            cTableName,
+            IF ipcType EQ "Grid" THEN 2500 ELSE dynParamValue.recordLimit,
+            OUTPUT hQuery,
+            OUTPUT lOK,
+            OUTPUT cError
+            ).
+        ELSE
+        RUN pRunBusinessLogic (
+            OUTPUT hQuery,
+            OUTPUT lOK,
+            OUTPUT cError
+            ).
+    END. /* if not grid,print,view */
     IF lOK THEN DO:
         IF iplRun THEN DO:
             RUN pSetParamValueDefault.

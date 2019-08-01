@@ -1,0 +1,105 @@
+ADD TABLE "APIInboundEvent"
+  AREA "Data"
+  DUMP-NAME "apiinboundevent"
+
+ADD FIELD "rec_key" OF "APIInboundEvent" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 42
+  ORDER 10
+
+ADD FIELD "apiRoute" OF "APIInboundEvent" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 64
+  ORDER 20
+
+ADD FIELD "requestDateTime" OF "APIInboundEvent" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  POSITION 4
+  MAX-WIDTH 8
+  ORDER 30
+
+ADD FIELD "requestData" OF "APIInboundEvent" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 5
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 1
+  ORDER 40
+
+ADD FIELD "responseData" OF "APIInboundEvent" AS clob 
+  FORMAT "x(8)"
+  INITIAL ?
+  POSITION 6
+  LOB-AREA "Data"
+  LOB-BYTES 104857600
+  LOB-SIZE 100M
+  CLOB-CODEPAGE "iso8859-1"
+  CLOB-COLLATION "basic"
+  CLOB-TYPE 1
+  ORDER 50
+
+ADD FIELD "success" OF "APIInboundEvent" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 7
+  MAX-WIDTH 1
+  ORDER 60
+
+ADD FIELD "errorMessage" OF "APIInboundEvent" AS character 
+  FORMAT "x(200)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 400
+  ORDER 70
+
+ADD FIELD "requestedBy" OF "APIInboundEvent" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "eventID" OF "APIInboundEvent" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  POSITION 10
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "recordSource" OF "APIInboundEvent" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 16
+  ORDER 100
+
+ADD FIELD "notes" OF "APIInboundEvent" AS character 
+  FORMAT "x(200)"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 400
+  ORDER 110
+
+ADD INDEX "rec_key" ON "APIInboundEvent" 
+  AREA "Data"
+  PRIMARY
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "apiRoute" ON "APIInboundEvent" 
+  AREA "Data"
+  INDEX-FIELD "apiRoute" ASCENDING 
+
+ADD INDEX "requestDateTime" ON "APIInboundEvent" 
+  AREA "Data"
+  INDEX-FIELD "apiRoute" ASCENDING 
+  INDEX-FIELD "requestDateTime" ASCENDING 
+  INDEX-FIELD "success" ASCENDING 

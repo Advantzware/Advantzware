@@ -99,9 +99,9 @@ DEFINE VARIABLE lSuperAdmin       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hColorWidget      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iFGColor          AS INTEGER   NO-UNDO EXTENT 3.
 DEFINE VARIABLE iBGColor          AS INTEGER   NO-UNDO EXTENT 3.
-DEFINE VARIABLE iThisVersion  AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iLastVersion  AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lUpgradeAvail AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iThisVersion      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLastVersion      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lUpgradeAvail     AS LOGICAL   NO-UNDO.
 
 ASSIGN
     g_mainmenu = THIS-PROCEDURE
@@ -142,7 +142,7 @@ Mnemonic
 
 /* Custom List Definitions                                              */
 /* searchFilters,List-2,List-3,List-4,List-5,colorPallet                */
-&Scoped-define searchFilters menuTreeFilter btnMoveDown searchSelections ~
+&Scoped-define searchFilters menuTreeFilter searchSelections btnMoveDown ~
 btnMoveUp btnRemove btnFavorite svFavoriteText 
 &Scoped-define colorPallet colorChoice-0 colorChoice-1 colorChoice-2 ~
 colorChoice-3 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 ~
@@ -376,10 +376,6 @@ DEFINE VARIABLE searchSelections AS CHARACTER
      SIZE 56 BY 11.43
      FONT 1 NO-UNDO.
 
-DEFINE BUTTON btnActivateCueCards 
-     LABEL "Activate Inactive Cue Cards" 
-     SIZE 29 BY 1.14.
-
 DEFINE BUTTON btnCancel 
      IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
@@ -569,6 +565,11 @@ DEFINE RECTANGLE colorChoice-default
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 6 BY 1.19.
 
+DEFINE RECTANGLE cueCardsRect
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 22 BY 1.43
+     BGCOLOR 8 .
+
 DEFINE RECTANGLE FGColor-1
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6 BY 1.
@@ -605,14 +606,14 @@ DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 58 BY 2.86.
 
-DEFINE RECTANGLE RECT-22
-     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
-     SIZE 31 BY 1.67
-     BGCOLOR 14 .
-
 DEFINE VARIABLE copyToUser AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 40 BY 16.43 NO-UNDO.
+
+DEFINE VARIABLE lShowCueCards AS LOGICAL INITIAL no 
+     LABEL "Show Cue Cards" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svMenuImage AS LOGICAL INITIAL no 
      LABEL "Show Menu Images" 
@@ -627,12 +628,12 @@ DEFINE FRAME FRAME-USER
      loc_loc AT ROW 1.71 COL 73 COLON-ALIGNED NO-LABEL
      users_user_id AT ROW 1.71 COL 106 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     "User ID:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.71 COL 99
      "Location:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 66
      "Company:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 4
-     "User ID:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.71 COL 99
      boxes AT ROW 8.62 COL 57
      menu-image AT ROW 3.62 COL 58
      RECT-2 AT ROW 1 COL 1
@@ -669,10 +670,10 @@ DEFINE FRAME searchFrame
           "Search Menu / Edit Favorites" WIDGET-ID 54
      menuTreeFilter AT ROW 1 COL 54 COLON-ALIGNED HELP
           "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     btnMoveDown AT ROW 5.76 COL 1 HELP
-          "Move Favorite Down" WIDGET-ID 58
      favoritesList AT ROW 2.19 COL 6 NO-LABEL WIDGET-ID 52
      searchSelections AT ROW 2.19 COL 52 NO-LABEL WIDGET-ID 44
+     btnMoveDown AT ROW 5.76 COL 1 HELP
+          "Move Favorite Down" WIDGET-ID 58
      btnMoveUp AT ROW 3.38 COL 1 HELP
           "Move Favorite Up" WIDGET-ID 56
      btnRemove AT ROW 4.57 COL 1 HELP
@@ -711,12 +712,6 @@ DEFINE FRAME userSettingsFrame
           "Cancel" WIDGET-ID 2
      btnLanguage-1 AT ROW 4.33 COL 6 HELP
           "Select this Language" WIDGET-ID 24
-     btnLanguage-2 AT ROW 6 COL 6 HELP
-          "Select this Language" WIDGET-ID 26
-     btnLanguage-3 AT ROW 7.67 COL 6 HELP
-          "Select this Language" WIDGET-ID 28
-     btnOK AT ROW 20.52 COL 3 HELP
-          "Save Changes" WIDGET-ID 4
      btnToggle AT ROW 1.48 COL 14 HELP
           "Customize Menu" WIDGET-ID 80
      copyFromUser AT ROW 1.95 COL 60 COLON-ALIGNED HELP
@@ -734,44 +729,50 @@ DEFINE FRAME userSettingsFrame
           "Place Mnemonic at Begin or End of Text" NO-LABEL WIDGET-ID 108
      btnCopyToUser AT ROW 20.52 COL 62 HELP
           "Copy From User to Selected User(s)" WIDGET-ID 94
-     btnActivateCueCards AT ROW 21 COL 27 HELP
-          "Activate Inactive Cue Cards" WIDGET-ID 116
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
-     " Copy to Selected Users" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
-          FONT 37
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     lShowCueCards AT ROW 21 COL 32 HELP
+          "Toggle to Show/Not Show Cue Cards" WIDGET-ID 470
+     btnLanguage-2 AT ROW 6 COL 6 HELP
+          "Select this Language" WIDGET-ID 26
+     btnLanguage-3 AT ROW 7.67 COL 6 HELP
+          "Select this Language" WIDGET-ID 28
+     btnOK AT ROW 20.52 COL 3 HELP
+          "Save Changes" WIDGET-ID 4
      " Language" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 3.62 COL 5 WIDGET-ID 86
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
-     "Show:" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
-          FONT 35
-     " Menu Size" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
-     " Copy From User" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
-     "[S] Scheduling" VIEW-AS TEXT
-          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
-          FONT 33
-     "Position:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
-     " HotKey (Mnemonic)" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 24.33 COL 43 WIDGET-ID 354
           FGCOLOR 0 FONT 6
+     " HotKey (Mnemonic)" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 16.95 COL 5 WIDGET-ID 106
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 24.81 COL 7 WIDGET-ID 460
+     " Menu Size" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.81 COL 5 WIDGET-ID 62
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 31 BY .95 AT ROW 12.19 COL 28 WIDGET-ID 48
+          FONT 35
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 26 WIDGET-ID 462
+     "Show:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 17.67 COL 14 WIDGET-ID 112
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 23.62 COL 7 WIDGET-ID 454
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 28 BY 1.43 AT ROW 13.86 COL 31 WIDGET-ID 54
+          FONT 37
+     " Copy to Selected Users" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 3.14 COL 64 WIDGET-ID 90
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 22.91 COL 7 WIDGET-ID 458
+     " Copy From User" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 98
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 22.91 COL 33 WIDGET-ID 464
+     "Position:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 12 WIDGET-ID 114
+     "[S] Scheduling" VIEW-AS TEXT
+          SIZE 34 BY .81 AT ROW 10.76 COL 25 WIDGET-ID 42
+          FONT 33
      IMAGE-1 AT ROW 10.76 COL 17 WIDGET-ID 40
      IMAGE-2 AT ROW 12.19 COL 17 WIDGET-ID 44
      IMAGE-3 AT ROW 13.86 COL 17 WIDGET-ID 50
@@ -792,7 +793,7 @@ DEFINE FRAME userSettingsFrame
      RECT-19 AT ROW 1.24 COL 13 WIDGET-ID 82
      RECT-20 AT ROW 1.48 COL 61 WIDGET-ID 92
      RECT-21 AT ROW 17.19 COL 2 WIDGET-ID 104
-     RECT-22 AT ROW 20.76 COL 26 WIDGET-ID 118
+     cueCardsRect AT ROW 20.76 COL 31 WIDGET-ID 118
      colorChoice-0 AT ROW 23.62 COL 48 WIDGET-ID 442
      colorChoice-1 AT ROW 23.62 COL 55 WIDGET-ID 306
      colorChoice-2 AT ROW 23.62 COL 62 WIDGET-ID 308
@@ -1131,6 +1132,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST copyToUser IN FRAME userSettingsFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE cueCardsRect IN FRAME userSettingsFrame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE FGColor-1 IN FRAME userSettingsFrame
    NO-ENABLE 6                                                          */
 ASSIGN 
@@ -1169,8 +1172,6 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-20 IN FRAME userSettingsFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-21 IN FRAME userSettingsFrame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR RECTANGLE RECT-22 IN FRAME userSettingsFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR RADIO-SET svLanguageList IN FRAME userSettingsFrame
    NO-ENABLE                                                            */
@@ -1271,17 +1272,6 @@ END.
 
 
 &Scoped-define FRAME-NAME userSettingsFrame
-&Scoped-define SELF-NAME btnActivateCueCards
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnActivateCueCards MAINMENU
-ON CHOOSE OF btnActivateCueCards IN FRAME userSettingsFrame /* Activate Inactive Cue Cards */
-DO:
-    RUN pActivateCueCards.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel MAINMENU
 ON CHOOSE OF btnCancel IN FRAME userSettingsFrame /* Cancel */
@@ -1718,20 +1708,28 @@ DO:
             IF AVAILABLE userLanguage THEN
             iLanguage = userLanguage.languageIdx.
             ASSIGN
-                iMenuSize         = LOOKUP(users.menuSize,"Small,Medium,Large")
-                svMenuSize        = iMenuSize
-                svLanguageList    = iLanguage
-                cShowMnemonic     = users.showMnemonic
-                cPositionMnemonic = users.positionMnemonic
-                FGColor-1:BGCOLOR = iFGColor[1]
-                FGColor-2:BGCOLOR = iFGColor[2]
-                FGColor-3:BGCOLOR = iFGColor[3]
-                BGColor-1:BGCOLOR = iBGColor[1]
-                BGColor-2:BGCOLOR = iBGColor[2]
-                BGColor-3:BGCOLOR = iBGColor[3]
+                iMenuSize             = LOOKUP(users.menuSize,"Small,Medium,Large")
+                svMenuSize            = iMenuSize
+                svLanguageList        = iLanguage
+                cShowMnemonic         = users.showMnemonic
+                cPositionMnemonic     = users.positionMnemonic
+                FGColor-1:BGCOLOR     = iFGColor[1]
+                FGColor-2:BGCOLOR     = iFGColor[2]
+                FGColor-3:BGCOLOR     = iFGColor[3]
+                BGColor-1:BGCOLOR     = iBGColor[1]
+                BGColor-2:BGCOLOR     = iBGColor[2]
+                BGColor-3:BGCOLOR     = iBGColor[3]
+                lShowCueCards         = users.showCueCards
+                cueCardsRect:BGCOLOR  = IF lShowCueCards THEN 10 ELSE 12
+                lShowCueCards:BGCOLOR = cueCardsRect:BGCOLOR
                 .
-            DISPLAY svMenuSize svLanguageList cShowMnemonic cPositionMnemonic
-                WITH FRAME userSettingsFrame.
+            DISPLAY
+                svMenuSize
+                svLanguageList
+                cShowMnemonic
+                cPositionMnemonic
+                lShowCueCards
+                    WITH FRAME userSettingsFrame.
         END. /* if avail */
         RUN pGetCopyUsers.
         ASSIGN 
@@ -1747,6 +1745,23 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define FRAME-NAME userSettingsFrame
+&Scoped-define SELF-NAME lShowCueCards
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lShowCueCards MAINMENU
+ON VALUE-CHANGED OF lShowCueCards IN FRAME userSettingsFrame /* Show Cue Cards */
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cueCardsRect:BGCOLOR = IF {&SELF-NAME} THEN 10 ELSE 12
+        {&SELF-NAME}:BGCOLOR = cueCardsRect:BGCOLOR
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define FRAME-NAME FRAME-USER
 &Scoped-define SELF-NAME menuLink-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL menuLink-1 MAINMENU
 ON MOUSE-SELECT-CLICK OF menuLink-1 IN FRAME FRAME-USER
@@ -2052,6 +2067,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     DYNAMIC-FUNCTION("sfSetMainMenuHandle", THIS-PROCEDURE).
+    RUN spSetSessionParam ("Company", g_company).
     RUN pGetUserSettings.
     RUN sys/ref/nk1look.p (
         g_company,"BitMap","DS",NO,NO,"","",
@@ -2097,6 +2113,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     menuTreeMsg:HIDDEN = YES.
     RUN pDisplayMenuTree (FRAME menuTreeFrame:HANDLE, "file", YES, 1).
     {system/runCueCard.i}
+    chCtrlFrame:PSTimer:Interval = 1000.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2184,16 +2201,16 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE BtnFavorites menuTreeFilter btnMoveDown favoritesList searchSelections 
+  ENABLE BtnFavorites menuTreeFilter favoritesList searchSelections btnMoveDown 
          btnMoveUp btnRemove btnSearch btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-searchFrame}
   DISPLAY copyFromUser copyToUser svLanguageList svMenuSize svMenuImage 
-          cShowMnemonic cPositionMnemonic 
+          cShowMnemonic cPositionMnemonic lShowCueCards 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
-  ENABLE btnCancel btnOK svMenuImage cShowMnemonic cPositionMnemonic 
-         btnActivateCueCards 
+  ENABLE btnCancel svMenuImage cShowMnemonic cPositionMnemonic lShowCueCards 
+         btnOK 
       WITH FRAME userSettingsFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-userSettingsFrame}
   DISPLAY svFocus upgradeMsg 
@@ -2202,28 +2219,6 @@ PROCEDURE enable_UI :
       WITH FRAME menuTreeFrame IN WINDOW MAINMENU.
   {&OPEN-BROWSERS-IN-QUERY-menuTreeFrame}
   VIEW MAINMENU.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pActivateCueCards MAINMENU 
-PROCEDURE pActivateCueCards :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DO TRANSACTION:
-    FOR EACH xCueCard EXCLUSIVE-LOCK
-        WHERE xCueCard.user_id EQ USERID("ASI")
-        :
-        DELETE xCueCard.
-    END. /* each xcuecard */
-    END. /* do trans */
-    MESSAGE
-        "Cue Cards Activated"
-    VIEW-AS ALERT-BOX.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2460,16 +2455,19 @@ PROCEDURE pGetUserSettings :
          NO-ERROR.
     IF AVAILABLE users THEN DO:
         ASSIGN
-            iMenuSize         = LOOKUP(users.menuSize,"Small,Medium,Large")
-            cShowMnemonic     = users.showMnemonic
-            cPositionMnemonic = users.positionMnemonic
-            lMenuImage        = users.showMenuImages
-            iFGColor[1]       = users.menuFGColor[1]
-            iFGColor[2]       = users.menuFGColor[2]
-            iFGColor[3]       = users.menuFGColor[3]
-            iBGColor[1]       = users.menuBGColor[1]
-            iBGColor[2]       = users.menuBGColor[2]
-            iBGColor[3]       = users.menuBGColor[3]
+            iMenuSize             = LOOKUP(users.menuSize,"Small,Medium,Large")
+            cShowMnemonic         = users.showMnemonic
+            cPositionMnemonic     = users.positionMnemonic
+            lMenuImage            = users.showMenuImages
+            iFGColor[1]           = users.menuFGColor[1]
+            iFGColor[2]           = users.menuFGColor[2]
+            iFGColor[3]           = users.menuFGColor[3]
+            iBGColor[1]           = users.menuBGColor[1]
+            iBGColor[2]           = users.menuBGColor[2]
+            iBGColor[3]           = users.menuBGColor[3]
+            lShowCueCards         = users.showCueCards
+            cueCardsRect:BGCOLOR  = IF lShowCueCards THEN 10 ELSE 12
+            lShowCueCards:BGCOLOR = cueCardsRect:BGCOLOR
             .
         IF users.use_fonts THEN
         iEditorFont = users.widget_font[5].
@@ -3293,62 +3291,70 @@ PROCEDURE pSetUserSettings :
     
     DO TRANSACTION:
         IF iplSaveAll THEN DO:
-    FIND FIRST users EXCLUSIVE-LOCK
-         WHERE users.user_id EQ USERID("ASI")
-         NO-ERROR.
-    IF AVAILABLE users THEN DO:
-        ASSIGN
-            users.menuSize         = ENTRY(iMenuSize,"Small,Medium,Large")
-            users.showMnemonic     = cShowMnemonic
-            users.positionMnemonic = cPositionMnemonic            
-                    users.showMenuImages   = lMenuImage
-                    users.menuFGColor[1]   = iFGColor[1]
-                    users.menuFGColor[2]   = iFGColor[2]
-                    users.menuFGColor[3]   = iFGColor[3]
-                    users.menuBGColor[1]   = iBGColor[1]
-                    users.menuBGColor[2]   = iBGColor[2]
-                    users.menuBGColor[3]   = iBGColor[3]
-            .
-        FIND FIRST userLanguage NO-LOCK
-             WHERE userLanguage.languageIdx EQ iLanguage
-             NO-ERROR.
-        IF AVAILABLE userLanguage THEN
+            FIND FIRST users EXCLUSIVE-LOCK
+                 WHERE users.user_id EQ USERID("ASI")
+                 NO-ERROR.
+            IF AVAILABLE users THEN DO WITH FRAME userSettingsFrame:
                 ASSIGN
-                    users.userLanguage = userLanguage.userLanguage
+                    users.menuSize          = ENTRY(iMenuSize,"Small,Medium,Large")
+                    users.showMnemonic      = cShowMnemonic
+                    users.positionMnemonic  = cPositionMnemonic            
+                    users.showMenuImages    = lMenuImage
+                    users.menuFGColor[1]    = iFGColor[1]
+                    users.menuFGColor[2]    = iFGColor[2]
+                    users.menuFGColor[3]    = iFGColor[3]
+                    users.menuBGColor[1]    = iBGColor[1]
+                    users.menuBGColor[2]    = iBGColor[2]
+                    users.menuBGColor[3]    = iBGColor[3]
+                    users.showCueCards      = lShowCueCards
+                    cueCardsRect:BGCOLOR    = IF lShowCueCards THEN 10 ELSE 12
+                    lShowCueCards:BGCOLOR   = cueCardsRect:BGCOLOR
                     .
-        FIND CURRENT users NO-LOCK.
-    END. /* avail users */
+                CASE users.showCueCard:
+                    WHEN NO THEN
+                    RUN spInactivateCueCards ("System").
+                    WHEN YES THEN
+                    RUN spActivateCueCards.
+                END CASE.
+                FIND FIRST userLanguage NO-LOCK
+                     WHERE userLanguage.languageIdx EQ iLanguage
+                     NO-ERROR.
+                IF AVAILABLE userLanguage THEN
+                        ASSIGN
+                            users.userLanguage = userLanguage.userLanguage
+                            .
+                FIND CURRENT users NO-LOCK.
+            END. /* avail users */
         END. /* if save all */
-
-    FIND FIRST user-print EXCLUSIVE-LOCK
-         WHERE user-print.company    EQ g_company
-           AND user-print.program-id EQ "MainMenu"
-           AND user-print.user-id    EQ USERID("ASI")
-         NO-ERROR.
-    IF NOT AVAILABLE user-print THEN DO:
-        CREATE user-print.
+        FIND FIRST user-print EXCLUSIVE-LOCK
+             WHERE user-print.company    EQ g_company
+               AND user-print.program-id EQ "MainMenu"
+               AND user-print.user-id    EQ USERID("ASI")
+             NO-ERROR.
+        IF NOT AVAILABLE user-print THEN DO:
+            CREATE user-print.
+            ASSIGN
+                user-print.company    = g_company
+                user-print.program-id = "MainMenu"
+                user-print.user-id    = USERID("ASI")
+                .
+        END. /* if not avail */
         ASSIGN
-            user-print.company    = g_company
-            user-print.program-id = "MainMenu"
-            user-print.user-id    = USERID("ASI")
+            user-print.field-value    = ""
+            user-print.field-value[1] = STRING({&WINDOW-NAME}:HEIGHT)
+            user-print.field-value[2] = STRING({&WINDOW-NAME}:WIDTH)
+            idx = 2
             .
-    END. /* if not avail */
-    ASSIGN
-        user-print.field-value    = ""
-        user-print.field-value[1] = STRING({&WINDOW-NAME}:HEIGHT)
-        user-print.field-value[2] = STRING({&WINDOW-NAME}:WIDTH)
-        idx = 2
-        .
-    FOR EACH ttMenuTree
-        WHERE ttMenuTree.favorite EQ YES
-           BY ttMenuTree.favoriteOrder
-        :
-        ASSIGN
-            idx = idx + 1
-            user-print.field-value[idx] = ttMenuTree.treeChild
-            .
-    END. /* each ttmenutree */
-    RELEASE user-print.
+        FOR EACH ttMenuTree
+            WHERE ttMenuTree.favorite EQ YES
+               BY ttMenuTree.favoriteOrder
+            :
+            ASSIGN
+                idx = idx + 1
+                user-print.field-value[idx] = ttMenuTree.treeChild
+                .
+        END. /* each ttmenutree */
+        RELEASE user-print.
     END. /* do trans */
     
 END PROCEDURE.

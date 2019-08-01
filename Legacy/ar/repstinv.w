@@ -72,14 +72,15 @@ CREATE WIDGET-POOL.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_repstin1 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     SPACE(142.20) SKIP(21.91)
+     SPACE(148.20) SKIP(21.91)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Change Price of Posted Invoice".
+         TITLE "Update Posted Invoice Details".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -183,20 +184,30 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_repstin1 ).
        RUN set-position IN h_repstin1 ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_repstin1 ( 18.81 , 141.00 ) NO-ERROR.
+       RUN set-size IN h_repstin1 ( 18.81 , 147.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updcan.w':U ,
+             INPUT  'panels/p-repstin.w':U ,
              INPUT  FRAME D-Dialog:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updcan ).
        RUN set-position IN h_p-updcan ( 20.52 , 55.00 ) NO-ERROR.
-       RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
+       RUN set-size IN h_p-updcan ( 1.76 , 51.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME D-Dialog:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.15 , 135.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Links to SmartBrowser h_repstin1. */
        RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_repstin1 ).
+
+       RUN add-link IN adm-broker-hdl ( h_repstin1 , 'move-columns':U , h_movecol-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,

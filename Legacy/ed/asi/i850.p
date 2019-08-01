@@ -589,6 +589,7 @@ FOR EACH eddoc
             oe-ordl.company       = oe-ord.company
             oe-ordl.ord-no        = oe-ord.ord-no
             oe-ordl.cust-no       = oe-ord.cust-no
+            oe-ordl.ship-id       = oe-ord.ship-id
             oe-ordl.line          = edpoline.line
             oe-ordl.part-no       = edpoline.cust-item-no
             oe-ordl.i-no          = edpoline.item-no

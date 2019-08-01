@@ -2085,6 +2085,10 @@ PROCEDURE pRunFormatValueChanged :
             tb_grand-total:HIDDEN IN FRAME {&FRAME-NAME} = NO .
         ELSE 
             tb_grand-total:HIDDEN IN FRAME {&FRAME-NAME} = YES .
+
+        ASSIGN
+            lines-per-page              = li-lineperpage
+            lines-per-page:SCREEN-VALUE = STRING(li-lineperpage).
             
     END.
 END PROCEDURE.

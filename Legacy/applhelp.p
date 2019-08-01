@@ -22,7 +22,7 @@ IF KEYLABEL(LASTKEY) EQ "CTRL-F" THEN DO:
 END. /* if ctrl-f */
 ELSE
 IF KEYLABEL(LASTKEY) EQ "CTRL-P" THEN
-RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
+    RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
 ELSE
 IF KEYLABEL(LASTKEY) EQ "F1" THEN DO: /* F1 function key */
     ASSIGN

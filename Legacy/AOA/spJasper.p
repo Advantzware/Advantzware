@@ -841,6 +841,7 @@ PROCEDURE pJasperJSON:
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
         
         OS-CREATE-DIR "users".
+        OS-CREATE-DIR "users\_default".
         OS-CREATE-DIR VALUE("users\" + aoaUserID).
         cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".json".
         OUTPUT TO VALUE(cJasperFile).

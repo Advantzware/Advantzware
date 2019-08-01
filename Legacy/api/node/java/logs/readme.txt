@@ -1,0 +1,1 @@
+This directory is required for API inbound logs to track issues when java layer fails to connect to progress AppSever.

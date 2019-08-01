@@ -40,7 +40,6 @@ CREATE WIDGET-POOL.
 &scoped-define item_spec FGITEM
 
 DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
-DEF VAR h_fileload AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -284,9 +283,7 @@ ON WINDOW-CLOSE OF W-Win /* Finished Goods Item Inventory */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-    IF VALID-HANDLE(h_fileload) THEN
-     DELETE OBJECT h_fileload.
-
+    
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1282,8 +1279,8 @@ PROCEDURE import-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-RUN util/updatefg.w PERSISTENT SET h_fileload.
-RUN adm-initialize IN h_fileload.
+ RUN util/dev/impFG.p .
+ RUN local-open-query IN h_b-itemfg .
 
 END PROCEDURE.
 
@@ -1371,9 +1368,7 @@ PROCEDURE local-destroy :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE(h_fileload) THEN
-     DELETE OBJECT h_fileload.
-  
+      
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -1391,8 +1386,6 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-    IF VALID-HANDLE(h_fileload) THEN
-     DELETE OBJECT h_fileload.
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.

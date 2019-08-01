@@ -143,6 +143,9 @@ RUN windows/l-lookup.w (
     cWhereClause,
     cReturnFields,
     iRecordLimit,
+    ipiSubjectID,
+    ipcUserID,
+    ipiParamValueID,
     OUTPUT opcReturnValues,
     OUTPUT opcLookupField,
     OUTPUT oprRecID

@@ -1517,7 +1517,7 @@ PROCEDURE run-process :
     ASSIGN knot.rec_key = ls-key.
   END.
 
-  IF tb_clip-att AND tcom NE fcom THEN DO: /* task 05291502 */
+  IF tb_clip-att THEN DO: 
          FOR EACH attach WHERE attach.company = est.company and 
              attach.rec_key = est.rec_key  and 
              trim(attach.est-no) = trim(est.est-no) NO-LOCK:

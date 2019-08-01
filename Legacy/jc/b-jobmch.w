@@ -1512,62 +1512,62 @@ FUNCTION display-i-name RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-nam LIKE job-mch.i-name NO-UNDO.
+  DEF VAR cItemName LIKE job-mch.i-name NO-UNDO.
   DEF VAR lv-frm LIKE job-mch.frm NO-UNDO.
   DEF VAR lv-blk LIKE job-mch.blank-no NO-UNDO.
-  
+  DEFINE BUFFER bf-eb FOR eb.
 
 
   DO WITH FRAME {&FRAME-NAME}:
     IF AVAIL job-mch THEN
       ASSIGN
-       lv-nam = job-mch.i-name
+       cItemName = job-mch.i-name
        lv-frm = job-mch.frm
        lv-blk = job-mch.blank-no.
     ELSE
       ASSIGN
-       lv-nam = job-mch.i-name:SCREEN-VALUE IN BROWSE {&browse-name}
+       cItemName = job-mch.i-name:SCREEN-VALUE IN BROWSE {&browse-name}
        lv-frm = INT(job-mch.frm:SCREEN-VALUE IN BROWSE {&browse-name})
        lv-blk = INT(job-mch.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    IF lv-nam EQ "" THEN DO:
-      FIND job-hdr
-          WHERE job-hdr.company   EQ job.company
-            AND job-hdr.job       EQ job.job
-            AND job-hdr.job-no    EQ job.job-no
-            AND job-hdr.job-no2   EQ job.job-no2
-            AND job-hdr.frm       EQ lv-frm
-            AND (job-hdr.blank-no EQ lv-blk OR lv-blk EQ 0)
-          NO-LOCK NO-ERROR.
+    IF cItemName EQ "" THEN DO:
+        FIND FIRST bf-eb NO-LOCK
+             WHERE bf-eb.company EQ job.company
+               AND bf-eb.est-no EQ job.est-no 
+               AND bf-eb.form-no EQ lv-frm
+               AND (bf-eb.blank-no EQ lv-blk OR lv-blk EQ 0) NO-ERROR .
+        IF AVAIL bf-eb THEN
+            ASSIGN cItemName = bf-eb.part-dscr1 .
 
-      RELEASE itemfg.
-      IF AVAIL job-hdr THEN
-      FIND FIRST itemfg
-          WHERE itemfg.company EQ job-hdr.company
-            AND itemfg.i-no    EQ job-hdr.i-no
-          NO-LOCK NO-ERROR.
-      IF AVAIL itemfg THEN do:
-          lv-nam = itemfg.i-name.
-          IF lv-nam EQ "" THEN DO:
-             FOR FIRST fg-set WHERE fg-set.company EQ itemfg.company
-                                 AND fg-set.set-no = itemfg.i-no
-                               NO-LOCK,
-                FIRST itemfg WHERE itemfg.i-no = fg-set.part-no
-                               AND itemfg.i-name GT ""
-                                   NO-LOCK .
-                  lv-nam = itemfg.i-name.
-             END.
-          END.
-      END.
-    END.
-    IF lv-nam EQ "" AND avail(job-mch) THEN DO:
+        IF cItemName EQ "" THEN DO:
+            FIND job-hdr
+                WHERE job-hdr.company   EQ job.company
+                AND job-hdr.job       EQ job.job
+                AND job-hdr.job-no    EQ job.job-no
+                AND job-hdr.job-no2   EQ job.job-no2
+                AND job-hdr.frm       EQ lv-frm
+                AND (job-hdr.blank-no EQ lv-blk OR lv-blk EQ 0)
+              NO-LOCK NO-ERROR.
+
+            RELEASE itemfg.
+            IF AVAIL job-hdr THEN
+                FIND FIRST itemfg
+                WHERE itemfg.company EQ job-hdr.company
+                AND itemfg.i-no    EQ job-hdr.i-no
+                NO-LOCK NO-ERROR.
+            IF AVAIL itemfg THEN do:
+                cItemName = itemfg.i-name.
+            END.
+        END.
+    END.   
+    IF cItemName EQ "" AND avail(job-mch) THEN DO:  
       FIND FIRST itemfg
           WHERE itemfg.company EQ job-mch.company
             AND itemfg.i-no    EQ job-mch.i-no
           NO-LOCK NO-ERROR.
       IF AVAIL itemfg THEN DO:
-          lv-nam = itemfg.i-name.
-          IF lv-nam EQ "" THEN DO:
+          cItemName = itemfg.i-name.
+          IF cItemName EQ "" THEN DO:
 
              FOR EACH fg-set WHERE fg-set.company EQ itemfg.company
                                  AND fg-set.set-no = itemfg.i-no
@@ -1576,7 +1576,7 @@ FUNCTION display-i-name RETURNS CHARACTER
                  FIND FIRST itemfg WHERE itemfg.i-no = fg-set.part-no
                                    NO-LOCK NO-ERROR.
                  IF AVAIL itemfg AND itemfg.i-name GT "" THEN DO:
-                     lv-nam = itemfg.i-name.
+                     cItemName = itemfg.i-name.
                      LEAVE.
                  END.
              END.
@@ -1586,7 +1586,7 @@ FUNCTION display-i-name RETURNS CHARACTER
     END.
 
   END.
-  RETURN lv-nam.   /* Function return value. */
+  RETURN cItemName.   /* Function return value. */
 
 END FUNCTION.
 

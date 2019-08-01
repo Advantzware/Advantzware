@@ -195,7 +195,7 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
 
       end. /* avail oe-bolh */
 
-      IF NOT v-reprint OR xinv-head.inv-no EQ 0 THEN
+      IF (NOT v-reprint AND NOT iplPrntDupl) OR xinv-head.inv-no EQ 0 THEN
         RUN oe/get-inv#.p (ROWID(xinv-head)).
 
       DO TRANSACTION:
@@ -752,7 +752,7 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
 
 IF iplPrntDupl = NO THEN do:
   IF v-bot-lab[4] <> "" THEN
-    PUT "<P10><R56><C60><#8><FROM><R+8><C+22><RECT> " 
+    PUT "<P10><R56><C57><#8><FROM><R+8><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORM "->,>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
@@ -762,7 +762,7 @@ IF iplPrntDupl = NO THEN do:
         "<=8><R+6> " v-bot-lab[5]
         "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->,>>>,>>9.99" .
   ELSE
-    PUT "<R56><C60><#8><FROM><R+6><C+22><RECT> " 
+    PUT "<R56><C57><#8><FROM><R+6><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORM "->,>>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 

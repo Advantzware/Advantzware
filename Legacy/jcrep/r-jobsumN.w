@@ -79,7 +79,7 @@ ASSIGN cTextListToSelect = "FG ITEM,FG ITEM DESCRIPTION,SELLING PRICE/M,ORDERED,
                             "itemheader,item-code,item-desc,item-est-qty,item-est-um,item-est-cost,item-act-qty,item-act-um,item-act-cost,item-cost-var,item-cost-var-per," +
                             "mischeader,misc-code,misc-desc,misc-est-cost,misc-act-cost,misc-vari,misc-vari-per"
 
-       cFieldLength = "15,30,10,10,10,10,10,9,5,9,6,7,11,14," +
+       cFieldLength = "15,30,10,10,10,10,10,10,6,9,6,7,11,14," +
                       "15,7,16,2,8,7,6,8,7,6,6,12,8,12,9,9," +
                       "15,15,20,10,3,10,9,3,10,10,9," +
                       "15,11,25,10,10,10,10"   

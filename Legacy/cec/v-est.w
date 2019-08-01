@@ -3050,6 +3050,7 @@ PROCEDURE local-assign-record :
   DEF VAR v-dec2 AS DEC NO-UNDO.
   DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.
   DEF VAR v-count AS INT NO-UNDO.
+  DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
 
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
@@ -3074,7 +3075,14 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-shipto THEN DO WITH FRAME {&FRAME-NAME}:
-    RUN windows/d-shpfly.w (ROWID(eb)).
+
+    RUN windows/d-shpfly.w (ROWID(eb),OUTPUT cShipFromFlyFile ).
+    IF cShipFromFlyFile EQ "" THEN
+         cShipFromFlyFile = lv-hld-ship .
+    IF eb.ship-id NE cShipFromFlyFile THEN
+        ASSIGN eb.ship-id = cShipFromFlyFile
+                eb.ship-id:SCREEN-VALUE = cShipFromFlyFile .
+    
     RUN display-shipto.
     ASSIGN
      eb.ship-id
@@ -4919,11 +4927,11 @@ PROCEDURE valid-ship-id :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT CAN-FIND(FIRST shipto
+    FIND FIRST shipto NO-LOCK
                     WHERE shipto.company EQ cocode
                       AND shipto.cust-no EQ eb.cust-no:SCREEN-VALUE
-                      AND shipto.ship-id EQ eb.ship-id:SCREEN-VALUE) AND
-       NOT ll-new-shipto                                             THEN DO:
+                      AND shipto.ship-id EQ eb.ship-id:SCREEN-VALUE NO-ERROR .
+     IF NOT AVAIL shipto AND  NOT ll-new-shipto                    THEN DO:
       MESSAGE "            Invalid entry, try help...             " SKIP(1)
               "                        OR                         " SKIP(1)
               "Do you wish to add this Shipto ID to this Customer?"
@@ -4933,6 +4941,12 @@ PROCEDURE valid-ship-id :
         APPLY "entry" TO eb.ship-id.
         RETURN ERROR.
       END.
+    END.
+    IF AVAIL shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN DO:
+        MESSAGE "The Ship To is inactive and cannot be used on an Estimate." 
+            VIEW-AS ALERT-BOX INFORMATION .
+        APPLY "entry" TO eb.ship-id .
+        RETURN ERROR.
     END.
   END.
 

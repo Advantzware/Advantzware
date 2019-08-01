@@ -1075,11 +1075,28 @@ PROCEDURE ipSendVerification :
     PUT STREAM sInstr UNFORMATTED "MKDIR " + cOutDir SKIP.
     PUT STREAM sInstr UNFORMATTED "CD " + cOutDir SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cOutFile SKIP.
+
+    PUT STREAM sInstr UNFORMATTED "MKDIR EnvFiles" SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD EnvFiles" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.ini" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cAdminDir + "\advantzware.usr" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cEnvAdmin + "\advantzware.pf" SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD .." SKIP.
+
+    PUT STREAM sInstr UNFORMATTED "MKDIR DbFiles" SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD DbFiles" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MPUT " + cDbProdDir + "\*.lg" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MPUT " + cDbTestDir + "\*.lg" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MPUT " + cDbAuditDir + "\*.lg" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\AdminServerPlugins.properties" SKIP.
     PUT STREAM sInstr UNFORMATTED "PUT " + cDLCDir + "\properties\conmgr.properties" SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD .." SKIP.
+
+    PUT STREAM sInstr UNFORMATTED "MKDIR " + "DataFiles" SKIP.
+    PUT STREAM sInstr UNFORMATTED "CD " + "DataFiles" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MPUT " + cUpdDataDir + "\*.OLD" SKIP.
+    PUT STREAM sInstr UNFORMATTED "MPUT " + cUpdDataDir + "\*.NEW" SKIP.
+    
     PUT STREAM sInstr UNFORMATTED "exit".
     OUTPUT STREAM sInstr CLOSE.
     

@@ -54,50 +54,66 @@ IF AVAILABLE dynParamValue THEN DO:
                     hAppSrvBin,
                     OUTPUT cJasperFile
                     ).
-                RUN pCreateAuditHdr.
-                RUN spCreateAuditDtl (iAuditID, "programID", 0, cJasperFile, Task.prgmName,  NO).
-                IF Task.recipients NE "" THEN DO:
-                    IF AVAILABLE config THEN DO:
-                        IF config.taskName THEN
-                        cSubject = cSubject + Task.taskName + " ".
-                        IF config.taskType THEN
-                        cSubject = cSubject + Task.taskFormat + " ".
-                        IF config.taskDate THEN
-                        cSubject = cSubject + STRING(TODAY,"99/99/9999") + " ".
-                        IF config.taskTime THEN
-                        cSubject = cSubject + STRING(TIME,"HH:MM:SS am").
-                        cSubject = TRIM(cSubject).
-                    END. /* if avail */
-                    ELSE
-                    cSubject = "AOA Task Result".
-                    DO TRANSACTION:
-                        CREATE taskEmail.
-                        ASSIGN
-                            taskEmail.subject    = cSubject
-                            taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
-                                                   config.emailBody ELSE "AOA Task Result Attached"
-                            taskEmail.attachment = cJasperFile
-                            taskEmail.recipients = Task.recipients
-                            taskEmail.mustExist  = YES
-                            taskEmail.rec_key    = Task.rec_key
-                            .
-                    END. /* do trans */
-                END. /* if recipients */
-                ELSE IF Task.runNow THEN DO:
-                    IF AVAILABLE config AND config.cueCard THEN
-                    DO TRANSACTION:
-                        CREATE taskEmail.
-                        ASSIGN
-                            taskEmail.subject    = "Submitted Run Now Request"
-                            taskEmail.body       = ""
-                            taskEmail.attachment = cJasperFile
-                            taskEmail.recipients = "Cue Card Message"
-                            taskEmail.user-id    = Task.user-id
-                            taskEmail.mustExist  = YES
-                            taskEmail.rec_key    = Task.rec_key
-                            .
-                    END. /* if avail */
-                END. /* else if runnow */
+                IF cJasperFile NE "" THEN DO:
+                    RUN pCreateAuditHdr.
+                    RUN spCreateAuditDtl (iAuditID, "programID", 0, cJasperFile, Task.prgmName,  NO).
+                    IF Task.recipients NE "" THEN DO:
+                        IF AVAILABLE config THEN DO:
+                            IF config.taskName THEN
+                            cSubject = cSubject + Task.taskName + " ".
+                            IF config.taskType THEN
+                            cSubject = cSubject + Task.taskFormat + " ".
+                            IF config.taskDate THEN
+                            cSubject = cSubject + STRING(TODAY,"99/99/9999") + " ".
+                            IF config.taskTime THEN
+                            cSubject = cSubject + STRING(TIME,"HH:MM:SS am").
+                            cSubject = TRIM(cSubject).
+                        END. /* if avail */
+                        ELSE
+                        cSubject = "AOA Task Result".
+                        DO TRANSACTION:
+                            CREATE taskEmail.
+                            ASSIGN
+                                taskEmail.subject    = cSubject
+                                taskEmail.body       = IF AVAILABLE config AND config.emailBody NE "" THEN
+                                                       config.emailBody ELSE "AOA Task Result Attached"
+                                taskEmail.attachment = cJasperFile
+                                taskEmail.recipients = Task.recipients
+                                taskEmail.mustExist  = YES
+                                taskEmail.rec_key    = Task.rec_key
+                                .
+                        END. /* do trans */
+                    END. /* if recipients */
+                    ELSE IF Task.runNow THEN DO:
+                        IF AVAILABLE config AND config.cueCard THEN
+                        DO TRANSACTION:
+                            CREATE taskEmail.
+                            ASSIGN
+                                taskEmail.subject    = "Submitted Run Now Request"
+                                taskEmail.body       = ""
+                                taskEmail.attachment = cJasperFile
+                                taskEmail.recipients = "Cue Card Message"
+                                taskEmail.user-id    = Task.user-id
+                                taskEmail.mustExist  = YES
+                                taskEmail.rec_key    = Task.rec_key
+                                .
+                        END. /* if avail */
+                    END. /* else if runnow */
+                END. /* if cjasperfile ne "" */
+                ELSE DO:
+                    RUN pCreateAuditHdr.
+                    RUN spCreateAuditDtl (
+                        iAuditID,
+                        "subjectID",
+                        0,
+                        "No Data Exists",
+                        STRING(Task.subjectID) + "|" +
+                        Task.user-id + "|" +
+                        Task.prgmName + "|" +
+                        STRING(Task.paramValueID),
+                        NO
+                        ).
+                END. /* else cjasperfile ne "" */
                 RUN pCalcNextRun (YES).
             END. /* if search */
             ELSE DO:

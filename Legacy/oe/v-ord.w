@@ -123,6 +123,7 @@ DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -214,6 +215,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeDateAuto-char = cRtnChar NO-ERROR. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "OEShip", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cOeShipChar = cRtnChar NO-ERROR.
+
 /* transaction */
 {sys/inc/f16to32.i}
 
@@ -1642,34 +1650,26 @@ END.
 ON LEAVE OF oe-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
   IF LASTKEY NE -1 AND oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:
-   {&methods/lValidateError.i YES}
-    FIND FIRST shipto NO-LOCK 
-        WHERE shipto.company EQ g_company 
-        AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-        AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
-        NO-ERROR.
-    IF AVAIL shipto THEN DO:
-       ASSIGN            
-             oe-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
-             fiShipName:SCREEN-VALUE          = shipto.ship-name
-             fiShipAddress:SCREEN-VALUE       = fBuildAddress(shipto.ship-addr[1],
+      RUN valid-ship-id  NO-ERROR.
+      IF NOT lErrorValid THEN RETURN NO-APPLY.
+      FIND FIRST shipto NO-LOCK 
+          WHERE shipto.company EQ g_company 
+          AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+          AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
+          NO-ERROR.
+      IF AVAIL shipto THEN DO:
+          ASSIGN            
+              oe-ord.ship-id:SCREEN-VALUE      = shipto.ship-id
+              fiShipName:SCREEN-VALUE          = shipto.ship-name
+              fiShipAddress:SCREEN-VALUE       = fBuildAddress(shipto.ship-addr[1],
                                                                shipto.ship-addr[2],
                                                                shipto.ship-city,
                                                                shipto.ship-state,
-                                                                shipto.ship-zip).
-         IF shipto.tax-code NE "" THEN
-         oe-ord.tax-gr:screen-value    =  shipto.tax-code .
-
-         IF NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN 
-            MESSAGE "Please note: Shipto " shipto.ship-id " is valid but currently inactive"
-            VIEW-AS ALERT-BOX.
+                                                               shipto.ship-zip).
+           IF shipto.tax-code NE "" THEN
+               oe-ord.tax-gr:screen-value    =  shipto.tax-code .
             
        END.      
-    ELSE DO:
-         MESSAGE "Invalid Ship To. Try help. " VIEW-AS ALERT-BOX ERROR.
-         RETURN NO-APPLY.
-    END.
-   {&methods/lValidateError.i NO}
   END.
 END.
 
@@ -1956,7 +1956,10 @@ FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  /************************ INTERNAL PROCEDURES ********************/
+  &Scoped-define sdPrgmName "oe/v-ord"
+  {methods/pSessionAuditKey.i}
+
+/************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4584,6 +4587,8 @@ PROCEDURE local-assign-record :
 
     DEF    VAR      dCalcDueDate      AS DATE    NO-UNDO.
     DEF    VAR      dCalcPromDate     AS DATE    NO-UNDO.
+    DEFINE VARIABLE cOldShipTo AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
     DEF BUFFER b-oe-rel    FOR oe-rel.
     DEF BUFFER due-job-hdr FOR job-hdr.
     DEF BUFFER bf-oe-ordl  FOR oe-ordl.
@@ -4638,7 +4643,8 @@ PROCEDURE local-assign-record :
 
     ASSIGN
         lv-date   = oe-ord.due-date
-        lv-ord-no = oe-ord.ord-no.
+        lv-ord-no = oe-ord.ord-no
+        cOldShipTo = oe-ord.ship-id .
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -4648,13 +4654,14 @@ PROCEDURE local-assign-record :
     IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
 
 
-    IF dueDateChanged AND OEDateAuto-char = "colonial" THEN 
+    IF (dueDateChanged AND OEDateAuto-char = "colonial") OR ( cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id) THEN 
     DO:
+        lcheckflg = NO .
         FOR EACH oe-ordl 
             WHERE oe-ordl.company EQ oe-ord.company
             AND oe-ordl.ord-no  EQ oe-ord.ord-no
-            NO-LOCK:
-
+            NO-LOCK BREAK BY oe-ordl.i-no :
+            IF dueDateChanged AND OEDateAuto-char = "colonial" THEN
             FOR EACH oe-rel 
                 WHERE oe-rel.company EQ oe-ordl.company
                 AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -4679,6 +4686,16 @@ PROCEDURE local-assign-record :
                 /* Only consider first one */
                 LEAVE.
             END. /* each oe-rel */
+
+            IF cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id AND NOT adm-new-record THEN do:
+                IF FIRST(oe-ordl.i-no) THEN
+                   MESSAGE "Do you want to automatically update all releases with the new ship to address?" 
+                    VIEW-AS ALERT-BOX QUESTION 
+                    BUTTONS YES-NO UPDATE lcheckflg  .
+                IF lcheckflg EQ YES THEN
+                    RUN pUpdateRelShipID .
+            END.
+
         END. /* Each oe-ordl */
     END.  /* if dueDateChanged...*/
 
@@ -5321,6 +5338,8 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  RUN pSessionAuditKey.
+  
   DO WITH FRAME {&FRAME-NAME}:    
     IF NOT v-slow-ord AND NOT adm-new-record THEN DISABLE oe-ord.sold-id.
     
@@ -5467,6 +5486,11 @@ PROCEDURE local-update-record :
      IF ll-est-no-mod AND oe-ord.est-no:SCREEN-VALUE NE "" THEN DO:
        RUN get-from-est.
        IF RETURN-VALUE NE "" THEN RETURN NO-APPLY.
+     END.
+
+     IF oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:
+         RUN valid-ship-id NO-ERROR.
+         IF NOT lErrorValid THEN RETURN NO-APPLY.
      END.
 
      RUN valid-ord-no NO-ERROR.
@@ -7162,6 +7186,88 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
+PROCEDURE valid-ship-id :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cNoteMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+
+{&methods/lValidateError.i YES}
+    ASSIGN lErrorValid = YES .
+  DO WITH FRAME {&FRAME-NAME}:
+     
+      RUN pIsValidShiptoID IN hdValidator (oe-ord.cust-no:SCREEN-VALUE,oe-ord.ship-id:SCREEN-VALUE, NO, cocode, OUTPUT lValid, OUTPUT cNoteMessage).
+      IF NOT lValid THEN do:
+          IF cNoteMessage EQ "ShipTo ID is Inactive." THEN
+              ASSIGN cNoteMessage = "The ShipTo is inactive and cannot be used on an Order." .
+          MESSAGE cNoteMessage VIEW-AS ALERT-BOX INFO.
+          APPLY "entry" TO oe-ord.ship-id.
+          ASSIGN lErrorValid = NO .
+      END.
+      
+  END.
+   {&methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRelShipID V-table-Win 
+PROCEDURE pUpdateRelShipID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-oe-rel FOR oe-rel .
+  FOR EACH oe-rel NO-LOCK
+      WHERE oe-rel.company EQ oe-ordl.company
+      AND oe-rel.ord-no  EQ oe-ordl.ord-no
+      AND oe-rel.i-no    EQ oe-ordl.i-no
+      BY oe-rel.rel-date:
+
+      IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN 
+          DO:
+          FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
+          FIND FIRST shipto NO-LOCK
+              WHERE shipto.company EQ cocode
+              AND shipto.cust-no EQ oe-ord.cust-no
+              AND (shipto.ship-id = oe-ord.ship-id ) NO-ERROR .
+          
+          IF AVAIL shipto AND AVAIL bf-oe-rel THEN do:
+              ASSIGN bf-oe-rel.ship-id = oe-ord.ship-id
+                  bf-oe-rel.ship-no      = shipto.ship-no
+                  bf-oe-rel.ship-id      = shipto.ship-id
+                  bf-oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                  bf-oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                  bf-oe-rel.ship-city    = shipto.ship-city
+                  bf-oe-rel.ship-state   = shipto.ship-state
+                  bf-oe-rel.ship-zip     = shipto.ship-zip
+                  bf-oe-rel.ship-i[1] = shipto.notes[1]
+                  bf-oe-rel.ship-i[2] = shipto.notes[2]
+                  bf-oe-rel.ship-i[3] = shipto.notes[3]
+                  bf-oe-rel.ship-i[4] = shipto.notes[4]
+                  bf-oe-rel.spare-char-1 = shipto.loc.
+              RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
+          END.
+
+          FIND CURRENT bf-oe-rel NO-LOCK.
+          RELEASE bf-oe-rel.
+      END.
+  END. /* each oe-rel **/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

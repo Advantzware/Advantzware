@@ -1652,9 +1652,12 @@ PROCEDURE create-rec-from-vend-tag :
        rm-rctd.loc        = b-loadtag.loc
        rm-rctd.loc-bin    = b-loadtag.loc-bin
        rm-rctd.tag        = b-loadtag.tag-no
-       rm-rctd.user-id  = USERID("nosweat")
+       rm-rctd.user-id  = USERID("asi")
        rm-rctd.upd-date = TODAY
-       rm-rctd.upd-time = TIME. 
+       rm-rctd.upd-time = TIME
+       rm-rctd.enteredBy = USERID("asi")
+       rm-rctd.enteredDT = DATETIME(TODAY, MTIME)
+       . 
       
       lriLastRec = ROWID(rm-rctd).
       RELEASE rm-bin.

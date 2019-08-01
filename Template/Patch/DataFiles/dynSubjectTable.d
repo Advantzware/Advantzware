@@ -17,6 +17,8 @@
 14 1 "EACH" "po-ordl" "Purchase Order entry lines file" "" "ASI" ""
 15 2 "FIRST" "job" "Job Master File Unique Per Job" "" "ASI" ""
 15 1 "EACH" "job-hdr" "Job header file" "i-no" "ASI" ""
+21 1 "EACH" "cust" "Customers" "" "ASI" "201907165679803621845"
+22 1 "EACH" "oe-prmtx" "Order Entry Pricing Matrix" "" "ASI" ""
 23 1 "EACH" "cust" "Customers" "" "ASI" ""
 24 1 "EACH" "loc" "Plants/Warehouses" "" "ASI" ""
 25 1 "EACH" "itemfg" "Finished Goods item file" "" "ASI" ""

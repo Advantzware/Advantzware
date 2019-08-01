@@ -955,7 +955,7 @@ PROCEDURE pCRUD :
                     DISABLE btnReset.
                 END. /* add */
                 ASSIGN
-                    dynParamSetDtl.paramID:SENSITIVE = iphMode:LABEL NE "Update"
+                    dynParamSetDtl.paramID:SENSITIVE = iphMode:LABEL EQ "Add"
                     FRAME viewFrame:TITLE = iphMode:LABEL
                     btnUpdate:LABEL = "Save"
                     .
@@ -1266,6 +1266,7 @@ PROCEDURE pSaveSettings :
             user-print.field-value[idx] = STRING(MAX(hColumn:WIDTH, .2 /*BROWSE taskBrowse:MIN-COLUMN-WIDTH-CHARS*/ ))
             .
     END. /* do jdx */
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 

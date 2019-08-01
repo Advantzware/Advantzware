@@ -1450,11 +1450,12 @@ PROCEDURE get-first-date :
   DEF OUTPUT PARAM op-date AS DATE NO-UNDO.
 
 
-  op-date = fg-bin.aging-date.
+  op-date = 01/01/01 .
 
   IF fg-bin.tag EQ "" THEN
   FOR EACH fg-rcpth
       WHERE fg-rcpth.company   EQ fg-bin.company
+        AND fg-rcpth.rita-code EQ "R"
         AND fg-rcpth.i-no      EQ fg-bin.i-no
         AND fg-rcpth.job-no    EQ fg-bin.job-no
         AND fg-rcpth.job-no2   EQ fg-bin.job-no2
@@ -1463,10 +1464,10 @@ PROCEDURE get-first-date :
       EACH fg-rdtlh
       WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+        AND fg-rdtlh.tag       EQ ""
         AND (TRIM(fg-bin.job-no) NE "" OR
              (fg-rdtlh.loc     EQ fg-bin.loc     AND
               fg-rdtlh.loc-bin EQ fg-bin.loc-bin AND
-              fg-rdtlh.tag     EQ fg-bin.tag AND
               fg-rdtlh.cust-no EQ fg-bin.cust-no))
       USE-INDEX rm-rdtl NO-LOCK
 
@@ -1481,6 +1482,7 @@ PROCEDURE get-first-date :
   FOR EACH fg-rdtlh
       WHERE fg-rdtlh.company   EQ fg-bin.company
         AND fg-rdtlh.loc       EQ fg-bin.loc
+        AND fg-rdtlh.rita-code EQ "R"
         AND fg-rdtlh.tag       EQ fg-bin.tag
         AND fg-rdtlh.cust-no   EQ fg-bin.cust-no
         AND (TRIM(fg-bin.job-no) NE "" OR

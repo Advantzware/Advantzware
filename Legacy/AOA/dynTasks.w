@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&Scoped-define defaultUser _default
 &Scoped-define program-id tasksWin.
 
 /* Parameters Definitions ---                                           */
@@ -234,7 +235,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults W-Win
 ON CHOOSE OF btnRestoreDefaults IN FRAME F-Main /* Defaults */
 DO:
-    RUN pGetSettings ("_default").
+    RUN pGetSettings ("{&defaultUser}").
     RUN select-page (1).
 END.
 
@@ -497,8 +498,8 @@ PROCEDURE pGetSettings :
     IF NOT CAN-FIND(FIRST user-print
                     WHERE user-print.company    EQ g_company
                       AND user-print.program-id EQ "{&programID}"
-                      AND user-print.user-id    EQ "_default") THEN
-    RUN pSaveSettings ("_default").
+                      AND user-print.user-id    EQ "{&defaultUser}") THEN
+    RUN pSaveSettings ("{&defaultUser}").
     FIND FIRST user-print NO-LOCK
          WHERE user-print.company    EQ g_company
            AND user-print.program-id EQ "{&program-id}"
@@ -583,6 +584,7 @@ PROCEDURE pSaveSettings :
         user-print.field-label[idx] = "WindowHeight"
         user-print.field-value[idx] = STRING({&WINDOW-NAME}:HEIGHT)
         .
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 
@@ -686,7 +688,7 @@ FUNCTION fWindowTitle RETURNS CHARACTER
        ipcUserID    NE "" THEN DO:
         cTitle = " - Filter [ ".
         IF ipcMnemonic NE "" THEN
-        cTitle = cTitle + "Hotkey:"      + ipcMnemonic + " ".
+        cTitle = cTitle + "Module: "     + ipcMnemonic + " ".
         IF ipcPrgmName NE "" THEN
         cTitle = cTitle + "Program ID: " + ipcPrgmName + " ".
         IF ipcUserID   NE "" THEN

@@ -91,7 +91,7 @@ DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     SPACE(112.20) SKIP(20.10)
+     SPACE(113.80) SKIP(20.10)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Items for Estimate #".
@@ -306,7 +306,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-multbl ).
        RUN set-position IN h_b-multbl ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_b-multbl ( 16.91 , 112.00 ) NO-ERROR.
+       RUN set-size IN h_b-multbl ( 16.91 , 113.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updcan.w':U ,

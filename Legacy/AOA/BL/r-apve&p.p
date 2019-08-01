@@ -1159,7 +1159,7 @@ PROCEDURE pPostGL:
 /*                                END. /* last-of tag */                                                                          */
 /*                            END. /* each fg-rcpth */                                                                            */
                         END. /* avail itemfg */
-                        RUN fg/updfgcst.p (po-ordl.i-no).
+                        /* RUN fg/updfgcst.p (po-ordl.i-no).  (See 52404) */
                     END. /* if not po-ordl.item-type */
                 END. /* avail po-ordl */
                 IF ap-invl.actnum NE "" THEN

@@ -63,10 +63,12 @@ DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN 
     cTextListToSelect  = "Config Name,Config Description,Category,Sub-category,Module,Allows Context,Character Value,Character Value - Default,Character Value - Description,Date Value,Date Value - Default,Date Value - Description," +
-                          "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default"
+                          "Decimal Value,Decimal Value - Default,Decimal Value - Description,Integer Value,Integer Value - Default,Integer Value - Description,Logical Value,Logical Value - Default,Logical Value - Description,User Sec Level,User Sec Lev - Default," +
+                          "Help Contents"
                            
     cFieldListToSelect = "name,descrip,category,subCategory,module,allowsContext,char-fld,char_field_default,char-fld_descrip,date-fld,date-fld_default,date-fld_descrip," + 
-                          "dec-fld,dec-fld_default,dec-fld_descrip,int-fld,int-fld_default,int-fld_descrip,log-fld,log-fld_default,log-fld_descrip,securityLevelUser,securityLevelDefault".
+                          "dec-fld,dec-fld_default,dec-fld_descrip,int-fld,int-fld_default,int-fld_descrip,log-fld,log-fld_default,log-fld_descrip,securityLevelUser,securityLevelDefault," +
+                          "help-cont" .
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
@@ -124,9 +126,9 @@ FUNCTION buildHeader RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-itemfg rd-sysexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-    ( BUFFER ipb-itemfg FOR sys-ctrl, ipc-field AS CHARACTER )  FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetValueExternalToSysCtrl rd-sysexp 
+FUNCTION fGetValueExternalToSysCtrl RETURNS CHARACTER
+    ( BUFFER ipb-sys-ctrl FOR sys-ctrl, ipc-field AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -185,7 +187,7 @@ DEFINE VARIABLE end_name   AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzz"
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-frmitm.csv" 
+DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-sysctrl.csv" 
     LABEL "If Yes, File Name" 
     VIEW-AS FILL-IN 
     SIZE 43 BY 1
@@ -844,7 +846,7 @@ PROCEDURE run-report :
 
         FOR EACH ttRptSelected:
             v-excel-detail-lines = v-excel-detail-lines + 
-                appendXLLine(getValue-itemfg(BUFFER b-sys-ctrl,ttRptSelected.FieldList)).
+                appendXLLine(fGetValueExternalToSysCtrl(BUFFER b-sys-ctrl,ttRptSelected.FieldList)).
         END.
 
         PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP. 
@@ -927,9 +929,9 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getValue-itemfg rd-sysexp 
-FUNCTION getValue-itemfg RETURNS CHARACTER
-    ( BUFFER ipb-itemfg FOR sys-ctrl, ipc-field AS CHARACTER ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetValueExternalToSysCtrl rd-sysexp 
+FUNCTION fGetValueExternalToSysCtrl RETURNS CHARACTER
+    ( BUFFER ipb-sys-ctrl FOR sys-ctrl, ipc-field AS CHARACTER ) :
     /*------------------------------------------------------------------------------
       Purpose:  Take a buffer and field name as string and return the value
         Notes:  
@@ -940,8 +942,10 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
     DEFINE VARIABLE lc-return AS CHARACTER FORMAT "x(100)" NO-UNDO.
     
     CASE ipc-field :
-        WHEN "dfuncTotMSFPTD"  THEN 
-            DO:
+        WHEN "help-cont"  THEN DO:
+            FIND FIRST hlp-head NO-LOCK 
+                WHERE hlp-head.fld-name EQ ipb-sys-ctrl.name NO-ERROR.
+              lc-return = IF AVAIL hlp-head THEN hlp-head.help-txt ELSE "" .
             END.
         OTHERWISE 
         DO:
@@ -950,7 +954,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 li-extent = INT(SUBSTRING(ipc-field,INDEX(ipc-field,"[") + 1, LENGTH(TRIM(ipc-field)) - INDEX(ipc-field,"[") - 1)).
                 ipc-field = SUBSTRING(ipc-field,1,INDEX(ipc-field,"[") - 1).
             END.
-            h-field = BUFFER ipb-itemfg:BUFFER-FIELD(ipc-field).
+            h-field = BUFFER ipb-sys-ctrl:BUFFER-FIELD(ipc-field).
             IF h-field:EXTENT = 0 THEN
                 lc-return = STRING(h-field:BUFFER-VALUE /*, h-field:FORMAT*/ ).
             ELSE

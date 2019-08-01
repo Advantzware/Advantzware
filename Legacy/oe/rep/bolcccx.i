@@ -176,11 +176,11 @@ for each report where report.term-id eq v-term-id,
           /*oe-boll.tag*/ oe-boll.lot-no  FORM "x(20)"
           /*oe-boll.i-no WHEN oe-boll.tag = "" @ oe-boll.tag*/
           lv-pal-tot FORM ">>>,>>9"
-          lv-cases-tot FORM "->>>>" AT 91 "@" 
-          lv-qcase-tot FORM "->>>>>Z"           
+          lv-cases-tot FORM "->>>>>" AT 90 "@" 
+          lv-qcase-tot FORM "->>>>>"           
       
         
-         lv-qty-tot FORM "->>>>>z"
+         lv-qty-tot FORM "->>>>>>>"
                 
          with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
     down {1} with frame bol-mid1.

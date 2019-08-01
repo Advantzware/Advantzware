@@ -118,7 +118,7 @@ DEFINE VARIABLE h_w-ordesf AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordjob AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -640,6 +640,13 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 4.19 , 146.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.10 , 38.50 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'oe/b-ordrel.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
@@ -683,6 +690,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
+
+       /* Links to SmartNavBrowser h_b-ordrel. */
+       RUN add-link IN adm-broker-hdl ( h_b-ordrel , 'move-columns':U , h_movecol-2 ).
 
        /* Links to SmartObject h_relticket. */
        RUN add-link IN adm-broker-hdl ( h_relticket , 'relTicket':U , THIS-PROCEDURE ).

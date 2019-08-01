@@ -630,7 +630,7 @@ for each report where report.term-id eq v-term-id no-lock,
                     /*ar-inv.t-inv-freight*/.
 IF iplPrntDupl = NO THEN do:
   IF v-bot-lab[4] <> "" THEN
-    PUT "<P10><R58><C60><#8><FROM><R+8><C+20><RECT> " 
+    PUT "<P10><R58><C58><#8><FROM><R+8><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
@@ -640,7 +640,7 @@ IF iplPrntDupl = NO THEN do:
         "<=8><R+6> " v-bot-lab[5]
         "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>>,>>9.99" .
   ELSE
-    PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
+    PUT "<R58><C58><#8><FROM><R+6><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 

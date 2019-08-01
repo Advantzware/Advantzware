@@ -480,8 +480,17 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE cRequestedDeliveryDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE dRequestedDeliveryDate AS DATE NO-UNDO.
   DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
-
+  DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+  
   FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
+  
+  RUN sys/ref/nk1look.p (INPUT oe-ord.company, "CaseUOMList", "C" /* Logical */, NO /* check by cust */, 
+            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+            OUTPUT cRtnChar, OUTPUT lRecFound).
+  cCaseUomList = cRtnChar.  
+  
   FIND FIRST cust WHERE cust.cust-no EQ oe-ord.cust-no 
     AND cust.company EQ oe-ord.company NO-LOCK NO-ERROR.
   FIND FIRST ttordlines NO-LOCK NO-ERROR.
@@ -567,7 +576,7 @@ PROCEDURE genOrderLines:
           oe-ordl.spare-dec-1 = oe-ordl.qty
           oe-ordl.spare-char-2 = oe-ordl.pr-uom
           oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
-          oe-ordl.pr-uom = (IF oe-ordl.pr-uom EQ "PF" OR oe-ordl.pr-uom EQ "PLT" THEN "CS" ELSE oe-ordl.pr-uom)
+          oe-ordl.pr-uom = (IF LOOKUP(cCaseUOMList, oe-ordl.pr-uom) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
           .
         IF oe-ordl.pr-uom EQ "CS" THEN
             oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
