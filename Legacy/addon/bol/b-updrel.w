@@ -3276,6 +3276,10 @@ PROCEDURE update-bol :
 
     CREATE oe-boll.
     BUFFER-COPY tt-boll2 EXCEPT rec_key TO oe-boll.
+    ASSIGN 
+        oe-boll.enteredBy = USERID("asi")
+        oe-boll.enteredDT = DATETIME(TODAY, MTIME) 
+        .
     RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT oe-boll.tot-pallets).
 
 

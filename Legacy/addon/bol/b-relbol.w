@@ -75,7 +75,8 @@ DEF NEW SHARED TEMP-TABLE tt-relbol NO-UNDO
     FIELD po-no LIKE oe-boll.po-no
     /* gdm - 10160906 */
     FIELD trailer# LIKE oe-relh.trailer
-    INDEX release# release# ord-no i-no po-no.
+    INDEX release# release# ord-no i-no po-no
+    .
 
 DEFINE TEMP-TABLE ttRelQtys
     FIELD release# LIKE oe-relh.release#
@@ -3101,6 +3102,10 @@ PROCEDURE update-bol :
 
     CREATE oe-boll.
     BUFFER-COPY tt-boll2 EXCEPT rec_key TO oe-boll.
+    ASSIGN 
+        oe-boll.enteredBy = USERID("asi")
+        oe-boll.enteredDT = DATETIME(TODAY, MTIME) 
+        .
     RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT oe-boll.tot-pallets).
 
 
