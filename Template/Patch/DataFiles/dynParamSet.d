@@ -4,7 +4,7 @@
 4 "System" "Shift Range" 5.71 61 yes "Shifts" yes "201902266131902670045"
 5 "System" "Shift Times" 4.52 67 yes "Shift Times" yes "201902274688002670091"
 6 "System" "Audit ID" 3.1 30 yes "" yes "201903286310203436841"
-9 "System" "Audit Fields" 5.71 51 yes "Audit Fields" yes "201904237171403445832"
+9 "System" "Audit Fields" 6.91 55 yes "Audit Fields" yes "201904237171403445832"
 10 "System" "FG Item" 2.91 54 yes "" yes "201905010150003446071"
 11 "System" "Customer" 2.91 27 yes "" yes "201905034012103497411"
 12 "System" "RM Item Range" 5.48 78 yes "RM Items" yes "201906096434503524047"

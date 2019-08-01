@@ -5,7 +5,7 @@
 5 "Inventory by Bin and Tag" yes "System" "FG" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\r-ibtag.p" "FOR" "201906097228703524082" 0
 7 "EDI 810 Exception" yes "System" "AR" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\edi810Xcp.p" "FOR" "201906137801903524352" 0
 8 "Machine Transaction" yes "System" "TS" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\r-mchtrn.p" "FOR EACH ttMachineTransactions" "201904085548603445644" 0
-9 "Audit Field Query" yes "System" "NS" "_default" 0 "Custom" "Grid" "" "" "FOR EACH AuditHdr WHERE AuditHdr.AuditDB EQ [[AuditDB]] AND AuditHdr.AuditTable EQ [[AuditTable]],  EACH AuditDtl OF AuditHdr WHERE AuditDtl.AuditField EQ [[AuditField]]" "201904237192203445836" 0
+9 "Audit Field Query" yes "System" "NS" "_default" 0 "Custom" "Grid" "" "" "FOR EACH AuditHdr WHERE AuditHdr.AuditDB EQ [[AuditDB]] AND AuditHdr.AuditTable EQ [[AuditTable]] AND AuditHdr.AuditKey EQ [[AuditKey]],  EACH AuditDtl OF AuditHdr WHERE AuditDtl.AuditField EQ [[AuditField]]" "201904237192203445836" 0
 10 "Customer Inventory" yes "System" "FG" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\r-cusinv.p" "FOR" "201906145351403524390" 0
 11 "Audit History BL" yes "System" "NS" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\AuditHist.p" "FOR" "201906175565903524469" 0
 12 "Cash Receipt Salesrep Name" yes "System" "AR" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\r-cashs2.p" "FOR" "201906177825003524525" 0
@@ -17,6 +17,8 @@
 18 "Orders Booked by Order Number" yes "System" "OE" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\r-booko#.p" "FOR" "201906205697603525394" 0
 19 "Post BOL Create Invoice" yes "System" "OE" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\r-bolpst.p" "FOR" "201906206506703526054" 0
 20 "Open Orders" yes "System" "OE" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\r-ordopn.p" "FOR" "201906206507803526055" 0
+21 "Customer Credit Hold List" yes "System" "AR" "_default" 0 "Custom" "Grid" "" "" "FOR EACH cust WHERE cust.company EQ [[company]] AND cust.cr-hold EQ YES" "201907165679203621844" 0
+22 "Online Status" yes "System" "AR" "_default" 1000 "Custom" "Grid" "" "" "FOR EACH oe-prmtx WHERE oe-prmtx.company EQ [[company]] AND oe-prmtx.cust-no GE [[startCustNo]] AND oe-prmtx.cust-no LE [[endCustNo]]" "201907208300103627319" 0
 23 "Customer Lookup" yes "System" "AR" "_default" 0 "Custom" "Grid" "" "" "FOR EACH cust WHERE cust.company EQ [[company]]" "201906236720303527716" 0
 24 "Warehouse Lookup" yes "System" "FG" "_default" 0 "Custom" "Grid" "" "" "FOR EACH loc WHERE loc.company EQ [[company]]" "201906244759403527798" 0
 25 "FG item Lookup" yes "System" "FG" "_default" 0 "Custom" "Grid" "" "" "FOR EACH itemfg WHERE itemfg.company EQ [[company]]" "201906244847103527849" 0

@@ -1155,91 +1155,161 @@ PROCEDURE ipBackupDataFiles :
 
 &SCOPED-DEFINE cFile AuditTbl
 
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl-shipto
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile emailcod
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile lookups
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile module
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile prgmxref
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile prgrms
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile translation
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile userlanguage
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile xusermenu
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile cueCard
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile cueCardText
-    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}" + ipcType) NO-ECHO.
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynParam
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynParamSet
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynParamSetDtl
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynParamValue
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynSubject
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynSubjectColumn
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynSubjectParamSEt
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynSubjectTable
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynSubjectWhere
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile Utilities
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
     END.
@@ -3900,9 +3970,16 @@ PROCEDURE ipLoadPrograms :
     INPUT CLOSE.
         
     /* Delete records no longer used */
-    FOR EACH {&tablename} EXCLUSIVE WHERE 
-        NOT CAN-FIND(FIRST tt{&tablename} WHERE tt{&tablename}.prgmname = {&tablename}.prgmname ):
-        DELETE {&tablename}.
+    FOR EACH {&tablename} EXCLUSIVE:
+        FIND FIRST tt{&tablename} WHERE
+            tt{&tablename}.prgmname = {&tablename}.prgmname 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN ASSIGN
+            {&tablename}.prgmname = "x" + {&tablename}.prgmname
+            {&tablename}.menu_item = false
+            {&tablename}.securityLevelDefault = 9999
+            {&tablename}.securityLevelUser = 9999
+            {&tablename}.mnemonic = "".
     END.
     
     EMPTY TEMP-TABLE tt{&tablename}.
