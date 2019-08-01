@@ -1351,8 +1351,15 @@ PROCEDURE pBuildProbe PRIVATE:
         probe.gross-profit = ipbf-estCostHeader.profitPctGross
         probe.net-profit   = ipbf-estCostHeader.profitPctNet 
         probe.sell-price   = ipbf-estCostHeader.sellPrice / dQtyInM
-        probe.spare-char-2 = STRING(ipbf-estCostHeader.estCostHeaderID)
+        probe.spare-char-2 = STRING(ipbf-estCostHeader.estCostHeaderID)         
+        probe.spare-dec-1  = ipbf-estCostHeader.costTotalMaterial / dQtyInM           
         .
+    FOR EACH estCostForm NO-LOCK 
+        WHERE estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        :
+        probe.gsh-qty  = probe.gsh-qty + estCostForm.grossQtyRequiredTotal.
+    END.
+        
         
 END PROCEDURE.
 
@@ -2008,7 +2015,7 @@ PROCEDURE pProcessMiscNonPrep PRIVATE:
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
     DO iIndex = 1 TO 6:
-        IF INDEX("IM",ipbf-ef.mis-simon[iIndex]) EQ 0 OR ipbf-ef.mis-cost[iIndex] EQ "" THEN NEXT.
+        IF ipbf-ef.mis-cost[iIndex] EQ "" THEN NEXT.
         RUN pAddEstMiscForForm(BUFFER ipbf-ef, BUFFER ipbf-estCostForm, ipdQuantity, iIndex, "Material").
         RUN pAddEstMiscForForm(BUFFER ipbf-ef, BUFFER ipbf-estCostForm, ipdQuantity, iIndex, "Labor").
     END.

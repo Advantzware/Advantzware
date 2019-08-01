@@ -27,6 +27,8 @@ DEFINE VARIABLE gcContinue          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcNumError          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowAllQuantities AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcQtyMasterInd      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcSIMONListInclude  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcSIMONListSeparate AS CHARACTER NO-UNDO.
 
 ASSIGN 
     giQtyMaxColumn      = 5
@@ -34,7 +36,9 @@ ASSIGN
     gcContinue          = CHR(187)
     giRowsPerPage       = 64
     glShowAllQuantities = NO
-    gcQtyMasterInd      = "*".
+    gcQtyMasterInd      = "*"
+    gcSIMONListInclude  = "I,M"
+    gcSIMONListSeparate = "S,O,N".
 
 DEFINE TEMP-TABLE ttSection
     FIELD rec_keyParent AS CHARACTER 
@@ -174,10 +178,11 @@ PROCEDURE pPrintForm PRIVATE:
     RUN pPrintItemInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintMaterialInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", gcSIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", gcSIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintOperationsInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, glShowAllQuantities, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintSeparateChargeInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
 END PROCEDURE.
 
@@ -569,9 +574,8 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "Materials", NO, YES, NO).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn3, "Qty Req", NO, YES, YES).   
-    RUN pWriteToCoordinates(iopiRowCount, iColumn4, "Cost Per", NO, YES, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn5, "SU $", NO, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn4, "Qty Req", NO, YES, YES).   
+    RUN pWriteToCoordinates(iopiRowCount, iColumn5, "Cost Per", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn6, "Cost/M", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn7, "Total Cost", NO, YES, YES).
     
@@ -591,25 +595,22 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, estCostMaterial.itemName, 30, NO, NO, NO).
         IF estCostMaterial.isPrimarySubstrate THEN 
         DO:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostMaterial.quantityRequiredNoWasteInCUOM, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, estCostMaterial.costUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostMaterial.quantityRequiredNoWasteInCUOM, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, estCostMaterial.costUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, 0, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn5 + 1, estCostMaterial.costUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostMaterial.costTotalPerMFinishedNoWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, estCostMaterial.costTotalNoWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  SU Waste",NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostMaterial.quantityRequiredSetupWaste, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, estCostMaterial.quantityUOMWaste, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostMaterial.costSetup, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostMaterial.quantityRequiredSetupWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, estCostMaterial.quantityUOMWaste, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostMaterial.costTotalPerMFinishedSetupWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, estCostMaterial.costTotalSetupWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "  Run Waste",NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostMaterial.quantityRequiredRunWaste, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, estCostMaterial.quantityUOMWaste, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, 0, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostMaterial.quantityRequiredRunWaste, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, estCostMaterial.quantityUOMWaste, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostMaterial.costTotalPerMFinishedRunWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, estCostMaterial.costTotalRunWaste, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
@@ -623,11 +624,10 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         END.
         ELSE 
         DO:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostMaterial.quantityRequiredTotal, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn3 + 1, estCostMaterial.quantityUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
-            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, estCostMaterial.costUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostMaterial.costSetup, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostMaterial.quantityRequiredTotal, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn4 + 1, estCostMaterial.quantityUOM, 4, NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn5 + 1, estCostMaterial.costUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostMaterial.costTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, estCostMaterial.costTotal, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
@@ -651,6 +651,7 @@ PROCEDURE pPrintMiscInfoForForm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
     DEFINE INPUT PARAMETER ipcType AS CHARACTER. 
+    DEFINE INPUT PARAMETER ipcSimonList AS CHARACTER.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
    
@@ -672,7 +673,7 @@ PROCEDURE pPrintMiscInfoForForm PRIVATE:
     FOR EACH estCostMisc NO-LOCK 
         WHERE estCostMisc.estCostFormID EQ ipbf-estCostForm.estCostFormID
         AND ((ipcType EQ "Misc" AND NOT estCostMisc.isPrep) OR (ipcType EQ "Prep" AND estCostMisc.isPrep))
-        AND LOOKUP(estCostMisc.SIMON, "I,M") GT 0
+        AND LOOKUP(estCostMisc.SIMON, ipcSimonList) GT 0
         BREAK BY estCostMisc.formNo
         BY estCostMisc.blankNo:
         IF FIRST-OF(estCostMisc.formNo) THEN 
@@ -681,7 +682,8 @@ PROCEDURE pPrintMiscInfoForForm PRIVATE:
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, ipcType + " Description", NO, YES, NO).
             RUN pWriteToCoordinates(iopiRowCount, iColumn2, "Type", NO, YES, NO).
-            RUN pWriteToCoordinates(iopiRowCount, iColumn3, "SU Cost", NO, YES, YES).
+            IF ipcType EQ "Misc" THEN 
+                RUN pWriteToCoordinates(iopiRowCount, iColumn3, "SU Cost", NO, YES, YES).
             RUN pWriteToCoordinates(iopiRowCount, iColumn4, "Cost Per", NO, YES, YES).
             RUN pWriteToCoordinates(iopiRowCount, iColumn5, estCostMisc.profitPercentType, NO, YES, YES).
             RUN pWriteToCoordinates(iopiRowCount, iColumn6, "Cost/M", NO, YES, YES).
@@ -692,7 +694,8 @@ PROCEDURE pPrintMiscInfoForForm PRIVATE:
         RUN pWriteToCoordinates(iopiRowCount, iColumn1, fFormatNumber(estCostMisc.formNo,2, 0, YES) + "-" + fFormatNumber(estCostMisc.blankNo,2, 0, YES), NO, NO, YES).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn1 + 1, estCostMisc.costDescription, 20, NO, NO, NO).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn2, estCostMisc.costType, 4, NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostMisc.costSetup, 7, 2, NO, YES, NO, NO, YES).
+        IF ipcType EQ "Misc" THEN 
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostMisc.costSetup, 7, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostMisc.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn4, estCostMisc.costUOM, 3, NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostMisc.profitPercent, 3, 2, NO, YES, NO, NO, YES).
@@ -775,6 +778,29 @@ PROCEDURE pPrintOperationsInfoForForm PRIVATE:
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn7, dTotalRun, 7, 2, NO, YES, YES, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn8, dTotal, 7, 2, NO, YES, YES, NO, YES).
 
+END PROCEDURE.
+
+PROCEDURE pPrintSeparateChargeInfoForForm PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Prints the Separate charges for a given form
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
+    
+    DEFINE VARIABLE iColumn1   AS INTEGER INITIAL 5.
+    IF CAN-FIND(FIRST estCostMisc 
+                WHERE estCostMisc.estCostFormID EQ ipbf-estCostForm.estCostFormID
+                AND LOOKUP(estCostMisc.SIMON, gcSIMONListSeparate) GT 0) THEN DO:
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1 + 1, "Charges Billed Separately", NO, YES, NO).
+        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", gcSIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", gcSIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    END.
 END PROCEDURE.
 
 
