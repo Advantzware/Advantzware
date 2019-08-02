@@ -158,6 +158,7 @@ PROCEDURE PageOutput:
      Purpose: Pages the output
      Notes:
     ------------------------------------------------------------------------------*/
+    PUT STREAM sOutput SKIP. /*Needed to overcome an Xprint bug?*/
     PAGE STREAM sOutput .
 
 END PROCEDURE.

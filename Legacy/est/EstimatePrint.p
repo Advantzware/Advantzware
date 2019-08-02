@@ -45,9 +45,12 @@ DEFINE TEMP-TABLE ttSection
     FIELD iSequence     AS INTEGER
     FIELD cType         AS CHARACTER 
     .
+{system\NotesProcs.i}
 
 DEFINE STREAM sEstOutput.
 DEFINE VARIABLE hdOutputProcs AS HANDLE.
+DEFINE VARIABLE hdNotesProcs  AS HANDLE.
+RUN sys/NotesProcs.p PERSISTENT SET hdNotesProcs.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -67,6 +70,7 @@ FUNCTION fFormatString RETURNS CHARACTER PRIVATE
 
 /* ***************************  Main Block  *************************** */
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdNotesProcs).
 RUN pBuildSections(ipiEstCostHeaderID, ipcSectionStyle, ipcFormatStyle).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
@@ -76,6 +80,8 @@ DO:
     RUN PrintXprintFile(ipcOutputFile).
 END.
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdOutputProcs).
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdNotesProcs).
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBuildSections PRIVATE:
@@ -150,6 +156,16 @@ PROCEDURE pBuildSections PRIVATE:
             ASSIGN   
                 ttSection.cType         = "Summary"
                 ttSection.iSequence     = IF INDEX(ipcSectionBy, "First") GT 0 THEN 0 ELSE iSectionCount
+                ttSection.rec_keyParent = bf-estCostHeader.rec_key
+                .
+        END.
+        IF NOT INDEX(ipcSectionBy, "No Notes") GT 0 THEN 
+        DO:
+            iSectionCount = iSectionCount + 1.
+            CREATE ttSection.
+            ASSIGN   
+                ttSection.cType         = "Notes"
+                ttSection.iSequence     = iSectionCount
                 ttSection.rec_keyParent = bf-estCostHeader.rec_key
                 .
         END.
@@ -288,6 +304,62 @@ PROCEDURE pPrintItemInfoHeader PRIVATE:
     RUN pWriteToCoordinatesString(iopiRowCount, iShipToColumn + 1, ipbf-estCostItem.salesgroupName, 20, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+
+END PROCEDURE.
+
+PROCEDURE pPrintNotes PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a estCostHeader rec_key, print all notes
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcEstHeaderRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
+        
+    DEFINE VARIABLE iRowStart  AS INTEGER.
+    DEFINE VARIABLE iColumn1   AS INTEGER INITIAL 2.
+    DEFINE VARIABLE iColumn2   AS INTEGER INITIAL 36.
+    DEFINE VARIABLE iTextWidth AS INTEGER INITIAL 70.
+   
+    FOR EACH estCostHeader NO-LOCK 
+        WHERE estCostHeader.rec_key EQ ipcEstHeaderRecKey,
+        FIRST est NO-LOCK 
+        WHERE est.company EQ estCostHeader.company
+        AND est.est-no EQ estCostHeader.estimateNo:
+        IF DYNAMIC-FUNCTION("hasNotes", est.rec_key) THEN 
+        DO:
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Notes", YES, YES, NO).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN GetNotesTempTableForObject(est.rec_key, "", "", iTextWidth, OUTPUT TABLE ttNotesFormatted).
+            FOR EACH ttNotesFormatted:
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                RUN pWriteToCoordinatesString(iopiRowCount, iColumn1, "Dept:" + ttNotesFormatted.noteCode + " - " + ttNotesFormatted.noteTitle, 40, YES, NO, NO).
+                RUN pWriteToCoordinatesString(iopiRowCount, iColumn2, ttNotesFormatted.updatedByUserID + " " + STRING(ttNotesFormatted.updatedDateTime), 30, NO, NO, NO).
+                RUN pPrintNotesArray(iColumn1, ttNotesFormatted.noteTextArray, ttNotesFormatted.noteTextArraySize, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            END.
+        END.
+    END. 
+END PROCEDURE.
+
+PROCEDURE pPrintNotesArray PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  given an array of notes, output at set position
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiColumn AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNotes LIKE ttNotesFormatted.noteTextArray.
+    DEFINE INPUT PARAMETER ipiArraySize AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    
+    DO iIndex = 1 TO ipiArraySize:
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, ipiColumn, ipcNotes[iIndex], NO, NO, NO).
+    END. 
 
 END PROCEDURE.
 
@@ -790,10 +862,11 @@ PROCEDURE pPrintSeparateChargeInfoForForm PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
     
-    DEFINE VARIABLE iColumn1   AS INTEGER INITIAL 5.
+    DEFINE VARIABLE iColumn1 AS INTEGER INITIAL 5.
     IF CAN-FIND(FIRST estCostMisc 
-                WHERE estCostMisc.estCostFormID EQ ipbf-estCostForm.estCostFormID
-                AND LOOKUP(estCostMisc.SIMON, gcSIMONListSeparate) GT 0) THEN DO:
+        WHERE estCostMisc.estCostFormID EQ ipbf-estCostForm.estCostFormID
+        AND LOOKUP(estCostMisc.SIMON, gcSIMONListSeparate) GT 0) THEN 
+    DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -914,10 +987,13 @@ PROCEDURE pProcessSections PRIVATE:
             WHEN "Consolidated" THEN 
             RUN pPrintConsolidated(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
             WHEN "Summary" THEN 
-            RUN pPrintSummary(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).                       
+            RUN pPrintSummary(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).      
+            WHEN "Notes" THEN 
+            RUN pPrintNotes(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).                    
         END CASE.
         RUN AddPage(INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount ).
     END.
+    
 
 END PROCEDURE.
 

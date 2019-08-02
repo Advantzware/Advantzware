@@ -22,6 +22,8 @@ DEFINE TEMP-TABLE ttWord
     FIELD cTextWord    AS CHARACTER 
     FIELD iLengthWord  AS INTEGER.
      
+{system\NotesProcs.i}
+
 DEFINE VARIABLE gTypeShipNote AS CHARACTER NO-UNDO INIT "ES".
     
 /* ********************  Preprocessor Definitions  ******************** */
@@ -35,6 +37,8 @@ FUNCTION fIsLineEnd RETURNS LOGICAL PRIVATE
 FUNCTION fIsWordEnd RETURNS LOGICAL PRIVATE
     (ipcChar AS CHARACTER) FORWARD.
 
+FUNCTION hasNotes RETURNS LOGICAL 
+	(ipcRec_Key AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
@@ -91,19 +95,19 @@ PROCEDURE ConvertToArray:
 END PROCEDURE.
 
 PROCEDURE CopyNoteOfType:
-/*------------------------------------------------------------------------------
- Purpose: Propagates a single note from one rec_key to another
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Propagates a single note from one rec_key to another
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cNoteText AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNoteText AS CHARACTER NO-UNDO.
 
-RUN GetNoteOfType (ipcRecKeyFrom, ipcType, OUTPUT cNoteText).
-IF cNoteText NE "" THEN 
-    RUN UpdateNoteOfType (ipcRecKeyTo, ipcType, cNoteText).
+    RUN GetNoteOfType (ipcRecKeyFrom, ipcType, OUTPUT cNoteText).
+    IF cNoteText NE "" THEN 
+        RUN UpdateNoteOfType (ipcRecKeyTo, ipcType, cNoteText).
 
 END PROCEDURE.
 
@@ -132,65 +136,106 @@ PROCEDURE CopyNotes:
 END PROCEDURE.
 
 PROCEDURE CopyShipNote:
-/*------------------------------------------------------------------------------
- Purpose: Wrapper of CopyNoteOfType for Ship Note Type
- Notes:
-------------------------------------------------------------------------------*/
- DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
- DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper of CopyNoteOfType for Ship Note Type
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
  
- RUN CopyNoteOfType (ipcRecKeyFrom, ipcRecKeyTo, gTypeShipNote).
+    RUN CopyNoteOfType (ipcRecKeyFrom, ipcRecKeyTo, gTypeShipNote).
 
 END PROCEDURE.
 
 PROCEDURE GetNoteOfType:
-/*------------------------------------------------------------------------------
- Purpose: Given a rec_key and type, will return the notes content of first note
- of given type
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opcFullText AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Given a rec_key and type, will return the notes content of first note
+     of given type
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFullText AS CHARACTER NO-UNDO.
 
-FIND FIRST notes NO-LOCK 
-    WHERE notes.rec_key EQ ipcObjectRecKey
+    FIND FIRST notes NO-LOCK 
+        WHERE notes.rec_key EQ ipcObjectRecKey
         AND notes.note_type EQ ipcType
-    NO-ERROR.
-IF AVAILABLE notes THEN 
-    opcFullText = notes.note_text.
+        NO-ERROR.
+    IF AVAILABLE notes THEN 
+        opcFullText = notes.note_text.
     
 END PROCEDURE.
 
 PROCEDURE GetNotesArrayForObject:
-/*------------------------------------------------------------------------------
- Purpose: Given a rec_key for an object, a set of type and codes, return an array of a max char length 
- Notes:  Types and Codes should be comma separated or left blank for all
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipiMaxCharCount AS INTEGER NO-UNDO.
-DEFINE INPUT PARAMETER iplIncludeTitles AS LOGICAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
-DEFINE OUTPUT PARAMETER opiArraySize AS INTEGER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Given a rec_key for an object, a set of type and codes, return an array of a max char length 
+     Notes:  Types and Codes should be comma separated or left blank for all
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiMaxCharCount AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeTitles AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
+    DEFINE OUTPUT PARAMETER opiArraySize AS INTEGER NO-UNDO.
 
-DEFINE VARIABLE cFullText AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFullText AS CHARACTER NO-UNDO.
 
- FOR EACH notes NO-LOCK 
+    FOR EACH notes NO-LOCK 
         WHERE notes.rec_key EQ ipcObjectRecKey
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
         AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
         :
-    IF iplIncludeTitles THEN 
-        cFullText = cFullText + TRIM(CAPS(notes.note_title)) + CHR(13).
-    cFullText = cFullText + TRIM(notes.note_text) + CHR(13).  
-END.
+        IF iplIncludeTitles THEN 
+            cFullText = cFullText + TRIM(CAPS(notes.note_title)) + CHR(13).
+        cFullText = cFullText + TRIM(notes.note_text) + CHR(13).  
+    END.
 
-IF cFullText NE "" THEN DO:
-    cFullText = TRIM(cFullText,CHR(13)). 
-    RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
-END. 
+    IF cFullText NE "" THEN 
+    DO:
+        cFullText = TRIM(cFullText,CHR(13)). 
+        RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
+    END. 
+END PROCEDURE.
+
+PROCEDURE GetNotesTempTableForObject:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a rec_key for an object, a set of type and codes, return 
+     ttNotesFormatted temp-table 
+     Notes:  Types and Codes should be comma separated or left blank for all
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiMaxCharCount AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttNotesFormatted.
+
+    DEFINE VARIABLE cFullText AS CHARACTER NO-UNDO.
+
+    FOR EACH notes NO-LOCK 
+        WHERE notes.rec_key EQ ipcObjectRecKey
+        AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
+        AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
+        :
+        cFullText = notes.note_text.
+        IF cFullText NE "" THEN 
+        DO:
+            CREATE ttNotesFormatted.
+            ASSIGN                 
+                cFullText = TRIM(cFullText,CHR(13))
+                ttNotesFormatted.rec_key = notes.rec_key
+                ttNotesFormatted.noteCode = notes.note_code
+                ttNotesFormatted.noteTitle = notes.note_title
+                ttNotesFormatted.noteType = notes.note_type
+                ttNotesFormatted.createdByUserID = notes.createUser
+                ttNotesFormatted.updatedByUserID = notes.updateUser
+                ttNotesFormatted.createdDateTime = DATETIME(notes.createDate, notes.createTime * 1000)
+                ttNotesFormatted.updatedDateTime = DATETIME(notes.updateDate, notes.updateTime * 1000)
+                . 
+            RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT ttNotesFormatted.noteTextArray, OUTPUT ttNotesFormatted.noteTextArraySize).
+        END. 
+    END.
+
 END PROCEDURE.
 
 PROCEDURE pParseText PRIVATE:
@@ -206,6 +251,7 @@ PROCEDURE pParseText PRIVATE:
     DEFINE VARIABLE iLineCount  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotalChars AS INTEGER   NO-UNDO.
 
+    EMPTY TEMP-TABLE ttLine.
     iTotalChars = LENGTH(ipcTextToParse).
     IF iTotalChars GT 0 THEN 
     DO:
@@ -250,40 +296,41 @@ PROCEDURE pParseText PRIVATE:
 END PROCEDURE.
 
 PROCEDURE UpdateNoteOfType:
-/*------------------------------------------------------------------------------
- Purpose: Given a rec_key and type, this proce will update the first note of that type
-    or add it if it doesn't exist.
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNoteType AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Given a rec_key and type, this proce will update the first note of that type
+        or add it if it doesn't exist.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNoteType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
 
-FIND FIRST notes EXCLUSIVE-LOCK 
-    WHERE notes.rec_key EQ ipcObjectRecKey
+    FIND FIRST notes EXCLUSIVE-LOCK 
+        WHERE notes.rec_key EQ ipcObjectRecKey
         AND notes.note_type EQ ipcNoteType
-    NO-ERROR.
-IF NOT AVAILABLE notes THEN DO:
-    CREATE notes.
-    ASSIGN 
-        notes.rec_key = ipcObjectRecKey
-        notes.note_type = ipcNoteType
-        .
-END. /*not avail notes*/
+        NO-ERROR.
+    IF NOT AVAILABLE notes THEN 
+    DO:
+        CREATE notes.
+        ASSIGN 
+            notes.rec_key   = ipcObjectRecKey
+            notes.note_type = ipcNoteType
+            .
+    END. /*not avail notes*/
 
-notes.note_text = ipcNoteText.
+    notes.note_text = ipcNoteText.
 
 END PROCEDURE.
 
 PROCEDURE UpdateShipNote:
-/*------------------------------------------------------------------------------
- Purpose: Wrapper for UpdateNoteofType specifically for Ship Notes
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper for UpdateNoteofType specifically for Ship Notes
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
 
-RUN UpdateNoteOfType (ipcObjectRecKey, gTypeShipNote, ipcNoteText).
+    RUN UpdateNoteOfType (ipcObjectRecKey, gTypeShipNote, ipcNoteText).
 
 END PROCEDURE.
 
@@ -307,5 +354,15 @@ FUNCTION fIsWordEnd RETURNS LOGICAL PRIVATE
     ------------------------------------------------------------------------------*/	
     RETURN INDEX(" ,;-:&)", ipcChar) GT 0 OR fIsLineEnd(ipcChar).
 	
+END FUNCTION.
+
+FUNCTION hasNotes RETURNS LOGICAL 
+	(ipcRec_Key AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: returns yes if given rec_key has notes
+ Notes:
+------------------------------------------------------------------------------*/	
+    RETURN CAN-FIND(FIRST notes WHERE notes.rec_key EQ ipcRec_key).
+    		
 END FUNCTION.
 
