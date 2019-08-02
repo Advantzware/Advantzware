@@ -352,7 +352,7 @@ DO:
         CASE FOCUS:NAME :
             WHEN "rmItemID" THEN 
                 DO:
-                    RUN windows/l-item.w (eb.company,"","C,5,6,M",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+                    RUN windows/l-item.w (eb.company,"","C,5,6,M,D",FOCUS:SCREEN-VALUE, OUTPUT char-val).
                     IF char-val <> "" AND estPacking.rmItemID:SCREEN-VALUE NE entry(1,char-val) THEN 
                     DO:
                         estPacking.rmItemID:SCREEN-VALUE = ENTRY(1,char-val).
@@ -792,7 +792,7 @@ PROCEDURE valid-material :
         FIND FIRST item NO-LOCK
             WHERE item.company EQ cocode
             AND item.i-no    EQ estPacking.rmItemID:SCREEN-VALUE 
-            AND lookup(item.mat-type,"C,5,6,M") > 0 NO-ERROR.
+            AND lookup(item.mat-type,"C,5,6,M,D") > 0 NO-ERROR.
         IF NOT AVAILABLE ITEM THEN 
         DO:
             MESSAGE "Invalid Item Id, try help..." VIEW-AS ALERT-BOX.
