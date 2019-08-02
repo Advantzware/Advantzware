@@ -16,7 +16,20 @@
 &SCOPED-DEFINE NEW NEW
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
+
+DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
+DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
+
+RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
+RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
+
+RUN system/session.p  PERSISTENT SET hSession.
+SESSION:ADD-SUPER-PROCEDURE (hSession).
+RUN system/TagProcs.p PERSISTENT SET hTags.
+SESSION:ADD-SUPER-PROCEDURE (hTags).
+
 {sys/inc/var.i "new shared"}
+
 
 /* Company and location codes has been hardcoded for now, 
    however this has to be fixed in future commits as per the finalized approach*/
@@ -28,10 +41,11 @@ ASSIGN
  {cXML/cXMLDefs.i}  
  {cXML/cXMLOrderProc.i}
 
-  DEFINE INPUT  PARAMETER ipcXMLData     AS LONGCHAR NO-UNDO.
-  DEFINE INPUT  PARAMETER lpcTempTableOnly AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcReturnValue AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipcXMLData       AS LONGCHAR  NO-UNDO.
+  DEFINE INPUT  PARAMETER lpcTempTableOnly AS LOGICAL   NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcPayloadID     AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcReturnValue   AS CHARACTER NO-UNDO.
 
   DEFINE VARIABLE payLoadID AS CHARACTER NO-UNDO.
   DEFINE VARIABLE orderID AS CHARACTER NO-UNDO.
@@ -95,7 +109,7 @@ END FUNCTION.
   
   IF ERROR-STATUS:ERROR OR NOT TEMP-TABLE ttNodes:HAS-RECORDS THEN DO:
       ASSIGN
-          opcReturnValue = "cXML is not valid or DTD tag is present"
+          opcReturnValue = "Requested XML is not in valid format" +  " " + ERROR-STATUS:get-message(1).
           oplSuccess     = NO
           .
       RETURN.  
@@ -107,10 +121,12 @@ END FUNCTION.
 
   lIsEdiXml = (IF AVAILABLE ttNodes THEN YES ELSE NO).
           payLoadID = getNodeValue('cXML','payloadID').
+          opcPayloadID = payLoadID.
 
   IF NOT lIsEdiXML THEN DO:
       ASSIGN
         payLoadID = getNodeValue('cXML','payloadID')
+        opcPayloadID = payLoadID
         fromIdentity = getNodeValue('From','Identity')
         orderDate = getNodeValue('OrderRequestHeader','orderDate')
         orderID = getNodeValue('OrderRequestHeader','orderID')
@@ -125,7 +141,7 @@ END FUNCTION.
          orderID EQ "" OR
          shipToID EQ "" THEN DO:
           ASSIGN
-              opcReturnValue = "cXML is not valid or DTD tag is present"
+              opcReturnValue = "Requested XML is not in valid format"
               oplSuccess     = NO
               .
           RETURN. 
@@ -181,7 +197,8 @@ END FUNCTION.
   END.  
   ELSE DO:
       ASSIGN 
-        payLoadID = "1".
+        payLoadID = "1"
+        opcPayloadID = payLoadID.
       FIND FIRST ttNodes WHERE  
          ttNodes.nodeName EQ "ISA06" NO-ERROR.
       IF AVAILABLE ttNodes THEN 
@@ -198,7 +215,7 @@ END FUNCTION.
          fromIdentity EQ "" OR
          orderDate EQ ? THEN DO:
           ASSIGN
-              opcReturnValue = "cXML is not valid or DTD tag is present"
+              opcReturnValue = "Requested XML is not in valid format"
               oplSuccess     = NO
               .
           RETURN. 

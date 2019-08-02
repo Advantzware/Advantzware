@@ -24,6 +24,7 @@ DEFINE VARIABLE lSuccess                AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRequestedBy            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRecordSource           AS CHARACTER NO-UNDO INITIAL "APP Server".
 DEFINE VARIABLE cNotes                  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE riAPIInboundEvent       AS ROWID     NO-UNDO.
  
 /* API PROCESS */
 FIND APIInbound NO-LOCK
@@ -38,15 +39,17 @@ IF NOT AVAILABLE APIInbound THEN DO:
         oplcResponseData='~{ "response_code": 404, "response_message":"' + cMessage + '"}'
         .
     RUN api\CreateAPIInboundEvent.p (
-        INPUT ipcRoute,
-        INPUT iplcRequestData,
-        INPUT oplcResponseData,
-        INPUT lSuccess,
-        INPUT cMessage,
-        INPUT NOW,
-        INPUT cRequestedBy,
-        INPUT cRecordSource,
-        INPUT cNotes
+        INPUT  ipcRoute,
+        INPUT  iplcRequestData,
+        INPUT  oplcResponseData,
+        INPUT  lSuccess,
+        INPUT  cMessage,
+        INPUT  NOW,
+        INPUT  cRequestedBy,
+        INPUT  cRecordSource,
+        INPUT  cNotes,
+        INPUT  "", /* PayloadID */
+        OUTPUT riAPIInboundEvent
         ).
     RETURN.
 END.
@@ -62,15 +65,17 @@ IF SEARCH(APIInbound.requestHandler) EQ ? AND
         oplcResponseData='~{ "response_code": 404, "response_message":"' + cMessage + '"}'
         .
     RUN api\CreateAPIInboundEvent.p (
-         INPUT ipcRoute,
-         INPUT iplcRequestData,
-         INPUT oplcResponseData,
-         INPUT lSuccess,
-         INPUT cMessage,
-         INPUT NOW,
-         INPUT cRequestedBy,
-         INPUT cRecordSource,
-         INPUT cNotes
+         INPUT  ipcRoute,
+         INPUT  iplcRequestData,
+         INPUT  oplcResponseData,
+         INPUT  lSuccess,
+         INPUT  cMessage,
+         INPUT  NOW,
+         INPUT  cRequestedBy,
+         INPUT  cRecordSource,
+         INPUT  cNotes,
+         INPUT  "", /* PayloadID */
+         OUTPUT riAPIInboundEvent
          ).         
     RETURN.
 END.

@@ -38,6 +38,7 @@ DEFINE VARIABLE cLocationID             AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cInventoryStockID       AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cPrimaryID              AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cItemType               AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE riAPIInboundEvent       AS ROWID      NO-UNDO.
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
 
@@ -53,15 +54,17 @@ IF NOT oplSuccess THEN DO:
     oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.
     /* Log the request to APIInboundEvent */
     RUN api\CreateAPIInboundEvent.p (
-        INPUT ipcRoute,
-        INPUT iplcRequestData,
-        INPUT oplcResponseData,
-        INPUT oplSuccess,
-        INPUT opcMessage,
-        INPUT NOW,
-        INPUT ipcRequestedBy,
-        INPUT ipcRecordSource,
-        INPUT ipcNotes
+        INPUT  ipcRoute,
+        INPUT  iplcRequestData,
+        INPUT  oplcResponseData,
+        INPUT  oplSuccess,
+        INPUT  opcMessage,
+        INPUT  NOW,
+        INPUT  ipcRequestedBy,
+        INPUT  ipcRecordSource,
+        INPUT  ipcNotes,
+        INPUT  "", /* PayloadID */
+        OUTPUT riAPIInboundEvent
         ).
 
    RETURN.
@@ -105,15 +108,17 @@ DO:
    oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
    /* Log the request to APIInboundEvent */
    RUN api\CreateAPIInboundEvent.p (
-       INPUT ipcRoute,
-       INPUT iplcRequestData,
-       INPUT oplcResponseData,
-       INPUT oplSuccess,
-       INPUT opcMessage,
-       INPUT NOW,
-       INPUT ipcRequestedBy,
-       INPUT ipcRecordSource,
-       INPUT ipcNotes
+       INPUT  ipcRoute,
+       INPUT  iplcRequestData,
+       INPUT  oplcResponseData,
+       INPUT  oplSuccess,
+       INPUT  opcMessage,
+       INPUT  NOW,
+       INPUT  ipcRequestedBy,
+       INPUT  ipcRecordSource,
+       INPUT  ipcNotes,
+       INPUT  "", /* PayloadID */
+       OUTPUT riAPIInboundEvent
        ).
    
    RETURN.  
@@ -143,15 +148,17 @@ ASSIGN
 
 /* Log the request to APIInboundEvent */
 RUN api\CreateAPIInboundEvent.p (
-    INPUT ipcRoute,
-    INPUT iplcRequestData,
-    INPUT oplcResponseData,
-    INPUT oplSuccess,
-    INPUT opcMessage,
-    INPUT NOW,
-    INPUT ipcRequestedBy,
-    INPUT ipcRecordSource,
-    INPUT ipcNotes
+    INPUT  ipcRoute,
+    INPUT  iplcRequestData,
+    INPUT  oplcResponseData,
+    INPUT  oplSuccess,
+    INPUT  opcMessage,
+    INPUT  NOW,
+    INPUT  ipcRequestedBy,
+    INPUT  ipcRecordSource,
+    INPUT  ipcNotes,
+    INPUT  "", /* PayloadID */
+    OUTPUT riAPIInboundEvent
     ).
     
 DELETE PROCEDURE hdJSONProcs.

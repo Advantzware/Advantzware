@@ -16,7 +16,7 @@ router.use(bodyParser.text());
 function handleRoute(req,res){
 	var responseCode = "";
 	var response = "";
-	
+	var responseMessage = "";
     try {
         if (!lib.Authenticated(req)){
             res.set('WWW-Authenticate', 'Basic realm="401"');
@@ -41,7 +41,8 @@ function handleRoute(req,res){
 						if (!response) {
 							response = {"response_code":500,"response_message":"Internal Server Error"};
 						}
-						responseCode = response.response_code;					
+						responseCode = response.response_code;	
+						responseMessage = response.response_message;
 						response = lib.XMLResponse(response.response_code,response.response_message);
 						if (responseCode === 500 || responseCode === 404){
 							// writes the request data to csv file in case AppServer is down
@@ -56,6 +57,10 @@ function handleRoute(req,res){
             }
 			 
 			res.setHeader('Content-Type', 'text/xml');
+			if (responseMessage.includes("cXML")) {
+				response = responseMessage;
+			}
+			
 			res.status(responseCode).send(response);
 			res.end();
         }
