@@ -211,7 +211,8 @@ PROCEDURE GetNotesTempTableForObject:
     DEFINE OUTPUT PARAMETER TABLE FOR ttNotesFormatted.
 
     DEFINE VARIABLE cFullText AS CHARACTER NO-UNDO.
-
+    
+    EMPTY TEMP-TABLE ttNotesFormatted.
     FOR EACH notes NO-LOCK 
         WHERE notes.rec_key EQ ipcObjectRecKey
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
@@ -231,6 +232,8 @@ PROCEDURE GetNotesTempTableForObject:
                 ttNotesFormatted.updatedByUserID = notes.updateUser
                 ttNotesFormatted.createdDateTime = DATETIME(notes.createDate, notes.createTime * 1000)
                 ttNotesFormatted.updatedDateTime = DATETIME(notes.updateDate, notes.updateTime * 1000)
+                ttNotesFormatted.noteText = cFullText
+                ttNotesFormatted.noteTextArray = ""
                 . 
             RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT ttNotesFormatted.noteTextArray, OUTPUT ttNotesFormatted.noteTextArraySize).
         END. 
@@ -252,6 +255,7 @@ PROCEDURE pParseText PRIVATE:
     DEFINE VARIABLE iTotalChars AS INTEGER   NO-UNDO.
 
     EMPTY TEMP-TABLE ttLine.
+    EMPTY TEMP-TABLE ttWord.
     iTotalChars = LENGTH(ipcTextToParse).
     IF iTotalChars GT 0 THEN 
     DO:

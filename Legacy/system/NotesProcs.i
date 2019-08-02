@@ -24,6 +24,7 @@ DEFINE TEMP-TABLE ttNotesFormatted
     FIELD noteTitle AS CHARACTER 
     FIELD noteType AS CHARACTER 
     FIELD noteCode AS CHARACTER 
+    FIELD noteText AS CHARACTER
     FIELD noteTextArray AS CHARACTER EXTENT 100
     FIELD noteTextArraySize AS INTEGER
     FIELD createdByUserID AS CHARACTER 

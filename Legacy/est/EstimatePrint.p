@@ -316,7 +316,6 @@ PROCEDURE pPrintNotes PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
         
-    DEFINE VARIABLE iRowStart  AS INTEGER.
     DEFINE VARIABLE iColumn1   AS INTEGER INITIAL 2.
     DEFINE VARIABLE iColumn2   AS INTEGER INITIAL 36.
     DEFINE VARIABLE iTextWidth AS INTEGER INITIAL 70.
@@ -326,19 +325,17 @@ PROCEDURE pPrintNotes PRIVATE:
         FIRST est NO-LOCK 
         WHERE est.company EQ estCostHeader.company
         AND est.est-no EQ estCostHeader.estimateNo:
-        IF DYNAMIC-FUNCTION("hasNotes", est.rec_key) THEN 
-        DO:
-            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Notes", YES, YES, NO).
-            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            RUN GetNotesTempTableForObject(est.rec_key, "", "", iTextWidth, OUTPUT TABLE ttNotesFormatted).
-            FOR EACH ttNotesFormatted:
-                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                RUN pWriteToCoordinatesString(iopiRowCount, iColumn1, "Dept:" + ttNotesFormatted.noteCode + " - " + ttNotesFormatted.noteTitle, 40, YES, NO, NO).
-                RUN pWriteToCoordinatesString(iopiRowCount, iColumn2, ttNotesFormatted.updatedByUserID + " " + STRING(ttNotesFormatted.updatedDateTime), 30, NO, NO, NO).
-                RUN pPrintNotesArray(iColumn1, ttNotesFormatted.noteTextArray, ttNotesFormatted.noteTextArraySize, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            END.
+        RUN pPrintNotesForRecKey(est.rec_key, "Manufacturing Notes", INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        FOR EACH estCostItem NO-LOCK 
+            WHERE estCostItem.estCostHeaderID EQ estCostHeader.estCostHeaderID
+            AND estCostItem.itemID NE "",
+            FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ estCostHeader.company
+            AND itemfg.i-no EQ estCostItem.itemID
+            :
+            RUN pPrintNotesForRecKey(itemfg.rec_key, "Spec Notes for Item: " + itemfg.i-no, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).                
         END.
     END. 
 END PROCEDURE.
@@ -360,6 +357,37 @@ PROCEDURE pPrintNotesArray PRIVATE:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, ipiColumn, ipcNotes[iIndex], NO, NO, NO).
     END. 
+
+END PROCEDURE.
+
+PROCEDURE pPrintNotesForRecKey PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Prints notes for a given rec_Key
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcHeader AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
+    
+    DEFINE VARIABLE iColumn1   AS INTEGER INITIAL 2.
+    DEFINE VARIABLE iColumn2   AS INTEGER INITIAL 36.
+    DEFINE VARIABLE iTextWidth AS INTEGER INITIAL 70.
+    
+    EMPTY TEMP-TABLE ttNotesFormatted.
+    IF DYNAMIC-FUNCTION("hasNotes", ipcRecKey) THEN 
+    DO:
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, ipcHeader, YES, YES, NO).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN GetNotesTempTableForObject(ipcRecKey, "", "", iTextWidth, OUTPUT TABLE ttNotesFormatted).
+        FOR EACH ttNotesFormatted:
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn1, "Dept:" + ttNotesFormatted.noteCode + " - " + ttNotesFormatted.noteTitle, 40, YES, NO, NO).
+            //RUN pWriteToCoordinatesString(iopiRowCount, iColumn2, ttNotesFormatted.updatedByUserID + " " + STRING(ttNotesFormatted.updatedDateTime), 30, NO, NO, NO).
+            RUN pPrintNotesArray(iColumn1, ttNotesFormatted.noteTextArray, ttNotesFormatted.noteTextArraySize, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        END.
+    END.
 
 END PROCEDURE.
 
