@@ -486,8 +486,8 @@ find first company where company.company eq cocode no-lock no-error.
         "<R58><C1>" v-billinst[3] 
         "<R59><C1>" v-billinst[4] 
         "<R61><C1>" " ______________________________________(Please sign and fax back) " 
-        "<=10><R-2>" SPACE(2) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>" SKIP
-                     SPACE(2) "<B>All funds payable in " + STRING(cCurCode,"x(3)") + "." FORMAT "x(200)"   .
+        "<=10><R-2>" SPACE(2) "<P9><B>CECI EST UNE CONFIRMATION DE VOTRE COMMANDE.</B>" SKIP
+                     /*SPACE(2) "<B>All funds payable in " + STRING(cCurCode,"x(3)") + "." FORMAT "x(200)"*/   .
       v-printline = v-printline + 6.
       IF v-printline <= 66 THEN page. /*PUT SKIP(60 - v-printline). */
 
@@ -510,7 +510,7 @@ PROCEDURE print-rels:
           if ip-first then do:
             lcnt = 1.
             if oe-rel.link-no eq 0 then do:
-              put "Scheduled Releases:" at 10  skip.
+              put "Relàches Prévues:" at 10  skip.
               v-printline = v-printline + 1.
             end.
             ELSE do:

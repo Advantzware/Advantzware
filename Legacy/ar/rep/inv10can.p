@@ -616,7 +616,7 @@ ELSE lv-comp-color = "BLACK".
     v-inv-freight = if (ar-inv.f-bill OR (cust.frt-pay = "B" AND ar-inv.ord-no = 0))
                     THEN ar-inv.freight ELSE 0.    
                    /*ar-inv.t-inv-freight*/.
-PUT "<R57><c61>" "<B>FUNDS payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .
+/*PUT "<R57><c61>" "<B>FUNDS payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .*/
 
 FOR EACH bf-cust NO-LOCK
         WHERE bf-cust.company EQ cocode
@@ -635,8 +635,8 @@ FOR EACH bf-cust NO-LOCK
 
 IF v-bot-lab[4] <> "" THEN
     PUT "<P10><R58><C60><#8><FROM><R+8><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
+        "<=8> Sous Total :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Transport  :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
@@ -645,8 +645,8 @@ IF v-bot-lab[4] <> "" THEN
         "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>>,>>9.99" .
 ELSE
     PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
+        "<=8> Sous Total :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Transport  :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]

@@ -15,7 +15,7 @@
           v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
           lv-email AT 8*/ SKIP(2)
          "<FCourier New>"
-         "Client/Customer:" AT 4 space(32) "Livrasion/Ship To: " shipto[5] SKIP
+         "Client/Customer:" AT 4 space(32) "Livraison/Ship To: " shipto[5] SKIP
          SPACE(5) bill[1]  shipto[1] AT 55 skip
          SPACE(5) bill[2]  shipto[2] AT 55 SKIP
          SPACE(5) bill[3]  shipto[3] AT 55 SKIP
@@ -45,7 +45,7 @@
 
      PUT  "<P10>" SKIP
    "<=#3>  Client/Customer#                    ATTN:"
-   "<=#3><R+2> Tele.                                           Fax <FCourier New>" 
+   "<=#3><R+2> Tel.                                           Fax <FCourier New>" 
    "<=3><R+1> " xquo.cust-no  space(6) xquo.contact /*cust.contact*/
    "<=3><R+3> " cust.area-code + cust.phone format "(999)999-9999"  space(5) cust.fax
    .
@@ -73,7 +73,7 @@
    "<R23><C71><FROM><R27><C71><LINE>" 
    .
    PUT "<FArial><=4><C72> Plus-Moins /"
-       "<R+1><C1>         Date                 FOB                  Expediteur / Ship Via              Termes / Terms     Representant/Sales Person   Over-Under%" SKIP
+       "<R+1><C1>         Date            Destination              Expéditeur / Ship Via              Termes / Terms    Représentant/Sales Person    Over-Under%" SKIP
    "<FCourier New><=4><R+3> " v-quo-date FORM "99/99/9999" space(2)
    cust.fob-code FORM "x(11)" SPACE(2)
    carrier.dscr FORM "x(20)" SPACE(1)
@@ -88,5 +88,5 @@
              /*"<R28><C63><FROM><R30><C63><LINE>" SKIP*/
              "<R28><C73><FROM><R30><C73><LINE>" 
              .
-   PUT "<FArial><=5><R+1>   Est#            Description                               Specifications                                     Qte / Qty              Prix  /  Price            UM / UOM" SKIP(1).
+   PUT "<FArial><=5><R+1>   Est#            Description                               Spécifications                                     Qté / Qty              Prix  /  Price            UM / UOM" SKIP(1).
    PUT "<FCourier New>".
