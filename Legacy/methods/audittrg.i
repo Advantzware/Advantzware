@@ -46,8 +46,11 @@ PROCEDURE pAuditDetail:
         AuditHdr.AuditKey = fAuditKey(hTable[1],cIdxFields)
         .
     
-    DO iAuditIdx = 1 TO hTable[1]:NUM-FIELDS:
+    DO iAuditIdx = 1 TO hTable[1]:NUM-FIELDS:    
         iExtentBase = IF hTable[1]:BUFFER-FIELD(iAuditIdx):EXTENT GT 0 THEN 1 ELSE 0.
+        IF hTable[1]:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "CLOB" OR
+           hTable[1]:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "BLOB" THEN
+            NEXT.
         DO iExtent = iExtentBase TO hTable[1]:BUFFER-FIELD(iAuditIdx):EXTENT:
             CASE ipcType:
                 WHEN "CREATE" THEN
