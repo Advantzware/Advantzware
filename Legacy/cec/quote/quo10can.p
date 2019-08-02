@@ -267,7 +267,7 @@ if (not ch-multi) then do:
           li-cline = li-cline + 1.
        END.
     end.
-    PUT "<R59><c65>" "<B>All funds payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .
+    /*PUT "<R59><c65>" "<B>All funds payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .*/
 
     v-printline = v-printline + 6.
     IF v-printline < 50 THEN PAGE . /*PUT SKIP(60 - v-printline).*/

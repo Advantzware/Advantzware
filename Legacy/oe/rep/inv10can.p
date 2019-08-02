@@ -737,7 +737,7 @@ find first company where company.company eq cocode NO-LOCK.
     end.
     
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
-    PUT "<R57><c61>" "<B>FUNDS payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .
+    /*PUT "<R57><c61>" "<B>FUNDS payable in " string(cCurCode,"x(3)") +  ".</B>" FORMAT "x(200)" .*/
     
      FOR EACH bf-cust NO-LOCK
         WHERE bf-cust.company EQ cocode
@@ -755,8 +755,8 @@ find first company where company.company eq cocode NO-LOCK.
 
     IF v-bot-lab[4] <> "" THEN
     PUT "<P10><R58><C60><#8><FROM><R+8><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
+        "<=8> Sous Total :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Transport  :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
@@ -765,8 +765,8 @@ find first company where company.company eq cocode NO-LOCK.
         "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->>>,>>9.99" .
 ELSE
     PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>>,>>9.99"
-        "<=8><R+1> Freight    :" v-inv-freight FORM "->>>,>>9.99"
+        "<=8> Sous Total :" v-subtot-lines FORM "->>>,>>9.99"
+        "<=8><R+1> Transport  :" v-inv-freight FORM "->>>,>>9.99"
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]

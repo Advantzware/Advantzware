@@ -179,9 +179,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         IF AVAIL b-ref1 THEN
         DO:
            IF b-ref1.CODE NE "" THEN
-              v-comp-add4 = "Phone:  " + string(b-ref1.CODE,"(999)999-9999").
+              v-comp-add4 = "Tel:  " + string(b-ref1.CODE,"(999)999-9999").
            ELSE IF AVAIL cust THEN
-              v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999").
+              v-comp-add4 = "Tel:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999").
        
            RELEASE b-ref1.
         END.
@@ -194,9 +194,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         IF AVAIL b-ref1 THEN
         DO:
            IF b-ref1.CODE NE "" THEN
-              v-comp-add5 = "Fax  :  " + string(b-ref1.CODE,"(999)999-9999").
+              v-comp-add5 = "Téléc. :  " + string(b-ref1.CODE,"(999)999-9999").
            ELSE IF AVAIL cust THEN
-              v-comp-add5 = "Fax  :  " + string(cust.fax,"(999)999-9999").
+              v-comp-add5 = "Téléc. :  " + string(cust.fax,"(999)999-9999").
        
            RELEASE b-ref1.
         END.

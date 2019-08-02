@@ -357,7 +357,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
   IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
 
   PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
-    "<=8><R+1> Total Pallets       :" v-tot-palls 
+    "<=8><R+1> Nombre De Palettes  :" v-tot-palls 
     "<=8><R+3> Total Poids/Weight  :" v-tot-wt /*fORM ">>,>>9.99"*/ .
     
   ASSIGN v-ship-i = "".
@@ -367,14 +367,14 @@ for each xxreport where xxreport.term-id eq v-term-id,
             v-ship-i[3] = oe-bolh.ship-i[3]
             v-ship-i[4] = oe-bolh.ship-i[4].
 
-  PUT "<FArial><R51><C1><P12><B>     Shipping Instructions: </B> <P9> " 
+  PUT "<FArial><R51><C1><P12><B>     Instructions de Livraison: </B> <P9> " 
     "<R53><C1>" v-ship-i[1] AT 7 
     "<R54><C1>" v-ship-i[2] AT 7 
     "<R55><C1>" v-ship-i[3] AT 7 
     "<R56><C1>" v-ship-i[4] AT 7 
     "<R58><C1>"
     "__________________________________________________________________________________________________________________" 
-    "<R59><C1>" "<B>  Signature of Receipt </B>" 
+    "<R59><C1>" "<B>  Signature De Réception </B>" 
     "<R60><C7>" "Customer ________________________________________                       Transporteur/Carrier_____________________________" 
     "<R62><C7>" "Date ____________________________________________                       Date _________________________________________"     
     .
