@@ -95,10 +95,8 @@ END.
         WHERE {&key-phrase}                         ~
           AND ((job-hdr.opened EQ YES AND tb_open) OR (job-hdr.opened EQ NO AND tb_closed)) ~
           AND ( (lookup(job-hdr.cust-no,custcount) <> 0 AND job-hdr.cust-no <> "") OR custcount = "") ~
-          AND ( IF fi_cust-no BEGINS '*' THEN job-hdr.cust-no   MATCHES fi_cust-no   ~
-              ELSE job-hdr.cust-no   BEGINS fi_cust-no)   ~
-          AND ( IF fi_i-no BEGINS '*' THEN job-hdr.i-no      MATCHES fi_i-no      ~
-              ELSE job-hdr.i-no      BEGINS fi_i-no) ~
+          AND {system/brMatches.i  job-hdr.cust-no fi_cust-no}   ~
+          AND {system/brMatches.i  job-hdr.i-no fi_i-no}   ~
           AND job-hdr.est-no    BEGINS fi_est-no    ~
           AND job-hdr.job-no    BEGINS fi_job-no    ~
           AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")

@@ -97,8 +97,7 @@ DEFINE VARIABLE cPoLineStatus AS CHARACTER NO-UNDO .
 &SCOPED-DEFINE for-each1                            ~
     FOR EACH po-ordl                                ~
         WHERE {&key-phrase}                         ~
-          AND (IF fi_vend-no BEGINS '*' THEN po-ordl.vend-no MATCHES fi_vend-no   ~
-              ELSE po-ordl.vend-no BEGINS fi_vend-no) ~
+          AND {system/brMatches.i  po-ordl.vend-no fi_vend-no}   ~
           AND (IF fi_i-no BEGINS '*' THEN po-ordl.i-no MATCHES fi_i-no      ~
               ELSE IF lInquery THEN po-ordl.i-no EQ fi_i-no ELSE po-ordl.i-no BEGINS fi_i-no) ~
           AND (IF fi_vend-i-no BEGINS '*' THEN po-ordl.vend-i-no MATCHES fi_vend-i-no ~
