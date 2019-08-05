@@ -12,8 +12,8 @@ DO i = 1 TO NUM-ENTRIES(g_groups):         /*entry(num-groups,g_groups) : gets e
 END.
 IF NOT CAN-DO(TRIM(b-prgrms.can_{&ACCESSTYPE}),USERID("ASI")) AND NOT op-flag THEN
 DO:
-    MESSAGE "Security Access for this Function Denied!"
-        VIEW-AS ALERT-BOX INFORMATION.
+    MESSAGE "Security Access for Function ~"{&ACCESSTYPE}~" Denied!"
+        VIEW-AS ALERT-BOX TITLE "Program: " + b-prgrms.prgmname.
     op-flag = NO.
 END.
 ELSE
