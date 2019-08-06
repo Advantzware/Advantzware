@@ -280,23 +280,23 @@ DEFINE BROWSE BROWSE-1
     job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(7)":U COLUMN-BGCOLOR 8
     LABEL-BGCOLOR 14
     job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+    job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
+    LABEL-BGCOLOR 14
+    job-hdr.qty COLUMN-LABEL "Job Qty" FORMAT "->>>,>>>,>>9":U
+    orderQty() @ orderQty COLUMN-LABEL "Ordered Qty" FORMAT "->>,>>>,>>>":U
+    producedQty(onHandQty) @ producedQty COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
+    shipQty() @ shipQty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>>":U
+    invoiceQty() @ invoiceQty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
+    job.stat COLUMN-LABEL "Status" FORMAT "x":U LABEL-BGCOLOR 14
     job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
     job-hdr.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
     LABEL-BGCOLOR 14
     job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
-    job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
-    LABEL-BGCOLOR 14
     job.start-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
     job.close-date COLUMN-LABEL "Close Date" FORMAT "99/99/9999":U
     LABEL-BGCOLOR 14
-    job.stat COLUMN-LABEL "Status" FORMAT "x":U LABEL-BGCOLOR 14
     custPart() @ custPart COLUMN-LABEL "Customer Part" FORMAT "X(15)":U
-    job-hdr.qty COLUMN-LABEL "Job Qty" FORMAT "->>>,>>>,>>9":U
-    orderQty() @ orderQty COLUMN-LABEL "Ordered Qty" FORMAT "->>,>>>,>>>":U
-    producedQty(onHandQty) @ producedQty COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
     onHandQty(qtyOnHand) @ onHandQty COLUMN-LABEL "On Hand Qty" FORMAT "->>,>>>,>>>":U
-    shipQty() @ shipQty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>>":U
-    invoiceQty() @ invoiceQty COLUMN-LABEL "Invoice Qty" FORMAT "->>,>>>,>>>":U
     wipQty() @ wipQty COLUMN-LABEL "WIP Qty" FORMAT "->>,>>>,>>>":U
     overUnderPct(onHandQty) @ overUnderPct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
     fgItemNo() @ fgItemNo COLUMN-LABEL "FG Item" FORMAT "X(15)":U
