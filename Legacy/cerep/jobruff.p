@@ -750,7 +750,8 @@ FOR EACH ef
                         wrk-ink.blank-no = eb.blank-no
                         wrk-ink.i-dscr   = eb.i-dscr2[i]
                         wrk-ink.i-pass   = eb.i-ps2[i]
-                        wrk-ink.i-unit   = eb.unitNo[i] .
+                        wrk-ink.i-unit   = eb.unitNo[i] 
+                        wrk-ink.i-seq    = i .
                 /*  end. */
                 END.
             END. /* loop i */
@@ -977,11 +978,11 @@ FOR EACH ef
              
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
             BREAK BY wrk-ink.i-pass
-            BY wrk-ink.i-code
             BY wrk-ink.blank-no
+            BY wrk-ink.i-seq 
             :
             IF FIRST-OF(wrk-ink.i-pass) THEN i = 1.
-            IF FIRST-OF(wrk-ink.i-code) THEN ASSIGN v-item[i] = ""
+            IF FIRST-OF(wrk-ink.i-seq) THEN ASSIGN v-item[i] = ""
                     v-i-qty   = 0.
             IF FIRST-OF(wrk-ink.blank-no) THEN v-ink-use-per-blank = 0.
 
@@ -989,7 +990,7 @@ FOR EACH ef
                 v-item[i]           = IF LOOKUP(STRING(wrk-ink.blank-no),v-item[i]) > 0 THEN v-item[i] ELSE v-item[i] + string(wrk-ink.blank-no) + ","
                 v-ink-use-per-blank = v-ink-use-per-blank + 1.
                
-            IF LAST-OF(wrk-ink.i-code) OR v-ink-use-per-blank > 1 THEN 
+            IF LAST-OF(wrk-ink.i-seq) OR v-ink-use-per-blank > 1 THEN 
             DO: 
                 IF SUBSTRING(v-item[i],LENGTH(v-item[i]),1) = "," THEN v-item[i] = SUBSTRING(v-item[i],1,LENGTH(v-item[i]) - 1).                    
                 v-alloc = v-item[i].
@@ -1061,7 +1062,7 @@ FOR EACH ef
             "<FGCOLOR=GREEN><C41> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
             "<FGCOLOR=GREEN><C41> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
             "<FGCOLOR=GREEN><C41> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
-            "<FGCOLOR=GREEN><C41> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + " x "  + STRING(ef.trim-l) FORMAT "x(25)" SKIP
+            "<FGCOLOR=GREEN><C41> DIE SIZE:<FGCOLOR=BLACK> " (IF AVAIL prep THEN (string(prep.die-w) + " x "  + STRING(prep.die-l)) ELSE "") FORMAT "x(25)" SKIP
             "<FGCOLOR=GREEN><C41> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                
             v-fill  SKIP.
                  
