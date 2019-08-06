@@ -141,8 +141,9 @@ PROCEDURE postMonitor:
                   fg-rctd.cases        = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
                   fg-rctd.cases-unit   = fg-bin.cases-unit
                   fg-rctd.cost-uom     = fg-bin.pur-uom
-                  fg-rctd.loc-bin      = loadtag.loc-bin
-                  fg-rctd.loc2         = IF rfidData.toWarehouse EQ "" THEN loadtag.loc
+                  fg-rctd.loc          = fg-bin.loc
+                  fg-rctd.loc-bin      = fg-bin.loc-bin /*loadtag.loc-bin*/
+                  fg-rctd.loc2         = IF rfidData.toWarehouse EQ "" THEN fg-bin.loc /*loadtag.loc*/
                                          ELSE rfidData.toWarehouse
                   fg-rctd.loc-bin2     = rfidData.toLocation
                   fg-rctd.partial      = fg-bin.partial-count
