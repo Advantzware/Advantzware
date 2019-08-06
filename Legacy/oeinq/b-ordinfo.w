@@ -170,7 +170,6 @@ fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
     FIRST oe-ord NO-LOCK                             ~
         WHERE oe-ord.company  EQ oe-ordl.company      ~
           AND oe-ord.ord-no   EQ oe-ordl.ord-no     ~
-          AND oe-ord.stat     NE "W"               ~
           AND (oe-ord.opened EQ YES ),              ~
        FIRST oe-rel WHERE oe-rel.company = oe-ordl.company         ~
          AND oe-rel.ord-no = oe-ordl.ord-no                     ~
@@ -186,7 +185,6 @@ fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc
     FIRST oe-ord NO-LOCK                             ~
         WHERE oe-ord.company  EQ oe-ordl.company      ~
           AND oe-ord.ord-no   EQ oe-ordl.ord-no     ~
-          AND oe-ord.stat     NE "W"               ~
           AND (oe-ord.opened EQ YES ),              ~
        FIRST oe-rel WHERE oe-rel.company = oe-ordl.company         ~
          AND oe-rel.ord-no = oe-ordl.ord-no                     ~
@@ -597,7 +595,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH oe-ordl   ~
     FIRST oe-ord NO-LOCK                             ~
         WHERE oe-ord.company  EQ oe-ordl.company      ~
           AND oe-ord.ord-no   EQ oe-ordl.ord-no     ~
-          AND oe-ord.stat     NE "W"               ~
           AND (oe-ord.opened EQ YES ),              ~
        FIRST oe-rel WHERE oe-rel.company = oe-ordl.company         ~
          AND oe-rel.ord-no = oe-ordl.ord-no                     ~
@@ -748,7 +745,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             FIRST oe-ord NO-LOCK
             WHERE oe-ord.company  EQ oe-ordl.company
             AND oe-ord.ord-no   EQ oe-ordl.ord-no
-            AND oe-ord.stat     NE "W"
             AND (oe-ord.opened EQ YES ),
             FIRST oe-rel WHERE oe-rel.company = oe-ordl.company 
             AND oe-rel.ord-no = oe-ordl.ord-no 
