@@ -1,9 +1,21 @@
-/* ------------------------------------------------- est/copypack.p 06/05 JLF */
-/*                                                                            */
-/* -------------------------------------------------------------------------- */
+/*------------------------------------------------------------------------
+    File        : CopyEnhancedPack.p
+    Purpose     : 
 
-DEF INPUT PARAM ipRowidEb AS ROWID NO-UNDO.
-DEF INPUT PARAM ipRowidBffEb AS ROWID NO-UNDO.
+    Syntax      :
+
+    Description : Copy folding enhanced material 
+
+    Author(s)   : Sewa
+    Created     : tue Aug 6 19:29:35 EST 2019
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+
+DEFINE INPUT PARAMETER ipRowidEb AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipRowidBffEb AS ROWID NO-UNDO.
 
 DEFINE VARIABLE lPackCodeCopy AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
@@ -14,7 +26,7 @@ DEFINE BUFFER b-eb FOR eb .
   FIND FIRST eb WHERE ROWID(eb) EQ ipRowidEb NO-LOCK NO-ERROR .
   IF NOT AVAIL eb THEN RETURN .
 
-  FIND FIRST b-eb WHERE ROWID(b-eb) EQ ipRowidBffEb NO-LOCK NO-ERROR .
+  FIND FIRST b-eb NO-LOCK WHERE ROWID(b-eb) EQ ipRowidBffEb NO-ERROR .
 
   RUN sys/ref/nk1look.p (INPUT eb.company, "CePackEnhanced", "L" /* Logical */, NO /* check by cust */, 
                          INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -22,6 +34,8 @@ DEFINE BUFFER b-eb FOR eb .
 
   IF lRecFound THEN
       lPackCodeCopy = LOGICAL(cRtnChar) NO-ERROR.
+
+/* ***************************  Main Block  *************************** */
 
   IF lPackCodeCopy THEN DO:
       FOR EACH estPacking NO-LOCK 
