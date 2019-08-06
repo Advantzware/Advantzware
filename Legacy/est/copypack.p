@@ -25,6 +25,7 @@ IF AVAIL eb THEN DO:
       BREAK BY b-eb.stock-no:
 
     {est/copypack.i}
+    RUN est/CopyEnhancedPack.p(ROWID(eb),ROWID(b-eb)) .
 
     IF LAST-OF(b-eb.stock-no) THEN
       RUN est/updest3.p (ROWID(b-eb), ROWID(eb), 3).

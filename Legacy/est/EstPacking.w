@@ -134,13 +134,6 @@ FUNCTION fGetPerQty RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetNextEstReleaseID B-table-Win 
-FUNCTION fGetNextEstReleaseID RETURNS INTEGER
-    ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -494,8 +487,7 @@ ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy Selected */
                 bff-estPacking.company      = eb.company 
                 bff-estPacking.estimateNo   = eb.est-no
                 bff-estPacking.FormNo       = eb.form-no
-                bff-estPacking.BlankNo      = eb.blank-No
-                bff-estPacking.estPackingID = fGetNextEstReleaseID()  .
+                bff-estPacking.BlankNo      = eb.blank-No .
              
             IF AVAILABLE bff-estPacking THEN 
             DO:
@@ -926,16 +918,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNextEstReleaseID B-table-Win 
-FUNCTION fGetNextEstReleaseID RETURNS INTEGER
-    ( /* parameter-definitions */ ) :
-    /*------------------------------------------------------------------------------
-      Purpose:Gets the next unique estPackingID for an estRelease 
-        Notes:  
-    ------------------------------------------------------------------------------*/
-    RETURN NEXT-VALUE(estPackingId_seq).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
