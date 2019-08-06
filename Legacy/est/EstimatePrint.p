@@ -149,7 +149,7 @@ PROCEDURE pBuildSections PRIVATE:
                     ttSection.rec_keyParent = bf-estCostHeader.rec_key
                     .
             END.
-        IF CAN-DO("Set,Combo,Tandem",bf-estCostHeader.estType) AND INDEX(ipcSectionBy, "with Summary") GT 0 THEN 
+        IF CAN-DO("Set,Combo/Tandem",bf-estCostHeader.estType) AND INDEX(ipcSectionBy, "with Summary") GT 0 THEN 
         DO:
             iSectionCount = iSectionCount + 1.
             CREATE ttSection.
