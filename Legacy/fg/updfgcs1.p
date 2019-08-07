@@ -3,6 +3,7 @@
 
 DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
 DEF INPUT PARAM ip-recalc AS LOG NO-UNDO.
+DEF INPUT PARAM ip-recalc-from-hist AS LOG NO-UNDO.
 
 {sys/inc/VAR.i NEW SHARED}
 
@@ -42,9 +43,10 @@ FUNCTION pgmStack RETURNS CHAR
   ( /* parameter-definitions */ )  FORWARD.
 
 cPgmStack = pgmStack().
-v-recalc-if1 = INDEX(cPgmStack,"fg/d-recost.w") > 0
+v-recalc-if1 = ip-recalc-from-hist.
+/*INDEX(cPgmStack,"fg/d-recost.w") > 0
 OR INDEX(cPgmStack,"fg/fgpstall.w") > 0
-OR INDEX(cPgmStack,"util/fxtrncst") > 0.
+OR INDEX(cPgmStack,"util/fxtrncst") > 0. */
   FIND prgrms NO-LOCK WHERE prgrms.prgmname = "updfgcs1." NO-ERROR.
   IF AVAIL prgrms AND prgrms.track_usage THEN  
       lAuditCostChange = TRUE.

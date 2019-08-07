@@ -1069,7 +1069,7 @@ PROCEDURE pPostGL:
                                 END. /* last trans-date */
                             END. /* each fg-rcpth */
                         END. /* avail itemfg */
-                        RUN fg/updfgcst.p (po-ordl.i-no).
+                        RUN fg/updfgcst.p (po-ordl.i-no, NO).
                     END. /* if not po-ordl.item-type */
                 END. /* avail po-ordl */
                 IF ap-invl.actnum NE "" THEN

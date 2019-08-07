@@ -210,7 +210,7 @@ IF AVAILABLE oe-ord THEN DO TRANSACTION:
        AND itemfg.std-tot-cost EQ 0
        AND itemfg.std-mat-cost EQ 0
        AND itemfg.avg-cost EQ 0 THEN
-         run fg/updfgcst.p (itemfg.i-no).
+         run fg/updfgcst.p (itemfg.i-no, NO).
   END.
 END.
 
@@ -419,7 +419,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
        AND itemfg.std-tot-cost EQ 0
        AND itemfg.std-mat-cost EQ 0
        AND itemfg.avg-cost EQ 0 THEN
-         run fg/updfgcst.p (itemfg.i-no).
+         run fg/updfgcst.p (itemfg.i-no, NO).
 
   FOR EACH w-inv,
       EACH oe-relh WHERE oe-relh.r-no EQ w-inv.r-no:
@@ -513,7 +513,7 @@ IF ip-run EQ 2 THEN DO TRANSACTION:
                AND itemfg.std-tot-cost EQ 0
                AND itemfg.std-mat-cost EQ 0
                AND itemfg.avg-cost EQ 0 THEN
-                 run fg/updfgcst.p (itemfg.i-no).
+                 run fg/updfgcst.p (itemfg.i-no, NO).
       END.
   END.
 END.

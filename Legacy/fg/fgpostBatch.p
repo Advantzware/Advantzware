@@ -809,7 +809,7 @@ PROCEDURE fg-post:
         IF LAST-OF(w-fg-rctd.i-no) THEN 
         DO:
 
-            RUN fg/updfgcs1.p (RECID(itemfg), NO).
+            RUN fg/updfgcs1.p (RECID(itemfg), NO, NO).
 
             /* Calculate this once per item instead of per order line */
             IF v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0 THEN 
@@ -951,7 +951,7 @@ PROCEDURE fg-post:
     IF tg-recalc-cost THEN 
     DO:
         FOR EACH tt-posted-items:        
-            RUN fg/updfgcst.p (tt-posted-items.i-no).
+            RUN fg/updfgcst.p (tt-posted-items.i-no, NO).
         END.
     END.
 

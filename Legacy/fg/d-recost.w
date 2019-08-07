@@ -416,7 +416,7 @@ FOR EACH bf-itemfg
       AND (bf-itemfg.stat EQ 'A' OR tb_inactive)
     NO-LOCK:
     opiCount = opiCount + 1.
-    RUN fg/updfgcst.p (INPUT bf-itemfg.i-no).
+    RUN fg/updfgcst.p (INPUT bf-itemfg.i-no, INPUT YES).
 END.
 
 
