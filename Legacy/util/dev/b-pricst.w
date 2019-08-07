@@ -436,7 +436,7 @@ PROCEDURE local-assign-record :
    fg-bin.std-tot-cost = fg-bin.std-mat-cost + fg-bin.std-lab-cost +
                          fg-bin.std-var-cost + fg-bin.std-fix-cost.
 
-  run fg/updfgcs1.p (recid(itemfg), NO).
+  run fg/updfgcs1.p (recid(itemfg), NO, NO).
 
 END PROCEDURE.
 

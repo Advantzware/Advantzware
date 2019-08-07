@@ -217,7 +217,7 @@ for each {1}fg-rctd
        END.
     END.
 
-    run fg/updfgcs1.p (recid(itemfg), NO).
+    run fg/updfgcs1.p (recid(itemfg), NO, NO).
 
     find b-itemfg where recid(b-itemfg) eq recid(itemfg) NO-LOCK.
 

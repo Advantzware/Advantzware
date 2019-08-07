@@ -712,7 +712,7 @@ PROCEDURE roll-up-cost :
   IF itemfg.alloc THEN DO:
     SESSION:SET-WAIT-STATE ("general").
 
-    RUN fg/updfgcs1.p (RECID(itemfg), NO).
+    RUN fg/updfgcs1.p (RECID(itemfg), NO, NO).
 
     SESSION:SET-WAIT-STATE ("").
   END.

@@ -672,7 +672,7 @@ DO:
         IF AVAILABLE oe-ordl THEN oe-ordl.cost = job-hdr.std-tot-cost.
     END.
   
-    RUN fg/updfgcs1.p (RECID(itemfg), NO).
+    RUN fg/updfgcs1.p (RECID(itemfg), NO, NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */

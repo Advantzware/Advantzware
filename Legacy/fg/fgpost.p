@@ -365,7 +365,7 @@ PROCEDURE ProcFGPosting:
         BREAK BY w-fg-rctd.i-no:
 
       IF LAST-OF(w-fg-rctd.i-no) THEN DO:
-        RUN fg/updfgcs1.p (RECID(itemfg), NO).
+        RUN fg/updfgcs1.p (RECID(itemfg), NO, NO).
 
         FOR EACH oe-ordl
             WHERE oe-ordl.company EQ cocode
