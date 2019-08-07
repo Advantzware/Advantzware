@@ -56,8 +56,8 @@ PROCEDURE pProductionAnalysis1:
           AND mch-act.op-date LE ipdtEndOpDate
           AND mch-act.shift   GE ipiStartShift
           AND mch-act.shift   LE ipiEndShift
-          AND DATETIME(mch-act.op-date,mch-act.op-time * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
-          AND DATETIME(mch-act.op-date,mch-act.op-time * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
+          AND DATETIME(mch-act.op-date,mch-act.start * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
+          AND DATETIME(mch-act.op-date,mch-act.stopp * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
         USE-INDEX dte-idx,
         FIRST mach NO-LOCK
         WHERE mach.company EQ mch-act.company
@@ -153,7 +153,7 @@ PROCEDURE pProductionAnalysis1:
                     ttProductionAnalysis.pass       = mch-act.pass
                     ttProductionAnalysis.actMachine = mch-act.m-code
                     ttProductionAnalysis.opDate     = mch-act.op-date
-                    ttProductionAnalysis.opTime     = STRING(mch-act.op-time,"hh:mm:ss am")
+                    ttProductionAnalysis.opTime     = STRING(mch-act.start,"hh:mm:ss am")
                     ttProductionAnalysis.startDate  = ttProductionAnalysis.opDate
                     ttProductionAnalysis.dDate      = IF mch-act.op-date NE ? THEN STRING(mch-act.op-date,"99/99/9999") ELSE ""
                     .
@@ -494,7 +494,7 @@ PROCEDURE pProductionAnalysis2:
         IF AVAILABLE job-mch THEN
         ASSIGN
             ttProductionAnalysis.mrComp  = STRING(job-mch.mr-complete)
-            ttProductionAnalysis.runComp = string(job-mch.run-complete)
+            ttProductionAnalysis.runComp = STRING(job-mch.run-complete)
             .
         ASSIGN
             ttProductionAnalysis.runWaste  = 0
@@ -518,8 +518,8 @@ PROCEDURE pProductionAnalysis2:
               AND bMchAct.op-date   LE ipdtEndOpDate
               AND bMchAct.shift     GE ipiStartShift
               AND bMchAct.shift     LE ipiEndShift
-              AND DATETIME(bMchAct.op-date,bMchAct.op-time * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
-              AND DATETIME(bMchAct.op-date,bMchAct.op-time * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
+              AND DATETIME(bMchAct.op-date,bMchAct.start * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
+              AND DATETIME(bMchAct.op-date,bMchAct.stopp * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
             :
             FIND FIRST job-code NO-LOCK
                  WHERE job-code.code EQ bMchAct.code
