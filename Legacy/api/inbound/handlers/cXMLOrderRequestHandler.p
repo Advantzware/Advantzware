@@ -28,11 +28,19 @@ DEFINE VARIABLE lcResponse        AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE cResponseCode     AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE riAPIInboundEvent AS ROWID     NO-UNDO. 
 
+/* Currenly cCompany and cWarehouseID are not assigned.Once session 
+   manager related work is completed then cCompany and cWarehouseID 
+   will be assigned */
+DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWarehouseID      AS CHARACTER NO-UNDO.
+
 FUNCTION GetDateTimeTZStringForResponse RETURNS CHARACTER() FORWARD.
 
 RUN cXML/gencXMLOrder.p (
     iplcRequestData,
     NO, /* Add records to temp-table only */
+    INPUT  cCompany, 
+    INPUT  cWarehouseID,
     OUTPUT cPayLoadID,
     OUTPUT oplSuccess,
     OUTPUT opcMessage
@@ -66,8 +74,6 @@ RUN api\CreateAPIInboundEvent.p (
     INPUT  cPayLoadID,
     OUTPUT riAPIInboundEvent
     ).
-
-
 
 /* Return time */                            
 FUNCTION GetDateTimeTZStringForResponse RETURNS CHARACTER():
