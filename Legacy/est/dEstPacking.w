@@ -75,8 +75,7 @@ estPacking.dimWidth
 estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
 &Scoped-define ENABLED-TABLES estPacking
 &Scoped-define FIRST-ENABLED-TABLE estPacking
-&Scoped-Define ENABLED-OBJECTS est-no iForm iBlank cCustPart cCase cPallet ~
-Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
+&Scoped-Define ENABLED-OBJECTS  Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
 &Scoped-Define DISPLAYED-FIELDS estPacking.rmItemID estPacking.materialType ~
 estPacking.quantity estPacking.quantityPer estPacking.dimLength ~
 estPacking.dimWidth estPacking.dimDepth 
@@ -314,10 +313,22 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estPacking.rmItemID IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN est-no IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN iForm IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN iBlank IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN cCustPart IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN cCase IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN cPallet IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+     
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
@@ -740,7 +751,7 @@ PROCEDURE enable_UI :
           estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
           estPacking.dimDepth 
       WITH FRAME Dialog-Frame.
-  ENABLE est-no iForm iBlank cCustPart cCase cPallet estPacking.rmItemID 
+  ENABLE estPacking.rmItemID 
          estPacking.quantity estPacking.quantityPer estPacking.dimLength 
          estPacking.dimWidth Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.
