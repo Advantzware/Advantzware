@@ -21,20 +21,20 @@ DEFINE INPUT-OUTPUT PARAMETER iopcShipToID    AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcCompany     AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcWarehouseID AS CHARACTER NO-UNDO.  
 DEFINE OUTPUT       PARAMETER opcCustomerID   AS CHARACTER NO-UNDO. 
-DEFINE              PARAMETER BUFFER bfshipto FOR shipto.
+DEFINE              PARAMETER BUFFER obf-shipto FOR shipto.
 
 /* This function returns valid ShipID */
 FUNCTION getShipID RETURNS CHARACTER (cCompany AS CHARACTER,cCustomerID AS CHARACTER,cShipToID AS CHARACTER):    
-    FIND FIRST bfshipto NO-LOCK
-         WHERE bfshipto.company EQ cCompany
-           AND bfshipto.cust-no EQ cCustomerID
-           AND bfshipto.ship-id EQ cShipToID
+    FIND FIRST obf-shipto NO-LOCK
+         WHERE obf-shipto.company EQ cCompany
+           AND obf-shipto.cust-no EQ cCustomerID
+           AND obf-shipto.ship-id EQ cShipToID
          NO-ERROR.  
-    IF NOT AVAILABLE bfshipto THEN DO:
-        FIND FIRST bfshipto NO-LOCK
-             WHERE bfshipto.company EQ cCompany NO-ERROR.
-        IF AVAILABLE bfshipto THEN
-            cShipToID = shipto.ship-id.
+    IF NOT AVAILABLE obf-shipto THEN DO:
+        FIND FIRST obf-shipto NO-LOCK
+             WHERE obf-shipto.company EQ cCompany NO-ERROR.
+        IF AVAILABLE obf-shipto THEN
+            cShipToID = obf-shipto.ship-id.
     END.
     
     RETURN cShipToID.    
@@ -98,10 +98,10 @@ IF AVAILABLE sys-ctrl-shipto THEN DO:
             WHERE edShipTo.partner EQ edMast.partner
               AND edShipTo.siteID  EQ ipcIdentity
             ,
-            FIRST bfshipto NO-LOCK
-                WHERE bfshipto.company EQ iopcCompany 
-                  AND bfshipto.cust-no EQ edShipto.cust
-                  AND bfshipto.ship-id EQ iopcShipToID
+            FIRST obf-shipto NO-LOCK
+                WHERE obf-shipto.company EQ iopcCompany 
+                  AND obf-shipto.cust-no EQ edShipto.cust
+                  AND obf-shipto.ship-id EQ iopcShipToID
                 :
          opcCustomerID = edShipTo.cust.
         END.
@@ -111,13 +111,13 @@ IF AVAILABLE sys-ctrl-shipto THEN DO:
 END.
 
 /* Finding shipto */
-FIND FIRST bfshipto NO-LOCK
-     WHERE bfshipto.ship-id EQ iopcShipToID NO-ERROR.
-IF AVAILABLE bfshipto THEN DO:
+FIND FIRST obf-shipto NO-LOCK
+     WHERE obf-shipto.ship-id EQ iopcShipToID NO-ERROR.
+IF AVAILABLE obf-shipto THEN DO:
     ASSIGN
-        opcCustomerID   = bfshipto.cust
-        iopcCompany     = bfshipto.company
-        iopcWarehouseID = bfshipto.loc
+        opcCustomerID   = obf-shipto.cust
+        iopcCompany     = obf-shipto.company
+        iopcWarehouseID = obf-shipto.loc
         .
         
     RETURN.

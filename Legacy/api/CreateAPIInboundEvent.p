@@ -35,5 +35,4 @@ ASSIGN
     APIInboundEvent.notes           = ipcNotes
     APIInboundEvent.externalID      = ipcPayloadID
     opriAPIInboundEvent             = ROWID(APIInboundEvent)
-    APIInboundEvent.eventID         = NEXT-VALUE(EventIDSeq)
     .

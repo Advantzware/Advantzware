@@ -20,6 +20,8 @@
 DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
 DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
 
+DEFINE BUFFER bf-shipto FOR shipto.
+
 RUN nosweat/persist.p  PERSISTENT SET Persistent-Handle.
 RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
 
@@ -115,7 +117,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           INPUT-OUTPUT ipcCompany,
           INPUT-OUTPUT ipcWarehouseID,
           OUTPUT       custno,
-          BUFFER       shipto
+          BUFFER       bf-shipto
           ).
           
       /* This assignment is required to populate cocode and locode variables 
@@ -210,7 +212,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           INPUT-OUTPUT ipcCompany,
           INPUT-OUTPUT ipcWarehouseID,
           OUTPUT       custno,
-          BUFFER       shipto
+          BUFFER       bf-shipto
           ).
       
       /* This assignment is required to populate cocode and locode variables 
@@ -458,22 +460,23 @@ PROCEDURE genOrderLinesLocal:
     /* This procedure takes Company code,Customer number,SupplierPartID,ManufacturerPartID values as inputs.
        Then it validates SupplierPartID against cust-part and itemfg tables 
        And then returns valid SupplierPartID and ManufacturerPartID */
-     RUN createoeordl (
-         INPUT        ipcCompany,
-         INPUT        ttOrdLines.ttItemSupplierPartID,
-         INPUT        ttOrdLines.ttItemManufacturerPartID,
-         INPUT        oe-ord.cust-no,
-         OUTPUT       itemSupplierPartID,
-         OUTPUT       itemManufacturerPartID
+     RUN GetItemAndPart (
+         INPUT  ipcCompany,
+         INPUT  ttOrdLines.ttItemSupplierPartID,
+         INPUT  ttOrdLines.ttItemManufacturerPartID,
+         INPUT  oe-ord.cust-no,
+         OUTPUT itemSupplierPartID,
+         OUTPUT itemManufacturerPartID
          ).
+         
      ASSIGN 
-         itemLineNumber                = ttOrdLines.ttItemLineNumber              
-         itemQuantity                  = ttOrdLines.ttItemQuantity                 
-         itemSupplierPartAuxiliaryID   = ttOrdLines.ttItemSupplierPartAuxiliaryID  
-         itemMoney                     = ttOrdLines.ttItemMoney                    
-         itemDescription               = ttOrdLines.ttItemDescription              
-         itemUnitOfMeasure             = ttOrdLines.ttItemUnitOfMeasure            
-         ItemDueDate                   = ttOrdLines.ttItemDueDate   
+         itemLineNumber              = ttOrdLines.ttItemLineNumber              
+         itemQuantity                = ttOrdLines.ttItemQuantity                 
+         itemSupplierPartAuxiliaryID = ttOrdLines.ttItemSupplierPartAuxiliaryID  
+         itemMoney                   = ttOrdLines.ttItemMoney                    
+         itemDescription             = ttOrdLines.ttItemDescription              
+         itemUnitOfMeasure           = ttOrdLines.ttItemUnitOfMeasure            
+         ItemDueDate                 = ttOrdLines.ttItemDueDate   
          .
 
       FIND FIRST itemfg NO-LOCK
@@ -586,14 +589,14 @@ PROCEDURE genOrderLinesLocal:
   RELEASE oe-ordl.
 END PROCEDURE.
 
-/*Creates ManufactureID and SupplierPartID for the order */
-PROCEDURE createoeordl:
+/*Gets Part number and Item number for the order */
+PROCEDURE GetItemAndPart:
     DEFINE INPUT        PARAMETER ipcCompany                AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcSupplierPartID         AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcManufactureID          AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcCustNo                 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcitemSupplierPartID     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcitemManufacturerPartID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcPartID                 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcItemID                 AS CHARACTER NO-UNDO.
  
 /* Checking customer partID */
     FIND FIRST cust-part NO-LOCK
@@ -603,8 +606,8 @@ PROCEDURE createoeordl:
            NO-ERROR.      
     IF AVAILABLE cust-part THEN DO:
         ASSIGN
-            opcitemSupplierPartID     = cust-part.part-no
-            opcitemManufacturerPartID = cust-part.i-no
+            opcPartID = cust-part.part-no
+            opcItemID = cust-part.i-no
             .
         
         RETURN.
@@ -617,8 +620,8 @@ PROCEDURE createoeordl:
          NO-ERROR.
     IF AVAILABLE itemfg THEN DO:
          ASSIGN
-             opcitemSupplierPartID     = itemfg.part-no
-             opcitemManufacturerPartID = itemfg.i-no
+             opcPartID = itemfg.part-no
+             opcItemID = itemfg.i-no
              .
          
          RETURN.
@@ -630,8 +633,8 @@ PROCEDURE createoeordl:
          NO-ERROR.
     IF AVAILABLE itemfg THEN DO:
          ASSIGN
-             opcitemSupplierPartID     = itemfg.part-no
-             opcitemManufacturerPartID = itemfg.i-no
+             opcPartID = itemfg.part-no
+             opcItemID = itemfg.i-no
              .
  
          RETURN.
