@@ -54,31 +54,31 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES APIOutboundDetail APIOutbound
-&Scoped-define FIRST-EXTERNAL-TABLE APIOutboundDetail
+&Scoped-define EXTERNAL-TABLES APIInboundDetail APIInbound
+&Scoped-define FIRST-EXTERNAL-TABLE APIInboundDetail
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR APIOutboundDetail, APIOutbound.
+DEFINE QUERY external_tables FOR APIInboundDetail, APIInbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS APIOutboundDetail.detailID ~
-APIOutboundDetail.parentID 
-&Scoped-define ENABLED-TABLES APIOutboundDetail
-&Scoped-define FIRST-ENABLED-TABLE APIOutboundDetail
-&Scoped-Define ENABLED-OBJECTS edData 
-&Scoped-Define DISPLAYED-FIELDS APIOutboundDetail.apiID ~
-APIOutboundDetail.detailID APIOutboundDetail.parentID 
-&Scoped-define DISPLAYED-TABLES APIOutboundDetail
-&Scoped-define FIRST-DISPLAYED-TABLE APIOutboundDetail
-&Scoped-Define DISPLAYED-OBJECTS edData 
+&Scoped-Define ENABLED-FIELDS APIInboundDetail.detailID ~
+APIInboundDetail.parentID 
+&Scoped-define ENABLED-TABLES APIInboundDetail
+&Scoped-define FIRST-ENABLED-TABLE APIInboundDetail
+&Scoped-Define ENABLED-OBJECTS edRequestData 
+&Scoped-Define DISPLAYED-FIELDS APIInboundDetail.apiRoute ~
+APIInboundDetail.detailID APIInboundDetail.parentID 
+&Scoped-define DISPLAYED-TABLES APIInboundDetail
+&Scoped-define FIRST-DISPLAYED-TABLE APIInboundDetail
+&Scoped-Define DISPLAYED-OBJECTS cbDetailType edRequestData 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define ADM-CREATE-FIELDS APIOutboundDetail.apiID 
+&Scoped-define ADM-CREATE-FIELDS APIInboundDetail.apiRoute 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -110,33 +110,42 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE edData AS CHARACTER 
-     VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 101 BY 4
+DEFINE VARIABLE cbDetailType AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Detail Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Request","Response" 
+     DROP-DOWN-LIST
+     SIZE 16 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE edRequestData AS CHARACTER 
+     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+     SIZE 106 BY 4
      BGCOLOR 15  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     APIOutboundDetail.apiID AT ROW 1.95 COL 29 COLON-ALIGNED WIDGET-ID 2
-          LABEL "API ID" FORMAT "x(32)"
+     APIInboundDetail.apiRoute AT ROW 1.95 COL 33 COLON-ALIGNED WIDGET-ID 2
+          LABEL "API Route" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 34 BY 1
+          SIZE 86 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     APIOutboundDetail.detailID AT ROW 3.86 COL 29 COLON-ALIGNED WIDGET-ID 4
-          LABEL "Detail ID" FORMAT "x(32)"
+     APIInboundDetail.detailID AT ROW 3.43 COL 33 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Detail ID"
           VIEW-AS FILL-IN 
-          SIZE 34 BY 1
+          SIZE 31 BY 1
           BGCOLOR 15 
-     APIOutboundDetail.parentID AT ROW 5.81 COL 29.2 COLON-ALIGNED WIDGET-ID 6
-          LABEL "Parent ID" FORMAT "x(32)"
+     APIInboundDetail.parentID AT ROW 4.95 COL 33 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Parent ID" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 33.8 BY 1
+          SIZE 86 BY 1
           BGCOLOR 15 
-     edData AT ROW 7.67 COL 31 NO-LABEL WIDGET-ID 8
-     "Data:" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 7.71 COL 24 WIDGET-ID 10
+     cbDetailType AT ROW 6.48 COL 33 COLON-ALIGNED WIDGET-ID 10
+     edRequestData AT ROW 8.14 COL 35.2 NO-LABEL WIDGET-ID 12
+     "Request Data:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 8.19 COL 18.6 WIDGET-ID 14
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -148,7 +157,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.APIOutboundDetail,ASI.APIOutbound
+   External Tables: ASI.APIInboundDetail,ASI.APIInbound
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -170,8 +179,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 11.38
-         WIDTH              = 156.4.
+         HEIGHT             = 12
+         WIDTH              = 143.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -193,22 +202,24 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN APIOutboundDetail.apiID IN FRAME F-Main
+/* SETTINGS FOR FILL-IN APIInboundDetail.apiRoute IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 ASSIGN 
-       APIOutboundDetail.apiID:READ-ONLY IN FRAME F-Main        = TRUE.
+       APIInboundDetail.apiRoute:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN APIOutboundDetail.detailID IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR COMBO-BOX cbDetailType IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN APIInboundDetail.detailID IN FRAME F-Main
+   EXP-LABEL                                                            */
 ASSIGN 
-       edData:READ-ONLY IN FRAME F-Main        = TRUE.
+       edRequestData:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN APIOutboundDetail.parentID IN FRAME F-Main
+/* SETTINGS FOR FILL-IN APIInboundDetail.parentID IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -257,15 +268,15 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "APIOutboundDetail"}
-  {src/adm/template/row-list.i "APIOutbound"}
+  {src/adm/template/row-list.i "APIInboundDetail"}
+  {src/adm/template/row-list.i "APIInbound"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "APIOutboundDetail"}
-  {src/adm/template/row-find.i "APIOutbound"}
+  {src/adm/template/row-find.i "APIInboundDetail"}
+  {src/adm/template/row-find.i "APIInbound"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -301,13 +312,13 @@ PROCEDURE local-add-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   /* Code placed here will execute PRIOR to standard behavior. */
-       
-   /* Dispatch standard ADM method.                             */
-   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-   /* Code placed here will execute AFTER standard behavior.    */
-   RUN pSetDefaults.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pSetDefaults.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,7 +333,7 @@ PROCEDURE local-assign-statement :
 
     /* Code placed here will execute PRIOR to standard behavior. */
     RUN pUpdateFields.
-  
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
@@ -343,7 +354,7 @@ PROCEDURE local-disable-fields :
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+     RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pDisableFields.
@@ -400,7 +411,10 @@ PROCEDURE pDisableFields :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    edData:READ-ONLY = TRUE.
+    ASSIGN
+        cbDetailType:SENSITIVE  = FALSE
+        edRequestData:READ-ONLY = TRUE
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,11 +429,14 @@ PROCEDURE pDisplayFields :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
-        
-    IF AVAILABLE APIOutboundDetail THEN
-        edData:SCREEN-VALUE = STRING(APIOutboundDetail.data).
+
+    IF AVAILABLE APIInboundDetail THEN
+        ASSIGN
+            cbDetailType:SCREEN-VALUE  = APIInboundDetail.detailType
+            edRequestData:SCREEN-VALUE = STRING(APIInboundDetail.data)
+            .
     ELSE
-        edData:SCREEN-VALUE = "".
+        edRequestData:SCREEN-VALUE = "".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,7 +452,10 @@ PROCEDURE pEnableFields :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    edData:READ-ONLY = FALSE.
+    ASSIGN
+        cbDetailType:SENSITIVE  = TRUE
+        edRequestData:READ-ONLY = FALSE
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -448,13 +468,16 @@ PROCEDURE pSetDefaults :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DO WITH FRAME {&FRAME-NAME}:
-   END.
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
 
-   edData:SCREEN-VALUE = "".
-   
-   IF AVAILABLE APIOutbound THEN
-       APIOutboundDetail.apiID:SCREEN-VALUE = APIOutbound.apiID.
+    ASSIGN
+        cbDetailType:SCREEN-VALUE  = "Response"
+        edRequestData:SCREEN-VALUE = ""
+        .
+
+   IF AVAILABLE APIInbound THEN
+       APIInboundDetail.apiRoute:SCREEN-VALUE = APIInbound.apiRoute.        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,8 +493,11 @@ PROCEDURE pUpdateFields :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    IF AVAILABLE APIOutboundDetail THEN        
-        APIOutboundDetail.data = edData:SCREEN-VALUE.    
+    IF AVAILABLE APIInboundDetail THEN        
+        ASSIGN
+            APIInboundDetail.data       = edRequestData:SCREEN-VALUE
+            APIINboundDetail.detailType = cbDetailType:SCREEN-VALUE
+            .  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -489,8 +515,8 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "APIOutboundDetail"}
-  {src/adm/template/snd-list.i "APIOutbound"}
+  {src/adm/template/snd-list.i "APIInboundDetail"}
+  {src/adm/template/snd-list.i "APIInbound"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

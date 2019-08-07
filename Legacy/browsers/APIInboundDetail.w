@@ -58,30 +58,33 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES APIInbound
+&Scoped-define FIRST-EXTERNAL-TABLE APIInbound
+
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR APIInbound.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES APIOutbound
+&Scoped-define INTERNAL-TABLES APIInboundDetail
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutbound.apiID APIOutbound.clientID APIOutbound.authType APIOutbound.requestDataType APIOutbound.requestVerb APIOutbound.isActive   
+&Scoped-define FIELDS-IN-QUERY-br_table APIInboundDetail.apiRoute APIInboundDetail.detailID APIInboundDetail.detailType APIInboundDetail.parentID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutbound WHERE     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.isActive      ELSE         NOT APIOutbound.isActive)     NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.isActive      ELSE         NOT APIOutbound.isActive)     NO-LOCK     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table APIOutbound
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutbound
+&Scoped-define QUERY-STRING-br_table FOR EACH APIInboundDetail WHERE     APIInboundDetail.apiRoute = APIInbound.apiRoute NO-LOCK     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIInboundDetail WHERE     APIInboundDetail.apiRoute = APIInbound.apiRoute NO-LOCK     ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-br_table APIInboundDetail
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table APIInboundDetail
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiAPIId fiClientID cbRequestDataType ~
-cbRequestVerb cbStatus btGo br_table 
-&Scoped-Define DISPLAYED-OBJECTS fiAPIIDLabel fiClientIDLabel ~
-fiRequestDataTypeLabel fiRequestVerbLabel fiStatusLabel fiAPIId fiClientID ~
-cbRequestDataType cbRequestVerb cbStatus 
+&Scoped-Define ENABLED-OBJECTS br_table 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,114 +140,36 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btGo 
-     LABEL "Go" 
-     SIZE 15 BY 1.14
-     FONT 35.
-
-DEFINE VARIABLE cbRequestDataType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All","JSON","XML" 
-     DROP-DOWN-LIST
-     SIZE 27 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE cbRequestVerb AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All","Post","Get" 
-     DROP-DOWN-LIST
-     SIZE 20.6 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "All","Active","Inactive" 
-     DROP-DOWN-LIST
-     SIZE 16 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 25 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID" 
-     VIEW-AS FILL-IN 
-     SIZE 9.4 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
-
-DEFINE VARIABLE fiClientID AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 22 BY 1
-     BGCOLOR 15  NO-UNDO.
-
-DEFINE VARIABLE fiClientIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Client ID" 
-     VIEW-AS FILL-IN 
-     SIZE 12.4 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
-
-DEFINE VARIABLE fiRequestDataTypeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Data Type" 
-     VIEW-AS FILL-IN 
-     SIZE 27 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
-
-DEFINE VARIABLE fiRequestVerbLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Verb" 
-     VIEW-AS FILL-IN 
-     SIZE 19 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
-
-DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Status" 
-     VIEW-AS FILL-IN 
-     SIZE 9.8 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
-
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      APIOutbound SCROLLING.
+      APIInboundDetail SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      APIOutbound.apiID COLUMN-LABEL "API ID" FORMAT "x(32)":U
-            WIDTH 33.2
-      APIOutbound.clientID COLUMN-LABEL "Client ID" FORMAT "x(16)":U
-            WIDTH 23.6
-      APIOutbound.authType COLUMN-LABEL "Authentication Type" FORMAT "x(8)":U
-            WIDTH 27
-      APIOutbound.requestDataType COLUMN-LABEL "Request Data Type" FORMAT "x(8)":U
-            WIDTH 25.6
-      APIOutbound.requestVerb COLUMN-LABEL "Request Verb" FORMAT "x(8)":U
-            WIDTH 26.2
-      APIOutbound.isActive COLUMN-LABEL "Status" FORMAT "Active/Inactive":U
-            WIDTH 20.8
+      APIInboundDetail.apiRoute COLUMN-LABEL "API Route" FORMAT "x(80)":U
+            WIDTH 45
+      APIInboundDetail.detailID COLUMN-LABEL "Detail ID" FORMAT "x(15)":U
+            WIDTH 25.2
+      APIInboundDetail.detailType COLUMN-LABEL "Detail Type" FORMAT "x(15)":U
+            WIDTH 21.2
+      APIInboundDetail.parentID COLUMN-LABEL "Parent ID" FORMAT "x(45)":U
+            WIDTH 21.4
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 166 BY 18.1
-         BGCOLOR 15  ROW-HEIGHT-CHARS .57 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS SIZE 112 BY 6.71 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiAPIIDLabel AT ROW 1.14 COL 10 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fiClientIDLabel AT ROW 1.14 COL 38.6 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fiRequestDataTypeLabel AT ROW 1.14 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiRequestVerbLabel AT ROW 1.14 COL 97 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     fiStatusLabel AT ROW 1.14 COL 126.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     fiAPIId AT ROW 2.19 COL 4.4 NO-LABEL WIDGET-ID 2
-     fiClientID AT ROW 2.19 COL 33.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     cbRequestDataType AT ROW 2.19 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     cbRequestVerb AT ROW 2.19 COL 96.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cbStatus AT ROW 2.19 COL 123 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     btGo AT ROW 3.86 COL 4 WIDGET-ID 24
-     br_table AT ROW 5.52 COL 1
+     br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -252,6 +177,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartBrowser
+   External Tables: ASI.APIInbound
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -273,8 +199,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 22.81
-         WIDTH              = 166.8.
+         HEIGHT             = 6.86
+         WIDTH              = 112.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -283,7 +209,6 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
-{src/adm/method/query.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -298,23 +223,11 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB br_table btGo F-Main */
+/* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN fiAPIId IN FRAME F-Main
-   ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiClientIDLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiRequestDataTypeLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiRequestVerbLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiStatusLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -324,30 +237,8 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE
-    (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN
-        TRUE
-     ELSE
-        APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND
-    (IF fiClientID:SCREEN-VALUE EQ "" THEN
-        TRUE
-     ELSE
-        APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND
-    (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN
-        TRUE
-     ELSE
-        APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND
-    (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN
-        TRUE
-     ELSE
-        APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND
-    (IF cbStatus:SCREEN-VALUE EQ "All" THEN
-        TRUE
-     ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN
-        APIOutbound.isActive
-     ELSE
-        NOT APIOutbound.isActive)
-    NO-LOCK
+OPEN QUERY {&SELF-NAME} FOR EACH APIInboundDetail WHERE
+    APIInboundDetail.apiRoute = APIInbound.apiRoute NO-LOCK
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
@@ -370,19 +261,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE
 
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON DEFAULT-ACTION OF br_table IN FRAME F-Main
-DO:
-    DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-        
-    {methods/run_link.i "CONTAINER-SOURCE" "SELECT-PAGE" "(2)"}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
@@ -412,17 +290,6 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btGo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo B-table-Win
-ON CHOOSE OF btGo IN FRAME F-Main /* Go */
-DO:
-    RUN dispatch ('open-query').
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -459,6 +326,15 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "APIInbound"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "APIInbound"}
+
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
@@ -486,38 +362,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win 
-PROCEDURE local-enable :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-    RUN pInit.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
-PROCEDURE pInit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN dispatch ('open-query').
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -530,7 +374,8 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "APIOutbound"}
+  {src/adm/template/snd-list.i "APIInbound"}
+  {src/adm/template/snd-list.i "APIInboundDetail"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
