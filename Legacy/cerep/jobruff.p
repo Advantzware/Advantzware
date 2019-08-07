@@ -977,82 +977,31 @@ FOR EACH ef
             v-ink2 = "".
              
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
-            BREAK BY wrk-ink.i-pass
-            BY wrk-ink.blank-no
+            BREAK BY wrk-ink.blank-no
             BY wrk-ink.i-seq 
             :
-            IF FIRST-OF(wrk-ink.i-pass) THEN i = 1.
-            IF FIRST-OF(wrk-ink.i-seq) THEN ASSIGN v-item[i] = ""
-                    v-i-qty   = 0.
-            IF FIRST-OF(wrk-ink.blank-no) THEN v-ink-use-per-blank = 0.
 
-            ASSIGN
-                v-item[i]           = IF LOOKUP(STRING(wrk-ink.blank-no),v-item[i]) > 0 THEN v-item[i] ELSE v-item[i] + string(wrk-ink.blank-no) + ","
-                v-ink-use-per-blank = v-ink-use-per-blank + 1.
-               
-            IF LAST-OF(wrk-ink.i-seq) OR v-ink-use-per-blank > 1 THEN 
-            DO: 
-                IF SUBSTRING(v-item[i],LENGTH(v-item[i]),1) = "," THEN v-item[i] = SUBSTRING(v-item[i],1,LENGTH(v-item[i]) - 1).                    
-                v-alloc = v-item[i].
-                IF NUM-ENTRIES(v-item[i]) GT 1 THEN 
-                DO:
-                    v-alloc = "".
-                    DO j = 1 TO NUM-ENTRIES(v-item[i]):
-                        IF j EQ 1 OR j EQ num-entries(v-item[i]) THEN v-alloc = v-alloc + entry(j,v-item[i]) + ",".
-                        ELSE 
-                        DO:
-                            IF int(ENTRY(j,v-item[i])) - int(ENTRY(j - 1,v-item[i])) LE 1 THEN
-                                substr(v-alloc,LENGTH(TRIM(v-alloc)),1) = "-".
-                            ELSE 
-                            DO:
-                                IF substr(v-alloc,LENGTH(TRIM(v-alloc)),1) EQ "-" THEN
-                                    v-alloc = v-alloc + entry(j - 1,v-item[i]) + ",".
+              ASSIGN v-ink1[i] = /*STRING(wrk-ink.i-seq,">9") + "  " + "1  " + */
+                  STRING(wrk-ink.i-code,"X(15)") + " " + 
+                  string(wrk-ink.i-dscr,"x(21)") + "  " + trim(string(wrk-ink.i-pass)) + "   " + STRING(wrk-ink.i-unit)
+                  /*v-item[i]*/
+                  /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
+                  i         = i + 1         . 
 
-                                v-alloc = v-alloc + entry(j,v-item[i]) + ",".
-                            END.
-                        END.
-                    END.                    
-                    IF v-alloc NE "" THEN substr(v-alloc,LENGTH(TRIM(v-alloc)),1) = "".                       
-                END.
-                v-i-qty = 0.
-                FOR EACH bf-ink WHERE bf-ink.form-no = wrk-ink.form-no
-                    AND bf-ink.i-pass = wrk-ink.i-pass
-                    AND bf-ink.i-code = wrk-ink.i-code:
-                    v-i-qty = v-i-qty + bf-ink.i-qty.
-                END.
-                IF wrk-ink.i-pass = 1 THEN
-                    ASSIGN v-ink1[i] = /*STRING(wrk-ink.i-seq,">9") + "  " + "1  " + */
-                                          STRING(wrk-ink.i-code,"X(15)") + " " + 
-                                          string(wrk-ink.i-dscr,"x(21)") + "  " + trim(v-alloc) + "   " + STRING(wrk-ink.i-unit)
-                        /*v-item[i]*/
-                        /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
-                        i         = i + 1         . 
-                ELSE IF wrk-ink.i-pass = 2 THEN
-                        ASSIGN v-ink2[i] = /*STRING(wrk-ink.i-seq,">9") + "  " + "2  " + */
-                                   STRING(wrk-ink.i-code,"X(15)") + " " + 
-                                   string(wrk-ink.i-dscr,"x(21)") + "  " + trim(v-alloc) + "   " + STRING(wrk-ink.i-unit)
-                            /*STRING(v-i-qty,">>>,>>9") /*v-item[i]*/              */
-                            i         = i + 1.           
-            END. 
-              
             DELETE wrk-ink.
         END. /* each wrk-ink */
         ASSIGN
             v-skip          = NO
             v-plate-printed = NO.
         PUT "<#5>" "<FGCOLOR=GREEN>COLORS          DESCRIPTION          PASS UNIT <FGCOLOR=BLACK>" SKIP. 
-        DO j = 1 TO 8:
+        DO j = 1 TO 16:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN
                 PUT v-ink1[j] FORM "x(45)" SKIP .
         END.
              
         v-skip = NO.
-        DO j = 1 TO 8:
-            IF TRIM(v-ink2[j]) = "-" THEN v-ink2[j] = "".                 
-            IF v-ink2[j] <> "" THEN
-                PUT v-ink2[j] FORM "x(45)" SKIP.
-        END.             
+                
              
         FIND FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
