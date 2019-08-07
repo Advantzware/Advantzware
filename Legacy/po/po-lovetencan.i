@@ -388,7 +388,7 @@ FOR EACH po-ordl
 
   IF lPrintMach and cMachCode NE ""  THEN DO:
    put {1} SKIP.
-   PUT {1} "Premiére Machine: " cMachCode FORM "x(8)"  SKIP.
+   PUT {1} "PremiÚre Machine: " cMachCode FORM "x(8)"  SKIP.
    v-print-lines = v-print-lines + 1.
   END.
   
@@ -490,20 +490,20 @@ end.
      "MSF:"                 to 66
      v-tot-sqft[2]          to 80   format ">,>>>,>>9.999" SKIP .
      
-  /*PUT */
-    /*  "TVS:"                 to 66*/
-    /* v-tot-sqft[2]          to 80   format ">,>>>,>>9.999"*/
-    /* SKIP.*/
+   PUT {1}
+      "TVS:"                 to 66
+      v-tot-sqft[2]          to 80   format ">,>>>,>>9.999"
+      SKIP.
 
    PUT {1}
-     "Autorisé Par ________________________________"       at 2
-     /*"TVQ:"                 to 66   */
+     "AutorisÚ Par ________________________________"       at 2
+     "TVQ:"                 to 66   
      v-tax[2]               to 80   format ">>,>>>,>>9.99"
      v-username FORM "x(30)" at 2
      "GRAND TOTAL:"         to 66  
      v-po-tot[2]            to 80   format ">>,>>>,>>9.99".
    PUT {1} SKIP(1)
-     "Vérifié Par _________________________________"       at 2.
+     "VÚrifiÚ Par _________________________________"       at 2.
 
    /*PUT {1}*/
    /*  "<B>FUNDS payable in " + string(cCurCode,"x(3)") +  ".</B>" AT 59 FORMAT "x(200)" .*/

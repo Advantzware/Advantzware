@@ -17,8 +17,8 @@
          "<P12><R-1>" "DATE:"                            to 65
          po-ord.po-date                           FORMAT "99/99/99"
          skip(2)
-         "À:"                              at 11
-         "Expedié À:"                      at 50
+         "Š:"                              at 11
+         "ExpediÚ Š:"                      at 50
          vend.name                          at 11
          v-sname                            at 50
          vend.add1                          at 11
@@ -36,7 +36,7 @@
                 "  "           +
                 trim(v-szip))               at 50   format "x(30)"
          SKIP
-         "Tel:" + STRING(vend.area-code) + "-" + STRING(vend.phone) + " Téléc.:" +
+         "Tel:" + STRING(vend.area-code) + "-" + STRING(vend.phone) + " TÚlÚc.:" +
          STRING(vend.fax-area) + "-" + STRING(vend.fax) FORM "x(50)" AT 11
          skip(1)
          "ATTN:"                            at 7
@@ -45,11 +45,11 @@
          po-ord.po-no SKIP
          /*fill("-",80)                               format "x(80)"*/
          "<C1><R+.5><FROM><C82><LINE><||3>" skip
-         "Qté"                              to 6
+         "QtÚ"                              to 6
          "DESC/NOTES"                       at 8
          "AJOUT"                            at 37
          "JOB #"                            at 49
-         "Coût/DUE"                         at 61
+         "Co¹t/DUE"                         at 61
          "MSF/TOTALS"                       to 80 SKIP
          /*fill("-",80)                               format "x(80)"*/
          "<C1><R+.5><FROM><C82><LINE><||3>" skip
