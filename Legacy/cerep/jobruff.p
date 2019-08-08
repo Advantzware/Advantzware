@@ -982,8 +982,8 @@ FOR EACH ef
             :
 
               ASSIGN v-ink1[i] = /*STRING(wrk-ink.i-seq,">9") + "  " + "1  " + */
-                  STRING(wrk-ink.i-code,"X(15)") + " " + 
-                  string(wrk-ink.i-dscr,"x(21)") + "  " + trim(string(wrk-ink.i-pass)) + "   " + STRING(wrk-ink.i-unit)
+                  STRING(wrk-ink.i-code,"X(11)") + " " + 
+                  string(wrk-ink.i-dscr,"x(30)") + " " + trim(string(wrk-ink.i-pass,">")) + " " + STRING(wrk-ink.i-unit)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
                   i         = i + 1         . 
@@ -993,11 +993,11 @@ FOR EACH ef
         ASSIGN
             v-skip          = NO
             v-plate-printed = NO.
-        PUT "<#5>" "<FGCOLOR=GREEN>COLORS          DESCRIPTION          PASS UNIT <FGCOLOR=BLACK>" SKIP. 
+        PUT "<#5>" "<FGCOLOR=GREEN>COLORS      DESCRIPTION <C36.8>P<C38.5>U <FGCOLOR=BLACK>" SKIP. 
         DO j = 1 TO 16:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN
-                PUT v-ink1[j] FORM "x(45)" SKIP .
+                PUT v-ink1[j] FORM "x(47)" SKIP .
         END.
              
         v-skip = NO.
