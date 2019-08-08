@@ -50,7 +50,7 @@ PROCEDURE getPrice:
                         ,
                         EACH quoteitm OF quotehd NO-LOCK 
                         WHERE quoteitm.part-no EQ bf-oe-ordl.part-no 
-                        OR (quoteitm.part-no EQ bf-oe-ordl.i-no AND bf-oe-ordl.i-no NE "")
+                        OR (quoteitm.i-no EQ bf-oe-ordl.i-no AND bf-oe-ordl.i-no NE "")
                         ,
                         EACH quoteqty OF quoteitm NO-LOCK 
                         WHERE quoteqty.qty EQ bf-oe-ordl.qty:           
