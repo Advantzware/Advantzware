@@ -11,6 +11,7 @@
     Notes       :
   ----------------------------------------------------------------------*/
     {api/ttArgs.i}
+    {api/CommonAPIProcs.i}
     
     DEFINE INPUT        PARAMETER TABLE            FOR ttArgs.
     DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR  NO-UNDO.
@@ -48,30 +49,28 @@
         RETURN.
     END.
     
-    ASSIGN
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD16", cardCode)
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.weight-100", STRING(itemfg.weight-100 / 100))
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD15", unitsPerSale)
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD14", refUnit)
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.case-count", STRING(itemfg.case-count))
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD12", packUnit)
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD11", mainUnit)
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.case-pall", STRING(itemfg.case-pall))
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD9", boxesXbed)
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD8", saleRestrictionDays)
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.lead-days", STRING(itemfg.lead-days))
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD6", cat05)
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.spare-char-1", REPLACE(itemfg.spare-char-1,'"',""))
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.part-dscr2", REPLACE(itemfg.part-dscr2,'"',""))
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.part-dscr1", REPLACE(itemfg.part-dscr1,'"',""))
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.cust-no", itemfg.cust-no)
-        ioplcRequestData = REPLACE(ioplcRequestData, "TBD1", codeBars)
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.procat", itemfg.procat)
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-name", REPLACE(itemfg.i-name,'"',""))
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.i-no", REPLACE(STRING(itemfg.i-no),'"',""))
-        ioplcRequestData = REPLACE(ioplcRequestData, "itemfg.company", itemfg.company)
-        .
-    
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD16", cardCode).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.weight-100", STRING(itemfg.weight-100 / 100)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD15", unitsPerSale).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD14", refUnit).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.case-count", STRING(itemfg.case-count)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD12", packUnit).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD11", mainUnit).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.case-pall", STRING(itemfg.case-pall)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD9", boxesXbed).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD8", saleRestrictionDays).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.lead-days", STRING(itemfg.lead-days)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD6", cat05).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.spare-char-1", itemfg.spare-char-1).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.part-dscr2", itemfg.part-dscr2).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.part-dscr1", itemfg.part-dscr1).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.cust-no", itemfg.cust-no).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD1", codeBars).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.procat", itemfg.procat).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.i-name", itemfg.i-name).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.i-no", STRING(itemfg.i-no)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.company", itemfg.company).
+   
     ASSIGN
         opcMessage = ""
         oplSuccess = TRUE

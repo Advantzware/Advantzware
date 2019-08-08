@@ -11,6 +11,7 @@
     Notes       :
   ----------------------------------------------------------------------*/
     {api/ttArgs.i}
+    {api/CommonAPIProcs.i}
     
     DEFINE INPUT        PARAMETER TABLE             FOR ttArgs.
     DEFINE INPUT        PARAMETER ipcRequestHandler AS CHARACTER NO-UNDO.
@@ -47,12 +48,10 @@
             RETURN.
         END.
     
-        ASSIGN  
-            ioplcRequestData = REPLACE(ioplcRequestData, "vend.type", vend.type)
-            ioplcRequestData = REPLACE(ioplcRequestData, "vend.name", vend.name)
-            ioplcRequestData = REPLACE(ioplcRequestData, "vend.vend-no", vend.vend-no)
-            ioplcRequestData = REPLACE(ioplcRequestData, "vend.company", vend.company)
-            .
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.type", vend.type).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.name", vend.name).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.vend-no", vend.vend-no).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.company", vend.company).
             
         ASSIGN
             opcMessage = ""
