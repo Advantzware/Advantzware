@@ -657,6 +657,12 @@ PROCEDURE pCleanup:
     FIND LAST po-ord NO-LOCK USE-INDEX po-no.
     ASSIGN 
         po-ctrl.next-po-no = po-ord.po-no + 1.
+        
+    ASSIGN  
+        CURRENT-VALUE(oerel_release_seq) = current-value(oerel_rno_seq)
+        CURRENT-VALUE(oerel_release_seq01) = current-value(oerel_rno_seq)
+        CURRENT-VALUE(oerel_release_seq02) = 0.
+    
 
 END PROCEDURE.
 
