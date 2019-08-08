@@ -64,31 +64,31 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR loc, location.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS location.defaultBin loc.dscr ~
-location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
-location.subCode3 location.subCode1 location.subCode4 location.countryCode ~
-location.subCode2 location.geoLat location.geoLong location.phone ~
-location.externalID[1] location.fax location.email location.notes ~
-loc.active loc.handlingCost loc.storageCost[1] loc.storageCost[2] ~
-loc.storageCost[3] loc.storageCost[4] loc.OWNER loc.division ~
-loc.locationSquareFeet loc.palletCapacity
+&Scoped-Define ENABLED-FIELDS location.defaultBin loc.dscr loc.handlingCost ~
+location.streetAddr[1] loc.storageCost[1] location.streetAddr[2] ~
+loc.storageCost[2] location.streetAddr[3] loc.storageCost[3] ~
+location.subCode3 loc.storageCost[4] location.subCode1 loc.owner ~
+location.subCode4 location.countryCode loc.locationSquareFeet ~
+loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
+location.phone location.externalID[1] location.fax loc.division ~
+location.email location.notes loc.active loc.isAPIEnabled 
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
 &Scoped-Define ENABLED-OBJECTS rsBinType 
 &Scoped-Define DISPLAYED-FIELDS loc.loc location.defaultBin loc.company ~
-location.streetAddr[4] loc.dscr location.streetAddr[5] ~
-location.streetAddr[1] location.streetAddr[6] location.streetAddr[2] ~
-location.streetAddr[3] location.subCode3 location.subCode1 ~
-location.subCode4 location.countryCode location.subCode2 location.geoLat ~
-location.geoLong location.phone location.externalID[1] location.fax ~
-location.email location.notes loc.active loc.handlingCost loc.storageCost[1]  ~
-loc.storageCost[2] loc.storageCost[3] loc.storageCost[4] loc.OWNER loc.division ~
-loc.locationSquareFeet loc.palletCapacity
+location.streetAddr[4] loc.dscr loc.handlingCost location.streetAddr[5] ~
+location.streetAddr[1] loc.storageCost[1] location.streetAddr[6] ~
+location.streetAddr[2] loc.storageCost[2] location.streetAddr[3] ~
+loc.storageCost[3] location.subCode3 loc.storageCost[4] location.subCode1 ~
+loc.owner location.subCode4 location.countryCode loc.locationSquareFeet ~
+loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
+location.phone location.externalID[1] location.fax loc.division ~
+location.email location.notes loc.active loc.isAPIEnabled 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
-&Scoped-Define DISPLAYED-OBJECTS rsBinType
+&Scoped-Define DISPLAYED-OBJECTS rsBinType 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -156,60 +156,59 @@ DEFINE FRAME F-Main
           LABEL "Name" FORMAT "x(60)"
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
+     loc.handlingCost AT ROW 2.43 COL 78 COLON-ALIGNED
+          LABEL "Handling" FORMAT "->,>>>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      location.streetAddr[5] AT ROW 3.14 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
      location.streetAddr[1] AT ROW 3.38 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
+     loc.storageCost[1] AT ROW 3.38 COL 78 COLON-ALIGNED
+          LABEL "Storage 1" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      location.streetAddr[6] AT ROW 4.1 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
      location.streetAddr[2] AT ROW 4.33 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
+     loc.storageCost[2] AT ROW 4.33 COL 78 COLON-ALIGNED
+          LABEL "Storage 2" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      location.streetAddr[3] AT ROW 5.29 COL 12 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
+     loc.storageCost[3] AT ROW 5.29 COL 78 COLON-ALIGNED
+          LABEL "Storage 3" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      location.subCode3 AT ROW 6.24 COL 12 COLON-ALIGNED
           LABEL "City"
           VIEW-AS FILL-IN 
           SIZE 40 BY 1
+     loc.storageCost[4] AT ROW 6.24 COL 78 COLON-ALIGNED
+          LABEL "Storage 4" FORMAT "->>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      location.subCode1 AT ROW 7.19 COL 12 COLON-ALIGNED
           LABEL "St/Prov"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
+     loc.owner AT ROW 7.19 COL 78 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
      location.subCode4 AT ROW 7.24 COL 34.4 COLON-ALIGNED
           LABEL "Zip/Post"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.countryCode AT ROW 7.24 COL 60.60 COLON-ALIGNED
+     location.countryCode AT ROW 7.24 COL 60.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY .95
-     loc.handlingCost AT ROW 2.43 COL 78 COLON-ALIGNED
-          LABEL "Handling" FORMAT "->,>>>,>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     loc.storageCost[1] AT ROW 3.38 COL 78 COLON-ALIGNED
-          LABEL "Storage 1" FORMAT "->>,>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-    loc.storageCost[2] AT ROW 4.33 COL 78 COLON-ALIGNED
-          LABEL "Storage 2" FORMAT "->>,>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-    loc.storageCost[3] AT ROW 5.29 COL 78 COLON-ALIGNED
-          LABEL "Storage 3" FORMAT "->>,>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-    loc.storageCost[4] AT ROW 6.24 COL 78 COLON-ALIGNED
-          LABEL "Storage 4" FORMAT "->>,>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-    loc.OWNER AT ROW 7.19 COL 78 COLON-ALIGNED
-          LABEL "Owner"
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
      loc.locationSquareFeet AT ROW 8.43 COL 39 COLON-ALIGNED
           LABEL "Location Gross"
           VIEW-AS FILL-IN 
@@ -226,6 +225,14 @@ DEFINE FRAME F-Main
           LABEL "Lat"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 102.2 BY 17.38
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      location.geoLong AT ROW 9.57 COL 70 COLON-ALIGNED
           LABEL "Long"
           VIEW-AS FILL-IN 
@@ -255,12 +262,16 @@ DEFINE FRAME F-Main
           LABEL "Active?"
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY .81
-     "Address:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 3.86 COL 3
+     loc.isAPIEnabled AT ROW 17.33 COL 34 WIDGET-ID 4
+          LABEL "API Enabled"
+          VIEW-AS TOGGLE-BOX
+          SIZE 19.6 BY .81
+     "Capacity:" VIEW-AS TEXT
+          SIZE 11.4 BY .62 AT ROW 8.62 COL 2.8
      "Notes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 14.1 COL 5
-     "Capacity:" VIEW-AS TEXT
-          SIZE 11.40 BY .62 AT ROW 8.62 COL 2.80
+     "Address:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 3.86 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -329,6 +340,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN location.defaultBin IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.division IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.dscr IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN location.externalID[1] IN FRAME F-Main
@@ -339,8 +352,24 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN location.geoLong IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.handlingCost IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR TOGGLE-BOX loc.isAPIEnabled IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN loc.loc IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN loc.locationSquareFeet IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.palletCapacity IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN loc.storageCost[1] IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN loc.storageCost[2] IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN loc.storageCost[3] IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN loc.storageCost[4] IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN location.streetAddr[4] IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -364,16 +393,6 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN location.subCode4 IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN loc.handlingCost IN FRAME F-Main
-   EXP-LABEL  EXP-FORMAT                                                */
-/* SETTINGS FOR FILL-IN loc.storageCost[1] IN FRAME F-Main
-   EXP-LABEL  EXP-FORMAT                                                */
-/* SETTINGS FOR FILL-IN loc.storageCost[2] IN FRAME F-Main
-   EXP-LABEL  EXP-FORMAT                                                */
-/* SETTINGS FOR FILL-IN loc.storageCost[3] IN FRAME F-Main
-   EXP-LABEL  EXP-FORMAT                                                */
-/* SETTINGS FOR FILL-IN loc.storageCost[4] IN FRAME F-Main
-   EXP-LABEL  EXP-FORMAT                                                */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
