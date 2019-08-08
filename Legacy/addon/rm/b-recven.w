@@ -2734,18 +2734,21 @@ PROCEDURE local-assign-statement :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-    rm-rctd.po-no = rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-    rm-rctd.rct-date = DATE(rm-rctd.rct-date:SCREEN-VALUE)
-    rm-rctd.job-no = rm-rctd.job-no:SCREEN-VALUE
-    rm-rctd.job-no2 = INT(rm-rctd.job-no2:SCREEN-VALUE)
-    rm-rctd.s-num = INT(rm-rctd.s-num:SCREEN-VALUE)
-    rm-rctd.i-no = rm-rctd.i-no:SCREEN-VALUE
-    rm-rctd.i-name = rm-rctd.i-name:SCREEN-VALUE
-    rm-rctd.pur-uom = rm-rctd.pur-uom:SCREEN-VALUE
-    rm-rctd.cost = DEC(rm-rctd.cost:SCREEN-VALUE)
-    rm-rctd.cost-uom = rm-rctd.cost-uom:SCREEN-VALUE.
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN
+        rm-rctd.po-no     = rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        rm-rctd.rct-date  = DATE(rm-rctd.rct-date:SCREEN-VALUE)
+        rm-rctd.job-no    = rm-rctd.job-no:SCREEN-VALUE
+        rm-rctd.job-no2   = INT(rm-rctd.job-no2:SCREEN-VALUE)
+        rm-rctd.s-num     = INT(rm-rctd.s-num:SCREEN-VALUE)
+        rm-rctd.i-no      = rm-rctd.i-no:SCREEN-VALUE
+        rm-rctd.i-name    = rm-rctd.i-name:SCREEN-VALUE
+        rm-rctd.pur-uom   = rm-rctd.pur-uom:SCREEN-VALUE
+        rm-rctd.cost      = DEC(rm-rctd.cost:SCREEN-VALUE)
+        rm-rctd.cost-uom  = rm-rctd.cost-uom:SCREEN-VALUE
+        rm-rctd.enteredBy = USERID("asi")
+        rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
+    .
 
 END PROCEDURE.
 
