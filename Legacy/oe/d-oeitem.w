@@ -1619,7 +1619,7 @@ END.
 ON ENTRY OF oe-ordl.i-no IN FRAME d-oeitem /* FG Item# */
 DO:
     ll-ok-i-no = NO.
-    IF (INDEX("ON",oe-ordl.type-code:SCREEN-VALUE) GT 0 OR oe-ordl.i-no:SCREEN-VALUE LE "0") AND
+    IF (INDEX("ON",oe-ordl.type-code:SCREEN-VALUE) GT 0 OR oe-ordl.i-no:SCREEN-VALUE EQ "") AND
        (oe-ordl.est-no:SCREEN-VALUE = "" OR ls-stock = "") THEN DO:
     END.
     ELSE DO:
@@ -1712,6 +1712,8 @@ DO:
        ELSE IF ls-i-no NE "" AND ls-est-no EQ "" THEN DO:
            MESSAGE "Please enter a valid item number."
                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+           ASSIGN 
+            oe-ordl.part-no:SCREEN-VALUE = "".
            APPLY 'entry' TO oe-ordl.i-no.
            RETURN NO-APPLY.
        END.
@@ -4086,31 +4088,30 @@ PROCEDURE default-type :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF PARAM BUFFER io-itemfg FOR itemfg.
+    DEF PARAM BUFFER io-itemfg FOR itemfg.
 
-  DEF BUFFER def-oe-ordl FOR oe-ordl.
+    DEF BUFFER def-oe-ordl FOR oe-ordl.
   
-  DO WITH FRAME {&FRAME-NAME}:
-    IF oe-ordl.type-code:SCREEN-VALUE NE "T" AND lv-add-mode THEN DO:
-      oe-ordl.type-code:SCREEN-VALUE = "O".
-
-      IF AVAIL io-itemfg THEN DO:
-        IF oe-ordl.type-code:SCREEN-VALUE EQ "O" AND
-           CAN-FIND(FIRST def-oe-ordl
-                    WHERE def-oe-ordl.company EQ io-itemfg.company
-                      AND def-oe-ordl.i-no    EQ io-itemfg.i-no
-                      AND def-oe-ordl.ord-no  LT oe-ordl.ord-no
-                      AND ROWID(def-oe-ordl)  NE ROWID(oe-ordl)) THEN
-          oe-ordl.type-code:SCREEN-VALUE = "R".
-        ELSE
-        IF TRIM(itemfg.type-code) NE ""  AND
-           itemfg.type-code       NE "T" THEN
-           oe-ordl.type-code:SCREEN-VALUE = io-itemfg.type-code.
-      END.
+    DO WITH FRAME {&FRAME-NAME}:
+        IF oe-ordl.type-code:SCREEN-VALUE NE "T" AND lv-add-mode THEN DO:
+            oe-ordl.type-code:SCREEN-VALUE = "O".
+            IF AVAIL io-itemfg THEN DO:
+                IF oe-ordl.type-code:SCREEN-VALUE EQ "O" 
+                AND oe-ordl.i-no:SCREEN-VALUE NE ""
+                AND io-itemfg.i-no NE "0"  
+                AND  CAN-FIND(FIRST def-oe-ordl WHERE 
+                    def-oe-ordl.company EQ io-itemfg.company AND 
+                    def-oe-ordl.i-no    EQ io-itemfg.i-no AND 
+                    def-oe-ordl.ord-no  LT oe-ordl.ord-no AND 
+                    ROWID(def-oe-ordl)  NE ROWID(oe-ordl)) THEN
+                    oe-ordl.type-code:SCREEN-VALUE = "R".
+                ELSE IF TRIM(itemfg.type-code) NE ""  
+                AND itemfg.type-code       NE "T" THEN
+                        oe-ordl.type-code:SCREEN-VALUE = io-itemfg.type-code.
+            END.
+        END.
+        RUN new-type.
     END.
-
-    RUN new-type.
-  END.
 
 END PROCEDURE.
 
