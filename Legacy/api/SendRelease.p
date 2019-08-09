@@ -92,6 +92,13 @@
     DEFINE VARIABLE cReleaseLineType               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dQuantityReleased              AS DECIMAL   NO-UNDO.
     
+    /* The below variables are hardcoded as Premier is expecting these
+       values, which currently are not mapped to any database table's fields */
+    DEFINE VARIABLE cPriority     AS CHARACTER NO-UNDO INITIAL "2".
+    DEFINE VARIABLE cWhscode      AS CHARACTER NO-UNDO INITIAL "005".
+    DEFINE VARIABLE cUnitsperpack AS CHARACTER NO-UNDO INITIAL "1".
+    DEFINE VARIABLE cSalesunit    AS CHARACTER NO-UNDO INITIAL "Each".    
+    
     IF ipcRequestHandler NE "" THEN 
         RUN VALUE(ipcRequestHandler) (
             INPUT TABLE ttArgs,
@@ -345,6 +352,11 @@
             RUN updateRequestData(INPUT-OUTPUT lcDetailData, "itemfg.part-dscr3", cItemDesc3).
             RUN updateRequestData(INPUT-OUTPUT lcDetailData, "TBD1", cReleaseLineType).
 
+            /* The below values are hardcoded as they are currently not mapped
+               to any database table's field */
+            RUN updateRequestData(INPUT-OUTPUT lcDetailData, "whscode", cWhscode).
+            RUN updateRequestData(INPUT-OUTPUT lcDetailData, "unitsperpack", cUnitsperpack).
+            RUN updateRequestData(INPUT-OUTPUT lcDetailData, "salesunit", cSalesunit).
                     
             lcConcatDetailData = lcConcatDetailData + "," + lcDetailData.
         END.      
@@ -382,6 +394,10 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cust.state", cCustomerState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cust.zip", cCustomerZip).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cCustomerAddressFull", cCustomerAddressFull).
+        
+        /* Priority value is hardcoded as this is currently not 
+           mapped to any database table's field */
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "priority", cPriority).
         
         /* This replace is required for replacing nested JSON data */
         ioplcRequestData = REPLACE(ioplcRequestData, "$lineDetail$", lcConcatDetailData).
