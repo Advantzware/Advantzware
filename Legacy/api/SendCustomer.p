@@ -11,6 +11,7 @@
     Notes       :
   ----------------------------------------------------------------------*/
     {api/ttArgs.i}
+    {api/CommonAPIProcs.i}
     
     DEFINE INPUT        PARAMETER TABLE               FOR ttArgs.
     DEFINE INPUT        PARAMETER ipcRequestHandler   AS CHARACTER NO-UNDO.
@@ -48,14 +49,16 @@
                 .
             RETURN.
         END.
+
+        cCalcAddress     = cust.addr[1] + ", " + cust.addr[2] + ", " + cust.city + ", " + cust.state + ", " + cust.zip.
+
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"cust.company",cust.company).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"cust.cust-no",cust.cust-no).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"cust.name",cust.name).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"cust.type",cust.type).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"calcAddress", cCalcAddress).
         
-        ASSIGN
-            ioplcRequestData = REPLACE(ioplcRequestData,"cust.company",cust.company)
-            ioplcRequestData = REPLACE(ioplcRequestData,"cust.cust-no",cust.cust-no)
-            ioplcRequestData = REPLACE(ioplcRequestData,"cust.name",cust.name)
-            ioplcRequestData = REPLACE(ioplcRequestData,"cust.type",cust.type)
-            cCalcAddress     = cust.addr[1] + ", " + cust.addr[2] + ", " + cust.city + ", " + cust.state + ", " + cust.zip
-            ioplcRequestData = REPLACE(ioplcRequestData,"calcAddress", cCalcAddress)
+        ASSIGN   
             opcMessage       = ""
             oplSuccess       = TRUE
             .
