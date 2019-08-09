@@ -1144,17 +1144,18 @@ def var v-tot-samt  as   dec format "->>>>>>>9.99" extent 3.
 def var v-tot-camt  as   dec format "->>>>>>>9.99" extent 3.
 def var v-tot-cost  as   dec format "->>>>>>>9.99" extent 3.
 
-def var v-head      as   character format "x(134)" extent 3.
+def var v-head      as   character format "x(145)" extent 3.
 DEF VAR v-exp-head AS cha FORM "x(132)" NO-UNDO.
 DEF VAR v-comma AS cha FORM "x" INIT "," NO-UNDO.
 DEF VAR v-part-fg LIKE v-cust-part NO-UNDO.
+DEFINE VARIABLE v-ship-id like ar-inv.ship-id NO-UNDO.
 
 FORMAT HEADER
        v-head[1] SKIP
        v-head[2] SKIP
        v-head[3]
 
-    WITH FRAME r-top WIDTH 134. /* 200 */
+    WITH FRAME r-top WIDTH 145. /* 200 */
 
 
 ASSIGN
