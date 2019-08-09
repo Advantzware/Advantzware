@@ -141,13 +141,14 @@ IF lRecFound THEN
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
+ASSIGN 
+    ls-full-img1 = cRtnChar + ">" .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CaseUOMList", "C" /* Logical */, NO /* check by cust */, 
      INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
      OUTPUT cRtnChar, OUTPUT lRecFound).
 cCaseUomList = cRtnChar.  
   
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 form 
      w2.i-no                         format "x(15)"
