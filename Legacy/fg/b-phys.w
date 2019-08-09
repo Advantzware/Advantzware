@@ -66,21 +66,11 @@ DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cPhysCntSaveFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLogFolder       AS CHARACTER NO-UNDO INIT "./custfiles/logs".
 DEFINE STREAM sPhysCntSave.
-DEFINE VARIABLE cRtnCharJob AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFoundJob AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE lFgPhyCntPst AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lCheckWarning AS LOGICAL NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT g_company, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "PhysCnt", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChr, OUTPUT lRecFnd).
 physCnt-log = LOGICAL(cRtnChr) NO-ERROR.
-
-RUN sys/ref/nk1look.p (INPUT g_company, "FGPhysCountPostValidate", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnCharJob, OUTPUT lRecFoundJob).
-IF lRecFoundJob THEN
-    lFgPhyCntPst = LOGICAL(cRtnCharJob) NO-ERROR. 
 
 ASSIGN
  cocode = g_company
@@ -667,14 +657,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF fg-rctd.job-no IN BROWSE Browser-Table /* Job# */
-DO:
-  ASSIGN lCheckWarning = NO. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fg-rctd.job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
@@ -1486,7 +1468,6 @@ PROCEDURE local-cancel-record :
   
   ASSIGN 
     lAddMode = FALSE.
-    lCheckWarning = NO .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1815,7 +1796,6 @@ PROCEDURE local-update-record :
   ASSIGN 
     lAddMode = FALSE.
     lCheckTag = NO .
-    lCheckWarning = NO.
 
 END PROCEDURE.
 
@@ -2214,18 +2194,6 @@ PROCEDURE valid-job-no :
              END.
          END.
       END. /* Not avail Job Hdr */
-      FIND FIRST job-hdr
-            WHERE job-hdr.company EQ fg-rctd.company
-            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
-            NO-LOCK NO-ERROR.
-      IF lFgPhyCntPst EQ YES AND lCheckWarning EQ NO THEN DO:
-        IF AVAIL job-hdr AND job-hdr.opened = NO THEN 
-        DO:
-            MESSAGE "Warning: The job entered has a status of closed."
-            VIEW-AS ALERT-BOX.
-            lCheckWarning = YES.
-        END.
-      END.
     END. /* If job# not blank */
   END.
 
