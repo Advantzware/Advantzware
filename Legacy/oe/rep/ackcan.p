@@ -510,7 +510,7 @@ PROCEDURE print-rels:
           if ip-first then do:
             lcnt = 1.
             if oe-rel.link-no eq 0 then do:
-              put "Relàches Prévues:" at 10  skip.
+              put "Relâches Prèvues:" at 10  skip.
               v-printline = v-printline + 1.
             end.
             ELSE do:

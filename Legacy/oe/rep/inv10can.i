@@ -14,7 +14,7 @@ PUT "<C1><#2>"
     space(3) v-comp-add5 SKIP
     space(3) "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" lv-email FORMAT "X(48)" SKIP(1)*/
     "<FCourier New>"
-    space(7) "FacturÚ Š:" "<C50>" "LivrÚ Š:" SKIP
+    space(7) "Facturè À:" "<C50>" "Livrè À:" SKIP
     SPACE(7) inv-head.cust-name "<C50>" v-shipto-name  skip
     SPACE(7) inv-head.addr[1] "<C50>"  v-shipto-addr[1]  SKIP
     SPACE(7) inv-head.addr[2] "<C50>" v-shipto-addr[2]  SKIP
@@ -71,7 +71,7 @@ PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
                 .   
-PUT "<FArial><=5><R+1> CommandÚ       LivrÚ    Order#    Article#/Reference#                      Description                              Prix        UM             Montant <P9>" SKIP(1).
+PUT "<FArial><=5><R+1> Commandè       Livrè    Order#    Article#/Reference#                      Description                              Prix        UM             Montant <P9>" SKIP(1).
 v-printline = v-printline + 4.
            
 
