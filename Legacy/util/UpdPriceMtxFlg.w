@@ -16,7 +16,7 @@
   Output Parameters:
       <none>
 
-  Author: Vishnu Vellanki
+  Author: Sewa Singh
 
   Created: 06th June 2019
 
@@ -33,6 +33,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE yellowColumnsName ttOePrmtx
 
 /* Parameters Definitions ---                                           */
 
@@ -50,6 +51,9 @@ DEFINE TEMP-TABLE ttOePrmtx NO-UNDO
     FIELDS i-no        AS CHARACTER
     FIELDS custype     AS CHARACTER
     FIELDS online      AS LOGICAL 
+    FIELD  procat      AS CHARACTER
+    FIELD  eff-date    AS DATE
+    FIELD  exp-date    AS DATE 
     FIELD  onlineapply AS LOGICAL 
     FIELD  eventRowID  AS ROWID
     .
@@ -74,13 +78,14 @@ DEFINE TEMP-TABLE ttOePrmtx NO-UNDO
 &Scoped-define INTERNAL-TABLES ttOePrmtx
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttOePrmtx.onlineapply ttOePrmtx.company ttOePrmtx.cust-no ttOePrmtx.custShipID ttOePrmtx.i-no ttOePrmtx.custype ttOePrmtx.online   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttOePrmtx.onlineapply ttOePrmtx.company ttOePrmtx.cust-no ttOePrmtx.custShipID ttOePrmtx.i-no ttOePrmtx.custype ttOePrmtx.online ~
+               ttOePrmtx.procat ttOePrmtx.eff-date ttOePrmtx.exp-date
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttOePrmtx.onlineapply   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttOePrmtx
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttOePrmtx
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttOePrmtx       BY ttOePrmtx.i-no DESCENDING
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttOePrmtx       BY ttOePrmtx.i-no DESCENDING.
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttOePrmtx     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttOePrmtx    ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 ttOePrmtx
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttOePrmtx
 
@@ -92,7 +97,7 @@ DEFINE TEMP-TABLE ttOePrmtx NO-UNDO
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-13 btSave btExit btFilter ~
 begin_cust-no BROWSE-2 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust-no 
+&Scoped-Define DISPLAYED-OBJECTS begin_cust-no fi_sortby
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -129,6 +134,11 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)":U
     SIZE 30 BY 1 TOOLTIP "Begin Customer"
     FONT 35 NO-UNDO.
 
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 30 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 DEFINE RECTANGLE RECT-13
     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
     SIZE 136 BY 3.43.
@@ -146,18 +156,21 @@ DEFINE BROWSE BROWSE-2
     ttOePrmtx.onlineapply COLUMN-LABEL "[ ] All" 
     WIDTH 10 VIEW-AS TOGGLE-BOX
     ttOePrmtx.company COLUMN-LABEL "Company" FORMAT "x(3)":U
-    WIDTH 15
+    WIDTH 15 LABEL-BGCOLOR 14
     ttOePrmtx.cust-no COLUMN-LABEL "Customer" FORMAT "x(8)":U
-    WIDTH 20
+    WIDTH 20 LABEL-BGCOLOR 14
     ttOePrmtx.custShipID COLUMN-LABEL "Ship Id" FORMAT "x(8)":U
-    WIDTH 20
-    ttOePrmtx.i-no COLUMN-LABEL "Item No" FORMAT "x(15)":U WIDTH 32
-    ttOePrmtx.custype COLUMN-LABEL "Type" FORMAT "x(8)":U WIDTH 15
-    ttOePrmtx.online COLUMN-LABEL "OnLine" FORMAT "Yes/No":U
+    WIDTH 20 LABEL-BGCOLOR 14
+    ttOePrmtx.i-no COLUMN-LABEL "Item No" FORMAT "x(15)":U WIDTH 32 LABEL-BGCOLOR 14
+    ttOePrmtx.custype COLUMN-LABEL "Type" FORMAT "x(8)":U WIDTH 15 LABEL-BGCOLOR 14
+    ttOePrmtx.online COLUMN-LABEL "OnLine" FORMAT "Yes/No":U LABEL-BGCOLOR 14
+    ttOePrmtx.procat COLUMN-LABEL "Cat  " FORMAT "x(5)":U  WIDTH 11 LABEL-BGCOLOR 14
+    ttOePrmtx.eff-date COLUMN-LABEL "Effective Date" FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+    ttOePrmtx.exp-date COLUMN-LABEL "Exp Date" FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       ENABLE ttOePrmtx.onlineapply
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 139.2 BY 23.1
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 180.2 BY 23.1
          FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
@@ -168,6 +181,7 @@ DEFINE FRAME DEFAULT-FRAME
     btExit AT ROW 1.86 COL 130 WIDGET-ID 2
     btFilter AT ROW 2.14 COL 57.2 WIDGET-ID 18
     begin_cust-no AT ROW 2.71 COL 21.6 COLON-ALIGNED WIDGET-ID 24
+    fi_sortby AT ROW 3.71 COL 143 COLON-ALIGNED NO-LABEL
     BROWSE-2 AT ROW 5.52 COL 6.8 WIDGET-ID 200
     "Filter" VIEW-AS TEXT
     SIZE 7 BY .62 AT ROW 1.29 COL 14 WIDGET-ID 30
@@ -176,7 +190,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1 ROW 1
-    SIZE 146 BY 28.57
+    SIZE 186 BY 28.57
     BGCOLOR 15  WIDGET-ID 100.
 
 
@@ -198,7 +212,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
         HIDDEN             = YES
         TITLE              = "Update Price Matrix OnLine"
         HEIGHT             = 28.57
-        WIDTH              = 147.6
+        WIDTH              = 187.6
         MAX-HEIGHT         = 33.57
         MAX-WIDTH          = 273.2
         VIRTUAL-HEIGHT     = 33.57
@@ -217,7 +231,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-RESUME
 
 
-
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -231,6 +244,12 @@ ASSIGN
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
     THEN C-Win:HIDDEN = NO.
+
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       fi_sortby:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -343,10 +362,13 @@ ON START-SEARCH OF BROWSE-2 IN FRAME DEFAULT-FRAME
                                         
             {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}    
         END.    
+            RUN startsearch.
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 
 &Scoped-define SELF-NAME btExit
@@ -370,9 +392,7 @@ ON CHOOSE OF btSave IN FRAME DEFAULT-FRAME /* Export */
             FIND FIRST oe-prmtx EXCLUSIVE-LOCK
                 WHERE ROWID(oe-prmtx) EQ eventRowID NO-ERROR .
             IF AVAILABLE oe-prmtx AND ttOePrmtx.onlineapply EQ YES THEN
-                ASSIGN oe-prmtx.online = YES .
-            ELSE IF AVAILABLE oe-prmtx AND ttOePrmtx.onlineapply EQ NO THEN 
-                    ASSIGN oe-prmtx.online = NO .
+                ASSIGN oe-prmtx.online = NOT oe-prmtx.online .
         END.
         RELEASE oe-prmtx .
     
@@ -429,7 +449,9 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK: 
+
+    {custom/yellowColumns.i}
     RUN enable_UI.
 
     

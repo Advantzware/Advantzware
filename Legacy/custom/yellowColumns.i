@@ -1382,6 +1382,22 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Status' THEN string(job.stat) ELSE ~
      string(job-hdr.job-no2,"9999") ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'ttOePrmtx' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Company' THEN string(ttOePrmtx.company) ELSE ~
+  IF sortColumn EQ 'Customer' THEN string(ttOePrmtx.cust-no)  ELSE ~
+  IF sortColumn EQ 'Effective Date' THEN STRING(YEAR(ttOePrmtx.eff-date),'9999') + ~
+                                   STRING(MONTH(ttOePrmtx.eff-date),'99') + ~
+                                   STRING(DAY(ttOePrmtx.eff-date),'99') ELSE ~
+  IF sortColumn EQ 'Exp Date' THEN STRING(YEAR(ttOePrmtx.exp-date),'9999') + ~
+                                   STRING(MONTH(ttOePrmtx.exp-date),'99') + ~
+                                   STRING(DAY(ttOePrmtx.exp-date),'99') ELSE ~
+  IF sortColumn EQ 'Ship Id' THEN string(ttOePrmtx.custShipID) ELSE ~
+  IF sortColumn EQ 'Item No' THEN string(ttOePrmtx.i-no) ELSE ~
+  IF sortColumn EQ 'Type' THEN string(ttOePrmtx.custype) ELSE ~
+  IF sortColumn EQ 'OnLine' THEN string(ttOePrmtx.online) ELSE ~
+     string(ttOePrmtx.procat) ~{&SORTED}
+
 
 /* btr - 02/15/2011  */
 &ELSEIF '{&yellowColumnsName}' EQ 'b-wipmach' &THEN
