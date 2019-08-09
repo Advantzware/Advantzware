@@ -65,19 +65,19 @@
       </tr>
       <tr class="shadedrow">
         <td>CREATE</td>
-        <td>create.trg/loc.p</td>
+        <td><a href="trg/loc_create.html">create.trg/loc.p</a></td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>DELETE</td>
-        <td>delete.trg/loc.p</td>
+        <td><a href="trg/loc_delete.html">delete.trg/loc.p</a></td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>WRITE</td>
-        <td>write.trg/loc.p</td>
+        <td><a href="trg/loc_write.html">write.trg/loc.p</a></td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
@@ -142,6 +142,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>110</td>
+    <td>division</td>
+    <td><a href="00-cross-d.html#division"><small>X</small></a></td>
+    <td>Division</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
     <td>30</td>
     <td>dscr</td>
     <td><a href="00-cross-d.html#dscr"><small>X</small></a></td>
@@ -152,7 +163,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>90</td>
     <td>handlingCost</td>
     <td><a href="00-cross-h.html#handlingCost"><small>X</small></a></td>
@@ -162,6 +173,17 @@
     <td>0</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>isAPIEnabled</td>
+    <td><a href="00-cross-i.html#isAPIEnabled"><small>X</small></a></td>
+    <td>API Enabled?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i><br>D: Flag to identify that a particular location is API enabled</td>
   </tr>
   <tr class="evenrow">
     <td>20</td>
@@ -175,6 +197,39 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>120</td>
+    <td>locationSquareFeet</td>
+    <td><a href="00-cross-l.html#locationSquareFeet"><small>X</small></a></td>
+    <td>Sq. Ft.</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>owner</td>
+    <td><a href="00-cross-o.html#owner"><small>X</small></a></td>
+    <td>Owner</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>palletCapacity</td>
+    <td><a href="00-cross-p.html#palletCapacity"><small>X</small></a></td>
+    <td>Pallet Capacity</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>60</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
@@ -185,7 +240,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>100</td>
     <td>storageCost</td>
     <td><a href="00-cross-s.html#storageCost"><small>X</small></a></td>
@@ -196,7 +251,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>50</td>
     <td>wc-uom</td>
     <td><a href="00-cross-w.html#wc-uom"><small>X</small></a></td>
@@ -207,7 +262,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>40</td>
     <td>whs-chg</td>
     <td><a href="00-cross-w.html#whs-chg"><small>X</small></a></td>
@@ -351,6 +406,61 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td>division</td>
+    <td><a href="00-cross-d.html#division"><small>X</small></a></td>
+    <td>Division</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td>locationSquareFeet</td>
+    <td><a href="00-cross-l.html#locationSquareFeet"><small>X</small></a></td>
+    <td>Sq. Ft.</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>palletCapacity</td>
+    <td><a href="00-cross-p.html#palletCapacity"><small>X</small></a></td>
+    <td>Pallet Capacity</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;,&gt;&gt;&gt;,&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>owner</td>
+    <td><a href="00-cross-o.html#owner"><small>X</small></a></td>
+    <td>Owner</td>
+    <td>character</td>
+    <td>x(12)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>150</td>
+    <td>isAPIEnabled</td>
+    <td><a href="00-cross-i.html#isAPIEnabled"><small>X</small></a></td>
+    <td>API Enabled?</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i><br>D: Flag to identify that a particular location is API enabled</td>
+  </tr>
 </table>
 </div>
 
@@ -417,7 +527,7 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="ce-ctrl.html">ce-ctrl</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; </td>
+      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-recei.html">rm-receipts</a>&nbsp;&nbsp; <a href="systemconfigusage.html">systemConfigUsage</a>&nbsp;&nbsp; <a href="usercontrol.html">userControl</a>&nbsp;&nbsp; <a href="usersman.html">usersman</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
   <table style="width:50%; float:left;">
@@ -431,7 +541,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 24-5-2019 11:47</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 9-8-2019 17:43</small></i></td></tr>
 </table>
 </body>
 </html>

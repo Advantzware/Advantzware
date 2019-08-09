@@ -78,7 +78,7 @@ IF iIndex = 0 THEN DO:
 END. 
 ELSE ASSIGN 
     cConnectDb = "-db c:\asigui\databases\compile\" + cDbName + " -1 -ld ASI"
-    cConnectAud = "-db c:\asigui\databases\compile\aud" + SUBSTRING(cDbName,4) + " -1 -ld Audit"
+    cConnectAud = "-db c:\asigui\databases\compile\" + replace(cDbName,"d","a") + " -1 -ld Audit"
     propath = cDir + "\Template\BuildScript\ToCompile," + cDir + "\Legacy," + cDir + "\Resources," + propath
     .
 

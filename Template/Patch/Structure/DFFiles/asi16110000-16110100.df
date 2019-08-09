@@ -1,0 +1,33 @@
+ADD FIELD "externalID" OF "APIInboundEvent" AS character
+  FORMAT "x(30)"
+  POSITION 13
+  INITIAL ""
+  ORDER 120
+  MAX-WIDTH 60
+
+ADD INDEX "externalID" ON "APIInboundEvent"
+  AREA "Data"
+  INDEX-FIELD "externalID" ASCENDING
+
+ADD FIELD "isAPIEnabled" OF "loc" AS logical
+  DESCRIPTION "Flag to identify that a particular location is API enabled"
+  FORMAT "yes/no"
+  POSITION 16
+  INITIAL "no"
+  LABEL "API Enabled?"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  ORDER 150
+  MAX-WIDTH 1
+
+ADD SEQUENCE "EventIDSeq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000601
