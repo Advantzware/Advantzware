@@ -2866,7 +2866,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditHdr.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 108000000 THEN 
+            IF etime GT 18000000 THEN 
                 LEAVE.
         END.
         RUN ipStatus ("      Deleting audit stack...").
@@ -2874,7 +2874,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditStack.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 108000000 THEN 
+            IF etime GT 18000000 THEN 
                 LEAVE.
         END.
         FOR EACH AuditTbl:
@@ -2898,7 +2898,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditHdr.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 108000000 THEN 
+            IF etime GT 18000000 THEN 
                 LEAVE.
         END.
     END.
@@ -5602,7 +5602,7 @@ FUNCTION fIntVer RETURNS INTEGER
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])
-        iIntVal[3] = IF INT(cStrVal[3]) LT 10 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[3] = IF LENGTH(cStrVal[3]) EQ 1 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
         iIntVal[4] = INT(cStrVal[4])
         iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.
