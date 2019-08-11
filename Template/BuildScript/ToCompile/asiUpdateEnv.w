@@ -2866,7 +2866,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditHdr.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 18000000 THEN 
+            IF etime GT 1800000 THEN 
                 LEAVE.
         END.
         RUN ipStatus ("      Deleting audit stack...").
@@ -2874,7 +2874,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditStack.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 18000000 THEN 
+            IF etime GT 1800000 THEN 
                 LEAVE.
         END.
         FOR EACH AuditTbl:
@@ -2898,7 +2898,7 @@ PROCEDURE ipDeleteAudit :
             DELETE AuditHdr.
             ASSIGN
                 iDelCount = iDelCount + 1.
-            IF etime GT 18000000 THEN 
+            IF etime GT 1800000 THEN 
                 LEAVE.
         END.
     END.
