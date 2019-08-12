@@ -234,6 +234,7 @@ PROCEDURE assignOrderHeader:
               AND sys-ctrl-shipto.cust-vend EQ YES
               AND sys-ctrl-shipto.cust-vend-no EQ cust.cust-no
             NO-ERROR.
+        /* 52995 DSG Automated Ship To Creation */            
         IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.char-fld NE '' THEN DO:
             shipToID = REPLACE(shipToID, sys-ctrl-shipto.char-fld, "").
             oe-ord.ship-id   = shipToID.
@@ -777,6 +778,7 @@ PROCEDURE gencXMLOrder:
  
       ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
       
+      /* 52995 DSG Automated Ship To Creation */
       /* Turn off auto-approve for orders (temporary fix for Premier)
       RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).
       */
