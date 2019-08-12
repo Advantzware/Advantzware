@@ -44,6 +44,7 @@ DEF TEMP-TABLE temp-rec NO-UNDO
     INDEX temp-rec-idx trans-date ASC.
 
 DEF BUFFER b-po-ord FOR po-ord.
+DEF BUFFER b-po-ordl FOR po-ordl.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -337,11 +338,16 @@ PROCEDURE populate-tt :
         b-po-ord.po-no EQ ip-po-no
         NO-LOCK NO-ERROR.
 
-   IF AVAIL b-po-ord THEN
-      FOR EACH fg-rcpth FIELDS(r-no rita-code i-no job-no
+   IF AVAIL b-po-ord THEN DO:
+      FOR EACH b-po-ordl NO-LOCK 
+        WHERE b-po-ordl.company EQ cocode
+          AND b-po-ordl.po-no EQ ip-po-no
+        ,
+       EACH fg-rcpth FIELDS(r-no rita-code i-no job-no
           job-no2 trans-date) WHERE
           fg-rcpth.company EQ cocode AND
           fg-rcpth.po-no EQ v-po-no AND
+          fg-rcpth.i-no EQ b-po-ordl.i-no AND
           LOOKUP(fg-rcpth.rita-code,"R,E") > 0
           NO-LOCK,
           EACH fg-rdtlh FIELDS(loc loc-bin qty tag) WHERE
@@ -361,7 +367,7 @@ PROCEDURE populate-tt :
 
           RELEASE temp-rec.
       END.
-
+   END. 
    {&open-query-browse-4}
 END PROCEDURE.
 
