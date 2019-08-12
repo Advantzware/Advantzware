@@ -1482,9 +1482,6 @@ PROCEDURE get-first-date :
       WHERE fg-rdtlh.company   EQ fg-bin.company
         AND fg-rdtlh.rita-code EQ "R"
         AND fg-rdtlh.tag       EQ fg-bin.tag
-        AND (TRIM(fg-bin.job-no) NE "" OR
-             (fg-rdtlh.loc     EQ fg-bin.loc     AND
-              fg-rdtlh.loc-bin EQ fg-bin.loc-bin))
       USE-INDEX tag NO-LOCK,
 
       EACH fg-rcpth
