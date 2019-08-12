@@ -1680,7 +1680,9 @@ PROCEDURE check-cr-bal :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
+  DEFINE VARIABLE cInvoiceList AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cOrderList AS CHARACTER NO-UNDO.
+    {methods/lValidateError.i YES}
 IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)" 
   THEN do: 
     IF AVAIL cust AND cust.acc-bal GT 0 THEN DO:
@@ -1693,33 +1695,43 @@ IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)"
         APPLY "entry" TO cust.active .
       RETURN ERROR.
     END.
-    FIND FIRST ar-inv NO-LOCK 
+
+    cInvoiceList = "".
+    FOR EACH ar-inv NO-LOCK 
         WHERE ar-inv.company EQ cust.company
           AND ar-inv.cust-no EQ cust.cust-no 
-          AND ar-inv.posted EQ NO NO-ERROR .
-    IF AVAIL ar-inv THEN DO:
-        MESSAGE 
-        "Customer " + cust.cust-no + " - " + cust.NAME 
-        " has at least one Open Invoice ." SKIP 
-        "You can not make it Inactive. Please select another status."
-       VIEW-AS ALERT-BOX ERROR.
+          AND ar-inv.posted EQ NO BREAK BY ar-inv.inv-no :
 
-        APPLY "entry" TO cust.active .
-      RETURN ERROR.
-    END.      
-    FIND FIRST oe-ord NO-LOCK
+        cInvoiceList = cInvoiceList + string(ar-inv.inv-no) + ",".
+        IF LAST(ar-inv.inv-no) THEN DO:
+            MESSAGE 
+                "Customer " + cust.cust-no + " - " + cust.NAME 
+                " has at least one Open Invoice ." SKIP 
+                "You can not make it Inactive. Please select another status." SKIP
+                "Inv List: " cInvoiceList
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cust.active .
+            RETURN ERROR.
+        END.
+    END.
+
+    cOrderList = "".
+    FOR EACH oe-ord NO-LOCK
         WHERE oe-ord.company EQ cust.company
           AND oe-ord.cust-no EQ cust.cust-no
-          AND INDEX("CZ",oe-ord.stat) EQ 0 NO-ERROR.
-    IF AVAIL oe-ord THEN DO:
-        MESSAGE 
-        "Customer " + cust.cust-no + " - " + cust.NAME 
-        " has at least one Open Order ." SKIP 
-        "You can not make it Inactive. Please select another status."
-       VIEW-AS ALERT-BOX ERROR.
+          AND INDEX("CZ",oe-ord.stat) EQ 0 BREAK BY oe-ord.ord-no:
 
-        APPLY "entry" TO cust.active .
-      RETURN ERROR.
+        cOrderList = cOrderList + STRING(oe-ord.ord-no) + ",".
+
+        IF LAST(oe-ord.ord-no) THEN DO:
+            MESSAGE "Customer " + cust.cust-no + " - " + cust.NAME 
+                " has at least one Open Order ." SKIP 
+                "You can not make it Inactive. Please select another status." SKIP
+                "Order List: " cOrderList
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cust.active .
+            RETURN ERROR.
+        END.
     END.
 END.
 
