@@ -235,7 +235,8 @@ PROCEDURE assignOrderHeader:
               AND sys-ctrl-shipto.cust-vend-no EQ cust.cust-no
             NO-ERROR.
         IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.char-fld NE '' THEN DO:
-           shipToID = TRIM(shipToID, sys-ctrl-shipto.char-fld).
+            shipToID = REPLACE(shipToID, sys-ctrl-shipto.char-fld, "").
+            oe-ord.ship-id   = shipToID.
         END.
         IF NOT CAN-FIND(FIRST shipto
                         WHERE shipto.company EQ oe-ord.company
@@ -270,7 +271,6 @@ PROCEDURE assignOrderHeader:
                              ELSE ""
             shipto.dest-code = IF AVAIL(bf-shipto) THEN bf-shipto.dest-code 
                              ELSE ""
-            oe-ord.ship-id   = shipto.ship-id  /*31899 - apply oe-ord.ship-id after prefix is trimmed*/
             .
     /* 10061401 */
     /*         FIND FIRST stax                          */
@@ -777,8 +777,9 @@ PROCEDURE gencXMLOrder:
  
       ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
       
+      /* Turn off auto-approve for orders (temporary fix for Premier)
       RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).
-      
+      */
   END. 
   
   RELEASE oe-ord.  
