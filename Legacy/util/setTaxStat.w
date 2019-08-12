@@ -55,20 +55,33 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel btnOK cStartCustNo cEndCustNo ~
-lCustTaxable lShipToTaxable lOrderTaxable lInvoiceTaxable lFGItemTaxable ~
-lPrepDieTaxable 
-&Scoped-Define DISPLAYED-OBJECTS cStartCustNo cEndCustNo cCust lCustTaxable ~
-cShipTo lShipToTaxable cOrder lOrderTaxable cInvoice lInvoiceTaxable ~
-cFGItem lFGItemTaxable cPrepDie lPrepDieTaxable 
+&Scoped-Define ENABLED-OBJECTS btnCancel cStartCustNo cEndCustNo cTaxGroup ~
+btnOK lCustTaxable lShipToTaxable lOrderTaxable lInvoiceTaxable ~
+lFGItemTaxable lPrepDieTaxable 
+&Scoped-Define DISPLAYED-OBJECTS cStartCustNo cEndCustNo cTaxGroup cCust ~
+lCustTaxable cShipTo lShipToTaxable cOrder lOrderTaxable cInvoice ~
+lInvoiceTaxable cFGItem lFGItemTaxable cPrepDie lPrepDieTaxable 
 
 /* Custom List Definitions                                              */
 /* TaxableFields,List-2,List-3,List-4,List-5,List-6                     */
-&Scoped-define TaxableFields cStartCustNo cEndCustNo lCustTaxable ~
+&Scoped-define TaxableFields cStartCustNo cEndCustNo cTaxGroup lCustTaxable ~
 lShipToTaxable lOrderTaxable lInvoiceTaxable lFGItemTaxable lPrepDieTaxable 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetDone C-Win
+FUNCTION fSetDone RETURNS LOGICAL 
+  (iphWidget AS HANDLE) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -87,7 +100,7 @@ DEFINE BUTTON btnCancel
 DEFINE BUTTON btnOK AUTO-GO 
      IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
      LABEL "" 
-     SIZE 9 BY 1.9 TOOLTIP "Save"
+     SIZE 9 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 .
 
 DEFINE VARIABLE cCust AS CHARACTER FORMAT "X(256)":U 
@@ -123,6 +136,11 @@ DEFINE VARIABLE cStartCustNo AS CHARACTER FORMAT "X(8)":U
      LABEL "Start Customer" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cTaxGroup AS CHARACTER FORMAT "X(3)":U 
+     LABEL "Tax Group" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-18
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -164,12 +182,14 @@ DEFINE VARIABLE lShipToTaxable AS LOGICAL INITIAL no
 DEFINE FRAME DEFAULT-FRAME
      btnCancel AT ROW 14.57 COL 70 HELP
           "Cancel" WIDGET-ID 66
-     btnOK AT ROW 14.57 COL 61 HELP
-          "Set Selections Taxable" WIDGET-ID 68
      cStartCustNo AT ROW 2.43 COL 28 COLON-ALIGNED HELP
           "Enter Start Customer Number" WIDGET-ID 2
      cEndCustNo AT ROW 3.62 COL 28 COLON-ALIGNED HELP
           "Enter End Customer Number" WIDGET-ID 4
+     cTaxGroup AT ROW 4.81 COL 28 COLON-ALIGNED HELP
+          "Enter Tax Group" WIDGET-ID 84
+     btnOK AT ROW 14.57 COL 61 HELP
+          "Set Selections Taxable" WIDGET-ID 68
      cCust AT ROW 6 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 82
      lCustTaxable AT ROW 6 COL 30 HELP
           "Toggle to Set Customers Taxable" WIDGET-ID 8
@@ -257,6 +277,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cStartCustNo IN FRAME DEFAULT-FRAME
    1                                                                    */
+/* SETTINGS FOR FILL-IN cTaxGroup IN FRAME DEFAULT-FRAME
+   1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX lCustTaxable IN FRAME DEFAULT-FRAME
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX lFGItemTaxable IN FRAME DEFAULT-FRAME
@@ -324,7 +346,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK C-Win
 ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME
 DO:
-    ASSIGN {&TaxableFields}.
     RUN pSetTaxable.
 END.
 
@@ -332,18 +353,27 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lFGItemTaxable
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lFGItemTaxable C-Win
-ON VALUE-CHANGED OF lFGItemTaxable IN FRAME DEFAULT-FRAME /* Set All FG items Taxable */
+&Scoped-define SELF-NAME cTaxGroup
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cTaxGroup C-Win
+ON LEAVE OF cTaxGroup IN FRAME DEFAULT-FRAME /* Tax Group */
 DO:
-  
+    IF NOT CAN-FIND(FIRST stax-group
+                    WHERE stax-group.company   EQ g_company
+                      AND stax-group.tax-group EQ SELF:SCREEN-VALUE) THEN DO:
+        MESSAGE
+            "Invalid Tax Group, Please Try Again."
+        VIEW-AS ALERT-BOX ERROR.
+        SELF:SCREEN-VALUE = "".
+        APPLY "ENTRY":U TO SELF.
+        RETURN NO-APPLY.
+    END. /* if not can-find */
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-
+&Scoped-define SELF-NAME lFGItemTaxable
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -409,12 +439,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cStartCustNo cEndCustNo cCust lCustTaxable cShipTo lShipToTaxable 
-          cOrder lOrderTaxable cInvoice lInvoiceTaxable cFGItem lFGItemTaxable 
-          cPrepDie lPrepDieTaxable 
+  DISPLAY cStartCustNo cEndCustNo cTaxGroup cCust lCustTaxable cShipTo 
+          lShipToTaxable cOrder lOrderTaxable cInvoice lInvoiceTaxable cFGItem 
+          lFGItemTaxable cPrepDie lPrepDieTaxable 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnCancel btnOK cStartCustNo cEndCustNo lCustTaxable lShipToTaxable 
-         lOrderTaxable lInvoiceTaxable lFGItemTaxable lPrepDieTaxable 
+  ENABLE btnCancel cStartCustNo cEndCustNo cTaxGroup btnOK lCustTaxable 
+         lShipToTaxable lOrderTaxable lInvoiceTaxable lFGItemTaxable 
+         lPrepDieTaxable 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -440,27 +471,30 @@ PROCEDURE pSetTaxable :
     
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
+            {&TaxableFields}
             cCust:SCREEN-VALUE    = ""
             cShipTo:SCREEN-VALUE  = ""
             cOrder:SCREEN-VALUE   = ""
             cInvoice:SCREEN-VALUE = ""
             cFGItem:SCREEN-VALUE  = ""
             cPrepDie:SCREEN-VALUE = ""
-            cCust:BGCOLOR         = IF lCustTaxable   THEN 14 ELSE ?
-            cShipTo:BGCOLOR       = IF lShipToTaxable THEN 14 ELSE ?
+            cCust:BGCOLOR         = IF cTaxGroup NE "" OR lCustTaxable   THEN 14 ELSE ?
+            cShipTo:BGCOLOR       = IF cTaxGroup NE "" OR lShipToTaxable THEN 14 ELSE ?
             cOrder:BGCOLOR        = ?
             cInvoice:BGCOLOR      = ?
             cFGItem:BGCOLOR       = ?
             cPrepDie:BGCOLOR      = ?
             .
         DO TRANSACTION:
-            IF lCustTaxable OR lShipToTaxable OR lOrderTaxable OR lInvoiceTaxable THEN
+            IF cTaxGroup NE "" OR lCustTaxable OR lShipToTaxable OR lOrderTaxable OR lInvoiceTaxable THEN
             FOR EACH cust
                 WHERE cust.company EQ g_company
                   AND cust.cust-no GE cStartCustNo
                   AND cust.cust-no LE cEndCustNo
                 :
                 cCust:SCREEN-VALUE = cust.cust-no.
+                IF cTaxGroup NE "" THEN
+                cust.tax-gr = cTaxGroup.
                 IF lCustTaxable THEN
                 cust.sort = "Y".
                 FOR EACH shipto
@@ -468,51 +502,46 @@ PROCEDURE pSetTaxable :
                       AND shipto.cust-no GE cust.cust-no
                     :
                     cShipTo:SCREEN-VALUE = shipto.cust-no + " - " + STRING(shipto.ship-no).
-                    IF lShipToTaxable THEN DO:
-                        IF shipto.tax-code EQ "" THEN
-                        shipto.tax-code = cust.tax-gr.
-                        IF shipto.tax-code NE "" THEN
-                        shipto.tax-mandatory = YES.
-                    END. /* if lshiptotaxable */
-                    IF lOrderTaxable THEN DO:
+                    IF cTaxGroup NE "" THEN
+                    shipto.tax-code = cTaxGroup.
+                    IF lShipToTaxable THEN
+                    shipto.tax-mandatory = YES.
+                    IF lOrderTaxable OR cTaxGroup NE "" THEN DO:
                         cOrder:BGCOLOR = 14.
                         FOR EACH oe-ord EXCLUSIVE-LOCK
                             WHERE oe-ord.company EQ cust.company
                               AND oe-ord.cust-no EQ cust.cust-no
                               AND oe-ord.ship-id EQ shipto.ship-id
                             :
+                            IF cTaxGroup NE "" THEN
                             ASSIGN
                                 cOrder:SCREEN-VALUE = STRING(oe-ord.ord-no)
-                                oe-ord.tax-gr = shipto.tax-code
+                                oe-ord.tax-gr = cTaxGroup
                                 .
-                            IF oe-ord.tax-gr NE "" THEN DO:
-                                FOR EACH oe-ordl EXCLUSIVE-LOCK
-                                    WHERE oe-ordl.company EQ oe-ord.company
-                                      AND oe-ordl.ord-no  EQ oe-ord.ord-no
-                                    :
-                                    ASSIGN
-                                        cOrder:SCREEN-VALUE = STRING(oe-ordl.ord-no) + " - " + STRING(oe-ordl.line)
-                                        oe-ordl.tax = YES
-                                        .
-                                END. /* each oe-ordl */
-                                FOR EACH oe-ordm EXCLUSIVE-LOCK
-                                    WHERE oe-ordm.company EQ oe-ord.company
-                                      AND oe-ordm.ord-no  EQ oe-ord.ord-no
-                                    :
-                                    ASSIGN
-                                        cOrder:SCREEN-VALUE = STRING(oe-ordm.ord-no) + " - " + STRING(oe-ordm.line) + " - " + oe-ordm.charge
-                                        oe-ordm.spare-char-1 = oe-ord.tax-gr
-                                        oe-ordm.tax = YES
-                                        .                
-                                END. /* each oe-ordm */
-                            END. /* if oe-ord.tax-gr */
+                            FOR EACH oe-ordl EXCLUSIVE-LOCK
+                                WHERE oe-ordl.company EQ oe-ord.company
+                                  AND oe-ordl.ord-no  EQ oe-ord.ord-no
+                                :
+                                IF lOrderTaxable THEN
+                                ASSIGN
+                                    cOrder:SCREEN-VALUE = STRING(oe-ordl.ord-no) + " - " + STRING(oe-ordl.line)
+                                    oe-ordl.tax = YES
+                                    .
+                            END. /* each oe-ordl */
+                            FOR EACH oe-ordm EXCLUSIVE-LOCK
+                                WHERE oe-ordm.company EQ oe-ord.company
+                                  AND oe-ordm.ord-no  EQ oe-ord.ord-no
+                                :
+                                cOrder:SCREEN-VALUE = STRING(oe-ordm.ord-no) + " - " + STRING(oe-ordm.line) + " - " + oe-ordm.charge.
+                                IF cTaxGroup NE "" THEN
+                                oe-ordm.spare-char-1 = cTaxGroup.
+                                IF lOrderTaxable THEN
+                                oe-ordm.tax = YES.                
+                            END. /* each oe-ordm */
                         END. /* each oe-ord */
-                        ASSIGN
-                            cOrder:BGCOLOR = 10
-                            cOrder:SCREEN-VALUE = "Done."
-                            .
+                        fSetDone (cOrder:HANDLE).
                     END. /* if lordertaxable */
-                    IF lInvoiceTaxable THEN DO:
+                    IF lInvoiceTaxable OR cTaxGroup NE "" THEN DO:
                         cInvoice:BGCOLOR = 14.
                         FOR EACH inv-head EXCLUSIVE-LOCK
                             WHERE inv-head.company EQ cust.company
@@ -520,11 +549,12 @@ PROCEDURE pSetTaxable :
                               AND inv-head.sold-no EQ shipto.ship-id
                               AND inv-head.posted  EQ NO
                             :
+                            IF cTaxGroup NE "" THEN
                             ASSIGN
                                 cInvoice:SCREEN-VALUE = STRING(inv-head.inv-no)
-                                inv-head.tax-gr = shipto.tax-code
+                                inv-head.tax-gr = cTaxGroup
                                 .
-                            IF inv-head.tax-gr NE "" THEN
+                            IF lInvoiceTaxable THEN
                             FOR EACH inv-line EXCLUSIVE-LOCK
                                 WHERE inv-line.company EQ inv-head.company
                                   AND inv-line.ord-no  EQ inv-head.inv-no
@@ -535,27 +565,18 @@ PROCEDURE pSetTaxable :
                                     .
                             END. /* each inv-line */
                         END. /* each inv-head */
-                        ASSIGN
-                            cInvoice:BGCOLOR = 10
-                            cInvoice:SCREEN-VALUE = "Done."
-                            .
+                        fSetDone (cInvoice:HANDLE).
                     END. /* if linvoicetaxable */
                 END. /* each shipto */
-                IF lShipToTaxable THEN
-                ASSIGN
-                    cShipTo:BGCOLOR = 10
-                    cShipTo:SCREEN-VALUE = "Done."
-                    .
+                IF lShipToTaxable OR cTaxGroup NE "" THEN
+                fSetDone (cShipTo:HANDLE).
                 ELSE
                 cShipTo:SCREEN-VALUE = "".
             END. /* each cust */
-            IF lCustTaxable THEN
-            ASSIGN
-                cCust:BGCOLOR = 10
-                cCust:SCREEN-VALUE = "Done."
-                .
-                ELSE
-                cCust:SCREEN-VALUE = "".
+            IF lCustTaxable OR cTaxGroup NE "" THEN
+            fSetDone (cCust:HANDLE).
+            ELSE
+            cCust:SCREEN-VALUE = "".
         END. /* do trans */
         
         IF lFGItemTaxable THEN DO WITH TRANSACTION:
@@ -569,10 +590,7 @@ PROCEDURE pSetTaxable :
                     itemfg.taxable = YES
                     .
             END. /* each prep */
-            ASSIGN
-                cFGItem:BGCOLOR = 10
-                cFGItem:SCREEN-VALUE = "Done."
-                .
+            fSetDone (cFGItem:HANDLE).
         END.
 
         IF lPrepDieTaxable THEN DO WITH TRANSACTION:
@@ -585,10 +603,7 @@ PROCEDURE pSetTaxable :
                     prep.taxable = YES
                     .
             END. /* each prep */
-            ASSIGN
-                cPrepDie:BGCOLOR = 10
-                cPrepDie:SCREEN-VALUE = "Done."
-                .
+            fSetDone (cPrepDie:HANDLE).
         END.
     END. /* do frame */
 
@@ -597,3 +612,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetDone C-Win
+FUNCTION fSetDone RETURNS LOGICAL 
+  (iphWidget AS HANDLE):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    ASSIGN
+        iphWidget:BGCOLOR = 10
+        iphWidget:SCREEN-VALUE = "Done."
+        .
+    RETURN TRUE.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
