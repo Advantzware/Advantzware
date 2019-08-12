@@ -1865,8 +1865,10 @@ PROCEDURE create-from-po :
     DEFINE VARIABLE iCount               AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ld                   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE li                   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lv-rno               LIKE fg-rctd.r-no NO-UNDO.
+    DEFINE VARIABLE lv-rno             LIKE fg-rctd.r-no NO-UNDO.
     DEFINE VARIABLE rwRowid              AS ROWID     NO-UNDO.
+    DEFINE VARIABLE v-next-tag           AS CHARACTER NO-UNDO.
+    
     DEFINE BUFFER b-fg-rctd FOR fg-rctd.
 
     poSelected = 0.
@@ -1949,6 +1951,12 @@ PROCEDURE create-from-po :
                 fg-rctd.ext-cost = dCostExtended
                 fg-rctd.frt-cost = dCostExtendedFreight
                 .
+            IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
+            DO:
+                RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).
+                RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
+                fg-rctd.tag = v-next-tag.
+            END.
             IF rwRowid EQ ? THEN
                 rwRowid = ROWID(fg-rctd) .
             RELEASE fg-rctd.
