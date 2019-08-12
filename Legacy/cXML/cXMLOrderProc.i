@@ -577,7 +577,7 @@ PROCEDURE genOrderLines:
           oe-ordl.spare-dec-1 = oe-ordl.qty
           oe-ordl.spare-char-2 = oe-ordl.pr-uom
           oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
-          oe-ordl.pr-uom = (IF LOOKUP(cCaseUOMList, oe-ordl.pr-uom) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
+          oe-ordl.pr-uom = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
           .
         IF oe-ordl.pr-uom EQ "CS" THEN
             oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
