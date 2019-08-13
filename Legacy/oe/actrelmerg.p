@@ -774,18 +774,18 @@ PROCEDURE pFindMatchingRelh :
         
         
         /* Check that the fob desc for this oe-relh matches that of oe-rel */
-        IF cRefDscr GT "" THEN
-        DO:
-           FOR EACH b2-oe-rell NO-LOCK 
-                WHERE b2-oe-rell.r-no EQ oe-relh.r-no
-                :
-               cFobDscr2 = b2-oe-rell.fob-code.
-               /* Find of fob description for this oe-rell */
-               IF (cFobDscr2 GT "" AND cFobDscr2 NE cRefDscr) OR
-                  (cFobDscr2 EQ "" AND cRefDscr NE "") THEN
-                  NEXT oe-relh-loop.
-           END.
-        END.
+/*        IF cRefDscr GT "" THEN                                  */
+/*        DO:                                                     */
+/*           FOR EACH b2-oe-rell NO-LOCK                          */
+/*                WHERE b2-oe-rell.r-no EQ oe-relh.r-no           */
+/*                :                                               */
+/*               cFobDscr2 = b2-oe-rell.fob-code.                 */
+/*               /* Find of fob description for this oe-rell */   */
+/*               IF (cFobDscr2 GT "" AND cFobDscr2 NE cRefDscr) OR*/
+/*                  (cFobDscr2 EQ "" AND cRefDscr NE "") THEN     */
+/*                  NEXT oe-relh-loop.                            */
+/*           END.                                                 */
+/*        END.                                                    */
         rOeRelhRow = ROWID(oe-relh).
         
         LEAVE oe-relh-loop.
