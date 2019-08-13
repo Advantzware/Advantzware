@@ -129,7 +129,7 @@ tb_printed tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted ~
 tb_more rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component ~
 begin_loc end_loc begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt ~
 lines-per-page lv-font-no tgMultipleReleases td-show-parm tb_post-rel ~
-btn-ok btn-cancel run_format
+run_format btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no tb_excl_cust ~
 begin_relnum end_relnum begin_ord-no end_ord-no begin_date end_date ~
 begin_del-zone end_del-zone begin_whse end_whse tb_printed tb_exl-tg-bin ~
@@ -137,7 +137,7 @@ tb_print-qty-uom tb_print-spec tb_sort-rel fi_specs tb_posted tb_more ~
 rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc ~
 end_loc tb_prt-part-no tb_pricing begin_loc-bin end_loc-bin tb_whs-bin-sort ~
 rd-dest lv-ornt lines-per-page lv-font-no lv-font-name tgMultipleReleases ~
-td-show-parm tb_post-rel run_format
+td-show-parm tb_post-rel run_format 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -257,6 +257,11 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "15"
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -279,7 +284,8 @@ DEFINE VARIABLE rd-print-what AS CHARACTER INITIAL "I"
      VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "Print All Tags in Item Bin Locations", "I",
-"Print Only Tags on Release", "R"
+"Print Only Tags on Release", "R",
+"Summary of Bins On Hand", "S"
      SIZE 39 BY 2.86 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
@@ -335,7 +341,7 @@ DEFINE VARIABLE tb_print-component AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 41 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_print-qty-uom AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_print-qty-uom AS LOGICAL INITIAL yes 
      LABEL "Print Order Qty/UOM?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24.2 BY 1 NO-UNDO.
@@ -385,10 +391,6 @@ DEFINE VARIABLE tgMultipleReleases AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
-     LABEL "Format" 
-     VIEW-AS FILL-IN 
-     SIZE 25 BY 1 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -420,7 +422,7 @@ DEFINE FRAME FRAME-A
           "Enter Ending Warehouse Number" WIDGET-ID 6
      tb_printed AT ROW 8.33 COL 6
      tb_exl-tg-bin AT ROW 8.33 COL 53
-     tb_print-qty-uom AT ROW 8.50 COL 48.8 WIDGET-ID 16
+     tb_print-qty-uom AT ROW 8.52 COL 48.8 WIDGET-ID 16
      tb_print-spec AT ROW 8.86 COL 46.6 WIDGET-ID 10
      tb_sort-rel AT ROW 8.86 COL 52.8 WIDGET-ID 14
      fi_specs AT ROW 8.86 COL 70 COLON-ALIGNED HELP
@@ -448,18 +450,18 @@ DEFINE FRAME FRAME-A
           "parm" WIDGET-ID 2
      td-show-parm AT ROW 22.67 COL 30
      tb_post-rel AT ROW 22.67 COL 64
-     run_format AT ROW 23.77 COL 62 COLON-ALIGNED WIDGET-ID 12
+     run_format AT ROW 23.76 COL 62 COLON-ALIGNED WIDGET-ID 12
      btn-ok AT ROW 25.29 COL 21
      btn-cancel AT ROW 25.29 COL 59
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 17.33 COL 4
+     "To" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 13.48 COL 85
+     "From" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 13.48 COL 67
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 4.2
           BGCOLOR 2 
-     "From" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 13.48 COL 67
-     "To" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 13.48 COL 85
      RECT-6 AT ROW 17.19 COL 1
      RECT-7 AT ROW 1.19 COL 1
      RECT-9 AT ROW 10.14 COL 48
@@ -1239,6 +1241,43 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME run_format
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON HELP OF run_format IN FRAME FRAME-A /* Format */
+DO:
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
+    
+    RUN windows/l-syschrL.w (gcompany,"RELPRINT",run_format:SCREEN-VALUE,OUTPUT char-val).
+     IF char-val NE '' THEN
+      run_format:SCREEN-VALUE = ENTRY(1,char-val).
+     IF v-relprint NE run_format:SCREEN-VALUE THEN DO:
+       ASSIGN v-relprint =  run_format:SCREEN-VALUE
+              vcDefaultForm = v-relprint.
+      RUN  pRunFormatValueChanged .
+     END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
+ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
+DO:
+   ASSIGN run_format.
+
+   IF v-relprint NE run_format THEN DO:
+       ASSIGN v-relprint =  run_format
+              vcDefaultForm = v-relprint.
+      RUN  pRunFormatValueChanged .
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_excl_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excl_cust C-Win
 ON VALUE-CHANGED OF tb_excl_cust IN FRAME FRAME-A /* Exclude Specific Customers */
@@ -1436,41 +1475,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME run_format
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
-ON LEAVE OF run_format IN FRAME FRAME-A /* Warehouse Months */
-DO:
-   ASSIGN run_format.
-
-   IF v-relprint NE run_format THEN DO:
-       ASSIGN v-relprint =  run_format
-              vcDefaultForm = v-relprint.
-      RUN  pRunFormatValueChanged .
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME run_format
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
-ON HELP OF run_format IN FRAME FRAME-A /* Font */
-DO:
-    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
-    
-    RUN windows/l-syschrL.w (gcompany,"RELPRINT",run_format:SCREEN-VALUE,OUTPUT char-val).
-     IF char-val NE '' THEN
-      run_format:SCREEN-VALUE = ENTRY(1,char-val).
-     IF v-relprint NE run_format:SCREEN-VALUE THEN DO:
-       ASSIGN v-relprint =  run_format:SCREEN-VALUE
-              vcDefaultForm = v-relprint.
-      RUN  pRunFormatValueChanged .
-     END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1888,7 +1892,7 @@ PROCEDURE enable_UI :
           rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component 
           begin_loc end_loc tb_prt-part-no tb_pricing begin_loc-bin end_loc-bin 
           tb_whs-bin-sort rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          tgMultipleReleases td-show-parm tb_post-rel run_format
+          tgMultipleReleases td-show-parm tb_post-rel run_format 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-9 begin_cust-no end_cust-no tb_excl_cust 
          begin_relnum end_relnum begin_ord-no end_ord-no begin_date end_date 
@@ -1897,7 +1901,7 @@ PROCEDURE enable_UI :
          rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component 
          begin_loc end_loc begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest 
          lv-ornt lines-per-page lv-font-no tgMultipleReleases td-show-parm 
-         tb_post-rel btn-ok btn-cancel run_format
+         tb_post-rel run_format btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2055,6 +2059,158 @@ FIND CURRENT itemfg NO-LOCK NO-ERROR.
 FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
 FIND CURRENT upd-oe-relh NO-LOCK NO-ERROR.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
+PROCEDURE pRunFormatValueChanged :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+
+     IF v-relprint EQ "PremierX"
+        OR v-relprint EQ "NSTOCK" 
+        OR v-relprint EQ "Lakeside"
+        OR v-relprint EQ "Distributor"
+        OR v-relprint EQ "Axis"
+        OR v-relprint EQ "Frank" 
+        OR v-relprint EQ "Protagon" 
+        OR v-relprint EQ "Soule"
+        OR v-relprint EQ "StClair"
+        OR v-relprint EQ "Midwest"
+        OR v-relprint EQ "Relprint 10" THEN DO:
+/*         rd-print-what:DELETE("Summary of Bins On Hand") NO-ERROR.*/
+/*         rd-print-what:ADD-LAST("Summary of Bins On Hand","S").   */
+     END.
+     ELSE rd-print-what:DELETE("Summary of Bins On Hand") NO-ERROR.
+
+       
+     IF v-relprint EQ "Prystup" OR v-relprint EQ "NStock" THEN
+         ASSIGN  rd-print-what:SCREEN-VALUE = "R"
+            rd-print-what = "R".
+    
+    IF v-relprint EQ "Xprint" OR v-relprint EQ "relprint 1" THEN
+       tb_prt-part-no:SENSITIVE = YES.
+    ELSE tb_prt-part-no:SENSITIVE = NO.
+
+    IF v-relprint EQ "Hughes" THEN
+       tb_exl-tg-bin:HIDDEN = NO.
+    ELSE
+       tb_exl-tg-bin:HIDDEN = YES.
+
+     IF v-relprint NE "PremierX" THEN
+         tb_sort-rel:HIDDEN = YES .
+     ELSE tb_sort-rel:HIDDEN = NO .
+
+    IF v-relprint NE "Argrov" THEN
+      ASSIGN
+       tb_zone-s:SENSITIVE = NO
+       tb_zone-p:SENSITIVE = NO.
+    ELSE ASSIGN
+       tb_zone-s:SENSITIVE = YES
+       tb_zone-p:SENSITIVE = YES.
+
+    IF v-relprint = "NStock" OR v-relprint = "Axis" THEN
+        ASSIGN
+        tb_p-bin:SENSITIVE = NO .
+    ELSE tb_p-bin:SENSITIVE = YES .
+
+    IF v-relprint = "Axis" THEN
+      ASSIGN 
+        tb_print-spec:HIDDEN = NO
+        fi_specs:HIDDEN = NO.
+    ELSE
+      ASSIGN 
+        tb_print-spec:HIDDEN = YES
+        fi_specs:HIDDEN = YES.
+
+
+    IF v-relprint EQ "Sonoco" 
+       /* gdm - 10080912 */
+       OR v-relprint EQ "Rosmar" 
+        THEN
+       tb_whs-bin-sort:SENSITIVE = YES.
+    ELSE
+       ASSIGN
+          tb_whs-bin-sort:SENSITIVE = NO
+          tb_whs-bin-sort:SCREEN-VALUE = "NO".
+
+    IF v-relprint EQ "StClair" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO
+            rd-print-what:SCREEN-VALUE = "I"
+            rd-print-what = "I" 
+            tb_p-bin:SCREEN-VALUE = "Yes"
+            tb_p-bin:SENSITIVE = NO 
+            tb_p-bin = YES.
+
+    IF v-relprint EQ "Midwest" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO
+            rd-print-what:SCREEN-VALUE = "I"
+            rd-print-what = "I" 
+            tb_p-bin:SCREEN-VALUE = "Yes"
+            tb_p-bin:SENSITIVE = NO 
+            tb_p-bin = YES.
+
+    IF LOOKUP(v-relprint,"Carded") > 0 THEN
+       ASSIGN rd-print-what:sensitive = YES
+              begin_loc:SENSITIVE = IF rd-print-what:SCREEN-VALUE = "I" THEN YES ELSE NO
+              END_loc:SENSITIVE = begin_loc:SENSITIVE
+              begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
+              END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
+    ELSE
+    IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN   /* NSTOCK,*/
+       ASSIGN rd-print-what:sensitive = YES
+              begin_loc:SENSITIVE = IF LOOKUP(rd-print-what:SCREEN-VALUE,"I,S") > 0 THEN YES ELSE NO
+              END_loc:SENSITIVE = begin_loc:SENSITIVE
+              begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
+              END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
+    ELSE 
+       ASSIGN rd-print-what:SENSITIVE = NO
+              begin_loc:SENSITIVE = NO
+              END_loc:SENSITIVE = NO
+              begin_loc-bin:SENSITIVE = NO
+              END_loc-bin:SENSITIVE = NO.
+
+    tb_print-component:LABEL = IF v-relprint EQ "Fibrex" OR 
+                                  v-relprint EQ "Accord" OR
+                                  v-relprint EQ "Metro" OR
+                                  v-relprint EQ "CentBox" OR
+                                  v-relprint EQ "Loylang" OR
+                                  v-relprint EQ "CCC" 
+                                 THEN "Print components of unassembled sets?"
+                                 ELSE "Print Assembled Components?"  .
+    IF v-relprint EQ "Metro" THEN
+        ASSIGN 
+            tb_p-bin:SENSITIVE = NO
+            rd-print-what:SCREEN-VALUE = "R"
+            rd-print-what = "R".
+
+    IF v-relprint EQ "StClair" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO .
+    IF v-relprint EQ "Midwest" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO .
+
+    IF v-relprint EQ "Indiana" THEN
+       tb_pricing:SENSITIVE = YES.
+    ELSE tb_pricing:SENSITIVE = NO.
+
+    IF v-relprint = "Relprint 10" THEN
+      ASSIGN 
+        tb_print-qty-uom:HIDDEN = NO.
+    ELSE
+      ASSIGN 
+        tb_print-qty-uom:HIDDEN = YES.
+       
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2583,156 +2739,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
-PROCEDURE pRunFormatValueChanged :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-
-     IF v-relprint EQ "PremierX" OR v-relprint EQ "NSTOCK" 
-        OR v-relprint EQ "Lakeside"
-        OR v-relprint EQ "Distributor"
-        OR v-relprint EQ "Axis"
-        OR v-relprint EQ "Frank" 
-        OR v-relprint EQ "Protagon" 
-        OR v-relprint EQ "Soule" /*OR v-relprint EQ "NStock"*/ 
-        /*OR v-relprint EQ "Prystup" */
-        OR v-relprint EQ "StClair"
-        OR v-relprint EQ "Midwest"
-        OR v-relprint EQ "Relprint 10" THEN do:
-         rd-print-what:DELETE("Summary of Bins On Hand") NO-ERROR.
-         rd-print-what:ADD-LAST("Summary of Bins On Hand","S").
-     END.
-     ELSE DO:
-       rd-print-what:DELETE("Summary of Bins On Hand") NO-ERROR.
-     END.
-
-       
-     IF v-relprint EQ "Prystup" OR v-relprint EQ "NStock" THEN
-         ASSIGN  rd-print-what:SCREEN-VALUE = "R"
-            rd-print-what = "R".
-    
-    IF v-relprint EQ "Xprint" OR v-relprint EQ "relprint 1" THEN
-       tb_prt-part-no:SENSITIVE = YES.
-    ELSE tb_prt-part-no:SENSITIVE = NO.
-
-    IF v-relprint EQ "Hughes" THEN
-       tb_exl-tg-bin:HIDDEN = NO.
-    ELSE
-       tb_exl-tg-bin:HIDDEN = YES.
-
-     IF v-relprint NE "PremierX" THEN
-         tb_sort-rel:HIDDEN = YES .
-     ELSE tb_sort-rel:HIDDEN = NO .
-
-    IF v-relprint NE "Argrov" THEN
-      ASSIGN
-       tb_zone-s:SENSITIVE = NO
-       tb_zone-p:SENSITIVE = NO.
-    ELSE ASSIGN
-       tb_zone-s:SENSITIVE = YES
-       tb_zone-p:SENSITIVE = YES.
-
-    IF v-relprint = "NStock" OR v-relprint = "Axis" THEN
-        ASSIGN
-        tb_p-bin:SENSITIVE = NO .
-    ELSE tb_p-bin:SENSITIVE = YES .
-
-    IF v-relprint = "Axis" THEN
-      ASSIGN 
-        tb_print-spec:HIDDEN = NO
-        fi_specs:HIDDEN = NO.
-    ELSE
-      ASSIGN 
-        tb_print-spec:HIDDEN = YES
-        fi_specs:HIDDEN = YES.
-
-
-    IF v-relprint EQ "Sonoco" 
-       /* gdm - 10080912 */
-       OR v-relprint EQ "Rosmar" 
-        THEN
-       tb_whs-bin-sort:SENSITIVE = YES.
-    ELSE
-       ASSIGN
-          tb_whs-bin-sort:SENSITIVE = NO
-          tb_whs-bin-sort:SCREEN-VALUE = "NO".
-
-    IF v-relprint EQ "StClair" THEN
-        ASSIGN 
-            rd-print-what:SENSITIVE = NO
-            rd-print-what:SCREEN-VALUE = "I"
-            rd-print-what = "I" 
-            tb_p-bin:SCREEN-VALUE = "Yes"
-            tb_p-bin:SENSITIVE = NO 
-            tb_p-bin = YES.
-
-    IF v-relprint EQ "Midwest" THEN
-        ASSIGN 
-            rd-print-what:SENSITIVE = NO
-            rd-print-what:SCREEN-VALUE = "I"
-            rd-print-what = "I" 
-            tb_p-bin:SCREEN-VALUE = "Yes"
-            tb_p-bin:SENSITIVE = NO 
-            tb_p-bin = YES.
-
-    IF LOOKUP(v-relprint,"Carded") > 0 THEN
-       ASSIGN rd-print-what:sensitive = YES
-              begin_loc:SENSITIVE = IF rd-print-what:SCREEN-VALUE = "I" THEN YES ELSE NO
-              END_loc:SENSITIVE = begin_loc:SENSITIVE
-              begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
-              END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
-    ELSE
-    IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN   /* NSTOCK,*/
-       ASSIGN rd-print-what:sensitive = YES
-              begin_loc:SENSITIVE = IF LOOKUP(rd-print-what:SCREEN-VALUE,"I,S") > 0 THEN YES ELSE NO
-              END_loc:SENSITIVE = begin_loc:SENSITIVE
-              begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
-              END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
-    ELSE 
-       ASSIGN rd-print-what:SENSITIVE = NO
-              begin_loc:SENSITIVE = NO
-              END_loc:SENSITIVE = NO
-              begin_loc-bin:SENSITIVE = NO
-              END_loc-bin:SENSITIVE = NO.
-
-    tb_print-component:LABEL = IF v-relprint EQ "Fibrex" OR 
-                                  v-relprint EQ "Accord" OR
-                                  v-relprint EQ "Metro" OR
-                                  v-relprint EQ "CentBox" OR
-                                  v-relprint EQ "Loylang" OR
-                                  v-relprint EQ "CCC" 
-                                 THEN "Print components of unassembled sets?"
-                                 ELSE "Print Assembled Components?"  .
-    IF v-relprint EQ "Metro" THEN
-        ASSIGN 
-            tb_p-bin:SENSITIVE = NO
-            rd-print-what:SCREEN-VALUE = "R"
-            rd-print-what = "R".
-
-    IF v-relprint EQ "StClair" THEN
-        ASSIGN 
-            rd-print-what:SENSITIVE = NO .
-    IF v-relprint EQ "Midwest" THEN
-        ASSIGN 
-            rd-print-what:SENSITIVE = NO .
-
-    IF v-relprint EQ "Indiana" THEN
-       tb_pricing:SENSITIVE = YES.
-    ELSE tb_pricing:SENSITIVE = NO.
-
-    IF v-relprint = "Relprint 10" THEN
-      ASSIGN 
-        tb_print-qty-uom:HIDDEN = NO.
-    ELSE
-      ASSIGN 
-        tb_print-qty-uom:HIDDEN = YES.
-       
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
