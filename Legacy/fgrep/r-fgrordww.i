@@ -6,7 +6,7 @@ DEFINE VARIABLE hftJobPros AS HANDLE NO-UNDO.
 
 RUN jc/JobProcs.p PERSISTENT SET hftJobPros.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftJobPros).
-
+MAIN-CUST:
 for each itemfg
   where itemfg.company    eq cocode
   and itemfg.cust-no    ge v-cust[1]
@@ -41,6 +41,9 @@ for each itemfg
   AND itemfg-loc.loc LE END_whse
   NO-LOCK
   BREAK  BY itemfg-loc.loc BY itemfg.i-no  :
+
+    if ou-cust-int EQ 2 and tb_cust-list and
+  can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no no-lock) then NEXT MAIN-CUST.
     
     IF lExcludeComponents 
           AND NOT itemfg.isaset THEN DO:

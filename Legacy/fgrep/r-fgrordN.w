@@ -1038,7 +1038,7 @@ DO:
   
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN DO:
+  IF NOT AVAIL ttCustList AND (tb_cust-list OR ou-cust-int EQ 2) THEN DO:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1535,6 +1535,7 @@ ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List *
 DO:
   ASSIGN {&self-name}.
   EMPTY TEMP-TABLE ttCustList.
+  
   RUN SetCustRange(INPUT tb_cust-list).
 END.
 
@@ -1780,13 +1781,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
 
-   IF ou-log AND ou-cust-int = 0 THEN DO:
+   IF ou-log AND (ou-cust-int = 0 OR ou-cust-int EQ 2) THEN DO:
+       
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
         tb_cust-list = NO
         .
+       IF ou-cust-int EQ 2 THEN
+       tb_cust-list:LABEL IN FRAME {&FRAME-NAME} = "Exclude Customer List".
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
@@ -2270,6 +2274,9 @@ ASSIGN
 
     END.
 
+IF ou-cust-int EQ 2 THEN
+    lselected = NO .
+
 IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
@@ -2460,6 +2467,9 @@ ASSIGN
 
  END.
 
+ IF ou-cust-int EQ 2 THEN
+    lselected = NO .
+
 IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
@@ -2521,6 +2531,7 @@ PROCEDURE SetCustRange :
   DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF ou-cust-int NE 2 THEN
       ASSIGN
         begin_cust:SENSITIVE = NOT iplChecked
         end_cust:SENSITIVE = NOT iplChecked
@@ -2528,6 +2539,7 @@ PROCEDURE SetCustRange :
         end_cust:VISIBLE = NOT iplChecked
         btnCustList:SENSITIVE = iplChecked
        .
+    ELSE btnCustList:SENSITIVE = iplChecked .
   END.
 
 END PROCEDURE.

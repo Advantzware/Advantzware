@@ -6,13 +6,13 @@ DEFINE VARIABLE hftJobPros AS HANDLE NO-UNDO.
 
 RUN jc/JobProcs.p PERSISTENT SET hftJobPros.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftJobPros).
-
+MAIN-CUST:
 for each itemfg
    where itemfg.company    eq cocode
      and itemfg.cust-no    ge v-cust[1]
      and itemfg.cust-no    le v-cust[2]
      AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no
-          AND ttCustList.log-fld no-lock) else true)
+          AND ttCustList.log-fld no-lock) else true)     
      and itemfg.i-no       ge v-item[1]
      and itemfg.i-no       le v-item[2]
      and itemfg.procat     ge v-cat[1]
@@ -35,6 +35,9 @@ for each itemfg
           (not itemfg.stocked    and v-stocked eq "N") or v-stocked eq "A")
 
      use-index i-no no-lock:
+
+     if ou-cust-int EQ 2 and tb_cust-list
+     and can-find(first ttCustList where ttCustList.cust-no eq itemfg.cust-no no-lock) then NEXT MAIN-CUST.
     
     IF lExcludeComponents 
         AND NOT itemfg.isaset THEN DO:
