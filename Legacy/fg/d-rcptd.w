@@ -68,6 +68,7 @@ DEFINE VARIABLE lrMissingRow        AS ROWID     NO-UNDO.
 DEFINE VARIABLE gvcCurrentItem      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hInventoryProcs     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lMultipleAdds       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUpdateRecords      AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE tt-fg-rctd LIKE fg-rctd
     FIELD tt-rowid AS ROWID
@@ -877,6 +878,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
                 ls-tmp-uom  = fg-rctd.cost-uom:SCREEN-VALUE 
                 ls-tmp-cst  = fg-rctd.ext-cost:SCREEN-VALUE .
 
+            ASSIGN lUpdateRecords = YES.
 
             v-tag-change = fg-rctd.tag:SCREEN-VALUE  .
             IF NOT lv-rct-date-checked THEN 
@@ -1088,7 +1090,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         ASSIGN 
             lv-new-job-ran = NO
-            lv-prev-job2   = "".
+            lv-prev-job2   = ""
+            lUpdateRecords = NO .
 
 
         IF NOT ip-set-parts THEN RUN fg/invrecpt.p (ROWID(fg-rctd), 1).
@@ -3146,7 +3149,9 @@ PROCEDURE new-job-no :
                       RUN  pGetUnassembledItem(cocode , job-hdr.i-no) .
 
                     RUN get-def-values.
-
+                    IF NOT lUpdateRecords THEN
+                        RUN pGetUnitCountFromJob(job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE) .
+                      
                     LEAVE.
                 END.
             END.
@@ -3357,10 +3362,10 @@ PROCEDURE pDisplayFG PRIVATE :
             fg-rctd.loc-bin:SCREEN-VALUE  = ipbf-itemfg.def-loc-bin .
         ASSIGN
             fg-rctd.std-cost:SCREEN-VALUE = IF glAverageCost THEN STRING(ipbf-itemfg.avg-cost) ELSE STRING(ipbf-itemfg.last-cost)
-            fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  
-            fg-rctd.qty-case:SCREEN-VALUE = STRING(ipbf-itemfg.case-count)
-            .      
-        END.
+            fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  .
+        IF NOT lUpdateRecords THEN
+            fg-rctd.qty-case:SCREEN-VALUE = STRING(ipbf-itemfg.case-count) .  
+    END.
     
 END PROCEDURE.
 
@@ -4535,6 +4540,41 @@ DO WITH FRAME {&FRAME-NAME}:
     IF AVAIL bf-itemfg AND AVAIL fg-set THEN
         fg-rctd.i-no:SCREEN-VALUE     = fg-set.part-no .
 END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnitCountFromJob Dialog-Frame 
+PROCEDURE pGetUnitCountFromJob :
+    /*------------------------------------------------------------------------------
+    Purpose:     
+    Parameters:  <none>
+    Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiOrder AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO .
+    
+    DEFINE BUFFER bf-itemfg FOR itemfg .
+
+      DO WITH FRAME {&FRAME-NAME}: 
+          
+          FIND FIRST oe-ordl NO-LOCK
+              WHERE oe-ordl.company EQ cocode
+              AND oe-ordl.ord-no  EQ ipiOrder
+              AND oe-ordl.i-no    EQ ipcFGItem NO-ERROR.
+          IF AVAIL oe-ordl THEN
+              fg-rctd.qty-case:SCREEN-VALUE = string(oe-ordl.cas-cnt) .
+          ELSE do:
+              FIND FIRST bf-itemfg NO-LOCK
+                  WHERE bf-itemfg.company EQ cocode
+                  AND bf-itemfg.i-no    EQ ipcFGItem NO-ERROR .  
+               IF AVAIL bf-itemfg THEN
+                   fg-rctd.qty-case:SCREEN-VALUE     = string(bf-itemfg.case-count) .
+          END.
+      END.
 
 END PROCEDURE.
 
