@@ -92,6 +92,10 @@ sysCtrlUsage
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAPIConfig 
+     LABEL "API Settings" 
+     SIZE 24 BY 1.
+
 DEFINE BUTTON btnClearSysCtrlUsage 
      LABEL "Clear SysCtrl Usage" 
      SIZE 24 BY 1.
@@ -121,6 +125,7 @@ DEFINE BROWSE sysCtrlUsage
 DEFINE FRAME DEFAULT-FRAME
      btnClearSysCtrlUsage AT ROW 1 COL 1 WIDGET-ID 2
      btnStackTrace AT ROW 1 COL 26 WIDGET-ID 4
+     btnAPIConfig AT ROW 1 COL 51 WIDGET-ID 6
      sysCtrlUsage AT ROW 1.95 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -173,7 +178,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB sysCtrlUsage btnStackTrace DEFAULT-FRAME */
+/* BROWSE-TAB sysCtrlUsage btnAPIConfig DEFAULT-FRAME */
+/* SETTINGS FOR BUTTON btnAPIConfig IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -228,6 +235,18 @@ END.
 ON WINDOW-RESIZED OF C-Win /* User SysCtrl Usage */
 DO:
     RUN pReSize.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnAPIConfig
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAPIConfig C-Win
+ON CHOOSE OF btnAPIConfig IN FRAME DEFAULT-FRAME /* API Settings */
+DO:  
+    RUN system/apiSettings.w.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,6 +316,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   DYNAMIC-FUNCTION("sfSetSysCtrlUsageHandle", THIS-PROCEDURE).
   RUN pGetSysCtrlUsage.
+  RUN pToggleAPISettingsStatus.
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -411,6 +431,38 @@ PROCEDURE pReSize :
         .
     FRAME {&FRAME-NAME}:HIDDEN = NO.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pToggleAPISettingsStatus C-Win 
+PROCEDURE pToggleAPISettingsStatus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO INITIAL "001".
+    DEFINE VARIABLE cSysCtrlName AS CHARACTER NO-UNDO INITIAL "APIConfig".
+    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+        
+    RUN sys/ref/nk1look.p (
+        cCompany,             /* Company Code */
+        cSysCtrlName,         /* sys-ctrl name */
+        "L",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        FALSE,                /* Use ship-to */
+        FALSE,                /* ship-to vendor */
+        "",                   /* ship-to vendor value */
+        "",                   /* shi-id value */
+        OUTPUT cReturnValue,
+        OUTPUT lRecFound
+        ).
+    
+    IF lRecFound THEN
+        btnAPIConfig:SENSITIVE IN FRAME {&FRAME-NAME} = LOGICAL(cReturnValue).
+                
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
