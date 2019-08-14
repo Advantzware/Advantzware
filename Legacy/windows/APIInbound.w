@@ -252,7 +252,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/folder.w':U ,
+             INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Inbound|View Inbound|Detail' + ',
                      FOLDER-TAB-TYPE = 1':U ,
