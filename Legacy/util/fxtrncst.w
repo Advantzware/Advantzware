@@ -609,7 +609,7 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
             END. /*History record eligible for processing*/
         END. /*Each History record*/
         IF tb_RecalcCosts THEN 
-            RUN fg/updfgcst.p (INPUT itemfg.i-no).
+            RUN fg/updfgcst.p (INPUT itemfg.i-no, INPUT YES).
     END. /*Each itemfg*/
 
     STATUS DEFAULT "".
