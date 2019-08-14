@@ -300,7 +300,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 19.81 , 165.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/p-navico.w':U ,
+             INPUT  'adm/objects/p-navico.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = NAV-ICON,
@@ -310,7 +310,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.38 , 54.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/p-updsav.w':U ,
+             INPUT  'adm/objects/p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -352,7 +352,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 11.14 , 140.20 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/p-updsav.w':U ,
+             INPUT  'adm/objects/p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
