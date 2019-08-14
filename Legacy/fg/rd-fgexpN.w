@@ -1260,6 +1260,12 @@ PROCEDURE DisplaySelectionList2 :
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
+
+      FIND FIRST ttRptList NO-LOCK
+           WHERE ttRptList.TextList EQ sl_selected:ENTRY(iCount)  NO-ERROR .
+
+      IF NOT AVAIL ttRptList THEN
+          ldummy = sl_selected:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
 END PROCEDURE.
