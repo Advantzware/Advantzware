@@ -140,7 +140,8 @@ IF tb_corr AND ( lv-format-c = "Soule" /* OR lv-format-c = "BELL" */ ) THEN DO:
     END.
 END.
 
-IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,FibreFC,METRO,HPB,MWFibre,PPI,PackRite,Rosmar,Knight,MidYork,Dee,Prystup,Knight***",lv-format-f) THEN
+
+IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,FibreFC,METRO,HPB,MWFibre,PPI,PackRite,Rosmar,Knight,MidYork,Dee,Prystup,Knight***,McLean",lv-format-f) THEN
   {cerep/jobkeyst.i NO-LOCK}
   , EACH job-mat WHERE job-mat.company = job-hdr.company
                    AND job-mat.job     = job-hdr.job
@@ -236,6 +237,11 @@ IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,Fibre
         OR FIRST-OF(job-hdr.frm) )
       AND CAN-DO("FibreFC",lv-format-f) THEN
     RUN cerep/d-fibr1.w (ROWID(job-hdr), job-mat.frm).
+
+  IF FIRST(job-hdr.job) AND CAN-DO("McLean",lv-format-f) 
+           AND est.est-type NE 1 THEN DO:
+            RUN cerep/d-mclean.w (ROWID(job-hdr)).
+  END.
 
 END.
 
