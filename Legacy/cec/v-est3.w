@@ -1289,6 +1289,8 @@ ON VALUE-CHANGED OF eb.tr-cnt IN FRAME Corr /* Count */
 DO:
   lv-layers = INT(eb.cas-pal:SCREEN-VALUE) / INT(eb.stacks:SCREEN-VALUE).
   {sys/inc/roundup.i lv-layers}
+  IF lv-layers EQ ? THEN ASSIGN 
+    lv-layers = 0.
   ASSIGN
    eb.tr-cas:SCREEN-VALUE  = STRING(lv-layers)
    eb.cas-pal:SCREEN-VALUE = STRING(INT(eb.tr-cas:SCREEN-VALUE) *

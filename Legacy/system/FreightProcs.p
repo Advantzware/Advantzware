@@ -61,24 +61,26 @@ PROCEDURE CalcFreightForEstRelease:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
+    DEFINE BUFFER bEstRelease FOR estRelease.
+    
     DEFINE VARIABLE dSubUnits    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPartial     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dFreightMin  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalMSF    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO.
 
-    FIND FIRST estRelease EXCLUSIVE-LOCK   
-        WHERE estRelease.estReleaseID EQ ipiEstReleaseID
+    FIND FIRST bEstRelease EXCLUSIVE-LOCK   
+        WHERE bEstRelease.estReleaseID EQ ipiEstReleaseID
         NO-ERROR.
-    IF AVAILABLE estRelease THEN 
+    IF AVAILABLE bEstRelease THEN 
     DO:
-        RUN RecalcQuantityUnits IN ghInventoryProcs (estRelease.quantityRelease, INPUT-OUTPUT estRelease.quantityPerSubUnit, INPUT-OUTPUT estRelease.quantitySubUnitsPerUnit, 
-            OUTPUT dSubUnits, OUTPUT estRelease.quantityOfUnits, OUTPUT dPartial).
-        dTotalMSF = fGetTotalMSF(estRelease.quantityRelease, estRelease.dimEachLen, estRelease.dimEachWid, estRelease.dimEachUOM).
-        dTotalWeight = estRelease.quantityRelease * estRelease.weightTotalPerEach. 
-        RUN GetFreightForCarrierZone (estRelease.company, estRelease.shipFromLocationID, estRelease.carrierID, estRelease.carrierZone, "",
-            estRelease.quantityOfUnits, dTotalWeight, dTotalMSF, 
-            OUTPUT estRelease.freightCost, OUTPUT dFreightMin,
+        RUN RecalcQuantityUnits IN ghInventoryProcs (bEstRelease.quantityRelease, INPUT-OUTPUT bEstRelease.quantityPerSubUnit, INPUT-OUTPUT bEstRelease.quantitySubUnitsPerUnit, 
+            OUTPUT dSubUnits, OUTPUT bEstRelease.quantityOfUnits, OUTPUT dPartial).
+        dTotalMSF = fGetTotalMSF(bEstRelease.quantityRelease, bEstRelease.dimEachLen, bEstRelease.dimEachWid, bEstRelease.dimEachUOM).
+        dTotalWeight = bEstRelease.quantityRelease * bEstRelease.weightTotalPerEach. 
+        RUN GetFreightForCarrierZone (bEstRelease.company, bEstRelease.shipFromLocationID, bEstRelease.carrierID, bEstRelease.carrierZone, "",
+            bEstRelease.quantityOfUnits, dTotalWeight, dTotalMSF, 
+            OUTPUT bEstRelease.freightCost, OUTPUT dFreightMin,
             OUTPUT oplError, OUTPUT opcMessage).  
     END.
     ELSE 
@@ -98,19 +100,21 @@ PROCEDURE CalcStorageAndHandlingForEstRelease:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
+    DEFINE BUFFER bEstRelease FOR estRelease.
+
     DEFINE VARIABLE dSubUnits AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPartial  AS DECIMAL NO-UNDO.
     
 
-    FIND FIRST estRelease EXCLUSIVE-LOCK   
-        WHERE estRelease.estReleaseID EQ ipiEstReleaseID
+    FIND FIRST bEstRelease EXCLUSIVE-LOCK   
+        WHERE bEstRelease.estReleaseID EQ ipiEstReleaseID
         NO-ERROR.
-    IF AVAILABLE estRelease THEN 
+    IF AVAILABLE bEstRelease THEN 
     DO:
-        RUN RecalcQuantityUnits IN ghInventoryProcs (estRelease.quantityRelease, INPUT-OUTPUT estRelease.quantityPerSubUnit, INPUT-OUTPUT estRelease.quantitySubUnitsPerUnit, 
-            OUTPUT dSubUnits, OUTPUT estRelease.quantityOfUnits, OUTPUT dPartial). 
-        estRelease.storageCostTotal = fCalcStorageCostTotal(estRelease.storageCost,estRelease.quantityOfUnits,estRelease.palletMultiplier, estRelease.monthsAtShipFrom).
-        estRelease.handlingCostTotal = fCalcHandlingCostTotal(estRelease.handlingCost, estRelease.quantityOfUnits).
+        RUN RecalcQuantityUnits IN ghInventoryProcs (bEstRelease.quantityRelease, INPUT-OUTPUT bEstRelease.quantityPerSubUnit, INPUT-OUTPUT bEstRelease.quantitySubUnitsPerUnit, 
+            OUTPUT dSubUnits, OUTPUT bEstRelease.quantityOfUnits, OUTPUT dPartial). 
+        bEstRelease.storageCostTotal = fCalcStorageCostTotal(bEstRelease.storageCost,bEstRelease.quantityOfUnits,bEstRelease.palletMultiplier, bEstRelease.monthsAtShipFrom).
+        bEstRelease.handlingCostTotal = fCalcHandlingCostTotal(bEstRelease.handlingCost, bEstRelease.quantityOfUnits).
     
     END.
     ELSE 
@@ -308,12 +312,14 @@ PROCEDURE DeleteEstReleaseByID:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstReleaseID AS INTEGER NO-UNDO.
-    
-    FIND FIRST estRelease EXCLUSIVE-LOCK 
-        WHERE estRelease.estReleaseID EQ ipiEstReleaseID
+
+    DEFINE BUFFER bEstRelease FOR estRelease.
+        
+    FIND FIRST bEstRelease EXCLUSIVE-LOCK 
+        WHERE bEstRelease.estReleaseID EQ ipiEstReleaseID
         NO-ERROR.
-    IF AVAILABLE estRelease THEN 
-        DELETE estRelease.
+    IF AVAILABLE bEstRelease THEN 
+        DELETE bEstRelease.
         
 END PROCEDURE.
 
@@ -536,13 +542,15 @@ PROCEDURE pDeleteEstReleases PRIVATE:
     DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
 
-    FOR EACH estRelease EXCLUSIVE-LOCK
-        WHERE estRelease.company EQ ipcCompany
-        AND estRelease.estimateNo EQ ipcEstimateNo
-        AND (estRelease.formNo EQ ipiFormNo OR ipiFormNo EQ giAllFormsIndicator)
-        AND (estRelease.blankNo EQ ipiBlankNo OR ipiBlankNo EQ giAllBlanksIndicator)
-        AND (estRelease.quantity EQ ipdQuantity OR ipdQuantity EQ gdAllQuantitiesIndicator):
-        DELETE estRelease.    
+    DEFINE BUFFER bEstRelease FOR estRelease.
+    
+    FOR EACH bEstRelease EXCLUSIVE-LOCK
+        WHERE bEstRelease.company EQ ipcCompany
+        AND bEstRelease.estimateNo EQ ipcEstimateNo
+        AND (bEstRelease.formNo EQ ipiFormNo OR ipiFormNo EQ giAllFormsIndicator)
+        AND (bEstRelease.blankNo EQ ipiBlankNo OR ipiBlankNo EQ giAllBlanksIndicator)
+        AND (bEstRelease.quantity EQ ipdQuantity OR ipdQuantity EQ gdAllQuantitiesIndicator):
+        DELETE bEstRelease.    
     END.
 
 END PROCEDURE.
