@@ -1087,7 +1087,6 @@ PROCEDURE ipUpgradeDBs :
     DEF VAR lAlternate AS LOG NO-UNDO.
     DEF VAR cFullDelta AS CHAR NO-UNDO.
     DEF VAR cThisPort AS CHAR NO-UNDO.
-    DEF VAR lAuditLicensed AS LOG NO-UNDO INITIAL TRUE.
 
     RUN ipStatus ("  Upgrading database " + fiDbName:{&SV}).
 
