@@ -597,6 +597,11 @@
              v-cost = ar-invl.spare-dec-1 * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
          ELSE /*EA*/
              v-cost = ar-invl.spare-dec-1 * ar-invl.inv-qty * v-slsp[1] / 100.
+
+             v-prof    = v-amt - v-cost.
+             IF v-prof EQ ? THEN v-prof = 0.
+             v-gp      = round(v-prof / v-amt * 100,2) .
+             if v-gp   eq ? then v-gp   = 0.
      END.
         
 
