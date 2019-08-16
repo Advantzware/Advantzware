@@ -121,7 +121,7 @@ ASSIGN cTextListToSelect = "ITEM,DESCRIPTION,CUSTOMER," +
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
                             "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no," +
                             "v-sellUom" 
-       cFieldLength = "15,25,8," + "9,5,8,20," + "8,11,7,21,12,10,10,15," + "8"
+       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8"
        cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c" 
        .
 ASSIGN cTextListToDefault  = "ITEM,DESCRIPTION,CUSTOMER," + "WHSE,BIN,TAG,JOB#," +
@@ -1450,7 +1450,7 @@ PROCEDURE get-first-date :
   DEF OUTPUT PARAM op-date AS DATE NO-UNDO.
 
 
-  op-date = 01/01/01 .
+  op-date = 01/01/0001 .
 
   IF fg-bin.tag EQ "" THEN
   FOR EACH fg-rcpth
@@ -1467,8 +1467,7 @@ PROCEDURE get-first-date :
         AND fg-rdtlh.tag       EQ ""
         AND (TRIM(fg-bin.job-no) NE "" OR
              (fg-rdtlh.loc     EQ fg-bin.loc     AND
-              fg-rdtlh.loc-bin EQ fg-bin.loc-bin AND
-              fg-rdtlh.cust-no EQ fg-bin.cust-no))
+              fg-rdtlh.loc-bin EQ fg-bin.loc-bin ))
       USE-INDEX rm-rdtl NO-LOCK
 
       BY fg-rcpth.trans-date DESC
@@ -1481,13 +1480,8 @@ PROCEDURE get-first-date :
   ELSE
   FOR EACH fg-rdtlh
       WHERE fg-rdtlh.company   EQ fg-bin.company
-        AND fg-rdtlh.loc       EQ fg-bin.loc
         AND fg-rdtlh.rita-code EQ "R"
         AND fg-rdtlh.tag       EQ fg-bin.tag
-        AND fg-rdtlh.cust-no   EQ fg-bin.cust-no
-        AND (TRIM(fg-bin.job-no) NE "" OR
-             (fg-rdtlh.loc     EQ fg-bin.loc     AND
-              fg-rdtlh.loc-bin EQ fg-bin.loc-bin))
       USE-INDEX tag NO-LOCK,
 
       EACH fg-rcpth
@@ -1954,7 +1948,7 @@ ELSE DO:
             CASE cTmpField:               
                 /*"lv-job-no,lv-date,li-palls,v-writein,v-counted-date,v-costM,v-sellValue"  */
                  WHEN "lv-job-no" THEN cVarValue = string(lv-job-no).
-                 WHEN "lv-date" THEN cVarValue = IF lv-date <> ? THEN string(lv-date) ELSE "".
+                 WHEN "lv-date" THEN cVarValue = IF lv-date <> ? THEN string(lv-date,"99/99/9999") ELSE "".
                  WHEN "li-palls" THEN cVarValue = STRING(li-palls,"->>,>>9").
                  WHEN "v-writein" THEN cVarValue = STRING(v-writein).
                  WHEN "v-tag" THEN cVarValue = STRING(v-tag,"x(20)").
@@ -2229,7 +2223,7 @@ FOR EACH tt-report
             CASE cTmpField:               
                 /*"lv-job-no,lv-date,li-palls,v-writein,v-counted-date,v-costM,v-sellValue"  */
                  WHEN "lv-job-no" THEN cVarValue = string(lv-job-no).
-                 WHEN "lv-date" THEN cVarValue = IF lv-date <> ? THEN string(lv-date) ELSE "".
+                 WHEN "lv-date" THEN cVarValue = IF lv-date <> ? THEN string(lv-date,"99/99/9999") ELSE "".
                  WHEN "li-palls" THEN cVarValue = STRING(li-palls,"->>,>>9").
                  WHEN "v-writein" THEN cVarValue = STRING(v-writein).
                  WHEN "v-tag" THEN cVarValue = STRING(v-tag,"x(20)").

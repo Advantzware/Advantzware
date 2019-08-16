@@ -15,7 +15,7 @@
 {fg/fgPostBatch.i}
 
 DEFINE INPUT  PARAMETER v-post-date AS DATE NO-UNDO.
-DEFINE INPUT  PARAMETER tg-recalc-cost AS LOGICAL NO-UNDO.
+DEFINE INPUT  PARAMETER iplRecalcCost AS LOGICAL NO-UNDO.
 DEFINE INPUT  PARAMETER ip-run-what AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER gv-fgemail      AS LOGICAL   NO-UNDO INIT ?. 
 DEFINE INPUT  PARAMETER iplCreateWorkGL AS LOGICAL NO-UNDO.
@@ -808,9 +808,8 @@ PROCEDURE fg-post:
 
         IF LAST-OF(w-fg-rctd.i-no) THEN 
         DO:
-
-            RUN fg/updfgcs1.p (RECID(itemfg), NO).
-
+            IF iplRecalcCost THEN 
+                RUN fg/updfgcst.p (w-fg-rctd.i-no, YES).
             /* Calculate this once per item instead of per order line */
             IF v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0 THEN 
             DO:
@@ -948,12 +947,6 @@ PROCEDURE fg-post:
         END. /* each work-job */
     END.
 
-    IF tg-recalc-cost THEN 
-    DO:
-        FOR EACH tt-posted-items:        
-            RUN fg/updfgcst.p (tt-posted-items.i-no).
-        END.
-    END.
 
 /*    Now handled in calling program                                 */
 /*    IF v-got-fgemail THEN                                          */

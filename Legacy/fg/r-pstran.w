@@ -2649,7 +2649,7 @@ PROCEDURE fg-post :
       BREAK BY w-fg-rctd.i-no:
     IF LAST-OF(w-fg-rctd.i-no) THEN DO:
 
-      RUN fg/updfgcs1.p (RECID(itemfg), NO).
+      RUN fg/updfgcs1.p (RECID(itemfg), NO, NO).
 
       /* Calculate this once per item instead of per order line */
       IF v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0 THEN DO:

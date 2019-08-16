@@ -79,11 +79,13 @@ DEFINE VARIABLE h_apioutbound AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbound-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbounddetail AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbounddetail-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_exit-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_options-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-5
@@ -140,6 +142,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
+{methods/template/windows.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -225,15 +228,31 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/options.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_options-2 ).
+       RUN set-position IN h_options-2 ( 1.00 , 107.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 55.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_exit-2 ).
-       RUN set-position IN h_exit-2 ( 2.14 , 162.80 ) NO-ERROR.
+             OUTPUT h_exit ).
+       RUN set-position IN h_exit ( 1.00 , 163.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/folder.w':U ,
+             INPUT  'smartobj/smartmsg.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_smartmsg ).
+       RUN set-position IN h_smartmsg ( 3.62 , 107.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'Outbound|View Outbound|Detail' + ',
                      FOLDER-TAB-TYPE = 1':U ,
@@ -245,14 +264,22 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_options-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_smartmsg ,
+             h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             h_exit-2 , 'AFTER':U ).
+             h_smartmsg , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/apioutbound.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = ?':U ,
              OUTPUT h_apioutbound ).
        RUN set-position IN h_apioutbound ( 6.43 , 2.00 ) NO-ERROR.
        RUN set-size IN h_apioutbound ( 22.62 , 166.00 ) NO-ERROR.
@@ -281,7 +308,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 19.57 , 165.20 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/p-navico.w':U ,
+             INPUT  'adm/objects/p-navico.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = NAV-ICON,
@@ -291,7 +318,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.38 , 51.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/p-updsav.w':U ,
+             INPUT  'adm/objects/p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -337,7 +364,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 10.67 , 131.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'src/adm/objects/p-updsav.w':U ,
+             INPUT  'adm/objects/p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -466,19 +493,6 @@ PROCEDURE local-exit :
    
    RETURN.
        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Exit W-Win 
-PROCEDURE Select_Exit :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN local-exit.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

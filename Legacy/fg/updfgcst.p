@@ -2,6 +2,7 @@
 /* -------------------------------------------------------------------------- */
 
 def input parameter v-i-no like itemfg.i-no.
+DEF INPUT PARAMETER iplCalcCostFromHist AS LOGICAL NO-UNDO.
 
 {sys/inc/var.i shared}
 
@@ -17,7 +18,7 @@ for each itemfg
   IF itemfg.isaset AND itemfg.alloc THEN
     RUN util/fixfgcst.p (ROWID(itemfg)).
   ELSE
-    RUN fg/updfgcs1.p (recid(itemfg), YES).
+    RUN fg/updfgcs1.p (recid(itemfg), YES, iplCalcCostFromHist).
 end.
 
 status default "".

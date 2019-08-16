@@ -3,7 +3,6 @@
 DEF INPUT        PARAM v-recid      AS   RECID.
 DEF INPUT        PARAM v-part-no    LIKE quoteit.part-no.
 DEF INPUT        PARAM v-part-no2   LIKE quoteit.part-no.
-DEF INPUT        PARAM v-within  AS INT .
 DEF INPUT-OUTPUT PARAM v-price      LIKE oe-ordl.price.
 DEF INPUT-OUTPUT PARAM v-uom        LIKE oe-ordl.pr-uom.
 DEF OUTPUT       PARAM v-q-no       LIKE quotehd.q-no.
@@ -72,7 +71,6 @@ IF v-part-no2 EQ "0" THEN v-part-no2 = "".
       WHERE quotehd.company EQ cocode
         AND quotehd.loc     EQ locode
         AND quotehd.est-no  EQ w-est-no
-        AND quotehd.quo-date >= TODAY - v-within
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
       /*USE-INDEX quote*/ NO-LOCK,
 

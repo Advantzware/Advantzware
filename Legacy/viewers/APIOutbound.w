@@ -123,7 +123,7 @@ DEFINE VARIABLE cbAuthType AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE cbRequestDataType AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Request Data Type:" 
+     LABEL "Request Data Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "JSON","XML" 
      DROP-DOWN-LIST
@@ -131,7 +131,7 @@ DEFINE VARIABLE cbRequestDataType AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE cbRequestVerb AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Request Verb:" 
+     LABEL "Request Verb" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "POST","GET" 
      DROP-DOWN-LIST
@@ -422,6 +422,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
+PROCEDURE local-assign-statement :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pUpdateFields.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
 PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
@@ -477,8 +497,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF adm-new-record THEN
-        RUN pUpdateFields.
+
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -536,10 +555,7 @@ PROCEDURE local-update-record :
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-    /* Code placed here will execute AFTER standard behavior.    */   
-    IF NOT adm-new-record THEN
-        RUN pUpdateFields.
-            
+    /* Code placed here will execute AFTER standard behavior.    */        
     cMessage = IF adm-new-record THEN 
                    "Record created successfully!"
                ELSE
@@ -721,7 +737,6 @@ PROCEDURE pUpdateFields :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    FIND CURRENT APIOutbound EXCLUSIVE-LOCK NO-ERROR.
     IF AVAILABLE APIOutbound THEN    
         ASSIGN
             APIOutbound.isActive        = tgActive:CHECKED

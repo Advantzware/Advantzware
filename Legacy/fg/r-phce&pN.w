@@ -111,6 +111,9 @@ DEF VAR v-count-qty LIKE fg-rctd.t-qty NO-UNDO.
 DEF VAR v-variance LIKE fg-rctd.t-qty NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lCreatGlAccount AS LOGICAL NO-UNDO .
 
 ASSIGN cTextListToSelect = "Trans. Date,Item,Description,Customer Part#," +
                            "Job#,Whse,Bin,Tag,O/H Qty," +
@@ -124,6 +127,12 @@ ASSIGN cTextListToSelect = "Trans. Date,Item,Description,Customer Part#," +
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Trans. Date,Item,Description,Customer Part#," +
                            "Tag,Whse,Bin,Sell Value,Cost/M,Total Cost,Job#".
+
+RUN sys/ref/nk1look.p (INPUT cocode, "FGPostGL", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCreatGlAccount = LOGICAL(cRtnChar) NO-ERROR.
 
 /*
 
@@ -176,12 +185,12 @@ display tt-fg-bin.rct-date when first-of(tt-fg-bin.i-no)
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 post-date begin_userid ~
-end_userid tg_account tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem ~
+end_userid tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem ~
 tg_PrintSubTotal sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up ~
 btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm btn-ok ~
 btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS post-date begin_userid end_userid ~
-tg_account tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem ~
+tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem ~
 tg_PrintSubTotal sl_avail sl_selected rd-dest lv-ornt lines-per-page ~
 lv-font-no lv-font-name td-show-parm 
 
@@ -301,11 +310,6 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg_account AS LOGICAL INITIAL no 
-     LABEL "Create GL Accounts?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 30 BY .81 NO-UNDO.
-
 DEFINE VARIABLE tg_CheckQty AS LOGICAL INITIAL no 
      LABEL "Checking Qty On Hand?" 
      VIEW-AS TOGGLE-BOX
@@ -340,12 +344,12 @@ DEFINE VARIABLE tg_TotalByItem AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     post-date AT ROW 3.14 COL 38 COLON-ALIGNED
-     begin_userid AT ROW 4.57 COL 23 COLON-ALIGNED HELP
+     post-date AT ROW 3.64 COL 38 COLON-ALIGNED
+     begin_userid AT ROW 5.07 COL 23 COLON-ALIGNED HELP
           "Enter the Beginning User ID"
-     end_userid AT ROW 4.57 COL 64 COLON-ALIGNED HELP
+     end_userid AT ROW 5.07 COL 64 COLON-ALIGNED HELP
           "Enter the Ending User ID"
-     tg_account AT ROW 6 COL 38
+     
      tg_ShowOHCounted AT ROW 6.95 COL 38 WIDGET-ID 48
      tg_ShowOHNotCounted AT ROW 7.91 COL 38 WIDGET-ID 50
      tg_TotalByItem AT ROW 8.81 COL 38 WIDGET-ID 52
@@ -465,9 +469,6 @@ ASSIGN
        post-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-ASSIGN 
-       tg_account:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tg_CheckQty IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
@@ -597,7 +598,7 @@ DO:
                      INPUT rd-dest). /* Destination (1-printer,2-screen,3-file) */
   */
 
-  IF tg_account THEN DO:
+  IF lCreatGlAccount THEN DO:
      RUN fg/d-fginvp.w (OUTPUT tran-date, OUTPUT tran-period).
      IF tran-date = ? THEN RETURN NO-APPLY.
   END.
@@ -608,11 +609,10 @@ DO:
   ASSIGN
       begin_userid = begin_userid:SCREEN-VALUE
       end_userid   = end_userid:SCREEN-VALUE .
-
-  /*IF NOT tg_show-inv THEN
-     run run-report.
-  ELSE */
-     RUN run-report-inv.
+  
+  ASSIGN v-gl = lCreatGlAccount .
+  
+  RUN run-report-inv.
 
   case rd-dest:
        when 1 then run output-to-printer.
@@ -1220,12 +1220,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY post-date begin_userid end_userid tg_account tg_ShowOHCounted 
+  DISPLAY post-date begin_userid end_userid tg_ShowOHCounted 
           tg_ShowOHNotCounted tg_TotalByItem tg_PrintSubTotal sl_avail 
           sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
           td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 post-date begin_userid end_userid tg_account 
+  ENABLE RECT-6 RECT-7 post-date begin_userid end_userid  
          tg_ShowOHCounted tg_ShowOHNotCounted tg_TotalByItem tg_PrintSubTotal 
          sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down 
          rd-dest lv-ornt lines-per-page lv-font-no td-show-parm btn-ok 

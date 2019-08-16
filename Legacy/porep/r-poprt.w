@@ -2074,8 +2074,7 @@ PROCEDURE pRunFormatValueChanged :
         IF LOOKUP(v-print-fmt,"Indiana,Premierx,PremierCX,PremierXFGItems,POPrint-Mex") = 0 THEN
             ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
             tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
-        ELSE ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
-            tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+        ELSE ASSIGN tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
         IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
             DISABLE tb_cust-code tb_mach.

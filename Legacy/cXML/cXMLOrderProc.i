@@ -234,8 +234,10 @@ PROCEDURE assignOrderHeader:
               AND sys-ctrl-shipto.cust-vend EQ YES
               AND sys-ctrl-shipto.cust-vend-no EQ cust.cust-no
             NO-ERROR.
+        /* 52995 DSG Automated Ship To Creation */            
         IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.char-fld NE '' THEN DO:
-           shipToID = TRIM(shipToID, sys-ctrl-shipto.char-fld).
+            shipToID = REPLACE(shipToID, sys-ctrl-shipto.char-fld, "").
+            oe-ord.ship-id   = shipToID.
         END.
         IF NOT CAN-FIND(FIRST shipto
                         WHERE shipto.company EQ oe-ord.company
@@ -270,7 +272,6 @@ PROCEDURE assignOrderHeader:
                              ELSE ""
             shipto.dest-code = IF AVAIL(bf-shipto) THEN bf-shipto.dest-code 
                              ELSE ""
-            oe-ord.ship-id   = shipto.ship-id  /*31899 - apply oe-ord.ship-id after prefix is trimmed*/
             .
     /* 10061401 */
     /*         FIND FIRST stax                          */
@@ -576,7 +577,7 @@ PROCEDURE genOrderLines:
           oe-ordl.spare-dec-1 = oe-ordl.qty
           oe-ordl.spare-char-2 = oe-ordl.pr-uom
           oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
-          oe-ordl.pr-uom = (IF LOOKUP(cCaseUOMList, oe-ordl.pr-uom) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
+          oe-ordl.pr-uom = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
           .
         IF oe-ordl.pr-uom EQ "CS" THEN
             oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
@@ -777,8 +778,10 @@ PROCEDURE gencXMLOrder:
  
       ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
       
+      /* 52995 DSG Automated Ship To Creation */
+      /* Turn off auto-approve for orders (temporary fix for Premier)
       RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).
-      
+      */
   END. 
   
   RELEASE oe-ord.  

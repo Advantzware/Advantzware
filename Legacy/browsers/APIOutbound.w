@@ -422,7 +422,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo B-table-Win
 ON CHOOSE OF btGo IN FRAME F-Main /* Go */
 DO:
-    {&OPEN-QUERY-br_table}
+    RUN dispatch ('open-query').
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,7 +499,7 @@ PROCEDURE local-enable :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    RUn pInit.
+    RUN pInit.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

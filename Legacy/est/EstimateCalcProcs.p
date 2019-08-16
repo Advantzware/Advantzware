@@ -35,7 +35,10 @@ DEFINE VARIABLE gcLeafMatTypes                        AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
 
-DEFINE VARIABLE gcTypeList                            AS CHARACTER NO-UNDO INITIAL "Single,Set,Combo/Tandem,Combo/Tandem,Single,Set,Combo/Tandem,ComboTandem".
+DEFINE VARIABLE gcTypeSingle                          AS CHARACTER NO-UNDO INITIAL "Single".
+DEFINE VARIABLE gcTypeSet                             AS CHARACTER NO-UNDO INITIAL "Set".
+DEFINE VARIABLE gcTypeCombo                           AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
+DEFINE VARIABLE gcTypeList                            AS CHARACTER NO-UNDO. 
 
 DEFINE VARIABLE gcErrorWarning                        AS CHARACTER NO-UNDO INITIAL "Warning".
 DEFINE VARIABLE gcErrorImportant                      AS CHARACTER NO-UNDO INITIAL "Important".
@@ -72,6 +75,10 @@ FUNCTION fRoundUP RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL) FORWARD.
 
 /* ***************************  Main Block  *************************** */
+ASSIGN 
+    /*Build mapping from estimate type # to descriptive type*/ 
+    gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
+    .
 
 RUN pSetGlobalSettings(ipcCompany).  
 IF iplPurge THEN 
@@ -275,7 +282,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         /*Refactor - Calculate Windowing*/
         opbf-estCostBlank.blankAreaNetWindow = opbf-estCostBlank.blankArea
         
-        opbf-estCostBlank.quantityRequired   = ipbf-estCostHeader.quantityMaster
+        opbf-estCostBlank.quantityRequired   = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster
         opbf-estCostBlank.quantityYielded    = ipbf-eb.yld-qty
         .
         
@@ -290,8 +297,8 @@ PROCEDURE pAddEstBlank PRIVATE:
             opbf-estCostBlank.estCostItemID    = estCostItem.estCostItemID
             estCostItem.sizeDesc               = TRIM(STRING(opbf-estCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-estCostBlank.dimWidth,">>>9.99"))
             opbf-estCostBlank.quantityPerSet   = MAX(estCostItem.quantityPerSet, 1)
-            opbf-estCostBlank.quantityRequired = ipbf-estCostHeader.quantityMaster * opbf-estCostBlank.quantityPerSet
-            opbf-estCostBlank.quantityYielded  = ipbf-eb.yld-qty * opbf-estCostBlank.quantityPerSet
+            opbf-estCostBlank.quantityRequired = opbf-estCostBlank.quantityRequired * opbf-estCostBlank.quantityPerSet
+            opbf-estCostBlank.quantityYielded  = opbf-estCostBlank.quantityYielded * opbf-estCostBlank.quantityPerSet
             .
         IF opbf-estCostBlank.dimDepth NE 0 THEN 
             estCostItem.sizeDesc = estCostItem.sizeDesc + " x " + TRIM(STRING(opbf-estCostBlank.dimDepth,">>>9.99")).
@@ -370,9 +377,6 @@ PROCEDURE pAddEstFormFromEf PRIVATE:
         opbf-estCostForm.weightDie                      = opbf-estCostForm.basisWeight * opbf-estCostForm.dieArea 
         opbf-estCostForm.weightNet                      = opbf-estCostForm.basisWeight * opbf-estCostForm.netArea 
         opbf-estCostForm.weightGross                    = opbf-estCostForm.basisWeight * opbf-estCostForm.grossArea
-            
-        /*Refactor - Calculate Combo products*/
-        opbf-estCostForm.quantityFGOnForm               = ipbf-estCostHeader.quantityMaster
         .
 
 END PROCEDURE.
@@ -579,7 +583,6 @@ PROCEDURE pAddEstMiscForForm PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ef          FOR ef.
     DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipiIndex AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
@@ -588,7 +591,12 @@ PROCEDURE pAddEstMiscForForm PRIVATE:
     DEFINE VARIABLE cCostType  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dCostPerM  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostSetup AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQty       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iBlankNo   AS INTEGER   NO-UNDO.
     
+    ASSIGN 
+        iBlankNo = ipbf-ef.mis-bnum[ipiIndex]
+        .
     IF ipcType EQ "Material" THEN 
         ASSIGN 
             cCostType  = "Mat"
@@ -600,7 +608,19 @@ PROCEDURE pAddEstMiscForForm PRIVATE:
             dCostSetup = ipbf-ef.mis-labf[ipiIndex]
             .
     
-    RUN pGetMiscCostPerM(BUFFER ipbf-ef, ipdQuantity, ipiIndex, UPPER(cCostType), OUTPUT dCostPerM).
+    IF iBlankNo NE 0 THEN DO:
+        FIND FIRST estCostBlank NO-LOCK 
+            WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
+            AND estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID
+            AND estCostBlank.blankNo EQ iBlankNo
+            NO-ERROR.
+        IF AVAILABLE estCostBlank THEN 
+            dQty = estCostBlank.quantityRequired. 
+    END.
+    IF dQty EQ 0 THEN 
+        dQty = ipbf-estCostForm.quantityFGOnForm. 
+        
+    RUN pGetMiscCostPerM(BUFFER ipbf-ef, dQty, ipiIndex, UPPER(cCostType), OUTPUT dCostPerM).
     
     IF dCostPerM GT 0 OR dCostSetup GT 0 THEN 
     DO:
@@ -609,7 +629,7 @@ PROCEDURE pAddEstMiscForForm PRIVATE:
         ASSIGN 
             bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
             bf-estCostMisc.formNo                = ipbf-ef.mis-snum[ipiIndex]  
-            bf-estCostMisc.blankNo               = ipbf-ef.mis-bnum[ipiIndex]
+            bf-estCostMisc.blankNo               = iBlankNo
             bf-estCostMisc.costDescription       = ipbf-ef.mis-cost[ipiIndex]
             bf-estCostMisc.costType              = cCostType
             bf-estCostMisc.costUOM               = "M"
@@ -618,11 +638,11 @@ PROCEDURE pAddEstMiscForForm PRIVATE:
             bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
             bf-estCostMisc.SIMON                 = ipbf-ef.mis-simon[ipiIndex]
             bf-estCostMisc.profitPercent         = ipbf-ef.mis-mkup[ipiIndex]
-            bf-estCostMisc.sourcequantity        = ipdQuantity
+            bf-estCostMisc.sourcequantity        = dQty
             bf-estCostMisc.quantityPerSourceQty  = 1
-            bf-estCostMisc.quantityRequiredTotal = ipdQuantity
+            bf-estCostMisc.quantityRequiredTotal = dQty
             bf-estCostMisc.quantityUOM           = "EA"
-            bf-estCostMisc.costTotalBeforeProfit = dCostPerM * ipdQuantity / 1000 + dCostSetup
+            bf-estCostMisc.costTotalBeforeProfit = dCostPerM * dQty / 1000 + dCostSetup
             .
         RUN pCalcEstMisc(BUFFER bf-estCostMisc, BUFFER ipbf-estCostForm).
         
@@ -636,7 +656,6 @@ PROCEDURE pAddEstMiscForPrep PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-est-prep    FOR est-prep.
     DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     
     DEFINE BUFFER bf-estCostMisc FOR estCostMisc.
     
@@ -1307,7 +1326,7 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
         AND bf-est-qty.est-no  EQ bf-est.est-no
         NO-LOCK NO-ERROR.
     IF AVAIL bf-est-qty THEN 
-    DO iQtyCount = 1 TO EXTENT(bf-est-qty.qty):
+    DO iQtyCount = 1 TO 20:
         IF bf-est-qty.qty[iQtyCount] NE 0 THEN 
         DO:
             RUN pAddHeader(BUFFER bf-est, bf-est-qty.qty[iQtyCount], bf-est-qty.qty[iQtyCount + 20], OUTPUT iEstCostHeaderID).
@@ -1325,6 +1344,7 @@ PROCEDURE pBuildProbe PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE INPUT PARAMETER ipdQuantity AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiLine AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE dQtyInM AS DECIMAL NO-UNDO.
@@ -1333,7 +1353,7 @@ PROCEDURE pBuildProbe PRIVATE:
     
     ASSIGN 
         iopiLine = iopiLine + 1
-        dQtyInM  = ipbf-estCostHeader.quantityMaster / 1000
+        dQtyInM  = ipdQuantity / 1000
         .
     CREATE probe.
 
@@ -1345,14 +1365,21 @@ PROCEDURE pBuildProbe PRIVATE:
         probe.line         = iopiLine
         probe.probe-user   = ipbf-estCostHeader.calculatedBy
         probe.freight      = ipbf-estCostHeader.releaseCount             /* Holds Number of Releases */
-        probe.est-qty      = ipbf-estCostHeader.quantityMaster
+        probe.est-qty      = ipdQuantity
         probe.fact-cost    = ipbf-estCostHeader.costTotalFactory / dQtyInM
         probe.full-cost    = ipbf-estCostHeader.costTotalFull / dQtyInM
         probe.gross-profit = ipbf-estCostHeader.profitPctGross
         probe.net-profit   = ipbf-estCostHeader.profitPctNet 
         probe.sell-price   = ipbf-estCostHeader.sellPrice / dQtyInM
-        probe.spare-char-2 = STRING(ipbf-estCostHeader.estCostHeaderID)
+        probe.spare-char-2 = STRING(ipbf-estCostHeader.estCostHeaderID)         
+        probe.spare-dec-1  = ipbf-estCostHeader.costTotalMaterial / dQtyInM           
         .
+    FOR EACH estCostForm NO-LOCK 
+        WHERE estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        :
+        probe.gsh-qty  = probe.gsh-qty + estCostForm.grossQtyRequiredTotal.
+    END.
+        
         
 END PROCEDURE.
 
@@ -1441,6 +1468,7 @@ PROCEDURE pCalculateHeader PRIVATE:
     
     DEFINE VARIABLE iNumOutBlanksOnForm AS INTEGER NO-UNDO.
     DEFINE VARIABLE dQtyOnForm          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyMaster          AS DECIMAL NO-UNDO.
     
     EMPTY TEMP-TABLE ttEstError.
     EMPTY TEMP-TABLE ttInk.
@@ -1457,7 +1485,8 @@ PROCEDURE pCalculateHeader PRIVATE:
         IF NOT AVAILABLE est THEN RETURN.
 
         RUN pBuildItems(BUFFER estCostHeader).
-       
+        dQtyMaster          = 0.
+        
         /*Process Forms and Blanks*/
         FOR EACH ef NO-LOCK 
             WHERE ef.company EQ est.company
@@ -1469,6 +1498,7 @@ PROCEDURE pCalculateHeader PRIVATE:
                 iNumOutBlanksOnForm = 0
                 dQtyOnForm          = 0
                 .
+            
             FOR EACH eb NO-LOCK 
                 OF ef:
                 
@@ -1486,9 +1516,13 @@ PROCEDURE pCalculateHeader PRIVATE:
             ASSIGN 
                 bf-estCostForm.numOut                  = iNumOutBlanksOnForm * bf-estCostForm.numOutNet
                 bf-estCostForm.quantityFGOnForm        = dQtyOnForm
+                dQtyMaster                             = dQtyMaster + dQtyOnForm
                 bf-estCostForm.grossQtyRequiredNoWaste = fRoundUp(bf-estCostForm.quantityFGOnForm / bf-estCostForm.numOut)
                 .
-                
+            /* if Combo, update the master quantity for per M calculations*/
+            IF estCostHeader.estType EQ gcTypeCombo THEN DO:
+                 
+            END.                            
             RUN pCalcBlankPct(BUFFER bf-estCostForm).                
             RUN pProcessOperations(BUFFER estCostHeader, BUFFER bf-estCostForm).
             RUN pProcessLeafs(BUFFER ef, BUFFER estCostHeader, BUFFER bf-estCostForm).
@@ -1497,15 +1531,15 @@ PROCEDURE pCalculateHeader PRIVATE:
             RUN pProcessPacking(BUFFER estCostHeader, BUFFER bf-estCostForm).
             RUN pProcessGlues(BUFFER estCostHeader, BUFFER bf-estCostForm).
             RUN pProcessSpecialMaterials(BUFFER ef, BUFFER estCostHeader, BUFFER bf-estCostForm).  
-            RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-estCostForm, estCostHeader.quantityMaster).
-            RUN pProcessMiscNonPrep(BUFFER ef, BUFFER bf-estCostForm, estCostHeader.quantityMaster).          
+            RUN pProcessMiscPrep(BUFFER ef, BUFFER bf-estCostForm).
+            RUN pProcessMiscNonPrep(BUFFER ef, BUFFER bf-estCostForm).          
         END.  /*Each ef of est*/  
         
         RUN pBuildFactoryCostDetails(estCostHeader.estCostHeaderID).
         RUN pBuildNonFactoryCostDetails(estCostHeader.estCostHeaderID).
         RUN pBuildPriceRelatedCostDetails(estCostHeader.estCostHeaderID).
         RUN pBuildCostSummary(estCostHeader.estCostHeaderID).
-        RUN pBuildProbe(BUFFER estCostHeader, INPUT-OUTPUT iopiProbeLine).
+        RUN pBuildProbe(BUFFER estCostHeader, dQtyMaster, INPUT-OUTPUT iopiProbeLine).
         
     END. /*each estCostHeader*/
 
@@ -1789,7 +1823,7 @@ PROCEDURE pBuildItems PRIVATE:
             IF eb.form-no EQ 0 THEN 
             DO:
                 RUN pAddEstForm(BUFFER ipbf-estCostHeader, 0, BUFFER bf-estCostForm).
-                RUN pAddEstBlank(BUFFER eb, BUFFER bf-estCostForm, BUFFER bf-estCostBlank).
+                RUN pAddEstBlank(BUFFER eb, BUFFER ipbf-estCostHeader, BUFFER bf-estCostForm, BUFFER bf-estCostBlank).
                 IF eb.unitized THEN 
                 DO:
                     ipbf-estCostHeader.isUnitizedSet = YES. 
@@ -2003,14 +2037,13 @@ PROCEDURE pProcessMiscNonPrep PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ef          FOR ef.
     DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
 
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
     DO iIndex = 1 TO 6:
-        IF INDEX("IM",ipbf-ef.mis-simon[iIndex]) EQ 0 OR ipbf-ef.mis-cost[iIndex] EQ "" THEN NEXT.
-        RUN pAddEstMiscForForm(BUFFER ipbf-ef, BUFFER ipbf-estCostForm, ipdQuantity, iIndex, "Material").
-        RUN pAddEstMiscForForm(BUFFER ipbf-ef, BUFFER ipbf-estCostForm, ipdQuantity, iIndex, "Labor").
+        IF ipbf-ef.mis-cost[iIndex] EQ "" THEN NEXT.
+        RUN pAddEstMiscForForm(BUFFER ipbf-ef, BUFFER ipbf-estCostForm, iIndex, "Material").
+        RUN pAddEstMiscForForm(BUFFER ipbf-ef, BUFFER ipbf-estCostForm, iIndex, "Labor").
     END.
 
 END PROCEDURE.
@@ -2022,14 +2055,13 @@ PROCEDURE pProcessMiscPrep PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ef          FOR ef.
     DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-
+    
     FOR EACH est-prep NO-LOCK 
         WHERE est-prep.company EQ ipbf-ef.company
         AND est-prep.est-no EQ ipbf-ef.est-no
         AND est-prep.s-num EQ ipbf-ef.form-no
         AND est-prep.code NE "":
-        RUN pAddEstMiscForPrep(BUFFER est-prep, BUFFER ipbf-estCostForm, ipdQuantity).
+        RUN pAddEstMiscForPrep(BUFFER est-prep, BUFFER ipbf-estCostForm).
     END.    
 
 END PROCEDURE.

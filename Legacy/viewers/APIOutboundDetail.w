@@ -65,8 +65,8 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR APIOutboundDetail, APIOutbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS APIOutboundDetail.apiID ~
-APIOutboundDetail.detailID APIOutboundDetail.parentID 
+&Scoped-Define ENABLED-FIELDS APIOutboundDetail.detailID ~
+APIOutboundDetail.parentID 
 &Scoped-define ENABLED-TABLES APIOutboundDetail
 &Scoped-define FIRST-ENABLED-TABLE APIOutboundDetail
 &Scoped-Define ENABLED-OBJECTS edData 
@@ -78,6 +78,7 @@ APIOutboundDetail.detailID APIOutboundDetail.parentID
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
+&Scoped-define ADM-CREATE-FIELDS APIOutboundDetail.apiID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -122,7 +123,7 @@ DEFINE FRAME F-Main
           LABEL "API ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
-          BGCOLOR 15 
+          BGCOLOR 3 FGCOLOR 15 
      APIOutboundDetail.detailID AT ROW 3.86 COL 29 COLON-ALIGNED WIDGET-ID 4
           LABEL "Detail ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
@@ -198,7 +199,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN APIOutboundDetail.apiID IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+   NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 ASSIGN 
        APIOutboundDetail.apiID:READ-ONLY IN FRAME F-Main        = TRUE.
 
@@ -312,6 +313,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
+PROCEDURE local-assign-statement :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pUpdateFields.
+  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
 PROCEDURE local-disable-fields :
 /*------------------------------------------------------------------------------
@@ -339,9 +360,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF adm-new-record THEN
-        RUN pUpdateFields.    
-    
+
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -366,26 +385,6 @@ PROCEDURE local-enable-fields :
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pEnableFields.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-   /* Code placed here will execute PRIOR to standard behavior. */
-
-   /* Dispatch standard ADM method.                             */
-   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-   /* Code placed here will execute AFTER standard behavior.    */
-   IF NOT adm-new-record THEN
-       RUN pUpdateFields.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -471,7 +470,6 @@ PROCEDURE pUpdateFields :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    FIND CURRENT APIOutboundDetail NO-ERROR.
     IF AVAILABLE APIOutboundDetail THEN        
         APIOutboundDetail.data = edData:SCREEN-VALUE.    
 END PROCEDURE.

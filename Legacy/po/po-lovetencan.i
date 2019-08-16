@@ -268,7 +268,7 @@ FOR EACH po-ordl
     RUN pr-header (NO).
 
   IF v-cost GT 0 THEN
-     v-setup = "Setup: " + STRING(po-ordl.setup,">>,>>9.99").
+     v-setup = "Lmise En Train: " + STRING(po-ordl.setup,">>,>>9.99").
   ELSE
      v-setup = "".
 
@@ -366,7 +366,7 @@ FOR EACH po-ordl
         PUT {1}
             SKIP
             SPACE(7)
-            "Score: "
+            "Rainure: "
             len-score FORMAT "x(66)".
     END.
 
@@ -388,7 +388,7 @@ FOR EACH po-ordl
 
   IF lPrintMach and cMachCode NE ""  THEN DO:
    put {1} SKIP.
-   PUT {1} "First Resource: " cMachCode FORM "x(8)"  SKIP.
+   PUT {1} "Première Machine: " cMachCode FORM "x(8)"  SKIP.
    v-print-lines = v-print-lines + 1.
   END.
   
@@ -482,7 +482,7 @@ end.
                ELSE po-ord.buyer.
          
   PUT {1}
-      "Freight:"             to 66 
+      "Transport:"             to 66 
      v-t-freight[2]         to 80   format ">,>>>,>>9.999"
      skip (1) .
   IF lPrintGrandTotMsf THEN
@@ -490,23 +490,23 @@ end.
      "MSF:"                 to 66
      v-tot-sqft[2]          to 80   format ">,>>>,>>9.999" SKIP .
      
-  PUT 
+   PUT {1}
       "TVS:"                 to 66
-    /* v-tot-sqft[2]          to 80   format ">,>>>,>>9.999"*/
-     SKIP.
+      v-tot-sqft[2]          to 80   format ">,>>>,>>9.999"
+      SKIP.
 
    PUT {1}
-     "Autorisé Per ________________________________"       at 2
+     "Autorisè Par ________________________________"       at 2
      "TVQ:"                 to 66   
      v-tax[2]               to 80   format ">>,>>>,>>9.99"
      v-username FORM "x(30)" at 2
      "GRAND TOTAL:"         to 66  
      v-po-tot[2]            to 80   format ">>,>>>,>>9.99".
    PUT {1} SKIP(1)
-     "Vérifié Per _________________________________"       at 2.
+     "Vèrifiè Par _________________________________"       at 2.
 
-   PUT {1}
-     "<B>FUNDS payable in " + string(cCurCode,"x(3)") +  ".</B>" AT 59 FORMAT "x(200)" .
+   /*PUT {1}*/
+   /*  "<B>FUNDS payable in " + string(cCurCode,"x(3)") +  ".</B>" AT 59 FORMAT "x(200)" .*/
   
   v-signature = IF v-sig-image <> "" THEN
                    "<C16><#2><R-4.5><C+40><Image#2=" + v-sig-image        

@@ -37,7 +37,7 @@ DEFINE VARIABLE lv-item-recid   AS RECID     NO-UNDO.
 DEFINE VARIABLE ll-order-warned AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ilogic          AS LOGICAL   NO-UNDO.
-
+DEFINE VARIABLE cMaterialType AS CHARACTER INITIAL "C,5,6,M,D" NO-UNDO .
 {Inventory/ttInventory.i "NEW SHARED"}
 
 /* _UIB-CODE-BLOCK-END */
@@ -75,8 +75,7 @@ estPacking.dimWidth
 estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
 &Scoped-define ENABLED-TABLES estPacking
 &Scoped-define FIRST-ENABLED-TABLE estPacking
-&Scoped-Define ENABLED-OBJECTS est-no iForm iBlank cCustPart cCase cPallet ~
-Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
+&Scoped-Define ENABLED-OBJECTS  Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
 &Scoped-Define DISPLAYED-FIELDS estPacking.rmItemID estPacking.materialType ~
 estPacking.quantity estPacking.quantityPer estPacking.dimLength ~
 estPacking.dimWidth estPacking.dimDepth 
@@ -101,12 +100,6 @@ FUNCTION fGetItemName RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetNextEstReleaseID Dialog-Frame 
-FUNCTION fGetNextEstReleaseID RETURNS INTEGER
-    ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetType Dialog-Frame 
 FUNCTION fGetType RETURNS CHARACTER
@@ -320,10 +313,22 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estPacking.rmItemID IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN est-no IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN iForm IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN iBlank IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN cCustPart IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN cCase IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+/* SETTINGS FOR FILL-IN cPallet IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+     
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
@@ -352,7 +357,7 @@ DO:
         CASE FOCUS:NAME :
             WHEN "rmItemID" THEN 
                 DO:
-                    RUN windows/l-item.w (eb.company,"","C,5,6,M",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+                    RUN windows/l-item.w (eb.company,"",cMaterialType,FOCUS:SCREEN-VALUE, OUTPUT char-val).
                     IF char-val <> "" AND estPacking.rmItemID:SCREEN-VALUE NE entry(1,char-val) THEN 
                     DO:
                         estPacking.rmItemID:SCREEN-VALUE = ENTRY(1,char-val).
@@ -644,7 +649,6 @@ PROCEDURE create-item :
             estPacking.estimateNo   = eb.est-no
             estPacking.FormNo       = eb.form-no
             estPacking.BlankNo      = eb.blank-No
-            estPacking.estPackingID = fGetNextEstReleaseID()
             estPacking.quantityPer  = "C"  .
 
         IF AVAILABLE estPacking THEN 
@@ -747,7 +751,7 @@ PROCEDURE enable_UI :
           estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
           estPacking.dimDepth 
       WITH FRAME Dialog-Frame.
-  ENABLE est-no iForm iBlank cCustPart cCase cPallet estPacking.rmItemID 
+  ENABLE estPacking.rmItemID 
          estPacking.quantity estPacking.quantityPer estPacking.dimLength 
          estPacking.dimWidth Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.
@@ -792,7 +796,7 @@ PROCEDURE valid-material :
         FIND FIRST item NO-LOCK
             WHERE item.company EQ cocode
             AND item.i-no    EQ estPacking.rmItemID:SCREEN-VALUE 
-            AND lookup(item.mat-type,"C,5,6,M") > 0 NO-ERROR.
+            AND lookup(item.mat-type,cMaterialType) > 0 NO-ERROR.
         IF NOT AVAILABLE ITEM THEN 
         DO:
             MESSAGE "Invalid Item Id, try help..." VIEW-AS ALERT-BOX.
@@ -818,7 +822,7 @@ PROCEDURE value-change-material :
         FIND FIRST item NO-LOCK
             WHERE item.company EQ cocode
             AND item.i-no    EQ estPacking.rmItemID:SCREEN-VALUE 
-            AND lookup(item.mat-type,"C,5,6,M") > 0 NO-ERROR.
+            AND lookup(item.mat-type,cMaterialType) > 0 NO-ERROR.
         IF AVAILABLE item THEN 
         DO:
             ASSIGN
@@ -855,19 +859,6 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNextEstReleaseID Dialog-Frame 
-FUNCTION fGetNextEstReleaseID RETURNS INTEGER
-    ( /* parameter-definitions */ ) :
-    /*------------------------------------------------------------------------------
-      Purpose:Gets the next unique estPackingID for an estRelease 
-        Notes:  
-    ------------------------------------------------------------------------------*/
-    RETURN NEXT-VALUE(estPackingId_seq).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetType Dialog-Frame 
 FUNCTION fGetType RETURNS CHARACTER

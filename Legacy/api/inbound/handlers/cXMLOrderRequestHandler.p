@@ -23,19 +23,72 @@ DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
 
+DEFINE VARIABLE cPayLoadID        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcResponse        AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE cResponseCode     AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE riAPIInboundEvent AS ROWID     NO-UNDO. 
+
+/* Currenly cCompany and cWarehouseID are not assigned.Once session 
+   manager related work is completed then cCompany and cWarehouseID 
+   will be assigned */
+DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWarehouseID      AS CHARACTER NO-UNDO.
+
+FUNCTION GetDateTimeTZStringForResponse RETURNS CHARACTER() FORWARD.
+
 RUN cXML/gencXMLOrder.p (
     iplcRequestData,
     NO, /* Add records to temp-table only */
+    INPUT  cCompany, 
+    INPUT  cWarehouseID,
+    OUTPUT cPayLoadID,
     OUTPUT oplSuccess,
     OUTPUT opcMessage
-    ) NO-ERROR.
+    ) 
+    NO-ERROR.
 
+/* Prepares response data */
 ASSIGN
-    oplcResponseData  = '~{"response_code": 200,"response_message":"' + opcMessage + '"}'. 
-    .
+    opcMessage       = IF oplSuccess THEN "OK" ELSE opcMessage
+    cResponseCode    = IF oplSuccess THEN "200" ELSE "400"
+    lcResponse       = '~<Status code="' + cResponseCode + '" text="' + opcMessage  + '"/>'
+    oplcResponseData = iplcResponseDataStructure
+    oplcResponseData = REPLACE(oplcResponseData,"$payloadID",cPayLoadID)
+    oplcResponseData = REPLACE(oplcResponseData,"$response",lcResponse)
+    oplcResponseData = REPLACE(oplcResponseData,"$timestamp",GetDateTimeTZStringForResponse())
+    oplcResponseData = REPLACE(oplcResponseData,'"','\"')
+    oplcResponseData = '~{"response_code": ' +  cResponseCode + ',"response_message":"' + oplcResponseData + '"}'
+    . 
 
+/* Log the request to APIInboundEvent */
+RUN api\CreateAPIInboundEvent.p (
+    INPUT  ipcRoute,
+    INPUT  iplcRequestData,
+    INPUT  oplcResponseData,
+    INPUT  oplSuccess,
+    INPUT  opcMessage,
+    INPUT  NOW,
+    INPUT  ipcRequestedBy,
+    INPUT  ipcRecordSource,
+    INPUT  ipcNotes,
+    INPUT  cPayLoadID,
+    OUTPUT riAPIInboundEvent
+    ).
 
-
-
+/* Return time */                            
+FUNCTION GetDateTimeTZStringForResponse RETURNS CHARACTER():
+    DEFINE VARIABLE cDateString AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTimString  AS CHARACTER NO-UNDO.
+    
+    ASSIGN 
+        cDateString = ENTRY(1,STRING(NOW)," ")
+        cTimString  = ENTRY(2,STRING(NOW)," ")
+        .
+           
+    RETURN ENTRY(3,cDateString,"/") + "-" + 
+           ENTRY(2,cDateString,"/") + "-" + 
+           ENTRY(1,cDateString,"/") + "T" + 
+           cTimString  . 
+END.
 
                                                       

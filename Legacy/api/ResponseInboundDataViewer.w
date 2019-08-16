@@ -47,9 +47,9 @@ DEFINE INPUT PARAMETER ipriInboundEvent AS ROWID NO-UNDO.
 edResponseData edErrorMessage Btn_OK Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiReqDataType fiRequestVerb fiCanBeQueued ~
 fiReqDataTypelb fiRequestVerblb ficanBeQueuedlbb fiapiRoute fiRecordSource ~
-fiReqAPIRoutelb fiRecordSourcelb fiDescriptionLabel edDescription ~
-fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData ~
-fiErrorMessageLabel edErrorMessage 
+fiReqAPIRoutelb fiRecordSourcelb fiExternalID fiExternalIDLabel ~
+fiDescriptionLabel edDescription fiRequestDataLabel edRequestData ~
+fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -98,7 +98,7 @@ DEFINE VARIABLE edResponseData AS CHARACTER
 
 DEFINE VARIABLE fiapiRoute AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 56.2 BY 1.19
+     SIZE 53 BY 1.19
      FGCOLOR 9 FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiCanBeQueued AS CHARACTER FORMAT "X(256)":U 
@@ -111,7 +111,7 @@ DEFINE VARIABLE ficanBeQueuedlbb AS CHARACTER FORMAT "X(256)":U INITIAL "Can Be 
      SIZE 21.4 BY 1
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiDescriptionLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID Description:" 
+DEFINE VARIABLE fiDescriptionLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API Route Description:" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1
      FONT 35 NO-UNDO.
@@ -119,6 +119,16 @@ DEFINE VARIABLE fiDescriptionLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API I
 DEFINE VARIABLE fiErrorMessageLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Response Result:" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiExternalID AS CHARACTER FORMAT "X(40)":U 
+     VIEW-AS FILL-IN 
+     SIZE 98 BY 1.19
+     FGCOLOR 9 FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiExternalIDLabel AS CHARACTER FORMAT "X(30)":U INITIAL "External ID:" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiRecordSource AS CHARACTER FORMAT "X(256)":U 
@@ -131,9 +141,9 @@ DEFINE VARIABLE fiRecordSourcelb AS CHARACTER FORMAT "X(256)":U INITIAL "Record 
      SIZE 21.2 BY 1
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiReqAPIRoutelb AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
+DEFINE VARIABLE fiReqAPIRoutelb AS CHARACTER FORMAT "X(256)":U INITIAL "API Route:" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1
+     SIZE 15 BY 1
      FONT 35 NO-UNDO.
 
 DEFINE VARIABLE fiReqDataType AS CHARACTER FORMAT "X(256)":U 
@@ -184,16 +194,18 @@ DEFINE FRAME Dialog-Frame
      fiReqDataTypelb AT ROW 1.81 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 120
      fiRequestVerblb AT ROW 1.81 COL 54.4 COLON-ALIGNED NO-LABEL WIDGET-ID 124
      ficanBeQueuedlbb AT ROW 1.86 COL 98 COLON-ALIGNED NO-LABEL WIDGET-ID 116
-     fiapiRoute AT ROW 3.76 COL 17.8 COLON-ALIGNED NO-LABEL WIDGET-ID 126
+     fiapiRoute AT ROW 3.76 COL 21 COLON-ALIGNED NO-LABEL WIDGET-ID 126
      fiRecordSource AT ROW 3.76 COL 97.4 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     fiReqAPIRoutelb AT ROW 3.86 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+     fiReqAPIRoutelb AT ROW 3.86 COL 5.6 COLON-ALIGNED NO-LABEL WIDGET-ID 128
      fiRecordSourcelb AT ROW 3.86 COL 75.4 COLON-ALIGNED NO-LABEL WIDGET-ID 112
-     fiDescriptionLabel AT ROW 6.33 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     edDescription AT ROW 7.52 COL 11 NO-LABEL WIDGET-ID 14
-     fiRequestDataLabel AT ROW 10.91 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     edRequestData AT ROW 12.1 COL 11 NO-LABEL WIDGET-ID 2
-     fiResponseDataLabel AT ROW 18.57 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     edResponseData AT ROW 19.76 COL 11 NO-LABEL WIDGET-ID 10
+     fiExternalID AT ROW 6.19 COL 27 COLON-ALIGNED NO-LABEL WIDGET-ID 132
+     fiExternalIDLabel AT ROW 6.24 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 130
+     fiDescriptionLabel AT ROW 7.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     edDescription AT ROW 8.86 COL 11 NO-LABEL WIDGET-ID 14
+     fiRequestDataLabel AT ROW 11.71 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     edRequestData AT ROW 13.14 COL 11 NO-LABEL WIDGET-ID 2
+     fiResponseDataLabel AT ROW 19.1 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     edResponseData AT ROW 20.52 COL 11 NO-LABEL WIDGET-ID 10
      fiErrorMessageLabel AT ROW 26.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
      edErrorMessage AT ROW 27.76 COL 11 NO-LABEL WIDGET-ID 94
      Btn_OK AT ROW 31 COL 41
@@ -265,6 +277,16 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fiErrorMessageLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiExternalID IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiExternalID:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiExternalIDLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiExternalIDLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiRecordSource IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -396,9 +418,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiReqDataType fiRequestVerb fiCanBeQueued fiReqDataTypelb 
           fiRequestVerblb ficanBeQueuedlbb fiapiRoute fiRecordSource 
-          fiReqAPIRoutelb fiRecordSourcelb fiDescriptionLabel edDescription 
-          fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData 
-          fiErrorMessageLabel edErrorMessage 
+          fiReqAPIRoutelb fiRecordSourcelb fiExternalID fiExternalIDLabel 
+          fiDescriptionLabel edDescription fiRequestDataLabel edRequestData 
+          fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-1 RECT-2 edDescription edRequestData edResponseData 
          edErrorMessage Btn_OK Btn_Cancel 
@@ -435,7 +457,8 @@ PROCEDURE pInit :
                                               2
                                           ELSE
                                               12            
-            fiRecordSource:SCREEN-VALUE = APIInboundEvent.recordSource                                                 
+            fiRecordSource:SCREEN-VALUE = APIInboundEvent.recordSource 
+            fiExternalID:SCREEN-VALUE   = APIInboundEvent.externalID                                                
             .            
     
        FIND FIRST APIInbound NO-LOCK 

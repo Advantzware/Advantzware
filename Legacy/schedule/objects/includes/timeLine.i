@@ -15,6 +15,7 @@ IF autoMonitor THEN DO WITH FRAME {&FRAME-NAME}:
     IF autoMonitorImage GT 7 THEN
     autoMonitorImage = 0.
 END. /* if automonitor */
+&IF '{&Board}' EQ 'Pro' &THEN
 ELSE DO:
     externalStatusFile = SEARCH('{&updates}\' + ID + '\inUse.dat').
     IF externalStatusFile NE ? THEN DO:
@@ -35,3 +36,4 @@ ELSE DO:
         END. /* if checked */
     END. /* if */
 END. /* else */
+&ENDIF
