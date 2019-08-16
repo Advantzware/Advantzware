@@ -97,6 +97,8 @@ DEFINE VARIABLE h_vi-qthd AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-qtitm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-qtqty AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-qtrpc AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-prmtx AS HANDLE NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -283,8 +285,17 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-quote ).
-       RUN set-position IN h_p-quote ( 14.33 , 36.00 ) NO-ERROR.
+       RUN set-position IN h_p-quote ( 14.33 , 30.00 ) NO-ERROR.
        RUN set-size IN h_p-quote ( 1.76 , 70.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/vp-prmtx.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-prmtx ).
+       RUN set-position IN h_vp-prmtx ( 14.33 , 103.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.43 , 44.00 ) */
+
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/b-qtitm.w':U ,
@@ -314,6 +325,8 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_b-qtitm. */
        RUN add-link IN adm-broker-hdl ( h_p-addupd , 'TableIO':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_b-qtitm ).
+       /* Links to SmartViewer h_vp-prmtx. */
+       RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_vp-prmtx ).
 
     END. /* Page 2 */
 
