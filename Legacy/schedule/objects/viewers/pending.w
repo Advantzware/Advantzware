@@ -304,7 +304,7 @@ DEFINE VARIABLE setDateTimeOptions AS INTEGER INITIAL 1
           "&All Resources", 1,
 "This &Resource Only", 2
      SIZE 28 BY 1.67
-     BGCOLOR 1 FGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
 
 DEFINE VARIABLE setPlacementOptions AS INTEGER INITIAL 1 
      VIEW-AS RADIO-SET VERTICAL
