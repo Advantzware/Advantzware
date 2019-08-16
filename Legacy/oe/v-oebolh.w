@@ -1029,9 +1029,10 @@ PROCEDURE custom-panel-state :
 ------------------------------------------------------------------------------*/
   DEF INPUT-OUTPUT PARAM io-panel-state AS CHAR NO-UNDO.
 
-
-  IF NOT AVAIL oe-bolh OR oe-bolh.posted THEN
+  IF AVAIL oe-bolh AND oe-bolh.posted THEN
     io-panel-state = "disable-all".
+  ELSE IF AVAIL oe-bolh AND io-panel-state EQ "add-only" THEN
+      io-panel-state = "initial".
 
 END PROCEDURE.
 
