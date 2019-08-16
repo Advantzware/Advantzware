@@ -514,7 +514,7 @@ DO:
     IF AVAIL w-jobs THEN
        cLocation =  w-jobs.loc .
     IF NOT AVAILABLE itemfg THEN RETURN NO-APPLY.
-    IF itemfg.q-ono NE 0 THEN DO:
+    
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company EQ itemfg.company
                AND job-hdr.i-no    EQ itemfg.i-no
@@ -545,7 +545,6 @@ DO:
         END.
         IF NOT AVAIL job-hdr AND NOT AVAIL fg-set THEN
             MESSAGE "No jobs for this item.." VIEW-AS ALERT-BOX INFORMATION . 
-    END.          
 END.
 
 /* _UIB-CODE-BLOCK-END */
