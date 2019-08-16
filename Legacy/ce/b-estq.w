@@ -100,19 +100,13 @@ END.
        FOR each ASI.eb WHERE ASI.eb.company = g_company AND eb.loc = g_loc  ~
                  and eb.form-no > 0 and eb.blank-no > 0                     ~
                  AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "")  OR custcount = "")             ~
-                 AND (IF begin_cust-no BEGINS '*' THEN  eb.cust-no MATCHES begin_cust-no     ~
-                     ELSE eb.cust-no BEGINS begin_cust-no )                ~
-                 AND (IF begin_ship BEGINS '*' THEN  eb.ship-id MATCHES begin_ship     ~
-                     ELSE eb.ship-id BEGINS begin_ship)                     ~
+                 AND {system/brMatches.i  eb.cust-no begin_cust-no}   ~
+                 AND {system/brMatches.i  eb.ship-id begin_ship}   ~
                  AND (eb.ship-id EQ begin_ship OR NOT ll-shipto)            ~
-                 AND (IF vi_part-no BEGINS '*' THEN eb.part-no MATCHES vi_part-no     ~
-                     ELSE eb.part-no BEGINS vi_part-no )                    ~
-                 AND (IF vi_stock-no BEGINS '*' THEN eb.stock-no MATCHES vi_stock-no   ~
-                     ELSE eb.stock-no BEGINS vi_stock-no)                    ~
-                 AND (IF vi_style BEGINS '*' THEN eb.style MATCHES vi_style ~
-                     ELSE eb.style BEGINS vi_style)                         ~
-                 AND (IF vi_part-dscr1 BEGINS '*' THEN eb.part-dscr1 MATCHES vi_part-dscr1  ~
-                     ELSE eb.part-dscr1 BEGINS vi_part-dscr1)                  ~
+                 AND {system/brMatches.i  eb.part-no vi_part-no}   ~
+                 AND {system/brMatches.i  eb.stock-no vi_stock-no}   ~
+                 AND {system/brMatches.i  eb.style vi_style}   ~
+                 AND {system/brMatches.i  eb.part-dscr1 vi_part-dscr1}   ~
                  AND (eb.die-no MATCHES vi_die-no OR vi_die-no = "")         ~
                  AND (eb.cad-no BEGINS vi_cad-no  OR vi_cad-no = "")        ~
                  AND (eb.plate-no BEGINS vi_plate-no OR vi_plate-no = "")   ~

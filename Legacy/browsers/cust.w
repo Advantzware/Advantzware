@@ -114,21 +114,14 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 &SCOPED-DEFINE for-each2                          ~
     FOR EACH cust                               ~
         WHERE {&key-phrase}                       ~
-          AND (IF fi_cust-no BEGINS '*' THEN cust.cust-no MATCHES  fi_cust-no     ~
-               ELSE cust.cust-no BEGINS  fi_cust-no)   ~
-          AND (IF fi_i-name BEGINS '*' THEN cust.NAME   MATCHES fi_i-name  ~
-               ELSE cust.NAME   BEGINS fi_i-name) ~
-          AND (IF fi_city BEGINS '*' THEN cust.city   MATCHES fi_city  ~
-               ELSE cust.city   BEGINS fi_city)  ~
-          AND (IF fi_stat BEGINS '*' THEN cust.state MATCHES fi_stat  ~
-               ELSE cust.state    BEGINS fi_stat)   ~
+          AND {system/brMatches.i cust.cust-no fi_cust-no}   ~
+          AND {system/brMatches.i cust.NAME fi_i-name}   ~
+          AND {system/brMatches.i cust.city fi_city}   ~
+          AND {system/brMatches.i cust.state fi_stat}   ~
           AND cust.zip    BEGINS fi_zip   ~
-          AND (IF fi_type BEGINS '*' THEN cust.TYPE     MATCHES fi_type    ~
-               ELSE cust.TYPE     BEGINS fi_type)  ~
-          AND (IF fi_terr BEGINS '*' THEN cust.terr    MATCHES fi_terr   ~
-               ELSE cust.terr    BEGINS fi_terr) ~
-          AND (IF fi_sman BEGINS '*' THEN cust.sman    MATCHES fi_sman   ~
-              ELSE cust.sman    BEGINS fi_sman) ~
+          AND {system/brMatches.i cust.TYPE fi_type}   ~
+          AND {system/brMatches.i cust.terr fi_terr}   ~
+          AND {system/brMatches.i cust.sman fi_sman}   ~
           AND ( lookup(cust.cust-no,custcount) <> 0 OR custcount = "") ~
           AND ((CAN-DO("A,X,S,E,",cust.active) AND tb_act) OR (cust.ACTIVE = "I" AND tb_in-act))
 

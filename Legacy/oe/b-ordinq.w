@@ -118,8 +118,7 @@ ll-sort-asc = NO /*oeinq*/.
           AND oe-ordl.s-man[1] BEGINS fi_sman ~
           AND oe-ordl.job-no BEGINS fi_job-no ~
           AND (oe-ordl.job-no2 EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ '') ~
-          AND (oe-ordl.i-name BEGINS fi_i-name OR (INDEX(fi_i-name,'*') NE 0 ~
-          AND oe-ordl.i-name MATCHES fi_i-name))
+          AND {system/brMatches.i  oe-ordl.i-name fi_i-name}
 
 &SCOPED-DEFINE for-each11 ~
     FOR EACH oe-ordl ~
@@ -127,15 +126,14 @@ ll-sort-asc = NO /*oeinq*/.
           AND ((LOOKUP(oe-ordl.cust-no,custcount) NE 0 ~
           AND oe-ordl.cust-no NE '') OR custcount EQ '') ~
           AND oe-ordl.cust-no BEGINS fi_cust-no ~
-          AND oe-ordl.i-no MATCHES (IF INDEX(fi_i-no, '*') EQ 0 THEN '*' ELSE fi_i-no) ~
-          AND oe-ordl.part-no MATCHES (IF INDEX(fi_part-no, '*') EQ 0 THEN '*' ELSE fi_part-no) ~
-          AND oe-ordl.po-no     MATCHES (IF index(fi_po-no1, "*") EQ 0 THEN "*" ELSE fi_po-no1) ~
+          AND {system/brMatches.i  oe-ordl.i-no fi_i-no}   ~
+          AND {system/brMatches.i  oe-ordl.part-no fi_part-no}   ~
+          AND {system/brMatches.i  oe-ordl.po-no fi_po-no1}   ~
           AND oe-ordl.est-no BEGINS fi_est-no ~
           AND oe-ordl.s-man[1] BEGINS fi_sman ~
           AND oe-ordl.job-no BEGINS fi_job-no ~
           AND (oe-ordl.job-no2 EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ '') ~
-          AND (oe-ordl.i-name BEGINS fi_i-name OR (INDEX(fi_i-name,'*') NE 0 ~
-          AND oe-ordl.i-name MATCHES fi_i-name))
+          AND {system/brMatches.i  oe-ordl.i-name fi_i-name}
 
 &SCOPED-DEFINE for-each2 ~
     FIRST oe-ord OF oe-ordl ~
