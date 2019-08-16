@@ -100,6 +100,7 @@ END.
 DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAccessRelButton AS LOGICAL NO-UNDO .
 RUN methods/prgsecur.p
 	    (INPUT "loc.",
 	     INPUT "ALL", /* based on run, create, update, delete or all */
@@ -107,6 +108,16 @@ RUN methods/prgsecur.p
 	     INPUT NO,    /* Show a message if not authorized */
 	     INPUT NO,    /* Group overrides user security? */
 	     OUTPUT lAccess, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+RUN methods/prgsecur.p
+	    (INPUT "w-oerel.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAccessRelButton, /* Allowed? Yes/NO */
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
@@ -178,7 +189,7 @@ DEFINE QUERY external_tables FOR itemfg.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnBinDetails btnJobs btnPO btnAllocated ~
-btnAddLocation br_table 
+btnRelease btnAddLocation br_table 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -194,7 +205,11 @@ btnAddLocation br_table
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAddLocation 
      LABEL "+ Add New Location" 
-     SIZE 24 BY 1 TOOLTIP "Click to Add New Location".
+     SIZE 24 BY 1 TOOLTIP "Click to Add New Location". 
+
+DEFINE BUTTON btnRelease 
+     LABEL "View Releases" 
+     SIZE 17 BY 1 TOOLTIP "Click to View Release".
 
 DEFINE BUTTON btnAllocated 
      LABEL "View Allocated" 
@@ -258,7 +273,9 @@ DEFINE FRAME F-Main
           "View POs" WIDGET-ID 16
      btnAllocated AT ROW 1 COL 90 HELP
           "View Allocated" WIDGET-ID 18
-     btnAddLocation AT ROW 1 COL 115 HELP
+     btnRelease AT ROW 1 COL 107 HELP
+          "View Releases" 
+     btnAddLocation AT ROW 1 COL 130 HELP
           "Add New Location" WIDGET-ID 20
      br_table AT ROW 1.95 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -454,6 +471,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME btnRelease
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRelease B-table-Win
+ON CHOOSE OF btnRelease IN FRAME F-Main /* View Releases */
+DO:
+    DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO .
+    IF AVAIL w-jobs THEN
+       cLocation =  w-jobs.loc .
+    
+    RUN oeinq/b-relinfo.w(ROWID(itemfg), cLocation).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btnAddLocation
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddLocation B-table-Win
@@ -889,7 +920,8 @@ PROCEDURE local-initialize :
 
     IF NOT lAccess THEN
         btnAddLocation:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
-         
+    IF NOT lAccessRelButton THEN
+         btnRelease:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
 
     APPLY "FOCUS":U TO btnBinDetails IN FRAME {&FRAME-NAME}.
     /*
