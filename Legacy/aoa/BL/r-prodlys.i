@@ -48,7 +48,7 @@ PROCEDURE pProductionAnalysis1:
     DEFINE VARIABLE dMSF       AS DECIMAL   NO-UNDO.
 
     DEFINE BUFFER bMchAct FOR mch-act.
-
+    
     /* subject business logic */
     FOR EACH mch-act NO-LOCK
         WHERE mch-act.company EQ ipcCompany
@@ -72,7 +72,15 @@ PROCEDURE pProductionAnalysis1:
                AND job-hdr.cust-no GE cStartCustNo
                AND job-hdr.cust-no LE cEndCustNo
              NO-ERROR.
-        IF NOT AVAIL job-hdr THEN NEXT.
+        IF NOT AVAILABLE job-hdr THEN
+        FIND FIRST job-hdr NO-LOCK
+             WHERE job-hdr.company EQ mch-act.company
+               AND job-hdr.job-no  EQ mch-act.job-no
+               AND job-hdr.job-no2 EQ mch-act.job-no2
+               AND job-hdr.cust-no GE cStartCustNo
+               AND job-hdr.cust-no LE cEndCustNo
+             NO-ERROR.
+        IF NOT AVAILABLE job-hdr THEN NEXT.
         IF lCustList AND
            NOT CAN-FIND(FIRST ttCustList
                         WHERE ttCustList.cust-no EQ job-hdr.cust
@@ -89,7 +97,7 @@ PROCEDURE pProductionAnalysis1:
         NEXT.
         IF (mch-act.dept GE ipcStartDept AND
             mch-act.dept LE ipcEndDept)  OR
-           (mach.dept[2] NE ""         AND
+           (mach.dept[2] NE ""           AND
             mach.dept[2] GE ipcStartDept AND
             mach.dept[2] LE ipcEndDept   AND
             NOT CAN-FIND(FIRST bMchAct
@@ -100,7 +108,7 @@ PROCEDURE pProductionAnalysis1:
                            AND bMchAct.frm     EQ mch-act.frm
                            AND bMchAct.m-code  NE mch-act.m-code
                            AND bMchAct.dept    EQ mach.dept[2])) OR
-           (mach.dept[3] NE ""         AND
+           (mach.dept[3] NE ""           AND
             mach.dept[3] GE ipcStartDept AND
             mach.dept[3] LE ipcEndDept   AND
             NOT CAN-FIND(FIRST bMchAct
@@ -172,6 +180,12 @@ PROCEDURE pProductionAnalysis1:
                            AND job-hdr.job-no  EQ mch-act.job-no
                            AND job-hdr.job-no2 EQ mch-act.job-no2
                            AND job-hdr.frm     EQ mch-act.frm
+                         NO-ERROR.
+                    IF NOT AVAILABLE job-hdr THEN
+                    FIND FIRST job-hdr NO-LOCK
+                         WHERE job-hdr.company EQ mch-act.company
+                           AND job-hdr.job-no  EQ mch-act.job-no
+                           AND job-hdr.job-no2 EQ mch-act.job-no2
                          NO-ERROR.
                     FIND FIRST eb NO-LOCK
                          WHERE eb.company  EQ job-hdr.company
