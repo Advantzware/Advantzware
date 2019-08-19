@@ -51,7 +51,7 @@ PUT "<R26><C59><#8><FROM><R26><C83><RECT><||3>" SKIP
     "<R26><C59><FROM><R30><C59><LINE><||3>" SKIP
     "<R26><C83><FROM><R30><C83><LINE><||3>" SKIP.
 
-PUT "<FArial><R27><C66><P16><B>" tt-po-print.pr-qty-uom  "</B>" SKIP.
+PUT "<FArial><R27><C66><P16><B>" tt-po-print.cons-uom "</B>" SKIP.
 
 PUT "<FArial><R32><C8><P16><B>" "Bin Location"  "</B>" SKIP.
 PUT "<FArial><R32><C40><P16><B>" "Weight"  "</B>" SKIP.
