@@ -124,6 +124,8 @@ DEF TEMP-TABLE tt-specCd NO-UNDO
 DEF NEW SHARED VAR v-newdie   AS LOG NO-UNDO INIT FALSE.
 DEF NEW SHARED VAR v-newfilm  AS LOG NO-UNDO INIT FALSE.
 DEF NEW SHARED VAR v-newcombo AS LOG NO-UNDO INIT FALSE.
+DEFINE NEW SHARED VARIABLE lIncludeLastPage AS LOGICAL NO-UNDO .
+DEFINE NEW SHARED VARIABLE cRdOptionMclean AS CHARACTER INITIAL "M" NO-UNDO .
 DEF BUFFER b-reftable-freeze FOR reftable.
 DEF BUFFER b-reftable-split FOR reftable.
 
@@ -1700,7 +1702,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     lv-int-f    = sys-ctrl.int-fld
     lv-default-f = sys-ctrl.char-fld.
    IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/
-     lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
+     lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,McLean,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
 
    {sys/inc/jobcard.i "C"}
    ASSIGN
@@ -2893,7 +2895,7 @@ PROCEDURE output-to-printer :
 /*      MESSAGE "lv-format-f  " lv-format-f VIEW-AS ALERT-BOX ERROR.*/
       IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0 */
         lookup(lv-format-f, 
-          "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
+          "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
      DO:   
          FILE-INFO:FILE-NAME = list-name.
          RUN printfile (FILE-INFO:FILE-NAME).   
@@ -2951,7 +2953,7 @@ IF ( tb_fold AND lv-format-f EQ "xml")   THEN
      end.
 
      IF  /*index("Interpac,FibreFC,Dayton,Livngstn",lv-format-f) > 0 */
-        lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
+        lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
      DO:
          FILE-INFO:FILE-NAME = list-name.
          RUN printfile (FILE-INFO:FILE-NAME).
@@ -3242,7 +3244,7 @@ PROCEDURE pRunFormatValueChanged :
                              OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
                              OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
                              OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
-                             OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
+                             OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "McLean" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
                 (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20"
                               OR lv-format-c = "HoneyCell")) THEN
                 assign 
@@ -3332,6 +3334,20 @@ PROCEDURE pRunFormatValueChanged :
                             tb_committed:HIDDEN  = NO 
                             tb_prompt-ship:HIDDEN = NO 
                             tb_prt-set-header:HIDDEN = NO .
+
+             IF lv-format-f EQ "McLean" AND tb_fold:SCREEN-VALUE EQ "Yes" THEN
+                 ASSIGN lines-per-page:HIDDEN = YES 
+                        lv-ornt:HIDDEN = YES 
+                        lv-font-no:HIDDEN = YES 
+                        td-show-parm:HIDDEN = YES 
+                        tb_ExportXML:HIDDEN = YES
+                        lv-font-name:HIDDEN = YES .
+             ELSE ASSIGN lines-per-page:HIDDEN = NO 
+                        lv-ornt:HIDDEN = NO 
+                        lv-font-no:HIDDEN = NO 
+                        td-show-parm:HIDDEN = NO 
+                        tb_ExportXML:HIDDEN = NO
+                        lv-font-name:HIDDEN = NO .
         
        
     END.
