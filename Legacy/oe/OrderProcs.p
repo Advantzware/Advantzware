@@ -187,8 +187,7 @@ PROCEDURE pCreateActRelLine PRIVATE:
         /** Set link to the planned releases **/
         bf-oe-rell.link-no    = ipbf-oe-rel.r-no
         bf-oe-rell.s-code     = IF ipbf-oe-rel.s-code <> "" THEN ipbf-oe-rel.s-code ELSE
-                                 IF bf-oe-ordl.is-a-component THEN "S" ELSE
-                                    IF AVAILABLE oe-ctrl AND oe-ctrl.ship-from THEN "B" ELSE "I"     
+                                 IF bf-oe-ordl.is-a-component THEN "S" ELSE "B"    
         bf-oe-rell.partial = IF bf-oe-rell.s-code EQ "I" THEN bf-oe-ordl.partial ELSE 0
         bf-oe-rell.qty-case = IF AVAILABLE itemfg AND itemfg.case-count GT 0
             THEN itemfg.case-count

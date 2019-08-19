@@ -649,7 +649,9 @@ PROCEDURE gencXMLOrder:
   DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cDueDate AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lIsEdiXML AS LOGICAL NO-UNDO.
-  
+  DEFINE VARIABLE lOEAutoApproval AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
   DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
@@ -778,10 +780,17 @@ PROCEDURE gencXMLOrder:
  
       ASSIGN ttOrdHead.ttSelectedOrder = FALSE ttOrdHead.ttProcessed = TRUE.
       
+      /* Determine autoapproval for this customer/shipto */
+      lOEAutoApproval = NO.
+      RUN sys/ref/nk1look.p (cocode, "OEAutoApproval", "L", YES /* use shipto */, YES /* use cust*/, ttOrdHead.TTcustNO, cShipToID, 
+                              OUTPUT cResult, OUTPUT lFound).
+      IF lFound THEN
+        lOEAutoApproval = LOGICAL(cResult) NO-ERROR.
+      
       /* 52995 DSG Automated Ship To Creation */
-      /* Turn off auto-approve for orders (temporary fix for Premier)
-      RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).
-      */
+      IF lOeAutoApproval THEN 
+        RUN ProcessImportedOrder IN hOrderProcs (rOrdRec, OUTPUT lError, OUTPUT cMessage).
+      
   END. 
   
   RELEASE oe-ord.  
