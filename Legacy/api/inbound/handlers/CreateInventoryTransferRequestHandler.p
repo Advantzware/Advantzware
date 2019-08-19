@@ -33,6 +33,12 @@ DEFINE VARIABLE cLocationID             AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cInventoryStockIDTag    AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cPrimaryID              AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cItemType               AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE riAPIInboundEvent       AS ROWID      NO-UNDO.
+
+/* This code will be removed once userauthentication validation happens in APIRequestRouterAS.p
+   and then UserName will come as input parameter from APIRequestRouterAS.p if user authentication is success */
+DEFINE VARIABLE cUserName AS CHARACTER  NO-UNDO.
+cUserName = "user1".
 
 {api/inbound/ttRequest.i}
 
@@ -58,7 +64,9 @@ IF NOT oplSuccess THEN DO:
         INPUT NOW,
         INPUT ipcRequestedBy,
         INPUT ipcRecordSource,
-        INPUT ipcNotes
+        INPUT ipcNotes,
+        INPUT  "", /* PayloadID */
+        OUTPUT riAPIInboundEvent
         ).
 
    RETURN.
@@ -79,8 +87,10 @@ FOR EACH ttRequest:
            cPrimaryID = ttRequest.FieldValue.
         WHEN "ItemType" THEN
            cItemType = ttRequest.FieldValue.
-        WHEN "Requestedby" THEN
+        WHEN "Requester" THEN
            ipcRequestedBy = ttRequest.FieldValue.
+        WHEN "RequesterNotes" THEN
+           ipcNotes = ttRequest.FieldValue.
     END CASE.
 END.
 
@@ -92,14 +102,15 @@ RUN api\inbound\CreateInventoryTransfer.p (
     INPUT  cInventoryStockIDTag,
     INPUT  cPrimaryID,
     INPUT  cItemType,
+    INPUT  cUserName, 
     OUTPUT oplSuccess,
     OUTPUT opcMessage
     ).
 
 IF NOT oplSuccess THEN
 DO:
-   ASSIGN 
-       oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
+   oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
+   
    /* Log the request to APIInboundEvent */
    RUN api\CreateAPIInboundEvent.p (
        INPUT ipcRoute,
@@ -110,7 +121,9 @@ DO:
        INPUT NOW,
        INPUT ipcRequestedBy,
        INPUT ipcRecordSource,
-       INPUT ipcNotes
+       INPUT ipcNotes,
+       INPUT  "", /* PayloadID */
+       OUTPUT riAPIInboundEvent
        ).
    
    RETURN.  
@@ -131,7 +144,9 @@ RUN api\CreateAPIInboundEvent.p (
     INPUT NOW,
     INPUT ipcRequestedBy,
     INPUT ipcRecordSource,
-    INPUT ipcNotes
+    INPUT ipcNotes,
+    INPUT  "", /* PayloadID */
+    OUTPUT riAPIInboundEvent
     ).
     
 DELETE PROCEDURE hdJSONProcs.
