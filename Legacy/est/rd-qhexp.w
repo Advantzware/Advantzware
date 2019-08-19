@@ -84,12 +84,12 @@ ASSIGN cTextListToDefault  = "Part #,Customer,Quote#,Quantity,Price,Profit %,Pri
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_cust end_cust ~
-begin_procat end_procat begin_slm end_slm begin_date end_date sl_avail ~
-Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok ~
-btn-cancel Btn_Def
+begin_procat end_procat begin_fg-procat end_fg-procat begin_slm end_slm ~
+begin_date end_date sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up ~
+btn_down tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_procat ~
-end_procat begin_slm end_slm begin_date end_date sl_avail sl_selected ~
-tb_excel tb_runExcel fi_file 
+end_procat begin_fg-procat end_fg-procat begin_slm end_slm begin_date ~
+end_date sl_avail sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -122,7 +122,6 @@ FUNCTION buildHeader RETURNS CHARACTER
 &ANALYZE-RESUME
 
 
-
 /* ***********************  Control Definitions  ********************** */
 
 /* Define a dialog box                                                  */
@@ -140,12 +139,12 @@ DEFINE BUTTON Btn_Add
      LABEL "&Add >>" 
      SIZE 16 BY 1.
 
-DEFINE BUTTON btn_down 
-     LABEL "Move Down" 
-     SIZE 16 BY 1.
-
 DEFINE BUTTON Btn_Def 
      LABEL "&Default" 
+     SIZE 16 BY 1.
+
+DEFINE BUTTON btn_down 
+     LABEL "Move Down" 
      SIZE 16 BY 1.
 
 DEFINE BUTTON Btn_Remove 
@@ -161,13 +160,18 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/0001 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/001 
      LABEL "From Quote Date" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
+DEFINE VARIABLE begin_fg-procat AS CHARACTER FORMAT "X(8)" 
+     LABEL "From FG Category" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
 DEFINE VARIABLE begin_procat AS CHARACTER FORMAT "X(8)" 
-     LABEL "From Category" 
+     LABEL "From Est Category" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
@@ -181,13 +185,18 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzzzzzzzzzz
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
-DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/0001 
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/001 
      LABEL "To Quote Date" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
+DEFINE VARIABLE end_fg-procat AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzz" 
+     LABEL "To FG Category" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
 DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzz" 
-     LABEL "To Category" 
+     LABEL "To Est Category" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
@@ -222,13 +231,13 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 31 BY 6.14 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
@@ -238,28 +247,32 @@ DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL YES
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-fgexp
-     begin_cust AT ROW 2.95 COL 28 COLON-ALIGNED HELP
+     begin_cust AT ROW 2.48 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 6
-     end_cust AT ROW 2.95 COL 71 COLON-ALIGNED HELP
+     end_cust AT ROW 2.48 COL 71 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 16
-     begin_procat AT ROW 4.24 COL 28 COLON-ALIGNED HELP
+     begin_procat AT ROW 3.76 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Category" WIDGET-ID 108
-     end_procat AT ROW 4.24 COL 71 COLON-ALIGNED HELP
+     end_procat AT ROW 3.76 COL 71 COLON-ALIGNED HELP
           "Enter Ending Category" WIDGET-ID 110
-     begin_slm AT ROW 5.48 COL 28 COLON-ALIGNED HELP
+     begin_fg-procat AT ROW 5 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Category" WIDGET-ID 142
+     end_fg-procat AT ROW 5 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Category" WIDGET-ID 144
+     begin_slm AT ROW 6.24 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep" WIDGET-ID 120
-     end_slm AT ROW 5.48 COL 71 COLON-ALIGNED HELP
+     end_slm AT ROW 6.24 COL 71 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 122
-     begin_date AT ROW 6.71 COL 28 COLON-ALIGNED HELP
+     begin_date AT ROW 7.48 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Quote Date" WIDGET-ID 100
-     end_date AT ROW 6.71 COL 71 COLON-ALIGNED HELP
+     end_date AT ROW 7.48 COL 71 COLON-ALIGNED HELP
           "Enter Ending Quote Date" WIDGET-ID 102
-     sl_avail AT ROW 11.14 COL 9 NO-LABELS WIDGET-ID 26
+     sl_avail AT ROW 11.14 COL 9 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 11.14 COL 64 NO-LABEL WIDGET-ID 28
      Btn_Def AT ROW 11.38 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
      Btn_Add AT ROW 12.57 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
-     sl_selected AT ROW 11.14 COL 64 NO-LABELS WIDGET-ID 28
      Btn_Remove AT ROW 13.76 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
      btn_Up AT ROW 14.95 COL 44 WIDGET-ID 136
@@ -272,13 +285,13 @@ DEFINE FRAME rd-fgexp
      btn-cancel AT ROW 20.62 COL 60.2 WIDGET-ID 12
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 10.43 COL 9.4 WIDGET-ID 140
-     "Selected Columns" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 10.43 COL 64.4 WIDGET-ID 138
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 9.43 COL 3 WIDGET-ID 86
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 9.43 COL 3 WIDGET-ID 86
+     "Selected Columns" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 10.43 COL 64.4 WIDGET-ID 138
      RECT-6 AT ROW 9.67 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
      RECT-8 AT ROW 17.52 COL 2 WIDGET-ID 84
@@ -318,6 +331,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_fg-procat:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
        begin_procat:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
@@ -331,6 +348,10 @@ ASSIGN
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
+       end_fg-procat:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 ASSIGN 
@@ -368,7 +389,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-fgexp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
-ON HELP OF FRAME rd-fgexp /* Export FG Items to Excel */
+ON HELP OF FRAME rd-fgexp /* Export Quote to Excel */
 DO:
 DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE ls-cur-val AS CHARACTER NO-UNDO.
@@ -394,7 +415,7 @@ DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
            RETURN NO-APPLY.
        END.  /* cust*/
        
-       WHEN "begin_procat" THEN DO:
+       WHEN "begin_procat" OR WHEN "begin_fg-procat" THEN DO:
            ls-cur-val = lw-focus:SCREEN-VALUE.
            RUN windows/l-fgcat.w (cocode, ls-cur-val, OUTPUT char-val).
            IF char-val <> "" THEN DO:
@@ -402,7 +423,7 @@ DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
            END.
            RETURN NO-APPLY.
        END.  /* procat */
-       WHEN "end_procat" THEN DO:
+       WHEN "end_procat" OR WHEN "end_fg-procat" THEN DO:
            ls-cur-val = lw-focus:SCREEN-VALUE.
            RUN windows/l-fgcat.w (cocode, ls-cur-val, OUTPUT char-val).
            IF char-val <> "" THEN DO:
@@ -419,7 +440,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgexp rd-fgexp
-ON WINDOW-CLOSE OF FRAME rd-fgexp /* Export FG Items to Excel */
+ON WINDOW-CLOSE OF FRAME rd-fgexp /* Export Quote to Excel */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.
@@ -450,9 +471,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_fg-procat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_fg-procat rd-fgexp
+ON LEAVE OF begin_fg-procat IN FRAME rd-fgexp /* From FG Category */
+DO:
+   ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_procat rd-fgexp
-ON LEAVE OF begin_procat IN FRAME rd-fgexp /* From Category */
+ON LEAVE OF begin_procat IN FRAME rd-fgexp /* From Est Category */
 DO:
    ASSIGN {&self-name}.
 END.
@@ -498,19 +530,6 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME Btn_Def
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
-ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
-DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
-
-  RUN DisplaySelectionDefault.  
-  RUN DisplaySelectionList2 .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add rd-fgexp
@@ -532,6 +551,21 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgexp
+ON CHOOSE OF Btn_Def IN FRAME rd-fgexp /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  
+  RUN DisplaySelectionList2 .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -598,9 +632,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_fg-procat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_fg-procat rd-fgexp
+ON LEAVE OF end_fg-procat IN FRAME rd-fgexp /* To FG Category */
+DO:
+   ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_procat rd-fgexp
-ON LEAVE OF end_procat IN FRAME rd-fgexp /* To Category */
+ON LEAVE OF end_procat IN FRAME rd-fgexp /* To Est Category */
 DO:
    ASSIGN {&self-name}.
 END.
@@ -848,6 +893,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS cha NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+ 
 
 /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
 /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
@@ -871,16 +917,18 @@ PROCEDURE DisplaySelectionList2 :
     CREATE ttRptList.
     ASSIGN ttRptList.TextList = ENTRY(iCount,cTextListToSelect)
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
-           .
+        .
   END.
   
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
   
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
-
+  
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
+
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -898,12 +946,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust end_cust begin_procat end_procat begin_slm end_slm 
-          begin_date end_date sl_avail sl_selected tb_excel tb_runExcel fi_file 
+  DISPLAY begin_cust end_cust begin_procat end_procat begin_fg-procat 
+          end_fg-procat begin_slm end_slm begin_date end_date sl_avail 
+          sl_selected tb_excel tb_runExcel fi_file 
       WITH FRAME rd-fgexp.
   ENABLE RECT-6 RECT-7 RECT-8 begin_cust end_cust begin_procat end_procat 
-         begin_slm end_slm begin_date end_date sl_avail Btn_Add sl_selected 
-         Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel Btn_Def
+         begin_fg-procat end_fg-procat begin_slm end_slm begin_date end_date 
+         sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -990,11 +1040,13 @@ DEFINE VARIABLE iQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO .
 DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>9.99%" NO-UNDO .
 DEFINE VARIABLE cUom AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
+IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
 MAIN:
@@ -1020,6 +1072,12 @@ FOR EACH quotehd
        dProfit = 0
        cUom   = "".
      
+    FIND FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ cocode 
+          AND itemfg.i-no EQ quoteitm.i-no NO-ERROR .
+
+    IF AVAIL itemfg THEN
+        IF NOT(itemfg.procat GE begin_fg-procat AND itemfg.procat LE end_fg-procat) THEN NEXT MAIN.
      
      FIND FIRST eb NO-LOCK 
          WHERE eb.company EQ cocode
@@ -1106,7 +1164,7 @@ END.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1132,6 +1190,8 @@ DO WITH FRAME {&FRAME-NAME}:
         end_cust:SCREEN-VALUE   = assignParam(ipcCustTo,YES)
         begin_procat:SCREEN-VALUE = assignParam(ipcCategoryFrom,NO)
         end_procat:SCREEN-VALUE   = assignParam(ipcCategoryTo,YES)
+        begin_fg-procat:SCREEN-VALUE = assignParam(ipcCategoryFrom,NO)
+        end_fg-procat:SCREEN-VALUE   = assignParam(ipcCategoryTo,YES)
         begin_slm:SCREEN-VALUE = assignParam(ipcSalesFrom,NO)
         end_slm:SCREEN-VALUE   = assignParam(ipcSalesTo,YES)
         .
@@ -1215,5 +1275,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
