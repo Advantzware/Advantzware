@@ -1575,6 +1575,10 @@ ELSE DO:
           assign
              max-per-chk  = 10
              next-program = "ap/ap-ckpre.p".
+      WHEN "Valley" then
+          assign
+             max-per-chk  = 10
+             next-program = "ap/ap-valley.p".
        WHEN "APChkFmt1" then
           assign
              max-per-chk  = 10
