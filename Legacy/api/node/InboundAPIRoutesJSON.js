@@ -45,7 +45,7 @@ function handleRoute(req,res){
 				
 				if (responseCode === 500 || response.response_code === 404){
 					// writes the request data to csv file in case AppServer is down
-					lib.CSVFileDataCreate(req,JSONRequestData,response);
+					lib.CSVFileDataCreate(req,JSONRequestData,JSON.stringify(response));
 					response = lib.JSONResponse(response.response_code,response.response_message);
 				}   
 			}

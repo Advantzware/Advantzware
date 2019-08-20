@@ -17,6 +17,8 @@ function handleRoute(req,res){
 	var responseCode = "";
 	var response = "";
 	var responseMessage = "";
+    var responseExceptionMessage = "";
+	var responseWithException = "";
     try {
         if (!lib.Authenticated(req)){
             res.set('WWW-Authenticate', 'Basic realm="401"');
@@ -37,16 +39,20 @@ function handleRoute(req,res){
 				else{					
 					response = lib.callJavaProgram(req,config,XMLRequestData);
 					if (response.length > 0) {
-						response = JSON.parse(response);					
+						response = JSON.parse(response);
 						if (!response) {
 							response = {"response_code":500,"response_message":"Internal Server Error"};
 						}
 						responseCode = response.response_code;	
 						responseMessage = response.response_message;
+						responseExceptionMessage = response.exception;
+						
 						response = lib.XMLResponse(response.response_code,response.response_message);
+						
 						if (responseCode === 500 || responseCode === 404){
 							// writes the request data to csv file in case AppServer is down
-							lib.CSVFileDataCreate(req,XMLRequestData,response);
+							responseWithException = lib.XMLResponseWithException(responseCode,responseMessage,responseExceptionMessage);
+							lib.CSVFileDataCreate(req,XMLRequestData,responseWithException);
 						}
 					}
 					else {

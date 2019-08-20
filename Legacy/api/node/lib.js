@@ -28,6 +28,10 @@ const self = {
 		return xml({"response":[{"response_code":responseCode},{"response_message":responseMessage}]});
 	},
 	
+	XMLResponseWithException: function(responseCode,responseMessage,responseExceptionMessage){
+		return xml({"response":[{"response_code":responseCode},{"response_message":responseMessage},{"exception":responseExceptionMessage}]});
+	},
+	
 	JSONResponse: function(responseCode,responseMessage){
 		return {'response_code':responseCode,'response_message': responseMessage};
 	},
