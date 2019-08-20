@@ -79,7 +79,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Add Btn-Delete Btn-Cancel ~
-Btn-bom Btn-est 
+Btn-Copy Btn-est 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -99,8 +99,8 @@ DEFINE BUTTON Btn-Add
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-bom 
-     LABEL "&B.O.M." 
+DEFINE BUTTON Btn-Copy 
+     LABEL "&Copy" 
      SIZE 9 BY 1.29
      FONT 4.
 
@@ -136,7 +136,7 @@ DEFINE FRAME Panel-Frame
      Btn-Add AT ROW 1.24 COL 10.8
      Btn-Delete AT ROW 1.24 COL 19.2
      Btn-Cancel AT ROW 1.24 COL 27.8
-     Btn-bom AT ROW 1.24 COL 36.8
+     Btn-Copy AT ROW 1.24 COL 36.8
      Btn-est AT ROW 1.24 COL 46
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
@@ -200,7 +200,7 @@ ASSIGN
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
 ASSIGN 
-       Btn-bom:PRIVATE-DATA IN FRAME Panel-Frame     = 
+       Btn-Copy:PRIVATE-DATA IN FRAME Panel-Frame     = 
                 "panel-image".
 
 ASSIGN 
@@ -242,9 +242,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-bom
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-bom C-WIn
-ON CHOOSE OF Btn-bom IN FRAME Panel-Frame /* B.O.M. */
+&Scoped-define SELF-NAME Btn-Copy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy C-WIn
+ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* B.O.M. */
 DO:
 
    RUN notify ('copy-record':U).
@@ -599,8 +599,8 @@ DO WITH FRAME Panel-Frame:
   END. /* panel-state = action-chosen */
 
 
-    IF NOT v-can-create THEN ASSIGN btn-add:SENSITIVE = NO
-                                   .
+    IF NOT v-can-create THEN ASSIGN btn-add:SENSITIVE = NO.
+    IF NOT v-can-create THEN ASSIGN Btn-Copy:SENSITIVE = NO.
 
     IF NOT v-can-update THEN btn-save:SENSITIVE = NO.
     IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.
