@@ -31,6 +31,16 @@ PROCEDURE dynValReturn:
 END PROCEDURE.
 
 /* create procedures in alphabetical order below here */
+PROCEDURE dynValCompany:
+    {&defInputParam}
+    RUN dynValReturn (iphWidget,
+        iphWidget:SCREEN-VALUE EQ CHR(32)  OR
+        iphWidget:SCREEN-VALUE EQ CHR(254) OR
+        CAN-FIND(FIRST company
+                 WHERE company.company EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValCust:
     {&defInputParam}
     RUN dynValReturn (iphWidget,
