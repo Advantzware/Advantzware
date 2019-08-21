@@ -28,6 +28,10 @@
     DEFINE VARIABLE lcLineAdderData       AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcConcatLineAdderData AS LONGCHAR  NO-UNDO.
 
+    /* Variables to store order line scores request data */
+    DEFINE VARIABLE lcLineScoresData       AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcConcatLineScoresData AS LONGCHAR  NO-UNDO.
+    
     /* Purchase Order Header Variables */
     DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNO              AS CHARACTER NO-UNDO.
@@ -90,15 +94,25 @@
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAdderItemName     AS CHARACTER NO-UNDO.
+
+    /* Purchase Order Line scores Variables */
+    DEFINE VARIABLE cScoreOn           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSize         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreType         AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPurchaseUnit      AS CHARACTER NO-UNDO.
     
-    /* The below variables are hardcoded as Premier is expecting these
-       values, which currently are not mapped to any database table's fields */           
-    DEFINE VARIABLE cRequestIP         AS CHARACTER NO-UNDO INITIAL "locahost".
-    DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO INITIAL "005".
-    DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO INITIAL "24.0".
-    DEFINE VARIABLE cPurchaseUnit      AS CHARACTER NO-UNDO INITIAL "CASE24".
+    DEFINE VARIABLE iIndex             AS INTEGER   NO-UNDO.
     
-    DEFINE BUFFER bf-APIOutboundDetail FOR APIOutboundDetail.
+    DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
+    DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.    
+    DEFINE BUFFER bf-reftable1          FOR reftable.
+    DEFINE BUFFER bf-reftable2          FOR reftable.
+    
+    DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
+    RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
     
     /* This is to run client specific request handler to fetch request data */
     IF ipcRequestHandler NE "" THEN
@@ -124,20 +138,18 @@
             RETURN.
         END.
     
-        FIND FIRST bf-APIOutboundDetail NO-LOCK
-             WHERE bf-APIOutboundDetail.apiID    EQ ipcParentID
-               AND bf-APIOutboundDetail.detailID EQ "adder"
-               AND bf-APIOutboundDetail.parentID EQ APIOutboundDetail.detailID
+        FIND FIRST bf-APIOutboundDetail1 NO-LOCK
+             WHERE bf-APIOutboundDetail1.apiID    EQ ipcParentID
+               AND bf-APIOutboundDetail1.detailID EQ "adder"
+               AND bf-APIOutboundDetail1.parentID EQ APIOutboundDetail.detailID
              NO-ERROR.
         
-        IF NOT AVAILABLE bf-APIOutboundDetail THEN DO:
-            ASSIGN
-                opcMessage = "No APIOutboundDetail record found for [ adder ]"
-                oplSuccess = FALSE
-                .
-            RETURN.
-        END.
-        
+        FIND FIRST bf-APIOutboundDetail2 NO-LOCK
+             WHERE bf-APIOutboundDetail2.apiID    EQ ipcParentID
+               AND bf-APIOutboundDetail2.detailID EQ "scores"
+               AND bf-APIOutboundDetail2.parentID EQ APIOutboundDetail.detailID
+             NO-ERROR.
+                        
         FIND FIRST ttArgs
              WHERE ttArgs.argType  EQ "ROWID"
                AND ttArgs.argKey   EQ "po-ord"
@@ -196,6 +208,7 @@
             cFreightTerms      = STRING(po-ord.frt-pay)
             cFreightFOB        = STRING(po-ord.fob-code)
             cBuyer             = STRING(po-ord.buyer)
+            cWhsCode           = po-ord.loc
             .
         
         /* Fetch purchase order notes from notes table */    
@@ -255,117 +268,206 @@
                 cCustomerID           = STRING(po-ordl.cust-no)
                 cOrderNo              = STRING(po-ordl.ord-no)
                 cOperationID          = ""
+                cQtyPerPack           = ""
+                cPurchaseUnit         = STRING(po-ordl.pr-qty-uom)
                 cJobID                = STRING(po-ordl.job-no)
                 cJobID2               = STRING(po-ordl.job-no2)
                 cJobIDFormNo          = STRING(po-ordl.s-num)
                 cJobIDBlankNo         = STRING(po-ordl.b-num)
                 .
-                                 
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.line", cPoLine).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.ord-qty", cQuantityOrdered).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.pr-qty-uom", cQuantityUOM).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.item-type", cItemType).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.i-no", cItemID).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.i-name", cItemName).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.dscr[1]", cItemDesc1).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.dscr[2]", cItemDesc2).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.vend-i-no", cItemIDVendor).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.over-pct", cOverPct).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.under-pct", cUnderPct).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.due-date", cPoLineDueDate).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.s-wid", cItemWidth).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.s-len", cItemLength).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.s-dep", cItemDepth).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.cost", cCostPerUOM).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.pr-uom", cCostUOM).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.setup", cCostSetup).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.disc", cCostDiscount).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.cust-no", cCustomerID).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.ord-no", cOrderNo).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "TBD1", cOperationID).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.job-no", cJobID).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.job-no2", cJobID2).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.s-num", cJobIDFormNo).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "po-ordl.b-num", cJobIDBlankNo).
 
-            /* The below values are hardcoded as they are currently not mapped
-               to any database table's field */
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "cWhsCode", cWhsCode).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "cQtyPerPack", cQtyPerPack).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "cPurchaseUnit", cPurchaseUnit).
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ po-ordl.company
+                   AND itemfg.i-no    EQ po-ordl.i-no
+                 NO-ERROR.
+            IF AVAILABLE itemfg AND NOT po-ordl.item-type THEN
+                cQtyPerPack = STRING(itemfg.case-count).
+
+            /* Fetch first operation id (job-mch.m-code) for the order line */
+            RUN GetOperationForPO IN hdJobprocs (
+                po-ordl.company,
+                po-ordl.job-no,
+                po-ordl.job-no2,
+                po-ordl.ord-no,
+                po-ordl.i-no,                
+                "FIRST", /* First - Fetches first operation id, leave this empty to fetch the comma seperated list of all operation id */
+                INPUT-OUTPUT cOperationID
+                ).
+                                                         
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrdered", cQuantityOrdered).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityUOM", cQuantityUOM).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemType", cItemType).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemID", cItemID).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemName", cItemName).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDesc1", cItemDesc1).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDesc2", cItemDesc2).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemIDVendor", cItemIDVendor).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "overPct", cOverPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "underPct", cUnderPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineDueDate", cPoLineDueDate).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWidth", cItemWidth).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLength", cItemLength).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDepth", cItemDepth).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "costPerUOM", cCostPerUOM).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "costUOM", cCostUOM).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "costSetup", cCostSetup).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "costDiscount", cCostDiscount).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "customerID", cCustomerID).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "orderNo", cOrderNo).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "operationID", cOperationID).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobID", cJobID).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobID2", cJobID2).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobIDFormNo", cJobIDFormNo).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobIDBlankNo", cJobIDBlankNo).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "whscode", cWhsCode).                
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "unitsperpack", cQtyPerPack).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "purchaseunit", cPurchaseUnit).            
+                        
+            IF AVAILABLE bf-APIOutboundDetail1 THEN DO:
+                /* Fetch adder details for the purchase order line */
+                FOR EACH po-ordl-add NO-LOCK
+                   WHERE po-ordl-add.company EQ po-ordl.company
+                     AND po-ordl-add.po-no   EQ po-ordl.po-no  
+                     AND po-ordl-add.line    EQ po-ordl.line:
+                    
+                    ASSIGN
+                        lcLineAdderData = STRING(bf-APIOutboundDetail1.data)
+                        cAdderItemID    = STRING(po-ordl-add.adder-i-no)
+                        cAdderItemName  = ""
+                        .
+                    
+                    FIND FIRST item NO-LOCK
+                         WHERE item.company EQ po-ordl-add.company 
+                           AND item.i-no    EQ po-ordl-add.adder-i-no NO-ERROR.
+                    IF AVAILABLE item THEN
+                        cAdderItemName = item.i-name.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcLineAdderData, "adderItemID", cAdderItemID).
+                    RUN updateRequestData(INPUT-OUTPUT lcLineAdderData, "adderItemName", cAdderItemName).
+                    
+                    lcConcatLineAdderData = lcConcatLineAdderData + "," + lcLineAdderData.
+                END.
+            END.
             
-            /* Fetch adder details for the purchase order line */
-            FOR EACH po-ordl-add NO-LOCK
-               WHERE po-ordl-add.company EQ po-ordl.company
-                 AND po-ordl-add.po-no   EQ po-ordl.po-no  
-                 AND po-ordl-add.line    EQ po-ordl.line:
+            IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
+                cScoreOn   = IF po-ordl.spare-char-1 = "LENGTH" THEN
+                                 "Length" 
+                             ELSE 
+                                 "Width".
                 
-                ASSIGN
-                    lcLineAdderData = STRING(bf-APIOutboundDetail.data)
-                    cAdderItemID    = STRING(po-ordl-add.adder-i-no)
-                    cAdderItemName  = ""
-                    .
-                
-                FIND FIRST item NO-LOCK
-                     WHERE item.company EQ po-ordl-add.company 
-                       AND item.i-no    EQ po-ordl-add.adder-i-no NO-ERROR.
-                IF AVAILABLE item THEN
-                    cAdderItemName = item.i-name.
-                
-                RUN updateRequestData(INPUT-OUTPUT lcLineAdderData, "po-ordl-add.adder-i-no", cAdderItemID).
-                RUN updateRequestData(INPUT-OUTPUT lcLineAdderData, "item.i-name", cAdderItemName).
-                
-                lcConcatLineAdderData = lcConcatLineAdderData + "," + lcLineAdderData.
+                FIND FIRST bf-reftable1
+                     WHERE bf-reftable1.reftable EQ "POLSCORE"
+                       AND bf-reftable1.company  EQ po-ordl.company
+                       AND bf-reftable1.loc      EQ "1"
+                       AND bf-reftable1.code     EQ STRING(po-ordl.po-no,"9999999999")
+                       AND bf-reftable1.code2    EQ STRING(po-ordl.line, "9999999999")
+                     NO-ERROR.
+                IF AVAILABLE bf-reftable1 THEN DO:
+                    DO iIndex = 1 TO 12:
+                        IF bf-reftable1.val[iIndex] EQ 0 THEN
+                            LEAVE.
+                        
+                        ASSIGN
+                            cScoreSize = ""
+                            cScoreType = ""
+                            .
+    
+                        ASSIGN
+                            lcLineScoresData = STRING(bf-APIOutboundDetail2.data)
+                            cScoreSize       = STRING(bf-reftable1.val[iIndex])
+                            cScoreType       = SUBSTRING(bf-reftable1.dscr,iIndex,1)
+                            .
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcLineScoresData, "scoreOn", cScoreOn).
+                        RUN updateRequestData(INPUT-OUTPUT lcLineScoresData, "scoreSize", cScoreSize).
+                        RUN updateRequestData(INPUT-OUTPUT lcLineScoresData, "scoreType", cScoreType).
+                        
+                        lcConcatLineScoresData = lcConcatLineScoresData + "," + lcLineScoresData.
+                    END.
+                END.
+                    
+                FIND FIRST bf-reftable2
+                     WHERE bf-reftable2.reftable EQ "POLSCORE"
+                       AND bf-reftable2.company  EQ po-ordl.company
+                       AND bf-reftable2.loc      EQ "2"
+                       AND bf-reftable2.code     EQ STRING(po-ordl.po-no,"9999999999")
+                       AND bf-reftable2.code2    EQ STRING(po-ordl.line, "9999999999")
+                     NO-ERROR.            
+                IF AVAILABLE bf-reftable2 THEN DO:
+                    DO iIndex = 1 TO 8:
+                        IF bf-reftable2.val[iIndex] EQ 0 THEN
+                            LEAVE.
+                                                    
+                        ASSIGN
+                            cScoreSize = ""
+                            cScoreType = ""
+                            .
+    
+                        ASSIGN
+                            lcLineScoresData = STRING(bf-APIOutboundDetail2.data)
+                            cScoreSize       = STRING(bf-reftable2.val[iIndex])
+                            cScoreType       = SUBSTRING(bf-reftable2.dscr,iIndex,1)
+                            .
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcLineScoresData, "scoreOn", cScoreOn).
+                        RUN updateRequestData(INPUT-OUTPUT lcLineScoresData, "scoreSize", cScoreSize).
+                        RUN updateRequestData(INPUT-OUTPUT lcLineScoresData, "scoreType", cScoreType).
+                        
+                        lcConcatLineScoresData = lcConcatLineScoresData + "," + lcLineScoresData.
+                    END.
+                END.
             END.
             
             lcConcatLineAdderData = TRIM(lcConcatLineAdderData,",").
             
             lcLineData = REPLACE(lcLineData, "$lineAdder$", lcConcatLineAdderData).
+
+            lcConcatLineScoresData = TRIM(lcConcatLineScoresData,",").
+            
+            lcLineData = REPLACE(lcLineData, "$lineScores$", lcConcatLineScoresData).
                 
             lcConcatLineData = lcConcatLineData + "," + lcLineData.
         END.      
         
         lcConcatLineData = TRIM(lcConcatLineData,",").        
                          
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.company", cCompany).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.po-no", cPoNO).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.type", cPoType).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.stat", cPoStatus).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.po-date", cPoDate).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.vend-no", cVendorID).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.name", cVendorName).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.add1", cVendorAddress1).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.add2", cVendorAddress2).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cVendorAddress3", cVendorAddress3).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.city", cVendorCity).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.state", cVendorState).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vend.zip", cVendorZip).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cVendorAddressFull", cVendorAddressFull).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.contact", cContact).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.ship-id", cShipToID).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.ship-name", cShipToName).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.ship-addr[1]", cShipToAddress1).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.ship-addr[2]", cShipToAddress2).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cShipToAddress3", cShipToAddress3).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.ship-city", cShipToCity).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.ship-state", cShipToState).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.ship-zip", cShipToZip).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cShipToAddressFull", cShipToAddressFull).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.carrier", cCarrierID).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.frt-pay", cFreightTerms).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.fob-code", cFreightFOB).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "po-ord.buyer", cBuyer).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cPoNotes", cPoNotes).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "company", cCompany).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poNO", cPoNO).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poType", cPoType).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poStatus", cPoStatus).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poDate", cPoDate).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorID", cVendorID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorName", cVendorName).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorAddress1", cVendorAddress1).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorAddress2", cVendorAddress2).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorAddress3", cVendorAddress3).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorCity", cVendorCity).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorState", cVendorState).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorZip", cVendorZip).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorAddressFull", cVendorAddressFull).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "contact", cContact).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToID", cShipToID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToName", cShipToName).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToAddress1", cShipToAddress1).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToAddress2", cShipToAddress2).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToAddress3", cShipToAddress3).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToCity", cShipToCity).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToState", cShipToState).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToZip", cShipToZip).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToAddressFull", cShipToAddressFull).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "carrierID", cCarrierID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightTerms", cFreightTerms).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightFOB", cFreightFOB).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "buyer", cBuyer).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poNotes", cPoNotes).
     
         /* This replace is required for replacing nested JSON data */
         ioplcRequestData = REPLACE(ioplcRequestData, "$lineDetail$", lcConcatLineData).
+        
+        RELEASE bf-APIOutboundDetail1.
+        RELEASE bf-APIOutboundDetail2.
 
-        /* The below value is hardcoded as it is currently not mapped
-           to any database table's field */
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cRequestIP", cRequestIP).
-        
-        RELEASE bf-APIOutboundDetail.
-        
         ASSIGN
             opcMessage = ""
             oplSuccess = TRUE
