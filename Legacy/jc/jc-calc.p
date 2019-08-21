@@ -1158,23 +1158,25 @@ DO:
 
         FOR EACH job-mat NO-LOCK
             WHERE job-mat.company EQ cocode
-            AND job-mat.job     EQ job.job
-            AND job-mat.job-no  EQ job.job-no
-            AND job-mat.job-no2 EQ job.job-no2:
+              AND job-mat.job     EQ job.job
+              AND job-mat.job-no  EQ job.job-no
+              AND job-mat.job-no2 EQ job.job-no2
+            :
             CREATE tt-job-mat.
             BUFFER-COPY job-mat EXCEPT rec_key TO tt-job-mat.
-            RELEASE tt-job-mat.
         END.
+        RELEASE tt-job-mat.
 
         FOR EACH job-mch NO-LOCK
             WHERE job-mch.company EQ job.company
-            AND job-mch.job     EQ job.job
-            AND job-mch.job-no  EQ job.job-no
-            AND job-mch.job-no2 EQ job.job-no2:
+              AND job-mch.job     EQ job.job
+              AND job-mch.job-no  EQ job.job-no
+              AND job-mch.job-no2 EQ job.job-no2
+            :
             CREATE tt-job-mch.
             BUFFER-COPY job-mch EXCEPT rec_key TO tt-job-mch.
-            RELEASE tt-job-mch.
         END.
+        RELEASE tt-job-mch.
         lPriorJobMchExists = CAN-FIND(FIRST tt-job-mch).
 
         RUN jc/delkids.p (ROWID(job), NO).
