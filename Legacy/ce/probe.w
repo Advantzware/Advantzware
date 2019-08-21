@@ -1475,7 +1475,7 @@ IF CAN-FIND(FIRST xprobe
               AND xprobe.est-no  EQ probe.est-no
               AND xprobe.do-quote) THEN DO:
 
-  IF est.est-type EQ 4 THEN DO:
+  IF est.est-type EQ 4 AND probe.spare-char-2 EQ "" THEN DO:
     FIND FIRST xjob NO-ERROR.
     IF NOT AVAIL xjob THEN DO:
       /*MESSAGE "You must calculate a combo estimate before creating a quote..."
@@ -1527,25 +1527,26 @@ IF CAN-FIND(FIRST xprobe
     CREATE w-probeit.
     BUFFER-COPY probeit TO w-probeit.
 
-    FOR EACH xjob WHERE xjob.i-no EQ probeit.part-no,
-        FIRST bf-eb
-        WHERE bf-eb.company  EQ est.company
-          AND bf-eb.est-no   EQ est.est-no
-          AND bf-eb.form-no  EQ xjob.form-no
-          AND bf-eb.blank-no EQ xjob.blank-no
-        NO-LOCK:
-  
-      ASSIGN
-       w-probeit.mat-cost = w-probeit.mat-cost +
-                            (xjob.mat * (bf-eb.bl-qty / 1000))
-       w-probeit.lab-cost = w-probeit.lab-cost +
+    IF xprobe.spare-char-2 EQ "" THEN DO:
+        FOR EACH xjob WHERE xjob.i-no EQ probeit.part-no,
+            FIRST bf-eb
+            WHERE bf-eb.company  EQ est.company
+            AND bf-eb.est-no   EQ est.est-no
+            AND bf-eb.form-no  EQ xjob.form-no
+            AND bf-eb.blank-no EQ xjob.blank-no
+            NO-LOCK:
+    
+          ASSIGN
+            w-probeit.mat-cost = w-probeit.mat-cost +
+                                (xjob.mat * (bf-eb.bl-qty / 1000))
+            w-probeit.lab-cost = w-probeit.lab-cost +
                             (xjob.lab * (bf-eb.bl-qty / 1000))
-       w-probeit.fo-cost  = w-probeit.fo-cost  +
+            w-probeit.fo-cost  = w-probeit.fo-cost  +
                             (xjob.foh * (bf-eb.bl-qty / 1000))
-       w-probeit.vo-cost  = w-probeit.vo-cost  +
+            w-probeit.vo-cost  = w-probeit.vo-cost  +
                             (xjob.voh * (bf-eb.bl-qty / 1000)).
+        END.
     END.
-
     ASSIGN
      w-probeit.prof-on    = xprobe.prof-on
      w-probeit.mat-cost   = w-probeit.mat-cost / (w-probeit.bl-qty / 1000)
@@ -2550,6 +2551,9 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 
 

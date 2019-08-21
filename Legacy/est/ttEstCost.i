@@ -17,7 +17,13 @@ DEFINE {1} TEMP-TABLE ttEstHeaderToCalc /*Master Print*/
     FIELD iEstCostHeaderID AS INT64
     .
 
-DEFINE {1} TEMP-TABLE ttEstBlank LIKE estCostBlank
+DEFINE {1} TEMP-TABLE ttEstBlank 
+    FIELD estCostBlankID AS INT64
+    FIELD estCostFormID AS INT64
+    FIELD iOut AS INTEGER
+    FIELD dQtyInOut AS DECIMAL
+    FIELD dQtyInOutRunWaste AS DECIMAL
+    FIELD dQtyInOutSetupWaste AS DECIMAL
     FIELD lOutputInitialized AS LOGICAL /*Truly a temp-table field and not a db field*/
     . 
 
