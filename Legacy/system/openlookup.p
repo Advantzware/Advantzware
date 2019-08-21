@@ -311,7 +311,7 @@ CASE ip-lookupField:
            /* List of fields for which field level search is enabled */
            INPUT "po-no,po-date,vend-no,opened",
            /* List of fields for which sorting is enabled */
-           INPUT "po-no|DESCENDING,po-date,vend-no,opened",
+           INPUT "po-no,po-date,vend-no,opened",
            /* Where clause to select specific records */
            INPUT "po-ord.company EQ '" + ip-company + "'" ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
@@ -351,9 +351,9 @@ CASE ip-lookupField:
            /* List of fields for which field level search is enabled */
            INPUT "release#,rel-date,posted,cust-no,ship-id",
            /* List of fields for which sorting is enabled */
-           INPUT "release#|DESCENDING,rel-date,posted,stat",
+           INPUT "release#,rel-date,posted,stat",
            /* Where clause to select specific records */
-           INPUT "oe-relh.company EQ '" + ip-company + "'" ,
+           INPUT "oe-relh.company EQ '" + ip-company + "' AND oe-relh.release# GT 0",
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
            INPUT "release#",
            /* Max record limit to prevent run away query */
