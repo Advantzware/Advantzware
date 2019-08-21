@@ -56,8 +56,8 @@ PUT
              "<R23><C15><FROM><R25><C15><LINE>" SKIP
              "<R23><C20><FROM><R25><C20><LINE>" SKIP 
 /*              "<R23><C47><FROM><R25><C47><LINE>" SKIP */
-             "<R23><C53><FROM><R25><C53><LINE>" SKIP
-             "<R23><C62><FROM><R25><C62><LINE>" SKIP
+             "<R23><C52.5><FROM><R25><C52.5><LINE>" SKIP
+             "<R23><C61.5><FROM><R25><C61.5><LINE>" SKIP
              "<R23><C68><FROM><R25><C68><LINE>" 
              "<R23><C72><FROM><R25><C72><LINE>" SKIP
              .
