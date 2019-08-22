@@ -1385,6 +1385,9 @@ DEF VAR v-kik-per-hrs AS DEC NO-UNDO .
 DEF VAR v-wst AS DEC NO-UNDO .
 DEF VAR v-per-man-hrs AS DEC NO-UNDO .
 DEF VAR v-cust-no AS CHAR NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 /*FORM HEADER
      hdr-tit format "x(142)" skip
@@ -1401,7 +1404,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 /*IF tb_excel THEN DO:
    IF v-prt-both THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","
        "Mach. Code"
        "FG Item"
@@ -1424,7 +1427,7 @@ SESSION:SET-WAIT-STATE ("general").
 
    IF NOT v-prt-both THEN DO:
     IF v-prt-job THEN do:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     EXPORT STREAM excel DELIMITER ","
        "Mach. Code"
        "Job #"
@@ -1444,7 +1447,7 @@ SESSION:SET-WAIT-STATE ("general").
        SKIP.
     END.
     ELSE do:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     EXPORT STREAM excel DELIMITER ","
        "Mach. Code"
        "FG Item"
@@ -1522,7 +1525,7 @@ if td-show-parm then run show-param.
 display "" with frame r-top.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -2187,7 +2190,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE ("").

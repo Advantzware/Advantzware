@@ -1468,7 +1468,9 @@ DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN v-grand-tot-qty = 0
        v-grand-tot-amt = 0
@@ -1523,7 +1525,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   /*excelheader = "Vendor,G/L Account,P.O. Number,Date Received,Item Number,"
               + "Description,Prod Cat,Quantity To Invoice,Whse,Cost Each,"
               + "Amt To Invoice".*/
@@ -1717,7 +1719,7 @@ down 2 with frame detail.*/
 
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 /*END.*/
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1756,6 +1758,9 @@ DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
 ASSIGN v-grand-tot-qty = 0
        v-grand-tot-amt = 0
@@ -1811,7 +1816,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName2).
    /*excelheader = "Vendor,G/L Account,P.O. Number,Date Received,Item Number,"
                + "Description,Prod Cat,Quantity To Invoice,Whse,Cost Each,"
                + "Amt To Invoice".*/
@@ -2249,7 +2254,7 @@ PUT str-line SKIP.
                     substring(cExcelDisplay,4,300) SKIP.
                 OUTPUT STREAM excel CLOSE.
                 IF tb_runExcel THEN
-                OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+                OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
             END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

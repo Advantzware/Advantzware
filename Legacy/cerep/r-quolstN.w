@@ -1230,10 +1230,13 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 str-tit = coname + " - " + loname.
 {sys/inc/ctrtext.i str-tit 112}. 
@@ -1319,7 +1322,7 @@ display str-tit with frame r-top.
 
 /* gdm - 10130808 */
 /*IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED
         v_exclhdr1
     SKIP.
@@ -1327,7 +1330,7 @@ display str-tit with frame r-top.
 END.*/
 
 IF tb_excel THEN do:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 SESSION:SET-WAIT-STATE("general").
@@ -1542,7 +1545,7 @@ SESSION:SET-WAIT-STATE("general").
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
 /* gdm - 10130807 */

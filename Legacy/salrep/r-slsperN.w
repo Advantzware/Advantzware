@@ -1633,6 +1633,10 @@ DEFINE VARIABLE dTotSales2 AS DECIMAL NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 {custom/statusMsg.i "'Processing...'"} 
   
 EMPTY TEMP-TABLE tt-cust-sales .
@@ -1690,7 +1694,7 @@ FORM ip-mode FORMAT "X(8)"
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
 if td-show-parm then run show-param.
 
@@ -1950,7 +1954,7 @@ END. /* for each tt-cust-sales*/
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

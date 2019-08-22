@@ -1223,6 +1223,9 @@ def var v-smry-dtl as char format "x(9)".
 DEF VAR v-sales-rep LIKE cust.sman NO-UNDO.
 
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 IF rd_smry-dtl = "S" THEN DO:
    form
@@ -1440,7 +1443,7 @@ IF tb_excel THEN
     END.
 
 
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1452,7 +1455,7 @@ IF tb_excel THEN
 DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

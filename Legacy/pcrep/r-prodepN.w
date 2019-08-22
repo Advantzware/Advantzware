@@ -1394,6 +1394,9 @@ DEFINE VARIABLE dpt-qty-ton AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
 DEFINE VARIABLE mch-qty-msf AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
 DEFINE VARIABLE shf-qty-msf AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
 DEFINE VARIABLE dpt-qty-msf AS DECIMAL FORMAT ">>,>>9.99" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 /*FORM HEADER
      hdr-tit format "x(145)" skip
@@ -1465,7 +1468,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
  END.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
   /* excelheader = "Mach Code,Job#,-,Shift,MR Stnd,MR Act,MR Eff%," + 
                  "Run Hrs Stnd,Run Hrs Act,Run Hrs Eff%," +
                  "MR/Run Hrs Stnd,MR/Run Hrs Act,MR/Run Hrs Eff%," +
@@ -1495,7 +1498,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE ("").

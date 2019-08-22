@@ -1625,6 +1625,9 @@ DEF VAR li AS INT NO-UNDO.
 DEF VAR li1 AS INT NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORMAT HEADER "               "
               "                    "
@@ -1732,7 +1735,7 @@ IF td-show-parm THEN RUN show-param.
 
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
 excelheader = "".
  IF tb_history THEN 
@@ -1802,7 +1805,7 @@ IF tb_history THEN DISPLAY WITH FRAME itemhist-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1855,6 +1858,9 @@ DEF VAR li AS INT NO-UNDO.
 DEF VAR li1 AS INT NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
 FORMAT HEADER "               "
               "                    "
@@ -1962,7 +1968,7 @@ IF td-show-parm THEN RUN show-param.
 
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName2).
 
 excelheader = "".
  IF tb_history THEN 
@@ -2031,7 +2037,7 @@ IF tb_history THEN DISPLAY WITH FRAME itemhist-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

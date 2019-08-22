@@ -2294,6 +2294,10 @@ DEFINE VARIABLE iBol-no AS INTEGER FORMAT ">>>>>>>9" NO-UNDO.
 
 DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth .
 DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 {ce/msfcalc.i}
 
 FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
@@ -2314,7 +2318,7 @@ FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
     WITH FRAME itemx NO-BOX DOWN STREAM-IO WIDTH 200.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
   /* IF  rsShowVendor = "Vendor" THEN
         excelheader = "DATE,ITEM,DESCRIPTN,P.O. #,VENDOR,T,TAG #,UNITS,"
                + "COUNT,BIN,UOM,TOT QTY,TOT COST,TOT SELL VALUE".
@@ -2376,7 +2380,7 @@ IF tb_excel THEN PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","')
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2434,7 +2438,9 @@ DEFINE VARIABLE v-tot-pos1 AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-tot-pos2 AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-tot-pos3 AS INTEGER NO-UNDO.
 DEFINE BUFFER b-fgrdtlh FOR fg-rdtlh.
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 {ce/msfcalc.i}
 
 FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
@@ -2507,7 +2513,7 @@ FORM fg-rcpth.trans-date            LABEL "DATE"   FORMAT "99/99/99"
 
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName2).
    excelheader = "DATE,ITEM,DESCRIPTN,P.O. #,VENDOR,T,TAG #,UNITS,"
                + "COUNT,COUNT,BIN,CUOM,TOT QTY,TOT COST,TOT SELL VALUE".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -2853,7 +2859,7 @@ RUN create-tt-report.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

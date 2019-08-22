@@ -1809,6 +1809,9 @@ DEF VAR v-tot-pos2 AS INT NO-UNDO.
 DEF VAR v-tot-pos3 AS INT NO-UNDO.
 DEF VAR v-rfid LIKE rfidtag.rfidtag.
 def buffer b-fgrdtlh for fg-rdtlh.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {ce/msfcalc.i}
 
@@ -1882,7 +1885,7 @@ form fg-rcpth.trans-date            label "DATE"   format "99/99/99"
 
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    IF  rsShowVendor = "Vendor" THEN
         excelheader = "DATE,ITEM,DESCRIPTN,P.O. #,VENDOR,T,TAG #,UNITS,"
                + "COUNT,BIN,UOM,TOT QTY,TOT COST,TOT SELL VALUE,RFID #".
@@ -2245,7 +2248,7 @@ RUN create-tt-report.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

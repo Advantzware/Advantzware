@@ -835,6 +835,9 @@ DEF VAR v-void-date AS DATE NO-UNDO.
 DEF VAR v-temp-date AS DATE NO-UNDO.
 DEF VAR v-refnum AS CHAR.
 DEF BUFFER bf-ap-ledger FOR ap-ledger.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 &SCOPED-DEFINE where-ap-pay                             ~
         WHERE ap-pay.company    EQ cocode               ~
@@ -876,7 +879,7 @@ FOR EACH tt-report:
 END.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","       
        "GL Acct#"
        "Description"
@@ -1339,7 +1342,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE ("").

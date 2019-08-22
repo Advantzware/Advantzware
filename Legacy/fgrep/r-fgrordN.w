@@ -2187,7 +2187,10 @@ DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO . 
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2287,7 +2290,7 @@ IF td-show-parm THEN RUN show-param.
 
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -2302,7 +2305,7 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2379,6 +2382,9 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2476,7 +2482,7 @@ IF td-show-parm THEN RUN show-param.
 
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName2).
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -2498,7 +2504,7 @@ cFieldListToSelect = REPLACE(cFieldListToSelect, "itemfg.q-ono", "v-q-ono").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 cFieldListToSelect = cOrigList.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

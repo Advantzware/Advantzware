@@ -1074,6 +1074,9 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1091,7 +1094,7 @@ assign
    v-ar-sales   = ar-ctrl.sales
    v-ar-disc    = ar-ctrl.discount
    v-export     = tb_excel
-   v-exp-name = fi_file. 
+   v-exp-name = cFileName. 
 
 
 DEF VAR cslist AS cha NO-UNDO.

@@ -1257,6 +1257,9 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form itemfg.i-no        column-label "FG Item#"
      po-ordl.po-no      column-label "P.O.#"
@@ -1346,7 +1349,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
  /* excelheader = "FG Item#,P.O.#,PO Item#,G/L Account,Amt Invoiced".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1574,7 +1577,7 @@ if td-show-parm then run show-param.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

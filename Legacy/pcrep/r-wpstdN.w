@@ -1291,7 +1291,9 @@ DEF VAR dSaleValue AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iPrint-line AS INTEGER NO-UNDO .
 DEF BUFFER b-mch-act FOR mch-act.
 DEF BUFFER bf-mch-act FOR mch-act.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -1345,7 +1347,7 @@ PUT str-tit4 FORMAT "x(485)" SKIP
     str-tit5 FORMAT "x(485)" SKIP .
 
 IF tb_excel THEN DO:
-    OUTPUT STREAM st-excell TO VALUE(fi_file).
+    OUTPUT STREAM st-excell TO VALUE(cFileName).
 
    /* PUT STREAM st-excell UNFORMATTED v-hdr SKIP.*/
     PUT STREAM st-excell UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1628,7 +1630,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
   OUTPUT STREAM st-excell CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

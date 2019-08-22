@@ -819,6 +819,9 @@ def var v-s-dat like glhist.tr-date format "99/99/9999" init 01/01/0001.
 def var v-e-dat like v-s-dat init 12/31/9999.
 
 def var v-tot   as   dec format "->>,>>>,>>9.99".
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header skip(1) with frame r-top.
 
@@ -835,7 +838,7 @@ assign
 
  uperiod = period
  v-export = tb_excel
- v-exp-name = fi_file
+ v-exp-name = cFileName
  v-excel-hdr = "Trans Date,Run #,Journal,Balance".
 
 {sys/inc/print1.i}

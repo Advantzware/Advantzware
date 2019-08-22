@@ -1263,6 +1263,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE v-excel-file NO-UNDO .
 
 form
   item.i-no column-label "Item Number"
@@ -1278,6 +1279,7 @@ form
   with frame f-minor down stream-io width 132.
 
 
+RUN sys/ref/ExcelNameExt.p (INPUT v-excel-file,OUTPUT cFileName) .
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1325,13 +1327,13 @@ SESSION:SET-WAIT-STATE ("general").
   display "" with frame r-top.
 
   IF tb_excel THEN DO:
-      OUTPUT STREAM st-excel TO VALUE(TRIM(v-excel-file)).
+      OUTPUT STREAM st-excel TO VALUE(TRIM(cFileName)).
       PUT STREAM st-excel UNFORMATTED excelheader SKIP.
   END. 
   /*IF tb_excel THEN
   DO:
 
-   OUTPUT STREAM st-excel TO VALUE(v-excel-file).
+   OUTPUT STREAM st-excel TO VALUE(cFileName).
 
    PUT STREAM st-excel
        "Item Number,"
@@ -1632,7 +1634,7 @@ IF tb_excel THEN
 DO:
   OUTPUT STREAM st-excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-excel-file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

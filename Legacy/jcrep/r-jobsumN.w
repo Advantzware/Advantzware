@@ -1465,6 +1465,11 @@ DEFINE VARIABLE misc-str-tit AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE misc-str-line AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cFileName2 LIKE fi_file2 NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file2,OUTPUT cFileName2) .
 
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1751,11 +1756,11 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
  END.
 
 IF tb_excel2 THEN DO:
-  OUTPUT STREAM excel2 TO VALUE(fi_file2).
+  OUTPUT STREAM excel2 TO VALUE(cFileName2).
 END.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Job #,SalesPerson,Customer,Item Code,Selling Price,Ordered,Est Hrs,Est Cost,Act Hrs,"
               + "Act Cost,Est Mat Cost,Act Mat Cost,Commission,"
               + "Freight,Boxes Sales,Prep Sales,Total Sales,Total Cost,"
@@ -1778,13 +1783,13 @@ DISPLAY "" WITH FRAME r-top.
 IF tb_excel2 THEN DO:
   OUTPUT STREAM excel2 CLOSE.
   IF tb_runExcel THEN
-  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file2)).
+  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   /*IF tb_runExcel THEN*/
-  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -1197,6 +1197,9 @@ DEFINE VARIABLE cBoxDscr AS CHARACTER NO-UNDO .
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  str-tit2 = c-win:title
@@ -1238,7 +1241,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   /*excelheader = "Vend #,Tax ID#,Name,Address 1,Address 2,City,State,Zip,Amount".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1504,7 +1507,7 @@ IF rs-date EQ "Invoice" THEN DO:
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
      RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
   END.                   

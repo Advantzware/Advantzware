@@ -1132,11 +1132,13 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-lst-job AS CHARACTER NO-UNDO.
     DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cslist AS CHAR NO-UNDO.
-    
+    DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
     DEFINE BUFFER bfprep FOR prep .
     
     {sys/form/r-topsw.f}
     
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
     ASSIGN 
         cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}
         str-tit2 = c-win:TITLE
@@ -1177,7 +1179,7 @@ PROCEDURE run-report :
         .
     
     IF tb_excel THEN DO:
-        OUTPUT STREAM excel TO VALUE(fi_file).
+        OUTPUT STREAM excel TO VALUE(cFileName).
         PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
     
@@ -1281,7 +1283,7 @@ PROCEDURE run-report :
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
     
     SESSION:SET-WAIT-STATE ("").
@@ -1301,8 +1303,11 @@ PROCEDURE run-report-sum :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE ii LIKE i NO-UNDO.
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
 
 {sys/form/r-top.f}
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
 ASSIGN str-tit2 = c-win:TITLE
          {sys/inc/ctrtext.i str-tit2 56}.
@@ -1361,7 +1366,7 @@ END.
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 
 

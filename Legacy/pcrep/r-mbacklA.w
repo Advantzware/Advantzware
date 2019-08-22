@@ -869,6 +869,9 @@ def var v-saturday as date init 01/01/0001 NO-UNDO.
 def var v-hdr as char format "x(131)" extent 4 NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR viLoop AS INT NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header skip(1) v-hdr with frame r-top.
 
@@ -909,7 +912,7 @@ SESSION:SET-WAIT-STATE ("general").
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   IF v-left THEN
      excelheader = "MACH CODE,"
                  + (IF v-name THEN "CUSTOMER NAME,"
@@ -1297,7 +1300,7 @@ display "" with frame r-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE ("").

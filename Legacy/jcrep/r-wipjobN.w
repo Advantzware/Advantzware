@@ -1257,6 +1257,10 @@ DEF VAR v-pct AS INT NO-UNDO.
 DEF VAR v-cost AS DEC NO-UNDO.
 DEF VAR v-qty AS INT NO-UNDO.
 DEF VAR li-seq AS INT NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 /*FORM HEADER
      hdr-tit3 format "x(142)"
     WITH FRAME r-top WIDTH 180.
@@ -1265,7 +1269,7 @@ DEF VAR li-seq AS INT NO-UNDO.
 SESSION:SET-WAIT-STATE ("general").
 
 /*IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","
        "Machine"
        "Job#"
@@ -1305,7 +1309,7 @@ END.
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.  
 
@@ -1693,7 +1697,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE ("").

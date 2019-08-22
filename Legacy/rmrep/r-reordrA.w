@@ -824,8 +824,11 @@ def var fitem like item.i-no NO-UNDO.
 def var titem like fitem NO-UNDO.
 def var inc   as logical format "Y/N" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {custom/statusMsg.i "'Processing...'"} 
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form
     item.i-no
@@ -846,7 +849,7 @@ header
     with frame itemx no-box no-labels down stream-io width 132.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "ITEM #,PROD CAT,UOM,LOC,REORDER LEVEL,QUANTITY ON HAND,"
               + "QUANTITY ALLOCATED,QUANTITY ON ORDER,MIN ORDER,VENDOR,"
               + "VENDOR ITEM NUMBER".
@@ -927,7 +930,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

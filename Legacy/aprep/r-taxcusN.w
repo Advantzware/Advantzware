@@ -1182,6 +1182,9 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 def var v-period        like uperiod init 1 NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 /*format header
        skip(1)
@@ -1247,7 +1250,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
   /* excelheader = "Tax Authority,Cust Name,Date,Invoice,Gross Sales $,"
                + "Tax $,Freight $,Net Sales $". */
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1573,7 +1576,7 @@ if td-show-parm then run show-param.
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
     SESSION:SET-WAIT-STATE ("").

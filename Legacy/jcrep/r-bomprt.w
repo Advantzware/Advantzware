@@ -903,10 +903,13 @@ PROCEDURE run-report :
 {sys/inc/outprint.i value(lines-per-page) } 
 
 DEFINE  VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
     ASSIGN s-print-revised = tb_prt-revise
                   v-export           = tb_excel
-                  v-exp-name         = fi_file.    
+                  v-exp-name         = cFileName.    
 
 if td-show-parm then run show-param.
 
@@ -940,7 +943,7 @@ RUN cerep/bomcbox2.p (rd_po-part EQ 2).
 IF tb_excel THEN DO:
     OUTPUT STREAM s-temp CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

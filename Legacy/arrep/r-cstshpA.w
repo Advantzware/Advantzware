@@ -1143,6 +1143,9 @@ def var fsman as ch init "".
 def var tsman like fsman init "zzzzzzzz".
 def var v-level like cust.cust-level init 99.
 def var v-sort as log format "Yes/No" init no.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM
   recType LABEL 'Type'

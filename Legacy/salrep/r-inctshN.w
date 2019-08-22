@@ -1734,6 +1734,10 @@ DEF VAR v-bolwhs AS CHAR NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 FORM cust.cust-no       COLUMN-LABEL "!Customer!    #"
      v-year[1]          COLUMN-LABEL "! !Year"
                         FORMAT "9999"
@@ -1821,8 +1825,8 @@ DEF VAR cslist AS cha NO-UNDO.
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
-IF tb_excel AND fi_file NE '' THEN DO:
-  OUTPUT STREAM st-excel TO VALUE(fi_file).
+IF tb_excel AND cFileName NE '' THEN DO:
+  OUTPUT STREAM st-excel TO VALUE(cFileName).
   PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
       /*",,,,,Cust Buy,,,,,,,House,,,,,"
       SKIP
@@ -2369,7 +2373,7 @@ FOR each cust
                  PUT STREAM st-excel UNFORMATTED 'Grand Totals ,' substring(cExcelDisplay,4,350) SKIP.
              END.
 
-  IF tb_excel AND fi_file NE '' THEN
+  IF tb_excel AND cFileName NE '' THEN
   OUTPUT STREAM st-excel CLOSE.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

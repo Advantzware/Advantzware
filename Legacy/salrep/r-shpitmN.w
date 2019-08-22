@@ -1477,7 +1477,9 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF BUFFER bf-ar-inv FOR ar-inv.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form ar-invl.i-no           column-label "PRODUCT"
      ar-invl.i-dscr         column-label "DESCRIPTION"  format "x(20)"
@@ -1543,7 +1545,7 @@ END.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1859,7 +1861,7 @@ EMPTY TEMP-TABLE tt-report.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

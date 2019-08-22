@@ -623,6 +623,9 @@ def var v-disc   like w-f.amt.
 def var v-frgt   like v-disc.
 def var v-tax    like v-disc.
 def var v-total  like v-disc.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 find first ar-ctrl where ar-ctrl.company eq cocode no-lock.
 
@@ -635,7 +638,7 @@ assign
    v-ar-sales   = ar-ctrl.sales
    v-ar-disc    = ar-ctrl.discount
    v-export = tb_excel
-   v-exp-name = fi_file. 
+   v-exp-name = cFileName. 
 
 {sys/inc/print1.i}
 

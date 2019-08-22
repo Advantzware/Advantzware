@@ -1191,6 +1191,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1228,6 +1229,7 @@ assign
  fsman = begin_slsmn
  tsman = end_slsmn.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1254,7 +1256,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1266,7 +1268,7 @@ EMPTY TEMP-TABLE w-data.
 /*
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = 
   "No,Sales Rep Name,Daily Sq Ft/M,Amount,PTD Sq Ft/M,Amount,YTD Sq Ft/M,Amount".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1514,7 +1516,7 @@ display "" with frame r-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

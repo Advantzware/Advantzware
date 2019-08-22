@@ -1401,6 +1401,9 @@ DEFINE VARIABLE chWorkBook  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE chRangeRow  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 /*IF NOT VALID-HANDLE(iphTable) THEN RETURN.*/
 
@@ -1431,7 +1434,7 @@ assign
      tcust = END_cust 
      lSelected  = tb_cust-list
      /*v-tot         = tb_totals */.
-cExcelFile = fi_file.
+cExcelFile = cFileName.
 IF tb_excel THEN DO:
 IF SEARCH(cExcelFile) NE ? THEN
 OS-DELETE VALUE(SEARCH(cExcelFile)).
@@ -1514,7 +1517,7 @@ PAUSE 1 NO-MESSAGE.
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 /*IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     /*excelHeader = 'GL Acct#,Description,Customer,Inv#,Journal,Run#,Date,Amount'.*/
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
 END. /* if tb_excel */*/

@@ -1239,9 +1239,10 @@ DEFINE VARIABLE chrTotCostVal AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrRmBinTag AS CHARACTER FORMAT "x(22)" NO-UNDO.
 DEFINE VARIABLE cShtSize AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE cJobNo LIKE po-ordl.job-no NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {custom/statusMsg.i "'Processing...'"} 
-
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 FIND FIRST ce-ctrl NO-LOCK WHERE ce-ctrl.company EQ cocode  NO-ERROR.
 
 ASSIGN 
@@ -1272,7 +1273,7 @@ IF tb_excel THEN DO:
     excelheader = "Whse,Item,Item Name,Bin,Tag,Rct Date," +
                   "Quantity,Unit Cost,Total Cost Value,Job#,Sheet Size".
 
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1566,7 +1567,7 @@ SESSION:SET-WAIT-STATE ("").
   IF tb_excel THEN DO:
          OUTPUT STREAM excel CLOSE.
          IF tb_runExcel THEN
-             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
      END.
 
 

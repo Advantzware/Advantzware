@@ -1626,6 +1626,9 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-type AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 /*form header str-tit4 format "x(130)" with frame r-top.*/
 
@@ -1812,7 +1815,7 @@ DISPLAY WITH FRAME r-top.
 IF tb_excel THEN DO:
    OUTPUT STREAM s-temp CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

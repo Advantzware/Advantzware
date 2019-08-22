@@ -1275,6 +1275,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.  
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {custom/statusMsg.i "'Processing...'"} 
 
@@ -1293,7 +1294,7 @@ FORM
 
 {sa/sa-sls01.i}
 
-
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 find first ap-ctrl where ap-ctrl.company eq cocode no-lock no-error.
 
 assign
@@ -1368,7 +1369,7 @@ if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
 
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    /*excelheader = "Date,RM Item#,PO#,Vendor,Job#,Quantity,Total MSF,Stocked Qty,Cons. UOM".                        */
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.      
 END.
@@ -1694,7 +1695,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
  IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE ("").

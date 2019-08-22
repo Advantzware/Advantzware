@@ -1593,6 +1593,9 @@ DEFINE VARIABLE intAvailable AS INTEGER    NO-UNDO.
 DEFINE VARIABLE chrRecDate   AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrPolicy    AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrDummy     AS CHARACTER  NO-UNDO INIT "".
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {sa/sa-sls01.i}
 
@@ -1652,7 +1655,7 @@ DO:
                 + "On Order,Allocated,Available,Reord Qty,Reord Lev,Min Order,"
                 + "1st Recpt,R/L". */
 
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1982,7 +1985,7 @@ IF tb_excel THEN
 DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

@@ -1739,6 +1739,9 @@ DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE lShipTotal AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
      "               "
@@ -1894,7 +1897,7 @@ END.
 
 
   IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
   END.
 
@@ -1911,7 +1914,7 @@ EMPTY TEMP-TABLE tt-report.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

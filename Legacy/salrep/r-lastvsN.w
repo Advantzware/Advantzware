@@ -1645,6 +1645,9 @@ DEF VAR v-costTotal AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR v-costTotalYtd AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR v-costTotalMtd AS DEC  FORM "->,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN
  str-tit2 = c-win:title
@@ -1766,7 +1769,7 @@ END.
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-     OUTPUT STREAM excel TO VALUE(fi_file).
+     OUTPUT STREAM excel TO VALUE(cFileName).
      PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1785,7 +1788,7 @@ SESSION:SET-WAIT-STATE ("").
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

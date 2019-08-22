@@ -1359,7 +1359,11 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cFileName2 LIKE fi_file-2 NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file-2,OUTPUT cFileName2) .
 assign
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1407,10 +1411,10 @@ if td-show-parm then run show-param.
 IF tb_excel THEN DO:
     IF NOT v-summ THEN DO:
         
-          OUTPUT STREAM excel TO VALUE(fi_file).
+          OUTPUT STREAM excel TO VALUE(cFileName).
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 
-          OUTPUT STREAM excel-2 TO VALUE(fi_file-2).
+          OUTPUT STREAM excel-2 TO VALUE(cFileName2).
           IF tb_ytd THEN
           excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF,YTD Amount".
           ELSE 
@@ -1418,12 +1422,12 @@ IF tb_excel THEN DO:
       PUT STREAM excel-2 UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
     END.
     ELSE DO:
-         OUTPUT STREAM excel TO VALUE(fi_file).
+         OUTPUT STREAM excel TO VALUE(cFileName).
           /*excelheader = "Inv Number,Inv Date,Post Date,Cust#,Name," +
                         "Net,MSF,$/MSF".*/
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 
-          OUTPUT STREAM excel-2 TO VALUE(fi_file-2).
+          OUTPUT STREAM excel-2 TO VALUE(cFileName2).
           IF tb_ytd THEN
           excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF,YTD Amount".
           ELSE 
@@ -1442,20 +1446,20 @@ display with frame r-top.
        
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
    
      OUTPUT STREAM excel-2 CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file-2)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
    END.
    ELSE DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
    
      OUTPUT STREAM excel-2 CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file-2)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 
    END.
    

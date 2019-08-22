@@ -1274,6 +1274,7 @@ DEF VAR lv-tmp-string AS CHAR NO-UNDO.
 DEFINE VARIABLE chrDummy AS CHARACTER  NO-UNDO INIT "".
 DEFINE VARIABLE chrSalesCustAndName AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 format header
   v-head[1] skip
@@ -1414,6 +1415,8 @@ format
   v-gp label "GP%"
   with frame ordline no-box no-underline down stream-io width 125.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 find first sys-ctrl
     where sys-ctrl.company eq cocode
       and sys-ctrl.name    eq "BACKLOG"
@@ -1516,7 +1519,7 @@ END.
 EMPTY TEMP-TABLE tt-report.
 
 IF tb_excel THEN
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
 {oerep/r-backl.i} 
 
@@ -1525,7 +1528,7 @@ DO:
   OUTPUT STREAM excel CLOSE.
 
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

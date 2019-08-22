@@ -917,6 +917,9 @@ def var v-hdr       as   CHAR NO-UNDO initial
 SheetsIssuedtoCuttingbyPress,SheetsCutbyCuttingIssuedtoFinishing,PlanWasteforCartons,
 CartonsProducedbyJob,FGReceived,CustomerOrderQty".
 def var v-comma as char format "x" initial "," no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 SESSION:SET-WAIT-STATE ("general").   
 
@@ -961,7 +964,7 @@ display "" with frame r-top.
 
   if tb_excel then
   do:
-    output stream s-temp TO VALUE(fi_file).
+    output stream s-temp TO VALUE(cFileName).
     assign str_buffa = "".
     {sys/inc/outstrPL.i v-hdr 1 218}.
     PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
@@ -1252,7 +1255,7 @@ display "" with frame r-top.
   IF tb_excel THEN DO:
     OUTPUT STREAM s-temp CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
   SESSION:SET-WAIT-STATE("").

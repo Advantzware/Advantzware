@@ -1379,6 +1379,10 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 form shipto.ship-id
      shipto.ship-name format "x(20)"
      shipto.bill label
@@ -1434,7 +1438,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i  value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1515,7 +1519,7 @@ end. /* each cust */
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1544,6 +1548,10 @@ PROCEDURE run-report2 :
     DEF VAR lst-name AS CHAR NO-UNDO .
     DEF VAR v-dbu AS INT INIT 1  NO-UNDO .
     DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+    DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
+
     FORM 
      v-dbu LABEL "DBU"
      shipto.dest-code LABEL "ZONE"
@@ -1590,14 +1598,14 @@ PROCEDURE run-report2 :
 
         IF v-print-fmt = "Premier" THEN do:
             IF tb_excel THEN DO:
-                OUTPUT STREAM excel TO VALUE(fi_file).
+                OUTPUT STREAM excel TO VALUE(cFileName2).
                 excelheader = "DBU,ZONE,ADDRESS 1,ADDRESS 2,CITY,STATE,ZIP,PHONE,FIRST NAME,LAST NAME,COMPANY,SHIP ID,WHSE".
                 PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
             END.
         END.
         ELSE IF v-print-fmt = " " THEN DO:
             IF tb_excel THEN DO:
-                OUTPUT STREAM excel TO VALUE(fi_file).
+                OUTPUT STREAM excel TO VALUE(cFileName2).
                 excelheader = "DBU,ZONE,FIRST NAME,LAST NAME,COMPANY,ADDRESS 1,ADDRESS 2,CITY,STATE,ZIP,PHONE".
                 PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
             END.
@@ -1743,7 +1751,7 @@ PROCEDURE run-report2 :
     IF tb_excel THEN DO:
       OUTPUT STREAM excel CLOSE.
       IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

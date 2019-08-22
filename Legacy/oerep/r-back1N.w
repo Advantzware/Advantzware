@@ -1556,6 +1556,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1667,6 +1668,7 @@ IF v-priceflag AND NOT security-flag THEN DO:
   v-priceflag = security-flag.
 END.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1693,7 +1695,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1704,7 +1706,7 @@ END.
 if td-show-parm then run show-param.
 /*
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Due Date,Order Date,Order Number,".
   IF v-ponum THEN
     excelheader = excelheader + "PO Number,".
@@ -1723,11 +1725,11 @@ EMPTY TEMP-TABLE tt-report.
  /* if v-sort EQ "Item" then display with frame r-top-2.*/
 
   {oerep/r-back1N.i}
-
+MESSAGE "test " VIEW-AS ALERT-BOX ERROR.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

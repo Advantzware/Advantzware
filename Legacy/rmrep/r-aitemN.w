@@ -1472,12 +1472,14 @@ DEF VAR v-sqr-inch AS DECIMAL NO-UNDO .
 DEF VAR v-sq-feet AS DECIMAL NO-UNDO .
 DEF VAR v-wid AS DECIMAL NO-UNDO.
 DEF VAR v-len AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
 {custom/statusMsg.i "'Processing...'"} 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 format 
 /*        item.loc         column-label "WHSE"  */
@@ -1558,7 +1560,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-          OUTPUT STREAM excel TO VALUE(fi_file).
+          OUTPUT STREAM excel TO VALUE(cFileName).
           /*excelheader = "Item,Description,Prod Category,UOM,Cost," +
                         "On Hand,On Order,Quantity Allocated,Reorder Level," +
                         "Quantity Available, Value".*/
@@ -1677,7 +1679,7 @@ FOR EACH ITEM NO-LOCK
 IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 

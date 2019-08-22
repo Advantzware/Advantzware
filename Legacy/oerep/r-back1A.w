@@ -1162,6 +1162,7 @@ DEF VAR lv-total-label AS CHAR NO-UNDO.
 DEF VAR lv-top-label AS CHAR INIT "Customer:" NO-UNDO.
 DEF VAR v-exclude-transfers AS LOG NO-UNDO.
 DEFINE VARIABLE v-code AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 IF rs_sort EQ "Sales" THEN
    lv-top-label = "Sales Rep:".
@@ -1212,6 +1213,7 @@ format w-ord.due-date     format "99/99/99"
 
     with frame ordhead down no-labels no-box stream-io width 132.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 find first sys-ctrl
     where sys-ctrl.company eq cocode
@@ -1296,7 +1298,7 @@ else
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Due Date,Order Date,Order Number,".
   IF v-ponum THEN
     excelheader = excelheader + "PO Number,".
@@ -1319,7 +1321,7 @@ EMPTY TEMP-TABLE tt-report.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -1149,6 +1149,9 @@ DEF VAR v-gross-amt LIKE ap-payl.amt-paid NO-UNDO.
 DEF VAR v-amt-paid LIKE ap-payl.amt-paid NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR v-vend-name LIKE vend.NAME NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM tt-report.check-no    FORMAT ">>>>>>>>"  COLUMN-LABEL "Check#"
      tt-report.check-date  FORMAT "99/99/99"  COLUMN-LABEL "Chk Date"
@@ -1343,7 +1346,7 @@ END.
 
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelHeader = 'Check#,Check Date,Vendor#,Name,Invoice#,Due Date,Gross Amt,Discount,Net Amt'.
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
 END. /* if tb_excel */

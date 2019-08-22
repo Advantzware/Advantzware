@@ -921,6 +921,9 @@ def var b as char no-undo.
 def var hdr-tit as char no-undo.
 def var hdr-tit2 as char no-undo.
 def var hdr-tit3 as char no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      hdr-tit format "x(142)" skip
@@ -937,7 +940,7 @@ ASSIGN
 
 IF tb_excel THEN DO:
    IF v-prt-both THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","
        "Mach. Code"
        "FG Item"
@@ -960,7 +963,7 @@ IF tb_excel THEN DO:
 
    IF NOT v-prt-both THEN DO:
     IF v-prt-job THEN do:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     EXPORT STREAM excel DELIMITER ","
        "Mach. Code"
        "Job #"
@@ -980,7 +983,7 @@ IF tb_excel THEN DO:
        SKIP.
     END.
     ELSE do:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     EXPORT STREAM excel DELIMITER ","
        "Mach. Code"
        "FG Item"
@@ -1475,7 +1478,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE ("").

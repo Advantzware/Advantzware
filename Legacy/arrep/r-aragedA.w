@@ -1462,6 +1462,9 @@ DEF VAR li AS INT NO-UNDO.
 DEF VAR v-hdr AS CHAR INIT "Customer,Name,Contact,SalesRep,Terms,Address1,Address2,City,State,Zip,Credit Limit,Phone,Fax,Check/Memo,DaysOld,Type,Invoice#,InvoiceDate,InvoiceAmt,Current,ADTP,TD," NO-UNDO.  /*Task# 11151304*/
 DEF VAR v-hdr2 AS CHAR NO-UNDO.
 DEF VAR v-rpt-type AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 IF rs_detail = 1 THEN 
     v-rpt-type = "DETAIL".
@@ -1498,7 +1501,7 @@ ASSIGN
  v-e-dat            = end_inv-date
  v-days-old         = tb_days-old
  v-prt-add          = tb_address
- v-exp-name         = fi_file
+ v-exp-name         = cFileName
  v-include-factored = tb_include-factored
  v-export           = tb_excel
  v-include-fuel     = tb_fuel
@@ -1617,7 +1620,7 @@ ASSIGN grand-t = 0
   IF tb_excel THEN DO:
     OUTPUT STREAM s-temp CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

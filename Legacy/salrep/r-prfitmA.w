@@ -1337,6 +1337,9 @@ DEF VAR v-cust-part-no AS CHAR FORMAT "X(15)".
 DEF VAR lv-r-no  LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type  AS   CHAR NO-UNDO.
 DEF VARIABLE excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 IF tl_color = YES THEN 
       v-label9 = " Colors".
@@ -1538,7 +1541,7 @@ END.
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
 
    IF RS_fgitem-cust-part-no = "FG Item" THEN
       v-label8 = "FG Item".
@@ -1605,7 +1608,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE ("").

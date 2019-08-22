@@ -854,10 +854,13 @@ def var v-debit  like v-crdit.
 def var str-tit4 as   char no-undo.
 def var str-tit5 as   char no-undo.
 def var vyear like period.yr no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 /* gdm - 10010905 */
 DEF VAR v-excel-hdr  AS CHAR.
 DEF VAR v-runbal LIKE open-amt NO-UNDO.
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form account.actnum format "x(75)" open-amt to 132
     with frame r-cmon down stream-io width 200 no-labels no-box no-underline.
@@ -911,7 +914,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
   ASSIGN v-excel-hdr = "Account Number,Description,Jrn#,Run #,Journal,Reference,Date," +
                        "Debits,Credits,Balance".
-  OUTPUT STREAM str-exl TO VALUE(TRIM(fi_file)).
+  OUTPUT STREAM str-exl TO VALUE(TRIM(cFileName)).
   PUT STREAM str-exl UNFORMATTED v-excel-hdr SKIP.
 END. 
 /* gdm - 10010905 */
@@ -1141,7 +1144,7 @@ IF tb_excel THEN DO:
    OUTPUT STREAM str-exl CLOSE.
 
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(TRIM(fi_file))).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(TRIM(cFileName))).
 END.
 /* gdm - 10010905 */
 

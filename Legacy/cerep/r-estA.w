@@ -1069,13 +1069,15 @@ DEF VAR v_i-name LIKE item.i-name  NO-UNDO.
 
 DEF VAR v_blksz    AS CHAR FORMAT 'x(25)'      NO-UNDO.
 DEF VAR v_mod-date AS CHAR FORMAT '99/99/9999' NO-UNDO.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 FORM HEADER
      "Machine:"
      lv-hdr-m-dscr
      SKIP(1)
 
     WITH FRAME r-top2 NO-LABELS NO-BOX WIDTH 132 STREAM-IO NO-UNDERLINE PAGE-TOP.
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form skip(1)
      eb.est-no                      format "x(8)"
@@ -1123,7 +1125,7 @@ assign
 
 /* gdm - 10130804 */
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).  
+   OUTPUT STREAM excel TO VALUE(cFileName).  
    IF NOT tb_break THEN
        PUT STREAM excel UNFORMATTED
          "Est#,Customer Name,Last used,Part #,Description 1,Description 2,Style,Blank size,Item Size,Print,Board,Status"
@@ -1396,7 +1398,7 @@ end.
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

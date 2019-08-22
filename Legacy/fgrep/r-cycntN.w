@@ -1690,7 +1690,9 @@ DEF VAR v-include-cust-owned AS LOG NO-UNDO.
 DEF VAR excelheader  AS CHAR                 NO-UNDO.
 DEF VAR lCountedDateSelected AS LOG NO-UNDO.
 DEF BUFFER bfg-bin FOR fg-bin .                                        
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 ASSIGN
    str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}
@@ -1732,7 +1734,7 @@ ASSIGN
  END.
  lCountedDateSelected = CAN-DO(cslist,'v-counted-date').
  IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
 /*
    IF tb_prt-pallet = TRUE THEN
       excelheader = "ITEM,DESCRIPTION,CUSTOMER,WHSE,BIN,TAG,JOB#,RCT DATE,ON HAND,PALLETS,QUANTITY COUNTED".
@@ -2065,7 +2067,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE("").

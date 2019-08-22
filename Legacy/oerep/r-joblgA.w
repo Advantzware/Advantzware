@@ -930,7 +930,7 @@ def var v-i-no like oe-ordl.i-no no-undo.
 def var v-i-name like oe-ordl.i-name no-undo.
 DEF VAR v-cust AS CHAR FORMAT "X(17)" NO-UNDO.
 DEF VAR est-num AS CHAR  NO-UNDO.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 DEFINE VARIABLE ExcelHeader AS CHARACTER  NO-UNDO.
 
 SESSION:SET-WAIT-STATE ("general").
@@ -1008,6 +1008,8 @@ ASSIGN
  v-fdate[1]   = begin_ord-date
  v-fdate[2]   = end_ord-date.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 changed = v-fdate[1] ne date(01,01,year(today)) or v-fdate[2] ne today.
 
 {sys/inc/print1.i}
@@ -1018,7 +1020,7 @@ if td-show-parm then run show-param.
 
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Job Num,Order Num,Customer,Itm Num,Itm Name,Cst PO,Ord Amt,Ord Dte,".
   IF tb_due-date THEN
      excelheader = excelheader + "Due Date,".
@@ -1287,7 +1289,7 @@ DISPLAY "" WITH FRAME r-top.
     DO:
        OUTPUT STREAM excel CLOSE.
        IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

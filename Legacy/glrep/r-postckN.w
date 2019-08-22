@@ -1236,6 +1236,9 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1262,7 +1265,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 /*IF tb_excel THEN DO:
-  OUTPUT STREAM s-temp TO VALUE(fi_file).
+  OUTPUT STREAM s-temp TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.*/
 
@@ -1283,7 +1286,7 @@ assign
 
  uperiod = period
  v-export = tb_excel
- v-exp-name = fi_file
+ v-exp-name = cFileName
  v-excel-hdr = "Trans Date,Run #,Journal,Balance".
 
 {sys/inc/print1.i}

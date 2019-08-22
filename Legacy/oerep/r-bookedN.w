@@ -2081,6 +2081,7 @@ DEFINE VARIABLE dEDueDate LIKE dSDueDate INITIAL 12/31/9999 NO-UNDO.
 DEFINE VARIABLE c-result  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCheckCostlist AS CHARACTER INIT "% Profit,ORDER AMOUNT,COST/$M,TOTAL STD COST,FULL COST" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 DEF BUFFER bw-data FOR w-data.
 
@@ -2126,6 +2127,8 @@ IF prt-profit THEN DO:
   prt-profit = security-flag.
 END.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
     IF ttRptSelected.TextList MATCHES "*SQ FT*" THEN prt-sqft = YES.
 
@@ -2160,7 +2163,7 @@ END.
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -2182,7 +2185,7 @@ SESSION:SET-WAIT-STATE ("").
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

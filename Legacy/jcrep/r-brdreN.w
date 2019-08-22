@@ -1383,7 +1383,9 @@ DEFINE VARIABLE cOrdStat  AS   CHARACTER FORMAT "!"          INITIAL "O" NO-UNDO
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1410,7 +1412,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1443,7 +1445,7 @@ for each tt-report where tt-report.term-id eq "":
 end.
 /*
 IF tb_excel THEN do:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   EXPORT STREAM excel DELIMITER "," 
       " "
       " "
@@ -2113,7 +2115,7 @@ IF tb_excel THEN
 IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 

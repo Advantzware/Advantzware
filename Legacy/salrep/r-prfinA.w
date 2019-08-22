@@ -1178,6 +1178,9 @@ DEF VAR lv-type     AS   CHAR NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR v-total-label AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form cust.name            column-label "Customer"
      w-data.inv-no
@@ -1249,7 +1252,7 @@ EMPTY TEMP-TABLE tt-report.
 {sys/inc/outprint.i value(lines-per-page)}
 
    IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+      OUTPUT STREAM excel TO VALUE(cFileName).
       excelheader = "Name,Inv Number,FG Item,Prod.Category,Qty shipped,Total MSF," +
                     "$/MSF,Sales Amt,Full Cost,Profit".
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
@@ -1271,7 +1274,7 @@ END.
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 

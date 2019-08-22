@@ -797,6 +797,10 @@ DEF VAR v-line AS CHAR NO-UNDO.
 DEF VAR v-total-mach-hrs AS DEC NO-UNDO.
 DEF VAR v-total-hrs AS DEC NO-UNDO.
 DEF VAR v-cust AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 v-line = FILL("-",80).
 
 FORM HEADER
@@ -806,7 +810,7 @@ FORM HEADER
 SESSION:SET-WAIT-STATE ("general").
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","
        "Machine"
        "Job#"
@@ -1141,7 +1145,7 @@ display "" with frame r-top.
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
 SESSION:SET-WAIT-STATE ("").

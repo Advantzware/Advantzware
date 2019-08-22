@@ -1045,7 +1045,9 @@ DEF VAR v-tot-camt  AS   DEC FORMAT "->>>>>>>9.99" EXTENT 3.
 DEF VAR v-tot-cost  AS   DEC FORMAT "->>>>>>>9.99" EXTENT 3.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + " (A-R-15)"
@@ -1076,7 +1078,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF td-show-parm THEN RUN show-param.
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
+IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
 
 EMPTY TEMP-TABLE tt-report.
 
@@ -1089,7 +1091,7 @@ SESSION:SET-WAIT-STATE ("").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.                  
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

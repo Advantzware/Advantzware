@@ -1482,6 +1482,9 @@ DEF BUFFER b-fg-rcpth FOR fg-rcpth.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 FORM HEADER SKIP(1) WITH FRAME r-top.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM itemfg.cust-no COLUMN-LABEL "CUSTOMER!   ID"
      v-po-no COLUMN-LABEL " P.O.!NUMBER"
@@ -1538,7 +1541,7 @@ ASSIGN
 {sys/inc/outprint.i value(lines-per-page)}
 
  IF tb_excel THEN DO:
-          OUTPUT STREAM excel TO VALUE(fi_file).
+          OUTPUT STREAM excel TO VALUE(cFileName).
           excelheader = "CUST ID,PO#,ITEM #,CUST PART#,DESCRIPTION,JOB#," +
                         ",QTY ON-HAND,PALLETS,SELL PRICE,TOTAL VALUE,DATE," +
                         "RECEIPT DATE,LAST SHIP DATE".
@@ -1810,7 +1813,7 @@ STATUS DEFAULT.
 IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

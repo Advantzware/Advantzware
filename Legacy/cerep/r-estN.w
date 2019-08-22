@@ -1510,13 +1510,15 @@ DEF BUFFER beb FOR eb.
 DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
 DEFINE VARIABLE cJob AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO .
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 FORM HEADER
      "Machine:"
      lv-hdr-m-dscr
      SKIP(1)
 
     WITH FRAME r-top2 NO-LABELS NO-BOX WIDTH 132 STREAM-IO NO-UNDERLINE PAGE-TOP.
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  str-tit2 = trim(c-win:title) + " - by Estimate Number"
@@ -1547,7 +1549,7 @@ END.
 
 IF tb_excel THEN DO:
 
-        OUTPUT STREAM excel TO VALUE(fi_file) .
+        OUTPUT STREAM excel TO VALUE(cFileName) .
 END. 
 
 IF tb_excel AND tb_break EQ NO THEN DO:
@@ -1924,7 +1926,7 @@ end.
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

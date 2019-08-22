@@ -1102,6 +1102,9 @@ DEF VAR lv-f-bot-hdr AS CHAR FORMAT "x(12)" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE cPaymentList AS CHARACTER NO-UNDO.
 def buffer xap-ledger for ap-ledger.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER SKIP(1)
      lv-page-break FORMAT "x(200)"
@@ -1254,7 +1257,7 @@ VIEW FRAME r-top.
   END.
 
   IF tb_excel THEN DO:
-     OUTPUT STREAM excel TO VALUE(fi_file).
+     OUTPUT STREAM excel TO VALUE(cFileName).
 
      IF ll-mult-curr THEN
         excelheader = excelheader + "CURRENCY,".
@@ -1478,7 +1481,7 @@ VIEW FRAME r-top.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

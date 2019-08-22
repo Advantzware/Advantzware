@@ -826,7 +826,9 @@ def var v-print as log init no.
 def var tmp-dscr like gltrans.tr-dscr.
 def var str-tit4 as char no-undo.
 def var str-tit5 as char no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN
    str-tit2 = c-win:TITLE 
@@ -840,7 +842,7 @@ ASSIGN
    v-e-dat = end_date
    uperiod = period 
    v-export = tb_excel
-   v-exp-name = fi_file
+   v-exp-name = cFileName
    v-excel-hdr = "Run#,Account Number,Account Description,Journal, Reference,Date,Balance".
 
 

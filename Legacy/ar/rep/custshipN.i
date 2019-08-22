@@ -5,7 +5,7 @@
 /* -------------------------------------------------------------------------- */
 DO:
   IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
    /* excelHeader = 'Type,Code,Name,Address1,Address2,City,State,Zip,' +
                   'Phone,Fax,Contact,Email,Rep,Sales Rep Name,Territory'.*/
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
@@ -184,7 +184,7 @@ for EACH cust NO-LOCK
   IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
   END.
 END. /* do block */
 

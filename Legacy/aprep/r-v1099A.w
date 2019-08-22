@@ -770,6 +770,9 @@ def var v-zero as log initial no no-undo.
 def var v-vend-tot as dec FORMAT "->>,>>>,>>9.99" no-undo.
 def var v-grand-tot as dec FORMAT "->>,>>>,>>9.99" no-undo.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form  header skip(1)
       "Vendor" at 1 
@@ -793,7 +796,7 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Vend #,Tax ID#,Name,Address 1,Address 2,City,State,Zip,Amount".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -970,7 +973,7 @@ IF rs-date EQ "Invoice" THEN DO:
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.  
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

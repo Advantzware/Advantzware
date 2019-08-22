@@ -1812,6 +1812,9 @@ DEF VAR v-page-brk AS CHAR FORMAT "x(132)" NO-UNDO.
 DEF VAR v-qty           AS DECIMAL                NO-UNDO INIT 0.
 DEF VAR v-subtot-count  LIKE wiptag.pallet-count  NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN
     str-tit4 = "" 
@@ -1889,7 +1892,7 @@ PUT UNFORMATTED "----------"                     AT 113.  /* Tag Qty */
 PUT SKIP. */
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
  /*SSIGN v-xlshead = v-xlshead + "Job,FG Item #,RM Tag #,Sht Wid,Sht Len,Machine,Dept,Tag Qty".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1959,7 +1962,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 END PROCEDURE.
@@ -1980,6 +1983,9 @@ DEF VAR v-xlshead AS CHAR NO-UNDO.
 DEF VAR v-page-brk AS CHAR FORMAT "x(132)" NO-UNDO.
 DEF VAR v-qty           AS DECIMAL                NO-UNDO INIT 0.
 DEF VAR v-subtot-count  LIKE wiptag.pallet-count  NO-UNDO.
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
 FORM HEADER 
   SKIP(1)
@@ -1998,7 +2004,7 @@ IF td-show-parm THEN RUN show-param.
 
 /* IF tb_excel THEN DO:                                                   */
 /*                                                                        */
-/*   OUTPUT STREAM excel TO VALUE(fi_file).                               */
+/*   OUTPUT STREAM excel TO VALUE(cFileName2).                               */
 /*                                                                        */
 /*   IF tgl-tag                                                           */
 /*     THEN ASSIGN v-xlshead = v-xlshead + "Tag #,".                      */
@@ -2218,7 +2224,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 
 END PROCEDURE.

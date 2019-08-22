@@ -828,6 +828,9 @@ DEF VAR v-disc AS LOG INIT NO NO-UNDO.
 DEF VAR v-disc-date AS DATE NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      d1[1] TO 47 d1[2] TO 69 d1[3] TO 91 "Beyond" TO 111 "Total" TO 135 SKIP
@@ -873,7 +876,7 @@ ASSIGN
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Cust#,Cust. Name,Invoice#,Inv Date,Due Date,"
               + STRING(d1[1]) + " Gross," + STRING(d1[1]) + " Disc,"
               + STRING(d1[2]) + " Gross," + STRING(d1[2]) + " Disc,"
@@ -1141,7 +1144,7 @@ SESSION:SET-WAIT-STATE ("general").
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -1219,6 +1219,10 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 def var v-period        like uperiod init 1.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 format header
  /*      skip(1)
        "Tax Authority:" 
@@ -1277,7 +1281,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   /*excelheader = "Tax Authority,Code,Tax Jurisdiction Name,Gross Sales $,"
               + "Taxable $,Exempt $,Tax $,Tax Rate".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1558,7 +1562,7 @@ SESSION:SET-WAIT-STATE ("general").
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1619,6 +1623,10 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE dTexRate AS DECIMAL NO-UNDO .
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
+
 /*FORMAT HEADER
        SKIP
        "Sales"                      TO 71
@@ -1676,7 +1684,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName2).
   /*excelheader = "Tax Code,Tax Name,Tax Rate,Gross Sales $,"
               + "Sales Taxable $,Sales Exempt $,Freight $,Freight Taxable $,Freight Exempt $,Tax $".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1930,7 +1938,7 @@ EMPTY TEMP-TABLE ttRawData.
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

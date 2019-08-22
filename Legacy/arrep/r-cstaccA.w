@@ -980,6 +980,9 @@ DEFINE VARIABLE chWorkBook  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE chRangeRow  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      account.dscr          COLUMN-LABEL "Description" FORMAT "x(32)"
@@ -1005,7 +1008,7 @@ ASSIGN
      fcust = begin_cust
      tcust = END_cust 
      lSelected  = tb_cust-list .
-cExcelFile = fi_file.
+cExcelFile = cFileName.
 IF tb_excel THEN DO:
 IF SEARCH(cExcelFile) NE ? THEN
 OS-DELETE VALUE(SEARCH(cExcelFile)).

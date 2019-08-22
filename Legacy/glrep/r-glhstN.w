@@ -1382,6 +1382,9 @@ DEFINE VARIABLE facct LIKE gltrans.actnum  LABEL "  From Account Number" NO-UNDO
 DEFINE VARIABLE op AS CHARACTER FORMAT "x" INITIAL "S" LABEL "  S)ummary or D)etail?" NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE acct-hdr-printed AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM  account.actnum FORMAT "x(75)" open-amt to 131
       WITH FRAME r-cmon DOWN STREAM-IO WIDTH 132 NO-LABELS NO-BOX NO-UNDERLINE.
@@ -1446,7 +1449,7 @@ IF AVAILABLE period THEN
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   /*excelheader = "Account Number,Account Description,Run #,Journal,"
               + "Reference, , ,Date,Amount,Balance, ".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -2076,7 +2079,7 @@ IF tb_excel THEN DO:
 
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -1525,6 +1525,9 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-inv-no  AS INT NO-UNDO.
 DEF VAR v-inv-date AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -1560,7 +1563,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
  IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
  END.
 IF lselected THEN DO:
@@ -1576,7 +1579,7 @@ END.
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 /*IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Cust. #,Customer Name,YTD Sales,LYR Sales,Hi Balance,Number of Invoices,Avg to Pay".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.*/
@@ -1692,7 +1695,7 @@ IF tb_excel THEN DO:
                cExcelDisplay SKIP.
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

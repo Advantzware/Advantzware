@@ -1296,8 +1296,9 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 def buffer b-f-rc for fg-rcpth.
 def buffer b-f-rd for fg-rdtlh.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
-
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header skip(1)
             v-page-brk
@@ -1350,7 +1351,7 @@ IF lselected THEN DO:
  END.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
 /* gdm - 04210913 */
   IF v-item#   THEN ASSIGN excelheader = excelheader + "FG Item#,".
@@ -1442,7 +1443,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE("").
