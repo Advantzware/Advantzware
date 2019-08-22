@@ -500,10 +500,12 @@ ON 'RETURN' OF w-ord.partial IN BROWSE {&BROWSE-NAME} DO:
   RETURN NO-APPLY.
 END.
 ON 'VALUE-CHANGED' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO: 
-  
     ASSIGN w-ord.ord-qty = dec(w-ord.ord-qty:SCREEN-VALUE IN BROWSE {&browse-name})
         w-ord.total-tags = int(w-ord.total-tags:SCREEN-VALUE IN BROWSE {&browse-name}).
- 
+        glTotalTagsChanged = YES .
+        lcheckflgMsg = YES .
+        RUN pCheckTag NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 END.
 ON 'LEAVE' OF w-ord.total-tags IN BROWSE {&BROWSE-NAME} DO: 
   IF LASTKEY <> -1 AND SELF:MODIFIED THEN DO:
