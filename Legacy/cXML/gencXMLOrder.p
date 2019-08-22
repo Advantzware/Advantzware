@@ -46,9 +46,10 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
   DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
   DEFINE INPUT  PARAMETER ipcWarehouseID    AS CHARACTER NO-UNDO.
   
-  DEFINE OUTPUT PARAMETER opcPayloadID      AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER oplSuccess        AS LOGICAL   NO-UNDO.
-  DEFINE OUTPUT PARAMETER opcReturnValue    AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcPayloadID         AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcReturnValue       AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcInternalException AS CHARACTER NO-UNDO.
 
   DEFINE VARIABLE payLoadID        AS CHARACTER NO-UNDO.
   DEFINE VARIABLE orderID          AS CHARACTER NO-UNDO.
@@ -75,13 +76,14 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
   RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
 
   RUN XMLOutput/APIXMLParser.p (
-      INPUT ipcXMLData) 
-      NO-ERROR.
+      INPUT ipcXMLData
+      ) NO-ERROR.
   
   IF ERROR-STATUS:ERROR OR NOT TEMP-TABLE ttNodes:HAS-RECORDS THEN DO:
       ASSIGN
-          opcReturnValue = "Requested XML is not in valid format" +  " " + ERROR-STATUS:get-message(1).
-          oplSuccess     = NO
+          opcInternalException = ERROR-STATUS:GET-MESSAGE(1)
+          opcReturnValue       = "Requested XML is not in valid format"
+          oplSuccess           = NO
           .
       RETURN.  
   END.
@@ -104,8 +106,7 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           orderDate    = getNodeValue('OrderRequestHeader','orderDate')
           orderID      = getNodeValue('OrderRequestHeader','orderID')
           shipToID     = getNodeValue('shipTo','AddressID')
-          NO-ERROR
-          .
+          NO-ERROR.
     
       /* This procedure validates company code,shipToID and location code, 
          and returns valid company code,location code,shipToID and customer number.

@@ -25,6 +25,7 @@ DEFINE VARIABLE cRequestedBy            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRecordSource           AS CHARACTER NO-UNDO INITIAL "APP Server".
 DEFINE VARIABLE cNotes                  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE riAPIInboundEvent       AS ROWID     NO-UNDO.
+DEFINE VARIABLE cErrorMessage           AS CHARACTER NO-UNDO.
 
 /* User Validation */
 RUN UserAuthenticationCheck (
@@ -32,25 +33,50 @@ RUN UserAuthenticationCheck (
     INPUT   ipcPassword,
     OUTPUT  lSuccess,
     OUTPUT  cMessage
-    ).
+    ) NO-ERROR.
 
-/* If the User Validation fails, sends reason for failure in reponse and logs APIInboundEvent table */ 
-IF NOT lSuccess THEN DO:
-    oplcResponseData='~{ "response_code": 404, "response_message":"' + cMessage + '"}'.
+IF ERROR-STATUS:ERROR THEN DO:
+    ASSIGN
+        cErrorMessage    = ERROR-STATUS:GET-MESSAGE(1)
+        cMessage         = "Internal Server Error at AppServer (#8)"
+        oplcResponseData = '~{ "response_code": 500, "response_message":"' + cMessage + '"}'
+        .
      
     RUN api\CreateAPIInboundEvent.p (
         INPUT  ipcRoute,
         INPUT  iplcRequestData,
         INPUT  oplcResponseData,
         INPUT  lSuccess,
-        INPUT  cMessage,
+        INPUT  cMessage + " " + cErrorMessage,
         INPUT  NOW,
         INPUT  cRequestedBy,
         INPUT  cRecordSource,
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
         OUTPUT riAPIInboundEvent
-        ).
+        ) NO-ERROR.
+ 
+    RETURN.
+END.
+
+/* If the User Validation fails, sends reason for failure in reponse and logs APIInboundEvent table */ 
+IF NOT lSuccess THEN DO:
+    oplcResponseData = '~{ "response_code": 401, "response_message":"' + cMessage + '"}'.
+     
+    RUN api\CreateAPIInboundEvent.p (
+        INPUT  ipcRoute,
+        INPUT  iplcRequestData,
+        INPUT  oplcResponseData,
+        INPUT  lSuccess,
+        INPUT  cMessage + cErrorMessage,
+        INPUT  NOW,
+        INPUT  cRequestedBy,
+        INPUT  cRecordSource,
+        INPUT  cNotes,
+        INPUT  "", /* PayloadID */
+        OUTPUT riAPIInboundEvent
+        ) NO-ERROR.
+ 
     RETURN.
 END.
 
@@ -62,10 +88,11 @@ FIND APIInbound NO-LOCK
      NO-ERROR.
 IF NOT AVAILABLE APIInbound THEN DO:
     ASSIGN 
-        lSuccess = NO
-        cMessage = "APIInbound record for apiRoute " + ipcRoute + " is not Found"
-        oplcResponseData='~{ "response_code": 404, "response_message":"' + cMessage + '"}'
+        lSuccess         = NO
+        cMessage         = "Config for API route " + ipcRoute + " not Found!"
+        oplcResponseData = '~{ "response_code": 404, "response_message":"' + cMessage + '"}'
         .
+        
     RUN api\CreateAPIInboundEvent.p (
         INPUT  ipcRoute,
         INPUT  iplcRequestData,
@@ -78,7 +105,8 @@ IF NOT AVAILABLE APIInbound THEN DO:
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
         OUTPUT riAPIInboundEvent
-        ).
+        ) NO-ERROR.
+        
     RETURN.
 END.
 
@@ -88,10 +116,11 @@ lcResponseDataStructure = APIInbound.responseData.
 IF SEARCH(APIInbound.requestHandler) EQ ? AND
    SEARCH(REPLACE(APIInbound.requestHandler,".p",".r")) EQ ? THEN DO:
     ASSIGN 
-        lSuccess = NO
-        cMessage = "Request Handler Not Found"
-        oplcResponseData='~{ "response_code": 404, "response_message":"' + cMessage + '"}'
+        lSuccess         = NO
+        cMessage         = "Handler for API route " + ipcRoute + " not Found!"
+        oplcResponseData = '~{ "response_code": 404, "response_message":"' + cMessage + '"}'
         .
+        
     RUN api\CreateAPIInboundEvent.p (
          INPUT  ipcRoute,
          INPUT  iplcRequestData,
@@ -104,11 +133,11 @@ IF SEARCH(APIInbound.requestHandler) EQ ? AND
          INPUT  cNotes,
          INPUT  "", /* PayloadID */
          OUTPUT riAPIInboundEvent
-         ).         
+         ) NO-ERROR. 
+                 
     RETURN.
 END.
 
- 
 /* Run the request handler program from the API Inbound configuration */
 RUN VALUE(APIInbound.requestHandler)(
     INPUT  ipcRoute,
@@ -123,7 +152,32 @@ RUN VALUE(APIInbound.requestHandler)(
     OUTPUT oplcResponseData,
     OUTPUT lSuccess,
     OUTPUT cMessage
-    ).
+    ) NO-ERROR.
+
+ IF ERROR-STATUS:ERROR THEN DO:    
+    ASSIGN 
+        cErrorMessage    = ERROR-STATUS:GET-MESSAGE(1)
+        lSuccess         = NO
+        cMessage         = "Internal Server Error at AppServer (#9)"
+        oplcResponseData = '~{ "response_code": 500, "response_message":"' + cMessage + '"}'
+        .
+    
+    RUN api\CreateAPIInboundEvent.p (
+         INPUT  ipcRoute,
+         INPUT  iplcRequestData,
+         INPUT  oplcResponseData,
+         INPUT  lSuccess,
+         INPUT  cMessage + " " + cErrorMessage,
+         INPUT  NOW,
+         INPUT  cRequestedBy,
+         INPUT  cRecordSource,
+         INPUT  cNotes,
+         INPUT  "", /* PayloadID */
+         OUTPUT riAPIInboundEvent
+         ) NO-ERROR.    
+    
+    RETURN.
+ END.
 
 /* This procedure checks whether username and password are valid or not */
 PROCEDURE UserAuthenticationCheck:
@@ -131,8 +185,6 @@ PROCEDURE UserAuthenticationCheck:
     DEFINE INPUT   PARAMETER ipcPassword    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT  PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT  PARAMETER opcMessage     AS CHARACTER NO-UNDO.
-
-    oplSuccess = YES.
     
     /* Checks users table */
     FIND FIRST users NO-LOCK
@@ -141,7 +193,7 @@ PROCEDURE UserAuthenticationCheck:
     IF NOT AVAILABLE users THEN DO:
         ASSIGN 
             oplSuccess = NO
-            opcMessage = "Users are not available"
+            opcMessage = "Authentication Failed (#1)"
             .
         
         RETURN.
@@ -153,17 +205,17 @@ PROCEDURE UserAuthenticationCheck:
     IF NOT AVAILABLE _user THEN DO:
         ASSIGN 
             oplSuccess = NO
-            opcMessage = "_user is not available"
+            opcMessage = "Authentication Failed (#2)"
             .
                
         RETURN.
     END.
 	
-	/* Checks password is correct or not */      
+    /* Checks password is correct or not */      
     IF ENCODE(ipcPassword) NE _user._password THEN DO:
         ASSIGN 
             oplSuccess = NO
-            opcMessage = "Invalid password supplied"
+            opcMessage = "Authentication Failed (#3)"
             .
         
         RETURN.        
@@ -173,11 +225,16 @@ PROCEDURE UserAuthenticationCheck:
     IF users.isLocked THEN DO:
         ASSIGN 
             oplSuccess = NO
-            opcMessage = "Your Advantzware account has been locked. Please contact a Systems Administrator."
+            opcMessage = "The user is locked. Please contact the systems administrator."
             .
                         
         RETURN.        
     END. 
+
+    ASSIGN
+        oplSuccess = YES
+        opcMessage = "Success"
+        .
 
 END PROCEDURE.
 

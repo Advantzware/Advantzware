@@ -81,6 +81,6 @@ public class RequestDispatcherAS{
         }           
     }
     private void handleException(String ipRoute, String ipVerb, String ipRequestDataType, String ipRequestData, String ipExceptionMessage ){
-        System.out.println("{\"response_code\":500,\"response_message\":\"Internal Server Error\",\"exception\":\"" + ipExceptionMessage + "\"}");
+        System.out.println("{\"response_code\":500,\"response_message\":\"Internal Server Error at AppServer (#7)\",\"exception\":\"" + ipExceptionMessage + "\"}");
     }
 }

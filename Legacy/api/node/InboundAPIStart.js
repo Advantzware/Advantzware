@@ -1,3 +1,4 @@
+//this package is required for express
 const express = require('express');
 const app = express();
 
@@ -7,8 +8,8 @@ app.set("env", "production");
 //this is common functions library 
 const lib = require("./lib.js");
 
-//this creates datetime
-const dateTime = lib.getDateString() + ' ' + lib.getTimeString();
+//this returns datetime string
+const dateTime = lib.getDateTimeString();
 
 //this is common variables library 
 const {config} = require("./config.js");
