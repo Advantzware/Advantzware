@@ -418,15 +418,10 @@ END.
 ON CHOOSE OF bt-filter IN FRAME filter-frame
 DO: 
     IF NOT ll-ttLoaded THEN DO:
-        MESSAGE "This will load large set of records. Loading and searching may take time." SKIP 
-                "Do you want to continue?" 
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO-CANCEL
-                TITLE "Continue?" UPDATE ll-continue AS LOGICAL.
+        MESSAGE "Large set of records available. Toggling search mode is disabled"
+                VIEW-AS ALERT-BOX INFORMATION.
         
-        IF ll-continue THEN
-            RUN buildTempTable.
-        ELSE
-            RETURN NO-APPLY.    
+        RETURN NO-APPLY.    
     END.    
     
     RUN resizeFilterFrame.  
@@ -1384,20 +1379,37 @@ PROCEDURE validateRecordLimit :
     DEFINE VARIABLE h_lquery        AS HANDLE NO-UNDO.    
 
     DEFINE VARIABLE ls-lqueryString AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
     
-    ls-lqueryString = "PRESELECT EACH" + " " +
+    IF ip-recLimit LE 0 THEN DO:
+        ip-filterFirst = TRUE.
+        RETURN.
+    END.
+    
+    ls-lqueryString = "FOR EACH" + " " +
                     h_buffer:NAME + " " +
                     "NO-LOCK" + " " + 
                     IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString. 
+                    "NO-LOCK". 
     
     CREATE QUERY h_lquery.
     h_lquery:SET-BUFFERS(h_buffer).                
     h_lquery:QUERY-PREPARE(ls-lqueryString).
     h_lquery:QUERY-OPEN().
-    
-    IF ip-recLimit GT 0 AND h_lquery:NUM-RESULTS GT ip-recLimit THEN
-       ip-filterFirst = TRUE.
-    
+ 
+    h_lquery:GET-FIRST().
+    REPEAT:
+        IF h_lquery:QUERY-OFF-END THEN
+            LEAVE.
+        iCount = iCount + 1.
+        
+        IF iCount GE ip-recLimit THEN DO:
+            ip-filterFirst = TRUE.
+            LEAVE.
+        END.
+        h_lquery:GET-NEXT().
+    END.
+
     DELETE OBJECT h_lquery.
        
 END PROCEDURE.
