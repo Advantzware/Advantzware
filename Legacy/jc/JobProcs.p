@@ -160,6 +160,70 @@ PROCEDURE GetRMItemsForJob:
     RELEASE buf-job-mat.
 END PROCEDURE.
 
+PROCEDURE GetOperationForPO:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code for a purchase order line
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiOrdno        AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcItemno       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiType         AS CHARACTER NO-UNDO. /* "First" - sends the first record */
+    DEFINE INPUT-OUTPUT PARAMETER opcMachineList  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER buf-job FOR job.
+    DEFINE BUFFER buf-job-hdr FOR job-hdr.
+    DEFINE BUFFER buf-job-mch FOR job-mch.
+                
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company EQ ipcCompany
+           AND job-hdr.job-no  EQ ipcJobno
+           AND job-hdr.job-no2 EQ ipiJobno2
+           AND job-hdr.ord-no  EQ ipiOrdno
+           AND job-hdr.i-no    EQ ipcItemno
+         NO-ERROR.
+    IF NOT AVAILABLE buf-job-hdr THEN
+       FIND FIRST buf-job-hdr NO-LOCK
+            WHERE buf-job-hdr.company EQ ipcCompany
+              AND buf-job-hdr.job-no  EQ ipcJobno
+              AND buf-job-hdr.job-no2 EQ ipiJobno2
+              AND buf-job-hdr.ord-no  EQ ipiOrdno
+            NO-ERROR.
+
+    IF AVAILABLE buf-job-hdr THEN
+        FIND FIRST buf-job NO-LOCK
+             WHERE buf-job.company EQ buf-job-hdr.company
+               AND buf-job.job     EQ buf-job-hdr.job
+               AND buf-job.job-no  EQ buf-job-hdr.job-no
+               AND buf-job.job-no2 EQ buf-job-hdr.job-no2
+             NO-ERROR.
+
+    IF AVAILABLE buf-job THEN DO:
+        FOR EACH buf-job-mch NO-LOCK
+            WHERE buf-job-mch.company EQ buf-job.company
+              AND buf-job-mch.job     EQ buf-job.job
+              AND buf-job-mch.job-no  EQ buf-job.job-no
+              AND buf-job-mch.job-no2 EQ buf-job.job-no2
+              AND buf-job-mch.frm     EQ buf-job-hdr.frm
+            USE-INDEX line-idx:        
+            IF ipiType EQ "First" AND opcMachineList EQ "" THEN do:
+                opcMachineList = buf-job-mch.m-code.
+                LEAVE .
+            END.
+            
+            opcMachineList = opcMachineList +  "," + buf-job-mch.m-code.
+        END.
+    END.
+    
+    opcMachineList = TRIM(opcMachineList,",").
+    
+    RELEASE buf-job-mch.
+    RELEASE buf-job.
+    RELEASE buf-job-hdr.
+END PROCEDURE.
+
 PROCEDURE GetOperation:
     /*------------------------------------------------------------------------------
      Purpose: Returns machine code list for a given jobID
