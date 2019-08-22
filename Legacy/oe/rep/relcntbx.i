@@ -53,7 +53,8 @@
                                    AND oe-rell.po-no    EQ w-oe-rell.po-no
                                    AND oe-rell.loc      EQ fg-bin.loc
                                    AND oe-rell.loc-bin  EQ fg-bin.loc-bin
-                                   AND oe-rell.tag      EQ fg-bin.tag)
+                                   AND oe-rell.tag      EQ fg-bin.tag 
+                                   AND oe-rell.tag      NE "")
              i        = i + 1.
 
             assign
