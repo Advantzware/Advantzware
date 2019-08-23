@@ -22,7 +22,7 @@ form
      ctot               to 79
     with frame b3 no-box no-labels stream-io no-attr-space.
 
-form skip(9)
+form skip(8)
      dol                at 10
      SKIP(2)
      ap-chk.check-date  to 60
@@ -193,7 +193,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 
         display ap-chk.check-date ap-chk.check-no ctot with frame b3.
         
-        PUT skip(max-per-chk - ll - 1).
+        PUT skip(max-per-chk - ll ).
 
         run ap/apchks.p (input ctot, input 70, output dol).
 
