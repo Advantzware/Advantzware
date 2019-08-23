@@ -126,7 +126,7 @@ DEF VAR v-case-tot          AS INTE NO-UNDO.
 DEF VAR cOrderDate          AS CHAR NO-UNDO.
 DEF VAR dOrigQty            AS DEC NO-UNDO.
 DEF VAR cOrigUom            AS CHAR NO-UNDO.
-DEFINE VARIABLE cXMLShipTo AS CHARACTER   NO-UNDO.
+//DEFINE VARIABLE cXMLShipTo AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
@@ -237,10 +237,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
               AND sys-ctrl-shipto.log-fld EQ YES
             NO-ERROR.
         IF AVAIL sys-ctrl-shipto THEN 
-            ASSIGN 
-                cXMLIdentity = sys-ctrl-shipto.char-fld
-                cXMLDTD = 'http://xml.cxml.org/schemas/cXML/1.2.025/Fulfill.dtd'
-                iReprint = sys-ctrl-shipto.int-fld
                 lGeneratecXML = YES.
       END. /* avail sys-ctrl */
     /* key-10 set in oerep/r-bolprt.w (build-work) */
@@ -248,10 +244,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
         ((iReprint EQ 0 AND xxreport.key-10 EQ 'no') 
          OR (iReprint EQ 1 AND xxreport.key-10 EQ 'yes')) THEN DO:
         lGeneratecXML = YES.
-      {XMLOutput/cXMLCust.i
-        &cXMLSysCtrl={&sysCtrlcXML}
-        &Company=oe-bolh.company
-        &Customer=oe-bolh.cust-no}
     END. /* if not printed */
     ELSE lGeneratecXML = NO.
     /* rstark 05291402 */
@@ -320,21 +312,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
 	      and oe-ord.ord-no  eq oe-boll.ord-no
 	    NO-LOCK:
 
-      /* rstark 05291402 */
-      ASSIGN
-        cXMLPayloadID = oe-ord.spare-char-3
-        cXMLProcessID = STRING(oe-ord.ord-no)
-        cOrderDate =  STRING(YEAR(oe-ord.ord-date),'9999')
-                             + '-'
-                             + STRING(MONTH(oe-ord.ord-date),'99')
-                             + '-'
-                             + STRING(DAY(oe-ord.ord-date),'99')
-                             + 'T'
-                             + STRING(0,'hh:mm:ss')
-                             + '-05:00'
-        cPoNum = oe-boll.po-no
-        .
-      /* rstark 05291402 */
 
       if not available carrier then
       find first carrier where carrier.company = oe-ord.company
@@ -416,18 +393,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
         ASSIGN v-ship-addr[2] = v-ship-addr3
                v-ship-addr3 = "".
     
-     v-trailer = oe-bolh.trailer.
- 
-     FIND FIRST sys-ctrl-shipto NO-LOCK
-        WHERE sys-ctrl-shipto.company EQ oe-bolh.company
-          AND sys-ctrl-shipto.NAME EQ 'cXMLShipToPrefix'
-          AND sys-ctrl-shipto.cust-vend EQ YES
-          AND sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no
-        NO-ERROR.
-    IF AVAIL sys-ctrl-shipto AND sys-ctrl-shipto.char-fld NE '' THEN 
-        cXMLShipTo = TRIM(sys-ctrl-shipto.char-fld) + oe-bolh.ship-id.
-    ELSE 
-        cXMLShipTo = oe-bolh.ship-id.   
+     v-trailer = oe-bolh.trailer. 
     
      /* rstark 05181205 */
      RUN XMLOutput (lXMLOutput,'BOLHeader','','Row').
@@ -449,71 +415,13 @@ for each xxreport where xxreport.term-id eq v-term-id,
      RUN XMLOutput (lXMLOutput,'/BOLHeader','','Row').
      XMLPage = NO.
      /* rstark 05181205 */
-
-     /* rstark 05291402 */
-     IF lGeneratecXML THEN DO:
-       RUN cXMLOutput (clXMLOutput,'Request deploymentMode="' + cXMLProduction + '"','','Row').
-       RUN cXMLOutput (clXMLOutput,'ShipNoticeRequest','','Row').
-       RUN cXMLOutput (clXMLOutput,'ShipNoticeHeader shipmentType="actual" shipmentDate="' + getFormattedDate(oe-bolh.bol-date, TIME)
-                                    + '" deliveryDate="' + getFormattedDate(oe-bolh.bol-date + 2, TIME)
-                                    + '" noticeDate="' + cXMLTimeStamp
-                                    + '" operation="new" shipmentID="' +
-                                    STRING(oe-bolh.bol-no) + '"','','Row').
-       RUN cXMLOutput (clXMLOutput,'Contact role="shipFrom"','','Row').
-       RUN cXMLOutput (clXMLOutput,'Name xml:lang="en"','','Row').
-       RUN cXMLOutput (clXMLOutput,'','Premier Packaging','Col').
-       RUN cXMLOutput (clXMLOutput,'/Name','','Row').
-       RUN cXMLOutput (clXMLOutput,'PostalAddress','','Row').
-       RUN cXMLOutput (clXMLOutput,'Street','3900 Produce Road','Col').
-       RUN cXMLOutput (clXMLOutput,'City','Louisville','Col').
-       RUN cXMLOutput (clXMLOutput,'State','KY','Col').
-       RUN cXMLOutput (clXMLOutput,'PostalCode','40218','Col').
-       RUN cXMLOutput (clXMLOutput,'Country isoCountryCode="US"','','Row').
-       RUN cXMLOutput (clXMLOutput,'','United States','Col').
-       RUN cXMLOutput (clXMLOutput,'/Country','','Row').
-       RUN cXMLOutput (clXMLOutput,'/PostalAddress','','Row').
-       RUN cXMLOutput (clXMLOutput,'/Contact','','Row').
-       RUN cXMLOutput (clXMLOutput,'Contact addressID="' + cXMLShipTo + '" role="shipTo"','','Row').
-       RUN cXMLOutput (clXMLOutput,'Name xml:lang="en"','','Row').
-       RUN cXMLOutput (clXMLOutput,'',v-ship-name,'Col').
-       RUN cXMLOutput (clXMLOutput,'/Name','','Row').
-       RUN cXMLOutput (clXMLOutput,'PostalAddress','','Row').
-       RUN cXMLOutput (clXMLOutput,'Street',v-ship-addr[1],'Col').
-       IF shipto.ship-addr[2] NE "" AND shipto.ship-addr[2] NE '345 Court Street' THEN 
-            RUN cXMLOutput (clXMLOutput,'Street',shipto.ship-addr[2],'Col').
-       RUN cXMLOutput (clXMLOutput,'City',v-ship-city,'Col').
-       RUN cXMLOutput (clXMLOutput,'State',v-ship-state,'Col').
-       RUN cXMLOutput (clXMLOutput,'PostalCode',v-ship-zip,'Col').
-       RUN cXMLOutput (clXMLOutput,'Country isoCountryCode="US"','','Row').
-       RUN cXMLOutput (clXMLOutput,'','United States','Col').
-       RUN cXMLOutput (clXMLOutput,'/Country','','Row').
-       RUN cXMLOutput (clXMLOutput,'/PostalAddress','','Row').
-       RUN cXMLOutput (clXMLOutput,'/Contact','','Row').
-       RUN cXMLOutput (clXMLOutput,'/ShipNoticeHeader','','Row').
-       RUN cXMLOutput (clXMLOutput,'ShipControl','','Row').
-       RUN cXMLOutput (clXMLOutput,'CarrierIdentifier domain="companyName"','','Row').
-       RUN cXMLOutput (clXMLOutput,'',oe-bolh.carrier,'Col').
-       RUN cXMLOutput (clXMLOutput,'/CarrierIdentifier','','Row').
-       RUN cXMLOutput (clXMLOutput,'ShipmentIdentifier',oe-bolh.trailer,'Col').
-       RUN cXMLOutput (clXMLOutput,'/ShipControl','','Row').
-       RUN cXMLOutput (clXMLOutput,'ShipNoticePortion','','Row').
-       RUN cXMLOutput (clXMLOutput,'OrderReference orderDate="' + cOrderDate + '"' + ' orderID="' + cPoNum + '"','','Row').
-       RUN cXMLOutput (clXMLOutput,'DocumentReference payloadID="' + cXMLPayloadID + '" /','','Row').
-       RUN cXMLOutput (clXMLOutput,'/OrderReference','','Row').
-       ciXMLOutput = 0.
-       /* rstark 05291402 */
-     END.
-
+     
+     IF lGeneratecXML THEN 
+       run cxml/cxmlbol.p (INPUT oe-bolh.company, INPUT oe-bolh.bol-no).
+     /* iCxmlOutput = 0 */
+     
     {oe/rep/bolprem2.i} /* header */
     {oe/rep/bolprem3.i}
-
-    IF lGeneratecXML THEN DO: 
-      /* rstark 05291402 */
-      RUN cXMLOutput (clXMLOutput,'/ShipNoticePortion','','Row').
-      RUN cXMLOutput (clXMLOutput,'/ShipNoticeRequest','','Row').
-      RUN cXMLOutput (clXMLOutput,'/Request','','Row').
-      /* rstark 05291402 */
-    END.
 
     v-last-page = page-number.
   end.
@@ -627,9 +535,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
         end.
      END.
   END. /*last of bolh.bol-no and end of BOL CERT block*/
-  IF lGeneratecXML THEN DO:
-      {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
-  END.
+
 end. /* for each oe-bolh */
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */
