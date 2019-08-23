@@ -563,7 +563,7 @@ PROCEDURE list-gl :
     DEFINE VARIABLE lv-rowid      AS ROWID     NO-UNDO.
 
     DEFINE BUFFER b-tt-report FOR tt-report.
-
+    
     post-print: 
     DO WHILE TRUE.
         cListName = TRIM(cCListName) + ".001".
@@ -935,8 +935,8 @@ PROCEDURE list-post-inv :
     DEFINE VARIABLE v-close-line-ok AS LOGICAL INITIAL NO.
     DEFINE VARIABLE v-first         AS LOG     INIT YES.
     DEFINE VARIABLE v-tot-frt       AS DECIMAL NO-UNDO.
-  
-  
+    
+ 
   
  
     SESSION:SET-WAIT-STATE ("general").
@@ -995,7 +995,7 @@ PROCEDURE list-post-inv :
                     v-xline = 0.
 
             CREATE ar-inv.
-            {oe/invhpost.i}
+            {oe/invhpost.i dtPostDate}
 
             IF cExportNk1 EQ "Sonoco" THEN 
             DO:

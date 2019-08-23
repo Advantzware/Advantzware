@@ -9,7 +9,7 @@
              v-xline = 0.
 
           create ar-inv.
-          {oe/invhpost.i}
+          {oe/invhpost.i tran-date}
 
           if v-export eq "Sonoco" then do:
             run oe/sonofile.p (1,recid(ar-inv)).
