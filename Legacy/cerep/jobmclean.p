@@ -94,7 +94,8 @@ DEFINE NEW SHARED WORKFILE wrk-op
     FIELD run-hr LIKE job-mch.run-hr EXTENT 100
     FIELD num-sh LIKE est-op.num-sh EXTENT 100
     FIELD spoil LIKE job-mch.wst-prct EXTENT 20
-    FIELD mr-waste LIKE job-mch.mr-waste EXTENT 20    .
+    FIELD mr-waste LIKE job-mch.mr-waste EXTENT 20 
+    FIELD waste-per LIKE job-mch.wst-prct EXTENT 20   .
 
 DEFINE NEW SHARED WORKFILE wrk-die
     FIELD die-no LIKE eb.die-no
@@ -265,7 +266,8 @@ DEFINE        VARIABLE dMRWaste          AS DECIMAL   NO-UNDO .
 DEFINE        VARIABLE dRunWaste         AS DECIMAL   NO-UNDO .
 DEFINE        VARIABLE dMRCrew           AS DECIMAL   NO-UNDO .
 DEFINE        VARIABLE dRunCrew          AS DECIMAL   NO-UNDO .
-
+DEFINE        VARIABLE dBeginQty         AS INTEGER   NO-UNDO .
+DEFINE VARIABLE dYieldQty AS DECIMAL NO-UNDO .
 
 DEFINE SHARED VARIABLE s-prt-fgimage     AS LOG       NO-UNDO.
 
@@ -641,10 +643,11 @@ FOR EACH job-hdr NO-LOCK
                     AND (tt-reftable.est-type <> 4 OR
                     tt-reftable.val[12] = bf-jobhdr.frm)
                     BREAK BY tt-reftable.val[12].
-                    FIND FIRST ttSoule NO-LOCK
-                        WHERE  ttSoule.frm EQ tt-reftable.val[12] NO-ERROR .
-                    IF AVAILABLE ttSoule AND ttSoule.runForm EQ NO  THEN NEXT MAIN-FORM.
-        
+                    
+                    IF NOT CAN-FIND(FIRST ttSoule NO-LOCK
+                        WHERE  ttSoule.frm EQ tt-reftable.val[12]
+                         AND   ttSoule.runForm EQ YES ) THEN NEXT MAIN-FORM.
+                    
                     IF FIRST-OF(tt-reftable.val[12]) THEN 
                     DO:
         
@@ -740,7 +743,8 @@ FOR EACH job-hdr NO-LOCK
                         wrk-op.num-sh[job-mch.frm]   = job-mch.run-qty
                         wrk-op.spoil[job-mch.frm]    = job-mch.wst-prct   
                         wrk-op.mr-waste[job-mch.frm] = job-mch.mr-waste   
-                        wrk-op.run-hr[job-mch.frm]   = job-mch.run-hr   .
+                        wrk-op.run-hr[job-mch.frm]   = job-mch.run-hr 
+                        wrk-op.waste-per[job-mch.frm] = job-mch.wst-prct  .
                 END.
 
                 /** BUILD PREP WORK FILE **/
@@ -1119,7 +1123,7 @@ FOR EACH job-hdr NO-LOCK
                                     "<C28><b>Due:</b>" (IF dtPoDueDate NE ? THEN STRING(dtPoDueDate) ELSE "")
                                     "<C44><b>Vendor:</b>" (IF cVendor NE ? THEN cVendor ELSE "") FORMAT "x(30)" SKIP .
 
-                                PUT "<b>     Operation             R Crw.  R Hrs.    MR Crw.   MR Hrs.   Speed    Mr Wst.   R Wst.  Beginning  Yield </b>" SKIP
+                                PUT "<b>     Operation             R Crw.  R Hrs.    MR Crw.   MR Hrs.   Speed    Mr Wst.   R Wst.  Beginning   Yield </b>" SKIP
                                     v-fill2 SKIP .
 
                                 i = 0.
@@ -1175,6 +1179,9 @@ FOR EACH job-hdr NO-LOCK
      
                                     IF s-prt-mstandard THEN 
                                     DO:
+                                        dBeginQty = (wrk-op.speed[wrk-op.s-num] * wrk-op.run-hr[wrk-op.s-num]) + (wrk-op.mr-waste[wrk-op.s-num]) .
+                                        dBeginQty = dBeginQty + (dBeginQty * wrk-op.waste-per[wrk-op.s-num] / 100) .
+                                        dYieldQty = (wrk-op.speed[wrk-op.s-num] * wrk-op.run-hr[wrk-op.s-num]) .
                                         PUT SPACE(5) wrk-op.m-dscr   SPACE(1)
                                             dRunCrew FORMAT ">>>9.99"   SPACE(1)
                                             wrk-op.run-hr[wrk-op.s-num]     SPACE(2)
@@ -1182,7 +1189,9 @@ FOR EACH job-hdr NO-LOCK
                                             wrk-op.mr[wrk-op.s-num]         SPACE(5)
                                             wrk-op.speed[wrk-op.s-num]      SPACE(5)
                                             wrk-op.mr-waste[wrk-op.s-num]   SPACE(3)
-                                            dRunWaste FORMAT ">>>>.99" SPACE(1) SKIP.
+                                            dRunWaste FORMAT ">>>>.99" SPACE(3)
+                                            dBeginQty FORMAT ">>>>>>>9" SPACE(1)  
+                                            dYieldQty FORMAT ">>>>>>>9" SKIP.
                                     END.
                                     ELSE PUT SPACE(10) "  " wrk-op.m-dscr   SPACE(3) SKIP .
                                     i = i + 1.
@@ -1396,9 +1405,10 @@ DO:
         AND bf-jobhdr.job-no = job-hdr.job-no
         AND bf-jobhdr.job-no2 = job-hdr.job-no2
         BREAK BY bf-jobhdr.frm:
-        FIND FIRST ttSoule NO-LOCK
-            WHERE  ttSoule.frm EQ bf-jobhdr.frm NO-ERROR .
-        IF AVAILABLE ttSoule AND ttSoule.runForm EQ NO  THEN NEXT MAIN-PRINT-BOX.
+       
+        IF NOT CAN-FIND(FIRST ttSoule NO-LOCK
+                        WHERE  ttSoule.frm EQ bf-jobhdr.frm
+                         AND   ttSoule.runForm EQ YES ) THEN NEXT MAIN-PRINT-BOX.
 
         IF FIRST-OF(bf-jobhdr.frm) THEN 
         DO:
@@ -1443,10 +1453,10 @@ DO:
         AND bf-jobhdr.job-no2 = job-hdr.job-no2
         BREAK BY bf-jobhdr.frm:
 
-        FIND FIRST ttSoule NO-LOCK
-            WHERE  ttSoule.frm EQ bf-jobhdr.frm NO-ERROR .
-        IF AVAILABLE ttSoule AND ttSoule.runForm EQ NO  THEN NEXT MAIN-PRINT-IMAGE.
-
+        IF NOT CAN-FIND(FIRST ttSoule NO-LOCK
+                        WHERE  ttSoule.frm EQ bf-jobhdr.frm
+                         AND   ttSoule.runForm EQ YES ) THEN NEXT MAIN-PRINT-IMAGE.
+        
         IF FIRST-OF(bf-jobhdr.frm) THEN 
         DO:
             FIND FIRST itemfg NO-LOCK
@@ -1495,13 +1505,14 @@ DO:
 
             PUT UNFORMATTED 
                 "<C2><b>Account ID:</b> <C11>" bf-jobhdr.cust-no FORMAT "x(8)" 
-                "<C37> <b>S.O.#:</b><C47>" (IF AVAILABLE oe-ord THEN STRING(oe-ord.ord-no) ELSE "") SKIP
+                "<C37> <b>Order#:</b><C47>" (IF AVAILABLE oe-ord THEN STRING(oe-ord.ord-no) ELSE "") SKIP
                 "<C2><b>Name:</b> <C11>"  (IF AVAILABLE cust THEN cust.NAME ELSE "") FORMAT "x(30)"   
-                "<C37> <b>S.O. Date:</b><C47>" (IF AVAILABLE oe-ord THEN STRING(oe-ord.ord-date,"99/99/9999") ELSE "") SKIP
+                "<C37> <b>Order Date:</b><C47>" (IF AVAILABLE oe-ord THEN STRING(oe-ord.ord-date,"99/99/9999") ELSE "") SKIP
                 "<C2> <C11>" (IF AVAILABLE cust THEN cust.addr[1] ELSE "") FORMAT "x(30)"   
-                "<C37><b> PO# :</b><C47>" (IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ordl.po-no-po)) ELSE "") SKIP
-                "<C11>" (IF AVAILABLE cust THEN cust.addr[2] ELSE "") FORMAT "x(30)"   "<C37> <b>Est.#(s):</b><C47>" (IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ord.est-no)) ELSE "") SKIP
-                "<C11>" (IF AVAILABLE cust THEN STRING(cust.city + " " + cust.state + "   " + cust.zip) ELSE "") FORMAT "x(33)"   "<C37><b> Ident.:</b><C47>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE "") FORMAT "x(30)" SKIP
+                "<C37> <b>Est.#(s):</b><C47>" (IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ord.est-no)) ELSE "") SKIP
+
+                "<C11>" (IF AVAILABLE cust THEN cust.addr[2] ELSE "") FORMAT "x(30)"  "<C37><b> Ident.:</b><C47>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE "") FORMAT "x(30)"  SKIP
+                "<C11>" (IF AVAILABLE cust THEN STRING(cust.city + " " + cust.state + "   " + cust.zip) ELSE "") FORMAT "x(33)"    
                 "<C37> <b>Repeat:</b><C47>" (IF AVAILABLE oe-ord AND oe-ord.TYPE EQ "R" THEN "Y" ELSE "N") SKIP
                 "<C37> <b>Cust Part#:</b><C47>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.part-no) ELSE "") FORMAT "x(15)" SKIP
                 "<C2><b>Salesperson:</b> <C12>"  (IF AVAILABLE oe-ord THEN STRING(oe-ord.sman[1] + "  " + oe-ord.sname[1]) ELSE "") FORMAT "x(33)"   
@@ -1538,7 +1549,7 @@ DO:
                     "<R5><C67>" iSetRelQty[3] FORMAT ">>>>>>>>>" SPACE(2) cRelDate[3]
                     "<R6><C67>" iSetRelQty[4] FORMAT ">>>>>>>>>" SPACE(2) cRelDate[4]
                     "<R7><C67>" iSetRelQty[5] FORMAT ">>>>>>>>>" SPACE(2) cRelDate[5]
-                    "<R8><C67>" iSetRelQty[6] FORMAT ">>>>>>>>>" SPACE(2) cRelDate[6]  "<R9.5>" .
+                    "<R8><C67>" iSetRelQty[6] FORMAT ">>>>>>>>>" SPACE(2) cRelDate[6] "<R9.5>" .
             END.
              
 
@@ -1559,13 +1570,20 @@ DO:
             dBoardSheet = job-mat.qty .
         END.
 
+        FIND FIRST b-eb WHERE b-eb.company = bf-jobhdr.company
+                AND b-eb.est-no = bf-jobhdr.est-no
+                AND b-eb.form-no = bf-jobhdr.frm
+                AND b-eb.stock-no = bf-jobhdr.i-no
+                AND (b-eb.blank-no = bf-jobhdr.blank-no OR bf-jobhdr.blank-no EQ 0 ) NO-LOCK NO-ERROR.
+
         PUT UNFORMATTED 
             "<C2><b>Order Qty: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty) ELSE "0") FORMAT "x(10)"
-            "<C25><b>Size: </b>"     "<C60><b> Price:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.price) ELSE "0") SKIP
+            "<C25><b>FG #: </b>"  (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-no) ELSE "") FORMAT "x(15)" 
+              "<C60><b> Price:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.price) ELSE "0") SKIP
             "<C2><b>Material: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE "") FORMAT "x(30)" SKIP
             "<C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.part-dscr1) ELSE "") FORMAT "x(30)" SKIP
             "<C2><b>Estimate:</b> <C11>" (IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ordl.est-no)) ELSE "") FORMAT "x(10)" 
-            "<C25><b>Run:</b>" dBoardSheet FORMAT ">>>>>>9.99<<"
+            "<C25><b>Quantity:</b>" (IF AVAIL b-eb THEN b-eb.bl-qty ELSE 0) FORMAT ">>>>>>9.99<<"
             "<C60> <b>UOM:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "") SKIP 
             "<C1.5><FROM><C84><LINE><||3>" SKIP.
                         
