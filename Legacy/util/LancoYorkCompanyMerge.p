@@ -192,7 +192,8 @@ PROCEDURE pBuildFieldLists:
         _field._help MATCHES "acct*" OR  
         _field._help MATCHES "*account*" OR
         _field._help MATCHES "*acct*" OR 
-        _field._field-name EQ "check-act"
+        _field._field-name EQ "check-act" OR 
+        _field._field-name EQ "acrange"
         :
         IF _field._label MATCHES "*desc*" 
             OR _field._label MATCHES "*period*" 
@@ -630,6 +631,9 @@ PROCEDURE pCleanup:
             DELETE ce-ctrl.
     END. 
     
+    FOR EACH oe-ctrl WHERE oe-ctrl.company NE "001":
+        DELETE oe-ctrl.
+    END.
     FIND oe-ctrl WHERE 
         oe-ctrl.company = "001"
         EXCLUSIVE.
@@ -651,6 +655,9 @@ PROCEDURE pCleanup:
         ar-ctrl.last-inv = inv-head.inv-no
         iCtr = 0.
     
+    FOR EACH po-ctrl WHERE po-ctrl.company NE "001":
+        DELETE po-ctrl.
+    END.
     FIND po-ctrl WHERE 
         po-ctrl.company = "001"
         EXCLUSIVE.
@@ -658,6 +665,14 @@ PROCEDURE pCleanup:
     ASSIGN 
         po-ctrl.next-po-no = po-ord.po-no + 1.
         
+    FOR EACH gl-ctrl WHERE gl-ctrl.company NE "001":
+        DELETE gl-ctrl.
+    END.
+    FIND gl-ctrl WHERE 
+        gl-ctrl.company = "001"
+        EXCLUSIVE.
+    
+
     ASSIGN  
         CURRENT-VALUE(oerel_release_seq) = current-value(oerel_rno_seq)
         CURRENT-VALUE(oerel_release_seq01) = current-value(oerel_rno_seq)
@@ -2532,9 +2547,9 @@ PROCEDURE pLoadCoAFromCSV:
         IMPORT UNFORMATTED cLine.
         CREATE ttNewCoA.
         ASSIGN 
-            ttNewCoA.fromCompany = ENTRY(1,cLine,",")
+            ttNewCoA.fromCompany = IF ENTRY(1,cLine,",") EQ "1" THEN "001" ELSE IF ENTRY(1,cLine,",") EQ "2" THEN "002" ELSE ""
             ttNewCoA.fromAcct    = ENTRY(2,cLine,",")
-            ttNewCoA.toCompany   = ENTRY(3,cLine,",")
+            ttNewCoA.toCompany   = IF ENTRY(3,cLine,",") EQ "1" THEN "001" ELSE IF ENTRY(3,cLine,",") EQ "2" THEN "002" ELSE ""
             ttNewCoA.toAcct      = ENTRY(4,cLine,",")
             ttNewCoA.AcctDesc    = ENTRY(5,cLine,",").
     END.
