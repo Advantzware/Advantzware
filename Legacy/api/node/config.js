@@ -5,7 +5,7 @@
 // appServerURL: this is the URL to Progress AppServer. This needs update based on the targeted AppServer broker name
 // *** if AppServer and Node are running on the same machine then update "appServerURL" to "AppServer://localhost:<port>/Advantzware_API"
 // *** if AppServer and Node are running on different machines then "AppServer://<ip>:<port>/Advantzware_API"
-// appServerRequestRouter: this is progress layer common program
+// appServerRequestRouter: this is Progress layer common program
 // serverIP: This is IP address for the server on which node server runs.This needs to be updated based on targeted server.
 // serverPort: This is port number on which node server starts
 
