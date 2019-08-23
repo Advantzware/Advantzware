@@ -25,7 +25,7 @@ DO li = 1 TO NUM-ENTRIES(spec_codes):
 END.
 
 /*FibreFC,*/
-IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,McLean,Carded2,Coburn,Knight***",lv-format-f) THEN 
+IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
   lines-per-page = 50. /*55*/
 ELSE IF tb_fold AND CAN-DO("FibreFC,HPB,METRO,Dee",lv-format-f) THEN 
   lines-per-page = 70 /* 58 lines-per-page*/.
