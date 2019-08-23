@@ -56,6 +56,9 @@ DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 IF ipcIndustry EQ "2" THEN
+  v-prgmname = v-prgmname + "C" .
+
+IF ipcIndustry EQ "2" THEN
     ASSIGN 
         cTextListToSelect = "Item#,Name,DESC,Est.DESC,Item Code,Taxable,Mat'l Type,Mat'1 Dscr,Cost Type,Cost Dscr,Category,Category Dscr,QTY Usage PTD,Qty Usage YTD," +
                             "Qty Usage Last YR,Usage Cost PTD,Usage Cost YTD,Total Cost Last YR,Ink Type,Press Type,Min Lbs/Job,SI/Lb,Wgt/100,Caliper,Shrink%,Weight/MSF,Width,Depth," +
@@ -722,7 +725,6 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
 
 /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
 /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
@@ -749,20 +751,14 @@ PROCEDURE DisplaySelectionList2 :
            .
   END.
   
- /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+ 
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
