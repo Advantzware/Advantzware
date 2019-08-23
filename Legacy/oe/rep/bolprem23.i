@@ -22,27 +22,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
 
       find first oe-ord where oe-ord.company eq cocode
          and oe-ord.ord-no  eq tt-boll.ord-no no-lock no-error.
-       IF lGenerateCXML  THEN DO:
-            IF AVAIL oe-ordl AND oe-ordl.spare-char-2 NE '' THEN DO:
-                ASSIGN 
-                    dOrigQty = oe-ordl.spare-dec-1
-                    cOrigUom = oe-ordl.spare-char-2
-                    .
-                IF (cOrigUom EQ 'CS' OR LOOKUP(cOrigUom, cCaseUOMList) GT 0)
-                    AND dOrigQty NE tt-boll.qty 
-                    AND oe-ordl.cas-cnt NE 0 THEN DO:
-                    dOrigQty = tt-boll.qty / oe-ordl.cas-cnt.
-                END.
-                ELSE dOrigQty = tt-boll.qty.
-            END.
-            IF dOrigQty EQ 0 THEN dOrigQty = tt-boll.qty.
-            IF cOrigUom EQ "" THEN cOrigUom = "EA".
-            ciXMLOutput = ciXMLOutput + 1.
-            RUN cXMLOutput (clXMLOutput,'ShipNoticeItem lineNumber="' + STRING(tt-boll.LINE) + '" quantity="' + STRING(dOrigQty) + '"','','Row').
-            RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',cOrigUom,'Col').
-            RUN cXMLOutput (clXMLOutput,'/ShipNoticeItem','','Row').
-       /* rstark 05291402 */
-        END.
+
       ASSIGN
          v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty
          v-total-weight = v-total-weight + bf-ttboll.weight
