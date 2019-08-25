@@ -162,6 +162,7 @@ DEFINE VARIABLE glEstimateCalcNew AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
 DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -975,7 +976,7 @@ PROCEDURE calc-fields :
 
   {cec/combasis.i}
 
-  FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
+      FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK.
 
   IF lv-changed NE "" THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -2340,6 +2341,7 @@ PROCEDURE local-assign-record :
         AND probeit.line    EQ probe.line:
     ASSIGN
      probeit.fact-cost  = (probe.fact-cost  * ld) *
+     
                           (probeit.fact-cost  / ld-tot-fact)
      probeit.full-cost  = (probe.full-cost  * ld) *
                           (probeit.full-cost  / ld-tot-full)
@@ -2537,15 +2539,38 @@ PROCEDURE pCalculateEstimate PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lPurge AS LOGICAL NO-UNDO.
-
+        
     FIND FIRST probe NO-LOCK 
         WHERE probe.company EQ est.company
         AND probe.est-no EQ est.est-no
         NO-ERROR.
     IF AVAIL probe THEN 
         RUN est/d-probeu.w (OUTPUT lPurge).
+    
+    IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
+        RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
+    RUN CalculateEstimate IN hdEstimateCalcProcs (est.company, est.est-no, lPurge).
+    
 
-    RUN est\EstimateCalcProcs.p (est.company, est.est-no, lPurge).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalculatePricing B-table-Win
+PROCEDURE pCalculatePricing PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: given a probe buffer, run the CalculateSellPrice procedure
+ inside the estimate calc to update headers, forms and items
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-probe FOR probe.
+
+    IF NOT VALID-HANDLE(hdEstimateCalcProcs) THEN 
+        RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
+    RUN ChangeSellPrice IN hdEstimateCalcProcs (ROWID(ipbf-probe)).
+
 
 END PROCEDURE.
 	
@@ -2565,13 +2590,17 @@ PROCEDURE pPrintEstimate PRIVATE:
 ------------------------------------------------------------------------------*/
 DEFINE PARAMETER BUFFER ipbf-probe FOR probe.
 
+DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+
 DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
 DEFINE VARIABLE cOutputFile AS CHARACTER NO-UNDO.
+
 
 ASSIGN 
     iEstCostHeaderID = INT64(ipbf-probe.spare-char-2)
     cOutputFile = SESSION:TEMP-DIRECTORY + ipbf-probe.spare-char-2 + ".xpr"
-    .    
+    .
+
 RUN est\EstimatePrint.p (iEstCostHeaderID, cOutputFile, gcEstimateFormat, gcEstimateFont).
 
 END PROCEDURE.
@@ -2689,6 +2718,9 @@ PROCEDURE local-update-record :
   ELSE
   IF vmclean THEN RUN ce/pr4-mcl1.p (ROWID(probe)).
 
+  IF probe.spare-char-2 NE "" THEN
+    RUN pCalculatePricing(BUFFER probe). 
+  
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
       APPLY "cursor-left" TO {&BROWSE-NAME}.

@@ -47,7 +47,7 @@ def var strap-cst as dec.
 /*     if avail strap then do:                 */
 /*       tmpstore = strap.dscr.                */
      find first stackPattern
-         where stackPattern.stackCode     eq v-stackcode
+         where stackPattern.stackCode     eq xeb.stack-code
          no-lock no-error.
 
      if avail stackPattern then do:
