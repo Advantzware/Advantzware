@@ -1444,8 +1444,7 @@ PROCEDURE pBuildProbe PRIVATE:
     DEFINE VARIABLE iProbeLine     AS INTEGER NO-UNDO.
     DEFINE VARIABLE dQtyInM        AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInMForItem AS DECIMAL NO-UNDO.
-    
-    
+       
     DISABLE TRIGGERS FOR LOAD OF probe.
     
     dQtyInM    = ipdQuantity / 1000.

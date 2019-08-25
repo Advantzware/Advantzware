@@ -36,16 +36,20 @@ CREATE WIDGET-POOL.
 
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
-{sys/inc/var.i "new shared"}
+{sys/inc/var.i "NEW SHARED"}
 
 ASSIGN
   cocode = g_company
-  locode = g_loc.
+  locode = g_loc
+  .
+DEFINE VARIABLE labelLine     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dataLine      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hPgmSecurity  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lAuditMonitor AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hSession      AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE labelLine AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dataLine AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
-DEFINE VARIABLE lAuditMonitor AS LOGICAL NO-UNDO.
+RUN system/session.p PERSISTENT SET hSession.
+SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 DEFINE BUFFER bf-prgrms FOR prgrms.
 
@@ -59,7 +63,7 @@ PROPATH = ".\custom," + PROPATH.
 &ENDIF
 
 &IF DEFINED(FWD-VERSION) EQ 0 &THEN
-   {methods/lockWindowUpdate.i}
+{methods/lockWindowUpdate.i}
 &ENDIF
 
 SESSION:SET-WAIT-STATE('').
@@ -278,11 +282,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearLog C-Win
 ON CHOOSE OF btnClearLog IN FRAME DEFAULT-FRAME /* Clear/Archive Log */
 DO:
-/*  OS-COPY VALUE(monitorImportDir + '/monitor/monitor.log')             */
-/*          VALUE(monitorImportDir + '/monitor/archived/monitor.' +      */
-/*                STRING(TODAY,'99999999') + '.' + STRING(TIME,'99999') +*/
-/*                '.log').                                               */
-/*  monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.log').*/
   monitorActivity:SCREEN-VALUE = ''.
 END.
 
@@ -296,7 +295,6 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   RUN system/userLogOut.p (NO, 0).
   APPLY 'CLOSE' TO THIS-PROCEDURE.
-   
   /* Must not go to the editor when started from the command line */
   QUIT.
 END.
@@ -309,14 +307,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnViewLog C-Win
 ON CHOOSE OF btnViewLog IN FRAME DEFAULT-FRAME /* View Log */
 DO:
-/*&IF DEFINED(FWD-VERSION) > 0 &THEN*/
-/*  open-mime-resource "text/plain" string("file:///" + monitorImportDir + '/monitor/monitor.log') false.*/
-/*&ELSE                                                                                                  */
-/*  OS-COMMAND NO-WAIT notepad.exe VALUE(monitorImportDir + '/monitor/monitor.log').                     */
-/*&ENDIF                                                                                                 */
-  MESSAGE "View in audit viewer under table {2}."
-
-  VIEW-AS ALERT-BOX.
+    RUN AOA/dynGrid.p (11,
+        "Types^LOG" +
+        "|Users^All" +
+        "|DBs^All" +
+        "|Tables^{1}." +
+        "|Fields^All" +
+        "|StartTransDate^" + STRING(TODAY) +
+        "|EndTransDate^" + STRING(TODAY)
+        ).
+/*  MESSAGE                                  */
+/*    "View in audit viewer under table {1}."*/
+/*  VIEW-AS ALERT-BOX.                       */
   RETURN NO-APPLY.
 END.
 
@@ -357,12 +359,9 @@ RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 ON CLOSE OF THIS-PROCEDURE 
 DO:
   RUN monitorActivity ('{1} Monitor Stopped',YES,'').
-/*  monitorActivity:SAVE-FILE(monitorImportDir + '/monitor/monitor.tmp.log') IN FRAME {&FRAME-NAME}.*/
-/*  OS-APPEND VALUE(monitorImportDir + '/monitor/monitor.tmp.log')                                  */
-/*            VALUE(monitorImportDir + '/monitor/monitor.log').                                     */
-       RUN system/userLogOut.p (NO, 0).
+  RUN system/userLogOut.p (NO, 0).
   RUN disable_UI.
-    DELETE OBJECT hPgmSecurity.
+  DELETE OBJECT hPgmSecurity.
 END.
 
 /* Best default for GUI applications is...                              */
@@ -524,36 +523,36 @@ PROCEDURE monitorActivity :
   DEFINE INPUT PARAMETER ipActivity AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipDateTimeStamp AS LOGICAL NO-UNDO.
   DEFINE INPUT PARAMETER ipmonitorFile AS CHARACTER NO-UNDO.
+  
   DEFINE VARIABLE cMsgStr1 AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cMsgStr2 AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE iAuditID           AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE iAuditID AS INTEGER   NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF ipDateTimeStamp THEN
     cMsgStr1 = (STRING(TODAY,'99/99/9999') + ' ' + 
-                                  STRING(TIME,'HH:MM:SS am') + ' ').
+                STRING(TIME,'HH:MM:SS am') + ' ').
     ELSE cMsgStr1 = (FILL(' ',23)).
     monitorActivity:INSERT-STRING(cMsgStr1).
     
     cMsgStr2 = ipActivity +
-                   (IF ipmonitorFile NE '' THEN ' [Audit: ' + ipmonitorFile + ']'
-                    ELSE '').
+              (IF ipmonitorFile NE '' THEN ' [Audit: ' + ipmonitorFile + ']'
+               ELSE '').
     monitorActivity:INSERT-STRING(cMsgStr2 + CHR(10)).
     IF lAuditMonitor THEN DO:
         RUN spCreateAuditHdr (
-            "LOG", /* audit type */
+            "LOG",  /* audit type */
             "ASI",  /* audit db */
-            "{2}.", /* audit table */
+            "{1}.", /* audit table */
             "",
             OUTPUT iAuditID
-            ).
-    
+            ).    
         RUN spCreateAuditDtl (
             iAuditID,
-            "{2}.",       /* audit field  - monitor type*/
-            0,           /* audit extent */
+            "{1}.",   /* audit field  - monitor type*/
+            0,        /* audit extent */
             cMsgStr1 + cMsgStr2, /* Message shown on monitor screen */
-            "",        /* after value */
-            NO         /* is an idx field */
+            "",       /* after value */
+            NO        /* is an idx field */
             ).    
     END.
     IF LENGTH(monitorActivity:SCREEN-VALUE) GT 20000 THEN

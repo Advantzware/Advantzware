@@ -57,6 +57,7 @@ ASSIGN cocode = g_company
        locode = g_loc.
 
 DEF VAR lv-num-rec AS INT NO-UNDO.
+DEFINE VARIABLE lReTrigger AS LOGICAL NO-UNDO INITIAL FALSE.
 
 DO TRANSACTION:
   {sys/inc/appaper.i}
@@ -324,6 +325,24 @@ DO:
     RUN build-table.
 
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
+ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
+    DO: 
+        IF SELF:CURRENT-COLUMN:NAME EQ "selekt" THEN 
+        DO:
+            lReTrigger = NOT lReTrigger.
+        
+            FOR EACH tt-rec:
+                tt-rec.selekt = lReTrigger.
+            END.
+
+            {&OPEN-QUERY-BROWSE-2}
+        END.    
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

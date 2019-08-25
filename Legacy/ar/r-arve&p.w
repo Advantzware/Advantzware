@@ -1108,7 +1108,9 @@ do transaction on error undo with width 255:
 
     assign
      ar-inv.period = tran-period
-     ar-inv.posted = yes.
+     ar-inv.posted = yes
+     ar-inv.prod-date = tran-date /* Using prod-date as a posted-date #53205 */
+     .
 
      run oe/sonofile.p (1,recid(ar-inv)).
 

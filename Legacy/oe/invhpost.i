@@ -57,7 +57,9 @@ assign
   ar-inv.paid           = 0
 				    /* total invoiced - fright - misc - tax */
   ar-inv.t-sales  = inv-head.t-inv-rev - inv-head.t-inv-tax
-  ar-inv.net   = inv-head.t-inv-rev - inv-head.t-inv-tax.
+  ar-inv.net   = inv-head.t-inv-rev - inv-head.t-inv-tax
+  ar-inv.prod-date = {1} /* using prod-date as posted date #53205, pass in tran-date or dtPostDate */
+  .
   
   RUN CopyShipNote IN hNotesProcs (inv-head.rec_key, ar-inv.rec_key).
   

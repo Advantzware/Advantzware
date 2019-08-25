@@ -216,8 +216,9 @@ DEFINE FRAME Dialog-Frame
           BGCOLOR 15 FONT 1
     estRelease.stackHeight AT ROW 8.86 COL 21.8 COLON-ALIGNED
           LABEL "Stack Height" FORMAT ">>9" 
-          VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEM-PAIRS "1","1",
+          VIEW-AS COMBO-BOX INNER-LINES 5
+          LIST-ITEM-PAIRS "0","0",
+                     "1","1",
                      "2","2",
                      "3","3",
                      "4","4"

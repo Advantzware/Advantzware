@@ -98,8 +98,7 @@ AND quotehd.q-no GE q-noValue[1] ~
 AND quotehd.q-no LE q-noValue[2] ~
 AND quotehd.cust-no BEGINS fi_cust-no ~
 AND ( (lookup(quotehd.cust-no,custcount) <> 0 AND quotehd.cust-no <> "" ) OR custcount = "") ~
-AND (IF fi_contact BEGINS "*" THEN quotehd.contact MATCHES fi_contact ~
-    ELSE quotehd.contact BEGINS fi_contact) ~
+AND {system/brMatches.i quotehd.contact fi_contact}   ~
 AND (quotehd.quo-date GE fi_quo-date ~
 OR fi_quo-date EQ ?) ~
 AND (quotehd.est-no EQ fi_est-no ~
@@ -107,10 +106,8 @@ OR fi_est-no EQ "") ~
 AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire))  ~
 ~{&useIndexPhrase} NO-LOCK, ~
       EACH quoteitm OF quotehd OUTER-JOIN  ~
-      WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
-          ELSE quoteitm.part-no BEGINS fi_part-no) ~
-and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
-    ELSE quoteitm.part-dscr1 BEGINS fi_item-decr)  NO-LOCK ~
+      WHERE ({system/brMatches.i quoteitm.part-no fi_part-no}) ~
+    AND {system/brMatches.i quoteitm.part-dscr1 fi_item-decr}   ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH quotehd ~
       WHERE quotehd.company EQ g_company ~
@@ -119,8 +116,7 @@ AND quotehd.q-no GE q-noValue[1] ~
 AND quotehd.q-no LE q-noValue[2] ~
 AND quotehd.cust-no BEGINS fi_cust-no ~
 AND ( (lookup(quotehd.cust-no,custcount) <> 0 AND quotehd.cust-no <> "" ) OR custcount = "") ~
-AND (IF fi_contact BEGINS "*" THEN quotehd.contact MATCHES fi_contact ~
-    ELSE quotehd.contact BEGINS fi_contact) ~
+AND {system/brMatches.i quotehd.contact fi_contact}   ~
 AND (quotehd.quo-date GE fi_quo-date ~
 OR fi_quo-date EQ ?) ~
 AND (quotehd.est-no EQ fi_est-no ~
@@ -128,10 +124,9 @@ OR fi_est-no EQ "") ~
 AND ((quotehd.expireDate LE TODAY AND tb_expire) OR (NOT tb_expire)) ~
 ~{&useIndexPhrase} NO-LOCK, ~
       EACH quoteitm OF quotehd OUTER-JOIN ~
-      WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
-          ELSE quoteitm.part-no BEGINS fi_part-no) ~
-and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
-    ELSE quoteitm.part-dscr1 BEGINS fi_item-decr)  NO-LOCK ~
+      WHERE ({system/brMatches.i quoteitm.part-no fi_part-no}) ~
+    AND {system/brMatches.i quoteitm.part-dscr1 fi_item-decr}   ~
+    NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table quotehd quoteitm
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table quotehd

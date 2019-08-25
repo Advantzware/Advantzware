@@ -966,7 +966,7 @@ PROCEDURE ipConnectDb :
     IF fiPassword NE "" THEN ASSIGN
         cStatement = cStatement + " -U " + cUserID + " -P '" + fiPassword + "'".
     ELSE ASSIGN
-        cStatement = cStatement + " -U " + cUserID + "-ct 2".
+        cStatement = cStatement + " -U " + cUserID + " -ct 2".
     
     CONNECT VALUE(cStatement) NO-ERROR.
     

@@ -51,7 +51,6 @@ DO TRANSACTION:
 END.
 {sys/inc/f16to32.i}
 
-
 if not avail xeb then find xeb where recid(xeb) = v-eb-id no-lock no-error.
 
 RUN est/assmpart.p (BUFFER xeb, OUTPUT ll-assem-part).
@@ -206,7 +205,7 @@ if not avail stack-size then do:
   return.
 end.
 
-v-code = substr(stack-size.vals,v-kdf-length,1).
+v-code = IF v-kdf-length NE 0 THEN substr(stack-size.vals,v-kdf-length,1) ELSE "".
 
 if v-code eq "" then v-code = substr(stack-size.vals,74,1).
 

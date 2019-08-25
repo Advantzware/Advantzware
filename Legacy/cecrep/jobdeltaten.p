@@ -828,9 +828,9 @@ PUT      "<=Start><R23.5><#PageStart2>"
     "<=PackingStart><C+25><R+10><#PackingEnd>"
     "<=PackingTR><FROM><LINE#PackingEnd>"
     "<=PackingStart><R+1><RIGHT=C+8>Pallet: <#Pallet>"
-    "<=PackingStart><R+2><RIGHT=C+8>Size: "
-    "<=PackingStart><R+2><C10>L:<#PalletLength>"
-    "<=PackingStart><R+2><C17>W:<#PalletWidth> "
+    "<=PackingStart><R+2><RIGHT=C+8># Per Bndl: <#PerBundle>"
+    /*"<=PackingStart><R+2><C10>L:<#PalletLength>"
+    "<=PackingStart><R+2><C17>W:<#PalletWidth> "*/
     /*"<=PackingStart><R+3><C11>Per"*/
     /*"<=PackingStart><R+3><C17>Job Total"*/
     /*"<=PackingStart><R+4><RIGHT=C+8>Per Case:"*/
@@ -840,11 +840,12 @@ PUT      "<=Start><R23.5><#PageStart2>"
     /*"<=PackingStart><R+5><C11><#PalletCount>"*/
     /*"<=PackingStart><R+5><C17><#JobPallets>"*/
     /*"<=PackingStart><FROM><RECT#ShippingEnd><|1>"*/
-    "<=PackingStart><R+3><RIGHT=C+8>Layers: <#Layers>"
-    "<=PackingStart><R+4><RIGHT=C+8>Stacks: <#Stacks>"
-    "<=PackingStart><R+5><RIGHT=C+8>Pattern: <#PatternCode>"
-    "<=PackingStart><R+6><RIGHT=C+8>Desc: <#Pattern>"
-    "<=PackingStart><R+7><RIGHT=C+8>Pallet: <#Palletwl>"
+    "<=PackingStart><R+3><RIGHT=C+8># Per Unit: <#PerUnits>"
+    "<=PackingStart><R+4><RIGHT=C+8>Layers: <#Layers>"
+    "<=PackingStart><R+5><RIGHT=C+8>Stacks: <#Stacks>"
+    "<=PackingStart><R+6><RIGHT=C+8>Pattern: <#PatternCode>"
+    "<=PackingStart><R+7><RIGHT=C+8>Desc: <#Pattern>"
+    "<=PackingStart><R+8><RIGHT=C+8>Pallet: <#Palletwl>"
     "<=PackingTR><#PatternImageStart>"
     "<=PatternImageStart><C+22><#PatternImageTR>"
     "<=PatternImageStart><R+10><#PatternImageBL>"
@@ -877,8 +878,10 @@ PUT      "<=Start><R23.5><#PageStart2>"
     "<=PackingBL><FROM><R50><C1><RECT><|1> "
              
     "<=Pallet>" IF AVAILABLE xeb THEN xeb.tr-no ELSE "" FORMAT "x(10)" 
-    "<=PalletLength>" IF AVAILABLE xeb THEN STRING(xeb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
-    "<=PalletWidth>" IF AVAILABLE xeb THEN STRING(xeb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
+    /*"<=PalletLength>" IF AVAILABLE xeb THEN STRING(xeb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"*/
+    /*"<=PalletWidth>" IF AVAILABLE xeb THEN STRING(xeb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"*/
+    "<=PerBundle>" IF AVAILABLE xeb THEN trim(STRING(xeb.cas-cnt,">>>>>>9")) ELSE "" FORMAT "x(7)"
+    "<=PerUnits>" IF AVAILABLE xeb THEN trim(STRING(xeb.tr-cnt,">>>>>>9")) ELSE "" FORMAT "x(7)"
     /*"<B>"*/
     /*"<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)" */
     /*"<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)" */

@@ -651,7 +651,7 @@ END.
                         dOrigQty = oe-ordl.spare-dec-1
                         cOrigUom = oe-ordl.spare-char-2
                         .
-                    IF (cOrigUom EQ 'CS' OR LOOKUP(cCaseUOMList, cOrigUom) GT 0)
+                    IF (cOrigUom EQ 'CS' OR LOOKUP(cOrigUom, cCaseUOMList) GT 0)
                         AND dOrigQty NE inv-line.qty
                         AND oe-ordl.cas-cnt NE 0 THEN 
                             dOrigQty = inv-line.inv-qty / oe-ordl.cas-cnt.

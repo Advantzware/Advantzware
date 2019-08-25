@@ -2579,6 +2579,9 @@ END PROCEDURE.
 
 
 
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintEstimate B-table-Win
 PROCEDURE pPrintEstimate PRIVATE:
 /*------------------------------------------------------------------------------

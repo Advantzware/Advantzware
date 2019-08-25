@@ -101,19 +101,13 @@ DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 &SCOPED-DEFINE for-each2                          ~
     FOR EACH vend                               ~
         WHERE {&key-phrase}                       ~
-          AND (IF fi_vend-no BEGINS '*' THEN vend.vend-no MATCHES  fi_vend-no     ~
-               ELSE vend.vend-no BEGINS  fi_vend-no)   ~
-          AND (IF fi_i-name BEGINS '*' THEN vend.NAME   MATCHES fi_i-name  ~
-               ELSE vend.NAME   BEGINS fi_i-name) ~
-          AND (IF fi_city BEGINS '*' THEN vend.city   MATCHES fi_city  ~
-               ELSE vend.city   BEGINS fi_city)  ~
-          AND (IF fi_stat BEGINS '*' THEN vend.state MATCHES fi_stat  ~
-               ELSE vend.state    BEGINS fi_stat)   ~
+          AND {system/brMatches.i  vend.vend-no fi_vend-no}   ~
+          AND {system/brMatches.i  vend.NAME fi_i-name}   ~
+          AND {system/brMatches.i  vend.city fi_city}   ~
+          AND {system/brMatches.i  vend.state fi_stat}   ~
           AND vend.zip    BEGINS fi_zip   ~
-          AND (IF fi_type BEGINS '*' THEN vend.TYPE     MATCHES fi_type    ~
-               ELSE vend.TYPE     BEGINS fi_type)  ~
-          AND (IF fi_buyer BEGINS '*' THEN vend.buyer    MATCHES fi_buyer   ~
-               ELSE vend.buyer    BEGINS fi_buyer) ~
+          AND {system/brMatches.i  vend.TYPE fi_type}   ~
+          AND {system/brMatches.i  vend.buyer fi_buyer}   ~
           AND ((vend.ACTIVE = "A" AND tb_act) OR (vend.ACTIVE = "I" AND tb_in-act))
 
 

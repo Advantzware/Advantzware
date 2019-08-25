@@ -43,10 +43,10 @@ ASSIGN
 INPUT FROM os-dir ("c:\asigui\databases\compile").
 REPEAT:
     IMPORT cRaw.
-    IF cRaw BEGINS "asi"
+    IF (cRaw BEGINS "asi" OR INDEX(cRaw,"d.lg") NE 0)
     AND INDEX(cRaw,".lg") NE 0 THEN ASSIGN 
         cDbList = cDbList + REPLACE(cRaw,".lg","") + ",".
-    ELSE IF cRaw BEGINS "aud"
+    ELSE IF (cRaw BEGINS "aud" OR INDEX(cRaw,"a.lg") NE 0)
     AND INDEX(cRaw,".lg") NE 0 THEN ASSIGN 
         cAudDbList = cAudDbList + REPLACE(cRaw,".lg","") + ",".
 END.
@@ -78,7 +78,7 @@ IF iIndex = 0 THEN DO:
 END. 
 ELSE ASSIGN 
     cConnectDb = "-db c:\asigui\databases\compile\" + cDbName + " -1 -ld ASI"
-    cConnectAud = "-db c:\asigui\databases\compile\aud" + SUBSTRING(cDbName,4) + " -1 -ld Audit"
+    cConnectAud = "-db c:\asigui\databases\compile\" + replace(cDbName,"d","a") + " -1 -ld Audit"
     propath = cDir + "\Template\BuildScript\ToCompile," + cDir + "\Legacy," + cDir + "\Resources," + propath
     .
 

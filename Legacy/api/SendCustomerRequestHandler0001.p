@@ -1,10 +1,10 @@
   /*------------------------------------------------------------------------
     File        : api/SendCustomerRequestHandler0001.p
-    Purpose     : Returns the request data for customer addition
+    Purpose     : Custom request handler for SendCustomer API
 
     Syntax      :
 
-    Description : Returns the request data for customer addition
+    Description : Custom request handler for SendCustomer API
 
     Author(s)   : Vishnu Vellanki
     Created     : Tue Jun 07 07:33:22 EDT 2019
@@ -17,36 +17,12 @@
     DEFINE OUTPUT       PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage          AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cCalcAddress AS CHARACTER NO-UNDO.
+    /* This is custom request data for clients which expect different request
+       data from the SendCustomer configuration. Replace ioplcRequestData
+       assignment with custom code */
+    ioplcRequestData = '~{"Request":"This is a custom request data for SendCustomer API"}'.
         
-    FIND FIRST ttArgs
-         WHERE ttArgs.argType  = "ROWID"
-           AND ttArgs.argKey   = "cust" NO-ERROR.
-    IF NOT AVAILABLE ttArgs THEN DO:
-        ASSIGN
-            opcMessage = "No valid cust record passed to handler"
-            oplSuccess = FALSE
-            .
-        RETURN.
-    END.
-    
-    FIND FIRST cust NO-LOCK
-         WHERE ROWID(cust) = TO-ROWID(ttArgs.argValue) NO-ERROR.
-    IF NOT AVAILABLE cust THEN DO:
-        ASSIGN
-            opcMessage = "Invalid cust ROWID passed to handler"
-            oplSuccess = FALSE
-            .
-        RETURN.
-    END.
-    
-    ASSIGN
-        ioplcRequestData = REPLACE(ioplcRequestData,"cust.company",cust.company)
-        ioplcRequestData = REPLACE(ioplcRequestData,"cust.cust-no",cust.cust-no)
-        ioplcRequestData = REPLACE(ioplcRequestData,"cust.name",cust.name)
-        ioplcRequestData = REPLACE(ioplcRequestData,"cust.type",cust.type)
-        cCalcAddress     = cust.addr[1] + ", " + cust.addr[2] + ", " + cust.city + ", " + cust.state + ", " + cust.zip
-        ioplcRequestData = REPLACE(ioplcRequestData,"calcAddress", cCalcAddress)
-        opcMessage       = ""
+    ASSIGN   
+        opcMessage       = "Success"
         oplSuccess       = TRUE
-        .                       
+        .             

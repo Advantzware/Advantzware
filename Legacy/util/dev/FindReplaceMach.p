@@ -138,7 +138,7 @@ PROCEDURE pProcessChanges:
             AND est-op.m-code EQ ttImportedMachines.cOldMachine
             :
             EXPORT STREAM sLog DELIMITER "," 
-                "Estimate Routing"
+                "Estimate Ops Routing"
                 est-op.est-no 
                 est-op.m-code 
                 ttImportedMachines.cNewMachine
@@ -148,6 +148,50 @@ PROCEDURE pProcessChanges:
         END.
     
     END.
+    FOR EACH ttImportedMachines NO-LOCK
+        WHERE ttImportedMachines.lValid
+        AND ttImportedMachines.cOldMachine NE ttImportedMachines.cNewMachine
+        :
+    
+        FOR EACH ef EXCLUSIVE-LOCK
+            WHERE ef.company EQ ipcCompany
+            AND ef.m-code EQ ttImportedMachines.cOldMachine
+            :
+            EXPORT STREAM sLog DELIMITER "," 
+                "Estimate Form Routing"
+                ef.est-no 
+                ef.m-code 
+                ttImportedMachines.cNewMachine
+                .
+            IF NOT iplLogOnly THEN
+                ef.m-code = ttImportedMachines.cNewMachine.
+        END.
+    
+    END.    
+    FOR EACH ttImportedMachines NO-LOCK
+        WHERE ttImportedMachines.lValid
+        AND ttImportedMachines.cOldMachine NE ttImportedMachines.cNewMachine
+        :
+    
+        FOR EACH job-mch EXCLUSIVE-LOCK
+            WHERE job-mch.company EQ ipcCompany
+            AND job-mch.m-code EQ ttImportedMachines.cOldMachine
+            AND CAN-FIND ( FIRST job-hdr WHERE job-hdr.company EQ ipcCompany 
+                               AND job-hdr.j-no EQ job-mch.j-no
+                               AND job-hdr.opened EQ TRUE )
+            :
+            EXPORT STREAM sLog DELIMITER "," 
+                "Job Machines"
+                job-mch.job-no
+                job-mch.job-no2
+                job-mch.m-code 
+                ttImportedMachines.cNewMachine
+                .
+            IF NOT iplLogOnly THEN
+                job-mch.m-code = ttImportedMachines.cNewMachine.
+        END.
+    
+    END.    
     OUTPUT STREAM sLog CLOSE.
 
 END PROCEDURE.

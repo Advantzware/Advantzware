@@ -936,7 +936,7 @@ PROCEDURE list-post-inv :
     DEFINE VARIABLE v-first         AS LOG     INIT YES.
     DEFINE VARIABLE v-tot-frt       AS DECIMAL NO-UNDO.
   
-  
+ 
   
  
     SESSION:SET-WAIT-STATE ("general").
@@ -995,7 +995,7 @@ PROCEDURE list-post-inv :
                     v-xline = 0.
 
             CREATE ar-inv.
-            {oe/invhpost.i}
+            {oe/invhpost.i dtPostDate}
 
             IF cExportNk1 EQ "Sonoco" THEN 
             DO:

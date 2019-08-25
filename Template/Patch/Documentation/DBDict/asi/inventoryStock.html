@@ -65,19 +65,19 @@
       </tr>
       <tr class="shadedrow">
         <td>CREATE</td>
-        <td>create.trg\inventoryStock.p</td>
+        <td><a href="trg/inventorystock_create.html">create.trg\inventoryStock.p</a></td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
       </tr>
       <tr class="shadedrow">
         <td>DELETE</td>
-        <td>delete.trg\inventoryStock.p</td>
+        <td><a href="trg/inventorystock_delete.html">delete.trg\inventoryStock.p</a></td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
       </tr>
       <tr class="shadedrow">
         <td>WRITE</td>
-        <td>write.trg\inventoryStock.p</td>
+        <td><a href="trg/inventorystock_write.html">write.trg\inventoryStock.p</a></td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
       </tr>
@@ -219,6 +219,39 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>701</td>
+    <td>costStandardFOH</td>
+    <td><a href="00-cross-c.html#costStandardFOH"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>680</td>
+    <td>costStandardLab</td>
+    <td><a href="00-cross-c.html#costStandardLab"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>670</td>
+    <td>costStandardMat</td>
+    <td><a href="00-cross-c.html#costStandardMat"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>300</td>
     <td>costStandardPerUOM</td>
     <td><a href="00-cross-c.html#costStandardPerUOM"><small>X</small></a></td>
@@ -226,6 +259,17 @@
     <td>decimal-?</td>
     <td>-&gt;&gt;,&gt;&gt;9.99</td>
     <td>0.00</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>690</td>
+    <td>costStandardVOH</td>
+    <td><a href="00-cross-c.html#costStandardVOH"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
@@ -758,7 +802,7 @@
     <td></td>
   </tr>
   <tr class="evenrow">
-    <td>690</td>
+    <td>691</td>
     <td>unitHeight</td>
     <td><a href="00-cross-u.html#unitHeight"><small>X</small></a></td>
     <td>Pallet Height</td>
@@ -769,7 +813,7 @@
     <td></td>
   </tr>
   <tr class="oddrow">
-    <td>670</td>
+    <td>671</td>
     <td>unitLength</td>
     <td><a href="00-cross-u.html#unitLength"><small>X</small></a></td>
     <td>Pallet Lenght</td>
@@ -780,7 +824,7 @@
     <td></td>
   </tr>
   <tr class="evenrow">
-    <td>680</td>
+    <td>681</td>
     <td>unitWidth</td>
     <td><a href="00-cross-u.html#unitWidth"><small>X</small></a></td>
     <td>Pallet Width</td>
@@ -1618,6 +1662,17 @@
   </tr>
   <tr class="oddrow">
     <td>670</td>
+    <td>costStandardMat</td>
+    <td><a href="00-cross-c.html#costStandardMat"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>671</td>
     <td>unitLength</td>
     <td><a href="00-cross-u.html#unitLength"><small>X</small></a></td>
     <td>Pallet Lenght</td>
@@ -1627,8 +1682,19 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>680</td>
+    <td>costStandardLab</td>
+    <td><a href="00-cross-c.html#costStandardLab"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>681</td>
     <td>unitWidth</td>
     <td><a href="00-cross-u.html#unitWidth"><small>X</small></a></td>
     <td>Pallet Width</td>
@@ -1640,11 +1706,33 @@
   </tr>
   <tr class="oddrow">
     <td>690</td>
+    <td>costStandardVOH</td>
+    <td><a href="00-cross-c.html#costStandardVOH"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>691</td>
     <td>unitHeight</td>
     <td><a href="00-cross-u.html#unitHeight"><small>X</small></a></td>
     <td>Pallet Height</td>
     <td>decimal-2</td>
     <td>-&gt;&gt;,&gt;&gt;9.99</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>701</td>
+    <td>costStandardFOH</td>
+    <td><a href="00-cross-c.html#costStandardFOH"><small>X</small></a></td>
+    <td>?</td>
+    <td>decimal-2</td>
+    <td>-&gt;&gt;&gt;,&gt;&gt;9.99&lt;&lt;</td>
     <td>0</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
@@ -1877,7 +1965,7 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
+      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; <a href="inventoryStockSnapshot.html">inventoryStockSnapshot</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="systemconfigusage.html">systemConfigUsage</a>&nbsp;&nbsp; <a href="usercontrol.html">userControl</a>&nbsp;&nbsp; <a href="usersman.html">usersman</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
   <table style="width:50%; float:left;">
@@ -1891,7 +1979,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 24-5-2019 11:47</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 9-8-2019 17:43</small></i></td></tr>
 </table>
 </body>
 </html>

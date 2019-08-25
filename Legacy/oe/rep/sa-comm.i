@@ -200,9 +200,9 @@
       assign
    v-head[2] =
                  "Sales Rep  Customer Name                           Total Sa" +
-                 "les $        Comm $    Comm %        Cost $       GP %"
-       v-head[3] = fill("-",113)
-       v-exp-head =  "Sales Rep,Customer,Name,Total Sales $, Comm $, Comm %, Cost $, GP %".
+                 "les $        Comm $    Comm %        Cost $       GP %  Ship To"
+       v-head[3] = fill("-",123)
+       v-exp-head =  "Sales Rep,Customer,Name,Total Sales $, Comm $, Comm %, Cost $, GP %, Ship To".
 
     ELSE do:
         IF rd_typ-grp EQ "Type" THEN
@@ -210,22 +210,22 @@
             v-head[2] =
                  "Rep Customer Name       Type     " +  STRING(rd_part-fg,"x(16)") +
                  "Order#   Inv# Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
-                 "mm Amt Comm Pct" .
+                 "mm Amt Comm Pct Ship To" .
         ELSE
             assign
             v-head[2] =
                  "Rep Customer Name       Group     " +  STRING(rd_part-fg,"x(16)") +
                  "Order#   Inv# Cat    Quantity   Sell Price   Total Cost      GP %   Co" +
-                 "mm Amt Comm Pct" .
+                 "mm Amt Comm Pct Ship To" .
 
-       v-head[3] = fill("-",134) /* 138/143 */ .
+       v-head[3] = fill("-",143) /* 138/143 */ .
 
        IF rd_typ-grp EQ "Type" THEN
            v-exp-head = "Sal Rep,Customer,Name,Type," + TRIM(rd_part-fg) + ",Order#,Inv#," +
-                    "Cat,Quantity,Sell Price,Total Cost,GP %,Comm Amt,Comm Pct,Currency,Invoice Date,Warehouse".
+                    "Cat,Quantity,Sell Price,Total Cost,GP %,Comm Amt,Comm Pct,Currency,Invoice Date,Warehouse,Ship To".
        ELSE
            v-exp-head = "Sal Rep,Customer,Name,Group," + TRIM(rd_part-fg) + ",Order#,Inv#," +
-                    "Cat,Quantity,Sell Price,Total Cost,GP %,Comm Amt,Comm Pct,Currency,Invoice Date,Warehouse".
+                    "Cat,Quantity,Sell Price,Total Cost,GP %,Comm Amt,Comm Pct,Currency,Invoice Date,Warehouse,Ship To".
                        /*BV - 01071303 - added currency and invoice date to XL*/
     END.
        IF v-show-sls-cat THEN DO:
@@ -278,7 +278,8 @@
        v-bol-no    = 0
        v-amt       = 0
        v-cost      = 0
-       v-qty       = 0.
+       v-qty       = 0
+       v-ship-id   = "".
 
       RUN custom/combasis.p (cocode, tt-report.key-01, cust.type, "", 0,
                              cust.cust-no,
@@ -331,7 +332,8 @@
          v-ord-no    = ar-invl.ord-no
          v-i-no      = ar-invl.i-no
          v-bol-no    = ar-invl.bol-no
-         v-cost      = 0.
+         v-cost      = 0
+         v-ship-id   = ar-inv.ship-id .
 
         IF ar-invl.loc NE "" THEN cWhse = ar-invl.loc.
         ELSE DO:
@@ -428,7 +430,8 @@
             v-job-no    = ar-invl.job-no
             v-job-no2   = ar-invl.job-no2
             v-ord-no    = ar-invl.ord-no
-            v-i-no      = ar-invl.i-no.
+            v-i-no      = ar-invl.i-no
+            v-ship-id   = ar-inv.ship-id.
 
 
            IF AVAIL oe-retl THEN
@@ -594,6 +597,11 @@
              v-cost = ar-invl.spare-dec-1 * (ar-invl.inv-qty / 1000) * v-slsp[1] / 100.
          ELSE /*EA*/
              v-cost = ar-invl.spare-dec-1 * ar-invl.inv-qty * v-slsp[1] / 100.
+
+             v-prof    = v-amt - v-cost.
+             IF v-prof EQ ? THEN v-prof = 0.
+             v-gp      = round(v-prof / v-amt * 100,2) .
+             if v-gp   eq ? then v-gp   = 0.
      END.
         
 
@@ -617,6 +625,7 @@
                 v-gp    WHEN v-print-cost  format "->>>>9.99"
                 v-camt                  format "->>>>>9.99"
                 v-comm                  format "->>>9.99"
+                v-ship-id               FORMAT "x(8)"
             with frame detail no-box no-labels stream-io width 200.
 
           IF tb_excel THEN 
@@ -636,7 +645,8 @@
                 v-comm    format "->>>9.99"         v-comma
                 cust.curr-code                      v-comma
                 v-inv-date                          v-comma
-                cWhse                               
+                cWhse                               v-comma
+                v-ship-id
                SKIP.
           END. /*IF rd_typ-grp EQ "Type" */
           ELSE DO:
@@ -659,6 +669,7 @@
                 v-gp    WHEN v-print-cost  format "->>>>9.99"
                 v-camt                  format "->>>>>9.99"
                 v-comm                  format "->>>9.99"
+                v-ship-id               FORMAT "x(8)"
             with frame detail no-box no-labels stream-io width 200.
 
           IF tb_excel THEN 
@@ -678,7 +689,8 @@
                 v-comm    format "->>>9.99"         v-comma
                 cust.curr-code                      v-comma
                 v-inv-date                          v-comma
-                cWhse                               
+                cWhse                               v-comma
+                v-ship-id
                SKIP.
           END.
       END.
@@ -698,7 +710,7 @@
           display p-sman                format "x(10)"
 /*                   tt-report.key-02  */
                   cust.NAME    FORM "x(30)"
-                  space(2)
+                  space(11)
                   v-tot-samt[1]
                   space(2)
                   v-tot-camt[1]
@@ -708,6 +720,8 @@
                   v-tot-cost[1] WHEN v-print-cost
                   space(2)
                   v-cost        WHEN v-print-cost        format "->>>9.99"
+                  SPACE(3)
+                  v-ship-id  
               with frame summary no-box no-labels stream-io width 200.
 
           IF tb_excel THEN
@@ -719,7 +733,8 @@
                 v-tot-camt[1] v-comma
                 v-comm      format "->>>9.99" v-comma
                 (IF v-print-cost THEN string(v-tot-cost[1],"->>>>>>>9.99") ELSE "") FORM "x(20)" v-comma
-                (IF v-print-cost THEN string(v-cost,"->>>9.99") ELSE "")            FORM "x(20)"
+                (IF v-print-cost THEN string(v-cost,"->>>9.99") ELSE "")            FORM "x(20)" v-comma
+                v-ship-id
                 SKIP.
         END.
 

@@ -557,6 +557,8 @@ ON HELP OF FRAME F-Main
 DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEFINE BUFFER b-itemfg FOR itemfg.
+   DEFINE VARIABLE look-recid   AS RECID NO-UNDO .
+   DEFINE VARIABLE fields-val AS CHARACTER NO-UNDO .
 
    CASE FOCUS:NAME:
       WHEN "fi_i-no" THEN DO:
@@ -610,10 +612,11 @@ DO:
          END.                           
       END.  
       WHEN "fi_procat" THEN DO:
-         RUN windows/l-itmfg2.w (INPUT g_company, INPUT fi_cust-no, INPUT fi_procat:SCREEN-VALUE, INPUT 5, OUTPUT char-val).
+         RUN system/openlookup.p (g_company, "procat", 0, "", 0, OUTPUT fields-val, OUTPUT char-val, OUTPUT look-recid).
+         
          IF char-val <> "" THEN DO:
             ASSIGN 
-               fi_procat:SCREEN-VALUE = ENTRY(5,char-val).
+               fi_procat:SCREEN-VALUE = char-val .
               APPLY "entry" TO fi_procat.
          END.                           
       END.  

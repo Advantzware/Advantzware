@@ -18,15 +18,17 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE cBufferValue        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hBrowseQuery        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hCalcColumn         AS HANDLE    NO-UNDO EXTENT 200.
-DEFINE VARIABLE hDynCalcField       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hDynDescripProc     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hDynInitProc        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hDynValProc         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hQuery              AS HANDLE    NO-UNDO.
-DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cBufferValue    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hBrowseColumn   AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hBrowseQuery    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hQuery          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 SESSION:ADD-SUPER-PROCEDURE (hDynCalcField).
@@ -74,6 +76,7 @@ CREATE BROWSE hQueryBrowse
         NO-VALIDATE = TRUE
         .
 ON ROW-DISPLAY OF hQueryBrowse DO:
+    iFGColor = IF iFGColor NE 9 THEN 9 ELSE 1.
     DO idx = 1 TO EXTENT(hCalcColumn):
         IF VALID-HANDLE(hCalcColumn[idx]) AND
            dynParamValue.isCalcField[idx] THEN DO:
@@ -85,8 +88,19 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
                 dynParamValue.colFormat[idx],
                 OUTPUT cBufferValue
                 ).
-            hCalcColumn[idx]:SCREEN-VALUE = cBufferValue.
+            ASSIGN
+                hCalcColumn[idx]:SCREEN-VALUE = cBufferValue
+                hCalcColumn[idx]:FGCOLOR      = iFGColor
+                .
         END. /* if valid handle */
+    END. /* do idx */
+    DO idx = 1 TO EXTENT(hBrowseColumn):
+        IF VALID-HANDLE(hBrowseColumn[idx]) AND
+           dynParamValue.isCalcField[idx] EQ NO THEN
+        ASSIGN
+            hBrowseColumn[idx]:FORMAT  = dynParamValue.colFormat[idx]
+            hBrowseColumn[idx]:FGCOLOR = iFGColor
+            .
     END. /* do idx */
 END. /* row-display */
 
@@ -151,6 +165,7 @@ PROCEDURE pResultsBrowser :
     iphQuery:QUERY-CLOSE.
     DO idx = 1 TO hQueryBrowse:NUM-COLUMNS:
         ASSIGN
+            hBrowseColumn[idx] = ?
             hCalcColumn[idx] = ?
             hColumn = hQueryBrowse:GET-BROWSE-COLUMN(idx)
             .
@@ -177,7 +192,8 @@ PROCEDURE pResultsBrowser :
         ELSE
         ASSIGN
             hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx])
-            hColumn:LABEL  = dynParamValue.colLabel[idx]
+            hColumn:LABEL = dynParamValue.colLabel[idx]
+            hBrowseColumn[idx] = hColumn
             .
 /*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
         IF dynParamValue.columnSize[idx] NE 0 THEN

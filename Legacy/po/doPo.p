@@ -3455,7 +3455,7 @@ PROCEDURE promptCreatePoLine :
 
     IF NOT w-job-mat.this-is-a-rm THEN
         RUN fg/GetItemfgPoStatus.p (INPUT cocode,
-                                    INPUT w-job-mat.rm-i-no,w-job-mat.fg-part-no,NO,
+                                    INPUT w-job-mat.rm-i-no,"",NO,
                                     OUTPUT lCheckFgItemPoStatus).
     gvlChoice = NO.
     IF gvcVendNo EQ "" 

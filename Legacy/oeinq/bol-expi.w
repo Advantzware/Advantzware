@@ -1038,7 +1038,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-
+  
 /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
 /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
@@ -1071,6 +1071,8 @@ PROCEDURE DisplaySelectionList2 :
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
+  
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1177,11 +1179,13 @@ PROCEDURE run-report :
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF BUFFER b-item FOR item.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
+IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
 FOR EACH  oe-bolh WHERE oe-bolh.company EQ cocode 
@@ -1244,7 +1248,7 @@ END.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

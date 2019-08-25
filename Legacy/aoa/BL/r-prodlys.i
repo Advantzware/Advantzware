@@ -48,7 +48,7 @@ PROCEDURE pProductionAnalysis1:
     DEFINE VARIABLE dMSF       AS DECIMAL   NO-UNDO.
 
     DEFINE BUFFER bMchAct FOR mch-act.
-
+    
     /* subject business logic */
     FOR EACH mch-act NO-LOCK
         WHERE mch-act.company EQ ipcCompany
@@ -56,8 +56,8 @@ PROCEDURE pProductionAnalysis1:
           AND mch-act.op-date LE ipdtEndOpDate
           AND mch-act.shift   GE ipiStartShift
           AND mch-act.shift   LE ipiEndShift
-          AND DATETIME(mch-act.op-date,mch-act.op-time * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
-          AND DATETIME(mch-act.op-date,mch-act.op-time * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
+          AND DATETIME(mch-act.op-date,mch-act.start * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
+          AND DATETIME(mch-act.op-date,mch-act.stopp * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
         USE-INDEX dte-idx,
         FIRST mach NO-LOCK
         WHERE mach.company EQ mch-act.company
@@ -72,7 +72,15 @@ PROCEDURE pProductionAnalysis1:
                AND job-hdr.cust-no GE cStartCustNo
                AND job-hdr.cust-no LE cEndCustNo
              NO-ERROR.
-        IF NOT AVAIL job-hdr THEN NEXT.
+        IF NOT AVAILABLE job-hdr THEN
+        FIND FIRST job-hdr NO-LOCK
+             WHERE job-hdr.company EQ mch-act.company
+               AND job-hdr.job-no  EQ mch-act.job-no
+               AND job-hdr.job-no2 EQ mch-act.job-no2
+               AND job-hdr.cust-no GE cStartCustNo
+               AND job-hdr.cust-no LE cEndCustNo
+             NO-ERROR.
+        IF NOT AVAILABLE job-hdr THEN NEXT.
         IF lCustList AND
            NOT CAN-FIND(FIRST ttCustList
                         WHERE ttCustList.cust-no EQ job-hdr.cust
@@ -89,7 +97,7 @@ PROCEDURE pProductionAnalysis1:
         NEXT.
         IF (mch-act.dept GE ipcStartDept AND
             mch-act.dept LE ipcEndDept)  OR
-           (mach.dept[2] NE ""         AND
+           (mach.dept[2] NE ""           AND
             mach.dept[2] GE ipcStartDept AND
             mach.dept[2] LE ipcEndDept   AND
             NOT CAN-FIND(FIRST bMchAct
@@ -100,7 +108,7 @@ PROCEDURE pProductionAnalysis1:
                            AND bMchAct.frm     EQ mch-act.frm
                            AND bMchAct.m-code  NE mch-act.m-code
                            AND bMchAct.dept    EQ mach.dept[2])) OR
-           (mach.dept[3] NE ""         AND
+           (mach.dept[3] NE ""           AND
             mach.dept[3] GE ipcStartDept AND
             mach.dept[3] LE ipcEndDept   AND
             NOT CAN-FIND(FIRST bMchAct
@@ -153,7 +161,7 @@ PROCEDURE pProductionAnalysis1:
                     ttProductionAnalysis.pass       = mch-act.pass
                     ttProductionAnalysis.actMachine = mch-act.m-code
                     ttProductionAnalysis.opDate     = mch-act.op-date
-                    ttProductionAnalysis.opTime     = STRING(mch-act.op-time,"hh:mm:ss am")
+                    ttProductionAnalysis.opTime     = STRING(mch-act.start,"hh:mm:ss am")
                     ttProductionAnalysis.startDate  = ttProductionAnalysis.opDate
                     ttProductionAnalysis.dDate      = IF mch-act.op-date NE ? THEN STRING(mch-act.op-date,"99/99/9999") ELSE ""
                     .
@@ -172,6 +180,12 @@ PROCEDURE pProductionAnalysis1:
                            AND job-hdr.job-no  EQ mch-act.job-no
                            AND job-hdr.job-no2 EQ mch-act.job-no2
                            AND job-hdr.frm     EQ mch-act.frm
+                         NO-ERROR.
+                    IF NOT AVAILABLE job-hdr THEN
+                    FIND FIRST job-hdr NO-LOCK
+                         WHERE job-hdr.company EQ mch-act.company
+                           AND job-hdr.job-no  EQ mch-act.job-no
+                           AND job-hdr.job-no2 EQ mch-act.job-no2
                          NO-ERROR.
                     FIND FIRST eb NO-LOCK
                          WHERE eb.company  EQ job-hdr.company
@@ -494,7 +508,7 @@ PROCEDURE pProductionAnalysis2:
         IF AVAILABLE job-mch THEN
         ASSIGN
             ttProductionAnalysis.mrComp  = STRING(job-mch.mr-complete)
-            ttProductionAnalysis.runComp = string(job-mch.run-complete)
+            ttProductionAnalysis.runComp = STRING(job-mch.run-complete)
             .
         ASSIGN
             ttProductionAnalysis.runWaste  = 0
@@ -518,8 +532,8 @@ PROCEDURE pProductionAnalysis2:
               AND bMchAct.op-date   LE ipdtEndOpDate
               AND bMchAct.shift     GE ipiStartShift
               AND bMchAct.shift     LE ipiEndShift
-              AND DATETIME(bMchAct.op-date,bMchAct.op-time * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
-              AND DATETIME(bMchAct.op-date,bMchAct.op-time * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
+              AND DATETIME(bMchAct.op-date,bMchAct.start * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
+              AND DATETIME(bMchAct.op-date,bMchAct.stopp * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
             :
             FIND FIRST job-code NO-LOCK
                  WHERE job-code.code EQ bMchAct.code

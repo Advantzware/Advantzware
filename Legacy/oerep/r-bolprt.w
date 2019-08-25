@@ -1521,7 +1521,7 @@ END.
 ON VALUE-CHANGED OF rd_bolcert IN FRAME FRAME-A
 DO:
   assign {&self-name}.
-  MESSAGE "vcDefaultBOLX " STRING(vcDefaultBOLX) v-print-fmt v-def-coc-fmt VIEW-AS ALERT-BOX ERROR .
+  
   IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN do:
       ASSIGN tb_per-bol-line:SENSITIVE = NO .
       IF tb_freight-bill THEN
