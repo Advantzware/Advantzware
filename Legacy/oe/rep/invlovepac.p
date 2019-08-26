@@ -116,6 +116,7 @@ DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lv-currency AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -165,6 +166,11 @@ find first company where company.company eq cocode NO-LOCK.
               v-shipto-city = xinv-head.sold-city
               v-shipto-state = xinv-head.sold-state
               v-shipto-zip = xinv-head.sold-zip.
+
+      FIND FIRST currency WHERE currency.company = cust.company 
+          AND currency.c-code = cust.curr-code.
+      IF AVAIL currency THEN
+          lv-currency = currency.c-desc.
 
       v-del-no = 0.
 
@@ -739,7 +745,7 @@ find first company where company.company eq cocode NO-LOCK.
         "<R60><C20> TVQ # 1021552352".
 
     IF v-bot-lab[4] <> "" THEN
-    PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
+    PUT "<R58><C60><#8><FROM><R+9><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
@@ -747,18 +753,20 @@ find first company where company.company eq cocode NO-LOCK.
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99" .
+        "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99"
+        "<=8><R+8><C71><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
 ELSE
-    PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
+    PUT "<R58><C60><#8><FROM><R+7><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99" .
+        "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99"
+        "<=8><R+6><C71><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
 
     ASSIGN
-       v-printline = v-printline + 6
+       v-printline = v-printline + 7
        v-page-num = PAGE-NUM.
     page.
  
