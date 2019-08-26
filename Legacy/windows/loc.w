@@ -57,7 +57,7 @@ RUN methods/prgsecur.p
 	     INPUT NO,    /* use the directory in addition to the program */
 	     INPUT NO,    /* Show a message if not authorized */
 	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lAllowFGBin, /* Allowed? Yes/NO */
+	     OUTPUT lAllowRMBin, /* Allowed? Yes/NO */
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
