@@ -175,13 +175,14 @@ fg-rdtlh.tot-wt fg-rdtlh.user-id fg-rcpth.b-no fg-rcpth.pur-uom ~
 display-ship() @ bol-ship fg-rcpth.post-date fg-rcpth.vend-no ~
 get-vend-info () @ vend-name get-fg-qty (1) @ iBinQtyBef ~
 get-fg-qty (2) @ iBinQty fg-rdtlh.reject-code[1] fg-rdtlh.enteredBy ~
-fg-rdtlh.enteredDT fg-rcpth.po-line
+fg-rdtlh.enteredDT fg-rcpth.po-line 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rcpth.i-no ~
 fg-rcpth.po-no fg-rcpth.job-no fg-rcpth.job-no2 fg-rcpth.trans-date ~
 fg-rcpth.rita-code fg-rdtlh.cust-no fg-rdtlh.loc fg-rdtlh.loc-bin ~
 fg-rdtlh.qty fg-rdtlh.tag fg-rdtlh.cost fg-rdtlh.cases fg-rdtlh.qty-case ~
 fg-rdtlh.stacks-unit fg-rdtlh.partial fg-rdtlh.stack-code fg-rdtlh.tot-wt ~
-fg-rcpth.pur-uom fg-rcpth.post-date fg-rdtlh.reject-code[1] fg-rcpth.po-line 
+fg-rcpth.pur-uom fg-rcpth.post-date fg-rdtlh.reject-code[1] ~
+fg-rcpth.po-line 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table fg-rcpth fg-rdtlh
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rcpth
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rdtlh
@@ -232,6 +233,13 @@ FUNCTION display-ship RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-fg-qty B-table-Win 
+FUNCTION get-fg-qty RETURNS INT
+  ( /* parameter-definitions */ INPUT ip-int AS INT )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-pallet-info B-table-Win 
 FUNCTION get-pallet-info RETURNS INTEGER
   (OUTPUT op-qty-pal AS INT) FORWARD.
@@ -249,14 +257,6 @@ FUNCTION get-vend-info RETURNS CHAR
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-vend-no B-table-Win 
 FUNCTION get-vend-no RETURNS CHAR
   ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-fg-qty B-table-Win 
-FUNCTION get-fg-qty RETURNS INT
-  ( /* parameter-definitions */ INPUT ip-int AS INT  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -434,7 +434,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 16
       fg-rdtlh.user-id COLUMN-LABEL "Posted By" FORMAT "x(8)":U
             WIDTH 13
-      fg-rcpth.b-no FORMAT ">>>>>9":U
+      fg-rcpth.b-no FORMAT ">>>>>>>9":U
       fg-rcpth.pur-uom COLUMN-LABEL "UOM for Cost" FORMAT "x(3)":U
       display-ship() @ bol-ship COLUMN-LABEL "BOL Cust" FORMAT "x(14)":U
             WIDTH 14
@@ -661,7 +661,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
      _FldNameList[23]   > ASI.fg-rdtlh.user-id
 "fg-rdtlh.user-id" "Posted By" ? "character" ? ? ? ? ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.fg-rcpth.b-no
-"fg-rcpth.b-no" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rcpth.b-no" ? ">>>>>>>9" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.fg-rcpth.pur-uom
 "fg-rcpth.pur-uom" "UOM for Cost" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > "_<CALC>"
@@ -682,7 +682,7 @@ AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code"
 "fg-rdtlh.enteredBy" "Scanned By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[34]   > ASI.fg-rdtlh.enteredDT
 "fg-rdtlh.enteredDT" "Scan Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-    _FldNameList[35]   > ASI.fg-rcpth.po-line
+     _FldNameList[35]   > ASI.fg-rcpth.po-line
 "fg-rcpth.po-line" "Po Ln" ">99" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
