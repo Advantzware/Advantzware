@@ -850,7 +850,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
                 opbf-estCostOperation.isNetSheetMaker = YES
                 opbf-estCostOperation.outputType      = "S"
                 .
-        IF fIsDepartment("GL",opbf-estCostOperation.departmentID)  THEN 
+        IF fIsDepartment("GL,QS",opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isGluer = YES.
         IF fIsDepartment("WN,WS,FB,FS",opbf-estCostOperation.departmentID)  THEN 
             opbf-estCostOperation.isLeafer = YES.
@@ -2816,7 +2816,7 @@ PROCEDURE pProcessGlues PRIVATE:
     DEFINE           BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE VARIABLE dQtyRequiredMinDiff AS DECIMAL NO-UNDO.
     
-    FOR FIRST estCostOperation NO-LOCK 
+    FOR EACH estCostOperation NO-LOCK 
         WHERE estCostOperation.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
         AND estCostOperation.estCostFormID EQ ipbf-estCostForm.estCostFormID
         AND estCostOperation.isGluer, 
