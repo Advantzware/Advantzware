@@ -397,6 +397,8 @@ IF AVAILABLE module AND
    htmlPageLocation NE "" THEN
 RUN pHTMLPages.
 
+RUN pLoadSBJob.
+
 RUN pLogEntry ("SaveEnd", STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss")).
 
 /* **********************  Internal Procedures  *********************** */
@@ -844,6 +846,28 @@ PROCEDURE pHTMLPages:
             OUTPUT CLOSE.
         END. /* if first-of */
     END.
+END PROCEDURE.
+
+PROCEDURE pLoadSBJob:
+    /* restark */
+    DEFINE VARIABLE xxxID AS CHARACTER NO-UNDO.
+    xxxID = ID.
+    IF INDEX(xxxID,"ASI/") NE 0 THEN
+    xxxID = REPLACE(xxxID,"ASI/","").
+
+    FOR EACH sbJob EXCLUSIVE-LOCK
+        WHERE sbJob.sbName EQ xxxID
+        :
+        DELETE sbJob.
+    END. /* each sbjob */
+
+    FOR EACH ttblJob:
+        {{&includes}/pLoadSBJob.i "ttblJob"}
+    END. /* each ttbljob */
+
+    FOR EACH pendingJob:
+        {{&includes}/pLoadSBJob.i "pendingJob"}
+    END. /* each pendingjob */
 END PROCEDURE.
 
 PROCEDURE pLogEntry:
