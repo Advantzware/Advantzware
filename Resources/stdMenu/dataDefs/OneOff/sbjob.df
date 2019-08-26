@@ -1,0 +1,594 @@
+ADD TABLE "sbJob"
+  AREA "Data"
+  LABEL "SB Job"
+  DESCRIPTION "SB Job"
+  DUMP-NAME "sbjob"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/sbJob.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/sbJob.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/sbJob.p" CRC "?" 
+
+ADD FIELD "sbName" OF "sbJob" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Schedule Board Name"
+  POSITION 2
+  MAX-WIDTH 120
+  HELP "Enter Schedule Board Name"
+  ORDER 10
+
+ADD FIELD "job" OF "sbJob" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Job"
+  POSITION 3
+  MAX-WIDTH 40
+  HELP "Enter Job"
+  ORDER 40
+
+ADD FIELD "resource" OF "sbJob" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Resource"
+  POSITION 4
+  MAX-WIDTH 20
+  HELP "Enter Resource"
+  ORDER 20
+
+ADD FIELD "rec_key" OF "sbJob" AS character 
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 5
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  ORDER 610
+
+ADD FIELD "jobSequence" OF "sbJob" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Job Sequence"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Seq"
+  HELP "Enter Job Sequence"
+  ORDER 30
+
+ADD FIELD "jobSort" OF "sbJob" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Job Sort"
+  POSITION 7
+  MAX-WIDTH 40
+  HELP "Enter Job Sort"
+  ORDER 50
+
+ADD FIELD "jobDescription" OF "sbJob" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Job Description"
+  POSITION 8
+  MAX-WIDTH 120
+  HELP "Enter Job Description"
+  ORDER 60
+
+ADD FIELD "resourceSequence" OF "sbJob" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Resource Sequence"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "ResSeq"
+  HELP "Enter Resource Sequence"
+  ORDER 70
+
+ADD FIELD "origResSeq" OF "sbJob" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Original Resource Sequence"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "OrigResSeq"
+  HELP "Enter Original Resource Sequence"
+  ORDER 80
+
+ADD FIELD "altResSeq" OF "sbJob" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Alt Resource Sequence"
+  POSITION 11
+  MAX-WIDTH 4
+  COLUMN-LABEL "AltResSeq"
+  HELP "Enter Alternate Resource Sequence"
+  ORDER 90
+
+ADD FIELD "resourceDescription" OF "sbJob" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Resource Description"
+  POSITION 12
+  MAX-WIDTH 60
+  HELP "Enter Resource Description"
+  ORDER 100
+
+ADD FIELD "altResource" OF "sbJob" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Alternate Resource"
+  POSITION 13
+  MAX-WIDTH 20
+  HELP "Enter Alternate Resource"
+  ORDER 110
+
+ADD FIELD "department" OF "sbJob" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Department"
+  POSITION 14
+  MAX-WIDTH 40
+  HELP "Enter Department"
+  ORDER 120
+
+ADD FIELD "origStartDate" OF "sbJob" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Orig Start Date"
+  POSITION 15
+  MAX-WIDTH 4
+  HELP "Enter Original Start Date"
+  ORDER 130
+
+ADD FIELD "origStartTime" OF "sbJob" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Orig Start Time"
+  POSITION 16
+  MAX-WIDTH 4
+  HELP "Enter Original Start Time"
+  ORDER 140
+
+ADD FIELD "origEndDate" OF "sbJob" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Orig End Date"
+  POSITION 17
+  MAX-WIDTH 4
+  HELP "Enter Original End Date"
+  ORDER 150
+
+ADD FIELD "origEndTime" OF "sbJob" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Orig End Time"
+  POSITION 18
+  MAX-WIDTH 4
+  HELP "Enter Original End Time"
+  ORDER 160
+
+ADD FIELD "timeSpan" OF "sbJob" AS integer 
+  FORMAT ">>>>>9"
+  INITIAL "0"
+  LABEL "Time Span"
+  POSITION 19
+  MAX-WIDTH 4
+  HELP "Enter Time Span"
+  ORDER 170
+
+ADD FIELD "jobLocked" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Locked"
+  POSITION 20
+  MAX-WIDTH 1
+  HELP "Toggle to Lock/Unlock Job"
+  ORDER 180
+
+ADD FIELD "dueDate" OF "sbJob" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Due Date"
+  POSITION 21
+  MAX-WIDTH 4
+  HELP "Enter Due Date"
+  ORDER 190
+
+ADD FIELD "dueTime" OF "sbJob" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Due Time"
+  POSITION 22
+  MAX-WIDTH 4
+  HELP "Enter Due Time"
+  ORDER 200
+
+ADD FIELD "prodDate" OF "sbJob" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Production Date"
+  POSITION 23
+  MAX-WIDTH 4
+  COLUMN-LABEL "Prod Date"
+  HELP "Enter Production Date"
+  ORDER 210
+
+ADD FIELD "userValue" OF "sbJob" AS character 
+  FORMAT "x(80)"
+  INITIAL ""
+  LABEL "User Value"
+  POSITION 24
+  MAX-WIDTH 160
+  HELP "Enter User Value"
+  ORDER 220
+
+ADD FIELD "jobCompleted" OF "sbJob" AS logical 
+  FORMAT "C/"
+  INITIAL ""
+  LABEL "Run Completed"
+  POSITION 25
+  MAX-WIDTH 1
+  COLUMN-LABEL "C"
+  HELP "Toggle to Run Completed/Not Completed"
+  ORDER 230
+
+ADD FIELD "rowIDs" OF "sbJob" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Row IDs"
+  POSITION 26
+  MAX-WIDTH 120
+  HELP "Enter Row IDs"
+  ORDER 240
+
+ADD FIELD "keyValue" OF "sbJob" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Key Value"
+  POSITION 27
+  MAX-WIDTH 120
+  HELP "Enter Key Value"
+  ORDER 250
+
+ADD FIELD "jobStatus" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Job Status"
+  POSITION 28
+  MAX-WIDTH 112
+  HELP "Toggle Job Status"
+  EXTENT 14
+  ORDER 260
+
+ADD FIELD "liveUpdate" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "yes"
+  LABEL "Live"
+  POSITION 29
+  MAX-WIDTH 1
+  HELP "Toggle to Set Live Update"
+  ORDER 280
+
+ADD FIELD "statusTimeStamp" OF "sbJob" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Status Time Stamp"
+  POSITION 30
+  MAX-WIDTH 588
+  HELP "Enter Status Time Stamp"
+  EXTENT 14
+  ORDER 270
+
+ADD FIELD "lagTime" OF "sbJob" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Lag Time"
+  POSITION 31
+  MAX-WIDTH 4
+  COLUMN-LABEL "Lag"
+  HELP "Enter Lag Time"
+  ORDER 290
+
+ADD FIELD "jobToolTip" OF "sbJob" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Job Tooltip"
+  POSITION 32
+  MAX-WIDTH 16
+  HELP "Enter Job Tooltip"
+  ORDER 300
+
+ADD FIELD "statusLabel" OF "sbJob" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Status Label"
+  POSITION 33
+  MAX-WIDTH 24
+  HELP "Enter Status Label"
+  ORDER 310
+
+ADD FIELD "prepCompleted" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Prep Completed"
+  POSITION 34
+  MAX-WIDTH 1
+  COLUMN-LABEL "Prep"
+  HELP "Toggle to Set Prep Completed"
+  ORDER 320
+
+ADD FIELD "sequenced" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Sequenced"
+  POSITION 35
+  MAX-WIDTH 1
+  HELP "Toggle to Set Sequenced"
+  ORDER 330
+
+ADD FIELD "anchored" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Anchored"
+  POSITION 36
+  MAX-WIDTH 1
+  HELP "Toggel to Set Anchored"
+  ORDER 340
+
+ADD FIELD "sortSequence" OF "sbJob" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Sort Sequence"
+  POSITION 37
+  MAX-WIDTH 4
+  HELP "Enter Sort Sequence"
+  ORDER 350
+
+ADD FIELD "origResource" OF "sbJob" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Original Resource"
+  POSITION 38
+  MAX-WIDTH 40
+  HELP "Enter Original Resource"
+  ORDER 360
+
+ADD FIELD "startDate" OF "sbJob" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Start Date"
+  POSITION 39
+  MAX-WIDTH 4
+  HELP "Enter Start Date"
+  ORDER 370
+
+ADD FIELD "startTime" OF "sbJob" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 40
+  MAX-WIDTH 4
+  HELP "Enter Start Time"
+  ORDER 380
+
+ADD FIELD "endDate" OF "sbJob" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "End Date"
+  POSITION 41
+  MAX-WIDTH 4
+  HELP "Enter End Date"
+  ORDER 390
+
+ADD FIELD "endTime" OF "sbJob" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "End Time"
+  POSITION 42
+  MAX-WIDTH 4
+  HELP "Enter End Time"
+  ORDER 400
+
+ADD FIELD "startDateTime" OF "sbJob" AS decimal 
+  FORMAT ">>>>>>>9.99999"
+  INITIAL "0"
+  LABEL "Start Date Time"
+  POSITION 43
+  MAX-WIDTH 17
+  HELP "Enter Start Date Time"
+  DECIMALS 2
+  ORDER 410
+
+ADD FIELD "endDateTime" OF "sbJob" AS decimal 
+  FORMAT ">>>>>>>9.99999"
+  INITIAL "0"
+  LABEL "End Date Time"
+  POSITION 44
+  MAX-WIDTH 17
+  HELP "Enter End Date Time"
+  DECIMALS 2
+  ORDER 420
+
+ADD FIELD "dueDateTime" OF "sbJob" AS decimal 
+  FORMAT ">>>>>>>9.99999"
+  INITIAL "0"
+  LABEL "Due Date Time"
+  POSITION 45
+  MAX-WIDTH 17
+  HELP "Enter Due Date Time"
+  DECIMALS 2
+  ORDER 430
+
+ADD FIELD "downtimeSpan" OF "sbJob" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Downtime Span"
+  POSITION 46
+  MAX-WIDTH 4
+  HELP "Enter Downtime Span"
+  ORDER 440
+
+ADD FIELD "conflictSpan" OF "sbJob" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Conflict Span"
+  POSITION 47
+  MAX-WIDTH 4
+  HELP "Enter Conflict Span"
+  ORDER 450
+
+ADD FIELD "jobBGColor" OF "sbJob" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Job BG Color"
+  POSITION 48
+  MAX-WIDTH 4
+  COLUMN-LABEL "BG"
+  HELP "Enter Job BG Color"
+  ORDER 460
+
+ADD FIELD "jobFGColor" OF "sbJob" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Job FG Color"
+  POSITION 49
+  MAX-WIDTH 4
+  COLUMN-LABEL "BG"
+  HELP "Enter Job FG Color"
+  ORDER 470
+
+ADD FIELD "widgetIdx" OF "sbJob" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Widget Index"
+  POSITION 50
+  MAX-WIDTH 4
+  HELP "Enter Widget Index"
+  ORDER 480
+
+ADD FIELD "priority1" OF "sbJob" AS integer 
+  FORMAT "9"
+  INITIAL "0"
+  LABEL "Priority 1"
+  POSITION 51
+  MAX-WIDTH 4
+  HELP "Enter Priority 1"
+  ORDER 490
+
+ADD FIELD "priority2" OF "sbJob" AS integer 
+  FORMAT "9"
+  INITIAL "0"
+  LABEL "Priority 2"
+  POSITION 52
+  MAX-WIDTH 4
+  HELP "Enter Priority 2"
+  ORDER 500
+
+ADD FIELD "priority3" OF "sbJob" AS integer 
+  FORMAT "9"
+  INITIAL "0"
+  LABEL "Priority 3"
+  POSITION 53
+  MAX-WIDTH 4
+  HELP "Enter Priority 3"
+  ORDER 510
+
+ADD FIELD "jobType" OF "sbJob" AS character 
+  FORMAT "X"
+  INITIAL "S"
+  LABEL "Job Type"
+  POSITION 54
+  MAX-WIDTH 2
+  HELP "Enter Job Type"
+  ORDER 520
+
+ADD FIELD "sbStatus" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "SB Status"
+  POSITION 55
+  MAX-WIDTH 1
+  HELP "Toggle to Set SB Status"
+  ORDER 530
+
+ADD FIELD "jobBrowseFlag" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Browser Flag"
+  POSITION 56
+  MAX-WIDTH 1
+  HELP "Toggle to Set Browser Flag"
+  ORDER 540
+
+ADD FIELD "pendingJobFlag" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Pending Flag"
+  POSITION 57
+  MAX-WIDTH 1
+  HELP "Toggle to Set Pending  Flag"
+  ORDER 550
+
+ADD FIELD "resourceDetailFlag" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Resource Detail Flag"
+  POSITION 58
+  MAX-WIDTH 1
+  HELP "Toggle to Set Resource Detail Flag"
+  ORDER 560
+
+ADD FIELD "printFlag" OF "sbJob" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Print Flag"
+  POSITION 59
+  MAX-WIDTH 1
+  HELP "Toggle to Set Print Flag"
+  ORDER 570
+
+ADD FIELD "sortBy" OF "sbJob" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Sort By"
+  POSITION 60
+  MAX-WIDTH 60
+  HELP "Enter Sort By"
+  ORDER 580
+
+ADD FIELD "udfField" OF "sbJob" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "UDF Field"
+  POSITION 61
+  MAX-WIDTH 840
+  HELP "Enter UDF Field"
+  EXTENT 20
+  ORDER 590
+
+ADD FIELD "userField" OF "sbJob" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "User Field"
+  POSITION 62
+  MAX-WIDTH 5166
+  HELP "Enter User Field"
+  EXTENT 123
+  ORDER 600
+
+ADD INDEX "sbJob" ON "sbJob" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index by sbName, Resource, jobSequence, Job"
+  INDEX-FIELD "sbName" ASCENDING 
+  INDEX-FIELD "resource" ASCENDING 
+  INDEX-FIELD "jobSequence" ASCENDING 
+  INDEX-FIELD "job" ASCENDING 
+
+ADD INDEX "si-rec_key" ON "sbJob" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Record Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000012103
