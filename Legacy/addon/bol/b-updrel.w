@@ -147,6 +147,7 @@ DEFINE VARIABLE lvlReturnNoApply  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lvlReturnCancel   AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lsecurity-flag AS LOGICAL NO-UNDO.   
+DEFINE VARIABLE cTagList AS CHARACTER NO-UNDO .
 /* Just for compatibility with b-relbol.w, not used */
 DEFINE VARIABLE v-job-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Job Qty" 
@@ -696,8 +697,7 @@ DO:
    DEF VAR lv-qty-rel AS INT NO-UNDO.
    DEF VAR lv-qty-tag AS INT NO-UNDO.
    DEF VAR ll AS LOG NO-UNDO.
-   DEFINE VARIABLE cTagList AS CHARACTER NO-UNDO .
-
+   
    IF (LASTKEY = -1 OR LASTKEY = 27 /*ESC*/) AND NOT lv-do-leave-tag  THEN RETURN.
    lv-do-leave-tag = NO.
 
@@ -715,16 +715,6 @@ DO:
      RETURN NO-APPLY.
    END.
   IF lPickTicketValidation AND AVAIL oe-relh THEN do:
-      cTagList = "" .
-      FOR EACH oe-rell NO-LOCK
-          WHERE oe-rell.company EQ cocode 
-          AND oe-rell.r-no EQ oe-relh.r-no BREAK BY oe-rell.tag:
-          IF LAST(oe-rell.tag) THEN
-              cTagList = cTagList + oe-rell.tag  .
-          ELSE 
-              cTagList = cTagList + oe-rell.tag + "," . 
-      END.
-      
       IF LOOKUP(tt-relbol.tag:SCREEN-VALUE,cTagList) EQ 0 THEN do:
         IF NOT lsecurityTag THEN  RUN sys/ref/d-psswrd.w ("PickTicketValidation","", OUTPUT lsecurityTag).
           
@@ -1822,7 +1812,7 @@ PROCEDURE display-qtys-query :
           EACH b-rell FIELDS(qty) NO-LOCK
           WHERE b-rell.r-no EQ b-relh.r-no
             AND b-rell.i-no EQ lv-i-no
-          USE-INDEX r-no:
+          USE-INDEX r-no :
         v-rel-qty = v-rel-qty + b-rell.qty.
       END.
     END.
@@ -3013,6 +3003,10 @@ PROCEDURE release#-value-changed :
      lv-scan-next = YES.
     /* Reset to no since starting with a new release# */
     is-bol-printed  = NO.
+
+     IF lPickTicketValidation THEN
+         RUN pGetTagList(INPUT ip-release#) .
+
      RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
    
 END PROCEDURE.
@@ -3584,6 +3578,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTagList B-table-Win 
+PROCEDURE pGetTagList :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiRelease AS INTEGER NO-UNDO .
+  
+  FIND FIRST oe-relh WHERE
+      oe-relh.company  EQ cocode AND
+      oe-relh.release# EQ ipiRelease
+      NO-LOCK NO-ERROR.
+  cTagList = "" .
+  IF AVAIL oe-relh THEN
+  FOR EACH oe-rell NO-LOCK
+      WHERE oe-rell.company EQ cocode 
+      AND oe-rell.r-no EQ oe-relh.r-no BREAK BY oe-rell.tag:
+      IF LAST(oe-rell.tag) THEN
+          cTagList = cTagList + oe-rell.tag  .
+      ELSE 
+          cTagList = cTagList + oe-rell.tag + "," . 
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
