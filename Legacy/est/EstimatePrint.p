@@ -914,19 +914,14 @@ PROCEDURE pPrintSummary PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
     
-    DEFINE BUFFER bf-PrimaryestCostHeader FOR estCostHeader.
-    
     DEFINE VARIABLE iRowStart      AS INTEGER.
     DEFINE VARIABLE iColumn1       AS INTEGER   INITIAL 2.
-    DEFINE VARIABLE iColumn2       AS INTEGER   INITIAL 36.
-    DEFINE VARIABLE iColumnWidth   AS INTEGER   INITIAL 10.
+    DEFINE VARIABLE iColumn2       AS INTEGER   INITIAL 26.
+    DEFINE VARIABLE iColumn3       AS INTEGER   INITIAL 36.
+    DEFINE VARIABLE iColumn4       AS INTEGER   INITIAL 46.
+    DEFINE VARIABLE iColumn5       AS INTEGER   INITIAL 56.
+    DEFINE VARIABLE dQtyInM        AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE iQtyCount      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iQtyCountTotal AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cScopeRecKey   AS CHARACTER EXTENT 10.
-    DEFINE VARIABLE cQtyHeader     AS CHARACTER EXTENT 10.
-    DEFINE VARIABLE dCostValue     AS DECIMAL   EXTENT 10.
-
     FIND FIRST estCostHeader NO-LOCK 
         WHERE estCostHeader.rec_key EQ ipcEstHeaderRecKey
         NO-ERROR.
@@ -945,53 +940,57 @@ PROCEDURE pPrintSummary PRIVATE:
         RUN pPrintItemInfoDetail(BUFFER estCostItem, BUFFER estCostBlank, YES, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
     
-    FIND FIRST bf-PrimaryestCostHeader NO-LOCK 
-        WHERE bf-PrimaryestCostHeader.rec_key EQ ipcEstHeaderRecKey
-        NO-ERROR.
-    IF NOT AVAILABLE bf-PrimaryestCostHeader THEN LEAVE.
-    
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    iRowStart = iopiRowCount /*Store reset Point*/
-        .
-        
-    ASSIGN 
-        iQtyCountTotal               = 1
-        cScopeRecKey[iQtyCountTotal] = bf-PrimaryestCostHeader.rec_key
-        cQtyHeader[iQtyCountTotal]   = fFormatNumber(bf-PrimaryestCostHeader.quantityMaster, 7, 0, YES)
-        .
-    FOR EACH estCostHeader NO-LOCK
-        WHERE estCostHeader.estimateNo EQ bf-PrimaryestCostHeader.estimateNo
-        AND estCostHeader.estCostHeaderID NE bf-PrimaryestCostHeader.estCostHeaderID
-        :
-        ASSIGN 
-            iQtyCountTotal               = iQtyCountTotal + 1
-            cScopeRecKey[iQtyCountTotal] = estCostHeader.rec_key
-            cQtyHeader[iQtyCountTotal]   = fFormatNumber(estCostHeader.quantityMaster, 7, 0, YES)
-            .
-        IF iQtyCountTotal EQ giQtyMaxColumn THEN LEAVE. 
-    END.
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).     
     
-    RUN pWriteToCoordinates(iopiRowCount, iColumn1, "*** Totals Per M ", YES, YES, NO).
-    DO iQtyCount = 1 TO iQtyCountTotal:
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + (iQtyCount - 1) * iColumnWidth, cQtyHeader[iQtyCount], 7, 0, YES, YES, YES, YES, YES).
-        IF iQtyCount EQ 1 THEN 
-            RUN pWriteToCoordinates(iopiRowCount, iColumn2, gcQtyMasterInd, YES, NO, NO).
-    END.
-      
+    RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Item Summary Totals (per M)", YES, NO, NO).
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).     
+    
+    RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Item Name", YES, YES, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn2, "Quantity", YES, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn3, "Factory", YES, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn4, "Full", YES, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn5, "Price", YES, YES, YES).
+     
     FOR EACH estCostBlank NO-LOCK
-        WHERE estCostBlank.estCostHeaderID EQ bf-PrimaryestCostHeader.estCostHeaderID
+        WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
         AND estCostBlank.blankNo NE 0,
         FIRST estCostItem NO-LOCK 
         WHERE estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
+        dQtyInM = estCostItem.quantityRequired / 1000.
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn1, estCostItem.itemName, 20, NO, NO, NO).   
-            
-        DO iQtyCount = 1 TO iQtyCountTotal:
-            /*Get the correct summary - Total Price Per Item*/ 
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2 + (iQtyCount - 1) * iColumnWidth , estCostItem.sellPrice, 6, 2, NO, YES, NO, NO, YES).
-        END.
-            
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostItem.quantityRequired , 9, 0, YES, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostItem.costTotalFactory / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostItem.costTotalFull / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostItem.sellPrice / dQtyInM , 6, 2, NO, YES, NO, NO, YES).            
+    END.
+    
+    IF estCostHeader.estType EQ "Set" THEN DO:
+        dQtyInM = estCostHeader.quantityMaster / 1000.
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Summary for " + STRING(estCostHeader.quantityMaster) + " sets", YES, YES, NO).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn2, "Per M", YES, YES, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn3, "Total", YES, YES, YES).
+        
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Factory Cost", NO, NO, NO).   
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.costTotalFactory / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.costTotalFactory , 6, 2, NO, YES, NO, NO, YES).
+        
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Full Cost", NO, NO, NO).   
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.costTotalFull / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.costTotalFull , 6, 2, NO, YES, NO, NO, YES).
+        
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Sell Price", NO, NO, NO).   
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.sellPrice / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.sellPrice , 6, 2, NO, YES, NO, NO, YES).
+        
     END.
 END PROCEDURE.
 

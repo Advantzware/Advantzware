@@ -1461,7 +1461,7 @@ PROCEDURE pBuildProbe PRIVATE:
             AND bf-estimate-probe.est-no EQ ipbf-estCostHeader.estimateNo
             AND bf-estimate-probe.probe-date <> ?
             BY bf-estimate-probe.LINE DESC:
-            iProbeLine = bf-probe.LINE.
+            iProbeLine = bf-estimate-probe.LINE.
             LEAVE.
         END.
         iProbeLine = iProbeLine + 1.
