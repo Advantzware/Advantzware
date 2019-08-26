@@ -51,6 +51,7 @@ DEF TEMP-TABLE ttItemList
     FIELD frm AS INTEGER 
     FIELD combo AS LOGICAL
     FIELD itemName AS CHARACTER 
+    FIELD blank-no AS INTEGER 
     FIELD IS-SELECTED AS LOGICAL  COLUMN-LABEL "" VIEW-AS TOGGLE-BOX.
 
 DEF BUFFER bf-job-hdr FOR job-hdr.
@@ -266,7 +267,8 @@ DO:
       cRdOptionMclean = rd_active:SCREEN-VALUE .
       FOR EACH ttItemList NO-LOCK:
           FIND FIRST ttSoule EXCLUSIVE-LOCK
-              WHERE ttSoule.frm EQ ttItemList.frm NO-ERROR.
+              WHERE ttSoule.frm EQ ttItemList.frm 
+                AND ttSoule.blank-no EQ ttItemList.blank-no NO-ERROR.
           IF AVAIL ttSoule AND ttItemList.IS-SELECTED THEN
               ttSoule.RunForm = YES.
           ELSE IF AVAIL ttSoule THEN ttSoule.RunForm = NO.
@@ -345,6 +347,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ttItemList.part-no = IF AVAIL bf-itemfg THEN bf-itemfg.part-no ELSE ""
             ttItemList.IS-SELECTED  = YES 
             ttItemList.frm = bf-job-hdr.frm
+            ttItemList.blank-no = bf-job-hdr.blank-no 
             ttItemList.combo = (IF AVAIL est AND est.est-type GE 2 THEN YES ELSE NO )
             ttItemList.itemName = IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "". 
 
@@ -355,10 +358,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ttSoule.job-no = bf-job-hdr.job-no
             ttSoule.job-no2 = bf-job-hdr.job-no2
             ttSoule.frm = bf-job-hdr.frm
+            ttSoule.blank-no = bf-job-hdr.blank-no
             ttSoule.qty = bf-job-hdr.qty
             ttSoule.i-no = bf-job-hdr.i-no
             ttSoule.runForm = YES.
-
+         
       END.
 
       RUN enable_UI.
