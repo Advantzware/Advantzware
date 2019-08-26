@@ -2621,6 +2621,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
     RUN ipLoadJasperData.
+    RUN ipSetCueCards.
     RUN ipDeleteAudit.
 
 END PROCEDURE.
@@ -4970,6 +4971,43 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetCueCards C-Win
+PROCEDURE ipSetCueCards:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Turn off new cue cards if user.showCueCards = false").
+
+    FOR EACH users NO-LOCK WHERE 
+        users.showCueCards EQ NO:
+        FOR EACH CueCardText NO-LOCK,
+            FIRST CueCard NO-LOCK
+            WHERE CueCard.cueType EQ "System"
+            :
+            IF CAN-FIND(FIRST xCueCard
+                WHERE xCueCard.user_id EQ users.user_id
+                AND xCueCard.cueType   EQ CueCard.cueType
+                AND xCueCard.cueTextID EQ CueCardText.cueTextID) THEN
+                NEXT.
+            CREATE xCueCard.
+            ASSIGN
+                xCueCard.user_id   = users.user_id
+                xCueCard.cueType   = CueCard.cueType
+                xCueCard.cueTextID = CueCardText.cueTextID
+                .
+            RELEASE xCueCard.
+        END. /* each cuecardtext */
+    END. /* each users */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetDispVars C-Win 
 PROCEDURE ipSetDispVars :
