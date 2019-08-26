@@ -5,5 +5,6 @@ DEF {1} SHARED TEMP-TABLE ttSoule
     FIELD frm LIKE job-hdr.frm
     FIELD qty LIKE job-hdr.qty
     FIELD i-no LIKE job-mch.i-no
-    FIELD runForm AS LOG.
+    FIELD runForm AS LOG
+    FIELD blank-no LIKE job-hdr.blank-no .
 

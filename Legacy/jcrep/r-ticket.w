@@ -3338,6 +3338,7 @@ PROCEDURE pRunFormatValueChanged :
                         lv-font-no:HIDDEN = YES 
                         td-show-parm:HIDDEN = YES 
                         tb_ExportXML:HIDDEN = YES
+                        tb_ExportXML:SCREEN-VALUE = "No"
                         lv-font-name:HIDDEN = YES .
              ELSE ASSIGN lines-per-page:HIDDEN = NO 
                         lv-ornt:HIDDEN = NO 
