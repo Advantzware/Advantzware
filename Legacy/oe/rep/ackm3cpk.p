@@ -288,7 +288,7 @@ v-upc-no = "" .
             "<C50>Over %: " OE-ORD.OVER-PCT SKIP(.5)
             "<C4>Sales: " OE-ORD.SMAN
             "<C50>Under %: " OE-ORD.UNDER-PCT SKIP(.5)
-            "<C4>CSR: " oe-ord.user-id
+            "<C4>CSR: " oe-ord.csrUser_id
             "<C50>Order Date: " OE-ORD.ORD-DATE SKIP(1)
 
             "<||3><C2><FROM><C80><LINE><||3>" SKIP(1)
