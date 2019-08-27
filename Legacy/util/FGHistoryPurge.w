@@ -2,6 +2,14 @@
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
+/*------------------------------------------------------------------------
+  File:             util/fgHistoryPurge.w
+  Description:      Utility to Purge fg-rcpth and fg-rdtl records with summary txns 
+  Input Parms:      <none>
+  Output Parms:     <none>
+  Author:           Brad Vigrass
+  Created:          00/00/2018
+------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -468,7 +476,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
             .
     END.
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    {methods/nowait.i}
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
