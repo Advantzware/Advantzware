@@ -119,6 +119,32 @@ PROCEDURE CalcOrderCommission:
 
 END PROCEDURE.
 
+PROCEDURE GetReleaseType:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcSCode AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplIsAComponent AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opcRelType AS CHARACTER NO-UNDO.
+
+   FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ ipcCompany NO-LOCK NO-ERROR.
+   
+    IF ipcSCode <> "" THEN 
+        opcRelType = ipcSCode.
+    ELSE 
+        opcRelType = "B". /*Default */
+        
+    
+    IF iplIsAComponent THEN opcRelType = "S".
+    
+    IF AVAILABLE oe-ctrl THEN DO:        
+      opcRelType = IF oe-ctrl.ship-from THEN "B" ELSE "I".
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pCreateActRelLine PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -137,7 +163,7 @@ PROCEDURE pCreateActRelLine PRIVATE:
 
     DEFINE VARIABLE lError            AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cErrMsg           AS CHARACTER NO-UNDO.
-     
+    DEFINE VARIABLE cRelType AS CHARACTER NO-UNDO.
 
     IF NOT AVAIL(ipbf-oe-relh) THEN
         ASSIGN oplError = TRUE 
@@ -161,7 +187,7 @@ PROCEDURE pCreateActRelLine PRIVATE:
           AND itemfg.i-no    EQ ipbf-oe-rel.i-no
         NO-ERROR.        
     // RUN get-next-r-no.
-    
+    RUN GetReleaseType (INPUT ipbf-oe-rel.company, "" /* Existing s-code */, bf-oe-ordl.is-a-component, OUTPUT cRelType).
     CREATE bf-oe-rell.
     ASSIGN
         oprOeRellRow       = ROWID(bf-oe-rell)
@@ -186,8 +212,7 @@ PROCEDURE pCreateActRelLine PRIVATE:
         bf-oe-rell.deleted    = NO
         /** Set link to the planned releases **/
         bf-oe-rell.link-no    = ipbf-oe-rel.r-no
-        bf-oe-rell.s-code     = IF ipbf-oe-rel.s-code <> "" THEN ipbf-oe-rel.s-code ELSE
-                                 IF bf-oe-ordl.is-a-component THEN "S" ELSE "B"    
+        bf-oe-rell.s-code     = cRelType    
         bf-oe-rell.partial = IF bf-oe-rell.s-code EQ "I" THEN bf-oe-ordl.partial ELSE 0
         bf-oe-rell.qty-case = IF AVAILABLE itemfg AND itemfg.case-count GT 0
             THEN itemfg.case-count
