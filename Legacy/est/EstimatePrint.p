@@ -603,7 +603,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostBlank.blankArea, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, estCostBlank.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostBlank.numOut, 4, 0, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostBlank.weight * 1000, 5, 4, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostBlank.weightPerBlank * 1000, 5, 4, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, estCostBlank.weightUOM + "/M", NO, NO, NO).
     END.
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -613,7 +613,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, estCostForm.dimUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, estCostForm.areaUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostForm.weightDie, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, estCostForm.weightDieUOM, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Net:", NO, NO, YES).
@@ -623,7 +623,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostForm.netArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, estCostForm.areaUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostForm.numOutNet, 4, 0, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostForm.weightNet, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostForm.weightNetSheet, 5, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, estCostForm.weightNetUOM, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Gross:", NO, NO, YES).
@@ -632,7 +632,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn3 + 1, estCostForm.dimUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn4, estCostForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn4 + 1, estCostForm.areaUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostForm.weightGross, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn6, estCostForm.weightGrossSheet, 5, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn6 + 1, estCostForm.weightGrossUOM, NO, NO, NO).
     IF estCostForm.rollWidth NE 0 THEN 
     DO:
@@ -967,31 +967,33 @@ PROCEDURE pPrintSummary PRIVATE:
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn5, estCostItem.sellPrice / dQtyInM , 6, 2, NO, YES, NO, NO, YES).            
     END.
     
-    IF estCostHeader.estType EQ "Set" THEN DO:
-        dQtyInM = estCostHeader.quantityMaster / 1000.
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        
+    
+    dQtyInM = estCostHeader.quantityMaster / 1000.
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    IF estCostHeader.estType EQ "Set" THEN     
         RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Summary for " + STRING(estCostHeader.quantityMaster) + " sets", YES, YES, NO).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn2, "Per M", YES, YES, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn3, "Total", YES, YES, YES).
+    ELSE 
+        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Summary for all items", YES, YES, NO).
         
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Factory Cost", NO, NO, NO).   
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.costTotalFactory / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.costTotalFactory , 6, 2, NO, YES, NO, NO, YES).
-        
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Full Cost", NO, NO, NO).   
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.costTotalFull / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.costTotalFull , 6, 2, NO, YES, NO, NO, YES).
-        
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Sell Price", NO, NO, NO).   
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.sellPrice / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.sellPrice , 6, 2, NO, YES, NO, NO, YES).
-        
-    END.
+    RUN pWriteToCoordinates(iopiRowCount, iColumn2, "Per M", YES, YES, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn3, "Total", YES, YES, YES).
+    
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Factory Cost", NO, NO, NO).   
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.costTotalFactory / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.costTotalFactory , 6, 2, NO, YES, NO, NO, YES).
+    
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Full Cost", NO, NO, NO).   
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.costTotalFull / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.costTotalFull , 6, 2, NO, YES, NO, NO, YES).
+    
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn1, "Total Sell Price", NO, NO, NO).   
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn2, estCostHeader.sellPrice / dQtyInM , 6, 2, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn3, estCostHeader.sellPrice , 6, 2, NO, YES, NO, NO, YES).
+       
 END PROCEDURE.
 
 PROCEDURE pProcessSections PRIVATE:
