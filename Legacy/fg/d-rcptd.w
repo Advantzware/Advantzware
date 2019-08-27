@@ -348,7 +348,7 @@ DEFINE FRAME Dialog-Frame
     SIZE 19 BY 1
     BGCOLOR 15 FONT 1
     fg-rctd.partial AT ROW 9.1 COL 72 COLON-ALIGNED
-    LABEL "Partial" FORMAT ">>>,>>9"
+    LABEL "Partial" FORMAT "->>>,>>9"
     VIEW-AS FILL-IN 
     SIZE 19 BY 1
     BGCOLOR 15 FONT 1
