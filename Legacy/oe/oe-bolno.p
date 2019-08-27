@@ -15,7 +15,7 @@ DO WHILE TRUE:
    op-bol-no     = oe-ctrl.n-bol
    oe-ctrl.n-bol = op-bol-no + 1.
    
-  IF oe-ctrl.n-bol GT 999999 THEN oe-ctrl.n-bol = 1.
+  IF oe-ctrl.n-bol GT 99999999 THEN oe-ctrl.n-bol = 1.
    
   FIND FIRST oe-bolh
       WHERE {1}oe-bolh.company EQ ip-company
