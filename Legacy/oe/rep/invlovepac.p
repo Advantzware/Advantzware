@@ -729,6 +729,9 @@ find first company where company.company eq cocode NO-LOCK.
          inv-head.stat = "X".
       end. /* DO TRANSACTION avail inv-head */
 
+      IF LENGTH(lv-currency) LE 20 THEN
+          ASSIGN lv-currency = fill(" ",20 - LENGTH(lv-currency) ) + lv-currency .
+
     do i = 1 to 5:
        v-bot-lab[i] = if v-t-tax[i] ne 0 then
                         ((IF AVAIL stax THEN string(CAPS(stax.tax-code1[i]),"x(5)") 
@@ -754,7 +757,7 @@ find first company where company.company eq cocode NO-LOCK.
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
         "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99"
-        "<=8><R+8><C71><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
+        "<=8><R+8><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
 ELSE
     PUT "<R58><C60><#8><FROM><R+7><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
@@ -763,7 +766,7 @@ ELSE
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99"
-        "<=8><R+6><C71><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
+        "<=8><R+6><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)".
 
     ASSIGN
        v-printline = v-printline + 7

@@ -605,6 +605,9 @@ ELSE lv-comp-color = "BLACK".
       END.
     END.
 
+    IF LENGTH(lv-currency) LE 20 THEN
+          ASSIGN lv-currency = fill(" ",20 - LENGTH(lv-currency) ) + lv-currency .
+
     do i = 1 to 5:
        v-bot-lab[i] = if v-t-tax[i] ne 0 then
                     /*  ((if avail stax then string(stax.tax-dscr[i],"x(5)")
@@ -635,7 +638,7 @@ IF v-bot-lab[4] <> "" THEN
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
         "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>,>>9.99" 
-        "<=8><R+8><C71><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
+        "<=8><R+8><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
 ELSE
     PUT "<R58><C60><#8><FROM><R+7><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
@@ -644,7 +647,7 @@ ELSE
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" 
-        "<=8><R+6><C71><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
+        "<=8><R+6><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
 
     ASSIGN
        v-printline = v-printline + 7
