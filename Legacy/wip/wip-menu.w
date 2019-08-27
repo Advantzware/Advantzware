@@ -43,6 +43,8 @@ DEFINE VARIABLE ipcLocation AS CHARACTER NO-UNDO INITIAL "MAIN".
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE continue AS LOGICAL NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -58,8 +60,8 @@ DEFINE VARIABLE ipcLocation AS CHARACTER NO-UNDO INITIAL "MAIN".
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-wipcreate btn-wipissue btn-transfer ~
-btn-close 
+&Scoped-Define ENABLED-OBJECTS btnCreate btnIssue btnTransfer ~
+btnClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -75,23 +77,23 @@ btn-close
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-close 
+DEFINE BUTTON btnClose 
      LABEL "C&lose" 
      SIZE 35 BY 2
      FONT 36.
 
-DEFINE BUTTON btn-transfer 
-     LABEL "&WIP Transfer" 
+DEFINE BUTTON btnTransfer 
+     LABEL "WIP &Transfer" 
      SIZE 35 BY 2
      FONT 36.
 
-DEFINE BUTTON btn-wipcreate 
-     LABEL "&WIP Create" 
+DEFINE BUTTON btnCreate 
+     LABEL "WIP &Create" 
      SIZE 35 BY 2
      FONT 36.
 
-DEFINE BUTTON btn-wipissue 
-     LABEL "&WIP Issue" 
+DEFINE BUTTON btnIssue 
+     LABEL "WIP &Issue" 
      SIZE 35 BY 2
      FONT 36.
 
@@ -99,10 +101,10 @@ DEFINE BUTTON btn-wipissue
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btn-wipcreate AT ROW 1.48 COL 2.4 WIDGET-ID 2
-     btn-wipissue AT ROW 3.62 COL 2.4 WIDGET-ID 8
-     btn-transfer AT ROW 5.86 COL 2.4 WIDGET-ID 10
-     btn-close AT ROW 11.95 COL 2 WIDGET-ID 6
+     btnCreate AT ROW 1.48 COL 2.4 WIDGET-ID 2
+     btnIssue AT ROW 3.62 COL 2.4 WIDGET-ID 8
+     btnTransfer AT ROW 5.86 COL 2.4 WIDGET-ID 10
+     btnClose AT ROW 11.95 COL 2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -158,19 +160,19 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
 ASSIGN 
-       btn-close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btnClose:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-transfer:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btnTransfer:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-wipcreate:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btnCreate:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
-       btn-wipissue:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+       btnIssue:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -211,22 +213,22 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-close C-Win
-ON CHOOSE OF btn-close IN FRAME DEFAULT-FRAME /* Close */
+&Scoped-define SELF-NAME btnClose
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClose C-Win
+ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
    IF INDEX(program-name(4),"asiLogin") <> 0 THEN
        RUN system/userLogOut.p (NO, 0).
-   APPLY "close" TO THIS-PROCEDURE.
+   APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-transfer
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-transfer C-Win
-ON CHOOSE OF btn-transfer IN FRAME DEFAULT-FRAME /* WIP Transfer */
+&Scoped-define SELF-NAME btnTransfer
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTransfer C-Win
+ON CHOOSE OF btnTransfer IN FRAME DEFAULT-FRAME /* WIP Transfer */
 DO:
    RUN wip\wip-transfer.w(INPUT ipcCompany,     /* Company Code */
                           INPUT ipcLocation,    /* Location Code */
@@ -240,9 +242,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-wipcreate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wipcreate C-Win
-ON CHOOSE OF btn-wipcreate IN FRAME DEFAULT-FRAME /* WIP Create */
+&Scoped-define SELF-NAME btnCreate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCreate C-Win
+ON CHOOSE OF btnCreate IN FRAME DEFAULT-FRAME /* WIP Create */
 DO:   
    RUN wip\wip-create.w(INPUT ipcCompany,     /* Company Code */
                         INPUT ipcLocation,    /* Location Code */
@@ -257,9 +259,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-wipissue
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-wipissue C-Win
-ON CHOOSE OF btn-wipissue IN FRAME DEFAULT-FRAME /* WIP Issue */
+&Scoped-define SELF-NAME btnIssue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnIssue C-Win
+ON CHOOSE OF btnIssue IN FRAME DEFAULT-FRAME /* WIP Issue */
 DO:
    RUN wip\wip-issue.w(INPUT ipcCompany,     /* Company Code */
                        INPUT ipcLocation,    /* Location Code */
@@ -292,14 +294,23 @@ ON CLOSE OF THIS-PROCEDURE
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
+&IF DEFINED(UIB_is_Running) EQ 0 &THEN
+RUN util/CheckModule.p ("ASI","WIP", YES, OUTPUT continue).
+&ELSE
+continue = YES.
+&ENDIF
+
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  IF continue THEN
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
+  IF NOT continue THEN
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -338,7 +349,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btn-wipcreate btn-wipissue btn-transfer btn-close 
+  ENABLE btnCreate btnIssue btnTransfer btnClose 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
