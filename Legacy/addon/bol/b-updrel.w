@@ -3005,7 +3005,7 @@ PROCEDURE release#-value-changed :
     is-bol-printed  = NO.
 
      IF lPickTicketValidation THEN
-         RUN pGetTagList(INPUT ip-release#) .
+         RUN addon/bol/GetTagList.p(INPUT cocode,INPUT ip-release#, OUTPUT cTagList) .
 
      RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
    
@@ -3572,35 +3572,6 @@ PROCEDURE validate-tag :
 
      APPLY "entry" TO tt-relbol.tag# .
      RETURN ERROR.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTagList B-table-Win 
-PROCEDURE pGetTagList :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipiRelease AS INTEGER NO-UNDO .
-  
-  FIND FIRST oe-relh WHERE
-      oe-relh.company  EQ cocode AND
-      oe-relh.release# EQ ipiRelease
-      NO-LOCK NO-ERROR.
-  cTagList = "" .
-  IF AVAIL oe-relh THEN
-  FOR EACH oe-rell NO-LOCK
-      WHERE oe-rell.company EQ cocode 
-      AND oe-rell.r-no EQ oe-relh.r-no BREAK BY oe-rell.tag:
-      IF LAST(oe-rell.tag) THEN
-          cTagList = cTagList + oe-rell.tag  .
-      ELSE 
-          cTagList = cTagList + oe-rell.tag + "," . 
   END.
 
 END PROCEDURE.
