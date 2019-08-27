@@ -9,6 +9,13 @@ DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 
+DEFINE VARIABLE v-comp-add1 AS CHARACTER FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add2 AS CHARACTER FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add3 AS CHARACTER FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add4 AS CHARACTER FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE v-comp-add5 AS CHARACTER FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE lv-comp-name AS CHARACTER FORM "x(30)" NO-UNDO.
+
 {oerep/r-loadtg.i }
 {custom/xprint.i}
 
@@ -60,6 +67,13 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
        PUT "<PRINTER?><FORMAT=LEGAL></PROGRESS>" FORM "x(50)".
     END.
 
+    ASSIGN 
+        v-comp-add1 = ""
+        v-comp-add2 = ""
+        v-comp-add3 = ""
+        v-comp-add4 = ""
+        v-comp-add5 = ""
+        lv-comp-name = "" .
    
         FOR EACH tt-word-print NO-LOCK BREAK
                                 BY tt-word-print.ord-no 
