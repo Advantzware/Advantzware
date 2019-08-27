@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 DEFINE VARIABLE v-process AS LOG NO-UNDO.
 DEFINE VARIABLE cFileName AS CHAR NO-UNDO.
+DEFINE BUFFER bfg-rcpth FOR fg-rcpth.
 
 DEFINE STREAM file1.
 DEFINE STREAM file2.
@@ -550,7 +551,7 @@ PROCEDURE run-process :
     DO: 
         /* Note: this may find more records than needed (if job-no2 doesn't match)
            but allows use of index.  "Extra" records removed in next statement */
-        FOR EACH fg-rcpth EXCLUSIVE WHERE 
+        FOR EACH fg-rcpth NO-LOCK WHERE 
                 fg-rcpth.company    EQ cocode AND 
                 fg-rcpth.i-no       GT v-i-no  AND 
                 fg-rcpth.i-no       GE fitm AND 
@@ -569,7 +570,8 @@ PROCEDURE run-process :
 
             FOR EACH fg-rdtlh EXCLUSIVE WHERE 
                 fg-rdtlh.r-no EQ fg-rcpth.r-no AND 
-                fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
+                fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+                TRANSACTION:
                 EXPORT STREAM file2 fg-rdtlh.
                 DELETE fg-rdtlh.
             END.
@@ -579,13 +581,21 @@ PROCEDURE run-process :
                 fg-rctd.i-no      EQ fg-rcpth.i-no AND 
                 fg-rctd.rita-code EQ "P" AND 
                 fg-rctd.job-no    EQ fg-rcpth.job-no AND 
-                fg-rctd.job-no2   EQ fg-rcpth.job-no2:
+                fg-rctd.job-no2   EQ fg-rcpth.job-no2
+                TRANSACTION:
                 EXPORT STREAM file3 fg-rctd.
                 DELETE fg-rctd.
             END.
 
-            EXPORT STREAM file1 fg-rcpth.
-            DELETE fg-rcpth.
+            DO TRANSACTION:
+                FIND bfg-rcpth EXCLUSIVE WHERE 
+                    ROWID(bfg-rcpth) EQ ROWID(fg-rcpth)
+                    NO-ERROR.
+                IF AVAIL bfg-rcpth THEN DO: 
+                    EXPORT STREAM file1 bfg-rcpth.
+                    DELETE bfg-rcpth.
+                END.
+            END.
 
         END. /* EACH fg-rcpth */
 
