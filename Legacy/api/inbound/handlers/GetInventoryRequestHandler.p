@@ -25,6 +25,7 @@ DEFINE INPUT  PARAMETER ipcUserName               AS CHARACTER  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAPIInboundEvent        AS CHARACTER  NO-UNDO.
 
 DEFINE VARIABLE hdttRequestData         AS HANDLE     NO-UNDO. 
 DEFINE VARIABLE hdJSONProcs             AS HANDLE     NO-UNDO.
@@ -39,7 +40,7 @@ DEFINE VARIABLE cLocationID             AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cInventoryStockID       AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cPrimaryID              AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cItemType               AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE riAPIInboundEvent       AS ROWID      NO-UNDO.
+
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs. 
 
@@ -65,7 +66,7 @@ IF NOT oplSuccess THEN DO:
         INPUT  ipcRecordSource,
         INPUT  ipcNotes,
         INPUT  "", /* PayloadID */
-        OUTPUT riAPIInboundEvent
+        OUTPUT opcAPIInboundEvent
         ).
 
    RETURN.
@@ -119,7 +120,7 @@ DO:
        INPUT  ipcRecordSource,
        INPUT  ipcNotes,
        INPUT  "", /* PayloadID */
-       OUTPUT riAPIInboundEvent
+       OUTPUT opcAPIInboundEvent
        ).
    
    RETURN.  
@@ -159,7 +160,7 @@ RUN api\CreateAPIInboundEvent.p (
     INPUT  ipcRecordSource,
     INPUT  ipcNotes,
     INPUT  "", /* PayloadID */
-    OUTPUT riAPIInboundEvent
+    OUTPUT opcAPIInboundEvent
     ).
     
 DELETE PROCEDURE hdJSONProcs.

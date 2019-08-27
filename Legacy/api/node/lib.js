@@ -225,7 +225,7 @@ const self = {
 	getDateString: function(){
 		var today = new Date();
 		var currentMonth=('0'+(today.getMonth()+1)).slice(-2);
-		var currentDay=('0'+(today.getDate()+1)).slice(-2);
+		var currentDay=('0'+(today.getDate())).slice(-2);
 		var date = today.getFullYear() + '-' + currentMonth + '-' + currentDay;
 		
 		return date;

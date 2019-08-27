@@ -10,27 +10,37 @@
     Created     : Tue July 01 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT  PARAMETER ipcRoute           AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcVerb            AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcUsername        AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcPassword        AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER iplcRequestData    AS LONGCHAR  NO-UNDO.
-DEFINE OUTPUT PARAMETER oplcResponseData   AS LONGCHAR  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcRoute             AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcVerb              AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcUsername          AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcPassword          AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcRequestDataType   AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplcRequestData      AS LONGCHAR  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcRecordSource      AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplcResponseData     AS LONGCHAR  NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAPIInboundEvent   AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE lcResponseDataStructure AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResponseDataStructure  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMessage                AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuccess                AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRequestedBy            AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cRecordSource           AS CHARACTER NO-UNDO INITIAL "APP Server".
 DEFINE VARIABLE cNotes                  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE riAPIInboundEvent       AS ROWID     NO-UNDO.
 DEFINE VARIABLE cErrorMessage           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPassword               AS CHARACTER NO-UNDO.
 
-/* User Validation */
+/* When this procedure is called from within ASI application 
+   ( for offline load of queued requests, when the AppServer is down )
+   then, currently logged user's password is passed as input 
+   which is already encoded, so no need to encode */
+cPassword = IF ipcRecordSource EQ "offline" THEN
+                ipcPassword
+            ELSE
+                ENCODE(ipcPassword).
+
+/* User Validation */                
 RUN UserAuthenticationCheck (
     INPUT   ipcUsername,
-    INPUT   ipcPassword,
+    INPUT   cPassword,
     OUTPUT  lSuccess,
     OUTPUT  cMessage
     ) NO-ERROR.
@@ -50,10 +60,10 @@ IF ERROR-STATUS:ERROR THEN DO:
         INPUT  cMessage + " " + cErrorMessage,
         INPUT  NOW,
         INPUT  cRequestedBy,
-        INPUT  cRecordSource,
+        INPUT  ipcRecordSource,
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
-        OUTPUT riAPIInboundEvent
+        OUTPUT opcAPIInboundEvent
         ) NO-ERROR.
  
     RETURN.
@@ -71,10 +81,10 @@ IF NOT lSuccess THEN DO:
         INPUT  cMessage + cErrorMessage,
         INPUT  NOW,
         INPUT  cRequestedBy,
-        INPUT  cRecordSource,
+        INPUT  ipcRecordSource,
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
-        OUTPUT riAPIInboundEvent
+        OUTPUT opcAPIInboundEvent
         ) NO-ERROR.
  
     RETURN.
@@ -101,16 +111,16 @@ IF NOT AVAILABLE APIInbound THEN DO:
         INPUT  cMessage,
         INPUT  NOW,
         INPUT  cRequestedBy,
-        INPUT  cRecordSource,
+        INPUT  ipcRecordSource,
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
-        OUTPUT riAPIInboundEvent
+        OUTPUT opcAPIInboundEvent
         ) NO-ERROR.
         
     RETURN.
 END.
 
-lcResponseDataStructure = APIInbound.responseData.
+cResponseDataStructure = APIInbound.responseData.
 
 /* Verifying if the request handler in APIInbound configuration is available */
 IF SEARCH(APIInbound.requestHandler) EQ ? AND
@@ -129,10 +139,10 @@ IF SEARCH(APIInbound.requestHandler) EQ ? AND
          INPUT  cMessage,
          INPUT  NOW,
          INPUT  cRequestedBy,
-         INPUT  cRecordSource,
+         INPUT  ipcRecordSource,
          INPUT  cNotes,
          INPUT  "", /* PayloadID */
-         OUTPUT riAPIInboundEvent
+         OUTPUT opcAPIInboundEvent
          ) NO-ERROR. 
                  
     RETURN.
@@ -144,14 +154,15 @@ RUN VALUE(APIInbound.requestHandler)(
     INPUT  ipcVerb,
     INPUT  ipcRequestDataType,
     INPUT  iplcRequestData,
-    INPUT  lcResponseDataStructure,
+    INPUT  cResponseDataStructure,
     INPUT  cRequestedBy,
-    INPUT  cRecordSource,
+    INPUT  ipcRecordSource,
     INPUT  cNotes,
     INPUT  ipcUsername,
     OUTPUT oplcResponseData,
     OUTPUT lSuccess,
-    OUTPUT cMessage
+    OUTPUT cMessage,
+    OUTPUT opcAPIInboundEvent
     ) NO-ERROR.
 
  IF ERROR-STATUS:ERROR THEN DO:    
@@ -170,12 +181,11 @@ RUN VALUE(APIInbound.requestHandler)(
          INPUT  cMessage + " " + cErrorMessage,
          INPUT  NOW,
          INPUT  cRequestedBy,
-         INPUT  cRecordSource,
+         INPUT  ipcRecordSource,
          INPUT  cNotes,
          INPUT  "", /* PayloadID */
-         OUTPUT riAPIInboundEvent
+         OUTPUT opcAPIInboundEvent
          ) NO-ERROR.    
-    
     RETURN.
  END.
 
@@ -187,10 +197,10 @@ PROCEDURE UserAuthenticationCheck:
     DEFINE OUTPUT  PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
     /* Checks users table */
-    FIND FIRST users NO-LOCK
-         WHERE users.user_id EQ ipcUsername
+    FIND FIRST ASI.users NO-LOCK
+         WHERE ASI.users.user_id EQ ipcUsername
          NO-ERROR.
-    IF NOT AVAILABLE users THEN DO:
+    IF NOT AVAILABLE ASI.users THEN DO:
         ASSIGN 
             oplSuccess = NO
             opcMessage = "Authentication Failed (#1)"
@@ -200,9 +210,9 @@ PROCEDURE UserAuthenticationCheck:
     END.
     
     /* Checks _user table */
-    FIND FIRST _user NO-LOCK
-         WHERE _user._Userid EQ users.user_id NO-ERROR.
-    IF NOT AVAILABLE _user THEN DO:
+    FIND FIRST ASI._user NO-LOCK
+         WHERE ASI._user._Userid EQ ASI.users.user_id NO-ERROR.
+    IF NOT AVAILABLE ASI._user THEN DO:
         ASSIGN 
             oplSuccess = NO
             opcMessage = "Authentication Failed (#2)"
@@ -212,17 +222,17 @@ PROCEDURE UserAuthenticationCheck:
     END.
 	
     /* Checks password is correct or not */      
-    IF ENCODE(ipcPassword) NE _user._password THEN DO:
+    IF  ASI._user._password NE ipcPassword THEN DO:
         ASSIGN 
             oplSuccess = NO
             opcMessage = "Authentication Failed (#3)"
             .
         
-        RETURN.        
+        RETURN.
     END.
 
     /* Checks user is locked or not */
-    IF users.isLocked THEN DO:
+    IF ASI.users.isLocked THEN DO:
         ASSIGN 
             oplSuccess = NO
             opcMessage = "The user is locked. Please contact the systems administrator."
