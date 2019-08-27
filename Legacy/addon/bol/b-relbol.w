@@ -722,14 +722,7 @@ DO:
    END.
   IF lPickTicketValidation AND AVAIL oe-relh THEN do:
       cTagList = "" .
-      FOR EACH oe-rell NO-LOCK
-          WHERE oe-rell.company EQ cocode 
-          AND oe-rell.r-no EQ oe-relh.r-no BREAK BY oe-rell.tag:
-          IF LAST(oe-rell.tag) THEN
-              cTagList = cTagList + oe-rell.tag  .
-          ELSE 
-              cTagList = cTagList + oe-rell.tag + "," . 
-      END.
+      RUN addon/bol/GetTagList.p(INPUT cocode,INPUT oe-relh.release#, OUTPUT cTagList) .
       
       IF LOOKUP(tt-relbol.tag:SCREEN-VALUE,cTagList) EQ 0 THEN do:
         IF NOT lsecurityTag THEN  RUN sys/ref/d-psswrd.w ("PickTicketValidation","", OUTPUT lsecurityTag).

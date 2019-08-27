@@ -147,6 +147,7 @@ DEFINE VARIABLE lvlReturnNoApply  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lvlReturnCancel   AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lsecurity-flag AS LOGICAL NO-UNDO.   
+DEFINE VARIABLE cTagList AS CHARACTER NO-UNDO .
 /* Just for compatibility with b-relbol.w, not used */
 DEFINE VARIABLE v-job-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Job Qty" 
@@ -169,8 +170,15 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPickTicketValidation AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lsecurityTag AS LOGICAL NO-UNDO.
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
+
+RUN sys/ref/nk1look.p (INPUT cocode, "PickTicketValidation", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound). 
+lPickTicketValidation = LOGICAL(cRtnChar) NO-ERROR .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "SSBOLPassword", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -689,7 +697,7 @@ DO:
    DEF VAR lv-qty-rel AS INT NO-UNDO.
    DEF VAR lv-qty-tag AS INT NO-UNDO.
    DEF VAR ll AS LOG NO-UNDO.
-
+   
    IF (LASTKEY = -1 OR LASTKEY = 27 /*ESC*/) AND NOT lv-do-leave-tag  THEN RETURN.
    lv-do-leave-tag = NO.
 
@@ -706,6 +714,17 @@ DO:
      MESSAGE "Invalid Loadtag for the Release..." VIEW-AS ALERT-BOX ERROR.         
      RETURN NO-APPLY.
    END.
+  IF lPickTicketValidation AND AVAIL oe-relh THEN do:
+      IF LOOKUP(tt-relbol.tag:SCREEN-VALUE,cTagList) EQ 0 THEN do:
+        IF NOT lsecurityTag THEN  RUN sys/ref/d-psswrd.w ("PickTicketValidation","", OUTPUT lsecurityTag).
+          
+          IF NOT lsecurityTag THEN do:
+              MESSAGE "Enter a password to override or You must use the tags assigned - '"
+                  cTagList "' selected for the pick ticket. " VIEW-AS ALERT-BOX INFO .
+              RETURN NO-APPLY .
+          END.
+      END.
+  END.
 /*    IF AVAIL oe-relh THEN                                                                                               */
 /*        FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode                                                            */
 /*            AND oe-rell.r-no      EQ oe-relh.r-no                                                                       */
@@ -1793,7 +1812,7 @@ PROCEDURE display-qtys-query :
           EACH b-rell FIELDS(qty) NO-LOCK
           WHERE b-rell.r-no EQ b-relh.r-no
             AND b-rell.i-no EQ lv-i-no
-          USE-INDEX r-no:
+          USE-INDEX r-no :
         v-rel-qty = v-rel-qty + b-rell.qty.
       END.
     END.
@@ -2984,6 +3003,10 @@ PROCEDURE release#-value-changed :
      lv-scan-next = YES.
     /* Reset to no since starting with a new release# */
     is-bol-printed  = NO.
+
+     IF lPickTicketValidation THEN
+         RUN addon/bol/GetTagList.p(INPUT cocode,INPUT ip-release#, OUTPUT cTagList) .
+
      RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
    
 END PROCEDURE.
@@ -3555,6 +3578,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
