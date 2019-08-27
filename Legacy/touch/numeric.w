@@ -476,8 +476,6 @@ PROCEDURE Apply_Key :
   Parameters:  Input Keystroke Value
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  
   {touch/applykey.i}
 
 END PROCEDURE.
@@ -536,6 +534,7 @@ PROCEDURE pSetPosition :
     DEFINE INPUT PARAMETER ipcCol AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcRow AS DECIMAL NO-UNDO.
     
+    IF VALID-HANDLE({&WINDOW-NAME}) THEN
     ASSIGN
         {&WINDOW-NAME}:COL = ipcCol
         {&WINDOW-NAME}:ROW = ipcRow
