@@ -6,7 +6,7 @@ PROCEDURE pKeyboard:
     
     CASE ipcKeyboard:
         WHEN "Numeric" THEN DO:
-            ipcKeyboard = "addon/touch/numeric.w".
+            ipcKeyboard = "touch/numeric.w".
             IF VALID-HANDLE(hKeyboard) AND INDEX(hKeyboard:NAME,"Qwerty") NE 0 THEN
             DELETE OBJECT hKeyboard.
         END.
