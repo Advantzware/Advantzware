@@ -3323,14 +3323,11 @@ PROCEDURE pRunFormatValueChanged :
                             tb_prt-set-header:HIDDEN = YES .
                         ELSE
                             ASSIGN tb_fgimage:SENSITIVE = YES
-                            tb_fgimage:SCREEN-VALUE = "yes" 
                             tb_box:SENSITIVE = YES
-                            tb_box:SCREEN-VALUE = "yes" 
                             tb_prt-shipto:HIDDEN = NO 
                             tb_prt-label:HIDDEN = NO 
                             tb_freeze-note:HIDDEN = NO 
                             tb_prt-sellprc:HIDDEN = NO 
-                            tb_committed:SCREEN-VALUE = "No"
                             tb_committed:HIDDEN  = NO 
                             tb_prompt-ship:HIDDEN = NO 
                             tb_prt-set-header:HIDDEN = NO .
@@ -3341,6 +3338,7 @@ PROCEDURE pRunFormatValueChanged :
                         lv-font-no:HIDDEN = YES 
                         td-show-parm:HIDDEN = YES 
                         tb_ExportXML:HIDDEN = YES
+                        tb_ExportXML:SCREEN-VALUE = "No"
                         lv-font-name:HIDDEN = YES .
              ELSE ASSIGN lines-per-page:HIDDEN = NO 
                         lv-ornt:HIDDEN = NO 

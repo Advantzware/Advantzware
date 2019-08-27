@@ -835,6 +835,168 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME dEaCost1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost1 D-Dialog
+ON LEAVE OF dEaCost1 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost1:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost1:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost1 D-Dialog
+ON ENTRY OF dEaCost1 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost1:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost1:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost2 D-Dialog
+ON LEAVE OF dEaCost2 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost2:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost2:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost2 D-Dialog
+ON ENTRY OF dEaCost2 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost2:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost2:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost3 D-Dialog
+ON LEAVE OF dEaCost3 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost3:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost3:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost3 D-Dialog
+ON ENTRY OF dEaCost3 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost3:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost3:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost4 D-Dialog
+ON LEAVE OF dEaCost4 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost4:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost4:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost4 D-Dialog
+ON ENTRY OF dEaCost4 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost4:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost4:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost5 D-Dialog
+ON LEAVE OF dEaCost5 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost5:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost5:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dEaCost5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost5 D-Dialog
+ON ENTRY OF dEaCost5 IN FRAME D-Dialog
+DO: 
+        IF LASTKEY NE -1 THEN 
+        DO:
+            
+            IF decimal(dSuCost5:SCREEN-VALUE) EQ  0 THEN 
+                dEaCost5:SCREEN-VALUE = "0" .
+            ASSIGN {&self-name}.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+    
+
 
 &UNDEFINE SELF-NAME
 

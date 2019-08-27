@@ -36,6 +36,42 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_loc
 
+DEFINE VARIABLE lAllowLoc AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllowFGBin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAllowRMBin AS LOGICAL NO-UNDO.
+RUN methods/prgsecur.p
+	    (INPUT "LocationFGBin",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowFGBin, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+RUN methods/prgsecur.p
+	    (INPUT "LocationRMBin",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowRMBin, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+RUN methods/prgsecur.p
+	    (INPUT "Location",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowLoc, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -688,11 +724,29 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE VARIABLE il-cur-page AS INTEGER NO-UNDO.
+DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
+DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
+    run get-attribute ("current-page").
+    assign 
+        il-cur-page = int(return-value).
   /* Code placed here will execute PRIOR to standard behavior. */
+
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+
+  IF il-cur-page = 2 AND NOT lAllowLoc THEN DO:
+      RUN set-buttons IN h_p-updsav ('disable-all').
+  END.
+  ELSE IF il-cur-page = 3 AND NOT lAllowFGBin THEN DO:
+      RUN set-buttons IN h_p-updsav-2 ('disable-all').
+  END.
+  ELSE IF il-cur-page = 4 AND NOT lAllowRMBin THEN DO:
+      RUN set-buttons IN h_p-updsav-3 ('disable-all').
+  END.
+
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}

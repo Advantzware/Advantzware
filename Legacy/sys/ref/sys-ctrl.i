@@ -80,7 +80,8 @@ ASSIGN
                 "Midwest,Argvlas,Oracle,Vineland,Lakelas,Imperial,IndianaL,"   +
                 "Frankstn,Pacific,STCLaser,Woodland,Hamilton,PrePkgLS,FibreLsr," +
                 "Action,CAPLasAL,ACPI,Carded,Adaptls,Soule,MidYork,ASSILaser,Laser" +
-                "Protagon,AllLaserHP1536DN,ASIX,CustCorr,chkfmt 1,chkfmt 2,Lovepac,APChkFmt1,APChkFmt2"
+                "Protagon,AllLaserHP1536DN,ASIX,CustCorr,chkfmt 1,chkfmt 2,Lovepac,APChkFmt1,APChkFmt2," +
+                "Valley"
  str-init[12] = "ASI,Bin/Tag,No Tags".
 ASSIGN
  str-init[13] = "ASI,WesInd,ILWalker,HOP,Brick,Gulf,Pacific,Xprint,SouthPak,"   +

@@ -60,6 +60,7 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     field copy-rel as int extent 20  /* Optional */
     field dWeightPerM as DECIMAL  /* Optional */
     field iStackHeight as INTEGER  /* Optional */
+    field iStackCode as CHARACTER  /* Optional */
     .
 
 

@@ -1,4 +1,5 @@
-/* ap-ckind.p  Check print for Indiana Laser */
+/* ap/ap-valley.p   copied from ap/ap-ckpre.p  for Valley format */
+
 {sys/inc/var.i shared}
 
 {ap/ap-chk.i}
@@ -15,27 +16,24 @@ def workfile wrk-chk
   field line-amt    as   dec format "->>>,>>9.99".
 
 form 
-     "-----------"      to 79    skip
-     "Check Date: " AT 1 ap-chk.check-date
-     "Check No: " AT 25 ap-chk.check-no FORMAT ">>>>>>>9"
-     "Net Check Amount" to 67
-     ctot               to 79
-    with frame b3 no-box no-labels stream-io no-attr-space.
+     "-----------"      to 80    skip
+     "Check Date: " AT 5 ap-chk.check-date
+     "Net Check Amount" to 69
+     ctot               to 80 format "->>>,>>9.99"
+    with frame b3 width 85 no-box no-labels stream-io no-attr-space.
 
-form skip(8)
-     dol                at 10
-     SKIP(2)
+form skip(9)
      ap-chk.check-date  to 60
      ctot               to 79 format "**,***,**9.99"
+     skip(1)
+     dol                at 10
      skip(1)
      vend.remit         at 10
      add1               at 10
      add2               at 10
      csz                at 10
-     SKIP(1)
-    /* "Memo:"            to 8
-     vend.check-memo  */
-     skip(3)  /*1*/                             
+     skip(4)                              
+
     with frame b1 width 85 no-box no-labels stream-io no-attr-space.
 
 if v-print-mode ne "ALIGN" then do:         /* production mode */
@@ -73,39 +71,40 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
         ll    = 0.
    end.
    
-   /*if r-add1 eq " " then do:   /*if no remit-to address*/ 
-     if length(vend.zip) gt 5 then
-       csz = vend.city + ", " + vend.state + " " +
-             substr(vend.zip,1,5) + "-" + substr(vend.zip,6,4).
-     else
-       csz = vend.city + ", " + vend.state + " " + vend.zip.
+    ASSIGN
+    add1   = vend.r-add1
+    add2   = vend.r-add2
+    csz    = vend.r-city + ", " + vend.r-state
+    lv-zip = vend.r-zip.
 
-     assign
-      add1 = vend.add1
-      add2 = vend.add2.
-   end.
-   
-   else do: /*if a remit-to address exists  GEH */ */  /*Ticket - 35388 */
-     if length(vend.r-zip) gt 5 then
-       csz = vend.r-city + ", " + vend.r-state + " " +
-             substr(vend.r-zip,1,5) + "-" + substr(vend.r-zip,6,4).
-     ELSE IF vend.r-state NE ""  OR vend.r-zip NE "" THEN
-       csz = vend.r-city + ", " + vend.r-state + " " + vend.r-zip.
+   IF add1 EQ "" AND add2 EQ "" THEN    /*if no remit-to address*/
+     ASSIGN
+      add1   = vend.add1
+      add2   = vend.add2
+      csz    = vend.city + ", " + vend.state
+      lv-zip = vend.zip.
 
-     assign
-      add1 = vend.r-add1
-      add2 = vend.r-add2.
-   /*end.*/
-   
-   assign
+   IF lv-zip BEGINS "00000" THEN lv-zip = "".
+
+   csz = TRIM(csz) + "  " + SUBSTR(lv-zip,1,5) +
+         (IF LENGTH(lv-zip) GT 5 THEN ("-" + SUBSTR(lv-zip,6,4)) ELSE "").
+
+   IF TRIM(csz) EQ "," THEN csz = "".
+
+   ASSIGN
     ap-chk.check-date = wdate
     ap-chk.check-no   = stnum
     ap-chk.bank-code  = x-bank
     v-vend-no         = vend.vend-no
     v-vend-name       = vend.name.
 
-   if add2 eq " " then
-     assign
+   IF add1 EQ "" THEN
+     ASSIGN
+      add1 = add2
+      add2 = "".
+
+   IF add2 EQ "" THEN
+     ASSIGN
       add2 = csz
       csz  = "".
     
@@ -130,7 +129,8 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
     if ll eq 0 then do:
       page.
       
-      display "Vendor ID: "
+      display 
+              "Vendor ID: "
               v-vend-no
               space(8)
               "Vendor Name: "
@@ -141,18 +141,18 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 
       put "Invoice No."     at 2
           "Reference"       at 16
-          "Date"            at 29
-          "Inv Amt"         at 37
-          "Amt Paid"        at 48
-          "Disc Taken"      at 58
-          "Net Amt"         at 71
+          "Date"            at 28
+          "Inv Amt"         at 36
+          "Amt Paid"        at 49
+          "Disc Taken"      at 59
+          "Net Amt"         at 72
           "============"    at 1
-          "============"    at 14
-          "========"        at 27
-          "=========="      at 36
-          "=========="      at 47
-          "=========="      at 58
-          "==========="     at 69.
+          "==========="    at 14
+          "========"        at 26
+          "==========="      at 35
+          "==========="      at 47
+          "=========="      at 59
+          "==========="     at 70.
     end.
 
     assign
@@ -174,12 +174,12 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 
     put wrk-chk.inv-no                to 12 format "x(12)"
         trim(string(wrk-chk.po-no,">>>>>>"))
-                                      to 25 format "x(12)"
-        wrk-chk.inv-date              to 34 format "99/99/99"
-        wrk-chk.inv-amt               to 45 format "->>,>>9.99"
-        wrk-chk.amt-paid              to 56 format "->>,>>9.99"
-        wrk-chk.disc-amt              to 67 format "->>,>>9.99"
-        wrk-chk.line-amt              to 79 format "->>>,>>9.99".
+                                      to 24 format "x(11)"
+        wrk-chk.inv-date              to 33 format "99/99/99"
+        wrk-chk.inv-amt               to 45 format "->>>,>>9.99"
+        wrk-chk.amt-paid              to 57 format "->>>,>>9.99"
+        wrk-chk.disc-amt              to 68 format "->>,>>9.99"
+        wrk-chk.line-amt              to 80 format "->>>,>>9.99".
 
     assign
      ll      = ll + 1
@@ -191,9 +191,9 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
       if last(ap-sel.inv-no) then do:
         checks-avail = yes.
 
-        display ap-chk.check-date ap-chk.check-no ctot with frame b3.
+        display ap-chk.check-date ctot with frame b3.
         
-        PUT skip(max-per-chk - ll ).
+        put skip(max-per-chk - ll ).
 
         run ap/apchks.p (input ctot, input 70, output dol).
 
@@ -206,9 +206,9 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
                 caps(add1)        @ add1
                 caps(add2)        @ add2
                 caps(csz)         @ csz
-                /*vend.check-memo*/
+                vend.check-memo
             with frame b1.
-        PUT SKIP(1).
+        
       end.
      
       else DO:
@@ -223,7 +223,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
                 with frame u no-box no-labels stream-io no-attr-space.
             ll-void = YES.
       END.
-      display skip(2)
+      display skip(1)
               "Vendor ID: "
               v-vend-no
               space(8)
@@ -234,39 +234,39 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 
       put "Invoice No."     at 2
           "Reference"       at 16
-          "Date"            at 29
-          "Inv Amt"         at 37
-          "Amt Paid"        at 48
-          "Disc Taken"      at 58
-          "Net Amt"         at 71
+          "Date"            at 28
+          "Inv Amt"         at 36
+          "Amt Paid"        at 49
+          "Disc Taken"      at 59
+          "Net Amt"         at 72
           "============"    at 1
-          "============"    at 14
-          "========"        at 27
-          "=========="      at 36
-          "=========="      at 47
-          "=========="      at 58
-          "==========="     at 69.
+          "==========="    at 14
+          "========"        at 26
+          "==========="      at 35
+          "==========="      at 47
+          "=========="      at 59
+          "==========="     at 70.
       
       lv-line-cnt = 0.
       for each wrk-chk:
         put wrk-chk.inv-no                to 12 format "x(12)"
             trim(string(wrk-chk.po-no,">>>>>>"))
-                                          to 25 format "x(12)"
-            wrk-chk.inv-date              to 34 format "99/99/99"
-            wrk-chk.inv-amt               to 45 format "->>,>>9.99"
-            wrk-chk.amt-paid              to 56 format "->>,>>9.99"
-            wrk-chk.disc-amt              to 67 format "->>,>>9.99"
-            wrk-chk.line-amt              to 79 format "->>>,>>9.99".
+                                          to 24 format "x(11)"
+            wrk-chk.inv-date              to 33 format "99/99/99"
+            wrk-chk.inv-amt               to 45 format "->>>,>>9.99"
+            wrk-chk.amt-paid              to 57 format "->>>,>>9.99"
+            wrk-chk.disc-amt              to 68 format "->>,>>9.99"
+            wrk-chk.line-amt              to 80 format "->>>,>>9.99".
 
         delete wrk-chk.
         lv-line-cnt = lv-line-cnt + 1.
       end.
 
       if last(ap-sel.inv-no) then do: 
-        display ap-chk.check-date ap-chk.check-no ctot with frame b3.
+        display ap-chk.check-date ctot with frame b3.
                /*max-per-chk = 12 */
-        put skip(12 - lv-line-cnt ).
-        
+        put skip(11 - lv-line-cnt).
+
         assign
          stnum  = stnum + 1
          ctot   = 0
@@ -274,7 +274,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
          cgross = 0
          dol    = "".
       end. 
-      ELSE IF ll-void THEN PUT SKIP(15 - lv-line-cnt) /* no total frame b3 */.
+      ELSE IF ll-void THEN PUT SKIP(13 - lv-line-cnt) /* no total frame b3 */.
 
       ll = 0.
     end.

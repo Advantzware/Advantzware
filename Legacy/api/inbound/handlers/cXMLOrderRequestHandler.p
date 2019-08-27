@@ -19,6 +19,7 @@ DEFINE INPUT  PARAMETER iplcResponseDataStructure AS LONGCHAR   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRequestedBy            AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRecordSource           AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcNotes                  AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcUserName               AS CHARACTER  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
@@ -31,8 +32,9 @@ DEFINE VARIABLE riAPIInboundEvent AS ROWID     NO-UNDO.
 /* Currenly cCompany and cWarehouseID are not assigned.Once session 
    manager related work is completed then cCompany and cWarehouseID 
    will be assigned */
-DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cWarehouseID      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWarehouseID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInternalException AS CHARACTER NO-UNDO.
 
 FUNCTION GetDateTimeTZStringForResponse RETURNS CHARACTER() FORWARD.
 
@@ -43,30 +45,37 @@ RUN cXML/gencXMLOrder.p (
     INPUT  cWarehouseID,
     OUTPUT cPayLoadID,
     OUTPUT oplSuccess,
-    OUTPUT opcMessage
-    ) 
-    NO-ERROR.
+    OUTPUT opcMessage,
+    OUTPUT cInternalException
+    ) NO-ERROR.
 
-/* Prepares response data */
-ASSIGN
-    opcMessage       = IF oplSuccess THEN "OK" ELSE opcMessage
-    cResponseCode    = IF oplSuccess THEN "200" ELSE "400"
-    lcResponse       = '~<Status code="' + cResponseCode + '" text="' + opcMessage  + '"/>'
-    oplcResponseData = iplcResponseDataStructure
-    oplcResponseData = REPLACE(oplcResponseData,"$payloadID",cPayLoadID)
-    oplcResponseData = REPLACE(oplcResponseData,"$response",lcResponse)
-    oplcResponseData = REPLACE(oplcResponseData,"$timestamp",GetDateTimeTZStringForResponse())
-    oplcResponseData = REPLACE(oplcResponseData,'"','\"')
-    oplcResponseData = '~{"response_code": ' +  cResponseCode + ',"response_message":"' + oplcResponseData + '"}'
-    . 
-
+IF ERROR-STATUS:ERROR THEN
+    ASSIGN
+        cInternalException = ERROR-STATUS:GET-MESSAGE(1)
+        opcMessage         = "Internal Server Error at AppServer (#10)"
+        oplcResponseData   = '~{ "response_code": 500, "response_message":"' + opcMessage + '"}'
+        .
+ELSE
+    /* Prepares response data */
+    ASSIGN
+        opcMessage       = IF oplSuccess THEN "OK" ELSE opcMessage
+        cResponseCode    = IF oplSuccess THEN "200" ELSE "400"
+        lcResponse       = '~<Status code="' + cResponseCode + '" text="' + opcMessage  + '"/>'
+        oplcResponseData = iplcResponseDataStructure
+        oplcResponseData = REPLACE(oplcResponseData,"$payloadID",cPayLoadID)
+        oplcResponseData = REPLACE(oplcResponseData,"$response",lcResponse)
+        oplcResponseData = REPLACE(oplcResponseData,"$timestamp",GetDateTimeTZStringForResponse())
+        oplcResponseData = REPLACE(oplcResponseData,'"','\"')
+        oplcResponseData = '~{"response_code": ' +  cResponseCode + ',"response_message":"' + oplcResponseData + '"}'
+        . 
+    
 /* Log the request to APIInboundEvent */
 RUN api\CreateAPIInboundEvent.p (
     INPUT  ipcRoute,
     INPUT  iplcRequestData,
     INPUT  oplcResponseData,
     INPUT  oplSuccess,
-    INPUT  opcMessage,
+    INPUT  opcMessage + " " + cInternalException,
     INPUT  NOW,
     INPUT  ipcRequestedBy,
     INPUT  ipcRecordSource,
@@ -86,8 +95,8 @@ FUNCTION GetDateTimeTZStringForResponse RETURNS CHARACTER():
         .
            
     RETURN ENTRY(3,cDateString,"/") + "-" + 
-           ENTRY(2,cDateString,"/") + "-" + 
-           ENTRY(1,cDateString,"/") + "T" + 
+           ENTRY(1,cDateString,"/") + "-" + 
+           ENTRY(2,cDateString,"/") + "T" + 
            cTimString  . 
 END.
 

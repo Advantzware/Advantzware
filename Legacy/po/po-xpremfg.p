@@ -408,11 +408,11 @@ v-printline = 0.
             "<C5>" po-ordl.ord-qty FORM ">>,>>>,>>9"
             "<C16>" po-ordl.pr-qty-uom 
             "<C21>" po-ordl.i-no FORM "x(30)"
-            "<C53>" po-ordl.due-date.
+            "<C52.5>" po-ordl.due-date.
         IF s-print-prices THEN DO:
-            IF po-ordl.cost LE 9999.99 THEN
-                PUT "<C61.5>" po-ordl.cost FORM "->>>9.99"
-                "<C69>" po-ordl.pr-uom.
+            IF po-ordl.cost LE 99999.99 THEN
+                PUT "<C60.5>" po-ordl.cost FORM "->>>>9.99"
+                "<C68.5>" po-ordl.pr-uom.
             PUT "<C70>" po-ordl.t-cost FORM ">,>>>,>>9.99".
         END.
         PUT SKIP.

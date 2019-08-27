@@ -994,7 +994,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-
+ 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:     
      RETURN.
   END.
@@ -1018,6 +1018,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
+  {sys/ref/SelColCorrect.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1176,6 +1177,7 @@ DEFINE VARIABLE cShipFr LIKE oe-rel.spare-char-1 NO-UNDO.
 DEFINE VARIABLE dSchRelQty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cShipName AS CHARACTER NO-UNDO .
 DEFINE VARIABLE dtPostedDate AS DATE NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 ASSIGN
    v-fcust[1]   = begin_cust-no
@@ -1184,12 +1186,13 @@ ASSIGN
 
    
 SESSION:SET-WAIT-STATE ("general").
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 /* {sys/inc/print1.i}                         */
 /* {sys/inc/outprint.i value(lines-per-page)} */
 
 IF tb_excel THEN
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
     
    DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1542,7 +1545,7 @@ IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
 
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

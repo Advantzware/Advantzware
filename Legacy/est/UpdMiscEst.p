@@ -270,7 +270,8 @@ FOR EACH ttInputEst NO-LOCK:
         NO, /*Prompt to Reset*/
         YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).
     RUN pCalcPacking(ROWID(eb)).
-
+    IF ttInputEst.iStackCode NE "" THEN
+        eb.stack-code = ttInputEst.iStackCode .
         
 END. /*each ttInputEst*/
 RELEASE eb.

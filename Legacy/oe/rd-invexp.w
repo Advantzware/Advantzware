@@ -923,6 +923,8 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
+  {sys/ref/SelColCorrect.i}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1081,7 +1083,7 @@ DEF VAR vreldate AS CHAR NO-UNDO.
 DEF VAR vsman  AS CHAR NO-UNDO .
 DEF VAR vsname  AS CHAR NO-UNDO .
 DEF VAR lv-ord-no LIKE inv-line.ord-no.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 ASSIGN
    v-fcust[1]   = begin_cust-no
@@ -1094,9 +1096,10 @@ SESSION:SET-WAIT-STATE ("general").
 /* {sys/inc/print1.i}                         */
 /* {sys/inc/outprint.i value(lines-per-page)} */
 
-   
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 IF tb_excel THEN
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
     
    DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1404,7 +1407,7 @@ IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
 
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

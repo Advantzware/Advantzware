@@ -13,7 +13,7 @@ public class RequestDispatcherAS{
     private String ipRequestData;
     private String procedureReturnValue;
     private String opResponseData;
-    private String ipDLC;
+    private String ipASRequestRouter;
 
     public void dispatch(String inputs[]){
         try{      
@@ -24,7 +24,7 @@ public class RequestDispatcherAS{
             ipPassword = inputs[4];
             ipRequestDataType = inputs[5];
             ipRequestData = inputs[6];
-            ipDLC = inputs[7];
+            ipASRequestRouter = inputs[7];
             procedureReturnValue = "";
             opResponseData = "";
             
@@ -51,9 +51,9 @@ public class RequestDispatcherAS{
             procedureParams.addLongchar(6, null, ParamArrayMode.OUTPUT);
 
             // Run the procedure
-            appObject.runProc("api/inbound/APIRequestRouterAS.p", procedureParams);
-  
-            // Get output parameters - Returned as Object, so must cast
+			appObject.runProc(ipASRequestRouter, procedureParams);
+            
+			// Get output parameters - Returned as Object, so must cast
             opResponseData = (String) procedureParams.getOutputParameter(6);
 
             // Get RETURN-VALUE - Will return null for AddCustomer() procedure
@@ -81,6 +81,6 @@ public class RequestDispatcherAS{
         }           
     }
     private void handleException(String ipRoute, String ipVerb, String ipRequestDataType, String ipRequestData, String ipExceptionMessage ){
-        System.out.println("{\"response_code\":500,\"response_message\":\"Internal Server Error\",\"exception\":\"" + ipExceptionMessage + "\"}");
+        System.out.println("{\"response_code\":500,\"response_message\":\"Internal Server Error at AppServer (#7)\",\"exception\":\"" + ipExceptionMessage + "\"}");
     }
 }

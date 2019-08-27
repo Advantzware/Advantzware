@@ -48,8 +48,20 @@ def var hd-post as widget-handle no-undo.
 def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 DEF VAR gvr-rm-row AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO .
 DEF NEW SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
+
+cocode = g_company.
+locode = g_loc.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "SSPostRMTransfers", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPostAuto-log = LOGICAL(cRtnChar) NO-ERROR.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -974,7 +986,13 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+
+  IF lPostAuto-log THEN do:
+     RUN rm/rmpost.p (INPUT ROWID(rm-rctd)).
+  END.
+
   RUN repo-query (ROWID(rm-rctd)).
+
   gvr-rm-row = ?.
   IF AVAIL(rm-rctd) THEN
      gvr-rm-row = ROWID(rm-rctd).

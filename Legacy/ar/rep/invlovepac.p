@@ -112,6 +112,7 @@ DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lv-currency AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -183,6 +184,11 @@ ELSE lv-comp-color = "BLACK".
          v-sold-addr3 = v-shipto-city + ", " + v-shipto-state +
               "  " + v-shipto-zip .
 
+
+         FIND FIRST currency WHERE currency.company = cust.company 
+             AND currency.c-code = cust.curr-code.
+         IF AVAIL currency THEN
+             lv-currency = currency.c-desc.
 
         if ar-inv.fob-code begins "ORIG" then
          assign v-fob = "Origin".
@@ -599,6 +605,9 @@ ELSE lv-comp-color = "BLACK".
       END.
     END.
 
+    IF LENGTH(lv-currency) LE 20 THEN
+          ASSIGN lv-currency = fill(" ",20 - LENGTH(lv-currency) ) + lv-currency .
+
     do i = 1 to 5:
        v-bot-lab[i] = if v-t-tax[i] ne 0 then
                     /*  ((if avail stax then string(stax.tax-dscr[i],"x(5)")
@@ -620,7 +629,7 @@ ELSE
 
 
 IF v-bot-lab[4] <> "" THEN
-    PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
+    PUT "<R58><C60><#8><FROM><R+9<C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
@@ -628,18 +637,20 @@ IF v-bot-lab[4] <> "" THEN
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>,>>9.99" .
+        "<=8><R+7> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-t-tax[4] + v-t-tax[5] + v-inv-freight FORM "->>,>>9.99" 
+        "<=8><R+8><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
 ELSE
-    PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
+    PUT "<R58><C60><#8><FROM><R+7><C+20><RECT> " 
         "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" .
+        "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" 
+        "<=8><R+6><C66><P8><FGCOLOR=RED>" lv-currency FORMAT "X(20)" .
 
     ASSIGN
-       v-printline = v-printline + 6
+       v-printline = v-printline + 7
        v-page-num = PAGE-NUM.
 
     /*IF v-printline < 50 THEN PUT SKIP(60 - v-printline). */

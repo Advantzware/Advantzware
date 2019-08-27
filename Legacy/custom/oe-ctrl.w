@@ -187,9 +187,9 @@ DEFINE FRAME oe-ctrl
           LABEL "Next Order Number"
           BGCOLOR 15 
      oe-ctrl.n-bol AT ROW 3.62 COL 31 COLON-ALIGNED
-          LABEL "Next Bill of Lading Number"
+          LABEL "Next Bill of Lading Number" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 14 BY 1
           BGCOLOR 15 
      oe-ctrl.p-fact AT ROW 7.43 COL 13
           LABEL "Allow Factory Ticket Printing"
@@ -290,7 +290,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ar-ctrl.last-inv IN FRAME oe-ctrl
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-ctrl.n-bol IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
+   NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN n-ord IN FRAME oe-ctrl
    1 LIKE = asi.oe-ctrl. EXP-LABEL EXP-SIZE                             */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-bol IN FRAME oe-ctrl
@@ -318,13 +318,13 @@ THEN C-Win:HIDDEN = no.
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Where[1]         = "asi.sys-ctrl.module = ""VAL"""
      _FldNameList[1]   > asi.sys-ctrl.name
-"name" ? "x(16)" "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl.name" ? "x(16)" "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.sys-ctrl.descrip
-"descrip" ? ? "character" ? ? ? ? ? ? no ? no no "45.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl.descrip" ? ? "character" ? ? ? ? ? ? no ? no no "45.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.sys-ctrl.log-fld
-"log-fld" "Req'd" ? "logical" ? ? ? ? ? ? yes ? no no "7.2" yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"sys-ctrl.log-fld" "Req'd" ? "logical" ? ? ? ? ? ? yes ? no no "7.2" yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[4]   > asi.sys-ctrl.char-fld
-"char-fld" "Action" ? "character" ? ? ? ? ? ? yes ? no no "12.4" yes no no "U" "" "" "DROP-DOWN-LIST" "," "HOLD" ? 5 no 0 no no
+"sys-ctrl.char-fld" "Action" ? "character" ? ? ? ? ? ? yes ? no no "12.4" yes no no "U" "" "" "DROP-DOWN-LIST" "," "HOLD" ? 5 no 0 no no
      _Query            is OPENED
 */  /* BROWSE brHoldTests */
 &ANALYZE-RESUME

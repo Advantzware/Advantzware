@@ -33,29 +33,6 @@ FOR EACH tt-boll,
       FIND first oe-ord WHERE oe-ord.company EQ cocode
                           AND oe-ord.ord-no  EQ tt-boll.ord-no NO-LOCK NO-ERROR.
 
-      /* rstark 05291402 */
-        IF lGenerateCXML  THEN DO:
-            IF AVAIL oe-ordl AND oe-ordl.spare-char-2 NE '' THEN DO:
-                ASSIGN 
-                    dOrigQty = oe-ordl.spare-dec-1
-                    cOrigUom = oe-ordl.spare-char-2
-                    .
-
-                IF (cOrigUom EQ 'CS' OR LOOKUP(cOrigUom, cCaseUOMList) GT 0)
-                    AND dOrigQty NE tt-boll.qty 
-                    AND oe-ordl.cas-cnt NE 0 THEN DO:
-                    dOrigQty = tt-boll.qty / oe-ordl.cas-cnt.
-                END.
-                ELSE dOrigQty = tt-boll.qty.
-            END.
-            IF dOrigQty EQ 0 THEN dOrigQty = tt-boll.qty.
-            IF cOrigUom EQ "" THEN cOrigUom = "EA".
-            ciXMLOutput = ciXMLOutput + 1.
-            RUN cXMLOutput (clXMLOutput,'ShipNoticeItem lineNumber="' + STRING(tt-boll.LINE) + '" quantity="' + STRING(dOrigQty) + '"','','Row').
-            RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',cOrigUom,'Col').
-            RUN cXMLOutput (clXMLOutput,'/ShipNoticeItem','','Row').
-       /* rstark 05291402 */
-        END.
         
          IF NOT LAST(tt-boll.cases) THEN do:
         IF v-printline >= 60 THEN DO: 

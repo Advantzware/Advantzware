@@ -103,7 +103,7 @@ estRelease.handlingCost estRelease.freightCost estRelease.handlingCostTotal ~
 estRelease.storageCostTotal estRelease.createRelease 
 &Scoped-define DISPLAYED-TABLES estRelease
 &Scoped-define FIRST-DISPLAYED-TABLE estRelease
-&Scoped-Define DISPLAYED-OBJECTS fi_Pallet-count 
+&Scoped-Define DISPLAYED-OBJECTS fi_Pallet-count cShipToLoc
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -139,6 +139,11 @@ DEFINE VARIABLE fi_Pallet-count AS CHARACTER FORMAT "X(15)":U
      LABEL "Pallet Count" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE cShipToLoc AS CHARACTER FORMAT "X(8)":U 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
@@ -204,6 +209,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
+     cShipToLoc AT ROW 5.52 COL 40 COLON-ALIGNED NO-LABEL
      estRelease.carrierID AT ROW 6.67 COL 21.8 COLON-ALIGNED
           LABEL "Carrier" FORMAT "x(10)"
           VIEW-AS FILL-IN 
@@ -216,8 +222,8 @@ DEFINE FRAME Dialog-Frame
           BGCOLOR 15 FONT 1
     estRelease.stackHeight AT ROW 8.86 COL 21.8 COLON-ALIGNED
           LABEL "Stack Height" FORMAT ">>9" 
-          VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEM-PAIRS "0","0",
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS 
                      "1","1",
                      "2","2",
                      "3","3",
@@ -299,6 +305,8 @@ DEFINE FRAME Dialog-Frame
      RECT-38 AT ROW 1.14 COL 1.2
      RECT-39 AT ROW 2.81 COL 1.2 WIDGET-ID 2
      RECT-40 AT ROW 2.81 COL 54 WIDGET-ID 4
+     "To Loc" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 4.43 COL 42 
      SPACE(1.19) SKIP(3.09)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -350,6 +358,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN fi_Pallet-count IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cShipToLoc IN FRAME Dialog-Frame
+   NO-ENABLE  EXP-FORMAT                                                */
 /* SETTINGS FOR FILL-IN estRelease.formNo IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN estRelease.freightCost IN FRAME Dialog-Frame
@@ -437,8 +447,12 @@ DO:
                 DO: 
                     RUN windows/l-shipt3.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
 //                    RUN windows/l-shipt2.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
-                    IF char-val <> "" THEN 
+                    IF char-val <> "" THEN do: 
                         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+                        RUN pDisplayShipLoc(estRelease.customerID:SCREEN-VALUE,estRelease.shipToID:SCREEN-VALUE, OUTPUT cShipToLoc ) .
+                        IF cShipToLoc NE "" THEN
+                            ASSIGN cShipToLoc:SCREEN-VALUE = cShipToLoc .
+                    END.
                 END.
             
         END CASE.
@@ -567,7 +581,7 @@ DO:
         END.
 
         IF AVAIL eb THEN do:
-             RUN GetStorageAndHandlingForLocation(eb.company,eb.loc,estRelease.stackHeight,
+             RUN GetStorageAndHandlingForLocation(eb.company,estRelease.shipFromLocationID,estRelease.stackHeight,
                                                   OUTPUT dCostStorage, OUTPUT dCostHandling,OUTPUT lError,OUTPUT cMessage) .
              ASSIGN
                estRelease.storageCost  = dCostStorage
@@ -716,6 +730,10 @@ DO:
         DO:
             RUN valid-shipto(OUTPUT lValidateResult) NO-ERROR.
             IF lValidateResult THEN RETURN NO-APPLY.
+
+            RUN pDisplayShipLoc(estRelease.customerID:SCREEN-VALUE,estRelease.shipToID:SCREEN-VALUE, OUTPUT cShipToLoc ) .
+            IF cShipToLoc NE "" THEN
+                ASSIGN cShipToLoc:SCREEN-VALUE = cShipToLoc .
         END.
     END.
 
@@ -915,13 +933,15 @@ PROCEDURE display-item :
             IF estRelease.stackHeight GT 0 THEN
                 estRelease.stackHeight:SCREEN-VALUE = STRING(estRelease.stackHeight) .
             ELSE estRelease.stackHeight:SCREEN-VALUE = "1" .
+          
+         RUN pDisplayShipLoc(estRelease.customerID,estRelease.shipToID, OUTPUT cShipToLoc ) .       
 
         DISPLAY estRelease.quantity estRelease.quantityRelease 
             estRelease.shipFromLocationID estRelease.customerID estRelease.shipToID estRelease.carrierID estRelease.carrierZone 
             estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit estRelease.quantityOfUnits estRelease.palletMultiplier 
             estRelease.monthsAtShipFrom estRelease.stackHeight estRelease.storageCost estRelease.handlingCost 
             estRelease.freightCost estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.createRelease 
-            estRelease.estimateNo estRelease.formNo estRelease.blankNo  fi_Pallet-count
+            estRelease.estimateNo estRelease.formNo estRelease.blankNo  fi_Pallet-count cShipToLoc
             WITH FRAME Dialog-Frame.
     END.
 
@@ -950,7 +970,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_Pallet-count 
+  DISPLAY fi_Pallet-count cShipToLoc
       WITH FRAME Dialog-Frame.
   IF AVAILABLE estRelease THEN 
     DISPLAY estRelease.estimateNo estRelease.quantity estRelease.formNo 
@@ -1146,3 +1166,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayShipLoc Dialog-Frame 
+PROCEDURE pDisplayShipLoc :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcShipto AS CHARACTER NO-UNDO .
+    DEFINE OUTPUT PARAMETER opcLoc AS CHARACTER NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ cocode
+            AND cust.ACTIVE EQ "X" NO-ERROR .
+        
+        FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ cocode 
+        AND (shipto.cust-no EQ ipcCustomer OR  shipto.cust-no EQ cust.cust-no)
+        AND TRIM(shipto.ship-id) = ipcShipto
+        NO-ERROR.
+        IF AVAILABLE shipto THEN 
+        ASSIGN opcLoc =  shipto.loc .
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

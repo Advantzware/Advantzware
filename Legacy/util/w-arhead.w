@@ -360,6 +360,7 @@ DEFINE FRAME fMain
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1
      ar-inv.prod-date AT ROW 14.33 COL 69 COLON-ALIGNED
+          LABEL "Posted Date"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      ar-inv.recur AT ROW 21.95 COL 19 COLON-ALIGNED
@@ -380,9 +381,6 @@ DEFINE FRAME fMain
      ar-inv.sold-city AT ROW 6.24 COL 137 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     ar-inv.sold-id AT ROW 11.95 COL 137 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -390,6 +388,9 @@ DEFINE FRAME fMain
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMain
+     ar-inv.sold-id AT ROW 11.95 COL 137 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 13.6 BY 1
      ar-inv.stat AT ROW 2.43 COL 115 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.2 BY 1
@@ -472,6 +473,13 @@ DEFINE FRAME fMain
      "AR Invoice Repair Utility" VIEW-AS TEXT
           SIZE 29 BY 1.19 AT ROW 1.24 COL 62
           FONT 6
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 160 BY 27.67.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fMain
      RECT-18 AT ROW 26.48 COL 39
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -546,6 +554,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.over-pct IN FRAME fMain
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ar-inv.prod-date IN FRAME fMain
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ar-inv.x-no IN FRAME fMain
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
@@ -1459,6 +1469,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote wWin 
+PROCEDURE CopyShipNote PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete-ar wWin 
 PROCEDURE delete-ar :
 /*------------------------------------------------------------------------------
@@ -2150,24 +2182,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Copies Ship Note from rec_key to rec_key
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
-
-END PROCEDURE.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

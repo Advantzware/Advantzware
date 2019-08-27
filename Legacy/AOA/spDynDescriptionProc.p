@@ -32,6 +32,15 @@ END FUNCTION.
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE dynDescripCompany:
+    {&defInputParam}
+    FIND FIRST company NO-LOCK
+         WHERE company.company EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE company THEN
+    iphWidgetTo:SCREEN-VALUE = company.name.       
+END PROCEDURE.
+
 PROCEDURE dynDescripCust:
     {&defInputParam}
     FIND FIRST cust NO-LOCK

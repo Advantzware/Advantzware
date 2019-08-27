@@ -311,7 +311,7 @@ CASE ip-lookupField:
            /* List of fields for which field level search is enabled */
            INPUT "po-no,po-date,vend-no,opened",
            /* List of fields for which sorting is enabled */
-           INPUT "po-no|DESCENDING,po-date,vend-no,opened",
+           INPUT "po-no,po-date,vend-no,opened",
            /* Where clause to select specific records */
            INPUT "po-ord.company EQ '" + ip-company + "'" ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
@@ -351,11 +351,51 @@ CASE ip-lookupField:
            /* List of fields for which field level search is enabled */
            INPUT "release#,rel-date,posted,cust-no,ship-id",
            /* List of fields for which sorting is enabled */
-           INPUT "release#|DESCENDING,rel-date,posted,stat",
+           INPUT "release#,rel-date,posted,stat",
            /* Where clause to select specific records */
-           INPUT "oe-relh.company EQ '" + ip-company + "'" ,
+           INPUT "oe-relh.company EQ '" + ip-company + "' AND oe-relh.release# GT 0",
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
            INPUT "release#",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal) NO-ERROR.
+    WHEN "procat" THEN
+       RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "FG Product Category Information",
+           /* The source field for which the lookup screen is called for */
+           INPUT "procat",
+           /* DB Table from which data is to be fetched */
+           INPUT "fgcat",
+           /* List of fields which are required in the query */
+           INPUT "company,procat,dscr", 
+           /* List of fields which should be displayed in the browse */ 
+           INPUT "procat,dscr",
+           /* List of field labels to override the default database field label */
+           INPUT ",",
+           /* List of field formats to override the default database field format */
+           INPUT ",",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT ",",
+           /* List of fields for which field level search is enabled */
+           INPUT "procat,dscr",
+           /* List of fields for which sorting is enabled */
+           INPUT "procat,dscr",
+           /* Where clause to select specific records */
+           INPUT "fgcat.company EQ '" + ip-company + "'" ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "procat",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
            /* dynamic subject id */

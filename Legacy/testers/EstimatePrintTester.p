@@ -15,13 +15,15 @@
 /* ***************************  Definitions  ************************** */
 
 
-DEFINE VARIABLE ghSession      AS HANDLE.
-DEFINE VARIABLE giTimer        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE ghSession           AS HANDLE.
+DEFINE VARIABLE ghEstimateCalcProcs AS HANDLE.
+DEFINE VARIABLE giTimer             AS INTEGER   NO-UNDO.
 
-DEFINE VARIABLE gcOutputFile   AS CHARACTER INITIAL "C:\temp\estPrintOut.txt".
-DEFINE VARIABLE gcProfilerFile AS CHARACTER INITIAL "C:\temp\estCalcProfile.prof".
-DEFINE VARIABLE gcCompany      AS CHARACTER INITIAL "001".
-DEFINE VARIABLE gcEstimate     AS CHARACTER INITIAL "   13140".
+DEFINE VARIABLE gcOutputFile        AS CHARACTER INITIAL "C:\temp\estPrintOut.xpr".
+DEFINE VARIABLE gcProfilerFile      AS CHARACTER INITIAL "C:\temp\estCalcProfile.prof".
+DEFINE VARIABLE gcCompany           AS CHARACTER INITIAL "001".
+DEFINE VARIABLE gcEstimate          AS CHARACTER INITIAL "   12236".
+//DEFINE VARIABLE gcEstimate     AS CHARACTER INITIAL "   14058".
 //DEFINE VARIABLE gcEstimate     AS CHARACTER INITIAL "   13675".
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -32,21 +34,23 @@ DEFINE VARIABLE gcEstimate     AS CHARACTER INITIAL "   13140".
 
 RUN system\session.p PERSISTENT SET ghSession.
 SESSION:ADD-SUPER-PROCEDURE (ghSession).
+RUN est\EstimateCalcProcs.p PERSISTENT SET ghEstimateCalcProcs.
+SESSION:ADD-SUPER-PROCEDURE (ghEstimateCalcProcs).
 RUN pOnOffProfiler.
-RUN est\EstimateCalcProcs.p(gcCompany,gcEstimate, YES).
+RUN CalculateEstimate(gcCompany,gcEstimate, YES).
 RUN pOnOffProfiler.
 FIND FIRST estCostHeader NO-LOCK
     WHERE estCostHeader.company EQ gcCompany
     AND estCostHeader.estimateNo EQ gcEstimate
-    AND estCostHeader.quantityMaster EQ 20000
+//    AND estCostHeader.quantityMaster EQ 10000
     NO-ERROR.
 RUN est\EstimatePrint.p (estCostHeader.estCostHeaderID, gcOutputFile, "By Form with Summary First Mult Qty","Calibri").
-/*FOR EACH probe EXCLUSIVE-LOCK                                                                                             */
-/*    WHERE probe.company EQ gcCompany                                                                                      */
-/*    AND probe.est-no EQ gcEstimate:                                                                                       */
-/*        DISPLAY probe.sell-price probe.gross-profit probe.net-profit probe.probe-date STRING(probe.probe-time,"HH:MM:SS").*/
-/*        DELETE probe.                                                                                                     */
-/*END.                                                                                                                      */
+FOR EACH probe EXCLUSIVE-LOCK
+    WHERE probe.company EQ gcCompany
+    AND probe.est-no EQ gcEstimate:
+    DISPLAY probe.est-qty probe.eqty.
+    DELETE probe.
+END.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pOnOffProfiler :
