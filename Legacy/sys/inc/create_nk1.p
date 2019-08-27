@@ -39,7 +39,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "FGLabel,AuditJobCalc,WipTag,WIPTAGSDefaultLocation,POItemFilterDefault,DynAuditField,DynTaskTicker,InvoiceSavePDF,BOLSavePDF,"
            + "FGBinInquiry,CEAutoCalcMessage,OERequiredField,CEReleases,FGVendCostEnhanced,Autorel,RelCredT,PhysCnt,ProdAceBarScan,JobExport," 
            + "CePackEnhanced,BolPrint,OEPriceWarning,JobCardImage,FGDefaultQtyDisplay,CEVersion,CEFormat,CEFormatFont,CaseUOMList,SSPostRMTransfers,"
-           + "PickTicketValidation"
+           + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -714,6 +714,21 @@ CASE ip-nk1-value:
    WHEN "PickTicketValidation" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "BB - Able to force only select the tags that have been set on the pick ticket",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "CEMiscDefaultStyle" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default on new Misc Estimate for Style",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "CEMiscDefaultBoard" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default on new Misc Estimate for Board",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
+   WHEN "CEMiscDefaultStackCode" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default on new Misc Estimate for Stack Code",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
