@@ -1148,21 +1148,7 @@ FOR EACH job-hdr NO-LOCK
                                     "<C69><b>Plate#: </b>" eb.plate-no FORMAT "x(12)" SKIP
                                     "<C40><b>Blank:</b>" eb.t-wid FORMAT ">>9.9999" SPACE(3) eb.t-len FORMAT ">>9.9999" SPACE(3) /*eb.t-sqin FORMAT ">>9.9999"*/
                                     "<C69>   <b>Die#: </b>" eb.die-no FORMAT "x(12)" SKIP .
-                           
-                                FOR EACH bff-eb NO-LOCK
-                                    WHERE bff-eb.est-no EQ eb.est-no
-                                      AND bff-eb.form-no EQ eb.form-no 
-                                      AND bff-eb.blank-no NE eb.blank-no ,
-                                    FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no
-                                     AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
-                                    AND  bf-ttSoule.runForm EQ YES NO-LOCK :
-                                     k = K + 1 .
-                                PUT "<P10><C12><b>Customer Part" string(K,">>") ": </B>" bff-eb.part-no  FORMAT "x(15)"   SKIP
-                                    "<P10> <C12><b>Descr.: </b>" bff-eb.part-dscr1 FORMAT "x(30)"   SKIP .
-                                   
-                                END.
-                               
-                            
+                                
                                 PUT "<b><C5>Operation             <c22>R Crw.  <c29>R Hrs.    <c35>MR Crw.   <c42>MR Hrs.   <c50>Speed    <c55.5>Mr Wst.   <c63.5>R Wst.  <c70>Beginning   <c79>Yield </b>" SKIP
                                     v-fill2 SKIP .
 
@@ -1269,23 +1255,33 @@ FOR EACH job-hdr NO-LOCK
                                     END.
                                     FIND NEXT tt-size USE-INDEX tt-size WHERE tt-size.frm = int(tt-reftable.val[12]) NO-LOCK NO-ERROR.
                                 END. /* each wrk-op*/
-
-                            FIND FIRST po-ordl WHERE
-                                po-ordl.company EQ eb.company AND
-                                po-ordl.job-no   EQ bf-jobhdr.job-no AND
-                                po-ordl.i-no = Eb.cas-no
-                                NO-LOCK NO-ERROR.
-              
-                            iBoardPO = IF AVAILABLE po-ordl  THEN po-ordl.po-no ELSE 0 .
-                            dtPoDueDate = IF AVAILABLE po-ordl THEN po-ordl.due-date ELSE ? .
-                            cVendor = IF AVAILABLE po-ordl THEN po-ordl.vend-no ELSE ? .
-
+                            
                             PUT "<||3><C15><FROM><C83><LINE><||3>"
                                 "<C18>Packing: " Eb.cas-no FORMAT "x(15)"  "<C48>Shipped As: " eb.tr-no FORMAT "x(15)" SKIP
                                 "<c18>Size: " STRING(eb.cas-len,"99.9999") SPACE(2) STRING(eb.cas-wid,"99.9999") SPACE(2) STRING(eb.cas-dep,"99.9999")
                                 "<C48>Ctn./Bdl.Per: " STRING(eb.cas-pal) SKIP
                                 "<C18>Count: " STRING(eb.tr-cnt) "<C48>Label: " (IF eb.layer-pad NE "" OR eb.divider NE "" THEN "Y" ELSE "N" ) SKIP 
-                                "<C18>P.O.#: " STRING(iBoardPO) "<C28>Due: " (IF dtPoDueDate NE ? THEN STRING(dtPoDueDate) ELSE "") "<C48>Vendor: " (IF cVendor NE ? THEN cVendor ELSE "") SKIP .
+                                /*"<C18>P.O.#: " STRING(iBoardPO) "<C28>Due: " (IF dtPoDueDate NE ? THEN STRING(dtPoDueDate) ELSE "") "<C48>Vendor: " (IF cVendor NE ? THEN cVendor ELSE "") SKIP*/ .
+
+                             FOR EACH bff-eb NO-LOCK
+                                    WHERE bff-eb.est-no EQ eb.est-no
+                                      AND bff-eb.form-no EQ eb.form-no 
+                                      AND bff-eb.blank-no NE eb.blank-no ,
+                                    FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no
+                                     AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
+                                    AND  bf-ttSoule.runForm EQ YES NO-LOCK :
+                                     IF LINE-COUNTER > 70 THEN DO: 
+                                         PAGE.
+                                         RUN pPrintHeader .
+                                     END.
+                                     k = K + 1 .
+                                     PUT "<||3><C15><FROM><C83><LINE><||3>" .
+                                     PUT "<P10><C18><b>Customer Part" string(K,">>") ": </B>" bff-eb.part-no  FORMAT "x(15)"  "<C48><b>Descr.: </b>" bff-eb.part-dscr1 FORMAT "x(30)"  SKIP
+                                         "<C18>Packing: " bff-eb.cas-no FORMAT "x(15)"  "<C48>Shipped As: " bff-eb.tr-no FORMAT "x(15)" SKIP
+                                         "<c18>Size: " STRING(bff-eb.cas-len,"99.9999") SPACE(2) STRING(bff-eb.cas-wid,"99.9999") SPACE(2) STRING(bff-eb.cas-dep,"99.9999")
+                                         "<C48>Ctn./Bdl.Per: " STRING(bff-eb.cas-pal) SKIP
+                                         "<C18>Count: " STRING(bff-eb.tr-cnt) "<C48>Label: " (IF bff-eb.layer-pad NE "" OR bff-eb.divider NE "" THEN "Y" ELSE "N" ) SKIP .
+                                END.
             
                             IF LINE-COUNTER > 70 THEN 
                             DO: 
