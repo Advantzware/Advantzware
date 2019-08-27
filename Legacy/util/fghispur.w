@@ -53,7 +53,6 @@ ASSIGN
 OUTPUT STREAM file1 TO VALUE("c:\tmp\fg-rcpth" + "-" + cFileName).
 OUTPUT STREAM file2 TO VALUE("c:\tmp\fg-rdtlh" + "-" + cFileName).
 OUTPUT STREAM file3 TO VALUE("c:\tmp\fg-rctd" + "-" + cFileName).
-OUTPUT STREAM file3 TO VALUE("c:\tmp\fg-rdtlh" + "-" + cFileName).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
