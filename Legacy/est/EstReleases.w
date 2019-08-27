@@ -220,7 +220,8 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 W-Win _FREEFORM
     QUERY BROWSE-1 NO-LOCK DISPLAY
-    estRelease.quantityRelease LABEL "Quantity" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
+    estRelease.quantity LABEL "Est Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
+    estRelease.quantityRelease LABEL "Rel Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
     estRelease.shipFromLocationID LABEL "From" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.shipToID LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.carrierID LABEL "Carrier" WIDTH 10 LABEL-BGCOLOR 14
@@ -233,7 +234,7 @@ DEFINE BROWSE BROWSE-1
     
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 132.8 BY 13.05
+    WITH NO-ASSIGN SEPARATORS SIZE 152.8 BY 13.05
          BGCOLOR 8 FONT 0 .
 
 
@@ -260,7 +261,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
     SIDE-LABELS NO-UNDERLINE THREE-D 
     AT COL 1.2 ROW 1
-    SIZE 149 BY 23.71
+    SIZE 154 BY 23.71
     FGCOLOR 1 FONT 6.
 
 
@@ -282,11 +283,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
         HIDDEN             = YES
         TITLE              = "New Miscellaneous Product Estimate - Releases"
         HEIGHT             = 21.86
-        WIDTH              = 135.8
+        WIDTH              = 155.8
         MAX-HEIGHT         = 24.71
-        MAX-WIDTH          = 156
+        MAX-WIDTH          = 155
         VIRTUAL-HEIGHT     = 24.71
-        VIRTUAL-WIDTH      = 156
+        VIRTUAL-WIDTH      = 155
         RESIZE             = NO
         SCROLL-BARS        = NO
         STATUS-AREA        = YES
