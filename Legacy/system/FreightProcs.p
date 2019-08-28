@@ -42,6 +42,9 @@ FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
     ipdWidth AS DECIMAL,
     ipcDimUOM AS CHARACTER) FORWARD.
 
+FUNCTION HasReleases RETURNS LOGICAL 
+	(ipriEb AS ROWID) FORWARD.
+
 FUNCTION UseReleasesForFreightAndWarehousing RETURNS LOGICAL 
     (ipcCompany AS CHARACTER) FORWARD.
 
@@ -61,29 +64,48 @@ PROCEDURE CalcFreightForEstRelease:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER bEstRelease FOR estRelease.
+    DEFINE BUFFER bEstRelease    FOR estRelease.
+    DEFINE BUFFER bf-eb          FOR eb.
     
     DEFINE VARIABLE dSubUnits    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPartial     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dFreightMin  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalMSF    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO.
-
-    FIND FIRST bEstRelease EXCLUSIVE-LOCK   
+    DEFINE VARIABLE lValidEstRel AS LOGICAL NO-UNDO.
+    
+    lValidEstRel = NO.
+    FOR FIRST bEstRelease EXCLUSIVE-LOCK   
         WHERE bEstRelease.estReleaseID EQ ipiEstReleaseID
-        NO-ERROR.
-    IF AVAILABLE bEstRelease THEN 
-    DO:
+        ,
+        FIRST bf-eb NO-LOCK 
+        WHERE bf-eb.company EQ bEstRelease.company
+        AND bf-eb.est-no EQ bEstRelease.estimateNo
+        AND bf-eb.form-no EQ bEstRelease.formNo
+        AND bf-eb.blank-no EQ bEstRelease.blankNo:
+        
+        lValidEstRel = YES.
         RUN RecalcQuantityUnits IN ghInventoryProcs (bEstRelease.quantityRelease, INPUT-OUTPUT bEstRelease.quantityPerSubUnit, INPUT-OUTPUT bEstRelease.quantitySubUnitsPerUnit, 
             OUTPUT dSubUnits, OUTPUT bEstRelease.quantityOfUnits, OUTPUT dPartial).
         dTotalMSF = fGetTotalMSF(bEstRelease.quantityRelease, bEstRelease.dimEachLen, bEstRelease.dimEachWid, bEstRelease.dimEachUOM).
         dTotalWeight = bEstRelease.quantityRelease * bEstRelease.weightTotalPerEach. 
-        RUN GetFreightForCarrierZone (bEstRelease.company, bEstRelease.shipFromLocationID, bEstRelease.carrierID, bEstRelease.carrierZone, "",
-            bEstRelease.quantityOfUnits, dTotalWeight, dTotalMSF, 
-            OUTPUT bEstRelease.freightCost, OUTPUT dFreightMin,
-            OUTPUT oplError, OUTPUT opcMessage).  
+        IF bf-eb.fr-out-c NE 0 THEN 
+            ASSIGN 
+                bEstRelease.freightCost = bf-eb.fr-out-c * dTotalWeight / 100
+                opcMessage = "Freight Calculated from Override of cost per 100 Lbs"
+                .    
+        ELSE IF bf-eb.fr-out-m NE 0 THEN
+            ASSIGN 
+                bEstRelease.freightCost = bf-eb.fr-out-m * bEstRelease.quantityRelease / 1000
+                opcMessage = "Freight Calculated from Override of cost per 1000"
+                .
+        ELSE 
+            RUN GetFreightForCarrierZone (bEstRelease.company, bEstRelease.shipFromLocationID, bEstRelease.carrierID, bEstRelease.carrierZone, "",
+                bEstRelease.quantityOfUnits, dTotalWeight, dTotalMSF, 
+                OUTPUT bEstRelease.freightCost, OUTPUT dFreightMin,
+                OUTPUT oplError, OUTPUT opcMessage).  
     END.
-    ELSE 
+    IF NOT lValidEstRel THEN 
         ASSIGN 
             oplError   = YES
             opcMessage = "Invalid estReleaseID " + STRING(ipiEstReleaseID)
@@ -165,17 +187,20 @@ PROCEDURE GetFreightForCarrierZone:
                 ASSIGN 
                     dCostMultiplier = ipdTotalWeight / 100
                     dQtyToLookup    = ipdTotalWeight
+                    opcMessage      = "Freight Calculated from carrier charge based on total weight of " + STRING(ipdTotalWeight,">>,>>>,>>9.99")
                     .
                 
             WHEN "P" THEN 
                 ASSIGN 
                     dCostMultiplier = ipdTotalPallets
                     dQtyToLookup    = ipdTotalPallets
+                    opcMessage      = "Freight Calculated from carrier charge based on total pallets of " + STRING(ipdTotalPallets,">>,>>>,>>9")
                     .
             OTHERWISE /*MSF*/
             ASSIGN 
                 dCostMultiplier = ipdTotalMSF
                 dQtyToLookup    = ipdTotalMSF
+                opcMessage      = "Freight Calculated from carrier charge based on total MSF of " + STRING(ipdTotalMSF,">>,>>>,>>9.99")
                 .
         END CASE. 
         DO iLevel = 1 TO 10:
@@ -186,7 +211,9 @@ PROCEDURE GetFreightForCarrierZone:
             opdFreightTotal = bf-carr-mtx.rate[iLevel] * dCostMultiplier
             .
         IF opdFreightTotal LT opdFreightMin THEN 
-            opdFreightTotal = opdFreightMin.
+            ASSIGN 
+                opdFreightTotal = opdFreightMin
+                opcMessage = opcMessage + " - minimum not exceeded".
     END.
 
 END PROCEDURE.
@@ -621,32 +648,33 @@ PROCEDURE pGetCarrierBuffers PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pGetEffectiveQuantity PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Given an estimate and quantity, search the estRelease table for the
- effective quantity to establish the pro rata costs for freight and handling
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
-DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
-DEFINE INPUT PARAMETER ipdQuantityTarget AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opdQuantityEffective AS DECIMAL NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Given an estimate and quantity, search the estRelease table for the
+     effective quantity to establish the pro rata costs for freight and handling
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityTarget AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantityEffective AS DECIMAL NO-UNDO.
 
-DEFINE BUFFER bf-estRelease FOR estRelease.
+    DEFINE BUFFER bf-estRelease FOR estRelease.
 
-FOR EACH bf-estRelease NO-LOCK 
-    WHERE bf-estRelease.company EQ ipcCompany
-    AND bf-estRelease.formNo EQ ipiFormNo
-    AND bf-estRelease.blankNo EQ ipiBlankNo
-    BREAK BY bf-estRelease.quantity:
+    FOR EACH bf-estRelease NO-LOCK 
+        WHERE bf-estRelease.company EQ ipcCompany
+        AND bf-estRelease.formNo EQ ipiFormNo
+        AND bf-estRelease.blankNo EQ ipiBlankNo
+        BREAK BY bf-estRelease.quantity:
         
-    IF FIRST-OF(bf-estRelease.quantity) THEN DO:
-        IF FIRST(bf-estRelease.quantity) OR bf-estRelease.quantity LE ipdQuantityTarget THEN 
-            opdQuantityEffective = bf-estRelease.quantity.
-        IF bf-estRelease.quantity GE ipdQuantityTarget THEN LEAVE.
+        IF FIRST-OF(bf-estRelease.quantity) THEN 
+        DO:
+            IF FIRST(bf-estRelease.quantity) OR bf-estRelease.quantity LE ipdQuantityTarget THEN 
+                opdQuantityEffective = bf-estRelease.quantity.
+            IF bf-estRelease.quantity GE ipdQuantityTarget THEN LEAVE.
+        END.
     END.
-END.
 
 END PROCEDURE.
 
@@ -666,8 +694,9 @@ PROCEDURE pGetFreight PRIVATE:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-estRelease FOR estRelease.
-    DEFINE VARIABLE dQuantityEffective AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dFreightEach AS DECIMAL NO-UNDO.
+        
+    DEFINE VARIABLE dQuantityEffective       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dFreightEach             AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityReleaseProRated AS DECIMAL NO-UNDO.
     
     RUN pGetEffectiveQuantity (ipcCompany, ipcEstimateNo, ipiFormNo, ipiBlankNo, ipdQuantity, OUTPUT dQuantityEffective).
@@ -677,22 +706,23 @@ PROCEDURE pGetFreight PRIVATE:
         AND bf-estRelease.formNo EQ ipiFormNo
         AND bf-estRelease.blankNo EQ ipiBlankNo
         AND bf-estRelease.quantity EQ dQuantityEffective:
-            
+
         RUN CalcFreightForEstRelease(bf-estRelease.estReleaseID, OUTPUT oplError, OUTPUT opcMessage).
-        
-        IF NOT oplError THEN DO:
+            
+        IF NOT oplError THEN 
+        DO:
             IF ipdQuantity EQ dQuantityEffective THEN 
                 ASSIGN 
                     opdFreightCostTotal = opdFreightCostTotal + bf-estRelease.freightCost
                     .
             ELSE /*Prorate the Freight based on the relative release to master quantity*/
                 ASSIGN 
-                    dFreightEach = bf-estRelease.freightCost / bf-estRelease.quantityRelease
+                    dFreightEach             = bf-estRelease.freightCost / bf-estRelease.quantityRelease
                     dQuantityReleaseProRated = ipdQuantity * bf-estRelease.quantityRelease / bf-estRelease.quantity
-                    opdFreightCostTotal = opdFreightCostTotal + dFreightEach * dQuantityReleaseProRated
+                    opdFreightCostTotal      = opdFreightCostTotal + dFreightEach * dQuantityReleaseProRated
                     . 
-        END.
-    END.
+        END. /*No error*/
+    END. /*Each estRelease for blank*/
     
 END PROCEDURE.
 PROCEDURE pGetStorageAndHandling PRIVATE:
@@ -712,9 +742,9 @@ PROCEDURE pGetStorageAndHandling PRIVATE:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-estRelease FOR estRelease.
-    DEFINE VARIABLE dQuantityEffective AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dStorageEach AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dHandlingEach AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityEffective       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dStorageEach             AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dHandlingEach            AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityReleaseProRated AS DECIMAL NO-UNDO.
     
     RUN pGetEffectiveQuantity (ipcCompany, ipcEstimateNo, ipiFormNo, ipiBlankNo, ipdQuantity, OUTPUT dQuantityEffective).
@@ -729,19 +759,20 @@ PROCEDURE pGetStorageAndHandling PRIVATE:
             
         RUN CalcStorageAndHandlingForEstRelease(bf-estRelease.estReleaseID, OUTPUT oplError, OUTPUT opcMessage).
         
-        IF NOT oplError THEN DO:
+        IF NOT oplError THEN 
+        DO:
             IF ipdQuantity EQ dQuantityEffective THEN 
                 ASSIGN 
                     opdStorageCostTotal  = opdStorageCostTotal + bf-estRelease.storageCostTotal
                     opdHandlingCostTotal = opdHandlingCostTotal + bf-estRelease.handlingCostTotal
                     .
             ELSE /*Prorate the Costs based on the relative release to master quantity*/
-                 ASSIGN 
+                ASSIGN 
                     dQuantityReleaseProRated = ipdQuantity * bf-estRelease.quantityRelease / bf-estRelease.quantity
-                    dStorageEach = bf-estRelease.storageCostTotal / bf-estRelease.quantityRelease
-                    dHandlingEach = bf-estRelease.handlingCostTotal / bf-estRelease.quantityRelease
-                    opdStorageCostTotal = opdStorageCostTotal + dStorageEach * dQuantityReleaseProRated
-                    opdHandlingCostTotal = opdHandlingCostTotal + dHandlingEach * dQuantityReleaseProRated
+                    dStorageEach             = bf-estRelease.storageCostTotal / bf-estRelease.quantityRelease
+                    dHandlingEach            = bf-estRelease.handlingCostTotal / bf-estRelease.quantityRelease
+                    opdStorageCostTotal      = opdStorageCostTotal + dStorageEach * dQuantityReleaseProRated
+                    opdHandlingCostTotal     = opdHandlingCostTotal + dHandlingEach * dQuantityReleaseProRated
                     . 
         END.
     END.
@@ -797,73 +828,78 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
         INPUT-OUTPUT ipbf-estRelease.quantitySubUnitsPerUnit, 
         OUTPUT dSubUnits, OUTPUT ipbf-estRelease.quantityOfUnits, OUTPUT dPartial).
         
-    FIND FIRST bf-ef NO-LOCK 
-        WHERE bf-ef.company EQ ipbf-eb.company
-        AND bf-ef.est-no EQ ipbf-eb.est-no
-        AND bf-ef.form-no EQ ipbf-eb.form-no 
-        NO-ERROR.
-    FIND FIRST bf-ce-ctrl NO-LOCK 
-        WHERE bf-ce-ctrl.company EQ ipbf-eb.company
-        NO-ERROR.
-    IF AVAILABLE bf-ef THEN 
-    DO: 
-        
-        /*Calculate Weight of Board to get Net Weight of Each*/
-        ASSIGN 
-            dMSF         = (ipbf-eb.t-sqin - ipbf-eb.t-win) / 144000
-            dBasisWeight = bf-ef.weight
-            .
-        IF bf-ef.medium NE "" THEN 
-        DO:
-            FIND FIRST bf-item NO-LOCK 
-                WHERE bf-item.company EQ bf-ef.company
-                AND bf-item.i-no EQ bf-ef.medium
-                NO-ERROR.
-            IF AVAILABLE bf-item THEN 
-                dBasisWeight = dBasisWeight + bf-item.basis-w * (1 - (bf-item.shrink / 100)).
-        END.
-        IF bf-ef.flute NE "" THEN                                                     
-        DO:
-            RELEASE bf-item.
-            FIND FIRST bf-item NO-LOCK 
-                WHERE bf-item.company EQ bf-ef.company
-                AND bf-item.i-no EQ bf-ef.flute
-                NO-ERROR.
-            IF AVAILABLE bf-item THEN 
-                dBasisWeight = dBasisWeight + bf-item.basis-w.
-        END.
-        /*Calculate Net Weight Per Each*/
-        ipbf-estRelease.weightNetPerEach = dBasisWeight * dMSF.
-        
-    END.
-    /*Calculate Tare Weight Per Each*/ 
-    IF ipbf-eb.cas-no NE "" THEN   /*Cases/Sub-units*/
-        FIND FIRST bf-item NO-LOCK 
-            WHERE bf-item.company EQ ipbf-eb.company
-            AND bf-item.i-no EQ ipbf-eb.cas-no
+    IF ipbf-eb.weight-m NE 0 THEN 
+        ipbf-estRelease.weightTotalPerEach = ipbf-eb.weight-m / 1000.
+    ELSE 
+    DO:
+        FIND FIRST bf-ef NO-LOCK 
+            WHERE bf-ef.company EQ ipbf-eb.company
+            AND bf-ef.est-no EQ ipbf-eb.est-no
+            AND bf-ef.form-no EQ ipbf-eb.form-no 
             NO-ERROR.
-    IF AVAILABLE bf-item THEN 
-        dSubUnitWeight = bf-item.basis-w.
-    ELSE 
-        dSubUnitWeight = IF AVAILABLE bf-ce-ctrl THEN bf-ce-ctrl.def-cas-w ELSE 0.
-    dTareWeight = dTareWeight + dSubUnits * dSubUnitWeight.
+        FIND FIRST bf-ce-ctrl NO-LOCK 
+            WHERE bf-ce-ctrl.company EQ ipbf-eb.company
+            NO-ERROR.
+        IF AVAILABLE bf-ef THEN 
+        DO: 
+            /*Calculate Weight of Board to get Net Weight of Each*/
+            ASSIGN 
+                dMSF         = (ipbf-eb.t-sqin - ipbf-eb.t-win) / 144000
+                dBasisWeight = bf-ef.weight
+                .
+            IF bf-ef.medium NE "" THEN 
+            DO:
+                FIND FIRST bf-item NO-LOCK 
+                    WHERE bf-item.company EQ bf-ef.company
+                    AND bf-item.i-no EQ bf-ef.medium
+                    NO-ERROR.
+                IF AVAILABLE bf-item THEN 
+                    dBasisWeight = dBasisWeight + bf-item.basis-w * (1 - (bf-item.shrink / 100)).
+            END.
+            IF bf-ef.flute NE "" THEN                                                     
+            DO:
+                RELEASE bf-item.
+                FIND FIRST bf-item NO-LOCK 
+                    WHERE bf-item.company EQ bf-ef.company
+                    AND bf-item.i-no EQ bf-ef.flute
+                    NO-ERROR.
+                IF AVAILABLE bf-item THEN 
+                    dBasisWeight = dBasisWeight + bf-item.basis-w.
+            END.
+            /*Calculate Net Weight Per Each*/
+            ipbf-estRelease.weightNetPerEach = dBasisWeight * dMSF.
+            
+        END.
+        /*Calculate Tare Weight Per Each*/ 
+        IF ipbf-eb.cas-no NE "" THEN   /*Cases/Sub-units*/
+            FIND FIRST bf-item NO-LOCK 
+                WHERE bf-item.company EQ ipbf-eb.company
+                AND bf-item.i-no EQ ipbf-eb.cas-no
+                NO-ERROR.
+        IF AVAILABLE bf-item THEN 
+            dSubUnitWeight = bf-item.basis-w.
+        ELSE 
+            dSubUnitWeight = IF AVAILABLE bf-ce-ctrl THEN bf-ce-ctrl.def-cas-w ELSE 0.
+        dTareWeight = dTareWeight + dSubUnits * dSubUnitWeight.
+            
+        IF ipbf-eb.tr-no NE "" THEN
+            FIND FIRST bf-item NO-LOCK 
+                WHERE bf-item.company EQ ipbf-eb.company
+                AND bf-item.i-no EQ ipbf-eb.tr-no
+                NO-ERROR. 
+        IF AVAILABLE bf-item THEN 
+            dUnitWeight = bf-item.basis-w.
+        ELSE 
+            dUnitWeight = IF AVAILABLE bf-ce-ctrl THEN bf-ce-ctrl.def-pal-w ELSE 0.
+        dTareWeight = dTareWeight + ipbf-estRelease.quantityOfUnits * dUnitWeight. 
+            
+        IF ipbf-estRelease.quantityRelease GT 0 THEN 
+            ipbf-estRelease.weightTarePerEach = dTareWeight / ipbf-estRelease.quantityRelease.
         
-    IF ipbf-eb.tr-no NE "" THEN
-        FIND FIRST bf-item NO-LOCK 
-            WHERE bf-item.company EQ ipbf-eb.company
-            AND bf-item.i-no EQ ipbf-eb.tr-no
-            NO-ERROR. 
-    IF AVAILABLE bf-item THEN 
-        dUnitWeight = bf-item.basis-w.
-    ELSE 
-        dUnitWeight = IF AVAILABLE bf-ce-ctrl THEN bf-ce-ctrl.def-pal-w ELSE 0.
-    dTareWeight = dTareWeight + ipbf-estRelease.quantityOfUnits * dUnitWeight. 
-        
-    IF ipbf-estRelease.quantityRelease GT 0 THEN 
-        ipbf-estRelease.weightTarePerEach = dTareWeight / ipbf-estRelease.quantityRelease.
+        ipbf-estRelease.weightTotalPerEach = ipbf-estRelease.weightNetPerEach + ipbf-estRelease.weightTarePerEach.
+    END.    
     
-    ipbf-estRelease.weightTotalPerEach = ipbf-estRelease.weightNetPerEach + ipbf-estRelease.weightTarePerEach.
-
+        
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
@@ -916,6 +952,25 @@ FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
     IF ipcDimUOM EQ "IN" OR ipcDimUOM EQ "" THEN 
         RETURN ipdQuantity * (ipdLength * ipdWidth / 144000).    
 		
+END FUNCTION.
+
+FUNCTION HasReleases RETURNS LOGICAL 
+	(ipriEb AS ROWID):
+/*------------------------------------------------------------------------------
+ Purpose: Given a rowid for eb, determine if there are estReleases
+ Notes:
+------------------------------------------------------------------------------*/	
+    
+    FIND FIRST eb NO-LOCK 
+        WHERE ROWID(eb) EQ ipriEb
+        NO-ERROR.
+    RETURN AVAILABLE eb 
+        AND CAN-FIND(FIRST estRelease 
+            WHERE estRelease.company EQ eb.company
+            AND estRelease.estimateNo EQ eb.est-no
+            AND estRelease.formNo EQ eb.form-no
+            AND estRelease.blankNo EQ eb.blank-no).  
+			
 END FUNCTION.
 
 FUNCTION UseReleasesForFreightAndWarehousing RETURNS LOGICAL 
