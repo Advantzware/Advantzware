@@ -6,7 +6,7 @@ DEFINE BUFFER bf-loadtag FOR loadtag.
 
 FIND fg-bin WHERE ROWID(fg-bin) EQ ip-rowid NO-LOCK NO-ERROR.
 
-IF AVAILABLE fg-bin THEN 
+IF AVAILABLE fg-bin AND fg-bin.qty NE 0 THEN 
 DO:
     FIND FIRST loadtag NO-LOCK
         WHERE loadtag.company      EQ fg-bin.company
