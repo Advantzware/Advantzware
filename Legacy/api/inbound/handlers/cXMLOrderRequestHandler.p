@@ -23,11 +23,11 @@ DEFINE INPUT  PARAMETER ipcUserName               AS CHARACTER  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAPIInboundEvent        AS CHARACTER  NO-UNDO.
 
 DEFINE VARIABLE cPayLoadID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lcResponse        AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE cResponseCode     AS CHARACTER NO-UNDO. 
-DEFINE VARIABLE riAPIInboundEvent AS ROWID     NO-UNDO. 
 
 /* Currenly cCompany and cWarehouseID are not assigned.Once session 
    manager related work is completed then cCompany and cWarehouseID 
@@ -81,7 +81,7 @@ RUN api\CreateAPIInboundEvent.p (
     INPUT  ipcRecordSource,
     INPUT  ipcNotes,
     INPUT  cPayLoadID,
-    OUTPUT riAPIInboundEvent
+    OUTPUT opcAPIInboundEvent
     ).
 
 /* Return time */                            

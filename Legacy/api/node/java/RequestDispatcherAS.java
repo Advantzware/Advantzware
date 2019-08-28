@@ -14,6 +14,7 @@ public class RequestDispatcherAS{
     private String procedureReturnValue;
     private String opResponseData;
     private String ipASRequestRouter;
+	private String apiCalledBy = "NodeServer";
 
     public void dispatch(String inputs[]){
         try{      
@@ -37,7 +38,7 @@ public class RequestDispatcherAS{
             
             
             // Create the Parameters Array
-            ParamArray procedureParams = new ParamArray(7);
+            ParamArray procedureParams = new ParamArray(9);
 
             // Set up input parameters
             procedureParams.addCharacter(0, ipRoute, ParamArrayMode.INPUT);
@@ -46,15 +47,17 @@ public class RequestDispatcherAS{
             procedureParams.addCharacter(3, ipPassword, ParamArrayMode.INPUT);
             procedureParams.addCharacter(4, ipRequestDataType, ParamArrayMode.INPUT);
             procedureParams.addLongchar (5, ipRequestData, ParamArrayMode.INPUT);
+			procedureParams.addCharacter(6, apiCalledBy, ParamArrayMode.INPUT);
             
             // Set up Out parameters - notice the value is null
-            procedureParams.addLongchar(6, null, ParamArrayMode.OUTPUT);
+            procedureParams.addLongchar(7, null, ParamArrayMode.OUTPUT);
+			procedureParams.addCharacter(8, null, ParamArrayMode.OUTPUT);
 
             // Run the procedure
 			appObject.runProc(ipASRequestRouter, procedureParams);
             
 			// Get output parameters - Returned as Object, so must cast
-            opResponseData = (String) procedureParams.getOutputParameter(6);
+            opResponseData = (String) procedureParams.getOutputParameter(7);
 
             // Get RETURN-VALUE - Will return null for AddCustomer() procedure
             procedureReturnValue = (String)(procedureParams.getProcReturnString());
