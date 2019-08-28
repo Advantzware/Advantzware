@@ -4171,7 +4171,8 @@ PROCEDURE create-w-ord :
             w-ord.ship-add2  = shipto.ship-add[2]
             w-ord.ship-city  = shipto.ship-city
             w-ord.ship-state = shipto.ship-state
-            w-ord.ship-zip   = shipto.ship-zip.
+            w-ord.ship-zip   = shipto.ship-zip
+            w-ord.broker     = shipto.broker.
 
           IF NOT AVAIL eb AND AVAIL itemfg AND itemfg.est-no NE "" THEN
           FIND FIRST eb
@@ -4294,7 +4295,8 @@ PROCEDURE create-w-ord :
             w-ord.ship-add2  = shipto.ship-add[2]
             w-ord.ship-city  = shipto.ship-city
             w-ord.ship-state = shipto.ship-state
-            w-ord.ship-zip   = shipto.ship-zip.
+            w-ord.ship-zip   = shipto.ship-zip
+            w-ord.broker     = shipto.broker.
 
           FIND FIRST est WHERE est.company eq job.company
                 AND est.est-no  eq job.est-no
@@ -4427,7 +4429,8 @@ PROCEDURE create-w-ord :
                     w-ord.ship-add2 = shipto.ship-add[2]
                     w-ord.ship-city = shipto.ship-city
                     w-ord.ship-state = shipto.ship-state
-                    w-ord.ship-zip = shipto.ship-zip.
+                    w-ord.ship-zip = shipto.ship-zip
+                    w-ord.broker   = shipto.broker.
 
          ASSIGN w-ord.total-tags = 1
             w-ord.ord-qty = loadtag.qty 
@@ -4980,11 +4983,12 @@ PROCEDURE from-job :
                w-ord.ship-city  = shipto.ship-city
                w-ord.ship-state = shipto.ship-state
                w-ord.ship-ctry  = shipto.country
-               w-ord.ship-zip   = shipto.ship-zip.
+               w-ord.ship-zip   = shipto.ship-zip
+               w-ord.broker     = shipto.broker.
               LEAVE.
             END.
           END.
-
+       
           FIND FIRST est
               WHERE est.company eq job.company
                 AND est.est-no  eq job.est-no
@@ -5337,7 +5341,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
                w-ord.ship-city  = w-shipto.ship-city
                w-ord.ship-state = w-shipto.ship-state
                w-ord.ship-ctry  = w-shipto.country
-               w-ord.ship-zip   = w-shipto.ship-zip.
+               w-ord.ship-zip   = w-shipto.ship-zip
+               w-ord.broker     = w-shipto.broker.
               LEAVE.
             END.
           END.
@@ -5362,7 +5367,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
                w-ord.ship-city  = shipto.ship-city
                w-ord.ship-state = shipto.ship-state
                w-ord.ship-ctry  = shipto.country
-               w-ord.ship-zip   = shipto.ship-zip.
+               w-ord.ship-zip   = shipto.ship-zip
+               w-ord.broker     = shipto.broker.
               LEAVE.
             END.
           END.
@@ -5512,7 +5518,8 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
            w-ord.ship-city  = shipto.ship-city
            w-ord.ship-state = shipto.ship-state
            w-ord.ship-ctry  = shipto.country
-           w-ord.ship-zip   = shipto.ship-zip.
+           w-ord.ship-zip   = shipto.ship-zip
+           w-ord.broker     = shipto.broker.
 
         IF AVAIL soldto THEN w-ord.sold-ctry = soldto.country.
 
@@ -5669,7 +5676,8 @@ PROCEDURE from-po :
           w-ord.ship-city  = shipto.ship-city
           w-ord.ship-state = shipto.ship-state
           w-ord.ship-ctry  = shipto.country
-          w-ord.ship-zip   = shipto.ship-zip.
+          w-ord.ship-zip   = shipto.ship-zip
+          w-ord.broker     = shipto.broker .
 
       ASSIGN
         w-ord.total-unit = w-ord.pcs * w-ord.bundle .
