@@ -8,6 +8,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE iCountPallet AS INTEGER NO-UNDO .
 
 {oerep/r-loadtg.i }
 {custom/xprint.i}
@@ -60,7 +61,7 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
        PUT "<PRINTER?><FORMAT=LEGAL></PROGRESS>" FORM "x(50)".
     END.
 
-   
+        iCountPallet = 0 .
         FOR EACH tt-word-print NO-LOCK BREAK
                                 BY tt-word-print.ord-no 
                                 BY tt-word-print.i-no:
@@ -69,6 +70,7 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
              AND loadtag.item-type EQ NO
                 AND loadtag.tag-no EQ TRIM(tt-word-print.tag-no)
                 USE-INDEX tag NO-ERROR.
+            iCountPallet = iCountPallet + 1 .
                                 
            IF ipcCasLabel EQ "loadtag.xpr" THEN DO:
                {oe/rep/lodxprntstd.i}

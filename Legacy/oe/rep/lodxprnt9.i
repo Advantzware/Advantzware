@@ -62,12 +62,12 @@ IF iplPrintView THEN do:
         PUT "<||><R58><C20><#11><FROM><R63><C29><RECT>" SKIP.           
         
         PUT "<FArial><=11><R56><C24><B><P26> PALLET </B>" SKIP.
-        PUT "<FArial><=11><R59><C19><B><P24>  " tt-word-print.pcs "</B>" SKIP.
+        PUT "<FArial><=11><R59><C19><B><P24>  " iCountPallet FORMAT ">>9" "</B>" SKIP.
         
         PUT "<FArial><=11><R59><C29><B><P26> of </B>" .
         PUT "<||><R58><C35><#12><FROM><R63><C43><RECT>" SKIP.
             
-        PUT "<FArial><=12><R59><C33.8><B><P24>  " tt-word-print.pcs "</B>" SKIP.
+        PUT "<FArial><=12><R59><C33.8><B><P24>  " tt-word-print.total-tags FORMAT ">>9" "</B>" SKIP.
         
         
         PUT "<||><R58><C45><#13><FROM><R63><C62><RECT>" SKIP.            
@@ -133,12 +133,12 @@ ELSE DO:
         PUT "<||><R78><C20><#11><FROM><R83><C29><RECT>" SKIP.            
         
         PUT "<FArial><=11><R76><C24><B><P26> PALLET </B>" SKIP.
-        PUT "<FArial><=11><R79><C19><B><P24>  " tt-word-print.pcs "</B>" SKIP.
+        PUT "<FArial><=11><R79><C19><B><P24>  " iCountPallet FORMAT ">>9" "</B>" SKIP.
         
         PUT "<FArial><=11><R79><C29><B><P26> of </B>" .
         PUT "<||><R78><C35><#12><FROM><R83><C43><RECT>" SKIP.
             
-        PUT "<FArial><=12><R79><C33.8><B><P24>  " tt-word-print.pcs "</B>" SKIP.
+        PUT "<FArial><=12><R79><C33.8><B><P24>  " tt-word-print.total-tags FORMAT ">>9" "</B>" SKIP.
         
         
         PUT "<||><R78><C45><#13><FROM><R83><C62><RECT>" SKIP.           
