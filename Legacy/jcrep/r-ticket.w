@@ -3245,7 +3245,7 @@ PROCEDURE pRunFormatValueChanged :
                              OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
                              OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
                              OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "McLean" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
-                (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20"
+                (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20" OR lv-format-c = "AtlanticBox"
                               OR lv-format-c = "HoneyCell")) THEN
                 assign 
                 tb_prt-mch:SENSITIVE      = YES
@@ -3308,7 +3308,7 @@ PROCEDURE pRunFormatValueChanged :
                         IF NOT tb_prt-set-header:SENSITIVE THEN
                             tb_prt-set-header:SCREEN-VALUE = "no".
                         
-                        IF LOOKUP(lv-format-c,"jobcardc 20,Valley20,Delta10,HoneyCell") > 0 THEN
+                        IF LOOKUP(lv-format-c,"jobcardc 20,AtlanticBox,Valley20,Delta10,HoneyCell") > 0 THEN
                             ASSIGN tb_fgimage:SENSITIVE = NO
                             tb_fgimage:SCREEN-VALUE = "yes" 
                             tb_box:SENSITIVE = NO
