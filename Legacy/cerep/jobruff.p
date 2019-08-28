@@ -224,6 +224,7 @@ DEFINE VARIABLE ld-len    AS DECIMAL NO-UNDO.
 DEFINE VARIABLE ld-dep    AS DECIMAL NO-UNDO.
 DEF VAR v-spoil LIKE job-mch.wst-prct NO-UNDO.
 DEF VAR v-output AS INT FORM ">,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE cRelStat AS CHARACTER NO-UNDO .
 DEFINE BUFFER bf-item FOR ITEM .
 
 /* get values to print */
@@ -238,7 +239,7 @@ DEFINE TEMP-TABLE tt-reftable NO-UNDO LIKE reftable
     FIELD est-type LIKE est.est-type.
 
 PUT "<#1><FGCOLOR=GREEN><B><LINECOLOR=GREEN><R3><C65><From><R10><C65><Line><||6>"
-    "<R16><C41><From><R27><C41><Line><||6>"
+    "<R16><C41><From><R29><C41><Line><||6>"
     "<R37><C53><From><R49><C53><Line><||6>"
     "<R37><C68><From><R49><C68><Line><||6>"    
     "<R40><C1><FROM><R40><C82><LINE><||6>"
@@ -464,7 +465,7 @@ DO:
         PAGE.
         PUT 
             "<R3><C65><From><R10><C65><Line><||6>"
-            "<R16><C41><From><R27><C41><Line><||6>"
+            "<R16><C41><From><R29><C41><Line><||6>"
             "<R37><C53><From><R49><C53><Line><||6>"
             "<R37><C68><From><R49><C68><Line><||6>"    
             "<R40><C1><FROM><R40><C82><LINE><||6>"
@@ -975,26 +976,35 @@ FOR EACH ef
             i      = 1
             v-ink1 = ""
             v-ink2 = "".
+
+        FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+            BREAK BY wrk-ink.i-code
+            BY wrk-ink.i-pass
+            BY wrk-ink.i-unit
+            :
+             IF NOT FIRST-OF(wrk-ink.i-code) THEN 
+                 DELETE wrk-ink.
+             ELSE IF wrk-ink.i-unit = 0 THEN wrk-ink.i-unit = 999 .
+        END. /* each wrk-ink */
              
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
-            BREAK BY wrk-ink.blank-no
-            BY wrk-ink.i-seq 
+            BREAK BY wrk-ink.i-pass
+            BY wrk-ink.i-unit
             :
-
+              IF wrk-ink.i-unit = 999 THEN wrk-ink.i-unit = 0 .
               ASSIGN v-ink1[i] = /*STRING(wrk-ink.i-seq,">9") + "  " + "1  " + */
                   STRING(wrk-ink.i-code,"X(11)") + " " + 
                   string(wrk-ink.i-dscr,"x(30)") + " " + trim(string(wrk-ink.i-pass,">")) + " " + STRING(wrk-ink.i-unit)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
                   i         = i + 1         . 
-
             DELETE wrk-ink.
         END. /* each wrk-ink */
         ASSIGN
             v-skip          = NO
             v-plate-printed = NO.
-        PUT "<#5>" "<FGCOLOR=GREEN>COLORS      DESCRIPTION <C36.8>P<C38.5>U <FGCOLOR=BLACK>" SKIP. 
-        DO j = 1 TO 16:
+        PUT "<#5><R-1>" "<FGCOLOR=GREEN>COLORS      DESCRIPTION <C36.8>P<C38.5>U <FGCOLOR=BLACK>" SKIP. 
+        DO j = 1 TO 12:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN
                 PUT v-ink1[j] FORM "x(47)" SKIP .
@@ -1007,23 +1017,21 @@ FOR EACH ef
             WHERE prep.company EQ cocode
               AND prep.CODE EQ cDieNo AND cDieNo NE "" NO-ERROR .
         PUT 
-            "<R17>" "<FGCOLOR=GREEN><C41> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
+            "<R16>" "<FGCOLOR=GREEN><C41> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
             "<FGCOLOR=GREEN><C41> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
             "<FGCOLOR=GREEN><C41> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
             "<FGCOLOR=GREEN><C41> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
             "<FGCOLOR=GREEN><C41> DIE SIZE:<FGCOLOR=BLACK> " (IF AVAIL prep THEN (string(prep.die-w) + " x "  + STRING(prep.die-l)) ELSE "") FORMAT "x(25)" SKIP
-            "<FGCOLOR=GREEN><C41> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                
+            "<FGCOLOR=GREEN><C41> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(5)                
             v-fill  SKIP.
-                 
-        IF FIRST-OF(job-hdr.job-no) THEN 
-        DO:
+         
             lv-line-chars = 80.
             FIND FIRST job OF job-hdr NO-LOCK NO-ERROR.       
             {custom/notespr5.i job v-inst2 20 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ tt-reftable.val[12] OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
             DO i = 1 TO 20:
                 v-dept-inst[i] = v-inst2[i].
             END.
-        END.
+       
              
         PUT "<FGCOLOR=GREEN><C1>NOTES: <FGCOLOR=BLACK>" SKIP
             "  " v-dept-inst[1] FORM "x(80)"  SKIP
@@ -1032,8 +1040,6 @@ FOR EACH ef
             "  " v-dept-inst[4] FORM "x(80)"  SKIP
             "  " v-dept-inst[5] FORM "x(80)"  SKIP
             "  " v-dept-inst[6] FORM "x(80)"  SKIP
-            "  " v-dept-inst[7] FORM "x(80)"  SKIP
-            "  " v-dept-inst[8] FORM "x(80)"  SKIP
             v-fill  SKIP.            
         PUT "<FGCOLOR=GREEN>MACHINE           MR WASTE  MR HRS   RUN SPEED  SPOLL    INPUT  GOOD SHEETS/PCS   OPER INIT/DATE  <FGCOLOR=BLACK>" SKIP(1) .
         j = 0 .
@@ -1252,21 +1258,46 @@ FOR EACH ef
                 "PLATE#:  " bf-eb.plate-no "<C38>" "DIE#:  " "<C43>" bf-eb.die-no FORMAT "x(20)" SKIP
                 "CUSTOMER PART#:  " bf-eb.part-no   "<C38>" "CAD#:  " bf-eb.cad-no SKIP
                 "PO:  " v-po-no       "<C38>" "PRTD:  " bf-eb.i-coldscr SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
-            PUT
-                "DEL:  " v-del-date      SKIP
-                "SHIP TO:  " v-shipto[1]   
-                SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
-            PUT
-                v-shipto[2] AT 8 
-                "<C38>" "PACK:  "  bf-eb.cas-cnt "        PER CASE:  " bf-eb.cas-no  SKIP
-                v-shipto[3] AT 8  "<C38>PACK: " bf-eb.cas-pal FORM ">>9" "<C47>PER PALLET" SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE.
-            PUT       
-                v-shipto[4] AT 8  "<C38>AQL:  "  tt-key2.tt-aql FORM "x(25)"
-                SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
+
+            IF AVAILABLE oe-ordl THEN
+                FOR EACH oe-rel WHERE oe-rel.company EQ cocode
+                    AND oe-rel.ord-no  EQ oe-ordl.ord-no
+                    AND oe-rel.i-no    EQ oe-ordl.i-no
+                    AND oe-rel.line    EQ oe-ordl.line
+                    NO-LOCK :
+             
+                FIND FIRST shipto WHERE shipto.company EQ cocode
+                    AND shipto.cust-no EQ oe-rel.cust-no
+                    AND shipto.ship-id EQ oe-rel.ship-id
+                    NO-LOCK NO-ERROR.  
+                IF AVAILABLE shipto THEN
+                    ASSIGN v-shipto[1] = shipto.ship-name
+                        v-shipto[2] = shipto.ship-addr[1]
+                        v-shipto[3] = shipto.ship-addr[2]
+                        v-shipto[4] = TRIM(oe-rel.ship-city) + ", " +
+                                  oe-rel.ship-state + "  " + oe-rel.ship-zip. 
+                {oe/rel-stat.i cRelStat}
+                    IF AVAILABLE oe-rell THEN
+                        FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
+                    v-del-date = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
+
+                IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
+                PUT
+                    "DEL:  " v-del-date      SKIP
+                    "SHIP TO:  " v-shipto[1]   "<C38>" "Qty:" oe-rel.tot-qty FORMAT ">>>>>>>9" 
+                    SKIP.
+                IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
+                PUT
+                    v-shipto[2] AT 8 
+                    "<C38>" "PACK:  "  bf-eb.cas-cnt "        PER CASE:  " bf-eb.cas-no  SKIP
+                    v-shipto[3] AT 8  "<C38>PACK: " bf-eb.cas-pal FORM ">>9" "<C47>PER PALLET" SKIP.
+                IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE.
+                PUT       
+                    v-shipto[4] AT 8  "<C38>AQL:  "  tt-key2.tt-aql FORM "x(25)"
+                    SKIP.
+                IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE.
+            END.
+            
             PUT
                 "FG ITEM:  " bf-eb.stock-no SKIP.
             IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
