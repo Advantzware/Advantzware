@@ -22,6 +22,7 @@ DEFINE BUFFER bf-{&LineTable} FOR {&LineTable}.
 ASSIGN 
     opcType    = "{&LineTable}"
     .
+    
 FIND FIRST {&HeaderTable} OF {&LineTable} NO-LOCK NO-ERROR.
 FIND FIRST cust NO-LOCK 
     WHERE cust.company EQ {&HeaderTable}.company
@@ -31,14 +32,20 @@ FIND FIRST itemfg NO-LOCK
     WHERE itemfg.company EQ {&HeaderTable}.company
     AND itemfg.i-no EQ ipcFGItemID
     NO-ERROR.
+ 
 IF AVAILABLE {&HeaderTable} 
     AND AVAILABLE cust 
     AND AVAILABLE itemfg 
     THEN 
 DO:  
+    /* Use matrix for non-stock items ONLY if NK1 "OEUseMatrixForNonstock" logical eq true 
+    Also referenced in oe/PriceProcs.p   */
+    RUN sys/ref/nk1look.p ({&linetable}.company, "OEUseMatrixForNonstock", "L", NO, NO, "", "", OUTPUT cUseMatrix, OUTPUT lFound).
     ASSIGN 
         oplReprice = cust.auto-reprice.
-    IF itemfg.i-code EQ "S" THEN DO:      
+    IF itemfg.i-code EQ "S" 
+    OR (lFound AND cUseMatrix EQ "YES") THEN DO:  
+            
         ipcFGItemID = IF ipcFGItemID EQ "" THEN {&LineTable}.i-no ELSE ipcFGItemID.
         ipcCustID = IF ipcCustID EQ "" THEN  {&LineTable}.cust-no ELSE ipcCustID.
         ipcShipID = IF ipcShipID EQ "" THEN {&LineTable}.cust-no ELSE ipcShipID.
