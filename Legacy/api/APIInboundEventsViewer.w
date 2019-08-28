@@ -49,7 +49,7 @@ DEFINE TEMP-TABLE ttAPIInboundEvent NO-UNDO
     FIELDS requestedBy AS CHARACTER
     FIELDS requestDateTime AS DATETIME
     FIELDS success AS LOGICAL
-    FIELDS eventID AS INTEGER
+    FIELDS apiInboundEventID AS INTEGER
     FIELDS eventRowID AS ROWID
     .
 
@@ -58,7 +58,7 @@ DEFINE TEMP-TABLE ttPrintAPIInboundEvent NO-UNDO
     FIELDS requestedBy AS CHARACTER LABEL "Requested By"
     FIELDS requestDateTime AS DATETIME LABEL "Request Date" FORMAT "99/99/9999 HH:MM:SS.SSS"
     FIELDS success AS LOGICAL LABEL "Success?" FORMAT "SUCCESS/FAILURE"
-    FIELDS eventID AS INTEGER LABEL "Event ID"
+    FIELDS apiInboundEventID AS INTEGER LABEL "Event ID"
     .
 
 /* _UIB-CODE-BLOCK-END */
@@ -80,7 +80,7 @@ DEFINE TEMP-TABLE ttPrintAPIInboundEvent NO-UNDO
 &Scoped-define INTERNAL-TABLES ttAPIInboundEvent
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent ttAPIInboundEvent.apiRoute ttAPIInboundEvent.requestDateTime ttAPIInboundEvent.success ttAPIInboundEvent.requestedby ttAPIInboundEvent.eventID   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent ttAPIInboundEvent.apiRoute ttAPIInboundEvent.requestDateTime ttAPIInboundEvent.success ttAPIInboundEvent.requestedby ttAPIInboundEvent.apiInboundEventID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 ttAPIInboundEvent.retryEvent   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-2 ttAPIInboundEvent
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-2 ttAPIInboundEvent
@@ -228,7 +228,7 @@ DEFINE BROWSE BROWSE-2
             WIDTH 27
       ttAPIInboundEvent.requestedby COLUMN-LABEL "Requested By" FORMAT "x(8)":U
             WIDTH 27
-      ttAPIInboundEvent.eventID COLUMN-LABEL "Event ID" FORMAT "->,>>>,>>9":U
+      ttAPIInboundEvent.apiInboundEventID COLUMN-LABEL "Event ID" FORMAT "->,>>>,>>9":U
             WIDTH 27
       ENABLE ttAPIInboundEvent.retryEvent
 /* _UIB-CODE-BLOCK-END */
@@ -563,7 +563,7 @@ DO:
         WHERE (IF fieventID:SCREEN-VALUE EQ "0" THEN
                    TRUE
                ELSE
-                  APIInboundEvent.eventID EQ INTEGER(fieventID:SCREEN-VALUE))
+                  APIInboundEvent.apiInboundEventID EQ INTEGER(fieventID:SCREEN-VALUE))
           AND (IF fiAPIID:SCREEN-VALUE EQ "ALL" OR fiAPIID:SCREEN-VALUE EQ "" THEN
                    TRUE
                ELSE
