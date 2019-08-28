@@ -20,7 +20,7 @@ DEFINE INPUT  PARAMETER ipcRequestedBy      AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRecordSource     AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcNotes            AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPayloadID        AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opriAPIInboundEvent AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAPIInboundEvent AS CHARACTER NO-UNDO.
 
 CREATE APIInboundEvent.
 ASSIGN
@@ -34,5 +34,5 @@ ASSIGN
     APIInboundEvent.recordSource    = ipcRecordSource
     APIInboundEvent.notes           = ipcNotes
     APIInboundEvent.externalID      = ipcPayloadID
-    opriAPIInboundEvent             = STRING(ROWID(APIInboundEvent))
+    opcAPIInboundEvent              = STRING(ROWID(APIInboundEvent))
     .
