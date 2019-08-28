@@ -96,7 +96,8 @@ prep.mat-type prep.actnum prep.cost-type prep.simon prep.cust-no ~
 prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.cadNo ~
 prep.cad-image prep.carton-w prep.die-w prep.box-style prep.prep-date ~
-prep.carton-l prep.die-l prep.wood-type prep.carton-d prep.disposal-date 
+prep.carton-l prep.die-l prep.wood-type prep.received-date prep.carton-d ~
+prep.last-date prep.disposal-date 
 &Scoped-define ENABLED-TABLES prep
 &Scoped-define FIRST-ENABLED-TABLE prep
 &Scoped-Define DISPLAYED-FIELDS prep.code prep.dscr prep.inactive prep.ml ~
@@ -294,7 +295,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      prep.no-of-impressions AT ROW 10.76 COL 41 COLON-ALIGNED
-          LABEL "Impressions" FORMAT ">,>>>,>>9"
+          LABEL "Impressions"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      prep.owner[2] AT ROW 10.76 COL 88 COLON-ALIGNED
@@ -468,7 +469,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN prep.i-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN prep.last-date IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.last-est-no IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN prep.last-job-no IN FRAME F-Main
@@ -498,7 +499,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN prep.prep-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.received-date IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.rec_key IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
