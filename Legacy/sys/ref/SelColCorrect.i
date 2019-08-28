@@ -29,7 +29,14 @@ cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
 
       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN DO:
-          cFieldList = cFieldList + string(sl_selected:ENTRY(iCount)) + "," .
+          IF cFieldList eq "" THEN
+	     cFieldList = cFieldList + string(sl_selected:ENTRY(iCount))  .  
+	  ELSE
+	     cFieldList = cFieldList + "," + string(sl_selected:ENTRY(iCount))  . 	         
+      END.
+  END.
+  DO iCount = 1 TO NUM-ENTRIES(cTmpList):             
+      IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN DO:          
            ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
       END.
   END.
