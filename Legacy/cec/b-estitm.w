@@ -1135,7 +1135,7 @@ DO:
 
             IF ls-add-what EQ "Est" 
             AND eb.ship-id:SCREEN-VALUE EQ "" THEN DO:
-                RUN pGetDefaultShipID (INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT cShipID).      
+                RUN pGetDefaultShipID (INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT cShipID).
                 ASSIGN 
                     eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = cShipID.
             END.
@@ -1173,6 +1173,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.part-no br-estitm _BROWSE-COLUMN B-table-Win
 ON ENTRY OF eb.part-no IN BROWSE br-estitm /* Cust Part # */
 DO:
+  DEFINE VARIABLE cShipID AS CHARACTER NO-UNDO.
+  
   IF ll-add-set THEN DO:
      ll-add-set = NO.
      RUN est/crt-set.w (ROWID(est)) NO-ERROR.
@@ -1195,9 +1197,11 @@ DO:
      FIND FIRST tt-eb-set-part NO-ERROR.
      IF AVAIL tt-eb-set-part THEN
      DO:
-        ASSIGN
+       RUN pGetDefaultShipID (INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT cShipID).
+       ASSIGN
          li-flen[1] = LENGTH(STRING(FILL("X",100),eb.part-no:FORMAT IN BROWSE {&browse-name}))  - 2
          li-flen[2] = LENGTH(STRING(FILL("X",100),eb.stock-no:FORMAT IN BROWSE {&browse-name})) - 2
+         eb.ship-id:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = cShipID
          eb.part-no:SCREEN-VALUE IN BROWSE {&browse-name}    =
               TRIM(SUBSTR(tt-eb-set-part.part-no,1,li-flen[1])) + "-1"
          eb.part-dscr1:SCREEN-VALUE IN BROWSE {&browse-name} = tt-eb-set-part.part-dscr1
