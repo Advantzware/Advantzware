@@ -285,27 +285,39 @@ PROCEDURE JobParser:
     DEFINE VARIABLE iValid AS INTEGER NO-UNDO.
         
     IF INDEX(ipcJobno,"-") NE 0 THEN DO:        
-        iValid = (IF NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 1 THEN
-                  INTEGER(ENTRY(1,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE 0) NO-ERROR.
+        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
+                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 1 THEN
+                      INTEGER(ENTRY(1,ENTRY(2,ipcJobno,"-"),"."))
+                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 2 THEN
+                      INTEGER(ENTRY(2,ipcJobno,"-"))
+                  ELSE 
+                      0) NO-ERROR.
                  
         IF ERROR-STATUS:ERROR THEN DO:
             opcMessage = "Invalid Jobno2 value".
             RETURN.
         END.
         
-        iValid = (IF NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
-                  INTEGER(ENTRY(2,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE 0) NO-ERROR.
+        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
+                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
+                      INTEGER(ENTRY(2,ENTRY(2,ipcJobno,"-"),"."))
+                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 3 THEN
+                      INTEGER(ENTRY(3,ipcJobno,"-"))
+                  ELSE 
+                      0) NO-ERROR.
                   
         IF ERROR-STATUS:ERROR THEN DO:
             opcMessage = "Invalid Formno value".
             RETURN.
         END.
 
-        iValid = (IF NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
-                  INTEGER(ENTRY(3,ENTRY(2,ipcJobno,"-"),"."))
-                  ELSE 0) NO-ERROR.
+        iValid = (IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
+                     NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
+                      INTEGER(ENTRY(3,ENTRY(2,ipcJobno,"-"),"."))
+                  ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 4 THEN
+                      INTEGER(ENTRY(4,ipcJobno,"-"))
+                  ELSE 
+                      0) NO-ERROR.
                   
         IF ERROR-STATUS:ERROR THEN DO:
             opcMessage = "Invalid Blankno value".
@@ -314,19 +326,35 @@ PROCEDURE JobParser:
 
         ASSIGN
             opcJobNo   = ENTRY(1,ipcJobno,"-")        
-            opcJobNo2  = IF NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 1 THEN
-                            ENTRY(1,ENTRY(2,ipcJobno,"-"),".") 
+            opcJobNo2  = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
+                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 1 THEN
+                             ENTRY(1,ENTRY(2,ipcJobno,"-"),".")
+                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 2 THEN
+                             ENTRY(2,ipcJobno,"-")
                          ELSE
-                            "00"
-            opcFormno  = IF NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
-                            ENTRY(2,ENTRY(2,ipcJobno,"-"),".") 
+                             "00"
+            opcFormno  = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
+                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 2 THEN
+                             ENTRY(2,ENTRY(2,ipcJobno,"-"),".")
+                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 3 THEN
+                             ENTRY(3,ipcJobno,"-")
                          ELSE
-                            "00"
-            opcBlankno = IF NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
-                            ENTRY(3,ENTRY(2,ipcJobno,"-"),".") 
+                             "00"
+            opcBlankno = IF NUM-ENTRIES(ipcJobno,"-") EQ 2 AND
+                            NUM-ENTRIES(ENTRY(2,ipcJobno,"-"),".") GE 3 THEN
+                             ENTRY(3,ENTRY(2,ipcJobno,"-"),".")
+                         ELSE IF NUM-ENTRIES(ipcJobno,"-") GE 4 THEN
+                             ENTRY(4,ipcJobno,"-")
                          ELSE
-                            "00"
-            oplIsParsed = TRUE.
+                             "00"
+            NO-ERROR.
+            
+        IF ERROR-STATUS:ERROR THEN DO:
+            opcMessage = ERROR-STATUS:GET-MESSAGE(1).
+            RETURN.
+        END.            
+        
+        oplIsParsed = TRUE.
     END.
 
 END PROCEDURE.

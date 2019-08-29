@@ -858,14 +858,40 @@ DO:
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
-    RUN system/openlookup.p (ipcCompany, "job-no", 0, "", 0, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
-    SELF:SCREEN-VALUE = cFoundValue.
-    APPLY "LEAVE":U TO SELF.
-    ASSIGN
-        cb-jobno2:SCREEN-VALUE  = ENTRY(3,cFieldsValue,"|")
-        cb-formno:SCREEN-VALUE  = ENTRY(4,cFieldsValue,"|")
-        cb-blankno:SCREEN-VALUE = ENTRY(5,cFieldsValue,"|")
-        .
+    RUN system/openlookup.p (
+        INPUT  ipcCompany, 
+        INPUT  "job-no",        /* Lookup ID */
+        INPUT  0,               /* Subject ID */
+        INPUT  "",              /* User ID */
+        INPUT  0,               /* Param Value ID */
+        OUTPUT cFieldsValue, 
+        OUTPUT cFoundValue, 
+        OUTPUT recFoundRecID
+        ).
+        
+    IF cFoundValue NE "" THEN DO:    
+        SELF:SCREEN-VALUE = cFoundValue.
+        
+        APPLY "LEAVE":U TO SELF.
+                    
+        ASSIGN
+            cb-jobno2:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 6 AND
+                                         INDEX(cb-jobno2:LIST-ITEMS, STRING(INTEGER(ENTRY(6,cFieldsValue,"|")),"99")) GT 0 THEN
+                                          ENTRY(6,cFieldsValue,"|")
+                                      ELSE
+                                          ENTRY(1,cb-jobno2:LIST-ITEMS)
+            cb-formno:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 8 AND
+                                         INDEX(cb-formno:LIST-ITEMS, STRING(INTEGER(ENTRY(8,cFieldsValue,"|")),"99")) GT 0 THEN
+                                          ENTRY(8,cFieldsValue,"|")
+                                      ELSE
+                                          ENTRY(1,cb-formno:LIST-ITEMS)
+            cb-blankno:SCREEN-VALUE = IF NUM-ENTRIES(cFieldsValue,"|") GE 10 AND
+                                         INDEX(cb-blankno:LIST-ITEMS, STRING(INTEGER(ENTRY(10,cFieldsValue,"|")),"99")) GT 0 THEN
+                                          ENTRY(10,cFieldsValue,"|")
+                                      ELSE
+                                          ENTRY(1,cb-blankno:LIST-ITEMS)
+            NO-ERROR.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -927,15 +953,15 @@ DO:
 
     IF lParse THEN
         ASSIGN
-            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,cJobNo2) GT 0 THEN 
+            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) GT 0 THEN 
                                           cJobNo2
                                       ELSE
                                           ENTRY(1,cJobno2ListItems)
-            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,cFormNo) GT 0 THEN 
+            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,STRING(cFormNo,"99")) GT 0 THEN 
                                           cFormNo
                                       ELSE
                                           ENTRY(1,cFormnoListItems)
-            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,cBlankNo) GT 0 THEN 
+            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) GT 0 THEN 
                                           cBlankNo
                                       ELSE
                                           ENTRY(1,cBlanknoListitems)
@@ -948,7 +974,7 @@ DO:
             cb-blankno:SCREEN-VALUE = ENTRY(1,cBlanknoListItems)
             cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
             .
-                       
+                                   
     RUN ValidateJob IN hdJobProcs (
         INPUT ipcCompany,
         INPUT cFormattedJobno,
@@ -961,7 +987,23 @@ DO:
             
     IF lValidJob THEN
         RUN enableCreate.
-        
+
+    /* Additional validation to check if job still doesn't exist. 
+       In this case machine code is passed empty to check if job is valid*/
+    RUN ValidateJob IN hdJobProcs (
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
+        INPUT "", /* Blank Machine code */
+        INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+        INPUT INTEGER(cb-formno:SCREEN-VALUE),
+        INPUT INTEGER(cb-blankno:SCREEN-VALUE),
+        OUTPUT lValidJob
+        ).
+    
+    IF NOT lValidJob THEN
+        MESSAGE "Invalid Job No!" 
+            VIEW-AS ALERT-BOX ERROR.
+                        
     cValidateJobno = ls-jobno:SCREEN-VALUE.
                
     RUN rebuildTempTable (
