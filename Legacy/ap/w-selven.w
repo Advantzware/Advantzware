@@ -942,12 +942,15 @@ END.
 ON VALUE-CHANGED OF lv-vend-no IN FRAME F-Main /* Vendor# */
 DO:
    IF lv-vend-no:SCREEN-VALUE <> "" THEN DO:
-      FIND vend WHERE vend.company = g_company
-                      and vend.vend-no EQ lv-vend-no:SCREEN-VALUE 
-                         use-index vend no-lock no-error.
+      FIND FIRST vend WHERE vend.company = g_company
+                      AND ((vend.vend-no BEGINS lv-vend-no:SCREEN-VALUE 
+                      AND length(lv-vend-no:SCREEN-VALUE) GE 3)
+                      OR vend.vend-no EQ lv-vend-no:SCREEN-VALUE)
+                         use-index vend no-lock no-error. 
       IF AVAIL vend THEN DO:
-         ASSIGN vend_name = vend.NAME.
-         DISP vend_name WITH FRAME {&FRAME-NAME}.
+         ASSIGN vend_name = vend.NAME
+                lv-vend-no = vend.vend-no .
+         DISP lv-vend-no vend_name WITH FRAME {&FRAME-NAME}.
          fil_id = if avail vend then recid(vend) else ?.
       END.
    END.
