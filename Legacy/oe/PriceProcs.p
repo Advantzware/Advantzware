@@ -285,7 +285,7 @@ PROCEDURE CalculateLinePrice:
      
     DEFINE VARIABLE cType    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lReprice AS LOGICAL   NO-UNDO.
-    
+
     /*Build the ttItemLines table - will only be one record if not auto-reprice - only FG Items of "Stock"*/
     RUN pBuildLineTable(ipriLine, ipcFGITemID, ipcCustID, ipcShipID, ipdQuantity, OUTPUT cType, OUTPUT lReprice).
     
@@ -806,6 +806,8 @@ PROCEDURE pBuildLineTable PRIVATE:
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcType AS CHARACTER NO-UNDO.  /*oe-ordl, ar-invl, inv-line*/ 
     DEFINE OUTPUT PARAMETER oplReprice AS LOGICAL NO-UNDO.
+    DEF VAR lFound AS LOG NO-UNDO.
+    DEF VAR cUseMatrix AS CHAR NO-UNDO.
 
     EMPTY TEMP-TABLE ttItemLines.
     FIND FIRST oe-ordl NO-LOCK 
@@ -1085,11 +1087,20 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     END.
     IF ipbf-itemfg.i-code NE "S" THEN 
     DO:
-        ASSIGN 
-            opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
-            oplMatchFound  = NO 
-            .
-        RETURN.
+        /* Use matrix for non-stock items ONLY if NK1 "OEUseMatrixForNonstock" logical eq true 
+        Also referenced in oe/PriceProcsLineBuilder.i   */
+        DEF VAR cUseMatrix AS CHAR NO-UNDO.
+        DEF VAR lFound AS LOG NO-UNDO.
+        RUN sys/ref/nk1look.p (ipbf-itemfg.company, "OEUseMatrixForNonstock", "L", NO, NO, "", "", OUTPUT cUseMatrix, OUTPUT lFound).
+        IF lFound 
+        AND cUseMatrix EQ "YES" THEN.
+        ELSE DO:
+            ASSIGN 
+                opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
+                oplMatchFound  = NO 
+                .
+            RETURN.
+        END.
     END.
     /*Find match */  
     FOR EACH opbf-oe-prmtx NO-LOCK 
