@@ -224,6 +224,7 @@ DEFINE FRAME Dialog-Frame
           LABEL "Stack Height" FORMAT ">>9" 
           VIEW-AS COMBO-BOX INNER-LINES 4
           LIST-ITEM-PAIRS 
+                     "0","0",
                      "1","1",
                      "2","2",
                      "3","3",
