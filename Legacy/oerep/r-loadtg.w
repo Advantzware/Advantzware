@@ -1222,6 +1222,8 @@ DO:
        WHERE oe-ordl.company EQ cocode
          AND oe-ordl.ord-no EQ INT(begin_ord-no:SCREEN-VALUE)
          AND (oe-ordl.i-no EQ begin_i-no:SCREEN-VALUE OR begin_i-no:SCREEN-VALUE EQ "" )
+         AND (oe-ordl.job-no EQ begin_job:SCREEN-VALUE OR begin_job:SCREEN-VALUE EQ "" )
+         AND (oe-ordl.job-no2 EQ int(begin_job2:SCREEN-VALUE) OR int(begin_job:SCREEN-VALUE) EQ 0 )
          AND oe-ordl.opened eq YES NO-ERROR .
         IF AVAIL oe-ordl 
           THEN do:
@@ -1876,6 +1878,8 @@ DO:
        WHERE oe-ordl.company EQ cocode
          AND oe-ordl.ord-no EQ INT(end_ord-no:SCREEN-VALUE)
          AND (oe-ordl.i-no EQ end_i-no:SCREEN-VALUE OR end_i-no:SCREEN-VALUE EQ "" )
+         AND (oe-ordl.job-no EQ end_job:SCREEN-VALUE OR end_job:SCREEN-VALUE EQ "" )
+         AND (oe-ordl.job-no2 EQ int(end_job2:SCREEN-VALUE) OR int(end_job:SCREEN-VALUE) EQ 0 )
          AND oe-ordl.opened eq YES NO-ERROR .
         IF AVAIL oe-ordl 
           THEN do:
