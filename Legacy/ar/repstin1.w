@@ -90,7 +90,7 @@ RUN methods/prgsecur.p
 &Scoped-define BROWSE-NAME br_table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ar-invl ar-inv 
+&Scoped-define INTERNAL-TABLES ar-inv ar-invl
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -105,28 +105,28 @@ ar-invl.s-pct[3] ar-invl.s-comm[3] ar-inv.cust-name get-inv-dscr() @ cItemDscr
 ar-invl.unit-pr ar-invl.sman[1] ar-invl.s-pct[1] ar-invl.s-comm[1] ~
 ar-invl.sman[2] ar-invl.s-pct[2] ar-invl.s-comm[2] ar-invl.sman[3] ~
 ar-invl.s-pct[3] ar-invl.s-comm[3] 
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table ar-invl ar-inv 
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table ar-inv ar-invl  
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table ar-invl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table ar-inv
-&Scoped-define QUERY-STRING-br_table FOR EACH ar-invl WHERE ~{&KEY-PHRASE} ~
-      AND ar-invl.company eq cocode  ~
-     AND (ar-invl.sman[1] GE begin_sman) AND (ar-invl.sman[1] LE end_sman OR end_sman EQ "") NO-LOCK, ~
-     FIRST ar-inv WHERE ar-inv.x-no EQ ar-invl.x-no AND ~
-     (ar-inv.inv-no GE fi_inv-no ) AND (ar-inv.inv-no LE end_inv-no OR end_inv-no EQ 0 ) AND (ar-inv.inv-date GE begin_inv-date) AND ~
-    (ar-inv.inv-date LE end_inv-date) AND (ar-inv.cust-no GE begin_cust-no ) AND   ~
-    (ar-inv.cust-no LE end_cust-no OR end_cust-no EQ "")    NO-LOCK BY ar-invl.inv-no BY ar-invl.LINE ~
-    ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH ar-invl WHERE ~{&KEY-PHRASE} ~
-       AND ar-invl.company eq cocode  ~
-     AND (ar-invl.sman[1] GE begin_sman) AND (ar-invl.sman[1] LE end_sman OR end_sman EQ "") NO-LOCK, ~
-     FIRST ar-inv WHERE ar-inv.x-no EQ ar-invl.x-no AND ~
-     (ar-inv.inv-no GE fi_inv-no ) AND (ar-inv.inv-no LE end_inv-no OR end_inv-no EQ 0 ) AND (ar-inv.inv-date GE begin_inv-date) AND ~
-    (ar-inv.inv-date LE end_inv-date) AND (ar-inv.cust-no GE begin_cust-no ) AND   ~
-    (ar-inv.cust-no LE end_cust-no OR end_cust-no EQ "")    NO-LOCK BY ar-invl.inv-no BY ar-invl.LINE ~
-    ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table ar-invl ar-inv
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table ar-invl
-&Scoped-define SECOND-TABLE-IN-QUERY-br_table ar-inv
+&Scoped-define QUERY-STRING-br_table FOR EACH  ~
+      ar-inv WHERE ~{&KEY-PHRASE} AND  ar-inv.company eq cocode AND ~
+     ar-inv.inv-no GE fi_inv-no AND (ar-inv.inv-no LE end_inv-no OR end_inv-no EQ 0 ) AND ar-inv.inv-date GE begin_inv-date AND ~
+     ar-inv.inv-date LE end_inv-date AND ar-inv.cust-no GE begin_cust-no AND   ~
+     (ar-inv.cust-no LE end_cust-no OR end_cust-no EQ "")    NO-LOCK , ~
+FIRST ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no  ~
+     AND (ar-invl.sman[1] GE begin_sman) AND (ar-invl.sman[1] LE end_sman OR end_sman EQ "") NO-LOCK    ~
+    BY ar-invl.inv-no BY ar-invl.LINE ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH  ~
+      ar-inv WHERE ~{&KEY-PHRASE} AND ar-inv.company eq cocode AND ~
+     ar-inv.inv-no GE fi_inv-no AND (ar-inv.inv-no LE end_inv-no OR end_inv-no EQ 0 ) AND ar-inv.inv-date GE begin_inv-date AND ~
+     ar-inv.inv-date LE end_inv-date AND ar-inv.cust-no GE begin_cust-no AND   ~
+     (ar-inv.cust-no LE end_cust-no OR end_cust-no EQ "")    NO-LOCK , ~
+FIRST ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no   ~
+     AND (ar-invl.sman[1] GE begin_sman) AND (ar-invl.sman[1] LE end_sman OR end_sman EQ "") NO-LOCK    ~
+    BY ar-invl.inv-no BY ar-invl.LINE ~{&SORTBY-PHRASE} .
+&Scoped-define TABLES-IN-QUERY-br_table ar-inv ar-invl
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table ar-inv
+&Scoped-define SECOND-TABLE-IN-QUERY-br_table ar-invl
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -250,8 +250,8 @@ DEFINE VARIABLE end_inv-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      ar-invl, 
-      ar-inv SCROLLING.
+      ar-inv, 
+      ar-invl SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -1439,18 +1439,18 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-    IF lCheckFirst THEN
+    IF lCheckFirst THEN DO:
      fi_inv-no = 9999999 .
+     /* Delay opening of query until the user makes a selection */
+     lCheckFirst = FALSE .
+     RETURN.
+    END. 
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
    /* Code placed here will execute AFTER standard behavior.    */
-  IF lCheckFirst THEN
-      ASSIGN 
-      fi_inv-no = 0
-      fi_inv-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" 
-      lCheckFirst = FALSE .
+
 
 
   
