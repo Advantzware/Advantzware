@@ -134,6 +134,8 @@ PROCEDURE postMonitor:
                 fg-rctd.cases        = IF loadtag.case-bundle GT 0 THEN loadtag.case-bundle ELSE 1
                 fg-rctd.units-pallet = fg-rctd.cases
                 fg-rctd.cases-unit   = fg-rctd.cases + (IF loadtag.partial NE 0 THEN 1 ELSE 0)
+                fg-rctd.enteredBy    = USERID("asi")
+                fg-rctd.enteredDT    = DATETIME(TODAY, MTIME) 
                 .
               /* transfer specific */
               IF rfidData.transType EQ 'Move' THEN DO:
