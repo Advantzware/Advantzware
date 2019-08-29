@@ -77,7 +77,7 @@ ASSIGN cTextListToSelect = "Rep,Rep Name,Name,Customer,Customer Name,Invoice#,In
        cFieldListToSelect = "rep,rep-name,name,cust,custname,inv-no,inv-date,fg,cat,qty,ttl-msf,pur-ord," +
                             "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code,customer-part,bol,sqft," +
                             "cust-lot"
-       cFieldLength = "3,20,30,8,30,8,8,15,5,12,9,8," +
+       cFieldLength = "3,20,30,8,30,8,8,15,5,14,9,8," +
                       "8,15,11,11,8,10,3,15,14,15,6,10," + "15"
        cFieldType   = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c,c,i,i," + "c"
        .
@@ -1636,7 +1636,7 @@ DEFINE VARIABLE v-brdc      AS   DECIMAL NO-UNDO.
 DEFINE VARIABLE v-marg      AS   DECIMAL NO-UNDO.
 DEFINE VARIABLE v-$msf      AS   DECIMAL NO-UNDO.
 
-DEFINE VARIABLE v-qty   AS   INTEGER EXTENT 5 NO-UNDO.
+DEFINE VARIABLE v-qty   AS   DECIMAL EXTENT 5 NO-UNDO.
 DEFINE VARIABLE v-msf   AS   DECIMAL EXTENT 5 NO-UNDO.
 DEFINE VARIABLE v-cst   AS   DECIMAL EXTENT 5 NO-UNDO.
 DEFINE VARIABLE v-amt   AS   DECIMAL EXTENT 5 NO-UNDO.
