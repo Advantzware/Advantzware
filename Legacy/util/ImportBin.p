@@ -16,6 +16,7 @@ DEFINE TEMP-TABLE ttImportBin
     FIELD Company   AS CHARACTER 
     FIELD Location  AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Location" HELP "Required. Must be valid - Size:5"
     FIELD BinType   AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Type" HELP "Required. Must be FG  RM or WIP"
+    FIELD GLCode    AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Code" HELP "Optional. Any text value"
     FIELD BinLoc    AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Primary Bin Loc" HELP "Required - Size:8"
     FIELD BinAct    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "FG Bin Active" HELP "Optional. Yes or No - Default Yes"
     .
@@ -64,7 +65,6 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Key Field Blank: Location".
     END.
-    
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportBin.BinType EQ '' THEN 

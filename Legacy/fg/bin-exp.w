@@ -69,11 +69,11 @@ DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 ASSIGN 
     cTextListToSelect  = "Location,Type,Default Bin,Name,Address1,Address2,Address3,Address4,Address5,Address6," +
                            "City,St Prov,Zip Post,Country,County,Lat,Long,Phone,Ext Code,Fax,Email,Notes,Primary Bin Loc," +
-                           "Loc Active,FG Bin Active"
+                           "Loc Active,FG Bin Active,GL Code"
 
     cFieldListToSelect = "loc,type,def-bin,dscr,addr[1],addr[2],addr[3],addr[4],addr[5],addr[6]," +
                            "city,st-prov,zip-post,country,county,lat,long,phone,ext-code,fax,email,notes,prm-bin-loc," +
-                           "active,fg-active"  .
+                           "active,fg-active,glCode"  .
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
