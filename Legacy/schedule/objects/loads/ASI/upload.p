@@ -34,9 +34,8 @@ DEFINE TEMP-TABLE ttHTMLFields NO-UNDO
         INDEX ttHTMLFields IS PRIMARY fieldType
         .
 
-
-
 /* ************************  Function Implementations ***************** */
+
 FUNCTION fHTMLFieldValue RETURNS CHARACTER
     (ipcTable       AS CHARACTER,
      ipcFieldLabel  AS CHARACTER,
@@ -855,9 +854,14 @@ PROCEDURE pLoadSBJob:
     IF INDEX(xxxID,"ASI/") NE 0 THEN
     xxxID = REPLACE(xxxID,"ASI/","").
 
+    /* remove non-existant sbjob records */
     FOR EACH sbJob EXCLUSIVE-LOCK
         WHERE sbJob.sbName EQ xxxID
         :
+        IF NOT CAN-FIND(FIRST ttblJob
+                        WHERE ttblJob.jobMchID EQ sbJob.job-mchID) AND
+           NOT CAN-FIND(FIRST pendingJob
+                        WHERE pendingJob.jobMchID EQ sbJob.job-mchID) THEN
         DELETE sbJob.
     END. /* each sbjob */
 

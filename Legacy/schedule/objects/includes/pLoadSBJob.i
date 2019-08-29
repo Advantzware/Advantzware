@@ -1,5 +1,9 @@
 /* pLoadSBJob.i */
 
+FIND FIRST sbJob EXCLUSIVE-LOCK
+     WHERE sbJob.job-mchID EQ {1}.jobMchID
+     NO-ERROR.
+IF NOT AVAILABLE sbJob THEN
 CREATE sbJob.
 ASSIGN
     /* restark */
@@ -53,9 +57,9 @@ ASSIGN
     sbJob.pendingJobFlag      = {1}.pendingJobFlag
     sbJob.prepCompleted       = {1}.prepCompleted
     sbJob.printFlag           = {1}.printFlag
-    sbJob.priority-1          = {1}.priority-1
-    sbJob.priority-2          = {1}.priority-2
-    sbJob.priority-3          = {1}.priority-3
+    sbJob.priority1           = {1}.priority-1
+    sbJob.priority2           = {1}.priority-2
+    sbJob.priority3           = {1}.priority-3
     sbJob.prodDate            = {1}.prodDate
     sbJob.resource            = {1}.resource
     sbJob.resourceDescription = {1}.resourceDescription
@@ -230,4 +234,5 @@ ASSIGN
     sbJob.userField[123]      = {1}.userField123
     sbJob.userValue           = {1}.userValue
     sbJob.widgetIdx           = {1}.widgetIdx
+    sbJob.job-mchID           = {1}.jobMchID
     .

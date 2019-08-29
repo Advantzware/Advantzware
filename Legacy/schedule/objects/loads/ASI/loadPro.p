@@ -227,6 +227,7 @@ DEFINE VARIABLE beginEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE boardLength AS DECIMAL NO-UNDO.
 DEFINE VARIABLE boardType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE boardWidth AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cFound AS CHARACTER NO-UNDO.
 DEFINE VARIABLE custNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE custName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE customVal AS CHARACTER NO-UNDO.
@@ -241,11 +242,13 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE VARIABLE itemDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobBoard AS LOGICAL NO-UNDO.
 DEFINE VARIABLE jobDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE jobMchID AS INTEGER NO-UNDO.
 DEFINE VARIABLE jobNumber AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobSort AS CHARACTER NO-UNDO.
 DEFINE VARIABLE keyValues AS CHARACTER NO-UNDO.
 DEFINE VARIABLE kFrac AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lagTime AS INTEGER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lvCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvCode2 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvNoteKey AS CHARACTER NO-UNDO.
@@ -394,6 +397,13 @@ IF VALID-HANDLE(ipContainerHandle) THEN DO:
 END.
 IF asiCompany  EQ '' THEN asiCompany  = '001'.
 IF asiLocation EQ '' THEN asiLocation = 'Main'.
+
+RUN sys/ref/nk1look.p (
+    asiCompany,"TSTIME","C",NO,NO,"","",
+    OUTPUT cFound,OUTPUT lFound
+    ).
+IF lFound THEN
+SESSION:TIME-SOURCE = IF cFound EQ "WorkStation" THEN "Local" ELSE "ASI".
 
 ASSIGN
   useDeptSort = SEARCH(findProgram('{&data}/',ID,'/useDeptSort.dat')) NE ?
@@ -994,6 +1004,7 @@ FOR EACH job-hdr NO-LOCK
       customVal      = SUBSTR(customValueList,2)
       lagTime        = job-mch.lag-time
       liveUpdate     = job-mch.sbLiveUpdate
+      jobMchID       = job-mch.job-mchID
       userField[1]   = setUserField(1,custNo)
       userField[2]   = setUserField(2,custName)
       userField[5]   = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')
