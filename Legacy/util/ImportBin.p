@@ -15,8 +15,8 @@
 DEFINE TEMP-TABLE ttImportBin
     FIELD Company   AS CHARACTER 
     FIELD Location  AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Location" HELP "Required. Must be valid - Size:5"
+    FIELD glCode    AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GLCode" HELP "Optional.  Applies only to loc table."
     FIELD BinType   AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Type" HELP "Required. Must be FG  RM or WIP"
-    FIELD GLCode    AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Code" HELP "Optional. Any text value"
     FIELD BinLoc    AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Primary Bin Loc" HELP "Required - Size:8"
     FIELD BinAct    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "FG Bin Active" HELP "Optional. Yes or No - Default Yes"
     .
@@ -170,6 +170,21 @@ PROCEDURE pProcessRecord PRIVATE:
      
     IF AVAILABLE ipbf-ttImportBin THEN DO: 
 
+        /* This largely a waste of resources, but since there's no specific import/export for the loc table,
+            this is what we have to work with */
+        FIND FIRST loc EXCLUSIVE WHERE 
+            loc.company EQ ipbf-ttImportBin.company AND 
+            loc.loc EQ ipbf-ttImportBin.location.
+        IF NOT AVAIL loc THEN DO:
+            CREATE loc.
+            ASSIGN 
+                loc.company = ipbf-ttImportBin.company
+                loc.loc = ipbf-ttImportBin.location
+                loc.glcode = ipbf-ttImportBin.glCode.
+        END.
+        ELSE IF loc.glcode NE ipbf-ttImportBin.glCode THEN ASSIGN 
+            loc.glcode = ipbf-ttImportBin.glCode.
+                        
         IF ipbf-ttImportBin.BinType = "FG" THEN DO:
             FIND FIRST fg-bin EXCLUSIVE-LOCK
                 WHERE fg-bin.company EQ ipbf-ttImportBin.company
