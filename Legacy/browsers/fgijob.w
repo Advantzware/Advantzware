@@ -728,28 +728,32 @@ IF lv-show-tag-no EQ "" THEN DO:
 
   EMPTY TEMP-TABLE tt-ids.
   IF lShowRecalcFields THEN DO:
-    FOR EACH oe-relh FIELDS() NO-LOCK
-        WHERE oe-relh.company EQ itemfg.company
+    FOR EACH oe-rell FIELDS() NO-LOCK
+        WHERE oe-rell.company EQ itemfg.company          
+          AND oe-rell.i-no    EQ itemfg.i-no
+          AND oe-rell.posted  EQ NO 
+      ,
+      EACH oe-relh FIELDS() NO-LOCK
+        WHERE oe-relh.r-no EQ oe-rell.r-no
           AND oe-relh.deleted EQ NO
           AND oe-relh.posted  EQ NO
-        USE-INDEX delpost,
-        EACH oe-rell FIELDS() NO-LOCK
-        WHERE oe-rell.company EQ oe-relh.company
-          AND oe-rell.r-no    EQ oe-relh.r-no
-          AND oe-rell.i-no    EQ itemfg.i-no:
+        :
       CREATE tt-ids.
       tt-rowid = ROWID(oe-rell).
     END.
-  
-    FOR EACH oe-bolh FIELDS() NO-LOCK
-        WHERE oe-bolh.company EQ itemfg.company
-          AND oe-bolh.deleted EQ NO
-          AND oe-bolh.posted  EQ NO
-        USE-INDEX post,
-        EACH oe-boll FIELDS() NO-LOCK
-        WHERE oe-boll.company EQ oe-bolh.company
-          AND oe-boll.b-no    EQ oe-bolh.b-no
-          AND oe-boll.i-no    EQ itemfg.i-no:
+    
+    FOR EACH oe-boll FIELDS() NO-LOCK
+        WHERE oe-boll.company EQ itemfg.company          
+          AND oe-boll.i-no    EQ itemfg.i-no
+          AND oe-boll.posted  EQ NO
+          ,
+        FIRST oe-bolh FIELDS() NO-LOCK
+            WHERE oe-bolh.company EQ oe-boll.company
+              AND oe-bolh.b-no    EQ oe-boll.b-no
+              AND oe-bolh.deleted EQ NO
+              AND oe-bolh.posted  EQ NO            
+        
+        :
       CREATE tt-ids.
       tt-rowid = ROWID(oe-boll).
     END.
