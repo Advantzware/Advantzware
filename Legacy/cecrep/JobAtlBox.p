@@ -14,7 +14,7 @@ DEFINE        VARIABLE v-ink-3          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-4          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-5          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-6          AS cha     FORM "X(30)" NO-UNDO.
-DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
+DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 16 NO-UNDO.
 DEFINE        VARIABLE v-spec-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
 DEFINE        VARIABLE v-deptnote       AS cha     NO-UNDO.
 DEFINE        VARIABLE v-dept-length    AS DECIMAL NO-UNDO.
@@ -715,7 +715,7 @@ DO v-local-loop = 1 TO v-local-copies:
 
                k = v-tmp-lines + lv-got-return + 
                    IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-               IF k < 7 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
+               IF k < 16 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
                              ELSE "" .              
 
                IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
@@ -771,16 +771,44 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+5><#Notes4>"
               "<=NotesStart><C+1><R+6><#Notes5>"
               "<=NotesStart><C+1><R+7><#Notes6>"
-              "<=NotesStart><C+1><R+8><#Notes7>"
-              "<=NotesStart><C+1><R+9><#Notes8>"
-              "<=NotesStart><C+1><R+10><#Notes9>"
-              "<=NotesStart><C+1><R+11><B>Spec Notes</B><#SpecNotes>"
-              "<=NotesStart><C+1><R+12><#SpecNotes1>"
-              "<=NotesStart><C+1><R+13><#SpecNotes2>"
-              "<=NotesStart><C+1><R+14><#SpecNotes3>"
-              "<=NotesStart><C+1><R+15><#SpecNotes4>"
-              "<=NotesStart><C+1><R+16><#SpecNotes5>"
-              "<=NotesStart><C+1><R+17><#SpecNotes6>"
+              "<=NotesStart><C+1><R+8><#Notes7>" .
+           k = 8 .
+          IF v-dept-note[8] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes8>" FORMAT "x(100)" .
+          END.
+          IF v-dept-note[9] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes9>" FORMAT "x(100)".
+          END.
+          IF v-dept-note[10] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes10>" FORMAT "x(100)" .
+          END.
+          IF v-dept-note[11] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes11>" FORMAT "x(100)" .
+          END.
+          IF v-dept-note[12] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes12>" FORMAT "x(100)" .
+          END.
+          IF v-dept-note[12] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes13>" FORMAT "x(100)".
+          END.
+          IF v-dept-note[14] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes14>" FORMAT "x(100)" .
+          END.
+          PUT  
+              "<=NotesStart><C+1><R+" + STRING(k + 1) + "><B>Spec Notes</B><#SpecNotes>" FORMAT "x(100)"
+              "<=NotesStart><C+1><R+" + STRING(k + 2) + "><#SpecNotes1>" FORMAT "x(100)"
+              "<=NotesStart><C+1><R+" + STRING(k + 3) + "><#SpecNotes2>" FORMAT "x(100)"
+              "<=NotesStart><C+1><R+" + STRING(k + 4) + "><#SpecNotes3>" FORMAT "x(100)"
+              "<=NotesStart><C+1><R+" + STRING(k + 5) + "><#SpecNotes4>" FORMAT "x(100)"
+              "<=NotesStart><C+1><R+" + STRING(k + 6) + "><#SpecNotes5>" FORMAT "x(100)"
+              "<=NotesStart><C+1><R+" + STRING(k + 7) + "><#SpecNotes6>" FORMAT "x(100)"
              
               "<P8><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
@@ -788,10 +816,22 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Notes4>" v-dept-note[4] FORMAT "x(100)" SKIP
               "<=Notes5>" v-dept-note[5] FORMAT "x(100)" SKIP
               "<=Notes6>" v-dept-note[6] FORMAT "x(100)"  SKIP
-              "<=Notes7>" v-dept-note[7] FORMAT "x(100)"  SKIP
-              "<=Notes8>" v-dept-note[8] FORMAT "x(100)"  SKIP
-              "<=Notes9>" v-dept-note[9] FORMAT "x(100)"  SKIP
-             
+              "<=Notes7>" v-dept-note[7] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[8] NE "" THEN
+             PUT "<=Notes8>" v-dept-note[8] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[9] NE "" THEN
+             PUT "<=Notes9>" v-dept-note[9] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[10] NE "" THEN
+             PUT "<=Notes10>" v-dept-note[10] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[11] NE "" THEN
+             PUT "<=Notes11>" v-dept-note[11] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[12] NE "" THEN
+             PUT "<=Notes12>" v-dept-note[12] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[13] NE "" THEN
+             PUT "<=Notes13>" v-dept-note[13] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[14] NE "" THEN
+             PUT "<=Notes14>" v-dept-note[14] FORMAT "x(100)"  SKIP .
+           PUT  
               "<=SpecNotes1>" v-spec-note[1] FORMAT "x(100)" SKIP
               "<=SpecNotes2>" v-spec-note[2] FORMAT "x(100)" SKIP
               "<=SpecNotes3>" v-spec-note[3] FORMAT "x(100)"  SKIP
