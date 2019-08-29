@@ -404,7 +404,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updcan-2 ).
-       RUN set-position IN h_p-updcan-2 ( 18.62 , 28.00 ) NO-ERROR.
+       RUN set-position IN h_p-updcan-2 ( 19.82 , 28.00 ) NO-ERROR.
        RUN set-size IN h_p-updcan-2 ( 2.14 , 52.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -431,7 +431,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_fgijob ).
-       RUN set-position IN h_fgijob ( 3.62 , 16.00 ) NO-ERROR.
+       RUN set-position IN h_fgijob ( 2.82 , 16.00 ) NO-ERROR.
        /* Size in UIB:  ( 5.00 , 118.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -451,7 +451,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_p-fg-bj ).
-       RUN set-position IN h_p-fg-bj ( 18.14 , 49.00 ) NO-ERROR.
+       RUN set-position IN h_p-fg-bj ( 8.14 , 54.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.14 , 65.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -619,15 +619,15 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updncp ).
-       RUN set-position IN h_p-updncp ( 19.57 , 67.00 ) NO-ERROR.
-       RUN set-size IN h_p-updncp ( 1.76 , 46.80 ) NO-ERROR.
+       RUN set-position IN h_p-updncp ( 22.57 , 67.00 ) NO-ERROR.
+       RUN set-size IN h_p-updncp ( 1.76 , 47.80 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/pricechg.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_pricechg ).
-       RUN set-position IN h_pricechg ( 19.57 , 121.00 ) NO-ERROR.
+       RUN set-position IN h_pricechg ( 22.57 , 121.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 17.20 ) */
 
        /* Initialize other pages that this page requires. */
