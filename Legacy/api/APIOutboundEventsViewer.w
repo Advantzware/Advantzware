@@ -37,8 +37,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{methods/defines/globdefs.i}
+
 {methods/defines/hndldefs.i}
+{methods/prgsecur.i}
 
 DEFINE VARIABLE lReTrigger    AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
@@ -160,42 +161,42 @@ DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "ALL"
      LIST-ITEMS "ALL","FAILED","SUCCESS" 
      DROP-DOWN-LIST
      SIZE 16 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
+     FGCOLOR 9 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1 TOOLTIP "API ID"
-     FONT 35 NO-UNDO.
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
      VIEW-AS FILL-IN 
      SIZE 10.4 BY 1
-     FONT 35 NO-UNDO.
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiBeginRequestDate AS DATE FORMAT "99/99/99":U 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1.14 TOOLTIP "Begin Request Date"
-     FONT 35 NO-UNDO.
+     SIZE 15 BY 1 TOOLTIP "Begin Request Date"
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiBeginRequestDatelabel AS CHARACTER FORMAT "X(256)":U INITIAL "Begin Request Date:" 
      VIEW-AS FILL-IN 
      SIZE 27.4 BY 1
-     FONT 35 NO-UNDO.
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiEndRequestDate AS DATE FORMAT "99/99/99":U 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1.14 TOOLTIP "End Request Date"
-     FONT 35 NO-UNDO.
+     SIZE 15 BY 1 TOOLTIP "End Request Date"
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiEndRequestDatelabel AS CHARACTER FORMAT "X(256)":U INITIAL "End Request Date:" 
      VIEW-AS FILL-IN 
      SIZE 27.4 BY 1
-     FONT 35 NO-UNDO.
+     FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiSuccessLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Success:" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1
-     FONT 35 NO-UNDO.
+     FONT 6 NO-UNDO.
 
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -223,39 +224,39 @@ DEFINE BROWSE BROWSE-2
       ENABLE ttAPIOutboundEvent.retryEvent
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.2 BY 20.24
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 158 BY 21.91
          FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btTest AT ROW 1.86 COL 129 WIDGET-ID 20
-     btExit AT ROW 1.86 COL 154.2 WIDGET-ID 2
-     btFilter AT ROW 2.14 COL 115.4 WIDGET-ID 18
-     btAPIIDLookup AT ROW 2.67 COL 50.8 WIDGET-ID 46
-     cbSuccess AT ROW 2.67 COL 73 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     fiAPIIDLabel AT ROW 2.71 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-     fiAPIId AT ROW 2.71 COL 18.2 COLON-ALIGNED NO-LABEL WIDGET-ID 24
-     fiSuccessLabel AT ROW 2.71 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     btExport AT ROW 4.81 COL 129 WIDGET-ID 44
-     btRestart AT ROW 5.05 COL 115.4 WIDGET-ID 26
-     btBeginRequestDateCal AT ROW 5.43 COL 52 WIDGET-ID 40
-     btEndRequestDateCal AT ROW 5.43 COL 104.8 WIDGET-ID 42
-     fiBeginRequestDate AT ROW 5.48 COL 34.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     fiEndRequestDate AT ROW 5.48 COL 87.4 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-     fiBeginRequestDatelabel AT ROW 5.52 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fiEndRequestDatelabel AT ROW 5.52 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 38
-     BROWSE-2 AT ROW 8.38 COL 6.8 WIDGET-ID 200
-     "Filter" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.29 COL 14 WIDGET-ID 30
-          FONT 35
-     RECT-13 AT ROW 1.62 COL 7 WIDGET-ID 22
+     btTest AT ROW 1.48 COL 130 WIDGET-ID 20
+     btExit AT ROW 1.48 COL 149 WIDGET-ID 2
+     btFilter AT ROW 1.67 COL 110.6 WIDGET-ID 18
+     btAPIIDLookup AT ROW 2.19 COL 46 WIDGET-ID 46
+     cbSuccess AT ROW 2.19 COL 68.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     fiAPIIDLabel AT ROW 2.24 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiAPIId AT ROW 2.24 COL 13.4 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     fiSuccessLabel AT ROW 2.24 COL 54.2 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     btExport AT ROW 4.43 COL 130 WIDGET-ID 44
+     btRestart AT ROW 4.57 COL 110.6 WIDGET-ID 26
+     btBeginRequestDateCal AT ROW 4.95 COL 47.2 WIDGET-ID 40
+     btEndRequestDateCal AT ROW 4.95 COL 100 WIDGET-ID 42
+     fiBeginRequestDate AT ROW 5 COL 29.8 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     fiEndRequestDate AT ROW 5 COL 82.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     fiBeginRequestDatelabel AT ROW 5.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fiEndRequestDatelabel AT ROW 5.05 COL 54.2 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     BROWSE-2 AT ROW 7.43 COL 2 WIDGET-ID 200
+     " Filter" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1 COL 4.2 WIDGET-ID 30
+          FONT 6
+     RECT-13 AT ROW 1.14 COL 2.2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 170 BY 28.57
-         BGCOLOR 15  WIDGET-ID 100.
+         SIZE 160 BY 28.57
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -276,11 +277,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "API Outbound Events"
          HEIGHT             = 28.57
-         WIDTH              = 170
-         MAX-HEIGHT         = 33.57
-         MAX-WIDTH          = 273.2
-         VIRTUAL-HEIGHT     = 33.57
-         VIRTUAL-WIDTH      = 273.2
+         WIDTH              = 160
+         MAX-HEIGHT         = 28.57
+         MAX-WIDTH          = 160
+         VIRTUAL-HEIGHT     = 28.57
+         VIRTUAL-WIDTH      = 160
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no

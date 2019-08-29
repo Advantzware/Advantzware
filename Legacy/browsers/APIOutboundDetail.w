@@ -164,7 +164,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -249,13 +250,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE
 &ANALYZE-RESUME
 
  
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartBrowser,ab,49266
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
