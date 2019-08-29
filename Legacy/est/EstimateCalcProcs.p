@@ -180,7 +180,7 @@ PROCEDURE ChangeSellPrice:
             /*Reset and calculate all cost summaries*/
             RUN pPurgeCostSummary(estCostHeader.estCostHeaderID).
             RUN pBuildCostSummary(estCostHeader.estCostHeaderID).
-            RUN pBuildProbe(BUFFER estCostHeader, probe.est-qty).
+            RUN pBuildProbe(BUFFER estCostHeader).
         END.
     END.
 
@@ -2951,7 +2951,8 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.handlingRatePerCWTRMFarmPct = bf-ce-ctrl.rm-rate-farm / 100
         ipbf-estCostHeader.handlingRatePerCWTFGFarmPct = bf-ce-ctrl.fg-rate-farm / 100
         ipbf-estCostHeader.handlingChargeFarmPct       = bf-ce-ctrl.hand-pct-farm / 100
-        ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100                  
+        ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100           
+        ipbf-estCostHeader.weightUOM                   = gcDefaultWeightUOM     
         .
         
 END PROCEDURE.
