@@ -16,8 +16,8 @@ name-fld-list =
 "stmtprint,TSFinish,appaper,cecunit,fgpost,corsuply,fgitemsf,GP,oeprep,celayout,1099misc,RFQPrint,oecredit,maxbreak,aptax,rmemails,sspostfg,bolfmtx,schdcard,TSTIME,FGReOrder,ARMEMO,APCheckFile,OEPrompt,SSBOLSCAN,INVCOPYS,REMOVED,BORELDATE,OEINQ,ECBROWSE,VENDXFER,CUSTXFER,ORDERXFER,MISCJOBCL,RMUnderOver,CEPREPPRICE,RELTYPE,SSMoveFG,CEMISC,BolPostTime,CEDeliveryZone," +
 /* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154               155            156        157                   158         159            160         161*/
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
-/*  162       163        164        165        166        167     168       169         170  */
-"CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN"    .
+/*  162       163        164        165        166        167     168       169         170        171*/
+"CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates"    .
 
 DEFINE VARIABLE str-init AS CHARACTER EXTENT 200 NO-UNDO.
     
@@ -258,6 +258,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[168] = "HOLD,INFO"
        str-init[169] = "HOLD,INFO"
        str-init[170] = "HOLD,INFO"
+       str-init[171] = "Selected,MR/Run Separate"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
