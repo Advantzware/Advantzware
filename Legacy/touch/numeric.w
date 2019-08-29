@@ -65,8 +65,8 @@ IF NOT tskey-log THEN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Backspace Btn_Clear Btn_Period Btn_Eight ~
-Btn_Five Btn_Four Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Three ~
+&Scoped-Define ENABLED-OBJECTS Btn_Three Btn_Backspace Btn_Clear Btn_Period ~
+Btn_Eight Btn_Five Btn_Four Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six ~
 Btn_Two Btn_Zero 
 
 /* Custom List Definitions                                              */
@@ -157,6 +157,7 @@ DEFINE BUTTON Btn_Zero
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     Btn_Three AT ROW 3.38 COL 23
      Btn_Backspace AT ROW 1 COL 1
      Btn_Clear AT ROW 1 COL 23
      Btn_Period AT ROW 10.52 COL 1
@@ -168,7 +169,6 @@ DEFINE FRAME DEFAULT-FRAME
      Btn_One AT ROW 3.38 COL 1
      Btn_Seven AT ROW 8.14 COL 1
      Btn_Six AT ROW 5.76 COL 23
-     Btn_Three AT ROW 3.38 COL 23
      Btn_Two AT ROW 3.38 COL 12
      Btn_Zero AT ROW 10.52 COL 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -195,8 +195,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Numeric Pad"
-         COLUMN             = 125
-         ROW                = 1.52
+         COLUMN             = 3
+         ROW                = 1.48
          HEIGHT             = 11.95
          WIDTH              = 33.2
          MAX-HEIGHT         = 11.95
@@ -205,6 +205,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-WIDTH      = 33.2
          MIN-BUTTON         = no
          MAX-BUTTON         = no
+         ALWAYS-ON-TOP      = yes
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -513,9 +514,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_Backspace Btn_Clear Btn_Period Btn_Eight Btn_Five Btn_Four 
-         Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Three Btn_Two 
-         Btn_Zero 
+  ENABLE Btn_Three Btn_Backspace Btn_Clear Btn_Period Btn_Eight Btn_Five 
+         Btn_Four Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Two Btn_Zero 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

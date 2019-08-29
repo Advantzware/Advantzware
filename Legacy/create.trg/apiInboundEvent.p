@@ -4,4 +4,4 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 {methods/triggers/create.i}
 
-{&TABLENAME}.eventID = NEXT-VALUE(EventIDSeq).
+{&TABLENAME}.apiInboundEventID = NEXT-VALUE(apiInboundEventID_seq).

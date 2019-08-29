@@ -72,7 +72,7 @@ PROCEDURE ProcessRequests:
     DEFINE INPUT PARAMETER ipcPassword AS CHARACTER  NO-UNDO.
 
     DEFINE VARIABLE cResponse         AS CHARACTER  NO-UNDO.
-    DEFINE VARIABLE cEventID          AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE iInboundEventID   AS INTEGER    NO-UNDO.
     DEFINE VARIABLE cAPIInboundEvent  AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE cRecordSource     AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE lSuccess          AS LOGICAL    NO-UNDO.
@@ -99,9 +99,9 @@ PROCEDURE ProcessRequests:
              NO-ERROR.
         IF AVAILABLE APIInboundEvent THEN DO:
             ASSIGN
-                cEventID = APIInboundEvent.eventid
-                lSuccess = APIInboundEvent.success
-                cMessage = APIInboundEvent.errormessage
+                iInboundEventID = APIInboundEvent.apiInboundEventID
+                lSuccess        = APIInboundEvent.success
+                cMessage        = APIInboundEvent.errormessage
                 .
         END.
         

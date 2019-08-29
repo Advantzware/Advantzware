@@ -71,7 +71,7 @@ location.subCode3 loc.storageCost[4] location.subCode1 loc.owner ~
 location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
-location.email location.notes loc.active loc.isAPIEnabled 
+location.email loc.glCode location.notes loc.active loc.isAPIEnabled 
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
@@ -84,7 +84,7 @@ loc.storageCost[3] location.subCode3 loc.storageCost[4] location.subCode1 ~
 loc.owner location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
-location.email location.notes loc.active loc.isAPIEnabled 
+location.email loc.glCode location.notes loc.active loc.isAPIEnabled 
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -254,7 +254,10 @@ DEFINE FRAME F-Main
           SIZE 18 BY 1
      location.email AT ROW 12.43 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 73 BY 1
+          SIZE 42 BY 1
+     loc.glCode AT ROW 12.43 COL 67 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 29 BY 1
      location.notes AT ROW 14.1 COL 14 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 73 BY 3.1
@@ -268,10 +271,10 @@ DEFINE FRAME F-Main
           SIZE 19.6 BY .81
      "Capacity:" VIEW-AS TEXT
           SIZE 11.4 BY .62 AT ROW 8.62 COL 2.8
-     "Notes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 14.1 COL 5
      "Address:" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 3.86 COL 3
+     "Notes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 14.1 COL 5
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
