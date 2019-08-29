@@ -550,7 +550,7 @@ IF NOT v-smr THEN
                  WHEN "pur-ord" THEN cVarValue = STRING(v-ord-no,">>>>>>>>").
                  WHEN "fg" THEN cVarValue = string(w-data.i-no).
                  WHEN "cat" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.procat) ELSE "".
-                 WHEN "qty" THEN cVarValue = STRING(v-qty[2],"->>>,>>>,>>>").
+                 WHEN "qty" THEN cVarValue = STRING(v-qty[2],"->>,>>>,>>9.99").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[2],"->>>>9.99").
                  WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[2],"->>>,>>>,>>9.99<<") .
@@ -629,7 +629,7 @@ IF NOT v-smr THEN
                  WHEN "pur-ord" THEN cVarValue = "".
                  WHEN "fg" THEN cVarValue = "".
                  WHEN "cat" THEN cVarValue = "".
-                 WHEN "qty" THEN cVarValue = STRING(v-qty[3],"->>>,>>>,>>>").
+                 WHEN "qty" THEN cVarValue = STRING(v-qty[3],"->>,>>>,>>9.99").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[3],"->>>>9.99").
                  WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[3],"->>>,>>>,>>9.99<<") .
@@ -710,7 +710,7 @@ IF NOT v-smr THEN
                  WHEN "pur-ord" THEN cVarValue = "".
                  WHEN "fg" THEN cVarValue = "".
                  WHEN "cat" THEN cVarValue = "".
-                 WHEN "qty" THEN cVarValue = STRING(v-qty[4],"->>>,>>>,>>>").
+                 WHEN "qty" THEN cVarValue = STRING(v-qty[4],"->>,>>>,>>9.99").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[4],"->>>>9.99").
                  WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[4],"->>>,>>>,>>9.99<<") .
@@ -795,7 +795,7 @@ IF NOT v-smr THEN
                  WHEN "pur-ord" THEN cVarValue = "".
                  WHEN "fg" THEN cVarValue = "".
                  WHEN "cat" THEN cVarValue = "".
-                 WHEN "qty" THEN cVarValue = STRING(v-qty[5],"->>>,>>>,>>>").
+                 WHEN "qty" THEN cVarValue = STRING(v-qty[5],"->>,>>>,>>9.99").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[5],"->>>>9.99").
                  WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[5],"->>>,>>>,>>9.99<<") .
@@ -1118,7 +1118,7 @@ IF NOT v-smr THEN
                  WHEN "pur-ord" THEN cVarValue = STRING(v-ord-no,">>>>>>>>").
                  WHEN "fg" THEN cVarValue = string(w-data.i-no).
                  WHEN "cat" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.procat) ELSE "".
-                 WHEN "qty" THEN cVarValue = STRING(v-qty[3],"->>>,>>>,>>>").
+                 WHEN "qty" THEN cVarValue = STRING(v-qty[3],"->>,>>>,>>9.99").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[3],"->>>>9.99").
                  WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[3],"->>>,>>>,>>9.99<<") .
@@ -1200,7 +1200,7 @@ IF NOT v-smr THEN
                  WHEN "pur-ord" THEN cVarValue = "".
                  WHEN "fg" THEN cVarValue = "".
                  WHEN "cat" THEN cVarValue = "".
-                 WHEN "qty" THEN cVarValue = STRING(v-qty[4],"->>>,>>>,>>>").
+                 WHEN "qty" THEN cVarValue = STRING(v-qty[4],"->>,>>>,>>9.99").
                  WHEN "ttl-msf" THEN cVarValue = STRING(v-msf[4],"->>>>9.99").
                  WHEN "msf" THEN cVarValue = string(v-$msf,"->>>9.99").
                  WHEN "sal-amt" THEN cVarValue = STRING(v-amt[4],"->>>,>>>,>>9.99<<") .

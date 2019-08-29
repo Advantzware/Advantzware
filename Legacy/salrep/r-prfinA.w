@@ -1154,7 +1154,7 @@ def var v-brdc      as   DEC NO-UNDO.
 def var v-marg      as   DEC NO-UNDO.
 def var v-$msf      as   DEC NO-UNDO.
 
-def var v-qty   as   int extent 5 NO-UNDO.
+def var v-qty   as   DECIMAL extent 5 NO-UNDO.
 def var v-msf   as   dec extent 5 NO-UNDO.
 def var v-cst   as   dec extent 5 NO-UNDO.
 def var v-amt   as   dec extent 5 NO-UNDO.
@@ -1184,7 +1184,7 @@ form cust.name            column-label "Customer"
      w-data.i-no
      itemfg.procat        column-label "Prod!Categ"
      v-qty[2]             column-label "Qty Shipped"
-                          format "->>>,>>>,>>>"
+                          format "->>>,>>>,>>9.99"
      v-msf[2]             column-label "Total!  MSF"
                           format "->>>>9.99"
      v-$msf               column-label "$/MSF"
@@ -1196,7 +1196,7 @@ form cust.name            column-label "Customer"
      v-marg               column-label "Profit"
                           format "->>>,>>9.99"
 
-    with no-box frame itemx down STREAM-IO width 136.
+    with no-box frame itemx down STREAM-IO width 140.
 
 form header
      v-slsmn-hdr format "x(100)"
