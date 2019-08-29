@@ -56,6 +56,7 @@ DEFINE VARIABLE gcPrepRoundTo                         AS CHARACTER NO-UNDO.  /*C
 DEFINE VARIABLE gcPrepMarkupOrMargin                  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
 DEFINE VARIABLE gdMaterialMarkup                      AS DECIMAL   NO-UNDO.    /*CEMatl - Dec val*/
 DEFINE VARIABLE gcMarginMatrixLookup                  AS CHARACTER NO-UNDO.    /*CEMatl - Dec val*/
+DEFINE VARIABLE glOpRatesSeparate                     AS LOGICAL   NO-UNDO INIT YES.    /*CEOpRates - log val*/
 
 DEFINE VARIABLE glUsePlateChangesAsColorForSetupWaste AS LOGICAL   NO-UNDO INITIAL NO.  /*Defect in EstOperation Calc of applying the MR Waste Sheets Per Color?*/
 
@@ -850,11 +851,6 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.departmentIDPrimary          = bf-mach.dept[1]
             opbf-estCostOperation.departmentID                 = bf-mach.dept
             opbf-estCostOperation.quantityInSetupWastePerColor = bf-mach.col-wastesh
-          
-            /*Refactor - this is where we can have a different rate for setup vs. run*/
-            opbf-estCostOperation.costPerManHourDLRun          = bf-mach.lab-rate[bf-mach.lab-drate]
-            opbf-estCostOperation.costPerManHourDLSetup        = bf-mach.lab-rate[bf-mach.lab-drate]
-            
             opbf-estCostOperation.costPerHourFOSetup           = bf-mach.mr-fixoh
             opbf-estCostOperation.costPerHourFORun             = bf-mach.run-fixoh
             opbf-estCostOperation.costPerHourVOSetup           = bf-mach.mr-varoh
@@ -862,6 +858,18 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.quantityInkLbsWastedPerSetup = bf-mach.ink-waste
             opbf-estCostOperation.quantityInkLbsWastedPerColor = bf-mach.col-wastelb
             .
+
+        IF glOpRatesSeparate THEN 
+            ASSIGN 
+                opbf-estCostOperation.costPerManHourDLRun          = bf-mach.lab-rate[1]
+                opbf-estCostOperation.costPerManHourDLSetup        = bf-mach.lab-rate[2]
+                .
+        ELSE 
+            ASSIGN 
+                opbf-estCostOperation.costPerManHourDLRun          = bf-mach.lab-rate[bf-mach.lab-drate]
+                opbf-estCostOperation.costPerManHourDLSetup        = bf-mach.lab-rate[bf-mach.lab-drate]
+                .
+            
        
         IF fIsDepartment(gcDeptsForPrinters, opbf-estCostOperation.departmentID) THEN  
             opbf-estCostOperation.isPrinter = YES.
@@ -3673,6 +3681,9 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         gcMarginMatrixLookup = "Square Feet".
     ELSE 
         gcMarginMatrixLookup = cReturn.
+        
+    RUN sys/ref/nk1look.p (ipcCompany,"CEOpRates","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    glOpRatesSeparate = lFound AND cReturn EQ "MR/Run Separate".
     
 END PROCEDURE.
 

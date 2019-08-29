@@ -53,6 +53,7 @@ def var lv-mach-recid as recid no-undo.
 DEF VAR lv-label AS CHAR EXTENT 10 NO-UNDO.
 def var lv-ind-list as cha init "Both,Folding,Corrugated,eXclude" no-undo.
 DEF VAR ll-label AS LOG NO-UNDO.
+DEFINE VARIABLE glOpRatesSeparate AS LOGICAL.  /*NK1 CEOpRates, CharVal = "MR/Run Separate"*/
 DEF BUFFER mach-1 FOR mach.
 
 &SCOPED-DEFINE where-plain-jobs                  ~
@@ -134,6 +135,19 @@ mach.col-wastelb mach.tan-mrp mach.tan-mrf
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetOpRatesSeparate V-table-Win
+FUNCTION GetOpRatesSeparate RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
@@ -988,30 +1002,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.lab-rate[1] V-table-Win
 ON LEAVE OF mach.lab-rate[1] IN FRAME F-Main /* Labor Rate1 */
 DO:
-  /*assign mach.mr-rate:screen-value = string(
-                                  decimal(mach.mr-crusiz:screen-value) *
-                                  decimal(mach.lab-rate[int(mach.lab-drate:screen-value)])
-                                  )
-          mach.run-rate:screen-value = string(
-                                  decimal(mach.run-crusiz:screen-value) *
-                                  decimal(mach.lab-rate[int(mach.lab-drate:screen-value)])
-                                  ).
-
-
-  assign mach.mr-trate:screen-value = string(
-                                  decimal(mach.mr-rate:screen-value) + 
-                                  decimal(mach.mr-varoh:screen-value) +
-                                  decimal(mach.mr-fixoh:screen-value)
-                                  )
-                                  .
-  assign mach.run-trate:screen-value = string(
-                                  decimal(mach.run-rate:screen-value) + 
-                                  decimal(mach.run-varoh:screen-value) +
-                                  decimal(mach.run-fixoh:screen-value)
-                                  )
-                                  .
-  */ 
-  run calc-rate.                              
+  RUN calc-rate.                              
 
 END.
 
@@ -1023,29 +1014,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.lab-rate[2] V-table-Win
 ON LEAVE OF mach.lab-rate[2] IN FRAME F-Main /* Rate2 */
 DO:
-  /*   assign mach.mr-rate:screen-value = string(
-                                  decimal(mach.mr-crusiz:screen-value) *
-                                  decimal(mach.lab-rate[int(mach.lab-drate:screen-value)])
-                                  )
-          mach.run-rate:screen-value = string(
-                                  decimal(mach.run-crusiz:screen-value) *
-                                  decimal(mach.lab-rate[int(mach.lab-drate:screen-value)])
-                                  ).
-  assign mach.mr-trate:screen-value = string(
-                                  decimal(mach.mr-rate:screen-value) + 
-                                  decimal(mach.mr-varoh:screen-value) +
-                                  decimal(mach.mr-fixoh:screen-value)
-                                  )
-                                  .
-  assign mach.run-trate:screen-value = string(
-                                  decimal(mach.run-rate:screen-value) + 
-                                  decimal(mach.run-varoh:screen-value) +
-                                  decimal(mach.run-fixoh:screen-value)
-                                  )
-                                  .
+   RUN calc-rate.
 
- */
-   run calc-rate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1056,7 +1026,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.lab-rate[3] V-table-Win
 ON LEAVE OF mach.lab-rate[3] IN FRAME F-Main /* Rate3 */
 DO:
-  run calc-rate.                              
+  RUN calc-rate.                              
 
 END.
 
@@ -1369,6 +1339,8 @@ END.
 
 session:data-entry-return = true.  /* make return key  same as tab key */
 
+glOpRatesSeparate = GetOpRatesSeparate(cocode).
+
 IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "mach.sch-m-code") THEN
   FOR EACH reftable WHERE reftable.reftable EQ "mach.sch-m-code"
       EXCLUSIVE-LOCK:
@@ -1465,55 +1437,53 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-rate V-table-Win 
 PROCEDURE calc-rate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-do with frame {&frame-name}:
-   case int(mach.lab-drate:screen-value) :
-   when 1 then 
-        assign mach.mr-rate:screen-value = string(
-                                  dec(mach.mr-crusiz:screen-value) *
-                                  dec(mach.lab-rate[1]:screen-value)
-                                  )
-               mach.run-rate:screen-value = string(
-                                  dec(mach.run-crusiz:screen-value) *
-                                  dec(mach.lab-rate[1]:screen-value)
-                                  ).
-   when 2 then 
-        assign mach.mr-rate:screen-value = string(
-                                  dec(mach.mr-crusiz:screen-value) *
-                                  dec(mach.lab-rate[2]:screen-value)
-                                  )
-               mach.run-rate:screen-value = string(
-                                  dec(mach.run-crusiz:screen-value) *
-                                  dec(mach.lab-rate[2]:screen-value)
-                                  ).
-   when 3 then 
-        assign mach.mr-rate:screen-value = string(
-                                  dec(mach.mr-crusiz:screen-value) *
-                                  dec(mach.lab-rate[3]:screen-value)
-                                  )
-               mach.run-rate:screen-value = string(
-                                  dec(mach.run-crusiz:screen-value) *
-                                  dec(mach.lab-rate[3]:screen-value)
-                                  ).
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&frame-name}:
+        IF glOpRatesSeparate THEN 
+            ASSIGN 
+                mach.mr-rate:SCREEN-VALUE = STRING(DECIMAL(mach.mr-crusiz:SCREEN-VALUE) * DECIMAL(mach.lab-rate[1]:SCREEN-VALUE))
+                mach.run-rate:SCREEN-VALUE = STRING(DECIMAL(mach.run-crusiz:SCREEN-VALUE) * DECIMAL(mach.lab-rate[2]:SCREEN-VALUE))
+        .
+        ELSE 
+        DO: /*Can't reference SCREEN-VALUE of a control with variable index*/
+            CASE INTEGER(mach.lab-drate:SCREEN-VALUE):
+                WHEN 1 THEN 
+                    ASSIGN 
+                        mach.mr-rate:SCREEN-VALUE = STRING(DECIMAL(mach.mr-crusiz:SCREEN-VALUE) * DECIMAL(mach.lab-rate[1]:SCREEN-VALUE))
+                        mach.run-rate:SCREEN-VALUE = STRING(DECIMAL(mach.run-crusiz:SCREEN-VALUE) * DECIMAL(mach.lab-rate[1]:SCREEN-VALUE))
+                        .
+                WHEN 2 THEN 
+                    ASSIGN 
+                        mach.mr-rate:SCREEN-VALUE = STRING(DECIMAL(mach.mr-crusiz:SCREEN-VALUE) * DECIMAL(mach.lab-rate[2]:SCREEN-VALUE))
+                        mach.run-rate:SCREEN-VALUE = STRING(DECIMAL(mach.run-crusiz:SCREEN-VALUE) * DECIMAL(mach.lab-rate[2]:SCREEN-VALUE))
+                        .
+                WHEN 3 THEN 
+                    ASSIGN 
+                        mach.mr-rate:SCREEN-VALUE = STRING(DECIMAL(mach.mr-crusiz:SCREEN-VALUE) * DECIMAL(mach.lab-rate[3]:SCREEN-VALUE))
+                        mach.run-rate:SCREEN-VALUE = STRING(DECIMAL(mach.run-crusiz:SCREEN-VALUE) * DECIMAL(mach.lab-rate[3]:SCREEN-VALUE))
+                        .
+                                  
 
-   end case.
-   assign mach.mr-trate:screen-value = string(
-                                  dec(mach.mr-rate:screen-value) + 
-                                  dec(mach.mr-varoh:screen-value) +
-                                  dec(mach.mr-fixoh:screen-value)
+            END.
+        END. /*Separate Rates*/
+         ASSIGN 
+            mach.mr-trate:SCREEN-VALUE = STRING(
+                                  DECIMAL(mach.mr-rate:SCREEN-VALUE) + 
+                                  DECIMAL(mach.mr-varoh:SCREEN-VALUE) +
+                                  DECIMAL(mach.mr-fixoh:SCREEN-VALUE)
+                                  ) 
+            mach.run-trate:SCREEN-VALUE = STRING(
+                                  DECIMAL(mach.run-rate:SCREEN-VALUE) + 
+                                  DECIMAL(mach.run-varoh:SCREEN-VALUE) +
+                                  DECIMAL(mach.run-fixoh:SCREEN-VALUE)
                                   )
-                                  .
-   assign mach.run-trate:screen-value = string(
-                                  dec(mach.run-rate:screen-value) + 
-                                  dec(mach.run-varoh:screen-value) +
-                                  dec(mach.run-fixoh:screen-value)
-                                  )
-                                  .
-end.
+            .
+    END.
 
 END PROCEDURE.
 
@@ -1537,6 +1507,15 @@ PROCEDURE dept-display :
      mach.tan-mrp:LABEL = IF LOOKUP(mach.dept[1]:SCREEN-VALUE,"PR,CT") LE 0
                           THEN "Changeover Time"
                           ELSE "Tandem MR/Plate".
+     IF glOpRatesSeparate THEN DO:
+        ASSIGN 
+            mach.lab-drate:HIDDEN = YES
+            mach.lab-rate[1]:LABEL = "MR Rate"
+            mach.lab-rate[2]:LABEL = "Run Rate"
+            mach.lab-rate[3]:HIDDEN = YES
+        .
+        RUN calc-rate.
+     END.
   END.
 
 END PROCEDURE.
@@ -2311,4 +2290,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GetOpRatesSeparate V-table-Win
+FUNCTION GetOpRatesSeparate RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose: Checks NK1 and activates the glOpRatesSeparate global
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lUseSeparate AS LOGICAL NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany,"CEOpRates","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    lUseSeparate = lFound AND cReturn EQ "MR/Run Separate". 
+    RUN sys/ref/nk1look.p (ipcCompany,"CEVersion","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    lUseSeparate = lUseSeparate AND lFound AND cReturn EQ "New".
+    RETURN lUseSeparate.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
