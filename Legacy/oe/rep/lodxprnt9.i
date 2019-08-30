@@ -39,9 +39,9 @@ IF iplPrintView THEN do:
             PUT "<FArial><=4><R15><C44><p10><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
             PUT "<FArial><=4><R15><C64><p10><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
             PUT "<||><R20><C3><#5><FROM><R25><C80><RECT>" SKIP.           
-            PUT "<FArial><=5><R-2><B><p14> Customer Name                                                Ship To:</B>" SKIP.
-            PUT "<FArial><=5><R21.6><B><P15>  " tt-word-print.cust-name FORMAT "x(30)"  "</B>" SKIP.
-            PUT "<FArial><=5><R21.6><C43><B><P15>  " tt-word-print.sold-name FORMAT "x(30)"    "</B>" SKIP.
+            PUT "<FArial><=5><R-2><B><p14> Name<C44>Ship To:</B>" SKIP.
+            PUT "<FArial><=5><R21.6><B><P15>  " tt-word-print.sold-name FORMAT "x(30)"  "</B>" SKIP.
+            PUT "<FArial><=5><R21.6><C43><B><P15>  " tt-word-print.ship-name FORMAT "x(30)"    "</B>" SKIP.
 
         END.
         
