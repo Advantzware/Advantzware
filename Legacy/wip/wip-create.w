@@ -120,11 +120,10 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bt-exit RECT-26 rSelected ls-tag btInfo ~
-btnNumPad btnKeyboard ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine ~
-bt-create btCreated btOH btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ~
-ls-total-run-qty ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious ~
-btnNext btnLast 
+&Scoped-Define ENABLED-OBJECTS bt-exit RECT-26 rSelected ls-tag btnNumPad ~
+btnKeyboard ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine bt-create ~
+btCreated btOH btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ls-total-run-qty ~
+ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS ls-tag ls-jobno cb-jobno2 cb-formno ~
 cb-blankno cb-machine fiRMItem fiSizeLabel fiSize fiUOMLabel fiUOM ~
 ls-total-run-qty ls-qty-per-tag ls-num-tags 
@@ -173,11 +172,6 @@ DEFINE BUTTON btCreated
      LABEL "Cr - 0" 
      SIZE 17.6 BY 2 TOOLTIP "Filter Created Tags"
      FONT 37.
-
-DEFINE BUTTON btInfo 
-     IMAGE-UP FILE "Graphics/32x32/inactive.ico":U NO-CONVERT-3D-COLORS
-     LABEL "Info" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Job Details".
 
 DEFINE BUTTON btnDelete 
      IMAGE-UP FILE "Graphics/32x32/delete.ico":U
@@ -357,7 +351,6 @@ DEFINE BROWSE br-table
 DEFINE FRAME F-Main
      bt-exit AT ROW 2.19 COL 192 WIDGET-ID 84
      ls-tag AT ROW 1.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     btInfo AT ROW 2.19 COL 164 WIDGET-ID 134
      btnNumPad AT ROW 2.38 COL 178.6 WIDGET-ID 120
      btnKeyboard AT ROW 3.62 COL 15 WIDGET-ID 132
      ls-jobno AT ROW 3.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 10
@@ -391,9 +384,6 @@ DEFINE FRAME F-Main
      "Machine/Op:" VIEW-AS TEXT
           SIZE 18.8 BY 1.33 AT ROW 6 COL 4.2 WIDGET-ID 92
           FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
-          FONT 36
      "Qty/Tag:" VIEW-AS TEXT
           SIZE 13.4 BY 1.33 AT ROW 8.38 COL 44.6 WIDGET-ID 96
           FONT 36
@@ -406,14 +396,17 @@ DEFINE FRAME F-Main
      "(optional)" VIEW-AS TEXT
           SIZE 16.8 BY .95 AT ROW 1.91 COL 101.2 WIDGET-ID 90
           FONT 36
-     "Blank #:" VIEW-AS TEXT
-          SIZE 14 BY 1.33 AT ROW 3.81 COL 115.2 WIDGET-ID 58
+     "Run Qty:" VIEW-AS TEXT
+          SIZE 13 BY 1.33 AT ROW 8.43 COL 4 WIDGET-ID 100
           FONT 36
      "Job #:" VIEW-AS TEXT
           SIZE 11 BY 1.33 AT ROW 3.62 COL 23 WIDGET-ID 12
           FONT 36
-     "Run Qty:" VIEW-AS TEXT
-          SIZE 13 BY 1.33 AT ROW 8.43 COL 4 WIDGET-ID 100
+     "Blank #:" VIEW-AS TEXT
+          SIZE 14 BY 1.33 AT ROW 3.81 COL 115.2 WIDGET-ID 58
+          FONT 36
+     "Form #:" VIEW-AS TEXT
+          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
           FONT 36
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 118
@@ -1452,7 +1445,7 @@ PROCEDURE enable_UI :
           fiSizeLabel fiSize fiUOMLabel fiUOM ls-total-run-qty ls-qty-per-tag 
           ls-num-tags 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE bt-exit RECT-26 rSelected ls-tag btInfo btnNumPad btnKeyboard ls-jobno 
+  ENABLE bt-exit RECT-26 rSelected ls-tag btnNumPad btnKeyboard ls-jobno 
          cb-jobno2 cb-formno cb-blankno cb-machine bt-create btCreated btOH 
          btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ls-total-run-qty 
          ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious btnNext 
