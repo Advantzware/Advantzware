@@ -56,11 +56,12 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD cPallet AS CHARACTER /*Required*/
     FIELD cStockNo AS CHARACTER /*Optional*/
     FIELD cEstType AS CHARACTER /* import form or misc estimate */
-    field copy-qty as int extent 20 /* Optional*/ 
-    field copy-rel as int extent 20  /* Optional */
-    field dWeightPerM as DECIMAL  /* Optional */
-    field iStackHeight as INTEGER  /* Optional */
-    field iStackCode as CHARACTER  /* Optional */
+    FIELD copy-qty as int extent 20 /* Optional*/ 
+    FIELD copy-rel as int extent 20  /* Optional */
+    FIELD dWeightPerM as DECIMAL  /* Optional */
+    FIELD iStackHeight as INTEGER  /* Optional */
+    FIELD iStackCode as CHARACTER  /* Optional */
+    FIELD cFreightChargeMethod AS CHARACTER /*Optional - default "P"*/
     .
 
 

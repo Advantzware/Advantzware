@@ -61,6 +61,7 @@ DEFINE            VARIABLE lv-num-rec   AS INTEGER NO-UNDO.
 DEFINE            VARIABLE lv-in-add    AS LOG     NO-UNDO.
 DEFINE            VARIABLE lv-in-update AS LOG     NO-UNDO.
 DEFINE            VARIABLE cShipLoc     AS CHARACTER NO-UNDO .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -78,30 +79,15 @@ DEFINE            VARIABLE cShipLoc     AS CHARACTER NO-UNDO .
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME BROWSE-1
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES eb
-&Scoped-define FIRST-EXTERNAL-TABLE eb
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR eb.
-
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES estRelease 
+&Scoped-define INTERNAL-TABLES estRelease
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 estRelease.quantity estRelease.shipFromLocationID estRelease.shipToID estRelease.carrierID estRelease.carrierZone estRelease.quantityOfUnits estRelease.monthsAtShipFrom estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.freightCost getShipLoc() @ cShipLoc
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 estRelease.quantity estRelease.quantityRelease estRelease.shipFromLocationID getShipLoc() @ cShipLoc estRelease.carrierID estRelease.carrierZone estRelease.quantityOfUnits estRelease.monthsAtShipFrom estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.freightCost   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 estRelease
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 estRelease
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH estRelease NO-LOCK WHERE estRelease.company = cocode ~
-  AND estRelease.estimateNo              = eb.est-no  ~
-  AND estRelease.FormNo                  = eb.form-no ~
-  AND estRelease.BlankNo                 = eb.blank-No         /*~{&SORTBY-PHRASE}*/
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH estRelease WHERE NO-LOCK estRelease.company = cocode ~
-  AND estRelease.estimateNo              = eb.est-no ~
-  AND estRelease.FormNo                  = eb.form-no ~
-  AND estRelease.BlankNo                 = eb.blank-No   /* ~{&SORTBY-PHRASE}*/ .
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH estRelease WHERE estRelease.compamy = cocode ~   AND estRelease.estimateNo              = eb.est-no ~   AND estRelease.FormNo                  = eb.form-no ~   AND estRelease.BlankNo                 = eb.blank-No         ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH estRelease WHERE estRelease.compamy = cocode ~   AND estRelease.estimateNo              = eb.est-no ~   AND estRelease.FormNo                  = eb.form-no ~   AND estRelease.BlankNo                 = eb.blank-No         ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 estRelease
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 estRelease
 
@@ -111,8 +97,8 @@ DEFINE QUERY external_tables FOR eb.
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS BROWSE-1 btn-update btn-add btn-copy btn-ok ~
-btn-delete RECT-1  
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 btn-update btn-add btn-copy ~
+btn-delete btn-ok quantity cCustNo ship-to RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS est-no quantity iForm iBlank cCustNo ~
 cust-name ship-to ship-name 
 
@@ -132,7 +118,6 @@ FUNCTION CheckForNegative RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getShipLoc W-Win 
 FUNCTION getShipLoc RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
@@ -144,91 +129,91 @@ FUNCTION getShipLoc RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE W-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-add 
-    LABEL "Add New" 
-    SIZE 15 BY 1.14.
+     LABEL "Add New" 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-copy 
-    LABEL "Copy Selected" 
-    SIZE 19 BY 1.14.
-
-DEFINE BUTTON btn-ok 
-    LABEL "OK" 
-    SIZE 15 BY 1.14.
-
-DEFINE BUTTON btn-update 
-    LABEL "Update Selected" 
-    SIZE 21.8 BY 1.14.  
+     LABEL "Copy Selected" 
+     SIZE 19 BY 1.14.
 
 DEFINE BUTTON btn-delete 
-    LABEL "Delete Selected" 
-    SIZE 21.8 BY 1.14.
+     LABEL "Delete Selected" 
+     SIZE 21.8 BY 1.14.
 
-DEFINE VARIABLE cCustNo   AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Cust#" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE BUTTON btn-ok 
+     LABEL "OK" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btn-update 
+     LABEL "Update Selected" 
+     SIZE 21.8 BY 1.14.
+
+DEFINE VARIABLE cCustNo AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Cust#" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cust-name AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 40 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE est-no    AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Estimate#" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE est-no AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Estimate#" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iBlank    AS INTEGER   FORMAT ">>9":U INITIAL 0 
-    LABEL "Blank #" 
-    VIEW-AS FILL-IN 
-    SIZE 5.8 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iBlank AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Blank #" 
+     VIEW-AS FILL-IN 
+     SIZE 5.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iForm     AS INTEGER   FORMAT ">>9":U INITIAL 0 
-    LABEL "Form #" 
-    VIEW-AS FILL-IN 
-    SIZE 5.8 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE iForm AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Form #" 
+     VIEW-AS FILL-IN 
+     SIZE 5.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE quantity  AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
-    LABEL "Quantity" 
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE quantity AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Quantity" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE ship-name AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 40 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ship-to   AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Ship To" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE ship-to AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Ship To" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-    SIZE 122.2 BY 3
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 152.2 BY 3
+     BGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-    estRelease SCROLLING.
+      estRelease SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 W-Win _FREEFORM
-    QUERY BROWSE-1 NO-LOCK DISPLAY
-    estRelease.quantity LABEL "Est Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
+  QUERY BROWSE-1 DISPLAY
+      estRelease.quantity LABEL "Est Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
     estRelease.quantityRelease LABEL "Rel Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
     estRelease.shipFromLocationID LABEL "From" WIDTH 10 LABEL-BGCOLOR 14
     getShipLoc() @ cShipLoc LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
@@ -239,38 +224,37 @@ DEFINE BROWSE BROWSE-1
     estRelease.handlingCostTotal LABEL "Handling" WIDTH 15 LABEL-BGCOLOR 14
     estRelease.storageCostTotal LABEL "Storage" WIDTH 15 LABEL-BGCOLOR 14   
     estRelease.freightCost LABEL "Freight" WIDTH 15 LABEL-BGCOLOR 14
-    
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 152.8 BY 13.05
-         BGCOLOR 8 FONT 0 .
+         BGCOLOR 8 FONT 0.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    BROWSE-1 AT ROW 6.52 COL 2.2
-    btn-update AT ROW 4.95 COL 37.8
-    btn-add AT ROW 4.95 COL 2.2 WIDGET-ID 16
-    btn-copy AT ROW 4.95 COL 17.6
-    btn-delete AT ROW 4.95 COL 60.8
-    btn-ok AT ROW 20.62 COL 57
-    est-no AT ROW 2.14 COL 13.8 COLON-ALIGNED WIDGET-ID 200
-    quantity AT ROW 2.14 COL 46.2 COLON-ALIGNED WIDGET-ID 198
-    iForm AT ROW 2.14 COL 93.4 COLON-ALIGNED WIDGET-ID 314
-    iBlank AT ROW 2.14 COL 111.2 COLON-ALIGNED WIDGET-ID 316
-    cCustNo AT ROW 3.33 COL 13.4 COLON-ALIGNED WIDGET-ID 176
-    cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABELS WIDGET-ID 202
-    ship-to AT ROW 3.33 COL 71 COLON-ALIGNED WIDGET-ID 178
-    ship-name AT ROW 3.33 COL 89.4 COLON-ALIGNED NO-LABELS WIDGET-ID 204
-    "Main Input" VIEW-AS TEXT
-    SIZE 13 BY 1 AT ROW 1.14 COL 6 WIDGET-ID 206
-    RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
+     BROWSE-1 AT ROW 6.52 COL 2.2
+     btn-update AT ROW 4.95 COL 37.8
+     btn-add AT ROW 4.95 COL 2.2 WIDGET-ID 16
+     btn-copy AT ROW 4.95 COL 17.6
+     btn-delete AT ROW 4.95 COL 60.8
+     btn-ok AT ROW 20.29 COL 69
+     est-no AT ROW 2.14 COL 13.8 COLON-ALIGNED WIDGET-ID 200
+     quantity AT ROW 2.14 COL 46.2 COLON-ALIGNED WIDGET-ID 198
+     iForm AT ROW 2.19 COL 117.4 COLON-ALIGNED WIDGET-ID 314
+     iBlank AT ROW 2.19 COL 135.2 COLON-ALIGNED WIDGET-ID 316
+     cCustNo AT ROW 3.33 COL 13.4 COLON-ALIGNED WIDGET-ID 176
+     cust-name AT ROW 3.33 COL 31.2 COLON-ALIGNED NO-LABEL WIDGET-ID 202
+     ship-to AT ROW 3.38 COL 83 COLON-ALIGNED WIDGET-ID 178
+     ship-name AT ROW 3.38 COL 101.4 COLON-ALIGNED NO-LABEL WIDGET-ID 204
+     "Main Input" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 1.14 COL 6 WIDGET-ID 206
+     RECT-1 AT ROW 1.71 COL 1.8 WIDGET-ID 82
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1.2 ROW 1
-    SIZE 154 BY 23.71
-    FGCOLOR 1 FONT 6.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1.2 ROW 1
+         SIZE 154 BY 21.33
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -287,23 +271,23 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW W-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "New Miscellaneous Product Estimate - Releases"
-        HEIGHT             = 21.86
-        WIDTH              = 155.8
-        MAX-HEIGHT         = 24.71
-        MAX-WIDTH          = 155
-        VIRTUAL-HEIGHT     = 24.71
-        VIRTUAL-WIDTH      = 155
-        RESIZE             = NO
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW W-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Miscellaneous Product Estimate - Releases"
+         HEIGHT             = 21.67
+         WIDTH              = 154.8
+         MAX-HEIGHT         = 26.38
+         MAX-WIDTH          = 162.8
+         VIRTUAL-HEIGHT     = 26.38
+         VIRTUAL-WIDTH      = 162.8
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -312,9 +296,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
-/*{src/adm/method/browser.i}
-{src/adm/method/query.i}
-{methods/template/browser.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -331,7 +312,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME Custom                                                    */
 /* BROWSE-TAB BROWSE-1 1 F-Main */
 ASSIGN 
-    BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+       BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* SETTINGS FOR FILL-IN cust-name IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -344,7 +325,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ship-name IN FRAME F-Main
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-    THEN W-Win:HIDDEN = YES.
+THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -366,7 +347,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH estRelease WHERE estRelease.compamy = cocode ~
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
-    _Options          = "NO-LOCK"
+     _Options          = "NO-LOCK"
      _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
@@ -379,8 +360,8 @@ OPEN QUERY {&SELF-NAME} FOR EACH estRelease WHERE estRelease.compamy = cocode ~
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* New Misccellanceous Product Estimate - Releases */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+ON END-ERROR OF W-Win /* Miscellaneous Product Estimate - Releases */
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -393,8 +374,8 @@ ON END-ERROR OF W-Win /* New Misccellanceous Product Estimate - Releases */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* New Misccellanceous Product Estimate - Releases */
-    DO:
+ON WINDOW-CLOSE OF W-Win /* Miscellaneous Product Estimate - Releases */
+DO:
         /* This ADM code must be left here in order for the SmartWindow
            and its descendents to terminate properly on exit. */
   
@@ -410,14 +391,11 @@ ON WINDOW-CLOSE OF W-Win /* New Misccellanceous Product Estimate - Releases */
 &ANALYZE-RESUME
 
 
-
-
-
 &Scoped-define BROWSE-NAME BROWSE-1
 &Scoped-define SELF-NAME BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME F-Main
-    DO:
+DO:
         DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
         IF AVAILABLE eb THEN 
         DO:
@@ -438,12 +416,9 @@ ON DEFAULT-ACTION OF BROWSE-1 IN FRAME F-Main
 &ANALYZE-RESUME
 
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
-    DO:
+DO:
     
    
     END.
@@ -454,7 +429,7 @@ ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON ROW-ENTRY OF BROWSE-1 IN FRAME F-Main
-    DO:
+DO:
     /* This code displays initial values for newly added or copied rows. */
     /*{src/adm/template/brsentry.i}*/
     END.
@@ -465,7 +440,7 @@ ON ROW-ENTRY OF BROWSE-1 IN FRAME F-Main
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON START-SEARCH OF BROWSE-1 IN FRAME F-Main
-    DO:
+DO:
     /*RUN startSearch.  */
    
     END.
@@ -477,7 +452,7 @@ ON START-SEARCH OF BROWSE-1 IN FRAME F-Main
 &Scoped-define SELF-NAME btn-add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add W-Win
 ON CHOOSE OF btn-add IN FRAME F-Main /* Add New */
-    DO:
+DO:
         DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO. 
         DEFINE BUFFER bff-estRelease FOR estRelease .
     
@@ -497,7 +472,7 @@ ON CHOOSE OF btn-add IN FRAME F-Main /* Add New */
 &Scoped-define SELF-NAME btn-copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy W-Win
 ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy Selected */
-    DO:
+DO:
         DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
         DEFINE VARIABLE iEstReleaseID   AS INTEGER   NO-UNDO .
         DEFINE VARIABLE lCreated        AS LOGICAL   NO-UNDO .
@@ -539,10 +514,36 @@ ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy Selected */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn-delete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-delete W-Win
+ON CHOOSE OF btn-delete IN FRAME F-Main /* Delete Selected */
+DO:
+    DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lv-rowid        AS ROWID     NO-UNDO.
+     IF AVAILABLE estRelease THEN DO:
+         MESSAGE "Are you sure you want to delete this release?" 
+             view-as alert-box question
+             button yes-no update ll-ans as log.
+         if not ll-ans then return NO-APPLY.
+
+         RUN system/FreightProcs.p PERSISTENT SET hftp.
+         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
+
+         RUN DeleteEstReleaseByID (INPUT estRelease.estReleaseID) .
+         RUN repo-query (lv-rowid).
+
+         THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp). 
+     END.                                             
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok W-Win
 ON CHOOSE OF btn-ok IN FRAME F-Main /* OK */
-    DO:
+DO:
     DEFINE VARIABLE cQtyonEst AS CHARACTER NO-UNDO .
     DEFINE VARIABLE lmessage AS LOGICAL NO-UNDO .
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO. 
@@ -591,7 +592,7 @@ ON CHOOSE OF btn-ok IN FRAME F-Main /* OK */
 &Scoped-define SELF-NAME btn-update
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update W-Win
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Selected */
-    DO:
+DO:
         DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO. 
         IF AVAILABLE estRelease THEN 
         DO:
@@ -602,31 +603,6 @@ ON CHOOSE OF btn-update IN FRAME F-Main /* Update Selected */
         END.
 
     END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btn-delete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-delete W-Win
-ON CHOOSE OF btn-delete IN FRAME F-Main /* Update Selected */
-    DO:
-    DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE lv-rowid        AS ROWID     NO-UNDO.
-     IF AVAILABLE estRelease THEN DO:
-         MESSAGE "Are you sure you want to delete this release?" 
-             view-as alert-box question
-             button yes-no update ll-ans as log.
-         if not ll-ans then return NO-APPLY.
-
-         RUN system/FreightProcs.p PERSISTENT SET hftp.
-         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
-
-         RUN DeleteEstReleaseByID (INPUT estRelease.estReleaseID) .
-         RUN repo-query (lv-rowid).
-
-         THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp). 
-     END.                                             
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -652,7 +628,6 @@ FIND FIRST eb WHERE ROWID(eb) EQ iprRowid  NO-LOCK NO-ERROR.
         
 
 {src/adm/template/windowmn.i}
-    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -675,20 +650,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available W-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -697,48 +672,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-        THEN DELETE WIDGET W-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
+  THEN DELETE WIDGET W-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win  _DEFAULT-ENABLE
-PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY est-no quantity iForm iBlank cCustNo cust-name ship-to ship-name 
-      WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE BROWSE-1 btn-update btn-add btn-copy btn-ok  RECT-1  
-      WITH FRAME F-Main IN WINDOW W-Win.
-  {&OPEN-BROWSERS-IN-QUERY-F-Main}
-  VIEW W-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME*/
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
-    /* -----------------------------------------------------------
+/* -----------------------------------------------------------
       Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
       Parameters:  <none>
       Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
@@ -754,7 +707,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize W-Win 
 PROCEDURE local-initialize :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -828,7 +781,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query W-Win 
 PROCEDURE local-open-query :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     Override standard ADM method
           Notes:       
         ------------------------------------------------------------------------------*/
@@ -855,7 +808,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query W-Win 
 PROCEDURE repo-query :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -881,21 +834,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-    /*------------------------------------------------------------------------------
-      Purpose:     Send record ROWID's for all tables used by
-                   this file.
-      Parameters:  see template/snd-head.i
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
 
-    /* For each requested table, put it's ROWID in the output list.      */
-    {src/adm/template/snd-list.i "ap-pay"}
-    {src/adm/template/snd-list.i "estRelease"}
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "estRelease"}
 
-    /* Deal with any unexpected table requests before closing.           */
-    {src/adm/template/snd-end.i}
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -904,7 +856,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
-    /* -----------------------------------------------------------
+/* -----------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -982,3 +934,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
