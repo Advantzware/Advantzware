@@ -393,14 +393,27 @@ PROCEDURE build-table :
      tt-inv.net      = ar-invl.amt
      lv-num-rec      = lv-num-rec + 1.
 
-    
-        FOR EACH b-cashl
-        WHERE b-cashl.invoiceLine   EQ ar-invl.line
-          AND b-cashl.invoiceXNo EQ ar-invl.x-no :
-
-      tt-inv.paid = tt-inv.paid + (b-cashl.amt-paid * -1).
-    END.
-
+    /* Posted needed to utilize index so search with both posted = yes and posted = no */
+     FOR EACH b-cashl
+        WHERE b-cashl.company     EQ ar-invl.company
+          AND b-cashl.posted      EQ NO
+          AND b-cashl.cust-no     EQ ar-invl.cust-no
+          AND b-cashl.inv-no      EQ ar-invl.inv-no 
+          AND b-cashl.invoiceLine EQ ar-invl.line
+          AND b-cashl.invoiceXNo  EQ ar-invl.x-no           
+        :
+        tt-inv.paid = tt-inv.paid + (b-cashl.amt-paid * -1).
+     END.
+     FOR EACH b-cashl 
+        WHERE b-cashl.company     EQ ar-invl.company
+          AND b-cashl.posted      EQ YES
+          AND b-cashl.cust-no     EQ ar-invl.cust-no
+          AND b-cashl.inv-no      EQ ar-invl.inv-no 
+          AND b-cashl.invoiceLine EQ ar-invl.line
+          AND b-cashl.invoiceXNo  EQ ar-invl.x-no             
+        :
+        tt-inv.paid = tt-inv.paid + (b-cashl.amt-paid * -1).
+     END.
     tt-inv.due = tt-inv.net - tt-inv.paid.
   END.
 
@@ -420,18 +433,37 @@ PROCEDURE create-records :
   DEF VAR li-next-line AS INT NO-UNDO.
   DEF VAR lv-dscr LIKE ar-cashl.dscr NO-UNDO.
 
-
+ /* Posted needed to utilize index so search with both posted = yes and posted = no */
   FOR EACH tt-inv,
       FIRST ar-invl WHERE ROWID(ar-invl) EQ tt-inv.row-id NO-LOCK,     
       FIRST b-cashl
-      WHERE b-cashl.invoiceXNo EQ ar-invl.x-no
-        AND b-cashl.invoiceLine EQ ar-invl.LINE :
+      WHERE b-cashl.company EQ ar-invl.company
+        AND b-cashl.cust-no EQ ar-invl.cust-no
+        AND b-cashl.posted  EQ NO
+        AND b-cashl.inv-no  EQ ar-invl.inv-no
+        AND b-cashl.invoiceXNo  EQ ar-invl.x-no
+        AND b-cashl.invoiceLine EQ ar-invl.LINE 
+     :
 
     IF ROWID(ar-cashl) EQ ROWID(b-cashl) THEN ll = YES.    
 
     DELETE tt-inv.
   END.
+  FOR EACH tt-inv,
+      FIRST ar-invl WHERE ROWID(ar-invl) EQ tt-inv.row-id NO-LOCK,     
+      FIRST b-cashl
+      WHERE b-cashl.company EQ ar-invl.company
+        AND b-cashl.cust-no EQ ar-invl.cust-no
+        AND b-cashl.posted  EQ YES
+        AND b-cashl.inv-no  EQ ar-invl.inv-no
+        AND b-cashl.invoiceXNo  EQ ar-invl.x-no
+        AND b-cashl.invoiceLine EQ ar-invl.LINE 
+     :
 
+    IF ROWID(ar-cashl) EQ ROWID(b-cashl) THEN ll = YES.    
+
+    DELETE tt-inv.
+  END.
   FOR EACH tt-inv WHERE tt-inv.selekt,
       FIRST ar-invl WHERE ROWID(ar-invl) EQ tt-inv.row-id NO-LOCK:
 
