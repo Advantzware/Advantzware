@@ -60,7 +60,7 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Part #,Customer,Quote#,Quantity,Price,Profit %,Price UOM,ShipTo,SoldTo,Quote Date,Delivery Date,Expiration Date," +
                            "Estimate #,Contact,Sales Group,Terms Code,Carrier,Zone,FG Item #,Item Description," +
-                           "Item Description 2,Style,Dimensions,Board,Color"
+                           "Item Description 2,Est Style,Dimensions,Board,Color"
             cFieldListToSelect = "part-no,cust-no,quote,qty,price,profit,price-uom,shipto,soldto,quote-date,del-date,exp-date," +
                                  "est-no,contact,sale-group,terms,carrier,zone,fg-item,item-dscr," +
                                  "item-dscr2,style,dimension,board,color"    .
@@ -1038,7 +1038,7 @@ DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE lv-pdf-file AS cha NO-UNDO.
 DEFINE VARIABLE iQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO .
-DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>9.99%" NO-UNDO .
+DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>,>>9.99%" NO-UNDO .
 DEFINE VARIABLE cUom AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
@@ -1115,7 +1115,7 @@ FOR EACH quotehd
             WHEN "price" THEN                                                                
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dPrice)). 
             WHEN "profit" THEN                                                                
-                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dProfit, "->>9.99")).
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dProfit, "->>,>>9.99")).
             WHEN "price-uom" THEN                                                                
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cUom). 
             WHEN "shipto" THEN                                                                
@@ -1216,6 +1216,10 @@ FUNCTION appendXLLine RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lc-line AS CHARACTER NO-UNDO.
 
+    /* This prevents null values from corrupting the entire display line */
+    IF ipc-append EQ ? THEN ASSIGN 
+        ipc-append = "".
+    
     ipc-append = REPLACE(ipc-append, '"', '').
     ipc-append = REPLACE(ipc-append, ',', ' ').
     lc-line = lc-line + '"' + ipc-append + '",'.
