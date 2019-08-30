@@ -461,7 +461,7 @@ PROCEDURE pSetTaxable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lTaxable  AS LOGICAL NO-UNDO.
 
     DISABLE TRIGGERS FOR LOAD OF cust.
     DISABLE TRIGGERS FOR LOAD OF inv-head.
@@ -471,6 +471,13 @@ PROCEDURE pSetTaxable :
     DISABLE TRIGGERS FOR LOAD OF oe-ordl.
     DISABLE TRIGGERS FOR LOAD OF oe-ordm.
     
+    MESSAGE 
+        "WARNING: You are about TO change data that cannot be automatically undone;"
+        "any unwanted changes will have to be manually changed record by record." SKIP(1)
+        "Are you sure you want to continue?"
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+    UPDATE lContinue AS LOGICAL.
+    IF lContinue THEN
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             {&TaxableFields}
