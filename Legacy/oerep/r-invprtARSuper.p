@@ -1,9 +1,11 @@
 &global-define LINE ar-invl
 &global-define head ar-inv
 &global-define bolno inv-no
-&global-define multiinvoice recur
+&global-define multiinvoice multi-invoice
+&global-define recur recur
 &global-define soldno sold-no
-&global-define rno x-no
+&global-define rno r-no
+&global-define xno x-no
 &global-define bno b-no
 &global-define miscrno r-no
 
