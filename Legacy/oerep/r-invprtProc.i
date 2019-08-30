@@ -755,7 +755,7 @@ DEFINE PARAMETER BUFFER ipbf-inv-head FOR {&head}.
 DEFINE OUTPUT PARAMETER lInRange   AS LOGICAL NO-UNDO.
 
 DEFINE BUFFER buf-{&line}1 FOR {&line}.
-define buffer b-{&head}1 for inv-head.
+define buffer b-{&head}1 for {&head}.
 
 /* Start with true, if any oe-boll lines are out of range, set to false */
 lInRange = TRUE. 
@@ -809,7 +809,7 @@ DO:
       
       IF  "{&head}" EQ "inv-head" THEN DO:
            FOR EACH buf-{&line}1 no-lock
-              WHERE buf-{&line}1.r-no EQ ipbf-inv-head.r-no
+              WHERE buf-{&line}1.{&rno} EQ ipbf-inv-head.{&rno}
               :
                   
                IF buf-{&line}1.{&bno} NE 0 THEN DO:
