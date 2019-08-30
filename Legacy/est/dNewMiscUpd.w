@@ -103,7 +103,7 @@ estRelease.handlingCost estRelease.freightCost estRelease.handlingCostTotal ~
 estRelease.storageCostTotal estRelease.createRelease 
 &Scoped-define DISPLAYED-TABLES estRelease
 &Scoped-define FIRST-DISPLAYED-TABLE estRelease
-&Scoped-Define DISPLAYED-OBJECTS fi_Pallet-count cShipToLoc
+&Scoped-Define DISPLAYED-OBJECTS fi_Pallet-count cShipToLoc cCarrMethod
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -144,6 +144,11 @@ DEFINE VARIABLE fi_Pallet-count AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE cShipToLoc AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE cCarrMethod AS CHARACTER FORMAT "X(50)":U 
+     VIEW-AS FILL-IN 
+     SIZE 55 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
@@ -210,6 +215,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      cShipToLoc AT ROW 5.52 COL 40 COLON-ALIGNED NO-LABEL
+     cCarrMethod AT ROW 13 COL 2 NO-LABEL
      estRelease.carrierID AT ROW 6.67 COL 21.8 COLON-ALIGNED
           LABEL "Carrier" FORMAT "x(10)"
           VIEW-AS FILL-IN 
@@ -359,7 +365,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fi_Pallet-count IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cShipToLoc IN FRAME Dialog-Frame
-   NO-ENABLE  EXP-FORMAT                                                */
+   NO-ENABLE  EXP-FORMAT                                                */ 
+/* SETTINGS FOR FILL-IN cCarrMethod IN FRAME Dialog-Frame
+   NO-ENABLE  EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estRelease.formNo IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN estRelease.freightCost IN FRAME Dialog-Frame
@@ -435,6 +443,8 @@ DO:
                     RUN windows/l-carrie.w  (cocode, estRelease.shipFromLocationID:SCREEN-VALUE IN FRAME {&FRAME-NAME}, FOCUS:SCREEN-VALUE, OUTPUT char-val). 
                     IF char-val <> "" THEN 
                         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+                    RUN pDisplayCarrMethod(estRelease.carrierID:SCREEN-VALUE,estRelease.shipFromLocationID:SCREEN-VALUE, OUTPUT cCarrMethod ) .
+                    ASSIGN cCarrMethod:SCREEN-VALUE = cCarrMethod .
                 END.
 
             WHEN "carrierZone" THEN 
@@ -619,13 +629,9 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.carrierID Dialog-Frame
 ON LEAVE OF estRelease.carrierID IN FRAME Dialog-Frame /* Carrier */
 DO:
-        DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-carrier(OUTPUT lValidateResult) NO-ERROR.
-            IF lValidateResult THEN RETURN NO-APPLY.
-        END.
-    END.
+     RUN pDisplayCarrMethod(estRelease.carrierID:SCREEN-VALUE,estRelease.shipFromLocationID:SCREEN-VALUE, OUTPUT cCarrMethod ) .   
+      ASSIGN cCarrMethod:SCREEN-VALUE = cCarrMethod .
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -635,14 +641,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estRelease.carrierZone Dialog-Frame
 ON LEAVE OF estRelease.carrierZone IN FRAME Dialog-Frame /* Zone */
 DO:
-        DEFINE VARIABLE lValidateResult AS LOGICAL NO-UNDO.
-        IF LASTKEY NE -1 THEN 
-        DO:     
-            
-            RUN valid-zone(OUTPUT lValidateResult) NO-ERROR.
-            IF lValidateResult THEN RETURN NO-APPLY.
-        END.
-    END.
+      
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -934,14 +934,15 @@ PROCEDURE display-item :
                 estRelease.stackHeight:SCREEN-VALUE = STRING(estRelease.stackHeight) .
             ELSE estRelease.stackHeight:SCREEN-VALUE = "1" .
           
-         RUN pDisplayShipLoc(estRelease.customerID,estRelease.shipToID, OUTPUT cShipToLoc ) .       
+         RUN pDisplayShipLoc(estRelease.customerID,estRelease.shipToID, OUTPUT cShipToLoc ) .  
+         RUN pDisplayCarrMethod(estRelease.carrierID,estRelease.shipFromLocationID, OUTPUT cCarrMethod ) .
 
         DISPLAY estRelease.quantity estRelease.quantityRelease 
             estRelease.shipFromLocationID estRelease.customerID estRelease.shipToID estRelease.carrierID estRelease.carrierZone 
             estRelease.quantityPerSubUnit estRelease.quantitySubUnitsPerUnit estRelease.quantityOfUnits estRelease.palletMultiplier 
             estRelease.monthsAtShipFrom estRelease.stackHeight estRelease.storageCost estRelease.handlingCost 
             estRelease.freightCost estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.createRelease 
-            estRelease.estimateNo estRelease.formNo estRelease.blankNo  fi_Pallet-count cShipToLoc
+            estRelease.estimateNo estRelease.formNo estRelease.blankNo  fi_Pallet-count cShipToLoc cCarrMethod
             WITH FRAME Dialog-Frame.
     END.
 
@@ -970,7 +971,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_Pallet-count cShipToLoc
+  DISPLAY fi_Pallet-count cShipToLoc cCarrMethod
       WITH FRAME Dialog-Frame.
   IF AVAILABLE estRelease THEN 
     DISPLAY estRelease.estimateNo estRelease.quantity estRelease.formNo 
@@ -1189,6 +1190,42 @@ PROCEDURE pDisplayShipLoc :
         NO-ERROR.
         IF AVAILABLE shipto THEN 
         ASSIGN opcLoc =  shipto.loc .
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayCarrMethod Dialog-Frame 
+PROCEDURE pDisplayCarrMethod :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCarrier AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipcShipFormLocId AS CHARACTER NO-UNDO .
+    DEFINE OUTPUT PARAMETER opcMethod AS CHARACTER NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+
+        FIND FIRST carrier NO-LOCK
+            WHERE carrier.company EQ cocode
+            AND carrier.loc    EQ ipcShipFormLocId
+            AND carrier.carrier    EQ ipcCarrier
+            NO-ERROR.
+        IF AVAILABLE carrier THEN DO:
+            IF carrier.chg-method EQ "M" THEN
+                opcMethod =  "Msf: (Bol Qty * Total Sq Feet) * Freight Rate" .
+            ELSE IF carrier.chg-method EQ "P" THEN
+                opcMethod = "Pallet: Bol Tot Pallet * Freight Rate" . 
+            ELSE IF carrier.chg-method EQ "W" THEN
+                opcMethod = "Weight: (Bol Qty / 100 )  * Lbs/100 * Freight Rate" .
+            ELSE
+                opcMethod = "" .
+        END.
+        
     END.
 
 END PROCEDURE.

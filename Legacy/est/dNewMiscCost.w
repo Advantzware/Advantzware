@@ -837,7 +837,7 @@ DO:
 
 &Scoped-define SELF-NAME dEaCost1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost1 D-Dialog
-ON LEAVE OF dEaCost1 IN FRAME D-Dialog
+ON VALUE-CHANGED OF dEaCost1 IN FRAME D-Dialog
 DO: 
         IF LASTKEY NE -1 THEN 
         DO:
@@ -869,7 +869,7 @@ DO:
 
 &Scoped-define SELF-NAME dEaCost2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost2 D-Dialog
-ON LEAVE OF dEaCost2 IN FRAME D-Dialog
+ON VALUE-CHANGED OF dEaCost2 IN FRAME D-Dialog
 DO: 
         IF LASTKEY NE -1 THEN 
         DO:
@@ -901,7 +901,7 @@ DO:
 
 &Scoped-define SELF-NAME dEaCost3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost3 D-Dialog
-ON LEAVE OF dEaCost3 IN FRAME D-Dialog
+ON VALUE-CHANGED OF dEaCost3 IN FRAME D-Dialog
 DO: 
         IF LASTKEY NE -1 THEN 
         DO:
@@ -933,7 +933,7 @@ DO:
 
 &Scoped-define SELF-NAME dEaCost4
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost4 D-Dialog
-ON LEAVE OF dEaCost4 IN FRAME D-Dialog
+ON VALUE-CHANGED OF dEaCost4 IN FRAME D-Dialog
 DO: 
         IF LASTKEY NE -1 THEN 
         DO:
@@ -965,7 +965,7 @@ DO:
 
 &Scoped-define SELF-NAME dEaCost5
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost5 D-Dialog
-ON LEAVE OF dEaCost5 IN FRAME D-Dialog
+ON VALUE-CHANGED OF dEaCost5 IN FRAME D-Dialog
 DO: 
         IF LASTKEY NE -1 THEN 
         DO:

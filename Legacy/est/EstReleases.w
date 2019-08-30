@@ -60,7 +60,7 @@ DEFINE            VARIABLE lv-first     AS LOG     INIT YES NO-UNDO.
 DEFINE            VARIABLE lv-num-rec   AS INTEGER NO-UNDO.
 DEFINE            VARIABLE lv-in-add    AS LOG     NO-UNDO.
 DEFINE            VARIABLE lv-in-update AS LOG     NO-UNDO.
-
+DEFINE            VARIABLE cShipLoc     AS CHARACTER NO-UNDO .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -89,7 +89,7 @@ DEFINE QUERY external_tables FOR eb.
 &Scoped-define INTERNAL-TABLES estRelease 
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 estRelease.quantity estRelease.shipFromLocationID estRelease.shipToID estRelease.carrierID estRelease.carrierZone estRelease.quantityOfUnits estRelease.monthsAtShipFrom estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.freightCost
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 estRelease.quantity estRelease.shipFromLocationID estRelease.shipToID estRelease.carrierID estRelease.carrierZone estRelease.quantityOfUnits estRelease.monthsAtShipFrom estRelease.handlingCostTotal estRelease.storageCostTotal estRelease.freightCost getShipLoc() @ cShipLoc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 estRelease
@@ -128,6 +128,14 @@ cust-name ship-to ship-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD CheckForNegative W-Win 
 FUNCTION CheckForNegative RETURNS LOGICAL
     ( ipcCompany AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getShipLoc W-Win 
+FUNCTION getShipLoc RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -223,7 +231,7 @@ DEFINE BROWSE BROWSE-1
     estRelease.quantity LABEL "Est Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
     estRelease.quantityRelease LABEL "Rel Qty" WIDTH 12 LABEL-BGCOLOR 14 FORMAT ">,>>>,>>9"
     estRelease.shipFromLocationID LABEL "From" WIDTH 10 LABEL-BGCOLOR 14
-    estRelease.shipToID LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
+    getShipLoc() @ cShipLoc LABEL "To" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.carrierID LABEL "Carrier" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.carrierZone LABEL "Zone" WIDTH 10 LABEL-BGCOLOR 14
     estRelease.quantityOfUnits LABEL "Units" WIDTH 10 LABEL-BGCOLOR 14
@@ -535,6 +543,43 @@ ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy Selected */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok W-Win
 ON CHOOSE OF btn-ok IN FRAME F-Main /* OK */
     DO:
+    DEFINE VARIABLE cQtyonEst AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lmessage AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO. 
+    DEFINE BUFFER bf-estRelease FOR estRelease .
+        IF AVAIL eb THEN do:
+            FIND est-qty 
+                WHERE est-qty.company EQ eb.company
+                AND est-qty.est-no EQ eb.est-no
+                AND est-qty.eqty EQ eb.eqty 
+                NO-ERROR.
+
+            IF AVAIL est-qty THEN
+                DO i = 1 TO 20:
+                 IF est-qty.qty[i] NE 0 THEN do:
+                    IF i EQ 1 THEN
+                        cQtyonEst  = STRING(est-qty.qty[i])  NO-ERROR.
+                    ELSE cQtyonEst  = cQtyonEst + "," + string(est-qty.qty[i])   NO-ERROR.
+                 END.
+                END.
+           
+           FOR EACH bf-estRelease EXCLUSIVE-LOCK WHERE bf-estRelease.company = cocode
+               AND bf-estRelease.estimateNo              = eb.est-no  
+               AND bf-estRelease.FormNo                  = eb.form-no 
+               AND bf-estRelease.BlankNo                 = eb.blank-No  :
+               
+               IF LOOKUP(string(bf-estRelease.quantity),cQtyonEst) EQ 0 THEN do:
+                   lmessage = TRUE .
+                   DELETE bf-estRelease .
+               END.
+           END.
+        END.
+        RELEASE bf-estRelease .
+        IF lMessage THEN DO:
+             MESSAGE "Estimate Quantity Changed - Must re-enter releases."  VIEW-AS ALERT-BOX ERROR .
+             RUN repo-query (lv-rowid).
+             RETURN NO-APPLY .
+        END.
     
         APPLY "close" TO THIS-PROCEDURE.
     END.
@@ -910,3 +955,30 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getShipLoc W-Win 
+FUNCTION getShipLoc RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    lc-result = "".
+      FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ cocode
+            AND cust.ACTIVE EQ "X" NO-ERROR .
+        
+        FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ cocode 
+        AND (shipto.cust-no EQ estRelease.customerID OR  shipto.cust-no EQ cust.cust-no)
+        AND TRIM(shipto.ship-id) = estRelease.shipToID
+        NO-ERROR.
+        IF AVAILABLE shipto THEN 
+        ASSIGN lc-result =  shipto.loc .
+
+    RETURN lc-result.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
