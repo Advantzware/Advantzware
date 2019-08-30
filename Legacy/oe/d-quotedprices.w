@@ -31,10 +31,10 @@ DEF INPUT PARAM ipxEstNo LIKE oe-ordl.est-no NO-UNDO.
 DEF INPUT PARAM ipxCustNo LIKE oe-ordl.cust-no NO-UNDO.
 DEF INPUT PARAM ipxPartNo LIKE oe-ordl.part-no NO-UNDO.
 DEF INPUT PARAM ipxINo LIKE oe-ordl.i-no NO-UNDO.
-DEF OUTPUT PARAM opxPrice LIKE oe-ordl.price NO-UNDO.
-DEF OUTPUT PARAM opxUom LIKE oe-ordl.pr-uom NO-UNDO.
-DEF OUTPUT PARAM opxQty LIKE oe-ordl.qty NO-UNDO.
-DEF OUTPUT PARAM opxQuote LIKE quotehd.q-no NO-UNDO.
+DEF INPUT-OUTPUT PARAM opxPrice LIKE oe-ordl.price NO-UNDO.
+DEF INPUT-OUTPUT PARAM opxUom LIKE oe-ordl.pr-uom NO-UNDO.
+DEF INPUT-OUTPUT PARAM opxQty LIKE oe-ordl.qty NO-UNDO.
+DEF INPUT-OUTPUT PARAM opxQuote LIKE quotehd.q-no NO-UNDO.
 DEF OUTPUT PARAM opcChoice AS CHAR NO-UNDO. /*PRICE,PRICEQTY,CANCEL*/
 
 /* Local Variable Definitions ---                                       */

@@ -1246,18 +1246,28 @@ FOR EACH ef
             IF NOT AVAILABLE tt-key2 THEN CREATE tt-key2.                                       
             V-PRT-UP = v-up * ef.n-out-l.
             
-            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
+            IF PAGE-SIZE - LINE-COUNTER LE 12 THEN PAGE. 
             PUT "<#6>"
-                "QTY: " xjob-hdr.qty /*v-ord-qty*/ FORM ">>>>,>>9" " " (IF AVAIL oe-ord THEN oe-ord.under-pct ELSE 0) " Unders/ " (IF AVAIL oe-ord THEN oe-ord.over-pct ELSE 0) " Over"  "<C47>" "SIZE: " /*AT 47 */ "<C53>" v-size[1] FORM "x(35)"  SKIP
-                "DESC:  " v-dsc[1] FORM "x(30)"  "<C38>" "STYLE:  " v-stypart SKIP
-                v-dsc[2] AT 7    FORM "x(30)"  "<C45>" tt-key2.tt-style[1] FORM "x(25)" SKIP
-                v-dsc[3] AT 7    FORM "x(30)"  "<C45>" tt-key2.tt-style[2] FORM "x(25)" SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
+                "QTY: " xjob-hdr.qty /*v-ord-qty*/ FORM ">>>>,>>9" " " (IF AVAIL oe-ord THEN oe-ord.under-pct ELSE 0) " Unders/ " (IF AVAIL oe-ord THEN oe-ord.over-pct ELSE 0) " Over"  "<C47>" "SIZE: " /*AT 47 */ "<C53>" v-size[1] FORM "x(35)"  SKIP .
+            IF PAGE-SIZE - LINE-COUNTER LE 12 THEN PAGE. 
+            PUT "FG ITEM:  " bf-eb.stock-no  "<C38>" "STYLE:  " v-stypart FORMAT "x(30)" SKIP.
+            IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
+            PUT "DESC:  " v-dsc[1] FORM "x(30)"  "<C45>" tt-key2.tt-style[1] FORM "x(25)"  SKIP .
+            IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
+            PUT v-dsc[2] AT 7    FORM "x(30)" "<C45>" tt-key2.tt-style[2] FORM "x(25)"  SKIP .
+            IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
+            IF v-dsc[3] NE "" THEN do:
+                PUT v-dsc[3] AT 7    FORM "x(30)"   SKIP.
+                IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
+            END.
             PUT
-                "PRINT " v-prt-up FORM ">>>9" ", CUT " v-up FORM ">>>9" " UP"   "<C38>" "LAST JOB RUN:  "  SKIP
-                "PLATE#:  " bf-eb.plate-no "<C38>" "DIE#:  " "<C43>" bf-eb.die-no FORMAT "x(20)" SKIP
-                "CUSTOMER PART#:  " bf-eb.part-no   "<C38>" "CAD#:  " bf-eb.cad-no SKIP
-                "PO:  " v-po-no       "<C38>" "PRTD:  " bf-eb.i-coldscr SKIP.
+                "PRINT " v-prt-up FORM ">>>9" ", CUT " v-up FORM ">>>9" " UP"   "<C38>" "LAST JOB RUN:  "  SKIP .
+            IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
+            PUT "PLATE#:  " bf-eb.plate-no "<C38>" "DIE#:  " "<C43>" bf-eb.die-no FORMAT "x(20)" SKIP .
+            IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
+            PUT "CUSTOMER PART#:  " bf-eb.part-no   "<C38>" "CAD#:  " bf-eb.cad-no SKIP .
+            IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
+            PUT "PO:  " v-po-no       "<C38>" "PRTD:  " bf-eb.i-coldscr SKIP.
 
             IF AVAILABLE oe-ordl THEN
                 FOR EACH oe-rel WHERE oe-rel.company EQ cocode
@@ -1281,26 +1291,23 @@ FOR EACH ef
                         FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
                     v-del-date = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
 
-                IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
+                IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
                 PUT
                     "DEL:  " v-del-date      SKIP
                     "SHIP TO:  " v-shipto[1]   "<C38>" "Qty:" oe-rel.tot-qty FORMAT ">>>>>>>9" 
                     SKIP.
-                IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
+                IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE. 
                 PUT
                     v-shipto[2] AT 8 
                     "<C38>" "PACK:  "  bf-eb.cas-cnt "        PER CASE:  " bf-eb.cas-no  SKIP
                     v-shipto[3] AT 8  "<C38>PACK: " bf-eb.cas-pal FORM ">>9" "<C47>PER PALLET" SKIP.
-                IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE.
+                IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE.
                 PUT       
                     v-shipto[4] AT 8  "<C38>AQL:  "  tt-key2.tt-aql FORM "x(25)"
                     SKIP.
-                IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE.
+                IF PAGE-SIZE - LINE-COUNTER < 12 THEN PAGE.
             END.
             
-            PUT
-                "FG ITEM:  " bf-eb.stock-no SKIP.
-            IF PAGE-SIZE - LINE-COUNTER < 8 THEN PAGE. 
             PUT v-fill2 SKIP.
                 
             IF AVAILABLE tt-key2 THEN DELETE tt-key2.

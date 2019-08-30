@@ -755,7 +755,9 @@ DEFINE PARAMETER BUFFER ipbf-inv-head FOR {&head}.
 DEFINE OUTPUT PARAMETER lInRange   AS LOGICAL NO-UNDO.
 
 DEFINE BUFFER buf-{&line}1 FOR {&line}.
+
 define buffer b-{&head}1 for {&head}.
+
 
 /* Start with true, if any oe-boll lines are out of range, set to false */
 lInRange = TRUE. 

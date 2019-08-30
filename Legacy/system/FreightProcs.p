@@ -542,6 +542,7 @@ PROCEDURE pCreateEstReleaseBuffer PRIVATE:
             opbf-estRelease.formNo           = ipiFormNo
             opbf-estRelease.blankNo          = ipiBlankNo
             opbf-estRelease.quantity         = ipdQuantity
+            opbf-estRelease.stackHeight      = 1
             opbf-estRelease.palletMultiplier = 1
             opbf-estRelease.monthsAtShipFrom = 0
             opbf-estRelease.estReleaseID     = fGetNextEstReleaseID()

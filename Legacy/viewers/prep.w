@@ -95,9 +95,9 @@ prep.commissionable prep.loc prep.loc-bin prep.i-no prep.vend-no ~
 prep.mat-type prep.actnum prep.cost-type prep.simon prep.cust-no ~
 prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.cadNo ~
-prep.cad-image prep.carton-w prep.die-w prep.box-style prep.prep-date ~
-prep.carton-l prep.die-l prep.wood-type prep.received-date prep.carton-d ~
-prep.last-date prep.disposal-date 
+prep.cad-image prep.carton-w prep.die-w prep.box-style prep.carton-l ~
+prep.die-l prep.wood-type prep.received-date prep.carton-d prep.last-date ~
+prep.disposal-date 
 &Scoped-define ENABLED-TABLES prep
 &Scoped-define FIRST-ENABLED-TABLE prep
 &Scoped-Define DISPLAYED-FIELDS prep.code prep.dscr prep.inactive prep.ml ~
@@ -497,7 +497,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN prep.owner[2] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.prep-date IN FRAME F-Main
-   EXP-LABEL                                                            */
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN prep.received-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN prep.rec_key IN FRAME F-Main
@@ -1405,6 +1405,10 @@ PROCEDURE local-create-record :
     RUN get-defaults IN WIDGET-HANDLE(char-hdl) (INPUT ROWID(prep)).
     FIND CURRENT prep NO-ERROR.
   END.
+  
+  
+  ls-time = IF AVAIL prep THEN STRING(prep.prep-time,"HH:MM:SS") ELSE "".
+  disp ls-time with frame {&frame-name}.
 
   display prep.uom uom_dscr with frame {&frame-name}.
 

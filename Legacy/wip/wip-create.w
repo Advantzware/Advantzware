@@ -74,6 +74,7 @@ DEFINE VARIABLE iCopies           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iTotTags          AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iTotOnHand        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cFilterBy         AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
@@ -108,8 +109,8 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 &Scoped-define FIELDS-IN-QUERY-br-table ttBrowseInventory.quantity ttBrowseInventory.quantityOriginal ttBrowseInventory.locationID ttBrowseInventory.stockIDAlias ttBrowseInventory.jobID ttBrowseInventory.inventoryStatus   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-table   
 &Scoped-define SELF-NAME br-table
-&Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br-table OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory  ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br-table FOR EACH ttBrowseInventory             WHERE (IF cFilterBy EQ "" THEN                        TRUE                    ELSE                        ttBrowseInventory.inventoryStatus EQ cFilterBy)  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br-table OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory             WHERE (IF cFilterBy EQ "" THEN                        TRUE                    ELSE                        ttBrowseInventory.inventoryStatus EQ cFilterBy)  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br-table ttBrowseInventory
 &Scoped-define FIRST-TABLE-IN-QUERY-br-table ttBrowseInventory
 
@@ -119,12 +120,14 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bt-exit btnFirst btnKeyboard btnLast btnNext ~
-btnNumPad btnNumPad-1 btnNumPad-2 btnNumPad-3 btnPrevious RECT-26 ls-jobno ~
-cb-jobno2 cb-formno cb-blankno cb-machine bt-create ls-qty-per-tag ~
-ls-total-run-qty ls-num-tags br-table 
+&Scoped-Define ENABLED-OBJECTS bt-exit RECT-26 rSelected ls-tag btInfo ~
+btnNumPad btnKeyboard ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine ~
+bt-create btCreated btOH btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ~
+ls-total-run-qty ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious ~
+btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS ls-tag ls-jobno cb-jobno2 cb-formno ~
-cb-blankno cb-machine ls-qty-per-tag ls-total-run-qty ls-num-tags 
+cb-blankno cb-machine fiRMItem fiSizeLabel fiSize fiUOMLabel fiUOM ~
+ls-total-run-qty ls-qty-per-tag ls-num-tags 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -141,121 +144,162 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bt-adjust-qty 
-     LABEL "Adjust Quantity" 
-     SIZE 54 BY 3
-     FONT 37.
+     LABEL "Adjust" 
+     SIZE 13 BY 3.1 TOOLTIP "Adjust Quantity"
+     FONT 35.
 
 DEFINE BUTTON bt-create 
      LABEL "Create" 
-     SIZE 27 BY 3
+     SIZE 22.2 BY 3 TOOLTIP "Create Tags"
      FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS
      LABEL "" 
-     SIZE 9.6 BY 2.29.
-
-DEFINE BUTTON bt-print-all 
-     LABEL "Print and Receive All" 
-     SIZE 54 BY 3
-     FONT 37.
+     SIZE 9.6 BY 2.29 TOOLTIP "Exit".
 
 DEFINE BUTTON bt-print-selected 
-     LABEL "Print and Receive Selected" 
-     SIZE 54 BY 3
+     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
+     LABEL "" 
+     SIZE 13 BY 3.1 TOOLTIP "Print Tags"
      FONT 37.
 
+DEFINE BUTTON btAll 
+     LABEL "All - 0" 
+     SIZE 17.6 BY 2 TOOLTIP "Filter All Tags"
+     FONT 37.
+
+DEFINE BUTTON btCreated 
+     LABEL "Cr - 0" 
+     SIZE 17.6 BY 2 TOOLTIP "Filter Created Tags"
+     FONT 37.
+
+DEFINE BUTTON btInfo 
+     IMAGE-UP FILE "Graphics/32x32/inactive.ico":U NO-CONVERT-3D-COLORS
+     LABEL "Info" 
+     SIZE 9.6 BY 2.29 TOOLTIP "Job Details".
+
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/delete.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U
      LABEL "" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Delete".
+     SIZE 11 BY 2.62 TOOLTIP "Delete".
 
 DEFINE BUTTON btnFirst 
-     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
      LABEL "First" 
-     SIZE 9.6 BY 2.29 TOOLTIP "First".
+     SIZE 11 BY 2.62 TOOLTIP "First".
 
 DEFINE BUTTON btnKeyboard 
-     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U
      LABEL "Keyboard" 
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btnLast 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U
      LABEL "Last" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Last".
+     SIZE 11 BY 2.62 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_down.ico":U
      LABEL "Next" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Next".
+     SIZE 11 BY 2.62 TOOLTIP "Next".
 
 DEFINE BUTTON btnNumPad 
-     IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U
      LABEL "NumPad" 
-     SIZE 8 BY 1.9 TOOLTIP "Numeric Keypad".
+     SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btnNumPad-1 
-     IMAGE-UP FILE "Graphics/24x24/numeric_keypad.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/24x24/numeric_keypad.gif":U
      LABEL "NumPad1" 
      SIZE 6.4 BY 1.52 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btnNumPad-2 
-     IMAGE-UP FILE "Graphics/24x24/numeric_keypad.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/24x24/numeric_keypad.gif":U
      LABEL "NumPad1" 
      SIZE 6.4 BY 1.52 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btnNumPad-3 
-     IMAGE-UP FILE "Graphics/24x24/numeric_keypad.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/24x24/numeric_keypad.gif":U
      LABEL "NumPad1" 
      SIZE 6.4 BY 1.52 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btnPrevious 
-     IMAGE-UP FILE "Graphics/32x32/navigate_up.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_up.ico":U
      LABEL "Previous" 
-     SIZE 9.6 BY 2.29 TOOLTIP "Previous".
+     SIZE 11 BY 2.62 TOOLTIP "Previous".
+
+DEFINE BUTTON btOH 
+     LABEL "OH - 0" 
+     SIZE 17.6 BY 2 TOOLTIP "Filter On-Hand Tags"
+     FONT 37.
 
 DEFINE VARIABLE cb-blankno AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "0" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
+     SIZE 9.8 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE cb-formno AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "0" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
+     SIZE 9.8 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE cb-jobno2 AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1.48
+     SIZE 9.8 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE cb-machine AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
-     SIZE 37.4 BY 1.48
+     SIZE 37.4 BY 1
      FONT 37 NO-UNDO.
+
+DEFINE VARIABLE fiRMItem AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 59 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiSize AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 24 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiSizeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Size:" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiUOM AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     FONT 35 NO-UNDO.
+
+DEFINE VARIABLE fiUOMLabel AS CHARACTER FORMAT "X(256)":U INITIAL "UOM:" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1
+     FONT 35 NO-UNDO.
 
 DEFINE VARIABLE ls-jobno AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.38
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE ls-num-tags AS INTEGER FORMAT ">9":U INITIAL 1 
+DEFINE VARIABLE ls-num-tags AS INTEGER FORMAT ">>>9":U INITIAL 1 
      VIEW-AS FILL-IN 
-     SIZE 17.6 BY 1.38
+     SIZE 9.8 BY 1.38
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-qty-per-tag AS DECIMAL FORMAT ">,>>>,>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 29.6 BY 1.38
+     SIZE 18 BY 1.38
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE ls-tag AS CHARACTER FORMAT "X(256)":U 
@@ -265,7 +309,7 @@ DEFINE VARIABLE ls-tag AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE ls-total-run-qty AS DECIMAL FORMAT ">,>>>,>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 29.6 BY 1.38
+     SIZE 18 BY 1.38
      FONT 37 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -280,6 +324,11 @@ DEFINE RECTANGLE RECT-2
 DEFINE RECTANGLE RECT-26
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 199 BY .1.
+
+DEFINE RECTANGLE rSelected
+     EDGE-PIXELS 0    
+     SIZE 19.6 BY 2.38
+     BGCOLOR 1 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -299,43 +348,63 @@ DEFINE BROWSE br-table
     ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 189 BY 19.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 186 BY 22.86
          FONT 36 ROW-HEIGHT-CHARS .95 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     bt-exit AT ROW 1.24 COL 192 WIDGET-ID 84
-     btnDelete AT ROW 18.86 COL 192 WIDGET-ID 116
-     btnFirst AT ROW 10.52 COL 191.8 WIDGET-ID 44
-     btnKeyboard AT ROW 3.62 COL 15 WIDGET-ID 132
-     btnLast AT ROW 27.52 COL 191.8 WIDGET-ID 46
-     btnNext AT ROW 23.14 COL 192 WIDGET-ID 42
-     btnNumPad AT ROW 2.43 COL 163 WIDGET-ID 120
-     btnNumPad-1 AT ROW 8.14 COL 64 WIDGET-ID 124
-     btnNumPad-2 AT ROW 8.14 COL 127 WIDGET-ID 126
-     btnNumPad-3 AT ROW 8.14 COL 166 WIDGET-ID 128
-     btnPrevious AT ROW 14.57 COL 192 WIDGET-ID 40
+     bt-exit AT ROW 2.19 COL 192 WIDGET-ID 84
      ls-tag AT ROW 1.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     btInfo AT ROW 2.19 COL 164 WIDGET-ID 134
+     btnNumPad AT ROW 2.38 COL 178.6 WIDGET-ID 120
+     btnKeyboard AT ROW 3.62 COL 15 WIDGET-ID 132
      ls-jobno AT ROW 3.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      cb-jobno2 AT ROW 3.71 COL 73.8 COLON-ALIGNED NO-LABEL WIDGET-ID 50
      cb-formno AT ROW 3.71 COL 100.8 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      cb-blankno AT ROW 3.71 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     cb-machine AT ROW 6.24 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     bt-create AT ROW 6.67 COL 174.2 WIDGET-ID 108
-     ls-qty-per-tag AT ROW 8.14 COL 32.4 COLON-ALIGNED NO-LABEL WIDGET-ID 98
-     ls-total-run-qty AT ROW 8.14 COL 95.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     ls-num-tags AT ROW 8.14 COL 145.8 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     cb-machine AT ROW 6.05 COL 21.2 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+     fiRMItem AT ROW 6.24 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 144
+     fiSizeLabel AT ROW 6.24 COL 121 COLON-ALIGNED NO-LABEL WIDGET-ID 146
+     fiSize AT ROW 6.24 COL 128.6 COLON-ALIGNED NO-LABEL WIDGET-ID 148
+     fiUOMLabel AT ROW 6.24 COL 153 COLON-ALIGNED NO-LABEL WIDGET-ID 150
+     fiUOM AT ROW 6.24 COL 161.6 COLON-ALIGNED NO-LABEL WIDGET-ID 152
+     bt-create AT ROW 6.81 COL 179 WIDGET-ID 108
+     btCreated AT ROW 7.71 COL 120.4 WIDGET-ID 136
+     btOH AT ROW 7.71 COL 139 WIDGET-ID 140
+     btAll AT ROW 7.71 COL 157.6 WIDGET-ID 138
+     btnNumPad-2 AT ROW 8.29 COL 36.6 WIDGET-ID 126
+     btnNumPad-1 AT ROW 8.29 COL 77.2 WIDGET-ID 124
+     btnNumPad-3 AT ROW 8.29 COL 107.8 WIDGET-ID 128
+     ls-total-run-qty AT ROW 8.38 COL 16 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     ls-qty-per-tag AT ROW 8.38 COL 56.4 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+     ls-num-tags AT ROW 8.38 COL 95.2 COLON-ALIGNED NO-LABEL WIDGET-ID 106
      br-table AT ROW 10.52 COL 2 WIDGET-ID 200
-     bt-adjust-qty AT ROW 30.52 COL 2 WIDGET-ID 110
-     bt-print-selected AT ROW 30.52 COL 70 WIDGET-ID 114
-     bt-print-all AT ROW 30.52 COL 137 WIDGET-ID 112
-     "Quantity Per Tag:" VIEW-AS TEXT
-          SIZE 29.6 BY 1.33 AT ROW 8.24 COL 4 WIDGET-ID 96
+     bt-print-selected AT ROW 10.52 COL 188.6 WIDGET-ID 114
+     btnFirst AT ROW 14.19 COL 189.6 WIDGET-ID 44
+     btnPrevious AT ROW 17 COL 189.6 WIDGET-ID 40
+     btnDelete AT ROW 20.48 COL 189.6 WIDGET-ID 116
+     btnNext AT ROW 23.95 COL 189.6 WIDGET-ID 42
+     btnLast AT ROW 26.81 COL 189.6 WIDGET-ID 46
+     bt-adjust-qty AT ROW 30.14 COL 188.6 WIDGET-ID 110
+     "Machine/Op:" VIEW-AS TEXT
+          SIZE 18.8 BY 1.33 AT ROW 6 COL 4.2 WIDGET-ID 92
+          FONT 36
+     "Form #:" VIEW-AS TEXT
+          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
+          FONT 36
+     "Qty/Tag:" VIEW-AS TEXT
+          SIZE 13.4 BY 1.33 AT ROW 8.38 COL 44.6 WIDGET-ID 96
+          FONT 36
+     "#Tags:" VIEW-AS TEXT
+          SIZE 11 BY 1.33 AT ROW 8.38 COL 86 WIDGET-ID 104
           FONT 36
      "RM or WIP Tag:" VIEW-AS TEXT
-          SIZE 27 BY 1.33 AT ROW 1.71 COL 7 WIDGET-ID 86
+          SIZE 23 BY 1.33 AT ROW 1.71 COL 9.6 WIDGET-ID 86
+          FONT 36
+     "(optional)" VIEW-AS TEXT
+          SIZE 16.8 BY .95 AT ROW 1.91 COL 101.2 WIDGET-ID 90
           FONT 36
      "Blank #:" VIEW-AS TEXT
           SIZE 14 BY 1.33 AT ROW 3.81 COL 115.2 WIDGET-ID 58
@@ -343,24 +412,13 @@ DEFINE FRAME F-Main
      "Job #:" VIEW-AS TEXT
           SIZE 11 BY 1.33 AT ROW 3.62 COL 23 WIDGET-ID 12
           FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
-          FONT 36
-     "(optional)" VIEW-AS TEXT
-          SIZE 16.8 BY .95 AT ROW 1.91 COL 101.2 WIDGET-ID 90
-          FONT 36
-     "Total Run Qty:" VIEW-AS TEXT
-          SIZE 24 BY 1.33 AT ROW 8.24 COL 72 WIDGET-ID 100
-          FONT 36
-     "Machine/Op:" VIEW-AS TEXT
-          SIZE 21.6 BY 1.33 AT ROW 6.38 COL 12 WIDGET-ID 92
-          FONT 36
-     "# Tags:" VIEW-AS TEXT
-          SIZE 13.8 BY 1.33 AT ROW 8.14 COL 133 WIDGET-ID 104
+     "Run Qty:" VIEW-AS TEXT
+          SIZE 13 BY 1.33 AT ROW 8.43 COL 4 WIDGET-ID 100
           FONT 36
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 118
-     RECT-2 AT ROW 2.19 COL 162 WIDGET-ID 130
+     RECT-2 AT ROW 2.19 COL 177.6 WIDGET-ID 130
+     rSelected AT ROW 7.52 COL 156.6 WIDGET-ID 142
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -385,11 +443,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Create WIP"
-         HEIGHT             = 32.86
+         HEIGHT             = 32.81
          WIDTH              = 202
-         MAX-HEIGHT         = 32.9
+         MAX-HEIGHT         = 32.91
          MAX-WIDTH          = 202.2
-         VIRTUAL-HEIGHT     = 32.9
+         VIRTUAL-HEIGHT     = 32.91
          VIRTUAL-WIDTH      = 202.2
          MAX-BUTTON         = no
          RESIZE             = no
@@ -428,8 +486,6 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON bt-adjust-qty IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON bt-print-all IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bt-print-selected IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnDelete IN FRAME F-Main
@@ -446,7 +502,15 @@ ASSIGN
 ASSIGN 
        btnNumPad-3:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR FILL-IN ls-tag IN FRAME F-Main
+/* SETTINGS FOR FILL-IN fiRMItem IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSize IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiSizeLabel IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiUOM IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiUOMLabel IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -465,6 +529,10 @@ THEN W-Win:HIDDEN = yes.
 /* Query rebuild information for BROWSE br-table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory
+            WHERE (IF cFilterBy EQ "" THEN
+                       TRUE
+                   ELSE
+                       ttBrowseInventory.inventoryStatus EQ cFilterBy)
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
@@ -543,17 +611,60 @@ ON VALUE-CHANGED OF br-table IN FRAME F-Main
 DO: 
     ASSIGN
         bt-adjust-qty:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
-        bt-print-selected:LABEL = "Print and Receive Selected"
         btnDelete:SENSITIVE = AVAILABLE ttBrowseInventory AND
-                              DYNAMIC-FUNCTION("fCanDeleteInventoryStock" IN hdInventoryProcs, ttBrowseInventory.inventoryStockID)
-                              .
-                              
+                              DYNAMIC-FUNCTION("fCanDeleteInventoryStock" IN hdInventoryProcs, 
+                                               ttBrowseInventory.inventoryStockID)
+        bt-adjust-qty:SENSITIVE = AVAILABLE ttBrowseInventory AND 
+                                  (ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial)
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME bt-adjust-qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-adjust-qty W-Win
+ON CHOOSE OF bt-adjust-qty IN FRAME F-Main /* Adjust */
+DO:
+    DEFINE VARIABLE dTotalQuantity         AS DECIMAL    NO-UNDO.
+    DEFINE VARIABLE dSubUnitCount          AS DECIMAL    NO-UNDO.
+    DEFINE VARIABLE dSubUnitsPerUnit       AS DECIMAL    NO-UNDO.
+    DEFINE VARIABLE lValueReturned         AS LOGICAL    NO-UNDO.
+    DEFINE VARIABLE dValue                 AS DECIMAL    NO-UNDO.
+
     IF AVAILABLE ttBrowseInventory THEN DO:
-        bt-adjust-qty:SENSITIVE = (ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial).
-        
-        IF ttBrowseInventory.inventoryStatus NE gcStatusStockInitial THEN
-            bt-print-selected:LABEL = "Re-Print Selected".
-    END.
+        RUN inventory/adjustQuantity.w (
+            ttBrowseInventory.quantityOriginal,
+            ttBrowseInventory.quantityOfSubUnits,
+            1,
+            OUTPUT dTotalQuantity,
+            OUTPUT dSubUnitCount,
+            OUTPUT dSubUnitsPerUnit,
+            OUTPUT lValueReturned,
+            OUTPUT dValue
+            ).
+
+        IF lValueReturned THEN DO:
+            IF ttBrowseInventory.quantityOriginal EQ dTotalQuantity THEN DO:
+                MESSAGE "Adjusted quantity for tag " + ttBrowseInventory.stockIDAlias +
+                        " is same as existing quantity" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+            
+            MESSAGE "Adjust quantity of tag " + ttBrowseInventory.stockIDAlias +
+                    " to " + STRING(dTotalQuantity) "?" VIEW-AS ALERT-BOX QUESTION
+                    BUTTON OK-CANCEL
+                    TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
+            IF lContinue THEN
+                RUN pAdjustQuantity (
+                    ipcCompany,
+                    ttBrowseInventory.inventoryStockID,
+                    dTotalQuantity - ttBrowseInventory.quantityOriginal,
+                    ttBrowseInventory.quantityUOM
+                    ).                     
+        END.        
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -595,7 +706,7 @@ DO:
         OUTPUT lCreated, 
         OUTPUT cMessage
         ).
-               
+                   
     RUN rebuildTempTable(
         ipcCompany,
         cFormattedJobno,
@@ -624,53 +735,83 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME bt-print-all
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-print-all W-Win
-ON CHOOSE OF bt-print-all IN FRAME F-Main /* Print and Receive All */
+&Scoped-define SELF-NAME bt-print-selected
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-print-selected W-Win
+ON CHOOSE OF bt-print-selected IN FRAME F-Main
 DO: 
+    DEFINE VARIABLE lOptionSelected AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cOption         AS CHARACTER NO-UNDO.
+    
+    RUN Inventory\PrintDialog.w (
+        OUTPUT lOptionSelected,
+        OUTPUT cOption
+        ).
+        
+    IF NOT lOptionSelected THEN
+        RETURN.
+
     EMPTY TEMP-TABLE ttPrintInventoryStock.
     
-    FOR EACH ttBrowseInventory
-       WHERE ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial:
-
-        RUN PostReceivedInventory IN hdInventoryProcs (
-            INPUT ipcCompany,
-            INPUT ttBrowseInventory.inventoryStockID
-            ).
-
-        RUN CreatePrintInventory IN hdInventoryProcs (
-            INPUT ttBrowseInventory.inventoryStockID
-            ).
-    END.
+    /* Print All Option */
+    IF cOption EQ "All" THEN DO:
+        FOR EACH ttBrowseInventory
+           WHERE ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial:
     
-    RUN pPrintLabels.
+            RUN PostReceivedInventory IN hdInventoryProcs (
+                INPUT ipcCompany,
+                INPUT ttBrowseInventory.inventoryStockID
+                ).
+    
+            RUN CreatePrintInventory IN hdInventoryProcs (
+                INPUT ttBrowseInventory.inventoryStockID
+                ).
+        END.
         
+        RUN pPrintLabels.
+    END.
+    /* Print Selected Option */
+    ELSE IF cOption EQ "Selected" THEN DO:
+        IF AVAILABLE ttBrowseInventory THEN DO:
+            IF ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial THEN
+                RUN PostReceivedInventory IN hdInventoryProcs (
+                    INPUT ipcCompany,
+                    INPUT ttBrowseInventory.inventoryStockID
+                    ).
+        
+            RUN CreatePrintInventory in hdInventoryProcs (
+                INPUT ttBrowseInventory.inventoryStockID
+                ).
+        
+            RUN pPrintLabels.
+            
+        END.
+    END. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME bt-print-selected
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-print-selected W-Win
-ON CHOOSE OF bt-print-selected IN FRAME F-Main /* Print and Receive Selected */
+&Scoped-define SELF-NAME btAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAll W-Win
+ON CHOOSE OF btAll IN FRAME F-Main /* All - 0 */
 DO:
-    EMPTY TEMP-TABLE ttPrintInventoryStock.
+    RUN pHighlightButton (
+        INPUT ""   /* All */
+        ).  
+END.
 
-    IF AVAILABLE ttBrowseInventory THEN DO:
-        IF ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial THEN
-            RUN PostReceivedInventory IN hdInventoryProcs (
-                INPUT ipcCompany,
-                INPUT ttBrowseInventory.inventoryStockID
-                ).
-    
-        RUN CreatePrintInventory in hdInventoryProcs (
-            INPUT ttBrowseInventory.inventoryStockID
-            ).
-    
-        RUN pPrintLabels.
-        
-    END.    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btCreated
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btCreated W-Win
+ON CHOOSE OF btCreated IN FRAME F-Main /* Cr - 0 */
+DO:
+    RUN pHighlightButton (
+        INPUT gcStatusStockInitial
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -794,6 +935,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btOH
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btOH W-Win
+ON CHOOSE OF btOH IN FRAME F-Main /* OH - 0 */
+DO:
+    RUN pHighlightButton (
+        INPUT gcStatusStockReceived
+        ).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME cb-blankno
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cb-blankno W-Win
 ON VALUE-CHANGED OF cb-blankno IN FRAME F-Main
@@ -858,14 +1012,40 @@ DO:
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
-    RUN system/openlookup.p (ipcCompany, "job-no", 0, "", 0, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
-    SELF:SCREEN-VALUE = cFoundValue.
-    APPLY "LEAVE":U TO SELF.
-    ASSIGN
-        cb-jobno2:SCREEN-VALUE  = ENTRY(3,cFieldsValue,"|")
-        cb-formno:SCREEN-VALUE  = ENTRY(4,cFieldsValue,"|")
-        cb-blankno:SCREEN-VALUE = ENTRY(5,cFieldsValue,"|")
-        .
+    RUN system/openlookup.p (
+        INPUT  ipcCompany, 
+        INPUT  "job-no",        /* Lookup ID */
+        INPUT  0,               /* Subject ID */
+        INPUT  "",              /* User ID */
+        INPUT  0,               /* Param Value ID */
+        OUTPUT cFieldsValue, 
+        OUTPUT cFoundValue, 
+        OUTPUT recFoundRecID
+        ).
+        
+    IF cFoundValue NE "" THEN DO:    
+        SELF:SCREEN-VALUE = cFoundValue.
+        
+        APPLY "LEAVE":U TO SELF.
+                    
+        ASSIGN
+            cb-jobno2:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 6 AND
+                                         INDEX(cb-jobno2:LIST-ITEMS, STRING(INTEGER(ENTRY(6,cFieldsValue,"|")),"99")) GT 0 THEN
+                                          ENTRY(6,cFieldsValue,"|")
+                                      ELSE
+                                          ENTRY(1,cb-jobno2:LIST-ITEMS)
+            cb-formno:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 8 AND
+                                         INDEX(cb-formno:LIST-ITEMS, STRING(INTEGER(ENTRY(8,cFieldsValue,"|")),"99")) GT 0 THEN
+                                          ENTRY(8,cFieldsValue,"|")
+                                      ELSE
+                                          ENTRY(1,cb-formno:LIST-ITEMS)
+            cb-blankno:SCREEN-VALUE = IF NUM-ENTRIES(cFieldsValue,"|") GE 10 AND
+                                         INDEX(cb-blankno:LIST-ITEMS, STRING(INTEGER(ENTRY(10,cFieldsValue,"|")),"99")) GT 0 THEN
+                                          ENTRY(10,cFieldsValue,"|")
+                                      ELSE
+                                          ENTRY(1,cb-blankno:LIST-ITEMS)
+            NO-ERROR.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -927,15 +1107,15 @@ DO:
 
     IF lParse THEN
         ASSIGN
-            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,cJobNo2) GT 0 THEN 
+            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) GT 0 THEN 
                                           cJobNo2
                                       ELSE
                                           ENTRY(1,cJobno2ListItems)
-            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,cFormNo) GT 0 THEN 
+            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,STRING(cFormNo,"99")) GT 0 THEN 
                                           cFormNo
                                       ELSE
                                           ENTRY(1,cFormnoListItems)
-            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,cBlankNo) GT 0 THEN 
+            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) GT 0 THEN 
                                           cBlankNo
                                       ELSE
                                           ENTRY(1,cBlanknoListitems)
@@ -948,7 +1128,7 @@ DO:
             cb-blankno:SCREEN-VALUE = ENTRY(1,cBlanknoListItems)
             cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
             .
-                       
+                                   
     RUN ValidateJob IN hdJobProcs (
         INPUT ipcCompany,
         INPUT cFormattedJobno,
@@ -961,9 +1141,28 @@ DO:
             
     IF lValidJob THEN
         RUN enableCreate.
-        
-    cValidateJobno = ls-jobno:SCREEN-VALUE.
-               
+
+    /* Additional validation to check if job still doesn't exist. 
+       In this case machine code is passed empty to check if job is valid*/
+    RUN ValidateJob IN hdJobProcs (
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
+        INPUT "", /* Blank Machine code */
+        INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+        INPUT INTEGER(cb-formno:SCREEN-VALUE),
+        INPUT INTEGER(cb-blankno:SCREEN-VALUE),
+        OUTPUT lValidJob
+        ).
+    
+    IF NOT lValidJob THEN DO:
+        MESSAGE "Invalid Job Number " SELF:SCREEN-VALUE 
+        ", please enter a valid Job Number." 
+            VIEW-AS ALERT-BOX ERROR.
+        SELF:SCREEN-VALUE = "".
+    END.
+                        
+    cValidateJobno = ls-jobno:SCREEN-VALUE.    
+                           
     RUN rebuildTempTable (
         INPUT ipcCompany,
         INPUT cFormattedJobno,
@@ -1047,16 +1246,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-tag W-Win
 ON LEAVE OF ls-tag IN FRAME F-Main
 DO:
+    IF SELF:SCREEN-VALUE EQ "" THEN
+        RETURN.
+            
     RUN tagScan(SELF:SCREEN-VALUE).  
-    
+        
     RUN rebuildTempTable(
         INPUT ipcCompany,
-        INPUT cFormattedJobno,
+        INPUT ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        ).                   
+        ).
+        
+    IF SELF:SCREEN-VALUE EQ "" THEN
+        RETURN NO-APPLY.        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1243,13 +1448,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY ls-tag ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine 
-          ls-qty-per-tag ls-total-run-qty ls-num-tags 
+  DISPLAY ls-tag ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine fiRMItem 
+          fiSizeLabel fiSize fiUOMLabel fiUOM ls-total-run-qty ls-qty-per-tag 
+          ls-num-tags 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE bt-exit btnFirst btnKeyboard btnLast btnNext btnNumPad btnNumPad-1 
-         btnNumPad-2 btnNumPad-3 btnPrevious RECT-26 ls-jobno cb-jobno2 
-         cb-formno cb-blankno cb-machine bt-create ls-qty-per-tag 
-         ls-total-run-qty ls-num-tags br-table 
+  ENABLE bt-exit RECT-26 rSelected ls-tag btInfo btnNumPad btnKeyboard ls-jobno 
+         cb-jobno2 cb-formno cb-blankno cb-machine bt-create btCreated btOH 
+         btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ls-total-run-qty 
+         ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious btnNext 
+         btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1442,6 +1649,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAdjustQuantity W-Win 
+PROCEDURE pAdjustQuantity :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity         AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcQuantityUOM      AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lCreated AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+                
+    RUN CreateTransactionAdjustQuantity IN hdInventoryProcs (
+        ipcCompany,
+        ipcInventoryStockID,
+        ipdQuantity,
+        ipcQuantityUOM,
+        TRUE, /* Post Transaction */
+        OUTPUT lCreated,
+        OUTPUT cMessage
+        ).               
+        
+    RUN rebuildTempTable (
+        INPUT ipcCompany,
+        INPUT cFormattedJobno,
+        INPUT cb-machine:SCREEN-VALUE,
+        INPUT cb-jobno2:SCREEN-VALUE,
+        INPUT cb-formno:SCREEN-VALUE,
+        INPUT cb-blankno:SCREEN-VALUE
+        ).     
+        
+    {&OPEN-BROWSERS-IN-QUERY-F-Main}
+    
+    APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDelete W-Win 
 PROCEDURE pDelete :
 /*------------------------------------------------------------------------------
@@ -1497,6 +1749,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHighlightButton W-Win 
+PROCEDURE pHighlightButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFilterType AS CHARACTER NO-UNDO.
+    
+    cFilterBy = ipcFilterType.
+    
+    CASE ipcFilterType:
+        WHEN "" OR
+        WHEN "All" THEN
+            rSelected:COL IN FRAME {&FRAME-NAME} = btAll:COL - 1.
+        WHEN gcStatusStockReceived THEN
+            rSelected:COL IN FRAME {&FRAME-NAME} = btOH:COL - 1.
+        WHEN gcStatusStockInitial THEN
+            rSelected:COL IN FRAME {&FRAME-NAME} = btCreated:COL - 1.    
+    END.
+    
+    {&OPEN-BROWSERS-IN-QUERY-F-Main}
+    
+    APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.            
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintLabels W-Win 
 PROCEDURE pPrintLabels PRIVATE :
 /*------------------------------------------------------------------------------
@@ -1517,7 +1798,7 @@ PROCEDURE pPrintLabels PRIVATE :
             "     Data file: " cOutputFileName SKIP
             "     Template file: " cPathTemplate
             VIEW-AS ALERT-BOX TITLE "Invalid Template".
-    
+
     RUN TempTableToCSV IN hdOutputProcs ( 
         INPUT TEMP-TABLE ttPrintInventoryStock:HANDLE,
         INPUT cOutputFileName,
@@ -1571,6 +1852,63 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRMDetails W-Win 
+PROCEDURE pUpdateRMDetails :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER lValidTag AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cJobNo    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobNo2   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFormNo   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBlankNo  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cQtyUOM   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+        
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN GetRMLoadTagDetails IN hdInventoryProcs (
+        INPUT  ipcCompany,
+        INPUT  ls-tag:SCREEN-VALUE,        
+        OUTPUT cJobNo,   
+        OUTPUT iJobNo2,  
+        OUTPUT iFormNo,  
+        OUTPUT iBlankNo, 
+        OUTPUT cQtyUOM,
+        OUTPUT cItemName,
+        OUTPUT lValidTag,
+        OUTPUT cMessage
+        ).
+    
+    IF lValidTag THEN DO:
+        ASSIGN
+            ls-jobno:SCREEN-VALUE = cJobNo
+            cFormattedJobno       = cJobNo
+            .
+        
+        RUN updateComboBoxes.
+        
+        ASSIGN 
+            cValidateJobno          = cJobNo
+            cb-jobno2:SCREEN-VALUE  = STRING(iJobNo2,"99")
+            cb-formno:SCREEN-VALUE  = STRING(iFormNo,"99")
+            cb-blankno:SCREEN-VALUE = STRING(iBlankNo,"99")
+            cb-machine:SCREEN-VALUE = ENTRY(1,cb-machine:LIST-ITEMS)
+            fiRMItem:SCREEN-VALUE   = cItemName
+            fiSize:SCREEN-VALUE     = ""
+            fiUOM:SCREEN-VALUE      = cQtyUOM
+            NO-ERROR.    
+    END.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rebuildTempTable W-Win 
 PROCEDURE rebuildTempTable :
 /*------------------------------------------------------------------------------
@@ -1584,6 +1922,9 @@ PROCEDURE rebuildTempTable :
     DEFINE INPUT PARAMETER ipiJobno2  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiFormno  AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiBlankno AS INTEGER   NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
     
     RUN RebuildWIPBrowseTT IN hdInventoryProcs (
         ipcCompany,
@@ -1596,18 +1937,31 @@ PROCEDURE rebuildTempTable :
         OUTPUT iTotOnHand
         ).
             
-    {&OPEN-BROWSERS-IN-QUERY-F-Main}
-    
+    {&OPEN-BROWSERS-IN-QUERY-F-Main}    
+
+    ASSIGN
+        btAll:LABEL     = "All - " + STRING(DYNAMIC-FUNCTION(
+                                                   'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
+                                                   ""   /* All records */
+                                                   ))
+        btCreated:LABEL = "Cr - " + STRING(DYNAMIC-FUNCTION(
+                                                   'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
+                                                   gcStatusStockInitial
+                                                   ))
+        btOH:LABEL      = "OH - " + STRING(DYNAMIC-FUNCTION(
+                                                   'fCalculateTagCountInTTbrowse' IN hdInventoryProcs,
+                                                   gcStatusStockReceived
+                                                   ))
+        .
+        
     IF AVAILABLE ttBrowseInventory THEN DO:
         ASSIGN
-            bt-print-all:SENSITIVE IN FRAME {&FRAME-NAME}      = TRUE
             bt-print-selected:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
             .        
         APPLY "VALUE-CHANGED" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
     END.    
     ELSE
         ASSIGN
-            bt-print-all:SENSITIVE IN FRAME {&FRAME-NAME}      = FALSE
             bt-adjust-qty:SENSITIVE IN FRAME {&FRAME-NAME}     = FALSE
             bt-print-selected:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
             .
@@ -1669,12 +2023,17 @@ PROCEDURE tagScan :
     DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lValidInv   AS LOGICAL   NO-UNDO.
     
-    IF ls-tag:SCREEN-VALUE in FRAME {&FRAME-NAME} EQ "" THEN
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF ls-tag:SCREEN-VALUE EQ "" THEN
         RETURN.
         
     ASSIGN 
-        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
-        cMessage = "".
+        ls-jobno:SCREEN-VALUE = ""
+        cFormattedJobno       = ""
+        cMessage              = ""
+        .
     
     RUN disableCreate.
     
@@ -1689,25 +2048,51 @@ PROCEDURE tagScan :
         OUTPUT lValidInv,
         OUTPUT cMessage
         ).
-        
+            
     IF lValidInv THEN 
     DO:
         ASSIGN
-            ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cJobNo
-            cFormattedJobno = cJobNo
-            .
-                          
-        RUN updateComboBoxes.
-                
-        ASSIGN 
-            cValidateJobno                                 = cJobNo
-            cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = STRING(iJobNo2,"99")
-            cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = STRING(iFormNo,"99")
-            cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iBlankNo,"99")
-            cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cMachine
+            ls-jobno:SCREEN-VALUE = cJobNo
+            cFormattedJobno       = cJobNo
             .
         
+        RUN updateComboBoxes.
+        
+        ASSIGN 
+            cValidateJobno          = cJobNo
+            cb-jobno2:SCREEN-VALUE  = STRING(iJobNo2,"99")
+            cb-formno:SCREEN-VALUE  = STRING(iFormNo,"99")
+            cb-blankno:SCREEN-VALUE = STRING(iBlankNo,"99")
+            cb-machine:SCREEN-VALUE = cMachine
+            NO-ERROR.
+        
         RUN enableCreate.         
+    END.
+    ELSE DO:
+        RUN pUpdateRMDetails (
+            OUTPUT lValidInv
+            ).
+        
+        IF lValidInv THEN
+            RUN enableCreate.
+    END.
+    
+    IF NOT lValidInv THEN DO:
+        MESSAGE "Invalid tag " ipcTag
+            ", please enter a valid tag" VIEW-AS ALERT-BOX ERROR.
+
+        ASSIGN 
+            cValidateJobno          = ""
+            ls-tag:SCREEN-VALUE     = ""
+            cb-jobno2:LIST-ITEMS    = ""
+            cb-formno:LIST-ITEMS    = ""
+            cb-blankno:LIST-ITEMS   = ""
+            cb-machine:LIST-ITEMS   = ""
+            cb-jobno2:SCREEN-VALUE  = ""
+            cb-formno:SCREEN-VALUE  = ""
+            cb-blankno:SCREEN-VALUE = ""
+            cb-machine:SCREEN-VALUE = ""
+            NO-ERROR.
     END.
         
 END PROCEDURE.

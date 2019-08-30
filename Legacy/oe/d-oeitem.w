@@ -3230,10 +3230,10 @@ DO WITH FRAME {&FRAME-NAME}:
                         oe-ordl.cust-no,
                         oe-ordl.part-no:SCREEN-VALUE,
                         oe-ordl.i-no:SCREEN-VALUE,
-                        OUTPUT lxPrice,
-                        OUTPUT lxUom,
-                        OUTPUT lxQty,
-                        OUTPUT iQutNo,
+                        INPUT-OUTPUT lxPrice,
+                        INPUT-OUTPUT lxUom,
+                        INPUT-OUTPUT lxQty,
+                        INPUT-OUTPUT iQutNo,
                         OUTPUT lcChoice).
 
 
@@ -7203,6 +7203,7 @@ PROCEDURE prev-quote-proc :
    DEF VAR lxPrice LIKE oe-ordl.price NO-UNDO.
    DEF VAR lxUom LIKE oe-ordl.pr-uom NO-UNDO.
    DEF VAR lxQty LIKE oe-ordl.qty NO-UNDO.
+   DEF VAR lxQNo LIKE quoteitm.q-no NO-UNDO.
    DEF VAR lcChoice AS CHAR NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
@@ -7236,15 +7237,16 @@ PROCEDURE prev-quote-proc :
                OR NOT AVAIL quoteqty 
               THEN
              DO WITH FRAME {&FRAME-NAME}:
-                RUN oe/d-quotedprices.w(cocode,
+                RUN oe/d-quotedprices.w("",cocode,
                           locode,
                           oe-ordl.est-no:SCREEN-VALUE,
                           oe-ordl.cust-no,
                           oe-ordl.part-no:SCREEN-VALUE,
                           oe-ordl.i-no:SCREEN-VALUE,
-                          OUTPUT lxPrice,
-                          OUTPUT lxUom,
-                          OUTPUT lxQty,
+                          INPUT-OUTPUT lxPrice,
+                          INPUT-OUTPUT lxUom,
+                          INPUT-OUTPUT lxQty,
+                          INPUT-OUTPUT lxQno,
                           OUTPUT lcChoice).
 
                 
@@ -9540,10 +9542,10 @@ DEF VARIABLE lcChoice AS CHARACTER NO-UNDO .
                           oe-ordl.cust-no,
                           oe-ordl.part-no:SCREEN-VALUE,
                           oe-ordl.i-no:SCREEN-VALUE,
-                          OUTPUT iopPrice,
-                          OUTPUT iopUom,
-                          OUTPUT iop-qty,
-                          OUTPUT iopQ-no,
+                          INPUT-OUTPUT iopPrice,
+                          INPUT-OUTPUT iopUom,
+                          INPUT-OUTPUT iop-qty,
+                          INPUT-OUTPUT iopQ-no,
                           OUTPUT lcChoice).  
  END.
 

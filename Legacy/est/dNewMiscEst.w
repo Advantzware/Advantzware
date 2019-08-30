@@ -84,6 +84,7 @@ DEFINE VARIABLE cCEMiscDefaultBoard AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cCEMiscDefaultStackCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cStackCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iOldQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE lShowMessage AS LOGICAL NO-UNDO .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEMiscDefaultStyle", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -533,6 +534,8 @@ DO:
             APPLY "entry" TO quantity .
             RETURN NO-APPLY.
         END.
+
+        RUN pCheckRelQty .
 
         RUN valid-cust-no(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY .
@@ -1079,9 +1082,9 @@ DO:
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
-ON ENTRY OF quantity IN FRAME D-Dialog /* Quantity */
+ON VALUE-CHANGED OF quantity IN FRAME D-Dialog /* Quantity */
 DO:
-    iOldQty = INTEGER(quantity:SCREEN-VALUE) .
+    lShowMessage = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1099,22 +1102,7 @@ DO:
                 APPLY "entry" TO quantity .
                 RETURN NO-APPLY.
             END.
-            IF iOldQty NE INTEGER(quantity:SCREEN-VALUE) AND iOldQty NE 0 THEN DO:
-                FIND FIRST eb NO-LOCK 
-                    WHERE eb.company EQ cocode
-                    AND ROWID(eb) EQ ipriRowid NO-ERROR .
-                IF AVAIL eb THEN do:
-                    FIND FIRST estRelease NO-LOCK
-                        WHERE estRelease.company = cocode 
-                        AND estRelease.estimateNo = eb.est-no  
-                        AND estRelease.FormNo     = eb.form-no 
-                        AND estRelease.BlankNo    = eb.blank-No 
-                        AND estRelease.quantity   = iOldQty  NO-ERROR .
-                    IF AVAIL estRelease THEN
-                        MESSAGE "There is a release tied to the quantity that is no longer valid -" SKIP "Rel Qty: " STRING(estRelease.quantityRelease)
-                        VIEW-AS ALERT-BOX INFO .
-                END.
-            END.
+            RUN pCheckRelQty .
         END.                                
     END.
 
@@ -1187,7 +1175,9 @@ DO:
                 AND style.style EQ SELF:SCREEN-VALUE NO-LOCK NO-ERROR .
 
             IF AVAILABLE style THEN do:
-                ASSIGN style-dscr:SCREEN-VALUE = style.dscr .
+                ASSIGN style-dscr:SCREEN-VALUE = style.dscr 
+                       sub-unit:SCREEN-VALUE   = style.spare-char-5.
+                       RUN pDefaultPackInfo .
             END.
         END.
     END.
@@ -1227,8 +1217,11 @@ DO:
             FIND FIRST style NO-LOCK WHERE style.company = cocode
                 AND style.style EQ SELF:SCREEN-VALUE  NO-ERROR .
 
-            IF AVAILABLE style THEN
-                ASSIGN style-dscr:SCREEN-VALUE = style.dscr .
+            IF AVAILABLE style THEN do:
+                ASSIGN style-dscr:SCREEN-VALUE = style.dscr 
+                       sub-unit:SCREEN-VALUE   = style.spare-char-5.
+                RUN pDefaultPackInfo .
+            END.
         END.
     END.
 
@@ -2023,17 +2016,9 @@ PROCEDURE pDefaultValue :
                                  ce-ctrl.loc = locode
                                  NO-LOCK NO-ERROR.
         ASSIGN
-        sub-unit:SCREEN-VALUE = ce-ctrl.def-case
+        /*sub-unit:SCREEN-VALUE = ce-ctrl.def-case*/
         pallet:SCREEN-VALUE = ce-ctrl.def-pal.  
-
-        FIND FIRST ITEM NO-LOCK
-            WHERE item.company = cocode 
-              AND item.i-no = sub-unit:SCREEN-VALUE
-            NO-ERROR.
-        IF AVAIL item THEN ASSIGN iUnitCount:SCREEN-VALUE = STRING(item.box-case)
-                                  iPerPallet:SCREEN-VALUE = STRING(item.case-pall)
-                                  tot-iUnitCount:SCREEN-VALUE = string(item.box-case * item.case-pall )        
-                                    .
+       
         iStackHeight:SCREEN-VALUE = string("1") .
         IF cCEMiscDefaultStyle NE "" THEN
             ASSIGN style-cod:SCREEN-VALUE  = cCEMiscDefaultStyle .
@@ -2049,11 +2034,6 @@ PROCEDURE pDefaultValue :
         IF AVAILABLE ITEM THEN
             ASSIGN pallet-dscr:SCREEN-VALUE = ITEM.i-name .
 
-        FIND FIRST ITEM NO-LOCK WHERE ITEM.company = cocode
-            AND ITEM.i-no EQ sub-unit:SCREEN-VALUE NO-ERROR .
-        IF AVAILABLE ITEM THEN
-            ASSIGN sun-Unit-dscr:SCREEN-VALUE = ITEM.i-name .
-
         FIND FIRST ITEM NO-LOCK WHERE item.company = cocode
             AND item.i-no EQ board:SCREEN-VALUE NO-ERROR .
         IF AVAILABLE ITEM THEN
@@ -2063,7 +2043,10 @@ PROCEDURE pDefaultValue :
             AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
         
         IF AVAILABLE style THEN
-            ASSIGN style-dscr:SCREEN-VALUE = style.dscr .
+            ASSIGN style-dscr:SCREEN-VALUE = style.dscr
+                   sub-unit:SCREEN-VALUE   = style.spare-char-5 .
+
+        RUN pDefaultPackInfo .
       
     END.
 
@@ -2072,3 +2055,91 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDefaultPackInfo D-Dialog 
+PROCEDURE pDefaultPackInfo :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    
+    DO WITH FRAME {&FRAME-NAME}:
+         FIND FIRST ITEM NO-LOCK
+            WHERE item.company = cocode 
+              AND item.i-no = sub-unit:SCREEN-VALUE
+            NO-ERROR.
+
+         IF AVAIL item THEN ASSIGN sun-Unit-dscr:SCREEN-VALUE = ITEM.i-name
+                                  iUnitCount:SCREEN-VALUE = STRING(item.box-case)
+                                  iPerPallet:SCREEN-VALUE = STRING(item.case-pall)
+                                  tot-iUnitCount:SCREEN-VALUE = string(item.box-case * item.case-pall )  .      
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckRelQty D-Dialog 
+PROCEDURE pCheckRelQty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lFoundOldRelease AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE cRelQtyFound AS CHARACTER NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+
+       FIND FIRST eb NO-LOCK 
+           WHERE eb.company EQ cocode
+           AND ROWID(eb) EQ ipriRowid NO-ERROR .
+       IF AVAIL eb  THEN do:
+           FIND est-qty 
+               WHERE est-qty.company EQ eb.company
+               AND est-qty.est-no EQ eb.est-no
+               AND est-qty.eqty EQ eb.eqty 
+               NO-ERROR.
+
+           IF AVAIL est-qty AND lv-copy-qty[1] NE 0 THEN
+               DO i = 1 TO 20: 
+               IF est-qty.qty[i] NE 0 AND lv-copy-qty[i] NE est-qty.qty[i] THEN do:
+                   FIND FIRST estRelease NO-LOCK
+                       WHERE estRelease.company = cocode 
+                       AND estRelease.estimateNo = eb.est-no  
+                       AND estRelease.FormNo     = eb.form-no 
+                       AND estRelease.BlankNo    = eb.blank-No 
+                       AND estRelease.quantity   = est-qty.qty[i]  NO-ERROR .
+                   IF AVAIL estRelease THEN do:
+                       ASSIGN lFoundOldRelease = TRUE  .
+                       IF cRelQtyFound EQ "" THEN
+                           cRelQtyFound = string(est-qty.qty[i]) .
+                       ELSE cRelQtyFound = cRelQtyFound + "," + string(est-qty.qty[i]) .
+                   END.
+               END.
+           END.
+           ELSE IF AVAIL eb AND eb.eqty NE integer(quantity:SCREEN-VALUE) AND integer(quantity:SCREEN-VALUE) NE 0  THEN DO:
+                FIND FIRST estRelease NO-LOCK
+                       WHERE estRelease.company = cocode 
+                       AND estRelease.estimateNo = eb.est-no  
+                       AND estRelease.FormNo     = eb.form-no 
+                       AND estRelease.BlankNo    = eb.blank-No 
+                       AND estRelease.quantity   = eb.eqty  NO-ERROR .
+                   IF AVAIL estRelease THEN do:
+                       ASSIGN lFoundOldRelease = TRUE  .
+                       cRelQtyFound = string(eb.eqty) .
+                   END.
+           END.
+
+           IF lFoundOldRelease AND NOT lShowMessage THEN do:
+               MESSAGE "There is a release tied to the quantity that is no longer valid -" SKIP "Rel Qty: " STRING(cRelQtyFound)
+               VIEW-AS ALERT-BOX INFO .
+               lShowMessage = TRUE .
+           END.
+
+       END.  /* avail eb  */
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

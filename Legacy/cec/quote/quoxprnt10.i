@@ -263,7 +263,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            END.
     END.
 
-    IF i GT 10 THEN PUT SPACE(58) .
+    /*IF i GT 10 THEN PUT SPACE(58) .*/
 
    IF AVAIL xqqty THEN DO:
        xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
@@ -436,18 +436,18 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     lv-chg-amt = xqchg.amt.   
 
     IF xqchg.bill EQ "N" THEN
-       PUT xqchg.charge AT 22
+       PUT xqchg.charge AT 25
           /*"N/C"        TO 80*/  SKIP.
       
     ELSE
     IF INDEX("TML",xqchg.bill) GT 0 THEN
-       PUT xqchg.charge       AT 22
+       PUT xqchg.charge       AT 25
            /*   "Time & Materials" AT 45  */
            lv-chg-amt /*xqchg.amt*/  TO 80 SKIP.
 
     ELSE
     IF xqchg.bill EQ "W" THEN
-       PUT xqchg.charge    AT 22
+       PUT xqchg.charge    AT 25
            /*  "Will Advise "  TO 45 */  skip. 
 
     RUN printHeader (12,OUTPUT v-printline).
@@ -513,23 +513,23 @@ FOR EACH xqchg OF xquo NO-LOCK
      lv-chg-amt = xqchg.spare-dec-1 .
 
      IF xqchg.bill EQ "N" THEN
-       PUT xqchg.charge AT 22
+       PUT xqchg.charge AT 25
           /* "N/C"        TO 80 */ SKIP.
       
      ELSE
        IF INDEX("TML",xqchg.bill) GT 0 THEN
-         PUT xqchg.charge       AT 22
+         PUT xqchg.charge       AT 25
          /* "Time & Materials" AT 45 */
          /* rdb 02/02/07 01310703 
              lv-chg-amt          TO 80 SKIP. 
           */
              xqchg.prep-qty     AT 60
-             lv-chg-amt          TO 83  
+             lv-chg-amt          TO 87  
                    "EA"          AT 90 SKIP.
      
      ELSE
        IF xqchg.bill EQ "W" THEN
-         PUT xqchg.charge    AT 22
+         PUT xqchg.charge    AT 25
           /*"Will Advise "  TO 45 */ SKIP.
 
  /*
