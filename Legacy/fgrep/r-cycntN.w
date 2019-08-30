@@ -61,7 +61,10 @@ DEF VAR v-qty        AS CHAR                 NO-UNDO.
 DEF VAR v-li-palls   AS CHAR                 NO-UNDO.
 DEF VAR v-prnt-onh   AS LOG INIT "N"         NO-UNDO.
 DEF VAR v-writein    AS CHAR FORMAT "X(21)" INIT "    _________________"   NO-UNDO.
-
+DEFINE VARIABLE cFirstTrxDt   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFirstTrxTyp  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dTrxDate      AS DATE NO-UNDO.
+DEFINE VARIABLE cTrxType      AS CHARACTER NO-UNDO.
 
 DEF VAR ls-fax-file AS cha NO-UNDO.
 DEF VAR is-xprint AS LOG NO-UNDO.
@@ -116,13 +119,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "ITEM,DESCRIPTION,CUSTOMER," +
                       "JOB#,WHSE,BIN,TAG," +
                       "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED,COUNTED DATE,COST/M,SELL VALUE,CUSTOMER PART #," +
-                      "SELL UOM"
+                      "SELL UOM,FIRST TRX DATE,FIRST TRX TYPE"
        cFieldListToSelect = "fg-bin.i-no,itemfg.i-name,v-cust-no," +
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
                             "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no," +
-                            "v-sellUom" 
-       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8"
-       cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c" 
+                            "v-sellUom,cFirstTrxDt,cFirstTrxTyp" 
+       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14"
+       cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c,c,c" 
        .
 ASSIGN cTextListToDefault  = "ITEM,DESCRIPTION,CUSTOMER," + "WHSE,BIN,TAG,JOB#," +
                              "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED" .
@@ -1504,6 +1507,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-First-Trx-Dt-Typ C-Win 
+PROCEDURE Get-First-Trx-Dt-Typ :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER op-TrxDate AS DATE NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-TrxType AS CHARACTER NO-UNDO.
+
+
+  op-TrxDate = ? .
+  op-TrxType = "" .
+  FOR EACH fg-rdtlh
+      WHERE fg-rdtlh.company   EQ fg-bin.company
+        AND fg-rdtlh.tag       EQ fg-bin.tag 
+        AND fg-rdtlh.tag       NE ""
+      USE-INDEX tag NO-LOCK,
+
+      EACH fg-rcpth
+      WHERE fg-rcpth.r-no      EQ fg-rdtlh.r-no
+        AND fg-rcpth.rita-code EQ fg-rdtlh.rita-code
+        AND fg-rcpth.i-no      EQ fg-bin.i-no
+      USE-INDEX r-no NO-LOCK
+
+      BY fg-rcpth.trans-date 
+      BY fg-rdtlh.trans-time:
+
+    op-TrxDate = fg-rcpth.trans-date.
+    op-TrxType = fg-rcpth.rita-code.
+    LEAVE.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSelectionList C-Win 
 PROCEDURE GetSelectionList :
 /*------------------------------------------------------------------------------
@@ -1816,7 +1857,9 @@ ASSIGN lv-date    = ?
        v-tag      = ""
        v-qty      = ""
        v-li-palls = ""
-       v-cust-no = "".
+       v-cust-no = ""
+       dTrxDate  = ?
+       cTrxType  = "".
 
 IF v-item-bin EQ "C" THEN RUN run-reportCust.
 ELSE DO:
@@ -1830,6 +1873,7 @@ ELSE DO:
          BY tt-report.key-03:
 
    RUN get-first-date (OUTPUT lv-date).
+   RUN Get-First-Trx-Dt-Typ (OUTPUT dTrxDate, OUTPUT cTrxType).
 
    lv-job-no = TRIM(fg-bin.job-no).
 
@@ -1957,6 +2001,8 @@ ELSE DO:
                  WHEN "v-costM" THEN cVarValue = STRING(v-CostM,">>>,>>9.99<<").
                  WHEN "v-sellValue" THEN cVarValue = STRING(v-sellValue,">>>,>>9.99").
                  WHEN "v-sellUom" THEN cVarValue = STRING(cSellUom).
+                 WHEN "cFirstTrxDt" THEN cVarValue = IF dTrxDate <> ? THEN string(dTrxDate,"99/99/9999") ELSE "".
+                 WHEN "cFirstTrxTyp" THEN cVarValue = STRING(cTrxType).
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -2095,6 +2141,10 @@ DEF BUFFER bfg-bin FOR fg-bin.
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
+ASSIGN 
+    dTrxDate  = ?
+    cTrxType  = "" .
+
 FOR EACH tt-report 
   WHERE tt-report.term-id EQ "",
  FIRST fg-bin NO-LOCK 
@@ -2108,6 +2158,7 @@ FOR EACH tt-report
        BY tt-report.key-05:
 
   RUN get-first-date (OUTPUT lv-date).
+  RUN Get-First-Trx-Dt-Typ (OUTPUT dTrxDate, OUTPUT cTrxType).
 
   ASSIGN lv-job-no = TRIM(fg-bin.job-no).
 
@@ -2232,6 +2283,8 @@ FOR EACH tt-report
                  WHEN "v-costM" THEN cVarValue = STRING(v-CostM,">>>,>>9.99<<").
                  WHEN "v-sellValue" THEN cVarValue = STRING(v-sellValue,">>>,>>9.99").
                  WHEN "v-sellUom" THEN cVarValue = STRING(cSellUom).
+                 WHEN "cFirstTrxDt" THEN cVarValue = IF dTrxDate <> ? THEN string(dTrxDate,"99/99/9999") ELSE "".
+                 WHEN "cFirstTrxTyp" THEN cVarValue = STRING(cTrxType).
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
