@@ -861,13 +861,13 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
 
         IF glOpRatesSeparate THEN 
             ASSIGN 
-                opbf-estCostOperation.costPerManHourDLRun          = bf-mach.lab-rate[1]
-                opbf-estCostOperation.costPerManHourDLSetup        = bf-mach.lab-rate[2]
+                opbf-estCostOperation.costPerManHourDLSetup        = bf-mach.lab-rate[1]
+                opbf-estCostOperation.costPerManHourDLRun          = bf-mach.lab-rate[2]
                 .
         ELSE 
             ASSIGN 
-                opbf-estCostOperation.costPerManHourDLRun          = bf-mach.lab-rate[bf-mach.lab-drate]
                 opbf-estCostOperation.costPerManHourDLSetup        = bf-mach.lab-rate[bf-mach.lab-drate]
+                opbf-estCostOperation.costPerManHourDLRun          = bf-mach.lab-rate[bf-mach.lab-drate]
                 .
             
        
