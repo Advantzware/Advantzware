@@ -811,7 +811,7 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
         ipbf-estRelease.shipFromLocationID      = ipbf-eb.loc    
         ipbf-estRelease.quantityPerSubUnit      = ipbf-eb.cas-cnt
         ipbf-estRelease.quantitySubUnitsPerUnit = ipbf-eb.cas-pal
-        ipbf-estRelease.stackHeight             = ipbf-eb.stackHeight
+        ipbf-estRelease.stackHeight             = MAXIMUM(ipbf-eb.stackHeight,1)
         ipbf-estRelease.quantityRelease         = ipbf-estRelease.quantity 
         ipbf-estRelease.dimEachLen              = ipbf-eb.t-len
         ipbf-estRelease.dimEachWid              = ipbf-eb.t-wid
