@@ -1283,7 +1283,7 @@ FOR EACH job-hdr NO-LOCK
                                      END.
                                      k = K + 1 .
                                      PUT "<||3><C15><FROM><C83><LINE><||3>" .
-                                     PUT "<P10><C16><b>Customer Part: </B>" bff-eb.part-no FORMAT "x(15)" "<C40><b>FG #: </b>" bff-eb.stock-no  FORMAT "x(15)"  "<C57><b>Descr.: </b>" bff-eb.part-dscr1 FORMAT "x(30)"  SKIP
+                                     PUT "<P10><C16><b>Customer Part" STRING(k,">>") ": </B>" bff-eb.part-no FORMAT "x(15)" "<C42><b>FG #: </b>" bff-eb.stock-no  FORMAT "x(15)"  "<C58><b>Descr.: </b>" bff-eb.part-dscr1 FORMAT "x(30)"  SKIP
                                          "<C18>Packing: " bff-eb.cas-no FORMAT "x(15)"  "<C48>Shipped As: " bff-eb.tr-no FORMAT "x(15)" SKIP
                                          "<c18>Size: " STRING(bff-eb.cas-len,"99.9999") SPACE(2) STRING(bff-eb.cas-wid,"99.9999") SPACE(2) STRING(bff-eb.cas-dep,"99.9999")
                                          "<C48>Ctn./Bdl.Per: " STRING(bff-eb.cas-pal) SKIP
