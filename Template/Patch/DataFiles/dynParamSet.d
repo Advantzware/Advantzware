@@ -50,3 +50,5 @@
 52 "System" "Open Orders Misc 2" 6.67 77 yes "" yes "201906207065003526377"
 53 "System" "Use Receipt Date" 2.86 24 yes "" yes "201906213880703527437"
 54 "System" "Use Ship Date" 2.86 21 yes "" yes "201906213890003527439"
+56 "System" "Company Range" 5.48 68 yes "Company" yes "201908128044103621250"
+57 "System" "Purge" 3.1 14 yes "" yes "201908128107303621256"

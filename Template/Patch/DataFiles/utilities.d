@@ -176,3 +176,6 @@ Save Button Will Save Changes." 1000
 "ItemLocInvRecon.r" "FG" "" "Inventory Allocated Reconciliation Program" "This utility compares the quantity fields allocated by location to that of the FG item as a whole and exposes differences that can be corrected by running the Recalculation, but help find issues in code to correct." 900
 "TranMon.r" "UTIL" "" "Transaction Monitor Utility" "" 1000
 "updPriceMtxFlg.r" "OE" "" "Update online flag on price matrix(OF3)" "This utility allows for a user to update only the online flag on the price matrix and not allow them to change any other data." 900
+"setTaxStat.r" "UTIL" "" "Set Tax Status Globally" "" 900
+"fghispur.r" "UTIL" "" "FG History Purge by Job" "This utility will delete all fg-rcpth, fg-rdtlh and fg-rctd records for a given range of item number, txn date, txn type, and job number.
+Note that this function does NOT create summary transactions; use with EXTREME caution." 900

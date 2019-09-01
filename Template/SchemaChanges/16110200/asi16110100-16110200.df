@@ -1,0 +1,173 @@
+ADD TABLE "APIOutboundTrigger"
+  AREA "Data"
+  DESCRIPTION "Table to store the outbound API triggers"
+  DUMP-NAME "apioutboundtrigger"
+
+ADD FIELD "company" OF "APIOutboundTrigger" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  ORDER 10
+
+ADD FIELD "rec_key" OF "APIOutboundTrigger" AS character 
+  DESCRIPTION "Unique Record Key"
+  FORMAT "x(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 3
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  ORDER 20
+
+ADD FIELD "apiID" OF "APIOutboundTrigger" AS character 
+  DESCRIPTION "Outbound API ID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "API ID"
+  POSITION 4
+  MAX-WIDTH 64
+  COLUMN-LABEL "API ID"
+  ORDER 30
+
+ADD FIELD "triggerID" OF "APIOutboundTrigger" AS character 
+  DESCRIPTION "Outbound API Trigger "
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Trigger ID"
+  POSITION 5
+  MAX-WIDTH 64
+  COLUMN-LABEL "Trigger ID"
+  ORDER 40
+
+ADD FIELD "description" OF "APIOutboundTrigger" AS character 
+  DESCRIPTION "Trigger Description"
+  FORMAT "x(100)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 6
+  MAX-WIDTH 200
+  COLUMN-LABEL "Description"
+  ORDER 50
+
+ADD FIELD "isActive" OF "APIOutboundTrigger" AS logical 
+  DESCRIPTION "Active"
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Active"
+  POSITION 7
+  MAX-WIDTH 1
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  COLUMN-LABEL "Active"
+  ORDER 60
+
+ADD FIELD "createTime" OF "APIOutboundTrigger" AS datetime 
+  DESCRIPTION "Created Time"
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Created Time"
+  POSITION 8
+  MAX-WIDTH 8
+  COLUMN-LABEL "Created Time"
+  ORDER 70
+
+ADD FIELD "createBy" OF "APIOutboundTrigger" AS character 
+  DESCRIPTION "Created By"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Created By"
+  POSITION 9
+  MAX-WIDTH 16
+  COLUMN-LABEL "Created By"
+  ORDER 80
+
+ADD FIELD "clientID" OF "APIOutboundTrigger" AS character 
+  DESCRIPTION "Client ID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Client ID"
+  POSITION 10
+  MAX-WIDTH 64
+  COLUMN-LABEL "Client ID"
+  ORDER 90
+
+ADD INDEX "apiTriggerID" ON "APIOutboundTrigger" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Primary unique index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "apiID" ASCENDING 
+  INDEX-FIELD "clientID" ASCENDING 
+  INDEX-FIELD "triggerID" ASCENDING 
+  INDEX-FIELD "isActive" ASCENDING 
+
+ADD INDEX "apiID" ON "APIOutboundTrigger" 
+  AREA "Index"
+  DESCRIPTION "API Index"
+  INDEX-FIELD "apiID" ASCENDING 
+
+ADD INDEX "rec_key" ON "APIOutboundTrigger" 
+  AREA "Index"
+  DESCRIPTION "rec_key index"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "triggerID" ON "APIOutboundTrigger" 
+  AREA "Index"
+  DESCRIPTION "Trigger index"
+  INDEX-FIELD "triggerID" ASCENDING 
+
+UPDATE FIELD "reject-code" OF "fg-rctd"
+  VALEXP ""
+
+UPDATE FIELD "reject-code" OF "fg-rdtlh"
+  VALEXP ""
+
+UPDATE TABLE "inventorySnapshot"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\inventorySnapshot.p" CRC "?"
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\inventorySnapshot.p" CRC "?"
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\inventorySnapshot.p" CRC "?"
+
+UPDATE TABLE "inventoryStock"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\inventoryStock.p" CRC "?"
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\inventoryStock.p" CRC "?"
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\inventoryStock.p" CRC "?"
+
+UPDATE TABLE "inventoryStockAlias"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\inventoryStockAlias.p" CRC "?"
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\inventoryStockAlias.p" CRC "?"
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\inventoryStockAlias.p" CRC "?"
+
+UPDATE TABLE "inventoryStockSnapshot"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\inventoryStockSnapshot.p" CRC "?"
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\inventoryStockSnapshot.p" CRC "?"
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\inventoryStockSnapshot.p" CRC "?"
+
+UPDATE TABLE "inventoryTransaction"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\inventoryTransaction.p" CRC "?"
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\inventoryTransaction.p" CRC "?"
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\inventoryTransaction.p" CRC "?"
+
+UPDATE FIELD "reject-code" OF "job-farm-rctd"
+  VALEXP ""
+
+UPDATE FIELD "reject-code" OF "oe-retl"
+  VALEXP ""
+
+UPDATE FIELD "code" OF "rejct-cd"
+  VALEXP ""
+
+UPDATE FIELD "reject-code" OF "rm-rctd"
+  VALEXP ""
+
+UPDATE FIELD "reject-code" OF "rm-rdtlh"
+  VALEXP ""
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000004766

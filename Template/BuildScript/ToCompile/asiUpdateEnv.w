@@ -74,6 +74,7 @@ ASSIGN
 
 DEF STREAM s1.
 DEF STREAM s2.
+DEF STREAM apiFiles.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
@@ -2245,6 +2246,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix160890.
     IF fIntVer(cThisEntry) LT 16100000 THEN
         RUN ipDataFix161000.
+    IF fIntVer(cThisEntry) LT 16120000 THEN 
+        RUN ipDataFix161200.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2608,6 +2611,24 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix161200 C-Win
+PROCEDURE ipDataFix161200:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161200...").
+
+    RUN ipLoadAPIData.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
@@ -3355,6 +3376,122 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAPIData C-Win
+PROCEDURE ipLoadAPIData:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    RUN ipStatus ("  Loading API Data Files").
+
+    DISABLE TRIGGERS FOR LOAD OF APIInbound.
+    DISABLE TRIGGERS FOR LOAD OF APIInboundDetail.
+    DISABLE TRIGGERS FOR LOAD OF APIInboundEvent.
+    DISABLE TRIGGERS FOR LOAD OF APIOutbound.
+    DISABLE TRIGGERS FOR LOAD OF APIOutboundDetail.
+    DISABLE TRIGGERS FOR LOAD OF APIOutboundEvent.
+    DISABLE TRIGGERS FOR LOAD OF APIOutboundTrigger.
+
+&SCOPED-DEFINE tablename APIInbound
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIInboundDetail
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIInboundEvent
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIOutbound
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIOutboundDetail
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIOutboundEvent
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIOutboundTrigger
+    FOR EACH {&tablename}:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAuditRecs C-Win 
 PROCEDURE ipLoadAuditRecs :
@@ -4981,6 +5118,8 @@ PROCEDURE ipSetCueCards:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Turn off new cue cards if user.showCueCards = false").
 
+    DISABLE TRIGGERS FOR LOAD OF xCueCard.
+    
     FOR EACH users NO-LOCK WHERE 
         users.showCueCards EQ NO:
         FOR EACH CueCardText NO-LOCK,
