@@ -7,132 +7,156 @@ set DUMP_INC_RENAMEFILE=.\rename.txt
 set DUMP_INC_DEBUG=0
 set cCompDir=c:\asigui\databases\compile
 
-set cToDB=1611
-set cToVer=161101
+set cToDB=161200
+set cToVer=161200
 
 set cTYPE=asi
 
-set cFromDb=1611
-set cFromVer=16110
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromDb=161102
+set cFromVer=161102
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\Comp%cFromDb%d.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+
+set cFromDb=161101
+set cFromVer=161101
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
+  echo Generating %DUMP_INC_DFFILE%...
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\Comp%cFromDb%d.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
+
+set cFromDb=1611
+set cFromVer=161100
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
+  echo Generating %DUMP_INC_DFFILE%...
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1610
-set cFromVer=16100
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=161000
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1690
-set cFromVer=16090
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160900
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1689
-set cFromVer=16089
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160890
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1688
-set cFromVer=16088
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160880
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1687
-set cFromVer=16087
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160870
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1686
-set cFromVer=16086
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160860
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1685
-set cFromVer=16085
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160850
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1680
-set cFromVer=16080
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160800
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1670
-set cFromVer=16070
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160700
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1660
-set cFromVer=16060
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160600
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%d.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cTYPE=aud
 
-set cFromDb=1611
-set cFromVer=16110
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromDb=161102
+set cFromVer=161102
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\Comp%cFromDb%a.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
+
+set cFromDb=161101
+set cFromVer=161101
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
+  echo Generating %DUMP_INC_DFFILE%...
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\Comp%cFromDb%a.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
+
+set cFromDb=1611
+set cFromVer=161100
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
+  echo Generating %DUMP_INC_DFFILE%...
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1610
-set cFromVer=16100
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=161000
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1690
-set cFromVer=16090
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160900
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1689
-set cFromVer=16089
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160890
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1688
-set cFromVer=16088
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160880
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1687
-set cFromVer=16087
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160870
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1686
-set cFromVer=16086
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160860
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1685
-set cFromVer=16085
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160850
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 set cFromDb=1680
-set cFromVer=16080
-  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%000-%cToVer%00.df
+set cFromVer=160800
+  set DUMP_INC_DFFILE=C:\ASIgui\Repositories\Advantzware\Template\Patch\Structure\DFFiles\%cType%%cFromVer%00-%cToVer%00.df
   echo Generating %DUMP_INC_DFFILE%...
-  %DLC%/bin/_progres -b -db %cCompDir%\comp161101a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p > .\dump_inc.log. 
+  %DLC%/bin/_progres -b -db %cCompDir%\comp%cToDB%a.db -1 -db %cCompDir%\%cType%Comp%cFromDb%.db -1 -p prodict/dump_inc.p >> .\dump_inc.log. 
 
 echo End delta build.
 pause 
