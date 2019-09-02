@@ -1772,8 +1772,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1804,13 +1803,8 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) EQ 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
-
+  {sys/ref/SelColCorrect.i}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
