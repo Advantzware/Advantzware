@@ -473,6 +473,18 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                     inv-head.state + "  " + inv-head.zip.
         END.
 
+        IF v-soldto-addr[1] EQ "" THEN
+            ASSIGN v-soldto-addr[1] = v-soldto-addr[2]
+                   v-soldto-addr[2] = "" .
+        IF v-soldto-addr[2] EQ "" THEN
+            ASSIGN v-soldto-addr[2] = v-addr3
+                   v-addr3 = "" .
+        IF v-shipto-addr[1] EQ "" THEN
+            ASSIGN v-shipto-addr[1] = v-shipto-addr[2]
+                   v-shipto-addr[2] = "" .
+        IF v-shipto-addr[2] EQ "" THEN
+            ASSIGN v-shipto-addr[2] = v-sold-addr3
+                   v-sold-addr3 = "" .
 
         {oe/rep/invloyln.i}  /* xprint form */
         
