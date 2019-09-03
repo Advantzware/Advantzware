@@ -54,7 +54,8 @@ def TEMP-TABLE w-data NO-UNDO
   field w-inv-no    like ar-invl.inv-no column-label "Invoice!Number"
   field w-bol-no    like ar-invl.inv-no column-label " BOL!Number"
   field w-recid     as recid
-  field w-type      as int.
+  field w-type      as int
+  FIELD w-job-no    LIKE ar-invl.job-no.
 
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
@@ -71,11 +72,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Cust#,Name,BOL#,C/R,INV Date,Order#,Inv#," +
-                           "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name"
+                           "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name,Job#"
        cFieldListToSelect = "cust,name,bol,ct,inv-date,ord,inv," +
-                            "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name"
-       cFieldLength = "8,30,6,3,8,7,6," + "13,9,11,10,5,14,30"
-       cFieldType = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c" 
+                            "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name,job-no"
+       cFieldLength = "8,30,6,3,8,7,6," + "13,9,11,10,5,14,30,9"
+       cFieldType = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1524,6 +1525,7 @@ FOR EACH ttCustList
              tt-report2.key-04 = STRING(ar-inv.inv-no,"9999999999")
              tt-report2.key-05 = "3"
              tt-report2.key-06 = cust.cust-no
+             tt-report2.key-07 = string(ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99"))
              tt-report2.rec-id = RECID(ar-inv).
           END.
         END.
@@ -1546,6 +1548,7 @@ FOR EACH ttCustList
                                ELSE STRING(ar-invl.ord-no,"999999")
            tt-report.key-04  = string(ar-invl.inv-no,"9999999999")
            tt-report.key-05  = "1"
+           tt-report.key-07 = string(ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99")) 
            tt-report.key-06  = cust.cust-no.
         end.
       END.
@@ -1597,7 +1600,9 @@ FOR EACH ttCustList
                                          else 0,"999999")
          tt-report.key-04  = string(ar-cashl.inv-no,"9999999999")
          tt-report.key-05  = "2"
-         tt-report.key-06  = cust.cust-no.
+         tt-report.key-06  = cust.cust-no
+         tt-report.key-07 = if avail oe-retl THEN 
+                                string(oe-retl.job-no + "-" + STRING(oe-retl.job-no2, "99")) ELSE "".
       end.
     end.
 
@@ -1630,7 +1635,8 @@ FOR EACH ttCustList
        w-data.w-inv-no   = int(tt-report.key-04)
        w-data.w-type     = int(tt-report.key-05)
        w-data.w-recid    = tt-report.rec-id
-       v-sq-ft           = 0.
+       v-sq-ft           = 0
+       w-data.w-job-no   = tt-report.key-07.
 
       cItemName = "".
       if w-data.w-type eq 1 then do:
@@ -1784,6 +1790,7 @@ FOR EACH ttCustList
                          WHEN "prod-code"   THEN cVarValue = STRING(w-procat,"x(5)") .
                          WHEN "inv-amt"  THEN cVarValue = IF tb_summary THEN STRING(ACCUMULATE TOTAL BY tt-report.key-04 w-amt,"->>,>>>,>>9.99") ELSE STRING(w-amt,"->>,>>>,>>9.99") .
                          WHEN "i-name"   THEN cVarValue = string(cItemName,"x(30)").
+                         WHEN "job-no"  THEN cVarValue = STRING(w-data.w-job-no) .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1832,6 +1839,7 @@ FOR EACH ttCustList
                          WHEN "prod-code"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue =  STRING(cust-amt,"->>,>>>,>>9.99") .
                          WHEN "i-name"   THEN cVarValue = "".
+                         WHEN "job-no"  THEN cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1879,6 +1887,7 @@ FOR EACH ttCustList
                          WHEN "prod-code"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue =  STRING(cust-amt,"->>,>>>,>>9.99") .
                          WHEN "i-name"   THEN cVarValue = "".
+                         WHEN "job-no"  THEN cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1933,6 +1942,7 @@ FOR EACH ttCustList
                          WHEN "prod-code"   THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue =  STRING(tot-amt,"->>,>>>,>>9.99") .
                          WHEN "i-name"   THEN cVarValue =  "".
+                         WHEN "job-no"  THEN cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
