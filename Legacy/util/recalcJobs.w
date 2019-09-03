@@ -49,6 +49,7 @@ FIELD std-var-cost-after LIKE job.std-var-cost
 INDEX i1 job-no job-no2
 .
 DEFINE BUFFER bf-job-hdr FOR job-hdr.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -74,10 +75,10 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr.
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiFromJobNo fiFromJobNo2 fiToJobNo2 ~
-btn-process btn-cancel RECT-17 fiToJobNo 
-&Scoped-Define DISPLAYED-OBJECTS fiFromJobNo fiFromJobNo2 fiToJobNo2 ~
-fiToJobNo 
+&Scoped-Define ENABLED-OBJECTS fiFromJobNo fiFromJobNo2 fiToJobNo ~
+fiToJobNo2 btn-process btn-cancel RECT-17 
+&Scoped-Define DISPLAYED-OBJECTS fiFromJobNo fiFromJobNo2 fiToJobNo ~
+fiToJobNo2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -134,10 +135,10 @@ DEFINE QUERY FRAME-A FOR
 DEFINE FRAME FRAME-A
      fiFromJobNo AT ROW 4.33 COL 29 COLON-ALIGNED WIDGET-ID 2
      fiFromJobNo2 AT ROW 4.33 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiToJobNo AT ROW 5.52 COL 29 COLON-ALIGNED WIDGET-ID 4
      fiToJobNo2 AT ROW 5.52 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      btn-process AT ROW 11.95 COL 23
      btn-cancel AT ROW 11.95 COL 54
-     fiToJobNo AT ROW 5.52 COL 29 COLON-ALIGNED WIDGET-ID 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 1.48 COL 3
      "" VIEW-AS TEXT
@@ -364,10 +365,10 @@ PROCEDURE enable_UI :
 
   {&OPEN-QUERY-FRAME-A}
   GET FIRST FRAME-A.
-  DISPLAY fiFromJobNo fiFromJobNo2 fiToJobNo2 fiToJobNo 
+  DISPLAY fiFromJobNo fiFromJobNo2 fiToJobNo fiToJobNo2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE fiFromJobNo fiFromJobNo2 fiToJobNo2 btn-process btn-cancel RECT-17 
-         fiToJobNo 
+  ENABLE fiFromJobNo fiFromJobNo2 fiToJobNo fiToJobNo2 btn-process btn-cancel 
+         RECT-17 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -416,7 +417,7 @@ ASSIGN
         IF NOT AVAIL job-hdr THEN 
            NEXT.
                 
-        RUN fg/GetProductionQty 
+        RUN fg/GetProductionQty.p
             (
              INPUT job-hdr.company,
              INPUT job-hdr.job-no,
@@ -425,11 +426,11 @@ ASSIGN
              INPUT NO,
              OUTPUT dQty
              ).
-             
+
         /* Per spec, run for jobs that have production qty = 0 */
         IF dQty NE 0 THEN 
           NEXT.
-          
+        STATUS DEFAULT job.job-no + "-" + STRING(job.job-no2, "99").
         FOR EACH job-hdr NO-LOCK
           WHERE job-hdr.company EQ cocode
             AND job-hdr.job     EQ job.job
@@ -467,10 +468,10 @@ ASSIGN
                 AND ttSaveCosts.blank-no = job-hdr.blank-no
                 .
         ASSIGN       
-            ttSaveCosts.std-fix-cost-after = bf-job-hdr.std-fix-cost
-            ttSaveCosts.std-lab-cost-after = bf-job-hdr.std-lab-cost
-            ttSaveCosts.std-mat-cost-after = bf-job-hdr.std-mat-cost
-            ttSaveCosts.std-var-cost-after = bf-job-hdr.std-var-cost
+            ttSaveCosts.std-fix-cost-after = job-hdr.std-fix-cost
+            ttSaveCosts.std-lab-cost-after = job-hdr.std-lab-cost
+            ttSaveCosts.std-mat-cost-after = job-hdr.std-mat-cost
+            ttSaveCosts.std-var-cost-after = job-hdr.std-var-cost
             .        
     END.
   END. /* Each job, each job-hdr */
