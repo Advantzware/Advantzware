@@ -56,6 +56,7 @@ DEF VAR lv-default-f AS CHAR NO-UNDO.
 DEF VAR lv-default-c AS CHAR NO-UNDO.
 DEF VAR lv-int-f AS INT NO-UNDO.
 DEF VAR lv-int-c AS INT NO-UNDO.
+DEFINE VARIABLE dDecimalFoldValue AS DECIMAL NO-UNDO .
 
 {jcrep/r-ticket.i "new shared"}
 
@@ -1700,7 +1701,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ASSIGN
     lv-format-f = sys-ctrl.char-fld
     lv-int-f    = sys-ctrl.int-fld
-    lv-default-f = sys-ctrl.char-fld.
+    lv-default-f = sys-ctrl.char-fld
+    dDecimalFoldValue = sys-ctrl.dec-fld .
    IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/
      lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,McLean,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
 
@@ -1708,7 +1710,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ASSIGN
     lv-format-c = sys-ctrl.char-fld
     lv-int-c    = sys-ctrl.int-fld
-    lv-default-c = sys-ctrl.char-fld .  
+    lv-default-c = sys-ctrl.char-fld.  
  
     
     IF TRIM(begin_job1:SCREEN-VALUE) NE ""                          AND
