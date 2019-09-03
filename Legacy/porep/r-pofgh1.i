@@ -4,7 +4,7 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
 
    if tb_excel then
    do:
-      output stream s-temp TO VALUE(fi_file).
+      output stream s-temp TO VALUE(cFileName).
       /*str_buffa = "".
       {sys/inc/outstrPL.i v-hdr 1 218}.*/
       PUT STREAM s-temp UNFORMATTED v-hdr SKIP.

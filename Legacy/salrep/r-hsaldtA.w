@@ -1268,6 +1268,10 @@ DEF VAR hi-date AS DATE INIT 01/01/0001 NO-UNDO.
 DEF VAR lv-sman AS CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 FORM HEADER
      "Salesrep:"
      lv-sman        FORMAT "x(40)"
@@ -1321,7 +1325,7 @@ do li = 1 to 4:
 end.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Salesrep,Customer,Name," + v-label[1] + "," + v-label[2] + ","
               + v-label[3] + "," + v-label[4] + ",Total Amt,"
               + "Salesrep " + v-label[1] + " Total,"
@@ -1666,7 +1670,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

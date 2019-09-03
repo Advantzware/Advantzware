@@ -927,6 +927,9 @@ def var hdr-tit2 as char no-undo.
 def var hdr-tit3 as char no-undo.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR viLoop AS INT NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      hdr-tit format "x(132)" skip
@@ -965,7 +968,7 @@ assign
 SESSION:SET-WAIT-STATE ("general").
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "JOB #,STATUS,S,B,MACH CODE,DESCRIPTION,RUN QUANTITY,WASTE QUANTITY,"
               + "MR STD PERCENT,MR ACT PERCENT,MR VARIANCE,RUN STD PERCENT,"
               + "RUN ACT PERCENT,RUN VARIANCE,OVER STD PERCENT,OVER ACT PERCENT,"
@@ -1300,7 +1303,7 @@ for each mch-act
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

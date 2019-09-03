@@ -1312,6 +1312,10 @@ DEF VAR lv-type AS CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR cSman LIKE ar-invl.sman[1] NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 form space(8)
      w-data.i-no
      itemfg.i-name        format "x(20)"
@@ -1395,7 +1399,7 @@ form cust.cust-no
   {sys/inc/outprint.i value(lines-per-page)}
 
   IF tb_excel THEN do:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+      OUTPUT STREAM excel TO VALUE(cFileName).
       IF v-det THEN
          excelheader = "Customer,Name,SRep,Ship To#,Ship Zip,Inv#,Inv Date,"
                      + "Order#,Item No,Item Name,Item Description,Cust Part#,"
@@ -1931,7 +1935,7 @@ FOR each ar-inv
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

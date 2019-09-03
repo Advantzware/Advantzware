@@ -1169,6 +1169,7 @@ def var lab as DEC NO-UNDO.
 
 def var ii like i no-undo.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 find first w-data no-error.
 
@@ -1178,6 +1179,7 @@ form header "Sales Rep:"
             v-sname
     with frame r-top1 no-box no-attr-space page-top stream-io width 180.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  str-tit2 = c-win:TITLE + "   (O-R-5)"
@@ -1206,7 +1208,7 @@ end.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Sales Rep,Sales Name,".
 
  /* if item-dscr then do:
@@ -1271,7 +1273,7 @@ SESSION:SET-WAIT-STATE ("").
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

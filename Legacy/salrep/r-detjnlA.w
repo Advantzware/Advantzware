@@ -1008,6 +1008,9 @@ def var w-procat    like itemfg.procat column-label "Prod!Code".
 def var w-amt       like ar-invl.amt column-label "Invoice!Amount".
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEFINE BUFFER bf-ar-inv FOR ar-inv.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
  form w-data.w-cust-no
      cust.name          FORMAT "x(26)"
      cust.cr-rating     LABEL "C R"
@@ -1058,7 +1061,7 @@ DEFINE BUFFER bf-ar-inv FOR ar-inv.
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-          OUTPUT STREAM excel TO VALUE(fi_file).
+          OUTPUT STREAM excel TO VALUE(cFileName).
           excelheader = "Cust#,Name,BOL#,C/R,INV Date,Order#,Inv#," +
                         "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod Code," +
                         "Inv Amount".
@@ -1522,7 +1525,7 @@ FOR EACH ttCustList
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
   SESSION:SET-WAIT-STATE ("").

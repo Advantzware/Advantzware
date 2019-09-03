@@ -1315,6 +1315,10 @@ DEF VAR v-fgcat   LIKE fgcat.procat NO-UNDO.
 DEF VAR v-delimiter AS cha FORM "x" INIT "," NO-UNDO.
 DEF VAR li-seq AS INT NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 {sys/form/r-topw.f}
 
 FORM cust.cust-no       COLUMN-LABEL "!Customer!    #"
@@ -1375,8 +1379,8 @@ ASSIGN
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
-IF tb_excel AND fi_file NE '' THEN DO:
-  OUTPUT STREAM st-excel TO VALUE(fi_file).
+IF tb_excel AND cFileName NE '' THEN DO:
+  OUTPUT STREAM st-excel TO VALUE(cFileName).
   PUT STREAM st-excel
       ",,,,,Cust Buy,,,,,,,House,,,,,"
       SKIP
@@ -1875,7 +1879,7 @@ END.
 
       WITH FRAME itemx.
 
-  IF tb_excel AND fi_file NE '' THEN
+  IF tb_excel AND cFileName NE '' THEN
   OUTPUT STREAM st-excel CLOSE.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

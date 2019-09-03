@@ -1405,8 +1405,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS cha NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1428,12 +1427,8 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS: /* task 08191414 */
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  
+   {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1669,6 +1664,9 @@ DEFINE VARIABLE cBoardCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cCustPart AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iBolNo AS INTEGER NO-UNDO .
 DEFINE VARIABLE cCustLot AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM cust.name            COLUMN-LABEL "Customer"
      w-data.inv-no
@@ -1767,7 +1765,7 @@ EMPTY TEMP-TABLE tt-report.
 {sys/inc/outprint.i value(lines-per-page)}
 
    IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+      OUTPUT STREAM excel TO VALUE(cFileName).
      /* excelheader = "Name,Inv Number,FG Item,Prod.Category,Qty shipped,Total MSF," +
                     "$/MSF,Sales Amt,Full Cost,Profit". */
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1788,7 +1786,7 @@ END.
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 

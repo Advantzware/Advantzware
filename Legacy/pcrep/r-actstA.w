@@ -852,6 +852,9 @@ def var d-r-std-hrs as dec format '>>>>>>9.99' no-undo.
 def var hdr-tit as char no-undo.
 def var hdr-tit2 as char no-undo.
 def var hdr-tit3 as char no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      hdr-tit format "x(132)" skip
@@ -882,7 +885,7 @@ assign
 SESSION:SET-WAIT-STATE("general").
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    EXPORT STREAM excel DELIMITER ","
        "Dept"
        "Mach.Code"
@@ -1073,7 +1076,7 @@ EMPTY TEMP-TABLE work-rep.
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE("").

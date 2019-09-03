@@ -818,7 +818,7 @@ DEF VAR v_st     LIKE cust.state     NO-UNDO.
 DEF VAR v_zip    LIKE cust.zip       NO-UNDO.
 DEF VAR v_style  LIKE eb.style       NO-UNDO.
 DEF VAR v_quo-dt AS CHAR             NO-UNDO.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 assign
  str-tit2 = trim(c-win:title) 
@@ -836,6 +836,7 @@ assign
   */
 
 /* gdm - 10130808 */
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 ASSIGN
     v_exclhdr1 = 
     "Company Name,Address1,City,State,Zip,Rep," +
@@ -876,7 +877,7 @@ display str-tit with frame r-top.
 
 /* gdm - 10130808 */
 IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED
         v_exclhdr1
     SKIP.
@@ -1051,7 +1052,7 @@ SESSION:SET-WAIT-STATE("general").
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
 /* gdm - 10130807 */

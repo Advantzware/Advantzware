@@ -1145,6 +1145,10 @@ PROCEDURE run-report :
 
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 form header
      "        "
      "               "
@@ -1261,7 +1265,7 @@ IF tb_excel THEN DO:
   ELSE
      excelheader = "".
 
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.     
 END.  
  */
@@ -1515,15 +1519,15 @@ IF lselected THEN DO:
 
     CASE v-sort-by-cust:
         WHEN "Cu" THEN 
-          RUN fg/rep/fg-cost1.p (excelheader,fi_file).
+          RUN fg/rep/fg-cost1.p (excelheader,cFileName).
         WHEN "FG" THEN 
-          RUN fg/rep/fg-cost2.p (excelheader,fi_file).
+          RUN fg/rep/fg-cost2.p (excelheader,cFileName).
         WHEN "Pr" THEN 
-          RUN fg/rep/fg-cost3.p (excelheader,fi_file).
+          RUN fg/rep/fg-cost3.p (excelheader,cFileName).
         WHEN "Pa" THEN 
-          RUN fg/rep/fg-cost4.p (excelheader,fi_file).
+          RUN fg/rep/fg-cost4.p (excelheader,cFileName).
         OTHERWISE 
-          RUN fg/rep/fg-cost5.p (excelheader,fi_file).
+          RUN fg/rep/fg-cost5.p (excelheader,cFileName).
     END CASE.
 
     put skip(1).
@@ -1565,7 +1569,7 @@ IF lselected THEN DO:
     IF tb_excel THEN DO: /* rdb 02/05/07  01090713 */
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

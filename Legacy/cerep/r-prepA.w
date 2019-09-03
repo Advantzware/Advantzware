@@ -767,8 +767,10 @@ def var ii like i no-undo.
 DEF VAR v_exclhdr1 AS CHAR                NO-UNDO.
 DEF VAR v_exclhdr2 AS CHAR                NO-UNDO.
 DEF VAR v_custnum  AS CHAR FORMAT "x(35)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-topl.f}
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN str-tit2 = c-win:title
          {sys/inc/ctrtext.i str-tit2 142}.
@@ -874,7 +876,7 @@ END.
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 
@@ -897,9 +899,10 @@ PROCEDURE run-report-sum :
   Notes:       
 ------------------------------------------------------------------------------*/
 def var ii like i no-undo.
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
 
 {sys/form/r-top.f}
-
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 ASSIGN str-tit2 = c-win:title
          {sys/inc/ctrtext.i str-tit2 56}.
 
@@ -957,7 +960,7 @@ END.
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 
 

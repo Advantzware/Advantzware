@@ -913,6 +913,10 @@ DEF VAR lv-rowid        AS   ROWID NO-UNDO.
 DEF VAR excelheader     AS   CHAR NO-UNDO.
 DEF VAR v-cust AS CHAR EXTENT 2 NO-UNDO .
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 form header skip(1)
             v-page-brk
             skip(1)
@@ -967,7 +971,7 @@ READKEY PAUSE 0.
 VIEW FRAME r-top.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Item#,Customer Part#,Description,Re-Order Point,"
               + "Release PO#,Total On-Hand,Pallet/Count,Release Quantity,"
               + "Date Required".
@@ -1092,7 +1096,7 @@ end.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

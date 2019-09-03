@@ -1338,8 +1338,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1362,12 +1361,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS: /* task 08191414 */
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1642,6 +1636,9 @@ DEF VAR v-page AS LOGICAL NO-UNDO.
 DEF VAR vaddr AS CHAR NO-UNDO.
 DEF VAR vaddr2 AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {sys/form/r-top5DL3.f}
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1725,7 +1722,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
  IF tb_excel THEN DO:
-   OUTPUT STREAM st-excel TO VALUE(fi_file).
+   OUTPUT STREAM st-excel TO VALUE(cFileName).
    PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
  END.
 
@@ -2335,7 +2332,7 @@ end.
          v-grand-vend = 0
          v-grand-bght = 0.
 
-IF tb_excel AND fi_file NE '' THEN
+IF tb_excel AND cFileName NE '' THEN
    OUTPUT STREAM st-excel CLOSE.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

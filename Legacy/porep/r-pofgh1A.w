@@ -1377,6 +1377,9 @@ DEF VAR lv-label AS CHAR EXTENT 20 NO-UNDO.
 def var v-hdr as CHAR NO-UNDO.
 
 DEF VAR v-fg-rdtlhqty          AS INT FORMAT "->,>>>,>>9" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header str-tit4 format "x(130)" with frame r-top.
 
@@ -1537,7 +1540,7 @@ DISPLAY WITH FRAME r-top.
 IF tb_excel THEN DO:
    OUTPUT STREAM s-temp CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

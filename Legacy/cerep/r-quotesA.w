@@ -877,6 +877,7 @@ DEF VAR lv-q-qty AS INT EXTENT 2 NO-UNDO.
 /* gdm - 10130805 */
 DEF VAR v_quo-date AS CHAR         NO-UNDO.
 DEF VAR v_sname    LIKE sman.sname NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 form space(1)
      quotehd.q-no
@@ -893,7 +894,7 @@ header "Quote#     Est# Customer                     Part Description           
    with frame quote no-labels no-attr-space stream-io width 150 down.
 
 
-
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 assign
  str-tit2 = "Quote List"
  {sys/inc/ctrtext.i str-tit2 112}
@@ -919,7 +920,7 @@ display str-tit with frame r-top.
 
 /* gdm - 10130805 */
 IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED
        "Quote#,Est#,Customer,Part Description,Date,SalesRep,Ext Price,Ext Cost,Qty,Price/M,Cost/M,GP$,GP%,"
         .    
@@ -1245,7 +1246,7 @@ end.
 IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

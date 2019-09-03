@@ -1181,8 +1181,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1213,12 +1212,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -3533,10 +3527,12 @@ PROCEDURE run-report :
 
 def var rm-cst-amt like item.last-cost.
 def var v-printed as log init no no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  fco    = cocode
@@ -3551,7 +3547,7 @@ assign
  dor    = tb_real
  detail = tb_detailed
  v-export = tb_excel
- v-exp-name = fi_file.
+ v-exp-name = cFileName.
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -3667,7 +3663,7 @@ ASSIGN
 DISPLAY "" WITH FRAME r-top.
 
 IF v-export THEN DO:
-    OUTPUT STREAM s-temp TO VALUE(fi_file).
+    OUTPUT STREAM s-temp TO VALUE(cFileName).
     PUT STREAM s-temp UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 END.
 

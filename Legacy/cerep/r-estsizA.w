@@ -975,14 +975,14 @@ def var v-indtype   as   char format "x(15)" NO-UNDO.
 DEF VAR v_part-no  LIKE eb.part-no           NO-UNDO.
 DEF VAR v_ord-date AS CHAR FORMAT "99/99/99" NO-UNDO.
 DEF VAR v-num-up LIKE eb.num-up NO-UNDO.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 form header
      "Industry:"
      v-indtype
      skip(1)
     with frame r-top.
 
-
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  str-tit2 = c-win:TITLE
@@ -1006,7 +1006,7 @@ if td-show-parm then run show-param.
 
 /* gdm - 10130806 */
 IF tb_excel THEN 
-    OUTPUT STREAM excel TO VALUE(fi_file). 
+    OUTPUT STREAM excel TO VALUE(cFileName). 
 SESSION:SET-WAIT-STATE ("general").  
 
 
@@ -1139,7 +1139,7 @@ end.
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

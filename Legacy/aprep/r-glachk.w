@@ -1114,6 +1114,9 @@ DEF VAR v-sub-acount LIKE ap-payl.amt-paid NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR vcount AS INT NO-UNDO.
 DEF VAR v-vend-name LIKE vend.NAME NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {custom/statusMsg.i " 'Processing... '"}
 
@@ -1433,7 +1436,7 @@ END.
 
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelHeader = 'Check#,Check Date,Vendor#,Name,Invoice#,Gross Amt,Discount,Net Amt,Acct#, Amount'.
 
   PUT STREAM excel UNFORMATTED '"' '",' '"' '",' '"' '",' '"' '",' '"' "Check Register by GL#" '"' SKIP(1).

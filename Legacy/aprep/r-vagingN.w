@@ -1296,8 +1296,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1328,12 +1327,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) EQ 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1543,6 +1537,10 @@ DEFINE BUFFER xap-ledger FOR ap-ledger.
 DEFINE VARIABLE cVendHeader AS CHAR NO-UNDO .
 DEFINE VARIABLE cVendHeadLine AS CHAR NO-UNDO .
 DEFINE VARIABLE lPutHeader AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 FORM HEADER SKIP(1)
      lv-page-break FORMAT "x(200)"
 WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
@@ -1768,7 +1766,7 @@ ELSE VIEW FRAME r-top .
   END.
 
   IF tb_excel THEN DO:
-     OUTPUT STREAM excel TO VALUE(fi_file).
+     OUTPUT STREAM excel TO VALUE(cFileName).
 
      excelheader = excelheader
                 /* + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS,"*/
@@ -1971,7 +1969,7 @@ ELSE VIEW FRAME r-top .
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

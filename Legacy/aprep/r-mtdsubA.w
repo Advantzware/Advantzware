@@ -804,6 +804,9 @@ def var v-tax-amt       as   dec format "->>,>>>,>>9.99" extent 2.
 def var v-actnum        like ar-cashl.actnum.
 DEF VAR ld              AS   DEC.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 format header
        skip(1)
@@ -844,7 +847,7 @@ DO WITH FRAME {&FRAME-NAME}:
 END.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Dest Code,Tax Jurisdiction Name,Trade $,MSF,Tons,"
               + "Index,Misc $,Sales Tax,Total $".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1079,7 +1082,7 @@ if td-show-parm then run show-param.
     IF tb_excel THEN DO:
        OUTPUT STREAM excel CLOSE.
        IF tb_runExcel THEN
-          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

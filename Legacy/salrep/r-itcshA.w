@@ -1278,6 +1278,9 @@ DEF VAR v-est LIKE est.est-no NO-UNDO.
 DEF VAR v-bol LIKE oe-bolh.bol-no NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
      "               "
@@ -1367,7 +1370,7 @@ ASSIGN
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = (IF v-sort1 THEN "FG Item," ELSE "Customer Part#,")
               + "Customer,"
               + (IF v-print1 THEN "Customer Name," ELSE "Item Name,")
@@ -1397,7 +1400,7 @@ EMPTY TEMP-TABLE tt-report.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

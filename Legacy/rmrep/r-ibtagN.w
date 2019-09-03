@@ -1229,7 +1229,6 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1253,12 +1252,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS: /* task 08191414 */
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1672,7 +1666,10 @@ DEFINE VARIABLE chrTotCostVal AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrRmBinTag AS CHARACTER FORMAT "x(22)" NO-UNDO.
 DEFINE VARIABLE vpo-gl-act AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE ctype AS CHARACTER FORMAT "!"   NO-UNDO INITIAL "B".
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 FIND FIRST ce-ctrl NO-LOCK WHERE ce-ctrl.company EQ cocode  NO-ERROR.
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN
  str-tit2 = c-win:TITLE
@@ -1719,7 +1716,7 @@ DEFINE VARIABLE cslist AS CHARACTER NO-UNDO.
  END.
  
  IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
  END.
 
@@ -2590,7 +2587,7 @@ SESSION:SET-WAIT-STATE ("").
   IF tb_excel THEN DO:
          OUTPUT STREAM excel CLOSE.
          IF tb_runExcel THEN
-             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
      END.
 
 

@@ -920,9 +920,12 @@ DEF VAR v-overpcs AS INT NO-UNDO.
 DEF VAR v-schedule AS cha FORM "X(9)" NO-UNDO.
 DEF VAR v-over-allow AS dec NO-UNDO.
 DEF VAR v-comma AS cha FORMAT "x" INIT "," NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 IF tb_excel THEN do:
-   OUTPUT STREAM st-excel TO VALUE(fi_file).
+   OUTPUT STREAM st-excel TO VALUE(cFileName).
    PUT STREAM st-excel
        "Job#,Qty Ord,Received,Units,Sht W,Sht L,RMItem#,Vendor Item#,Due Date,PO#,Mach,Schedule#,Customer Name,Pieces Over,Overrun"
         SKIP.
@@ -1401,7 +1404,7 @@ DISP WITH frame sh-head.
   IF tb_excel THEN DO:
      OUTPUT STREAM st-excel CLOSE.
      IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 

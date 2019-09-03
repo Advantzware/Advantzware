@@ -1148,8 +1148,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1180,12 +1179,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1401,6 +1395,9 @@ DEFINE VARIABLE chWorkBook  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE chRangeRow  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
 DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 /*IF NOT VALID-HANDLE(iphTable) THEN RETURN.*/
 
@@ -1431,7 +1428,7 @@ assign
      tcust = END_cust 
      lSelected  = tb_cust-list
      /*v-tot         = tb_totals */.
-cExcelFile = fi_file.
+cExcelFile = cFileName.
 IF tb_excel THEN DO:
 IF SEARCH(cExcelFile) NE ? THEN
 OS-DELETE VALUE(SEARCH(cExcelFile)).
@@ -1514,7 +1511,7 @@ PAUSE 1 NO-MESSAGE.
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 /*IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     /*excelHeader = 'GL Acct#,Description,Customer,Inv#,Journal,Run#,Date,Amount'.*/
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
 END. /* if tb_excel */*/

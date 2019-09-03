@@ -2195,6 +2195,9 @@ DEF VAR cHeadTemp2 AS CHAR NO-UNDO.
 DEF VAR excelheader1 AS CHAR NO-UNDO.
 DEF VAR excelheader2 AS CHAR NO-UNDO.
 DEF VAR excelheader3 AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {custom/statusMsg.i " 'Processing...   '"}
 
@@ -2240,7 +2243,7 @@ IF NOT tg_disp_cents THEN
    v-space = 3.
 
 IF tb_excel THEN do:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
     ASSIGN excelheader1 = "SM #,SalesRep nm.,Month,Month,Month,YTD,YTD,YTD".
         IF rd_sortby EQ "PC" THEN
             ASSIGN 
@@ -2573,7 +2576,7 @@ SESSION:SET-WAIT-STATE ("").
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END. 
 
 end procedure.

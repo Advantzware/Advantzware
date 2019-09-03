@@ -1054,6 +1054,10 @@ DEF VAR li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
 DEF VAR li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 form
     itemfg.cust-no to 8 label "CUSTOMER"
     oe-ordl.i-no to 24 label "ITEM #"
@@ -1070,7 +1074,7 @@ form
   form skip(1) with frame r-top.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "CUSTOMER,ITEM #,PO #,JOB,QUANTITY ORDERED,NEXT REL DATE," 
               + "QUANTITY SHIPPED,QUANTITY ON HAND,SELLING PRICE,TOTAL VALUE".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1281,7 +1285,7 @@ IF lselected THEN DO:
    IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
    END.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

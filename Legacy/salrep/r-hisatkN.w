@@ -1266,7 +1266,6 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
   DEFINE VARIABLE cCheckValue AS CHARACTER NO-UNDO .
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
@@ -1299,12 +1298,8 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-       ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)) . 
-  END.
+  {sys/ref/SelColCorrect.i} 
+  
   IF NOT lEndYear THEN DO:
        ldummy = sl_selected:DELETE("Period 01") .
        ldummy = sl_selected:DELETE("Period 02") .
@@ -1579,7 +1574,9 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE d-gr-tot-amt as   DECIMAL  EXTENT 21 NO-UNDO.
 DEFINE VARIABLE lp-zero AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      "Salesrep:"
@@ -1688,7 +1685,7 @@ assign
 if v1 lt 1 then v1 = 1.
 
 /*IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Customer,Name".
 END. */
 
@@ -1740,7 +1737,7 @@ IF lselected THEN DO:
 END.
 
 IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+      OUTPUT STREAM excel TO VALUE(cFileName).
       PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 END. 
 /*display "" with frame r-top.*/
@@ -2171,7 +2168,7 @@ end.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -1294,8 +1294,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+ 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1326,12 +1325,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+ {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1529,6 +1523,10 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 def var as-of-day_str like day_str format "x(15)" init "As of: " no-undo.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 form header
      "        "
      "               "
@@ -1639,7 +1637,7 @@ form header
 
 /*
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.*/
 
@@ -1881,15 +1879,15 @@ VIEW FRAME r-top.
 
     CASE v-sort-by-cust:
         WHEN "Cu" THEN 
-          RUN fg/rep/fg-cosN1.p (excelheader,fi_file).
+          RUN fg/rep/fg-cosN1.p (excelheader,cFileName).
         WHEN "FG" THEN 
-          RUN fg/rep/fg-cosN2.p (excelheader,fi_file).
+          RUN fg/rep/fg-cosN2.p (excelheader,cFileName).
         WHEN "Pr" THEN 
-          RUN fg/rep/fg-cosN3.p (excelheader,fi_file).
+          RUN fg/rep/fg-cosN3.p (excelheader,cFileName).
         WHEN "Pa" THEN 
-          RUN fg/rep/fg-cosN4.p (excelheader,fi_file).
+          RUN fg/rep/fg-cosN4.p (excelheader,cFileName).
         OTHERWISE 
-          RUN fg/rep/fg-cosN5.p (excelheader,fi_file).
+          RUN fg/rep/fg-cosN5.p (excelheader,cFileName).
     END CASE.
 
     put skip(1).
@@ -1971,7 +1969,7 @@ VIEW FRAME r-top.
     IF tb_excel THEN DO: /* rdb 02/05/07  01090713 */
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

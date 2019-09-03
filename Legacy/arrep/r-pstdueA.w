@@ -1292,6 +1292,9 @@ PROCEDURE run-report :
 {sys/form/r-top3.f}
 
 def var li as int no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 format header
   skip(1)
@@ -1318,7 +1321,7 @@ assign
  v-days-old = tb_days-old
  v-prt-add  = tb_address
  v-export   = tb_excel
- v-exp-name = fi_file
+ v-exp-name = cFileName
  lSelected  = tb_cust-list
  v-include-factored = tb_include-factored
 
@@ -1391,7 +1394,7 @@ page.
   IF v-export THEN DO:
     OUTPUT STREAM s-temp CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -966,6 +966,7 @@ DEF VAR v-tot-stk-qty-day     AS DECI FORMAT "->>>,>>>,>>9.99".
 DEF VAR v-grand-tot-stk-qty   AS DECI FORMAT "->>>,>>>,>>9.99".
 
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 FORM 
    rm-rcpth.trans-date                    LABEL "Date"      /*8*/
@@ -984,6 +985,8 @@ FORM
 
 
 find first ap-ctrl where ap-ctrl.company eq cocode no-lock no-error.
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  str-tit2 = c-win:title
@@ -1033,7 +1036,7 @@ if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
 
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    excelheader = "Date,RM Item#,PO#,Vendor,Job#,Quantity,Total MSF,Stocked Qty,Cons. UOM".                        
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.      
 END.
@@ -1249,7 +1252,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
  IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE ("").
