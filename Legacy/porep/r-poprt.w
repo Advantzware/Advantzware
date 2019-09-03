@@ -1319,7 +1319,7 @@ PROCEDURE GenerateMail :
   IF rd-dest = 5 THEN DO:      
 
     /* gdm - 11190804 */
-    IF LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,Protagon") > 0 
+    IF LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
         OR lv-attachments THEN DO:
       FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ cocode
@@ -1376,7 +1376,7 @@ PROCEDURE GenerateMail :
     IF is-xprint-form OR v-print-fmt = "southpak-xl" THEN DO:
       
       /* gdm - 11190804 */
-      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,Protagon") > 0 
+      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
            OR 
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
@@ -1404,7 +1404,7 @@ PROCEDURE GenerateMail :
       IF NOT AttachmentExists() THEN RETURN.
 
       /* gdm - 11190804 */
-      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,Protagon") > 0 
+      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
            OR
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
@@ -1861,7 +1861,7 @@ PROCEDURE SetGlobalVariables :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-po-ord-no AS INTEGER NO-UNDO.
 
-  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
+  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
     THEN is-xprint-form = YES.
     ELSE is-xprint-form = NO.
 
@@ -1908,6 +1908,7 @@ PROCEDURE SetPOPrintForm :
     WHEN 'LancoYork'    THEN ASSIGN v-program = "po/po-lanyork.p"     li-lineperpage = 80.
     WHEN 'Lovepac'      THEN ASSIGN v-program = "po/po-loveten.p"     li-lineperpage = 60.
     WHEN 'POPrint10-CAN' THEN ASSIGN v-program = "po/po-lovetencan.p"     li-lineperpage = 60.
+    WHEN 'POPrint-CAN2' THEN ASSIGN v-program = "po/po-can2.p"     li-lineperpage = 60.
     WHEN 'poprint 10'   THEN ASSIGN v-program = "po/po-xprnt10.p"     li-lineperpage = 80.
     WHEN 'StClair'      THEN ASSIGN v-program = "po/po-stclr.p"     li-lineperpage = 80.
     WHEN 'Boss'         THEN ASSIGN v-program = "po/po-boss.p"     li-lineperpage = 80.
@@ -2045,7 +2046,7 @@ PROCEDURE pRunFormatValueChanged :
                 tb_itemDescription = NO
                 tb_itemDescription:SCREEN-VALUE = 'NO'
 
-                tb_score-types              = CAN-DO("Fibrex,Lovepac,POPrint10-CAN,MWFibre,Protagon,Sultana",v-print-fmt)
+                tb_score-types              = CAN-DO("Fibrex,Lovepac,POPrint10-CAN,POPrint-CAN2,MWFibre,Protagon,Sultana",v-print-fmt)
                 tb_score-types:SCREEN-VALUE = STRING(tb_score-types)
                 tb_score-types:SENSITIVE IN FRAME {&FRAME-NAME}   = YES.
             
@@ -2076,11 +2077,11 @@ PROCEDURE pRunFormatValueChanged :
             tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
         ELSE ASSIGN tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
-        IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") = 0 THEN 
+        IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN,POPrint-CAN2") = 0 THEN 
             DISABLE tb_cust-code tb_mach.
         ELSE ENABLE tb_cust-code tb_mach.
 
-        IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN") NE 0 THEN 
+        IF LOOKUP(v-print-fmt,"poprint 10,poprint 20,POPrint10-CAN,POPrint-CAN2") NE 0 THEN 
             tb_grand-total:HIDDEN IN FRAME {&FRAME-NAME} = NO .
         ELSE 
             tb_grand-total:HIDDEN IN FRAME {&FRAME-NAME} = YES .

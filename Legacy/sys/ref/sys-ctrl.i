@@ -55,7 +55,7 @@ ASSIGN
               + "PremierX,CSC,Elite,OTTPkg,APC,ConsBox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,"
               + "HPB,Indiana,MWFibre,Packrite,Allwest,ACPI,Badger,CCC,Soule,SouleMed,"
               + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana,"
-              + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20,Lovepac,POPrint10-CAN,LancoYork,POPrint-Mex"
+              + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20,Lovepac,POPrint10-CAN,LancoYork,POPrint-Mex,POPrint-CAN2"
  str-init[9]  = "ASI,Argrov,Century,HOP,MultiWll,Sonoco,TriState,Fibre," +
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,CSC-GA,CardedX," +
@@ -265,7 +265,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
      ASSIGN
 	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,quoprint10-CAN,QuoPrint-Excel-Mex"
        str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20,invprint10-CAN,InvPrint-Mex"
-       str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN,POPrint-Mex"
+       str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN,POPrint-Mex,POPrint-CAN2"
        str-init[9]  = "relprint 1,relprint 2,relprint 10"
        str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN,BOLfmt15,bolfmt 30,BOLFMT-Mex"
        str-init[11] = "chkfmt 1,chkfmt 2,APChkFmt1,APChkFmt2"
