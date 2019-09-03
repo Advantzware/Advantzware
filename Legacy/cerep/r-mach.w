@@ -773,6 +773,8 @@ def var fdep like est-op.dept NO-UNDO.
 def var tdep like fdep init "zz" NO-UNDO.
 def var sho-stds as log format "Y/N" init NO NO-UNDO.
 DEF VAR lv-need-display AS LOG NO-UNDO.
+DEFINE VARIABLE lFolderCreated AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hdFileSysProcs AS HANDLE.
 
 /* gdm - 10130802 */
 DEF VAR v_head     AS CHAR NO-UNDO.
@@ -872,6 +874,12 @@ tdep     = end_dept
 sho-stds = tb_show-stds.
 
     {sys/inc/print1.i}
+
+    RUN sys/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdFileSysProcs).
+    
+    RUN CreateFolder(tmp-dir , OUTPUT lFolderCreated ).
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdFileSysProcs). 
 
     {sys/inc/outprint.i value(lines-per-page)}
 

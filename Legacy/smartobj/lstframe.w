@@ -632,10 +632,19 @@ PROCEDURE Output-to-Screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lFolderCreated AS LOGICAL NO-UNDO .
+   DEFINE VARIABLE hdFileSysProcs AS HANDLE.
   {methods/run_link.i "CONTAINER-SOURCE" "Output-Name" "(OUTPUT output-name)"}
   output-name = "users~/" + USERID("NOSWEAT") + "~/" + output-name.
   IF NOT VALID-HANDLE(adm-broker-hdl) THEN
   output-name = "users~/" + USERID("NOSWEAT") + "~/Program Master List.rpt".
+  
+  RUN sys/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+  THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdFileSysProcs).
+
+  RUN CreateFolder("users~/" + USERID("NOSWEAT") , OUTPUT lFolderCreated ).
+  THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdFileSysProcs). 
+
   OUTPUT TO VALUE(output-name).
   OUTPUT CLOSE.
   RUN Process-Selections.
