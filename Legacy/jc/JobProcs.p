@@ -383,6 +383,22 @@ PROCEDURE ValidateJob:
           
 END PROCEDURE.
 
+PROCEDURE ValidateJobHdr:
+    /*------------------------------------------------------------------------------
+     Purpose: Validate Job Header
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidJob     AS LOGICAL   NO-UNDO.
+    
+    oplValidJob = CAN-FIND(FIRST job-hdr NO-LOCK
+            WHERE job-hdr.company  EQ ipcCompany
+              AND job-hdr.job-no   EQ ipcJobno
+              AND job-hdr.job-no2  EQ ipiJobno2).          
+END PROCEDURE.
+
 PROCEDURE GetJobHdrDetails:
     /*------------------------------------------------------------------------------
      Purpose: Fetch Order number, customer number and item number form job-mch 
