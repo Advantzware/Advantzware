@@ -1970,11 +1970,13 @@ PROCEDURE create-from-po :
 
     IF NOT ip-set-parts AND lMultipleAdds THEN RUN fg/invrecpt.p (rwRowid, 1).
     
-    IF lMultipleAdds EQ NO AND op-rowid NE ? THEN
+    IF lMultipleAdds EQ NO AND op-rowid NE ? THEN do:
         FIND FIRST fg-rctd NO-LOCK
             WHERE ROWID(fg-rctd) EQ op-rowid
             NO-ERROR.
-  
+        IF AVAIL fg-rctd THEN
+           fg-rctd.tag:SCREEN-VALUE IN FRAME {&frame-name} = fg-rctd.tag .
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
