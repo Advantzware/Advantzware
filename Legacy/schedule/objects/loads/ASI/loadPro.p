@@ -242,6 +242,7 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE VARIABLE itemDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobBoard AS LOGICAL NO-UNDO.
 DEFINE VARIABLE jobDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE jobMchID AS INTEGER NO-UNDO.
 DEFINE VARIABLE jobNumber AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobSort AS CHARACTER NO-UNDO.
 DEFINE VARIABLE keyValues AS CHARACTER NO-UNDO.
@@ -1003,6 +1004,7 @@ FOR EACH job-hdr NO-LOCK
       customVal      = SUBSTR(customValueList,2)
       lagTime        = job-mch.lag-time
       liveUpdate     = job-mch.sbLiveUpdate
+      jobMchID       = job-mch.job-mchID
       userField[1]   = setUserField(1,custNo)
       userField[2]   = setUserField(2,custName)
       userField[5]   = setUserField(5,IF AVAILABLE eb THEN eb.die-no ELSE '')

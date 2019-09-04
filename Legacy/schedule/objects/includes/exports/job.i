@@ -119,6 +119,10 @@
 &SCOPED-DEFINE lagTime lagTime
 &ENDIF
 
+&IF DEFINED(jobMchID) EQ 0 &THEN
+&SCOPED-DEFINE jobMchID jobMchID
+&ENDIF
+
 EXPORT STREAM {&streamName}
   {&resource}
   {&jobSequence}
@@ -151,4 +155,5 @@ EXPORT STREAM {&streamName}
   {&liveUpdate}
   {&lagTime}
   {&jobToolTip}
+  {&jobMchID}
   .
