@@ -745,8 +745,9 @@ PROCEDURE Display_Keyboard :
       IF VALID-HANDLE(h_numeric) THEN
       DELETE PROCEDURE h_numeric.
       Keyboard_Name = 'touch/' + Keyboard_Name + 'w'.
-      RUN VALUE(Keyboard_Name)
-          PERSISTENT SET h_numeric (Frame_Handle,THIS-PROCEDURE).
+      RUN VALUE(Keyboard_Name) PERSISTENT SET h_numeric (Frame_Handle,THIS-PROCEDURE).
+      IF VALID-HANDLE(h_numeric) THEN
+      RUN pSetPosition IN h_numeric (125, 1).
     END.
     OTHERWISE
     DO:
