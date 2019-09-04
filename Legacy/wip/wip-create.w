@@ -60,6 +60,8 @@ DEFINE VARIABLE hdJobProcs        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdBrowseQuery     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdBrowseBuffer    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdNumericKeyBoard AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdJobDetails      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdJobDetailsWin   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lCreated          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobno2ListItems  AS CHARACTER NO-UNDO.
@@ -172,6 +174,11 @@ DEFINE BUTTON btCreated
      LABEL "Cr - 0" 
      SIZE 17.6 BY 2 TOOLTIP "Filter Created Tags"
      FONT 37.
+
+DEFINE BUTTON btJobDetails 
+     IMAGE-UP FILE "Graphics/32x32/form.ico":U
+     LABEL "" 
+     SIZE 9.6 BY 2.29 TOOLTIP "Job Details".
 
 DEFINE BUTTON btnDelete 
      IMAGE-UP FILE "Graphics/32x32/delete.ico":U
@@ -351,6 +358,7 @@ DEFINE BROWSE br-table
 DEFINE FRAME F-Main
      bt-exit AT ROW 2.19 COL 192 WIDGET-ID 84
      ls-tag AT ROW 1.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     btJobDetails AT ROW 2.19 COL 164 WIDGET-ID 154
      btnNumPad AT ROW 2.38 COL 178.6 WIDGET-ID 120
      btnKeyboard AT ROW 3.62 COL 15 WIDGET-ID 132
      ls-jobno AT ROW 3.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 10
@@ -384,12 +392,6 @@ DEFINE FRAME F-Main
      "Machine/Op:" VIEW-AS TEXT
           SIZE 18.8 BY 1.33 AT ROW 6 COL 4.2 WIDGET-ID 92
           FONT 36
-     "Qty/Tag:" VIEW-AS TEXT
-          SIZE 13.4 BY 1.33 AT ROW 8.38 COL 44.6 WIDGET-ID 96
-          FONT 36
-     "#Tags:" VIEW-AS TEXT
-          SIZE 11 BY 1.33 AT ROW 8.38 COL 86 WIDGET-ID 104
-          FONT 36
      "RM or WIP Tag:" VIEW-AS TEXT
           SIZE 23 BY 1.33 AT ROW 1.71 COL 9.6 WIDGET-ID 86
           FONT 36
@@ -399,14 +401,20 @@ DEFINE FRAME F-Main
      "Run Qty:" VIEW-AS TEXT
           SIZE 13 BY 1.33 AT ROW 8.43 COL 4 WIDGET-ID 100
           FONT 36
+     "Form #:" VIEW-AS TEXT
+          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
+          FONT 36
+     "Qty/Tag:" VIEW-AS TEXT
+          SIZE 13.4 BY 1.33 AT ROW 8.38 COL 44.6 WIDGET-ID 96
+          FONT 36
      "Job #:" VIEW-AS TEXT
           SIZE 11 BY 1.33 AT ROW 3.62 COL 23 WIDGET-ID 12
           FONT 36
      "Blank #:" VIEW-AS TEXT
           SIZE 14 BY 1.33 AT ROW 3.81 COL 115.2 WIDGET-ID 58
           FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
+     "#Tags:" VIEW-AS TEXT
+          SIZE 11 BY 1.33 AT ROW 8.38 COL 86 WIDGET-ID 104
           FONT 36
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 118
@@ -480,6 +488,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON bt-adjust-qty IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bt-print-selected IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btJobDetails IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnDelete IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -555,13 +565,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Create WIP */
-DO:
-    IF VALID-HANDLE(hdInventoryProcs) THEN
-        DELETE OBJECT hdInventoryProcs.
-
-    IF VALID-HANDLE(hdOutputProcs) THEN
-        DELETE OBJECT hdOutputProcs.
-    
+DO:    
     /* This ADM code must be left here in order for the SmartWindow
        and its descendents to terminate properly on exit. */
 
@@ -720,7 +724,21 @@ ON CHOOSE OF bt-exit IN FRAME F-Main
 DO:
     IF VALID-HANDLE(hKeyboard) THEN
         DELETE OBJECT hKeyboard.
-    APPLY "CLOSE":U TO THIS-PROCEDURE.    
+
+    IF VALID-HANDLE(hdInventoryProcs) THEN
+        DELETE OBJECT hdInventoryProcs.
+
+    IF VALID-HANDLE(hdOutputProcs) THEN
+        DELETE OBJECT hdOutputProcs.
+
+    IF VALID-HANDLE(hdJobDetailsWin) THEN
+        APPLY "WINDOW-CLOSE" TO hdJobDetailsWin.
+
+    IF VALID-HANDLE(hdJobDetails) THEN
+        DELETE OBJECT hdInventoryProcs.
+
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    
     RETURN.
 END.
 
@@ -805,6 +823,45 @@ DO:
     RUN pHighlightButton (
         INPUT gcStatusStockInitial
         ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btJobDetails
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btJobDetails W-Win
+ON CHOOSE OF btJobDetails IN FRAME F-Main
+DO:
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    IF NOT VALID-HANDLE(hdJobDetails) THEN DO:         
+        RUN inventory/job-details.w PERSISTENT SET hdJobDetails.
+
+        RUN dispatch IN hdJobDetails (
+            INPUT 'initialize':U
+            ) NO-ERROR.
+        
+        hdJobDetailsWin = hdJobDetails:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdJobDetails) AND
+        VALID-HANDLE(hdJobDetailsWin) THEN DO:        
+        RUN pInit IN hdJobDetails (
+            INPUT ipcCompany,
+            INPUT ipcLocation,
+            INPUT ls-jobno:SCREEN-VALUE,
+            INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+            INPUT INTEGER(cb-formno:SCREEN-VALUE),
+            INPUT INTEGER(cb-blankno:SCREEN-VALUE)
+            ) NO-ERROR.            
+
+        IF hdJobDetailsWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdJobDetailsWin:WINDOW-STATE = 3.
+        
+        hdJobDetailsWin:MOVE-TO-TOP().
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1060,15 +1117,19 @@ DO:
     
     IF cValidateJobno EQ ls-jobno:SCREEN-VALUE THEN
         RETURN.
-         
+    
+    SESSION:SET-WAIT-STATE("GENERAL").     
+    
     RUN disableCreate.
 
     ASSIGN 
-        cJobno2ListItems  = ""
-        cFormnoListItems  = ""
-        cBlanknoListitems = ""
-        cMachineListItems = ""
-        cMessage          = "".
+        cJobno2ListItems       = ""
+        cFormnoListItems       = ""
+        cBlanknoListitems      = ""
+        cMachineListItems      = ""
+        cMessage               = ""
+        btJobDetails:SENSITIVE = FALSE
+        .
         
     RUN JobParser IN hdJobProcs (
         SELF:SCREEN-VALUE,
@@ -1092,6 +1153,7 @@ DO:
                               ).
 
     IF cMessage NE "" THEN DO:
+        SESSION:SET-WAIT-STATE("").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
@@ -1153,7 +1215,9 @@ DO:
             VIEW-AS ALERT-BOX ERROR.
         SELF:SCREEN-VALUE = "".
     END.
-                        
+    ELSE
+        btJobDetails:SENSITIVE = TRUE.
+                            
     cValidateJobno = ls-jobno:SCREEN-VALUE.    
                            
     RUN rebuildTempTable (
@@ -1163,8 +1227,9 @@ DO:
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        ).
-    
+        ).    
+
+    SESSION:SET-WAIT-STATE("").        
 END.
 
 /* _UIB-CODE-BLOCK-END */
