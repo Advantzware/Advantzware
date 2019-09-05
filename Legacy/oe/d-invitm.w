@@ -1633,30 +1633,40 @@ PROCEDURE valid-uom :
   Notes:       
 ------------------------------------------------------------------------------*/
   lError = NO .
-  DEF VAR lv-uom AS CHAR NO-UNDO.
-  DEF VAR ld AS DEC NO-UNDO.
+  DEFINE VARIABLE cUom AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lValid AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE cValidMessage AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+  
+{&methods/lValidateError.i YES}
+
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdValidator).
   
   DO WITH FRAME {&FRAME-NAME}:
-      lv-uom = inv-line.pr-uom:SCREEN-VALUE.
+      cUom = inv-line.pr-uom:SCREEN-VALUE.
 
-      IF TRIM(lv-uom)EQ "" THEN DO:
-          MESSAGE 
-              "UOM can't be blank. Please enter a valid UOM."
+      RUN pIsValidUOM IN hdValidator (cUom, YES, OUTPUT lValid, OUTPUT cValidMessage).
+      IF NOT lValid THEN DO:
+          MESSAGE  cValidMessage
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
-         lError = YES .
-         APPLY "entry" TO inv-line.pr-uom .
+          lError = YES .
+          lCheckError = YES .
+          APPLY "entry" TO inv-line.pr-uom .
       END.
 
-      IF NOT lError AND NOT CAN-FIND(FIRST uom
-                      WHERE uom.uom EQ lv-uom
-                      AND CAN-DO(lv-uom-list,uom.uom)) THEN DO:
-          MESSAGE "UOM is invalid, try help..."
-              VIEW-AS ALERT-BOX ERROR.
+      RUN pIsValidFromList IN hdValidator ("Uom", cUom, lv-uom-list, OUTPUT lValid, OUTPUT cValidMessage). 
+      
+      IF NOT lValid AND NOT lCheckError THEN DO:
+          MESSAGE  "UOM is invalid, try help..."
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
           lError = YES .
           APPLY "entry" TO inv-line.pr-uom .
       END.
-  END.
-
+   END.
+   THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdValidator). 
+{&methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
