@@ -294,7 +294,7 @@ tt-relbol.trailer  tt-relbol.cases  tt-relbol.loc  tt-relbol.loc-bin  tt-relbol.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table scr-rel# 
-&Scoped-Define DISPLAYED-OBJECTS v-rel-qty v-scan-qty scr-rel# 
+&Scoped-Define DISPLAYED-OBJECTS v-rel-qty v-scan-qty scr-rel# iRelPallets 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -361,11 +361,25 @@ FUNCTION get-bal RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD roundUp B-table-Win 
+FUNCTION roundUp RETURNS INTEGER
+  ( ipround as decimal )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE iRelPallets AS INTEGER FORMAT "->>>>>9":U INITIAL 0 
+     LABEL "Rel. Qty Pallets" 
+     VIEW-AS FILL-IN 
+     SIZE 12.8 BY 1
+     BGCOLOR 14  NO-UNDO.
+
 DEFINE VARIABLE scr-rel# AS INTEGER FORMAT ">>>>>>>>>":U INITIAL 0 
      LABEL "Release#" 
      VIEW-AS FILL-IN 
@@ -433,6 +447,7 @@ DEFINE FRAME F-Main
      v-rel-qty AT ROW 1 COL 34 COLON-ALIGNED
      v-scan-qty AT ROW 1 COL 61 COLON-ALIGNED
      scr-rel# AT ROW 1 COL 10 COLON-ALIGNED WIDGET-ID 6
+     iRelPallets AT ROW 1 COL 94.2 COLON-ALIGNED WIDGET-ID 8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -493,6 +508,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN iRelPallets IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN v-rel-qty IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN v-scan-qty IN FRAME F-Main
@@ -585,8 +602,6 @@ END.
 &ANALYZE-RESUME
 
 
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -658,6 +673,7 @@ DO:
     v-rel-qty = 0
     v-job-qty = 0
     v-qoh     = 0.
+    iRelPallets = 0.
     RUN ordStatCheck (OUTPUT lOrderOnHold).
        
     IF lOrderOnHold THEN DO:
@@ -673,11 +689,14 @@ DO:
         USE-INDEX r-no NO-LOCK BREAK BY oe-rell.i-no BY oe-rell.LINE:
         IF FIRST-OF(oe-rell.i-no) THEN lv-num-item = lv-num-item + 1.
         v-rel-qty = v-rel-qty + oe-rell.qty.
-        IF LAST-OF(oe-rell.LINE) THEN DO:
-            FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ oe-relh.company
+        FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ oe-relh.company
                                    AND b-oe-ordl.ord-no  EQ oe-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ oe-rell.LINE
                                  NO-LOCK NO-ERROR.
+        IF AVAIL b-oe-ordl THEN
+        iRelPallets = iRelPallets + roundUp(oe-rell.qty / b-oe-ordl.cases-unit) .
+        IF LAST-OF(oe-rell.LINE) THEN DO:
+            
             IF AVAIL b-oe-ordl THEN
                 v-job-qty = get-bal().
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ oe-relh.company
@@ -687,7 +706,7 @@ DO:
                 v-qoh = b-itemfg.q-onh.
         END.
     END.
-    IF lv-num-item = 1 THEN DISPLAY v-rel-qty WITH FRAME {&FRAME-NAME}.
+    IF lv-num-item = 1 THEN DISPLAY v-rel-qty iRelPallets WITH FRAME {&FRAME-NAME}.
     RETURN .
 END.
 
@@ -1084,15 +1103,11 @@ DO:
    END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
-
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -1735,6 +1750,7 @@ PROCEDURE display-qtys :
      lv-release# = INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
      v-release# = lv-release#  /* Set in case something was entered after printing & clearing value */
      lv-i-no     = tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}.
+     iRelPallets = 0.
 
     IF lv-release# NE 0 AND TRIM(lv-i-no) NE "" THEN DO:
       FOR EACH bf-tmp
@@ -1753,11 +1769,16 @@ PROCEDURE display-qtys :
           BREAK BY b-rell.ord-no
                 BY b-rell.LINE:
         v-rel-qty = v-rel-qty + b-rell.qty.
-        IF LAST-OF(b-rell.LINE) THEN DO:
-            FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ b-relh.company
+
+        FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ b-relh.company
                                    AND b-oe-ordl.ord-no  EQ b-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
+
+        IF AVAIL b-oe-ordl THEN
+        iRelPallets = iRelPallets + roundUp(oe-rell.qty / b-oe-ordl.cases-unit) .
+        IF LAST-OF(b-rell.LINE) THEN DO:
+            
             IF AVAIL b-oe-ordl THEN
                 v-job-qty = get-bal().
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ b-relh.company
@@ -1769,7 +1790,7 @@ PROCEDURE display-qtys :
       END.
     END.
 
-    DISPLAY /* v-job-qty v-qoh */ v-rel-qty v-scan-qty.
+    DISPLAY /* v-job-qty v-qoh */ v-rel-qty v-scan-qty iRelPallets.
     IF v-scan-qty <> v-rel-qty  THEN  
         v-scan-qty:BGCOLOR =  12 .
     ELSE v-scan-qty:BGCOLOR =  10 .
@@ -1798,6 +1819,7 @@ PROCEDURE display-qtys-query :
     ASSIGN
      v-scan-qty  = 0
      v-rel-qty   = 0.
+     iRelPallets = 0.
 
     IF lv-release# NE 0 AND TRIM(lv-i-no) NE "" THEN DO:
       FOR EACH bf-tmp
@@ -1814,10 +1836,17 @@ PROCEDURE display-qtys-query :
             AND b-rell.i-no EQ lv-i-no
           USE-INDEX r-no :
         v-rel-qty = v-rel-qty + b-rell.qty.
+        FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ b-relh.company
+                                   AND b-oe-ordl.ord-no  EQ b-rell.ord-no
+                                   AND b-oe-ordl.LINE    EQ b-rell.LINE
+                                 NO-LOCK NO-ERROR.
+        IF AVAIL b-oe-ordl THEN
+        iRelPallets = iRelPallets + roundUp(b-rell.qty / b-oe-ordl.cases-unit) .
+
       END.
     END.
 
-    DISPLAY v-rel-qty v-scan-qty.
+    DISPLAY v-rel-qty v-scan-qty iRelPallets.
     IF v-scan-qty <> v-rel-qty  THEN  
         v-scan-qty:BGCOLOR =  12 .
     ELSE v-scan-qty:BGCOLOR =  10 .
@@ -2175,9 +2204,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win
-PROCEDURE local-add-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win 
+PROCEDURE local-add-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2196,11 +2224,9 @@ PROCEDURE local-add-record:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record B-table-Win 
 PROCEDURE local-assign-record :
@@ -2398,7 +2424,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
 PROCEDURE local-enable-fields :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -2421,10 +2447,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
-PROCEDURE local-exit:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win 
+PROCEDURE local-exit :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -2442,11 +2467,9 @@ PROCEDURE local-exit:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
@@ -2846,8 +2869,9 @@ PROCEDURE print-bol :
      v-release# = 0
      v-rel-qty = 0
      v-scan-qty = 0.
+     iRelPallets = 0.
 
-  DISPLAY scr-rel# v-rel-qty v-scan-qty WITH FRAME {&FRAME-NAME}.
+  DISPLAY scr-rel# v-rel-qty v-scan-qty iRelPallets WITH FRAME {&FRAME-NAME}.
   IF v-scan-qty <> v-rel-qty  THEN  
         v-scan-qty:BGCOLOR IN FRAME {&FRAME-NAME}  =  12 .
     ELSE v-scan-qty:BGCOLOR IN FRAME {&FRAME-NAME} =  10 .
@@ -3579,7 +3603,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION comma B-table-Win 
@@ -3621,3 +3644,21 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION roundUp B-table-Win 
+FUNCTION roundUp RETURNS INTEGER
+  (  ipround as decimal ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  IF ipround = truncate( ipround, 0 ) then
+    return integer( ipround ).
+   else
+    return integer( truncate( ipround, 0 ) + 1 ).
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
