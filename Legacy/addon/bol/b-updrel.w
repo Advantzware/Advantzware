@@ -239,7 +239,7 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
 IF AVAIL oe-ctrl THEN
   gvlCheckOrdStat = (IF oe-ctrl.spare-int-1 EQ 0 THEN YES ELSE NO).
 
-PROCEDURE mail EXTERNAL "xpMail.dll" :
+fPROCEDURE mail EXTERNAL "xpMail.dll" :
     DEF INPUT PARAM mailTo AS CHAR.
     DEF INPUT PARAM mailsubject AS CHAR.
     DEF INPUT PARAM mailText AS CHAR.
@@ -3387,7 +3387,9 @@ PROCEDURE update-ssrelbol :
    DO:
        CREATE ssrelbol.
        BUFFER-COPY tt-relbol TO ssrelbol
-          ASSIGN ssrelbol.company = cocode.
+          ASSIGN ssrelbol.company = cocode
+                 tt-relbol.ROWID = ROWID(ssrelbol)
+                 .
        RELEASE ssrelbol.
    END.
 END PROCEDURE.
