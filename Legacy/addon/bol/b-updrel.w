@@ -239,7 +239,7 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
 IF AVAIL oe-ctrl THEN
   gvlCheckOrdStat = (IF oe-ctrl.spare-int-1 EQ 0 THEN YES ELSE NO).
 
-fPROCEDURE mail EXTERNAL "xpMail.dll" :
+PROCEDURE mail EXTERNAL "xpMail.dll" :
     DEF INPUT PARAM mailTo AS CHAR.
     DEF INPUT PARAM mailsubject AS CHAR.
     DEF INPUT PARAM mailText AS CHAR.
