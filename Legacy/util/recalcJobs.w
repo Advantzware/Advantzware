@@ -49,6 +49,7 @@ FIELD std-var-cost-after LIKE job.std-var-cost
 INDEX i1 job-no job-no2
 .
 DEFINE BUFFER bf-job-hdr FOR job-hdr.
+DEFINE VARIABLE hdOutputProcs AS HANDLE        NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -75,10 +76,10 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr.
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiFromJobNo fiFromJobNo2 fiToJobNo ~
-fiToJobNo2 btn-process btn-cancel RECT-17 
-&Scoped-Define DISPLAYED-OBJECTS fiFromJobNo fiFromJobNo2 fiToJobNo ~
-fiToJobNo2 
+&Scoped-Define ENABLED-OBJECTS fiExportFile fiFromJobNo fiFromJobNo2 ~
+fiToJobNo fiToJobNo2 btn-process btn-cancel RECT-17 
+&Scoped-Define DISPLAYED-OBJECTS fiExportFile fiFromJobNo fiFromJobNo2 ~
+fiToJobNo fiToJobNo2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -101,6 +102,11 @@ DEFINE BUTTON btn-cancel
 DEFINE BUTTON btn-process 
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
+
+DEFINE VARIABLE fiExportFile AS CHARACTER FORMAT "X(256)":U INITIAL "c:~\tmp~\jobRecalc.csv" 
+     LABEL "Backup File" 
+     VIEW-AS FILL-IN 
+     SIZE 52 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiFromJobNo AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Job#" 
@@ -133,6 +139,7 @@ DEFINE QUERY FRAME-A FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
+     fiExportFile AT ROW 8.14 COL 29 COLON-ALIGNED WIDGET-ID 10
      fiFromJobNo AT ROW 4.33 COL 29 COLON-ALIGNED WIDGET-ID 2
      fiFromJobNo2 AT ROW 4.33 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 6
      fiToJobNo AT ROW 5.52 COL 29 COLON-ALIGNED WIDGET-ID 4
@@ -276,18 +283,21 @@ DO:
   DEF VAR ll-process AS LOG NO-UNDO.
 
 
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&displayed-objects}.
+        END.
+        /* Errors out if file can't be written to */
+        OUTPUT TO VALUE(fiExportFile) APPEND.
+        PUT UNFORMATTED "".
+        OUTPUT CLOSE.
+        ll-process  = NO.
 
-  ll-process  = NO.
+        MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
+            " for the selected parameters?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-process.
 
-  MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
-          " for the selected parameters?"
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-process.
-
-  IF ll-process THEN RUN run-process.
-END.
+        IF ll-process THEN RUN run-process.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -365,10 +375,10 @@ PROCEDURE enable_UI :
 
   {&OPEN-QUERY-FRAME-A}
   GET FIRST FRAME-A.
-  DISPLAY fiFromJobNo fiFromJobNo2 fiToJobNo fiToJobNo2 
+  DISPLAY fiExportFile fiFromJobNo fiFromJobNo2 fiToJobNo fiToJobNo2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE fiFromJobNo fiFromJobNo2 fiToJobNo fiToJobNo2 btn-process btn-cancel 
-         RECT-17 
+  ENABLE fiExportFile fiFromJobNo fiFromJobNo2 fiToJobNo fiToJobNo2 btn-process 
+         btn-cancel RECT-17 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -380,113 +390,122 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
 DEFINE VARIABLE dQty AS DECIMAL NO-UNDO.    
-
-DO WITH FRAME {&FRAME-NAME}:
+    DEFINE VARIABLE cOutputFileName AS CHARACTER NO-UNDO.
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    DO WITH FRAME {&FRAME-NAME}:
     
-ASSIGN 
-    fiFromJobNo
-    fiToJobNo
-    fiFromJobNo2
-    fiToJobNo2
-    .
-  SESSION:SET-WAIT-STATE("General").
-  FOR EACH ttSaveCosts:
-      DELETE ttSaveCosts.
-  END.
-        
-  FOR EACH job no-lock
-    WHERE job.company EQ cocode
-      AND job.opened EQ TRUE  /* Per Spec run for opened jobs */
-      AND job.job-no GE fiFromJobNo
-      AND job.job-no LE fiToJobNo
-      AND job.job-no2 GE fiFromJobNo2
-      AND job.job-no2 LE fiToJobNo2
-    BREAK BY job.job-no
-          BY job.job-no2
-    :
-    
-    
-    IF FIRST-OF(job.job-no2) THEN DO:
-       FIND FIRST job-hdr NO-LOCK
-          WHERE job-hdr.company EQ cocode
-            AND job-hdr.job     EQ job.job
-            AND job-hdr.job-no  EQ job.job-no
-            AND job-hdr.job-no2 EQ job.job-no2   
-          NO-ERROR.
-          
-        IF NOT AVAIL job-hdr THEN 
-           NEXT.
-                
-        RUN fg/GetProductionQty.p
-            (
-             INPUT job-hdr.company,
-             INPUT job-hdr.job-no,
-             INPUT job-hdr.job-no2,
-             INPUT job-hdr.i-no,
-             INPUT NO,
-             OUTPUT dQty
-             ).
-
-        /* Per spec, run for jobs that have production qty = 0 */
-        IF dQty NE 0 THEN 
-          NEXT.
-        STATUS DEFAULT job.job-no + "-" + STRING(job.job-no2, "99").
-        FOR EACH job-hdr NO-LOCK
-          WHERE job-hdr.company EQ cocode
-            AND job-hdr.job     EQ job.job
-            AND job-hdr.job-no  EQ job.job-no
-            AND job-hdr.job-no2 EQ job.job-no2    
-          :         
-        
-        CREATE ttSaveCosts.
-        ASSIGN       
-            ttSaveCosts.job-no = job.job-no
-            ttSaveCosts.job-no2 = job.job-no2
-            ttSaveCosts.i-no  = job-hdr.i-no
-            ttSaveCosts.frm   = job-hdr.frm
-            ttSaveCosts.blank-no = job-hdr.blank-no
-            ttSaveCosts.std-fix-cost-before = job-hdr.std-fix-cost
-            ttSaveCosts.std-lab-cost-before = job-hdr.std-lab-cost
-            ttSaveCosts.std-mat-cost-before = job-hdr.std-mat-cost
-            ttSaveCosts.std-var-cost-before = job-hdr.std-var-cost
+        ASSIGN 
+            fiFromJobNo
+            fiToJobNo
+            fiFromJobNo2
+            fiToJobNo2
+            fiExportFile
             .
-        END. 
-        RUN jc/jc-calc.p (RECID(job), NO) NO-ERROR.
+        cOutputFileName = fiExportFile.
+        
+        SESSION:SET-WAIT-STATE("General").
+        FOR EACH ttSaveCosts:
+            DELETE ttSaveCosts.
+        END.
+        
+        FOR EACH job NO-LOCK
+            WHERE job.company EQ cocode
+            AND job.opened EQ TRUE  /* Per Spec run for opened jobs */
+            AND job.job-no GE fiFromJobNo
+            AND job.job-no LE fiToJobNo
+            AND job.job-no2 GE fiFromJobNo2
+            AND job.job-no2 LE fiToJobNo2
+            BREAK BY job.job-no
+            BY job.job-no2
+            :
+        
+            IF FIRST-OF(job.job-no2) THEN 
+            DO:
+                FIND FIRST job-hdr NO-LOCK
+                    WHERE job-hdr.company EQ cocode
+                    AND job-hdr.job     EQ job.job
+                    AND job-hdr.job-no  EQ job.job-no
+                    AND job-hdr.job-no2 EQ job.job-no2   
+                    NO-ERROR.
+          
+                IF NOT AVAIL job-hdr THEN 
+                    NEXT.
+                
+                RUN fg/GetProductionQty.p
+                    (
+                    INPUT job-hdr.company,
+                    INPUT job-hdr.job-no,
+                    INPUT job-hdr.job-no2,
+                    INPUT job-hdr.i-no,
+                    INPUT NO,
+                    OUTPUT dQty
+                    ).
+
+                /* Per spec, run for jobs that have production qty = 0 */
+                IF dQty NE 0 THEN 
+                    NEXT.
+          
+                STATUS DEFAULT job.job-no + "-" + STRING(job.job-no2, "99").
+                FOR EACH job-hdr NO-LOCK
+                    WHERE job-hdr.company EQ cocode
+                    AND job-hdr.job     EQ job.job
+                    AND job-hdr.job-no  EQ job.job-no
+                    AND job-hdr.job-no2 EQ job.job-no2    
+                    :         
+        
+                    CREATE ttSaveCosts.
+                    ASSIGN       
+                        ttSaveCosts.job-no              = job.job-no
+                        ttSaveCosts.job-no2             = job.job-no2
+                        ttSaveCosts.i-no                = job-hdr.i-no
+                        ttSaveCosts.frm                 = job-hdr.frm
+                        ttSaveCosts.blank-no            = job-hdr.blank-no
+                        ttSaveCosts.std-fix-cost-before = job-hdr.std-fix-cost
+                        ttSaveCosts.std-lab-cost-before = job-hdr.std-lab-cost
+                        ttSaveCosts.std-mat-cost-before = job-hdr.std-mat-cost
+                        ttSaveCosts.std-var-cost-before = job-hdr.std-var-cost
+                        .
+                END. 
+        
+                RUN jc/jc-calc.p (RECID(job), NO) NO-ERROR.
+        
+                FOR EACH job-hdr NO-LOCK
+                    WHERE job-hdr.company EQ cocode
+                    AND job-hdr.job     EQ job.job
+                    AND job-hdr.job-no  EQ job.job-no
+                    AND job-hdr.job-no2 EQ job.job-no2    
+                    :    
+                    FIND FIRST ttSaveCosts 
+                        WHERE ttSaveCosts.job-no = job.job-no
+                          AND ttSaveCosts.job-no2 = job.job-no2
+                          AND ttSaveCosts.i-no  = job-hdr.i-no
+                          AND ttSaveCosts.frm   = job-hdr.frm
+                          AND ttSaveCosts.blank-no = job-hdr.blank-no
+                          NO-ERROR.
+                    IF AVAIL ttSaveCosts THEN 
+                        ASSIGN       
+                            ttSaveCosts.std-fix-cost-after = job-hdr.std-fix-cost
+                            ttSaveCosts.std-lab-cost-after = job-hdr.std-lab-cost
+                            ttSaveCosts.std-mat-cost-after = job-hdr.std-mat-cost
+                            ttSaveCosts.std-var-cost-after = job-hdr.std-var-cost
+                            . 
+                END.
+            END. /* first of job-no2 */
     
+        END. /* Each job, each job-hdr */
+        
+        RUN TempTableToCSV IN hdOutputProcs ( 
+            INPUT TEMP-TABLE ttSaveCosts:HANDLE,
+            INPUT cOutputFileName,
+            INPUT TRUE
+            ).
+
+        SESSION:SET-WAIT-STATE("").
     END. 
-    FOR EACH job-hdr NO-LOCK
-          WHERE job-hdr.company EQ cocode
-            AND job-hdr.job     EQ job.job
-            AND job-hdr.job-no  EQ job.job-no
-            AND job-hdr.job-no2 EQ job.job-no2    
-          :    
-        FIND FIRST ttSaveCosts WHERE 
-                ttSaveCosts.job-no = job.job-no
-                AND ttSaveCosts.job-no2 = job.job-no2
-                AND ttSaveCosts.i-no  = job-hdr.i-no
-                AND ttSaveCosts.frm   = job-hdr.frm
-                AND ttSaveCosts.blank-no = job-hdr.blank-no
-                .
-        ASSIGN       
-            ttSaveCosts.std-fix-cost-after = job-hdr.std-fix-cost
-            ttSaveCosts.std-lab-cost-after = job-hdr.std-lab-cost
-            ttSaveCosts.std-mat-cost-after = job-hdr.std-mat-cost
-            ttSaveCosts.std-var-cost-after = job-hdr.std-var-cost
-            .        
-    END.
-  END. /* Each job, each job-hdr */
-    
-    OUTPUT TO c:\tmp\recalcJobs.log APPEND.
-    FOR EACH ttSaveCosts:
-        EXPORT DELIMITER "," ttSaveCosts.
-    END.
-    OUTPUT CLOSE.
-
-   SESSION:SET-WAIT-STATE("").
-END. 
-MESSAGE TRIM(c-win:TITLE) + " Process is Completed..." VIEW-AS ALERT-BOX.
-
-APPLY "close" TO THIS-PROCEDURE.
+    MESSAGE TRIM(c-win:TITLE) + " Process is Completed..." VIEW-AS ALERT-BOX.
+    IF VALID-HANDLE(hdOutputProcs) THEN
+        DELETE OBJECT hdOutputProcs.
+    APPLY "close" TO THIS-PROCEDURE.
 
 END PROCEDURE.
 
