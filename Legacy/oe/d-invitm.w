@@ -46,6 +46,7 @@ DEF VAR v-print-head LIKE sys-ctrl.log-fld NO-UNDO.
 DEF VAR v-print-fmt LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR glInvQtyChanged AS LOG NO-UNDO.
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lMessageError AS LOGICAL NO-UNDO .
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 DEF NEW SHARED BUFFER xinv-line FOR inv-line.
 DEF NEW SHARED BUFFER xinv-head FOR inv-head.
@@ -548,6 +549,9 @@ DO:
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+   RUN valid-s-man (0) NO-ERROR.
+   IF NOT lMessageError THEN RETURN NO-APPLY.
+
   FIND CURRENT inv-line.
 
   EMPTY TEMP-TABLE w-inv-line.
@@ -882,6 +886,75 @@ END.
 ON LEAVE OF inv-line.qty IN FRAME Dialog-Frame /* Qty Order */
 DO:
    {oe/ordltot.i inv-line qty}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[1] Dialog-Frame
+ON LEAVE OF inv-line.sman[1] IN FRAME Dialog-Frame /* sales man 1 */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+       RUN valid-s-man (1) NO-ERROR.
+       IF NOT lMessageError THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[1] Dialog-Frame
+ON VALUE-CHANGED OF inv-line.sman[1] IN FRAME Dialog-Frame /* sales man 1 */
+DO:
+   RUN new-s-man (1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[2] Dialog-Frame
+ON LEAVE OF inv-line.sman[2] IN FRAME Dialog-Frame /* sales man 2 */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+       RUN valid-s-man (2) NO-ERROR.
+       IF NOT lMessageError THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[2] Dialog-Frame
+ON VALUE-CHANGED OF inv-line.sman[2] IN FRAME Dialog-Frame /* sales man 2 */
+DO:
+   RUN new-s-man (2).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[3] Dialog-Frame
+ON LEAVE OF inv-line.sman[3] IN FRAME Dialog-Frame /* sales man 3 */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+       RUN valid-s-man (3) NO-ERROR.
+       IF NOT lMessageError THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[3] Dialog-Frame
+ON VALUE-CHANGED OF inv-line.sman[3] IN FRAME Dialog-Frame /* sales man 3 */
+DO:
+   RUN new-s-man (3).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1598,6 +1671,112 @@ PROCEDURE hide-comm :
         inv-line.comm-amt[1]:HIDDEN IN FRAME {&FRAME-NAME}  = ip-hidden
         inv-line.comm-amt[2]:HIDDEN IN FRAME {&FRAME-NAME} = ip-hidden
         inv-line.comm-amt[3]:HIDDEN IN FRAME {&FRAME-NAME} = ip-hidden .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-man V-table-Win 
+PROCEDURE valid-s-man :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-int AS INT NO-UNDO.
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
+  lMessageError = YES .
+  li = ip-int.
+
+  IF li EQ 0 THEN
+    ASSIGN
+     ip-int = 1
+     li     = 3.
+
+  DO ip-int = ip-int TO li WITH FRAME {&FRAME-NAME}:
+    lv-sman = IF ip-int EQ 3 THEN inv-line.sman[3]:SCREEN-VALUE
+              ELSE
+              IF ip-int EQ 2 THEN inv-line.sman[2]:SCREEN-VALUE
+                             ELSE inv-line.sman[1]:SCREEN-VALUE.
+    
+    IF lv-sman NE "" THEN DO:
+      IF NOT CAN-FIND(FIRST sman
+                      WHERE sman.company EQ cocode
+                        AND sman.sman    EQ lv-sman) THEN DO:
+        MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+        IF ip-int EQ 3 THEN APPLY "entry" TO inv-line.sman[3].
+        ELSE
+        IF ip-int EQ 2 THEN APPLY "entry" TO inv-line.sman[2].
+                       ELSE APPLY "entry" TO inv-line.sman[1].
+        lMessageError = NO .
+      END.
+    END.
+
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-s-man V-table-Win 
+PROCEDURE new-s-man :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-int AS INT NO-UNDO.
+
+  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
+  DEF VAR ll-all AS LOG NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
+
+
+  IF ip-int EQ 0 THEN
+    ASSIGN
+     li     = 3
+     ip-int = 1
+     ll-all = YES.
+  ELSE
+    li = ip-int.
+
+  DO ip-int = ip-int TO li WITH FRAME {&FRAME-NAME}:
+    lv-sman = IF ip-int EQ 3 THEN inv-line.sman[3]:SCREEN-VALUE
+              ELSE
+              IF ip-int EQ 2 THEN inv-line.sman[2]:SCREEN-VALUE
+                             ELSE inv-line.sman[1]:SCREEN-VALUE.
+
+    IF lv-sman NE "" THEN DO:
+      FIND FIRST sman
+          WHERE sman.company EQ cocode
+            AND sman.sman    EQ lv-sman
+          NO-LOCK NO-ERROR.
+      IF AVAIL sman THEN DO:
+        IF ip-int EQ 3 THEN DO:
+          inv-line.sname[3]:SCREEN-VALUE = sman.sname.
+        END.
+        ELSE
+        IF ip-int EQ 2 THEN DO:
+          inv-line.sname[2]:SCREEN-VALUE = sman.sname.
+        END.
+        ELSE DO:
+          inv-line.sname[1]:SCREEN-VALUE = sman.sname.
+        END.
+      END. /* avail sman */
+    END. 
+    ELSE DO:
+          IF ip-int EQ 3 THEN 
+              inv-line.sname[3]:SCREEN-VALUE = "" .
+          ELSE IF ip-int EQ 2 THEN 
+              inv-line.sname[2]:SCREEN-VALUE = "".
+          ELSE 
+              inv-line.sname[1]:SCREEN-VALUE = "" .
+    END.
   END.
 
 END PROCEDURE.
