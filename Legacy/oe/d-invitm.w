@@ -45,6 +45,7 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEF VAR v-print-head LIKE sys-ctrl.log-fld NO-UNDO.
 DEF VAR v-print-fmt LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR glInvQtyChanged AS LOG NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 DEF NEW SHARED BUFFER xinv-line FOR inv-line.
@@ -95,7 +96,7 @@ inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax inv-line.t-price
 inv-line.po-no inv-line.job-no inv-line.job-no2 inv-line.est-no ~
 inv-line.i-no inv-line.part-no inv-line.i-name inv-line.qty ~
 inv-line.part-dscr1 inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty ~
-inv-line.price inv-line.sman[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost ~
+inv-line.price inv-line.pr-uom inv-line.sman[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost ~
 inv-line.sman[2] inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] ~
 inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame inv-line
@@ -110,7 +111,7 @@ inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax
 &Scoped-Define ENABLED-FIELDS inv-line.ord-no inv-line.po-no ~
 inv-line.job-no inv-line.job-no2 inv-line.est-no inv-line.i-no ~
 inv-line.part-no inv-line.i-name inv-line.qty inv-line.part-dscr1 ~
-inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.price ~
+inv-line.ship-qty inv-line.part-dscr2 inv-line.inv-qty inv-line.price inv-line.pr-uom ~
 inv-line.sman[1] inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.sman[2] ~
 inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] inv-line.s-pct[3] ~
 inv-line.comm-amt[3] inv-line.tax 
@@ -389,7 +390,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN inv-line.ord-no IN FRAME Dialog-Frame
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN inv-line.pr-uom IN FRAME Dialog-Frame
-   NO-ENABLE EXP-LABEL                                                  */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN inv-line.price IN FRAME Dialog-Frame
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN inv-line.qty IN FRAME Dialog-Frame
@@ -489,7 +490,8 @@ DO:
           end.*/
           when "pr-uom" then do:
                run windows/l-stduom.w (g_company,lv-uom-list,inv-line.pr-uom:screen-value, output char-val).
-               if char-val <> "" then focus:screen-value = entry(1,char-val).         
+               if char-val <> "" then inv-line.pr-uom:screen-value = entry(1,char-val).  
+               {oe/ordltot.i inv-line inv-qty}
           end.
           when "po-no" then do:
                run windows/l-ponopo.w (g_company,yes,focus:screen-value, output char-val).
@@ -547,6 +549,9 @@ DO:
 
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  RUN valid-uom NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
 
   FIND CURRENT inv-line.
 
@@ -864,6 +869,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME inv-line.pr-uom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.pr-uom Dialog-Frame
+ON LEAVE OF inv-line.pr-uom IN FRAME Dialog-Frame /* UOM */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      RUN valid-uom NO-ERROR.
+      IF lError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME inv-line.price
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.price Dialog-Frame
@@ -1019,13 +1037,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       END.
 
       IF (inv-line.stat EQ "I" OR inv-line.stat EQ "B") THEN DO:
-        ENABLE inv-line.price.
+        ENABLE inv-line.price inv-line.pr-uom.
         IF inv-line.ord-no NE 0 THEN ENABLE inv-line.inv-qty.
       END.
 
       IF ip-type EQ "add" THEN DO:
         ENABLE inv-line.ship-qty
-               inv-line.price.
+               inv-line.price
+               inv-line.pr-uom .
         IF inv-line.ord-no NE 0 THEN ENABLE inv-line.inv-qty.
       END.
       btn_done:HIDDEN = YES.
@@ -1218,7 +1237,7 @@ PROCEDURE enable_UI :
   ENABLE RECT-39 RECT-40 inv-line.ord-no inv-line.po-no inv-line.job-no 
          inv-line.job-no2 inv-line.est-no inv-line.i-no inv-line.part-no 
          inv-line.i-name inv-line.qty inv-line.part-dscr1 inv-line.ship-qty 
-         inv-line.part-dscr2 inv-line.inv-qty inv-line.price inv-line.sman[1] 
+         inv-line.part-dscr2 inv-line.inv-qty inv-line.price inv-line.pr-uom inv-line.sman[1] 
          inv-line.s-pct[1] inv-line.comm-amt[1] inv-line.cost inv-line.sman[2] 
          inv-line.s-pct[2] inv-line.comm-amt[2] inv-line.disc inv-line.sman[3] 
          inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.tax btn_ok btn_done btn_cancel 
@@ -1600,6 +1619,54 @@ PROCEDURE hide-comm :
         inv-line.comm-amt[3]:HIDDEN IN FRAME {&FRAME-NAME} = ip-hidden .
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom V-table-Win 
+PROCEDURE valid-uom :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  lError = NO .
+  DEFINE VARIABLE cUom AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lValid AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+  DEFINE VARIABLE cValidMessage AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+  
+{&methods/lValidateError.i YES}
+
+    RUN util/Validate.p PERSISTENT SET hdValidator.
+     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdValidator).
+  
+  DO WITH FRAME {&FRAME-NAME}:
+      cUom = inv-line.pr-uom:SCREEN-VALUE.
+
+      RUN pIsValidUOM IN hdValidator (cUom, YES, OUTPUT lValid, OUTPUT cValidMessage).
+      IF NOT lValid THEN DO:
+          MESSAGE  cValidMessage
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+          lError = YES .
+          lCheckError = YES .
+          APPLY "entry" TO inv-line.pr-uom .
+      END.
+
+      RUN pIsValidFromList IN hdValidator ("Uom", cUom, lv-uom-list, OUTPUT lValid, OUTPUT cValidMessage). 
+      
+      IF NOT lValid AND NOT lCheckError THEN DO:
+          MESSAGE  cValidMessage
+              VIEW-AS ALERT-BOX INFO BUTTONS OK.
+          lError = YES .
+          APPLY "entry" TO inv-line.pr-uom .
+      END.
+   END.
+   THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdValidator). 
+{&methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
