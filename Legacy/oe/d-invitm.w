@@ -1659,7 +1659,7 @@ PROCEDURE valid-uom :
       RUN pIsValidFromList IN hdValidator ("Uom", cUom, lv-uom-list, OUTPUT lValid, OUTPUT cValidMessage). 
       
       IF NOT lValid AND NOT lCheckError THEN DO:
-          MESSAGE  "UOM is invalid, try help..."
+          MESSAGE  cValidMessage
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
           lError = YES .
           APPLY "entry" TO inv-line.pr-uom .
