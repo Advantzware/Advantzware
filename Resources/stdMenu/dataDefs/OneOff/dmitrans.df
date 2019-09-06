@@ -1,0 +1,223 @@
+ADD TABLE "dmiTrans"
+  AREA "Data"
+  LABEL "DMI Transaction"
+  DESCRIPTION "DMI Transaction"
+  DUMP-NAME "dmitrans"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/dmiTrans.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/dmiTrans.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/dmiTrans.p" CRC "?" 
+
+ADD FIELD "dmiID" OF "dmiTrans" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "DMI ID"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Enter DMI ID"
+  ORDER 10
+
+ADD FIELD "jobID" OF "dmiTrans" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Job ID"
+  POSITION 3
+  MAX-WIDTH 60
+  HELP "Enter Job ID"
+  ORDER 20
+
+ADD FIELD "productID" OF "dmiTrans" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Product ID"
+  POSITION 4
+  MAX-WIDTH 40
+  HELP "Enter Product ID"
+  ORDER 30
+
+ADD FIELD "rec_key" OF "dmiTrans" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 5
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  ORDER 200
+
+ADD FIELD "seq" OF "dmiTrans" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Sequence"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter Sequence"
+  ORDER 40
+
+ADD FIELD "shift" OF "dmiTrans" AS character 
+  FORMAT "X"
+  INITIAL ""
+  LABEL "Shift"
+  POSITION 7
+  MAX-WIDTH 2
+  HELP "Enter Shift"
+  ORDER 50
+
+ADD FIELD "shiftDate" OF "dmiTrans" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Shift Date"
+  POSITION 8
+  MAX-WIDTH 4
+  HELP "Enter Shift Date"
+  ORDER 60
+
+ADD FIELD "tranDate" OF "dmiTrans" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Transaction Date"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Tran Date"
+  HELP "Enter Transaction Date"
+  ORDER 70
+
+ADD FIELD "tranTime" OF "dmiTrans" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Transaction Time"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "Tran Time"
+  HELP "Enter Transaction Time"
+  ORDER 80
+
+ADD FIELD "startDate" OF "dmiTrans" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Start Date"
+  POSITION 11
+  MAX-WIDTH 4
+  HELP "Enter Start Date"
+  ORDER 90
+
+ADD FIELD "startTime" OF "dmiTrans" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Start Time"
+  POSITION 12
+  MAX-WIDTH 4
+  HELP "Enter Start Time"
+  ORDER 100
+
+ADD FIELD "tranRunQty" OF "dmiTrans" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Transaction Run Qty"
+  POSITION 13
+  MAX-WIDTH 4
+  COLUMN-LABEL "Tran Run Qty"
+  HELP "Enter Transaction Run Qty"
+  ORDER 110
+
+ADD FIELD "tranRejectQty" OF "dmiTrans" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Transaction Reject Qty"
+  POSITION 14
+  MAX-WIDTH 4
+  COLUMN-LABEL "Trans Reject Qty"
+  HELP "Enter Transaction Reject Qty"
+  ORDER 120
+
+ADD FIELD "qtyDue" OF "dmiTrans" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Qty Due"
+  POSITION 15
+  MAX-WIDTH 4
+  HELP "Enter Qty Due"
+  ORDER 130
+
+ADD FIELD "transState" OF "dmiTrans" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Transaction State"
+  POSITION 16
+  MAX-WIDTH 6
+  COLUMN-LABEL "State"
+  HELP "Enter Transaction State"
+  ORDER 140
+
+ADD FIELD "jobCodeDMIID" OF "dmiTrans" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Job Code DMI ID"
+  POSITION 17
+  MAX-WIDTH 4
+  HELP "Enter Job Code DMI ID"
+  ORDER 150
+
+ADD FIELD "downTime" OF "dmiTrans" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Downtime"
+  POSITION 18
+  MAX-WIDTH 4
+  HELP "Enter Downtime"
+  ORDER 160
+
+ADD FIELD "runTime" OF "dmiTrans" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Run Time"
+  POSITION 19
+  MAX-WIDTH 4
+  HELP "Enter Run Time"
+  ORDER 170
+
+ADD FIELD "operator" OF "dmiTrans" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Operator(s)"
+  POSITION 20
+  MAX-WIDTH 60
+  HELP "Enter Operator(s)"
+  ORDER 180
+
+ADD FIELD "posted" OF "dmiTrans" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Posted"
+  POSITION 21
+  MAX-WIDTH 1
+  HELP "Toggle Posted"
+  ORDER 190
+
+ADD INDEX "dmiTrans" ON "dmiTrans" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "Primary Index by dmiID, jobID and seq"
+  INDEX-FIELD "dmiID" ASCENDING 
+  INDEX-FIELD "jobID" ASCENDING 
+  INDEX-FIELD "seq" ASCENDING 
+
+ADD INDEX "rec_key" ON "dmiTrans" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Rec Key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "shift" ON "dmiTrans" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Shift"
+  INDEX-FIELD "shift" ASCENDING 
+
+ADD INDEX "startDateTime" ON "dmiTrans" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by transDate and transTime"
+  INDEX-FIELD "startDate" ASCENDING 
+  INDEX-FIELD "startTime" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000004727
