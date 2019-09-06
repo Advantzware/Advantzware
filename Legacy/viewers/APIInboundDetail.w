@@ -123,33 +123,38 @@ DEFINE VARIABLE edRequestData AS CHARACTER
      SIZE 106 BY 4
      BGCOLOR 15  NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 126 BY 10.71.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     APIInboundDetail.apiRoute AT ROW 1.95 COL 33 COLON-ALIGNED WIDGET-ID 2
+     APIInboundDetail.apiRoute AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 2
           LABEL "API Route" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 86 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     APIInboundDetail.detailID AT ROW 3.43 COL 33 COLON-ALIGNED WIDGET-ID 4
+     APIInboundDetail.detailID AT ROW 2.67 COL 17 COLON-ALIGNED WIDGET-ID 4
           LABEL "Detail ID"
           VIEW-AS FILL-IN 
           SIZE 31 BY 1
           BGCOLOR 15 
-     APIInboundDetail.parentID AT ROW 4.95 COL 33 COLON-ALIGNED WIDGET-ID 8
+     APIInboundDetail.parentID AT ROW 4.19 COL 17 COLON-ALIGNED WIDGET-ID 8
           LABEL "Parent ID" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 86 BY 1
           BGCOLOR 15 
-     cbDetailType AT ROW 6.48 COL 33 COLON-ALIGNED WIDGET-ID 10
-     edRequestData AT ROW 8.14 COL 35.2 NO-LABEL WIDGET-ID 12
+     cbDetailType AT ROW 5.71 COL 17 COLON-ALIGNED WIDGET-ID 10
+     edRequestData AT ROW 7.38 COL 19.2 NO-LABEL WIDGET-ID 12
      "Request Data:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 8.19 COL 18.6 WIDGET-ID 14
+          SIZE 16 BY .62 AT ROW 7.38 COL 3 WIDGET-ID 14
+     RECT-1 AT ROW 1 COL 1 WIDGET-ID 16
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 9 FONT 6 WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -179,8 +184,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 12
-         WIDTH              = 143.6.
+         HEIGHT             = 10.71
+         WIDTH              = 126.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -221,6 +226,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN APIInboundDetail.parentID IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
