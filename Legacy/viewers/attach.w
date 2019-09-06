@@ -600,6 +600,7 @@ PROCEDURE local-add-record :
     RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
 
     FIND FIRST est WHERE est.rec_key = lv-rec_key NO-LOCK NO-ERROR.
+    FIND FIRST job WHERE job.rec_key = lv-rec_key NO-LOCK NO-ERROR.
 
     IF AVAIL est THEN DO:
        v-est-no = est.est-no.
@@ -609,6 +610,15 @@ PROCEDURE local-add-record :
            IF eb.stock-no <> "" THEN v-i-no = v-i-no + eb.stock-no + ",". 
        END.
 
+    END.
+    ELSE IF AVAIL job THEN DO:
+        v-est-no = job.est-no.
+       FOR EACH job-hdr fields(i-no) WHERE
+           job-hdr.company EQ job.company AND
+           job-hdr.job EQ job.job AND
+           job-hdr.job-no EQ job.job-no NO-LOCK :
+           IF job-hdr.i-no <> "" THEN v-i-no = v-i-no + job-hdr.i-no + ",". 
+       END.
     END.
     ELSE DO:
         FIND FIRST oe-ord WHERE
