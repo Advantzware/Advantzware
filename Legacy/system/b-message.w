@@ -89,7 +89,8 @@ IF AVAILABLE users THEN ASSIGN
           AND zMessage.currSecLevel    LE iSecurityLevel   ~
           AND (IF fi_pro-name BEGINS '*' THEN  zMessage.msgID MATCHES (fi_pro-name + "*") ~
               ELSE zMessage.msgID BEGINS fi_pro-name) ~
-          AND zMessage.module           BEGINS fi_module ~
+          AND (IF fi_module BEGINS '*' THEN zMessage.module MATCHES (fi_module + "*") ~
+               ELSE zMessage.module BEGINS fi_module) ~
           AND (zMessage.hotkey          BEGINS fi_hotkey OR fi_hotkey EQ "ALL") ~
           AND (IF fi_desc BEGINS '*'     THEN zMessage.msgName MATCHES (fi_desc + "*") ~
               ELSE zMessage.msgName BEGINS fi_desc) ~
