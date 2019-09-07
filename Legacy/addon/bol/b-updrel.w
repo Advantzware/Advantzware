@@ -172,6 +172,7 @@ DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPickTicketValidation AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lsecurityTag AS LOGICAL NO-UNDO.
+DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
 
@@ -360,14 +361,6 @@ FUNCTION get-bal RETURNS INTEGER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD roundUp B-table-Win 
-FUNCTION roundUp RETURNS INTEGER
-  ( ipround as decimal )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -693,8 +686,11 @@ DO:
                                    AND b-oe-ordl.ord-no  EQ oe-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ oe-rell.LINE
                                  NO-LOCK NO-ERROR.
-        IF AVAIL b-oe-ordl THEN
-        iRelPallets = iRelPallets + roundUp(oe-rell.qty / b-oe-ordl.cases-unit) .
+        IF AVAIL b-oe-ordl THEN do:
+            dRoundup = oe-rell.qty / b-oe-ordl.cases-unit .
+            {sys/inc/roundup.i dRoundup}
+            iRelPallets = iRelPallets + dRoundup .
+        END.
         IF LAST-OF(oe-rell.LINE) THEN DO:
             
             IF AVAIL b-oe-ordl THEN
@@ -1775,8 +1771,11 @@ PROCEDURE display-qtys :
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
 
-        IF AVAIL b-oe-ordl THEN
-        iRelPallets = iRelPallets + roundUp(oe-rell.qty / b-oe-ordl.cases-unit) .
+        IF AVAIL b-oe-ordl THEN do:
+            dRoundup = b-rell.qty / b-oe-ordl.cases-unit .
+            {sys/inc/roundup.i dRoundup}
+            iRelPallets = iRelPallets + dRoundup .
+        END.
         IF LAST-OF(b-rell.LINE) THEN DO:
             
             IF AVAIL b-oe-ordl THEN
@@ -1836,12 +1835,15 @@ PROCEDURE display-qtys-query :
             AND b-rell.i-no EQ lv-i-no
           USE-INDEX r-no :
         v-rel-qty = v-rel-qty + b-rell.qty.
-        FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ b-relh.company
+        FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ cocode
                                    AND b-oe-ordl.ord-no  EQ b-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
-        IF AVAIL b-oe-ordl THEN
-        iRelPallets = iRelPallets + roundUp(b-rell.qty / b-oe-ordl.cases-unit) .
+        IF AVAIL b-oe-ordl THEN do: 
+            dRoundup = b-rell.qty / b-oe-ordl.cases-unit .
+            {sys/inc/roundup.i dRoundup}
+            iRelPallets = iRelPallets + dRoundup .
+        END.
 
       END.
     END.
@@ -3644,21 +3646,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION roundUp B-table-Win 
-FUNCTION roundUp RETURNS INTEGER
-  (  ipround as decimal ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-
-  IF ipround = truncate( ipround, 0 ) then
-    return integer( ipround ).
-   else
-    return integer( truncate( ipround, 0 ) + 1 ).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

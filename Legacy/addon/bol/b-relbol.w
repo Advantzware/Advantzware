@@ -153,6 +153,7 @@ DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lsecurity-flag AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lsecurityTag AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lPickTicketValidation AS LOGICAL NO-UNDO.
+DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
 /* bol print/post */
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEF VAR cRtnChar AS CHAR NO-UNDO.
@@ -356,14 +357,7 @@ FUNCTION get-bal RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD roundUp B-table-Win 
-FUNCTION roundUp RETURNS INTEGER
-  (  ipround as decimal )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
+         
 /* ***********************  Control Definitions  ********************** */
 
 
@@ -718,20 +712,27 @@ DO:
                                    AND b-oe-ordl.ord-no  EQ oe-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ oe-rell.LINE
                                  NO-LOCK NO-ERROR.
-        IF AVAIL b-oe-ordl THEN
-            iRelQtyPallet = iRelQtyPallet + roundUp(oe-rell.qty / b-oe-ordl.cases-unit)  .
+        IF AVAIL b-oe-ordl THEN do:
+            dRoundup = oe-rell.qty / b-oe-ordl.cases-unit .
+            {sys/inc/roundup.i dRoundup}
+            iRelQtyPallet = iRelQtyPallet + dRoundup  .
+        END.
         IF LAST-OF(oe-rell.LINE) THEN DO:
             
             IF AVAIL b-oe-ordl THEN do:
                 v-job-qty = get-bal().
-                iJobPallets = roundUp(v-job-qty / b-oe-ordl.cases-unit ).
+                dRoundup = v-job-qty / b-oe-ordl.cases-unit .
+                {sys/inc/roundup.i dRoundup}
+                iJobPallets = dRoundup .
             END.
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ oe-relh.company
                                   AND b-itemfg.i-no    EQ oe-rell.i-no
                               NO-LOCK NO-ERROR.
             IF AVAIL b-itemfg THEN do:
                 v-qoh = b-itemfg.q-onh.
-                iTotPallet = roundUp(v-qoh / b-itemfg.case-pall) . 
+                dRoundup = v-qoh / b-itemfg.case-pall .
+                {sys/inc/roundup.i dRoundup}
+                iTotPallet = dRoundup . 
             END.
         END.
     END.
@@ -1788,19 +1789,26 @@ PROCEDURE display-qtys :
                                    AND b-oe-ordl.ord-no  EQ b-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
-        IF AVAIL b-oe-ordl THEN
-            iRelQtyPallet = iRelQtyPallet + roundUp( b-rell.qty / b-oe-ordl.cases-unit ) .
+        IF AVAIL b-oe-ordl THEN do:
+            dRoundup = b-rell.qty / b-oe-ordl.cases-unit .
+                {sys/inc/roundup.i dRoundup}
+            iRelQtyPallet = iRelQtyPallet + dRoundup .
+        END.
         IF LAST-OF(b-rell.LINE) THEN DO:
             IF AVAIL b-oe-ordl THEN do:
                 v-job-qty = get-bal().
-                iJobPallets = roundUp(v-job-qty / b-oe-ordl.cases-unit) .
+                dRoundup = v-job-qty / b-oe-ordl.cases-unit .
+                {sys/inc/roundup.i dRoundup}
+                iJobPallets = dRoundup .
             END.
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ b-relh.company
                                 AND b-itemfg.i-no    EQ b-rell.i-no
                               NO-LOCK NO-ERROR.
             IF AVAIL b-itemfg THEN do:
                 v-qoh = b-itemfg.q-onh.
-                iTotPallet = roundUp(v-qoh / b-itemfg.case-pall) .
+                dRoundup = v-qoh / b-itemfg.case-pall .
+                {sys/inc/roundup.i dRoundup}
+                iTotPallet = dRoundup .
             END.
         END.
       END.
@@ -3469,21 +3477,4 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION roundUp B-table-Win 
-FUNCTION roundUp RETURNS INTEGER
-  (  ipround as decimal ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-
-  IF ipround = truncate( ipround, 0 ) then
-    return integer( ipround ).
-   else
-    return integer( truncate( ipround, 0 ) + 1 ).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
