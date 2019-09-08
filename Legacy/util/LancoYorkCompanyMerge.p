@@ -14,7 +14,7 @@ DEF STREAM logStream.
 
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR cConvTypeList AS CHAR NO-UNDO INITIAL 
-    "Loc,BankAcct,Account,Carrier,check-No,Est-no,inv-no,Item,ItemFg,Job,M-code,ra-no,Release#,Loadtag,Company".
+    "Loc,BankAcct,Account,procat,Carrier,check-No,Est-no,inv-no,Item,ItemFg,Job,M-code,ra-no,Release#,Loadtag,Company".
     
 
 DEF TEMP-TABLE ttFullTableList
@@ -40,6 +40,13 @@ DEF TEMP-TABLE ttNewCoA
     FIELD AcctDesc    AS CHAR 
     .
     
+DEF TEMP-TABLE ttNewProcat
+    FIELD fromCompany AS CHAR 
+    FIELD fromCat     AS CHAR 
+    FIELD toCompany   AS CHAR 
+    FIELD toCat       AS CHAR 
+    FIELD AcctDesc    AS CHAR 
+    .
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -63,7 +70,9 @@ RUN pOutputPreMerge.
 
 RUN pConsolidateAmounts.
 RUN pLoadCoAFromCSV ("c:\tmp\LYAccountConversion.csv").
+RUN pLoadProcatFromCSV ("c:\tmp\LYProCatConversion.csv").
 RUN pBuildNewCoA.
+RUN pBuildNewProcat.
 
 DISABLE TRIGGERS FOR LOAD OF oe-reth.
 DISABLE TRIGGERS FOR LOAD OF oe-retl.
@@ -439,6 +448,18 @@ PROCEDURE pBuildFieldLists:
         END. 
     END.
 
+    /* procat */    
+    FOR EACH _field NO-LOCK WHERE 
+        _field._field-name = "procat":
+        FIND _file OF _field NO-LOCK NO-ERROR.
+        IF _file._hidden THEN NEXT.
+        IF AVAIL _file THEN 
+        DO:
+            RUN pBuildSingleFieldList ("procat",_file._file-name,_field._field-name).
+            RUN pUpdateTableConvert (ttTablesWithMergeFields.cTableName).                
+        END. 
+    END.
+
     /* ra-no */    
     FOR EACH _field NO-LOCK WHERE 
         _field._field-name = "ra-no":
@@ -559,6 +580,42 @@ PROCEDURE pBuildNewCoA:
             
 END PROCEDURE.
 
+
+PROCEDURE pBuildNewProcat:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bNewProcat FOR fgcat.
+    DEFINE BUFFER bOldProcat FOR fgcat. 
+    
+    RUN pStatus("pBuildNewProcat...").
+
+    DISABLE TRIGGERS FOR LOAD OF fgcat.
+    
+    FOR EACH ttNewProcat:
+        FIND FIRST bNewProcat WHERE 
+            bNewProcat.company EQ ttNewProcat.toCompany AND 
+            bNewProcat.procat EQ ttNewProcat.toCat
+            NO-LOCK NO-ERROR.
+        IF AVAIL bNewProcat THEN 
+            NEXT.        
+        FIND FIRST bOldProcat WHERE 
+            bOldProcat.company EQ ttNewProcat.fromCompany AND 
+            bOldProcat.procat EQ ttNewProcat.fromcat
+        EXCLUSIVE NO-ERROR.
+        IF AVAIL bOldProcat THEN 
+        DO:
+            CREATE bNewProcat.
+            BUFFER-COPY bOldProcat EXCEPT company procat TO bNewProcat.
+            ASSIGN 
+                bNewProcat.company = ttNewProcat.toCompany
+                bNewProcat.procat  = ttNewProcat.tocat.
+            DELETE bOldProcat.
+        END.
+    END.
+
+END PROCEDURE.
 
 PROCEDURE pBuildSingleFieldList:
 /*------------------------------------------------------------------------------
@@ -1156,6 +1213,78 @@ PROCEDURE pConvertLoadtagTable:
 
 END PROCEDURE.
 
+PROCEDURE pConvertProcatTable:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcTableName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcFieldList AS CHAR NO-UNDO.
+    
+    DEF VAR hBuffer AS HANDLE.
+    DEF VAR hQuery AS HANDLE.
+    DEF VAR hCoField AS HANDLE.
+    DEF VAR hField AS HANDLE.
+    DEF VAR hExtent AS HANDLE.
+    DEF VAR iCtr AS INT NO-UNDO.
+    DEF VAR jCtr AS INT NO-UNDO.
+    DEF VAR cCompVal AS CHAR NO-UNDO.
+    DEF VAR cFields AS CHAR NO-UNDO.
+    DEF VAR cThisTable AS CHAR NO-UNDO.
+
+    RUN pStatus("   Converting Fields in Table - " + ipcTableName + " - " + ipcFieldList).
+
+    CREATE BUFFER hBuffer FOR TABLE ipcTableName.
+    CREATE QUERY hQuery.
+    
+    hBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+        
+    hQuery:ADD-BUFFER(hBuffer).
+    hQuery:QUERY-PREPARE("FOR EACH " + ipcTableName + " BY ROWID(" + ipcTableName + ")").
+    hQuery:QUERY-OPEN ().
+        
+    checkCompany:
+    DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+        ASSIGN 
+            hCoField = hBuffer:BUFFER-FIELD (iCtr).
+        IF hCoField:NAME = "Company" 
+            OR hCoField:NAME = "cocode" THEN 
+            LEAVE checkCompany.
+    END.
+        
+    DO WHILE NOT hQuery:QUERY-OFF-END TRANSACTION:
+        hQuery:GET-NEXT(EXCLUSIVE-LOCK).
+        IF NOT hQuery:QUERY-OFF-END THEN 
+        DO iCtr = 1 TO hBuffer:NUM-FIELDS:
+            ASSIGN 
+                hField = hBuffer:BUFFER-FIELD (iCtr).
+            IF CAN-DO(ipcFieldList,hField:NAME) THEN 
+            DO:
+                IF hField:EXTENT EQ ? OR hField:EXTENT LE 1 THEN 
+                DO:
+                    FIND FIRST ttNewProcat WHERE 
+                        ttNewProcat.fromCompany EQ hCoField:BUFFER-VALUE AND 
+                        ttNewProcat.fromCat EQ hField:BUFFER-VALUE
+                        NO-LOCK NO-ERROR.
+                    IF AVAIL ttNewProcat THEN ASSIGN 
+                            hField:BUFFER-VALUE = ttNewProcat.toCat NO-ERROR.
+                END.
+                ELSE 
+                DO jCtr = 1 TO hField:EXTENT:
+                    FIND FIRST ttNewProcat WHERE 
+                        ttNewProcat.fromCompany EQ hCoField:BUFFER-VALUE AND 
+                        ttNewProcat.fromCat EQ hField:BUFFER-VALUE(jCtr)
+                        NO-LOCK NO-ERROR.
+                    IF AVAIL ttNewProcat THEN ASSIGN 
+                            hField:BUFFER-VALUE(jCtr) = ttNewProcat.toCat NO-ERROR.
+                END.
+            END.
+        END.
+    END.
+
+
+END PROCEDURE.
+
 PROCEDURE pConvertRecsByType:
 /*------------------------------------------------------------------------------
  Purpose:   Runner proc for record conversion by element TYPE (Account, CustNo, etc.)
@@ -1179,6 +1308,7 @@ PROCEDURE pConvertRecsByType:
             WHEN "Loadtag"  THEN RUN pConvertLoadtagTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Loc"      THEN RUN pConvertLocTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "M-code"   THEN RUN pConvertMcodeTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
+            WHEN "procat"   THEN RUN pConvertProcatTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "ra-no"    THEN RUN pConvertRaNoTable (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             WHEN "Release#" THEN RUN pConvertRelease#Table (ttTablesWithMergeFields.cTableName, ttTablesWithMergeFields.cFieldName).
             /* These are just merged - don't convert 
@@ -2558,6 +2688,30 @@ PROCEDURE pLoadCoAFromCSV:
 
 END PROCEDURE.
 
+
+PROCEDURE pLoadProcatFromCSV:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcCatConvFile AS CHAR. 
+    DEF VAR cLine AS CHAR NO-UNDO.
+    
+    RUN pStatus("pLoadProcatFromCSV...").
+
+    INPUT FROM VALUE(ipcCatConvFile).
+    REPEAT:
+        IMPORT UNFORMATTED cLine.
+        CREATE ttNewProcat.
+        ASSIGN 
+            ttNewProcat.fromCompany = IF ENTRY(1,cLine,",") EQ "1" THEN "001" ELSE IF ENTRY(1,cLine,",") EQ "2" THEN "002" ELSE ""
+            ttNewProcat.fromCat    = ENTRY(2,cLine,",")
+            ttNewProcat.toCompany   = IF ENTRY(3,cLine,",") EQ "1" THEN "001" ELSE IF ENTRY(3,cLine,",") EQ "2" THEN "002" ELSE ""
+            ttNewProcat.toCat      = ENTRY(4,cLine,",").
+    END.
+
+
+END PROCEDURE.
 
 PROCEDURE pOutputPreMerge:
 /*------------------------------------------------------------------------------
