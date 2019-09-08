@@ -3387,7 +3387,9 @@ PROCEDURE update-ssrelbol :
    DO:
        CREATE ssrelbol.
        BUFFER-COPY tt-relbol TO ssrelbol
-          ASSIGN ssrelbol.company = cocode.
+          ASSIGN ssrelbol.company = cocode
+                 tt-relbol.ROWID = ROWID(ssrelbol)
+                 .
        RELEASE ssrelbol.
    END.
 END PROCEDURE.
