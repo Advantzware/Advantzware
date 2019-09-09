@@ -85,10 +85,10 @@ ASSIGN cTextListToSelect = "Estimate#,Est Date,Cust #,Ship To,Cust Part#,Item De
 &Scoped-define FRAME-NAME rd-fgexp
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_est end_est ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_est end_est begin_cust-no end_cust-no ~
 sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_est end_est sl_avail sl_selected ~
+&Scoped-Define DISPLAYED-OBJECTS begin_est end_est begin_cust-no end_cust-no sl_avail sl_selected ~
 tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -168,6 +168,16 @@ DEFINE VARIABLE end_est AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
+DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "x(15)" 
+     LABEL "From Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
+DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz" 
+     LABEL "To Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-mach.csv" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
@@ -214,6 +224,10 @@ DEFINE FRAME rd-fgexp
           "Enter Beginning Estimate Number" WIDGET-ID 142
      end_est AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Estimate #" WIDGET-ID 144
+     begin_cust-no AT ROW 4.95 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 142
+     end_cust-no AT ROW 4.95 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Customer #" WIDGET-ID 144
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
      Btn_Add AT ROW 12.24 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
@@ -273,6 +287,14 @@ ASSIGN
 
 ASSIGN 
        end_est:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
+       begin_cust-no:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
+       end_cust-no:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 ASSIGN 
@@ -339,6 +361,22 @@ DEFINE VARIABLE rEbRec AS RECID NO-UNDO.
            end.
            return no-apply.
        end.  /* itemfg*/
+       when "begin_cust-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-cust.w (cocode, ls-cur-val, output char-val).
+           if char-val <> "" then do:
+               lw-focus:screen-value = ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* cust-no */
+       when "end_cust-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-cust.w (cocode, ls-cur-val, output char-val).
+           if char-val <> "" then do:
+               lw-focus:screen-value = ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* cust-no*/
 
 END CASE.
 END.
@@ -367,6 +405,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no rd-fgexp
+ON LEAVE OF begin_cust-no IN FRAME rd-fgexp /* From Customer */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel rd-fgexp
@@ -469,6 +516,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no rd-fgexp
+ON LEAVE OF end_cust-no IN FRAME rd-fgexp /* To Customer */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgexp
@@ -722,9 +778,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_est end_est sl_avail sl_selected tb_excel tb_runExcel fi_file 
+          begin_cust-no end_cust-no
       WITH FRAME rd-fgexp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_est end_est sl_avail Btn_Add sl_selected 
-         Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_est end_est begin_cust-no end_cust-no sl_avail
+         Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -822,12 +879,14 @@ FOR EACH b-est WHERE b-est.company = gcompany
     AND b-est.est-no <= end_est
     AND (IF ipcIndustry EQ "F" THEN b-est.est-type < 5 ELSE b-est.est-type >= 5) NO-LOCK,
     EACH bf-eb WHERE bf-eb.company = gcompany
-    AND bf-eb.est-no = b-est.est-no NO-LOCK BY bf-eb.form-no :
+    AND bf-eb.est-no = b-est.est-no 
+    AND bf-eb.cust-no GE begin_cust-no
+    AND bf-eb.cust-no LE end_cust-no NO-LOCK BY bf-eb.form-no :
 
     IF INT(b-est.est-no) GT INT(end_est)
     OR INT(b-est.est-no) LT INT(begin_est) THEN 
         NEXT.
-  
+   
     v-excel-detail-lines = "".
 
     FOR EACH ttRptSelected:
