@@ -1197,7 +1197,7 @@ IF tb_excel THEN
                   WHEN "sales-rep" THEN cVarValue = IF AVAIL cust THEN STRING(cust.sman) ELSE "".
                   WHEN "job-hold" THEN cVarValue = STRING(vHoldReason).
                   WHEN "create-date" THEN cVarValue = IF job.create-date NE ? THEN STRING(job.create-date) ELSE "" .
-                  WHEN "due-date" THEN cVarValue = IF job.due-date NE ? THEN STRING(job.due-date) ELSE "" .
+                  WHEN "due-date" THEN cVarValue = IF job.due-date NE ? THEN STRING(job.due-date) ELSE ""  .
              END CASE.
 
              cExcelVarValue = cVarValue.
