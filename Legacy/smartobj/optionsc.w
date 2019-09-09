@@ -94,8 +94,8 @@ DEFINE BUTTON Select_Notes
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Spec Note" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
+     LABEL "Notes" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Notes".
 
 DEFINE BUTTON UDF 
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
