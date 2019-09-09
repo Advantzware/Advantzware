@@ -153,6 +153,7 @@ DEFINE VARIABLE gvlCheckOrdStat   AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lsecurity-flag AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lsecurityTag AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lPickTicketValidation AS LOGICAL NO-UNDO.
+DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
 /* bol print/post */
 DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 DEF VAR cRtnChar AS CHAR NO-UNDO.
@@ -288,7 +289,8 @@ tt-relbol.trailer  tt-relbol.cases  tt-relbol.loc  tt-relbol.loc-bin  tt-relbol.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table 
-&Scoped-Define DISPLAYED-OBJECTS v-job-qty v-qoh v-rel-qty v-scan-qty 
+&Scoped-Define DISPLAYED-OBJECTS v-job-qty v-qoh v-rel-qty v-scan-qty ~
+iJobPallets iTotPallet iRelQtyPallet 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -355,11 +357,27 @@ FUNCTION get-bal RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+         
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE iJobPallets AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Pallets" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1
+     BGCOLOR 14  NO-UNDO.
+
+DEFINE VARIABLE iRelQtyPallet AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1
+     BGCOLOR 14  NO-UNDO.
+
+DEFINE VARIABLE iTotPallet AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 14  NO-UNDO.
+
 DEFINE VARIABLE v-job-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Job Qty" 
      VIEW-AS FILL-IN 
@@ -433,7 +451,10 @@ DEFINE FRAME F-Main
      v-qoh AT ROW 1 COL 31 COLON-ALIGNED WIDGET-ID 4
      v-rel-qty AT ROW 1 COL 61 COLON-ALIGNED
      v-scan-qty AT ROW 1 COL 94 COLON-ALIGNED
-     br_table AT ROW 1.95 COL 1
+     iJobPallets AT ROW 2.1 COL 8 COLON-ALIGNED WIDGET-ID 6
+     iTotPallet AT ROW 2.1 COL 31 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     iRelQtyPallet AT ROW 2.1 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     br_table AT ROW 3.19 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -465,7 +486,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 10.24
+         HEIGHT             = 12.62
          WIDTH              = 114.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -489,11 +510,17 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB br_table v-scan-qty F-Main */
+/* BROWSE-TAB br_table iRelQtyPallet F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN iJobPallets IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN iRelQtyPallet IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN iTotPallet IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN v-job-qty IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN v-qoh IN FRAME F-Main
@@ -659,6 +686,9 @@ DO:
     v-rel-qty = 0
     v-job-qty = 0
     v-qoh     = 0.
+    iJobPallets = 0.
+    iTotPallet = 0.
+    iRelQtyPallet = 0.
     /* Reset to no since starting with a new release# */
     is-bol-printed  = NO.
     RUN ordStatCheck (OUTPUT lOrderOnHold).
@@ -678,21 +708,35 @@ DO:
         USE-INDEX r-no NO-LOCK BREAK BY oe-rell.i-no BY oe-rell.LINE:
         IF FIRST-OF(oe-rell.i-no) THEN lv-num-item = lv-num-item + 1.
         v-rel-qty = v-rel-qty + oe-rell.qty.
-        IF LAST-OF(oe-rell.LINE) THEN DO:
-            FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ oe-relh.company
+        FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ oe-relh.company
                                    AND b-oe-ordl.ord-no  EQ oe-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ oe-rell.LINE
                                  NO-LOCK NO-ERROR.
-            IF AVAIL b-oe-ordl THEN
+        IF AVAIL b-oe-ordl THEN do:
+            dRoundup = oe-rell.qty / b-oe-ordl.cases-unit .
+            {sys/inc/roundup.i dRoundup}
+            iRelQtyPallet = iRelQtyPallet + dRoundup  .
+        END.
+        IF LAST-OF(oe-rell.LINE) THEN DO:
+            
+            IF AVAIL b-oe-ordl THEN do:
                 v-job-qty = get-bal().
+                dRoundup = v-job-qty / b-oe-ordl.cases-unit .
+                {sys/inc/roundup.i dRoundup}
+                iJobPallets = dRoundup .
+            END.
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ oe-relh.company
                                   AND b-itemfg.i-no    EQ oe-rell.i-no
                               NO-LOCK NO-ERROR.
-            IF AVAIL b-itemfg THEN
+            IF AVAIL b-itemfg THEN do:
                 v-qoh = b-itemfg.q-onh.
+                dRoundup = v-qoh / b-itemfg.case-pall .
+                {sys/inc/roundup.i dRoundup}
+                iTotPallet = dRoundup . 
+            END.
         END.
     END.
-    IF lv-num-item = 1 THEN DISPLAY v-rel-qty v-job-qty v-qoh WITH FRAME {&FRAME-NAME}.
+    IF lv-num-item = 1 THEN DISPLAY v-rel-qty v-job-qty v-qoh iJobPallets iTotPallet iRelQtyPallet WITH FRAME {&FRAME-NAME}.
     RETURN .
 END.
 
@@ -1088,9 +1132,6 @@ DO:
 
 
 /* **********************  Internal Procedures  *********************** */
-
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -1723,6 +1764,9 @@ PROCEDURE display-qtys :
      v-qoh       = 0
      lv-release# = INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
      lv-i-no     = tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}.
+     iJobPallets = 0.
+     iTotPallet = 0.
+     iRelQtyPallet = 0.
 
     IF lv-release# NE 0 AND TRIM(lv-i-no) NE "" THEN DO:
       FOR EACH bf-tmp
@@ -1741,23 +1785,36 @@ PROCEDURE display-qtys :
           BREAK BY b-rell.ord-no
                 BY b-rell.LINE:
         v-rel-qty = v-rel-qty + b-rell.qty.
-        IF LAST-OF(b-rell.LINE) THEN DO:
-            FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ b-relh.company
+        FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ b-relh.company
                                    AND b-oe-ordl.ord-no  EQ b-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
-            IF AVAIL b-oe-ordl THEN
+        IF AVAIL b-oe-ordl THEN do:
+            dRoundup = b-rell.qty / b-oe-ordl.cases-unit .
+                {sys/inc/roundup.i dRoundup}
+            iRelQtyPallet = iRelQtyPallet + dRoundup .
+        END.
+        IF LAST-OF(b-rell.LINE) THEN DO:
+            IF AVAIL b-oe-ordl THEN do:
                 v-job-qty = get-bal().
+                dRoundup = v-job-qty / b-oe-ordl.cases-unit .
+                {sys/inc/roundup.i dRoundup}
+                iJobPallets = dRoundup .
+            END.
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ b-relh.company
                                 AND b-itemfg.i-no    EQ b-rell.i-no
                               NO-LOCK NO-ERROR.
-            IF AVAIL b-itemfg THEN
+            IF AVAIL b-itemfg THEN do:
                 v-qoh = b-itemfg.q-onh.
+                dRoundup = v-qoh / b-itemfg.case-pall .
+                {sys/inc/roundup.i dRoundup}
+                iTotPallet = dRoundup .
+            END.
         END.
       END.
     END.
 
-    DISPLAY v-job-qty v-qoh v-rel-qty v-scan-qty.
+    DISPLAY v-job-qty v-qoh v-rel-qty v-scan-qty iJobPallets iTotPallet iRelQtyPallet .
     IF v-scan-qty <> v-rel-qty  THEN  
         v-scan-qty:BGCOLOR =  12 .
     ELSE v-scan-qty:BGCOLOR =  10 .
@@ -2328,10 +2385,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
-PROCEDURE local-exit:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win 
+PROCEDURE local-exit :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -2348,11 +2404,9 @@ PROCEDURE local-exit:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
@@ -3422,4 +3476,5 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
