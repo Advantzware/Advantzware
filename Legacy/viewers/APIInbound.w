@@ -143,15 +143,19 @@ DEFINE VARIABLE edResponseData AS CHARACTER
 
 DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 162.8 BY 1 NO-UNDO.
+     SIZE 143 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 163 BY 7.86.
+     SIZE 143 BY 7.38.
 
 DEFINE RECTANGLE RECT-28
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 163 BY 9.76.
+     SIZE 143 BY 9.29.
+
+DEFINE RECTANGLE RECT-29
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 145 BY 18.57.
 
 DEFINE VARIABLE tgActive AS LOGICAL INITIAL no 
      LABEL "Active" 
@@ -169,36 +173,37 @@ DEFINE VARIABLE tgCanBeQueued AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiMessage AT ROW 1.14 COL 3 NO-LABEL WIDGET-ID 52
-     APIInbound.apiRoute AT ROW 2.91 COL 24 COLON-ALIGNED WIDGET-ID 2
+     fiMessage AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 52
+     APIInbound.apiRoute AT ROW 2.67 COL 21 COLON-ALIGNED WIDGET-ID 2
           LABEL "API Route" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 87 BY 1
           BGCOLOR 15 
-     tgActive AT ROW 3.05 COL 118.4 WIDGET-ID 28
-     edDescription AT ROW 4.48 COL 26 NO-LABEL WIDGET-ID 34
-     cbRequestDataType AT ROW 7.19 COL 95.8 COLON-ALIGNED WIDGET-ID 40
-     cbRequestVerb AT ROW 7.24 COL 24 COLON-ALIGNED WIDGET-ID 42
-     tgCanBeQueued AT ROW 8.62 COL 118.4 WIDGET-ID 38
-     APIInbound.requestHandler AT ROW 8.67 COL 24 COLON-ALIGNED WIDGET-ID 12
+     tgActive AT ROW 2.81 COL 115.4 WIDGET-ID 28
+     edDescription AT ROW 4.24 COL 23 NO-LABEL WIDGET-ID 34
+     cbRequestDataType AT ROW 6.95 COL 92.8 COLON-ALIGNED WIDGET-ID 40
+     cbRequestVerb AT ROW 7 COL 21 COLON-ALIGNED WIDGET-ID 42
+     tgCanBeQueued AT ROW 8.38 COL 115.4 WIDGET-ID 38
+     APIInbound.requestHandler AT ROW 8.43 COL 21 COLON-ALIGNED WIDGET-ID 12
           LABEL "Request Handler" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 88 BY 1
           BGCOLOR 15 
-     edRequestData AT ROW 11.76 COL 26 NO-LABEL WIDGET-ID 48
-     edResponseData AT ROW 16.43 COL 26 NO-LABEL WIDGET-ID 54
+     edRequestData AT ROW 10.29 COL 23 NO-LABEL WIDGET-ID 48
+     edResponseData AT ROW 14.95 COL 23 NO-LABEL WIDGET-ID 54
      "Response Data:" VIEW-AS TEXT
-          SIZE 18.2 BY .62 AT ROW 16.48 COL 7 WIDGET-ID 56
+          SIZE 18.2 BY .62 AT ROW 15 COL 4 WIDGET-ID 56
      "Request Data:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 11.81 COL 9.2 WIDGET-ID 50
+          SIZE 16 BY .62 AT ROW 10.33 COL 6.2 WIDGET-ID 50
      "Description:" VIEW-AS TEXT
-          SIZE 14.2 BY .62 AT ROW 4.48 COL 11.8 WIDGET-ID 36
-     RECT-27 AT ROW 2.57 COL 3 WIDGET-ID 58
-     RECT-28 AT ROW 11.05 COL 3 WIDGET-ID 60
+          SIZE 14.2 BY .62 AT ROW 4.33 COL 8 WIDGET-ID 36
+     RECT-27 AT ROW 2.43 COL 2 WIDGET-ID 58
+     RECT-28 AT ROW 10.05 COL 2 WIDGET-ID 60
+     RECT-29 AT ROW 1 COL 1 WIDGET-ID 62
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 9 FONT 6 WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -228,8 +233,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 20
-         WIDTH              = 166.4.
+         HEIGHT             = 18.57
+         WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -273,6 +278,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fiMessage IN FRAME F-Main
    NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR RECTANGLE RECT-29 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIInbound.requestHandler IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR TOGGLE-BOX tgActive IN FRAME F-Main

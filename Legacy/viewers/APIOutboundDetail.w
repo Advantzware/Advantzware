@@ -115,32 +115,37 @@ DEFINE VARIABLE edData AS CHARACTER
      SIZE 101 BY 4
      BGCOLOR 15  NO-UNDO.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 116 BY 10.24.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     APIOutboundDetail.apiID AT ROW 1.95 COL 29 COLON-ALIGNED WIDGET-ID 2
+     APIOutboundDetail.apiID AT ROW 1.24 COL 13 COLON-ALIGNED WIDGET-ID 2
           LABEL "API ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
-          BGCOLOR 3 FGCOLOR 15 
-     APIOutboundDetail.detailID AT ROW 3.86 COL 29 COLON-ALIGNED WIDGET-ID 4
+          BGCOLOR 15 
+     APIOutboundDetail.detailID AT ROW 3.14 COL 13 COLON-ALIGNED WIDGET-ID 4
           LABEL "Detail ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
           BGCOLOR 15 
-     APIOutboundDetail.parentID AT ROW 5.81 COL 29.2 COLON-ALIGNED WIDGET-ID 6
+     APIOutboundDetail.parentID AT ROW 5.1 COL 13.2 COLON-ALIGNED WIDGET-ID 6
           LABEL "Parent ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 33.8 BY 1
           BGCOLOR 15 
-     edData AT ROW 7.67 COL 31 NO-LABEL WIDGET-ID 8
+     edData AT ROW 6.95 COL 15 NO-LABEL WIDGET-ID 8
      "Data:" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 7.71 COL 24 WIDGET-ID 10
+          SIZE 7 BY .62 AT ROW 6.95 COL 8 WIDGET-ID 10
+     RECT-6 AT ROW 1 COL 1 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 9 FONT 6 WIDGET-ID 100.
+         FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -170,8 +175,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 11.38
-         WIDTH              = 156.4.
+         HEIGHT             = 10.24
+         WIDTH              = 116.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -210,6 +215,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN APIOutboundDetail.parentID IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
