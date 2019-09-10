@@ -179,11 +179,11 @@ CASE ip-lookupField:
            /* List of fields which are required in the query */
            INPUT "apiID,endPoint,isSSLEnabled,authType,requestVerb,clientID,isActive", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "apiID,endPoint,isSSLEnabled,authType,requestVerb,clientID,isActive",
+           INPUT "apiID,clientID,endPoint,isSSLEnabled,authType,requestVerb,isActive",
            /* List of field labels to override the default database field label */
-           INPUT "",
+           INPUT "API ID,Client ID, EndPoint, SSL Enabled, Auth Type, Request Verb, Active",
            /* List of field formats to override the default database field format */
-           INPUT "X(30),X(60)",
+           INPUT "X(30),X(30),X(60)",
            /* List of browse column width values to override the default column width in browse */
            INPUT "",
            /* List of fields for which field level search is enabled */
@@ -191,9 +191,50 @@ CASE ip-lookupField:
            /* List of fields for which sorting is enabled */
            INPUT "apiID",
            /* Where clause to select specific records */
-           INPUT "" ,
+           INPUT "APIOutbound.company EQ '" + ip-company + "'" ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
-           INPUT "apiID",
+           INPUT "apiID,clientID",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal
+           ).
+    WHEN "triggerID" THEN 
+        RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Outbound API Triggers",
+           /* The source field for which the lookup screen is called for */
+           INPUT "triggerID",
+           /* DB Table from which data is to be fetched */
+           INPUT "APIOutboundTrigger",
+           /* List of fields which are required in the query */
+           INPUT "triggerID,description,apiID,clientID,isActive", 
+           /* List of fields which should be displayed in the browse */ 
+           INPUT "triggerID,description,apiID,clientID,isActive",
+           /* List of field labels to override the default database field label */
+           INPUT "Trigger ID, Description,API ID,Client ID, Active",
+           /* List of field formats to override the default database field format */
+           INPUT "X(32),X(60)",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT "",
+           /* List of fields for which field level search is enabled */
+           INPUT "triggerID,apiID,clientID,isActive",
+           /* List of fields for which sorting is enabled */
+           INPUT "triggerID",
+           /* Where clause to select specific records */
+           INPUT "APIOutboundTrigger.company EQ '" + ip-company + "'" ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "triggerID,apiID,clientID",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
            /* dynamic subject id */

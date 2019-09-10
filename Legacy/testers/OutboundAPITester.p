@@ -16,57 +16,43 @@
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 DEFINE VARIABLE cAPIID         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cClientID      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTriggerID     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE cParentProgram AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE iEventID       AS INTEGER   NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
-
-{api/ttArgs.i}
 
 /* ***************************  Main Block  *************************** */
 ASSIGN
     cParentProgram = PROGRAM-NAME(1)
-    cAPIID         = "SendCustomer"
+    cAPIID         = "SendRelease"
+    cClientID      = ""
+    cTriggerID     = "PrintRelease"
+    cCompany       = "001"
+    cLocation      = "MAIN"
     .
 
-FIND FIRST Cust NO-LOCK NO-ERROR.
-CREATE ttArgs.
-ASSIGN
-    ttArgs.argType = "ROWID"
-    ttArgs.argKey  = "cust"
-    ttArgs.argValue = STRING(ROWID(cust))
-    .
-    
-RUN api/PrepareOutboundRequest.p (
-    INPUT TABLE ttArgs,
-    cAPIId,    
-    OUTPUT lcRequestData,
-    OUTPUT cMessage,
-    OUTPUT lSuccess
+FIND LAST oe-relh NO-LOCK NO-ERROR.
+
+RUN api\PrepareAndCallOutboundRequest.p (
+    cCompany,
+    cLocation,
+    cAPIID,
+    cClientID,
+    cTriggerID,
+    "oe-relh",
+    STRING(ROWID(oe-relh)),
+    FALSE,
+    OUTPUT iEventID,
+    OUTPUT lSuccess,
+    OUTPUT cMessage
     ).
+  
 
-IF NOT lSuccess THEN DO:
-   RUN api/CreateAPIOutboundEvent.p (
-       INPUT cAPIID,
-       INPUT lcRequestData,
-       INPUT "",
-       INPUT cParentProgram,
-       INPUT lSuccess,
-       INPUT cMessage,
-       INPUT NOW
-       ).    
-END.
-ELSE    
-    RUN api/CallOutBoundAPI.p (
-        cAPIId,
-        lcRequestData,
-        cParentProgram,
-        OUTPUT cMessage,
-        OUTPUT lSuccess
-        ).
-    
 MESSAGE "Message:" cMessage SKIP
-        "Success:" lSuccess
-VIEW-AS ALERT-BOX.    
+        "Success:" lSuccess SKIP
+    VIEW-AS ALERT-BOX.    

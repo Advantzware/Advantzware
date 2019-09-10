@@ -13,12 +13,13 @@
     {api/ttArgs.i}
     {api/CommonAPIProcs.i}
     
-    DEFINE INPUT        PARAMETER TABLE             FOR ttArgs.
-    DEFINE INPUT        PARAMETER ipcParentID       AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcRequestHandler AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData  AS LONGCHAR  NO-UNDO.
-    DEFINE OUTPUT       PARAMETER oplSuccess        AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcMessage        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER TABLE                   FOR ttArgs.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundTriggerID AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestHandler       AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData        AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
     
     /* Variables to store order line's request data */
     DEFINE VARIABLE lcLineData       AS LONGCHAR  NO-UNDO.
@@ -118,16 +119,17 @@
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
             INPUT TABLE ttArgs,
-            INPUT ipcParentID,
+            INPUT ipiAPIOutboundID,
+            INPUT ipiAPIOutboundTriggerID,
             INPUT-OUTPUT ioplcRequestData,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ).
     ELSE DO:    
         FIND FIRST APIOutboundDetail NO-LOCK
-             WHERE APIOutboundDetail.apiID    EQ ipcParentID
-               AND APIOutboundDetail.detailID EQ "detail"
-               AND APIOutboundDetail.parentID EQ ipcParentID
+             WHERE APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+               AND APIOutboundDetail.detailID      EQ "detail"
+               AND APIOutboundDetail.parentID      EQ "SendPurchaseOrder"
              NO-ERROR.
         
         IF NOT AVAILABLE APIOutboundDetail THEN DO:
@@ -139,15 +141,15 @@
         END.
     
         FIND FIRST bf-APIOutboundDetail1 NO-LOCK
-             WHERE bf-APIOutboundDetail1.apiID    EQ ipcParentID
-               AND bf-APIOutboundDetail1.detailID EQ "adder"
-               AND bf-APIOutboundDetail1.parentID EQ APIOutboundDetail.detailID
+             WHERE bf-APIOutboundDetail1.apiOutboundID EQ ipiAPIOutboundID
+               AND bf-APIOutboundDetail1.detailID      EQ "adder"
+               AND bf-APIOutboundDetail1.parentID      EQ APIOutboundDetail.detailID
              NO-ERROR.
         
         FIND FIRST bf-APIOutboundDetail2 NO-LOCK
-             WHERE bf-APIOutboundDetail2.apiID    EQ ipcParentID
-               AND bf-APIOutboundDetail2.detailID EQ "scores"
-               AND bf-APIOutboundDetail2.parentID EQ APIOutboundDetail.detailID
+             WHERE bf-APIOutboundDetail2.apiOutboundID EQ ipiAPIOutboundID
+               AND bf-APIOutboundDetail2.detailID      EQ "scores"
+               AND bf-APIOutboundDetail2.parentID      EQ APIOutboundDetail.detailID
              NO-ERROR.
                         
         FIND FIRST ttArgs

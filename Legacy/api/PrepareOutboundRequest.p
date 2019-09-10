@@ -12,25 +12,24 @@
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
 
-DEFINE INPUT  PARAMETER TABLE           FOR ttArgs.
-DEFINE INPUT  PARAMETER ipcAPIID        AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER oplcRequestData AS LONGCHAR  NO-UNDO.  
-DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER TABLE                   FOR ttArgs.
+DEFINE INPUT  PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipiAPIOutboundTriggerID AS INTEGER   NO-UNDO.
+DEFINE OUTPUT PARAMETER oplcRequestData         AS LONGCHAR  NO-UNDO.  
+DEFINE OUTPUT PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCompany     AS CHARACTER NO-UNDO INITIAL "001".
 DEFINE VARIABLE cSysCtrlName AS CHARACTER NO-UNDO INITIAL "APIConfig".
 DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
 
 FIND FIRST APIOutbound NO-LOCK
-     WHERE APIOutbound.APIID = ipcAPIID 
-       AND APIOutbound.isActive
+     WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID
      NO-ERROR.
-
-IF AVAILABLE APIOutbound THEN DO:
+IF AVAILABLE APIOutbound AND 
+   APIOutbound.isActive THEN DO:
     RUN sys/ref/nk1look.p (
-        cCompany,             /* Company Code */
+        APIOutbound.company,  /* Company Code */
         cSysCtrlName,         /* sys-ctrl name */
         "I",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
         FALSE,                /* Use ship-to */
@@ -72,38 +71,52 @@ IF AVAILABLE APIOutbound THEN DO:
     oplcRequestData = APIOutbound.requestData.
     /* Transform Request Data */
     RUN pPrepareRequest (
-        ipcAPIID,
-        INPUT APIOutbound.requestHandler,
+        INPUT  APIOutbound.apiID,
+        INPUT  APIOutbound.apiOutboundID,
+        INPUT  ipiAPIOutboundTriggerID,        
+        INPUT  APIOutbound.requestHandler,
         INPUT-OUTPUT oplcRequestData,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ).
 END.
-
+ELSE
+    ASSIGN
+        opcMessage = "API Outbound configuration for Outbound Sequence ID [" 
+                   + STRING(ipiAPIOutboundID)
+                   + "], is not available or inactive"
+        oplSuccess = FALSE
+        .
+        
 PROCEDURE pPrepareRequest PRIVATE:
-   /*------------------------------------------------------------------------------
-   Purpose: Prepares request for the given API ID
-   Notes:
-   ------------------------------------------------------------------------------*/
-   
-   DEFINE INPUT         PARAMETER ipcAPIID          AS CHARACTER NO-UNDO.
-   DEFINE INPUT         PARAMETER ipcRequestHandler AS CHARACTER NO-UNDO.
-   DEFINE INPUT-OUTPUT  PARAMETER oplcRequestData   AS LONGCHAR  NO-UNDO.
-   DEFINE OUTPUT        PARAMETER oplSuccess        AS LOGICAL   NO-UNDO.
-   DEFINE OUTPUT        PARAMETER opcMessage        AS CHARACTER NO-UNDO.
-
-   CASE ipcAPIID:
-       WHEN "SendCustomer" THEN
-           RUN api/SendCustomer.p (
-               INPUT TABLE ttArgs,
-               INPUT ipcRequestHandler,
-               INPUT-OUTPUT oplcRequestData,
-               OUTPUT oplSuccess,
-               OUTPUT opcMessage
-               ).
+    /*------------------------------------------------------------------------------
+    Purpose: Prepares request for the given API ID
+    Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcAPIID                AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundTriggerID AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRequestHandler       AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER oplcRequestData         AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
+ 
+    CASE ipcAPIID:
+        WHEN "SendCustomer" THEN
+            RUN api/SendCustomer.p (
+                INPUT TABLE ttArgs,
+                INPUT ipiAPIOutboundID,
+                INPUT ipiAPIOutboundTriggerID,
+                INPUT ipcRequestHandler,
+                INPUT-OUTPUT oplcRequestData,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
         WHEN "SendFinishedGood" THEN
             RUN api/SendFinishedGood.p (
                 INPUT TABLE ttArgs,
+                INPUT ipiAPIOutboundID,
+                INPUT ipiAPIOutboundTriggerID,
                 INPUT ipcRequestHandler,
                 INPUT-OUTPUT oplcRequestData,
                 OUTPUT oplSuccess,
@@ -112,6 +125,8 @@ PROCEDURE pPrepareRequest PRIVATE:
         WHEN "SendVendor" THEN
             RUN api/SendVendor.p (
                 INPUT TABLE ttArgs,
+                INPUT ipiAPIOutboundID,
+                INPUT ipiAPIOutboundTriggerID,
                 INPUT ipcRequestHandler,
                 INPUT-OUTPUT oplcRequestData,
                 OUTPUT oplSuccess,
@@ -120,7 +135,8 @@ PROCEDURE pPrepareRequest PRIVATE:
         WHEN "SendPurchaseOrder" THEN
             RUN api/SendPurchaseOrder.p (
                 INPUT TABLE ttArgs,
-                INPUT ipcAPIID,
+                INPUT ipiAPIOutboundID,
+                INPUT ipiAPIOutboundTriggerID,
                 INPUT ipcRequestHandler,
                 INPUT-OUTPUT oplcRequestData,
                 OUTPUT oplSuccess,
@@ -129,11 +145,12 @@ PROCEDURE pPrepareRequest PRIVATE:
         WHEN "SendRelease" THEN
             RUN api/SendRelease.p (
                 INPUT TABLE ttArgs,
-                INPUT ipcAPIID,
+                INPUT ipiAPIOutboundID,
+                INPUT ipiAPIOutboundTriggerID,
                 INPUT ipcRequestHandler,
                 INPUT-OUTPUT oplcRequestData,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).
-   END CASE.
+    END CASE.   
 END PROCEDURE.

@@ -386,7 +386,7 @@ END.
 ON DEFAULT-ACTION OF BROWSE-2 IN FRAME DEFAULT-FRAME
 DO:
     IF AVAILABLE ttAPIInboundEvent THEN DO:
-        RUN api\ResponseInboundDataViewer.w (
+        RUN api/ResponseInboundDataViewer.w (
             ttAPIInboundEvent.eventRowID
             ).
     END.
