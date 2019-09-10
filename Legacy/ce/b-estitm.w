@@ -922,6 +922,14 @@ DO:
        THEN RETURN NO-APPLY.
 
     END.
+    ELSE IF CAN-FIND(cust WHERE cust.company = gcompany AND
+                       cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} AND 
+                       cust.ACTIVE EQ "I" ) 
+            THEN DO:
+               MESSAGE "Customer is Inactive. Please select a Active Customer ..."
+                   VIEW-AS ALERT-BOX INFORMATION .
+               RETURN NO-APPLY .
+    END.
 
     RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
