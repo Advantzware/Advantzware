@@ -940,6 +940,9 @@ DEF VAR ld-qty-ton AS DEC NO-UNDO.
 DEF VAR ld-qty-msf AS DEC NO-UNDO.
 DEF VAR ld-tot-msf AS DEC NO-UNDO.
 DEF VAR v-adder AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -967,7 +970,7 @@ IF td-show-parm THEN RUN show-param.
 RUN est/rc-seq.p (OUTPUT lv-rc-seq).
 
 IF tb_excel THEN DO:
-    OUTPUT STREAM st-excell TO VALUE(fi_file).
+    OUTPUT STREAM st-excell TO VALUE(cFileName).
 
     PUT STREAM st-excell UNFORMATTED v-hdr SKIP.
 END.
@@ -1367,7 +1370,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
   OUTPUT STREAM st-excell CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
