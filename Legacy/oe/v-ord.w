@@ -6636,6 +6636,12 @@ PROCEDURE valid-cust-no :
       MESSAGE TRIM(oe-ord.cust-no:LABEL) + " must not be blank..."
           VIEW-AS ALERT-BOX ERROR.
 
+    ELSE IF CAN-FIND(FIRST cust WHERE cust.company EQ cocode
+                                 AND cust.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+                                 AND cust.ACTIVE EQ "I") THEN
+        MESSAGE "Customer is Inactive. Please select a Active Customer ..."
+          VIEW-AS ALERT-BOX INFORMATION .
+
     ELSE
     DO li = 1 TO 2:
       ll = CAN-FIND(FIRST cust WHERE cust.company EQ cocode
