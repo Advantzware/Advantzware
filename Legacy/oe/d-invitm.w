@@ -45,7 +45,6 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEF VAR v-print-head LIKE sys-ctrl.log-fld NO-UNDO.
 DEF VAR v-print-fmt LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR glInvQtyChanged AS LOG NO-UNDO.
-DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 DEF NEW SHARED BUFFER xinv-line FOR inv-line.
@@ -541,17 +540,20 @@ DO:
   DEF VAR ll-canceled AS LOG NO-UNDO.
   DEF VAR lv-hld-po-no LIKE inv-line.po-no NO-UNDO.
   DEF VAR xInvQtyPrev LIKE inv-line.inv-qty NO-UNDO.
-
+  DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
   DEF BUFFER bf-oe-ordl FOR oe-ordl.
 
 
   DISABLE TRIGGERS FOR LOAD OF inv-line.
 
-  RUN valid-i-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-i-no ( OUTPUT lopError) NO-ERROR.
+  IF lopError THEN RETURN NO-APPLY.
+  
+  RUN valid-uom (OUTPUT lopError) NO-ERROR.
+  IF lopError THEN RETURN NO-APPLY.
 
-  RUN valid-uom NO-ERROR.
-  IF lError THEN RETURN NO-APPLY.
+  RUN valid-s-man (0, OUTPUT lopError) NO-ERROR.
+   IF lopError THEN RETURN NO-APPLY.
 
   FIND CURRENT inv-line.
 
@@ -685,10 +687,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.i-no Dialog-Frame
 ON LEAVE OF inv-line.i-no IN FRAME Dialog-Frame /* Item# */
 DO :
-
+   DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
   IF LASTKEY NE -1 THEN DO WITH FRAME Dialog-Frame:
-    RUN valid-i-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-i-no ( OUTPUT lopError) NO-ERROR.
+    IF lopError THEN RETURN NO-APPLY.
 
     DEF VAR li AS INT NO-UNDO.
 
@@ -873,9 +875,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.pr-uom Dialog-Frame
 ON LEAVE OF inv-line.pr-uom IN FRAME Dialog-Frame /* UOM */
 DO:
+  DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
   IF LASTKEY NE -1 THEN DO:
-      RUN valid-uom NO-ERROR.
-      IF lError THEN RETURN NO-APPLY.
+      RUN valid-uom (OUTPUT lopError) NO-ERROR.
+      IF lopError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -900,6 +903,78 @@ END.
 ON LEAVE OF inv-line.qty IN FRAME Dialog-Frame /* Qty Order */
 DO:
    {oe/ordltot.i inv-line qty}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[1] Dialog-Frame
+ON LEAVE OF inv-line.sman[1] IN FRAME Dialog-Frame /* sales man 1 */
+DO:
+    DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN DO:
+       RUN valid-s-man (1, OUTPUT lopError) NO-ERROR.
+       IF lopError THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[1]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[1] Dialog-Frame
+ON VALUE-CHANGED OF inv-line.sman[1] IN FRAME Dialog-Frame /* sales man 1 */
+DO:
+   RUN new-s-man (1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[2] Dialog-Frame
+ON LEAVE OF inv-line.sman[2] IN FRAME Dialog-Frame /* sales man 2 */
+DO:
+    DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN DO:
+       RUN valid-s-man (2,OUTPUT lopError) NO-ERROR.
+       IF lopError THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[2] Dialog-Frame
+ON VALUE-CHANGED OF inv-line.sman[2] IN FRAME Dialog-Frame /* sales man 2 */
+DO:
+   RUN new-s-man (2).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[3] Dialog-Frame
+ON LEAVE OF inv-line.sman[3] IN FRAME Dialog-Frame /* sales man 3 */
+DO:
+   DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN DO:
+       RUN valid-s-man (3,OUTPUT lopError) NO-ERROR.
+       IF lopError THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME inv-line.sman[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-line.sman[3] Dialog-Frame
+ON VALUE-CHANGED OF inv-line.sman[3] IN FRAME Dialog-Frame /* sales man 3 */
+DO:
+   RUN new-s-man (3).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1547,7 +1622,8 @@ PROCEDURE valid-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-new-i-no LIKE inv-line.i-no NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+    DEF VAR lv-new-i-no LIKE inv-line.i-no NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1591,7 +1667,7 @@ PROCEDURE valid-i-no :
     IF v-msg NE "" THEN DO:
       IF v-msg NE lv-new-i-no THEN MESSAGE v-msg + "..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO inv-line.i-no.
-      RETURN ERROR.
+      oplReturnError = YES .
     END.
   END.
 
@@ -1632,7 +1708,7 @@ PROCEDURE valid-uom :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  lError = NO .
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
   DEFINE VARIABLE cUom AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lValid AS LOGICAL NO-UNDO .
   DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
@@ -1651,7 +1727,7 @@ PROCEDURE valid-uom :
       IF NOT lValid THEN DO:
           MESSAGE  cValidMessage
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
-          lError = YES .
+          oplReturnError = YES .
           lCheckError = YES .
           APPLY "entry" TO inv-line.pr-uom .
       END.
@@ -1661,12 +1737,119 @@ PROCEDURE valid-uom :
       IF NOT lValid AND NOT lCheckError THEN DO:
           MESSAGE  cValidMessage
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
-          lError = YES .
+          oplReturnError = YES .
           APPLY "entry" TO inv-line.pr-uom .
       END.
    END.
    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdValidator). 
 {&methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-s-man V-table-Win 
+PROCEDURE valid-s-man :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-int AS INT NO-UNDO.
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
+  
+  li = ip-int.
+
+  IF li EQ 0 THEN
+    ASSIGN
+     ip-int = 1
+     li     = 3.
+
+  DO ip-int = ip-int TO li WITH FRAME {&FRAME-NAME}:
+    lv-sman = IF ip-int EQ 3 THEN inv-line.sman[3]:SCREEN-VALUE
+              ELSE
+              IF ip-int EQ 2 THEN inv-line.sman[2]:SCREEN-VALUE
+                             ELSE inv-line.sman[1]:SCREEN-VALUE.
+    
+    IF lv-sman NE "" THEN DO:
+      IF NOT CAN-FIND(FIRST sman
+                      WHERE sman.company EQ cocode
+                        AND sman.sman    EQ lv-sman) THEN DO:
+        MESSAGE "Invalid Sales Rep, try help..." VIEW-AS ALERT-BOX ERROR.
+        IF ip-int EQ 3 THEN APPLY "entry" TO inv-line.sman[3].
+        ELSE
+        IF ip-int EQ 2 THEN APPLY "entry" TO inv-line.sman[2].
+                       ELSE APPLY "entry" TO inv-line.sman[1].
+        oplReturnError = YES .
+      END.
+    END.
+
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-s-man V-table-Win 
+PROCEDURE new-s-man :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-int AS INT NO-UNDO.
+
+  DEF VAR lv-sman LIKE sman.sman NO-UNDO.
+  DEF VAR ll-all AS LOG NO-UNDO.
+  DEF VAR li AS INT NO-UNDO.
+
+
+  IF ip-int EQ 0 THEN
+    ASSIGN
+     li     = 3
+     ip-int = 1
+     ll-all = YES.
+  ELSE
+    li = ip-int.
+
+  DO ip-int = ip-int TO li WITH FRAME {&FRAME-NAME}:
+    lv-sman = IF ip-int EQ 3 THEN inv-line.sman[3]:SCREEN-VALUE
+              ELSE
+              IF ip-int EQ 2 THEN inv-line.sman[2]:SCREEN-VALUE
+                             ELSE inv-line.sman[1]:SCREEN-VALUE.
+
+    IF lv-sman NE "" THEN DO:
+      FIND FIRST sman
+          WHERE sman.company EQ cocode
+            AND sman.sman    EQ lv-sman
+          NO-LOCK NO-ERROR.
+      IF AVAIL sman THEN DO:
+        IF ip-int EQ 3 THEN DO:
+          inv-line.sname[3]:SCREEN-VALUE = sman.sname.
+        END.
+        ELSE
+        IF ip-int EQ 2 THEN DO:
+          inv-line.sname[2]:SCREEN-VALUE = sman.sname.
+        END.
+        ELSE DO:
+          inv-line.sname[1]:SCREEN-VALUE = sman.sname.
+        END.
+      END. /* avail sman */
+    END. 
+    ELSE DO:
+          IF ip-int EQ 3 THEN 
+              inv-line.sname[3]:SCREEN-VALUE = "" .
+          ELSE IF ip-int EQ 2 THEN 
+              inv-line.sname[2]:SCREEN-VALUE = "".
+          ELSE 
+              inv-line.sname[1]:SCREEN-VALUE = "" .
+    END.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
