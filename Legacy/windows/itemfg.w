@@ -131,6 +131,7 @@ DEFINE VARIABLE h_v-navest-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-spcard AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-locw AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export3 AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -895,6 +896,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-ordfgi ( 4.33 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 20.00 , 156.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export3 ).
+       RUN set-position IN h_export3 ( 1.00 , 13.40 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
@@ -903,6 +912,9 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_b-ordfgi. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'Record':U , h_b-ordfgi ).
+
+       /* Links to SmartObject h_export3. */
+       RUN add-link IN adm-broker-hdl ( h_b-ordfgi , 'export-xl':U , h_export3 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
