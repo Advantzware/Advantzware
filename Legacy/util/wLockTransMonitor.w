@@ -467,7 +467,6 @@ PROCESS EVENTS.
 IF lMonitor THEN 
     RUN pRunMonitor.
 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -551,7 +550,7 @@ PROCEDURE control_load :
 DEFINE VARIABLE UIB_S    AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE OCXFile  AS CHARACTER  NO-UNDO.
 
-OCXFile = SEARCH( "wTxnLkMon.wrx":U ).
+OCXFile = SEARCH( "wLockTransMonitor.wrx":U ).
 IF OCXFile = ? THEN
   OCXFile = SEARCH(SUBSTRING(THIS-PROCEDURE:FILE-NAME, 1,
                      R-INDEX(THIS-PROCEDURE:FILE-NAME, ".":U), "CHARACTER":U) + "wrx":U).
@@ -564,7 +563,7 @@ DO:
   .
   RUN initialize-controls IN THIS-PROCEDURE NO-ERROR.
 END.
-ELSE MESSAGE "wTxnLkMon.wrx":U SKIP(1)
+ELSE MESSAGE "wLockTransMonitor.wrx":U SKIP(1)
              "The binary control file could not be found. The controls cannot be loaded."
              VIEW-AS ALERT-BOX TITLE "Controls Not Loaded".
 
