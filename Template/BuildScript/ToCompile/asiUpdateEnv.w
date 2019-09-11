@@ -5718,6 +5718,13 @@ PROCEDURE ipWriteIniFile :
                 ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain.w,","")
                 ttIniFile.cVarValue = REPLACE(ttIniFile.cVarValue,"system/addmain2.w,","")
                 .
+            /* #53853 New 'mode': AutoLogout */
+            IF ttIniFile.cVarName EQ "modeList"
+            AND LOOKUP("AutoLogout",ttIniFile.cVarName) EQ 0 THEN ASSIGN 
+                ttIniFile.cVarName= ttIniFile.cVarName + ",AutoLogout". 
+            IF ttIniFile.cVarValue EQ "pgmList"
+            AND LOOKUP("userControl/monitor.w",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
+                ttIniFile.cVarValue = ttIniFile.cVarValue + ",userControl/monitor.w". 
             PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
         END.
         ELSE NEXT.
