@@ -73,12 +73,12 @@ ASSIGN cTextListToSelect = "Code,Desc.,Customer Name,Whse,Bin Loc,Dspsl Dt,Lst U
                             "Markup,Cost,M/L,Amtz,M Type,Use w/Est,UOM,SIMON,C Type,Account No,Cad #,File #," +
                             "Customer #,Last Estimate,Last Job,Has Note,Box Style,Price," +
                             "Length,Width,Depth,Number Up,Die Width,Die Length,# of Impressions,Date Received," +  /*8*/
-                            "FG Category,RM Category,RM Item #,Owner 1,Owner 1 %,Owner 2,Owner 2 %"  /*7*/
+                            "FG Category,RM Item #,Owner 1,Owner 1 %,Owner 2,Owner 2 %"  /*7*/
        cFieldListToSelect = "code,dscr,cust-name,ware,bin,dis-dt,lst-dt," +
                              "mrkup,cst,ml,amtz,m-typ,use-est,uom,simon,c-typ,act-no,cad-no,file," +
                              "cust,lst-est,lst-job,has-not,prep.box-style,prep.spare-dec-1," +
                              "prep.carton-l,prep.carton-w,prep.carton-d,prep.number-up,prep.die-w,prep.die-l,prep.no-of-impressions,received-date," +
-                             "prep.fgcat,prep.procat,prep.i-no,owner1,owner%1,owner2,owner%2"
+                             "prep.fgcat,prep.i-no,owner1,owner%1,owner2,owner%2"
        cFieldLength = "15,30,30,5,8,10,10," + "7,10,3,6,6,9,3,5,6,30,15,15," + "10,13,10,8,10,8," + "10,10,10,10,10,10,15,13," + "11,11,15,25,9,25,9"
        cFieldType = "c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,c,c,c," + "c,c,c,c,c,i," + "i,i,i,i,i,i,i,c," + "c,c,c,c,i,c,i"
     .
