@@ -54,7 +54,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -66,19 +66,19 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR APIOutbound.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES APIOutboundDetail
+&Scoped-define INTERNAL-TABLES APIOutboundTrigger
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundDetail.apiID APIOutboundDetail.clientID APIOutboundDetail.detailID APIOutboundDetail.parentID   
+&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundTrigger.triggerID APIOutboundTrigger.description APIOutboundTrigger.isActive   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table APIOutboundDetail
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutboundDetail
+&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundTrigger NO-LOCK     WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundTrigger NO-LOCK     WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID.
+&Scoped-define TABLES-IN-QUERY-br_table APIOutboundTrigger
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutboundTrigger
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -143,20 +143,19 @@ RUN set-attribute-list (
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      APIOutboundDetail SCROLLING.
+      APIOutboundTrigger SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      APIOutboundDetail.apiID COLUMN-LABEL "API ID" FORMAT "x(32)":U
-      APIOutboundDetail.clientID COLUMN-LABEL "API ID" FORMAT "x(32)":U
-      APIOutboundDetail.detailID COLUMN-LABEL "Detail ID" FORMAT "x(32)":U
-      APIOutboundDetail.parentID COLUMN-LABEL "Parent ID" FORMAT "x(32)":U
+      APIOutboundTrigger.triggerID FORMAT "x(32)":U
+      APIOutboundTrigger.description FORMAT "x(80)":U
+      APIOutboundTrigger.isActive FORMAT "YES/NO":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 125 BY 6.71 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS SIZE 129 BY 6.71 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -165,8 +164,7 @@ DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -196,8 +194,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 6.71
-         WIDTH              = 125.
+         HEIGHT             = 6.86
+         WIDTH              = 129.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -206,6 +204,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
+{src/adm/method/query.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -219,7 +218,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -234,9 +233,8 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE
-    APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK
-    ~{&SORTBY-PHRASE}.
+OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundTrigger NO-LOCK
+    WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Query            is NOT OPENED
@@ -372,7 +370,7 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "APIOutbound"}
-  {src/adm/template/snd-list.i "APIOutboundDetail"}
+  {src/adm/template/snd-list.i "APIOutboundTrigger"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
