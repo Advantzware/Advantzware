@@ -686,7 +686,7 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     FOR EACH estCostMaterial NO-LOCK 
         WHERE estCostMaterial.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID 
         AND estCostMaterial.estCostFormID EQ ipbf-estCostForm.estCostFormID
-        BY estCostMaterial.formNo
+        BY estCostMaterial.formNo DESCENDING
         BY estCostMaterial.blankNo
         BY estCostMaterial.sequenceOfMaterial:
 
