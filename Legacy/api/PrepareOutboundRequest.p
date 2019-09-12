@@ -19,55 +19,11 @@ DEFINE OUTPUT PARAMETER oplcRequestData         AS LONGCHAR  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSysCtrlName AS CHARACTER NO-UNDO INITIAL "APIConfig".
-DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
-
 FIND FIRST APIOutbound NO-LOCK
      WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID
      NO-ERROR.
 IF AVAILABLE APIOutbound AND 
-   APIOutbound.isActive THEN DO:
-    RUN sys/ref/nk1look.p (
-        APIOutbound.company,  /* Company Code */
-        cSysCtrlName,         /* sys-ctrl name */
-        "I",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
-        FALSE,                /* Use ship-to */
-        FALSE,                /* ship-to vendor */
-        "",                   /* ship-to vendor value */
-        "",                   /* shi-id value */
-        OUTPUT cReturnValue,
-        OUTPUT lRecFound
-        ).
-        
-    IF NOT lRecFound THEN DO:
-       ASSIGN
-           opcMessage = "No API Configuration '" + cSysCtrlName + "' available in sys-ctrl table"
-           oplSuccess = FALSE
-           .
-       RETURN.
-    END.
-    
-    IF APIOutbound.requestHandler NE "" THEN DO:
-        IF INDEX(APIOutbound.requestHandler,STRING(INTEGER(cReturnValue),"9999")) EQ 0 THEN DO:
-            ASSIGN
-                opcMessage = "Mismatch in APIOutbound and '" + cSysCtrlName + "' sys-ctrl request handler code for " + APIOutbound.clientID
-                oplSuccess = FALSE
-                .
-            RETURN.
-        END.  
-    END.
-
-    IF APIOutbound.responseHandler NE "" THEN DO:
-        IF INDEX(APIOutbound.responseHandler,STRING(INTEGER(cReturnValue),"9999")) EQ 0 THEN DO:
-            ASSIGN
-                opcMessage = "Mismatch in APIOutbound and '" + cSysCtrlName + "' sys-ctrl response handler code for " + APIOutbound.clientID
-                oplSuccess = FALSE
-                .
-            RETURN.
-        END.  
-    END.
-        
+   APIOutbound.isActive THEN DO:           
     oplcRequestData = APIOutbound.requestData.
     /* Transform Request Data */
     RUN pPrepareRequest (

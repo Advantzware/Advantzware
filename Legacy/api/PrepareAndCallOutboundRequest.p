@@ -1,16 +1,18 @@
 {api\ttArgs.i}
 
-DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcAPIID           AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcClientID        AS CHARACTER NO-UNDO.  
-DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcTableList       AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcROWIDList       AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER iplReTrigger       AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opiOutboundEventID AS INTEGER   NO-UNDO.
-DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcAPIID            AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcClientID         AS CHARACTER NO-UNDO.  
+DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcTableList        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcROWIDList        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcEventDescription AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplReTrigger        AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opiOutboundEventID  AS INTEGER   NO-UNDO.
+DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
     
 DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE lcResponseData AS LONGCHAR  NO-UNDO.
@@ -59,6 +61,14 @@ END.
 IF NUM-ENTRIES(ipcTableList) NE NUM-ENTRIES(ipcROWIDList) THEN DO:
     ASSIGN
         opcMessage = "Mismatch of number of entries in table and rowid list"
+        oplSuccess = FALSE
+        .
+    RETURN.
+END.
+
+IF ipcPrimaryID EQ "" THEN DO:
+    ASSIGN
+        opcMessage = "Empty value passed in Primary ID"
         oplSuccess = FALSE
         .
     RETURN.
@@ -116,11 +126,14 @@ IF iplReTrigger THEN DO:
             ).
 
         RUN api/CreateAPIOutboundEvent.p (
-            INPUT  APIOutboundEvent.apiOutboundEventID,
+            INPUT  iplReTrigger,                        /* Re-Trigger Event Flag - IF TRUE updates the existing APIOutboundEvent record */
+            INPUT  APIOutboundEvent.apiOutboundEventID, /* apiOutboundEventID - Updates APIOutboundEvent record for the given ID. Pass ? for creating new event */
             INPUT  APIOutboundEvent.company,
             INPUT  APIOutboundEvent.apiID,
             INPUT  APIOutboundEvent.clientID,
             INPUT  APIOutboundEvent.sourceTriggerID,
+            INPUT  APIOutboundEvent.primaryID,
+            INPUT  APIOutboundEvent.eventDescription,
             INPUT  lcRequestData,
             INPUT  lcResponseData,
             INPUT  cParentProgram,
@@ -172,11 +185,14 @@ FOR EACH APIOutbound NO-LOCK
 
     IF NOT oplSuccess THEN DO:
         RUN api/CreateAPIOutboundEvent.p (
-            INPUT  0,   /* API Outbound Event ID */
+            INPUT  iplReTrigger,                   /* Re-Trigger Event Flag - IF TRUE updates the existing APIOutboundEvent record for the given apiOutboundEventID */
+            INPUT  ?,                              /* apiOutboundEventID - Updates APIOutboundEvent record for the given ID. Pass ? for creating new event */
             INPUT  APIOutbound.company,
             INPUT  APIOutbound.apiID,
             INPUT  APIOutbound.clientID,
             INPUT  APIOutboundTrigger.triggerID,
+            INPUT  ipcPrimaryID,
+            INPUT  ipcEventDescription,
             INPUT  lcRequestData,
             INPUT  "", /* Response Data */
             INPUT  cParentProgram,
@@ -200,11 +216,14 @@ FOR EACH APIOutbound NO-LOCK
         ).
 
     RUN api\CreateAPIOutboundEvent.p (
-        INPUT  0,   /* API Outbound Event ID */
+        INPUT  iplReTrigger,                /* Re-Trigger Event Flag - IF TRUE updates the existing APIOutboundEvent record */
+        INPUT  ?,                           /* apiOutboundEventID - Updates APIOutboundEvent record for the given ID. Pass ? for creating new event */
         INPUT  APIOutbound.company,
         INPUT  APIOutbound.apiID,
         INPUT  APIOutbound.clientID,
         INPUT  APIOutboundTrigger.triggerID,
+        INPUT  ipcPrimaryID,
+        INPUT  ipcEventDescription,
         INPUT  lcRequestData,
         INPUT  lcResponseData,
         INPUT  cParentProgram,

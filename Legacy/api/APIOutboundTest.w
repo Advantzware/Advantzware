@@ -30,9 +30,10 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cLocation       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cPrimaryID        AS CHARACTER NO-UNDO.
 
 RUN api\OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
@@ -61,8 +62,9 @@ btAPIIDLookup fiAPIId btClientIDLookup fiClientID btTriggerIDLookup btGo ~
 fiTriggerID 
 &Scoped-Define DISPLAYED-OBJECTS fiAPIIDLabel fiAPIId fiClientIDlb ~
 fiClientID fiAPITriggerIDLabel fiTriggerID fiPrimaryKeyLabel fiPrimaryKey ~
-fiEndPointLabel edEndpoint fiRequestDataLabel edRequestData ~
-fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
+fiEventDescLabel edEventDesc fiMessage fiEndPointLabel edEndpoint ~
+fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData ~
+fiErrorMessageLabel edErrorMessage 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -122,28 +124,33 @@ DEFINE BUTTON btUpdateRequest
 
 DEFINE VARIABLE edEndpoint AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
-     SIZE 127 BY 2.24
-     FGCOLOR 9  NO-UNDO.
+     SIZE 133 BY 2.24
+     FGCOLOR 1  NO-UNDO.
 
 DEFINE VARIABLE edErrorMessage AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
-     SIZE 127 BY 2.48
-     FGCOLOR 9  NO-UNDO.
+     SIZE 133 BY 2.91
+     FGCOLOR 1  NO-UNDO.
+
+DEFINE VARIABLE edEventDesc AS CHARACTER 
+     VIEW-AS EDITOR MAX-CHARS 200 SCROLLBAR-VERTICAL
+     SIZE 95.6 BY 2.86
+     FGCOLOR 1  NO-UNDO.
 
 DEFINE VARIABLE edRequestData AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
-     SIZE 127 BY 6.76
-     FGCOLOR 9  NO-UNDO.
+     SIZE 133 BY 6.76
+     FGCOLOR 1  NO-UNDO.
 
 DEFINE VARIABLE edResponseData AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
-     SIZE 127 BY 4.38
-     FGCOLOR 9  NO-UNDO.
+     SIZE 133 BY 5.14
+     FGCOLOR 1  NO-UNDO.
 
 DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 43.6 BY 1
-     FGCOLOR 9 FONT 6 NO-UNDO.
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID:" 
      VIEW-AS FILL-IN 
@@ -158,7 +165,7 @@ DEFINE VARIABLE fiAPITriggerIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Trig
 DEFINE VARIABLE fiClientID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 35.6 BY 1
-     FGCOLOR 9 FONT 6 NO-UNDO.
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiClientIDlb AS CHARACTER FORMAT "X(256)":U INITIAL "Client ID:" 
      VIEW-AS FILL-IN 
@@ -172,13 +179,22 @@ DEFINE VARIABLE fiEndPointLabel AS CHARACTER FORMAT "X(256)":U INITIAL "End Poin
 
 DEFINE VARIABLE fiErrorMessageLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Response Result:" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1
+     SIZE 21 BY 1
      FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fiEventDescLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Event Description:" 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 118.4 BY 1
+     FGCOLOR 2  NO-UNDO.
 
 DEFINE VARIABLE fiPrimaryKey AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1
-     FGCOLOR 9 FONT 6 NO-UNDO.
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiPrimaryKeyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Primary Key:" 
      VIEW-AS FILL-IN 
@@ -187,30 +203,30 @@ DEFINE VARIABLE fiPrimaryKeyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Primar
 
 DEFINE VARIABLE fiRequestDataLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Data:" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 18 BY 1
      FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiResponseDataLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Response Data:" 
      VIEW-AS FILL-IN 
-     SIZE 22 BY 1
+     SIZE 19 BY 1
      FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiTriggerID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1
-     FGCOLOR 9 FONT 6 NO-UNDO.
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 132 BY 5.38.
+     SIZE 132 BY 8.33.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 132 BY 22.57.
+     SIZE 157 BY 19.52.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 120 BY 1.91.
+     SIZE 124 BY 5.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -224,26 +240,29 @@ DEFINE FRAME Dialog-Frame
      fiClientIDlb AT ROW 1.76 COL 70.8 COLON-ALIGNED NO-LABEL WIDGET-ID 76
      fiClientID AT ROW 1.76 COL 83.6 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      btTriggerIDLookup AT ROW 3 COL 60.8 WIDGET-ID 120
-     btGo AT ROW 3 COL 72.6 WIDGET-ID 118
+     btGo AT ROW 3 COL 111.4 WIDGET-ID 118
      fiAPITriggerIDLabel AT ROW 3.05 COL 4.4 COLON-ALIGNED NO-LABEL WIDGET-ID 116
      fiTriggerID AT ROW 3.05 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 114
-     btSubmit AT ROW 4.57 COL 139.8
-     btUpdateRequest AT ROW 4.62 COL 72.6 WIDGET-ID 108
-     btPrimaryKeyLookup AT ROW 4.76 COL 57.2 WIDGET-ID 112
-     fiPrimaryKeyLabel AT ROW 4.81 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     fiPrimaryKey AT ROW 4.81 COL 22.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     fiEndPointLabel AT ROW 7.1 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     edEndpoint AT ROW 8.29 COL 6 NO-LABEL WIDGET-ID 14
-     fiRequestDataLabel AT ROW 10.91 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     edRequestData AT ROW 12.1 COL 6 NO-LABEL WIDGET-ID 2
-     fiResponseDataLabel AT ROW 19.29 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     edResponseData AT ROW 20.48 COL 6 NO-LABEL WIDGET-ID 10
-     fiErrorMessageLabel AT ROW 25.24 COL 4 COLON-ALIGNED NO-LABEL WIDGET-ID 96
-     edErrorMessage AT ROW 26.38 COL 6 NO-LABEL WIDGET-ID 94
+     btUpdateRequest AT ROW 4.62 COL 103.4 WIDGET-ID 108
+     btPrimaryKeyLookup AT ROW 4.76 COL 62.8 WIDGET-ID 112
+     fiPrimaryKeyLabel AT ROW 4.81 COL 12 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     fiPrimaryKey AT ROW 4.81 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     fiEventDescLabel AT ROW 6.1 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 124
+     edEventDesc AT ROW 6.1 COL 30.4 NO-LABEL WIDGET-ID 126
+     btSubmit AT ROW 6.86 COL 139.8
+     fiMessage AT ROW 9.95 COL 9.6 COLON-ALIGNED NO-LABEL WIDGET-ID 130
+     fiEndPointLabel AT ROW 11.1 COL 9.6 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     edEndpoint AT ROW 11.1 COL 25 NO-LABEL WIDGET-ID 14
+     fiRequestDataLabel AT ROW 13.62 COL 4.6 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     edRequestData AT ROW 13.62 COL 25 NO-LABEL WIDGET-ID 2
+     fiResponseDataLabel AT ROW 20.62 COL 3.8 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     edResponseData AT ROW 20.62 COL 25 NO-LABEL WIDGET-ID 10
+     fiErrorMessageLabel AT ROW 26.05 COL 1.8 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+     edErrorMessage AT ROW 26.05 COL 25 NO-LABEL WIDGET-ID 94
      RECT-1 AT ROW 1.24 COL 3 WIDGET-ID 84
-     RECT-2 AT ROW 6.76 COL 3 WIDGET-ID 86
+     RECT-2 AT ROW 9.81 COL 3 WIDGET-ID 86
      RECT-3 AT ROW 4.33 COL 6 WIDGET-ID 110
-     SPACE(34.99) SKIP(23.32)
+     SPACE(30.99) SKIP(20.23)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1 FONT 6
@@ -288,6 +307,8 @@ ASSIGN
 ASSIGN 
        edErrorMessage:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
+/* SETTINGS FOR EDITOR edEventDesc IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR EDITOR edRequestData IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR EDITOR edResponseData IN FRAME Dialog-Frame
@@ -314,6 +335,10 @@ ASSIGN
 ASSIGN 
        fiErrorMessageLabel:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiEventDescLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiMessage IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPrimaryKey IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPrimaryKeyLabel IN FRAME Dialog-Frame
@@ -386,6 +411,7 @@ DO:
         btUpdateRequest:SENSITIVE    = FALSE
         btPrimaryKeyLookup:SENSITIVE = FALSE
         fiPrimaryKey:SCREEN-VALUE    = ""
+        fiMessage:SCREEN-VALUE       = ""
         edEndpoint:SCREEN-VALUE      = ""
         edRequestData:SCREEN-VALUE   = ""
         edResponseData:SCREEN-VALUE  = ""
@@ -430,6 +456,7 @@ DO:
             edEndpoint:SCREEN-VALUE      = APIOutbound.endPoint
             edRequestData:SCREEN-VALUE   = STRING(APIOutbound.requestData)
             fiPrimaryKey:SENSITIVE       = TRUE
+            edEventDesc:SENSITIVE        = TRUE
             btUpdateRequest:SENSITIVE    = TRUE
             btPrimaryKeyLookup:SENSITIVE = TRUE
             .  
@@ -460,6 +487,7 @@ DO:
     DEFINE VARIABLE cTriggerID            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cEventDescription     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lcRequestData         AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lcResponseData        AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cParentProgram        AS CHARACTER NO-UNDO.
@@ -486,14 +514,15 @@ DO:
     END.
               
     ASSIGN
-        lcRequestData  = edRequestData:SCREEN-VALUE
-        cAPIID         = fiAPIId:SCREEN-VALUE
-        cClientID      = fiClientID:SCREEN-VALUE
-        cTriggerID     = fiTriggerID:SCREEN-VALUE
-        cParentProgram = IF NUM-ENTRIES(PROGRAM-NAME(1)," ") EQ 2 THEN 
-                             ENTRY(2, PROGRAM-NAME(1), " ")
-                         ELSE
-                             PROGRAM-NAME(1)
+        lcRequestData     = edRequestData:SCREEN-VALUE
+        cAPIID            = fiAPIId:SCREEN-VALUE
+        cClientID         = fiClientID:SCREEN-VALUE
+        cTriggerID        = fiTriggerID:SCREEN-VALUE
+        cEventDescription = edEventDesc:SCREEN-VALUE
+        cParentProgram    = IF NUM-ENTRIES(PROGRAM-NAME(1)," ") EQ 2 THEN 
+                                ENTRY(2, PROGRAM-NAME(1), " ")
+                            ELSE
+                                PROGRAM-NAME(1)
         .
     
     SESSION:SET-WAIT-STATE("GENERAL").
@@ -510,11 +539,14 @@ DO:
     SESSION:SET-WAIT-STATE(""). 
 
     RUN api/CreateAPIOutboundEvent.p (
-        INPUT  0,   /* API Outbound Event ID */
+        INPUT  FALSE,        /* Re-trigger flag */
+        INPUT  ?,            /* API Outbound Event ID: Pass ? to create new Event*/
         INPUT  cCompany,
         INPUT  cAPIID,
         INPUT  cClientID,
         INPUT  cTriggerID,
+        INPUT  cPrimaryID,
+        INPUT  cEventDescription,
         INPUT  lcRequestData,
         INPUT  lcResponseData,
         INPUT  cParentProgram,
@@ -524,28 +556,26 @@ DO:
         OUTPUT iAPIOutboundEventID
         ).
 
-    FIND LAST APIOutboundEvent NO-LOCK
-         WHERE APIOutboundEvent.apiOutboundEventID EQ iAPIOutboundEventID
-         NO-ERROR.
-    IF AVAILABLE APIOutboundEvent THEN
-        ASSIGN
-            edResponseData:SCREEN-VALUE = STRING(APIOutboundEvent.responseData)
-            edErrorMessage:SCREEN-VALUE = IF APIOutboundEvent.success THEN 
-                                              "SUCCESS" + "~n" + APIOUtboundEvent.errorMessage
-                                          ELSE
-                                              "FAILURE" + "~n" + APIOUtboundEvent.errorMessage
-            edErrorMessage:FGCOLOR      = IF APIOutboundEvent.success THEN
-                                              2
-                                          ELSE
-                                              12
-            .
-    
     ASSIGN
+        edResponseData:SCREEN-VALUE  = STRING(lcResponseData)
+        edErrorMessage:SCREEN-VALUE  = IF lSuccess THEN 
+                                           "SUCCESS" + "~n" + cMessage
+                                       ELSE
+                                           "FAILURE" + "~n" + cMessage
+        edErrorMessage:FGCOLOR       = IF lSuccess THEN
+                                           2
+                                       ELSE
+                                           12
         btSubmit:SENSITIVE           = FALSE
         fiPrimaryKey:SENSITIVE       = FALSE
+        edEventDesc:SENSITIVE        = FALSE
+        edEventDesc:SCREEN-VALUE     = ""
         btUpdateRequest:SENSITIVE    = FALSE
         btPrimaryKeyLookup:SENSITIVE = FALSE        
         edRequestData:SENSITIVE      = FALSE
+        fiMessage:SCREEN-VALUE       = "Outbound Event ID: "
+                                     + STRING(iAPIOutboundEventID)
+                                     + " created"
         .
 END.
 
@@ -568,7 +598,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateRequest Dialog-Frame
 ON CHOOSE OF btUpdateRequest IN FRAME Dialog-Frame /* Update Request */
 DO:
-    DEFINE VARIABLE cAPIID                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParentProgram        AS CHARACTER NO-UNDO.   
     DEFINE VARIABLE iAPIOutboundID        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAPIOutboundTriggerID AS INTEGER   NO-UNDO.
@@ -612,8 +641,6 @@ DO:
                 "cust",
                 STRING(ROWID(cust))
                 ).
-                    
-            cAPIID = "SendCustomer".
         END.
         WHEN "SendVendor" THEN DO:
             FIND FIRST vend NO-LOCK
@@ -629,8 +656,6 @@ DO:
                 "vend",
                 STRING(ROWID(vend))
                 ).
-                    
-            cAPIID = "SendVendor".
         END.
         WHEN "SendFinishedGood" THEN DO:
             FIND FIRST itemfg NO-LOCK
@@ -646,8 +671,6 @@ DO:
                 "itemfg",
                 STRING(ROWID(itemfg))
                 ).
-                    
-            cAPIID = "SendFinishedGood".
         END.
         WHEN "SendPurchaseOrder" THEN DO:
             FIND FIRST po-ord NO-LOCK
@@ -663,8 +686,6 @@ DO:
                 "po-ord",
                 STRING(ROWID(po-ord))
                 ).
-                                
-            cAPIID = "SendPurchaseOrder".
         END.
         WHEN "SendRelease" THEN DO:
             FIND FIRST oe-relh NO-LOCK
@@ -680,8 +701,6 @@ DO:
                 "oe-relh",
                 STRING(ROWID(oe-relh))
                 ).
-            
-            cAPIID = "SendRelease".
         END.
     END CASE.
 
@@ -705,6 +724,7 @@ DO:
         edRequestData:SENSITIVE     = TRUE
         edResponseData:SCREEN-VALUE = ""
         edErrorMessage:SCREEN-VALUE = ""
+        cPrimaryID                  = fiPrimaryKey:SCREEN-VALUE
         .
 END.
 
@@ -942,9 +962,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiAPIIDLabel fiAPIId fiClientIDlb fiClientID fiAPITriggerIDLabel 
-          fiTriggerID fiPrimaryKeyLabel fiPrimaryKey fiEndPointLabel edEndpoint 
-          fiRequestDataLabel edRequestData fiResponseDataLabel edResponseData 
-          fiErrorMessageLabel edErrorMessage 
+          fiTriggerID fiPrimaryKeyLabel fiPrimaryKey fiEventDescLabel 
+          edEventDesc fiMessage fiEndPointLabel edEndpoint fiRequestDataLabel 
+          edRequestData fiResponseDataLabel edResponseData fiErrorMessageLabel 
+          edErrorMessage 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-1 RECT-2 RECT-3 Btn_Cancel btAPIIDLookup fiAPIId btClientIDLookup 
          fiClientID btTriggerIDLookup btGo fiTriggerID 
