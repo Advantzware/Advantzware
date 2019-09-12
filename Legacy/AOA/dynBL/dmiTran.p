@@ -81,7 +81,6 @@ PROCEDURE createTtblProdAce:
             ttblProdAce.prodAceQtyDue        = dmiTrans.qtyDue
             ttblProdAce.prodAceState         = cState
             ttblProdAce.prodAceChargeCode    = cChargeCode
-            ttblProdAce.prodAceOperator      = dmiTrans.operator
             ttblProdAce.prodAceDuration      = dmiTrans.downTime + dmiTrans.runTime
             ttblProdAce.prodAceRunComplete   = ttblProdAce.prodAceState EQ "RUN" AND
                                                CAN-FIND(FIRST dmiJobStatus
@@ -91,6 +90,9 @@ PROCEDURE createTtblProdAce:
                                                           AND dmiJobStatus.runID       EQ ttblProdAce.prodAceSeq
                                                           AND dmiJobStatus.jobStatus   EQ "C")
             .
+        DO idx = 1 TO NUM-ENTRIES(dmiTrans.operator):
+            ttblProdAce.prodAceOperator[idx] = ENTRY(idx,dmiTrans.operator).
+        END. /* do idx */
         DO TRANSACTION:
             FIND FIRST bDMITrans EXCLUSIVE-LOCK
                  WHERE ROWID(bDMITrans) EQ ROWID(dmiTrans).
