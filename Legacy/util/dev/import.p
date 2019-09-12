@@ -362,6 +362,10 @@ PROCEDURE pCreateNewInvoiceAP:
     DEFINE INPUT PARAMETER ipcInvDate AS CHARACTER.
     DEFINE OUTPUT PARAMETER opriAPInv AS ROWID.
     
+    DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
+    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
+
     CREATE ap-inv.
     ASSIGN
         ap-inv.company  = ipcCompany
@@ -412,13 +416,13 @@ PROCEDURE pCreateNewInvoiceAP:
                 ap-inv.disc-%    = terms.disc-rate
                 ap-inv.disc-days = terms.disc-days
                 .
-        ap-inv.due-date = IF AVAILABLE terms THEN terms.net-day + ap-inv.inv-date
+        ap-inv.due-date = IF AVAILABLE terms THEN DYNAMIC-FUNCTION("GetInvDueDate", date(ap-inv.inv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days )
         ELSE ap-inv.inv-date.
                                                    
     END.
     opriAPInv = ROWID(ap-inv).
     RELEASE ap-inv.
-
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
 END PROCEDURE.
 
 PROCEDURE pCreateNewInvoiceAR:

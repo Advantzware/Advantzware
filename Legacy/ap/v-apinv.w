@@ -1004,7 +1004,9 @@ PROCEDURE new-inv-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-date AS DATE NO-UNDO.
-
+  DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
+    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
 
   DO WITH FRAME {&FRAME-NAME}:
     ll-date-warning = NO.
@@ -1022,11 +1024,11 @@ PROCEDURE new-inv-date :
             AND terms.t-code  EQ vend.terms
           NO-ERROR.
 
-      ap-inv.due-date:SCREEN-VALUE  = IF AVAIL terms THEN STRING(terms.net-day + lv-date)
+      ap-inv.due-date:SCREEN-VALUE  = IF AVAIL terms THEN /*STRING(terms.net-day + lv-date)*/ string(DYNAMIC-FUNCTION("GetInvDueDate", date(lv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days ))
                                       ELSE ap-inv.inv-date:SCREEN-VALUE.
     END.
   END.
-
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
