@@ -433,8 +433,12 @@ PROCEDURE pCreateNewInvoiceAR:
     
     DEFINE VARIABLE iNextInvoiceNumber     AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNextInvoiceLinkNumber AS INTEGER NO-UNDO.
-    
+    DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
+
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
+
+    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
     
     ASSIGN
         iNextInvoiceNumber     = 0
@@ -508,7 +512,7 @@ PROCEDURE pCreateNewInvoiceAR:
         IF AVAILABLE terms THEN 
             ASSIGN 
                 ar-inv.terms-d   = terms.dscr
-                ar-inv.due-date  = ar-inv.inv-date + terms.net-days
+                ar-inv.due-date  = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days )
                 ar-inv.disc-%    = terms.disc-rate
                 ar-inv.disc-days = terms.disc-days
                 .
@@ -516,7 +520,7 @@ PROCEDURE pCreateNewInvoiceAR:
     
     opriARInv = ROWID(ar-inv).
     RELEASE ar-inv.
-    
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
 END PROCEDURE.
 
 PROCEDURE pCreateNewInvoiceLineAP:

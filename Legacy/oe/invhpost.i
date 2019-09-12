@@ -1,6 +1,7 @@
 /* ------------------------------------------------- oe/invhpost.i 11/94 gb   */
 /* O/E Invoicing History Assigment of Fields                                 */
 /* -------------------------------------------------------------------------- */
+DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
 
 assign
   ar-inv.x-no           = v-xno
@@ -71,10 +72,15 @@ assign
   find first terms where terms.company = cocode and
 			 terms.t-code  = inv-head.terms
 			 no-lock no-error.
-  if available terms then
-     assign ar-inv.due-date  = ar-inv.inv-date + terms.net-days
+  if available terms THEN do:
+     assign 
 	    ar-inv.disc-%    = terms.disc-rate
 	    ar-inv.disc-days = terms.disc-days.
+     RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
+     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
+     ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days ).
+     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
+  END.
 
 /***
 assign oe-ord.stat = "P"

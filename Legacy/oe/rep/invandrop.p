@@ -85,6 +85,9 @@ DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
 DEF VAR v-frt-tax AS DEC NO-UNDO.
 DEF VAR lv-inv-list AS CHAR NO-UNDO.
+DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
+RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
+     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
@@ -343,7 +346,9 @@ find first company where company.company eq cocode NO-LOCK.
 
         find first terms where terms.company = inv-head.company AND terms.t-code  = inv-head.terms
 		      	   no-lock no-error.
-        if available terms THEN assign v-due-date  = inv-head.inv-date + terms.net-days.
+        if available terms THEN do: 
+            ASSIGN v-due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(inv-head.inv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days ).
+        END.
         ELSE v-due-date = v-inv-date.
 
         assign v-tot-pallets = 0
@@ -655,5 +660,7 @@ find first company where company.company eq cocode NO-LOCK.
     page. /*IF v-printline < 50 THEN PUT SKIP(60 - v-printline). */
  
     end. /* each xinv-head */
+
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
