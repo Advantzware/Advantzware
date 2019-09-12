@@ -13,9 +13,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: viewers/APIOutboundTrigger.w
 
-  Description: from VIEWER.W - Template for SmartViewer Objects
+  Description: APIOutboundTrigger viewer 
 
   Input Parameters:
       <none>

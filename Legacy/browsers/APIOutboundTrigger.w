@@ -13,9 +13,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  
+  File: browser/APIOutboundTrigger.w
 
-  Description: from BROWSER.W - Basic SmartBrowser Object Template
+  Description: APIOutboundTrigger browser
 
   Input Parameters:
       <none>
