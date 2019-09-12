@@ -10,17 +10,17 @@ DEFINE TEMP-TABLE ttblProdAce NO-UNDO
     FIELD prodAceShiftDate     LIKE dmiTrans.shiftDate
     FIELD prodAceStartDate     LIKE dmiTrans.startDate
     FIELD prodAceStartTime     LIKE dmiTrans.startTime
-    FIELD prodAceEndDate       AS DATE      LABEL "End Date" FORMAT "99/99/9999"
-    FIELD prodAceEndTime       AS INTEGER   LABEL "End Time" FORMAT ">>>>9"
-    FIELD prodAceDuration      AS INTEGER   LABEL "Duration" FORMAT ">>>>9"
+    FIELD prodAceEndDate       AS DATE      LABEL "End Date"      FORMAT "99/99/9999"
+    FIELD prodAceEndTime       AS INTEGER   LABEL "End Time"      FORMAT ">>>>9"
+    FIELD prodAceDuration      AS INTEGER   LABEL "Duration"      FORMAT ">>>>9"
     FIELD prodAceTranRunQty    LIKE dmiTrans.tranRunQty 
     FIELD prodAceTranRejectQty LIKE dmiTrans.tranRejectQty
     FIELD prodAceQtyDue        LIKE dmiTrans.qtyDue
     FIELD prodAceState         LIKE dmiTrans.transState
-    FIELD prodAceChargeCode    LIKE dmiTrans.jobCodeDMIID
+    FIELD prodAceChargeCode    AS CHARACTER LABEL "Charge Code"   FORMAT "x(3)"
     FIELD prodAceRunComplete   AS LOGICAL   LABEL "Run Complete"
     FIELD deleteFlag           AS LOGICAL   LABEL "Delete"
-    FIELD prodAceOperator      LIKE dmiTrans.operator
+    FIELD prodAceOperator      AS CHARACTER LABEL "Operator"      EXTENT 10
     FIELD prodAceSelected      AS LOGICAL   LABEL "Selected"      INITIAL YES
     FIELD tempSelected         AS LOGICAL   LABEL "Temp Selected" INITIAL YES
     FIELD prodAceData          AS CHARACTER LABEL "ProdAce Data"  FORMAT "x(256)"
