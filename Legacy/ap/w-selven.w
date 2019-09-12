@@ -949,6 +949,9 @@ DO:
          ASSIGN lv-vend-no = vend.vend-no 
              vend_name = vend.NAME.
          DISP lv-vend-no vend_name WITH FRAME {&FRAME-NAME}.
+         DO i = 1 TO length(lv-vend-no):
+             APPLY "cursor-right" TO lv-vend-no.
+         END.
          fil_id = if avail vend then recid(vend) else ?.
       END.
    END.
