@@ -336,39 +336,27 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              AND est.est-no   EQ job-hdr.est-no
              and est.est-type le 4  NO-ERROR .
 
-          FIND FIRST bf-itemfg NO-LOCK
-            WHERE bf-itemfg.company EQ bf-job-hdr.company
-                AND bf-itemfg.i-no    EQ bf-job-hdr.i-no
-            NO-ERROR.
+          IF AVAIL est AND est.est-type EQ 2 THEN DO:
+              FOR EACH eb NO-LOCK 
+                  WHERE eb.company EQ est.company
+                    AND eb.est-no EQ est.est-no 
+                    AND eb.form-no NE 0 :
+
+                  RUN pCreateTempTable(eb.stock-no,eb.form-no,eb.blank-no) .
+              END.
+          END.
+          ELSE DO:
+            RUN pCreateTempTable(bf-job-hdr.i-no,bf-job-hdr.frm,bf-job-hdr.blank-no ) .
+          END.
           
-          CREATE ttItemList.
-        ASSIGN
-            ttItemList.i-no = bf-job-hdr.i-no
-            ttItemList.part-no = IF AVAIL bf-itemfg THEN bf-itemfg.part-no ELSE ""
-            ttItemList.IS-SELECTED  = YES 
-            ttItemList.frm = bf-job-hdr.frm
-            ttItemList.blank-no = bf-job-hdr.blank-no 
-            ttItemList.combo = (IF AVAIL est AND est.est-type GE 2 THEN YES ELSE NO )
-            ttItemList.itemName = IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "". 
-
         fi_job-no = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
-        
-        CREATE ttSoule.
-        ASSIGN
-            ttSoule.job-no = bf-job-hdr.job-no
-            ttSoule.job-no2 = bf-job-hdr.job-no2
-            ttSoule.frm = bf-job-hdr.frm
-            ttSoule.blank-no = bf-job-hdr.blank-no
-            ttSoule.qty = bf-job-hdr.qty
-            ttSoule.i-no = bf-job-hdr.i-no
-            ttSoule.runForm = YES.
-         
       END.
-
+   
+  END.
       RUN enable_UI.
  
      WAIT-FOR GO OF FRAME {&FRAME-NAME}.
-  END.
+  
 END.
 
 RUN disable_UI.
@@ -421,3 +409,45 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+  &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTempTable Dialog-Frame 
+PROCEDURE pCreateTempTable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcStock AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipciBlankNo AS INTEGER NO-UNDO .
+
+    FIND FIRST bf-itemfg NO-LOCK
+        WHERE bf-itemfg.company EQ bf-job-hdr.company
+        AND bf-itemfg.i-no    EQ ipcStock
+        NO-ERROR.
+
+    CREATE ttItemList.
+        ASSIGN
+            ttItemList.i-no = ipcStock
+            ttItemList.part-no = IF AVAIL bf-itemfg THEN bf-itemfg.part-no ELSE ""
+            ttItemList.IS-SELECTED  = YES 
+            ttItemList.frm = ipiFormNo
+            ttItemList.blank-no = ipciBlankNo 
+            ttItemList.combo = (IF AVAIL est AND est.est-type GE 2 THEN YES ELSE NO )
+            ttItemList.itemName = IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "". 
+
+
+     CREATE ttSoule.
+        ASSIGN
+            ttSoule.job-no = bf-job-hdr.job-no
+            ttSoule.job-no2 = bf-job-hdr.job-no2
+            ttSoule.frm = ipiFormNo
+            ttSoule.blank-no = ipciBlankNo
+            ttSoule.qty = bf-job-hdr.qty
+            ttSoule.i-no = ipcStock
+            ttSoule.runForm = YES.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
