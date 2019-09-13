@@ -412,6 +412,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lcPrepFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcPrepTo   AS CHAR NO-UNDO.
+
+ASSIGN
+    lcPrepFrom = prep.code
+    lcPrepTo = lcPrepFrom.
+
+    RUN fg/rd-PrepExp.w (lcPrepFrom,
+                       lcPrepTo).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
