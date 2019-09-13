@@ -109,12 +109,12 @@ IF tb_order THEN
      first cust where cust.company eq cocode
                    and cust.cust-no eq inv-head.cust-no EXCLUSIVE-LOCK:
          v-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Updating Invoice " + string(inv-head.inv-no).
-      IF inv-line.sman[1] <> cust.sman  THEN do:
-       inv-line.sman[1] = cust.sman .
-        FIND FIRST sman
-                WHERE sman.company EQ cocode
-                AND sman.sman    EQ cust.sman
-                NO-LOCK NO-ERROR.
+       FIND FIRST sman NO-LOCK
+           WHERE sman.company EQ cocode
+           AND sman.sman    EQ cust.sman
+        NO-ERROR.
+      IF (inv-line.sman[1] <> cust.sman) OR (AVAIL sman AND sman.sNAME NE inv-line.sname[1]) THEN do:
+         inv-line.sman[1] = cust.sman .
             IF AVAIL sman THEN
                 inv-line.sname[1] = sman.sNAME.
       END.
