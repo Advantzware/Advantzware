@@ -75,6 +75,7 @@ ASSIGN
 DEF STREAM s1.
 DEF STREAM s2.
 DEF STREAM apiFiles.
+DEF STREAM sOutput.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
@@ -123,7 +124,18 @@ DEF TEMP-TABLE ttUsers
     FIELD ttfenvlist AS CHAR
     FIELD ttfdblist AS CHAR
     FIELD ttfmodelist AS CHAR.
- 
+
+DEFINE TEMP-TABLE ttDuplicates
+    FIELD cItem       AS CHARACTER
+    FIELD cVendor     AS CHARACTER
+    FIELD cCustomer   AS CHARACTER 
+    FIELD cEstimateNo AS CHARACTER
+    FIELD iForm       AS INTEGER
+    FIELD iBlank      AS INTEGER
+    FIELD dEQty       AS DECIMAL
+    FIELD cCompany    AS CHARACTER
+    FIELD cItemType   AS CHARACTER
+    . 
 
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
@@ -155,6 +167,9 @@ DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR delCtr AS INT NO-UNDO.
 DEF VAR dupCtr AS INT NO-UNDO.
 DEF VAR hPreRun AS HANDLE.
+DEF VAR giCountCreated    AS INTEGER   NO-UNDO.
+DEF VAR giCountDuplicate  AS INTEGER   NO-UNDO.
+DEF VAR glUseQtyFrom      AS LOGICAL   NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR iCurrVerExt AS INT NO-UNDO.
@@ -241,6 +256,12 @@ FUNCTION fIntVer RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD formatForCSV C-Win 
+FUNCTION FormatForCSV RETURNS CHARACTER 
+    (ipcValue AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -1970,6 +1991,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertVendorCosts C-Win
+PROCEDURE ipConvertVendorCosts:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Converting vendor cost records").
+
+    DEFINE VARIABLE iVendCostItemID AS INT64 NO-UNDO.
+
+    FOR EACH e-item-vend NO-LOCK, 
+        FIRST e-item NO-LOCK 
+        WHERE e-item.company EQ e-item-vend.company
+        AND e-item.i-no EQ e-item-vend.i-no:
+        RUN pCreateVendItemCostFromEItemVend(BUFFER e-item-vend, BUFFER e-item, OUTPUT iVendCostItemID).
+    END. /*each e-item-vend*/
+    
+    FOR EACH e-itemfg NO-LOCK, 
+        EACH e-itemfg-vend NO-LOCK 
+        WHERE e-itemfg-vend.company EQ e-itemfg.company
+        AND e-itemfg-vend.i-no EQ e-itemfg.i-no:
+        RUN pCreateVendItemCostFromEItemFgVend(BUFFER e-itemfg-vend, BUFFER e-itemfg, OUTPUT iVendCostItemID).
+    END. /*each e-item-vend*/
+
+    RUN TempTableToCSV(TEMP-TABLE ttDuplicates:HANDLE, "C:\tmp\DuplicateVendCosts.csv", TRUE /* Export Header */).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvQtyPerSet C-Win 
 PROCEDURE ipConvQtyPerSet :
 /*------------------------------------------------------------------------------
@@ -2248,6 +2303,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161000.
     IF fIntVer(cThisEntry) LT 16120000 THEN 
         RUN ipDataFix161200.
+    IF fIntVer(cThisEntry) LT 16130000 THEN 
+        RUN ipDataFix161300.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2623,6 +2680,24 @@ PROCEDURE ipDataFix161200:
     RUN ipStatus ("  Data Fix 161200...").
 
     RUN ipLoadAPIData.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix163000 C-Win
+PROCEDURE ipDataFix163000:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 163000...").
+
+    RUN ipConvertVendorCosts.
     
 END PROCEDURE.
 	
@@ -5739,6 +5814,265 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateVendItemCostFromEItemfgVend C-Win 
+PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: given an e-item-vend buffer, create vendItemCost record
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-e-itemfg-vend FOR e-itemfg-vend.
+    DEFINE PARAMETER BUFFER ipbf-e-itemfg      FOR e-itemfg.
+    DEFINE OUTPUT PARAMETER opiVendItemCostID AS INT64.
+    
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
+    
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.company EQ company.company AND 
+        sys-ctrl.name EQ "VendCostMatrix"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN 
+        glUseQtyFrom = sys-ctrl.log-fld.
+    ELSE ASSIGN 
+        glUseQtyFrom = FALSE.
+        
+    IF CAN-FIND(FIRST bf-vendItemCost
+        WHERE bf-vendItemCost.company EQ ipbf-e-itemfg-vend.company
+        AND bf-vendItemCost.itemID EQ ipbf-e-itemfg-vend.i-no
+        AND bf-vendItemCost.itemType EQ "FG"
+        AND bf-vendItemCost.vendorID EQ ipbf-e-itemfg-vend.vend-no
+        AND bf-vendItemCost.customerID EQ ipbf-e-itemfg-vend.cust-no
+        AND bf-vendItemCost.estimateNo EQ ipbf-e-itemfg-vend.est-no
+        AND bf-vendItemCost.formNo EQ ipbf-e-itemfg-vend.form-no
+        AND bf-vendItemCost.blankNo EQ ipbf-e-itemfg-vend.blank-no)
+        THEN 
+    DO:
+        giCountDuplicate = giCountDuplicate + 1.
+        CREATE ttDuplicates.
+        ASSIGN 
+            ttDuplicates.cCompany    = ipbf-e-itemfg-vend.company
+            ttDuplicates.cItem       = ipbf-e-itemfg-vend.i-no
+            ttDuplicates.cItemType   = "FG"
+            ttDuplicates.cVendor     = ipbf-e-itemfg-vend.vend-no
+            ttDuplicates.cEstimateNo = ipbf-e-itemfg-vend.est-no
+            ttDuplicates.iForm       = ipbf-e-itemfg-vend.form-no
+            ttDuplicates.iBlank      = ipbf-e-itemfg-vend.blank-no
+            ttDuplicates.cCustomer   = ipbf-e-itemfg-vend.cust-no
+            ttDuplicates.dEQty       = ipbf-e-itemfg-vend.eqty
+            .
+    END.
+    ELSE 
+    DO:
+        CREATE bf-vendItemCost.
+        ASSIGN  
+            giCountCreated                   = giCountCreated + 1
+            opiVendItemCostID                = bf-vendItemCost.vendItemCostID
+            bf-vendItemCost.company          = ipbf-e-itemfg-vend.company
+            bf-vendItemCost.itemID           = ipbf-e-itemfg-vend.i-no
+            bf-vendItemCost.itemType         = "FG"
+            bf-vendItemCost.vendorID         = ipbf-e-itemfg-vend.vend-no
+            bf-vendItemCost.customerID       = ipbf-e-itemfg-vend.cust-no
+            bf-vendItemCost.estimateNo       = ipbf-e-itemfg-vend.est-no
+            bf-vendItemCost.formNo           = ipbf-e-itemfg-vend.form-no
+            bf-vendItemCost.blankNo          = ipbf-e-itemfg-vend.blank-no
+            bf-vendItemCost.dimWidthMinimum  = ipbf-e-itemfg-vend.roll-w[27]
+            bf-vendItemCost.dimWidthMaximum  = ipbf-e-itemfg-vend.roll-w[28]
+            bf-vendItemCost.dimLengthMinimum = ipbf-e-itemfg-vend.roll-w[29]
+            bf-vendItemCost.dimLengthMaximum = ipbf-e-itemfg-vend.roll-w[30]
+            bf-vendItemCost.dimUOM           = "IN"
+            bf-vendItemCost.vendorItemID     = ipbf-e-itemfg-vend.vend-item
+            bf-vendItemCost.vendorUOM        = CAPS(ipbf-e-itemfg.std-uom) 
+            bf-vendItemCost.useQuantityFrom  = glUseQtyFrom
+            .
+        
+        DO iIndex = 1 TO 26:
+            bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-itemfg-vend.roll-w[iIndex] NE 0 
+                THEN ipbf-e-itemfg-vend.roll-w[iIndex] 
+                ELSE ipbf-e-itemfg.roll-w[iIndex].
+        END.
+        DO iIndex = 1 TO 10:
+            IF ipbf-e-itemfg-vend.run-qty[iIndex] NE 0 THEN 
+            DO:
+                CREATE bf-vendItemCostLevel.
+                ASSIGN 
+                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
+                    bf-vendItemCostLevel.quantityBase   = ipbf-e-itemfg-vend.run-qty[iIndex]
+                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-itemfg-vend.run-cost[iIndex]
+                    bf-vendItemCostLevel.costSetup      = ipbf-e-itemfg-vend.setups[iIndex]
+                    .
+            END. /*run-qty ne 0*/
+        END.  /*Do loop 1*/              
+    END. /*Not duplicate*/
+    RELEASE bf-vendItemCost.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateVendItemCostFromEItemVend C-Win 
+PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: given an e-item-vend buffer, create vendItemCost record
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-e-item-vend FOR e-item-vend.
+    DEFINE PARAMETER BUFFER ipbf-e-item      FOR e-item.
+    DEFINE OUTPUT PARAMETER opiVendItemCostID AS INT64.
+    
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
+        
+    IF CAN-FIND(FIRST bf-vendItemCost
+        WHERE bf-vendItemCost.company EQ ipbf-e-item-vend.company
+        AND bf-vendItemCost.itemID EQ ipbf-e-item-vend.i-no
+        AND bf-vendItemCost.itemType EQ "RM"
+        AND bf-vendItemCost.vendorID EQ ipbf-e-item-vend.vend-no)
+        THEN 
+    DO:
+        giCountDuplicate = giCountDuplicate + 1.
+        CREATE ttDuplicates.
+        ASSIGN 
+            ttDuplicates.cCompany  = ipbf-e-item-vend.company
+            ttDuplicates.cItem     = ipbf-e-item-vend.i-no
+            ttDuplicates.cItemType = "RM"
+            ttDuplicates.cVendor   = ipbf-e-item-vend.vend-no
+            .
+    END.
+    ELSE 
+    DO:
+        CREATE bf-vendItemCost.
+        ASSIGN  
+            giCountCreated                       = giCountCreated + 1
+            opiVendItemCostID                    = bf-vendItemCost.vendItemCostID
+            bf-vendItemCost.company              = ipbf-e-item-vend.company
+            bf-vendItemCost.itemID               = ipbf-e-item-vend.i-no
+            bf-vendItemCost.itemType             = "RM"
+            bf-vendItemCost.vendorID             = ipbf-e-item-vend.vend-no
+            bf-vendItemCost.dimWidthMinimum      = ipbf-e-item-vend.roll-w[27]
+            bf-vendItemCost.dimWidthMaximum      = ipbf-e-item-vend.roll-w[28]
+            bf-vendItemCost.dimLengthMinimum     = ipbf-e-item-vend.roll-w[29]
+            bf-vendItemCost.dimLengthMaximum     = ipbf-e-item-vend.roll-w[30]
+            bf-vendItemCost.dimWidthUnder        = ipbf-e-item-vend.underWidth
+            bf-vendItemCost.dimWidthUnderCharge  = ipbf-e-item-vend.underWidthCost
+            bf-vendItemCost.dimLengthUnder       = ipbf-e-item-vend.underLength
+            bf-vendItemCost.dimLengthUnderCharge = ipbf-e-item-vend.underLengthCost
+            bf-vendItemCost.dimUOM               = "IN"
+            bf-vendItemCost.vendorItemID         = ipbf-e-item-vend.vend-item
+            bf-vendItemCost.vendorUOM            = CAPS(ipbf-e-item.std-uom) 
+            .
+        DO iIndex = 1 TO 26:
+            bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-item-vend.roll-w[iIndex] NE 0 
+                THEN ipbf-e-item-vend.roll-w[iIndex] 
+                ELSE ipbf-e-item.roll-w[iIndex].
+        END.
+        DO iIndex = 1 TO 10:
+            IF ipbf-e-item-vend.run-qty[iIndex] NE 0 THEN 
+            DO:
+                CREATE bf-vendItemCostLevel.
+                ASSIGN 
+                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
+                    bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
+                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.run-cost[iIndex]
+                    bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setups[iIndex]
+                    .
+            END. /*run-qty ne 0*/
+        END.  /*Do loop 1*/              
+        DO iIndex = 1 TO 10:
+            IF ipbf-e-item-vend.runQtyXtra[iIndex] NE 0 THEN 
+            DO:
+                CREATE bf-vendItemCostLevel.
+                ASSIGN 
+                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
+                    bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
+                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.runCostXtra[iIndex]
+                    bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setupsXtra[iIndex]
+                    .
+            END. /*runQtyExtra ne 0*/
+        END.  /*Do loop 2*/              
+    END. /*Not duplicate*/
+    RELEASE bf-vendItemCost.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE TempTableToCSV C-Win 
+PROCEDURE TempTableToCSV:
+    /*------------------------------------------------------------------------------ 
+     Purpose: Exports the contents of any temp-table into CSV    
+     Notes: 
+    ------------------------------------------------------------------------------*/ 
+    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
+  
+    DEFINE VARIABLE hQuery  AS HANDLE    NO-UNDO. 
+    DEFINE VARIABLE hBuffer AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iIndex  AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE eIndex  AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
+        
+    ASSIGN
+        cTTName = iphTT:NAME
+        hBuffer = iphTT:DEFAULT-BUFFER-HANDLE
+        .
+
+    IF iplHeader THEN 
+    DO:
+        OUTPUT STREAM sOutput to VALUE(ipcFileName). 
+        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN 
+            DO:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                    PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + STRING(eIndex) + 
+                        (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '' ELSE ',').
+                END.
+            END.
+            ELSE
+                PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + 
+                    (IF iIndex NE hBuffer:NUM-FIELDS THEN "," ELSE ""). 
+        END. 
+        PUT STREAM sOutput UNFORMATTED SKIP. 
+    END.
+    ELSE 
+        OUTPUT STREAM sOutput to VALUE(ipcFileName) APPEND. 
+        
+    CREATE QUERY hQuery. 
+    hQuery:SET-BUFFERS (hBuffer). 
+    hQuery:QUERY-PREPARE("FOR EACH " + cTTName). 
+    hQuery:QUERY-OPEN().
+    REPEAT:   
+        hQuery:GET-NEXT().   
+        IF hQuery:QUERY-OFF-END THEN LEAVE.   
+        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN 
+            DO:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                    PUT STREAM sOutput UNFORMATTED  
+                        '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE(eIndex)) 
+                        (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '"' ELSE '",').
+                END.
+            END.
+            ELSE
+                PUT STREAM sOutput UNFORMATTED  
+                    '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE) 
+                    (IF iIndex NE hBuffer:NUM-FIELDS THEN '",' ELSE '"'). 
+        END. 
+        PUT STREAM sOutput UNFORMATTED SKIP. 
+    END. 
+    OUTPUT STREAM sOutput CLOSE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFixYear C-Win 
@@ -5797,4 +6131,27 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION formatForCSV C-Win 
+FUNCTION FormatForCSV RETURNS CHARACTER 
+    ( ipcValue AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Fixes the input character value and returns a CSV friendly text
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cInvalidChars AS CHARACTER NO-UNDO INITIAL "~",#".
+    DEFINE VARIABLE cReplaceChars AS CHARACTER NO-UNDO INITIAL "'',". 
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
+    
+ 
+    DO iCount = 1 TO NUM-ENTRIES(cInvalidChars):
+        ipcValue = REPLACE(ipcValue,ENTRY(iCount,cInvalidChars),ENTRY(iCount,cReplaceChars)).
+    END.
+    RETURN ipcValue.   
+        
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
