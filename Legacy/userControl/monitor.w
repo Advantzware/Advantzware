@@ -1,4 +1,6 @@
 /* monitor.w */
+RUN util/chk-mod2.p ("AutoLogout","Auto Logout Monitor","").
+IF ERROR-STATUS:ERROR THEN RETURN.
 
 {custom/monitor.w "userControl" "userControl"}
 
