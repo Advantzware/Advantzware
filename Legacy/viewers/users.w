@@ -1804,27 +1804,6 @@ PROCEDURE local-delete-record :
         DELETE usrx.
     END.
    
-    FOR EACH reftable EXCLUSIVE WHERE
-        reftable.reftable EQ "users.phone-no" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
-    FOR EACH reftable EXCLUSIVE WHERE
-        reftable.reftable EQ "users.fax-no" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
-    FOR EACH reftable EXCLUSIVE WHERE
-        reftable.reftable EQ "users.phone-cnty" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
-    FOR EACH reftable EXCLUSIVE WHERE
-        reftable.reftable EQ "users.fax-cnty" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
-    
     FIND ttUsers EXCLUSIVE WHERE
         ttUsers.ttfPdbname = "*" AND
         ttUsers.ttfUserID = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
