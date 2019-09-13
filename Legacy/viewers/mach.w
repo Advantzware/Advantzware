@@ -102,7 +102,8 @@ mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
 mach.min-pan-w mach.max-pan-w mach.min_pan_lw mach.max_pan_lw ~
 mach.min_slot_score mach.max_slot_score mach.min_hd_hd mach.max_hd_hd ~
 mach.min-dep mach.max-dep mach.min-run mach.max-run mach.tan-mrp ~
-mach.num-wid mach.num-len mach.spare-int-1 mach.machineImage[1] 
+mach.num-wid mach.num-len mach.spare-int-1 mach.machineImage[1] ~
+mach.physicalLoc 
 &Scoped-define ENABLED-TABLES mach
 &Scoped-define FIRST-ENABLED-TABLE mach
 &Scoped-Define DISPLAYED-FIELDS mach.m-code mach.m-dscr mach.sch-m-code ~
@@ -119,7 +120,7 @@ mach.min_slot_score mach.max_slot_score mach.min_hd_hd mach.max_hd_hd ~
 mach.min-dep mach.max-dep mach.min-run mach.max-run mach.pr-type ~
 mach.washup mach.col-pass mach.max-color mach.coater mach.col-wastesh ~
 mach.ink-waste mach.col-wastelb mach.tan-mrp mach.tan-mrf mach.num-wid ~
-mach.num-len mach.spare-int-1 mach.machineImage[1] 
+mach.num-len mach.spare-int-1 mach.machineImage[1] mach.physicalLoc 
 &Scoped-define DISPLAYED-TABLES mach
 &Scoped-define FIRST-DISPLAYED-TABLE mach
 &Scoped-Define DISPLAYED-OBJECTS cb_industry tb_plain-jobs tb_obsolete ~
@@ -135,19 +136,6 @@ mach.col-wastelb mach.tan-mrp mach.tan-mrf
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
-/* ************************  Function Prototypes ********************** */
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetOpRatesSeparate V-table-Win
-FUNCTION GetOpRatesSeparate RETURNS LOGICAL PRIVATE
-  (ipcCompany AS CHARACTER) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
@@ -167,6 +155,15 @@ RUN set-attribute-list (
      Keys-Supplied = ""':U).
 /**************************
 </EXECUTING-CODE> */   
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetOpRatesSeparate V-table-Win 
+FUNCTION GetOpRatesSeparate RETURNS LOGICAL PRIVATE
+  ( ipcCompany AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -219,7 +216,7 @@ DEFINE VARIABLE tb_plain-jobs AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     mach.m-code AT ROW 1.24 COL 18 COLON-ALIGNED
+     mach.m-code AT ROW 1.24 COL 17 COLON-ALIGNED
           LABEL "Machine Code" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
@@ -235,32 +232,33 @@ DEFINE FRAME F-Main
           LABEL "DMI ID" FORMAT "999"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1 TOOLTIP "Machine DMI ID"
-     mach.loc AT ROW 2.19 COL 18 COLON-ALIGNED
+     mach.loc AT ROW 2.19 COL 17 COLON-ALIGNED
+          LABEL "Est/Sch Locn"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
-     mach.dept[1] AT ROW 2.19 COL 45 COLON-ALIGNED
+     mach.dept[1] AT ROW 2.19 COL 68 COLON-ALIGNED
           LABEL "Department" FORMAT "x(2)"
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     mach.dept[2] AT ROW 2.19 COL 51 COLON-ALIGNED NO-LABEL
+     mach.dept[2] AT ROW 2.19 COL 74 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     mach.dept[3] AT ROW 2.19 COL 57 COLON-ALIGNED NO-LABEL
+     mach.dept[3] AT ROW 2.19 COL 80 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     mach.dept[4] AT ROW 2.19 COL 63 COLON-ALIGNED NO-LABEL FORMAT "x(2)"
+     mach.dept[4] AT ROW 2.19 COL 86 COLON-ALIGNED NO-LABEL FORMAT "x(2)"
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     mach.d-seq AT ROW 2.19 COL 94 COLON-ALIGNED
+     mach.d-seq AT ROW 3.14 COL 100 COLON-ALIGNED
           LABEL "Sequence"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     mach.m-seq AT ROW 2.19 COL 100 COLON-ALIGNED NO-LABEL
+     mach.m-seq AT ROW 3.14 COL 106 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
      cb_industry AT ROW 2.19 COL 116 COLON-ALIGNED HELP
           "Enter whether machine is used for 1=Fold 2=Corr 3=Foam"
-     mach.p-type AT ROW 3.14 COL 18 COLON-ALIGNED HELP
+     mach.p-type AT ROW 3.14 COL 17 COLON-ALIGNED HELP
           "Enter (R)oll, (S)heet, (B)lank, (Parts) Fed or (A)ssemble Sets"
           LABEL "Feed"
           VIEW-AS COMBO-BOX INNER-LINES 5
@@ -270,23 +268,23 @@ DEFINE FRAME F-Main
                      "P- Partition","P",
                      "A- Assembly","A"
           DROP-DOWN-LIST
-          SIZE 19 BY 1
-     mach.run-spoil AT ROW 3.14 COL 60 COLON-ALIGNED
+          SIZE 18 BY 1
+     mach.run-spoil AT ROW 3.14 COL 55 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     mach.mr-waste AT ROW 3.14 COL 94 COLON-ALIGNED
+     mach.mr-waste AT ROW 3.14 COL 80 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
      tb_plain-jobs AT ROW 3.14 COL 118
-     tb_obsolete AT ROW 4.1 COL 20
+     tb_obsolete AT ROW 4.1 COL 5
      mach.daily-prod-hours AT ROW 4.1 COL 55 COLON-ALIGNED
           LABEL "Lag Time"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     mach.therm AT ROW 4.1 COL 75
+     mach.therm AT ROW 4.1 COL 79
           LABEL "Use Lineal Feet in RUN Matrix?"
           VIEW-AS TOGGLE-BOX
-          SIZE 41 BY 1
+          SIZE 38 BY 1
      mach.gang-jobs AT ROW 4.1 COL 118
           VIEW-AS TOGGLE-BOX
           SIZE 19 BY 1
@@ -502,6 +500,9 @@ DEFINE FRAME F-Main
           LABEL "Image" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 53 BY 1
+     mach.physicalLoc AT ROW 2.19 COL 42 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
      "Printing Press" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.81 COL 73
           FGCOLOR 9 
@@ -613,6 +614,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.lab-rate[3] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN mach.loc IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ls-limit-lbl IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN mach.m-code IN FRAME F-Main
@@ -1036,7 +1039,7 @@ END.
 
 &Scoped-define SELF-NAME mach.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.loc V-table-Win
-ON LEAVE OF mach.loc IN FRAME F-Main /* Location */
+ON LEAVE OF mach.loc IN FRAME F-Main /* Est/Sch Locn */
 DO:
      {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
@@ -1437,7 +1440,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-rate V-table-Win 
 PROCEDURE calc-rate :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2291,10 +2294,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GetOpRatesSeparate V-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GetOpRatesSeparate V-table-Win 
 FUNCTION GetOpRatesSeparate RETURNS LOGICAL PRIVATE
   ( ipcCompany AS CHARACTER ):
 /*------------------------------------------------------------------------------
@@ -2312,8 +2314,7 @@ FUNCTION GetOpRatesSeparate RETURNS LOGICAL PRIVATE
     RETURN lUseSeparate.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
