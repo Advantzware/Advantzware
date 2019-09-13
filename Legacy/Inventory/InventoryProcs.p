@@ -15,6 +15,8 @@
 /* ***************************  Definitions  ************************** */
 {Inventory/ttInventory.i SHARED}
 {custom/formtext.i NEW}
+{fg/invrecpt.i NEW}
+{fg/fgPostBatch.i}
 
 DEFINE VARIABLE giLengthUniquePrefix       AS INTEGER   INITIAL 20.
 DEFINE VARIABLE giLengthAlias              AS INTEGER   INITIAL 25.
@@ -80,9 +82,7 @@ FUNCTION fCalculateQuantityTotal RETURNS DECIMAL
     (ipdQuantitySubUnits AS DECIMAL, 
      ipdSubUnitCount AS DECIMAL,
      ipdQuantityPartialSubUnit AS DECIMAL) FORWARD.
-
-FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
-    (ipcInventoryStatus AS CHARACTER) FORWARD.     
+     
 /* ***************************  Main Block  *************************** */
 
 
@@ -3354,49 +3354,46 @@ PROCEDURE GetPOOrderLineDetails:
             .
 END PROCEDURE.
 
-PROCEDURE GetRMLoadTagDetails:
-    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcJobNo    AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiJobNo2   AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiFormNo   AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiBlankNo  AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcQtyUOM   AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcItemName AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplValidTag AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+PROCEDURE PostFinishedGoodsForUser :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcTransType AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcUsername  AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER ioplSuccess  AS LOGICAL   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcMessage  AS CHARACTER NO-UNDO.
 
-    FIND FIRST loadtag NO-LOCK
-        WHERE loadtag.company   EQ ipcCompany
-          AND loadtag.item-type EQ TRUE
-          AND loadtag.tag-no    EQ ipcTag NO-ERROR.
-    IF NOT AVAILABLE loadtag THEN DO:
-        oplValidTag = FALSE.
-        RETURN.
-    END.
+ /* Create  workfile records for the finished goods being posted */
+    RUN fg/fgRecsByUser.p (
+        INPUT ipcCompany,
+        INPUT ipcTransType, 
+        INPUT ipcUsername, 
+        INPUT TABLE w-fg-rctd BY-reference
+        ).
     
-    FOR EACH rm-rcpth NO-LOCK
-         WHERE rm-rcpth.company   EQ loadtag.company
-           AND rm-rcpth.i-no      EQ loadtag.i-no
-           AND rm-rcpth.rita-code EQ "I":
-        FIND FIRST rm-rdtlh NO-LOCK
-             WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
-               AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-               AND rm-rdtlh.tag       EQ loadtag.tag-no
-             NO-ERROR.
-        IF AVAILABLE rm-rdtlh THEN DO:
-            ASSIGN
-                oplValidTag = TRUE
-                opcJobNo    = rm-rdtlh.job-no
-                opiJobNo2   = rm-rdtlh.job-no2
-                opiFormNo   = rm-rdtlh.s-num
-                opiBlankNo  = rm-rdtlh.b-num
-                opcItemName = rm-rcpth.i-name
-                opcQtyUOM   = rm-rcpth.pur-uom
-                .
-            LEAVE.
-        END.
+    RUN fg/fgpostBatch.p ( 
+        INPUT TODAY,       /* Post date      */
+        INPUT NO,          /* tg-recalc-cost */
+        INPUT ipcTransType,         /* Transfer  */
+        INPUT NO,          /* Send fg emails */
+        INPUT YES,
+        INPUT TABLE w-fg-rctd BY-reference,
+        INPUT TABLE tt-fgemail BY-reference,
+        INPUT TABLE tt-email BY-reference,
+        INPUT TABLE tt-inv BY-reference
+        )NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+       ASSIGN
+           iopcMessage = ERROR-STATUS:GET-MESSAGE(1)
+           ioplSuccess = NO
+           .
+       RETURN.
     END.
+   
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
@@ -3636,18 +3633,3 @@ FUNCTION fCalculateQuantityTotal RETURNS DECIMAL
     (ipdQuantitySubUnits AS DECIMAL, ipdSubUnitCount AS DECIMAL, ipdQuantityPartialSubUnit AS DECIMAL):
      RETURN (ipdQuantitySubUnits * ipdSubUnitCount) + ipdQuantityPartialSubUnit.
 END FUNCTION.
-
-FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
-    (ipcInventoryStatus AS CHARACTER):
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    
-    FOR EACH ttBrowseInventory
-            WHERE IF ipcInventoryStatus EQ "" THEN
-                      TRUE
-                  ELSE
-                      ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus:
-        iCount = iCount + 1.    
-    END.        
-   
-    RETURN iCount.   
-END FUNCTION.        
