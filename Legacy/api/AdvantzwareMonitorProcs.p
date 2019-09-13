@@ -11,18 +11,25 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
-DEFINE INPUT PARAMETER ipcDLC AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcDLC     AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     
 DEFINE VARIABLE cLine         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cPathDataFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdSession     AS HANDLE    NO-UNDO.
 
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+RUN system/Session.p     PERSISTENT SET hdSession.
 
 /* This is to get path */
-RUN GetBarDirFilePath IN hdOutputProcs ("001","temp", OUTPUT cPathDataFile).
+RUN GetBarDirFilePath IN hdOutputProcs (
+    INPUT ipcCompany,
+    INPUT "temp", 
+    OUTPUT cPathDataFile
+    ).
  
-/* Get NodeServer status */ 
+/* Gets NodeServer status */ 
 PROCEDURE getNodeStatus:
     DEFINE INPUT  PARAMETER ipcNodePort AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcStatus   AS CHARACTER NO-UNDO.
@@ -55,7 +62,7 @@ PROCEDURE pMonitor:
     END.
 END PROCEDURE.
 
-/* Returns AppServer Server */
+/* Gets AppServer Status */
 PROCEDURE getASBrokerStatus:
     DEFINE INPUT  PARAMETER ipcBrokerName     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNameServer     AS CHARACTER NO-UNDO.
@@ -114,7 +121,7 @@ PROCEDURE getASBrokerStatus:
 END PROCEDURE.
 
 
-/* Returns NameServer status */
+/* Gets NameServer Status */
 PROCEDURE getNameServerStatus:
     DEFINE INPUT  PARAMETER ipcNameServerName    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNameServerStatus  AS CHARACTER NO-UNDO.
@@ -138,7 +145,7 @@ PROCEDURE getNameServerStatus:
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 
-/* Returns NameServer port */
+/* Gets NameServer Port */
 PROCEDURE getNameServerPort:
     DEFINE INPUT  PARAMETER ipcNameServerName AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNameServerPort AS CHARACTER NO-UNDO.
@@ -159,7 +166,7 @@ PROCEDURE getNameServerPort:
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 
-/* Returns AdminServer status */
+/* Gets AdminServer Status */
 PROCEDURE getAdminServerStatus:
     DEFINE INPUT  PARAMETER ipcPort               AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcAdminServerStatus  AS CHARACTER NO-UNDO.
@@ -177,33 +184,63 @@ PROCEDURE getAdminServerStatus:
 END PROCEDURE.
 
 
-/* send email notification */
+/* Sends Email notification when any resource is stopped */
 PROCEDURE sendEmail:
     DEFINE PARAMETER BUFFER bufServerResource FOR serverResource.
     DEFINE OUTPUT PARAMETER oplSent           AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cSubject  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBody     AS CHARACTER NO-UNDO.
+    
     IF AVAILABLE bufServerResource THEN DO:
-        MESSAGE "DEBUG - NOW EMAIL WILL BE SENT TO: " bufServerResource.emailRecipients  VIEW-AS ALERT-BOX.
+	
+        RUN getEmailConfigBody (
+            INPUT  bufServerResource.configID,
+            OUTPUT cBody
+            ).
+                
+        RUN getEmailConfigSubject (
+            INPUT  bufServerResource.configID,
+            OUTPUT cSubject
+            ).
+        
+        ASSIGN
+            cSubject = REPLACE(cSubject,"<$serverResourcePort$>",bufServerResource.port)
+            cSubject = REPLACE(cSubject,"<$serverResourceName$>",bufServerResource.name)
+            .
+
+        RUN spSendEmail IN hdSession (
+            INPUT bufServerResource.configID,  /* emailConfig.ConfigID */
+            INPUT "",                          /* Override for Email RecipientsinTo */
+            INPUT "",                          /* Override for Email RecipientsinReplyTo */
+            INPUT "",                          /* Override for Email RecipientsinCC */
+            INPUT "",                          /* Override for Email RecipientsinBCC */
+            INPUT cSubject,                    /* Override for Email Subject */
+            INPUT cBody,                       /* Override for Email Body */
+            INPUT ""                           /* Email Attachment */
+            ).
         oplSent = TRUE.
     END.
 END PROCEDURE.
 
-
-/* update status */
+/* Updates resouce status */
 PROCEDURE updateStatus:
     DEFINE INPUT PARAMETER iprRowId AS ROWID NO-UNDO.
 
-    DEFINE VARIABLE cStatus               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBrokerNameServer     AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cBrokerNameServerPort AS CHARACTER NO-UNDO. 
-    DEFINE VARIABLE cNodePath             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE emailNotificationSent AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cStatus                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBrokerNameServer      AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cBrokerNameServerPort  AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE lEmailNotificationSent AS LOGICAL   NO-UNDO.
 
-    /* not adding no-wait as the status must be updated */
+    /* Not adding no-wait as the status must be updated */
     FIND serverResource 
         WHERE ROWID(serverResource) EQ iprRowId EXCLUSIVE-LOCK. 
-    IF AVAILABLE serverResource THEN DO:
-        CASE serverResource.resourceType:
-            WHEN "Node" THEN
+    
+	IF AVAILABLE serverResource THEN DO:
+        
+		CASE serverResource.resourceType:
+            
+			WHEN "Node" THEN
                 RUN getNodeStatus(
                     INPUT serverResource.port,
                     OUTPUT cStatus
@@ -231,31 +268,63 @@ PROCEDURE updateStatus:
                
                 /* we need to update the statusRemarks for AppServer because AppServer listens on controllingNameServer's port */
                 serverResource.statusRemarks  = IF serverResource.resourceType EQ "AppServer" THEN 
-                                                   "Listening on NameServer [" + cBrokerNameServer + ":" + cBrokerNameServerPort + "]"
+                                                   "Listening on NameServer [" + 
+                                                   cBrokerNameServer + 
+                                                   ":" + cBrokerNameServerPort + 
+                                                   "]"
                                                 ELSE 
                                                    "".
             END.
         END CASE.
             
         ASSIGN serverResource.resourceStatus = cStatus
-               serverResource.notified       = (IF cStatus = "Running" THEN NO ELSE serverResource.notified)
+               serverResource.notified       = (IF cStatus EQ "Running" THEN NO ELSE serverResource.notified)
                serverResource.statusDateTime = NOW.
 
         IF serverResource.resourceStatus = "Stopped" AND 
            NOT serverResource.notified THEN DO:
+            
             RUN sendEmail(
                 BUFFER serverResource,
-                OUTPUT emailNotificationSent
+                OUTPUT lEmailNotificationSent
                 ).
 
-            serverResource.notified = emailNotificationSent.
+            serverResource.notified = lEmailNotificationSent.
         END.
                     
     END.
 RELEASE serverResource.
 END PROCEDURE.
 
+/* gets Emailconfig Body */
+PROCEDURE getEmailConfigBody:
+    DEFINE INPUT  PARAMETER ipcConfigID AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBody     AS CHARACTER NO-UNDO.
+    
+	FIND FIRST emailConfig NO-LOCK
+         WHERE emailConfig.configID EQ ipcConfigID
+           AND isActive
+         NO-ERROR.
+    IF AVAILABLE emailConfig THEN
+        opcBody = emailConfig.body
+        .
+        
+END PROCEDURE.
 
+/* gets Emailconfig Subject */
+PROCEDURE getEmailConfigSubject:
+    DEFINE INPUT  PARAMETER ipcConfigID AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSubject  AS CHARACTER NO-UNDO.
+    
+    FIND FIRST emailConfig NO-LOCK
+         WHERE emailConfig.configID EQ ipcConfigID
+           AND isActive
+         NO-ERROR.
+    IF AVAILABLE emailConfig THEN
+        opcSubject = emailConfig.subject
+        .
+       
+END PROCEDURE.
 
 
 
