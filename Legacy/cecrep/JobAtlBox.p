@@ -80,6 +80,8 @@ DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
 DEFINE        VARIABLE dSalesPrice   AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dPricePerMsf  AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dTotalup      AS DECIMAL   NO-UNDO.
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
 DEFINE BUFFER b-rt              FOR reftable.
@@ -118,6 +120,9 @@ END.
 
 v-job-cust = sys-ctrl.log-fld.
 s-prt-set-header = NO .
+
+FUNCTION getTotalUp RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
 ASSIGN
     v-line[1]      = CHR(95) + fill(CHR(95),40) + chr(95) + "  " +
@@ -458,8 +463,10 @@ DO v-local-loop = 1 TO v-local-copies:
             AND po-ordl.po-no EQ po-ord.po-no
             NO-LOCK NO-ERROR.
         IF AVAIL po-ordl THEN
-            ASSIGN cPoDueDate   = po-ordl.due-date.
-        ELSE ASSIGN cPoDueDate   = ? .
+            ASSIGN cPoDueDate   = po-ordl.due-date
+                   dPricePerMsf = po-ordl.cost .
+        ELSE ASSIGN cPoDueDate   = ? 
+                    dPricePerMsf = 0.
 
         IF v-vend-no NE "" THEN DO:
            v-qty-or-sup = v-qty-or-sup + trim(v-vend-no).
@@ -491,6 +498,8 @@ DO v-local-loop = 1 TO v-local-copies:
                            ELSE 0 .
               dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
           
+          dTotalup = getTotalUp() .
+
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
@@ -545,7 +554,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)"
               "<=PODueDate>" IF cPoDueDate NE ? THEN STRING(cPoDueDate) ELSE ""
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
-              "<=PricePerMSF>" STRING(xef.cost-msh,">>>>9.999")
+              "<=PricePerMSF>" STRING(dPricePerMsf,">>>>>9.999")
               "<B>"
               "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(15)"
               "</B>"
@@ -555,7 +564,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=GrossLength>" TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>>9.99")) FORMAT "x(8)"
               "<=OutL>" STRING(xef.n-out-l) FORMAT "x(3)"
               "<=OutW>" STRING(xef.n-out)   FORMAT "x(3)"
-              "<=TotalUpGross>" STRING(xef.spare-int-1)
+              "<=TotalUpGross>" STRING(dTotalup)
               "<=TotalUpNet>" STRING(xeb.num-up)   
               "<=NetWidth>" TRIM(STRING({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) FORMAT "x(8)"
               "<=NetLength>" TRIM(STRING({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) FORMAT "x(8)"
@@ -1207,5 +1216,29 @@ PROCEDURE stackImage:
             "<R-13>".
 END PROCEDURE.
 
-/* end ---------------------------------- copr. 1997  advanced software, inc. */
 
+/* ************************  Function Implementations ***************** */
+
+
+FUNCTION getTotalUp RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEF VAR opi-total-up AS INT NO-UNDO.
+
+IF AVAIL xef THEN
+opi-total-up = IF asi.xef.spare-int-1 = 0 THEN
+       INT(asi.xef.n-out) * INT(asi.xef.n-out-l) * int(asi.xef.n-out-d)
+    ELSE
+        xef.spare-int-1.
+ELSE
+    opi-total-up = 0.
+
+RETURN opi-total-up.   /* Function return value. */
+
+END FUNCTION.
+
+
+/* end ---------------------------------- copr. 1997  advanced software, inc. */
