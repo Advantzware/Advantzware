@@ -6309,6 +6309,7 @@ PROCEDURE local-update-record :
   DEF VAR lv-new-record AS LOG NO-UNDO.
   DEF VAR lActive AS LOG NO-UNDO.
   DEF VAR old-cat-no LIKE eb.procat NO-UNDO.
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-est-no NO-ERROR.
@@ -6350,13 +6351,8 @@ PROCEDURE local-update-record :
      RUN valid-stock-no NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-     IF /* eb.cust-no:screen-value <> "" and */
-        NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value)
-     THEN DO:
-        MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR.
-        APPLY "Entry" TO eb.cust-no.
-        RETURN NO-APPLY.
-     END.
+     RUN valid-cust-no(OUTPUT lCheckError) NO-ERROR.
+     IF lCheckError THEN RETURN NO-APPLY.
 
      RUN valid-ship-id NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -8221,6 +8217,37 @@ PROCEDURE valid-procat :
       APPLY "entry" TO eb.procat IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no B-table-Win 
+PROCEDURE valid-cust-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST cust NO-LOCK
+          WHERE cust.company = gcompany 
+          AND cust.cust-no = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-ERROR .
+      
+      IF NOT AVAIL cust THEN DO:
+          MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
+          oplReturnError = YES .
+      END.
+      ELSE IF AVAIL cust AND cust.ACTIVE EQ "I" THEN DO:
+          MESSAGE "Customer is Inactive. Please select a Active Customer ..." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
+          oplReturnError = YES .
+      END.
   END.
 
 END PROCEDURE.
