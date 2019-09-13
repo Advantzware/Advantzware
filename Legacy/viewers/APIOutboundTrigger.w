@@ -4,7 +4,7 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*********************************************************************
 * Copyright (C) 2000 by Progress Software Corporation. All rights    *
 * reserved. Prior versions of this work may contain portions         *
@@ -13,9 +13,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  
+  File: viewers/APIOutboundTrigger.w
 
-  Description: from BROWSER.W - Basic SmartBrowser Object Template
+  Description: APIOutboundTrigger viewer 
 
   Input Parameters:
       <none>
@@ -49,58 +49,51 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartBrowser
+&Scoped-define PROCEDURE-TYPE SmartViewer
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
-&Scoped-define BROWSE-NAME br_table
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES APIOutbound
-&Scoped-define FIRST-EXTERNAL-TABLE APIOutbound
+&Scoped-define EXTERNAL-TABLES APIOutboundTrigger APIOutbound
+&Scoped-define FIRST-EXTERNAL-TABLE APIOutboundTrigger
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR APIOutbound.
-/* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES APIOutboundDetail
-
-/* Define KEY-PHRASE in case it is used by any query. */
-&Scoped-define KEY-PHRASE TRUE
-
-/* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundDetail.apiID APIOutboundDetail.clientID APIOutboundDetail.detailID APIOutboundDetail.parentID   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
-&Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table APIOutboundDetail
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutboundDetail
-
-
-/* Definitions for FRAME F-Main                                         */
-
+DEFINE QUERY external_tables FOR APIOutboundTrigger, APIOutbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-FIELDS APIOutboundTrigger.triggerID ~
+APIOutboundTrigger.description APIOutboundTrigger.isActive 
+&Scoped-define ENABLED-TABLES APIOutboundTrigger
+&Scoped-define FIRST-ENABLED-TABLE APIOutboundTrigger
+&Scoped-Define ENABLED-OBJECTS RECT-6 
+&Scoped-Define DISPLAYED-FIELDS APIOutboundTrigger.apiID ~
+APIOutboundTrigger.clientID APIOutboundTrigger.triggerID ~
+APIOutboundTrigger.description APIOutboundTrigger.isActive 
+&Scoped-define DISPLAYED-TABLES APIOutboundTrigger
+&Scoped-define FIRST-DISPLAYED-TABLE APIOutboundTrigger
+
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
+&Scoped-define ADM-ASSIGN-FIELDS APIOutboundTrigger.apiID ~
+APIOutboundTrigger.clientID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
 /* STRUCTURED-DATA
 <KEY-OBJECT>
-&BROWSE-NAME
+THIS-PROCEDURE
 </KEY-OBJECT>
 <FOREIGN-KEYS>
-</FOREIGN-KEYS>
+</FOREIGN-KEYS> 
 <EXECUTING-CODE>
 **************************
 * Set attributes related to FOREIGN KEYS
@@ -114,68 +107,53 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Advanced Query Options" B-table-Win _INLINE
-/* Actions: ? adm/support/advqedit.w ? ? ? */
-/* STRUCTURED-DATA
-<KEY-OBJECT>
-&BROWSE-NAME
-</KEY-OBJECT>
-<SORTBY-OPTIONS>
-</SORTBY-OPTIONS> 
-<SORTBY-RUN-CODE>
-************************
-* Set attributes related to SORTBY-OPTIONS */
-RUN set-attribute-list (
-    'SortBy-Options = ""':U).
-/************************
-</SORTBY-RUN-CODE> 
-<FILTER-ATTRIBUTES>
-</FILTER-ATTRIBUTES> */   
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
-/* Query definitions                                                    */
-&ANALYZE-SUSPEND
-DEFINE QUERY br_table FOR 
-      APIOutboundDetail SCROLLING.
-&ANALYZE-RESUME
-
-/* Browse definitions                                                   */
-DEFINE BROWSE br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
-  QUERY br_table NO-LOCK DISPLAY
-      APIOutboundDetail.apiID COLUMN-LABEL "API ID" FORMAT "x(32)":U
-      APIOutboundDetail.clientID COLUMN-LABEL "API ID" FORMAT "x(32)":U
-      APIOutboundDetail.detailID COLUMN-LABEL "Detail ID" FORMAT "x(32)":U
-      APIOutboundDetail.parentID COLUMN-LABEL "Parent ID" FORMAT "x(32)":U
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 125 BY 6.71 FIT-LAST-COLUMN.
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 127.2 BY 7.38.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     APIOutboundTrigger.apiID AT ROW 1.86 COL 22.8 COLON-ALIGNED WIDGET-ID 8
+          VIEW-AS FILL-IN 
+          SIZE 40.4 BY 1
+          BGCOLOR 3 FGCOLOR 15 
+     APIOutboundTrigger.clientID AT ROW 1.86 COL 79 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS FILL-IN 
+          SIZE 40.4 BY 1
+          BGCOLOR 3 FGCOLOR 15 
+     APIOutboundTrigger.triggerID AT ROW 3.38 COL 22.8 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 34 BY 1
+          BGCOLOR 15 
+     APIOutboundTrigger.description AT ROW 5 COL 10.8 WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 102 BY 1
+          BGCOLOR 15 
+     APIOutboundTrigger.isActive AT ROW 6.76 COL 25 WIDGET-ID 4
+          VIEW-AS TOGGLE-BOX
+          SIZE 11 BY .81
+          BGCOLOR 15 
+     RECT-6 AT ROW 1 COL 1 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         FGCOLOR 9 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartBrowser
-   External Tables: ASI.APIOutbound
-   Allow: Basic,Browse
+   Type: SmartViewer
+   External Tables: ASI.APIOutboundTrigger,ASI.APIOutbound
+   Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
    Other Settings: PERSISTENT-ONLY COMPILE
@@ -195,17 +173,17 @@ END.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 6.71
-         WIDTH              = 125.
+  CREATE WINDOW V-table-Win ASSIGN
+         HEIGHT             = 7.38
+         WIDTH              = 127.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/browser.i}
+{src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -216,32 +194,25 @@ END.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW B-table-Win
-  NOT-VISIBLE,,RUN-PERSISTENT                                           */
+/* SETTINGS FOR WINDOW V-table-Win
+  VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN APIOutboundTrigger.apiID IN FRAME F-Main
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN APIOutboundTrigger.clientID IN FRAME F-Main
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN APIOutboundTrigger.description IN FRAME F-Main
+   ALIGN-L                                                              */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
 
 /* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
-/* Query rebuild information for BROWSE br_table
-     _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE
-    APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK
-    ~{&SORTBY-PHRASE}.
-     _END_FREEFORM
-     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Query            is NOT OPENED
-*/  /* BROWSE br_table */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
@@ -253,56 +224,16 @@ OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE
  
 
 
-
-/* ************************  Control Triggers  ************************ */
-
-&Scoped-define BROWSE-NAME br_table
-&Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-ENTRY OF br_table IN FRAME F-Main
-DO:
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-LEAVE OF br_table IN FRAME F-Main
-DO:
-    /* Do not disable this code or no updates will take place except
-     by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON VALUE-CHANGED OF br_table IN FRAME F-Main
-DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&UNDEFINE SELF-NAME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
 
-&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-&ENDIF
+  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+  &ENDIF         
+  
+  /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -310,7 +241,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -324,12 +255,14 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "APIOutboundTrigger"}
   {src/adm/template/row-list.i "APIOutbound"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "APIOutboundTrigger"}
   {src/adm/template/row-find.i "APIOutbound"}
 
   /* Process the newly available records (i.e. display fields,
@@ -341,7 +274,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -359,7 +292,113 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
+PROCEDURE local-add-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF NOT AVAILABLE APIOutbound THEN DO:
+        MESSAGE "No API Outbound record available" 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.   
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pSetDefaults.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
+PROCEDURE local-assign-statement :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pUpdateFields.
+  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    {custom/askdel.i}
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDefaults V-table-Win 
+PROCEDURE pSetDefaults :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF AVAILABLE APIOutbound THEN
+        ASSIGN
+            APIOutboundTrigger.apiID:SCREEN-VALUE    = APIOutbound.apiID
+            APIOutboundTrigger.clientID:SCREEN-VALUE = APIOutbound.clientID
+            .
+           
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateFields V-table-Win 
+PROCEDURE pUpdateFields :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAILABLE APIOutboundTrigger AND 
+       AVAILABLE APIOutbound THEN
+        ASSIGN
+            APIOutboundTrigger.company       = APIOutbound.company
+            APIOutboundTrigger.apiOutboundID = APIOutbound.apiOutboundID
+            APIOutboundTrigger.createBy      = USERID("ASI")
+            APIOutboundTrigger.createTime    = NOW
+            . 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -371,8 +410,8 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "APIOutboundTrigger"}
   {src/adm/template/snd-list.i "APIOutbound"}
-  {src/adm/template/snd-list.i "APIOutboundDetail"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -382,7 +421,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
   Purpose:     
@@ -395,7 +434,7 @@ PROCEDURE state-changed :
   CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/bstates.i}
+      {src/adm/template/vstates.i}
   END CASE.
 END PROCEDURE.
 

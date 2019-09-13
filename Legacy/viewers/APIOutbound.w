@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -65,9 +66,8 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR APIOutbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS APIOutbound.apiID APIOutbound.clientID ~
-APIOutbound.userName APIOutbound.password APIOutbound.requestHandler ~
-APIOutbound.responseHandler 
+&Scoped-Define ENABLED-FIELDS APIOutbound.userName APIOutbound.password ~
+APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define ENABLED-TABLES APIOutbound
 &Scoped-define FIRST-ENABLED-TABLE APIOutbound
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 edEndPoint ~
@@ -82,7 +82,7 @@ cbRequestVerb cbRequestDataType tgSSLEnabled cbAuthType edRequestData
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define ADM-CREATE-FIELDS APIOutbound.apiID 
+&Scoped-define ADM-CREATE-FIELDS APIOutbound.apiID APIOutbound.clientID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -193,13 +193,13 @@ DEFINE FRAME F-Main
           LABEL "API ID"
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
-          BGCOLOR 15 FGCOLOR 0 
+          BGCOLOR 3 FGCOLOR 15 
      APIOutbound.clientID AT ROW 2.91 COL 78 COLON-ALIGNED WIDGET-ID 6
           LABEL "Client ID"
           VIEW-AS FILL-IN 
-          SIZE 30.2 BY 1
-          BGCOLOR 15 FGCOLOR 0 
-     tgActive AT ROW 2.91 COL 114 WIDGET-ID 28
+          SIZE 40.4 BY 1
+          BGCOLOR 3 FGCOLOR 15 
+     tgActive AT ROW 2.91 COL 126.6 WIDGET-ID 28
      edEndPoint AT ROW 4.29 COL 23 NO-LABEL WIDGET-ID 34
      cbRequestVerb AT ROW 7.05 COL 21 COLON-ALIGNED WIDGET-ID 42
      cbRequestDataType AT ROW 7.19 COL 92 COLON-ALIGNED WIDGET-ID 40
@@ -209,19 +209,19 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     APIOutbound.password AT ROW 9.33 COL 78 COLON-ALIGNED WIDGET-ID 14
+     APIOutbound.password AT ROW 9.33 COL 78 COLON-ALIGNED WIDGET-ID 14 PASSWORD-FIELD 
           LABEL "Password"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
      cbAuthType AT ROW 9.33 COL 137 COLON-ALIGNED WIDGET-ID 32
      APIOutbound.requestHandler AT ROW 11.95 COL 21 COLON-ALIGNED WIDGET-ID 18
-          LABEL "Request Handler" FORMAT "x(40)"
+          LABEL "Request Handler" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 54 BY 1
           BGCOLOR 15 FGCOLOR 0 
      APIOutbound.responseHandler AT ROW 11.95 COL 98.6 COLON-ALIGNED WIDGET-ID 22
-          LABEL "Response Handler" FORMAT "x(40)"
+          LABEL "Response Handler" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 55 BY 1
           BGCOLOR 15 FGCOLOR 0 
@@ -297,7 +297,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN APIOutbound.apiID IN FRAME F-Main
-   1 EXP-LABEL                                                          */
+   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR COMBO-BOX cbAuthType IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cbRequestDataType IN FRAME F-Main
@@ -305,7 +305,7 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX cbRequestVerb IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIOutbound.clientID IN FRAME F-Main
-   EXP-LABEL                                                            */
+   NO-ENABLE 1 EXP-LABEL                                                */
 ASSIGN 
        edEndPoint:READ-ONLY IN FRAME F-Main        = TRUE.
 
@@ -343,23 +343,6 @@ ASSIGN
 
  
 
-
-
-/* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME cbRequestVerb
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbRequestVerb V-table-Win
-ON VALUE-CHANGED OF cbRequestVerb IN FRAME F-Main /* Request Verb */
-DO:
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -477,12 +460,18 @@ PROCEDURE local-delete-record :
     {custom/askdel.i}
     
     FOR EACH APIOutboundDetail EXCLUSIVE-LOCK
-       WHERE APIOutboundDetail.apiID = APIOutbound.apiID:
+        WHERE APIOutboundDetail.apiOutboundID EQ APIOutbound.apiOutboundID:
         DELETE APIOutboundDetail.
     END.
+    
+    FOR EACH APIOutboundTrigger EXCLUSIVE-LOCK
+        WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID:
+        DELETE APIOutboundTrigger.
+    END.
+        
     /* Dispatch standard ADM method.                             */    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-        
+            
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pUpdateMessageText (
         "Record deleted successfully!",    /* Message Text */
@@ -578,7 +567,10 @@ PROCEDURE local-update-record :
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+    
+    IF RETURN-VALUE = "ADM-ERROR":U THEN 
+        RETURN "ADM-ERROR":U.
+    
     /* Code placed here will execute AFTER standard behavior.    */        
     cMessage = IF adm-new-record THEN 
                    "Record created successfully!"
@@ -763,7 +755,9 @@ PROCEDURE pUpdateFields :
 
     IF AVAILABLE APIOutbound THEN    
         ASSIGN
+            APIOutbound.company         = g_company
             APIOutbound.isActive        = tgActive:CHECKED
+            APIOutbound.isSSLEnabled    = tgSSLEnabled:CHECKED
             APIOutbound.endPoint        = edEndPoint:SCREEN-VALUE
             APIOutbound.requestVerb     = cbRequestVerb:SCREEN-VALUE
             APIOutbound.requestDataType = cbRequestDataType:SCREEN-VALUE

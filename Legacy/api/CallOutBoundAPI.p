@@ -11,7 +11,7 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
-DEFINE INPUT  PARAMETER ipcAPIID         AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcAPIOutboundID AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcParentProgram AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplcResponseData AS LONGCHAR  NO-UNDO.
@@ -30,6 +30,7 @@ DEFINE VARIABLE gcResponseDataType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcResponseHandler  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcRequestVerb      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcClientID         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcAPIID            AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcCommandResult   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCommand         AS CHARACTER NO-UNDO.
@@ -47,9 +48,9 @@ ASSIGN
     gdDateTime      = NOW
     .
 
-FOR FIRST APIOutbound
-    WHERE APIOutbound.APIID = ipcAPIID 
-      AND APIOutbound.isActive  NO-LOCK:
+FOR FIRST APIOutbound NO-LOCK
+    WHERE APIOutbound.apiOutboundID EQ ipcAPIOutboundID 
+      AND APIOutbound.isActive      EQ TRUE:
     ASSIGN
         gcUserName         = APIOutbound.username
         gcPassword         = APIOutbound.password
@@ -61,14 +62,16 @@ FOR FIRST APIOutbound
         gcAuthType         = APIOutbound.authType
         gcEndPoint         = APIOutbound.endPoint
         gcResponseHandler  = APIOutbound.responseHandler
-        ipcAPIID           = APIOutbound.APIID
+        gcAPIID            = APIOutbound.apiID
         glAPIConfigFound   = YES
         .
 END.
 
 IF NOT glAPIConfigFound THEN DO:
     ASSIGN 
-        opcMessage = "Config for API ID " + ipcAPIID + " not available or inactive in APIOutbound table"
+        opcMessage = "Config for Outbound API Sequence ID [" 
+                   + STRING(ipcAPIOutboundID) 
+                   + "] not available or inactive in APIOutbound table"
         oplSuccess = NO
         .
                 
@@ -81,13 +84,13 @@ ASSIGN
     gcDateTime     = REPLACE(gcDateTime, " ", "")
     gcDateTime     = REPLACE(gcDateTime, ".", "")
     gcRequestFile  = "request"     + "_"
-                   + ipcAPIID      + "_"      /* API ID    */
+                   + gcAPIID       + "_"      /* API ID    */
                    + gcClientID    + "_"      /* Client ID */
                    + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
                    + gcDateTime               /* Date and Time */
                    + "." + lc(gcRequestDataType). /* File Extentions */
     gcResponseFile = "response"    + "_"
-                   + ipcAPIID      + "_"      /* API ID    */
+                   + gcAPIID       + "_"      /* API ID    */
                    + gcClientID    + "_"      /* Client ID */
                    + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
                    + gcDateTime               /* Date and Time */
@@ -96,7 +99,7 @@ ASSIGN
     
 IF ERROR-STATUS:ERROR THEN DO:
     ASSIGN 
-        opcMessage = "ERROR: " + ERROR-STATUS:GET-MESSAGE(1) + "~nAPIID [ " + ipcAPIID + " ]".
+        opcMessage = "ERROR: " + ERROR-STATUS:GET-MESSAGE(1) + "~nAPIID [ " + gcAPIID + " ]".
         oplSuccess = NO
         .
                 
@@ -124,7 +127,10 @@ IF gcAuthType = "basic" THEN
 
 IF gcCommand = '' THEN DO:
     ASSIGN 
-        opcMessage = "Invalid Authentication Type [ " + gcAuthType + " ] found in config in APIOutbound table for APIID [ " + ipcAPIID  + " ]".
+        opcMessage = "Invalid Authentication Type [ " 
+                   + gcAuthType 
+                   + " ] found in config in APIOutbound table for APIID [ " 
+                   + gcAPIID  + " ]".
         oplSuccess = NO
         .
                         
@@ -199,7 +205,10 @@ PROCEDURE pReadResponse PRIVATE:
         END.
         OTHERWISE DO:
             ASSIGN 
-                opcMessage = "Invalid Response Data Type [ " + ipcReponseDataType + " ] found in config in APIOutbound table for APIID [ " + ipcAPIID  + " ]".
+                opcMessage = "Invalid Response Data Type [ " 
+                           + ipcReponseDataType 
+                           + " ] found in config in APIOutbound table for APIID [ " 
+                           + gcAPIID  + " ]".
                 oplSuccess = NO
 		  .
         END.
