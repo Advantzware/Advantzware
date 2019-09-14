@@ -55,19 +55,19 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
             BY ap-chk.vend-no:
 
         ll = 0.
-        FOR EACH ap-sel
-            WHERE ap-sel.company EQ cocode
-                AND ap-sel.vend-no EQ ap-chk.vend-no
-                AND ap-sel.man-check EQ NO
-            NO-LOCK
-            BREAK BY ap-sel.inv-no:
-
-            ll = ll + 1.
-            IF ll EQ max-per-chk AND NOT LAST(ap-sel.inv-no) THEN
-                ASSIGN
-                    stnum = stnum + 1
-                    ll = 0.
-        END. /*each ap-sel*/
+        /*FOR EACH ap-sel                                          */
+        /*   WHERE ap-sel.company EQ cocode                        */
+        /*        AND ap-sel.vend-no EQ ap-chk.vend-no             */
+        /*        AND ap-sel.man-check EQ NO                       */
+        /*    NO-LOCK                                              */
+        /*    BREAK BY ap-sel.inv-no:                              */
+        /*                                                         */
+        /*    ll = ll + 1.                                         */
+        /*   IF ll EQ max-per-chk AND NOT LAST(ap-sel.inv-no) THEN */
+        /*        ASSIGN                                           */
+        /*            stnum = stnum + 1                            */
+        /*            ll = 0.                                      */
+        /*END. /*each ap-sel*/                                     */
         ASSIGN
             add1   = vend.r-add1
             add2   = vend.r-add2
@@ -148,7 +148,8 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
                     RUN writeVoidedCheck(vend.remit,stnum).
                     ASSIGN
                         ll-void = YES
-                        ll = ll - 15.
+                        ll = ll - 15
+                        stnum = stnum + 1.
                     RUN writeRegisterSummary(YES,
                                              ?,
                                              0,
