@@ -32,7 +32,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&scoped-define item_spec prep-spec
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_prep
 
@@ -373,6 +373,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_prep , 'Record':U , THIS-PROCEDURE ).
        /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_prep , 'export-xl':U , h_export ).
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( h_prep , 'attachprep':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_export ,

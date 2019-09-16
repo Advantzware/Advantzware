@@ -72,6 +72,12 @@ DEF VAR reftable-frm-int AS INT NO-UNDO.
 def TEMP-TABLE w-lo NO-UNDO
   field layout like v-layout.
 
+def TEMP-TABLE tt-die-notes
+  field die-no like eb.die-no
+  FIELD cad-no LIKE eb.cad-no
+  field form-no like eb.form-no
+  field die-size as char format "x(17)".
+
 def new shared buffer xjob-hdr for job-hdr.
 
 def buffer b-eb for eb.
@@ -661,7 +667,17 @@ for each job-hdr NO-LOCK
                    wrk-die.cad-no = eb.cad-no
               wrk-die.form-no = eb.form-no
               wrk-die.die-size = string(ef.trim-w) + "x" +
-              string(ef.trim-l).
+              string(ef.trim-l). 
+          end.
+
+          find first tt-die-notes where tt-die-notes.die-no eq eb.die-no no-error.
+          if not avail tt-die-notes and eb.die-no gt "" then do:
+            create tt-die-notes.
+            assign tt-die-notes.die-no = eb.die-no
+                   tt-die-notes.cad-no = eb.cad-no
+              tt-die-notes.form-no = eb.form-no
+              tt-die-notes.die-size = string(ef.trim-w) + "x" +
+              string(ef.trim-l). 
           end.
 
           /** BUILD INK WORK FILE **/
@@ -1233,6 +1249,26 @@ for each job-hdr NO-LOCK
               END.
            END.
         END.
+         
+         spec-note-prep:
+         FOR EACH tt-die-notes NO-LOCK:
+              v-inst2 = "". 
+              FIND FIRST prep NO-LOCK
+                  WHERE prep.company = cocode
+                    AND prep.CODE = tt-die-notes.die-no  NO-ERROR.
+             
+              IF AVAIL prep THEN do:
+                  {custom/notespr2.i prep v-inst2 6
+                      "notes.rec_key = prep.rec_key and notes.note_type = 'S' and lookup(notes.note_code,spec-list) > 0 " }
+                      DO i = 1 TO 6:  
+                          IF v-inst2[i] <> "" THEN do:
+                              v-spec-cnt = v-spec-cnt  + 1.
+                              v-spec-inst[v-spec-cnt] = v-inst2[i].
+                          END.
+                      END.
+              END.
+              DELETE tt-die-notes. 
+         END.
 
     /*  IF v-ship <> "" THEN v-dept-inst[6] = v-ship.  /* shipto notes */ */
         PUT "<R-1><B>DEPARTMENT   INSTRUCTION NOTES</B>" SKIP
@@ -1251,6 +1287,10 @@ for each job-hdr NO-LOCK
             v-spec-inst[2] FORM "x(128)" SKIP
             v-spec-inst[3] FORM "x(128)" SKIP
             v-spec-inst[4] FORM "x(128)" SKIP
+            v-spec-inst[5] FORM "x(128)" SKIP
+            v-spec-inst[6] FORM "x(128)" SKIP
+            v-spec-inst[7] FORM "x(128)" SKIP
+            
 
             /*
             
