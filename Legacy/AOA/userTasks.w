@@ -46,9 +46,10 @@ DEFINE VARIABLE char-hdl      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMnemonic     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cModule       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFormat AS CHARACTER NO-UNDO INITIAL
-    "Grid,CSV,XLS,DOCX,PDF,HTML,View".
+    "Grid,CSV,XLS,DOCX,PDF,HTML,Print -d,View".
 DEFINE VARIABLE cOutputImage  AS CHARACTER NO-UNDO INITIAL
-    "table.ico,CSV.jpg,XLS.jpg,DOCX.jpg,PDF.jpg,html_tag.ico,table.ico".
+
+    "table.ico,CSV.jpg,XLS.jpg,DOCX.jpg,PDF.jpg,html_tag.ico,printer.ico,table.ico".
 DEFINE VARIABLE cPrgmName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cParamDescrip AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID       AS CHARACTER NO-UNDO.

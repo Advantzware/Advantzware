@@ -783,101 +783,101 @@ PROCEDURE spSendEmail:
            AND isActive
          NO-ERROR.        
 
-        /* Sends email only if configID is available in emailConfig table */
-        IF AVAILABLE emailConfig AND emailConfig.smtpServer NE "" THEN DO:
-       
-            /* If value for input recipientsinTo is null, then gets value from emailConfig table */
-	     IF ipcRecipientsSendTO EQ "" THEN
-                ipcRecipientsSendTO = emailConfig.recipientsSendTO.
+    /* Sends email only if configID is available in emailConfig table */
+    IF AVAILABLE emailConfig AND emailConfig.smtpServer NE "" THEN DO:
+   
+        /* If value for input recipientsinTo is null, then gets value from emailConfig table */
+        IF ipcRecipientsSendTO EQ "" THEN
+            ipcRecipientsSendTO = emailConfig.recipientsSendTO.
+        
+     /* If value for recipientsinTo is null in emailConfig table, then code execution stops */
+        IF ipcRecipientsSendTO EQ "" THEN
+            RETURN.
+		
+        /* If value for input recipientsinBCC is null, then gets value from emailConfig table */
+        IF ipcRecipientsSendBCC EQ "" THEN
+            ipcRecipientsSendBCC = emailConfig.recipientsSendBCC.
+        
+     /* If value for input recipientsinCC is null, then gets value from emailConfig table */			
+        IF ipcRecipientsSendCC EQ "" THEN
+            ipcRecipientsSendCC = emailConfig.recipientsSendCC.
+        
+     /* If value for input recipientsinReplyTo is null, then gets value from emailConfig table */			
+        IF ipcRecipientsReplyTo EQ "" THEN
+            ipcRecipientsReplyTo = emailConfig.recipientsReplyTo.
+        
+        ASSIGN
+            ipcRecipientsSendTO  = TRIM(REPLACE(ipcRecipientsSendTO,";",","))
+            ipcRecipientsSendCC  = TRIM(REPLACE(ipcRecipientsSendCC,";",","))
+            ipcRecipientsSendBCC = TRIM(REPLACE(ipcRecipientsSendBCC,";",","))
+            ipcRecipientsReplyTo = TRIM(REPLACE(ipcRecipientsReplyTo,";",","))
+            .
             
-	     /* If value for recipientsinTo is null in emailConfig table, then code execution stops */
-            IF ipcRecipientsSendTO EQ "" THEN
-                RETURN.
-			
-            /* If value for input recipientsinBCC is null, then gets value from emailConfig table */
-            IF ipcRecipientsSendBCC EQ "" THEN
-                ipcRecipientsSendBCC = emailConfig.recipientsSendBCC.
-            
-	     /* If value for input recipientsinCC is null, then gets value from emailConfig table */			
-            IF ipcRecipientsSendCC EQ "" THEN
-                ipcRecipientsSendCC = emailConfig.recipientsSendCC.
-            
-	     /* If value for input recipientsinReplyTo is null, then gets value from emailConfig table */			
-            IF ipcRecipientsReplyTo EQ "" THEN
-                ipcRecipientsReplyTo = emailConfig.recipientsReplyTo.
-            
-            ASSIGN
-                ipcRecipientsSendTO  = TRIM(REPLACE(ipcRecipientsSendTO,";",","))
-                ipcRecipientsSendCC  = TRIM(REPLACE(ipcRecipientsSendCC,";",","))
-                ipcRecipientsSendBCC = TRIM(REPLACE(ipcRecipientsSendBCC,";",","))
-                ipcRecipientsReplyTo = TRIM(REPLACE(ipcRecipientsReplyTo,";",","))
-                .
-                
-	     /* If value for input body is null, then gets value from emailConfig table */
-            IF ipcBody EQ "" THEN
-                ipcBody = emailConfig.body.
-            
-	     /* If value for input subject is null, then gets value from emailConfig table */
-            IF ipcSubject EQ "" THEN
-                ipcSubject = emailConfig.subject.
-            
-	     /* If value for input attachment is valid, then only attachment will be sent in email  */
-            IF ipcAttachment NE ? THEN
-                cAttachments = cAttachments + " -a:" + ipcAttachment.   
-			
-	     /* cMail don't supports adding multiple recipients to a single (to/cc/bcc/reply-to) field. 
-               Only one recipient can be added to a single (to/cc/bcc/reply-to) field. 
-		 So,This setting may be required multiple times based on the number of receipients */
-            DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendTO):
-                cRecipientsSendTo = cRecipientsSendTo + " -to:" + ENTRY(idx,ipcRecipientsSendTO).
-            END. /*do idx*/
+     /* If value for input body is null, then gets value from emailConfig table */
+        IF ipcBody EQ "" THEN
+            ipcBody = emailConfig.body.
+        
+     /* If value for input subject is null, then gets value from emailConfig table */
+        IF ipcSubject EQ "" THEN
+            ipcSubject = emailConfig.subject.
+        
+     /* If value for input attachment is valid, then only attachment will be sent in email  */
+        IF ipcAttachment NE ? THEN
+            cAttachments = cAttachments + " -a:" + ipcAttachment.   
+		
+     /* cMail don't supports adding multiple recipients to a single (to/cc/bcc/reply-to) field. 
+           Only one recipient can be added to a single (to/cc/bcc/reply-to) field. 
+	 So,This setting may be required multiple times based on the number of receipients */
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendTO):
+            cRecipientsSendTo = cRecipientsSendTo + " -to:" + ENTRY(idx,ipcRecipientsSendTO).
+        END. /*do idx*/
 
-            IF ipcRecipientsSendCC NE "" THEN
-                DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendCC):
-                    cRecipientsSendCC = cRecipientsSendCC + " -cc:" + ENTRY(idx,ipcRecipientsSendCC).
-                END. /* do idx */
-                
-            IF ipcRecipientsSendBCC NE "" THEN
-                DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendBCC):
-                    cRecipientsSendBCC = cRecipientsSendBCC + " -bcc:" + ENTRY(idx,ipcRecipientsSendBCC).
-                END. /* do idx */
-                
-            IF ipcRecipientsReplyTo NE "" THEN
-                DO idx = 1 TO NUM-ENTRIES(ipcRecipientsReplyTo):
-                    cRecipientsReplyTo = cRecipientsReplyTo + " -reply-to:" + ENTRY(idx,ipcRecipientsReplyTo).
-                END. /* do idx */
-
-            cMail = cMail + " -host:"
-                  + emailConfig.smtpUser + ":" + emailConfig.smtpPassword
-                  + "@" + emailConfig.smtpServer + ":" + STRING(emailConfig.smtpPort)
-                  + " -starttls" + cAttachments
-                  + " ~"-subject:" + ipcSubject + "~""
-                  + " ~"-body:" + ipcBody + "~""
-                  + " -from:" + emailConfig.smtpUser
-                  + cRecipientsSendTo
-                  + cRecipientsSendCC
-                  + cRecipientsSendBCC
-                  + cRecipientsReplyTo
-                  .
-            OS-COMMAND SILENT VALUE(cMail).
-        END.
-        ELSE DO:
-            CREATE "Outlook.Application" objOutlook.
-            objOutlookMsg = objOutlook:CreateItem(0).
-            DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendTO):
-                objOutlookRecip = objOutlookMsg:Recipients:Add(ENTRY(idx,ipcRecipientsSendTO)).
+        IF ipcRecipientsSendCC NE "" THEN
+            DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendCC):
+                cRecipientsSendCC = cRecipientsSendCC + " -cc:" + ENTRY(idx,ipcRecipientsSendCC).
             END. /* do idx */
-            objOutlookRecip:Type  = 1.
-            objOutlookMsg:Subject = ipcSubject.
-            objOutlookMsg:Body    = ipcBody.    
-            objOutlookMsg:Attachments:Add(ipcAttachment).
-            objOutlookRecip:Resolve.
-            objOutlookMsg:Send.
-        /*    objOutlook:Quit().*/
-            RELEASE OBJECT objOutlook.
-            RELEASE OBJECT objOutlookMsg.
-            RELEASE OBJECT objOutlookRecip.
-        END. /* else */
+            
+        IF ipcRecipientsSendBCC NE "" THEN
+            DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendBCC):
+                cRecipientsSendBCC = cRecipientsSendBCC + " -bcc:" + ENTRY(idx,ipcRecipientsSendBCC).
+            END. /* do idx */
+            
+        IF ipcRecipientsReplyTo NE "" THEN
+            DO idx = 1 TO NUM-ENTRIES(ipcRecipientsReplyTo):
+                cRecipientsReplyTo = cRecipientsReplyTo + " -reply-to:" + ENTRY(idx,ipcRecipientsReplyTo).
+            END. /* do idx */
+
+        cMail = cMail + " -host:"
+              + emailConfig.smtpUser + ":" + emailConfig.smtpPassword
+              + "@" + emailConfig.smtpServer + ":" + STRING(emailConfig.smtpPort)
+              + " -starttls" + cAttachments
+              + " ~"-subject:" + ipcSubject + "~""
+              + " ~"-body:" + ipcBody + "~""
+              + " -from:" + emailConfig.smtpUser
+              + cRecipientsSendTo
+              + cRecipientsSendCC
+              + cRecipientsSendBCC
+              + cRecipientsReplyTo
+              .
+        OS-COMMAND SILENT VALUE(cMail).
+    END.
+    ELSE DO:
+        CREATE "Outlook.Application" objOutlook.
+        objOutlookMsg = objOutlook:CreateItem(0).
+        DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendTO):
+            objOutlookRecip = objOutlookMsg:Recipients:Add(ENTRY(idx,ipcRecipientsSendTO)).
+        END. /* do idx */
+        objOutlookRecip:Type  = 1.
+        objOutlookMsg:Subject = ipcSubject.
+        objOutlookMsg:Body    = ipcBody.    
+        objOutlookMsg:Attachments:Add(ipcAttachment).
+        objOutlookRecip:Resolve.
+        objOutlookMsg:Send.
+      /*objOutlook:Quit().*/
+        RELEASE OBJECT objOutlook.
+        RELEASE OBJECT objOutlookMsg.
+        RELEASE OBJECT objOutlookRecip.
+    END. /* else */
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

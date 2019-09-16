@@ -705,10 +705,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 
 &SCOPED-DEFINE cellColumnDat oeb-oebolq
-
 {methods/browsers/setCellColumns.i}
 
 SESSION:DATA-ENTRY-RETURN = YES.

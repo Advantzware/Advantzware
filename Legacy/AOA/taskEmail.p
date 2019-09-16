@@ -28,7 +28,6 @@ ASSIGN
 RUN system\session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 
-
 RUN spSendEmail (
     INPUT iSystemEmailConfigID, /* emailConfig.ConfigID */
     INPUT cRecipients,          /* Override for Email RecipientsinTo */
