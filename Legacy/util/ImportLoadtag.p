@@ -14,14 +14,14 @@
 
 DEFINE TEMP-TABLE ttImportLoadtag    
     FIELD company      AS CHARACTER 
-    FIELD item-type    AS LOGICAL     FORMAT "R/F" INITIAL TRUE LABEL "Item Type" HELP "Required - Logical, TRUE for RM, FALSE for FG"
+    FIELD item-type    AS CHAR        FORMAT "x(2)" LABEL "Item Type" HELP "Required - RM or FG - size:2"
     FIELD i-no         AS CHARACTER   FORMAT "x(15)" LABEL "Item#" HELP "Required - Size:15"
     FIELD i-name       AS CHARACTER   FORMAT "x(30)" LABEL "Name" HELP "Required - Size:30"
     FIELD tag-no       AS CHARACTER   FORMAT "X(20)" LABEL "Tag#" HELP "Required - Size:20"
     FIELD tag-date     AS DATE        FORMAT "99/99/9999" LABEL "Rcpt Date" HELP "Optional - Date"
     FIELD tag-time     AS INTEGER     LABEL "Rcpt Time" HELP "Optional - Integer"
     FIELD lot-no       AS CHARACTER   FORMAT "x(15)" LABEL "FG Lot#" HELP "Optional - Size:15"
-    FIELD sts          AS CHARACTER   FORMAT "x" LABEL "Status" HELP "Required - Size:1, one of 'PROBICDT'"
+    FIELD sts          AS CHARACTER   FORMAT "x" LABEL "Status" HELP "Required - Size:1 - one of 'PROBICDT'"
     FIELD location     AS CHARACTER   FORMAT "x(5)" LABEL "Warehouse" HELP "Required - Size:5"
     FIELD loc-bin      AS CHARACTER   FORMAT "x(8)" LABEL "Bin" HELP "Required - Size:8"
     FIELD po-no        AS INTEGER     FORMAT ">>>>>9" LABEL "PO#" HELP "Optional Integer - Size:6"
@@ -50,6 +50,7 @@ DEFINE TEMP-TABLE ttImportLoadtag
     FIELD blank-no     AS INTEGER     FORMAT ">9" LABEL "Blank#" HELP "Optional - Integer"
     FIELD form-no      AS INTEGER     FORMAT ">>9" INITIAL 1 LABEL "Form#" HELP "Optional - Integer"
     .
+    
 
 DEFINE VARIABLE giIndexOffset AS INTEGER   NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -107,7 +108,7 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid THEN DO:
         FIND FIRST loadtag NO-LOCK
             WHERE loadtag.company EQ ipbf-ttImportLoadtag.company
-            AND loadtag.item-type EQ ipbf-ttImportLoadtag.item-type
+            AND loadtag.item-type EQ (IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE)
             AND loadtag.tag-no EQ ipbf-ttImportLoadtag.tag-no
             NO-ERROR.  
         IF AVAIL loadtag THEN DO:
@@ -130,9 +131,9 @@ PROCEDURE pValidate PRIVATE:
     DO:
         IF oplValid 
         AND ipbf-ttImportLoadtag.i-no NE "" THEN DO: 
-            IF ipbf-ttImportLoadtag.item-type EQ FALSE THEN 
+            IF ipbf-ttImportLoadtag.item-type EQ "FG" THEN 
                 RUN pIsValidFgItemID IN hdValidator (ipbf-ttImportLoadtag.i-no,YES,ipbf-ttImportLoadtag.company,output oplValid, OUTPUT cValidNote).
-            ELSE IF ipbf-ttImportLoadtag.item-type EQ TRUE THEN 
+            ELSE IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN 
                 RUN pIsValidRmItemID IN hdValidator (ipbf-ttImportLoadtag.i-no,YES,ipbf-ttImportLoadtag.company,output oplValid, OUTPUT cValidNote).
         END.
         IF oplValid 
@@ -157,7 +158,7 @@ PROCEDURE pProcessRecord PRIVATE:
     IF AVAILABLE ipbf-ttImportLoadtag THEN DO: 
         FIND FIRST loadtag EXCLUSIVE-LOCK
             WHERE loadtag.company EQ ipbf-ttImportLoadtag.company
-            AND loadtag.item-type EQ ipbf-ttImportLoadtag.item-type
+            AND loadtag.item-type EQ (IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE)
             AND loadtag.tag-no EQ ipbf-ttImportLoadtag.tag-no
             NO-ERROR.  
         IF NOT AVAILABLE loadtag THEN 
@@ -178,7 +179,7 @@ PROCEDURE pProcessRecord PRIVATE:
             loadtag.i-name       = ipbf-ttImportLoadtag.i-name
             loadtag.i-no         = ipbf-ttImportLoadtag.i-no
             loadtag.is-case-tag  = ipbf-ttImportLoadtag.is-case-tag
-            loadtag.item-type    = ipbf-ttImportLoadtag.item-type
+            loadtag.item-type    = IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE 
             loadtag.job-no       = ipbf-ttImportLoadtag.job-no
             loadtag.job-no2      = ipbf-ttImportLoadtag.job-no2
             loadtag.line         = ipbf-ttImportLoadtag.line
