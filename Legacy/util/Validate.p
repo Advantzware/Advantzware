@@ -346,3 +346,54 @@ PROCEDURE pIsValidUserId:
     
 
 END PROCEDURE. 
+
+PROCEDURE pIsValidPrepCode:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Prep Code
+     Notes: Input 1 = Prep Code
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWithNoCompany.i 
+        &ValidateTable = "prep" 
+        &ValidateField = "code" 
+        &ValidateMessage = "Prep Code"}
+    
+
+END PROCEDURE.
+
+PROCEDURE pIsValidRMITemID:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates RM Item ID 
+     Notes: Input 1 = RM Item Number
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i 
+        &ValidateTable = "item" 
+        &ValidateField = "i-no" 
+        &ValidateMessage = "RM Item ID"}
+
+END PROCEDURE.
+
+PROCEDURE pIsValidMatType:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Mat Type
+     Notes: Input 1 = Mat Type
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i
+        &ValidateTable = "matprep" 
+        &ValidateField = "mat" 
+        &ValidateMessage = "Mat Type"}
+    
+
+END PROCEDURE.
+
+PROCEDURE pIsValidCostType:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Cost Type
+     Notes: Input 1 = Cost Type
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i
+        &ValidateTable = "costtype" 
+        &ValidateField = "cost-type" 
+        &ValidateMessage = "Cost Type"}
+    
+
+END PROCEDURE.

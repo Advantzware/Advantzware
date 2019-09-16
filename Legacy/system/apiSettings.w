@@ -13,9 +13,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: 
+  File: system\apiSettings.w
 
-  Description: from cntnrwin.w - ADM SmartWindow Template
+  Description: Displays API Outbound Trigger information
 
   Input Parameters:
       <none>

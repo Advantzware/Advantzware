@@ -4889,11 +4889,11 @@ PROCEDURE valid-log-fld :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
-    
+    DEF VAR lAccess AS LOG NO-UNDO.
     IF ttSysCtrl.name EQ "POEXPORT" AND
        iphWidget:SCREEN-VALUE EQ "yes" THEN DO:
-        RUN util/chk-mod2.p ("POEXPORT","NK1","PO Export Module.") NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN DO:
+        RUN util/CheckModule.p ("ASI","POEXPORT",YES,lAccess) NO-ERROR.
+        IF NOT lAccess THEN DO:
             iphWidget:SCREEN-VALUE = "no".
             APPLY "ENTRY":U TO iphWidget.
         RETURN ERROR.

@@ -158,12 +158,12 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_est AS CHARACTER FORMAT "x(15)" 
+DEFINE VARIABLE begin_est AS CHARACTER FORMAT "x(8)" 
      LABEL "From Estimate" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE end_est AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz" 
+DEFINE VARIABLE end_est AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzz" 
      LABEL "To Estimate" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
@@ -731,8 +731,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -754,12 +753,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS: /* task 08191414 */
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 

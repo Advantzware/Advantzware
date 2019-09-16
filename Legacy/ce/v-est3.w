@@ -703,13 +703,13 @@ DEFINE FRAME fold
           SIZE 5 BY .62 AT ROW 3.38 COL 2
      "%" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 3.38 COL 56
-     "Description" VIEW-AS TEXT
+     "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.38 COL 28
      "Freight Charge" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 12.19 COL 76
           FGCOLOR 9 
-     "Code" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 3.38 COL 9
+     "Item #" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.38 COL 9
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 

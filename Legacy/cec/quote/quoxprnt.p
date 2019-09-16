@@ -158,7 +158,7 @@ find first est where est.company = xquo.company
       IF AVAIL bf-cust THEN
         ASSIGN v-comp-add1 = bf-cust.addr[1]
                v-comp-add2 = bf-cust.addr[2]
-               v-comp-add3 = bf-cust.city + ", " + cust.state + "  " + cust.zip
+               v-comp-add3 = bf-cust.city + ", " + bf-cust.state + "  " + bf-cust.zip
                v-comp-add4 = "Phone:  " + string(bf-cust.area-code,"(999)") + string(bf-cust.phone,"999-9999") 
                v-comp-add5 = "Fax     :  " + string(bf-cust.fax,"(999)999-9999") 
                lv-email    = "Email:  " + bf-cust.email 

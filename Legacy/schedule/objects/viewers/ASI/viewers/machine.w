@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -110,7 +110,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 177.8 BY 7.95.
 
 
@@ -165,6 +165,7 @@ DEFINE FRAME F-Main
           SIZE 4.2 BY .81
           BGCOLOR 15 
      mach.loc AT ROW 3.14 COL 9 COLON-ALIGNED
+          LABEL "Location"
           VIEW-AS FILL-IN 
           SIZE 10.6 BY .81
           BGCOLOR 15 
@@ -401,17 +402,17 @@ DEFINE FRAME F-Main
      "Limits" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1.24 COL 84
           FONT 6
-     "Trim" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 129
-          FONT 6
-     "Printing Press" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.24 COL 142
+     "Minimum" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.24 COL 97
           FONT 6
      "Maximum" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.24 COL 112
           FONT 6
-     "Minimum" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.24 COL 97
+     "Printing Press" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.24 COL 142
+          FONT 6
+     "Trim" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 129
           FONT 6
      RECT-3 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -469,7 +470,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -505,7 +506,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN mach.lab-rate[3] IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN mach.loc IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN mach.m-code IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN mach.m-dscr IN FRAME F-Main

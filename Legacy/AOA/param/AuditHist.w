@@ -105,7 +105,7 @@ DEFINE VARIABLE svField AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 26 BY 1 TOOLTIP "Select Audit Field Filter" NO-UNDO.
+     SIZE 65 BY 1 TOOLTIP "Select Audit Field Filter" NO-UNDO.
 
 DEFINE VARIABLE svStartDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -118,7 +118,7 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "All" 
      DROP-DOWN-LIST
-     SIZE 26 BY 1 TOOLTIP "Select Audit Table Filter" NO-UNDO.
+     SIZE 65 BY 1 TOOLTIP "Select Audit Table Filter" NO-UNDO.
 
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
@@ -166,7 +166,7 @@ DEFINE VARIABLE svStartDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 119 BY 8.33.
+     SIZE 137 BY 8.33.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -182,41 +182,41 @@ DEFINE VARIABLE svPurge AS LOGICAL INITIAL no
 
 DEFINE FRAME F-Main
      svCompany AT ROW 1.24 COL 142 COLON-ALIGNED WIDGET-ID 60
-     svType AT ROW 3.86 COL 27 COLON-ALIGNED HELP
+     svType AT ROW 3.62 COL 15 COLON-ALIGNED HELP
           "Select Audit Type Filter" WIDGET-ID 6
-     svUser AT ROW 5.05 COL 27 COLON-ALIGNED HELP
+     svUser AT ROW 4.81 COL 15 COLON-ALIGNED HELP
           "Select User Filter" WIDGET-ID 12
-     svDB AT ROW 7.43 COL 27 COLON-ALIGNED HELP
+     svDB AT ROW 7.19 COL 15 COLON-ALIGNED HELP
           "Select Audit DB Filter" WIDGET-ID 14
-     svTable AT ROW 8.62 COL 27 COLON-ALIGNED HELP
+     svTable AT ROW 8.38 COL 15 COLON-ALIGNED HELP
           "Select Audit Table Filter" WIDGET-ID 16
-     svField AT ROW 9.81 COL 27 COLON-ALIGNED HELP
+     svField AT ROW 9.57 COL 15 COLON-ALIGNED HELP
           "Select Audit Field Filter" WIDGET-ID 18
-     svStartDate AT ROW 3.86 COL 83 COLON-ALIGNED HELP
+     svStartDate AT ROW 3.86 COL 94 COLON-ALIGNED HELP
           "Enter Start Date" WIDGET-ID 72
-     btnCalendar-1 AT ROW 3.86 COL 101 WIDGET-ID 76
-     svEndDate AT ROW 5.05 COL 83 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 3.86 COL 112 WIDGET-ID 76
+     svEndDate AT ROW 5.05 COL 94 COLON-ALIGNED HELP
           "Enter End Date" WIDGET-ID 68
-     svStartDateOption AT ROW 3.86 COL 104 COLON-ALIGNED HELP
+     svStartDateOption AT ROW 3.86 COL 115 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     btnCalendar-2 AT ROW 5.05 COL 101 WIDGET-ID 78
-     svEndDateOption AT ROW 5.05 COL 104 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 5.05 COL 112 WIDGET-ID 78
+     svEndDateOption AT ROW 5.05 COL 115 COLON-ALIGNED HELP
           "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svBeforeValueFilter AT ROW 7.43 COL 83 COLON-ALIGNED HELP
+     svBeforeValueFilter AT ROW 7.43 COL 94 COLON-ALIGNED HELP
           "Enter Before Value to Filter" WIDGET-ID 36
-     svAfterValueFilter AT ROW 8.62 COL 83 COLON-ALIGNED HELP
+     svAfterValueFilter AT ROW 8.62 COL 94 COLON-ALIGNED HELP
           "Enter After Value to Filter" WIDGET-ID 38
-     svPurge AT ROW 9.81 COL 85 HELP
+     svPurge AT ROW 9.81 COL 96 HELP
           "Select to Purge Audit History" WIDGET-ID 80
-     btnAddEmail AT ROW 13.86 COL 39 HELP
+     btnAddEmail AT ROW 14.81 COL 41 HELP
           "Add Recipents" WIDGET-ID 636
-     svRecipients AT ROW 12.19 COL 45 NO-LABEL WIDGET-ID 600
+     svRecipients AT ROW 13.14 COL 47 NO-LABEL WIDGET-ID 600
      "Email" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 12.19 COL 39 WIDGET-ID 640
+          SIZE 5 BY .62 AT ROW 13.14 COL 41 WIDGET-ID 640
      "Recipients:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 12.91 COL 34 WIDGET-ID 602
-     RECT-1 AT ROW 3.14 COL 17 WIDGET-ID 82
-     RECT-6 AT ROW 11.71 COL 33 WIDGET-ID 638
+          SIZE 11 BY .62 AT ROW 13.86 COL 36 WIDGET-ID 602
+     RECT-1 AT ROW 3.14 COL 7 WIDGET-ID 82
+     RECT-6 AT ROW 12.67 COL 35 WIDGET-ID 638
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -360,13 +360,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svDB sObject
 ON VALUE-CHANGED OF svDB IN FRAME F-Main /* DB */
 DO:
-  ASSIGN
-    {&SELF-NAME}
-    svTable:SCREEN-VALUE = "All"
-    svTable
-    svField:SCREEN-VALUE = "All"
-    svField
-    .
+    ASSIGN {&SELF-NAME}.
     RUN pGetFilterValues ("TABLE").
     RUN pGetFilterValues ("FIELD").
 END.
@@ -434,11 +428,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svTable sObject
 ON VALUE-CHANGED OF svTable IN FRAME F-Main /* Table */
 DO:
-  ASSIGN
-    {&SELF-NAME}
-    svField:SCREEN-VALUE = "All"
-    svField
-    .
+    ASSIGN {&SELF-NAME}.
     RUN pGetFilterValues ("FIELD").
 END.
 
@@ -451,6 +441,8 @@ END.
 ON VALUE-CHANGED OF svType IN FRAME F-Main /* Type */
 DO:
   ASSIGN {&SELF-NAME}.
+  RUN pGetFilterValues ("TABLE").
+  RUN pGetFilterValues ("FIELD").
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -17,7 +17,7 @@
     ReWritten   : 
     Notes       :
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.       */
+/*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
@@ -46,14 +46,12 @@ DEFINE VARIABLE lvProdAceJob AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceForm AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAceBlank AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProdAcePass AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lvProdAceOperator AS CHARACTER NO-UNDO EXTENT 10.
 DEFINE VARIABLE lvAttrList AS CHARACTER NO-UNDO FORMAT 'x(4)'.
 DEFINE VARIABLE lvFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvTemp AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvProcessed AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvArchive AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvErrorFile AS CHARACTER NO-UNDO.
-DEFINE VARIABLE jobMchRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE lvShifts AS CHARACTER NO-UNDO INIT 'First,Second,Third,Fourth,Fifth,Sixth'.
 DEFINE VARIABLE lvPostProdAce AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lvHoldFile AS CHARACTER NO-UNDO.
@@ -62,6 +60,17 @@ DEFINE VARIABLE lProdAceBarScan AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResource AS CHARACTER NO-UNDO.
 
+DEFINE TEMP-TABLE ttblStatus NO-UNDO 
+    FIELD dmiID       AS INTEGER
+    FIELD job         AS CHARACTER 
+    FIELD blank-no    AS INTEGER 
+    FIELD pass        AS INTEGER 
+    FIELD productID   AS CHARACTER 
+    FIELD runID       AS INTEGER 
+    FIELD runComplete AS LOGICAL
+        INDEX ttblStatus IS PRIMARY 
+              runID
+              .
 DEFINE TEMP-TABLE ttToggleBox NO-UNDO
     FIELD hToggleBox AS HANDLE
     FIELD rResource AS ROWID
@@ -75,48 +84,7 @@ DEFINE TEMP-TABLE ttblProductID NO-UNDO
               productID
               dmiID
               .
-DEFINE TEMP-TABLE ttblStatus NO-UNDO 
-    FIELD dmiID AS INTEGER
-    FIELD job AS CHARACTER 
-    FIELD blank-no AS INTEGER 
-    FIELD pass AS INTEGER 
-    FIELD productID AS CHARACTER 
-    FIELD runID AS INTEGER 
-    FIELD runComplete AS LOGICAL
-        INDEX ttblStatus IS PRIMARY 
-              runID
-              .
-DEFINE TEMP-TABLE ttblProdAce NO-UNDO
-    FIELD prodAceResource AS CHARACTER 
-    FIELD prodAceDMIID AS INTEGER 
-    FIELD prodAceJob AS CHARACTER 
-    FIELD prodAceItem AS CHARACTER 
-    FIELD prodAceSeq AS INTEGER 
-    FIELD prodAceShift AS CHARACTER  
-    FIELD prodAceShiftDate AS DATE 
-    FIELD prodAceStartDate AS DATE 
-    FIELD prodAceStartTime AS INTEGER  
-    FIELD prodAceEndDate AS DATE 
-    FIELD prodAceEndTime AS INTEGER     
-    FIELD prodAceDuration AS INTEGER 
-    FIELD prodAceTranRunQty AS INTEGER 
-    FIELD prodAceTranRejectQty AS INTEGER 
-    FIELD prodAceQtyDue AS INTEGER 
-    FIELD prodAceState AS CHARACTER 
-    FIELD prodAceChargeCode AS CHARACTER 
-    FIELD prodAceRunComplete AS LOGICAL 
-    FIELD deleteFlag AS LOGICAL 
-    FIELD prodAceOperator AS CHARACTER EXTENT 10
-    FIELD prodAceSelected AS LOGICAL INITIAL YES
-    FIELD tempSelected AS LOGICAL INITIAL YES
-    FIELD prodAceData AS CHARACTER 
-        INDEX ttblProdAceDetail IS PRIMARY
-              prodAceResource
-              prodAceJob
-              prodAceItem
-              prodAceSeq
-              .
-DEFINE BUFFER buffProdAce FOR ttblProdAce.
+{AOA/tempTable/ttblProdAce.i}
 
 DEFINE STREAM sProdAce.
 DEFINE STREAM sHold.
@@ -947,136 +915,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
+{AOA/dynBL/dmiTran.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE completeMR C-Win 
-PROCEDURE completeMR :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  FIND LAST machtran EXCLUSIVE-LOCK
-       WHERE machtran.company EQ job-mch.company
-         AND machtran.machine EQ ttblProdAce.prodAceResource
-         AND machtran.job_number EQ job-mch.job-no
-         AND machtran.job_sub EQ job-mch.job-no2
-         AND machtran.form_number EQ job-mch.frm
-         AND machtran.blank_number EQ job-mch.blank-no
-         AND machtran.pass_sequence EQ job-mch.pass
-         AND machtran.charge_code EQ 'MR'
-       NO-ERROR.
-  IF AVAILABLE machtran THEN
-  machtran.completed = YES.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createEmpLogin C-Win 
-PROCEDURE createEmpLogin :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE PARAMETER BUFFER ttblProdAce FOR ttblProdAce.
-  DEFINE PARAMETER BUFFER machtran FOR machtran.
-
-  DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-
-  DO idx = 1 TO EXTENT(lvProdAceOperator):
-      IF ttblProdAce.prodAceOperator[idx] EQ '' THEN NEXT.
-      FIND FIRST employee NO-LOCK
-           WHERE employee.employee EQ STRING(ttblProdAce.prodAceOperator[idx])
-           NO-ERROR.
-      IF AVAILABLE employee THEN DO:
-        IF CAN-FIND(FIRST emplogin
-                    WHERE emplogin.company EQ employee.company
-                      AND emplogin.employee EQ employee.employee
-                      AND emplogin.start_date EQ machtran.start_date
-                      AND emplogin.start_time EQ machtran.start_time
-                      AND emplogin.machine EQ ttblProdAce.prodAceResource) THEN
-        IF idx EQ 1 THEN
-        ASSIGN
-          machtran.start_time = machtran.start_time + 1
-          machtran.total_time = machtran.total_time + 1
-          .
-        CREATE empLogin.
-        ASSIGN
-          emplogin.company = employee.company
-          emplogin.employee = employee.employee
-          emplogin.machine = ttblProdAce.prodAceResource
-          emplogin.start_date = machtran.start_date
-          emplogin.start_time = machtran.start_time
-          emplogin.end_date = machtran.end_date
-          emplogin.end_time = machtran.end_time
-          emplogin.total_time = machtran.total_time
-          emplogin.shift = ttblProdAce.prodAceShift
-          .
-        RUN createMachEmp (BUFFER machtran, INPUT ROWID(emplogin)).
-      END. /* avail employee */
-  END. /* do idx */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createMachEmp C-Win 
-PROCEDURE createMachEmp :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE PARAMETER BUFFER machtran FOR machtran.
-
-  DEFINE INPUT PARAMETER ipEmpLoginRowID AS ROWID NO-UNDO.
-
-  FIND FIRST emplogin NO-LOCK
-       WHERE ROWID(emplogin) EQ ipEmpLoginRowID NO-ERROR.
-  IF NOT AVAILABLE emplogin THEN RETURN.
-
-  FIND FIRST employee NO-LOCK
-       WHERE employee.company EQ emplogin.company
-         AND employee.employee EQ emplogin.employee
-       NO-ERROR.
-  IF NOT AVAILABLE employee THEN RETURN.
-
-  CREATE machemp.
-  ASSIGN
-    machemp.table_rec_key = machtran.rec_key
-    machemp.employee = emplogin.employee
-    machemp.start_date = IF machtran.start_date GT emplogin.start_date THEN machtran.start_date ELSE emplogin.start_date
-    machemp.start_time = IF machtran.start_date GT emplogin.start_date THEN machtran.start_time ELSE emplogin.start_time
-    machemp.shift = machtran.shift
-    machemp.ratetype = 'Standard' 
-    machemp.rate_usage = employee.rate_usage
-    machemp.end_date = IF machtran.end_date LT emplogin.end_date OR emplogin.end_date EQ ? THEN machtran.end_date ELSE emplogin.end_date
-    machemp.end_time = IF machtran.end_date LT emplogin.end_date OR emplogin.end_date EQ ? THEN machtran.end_time ELSE emplogin.end_time
-    .
-  RUN employeeRate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
-                   machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
-  IF machemp.start_date EQ machemp.end_date THEN
-  machemp.total_time = machemp.end_time - machemp.start_time.
-  ELSE
-  machemp.total_time = (86400 - machemp.start_time)
-                     + (machemp.end_date - machemp.start_date - 1) * 86400
-                     +  machemp.end_time.
-  /*if end_date is blank, set total_time to 0*/
-  IF machemp.total_time LT 0 OR machemp.total_time EQ ? THEN
-     machemp.total_time = 0.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createResourceToggleBoxes C-Win 
 PROCEDURE createResourceToggleBoxes :
@@ -1119,7 +964,7 @@ PROCEDURE createResourceToggleBoxes :
         TRIGGERS:
           ON VALUE-CHANGE
             PERSISTENT RUN pClick IN THIS-PROCEDURE (hWidget:HANDLE).
-        END TRIGGERS.
+        END TRIGGERS.createTtblProdAcecreateTtblProdAce
         */
         CREATE ttToggleBox.
         ASSIGN
@@ -1135,12 +980,12 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createTtblProdAce C-Win 
-PROCEDURE createTtblProdAce :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createTtblProdAce C-Win
+PROCEDURE createTtblProdAce:
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipProdAceFile AS CHARACTER NO-UNDO.
 
@@ -1170,7 +1015,7 @@ PROCEDURE createTtblProdAce :
       /* check if valid entry to process */
       IF INDEX(ENTRY(2,lvProdAceData),"n/f") NE 0 THEN NEXT.
       /* make sure job is in long format */
-      IF NUM-ENTRIES(ENTRY(2,lvProdAceData),' ') LT 2 THEN NEXT.
+      IF NUM-ENTRIES(ENTRY(2,lvProdAceData),'.') LT 2 THEN NEXT.
       CREATE ttblStatus.
       ASSIGN
         lvProdAceData = REPLACE(lvProdAceData,', ',',')
@@ -1239,30 +1084,6 @@ PROCEDURE createTtblProdAce :
       NEXT.
     END. /* if prodAceshift ne */
     lvProdAceResource = ttblResource.resource.
-/*    IF lProdAceBarScan THEN DO:                                     */
-/*        ASSIGN                                                      */
-/*            idx = LENGTH(ENTRY(2,lvProdAceData)) - 21               */
-/*            cEstOpRecKey = SUBSTRING(ENTRY(2,lvProdAceData),idx + 1)*/
-/*            cJobNo = SUBSTRING(ENTRY(2,lvProdAceData),1,idx)        */
-/*            iRunNo = INTEGER(ENTRY(2,cJobNo,"-"))                   */
-/*            cJobNo = ENTRY(1,cJobNo,"-")                            */
-/*            .                                                       */
-/*        FIND FIRST job-mch NO-LOCK                                  */
-/*             WHERE job-mch.company EQ cCompany                      */
-/*               AND job-mch.job-no EQ cJobNo                         */
-/*               AND job-mch.job-no2 EQ iRunNo                        */
-/*               AND job-mch.est-op_rec_key EQ cEstOpRecKey           */
-/*             NO-ERROR.                                              */
-/*        IF AVAILABLE job-mch THEN                                   */
-/*        ASSIGN                                                      */
-/*          lvProdAceJob   = LEFT-TRIM(job-mch.job-no) + '-'          */
-/*                         + STRING(job-mch.job-no2) + '.'            */
-/*                         + STRING(job-mch.frm)                      */
-/*          lvProdAceBlank = STRING(job-mch.blank-no)                 */
-/*          lvProdAcePass  = STRING(job-mch.pass)                     */
-/*          .                                                         */
-/*    END. /* if prod ace bar scanning */                             */
-/*    ELSE                                                            */
     ASSIGN
       lvProdAceJob   = ENTRY(2,lvProdAceData)
       lvProdAceForm  = ENTRY(2,lvProdAceJob,'.')
@@ -1297,29 +1118,20 @@ PROCEDURE createTtblProdAce :
             END. /* else */
         END. /* else */
     END. /* if resource change */
-/*    IF NOT CAN-FIND(FIRST ttblJob                                 */
-/*                    WHERE ttblJob.resource EQ lvProdAceResource   */
-/*                      AND ttblJob.job EQ lvProdAceJob) AND        */
-/*       NOT CAN-FIND(FIRST pendingJob                              */
-/*                    WHERE pendingJob.resource EQ lvProdAceResource*/
-/*                      AND pendingJob.job EQ lvProdAceJob) THEN DO:*/
-/*      PUT STREAM sError UNFORMATTED lvProdAceData SKIP.           */
-/*      NEXT.                                                       */
-/*    END. /* cannot find job in SB */                              */
     lvProdAceOperator = ''.
     DO idx = 21 TO NUM-ENTRIES(lvProdAceData):
       lvProdAceOperator[idx - 20] = IF ENTRY(idx,lvProdAceData) EQ '' THEN lvProdAceBlankEmployee
                                   ELSE ENTRY(idx,lvProdAceData).
       IF ENTRY(idx,lvProdAceData) EQ '' THEN LEAVE.
     END. /* do idx */
+    /* get charge code for non run and mr */    
     ASSIGN
         lvState = SUBSTR(ENTRY(16,lvProdAceData),1,1)
         lvState = IF lvState EQ '1' THEN 'RUN'
              ELSE IF lvState EQ '4' THEN 'MR'
              ELSE 'DT'
         lvChargeCode = lvState
-             . 
-    /* get charge code for non run and mr */
+        . 
     IF lvState EQ 'DT' AND INT(ENTRY(17,lvProdAceData)) NE 0 THEN DO: 
       FIND FIRST job-code NO-LOCK 
            WHERE job-code.dmiID EQ INT(ENTRY(17,lvProdAceData))
@@ -1349,13 +1161,13 @@ PROCEDURE createTtblProdAce :
       ttblProdAce.prodAceOperator = lvProdAceOperator
       ttblProdAce.prodAceDuration = INT(ENTRY(18,lvProdAceData)) * 60
                                   + INT(ENTRY(20,lvProdAceData)) * 60
-      ttblProdAce.prodAceRunComplete = CAN-FIND(FIRST ttblStatus
+      ttblProdAce.prodAceRunComplete = ttblProdAce.prodAceState EQ 'RUN' AND
+                                       CAN-FIND(FIRST ttblStatus
                                                 WHERE ttblStatus.dmiID EQ ttblProdAce.prodAceDMIID
                                                   AND ttblStatus.job EQ ttblProdAce.prodAceJob
                                                   AND ttblStatus.productID EQ ttblProdAce.prodAceItem
                                                   AND ttblStatus.runID EQ ttblProdAce.prodAceSeq
                                                   AND ttblStatus.runComplete EQ YES)
-                                                  AND ttblProdAce.prodAceState EQ 'RUN'
       ttblProdAce.prodAceData = lvProdAceData
       .
     RUN newEnd (ttblProdAce.prodAceDuration, ttblProdAce.prodAceStartDate, ttblProdAce.prodAceStartTime,
@@ -1368,11 +1180,13 @@ PROCEDURE createTtblProdAce :
     OUTPUT STREAM sProcessed CLOSE.
   END. /* if lvpostprodAce */
   INPUT STREAM sProdAce CLOSE.
-  
-END PROCEDURE.
 
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -1388,60 +1202,6 @@ PROCEDURE disable_UI :
   IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
   THEN DELETE WIDGET C-Win.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE employeeRate C-Win 
-PROCEDURE employeeRate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipCompany AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipEmployee AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipShift AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMachine AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipRate_usage AS LOGICAL NO-UNDO.
-  DEFINE INPUT PARAMETER ipRatetype AS CHARACTER NO-UNDO.
-
-  DEFINE OUTPUT PARAMETER opRate AS DECIMAL NO-UNDO.
-
-  DEFINE BUFFER bRate FOR rate.
-
-  IF ipRate_usage THEN
-  ipMachine = ''.
-  FIND bRate NO-LOCK
-       WHERE bRate.company EQ ipCompany
-         AND bRate.employee EQ ipEmployee
-         AND bRate.shift EQ ipShift
-         AND bRate.machine EQ ipMachine
-         AND bRate.ratetype EQ 'Standard'
-       NO-ERROR.
-  IF NOT AVAILABLE bRate THEN
-  RETURN.
-  opRate = bRate.rate.
-  FIND bRate NO-LOCK
-       WHERE bRate.company EQ ipCompany
-         AND bRate.employee EQ ipEmployee
-         AND bRate.shift EQ ipShift
-         AND bRate.machine EQ ipMachine
-         AND bRate.ratetype EQ ipRatetype
-       NO-ERROR.
-  IF AVAILABLE bRate THEN
-  CASE bRate.factortype:
-    WHEN 'Straight' THEN
-    opRate = bRate.rate.
-    WHEN 'Additional' THEN
-    opRate = opRate + bRate.rate.
-    WHEN 'Multiply' THEN
-    opRate = opRate * bRate.rate.
-    OTHERWISE
-    opRate = 0.
-  END CASE.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1496,34 +1256,6 @@ PROCEDURE getProdAceDatValues :
   IMPORT UNFORMATTED lvImportDir.            /* location of processed trans file */
   IMPORT UNFORMATTED lvResourceList.         /* comma delimited list, or blank   */
   INPUT CLOSE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newEnd C-Win 
-PROCEDURE newEnd :
-/*------------------------------------------------------------------------------
-  Purpose:     calculate new ending date & time
-  Parameters:  inputs timespan, start date & time, output new end date & time
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipTimeSpan AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER newStartDate AS DATE NO-UNDO.
-  DEFINE INPUT PARAMETER newStartTime AS INTEGER NO-UNDO.
-  
-  DEFINE OUTPUT PARAMETER newEndDate AS DATE NO-UNDO.
-  DEFINE OUTPUT PARAMETER newEndTime AS INTEGER NO-UNDO.
-  
-  DEFINE VARIABLE days AS INTEGER NO-UNDO.
-  
-  ASSIGN
-    newEndTime = newStartTime + ipTimeSpan
-    days = TRUNCATE(newEndTime / 86400,0)
-    newEndDate = newStartDate + days
-    newEndTime = newEndTime - days * 86400
-    .
 
 END PROCEDURE.
 
@@ -1908,344 +1640,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prodAceDetail C-Win 
-PROCEDURE prodAceDetail :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  /* split records that span midnight */
-  FOR EACH ttblProdAce
-      WHERE ttblProdAce.prodAceSelected EQ YES
-      :
-    IF ttblProdAce.prodAceStartDate NE ttblProdAce.prodAceEndDate THEN DO:
-      CREATE buffProdAce.
-      BUFFER-COPY ttblProdAce TO buffProdAce.
-      ASSIGN
-        buffProdAce.prodAceStartDate = ttblProdAce.prodAceEndDate
-        buffProdAce.prodAceStartTime = 0
-        buffProdAce.prodAceDuration = buffProdAce.prodAceEndTime - buffProdAce.prodAceStartTime
-        ttblProdAce.prodAceEndDate = ttblProdAce.prodAceStartDate
-        ttblProdAce.prodAceEndTime = 86340
-        ttblProdAce.prodAceDuration = ttblProdAce.prodAceEndTime - ttblProdAce.prodAceStartTime
-        ttblProdAce.prodAceTranRunQty = 0
-        ttblProdAce.prodAceTranRejectQty = 0
-        .
-    END. /* spans midnight */
-  END. /* each ttblprodace */
-  
-  FOR EACH ttblProdAce
-      WHERE ttblProdAce.prodAceSelected EQ YES
-      BREAK BY ttblProdAce.prodAceResource
-            BY ttblProdAce.prodAceJob
-            BY ttblProdAce.prodAceItem
-            BY ttblProdAce.prodAceSeq
-      :
-    IF FIRST-OF(ttblProdAce.prodAceJob) THEN DO:
-      FIND FIRST ttblJob
-           WHERE ttblJob.resource EQ ttblProdAce.prodAceResource
-             AND ttblJob.job EQ ttblProdAce.prodAceJob NO-ERROR.
-      IF AVAILABLE ttblJob THEN
-      jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
-      ELSE DO:
-        FIND FIRST pendingJob
-             WHERE pendingJob.resource EQ ttblProdAce.prodAceResource
-               AND pendingJob.job EQ ttblProdAce.prodAceJob NO-ERROR.
-        IF NOT AVAILABLE pendingJob THEN NEXT.
-        jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
-      END. /* not avail ttbljob */
-      FIND job-mch NO-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
-      IF NOT AVAILABLE job-mch THEN NEXT.
-    END. /* first-of job */
-    CREATE machtran.
-    ASSIGN
-      machtran.company = job-mch.company
-      machtran.machine = ttblProdAce.prodAceResource
-      machtran.job_number = job-mch.job-no
-      machtran.job_sub = job-mch.job-no2
-      machtran.form_number = job-mch.frm
-      machtran.blank_number = job-mch.blank-no
-      machtran.pass_sequence = job-mch.pass
-      machtran.charge_code = ttblProdAce.prodAceState
-      machtran.completed = ttblProdAce.prodAceRunComplete
-      machtran.start_date = ttblProdAce.prodAceStartDate
-      machtran.start_time = ttblProdAce.prodAceStartTime
-      machtran.end_date = ttblProdAce.prodAceEndDate
-      machtran.end_time = ttblProdAce.prodAceEndTime
-      machtran.run_qty = ttblProdAce.prodAceTranRunQty
-      machtran.waste_qty = ttblProdAce.prodAceTranRejectQty
-      machtran.shift = ttblProdAce.prodAceShift
-      machtran.total_time = machtran.end_time - machtran.start_time
-      .
-    IF machtran.total_time LT 0 OR machtran.total_time EQ ? THEN
-    machtran.total_time = 0.
-
-    RUN setRecKey (BUFFER machtran).
-    IF lvEmpLogin EQ 'ProdAce' THEN
-    RUN createMachEmp (BUFFER machtran).
-    IF ttblProdAce.prodAceRunComplete THEN
-    RUN completeMR.
-  END. /* each ttblProdAce */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prodAceSummary C-Win 
-PROCEDURE prodAceSummary :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE empLoginRowID AS ROWID NO-UNDO.
-  DEFINE VARIABLE lvState AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lvTime AS INTEGER NO-UNDO.
-  
-  /* Pass 1: consolidate prodAce transactions */
-  FOR EACH ttblProdAce
-      BREAK BY ttblProdAce.prodAceResource
-            BY ttblProdAce.prodAceJob
-            BY ttblProdAce.prodAceItem
-            BY ttblProdAce.prodAceShift
-            BY ttblProdAce.prodAceStartDate
-            BY ttblProdAce.prodAceSeq
-            BY ttblProdAce.prodAceState
-      :
-    IF FIRST-OF(ttblProdAce.prodAceShift) OR
-       FIRST-OF(ttblProdAce.prodAceStartDate) OR
-       lvState NE ttblProdAce.prodAceState THEN DO:
-      FIND buffProdAce WHERE ROWID(buffProdAce) EQ ROWID(ttblProdAce).
-      lvState = ttblProdAce.prodAceState.
-    END. /* first-of */
-    IF AVAILABLE buffProdAce AND (ROWID(buffProdAce) NE ROWID(ttblProdAce)) THEN DO:
-      ASSIGN
-        buffProdAce.prodAceTranRunQty = buffProdAce.prodAceTranRunQty + ttblProdAce.prodAceTranRunQty
-        buffProdAce.prodAceTranRejectQty = buffProdAce.prodAceTranRejectQty + ttblProdAce.prodAceTranRejectQty
-        buffProdAce.prodAceDuration = buffProdAce.prodAceDuration + ttblProdAce.prodAceDuration
-        buffProdAce.prodAceEndDate = ttblProdAce.prodAceEndDate
-        buffProdAce.prodAceEndTime = ttblProdAce.prodAceEndTime
-        ttblProdAce.deleteFlag = YES
-        .
-    END. /* avail buffprodAce */
-  END. /* each ttblProdAce */
-
-  /* Pass 2: move non-RUN qty values to RUN transaction */
-  FOR EACH ttblProdAce
-      WHERE ttblProdAce.prodAceState NE 'RUN'
-       AND  ttblProdAce.deleteFlag EQ NO
-       AND (ttblProdAce.prodAceTranRunQty NE 0
-        OR  ttblProdAce.prodAceTranRejectQty NE 0)
-      :
-    FIND FIRST buffProdAce
-         WHERE buffProdAce.prodAceResource EQ ttblProdAce.prodAceResource
-           AND buffProdAce.prodAceJob EQ ttblProdAce.prodAceJob
-           AND buffProdAce.prodAceItem EQ ttblProdAce.prodAceItem
-           AND buffProdAce.prodAceShift EQ ttblProdAce.prodAceShift
-           AND buffProdAce.prodAceState EQ 'RUN'
-           AND ttblProdAce.deleteFlag EQ NO
-         NO-ERROR.
-    IF AVAILABLE buffProdAce THEN
-    ASSIGN
-      buffProdAce.prodAceTranRunQty = buffProdAce.prodAceTranRunQty + ttblProdAce.prodAceTranRunQty
-      buffProdAce.prodAceTranRejectQty = buffProdAce.prodAceTranRejectQty + ttblProdAce.prodAceTranRejectQty
-      ttblProdAce.prodAceTranRunQty = 0
-      ttblProdAce.prodAceTranRejectQty = 0
-      .
-  END. /* each ttblProdAce */
-
-  /* Pass 3: flag records as run completed if necessary */
-  FOR EACH ttblProdAce
-      WHERE ttblProdAce.prodAceState EQ 'RUN'
-        AND ttblProdAce.prodAceRunComplete EQ YES
-        AND ttblProdAce.deleteFlag EQ YES
-      BREAK BY ttblProdAce.prodAceResource
-            BY ttblProdAce.prodAceJob
-            BY ttblProdAce.prodAceItem
-            BY ttblProdAce.prodAceShift
-            BY ttblProdAce.prodAceStartDate
-            BY ttblProdAce.prodAceSeq
-            BY ttblProdAce.prodAceState
-      :
-    FIND LAST buffProdAce
-         WHERE buffProdAce.prodAceResource EQ ttblProdAce.prodAceResource
-           AND buffProdAce.prodAceJob EQ ttblProdAce.prodAceJob
-           AND buffProdAce.prodAceItem EQ ttblProdAce.prodAceItem
-           AND buffProdAce.prodAceShift EQ ttblProdAce.prodAceShift
-           AND buffProdAce.prodAceState EQ 'RUN'
-           AND ttblProdAce.prodAceRunComplete EQ NO
-           AND buffProdAce.deleteFlag EQ NO
-         NO-ERROR.
-    IF AVAILABLE buffProdAce THEN
-    buffProdAce.prodAceRunComplete = YES.
-  END. /* each ttblprodAce */
-
-  /* Pass 4: remove deleted flag records */
-  FOR EACH ttblProdAce:
-    IF ttblProdAce.deleteFlag EQ YES OR
-      (ttblProdAce.prodAceState EQ 'NC' AND
-       ttblProdAce.prodAceDuration LE 60 AND
-       ttblProdAce.prodAceTranRunQty EQ 0 AND
-       ttblProdAce.prodAceTranRejectQty EQ 0 AND
-       ttblProdAce.prodAceRunComplete EQ NO
-       ) THEN
-    DELETE ttblProdAce.
-  END. /* each ttblprodAce */
-
-  /* Pass 5: split records that span midnight */
-  FOR EACH ttblProdAce
-      BREAK BY ttblProdAce.prodAceResource
-            BY ttblProdAce.prodAceJob
-            BY ttblProdAce.prodAceItem
-            BY ttblProdAce.prodAceShift
-            BY ttblProdAce.prodAceStartDate
-            BY ttblProdAce.prodAceSeq
-            BY ttblProdAce.prodAceState
-      :
-    IF ttblProdAce.deleteFlag THEN NEXT.
-    IF ttblProdAce.prodAceStartDate NE ttblProdAce.prodAceEndDate THEN DO:
-      CREATE buffProdAce.
-      BUFFER-COPY ttblProdAce TO buffProdAce.
-      ASSIGN
-        buffProdAce.prodAceStartDate = ttblProdAce.prodAceEndDate
-        buffProdAce.prodAceStartTime = 0
-        buffProdAce.prodAceDuration = buffProdAce.prodAceEndTime - buffProdAce.prodAceStartTime
-        ttblProdAce.prodAceEndDate = ttblProdAce.prodAceStartDate
-        ttblProdAce.prodAceEndTime = 86340
-        ttblProdAce.prodAceDuration = ttblProdAce.prodAceEndTime - ttblProdAce.prodAceStartTime
-        ttblProdAce.prodAceTranRunQty = 0
-        ttblProdAce.prodAceTranRejectQty = 0
-        .
-    END. /* spans midnight */
-  END. /* each ttblProdAce */
-
-  /* Pass 6: consolidate prodAce transactions again */
-  RELEASE buffProdAce.
-  lvState = ''.
-  FOR EACH ttblProdAce
-      BREAK BY ttblProdAce.prodAceResource
-            BY ttblProdAce.prodAceJob
-            BY ttblProdAce.prodAceItem
-            BY ttblProdAce.prodAceShift
-            BY ttblProdAce.prodAceStartDate
-            BY ttblProdAce.prodAceSeq
-            BY ttblProdAce.prodAceState
-      :
-    IF FIRST-OF(ttblProdAce.prodAceShift) OR
-       FIRST-OF(ttblProdAce.prodAceStartDate) OR
-       lvState NE ttblProdAce.prodAceState THEN DO:
-      FIND buffProdAce WHERE ROWID(buffProdAce) EQ ROWID(ttblProdAce).
-      lvState = ttblProdAce.prodAceState.
-    END. /* first-of */
-    IF AVAILABLE buffProdAce AND (ROWID(buffProdAce) NE ROWID(ttblProdAce)) THEN DO:
-      ASSIGN
-        buffProdAce.prodAceTranRunQty = buffProdAce.prodAceTranRunQty + ttblProdAce.prodAceTranRunQty
-        buffProdAce.prodAceTranRejectQty = buffProdAce.prodAceTranRejectQty + ttblProdAce.prodAceTranRejectQty
-        buffProdAce.prodAceDuration = buffProdAce.prodAceDuration + ttblProdAce.prodAceDuration
-        buffProdAce.prodAceEndDate = ttblProdAce.prodAceEndDate
-        buffProdAce.prodAceEndTime = ttblProdAce.prodAceEndTime
-        buffProdAce.prodAceRunComplete = ttblProdAce.prodAceRunComplete
-        ttblProdAce.deleteFlag = YES
-        .
-    END. /* avail buffprodAce */
-  END. /* each ttblProdAce */
-
-  /* Pass 7: move RUN qty values to last RUN transaction */
-  FOR EACH ttblProdAce
-      WHERE ttblProdAce.prodAceState EQ 'RUN'
-       AND  ttblProdAce.deleteFlag EQ NO
-       AND (ttblProdAce.prodAceTranRunQty NE 0
-        OR  ttblProdAce.prodAceTranRejectQty NE 0)
-      :
-    FIND LAST buffProdAce
-         WHERE buffProdAce.prodAceResource EQ ttblProdAce.prodAceResource
-           AND buffProdAce.prodAceJob EQ ttblProdAce.prodAceJob
-           AND buffProdAce.prodAceItem EQ ttblProdAce.prodAceItem
-           AND buffProdAce.prodAceShift EQ ttblProdAce.prodAceShift
-           AND buffProdAce.prodAceState EQ 'RUN'
-           AND buffProdAce.deleteFlag EQ NO
-           AND buffProdAce.prodAceSeq GT ttblProdAce.prodAceSeq
-           AND ROWID(buffProdAce) NE ROWID(ttblProdAce)
-         NO-ERROR.
-    IF AVAILABLE buffProdAce THEN
-    ASSIGN
-      buffProdAce.prodAceTranRunQty = buffProdAce.prodAceTranRunQty + ttblProdAce.prodAceTranRunQty
-      buffProdAce.prodAceTranRejectQty = buffProdAce.prodAceTranRejectQty + ttblProdAce.prodAceTranRejectQty
-      ttblProdAce.prodAceTranRunQty = 0
-      ttblProdAce.prodAceTranRejectQty = 0
-      .
-  END. /* each ttblProdAce */
-
-  /* Pass 8: create machtran records */
-  FOR EACH ttblProdAce
-      BREAK BY ttblProdAce.prodAceResource
-            BY ttblProdAce.prodAceJob
-            BY ttblProdAce.prodAceItem
-            BY ttblProdAce.prodAceShift
-            BY ttblProdAce.prodAceStartDate
-            BY ttblProdAce.prodAceSeq
-            BY ttblProdAce.prodAceState
-      :
-    IF ttblProdAce.deleteFlag THEN NEXT.
-
-    IF FIRST-OF(ttblProdAce.prodAceJob) THEN DO:
-      lvTime = ?.
-      FIND FIRST ttblJob
-           WHERE ttblJob.resource EQ ttblProdAce.prodAceResource
-             AND ttblJob.job EQ ttblProdAce.prodAceJob NO-ERROR.
-      IF AVAILABLE ttblJob THEN
-      jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
-      ELSE DO:
-        FIND FIRST pendingJob
-             WHERE pendingJob.resource EQ ttblProdAce.prodAceResource
-               AND pendingJob.job EQ ttblProdAce.prodAceJob NO-ERROR.
-        IF NOT AVAILABLE pendingJob THEN NEXT.
-        jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
-      END. /* not avail ttbljob */
-      FIND job-mch NO-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
-      IF NOT AVAILABLE job-mch THEN NEXT.
-    END. /* first-of job */
-
-    IF lvTime EQ ? THEN
-    lvTime = ttblProdAce.prodAceStartTime.
-
-    CREATE machtran.
-    ASSIGN
-      machtran.company = job-mch.company
-      machtran.machine = ttblProdAce.prodAceResource
-      machtran.job_number = job-mch.job-no
-      machtran.job_sub = job-mch.job-no2
-      machtran.form_number = job-mch.frm
-      machtran.blank_number = job-mch.blank-no
-      machtran.pass_sequence = job-mch.pass
-      machtran.charge_code = ttblProdAce.prodAceState
-      machtran.completed = ttblProdAce.prodAceRunComplete
-      machtran.start_date = ttblProdAce.prodAceStartDate
-      machtran.start_time = ttblProdAce.prodAceStartTime
-      machtran.end_date = ttblProdAce.prodAceEndDate
-      machtran.end_time = ttblProdAce.prodAceEndTime
-      machtran.run_qty = ttblProdAce.prodAceTranRunQty
-      machtran.waste_qty = ttblProdAce.prodAceTranRejectQty
-      machtran.shift = ttblProdAce.prodAceShift
-      machtran.total_time = machtran.end_time - machtran.start_time
-      .
-    IF machtran.total_time LT 0 OR machtran.total_time EQ ? THEN
-    machtran.total_time = 0.
-
-    RUN setRecKey (BUFFER machtran).
-    IF lvEmpLogin EQ 'ProdAce' THEN
-    RUN createEmpLogin (BUFFER ttblProdAce,BUFFER machtran).    
-    IF ttblProdAce.prodAceRunComplete THEN
-    RUN completeMR.
-  END. /* each ttblProdAce */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTransSelection C-Win 
 PROCEDURE pTransSelection :
 /*------------------------------------------------------------------------------
@@ -2279,22 +1673,6 @@ PROCEDURE saveProdAceDatValues :
   OS-CREATE-DIR VALUE(lvImportDir + '/processed').
   OS-CREATE-DIR VALUE(lvImportDir + '/archive').
   OS-CREATE-DIR VALUE(lvImportDir + '/errors').
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setRecKey C-Win 
-PROCEDURE setRecKey :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE PARAMETER BUFFER machtran FOR machtran.
-
-  {custom/rec_key.i "machtran"}
 
 END PROCEDURE.
 

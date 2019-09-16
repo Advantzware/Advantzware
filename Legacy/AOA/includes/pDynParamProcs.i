@@ -153,7 +153,9 @@ PROCEDURE pParamValidate :
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE cErrorMsg  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParamName AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cParamName AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bttDynAction FOR ttDynAction.
 
     /* check and run action procedures */
     RUN pParamAction (iphWidget).
@@ -163,6 +165,19 @@ PROCEDURE pParamValidate :
          NO-ERROR.
     IF NOT AVAILABLE ttDynAction THEN RETURN.
 
+    IF ttDynAction.action NE ? AND INDEX(ttDynAction.action,"VALUE-CHANGED") NE 0 THEN DO:
+        FOR EACH bttDynAction
+            WHERE bttDynAction.actionParamName EQ ttDynAction.paramName
+            :
+            IF bttDynAction.validateProc NE "" AND
+               CAN-DO(hDynValProc:INTERNAL-ENTRIES,bttDynAction.validateProc) THEN
+            RUN VALUE(bttDynAction.validateProc) IN hDynValProc (
+                ttDynAction.paramWidget,
+                bttDynAction.paramWidget
+                ).
+        END. /* each bttdynaction */
+    END. /* if value-changed */
+    ELSE
     /* check and run validate procedures */
     IF ttDynAction.validateProc NE "" AND
        CAN-DO(hDynValProc:INTERNAL-ENTRIES,ttDynAction.validateProc) THEN DO:

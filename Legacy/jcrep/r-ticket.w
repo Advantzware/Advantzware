@@ -1903,8 +1903,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.  
 
   RUN new-job-no.
-
-  RUN  pRunFormatValueChanged .
   
   IF NOT lAsiUser THEN do:
       RUN_format:HIDDEN IN FRAME FRAME-A = YES .
@@ -2751,6 +2749,9 @@ PROCEDURE new-job-no :
           ELSE 
               lv-format-f = lv-default-f .
 
+          IF fjob-no EQ tjob-no THEN
+              tb_reprint:SCREEN-VALUE = STRING(job-hdr.ftick-prnt).
+
       IF est.est-type LE 4 THEN ll-fold = YES.
                            ELSE ll-corr = YES.
 
@@ -2776,6 +2777,13 @@ PROCEDURE new-job-no :
             lFreezeNoteVal = FALSE.
     END.
   END.
+
+  IF tb_corr:SCREEN-VALUE EQ "Yes" THEN
+      ASSIGN run_format:SCREEN-VALUE = lv-format-c .
+  ELSE IF tb_fold:SCREEN-VALUE EQ "Yes" THEN
+      ASSIGN run_format:SCREEN-VALUE = lv-format-f .
+
+  RUN  pRunFormatValueChanged .
 
 END PROCEDURE.
 
@@ -3309,8 +3317,8 @@ PROCEDURE pRunFormatValueChanged :
                         tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,Valley,jobcardc 1,jobcardc 2,Printers,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
                         IF NOT tb_prt-set-header:SENSITIVE THEN
                             tb_prt-set-header:SCREEN-VALUE = "no".
-                        
-                        IF LOOKUP(lv-format-c,"jobcardc 20,AtlanticBox,Valley20,Delta10,HoneyCell") > 0 THEN
+                   
+                        IF tb_corr EQ YES AND LOOKUP(lv-format-c,"jobcardc 20,AtlanticBox,Valley20,Delta10,HoneyCell") > 0 THEN
                             ASSIGN tb_fgimage:SENSITIVE = NO
                             tb_fgimage:SCREEN-VALUE = "yes" 
                             tb_box:SENSITIVE = NO

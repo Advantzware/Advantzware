@@ -1,4 +1,17 @@
-/* monitor.w */
+/*------------------------------------------------------------------------
+    File        : userControl/Monitor.w
+    Purpose     : Standard monitor for user autologout function
+    Syntax      :  
+    Description :   
+    Author(s)   : WK
+    Created     : 
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+/* Check for module licensing */
+DEF VAR lAccess AS LOG NO-UNDO.
+RUN util/CheckModule.p (INPUT "ASI", INPUT "AutoLogout", INPUT NO /*prompt if no access*/, OUTPUT lAccess).
+IF NOT lAccess THEN RETURN.
 
 {custom/monitor.w "userControl" "userControl"}
 

@@ -71,7 +71,8 @@ location.subCode3 loc.storageCost[4] location.subCode1 loc.owner ~
 location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
-location.email loc.glCode location.notes loc.active loc.isAPIEnabled 
+location.email loc.glCode location.notes loc.active loc.isAPIEnabled ~
+location.lActive
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
@@ -84,7 +85,8 @@ loc.storageCost[3] location.subCode3 loc.storageCost[4] location.subCode1 ~
 loc.owner location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
-location.email loc.glCode location.notes loc.active loc.isAPIEnabled 
+location.email loc.glCode location.notes loc.active loc.isAPIEnabled ~
+location.lActive
 &Scoped-define DISPLAYED-TABLES loc location
 &Scoped-define FIRST-DISPLAYED-TABLE loc
 &Scoped-define SECOND-DISPLAYED-TABLE location
@@ -269,6 +271,11 @@ DEFINE FRAME F-Main
           LABEL "API Enabled"
           VIEW-AS TOGGLE-BOX
           SIZE 19.6 BY .81
+     location.lActive AT ROW 17.33 COL 55 
+          HELP "Flag to indicate that location supports consignment materials."
+          LABEL "Consignment"
+          VIEW-AS TOGGLE-BOX
+          SIZE 18.4 BY .81
      "Capacity:" VIEW-AS TEXT
           SIZE 11.4 BY .62 AT ROW 8.62 COL 2.8
      "Address:" VIEW-AS TEXT
@@ -338,7 +345,9 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX loc.active IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL                                                            */ 
+/* SETTINGS FOR TOGGLE-BOX location.lActive IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN loc.company IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN location.defaultBin IN FRAME F-Main
