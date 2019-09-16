@@ -565,6 +565,8 @@ def var li-num-item as int no-undo.
 def var ls-item-list as cha no-undo.
 def var ls-item-selected as cha no-undo.
 
+FIND FIRST Prep WHERE prep.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+
 FIND FIRST po-ordl WHERE po-ordl.rec_key = ip-rec_key NO-LOCK NO-ERROR.
 IF AVAIL po-ordl THEN DO:
    IF po-ordl.item-type THEN /* RM*/
@@ -575,7 +577,13 @@ IF AVAIL po-ordl THEN DO:
 END.
 ELSE find FIRST item where item.rec_key eq ip-rec_key no-lock no-error.
 
-IF AVAIL item THEN
+IF AVAIL prep THEN DO:
+  ASSIGN
+   lbl_i-no = "    Prep Item#:"
+   fi_i-no  = prep.code
+   ip-rec_key = prep.rec_key .   
+END.
+ELSE IF AVAIL item THEN
   ASSIGN
    lbl_i-no = "    RM Item#:"
    fi_i-no  = item.i-no
