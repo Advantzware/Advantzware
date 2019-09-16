@@ -76,20 +76,21 @@ PROCEDURE pButtonEmail:
 END PROCEDURE.
 
 PROCEDURE pComboBox:
-    DEFINE INPUT  PARAMETER ipcPoolName  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iphFrame     AS HANDLE    NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLabel     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcName      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdCol       AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdRow       AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdWidth     AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcListItems AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcValue     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiLines     AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER iplSensitive AS LOGICAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER iplIsVisible AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER ophWidget    AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPoolName      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iphFrame         AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLabel         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcName          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdCol           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdRow           AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdWidth         AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplListItemPairs AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcListItems     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormat        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcValue         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLines         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplSensitive     AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsVisible     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER ophWidget        AS HANDLE    NO-UNDO.
     
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
 
@@ -102,9 +103,7 @@ PROCEDURE pComboBox:
         COL = ipdCol
         ROW = ipdRow
         WIDTH = ipdWidth
-        LIST-ITEMS = ipcListItems
         FORMAT = ipcFormat
-        SCREEN-VALUE = ipcValue
         INNER-LINES = ipiLines
         SIDE-LABEL-HANDLE = hLabel
         SENSITIVE = iplSensitive
@@ -119,8 +118,15 @@ PROCEDURE pComboBox:
       ON VALUE-CHANGED
         PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget:HANDLE).
     END TRIGGERS.
-    IF ipcLabel NE "" AND lShowLabel THEN
-    hLabel:COL = ophWidget:COL - hLabel:WIDTH.
+    IF VALID-HANDLE(ophWidget) THEN DO:
+        IF ipcLabel NE "" AND lShowLabel THEN
+        hLabel:COL = ophWidget:COL - hLabel:WIDTH.
+        IF iplListItemPairs THEN
+        ophWidget:LIST-ITEM-PAIRS = ipcListItems.
+        ELSE
+        ophWidget:LIST-ITEMS = ipcListItems.
+        ophWidget:SCREEN-VALUE = ipcValue.
+    END. /* if valid-handle */
 END PROCEDURE.
 
 PROCEDURE pCreateDynParameters :
@@ -266,6 +272,7 @@ PROCEDURE pCreateDynParameters :
                 dCol,
                 dRow,
                 dynParamSetDtl.paramWidth,
+                CAN-DO(dynParamSetDtl.action,"LIST-ITEM-PAIRS"),
                 cInitItems,
                 dynParam.paramFormat,
                 cParamValue,

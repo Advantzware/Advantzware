@@ -171,9 +171,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -186,10 +183,6 @@ THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-
- 
-
-
 
 /* ************************  Control Triggers  ************************ */
 
