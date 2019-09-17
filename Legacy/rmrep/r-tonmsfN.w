@@ -1394,6 +1394,9 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {custom/statusMsg.i "'Processing...'"} 
 
@@ -1434,7 +1437,7 @@ assign
              (if tb_adjustments then "A" else "") +
              (if tb_counts      then "C" else "")
    v-export = tb_excel
-   v-exp-name = fi_file.
+   v-exp-name = cFileName.
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1472,7 +1475,7 @@ if td-show-parm then run show-param.
 
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM s-excel TO VALUE(TRIM(fi_file)).
+  OUTPUT STREAM s-excel TO VALUE(TRIM(cFileName)).
   PUT STREAM s-excel UNFORMATTED excelheader SKIP.
 END. 
 

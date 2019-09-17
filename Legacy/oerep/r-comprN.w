@@ -75,6 +75,7 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 
 ASSIGN cTextListToSelect = "Sman,Customer,Cust. Name,Inv No.,FG Number,FG Cat.," +
                            "Inv Qty,Inv Price,UOM,SetSales Price," + 
@@ -625,6 +626,7 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
   RUN GetSelectionList.
   run run-report.
   STATUS DEFAULT "Processing Complete". 
@@ -1830,7 +1832,7 @@ v-head[1] = "".
 
 
 /*IF tb_excel THEN DO:
-   OUTPUT STREAM st-excel TO VALUE(fi_file).
+   OUTPUT STREAM st-excel TO VALUE(cFileName).
    PUT STREAM st-excel UNFORMATTED
    "Salesman,Customer,Cust. Name,Invoice Number,FG Number,FG Cat.,Invoice Qty,Invoice Price,UOM,Set Sales Price,Commission Cost,Total Item Resale,Total Item Cost,Profit Margin$,Commission"
    SKIP.
@@ -1861,7 +1863,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM st-excel TO VALUE(fi_file).
+  OUTPUT STREAM st-excel TO VALUE(cFileName).
   PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -2419,7 +2421,7 @@ RUN print-report.
 IF tb_excel THEN DO:
    OUTPUT STREAM st-excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
 END. 
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

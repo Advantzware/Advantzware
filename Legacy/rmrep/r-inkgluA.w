@@ -106,6 +106,8 @@ DEF TEMP-TABLE tt-wax-coats
    FIELD wax-coat-weight   AS DECI
    FIELD procat            LIKE itemfg.procat.
 
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
+
 FORM tt-wax-coats.trans-date LABEL "Issue Date"
      tt-wax-coats.job-no     LABEL "   Job #"
      tt-wax-coats.board      LABEL "Board"
@@ -664,6 +666,7 @@ DO:
   IF v-valid THEN
   DO:
      SESSION:SET-WAIT-STATE("general").
+     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
      run run-report. 
      STATUS DEFAULT "Processing Complete". 
      SESSION:SET-WAIT-STATE("").
@@ -1174,7 +1177,7 @@ ASSIGN
    v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
    v-export   = tb_excel
-   v-exp-name = fi_file
+   v-exp-name = cFileName
    v-fCat     = begin_cat
    v-tCat     = END_cat
    v-mtype    = "".
@@ -1566,7 +1569,7 @@ END.
 IF v-export THEN DO:
    OUTPUT STREAM s-temp CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1637,7 +1640,7 @@ ASSIGN
    v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
    v-export   = tb_excel
-   v-exp-name = fi_file
+   v-exp-name = cFileName
    v-fCat     = begin_cat
    v-tCat     = END_cat
    v-mtype    = "".
@@ -2008,7 +2011,7 @@ END.
 IF v-export THEN DO:
    OUTPUT STREAM s-temp CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2090,7 +2093,7 @@ assign
  v-tjob     = fill(" ",6 - length(trim(end_job-no)))   +
               trim(end_job-no)   + string(int(end_job-no2),"99")
  v-export   = tb_excel
- v-exp-name = fi_file.
+ v-exp-name = cFileName.
 
 do with frame {&frame-name}:          
   do i = 1 to select-mat:num-items:
@@ -2368,7 +2371,7 @@ display "" with frame r-top.
     IF v-export THEN DO:
         OUTPUT STREAM s-temp close.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

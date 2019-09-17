@@ -1003,6 +1003,9 @@ DEF VAR lv-type     AS   CHAR NO-UNDO.
 DEF VAR li          AS   INT NO-UNDO.
 DEF VAR lj          AS   INT NO-UNDO.
 DEF VAR excelheader AS   CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form cust.name            COLUMN-LABEL "Customer Name"
      w-data.inv-no
@@ -1070,7 +1073,7 @@ END.
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Customer Name,Invoice#,FG Item#,Job#,Mat'l Cost," +
                 "Labor Cost,FixOH Cost,VarOH Cost,Total Cost,Sales Amt".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1085,7 +1088,7 @@ VIEW FRAME r-top.
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 

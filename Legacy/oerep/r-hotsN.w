@@ -1879,6 +1879,9 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN rd_print = "Item Name"
        tb_po-no = YES
@@ -1918,7 +1921,7 @@ END.
 IF tb_excel THEN DO:
    OUTPUT STREAM st-excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
