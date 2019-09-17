@@ -33,6 +33,70 @@ DEFINE VARIABLE glUseQtyFrom     AS LOGICAL   NO-UNDO.
 
 
 /* **********************  Internal Procedures  *********************** */
+PROCEDURE GetVendorCostNextBreak:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a Item ID Vendor and Quantity, retrieve the next price break quantity
+     and costs
+     Notes:
+     Syntax:  
+    RUN GetVendorCostNextBreak(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, ipcCustomerID, ipcEstimateNo, ipiFormNo, ipiBlankNo, 
+        ipdQuantity, ipcQuantityUOM, 
+        ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, ipdBasisWeight, ipcBasisWeightUOM, iplExactMatch,
+        OUTPUT opdCostPerUOM, OUTPUT opdCostSetup, OUTPUT opcCostUOM, OUTPUT opdCostTotal, 
+        OUTPUT opdQuantityNextPriceBreak,
+        OUTPUT lError, OUTPUT cMessage).     
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplExactMatch AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMNextPriceBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostSetupNextPriceBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotalNextPriceBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantityNextPriceBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    DEFINE VARIABLE dQuantityInVendorUOM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMUpcharge AS DECIMAL NO-UNDO.
+    
+    RUN pSetGlobalSettings(ipcCompany).
+    RUN pGetVendItemCostBuffer(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, ipcCustomerID, ipcEstimateNo, ipiFormNo, ipiBlankNo, iplExactMatch,
+        BUFFER bf-vendItemCost, OUTPUT oplError, OUTPUT opcMessage).
+    IF NOT oplError AND AVAILABLE bf-vendItemCost THEN 
+    DO:
+        ASSIGN 
+            opcCostUOM = bf-vendItemCost.vendorUOM.
+        IF opcCostUOM NE ipcQuantityUOM THEN DO: 
+            RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
+                ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+                OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+        END.
+        ELSE 
+            dQuantityInVendorUOM = ipdQuantity. 
+        
+        RUN pGetCostsNextBreak(BUFFER bf-vendItemCost, dQuantityInVendorUOM, ipdDimLength, ipdDimWidth, ipcDimUOM,
+                OUTPUT opdCostPerUOMNextPriceBreak, OUTPUT opdCostSetupNextPriceBreak, OUTPUT dCostPerUOMUpcharge, OUTPUT opdCostTotalNextPriceBreak, OUTPUT opdQuantityNextPriceBreak, 
+                OUTPUT oplError, INPUT-OUTPUT opcMessage).
+        opdCostPerUOMNextPriceBreak = opdCostPerUOMNextPriceBreak + dCostPerUOMUpcharge.
+        
+    END.
+END PROCEDURE.
 
 PROCEDURE GetVendorCost:
     /*------------------------------------------------------------------------------
@@ -96,7 +160,102 @@ PROCEDURE GetVendorCost:
     END.
 END PROCEDURE.
 
+PROCEDURE GetVendorItem:
+/*------------------------------------------------------------------------------
+ Purpose: Given Vendor Matching information, find the vendor Item ID
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplExactMatch AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorItemID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    RUN pSetGlobalSettings(ipcCompany).
+    RUN pGetVendItemCostBuffer(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, ipcCustomerID, ipcEstimateNo, ipiFormNo, ipiBlankNo, iplExactMatch,
+        BUFFER bf-vendItemCost, OUTPUT oplError, OUTPUT opcMessage).
+    IF NOT oplError AND AVAILABLE bf-vendItemCost THEN 
+        ASSIGN
+            opcVendorItemID = bf-vendItemCost.vendorItemID 
+            . 
+            
+END PROCEDURE.
 
+PROCEDURE GetVendorSizes:
+/*------------------------------------------------------------------------------
+ Purpose: Given Vendor Matching information, find the effective size limitations
+ for the vendor item
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplExactMatch AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMinLength AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMaxLength AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMinWidth AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdMaxWidth AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    RUN pSetGlobalSettings(ipcCompany).
+    RUN pGetVendItemCostBuffer(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, ipcCustomerID, ipcEstimateNo, ipiFormNo, ipiBlankNo, iplExactMatch,
+        BUFFER bf-vendItemCost, OUTPUT oplError, OUTPUT opcMessage).
+    IF NOT oplError AND AVAILABLE bf-vendItemCost THEN 
+        ASSIGN
+            opdMinLength = bf-vendItemCost.dimLengthMinimum
+            opdMaxLength = bf-vendItemCost.dimLengthMaximum
+            opdMinWidth  = bf-vendItemCost.dimWidthMinimum
+            opdMaxWidth  = bf-vendItemCost.dimWidthMaximum 
+            . 
+            
+END PROCEDURE.
+
+PROCEDURE GetVendorUOM:
+/*------------------------------------------------------------------------------
+ Purpose: Given Vendor Matching information, find the vendor UOM
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplExactMatch AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    RUN pSetGlobalSettings(ipcCompany).
+    RUN pGetVendItemCostBuffer(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, ipcCustomerID, ipcEstimateNo, ipiFormNo, ipiBlankNo, iplExactMatch,
+        BUFFER bf-vendItemCost, OUTPUT oplError, OUTPUT opcMessage).
+    IF NOT oplError AND AVAILABLE bf-vendItemCost THEN 
+        ASSIGN
+            opcVendorUOM = bf-vendItemCost.vendorUOM 
+            . 
+            
+END PROCEDURE.
 
 PROCEDURE pConvertDim PRIVATE:
 /*------------------------------------------------------------------------------
@@ -162,6 +321,28 @@ RUN custom/convquom.p(ipcCompany, ipcFromUOM, ipcToUOM,
 
 END PROCEDURE.
 
+PROCEDURE pGetCostLevel PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given a VendItemCostID and Target Quantity, return the Level ID that matches it
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiVendItemCostID AS INT64 NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantityTarget AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiVendItemCostLevelID AS INT64 NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    RUN pRecalculateFromAndToForLevels(ipiVendItemCostID).
+    FIND FIRST bf-vendItemCostLevel NO-LOCK 
+        WHERE bf-vendItemCostLevel.vendItemCostID EQ ipiVendItemCostID
+        AND bf-vendItemCostLevel.quantityFrom LE ipdQuantityTarget
+        AND bf-vendItemCostLevel.quantityTo GE ipdQuantityTarget
+        NO-ERROR.
+    IF AVAILABLE bf-vendItemCostLevel THEN 
+        opiVendItemCostLevelID = bf-vendItemCostLevel.vendItemCostLevelID.
+        
+END PROCEDURE.
+
 PROCEDURE pGetCostsForVendItemCost PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a VendItemCostBuffer, and a quantity, get appropriate costs
@@ -175,15 +356,15 @@ PROCEDURE pGetCostsForVendItemCost PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
  
     DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    DEFINE VARIABLE iVendCostLevelID AS INT64 NO-UNDO.
     
-    RUN pRecalculateFromAndToForLevels(BUFFER ipbf-vendItemCost).
     iopcMessage = TRIM(iopcMessage + " Quantity of " + STRING(ipdQuantityInVendorUOM)).
     
-    FIND FIRST bf-vendItemCostLevel NO-LOCK 
-        WHERE bf-vendItemCostLevel.vendItemCostID EQ ipbf-vendItemCost.vendItemCostID
-        AND bf-vendItemCostLevel.quantityFrom LE ipdQuantityInVendorUOM
-        AND bf-vendItemCostLevel.quantityTo GE ipdQuantityInVendorUOM
-        NO-ERROR.
+    RUN pGetCostLevel(ipbf-vendItemCost.vendItemCostID, ipdQuantityInVendorUOM, OUTPUT iVendCostLevelID).
+    IF iVendCostLevelID NE 0 THEN 
+        FIND FIRST bf-vendItemCostLevel NO-LOCK 
+            WHERE bf-vendItemCostLevel.vendItemCostLevelID EQ iVendCostLevelID
+            NO-ERROR.
     IF AVAILABLE bf-vendItemCostLevel THEN 
         ASSIGN
             opdCostPerUOM = bf-vendItemCostLevel.costPerUOM
@@ -197,6 +378,87 @@ PROCEDURE pGetCostsForVendItemCost PRIVATE:
             iopcMessage = iopcMessage + " not in range."
             .
 
+END PROCEDURE.
+
+PROCEDURE pGetCostsForVendItemCostNextBreak PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a VendItemCostBuffer, and a quantity, get appropriate costs for
+     the next level up from the given quantity Level
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-vendItemCost FOR vendItemCost.
+    DEFINE INPUT PARAMETER ipdQuantityInVendorUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMNextBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostSetupNextBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantityNextBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
+ 
+    DEFINE VARIABLE iVendCostLevelID AS INT64 NO-UNDO.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    DEFINE BUFFER bfNextBreak-vendItemCostLevel FOR vendItemCostLevel.
+    
+    RUN pGetCostLevel(ipbf-vendItemCost.vendItemCostID, ipdQuantityInVendorUOM, OUTPUT iVendCostLevelID).
+    IF iVendCostLevelID NE 0 THEN 
+        FIND FIRST bf-vendItemCostLevel NO-LOCK 
+            WHERE bf-vendItemCostLevel.vendItemCostLevelID EQ iVendCostLevelID
+            NO-ERROR.
+    IF AVAILABLE bf-vendItemCostLevel THEN DO:
+        FIND FIRST bfNextBreak-vendItemCostLevel NO-LOCK
+            WHERE bfNextBreak-vendItemCostLevel.vendItemCostID EQ bf-vendItemCostLevel.vendItemCostID
+            AND bfNextBreak-vendItemCostLevel.quantityFrom GE bf-vendItemCostLevel.quantityTo + gdQuantityOffset
+            NO-ERROR.
+        IF AVAILABLE bfNextBreak-vendItemCostLevel THEN 
+            ASSIGN
+                opdCostPerUOMNextBreak = bfNextBreak-vendItemCostLevel.costPerUOM
+                opdCostSetupNextBreak  = bfNextBreak-vendItemCostLevel.costSetup
+                opdQuantityNextBreak   = bfNextBreak-vendItemCostLevel.quantityFrom
+                oplError      = NO
+                iopcMessage   = iopcMessage + " Next Price Break Available" 
+                .  
+        ELSE 
+            ASSIGN 
+                oplError    = YES
+                iopcMessage = iopcMessage + " No Price Break Available"
+                .
+    END. /*Avail Cost Level*/
+
+END PROCEDURE.
+
+PROCEDURE pGetCostsNextBreak PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Retrieve the vendor cost break level, given quantity already
+     converted to the vendorUOM.
+     Notes:
+     Syntax: 
+         RUN pGetCostsNextBreak(BUFFER ipbf-vendItemCost, dQuantityInVendorUOM, 
+                OUTPUT opdCostPerUOM, OUTPUT opdCostSetup, OUTPUT opdCostPerUOMUpcharge, OUTPUT opdCostTotal,
+                OUTPUT oplError, INPUT-OUTPUT iopcMessage).
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-vendItemCost FOR vendItemCost.
+    DEFINE INPUT PARAMETER ipdQuantityInVendorUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMNextBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostSetupNextBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMUpcharge AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotalNextBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantityNextBreak AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
+
+
+    RUN pGetCostsForVendItemCostNextBreak(BUFFER ipbf-vendItemCost, ipdQuantityInVendorUOM,
+        OUTPUT opdCostPerUOMNextBreak, OUTPUT opdCostSetupNextBreak, OUTPUT opdQuantityNextBreak, 
+        OUTPUT oplError, INPUT-OUTPUT iopcMessage).   
+    IF NOT oplError THEN 
+    DO:    
+        RUN pGetUpchargeCostsForVendItemCost(BUFFER ipbf-vendItemCost, ipdDimLength, ipdDimWidth, ipcDimUOM, 
+            OUTPUT opdCostPerUOMUpcharge, OUTPUT oplError, INPUT-OUTPUT iopcMessage).                       
+        opdCostTotalNextBreak = (opdCostPerUOMNextBreak + opdCostPerUOMUpcharge) * opdQuantityNextBreak + opdCostSetupNextBreak. 
+    END.
+    
 END PROCEDURE.
 
 PROCEDURE pGetUpchargeCostsForVendItemCost PRIVATE:
@@ -326,12 +588,26 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
             IF lIsRM THEN 
             DO: /*RM fall back options*/
                 cMsgInputs = cMsgRMInputs.
-                FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor*/
+                FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank customer*/
                     {&RequiredCriteria}
-                    AND opbf-vendItemCost.vendorID EQ ""
+                    AND opbf-vendItemCost.vendorID EQ ipcVendorID
+                    AND opbf-vendItemCost.customerID EQ ""
                     NO-ERROR.
+                IF NOT AVAILABLE opbf-vendItemCost THEN 
+                    FIND FIRST opbf-vendItemCost NO-LOCK /*Match with any customer - current functionality*/
+                        {&RequiredCriteria}
+                        AND opbf-vendItemCost.vendorID EQ ipcVendorID
+                        NO-ERROR.
+                IF NOT AVAILABLE opbf-vendItemCost THEN 
+                    FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor*/
+                        {&RequiredCriteria}
+                        AND opbf-vendItemCost.vendorID EQ ""
+                        NO-ERROR.
                 IF AVAILABLE opbf-vendItemCost THEN 
-                    cMsgUsing = cMsgConstUsing + cMsgConstVend + (IF opbf-vendItemCost.vendorID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.vendorID).
+                    ASSIGN 
+                        cMsgUsing = cMsgConstUsing + cMsgConstVend + (IF opbf-vendItemCost.vendorID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.vendorID)
+                        cMsgUsing = cMsgUsing + cMsgConstCust + (IF opbf-vendItemCost.customerID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.customerID)
+                        .
             END.
             ELSE 
             DO:  /*FG fall back options*/
@@ -429,17 +705,21 @@ PROCEDURE pRecalculateFromAndToForLevels PRIVATE:
      based on base quantity
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-vendItemCost    FOR vendItemCost.
-
+    DEFINE INPUT PARAMETER ipiVendItemCostID AS INT64 NO-UNDO.
+    
+    DEFINE           BUFFER bf-vendItemCost    FOR vendItemCost.
     DEFINE           BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
-
     DEFINE VARIABLE dQtyNext AS DECIMAL NO-UNDO.
     
-    IF ipbf-vendItemCost.useQuantityFromBase THEN 
+    FIND FIRST bf-vendItemCost NO-LOCK
+        WHERE bf-vendItemCost.vendItemCostID EQ ipiVendItemCostID
+        NO-ERROR.
+    IF NOT AVAILABLE bf-vendItemCost THEN RETURN.
+    IF bf-vendItemCost.useQuantityFromBase THEN 
     DO:
-        dQtyNext = IF ipbf-vendItemCost.quantityMaximumOrder NE 0 THEN ipbf-vendItemCost.quantityMaximumOrder ELSE gdQuantityMax.  
+        dQtyNext = IF bf-vendItemCost.quantityMaximumOrder NE 0 THEN bf-vendItemCost.quantityMaximumOrder ELSE gdQuantityMax.  
         FOR EACH bf-vendItemCostLevel EXCLUSIVE-LOCK
-            WHERE bf-vendItemCostLevel.vendItemCostID EQ ipbf-vendItemCost.vendItemCostID
+            WHERE bf-vendItemCostLevel.vendItemCostID EQ bf-vendItemCost.vendItemCostID
             BY bf-vendItemCostLevel.quantityBase DESCENDING:
             ASSIGN 
                 bf-vendItemCostLevel.quantityTo   = dQtyNext
@@ -451,7 +731,7 @@ PROCEDURE pRecalculateFromAndToForLevels PRIVATE:
     ELSE 
     DO:
         FOR EACH bf-vendItemCostLevel EXCLUSIVE-LOCK
-            WHERE bf-vendItemCostLevel.vendItemCostID EQ ipbf-vendItemCost.vendItemCostID
+            WHERE bf-vendItemCostLevel.vendItemCostID EQ bf-vendItemCost.vendItemCostID
             BY bf-vendItemCostLevel.quantityBase:
             ASSIGN 
                 bf-vendItemCostLevel.quantityFrom = dQtyNext

@@ -60,10 +60,10 @@ RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.
 SESSION:ADD-SUPER-PROCEDURE (ghVendorCost).
 
 RUN pSetGlobalSettings(gcCompany). 
-IF glPurgeNew THEN RUN pPurgeAllNew.
-RUN pConvertLegacyToNew.
+//IF glPurgeNew THEN RUN pPurgeAllNew.
+//RUN pConvertLegacyToNew.
 
-RUN pTestSampleFG.
+//RUN pTestSampleFG.
 RUN pTestSampleRM.
 
 DELETE OBJECT ghSession.

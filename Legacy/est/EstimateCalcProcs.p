@@ -90,8 +90,8 @@ ASSIGN
     /*Build mapping from estimate type # to descriptive type*/ 
     gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
     .
-/*RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.*/
-/*THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghVendorCost).       */
+RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghVendorCost).
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
 
@@ -3442,111 +3442,36 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSetup AS DECIMAL NO-UNDO.
        
-    DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lCostFound AS LOGICAL   NO-UNDO.
-    
-    DEFINE VARIABLE dRunQty    AS DECIMAL   EXTENT 20.
-    DEFINE VARIABLE dRunCost   AS DECIMAL   EXTENT 20.
-    DEFINE VARIABLE dSetups    AS DECIMAL   EXTENT 20.
-    DEFINE VARIABLE dQtyInCUOM AS DECIMAL.
     DEFINE VARIABLE dCostTotal AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
 
-    ASSIGN
-        lCostFound = NO
-        opdCost    = 0
-        opdSetup   = 0.
+   
+    RUN GetVendorCost(ipbf-estCostMaterial.company,
+                  ipbf-estCostMaterial.itemID,
+                  "RM",
+                  ipcVendNo,
+                  "",
+                  ipbf-estCostMaterial.estimateNo,
+                  ipbf-estCostMaterial.formNo,
+                  ipbf-estCostMaterial.blankNo,
+                  ipdQty,
+                  ipcQtyUOM,
+                  ipbf-estCostMaterial.dimLength,
+                  ipbf-estCostMaterial.dimWidth,
+                  ipbf-estCostMaterial.dimDepth,
+                  ipbf-estCostMaterial.dimUOM,
+                  ipbf-estCostMaterial.basisWeight,
+                  ipbf-estCostMaterial.basisWeightUOM,
+                  NO,
+                  OUTPUT opdCost,
+                  OUTPUT opdSetup,
+                  OUTPUT opcCostUOM,
+                  OUTPUT dCostTotal,
+                  OUTPUT lError,
+                  OUTPUT cMessage).
+
     
-    /*    RUN GetVendorCost(ipbf-estCostMaterial.company,   */
-    /*                  ipbf-estCostMaterial.itemID,        */
-    /*                  "RM",                               */
-    /*                  ipcVendNo,                          */
-    /*                  "",                                 */
-    /*                  ipbf-estCostMaterial.estimateNo,    */
-    /*                  ipbf-estCostMaterial.formNo,        */
-    /*                  ipbf-estCostMaterial.blankNo,       */
-    /*                  ipdQty,                             */
-    /*                  ipcQtyUOM,                          */
-    /*                  ipbf-estCostMaterial.dimLength,     */
-    /*                  ipbf-estCostMaterial.dimWidth,      */
-    /*                  ipbf-estCostMaterial.dimDepth,      */
-    /*                  ipbf-estCostMaterial.dimUOM,        */
-    /*                  ipbf-estCostMaterial.basisWeight,   */
-    /*                  ipbf-estCostMaterial.basisWeightUOM,*/
-    /*                  NO,                                 */
-    /*                  OUTPUT opdCost,                     */
-    /*                  OUTPUT opdSetup,                    */
-    /*                  OUTPUT opcCostUOM,                  */
-    /*                  OUTPUT dCostTotal,                  */
-    /*                  OUTPUT lError,                      */
-    /*                  OUTPUT cMessage).                   */
-    /*                                                      */
-    FIND FIRST e-item NO-LOCK
-        WHERE e-item.company EQ ipbf-estCostMaterial.company
-        AND e-item.i-no EQ ipbf-estCostMaterial.itemID
-        NO-ERROR.
-    IF AVAILABLE e-item THEN
-    DO:
-        opcCostUom = e-item.std-uom.
-        RELEASE e-item-vend.
-        IF ipcVendNo NE "" THEN
-            FIND FIRST e-item-vend OF e-item NO-LOCK
-                WHERE e-item-vend.item-type EQ YES
-                AND e-item-vend.vend-no EQ ipcVendNo
-                NO-ERROR.
-        IF NOT AVAILABLE e-item-vend THEN
-            FOR EACH e-item-vend OF e-item NO-LOCK
-                WHERE e-item-vend.item-type EQ YES
-                AND e-item-vend.vend-no EQ ""
-                BY e-item-vend.vend-no:
-                LEAVE.
-            END.
-        IF NOT AVAILABLE e-item-vend THEN
-            FOR EACH e-item-vend OF e-item NO-LOCK
-                WHERE e-item-vend.item-type EQ YES
-                BY e-item-vend.vend-no:
-                LEAVE.
-            END.
-
-        IF AVAILABLE e-item-vend THEN
-        DO:
-            IF e-item-vend.std-uom NE "" THEN
-                opcCostUom = e-item-vend.std-uom.
-
-            DO iIndex = 1 TO 10:
-                ASSIGN
-                    dRunQty[iIndex]  = e-item-vend.run-qty[iIndex]
-                    dRunCost[iIndex] = e-item-vend.run-cost[iIndex]
-                    dSetups[iIndex]  = e-item-vend.setups[iIndex].
-            END.
-            DO iIndex = 1 TO 10:
-                ASSIGN
-                    dRunQty[iIndex + 10]  = e-item-vend.runQtyXtra[iIndex]
-                    dRunCost[iIndex + 10] = e-item-vend.runCostXtra[iIndex]
-                    dSetups[iIndex + 10]  = e-item-vend.setupsXtra[iIndex].
-            END.
-            IF opcCostUOM NE ipcQtyUOM THEN
-                RUN custom/convquom.p(e-item-vend.company,ipcQtyUOM,opcCostUOM,
-                    ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth,
-                    ipdQty, OUTPUT dQtyInCUOM).
-            ELSE
-                dQtyInCUOM = ipdQty.
-            DO iIndex = 1 TO 20:
-                IF dRunQty[iIndex] NE 0   AND
-                    dRunQty[iIndex] GE dQtyInCUOM THEN
-                DO:
-                    ASSIGN
-                        lCostFound = YES
-                        opdCost    = dRunCost[iIndex]
-                        opdSetup   = dSetups[iIndex]
-                        .
-                    LEAVE.
-                END.
-            END.
-        END.
-    END.
-
     IF ipbf-estCostMaterial.isRealMaterial AND (opdCost EQ 0 OR lError) THEN
         ASSIGN 
             opdCost    = IF ipbf-estCostHeader.forRealItemsUseAvgCost THEN ipbf-estCostMaterial.costPerUOMAvg ELSE ipbf-estCostMaterial.costPerUOMLast
