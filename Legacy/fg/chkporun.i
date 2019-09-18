@@ -79,7 +79,7 @@
 
         if dRecQty gt po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)) THEN
         do:          
-            message "This PO has a maximum permitted quantity of - " string(po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)))
+            message "This PO has a maximum permitted quantity of " string(po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)))
                  " (Including Overs allowed)"  VIEW-AS ALERT-BOX INFO .
             
                 APPLY "entry" TO fg-rctd.cases .
