@@ -263,7 +263,7 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
      VIEW-AS COMBO-BOX INNER-LINES 8
-     LIST-ITEMS "All","CREATE","DELETE","UPDATE","LOG","TASK","TRACK","RESTORED" 
+     LIST-ITEMS "All" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select Audit Type Filter" NO-UNDO.
 
@@ -411,64 +411,6 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 238.2 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME AuditSearch
-     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
-          "Select Audit Type Filter" WIDGET-ID 6
-     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
-          "Enter From Date" WIDGET-ID 20
-     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
-     svStartDateOption AT ROW 1.24 COL 59 HELP
-          "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     btnAuditTables AT ROW 2.67 COL 144 HELP
-          "Click to Access Tables to Audit" WIDGET-ID 288
-     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
-          "Select Audit DB Filter" WIDGET-ID 14
-     maxRows AT ROW 1.24 COL 127 COLON-ALIGNED WIDGET-ID 290
-     AuditHdr.AuditKey AT ROW 1.24 COL 183 COLON-ALIGNED WIDGET-ID 26
-          LABEL "Audit Key" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 44.4 BY 1
-          BGCOLOR 15 
-     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
-          "Select User Filter" WIDGET-ID 12
-     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
-          "Enter To Date" WIDGET-ID 22
-     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
-     svEndDateOption AT ROW 2.43 COL 59 HELP
-          "Select End Date Option" NO-LABEL WIDGET-ID 70
-     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
-          "Select Audit Table Filter" WIDGET-ID 16
-     svBeforeValueFilter AT ROW 2.43 COL 183 COLON-ALIGNED HELP
-          "Enter Before Value to Filter" WIDGET-ID 36
-     initTime AT ROW 3.62 COL 36 COLON-ALIGNED WIDGET-ID 292
-     searchTime AT ROW 3.62 COL 66 COLON-ALIGNED WIDGET-ID 296
-     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
-          "Select Audit Field Filter" WIDGET-ID 18
-     svAfterValueFilter AT ROW 3.62 COL 183 COLON-ALIGNED HELP
-          "Enter After Value to Filter" WIDGET-ID 38
-     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
-          "Click to Clear After Value Filter" WIDGET-ID 42
-     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
-          "Click to Clear Before Value Filter" WIDGET-ID 40
-     btnClear AT ROW 2.67 COL 153 HELP
-          "Click to Clear Filters" WIDGET-ID 284
-     btnSearch AT ROW 2.67 COL 162 HELP
-          "Click to Apply Filter Selections" WIDGET-ID 286
-     btnFilterAfterValue AT ROW 3.62 COL 230 HELP
-          "Select to Filter by After Value" WIDGET-ID 34
-     btnFilterAuditKey AT ROW 1.24 COL 230 HELP
-          "Select to Filter by Audit Key" WIDGET-ID 28
-     btnFilterBeforeValue AT ROW 2.43 COL 230 HELP
-          "Select to Filter by Before Value" WIDGET-ID 32
-     btnHistory AT ROW 1.24 COL 234 HELP
-          "Click to View History" WIDGET-ID 30
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 238 BY 4.76
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE "Search Filters" WIDGET-ID 500.
-
 DEFINE FRAME AuditView
      AuditHdr.AuditDB AT ROW 1.24 COL 6 COLON-ALIGNED WIDGET-ID 16
           LABEL "DB"
@@ -529,6 +471,64 @@ DEFINE FRAME AuditView
          SIZE 142 BY 4.81
          BGCOLOR 15 FGCOLOR 1 
          TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
+
+DEFINE FRAME AuditSearch
+     svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
+          "Select Audit Type Filter" WIDGET-ID 6
+     svStartDate AT ROW 1.24 COL 36 COLON-ALIGNED HELP
+          "Enter From Date" WIDGET-ID 20
+     btnCalendar-1 AT ROW 1.24 COL 54 WIDGET-ID 272
+     svStartDateOption AT ROW 1.24 COL 59 HELP
+          "Select Start Date Option" NO-LABEL WIDGET-ID 74
+     btnAuditTables AT ROW 2.67 COL 144 HELP
+          "Click to Access Tables to Audit" WIDGET-ID 288
+     svDB AT ROW 1.24 COL 89 COLON-ALIGNED HELP
+          "Select Audit DB Filter" WIDGET-ID 14
+     maxRows AT ROW 1.24 COL 127 COLON-ALIGNED WIDGET-ID 290
+     AuditHdr.AuditKey AT ROW 1.24 COL 183 COLON-ALIGNED WIDGET-ID 26
+          LABEL "Audit Key" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 44.4 BY 1
+          BGCOLOR 15 
+     svUser AT ROW 2.43 COL 8 COLON-ALIGNED HELP
+          "Select User Filter" WIDGET-ID 12
+     svEndDate AT ROW 2.43 COL 36 COLON-ALIGNED HELP
+          "Enter To Date" WIDGET-ID 22
+     btnCalendar-2 AT ROW 2.43 COL 54 WIDGET-ID 274
+     svEndDateOption AT ROW 2.43 COL 59 HELP
+          "Select End Date Option" NO-LABEL WIDGET-ID 70
+     svTable AT ROW 2.43 COL 89 COLON-ALIGNED HELP
+          "Select Audit Table Filter" WIDGET-ID 16
+     svBeforeValueFilter AT ROW 2.43 COL 183 COLON-ALIGNED HELP
+          "Enter Before Value to Filter" WIDGET-ID 36
+     initTime AT ROW 3.62 COL 36 COLON-ALIGNED WIDGET-ID 292
+     searchTime AT ROW 3.62 COL 66 COLON-ALIGNED WIDGET-ID 296
+     svField AT ROW 3.62 COL 89 COLON-ALIGNED HELP
+          "Select Audit Field Filter" WIDGET-ID 18
+     svAfterValueFilter AT ROW 3.62 COL 183 COLON-ALIGNED HELP
+          "Enter After Value to Filter" WIDGET-ID 38
+     btnAfterValueFilterClear AT ROW 3.62 COL 234 HELP
+          "Click to Clear After Value Filter" WIDGET-ID 42
+     btnBeforeValueFilterClear AT ROW 2.43 COL 234 HELP
+          "Click to Clear Before Value Filter" WIDGET-ID 40
+     btnClear AT ROW 2.67 COL 153 HELP
+          "Click to Clear Filters" WIDGET-ID 284
+     btnSearch AT ROW 2.67 COL 162 HELP
+          "Click to Apply Filter Selections" WIDGET-ID 286
+     btnFilterAfterValue AT ROW 3.62 COL 230 HELP
+          "Select to Filter by After Value" WIDGET-ID 34
+     btnFilterAuditKey AT ROW 1.24 COL 230 HELP
+          "Select to Filter by Audit Key" WIDGET-ID 28
+     btnFilterBeforeValue AT ROW 2.43 COL 230 HELP
+          "Select to Filter by Before Value" WIDGET-ID 32
+     btnHistory AT ROW 1.24 COL 234 HELP
+          "Click to View History" WIDGET-ID 30
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 238 BY 4.76
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE "Search Filters" WIDGET-ID 500.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1180,8 +1180,6 @@ END.
 
 
 &Scoped-define FRAME-NAME AuditSearch
-
-
 &Scoped-define SELF-NAME maxRows
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maxRows C-Win
 ON VALUE-CHANGED OF maxRows IN FRAME AuditSearch /* Max Rows */
@@ -1388,6 +1386,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   IF lContinue THEN DO:
     ETIME(YES).
+    ASSIGN
+        svType:LIST-ITEMS   = "{AOA/includes/auditTypes.i}"
+        svType:SCREEN-VALUE = "All"
+        svType
+        .
     RUN enable_UI.
     IF NOT VALID-HANDLE(hPgmMstrSecur) THEN
     RUN system/PgmMstrSecur.p PERSISTENT SET hPgmMstrSecur.

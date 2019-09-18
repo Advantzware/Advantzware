@@ -21,7 +21,7 @@ END FUNCTION.
 
 /* **********************  Internal Procedures  *********************** */
 
-/* all validate procedures should run this procedure */
+/* all validate procedures should run this procedure, else RETURN "" */
 PROCEDURE dynValReturn:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE  NO-UNDO.
     DEFINE INPUT PARAMETER iplReturn AS LOGICAL NO-UNDO.
@@ -31,89 +31,89 @@ PROCEDURE dynValReturn:
 END PROCEDURE.
 
 /* create procedures in alphabetical order below here */
-PROCEDURE dynValAuditField:
-    DEFINE INPUT PARAMETER iphWidget1 AS HANDLE NO-UNDO.
-    DEFINE INPUT PARAMETER iphWidget2 AS HANDLE NO-UNDO.
-    
+PROCEDURE dynValAuditTable:
+    {&defInputParam}    
     DEFINE VARIABLE cFieldLabel AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFields     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFields     AS CHARACTER NO-UNDO INITIAL "All,All".
+    DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lTables     AS LOGICAL   NO-UNDO.
 
-    cFields = "All,All".
+    RUN pGetWidgetByName (iphWidget, "types", OUTPUT hWidget).
+    lTables = CAN-DO("LOG,TRACK",hWidget:SCREEN-VALUE) EQ NO.
+    RUN pGetWidgetByName (iphWidget, "fields", OUTPUT hWidget).
+    IF lTables THEN
     FOR EACH ASI._file NO-LOCK
         WHERE ASI._file._Tbl-type EQ "T"
-          AND (iphWidget1:SCREEN-VALUE EQ "All"
-           OR ASI._file._file-name EQ iphWidget1:SCREEN-VALUE),
+          AND (iphWidget:SCREEN-VALUE EQ "All"
+           OR ASI._file._file-name EQ iphWidget:SCREEN-VALUE),
         EACH ASI._field OF ASI._file NO-LOCK
         BREAK BY ASI._field._field-name
         :
         IF FIRST-OF(ASI._field._field-name) THEN DO:
             IF CAN-FIND(FIRST AuditHdr
                         WHERE AuditHdr.AuditDB    EQ "ASI"
-                          AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN DO: 
-                ASSIGN
-                    cFieldLabel = IF ASI._field._Label NE ? THEN ASI._field._Label ELSE ""
-                    cFields     = cFields + ","
-                                + cFieldLabel + " ("
-                                + ASI._field._field-name  + "),"
-                                + ASI._field._field-name
-                                .
-            END. /* if can-find */
+                          AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN 
+            ASSIGN
+                cFieldLabel = IF ASI._field._Label NE ? THEN ASI._field._Label ELSE ""
+                cFields     = cFields + ","
+                            + cFieldLabel + " ("
+                            + ASI._field._field-name  + "),"
+                            + ASI._field._field-name
+                            .
         END. /* if first-of */
     END. /* each _file */
     ASSIGN
-        iphWidget2:LIST-ITEM-PAIRS = cFields
-        iphWidget2:SCREEN-VALUE    = "All"
+        hWidget:LIST-ITEM-PAIRS = cFields
+        hWidget:SCREEN-VALUE    = "All"
         .
+    RETURN "".
 END PROCEDURE.
 
-PROCEDURE dynValAuditTable:
-    DEFINE INPUT PARAMETER iphWidget1 AS HANDLE NO-UNDO.
-    DEFINE INPUT PARAMETER iphWidget2 AS HANDLE NO-UNDO.
-    
+PROCEDURE dynValAuditType:
+    {&defInputParam}
     DEFINE VARIABLE cTableLabel AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTables     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTables     AS CHARACTER NO-UNDO INITIAL "All,All".
+    DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lTables     AS LOGICAL   NO-UNDO.
     
-    ASSIGN
-        cTables = "All,All"
-        lTables = CAN-DO("LOG,TRACK",iphWidget1:SCREEN-VALUE) EQ NO
-        .
+    RUN pGetWidgetByName (iphWidget, "tables", OUTPUT hWidget).
+    lTables = CAN-DO("LOG,TRACK",iphWidget:SCREEN-VALUE) EQ NO.
     IF lTables THEN
     FOR EACH ASI._file NO-LOCK
         WHERE ASI._file._Tbl-type EQ "T"
         :
         IF CAN-FIND(FIRST AuditHdr
                     WHERE AuditHdr.AuditDB    EQ "ASI"
-                      AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN DO: 
-            ASSIGN
-                cTableLabel = IF ASI._file._file-label NE ? THEN ASI._file._file-label ELSE ""
-                cTables     = cTables + ","
-                            + cTableLabel + " ("
-                            + ASI._file._file-name  + "),"
-                            + ASI._file._file-name
-                            .
-        END. /* if can-find */
+                      AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN 
+        ASSIGN
+            cTableLabel = IF ASI._file._file-label NE ? THEN ASI._file._file-label ELSE ""
+            cTables     = cTables + ","
+                        + cTableLabel + " ("
+                        + ASI._file._file-name  + "),"
+                        + ASI._file._file-name
+                        .
     END. /* each _file */
-    IF iphWidget1:SCREEN-VALUE EQ "All" OR lTables EQ NO THEN
+    IF iphWidget:SCREEN-VALUE EQ "All" OR lTables EQ NO THEN
     FOR EACH prgrms NO-LOCK
         BY prgrms.mnemonic
         BY prgrms.prgTitle
         :
         IF CAN-FIND(FIRST AuditHdr
                     WHERE AuditHdr.AuditDB    EQ "ASI"
-                      AND AuditHdr.AuditTable EQ prgrms.prgmname) THEN DO:
-            cTables = cTables + "," + "["
-                      + prgrms.mnemonic + "] "
-                      + prgrms.prgTitle
-                      + " (" + prgrms.prgmname + "),"
-                      + prgrms.prgmname
-                      .
-        END. /* if can-find */
+                      AND AuditHdr.AuditTable EQ prgrms.prgmname) THEN
+        cTables = cTables + "," + "["
+                  + prgrms.mnemonic + "] "
+                  + prgrms.prgTitle
+                  + " (" + prgrms.prgmname + "),"
+                  + prgrms.prgmname
+                  .
     END. /* each prgrms */
     ASSIGN
-        iphWidget2:LIST-ITEM-PAIRS = cTables
-        iphWidget2:SCREEN-VALUE    = "All"
+        hWidget:LIST-ITEM-PAIRS = cTables
+        hWidget:SCREEN-VALUE    = "All"
         .
+    RUN dynValAuditTable (hWidget).
+    RETURN "".
 END PROCEDURE.
 
 PROCEDURE dynValCompany:
@@ -353,4 +353,24 @@ PROCEDURE dynValVendor:
                  WHERE vend.company EQ cCompany
                    AND vend.vend-no EQ iphWidget:SCREEN-VALUE)
         ).
+END PROCEDURE.
+
+PROCEDURE pGetWidgetByName PRIVATE:
+    DEFINE INPUT  PARAMETER iphWidget AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcName   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ophWidget AS HANDLE    NO-UNDO.
+    
+    DEFINE VARIABLE hWidget AS HANDLE NO-UNDO.
+    
+    ASSIGN
+        hWidget = iphWidget:FRAME
+        hWidget = hWidget:FIRST-CHILD
+        hWidget = hWidget:FIRST-CHILD
+        .
+    DO WHILE VALID-HANDLE(hWidget):
+        IF hWidget:NAME NE ? AND hWidget:NAME EQ ipcName THEN
+        LEAVE.
+        hWidget = hWidget:NEXT-SIBLING.
+    END. /* do while */
+    ophWidget = hWidget.
 END PROCEDURE.
