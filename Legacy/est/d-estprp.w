@@ -69,7 +69,8 @@ est-prep.code est-prep.qty est-prep.dscr est-prep.simon est-prep.cost ~
 est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame est-prep.s-num ~
 est-prep.b-num est-prep.code est-prep.qty est-prep.dscr est-prep.simon ~
-est-prep.cost est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz 
+est-prep.cost est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz ~
+est-prep.orderID
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame est-prep
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame est-prep
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH est-prep ~
@@ -90,7 +91,7 @@ est-prep.spare-dec-1 est-prep.ml est-prep.amtz
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
 &Scoped-Define DISPLAYED-FIELDS est-prep.s-num est-prep.b-num est-prep.code ~
 est-prep.qty est-prep.dscr est-prep.simon est-prep.cost est-prep.mkup ~
-est-prep.spare-dec-1 est-prep.ml est-prep.amtz 
+est-prep.spare-dec-1 est-prep.ml est-prep.amtz est-prep.orderID
 &Scoped-define DISPLAYED-TABLES est-prep
 &Scoped-define FIRST-DISPLAYED-TABLE est-prep
 
@@ -200,6 +201,11 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1
+    est-prep.orderID  AT ROW 8.67 COL 80.6 COLON-ALIGNED
+    LABEL "Order #" FORMAT "x(9)"
+    VIEW-AS FILL-IN 
+    SIZE 16.4 BY 1
+    BGCOLOR 15 FONT 1
     Btn_OK AT ROW 12.40 COL 105
     Btn_Done AT ROW 12.80 COL 105
     Btn_Cancel AT ROW 12.40 COL 115
@@ -264,6 +270,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN est-prep.spare-dec-1 IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN est-prep.orderID IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT  no-ENABLE                                       */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -863,7 +871,7 @@ PROCEDURE display-item :
         
         DISPLAY est-prep.s-num est-prep.b-num 
             est-prep.code est-prep.qty est-prep.dscr est-prep.simon est-prep.cost 
-            est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz 
+            est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz est-prep.orderID
             WITH FRAME Dialog-Frame.
     END.
 
@@ -896,7 +904,7 @@ PROCEDURE enable_UI :
     IF AVAILABLE est-prep THEN 
         DISPLAY est-prep.s-num est-prep.b-num est-prep.code est-prep.qty est-prep.dscr 
             est-prep.simon est-prep.cost est-prep.mkup est-prep.spare-dec-1 
-            est-prep.ml est-prep.amtz 
+            est-prep.ml est-prep.amtz est-prep.orderID
             WITH FRAME Dialog-Frame.
     ENABLE est-prep.s-num est-prep.b-num est-prep.code est-prep.qty est-prep.dscr 
         est-prep.simon est-prep.cost est-prep.mkup est-prep.spare-dec-1 

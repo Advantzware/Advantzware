@@ -1418,7 +1418,8 @@ PROCEDURE run-process :
     buffer-copy est-prep except rec_key to kprep
     assign
      kprep.company = kest.company
-     kprep.est-no  = kest.est-no.
+     kprep.est-no  = kest.est-no
+     kprep.orderID = ""   .
   end.
 
   if fest-mr then

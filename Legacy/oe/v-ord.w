@@ -2538,7 +2538,8 @@ PROCEDURE create-misc :
 
   FOR EACH est-prep WHERE est-prep.company = g_company
                       AND est-prep.est-no = bf-eb.est-no
-                      AND est-prep.simon = "S"     NO-LOCK .
+                      AND est-prep.simon = "S" 
+                      AND est-prep.orderID EQ ""  EXCLUSIVE-LOCK .
       FIND FIRST oe-ordm WHERE oe-ordm.company = g_company
                            AND oe-ordm.ord-no = oe-ord.ord-no
                            AND oe-ordm.charge = est-prep.code
@@ -2581,10 +2582,12 @@ PROCEDURE create-misc :
                           (IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0).            
            FIND CURRENT cust NO-LOCK.
          END.
+        est-prep.orderID = string(oe-ord.ord-no) .
       END.
 
       FIND CURRENT oe-ordm NO-LOCK.
   END.
+ RELEASE est-prep .
 
   IF AVAIL cust THEN
       FIND CURRENT cust NO-LOCK.
@@ -3083,6 +3086,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       END.
 
       FIND CURRENT est NO-LOCK.
+
     END.
   END.
 
@@ -3204,9 +3208,18 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         v-totord = (v-totord +
         ROUND((oe-ordm.amt * v-tax-rate) / 100,2)).
       END.
+      
+      FIND FIRST est-prep EXCLUSIVE-LOCK
+          WHERE est-prep.company EQ oe-ordl.company
+            AND est-prep.est-no EQ oe-ordl.est-no 
+            AND est-prep.CODE EQ oe-ordm.charge NO-ERROR .
 
-      IF oe-ord.stat = "N" OR oe-ord.stat = "A" OR oe-ord.stat = "H" THEN
-      DELETE oe-ordm.
+      IF oe-ord.stat = "N" OR oe-ord.stat = "A" OR oe-ord.stat = "H" THEN do:
+        DELETE oe-ordm.
+        IF AVAIL est-prep THEN 
+            ASSIGN est-prep.orderID = "" .
+      END.
+      FIND CURRENT est-prep NO-LOCK NO-ERROR . 
     END. /* each oe-ordm */
 
     IF oe-ordl.job-no NE "" THEN DO:
@@ -3368,7 +3381,17 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       ROUND((oe-ordm.amt * v-tax-rate) / 100,2).
     END.
 
-    IF INDEX("NAH",oe-ord.stat) GT 0 THEN DELETE oe-ordm.
+    FIND FIRST est-prep EXCLUSIVE-LOCK
+        WHERE est-prep.company EQ oe-ordl.company
+        AND est-prep.est-no EQ oe-ordl.est-no 
+        AND est-prep.CODE EQ oe-ordm.charge NO-ERROR .
+
+    IF INDEX("NAH",oe-ord.stat) GT 0 THEN do:
+         DELETE oe-ordm.
+         IF AVAIL est-prep THEN 
+            ASSIGN est-prep.orderID = "" .
+    END.
+    FIND CURRENT est-prep NO-LOCK NO-ERROR .
   END. /* each oe-ordm */
 
   FIND CURRENT oe-ordm NO-LOCK NO-ERROR.
