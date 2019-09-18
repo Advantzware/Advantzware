@@ -2543,12 +2543,14 @@ PROCEDURE pProcessOperations PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostForm    FOR estCostForm.
     
     DEFINE           BUFFER bf-estCostOperation FOR estCostOperation.
+    DEFINE VARIABLE dQtyFormsRequiredForBlanks    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyFormsRequiredForBlanksMax AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInOut           AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInOutRunWaste   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInOutSetupWaste AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyTarget          AS DECIMAL NO-UNDO.
     
-    dQtyInOut = ipbf-estCostForm.quantityFGOnForm.
+
     
     /*Get the effective Est-op quantity*/
     FOR EACH est-op NO-LOCK 
@@ -2569,7 +2571,7 @@ PROCEDURE pProcessOperations PRIVATE:
             IF est-op.qty GE ipbf-estCostHeader.quantityMaster THEN LEAVE.
         END.
     END.
-    
+    EMPTY TEMP-TABLE ttEstBlank.
     /*Process each est-op for the right quantity*/
     FOR EACH est-op NO-LOCK 
         WHERE est-op.company EQ ipbf-estCostHeader.company
@@ -2579,8 +2581,7 @@ PROCEDURE pProcessOperations PRIVATE:
         AND est-op.qty EQ dQtyTarget
         GROUP BY est-op.line DESCENDING:
 
-    RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation).
-                    
+    RUN pAddEstOperationFromEstOp(BUFFER est-op, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation).                    
     IF AVAILABLE bf-estCostOperation THEN 
     DO:
         /*REFACTOR to calculate quantities for combos*/        
@@ -2615,16 +2616,24 @@ PROCEDURE pProcessOperations PRIVATE:
         END. /*BlankNo not 0*/
         ELSE 
         DO:                  
-            IF bf-estCostOperation.isBlankMaker THEN
+            IF bf-estCostOperation.isBlankMaker THEN DO:
+                /*Find the most forms required to support each blank operations*/
                 FOR EACH ttEstBlank NO-LOCK 
                     WHERE ttEstBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID:
-                    IF dQtyInOut LT ( ttEstBlank.dQtyInOut / MAX(ttEstBlank.iOut, 1 ) ) THEN 
+                    dQtyFormsRequiredForBlanks = fRoundUp(ttEstBlank.dQtyInOut / MAX(ttEstBlank.iOut,1)).
+                    IF dQtyFormsRequiredForBlanksMax LT dQtyFormsRequiredForBlanks THEN 
                         ASSIGN 
-                            dQtyInOut           = ttEstBlank.dQtyInOut / MAX(ttEstBlank.iOut, 1 )
-                            dQtyInOutSetupWaste = ttEstBlank.dQtyInOutSetupWaste / MAX(ttEstBlank.iOut, 1 )
-                            dQtyInOutRunWaste   = ttEstBlank.dQtyInOutRunWaste / MAX(ttEstBlank.iOut, 1 )
+                            dQtyFormsRequiredForBlanksMax           = dQtyFormsRequiredForBlanks
+                            dQtyInOutSetupWaste = fRoundUp(ttEstBlank.dQtyInOutSetupWaste / MAX(ttEstBlank.iOut,1))
+                            dQtyInOutRunWaste   = fRoundUp(ttEstBlank.dQtyInOutRunWaste / MAX(ttEstBlank.iOut,1))
                             .
                 END.
+                /*Convert the forms for the most wasteful blank into what is required out of the blank maker as a total for all blanks*/
+                ASSIGN 
+                    dQtyInOut = dQtyFormsRequiredForBlanksMax * bf-estCostOperation.numOutForOperation
+                    dQtyInOutSetupWaste = dQtyInOutSetupWaste * bf-estCostOperation.numOutForOperation
+                    dQtyInOutRunWaste = dQtyInOutRunWaste * bf-estCostOperation.numOutForOperation.
+            END.
             RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation, INPUT-OUTPUT dQtyInOut, 
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
@@ -3614,6 +3623,7 @@ PROCEDURE pProcessOperation PRIVATE:
 
     DEFINE VARIABLE iInkCoatCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE dQty          AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE dLFPerFeed    AS DECIMAL NO-UNDO.
     
     
     ASSIGN 
@@ -3649,8 +3659,20 @@ PROCEDURE pProcessOperation PRIVATE:
         ipbf-estCostOperation.quantityIn                = fRoundUp(ipbf-estCostOperation.quantityIn)
         iopdQtyInOut                                    = ipbf-estCostOperation.quantityIn
         .
-
-
+    IF ipbf-estCostOperation.isSpeedInLF THEN DO:
+        /*Refactor - assumes dim in inches*/
+        CASE ipbf-estCostOperation.feedType:
+            WHEN "R" THEN 
+                dLFPerFeed = ipbf-estCostForm.grossLength / 12.
+            WHEN "S" THEN DO:
+                IF ipbf-estCostOperation.isNetSheetMaker THEN 
+                    dLFPerFeed = ipbf-estCostForm.grossLength / 12.
+                ELSE
+                    dLFPerFeed = ipbf-estCostForm.netLength / 12.
+            END.
+        END CASE.
+        ipbf-estCostOperation.quantityInAfterSetupWasteLF = ipbf-estCostOperation.quantityInAfterSetupWaste * dLFPerFeed.
+    END.
 END PROCEDURE.
 
 PROCEDURE pPurgeCalculation PRIVATE:
