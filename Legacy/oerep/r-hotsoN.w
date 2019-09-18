@@ -2353,6 +2353,9 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE v-print-line AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lSelected AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE v-excel-file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT v-excel-file,OUTPUT cFileName) .
 
 FORMAT HEADER
        SKIP(1)
@@ -2460,7 +2463,7 @@ OUTPUT CLOSE.
 
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM st-excel TO VALUE(v-excel-file).
+  OUTPUT STREAM st-excel TO VALUE(cFileName).
   PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -2482,7 +2485,7 @@ IF tb_excel THEN
 DO:
   OUTPUT STREAM st-excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-excel-file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

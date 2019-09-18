@@ -1149,6 +1149,9 @@ DEF VAR v-exp-head AS cha FORM "x(132)" NO-UNDO.
 DEF VAR v-comma AS cha FORM "x" INIT "," NO-UNDO.
 DEF VAR v-part-fg LIKE v-cust-part NO-UNDO.
 DEFINE VARIABLE v-ship-id like ar-inv.ship-id NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORMAT HEADER
        v-head[1] SKIP
@@ -1189,7 +1192,7 @@ EMPTY TEMP-TABLE tt-report.
 EMPTY TEMP-TABLE w-comm.
 
 IF tb_excel THEN do:
-  OUTPUT STREAM st-excell TO VALUE(fi_file).
+  OUTPUT STREAM st-excell TO VALUE(cFileName).
 END.
 SESSION:SET-WAIT-STATE ("general").
 
@@ -1208,7 +1211,7 @@ SESSION:SET-WAIT-STATE ("").
 IF tb_excel THEN DO:
    OUTPUT STREAM st-excell CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.                  
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 /*OUTPUT STREAM excel CLOSE. */

@@ -7,6 +7,9 @@
   DEF VAR ll-show-top-only AS LOG NO-UNDO.
   DEF VAR ld-palls AS DEC NO-UNDO.
   DEF VAR excelheader AS CHAR NO-UNDO.
+  DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
   FORM HEADER
       SKIP(1)
@@ -166,7 +169,7 @@
           END.
       END.
 
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
   END.
 
@@ -635,5 +638,5 @@
   IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.

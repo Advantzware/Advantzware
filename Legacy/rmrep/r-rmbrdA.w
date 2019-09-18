@@ -1106,9 +1106,12 @@ def var v-dep like po-ordl.s-len no-undo.
 def var v-bwt like po-ordl.s-len no-undo.
 DEF VAR v-mat-act-qty LIKE mat-act.qty NO-UNDO.
 DEF VAR noDate AS LOGICAL NO-UNDO. /* rstark 08111413 */
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    excelheader = "Whse,Item,Description,Product Category,UOM,Cost,On Hand,On Order, PO - Due Date,Quantity Available,Value".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1587,7 +1590,7 @@ assign
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

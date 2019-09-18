@@ -731,13 +731,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
+
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 {sys/form/r-topw.f}
 
 ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
  v-export = tb_excel
- v-exp-name = fi_file.
+ v-exp-name = cFileName.
 
 IF v-export THEN
    OUTPUT STREAM s-temp TO VALUE(v-exp-name).
