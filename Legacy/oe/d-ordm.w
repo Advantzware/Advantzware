@@ -1144,14 +1144,17 @@ PROCEDURE assgn-prep-info :
         FIND CURRENT prep NO-LOCK.
         RELEASE prep.
     END.
+
     IF ip-type EQ "add"  OR ip-type EQ "copy" THEN do:
+      DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST est-prep EXCLUSIVE-LOCK
-            WHERE est-prep.company EQ oe-ordm.company
-            AND est-prep.est-no EQ oe-ordm.est-no 
-            AND est-prep.CODE EQ oe-ordm.charge NO-ERROR .
-        IF AVAIL est-prep AND est-prep.orderID NE ""  THEN
+            WHERE est-prep.company EQ oe-ord.company
+            AND est-prep.est-no EQ oe-ord.est-no 
+            AND est-prep.CODE EQ oe-ordm.charge:SCREEN-VALUE NO-ERROR .
+        IF AVAIL est-prep AND est-prep.orderID EQ ""  THEN
             ASSIGN est-prep.orderID = STRING(oe-ordm.ord-no) .
         RELEASE est-prep .
+      END.
     END.
 
     RELEASE prep.
