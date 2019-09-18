@@ -126,6 +126,7 @@ PROCEDURE pGetFilterValues:
             WHEN "FIELD" THEN DO:
                 /* field */
                 svField:LIST-ITEM-PAIRS = "All,All".
+                IF CAN-DO("LOG,TRACK",svType:SCREEN-VALUE) EQ NO THEN
                 FOR EACH ttAudit
                     WHERE (ttAudit.AuditDB EQ svDB
                        OR svDB EQ "All")
