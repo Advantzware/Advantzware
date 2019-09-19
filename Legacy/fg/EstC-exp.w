@@ -55,6 +55,11 @@ DEFINE BUFFER bf-eb FOR eb.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cTitle AS CHARACTER NO-UNDO.
+IF ipcIndustry EQ "F" THEN
+    cTitle = "Export Folding Estimate To Excel".
+ELSE cTitle = "Export Corrugated Estimate To Excel".
+
 ASSIGN cTextListToSelect = "Estimate#,Est Date,Cust #,Ship To,Cust Part#,Item Description,FG Item#,Qty,Style,Board," +
                            "Caliper,Category,Box L,Box W,Box D,Qty/Set,Colors,Coating,Form#,Blank#,W#Up," +
                            "L#Up,# Up,Die Inches,Inks/Form,Passes/Form,Coatings/Form,Coat Passes/Form,Purch/Manuf," +
@@ -158,12 +163,12 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_est AS CHARACTER FORMAT "x(8)" 
+DEFINE VARIABLE begin_est AS INTEGER FORMAT ">>>>>>>>" 
      LABEL "From Estimate" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE end_est AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzz" 
+DEFINE VARIABLE end_est AS INTEGER FORMAT ">>>>>>>>" INITIAL "99999999" 
      LABEL "To Estimate" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
@@ -257,7 +262,7 @@ DEFINE FRAME rd-fgexp
      SPACE(2.39) SKIP(2.08)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Export Folding Estimate To Excel" WIDGET-ID 100.
+         TITLE cTitle WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -869,8 +874,8 @@ RUN util/rjust.p (INPUT-OUTPUT begin_est,8).
 RUN util/rjust.p (INPUT-OUTPUT end_est,8).
 
 FOR EACH b-est WHERE b-est.company = gcompany
-    AND b-est.est-no >= begin_est
-    AND b-est.est-no <= end_est
+    AND int(b-est.est-no) >= begin_est
+    AND int(b-est.est-no) <= end_est
     AND (IF ipcIndustry EQ "F" THEN b-est.est-type < 5 ELSE b-est.est-type >= 5) NO-LOCK,
     EACH bf-eb WHERE bf-eb.company = gcompany
     AND bf-eb.est-no = b-est.est-no 
