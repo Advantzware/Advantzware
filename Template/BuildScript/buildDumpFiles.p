@@ -103,6 +103,13 @@ FOR EACH {&cFile}:
 END.
 OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile zMessage
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 OUTPUT STREAM s0 TO VALUE(cOutDir + "\dynSubject.d").
 OUTPUT STREAM s1 TO VALUE(cOutDir + "\dynSubjectTable.d").
 OUTPUT STREAM s2 TO VALUE(cOutDir + "\dynSubjectWhere.d").
