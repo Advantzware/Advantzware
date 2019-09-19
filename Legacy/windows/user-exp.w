@@ -67,11 +67,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "User ID,User Name,Phone,Email,Temp File Path,Box Image Path,Label File Path," +
-                           "Fax,Track Usage,Use Def Colors,Use Def Fonts,Use Ctrl Accel,Developer,Internal/External" 
-                           
-                         
+                           "Fax,Track Usage,Use Def Colors,Use Def Fonts,Use Ctrl Accel,Developer,Internal/External," +
+                           "Dept,Manager,Mobile"
       cFieldListToSelect = "user_id,user_name,phone-no,image_filename,temp-file,image-path,label-path," +
-                           "fax-no,track_usage,use_colors,use_fonts,use_ctrl_keys,developer,internal-user" 
+                           "fax-no,track_usage,use_colors,use_fonts,use_ctrl_keys,developer,internal-user," +
+                           "department,manager,mobile" 
                            .
 {sys/inc/ttRptSel.i}
     ASSIGN cTextListToDefault  = "User ID,User Name,Phone,Email,Temp File Path,Box Image Path,Label File Path" .
@@ -844,12 +844,13 @@ PROCEDURE run-report :
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF BUFFER b-users FOR users.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
+IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
 FOR EACH b-users WHERE /*b-users.company = gcompany
@@ -877,7 +878,7 @@ END.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -997,6 +998,15 @@ FUNCTION getValue-estf RETURNS CHARACTER
     CASE ipc-field :
         WHEN "user_id"  THEN DO:
             lc-return = STRING(ipb-users.user_id) .
+        END.
+        WHEN "department"  THEN DO:
+            lc-return = STRING(ipb-users.department) .
+        END.
+        WHEN "mobile"  THEN DO:
+            lc-return = STRING(ipb-users.mobile) .
+        END.
+        WHEN "manager"  THEN DO:
+            lc-return = STRING(ipb-users.manager) .
         END.
         WHEN "user_name"  THEN DO:
             lc-return = STRING(ipb-users.user_name) .
