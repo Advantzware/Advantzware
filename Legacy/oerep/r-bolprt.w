@@ -148,7 +148,7 @@ DEF VAR v-packslip AS CHAR FORMAT "X(100)" NO-UNDO.
 
 DEF VAR td-pck-lst AS LOG INIT NO NO-UNDO.
 DEFINE VARIABLE d-print-fmt-dec  AS DECIMAL NO-UNDO.
-
+DEFINE VARIABLE cBolCocEmail     AS CHARACTER NO-UNDO.
 /* gdm - 07240906 */
 DEF VAR v-tglflg   AS LOG NO-UNDO INIT YES.
 DEF NEW SHARED VAR v-ship-inst AS LOG NO-UNDO.
@@ -2056,13 +2056,25 @@ PROCEDURE AdvancedNotice :
           bl-phone.table_rec_key EQ b1-shipto.rec_key
           NO-LOCK:
 
-          IF CAN-FIND(FIRST bl-emaildtl WHERE
-             bl-emaildtl.emailcod EQ 'r-bolprt.' AND
-             bl-emaildtl.table_rec_key EQ bl-phone.rec_key) THEN
-             DO:
-                vlSkipRec = NO.
-                LEAVE.
-             END.
+          IF rd_bolcert EQ "BOL" THEN DO:
+              IF CAN-FIND(FIRST bl-emaildtl WHERE
+                          bl-emaildtl.emailcod EQ 'r-bolprt.' AND
+                          bl-emaildtl.table_rec_key EQ bl-phone.rec_key) THEN
+                  DO:
+                  vlSkipRec = NO.
+                  LEAVE.
+              END.
+          END.
+          ELSE DO:
+              IF CAN-FIND(FIRST bl-emaildtl WHERE
+                          bl-emaildtl.emailcod EQ 'r-bolcert.' AND
+                          bl-emaildtl.table_rec_key EQ bl-phone.rec_key) THEN
+                  DO:
+                  vlSkipRec = NO.
+                  LEAVE.
+              END.
+          END.
+          
       END.
 
       IF NOT vlSkipRec THEN
@@ -2119,13 +2131,24 @@ PROCEDURE AdvancedNotice :
           bl-phone.table_rec_key EQ b1-shipto.rec_key
           NO-LOCK:
 
-          IF CAN-FIND(FIRST bl-emaildtl WHERE
-             bl-emaildtl.emailcod EQ 'r-bolprt.' AND
-             bl-emaildtl.table_rec_key EQ bl-phone.rec_key) THEN
-             DO:
-                vlSkipRec = NO.
-                LEAVE.
-             END.
+          IF rd_bolcert EQ "BOL" THEN DO:
+              IF CAN-FIND(FIRST bl-emaildtl WHERE
+                          bl-emaildtl.emailcod EQ 'r-bolprt.' AND
+                          bl-emaildtl.table_rec_key EQ bl-phone.rec_key) THEN
+                  DO:
+                  vlSkipRec = NO.
+                  LEAVE.
+              END.
+          END.
+          ELSE DO:
+              IF CAN-FIND(FIRST bl-emaildtl WHERE
+                          bl-emaildtl.emailcod EQ 'r-bolcert.' AND
+                          bl-emaildtl.table_rec_key EQ bl-phone.rec_key) THEN
+                  DO:
+                  vlSkipRec = NO.
+                  LEAVE.
+              END.
+          END.
       END.
 
       IF NOT vlSkipRec THEN
@@ -2159,8 +2182,14 @@ PROCEDURE ASIMail :
   def input param icCustNo    as char no-undo.
   def input param icSubBody   as char no-undo.
 
+  cBolCocEmail = "".
+  IF rd_bolcert EQ "BOL" THEN 
+      ASSIGN cBolCocEmail = "R-BOLPRT." .
+  ELSE
+      ASSIGN cBolCocEmail = "R-BOLCERT." .
+
   {custom/asimail2.i  &TYPE           = value (icMailMode)
-                      &group-title    = 'r-bolprt.'
+                      &group-title    = cBolCocEmail
                       &begin_cust     = icCustNo
                       &END_cust       = icCustNo
                       &mail-subject   = icSubBody
@@ -4513,6 +4542,12 @@ END.
 OUTPUT CLOSE.
 
 DO WITH FRAME {&FRAME-NAME}:
+  cBolCocEmail = "".
+  IF rd_bolcert EQ "BOL" THEN 
+      ASSIGN cBolCocEmail = "R-BOLPRT." .
+  ELSE
+      ASSIGN cBolCocEmail = "R-BOLCERT." .
+
   case rd-dest :
     when 1 then run output-to-printer(INPUT "", INPUT NO).
     when 2 then run output-to-screen(INPUT "", INPUT NO).
@@ -4530,7 +4565,7 @@ DO WITH FRAME {&FRAME-NAME}:
        IF is-xprint-form THEN DO:
           RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").                            
           {custom/asimail2.i  &TYPE         = "Customer"
-                              &group-title  = 'r-bolprt.' /* v-prgmname */
+                              &group-title  = cBolCocEmail /* v-prgmname */
                               &begin_cust   = begin_cust
                               &end_cust     = end_cust
                               &mail-subject = "BOL"
@@ -4539,7 +4574,7 @@ DO WITH FRAME {&FRAME-NAME}:
        END.
        ELSE DO:
            {custom/asimailr2.i &TYPE        = "Customer"
-                              &group-title  = 'r-bolprt.' /* v-prgmname */
+                              &group-title  = cBolCocEmail /* v-prgmname */
                               &begin_cust   = begin_cust
                               &end_cust     = end_cust
                               &mail-subject = current-window:title
@@ -4711,6 +4746,12 @@ PROCEDURE send-mail-uni-xl :
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
 
+  cBolCocEmail = "".
+  IF rd_bolcert EQ "BOL" THEN 
+      ASSIGN cBolCocEmail = "R-BOLPRT." .
+  ELSE
+      ASSIGN cBolCocEmail = "R-BOLCERT." .
+
   IF SEARCH (lv-pdf-file) EQ ? THEN DO:
     MESSAGE 'Attachment File: ' lv-pdf-file ' is missing.'
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -4721,7 +4762,7 @@ PROCEDURE send-mail-uni-xl :
           vcMailBody  = "Please review attached CofC for BOL #: " + vcBOLNums.
 
   RUN custom/xpmail2.p   (input   icRecType,
-                          input   'R-BOLPRT.',
+                          input   cBolCocEmail,
                           input   lv-pdf-file,
                           input   icIdxKey,
                           input   vcSubject,
@@ -4748,6 +4789,12 @@ PROCEDURE SendMail-1 :
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
 
+  cBolCocEmail = "".
+  IF rd_bolcert EQ "BOL" THEN 
+      ASSIGN cBolCocEmail = "R-BOLPRT." .
+  ELSE
+      ASSIGN cBolCocEmail = "R-BOLCERT." .
+
   ASSIGN  vcSubject   = "BOL: " + vcBOLNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = IF tb_reprint THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
@@ -4755,7 +4802,7 @@ PROCEDURE SendMail-1 :
   IF icShipId <> "" THEN icRecType = icRecType + "|" + icShipId. /* cust# + shipto */     
 
   RUN custom/xpmail2.p   (input   icRecType,
-                          input   'R-BOLPRT.',
+                          input   cBolCocEmail,
                           input   lv-pdf-file,
                           input   icIdxKey,
                           input   vcSubject,
@@ -4782,6 +4829,7 @@ PROCEDURE SendMail-2 :
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
 
+  cBolCocEmail = "".
   IF SEARCH (list-name) NE ? THEN DO:
     IF NOT list-name MATCHES '*.txt' THEN DO:
       OS-RENAME VALUE (SEARCH (list-name)) VALUE (SEARCH (list-name) + '.txt').
@@ -4799,13 +4847,18 @@ PROCEDURE SendMail-2 :
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
     RETURN.
   END.
+  
+  IF rd_bolcert EQ "BOL" THEN 
+      ASSIGN cBolCocEmail = "R-BOLPRT." .
+  ELSE
+      ASSIGN cBolCocEmail = "R-BOLCERT." .
 
   ASSIGN  vcSubject   = "BOL: " + vcBOLNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcSubject   = IF tb_reprint THEN '[REPRINT] ' + vcSubject ELSE vcSubject
           vcMailBody  = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
 
   RUN custom/xpmail2.p   (input   icRecType,
-                          input   'R-BOLPRT.',
+                          input   cBolCocEmail,
                           input   list-name,
                           input   icIdxKey,
                           input   vcSubject,
