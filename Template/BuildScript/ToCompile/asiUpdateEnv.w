@@ -93,6 +93,7 @@ DEF TEMP-TABLE ttTranslation LIKE translation.
 DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
+DEF TEMP-TABLE ttZmessage LIKE zMessage.
 
 DEF TEMP-TABLE ttPfFile
     FIELD ttfLine AS INT  
@@ -4511,6 +4512,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadZmessage C-Win
+PROCEDURE ipLoadZmessage:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading zMessage Records").
+
+    &SCOPED-DEFINE tablename zMessage
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.msgID EQ tt{&tablename}.msgID 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+        ELSE DO: /* Update fields except those controlled by user */
+            BUFFER-COPY tt{&tablename} EXCEPT 
+                currentTitle 
+                currMessage 
+                userSuppress 
+                displayOptions 
+                TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+
+    /* Delete records no longer used */
+    FOR EACH {&tablename} EXCLUSIVE WHERE 
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE 
+                    tt{&tablename}.msgID EQ {&tablename}.msgID):
+        DELETE {&tablename}.
+    END.
+        
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUserMenusToDatabase C-Win 
 PROCEDURE ipMoveUserMenusToDatabase :
 /*------------------------------------------------------------------------------
@@ -5429,6 +5483,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadCueCard IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\cuecardtext.d") <> ? THEN
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\zMessage.d") <> ? THEN
+        RUN ipLoadZmessage IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.
