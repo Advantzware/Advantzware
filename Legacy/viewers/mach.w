@@ -733,58 +733,44 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-   def var char-val as cha no-undo.
-   def var lv-handle as handle no-undo.
+    def var char-val as cha no-undo.
+    def var lv-handle as handle no-undo.
 
-
-   g_lookup-var = "".
-
-   case focus:name :
-        when "loc" then do:
-             run lookups/loc.p.
-             if g_lookup-var <> "" then do:
-                focus:screen-value = g_lookup-var.
-             end.
+    g_lookup-var = "".
+    
+    IF FOCUS:NAME EQ "dept" THEN DO:
+        lv-handle = focus.
+        run lookups/dept.p.
+        if g_lookup-var <> "" then do:
+            case lv-handle:index:
+                 when 1 then do:
+                     assign mach.dept[1]:screen-value = g_lookup-var.
+                     find first dept where dept.code = g_lookup-var and
+                                           (dept.setup <> 99 or
+                                           dept.fc <> 99 or
+                                           dept.corr <> 99 or
+                                           dept.therm <> 99)
+                                           no-lock no-error.
+                     if avail dept then do:
+                        if mach.setup then mach.d-seq:screen-value = string(dept.setup).
+                        else if mach.fc then mach.d-seq:screen-value = string(dept.fc).
+                        else if mach.corr then mach.d-seq:screen-value = string(dept.corr).
+                        else if mach.therm then mach.d-seq:screen-value = string(dept.therm).
+                     end.
+                 end.
+                 when 2 then mach.dept[2]:screen-value = g_lookup-var.
+                 when 3 then mach.dept[3]:screen-value = g_lookup-var.
+                 when 4 then mach.dept[4]:screen-value = g_lookup-var.
+            end.
         end.
-        when "fi_sch-m-code" then do:
-             run windows/l-machin.w (mach.company, mach.loc, mach.industry, focus:screen-value, output char-val).
-             if char-val <> "" then focus:screen-value = ENTRY(1,char-val).
-        end.
-        when "dept" then do:
-             lv-handle = focus.
-             run lookups/dept.p.
-             if g_lookup-var <> "" then do:
-                case lv-handle:index:
-                     when 1 then do:
-                         assign mach.dept[1]:screen-value = g_lookup-var.
-                         find first dept where dept.code = g_lookup-var and
-                                               (dept.setup <> 99 or
-                                               dept.fc <> 99 or
-                                               dept.corr <> 99 or
-                                               dept.therm <> 99)
-                                               no-lock no-error.
-                         if avail dept then do:
-                            if mach.setup then mach.d-seq:screen-value = string(dept.setup).
-                            else if mach.fc then mach.d-seq:screen-value = string(dept.fc).
-                            else if mach.corr then mach.d-seq:screen-value = string(dept.corr).
-                            else if mach.therm then mach.d-seq:screen-value = string(dept.therm).
-                         end.                      
-                     end.     
-                     when 2 then mach.dept[2]:screen-value = g_lookup-var.
-                     when 3 then mach.dept[3]:screen-value = g_lookup-var.
-                     when 4 then mach.dept[4]:screen-value = g_lookup-var.
-                end.
-             end.
-        end.
-        otherwise do:
-           lv-handle = focus:handle.
-           run applhelp.p.
-
-           if g_lookup-var <> "" then do:
-              lv-handle:screen-value = g_lookup-var.
-           end.  
-        end.
-   end case.
+    END.
+    ELSE DO:
+        lv-handle = focus:handle.
+        run applhelp.p.
+        if g_lookup-var <> "" then ASSIGN 
+            lv-handle:screen-value = g_lookup-var.
+    end.
+ 
 
    RETURN NO-APPLY.
 END.
