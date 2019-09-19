@@ -1033,13 +1033,7 @@ FUNCTION getValue-estf RETURNS CHARACTER
             lc-return = STRING(ipb-users.internal-user) .
         END.
         WHEN "phone-no"  THEN DO:
-            FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.phone-no" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
-          IF AVAIL reftable  AND reftable.CODE <> "" THEN
-          lc-return = "(" + STRING(SUBSTRING(reftable.CODE,1,3) + ")" + string(SUBSTRING(reftable.CODE,4),"xxx-xxxx") ) .
-          ELSE lc-return = "" .
+            lc-return = "(" + STRING(SUBSTRING(ipb-users.phone,1,3) + ")" + string(SUBSTRING(ipb-users.phone,4),"xxx-xxxx") ) .
         END.
         WHEN "temp-file"  THEN DO:
             lc-return = STRING(ipb-users.user_program[2]) .
@@ -1051,13 +1045,7 @@ FUNCTION getValue-estf RETURNS CHARACTER
             lc-return = STRING(ipb-users.user_program[3]) .
         END.
         WHEN "fax-no"  THEN DO:
-            FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.fax-no" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
-             IF AVAIL reftable AND reftable.CODE <> "" THEN
-            lc-return = "(" + STRING(SUBSTRING(reftable.CODE,1,3) + ")" + string(SUBSTRING(reftable.CODE,4),"xxx-xxxx")) .
-            ELSE lc-return = "" .
+            lc-return = "(" + STRING(SUBSTRING(ipb-users.fax,1,3) + ")" + string(SUBSTRING(ipb-users.fax,4),"xxx-xxxx") ) .
         END.
         /*OTHERWISE DO:
             IF INDEX(ipc-field,".") > 0 THEN DO:
