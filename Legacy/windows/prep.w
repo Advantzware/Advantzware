@@ -523,9 +523,11 @@ PROCEDURE import-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
- RUN util/dev/impPrep.p .
- RUN local-open-query IN h_prep .
+DEF VAR char-hdl AS CHAR NO-UNDO.
+ RUN util/dev/impPrep.p . 
+ RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'import-target':U, OUTPUT char-hdl).
+ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN local-open-query IN h_prep .
 
 END PROCEDURE.
 
