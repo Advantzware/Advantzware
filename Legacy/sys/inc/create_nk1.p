@@ -744,7 +744,7 @@ CASE ip-nk1-value:
     WHEN "SSVersion" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Version of SharpShooter",
-        INPUT "Selected" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */, INPUT 0 /* dec value*/).
 END CASE.
 ELSE
