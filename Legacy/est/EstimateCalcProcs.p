@@ -393,6 +393,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         
         opbf-estCostBlank.quantityRequired        = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster
         opbf-estCostBlank.quantityYielded         = ipbf-eb.yld-qty
+        opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice
         .
         
     FIND FIRST bf-estCostItem EXCLUSIVE-LOCK 
@@ -1830,7 +1831,8 @@ PROCEDURE pCalculateHeader PRIVATE:
                 RUN pAddEstBlank(BUFFER eb, BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER bf-estCostBlank).
                 ASSIGN 
                     iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-estCostBlank.numOut
-                    dQtyOnForm          = dQtyOnForm + bf-estCostBlank.quantityRequired
+                    dQtyOnForm          = dQtyOnForm + 
+                                        (IF bf-estCostBlank.priceBasedOnYield THEN bf-estCostBlank.quantityYielded ELSE bf-estCostBlank.quantityRequired)
                     .
                 RUN pBuildInksForEb(BUFFER bf-estCostHeader, BUFFER bf-estCostBlank, BUFFER eb).
                 RUN pAddGlue(BUFFER bf-estCostHeader, BUFFER bf-estCostBlank, BUFFER eb).
@@ -2097,7 +2099,7 @@ PROCEDURE pBuildPackingForEb PRIVATE:
                 bf-ttPack.cDimUOM             = estPacking.dimUOM
                 bf-ttPack.dQtyMultiplier      = MAX(estPacking.quantity, 1)
                 bf-ttPack.cQtyMultiplierPer   = estPacking.quantityPer
-                bf-ttPack.dCostPerUOMOverride = estPacking.costOverriderPerUOM
+                bf-ttPack.dCostPerUOMOverride = estPacking.costOverridePerUOM
                 .      
         RELEASE bf-ttPack.           
     END.

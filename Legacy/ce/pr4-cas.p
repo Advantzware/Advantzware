@@ -314,8 +314,8 @@ ELSE
 
         {sys/inc/roundup.i dPackQty}
       
-        IF estPacking.costOverriderPerUOM NE 0 THEN 
-            dPackCostTotal = estPacking.costOverriderPerUOM * dPackQty.
+        IF estPacking.costOverridePerUOM NE 0 THEN 
+            dPackCostTotal = estPacking.costOverridePerUOM * dPackQty.
         ELSE DO:   
             {est/matcost.i dPackQty dPackCostTotal estPacking}      
             dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.
