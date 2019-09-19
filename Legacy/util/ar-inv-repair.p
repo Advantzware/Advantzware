@@ -167,9 +167,9 @@ FOR EACH t-invoice NO-LOCK:
 END.
 
 PROCEDURE CREATE-ar-inv.
-    DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
-    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
+    DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
    
     DO WHILE TRUE :
         FIND ar-inv WHERE ar-inv.x-no = v-ref-ar NO-LOCK NO-ERROR.
@@ -246,7 +246,7 @@ PROCEDURE CREATE-ar-inv.
                       no-lock no-error.
 
            if available terms then
-              assign ar-inv.due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days )
+              assign ar-inv.due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),inv-head.company,inv-head.terms )
                      ar-inv.disc-%    = terms.disc-rate
                      ar-inv.disc-days = terms.disc-days.
 
@@ -262,7 +262,7 @@ PROCEDURE CREATE-ar-inv.
                                      AND currency.c-code = ar-inv.curr-code[1] NO-LOCK NO-ERROR.
            IF AVAIL currency THEN ar-inv.ex-rate = currency.ex-rate .  
            
-          THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
+          THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 END.
 
 PROCEDURE CREATE-ar-invl.

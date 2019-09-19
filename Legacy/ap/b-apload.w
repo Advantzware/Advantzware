@@ -399,9 +399,9 @@ PROCEDURE load-recurring :
 
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
-  DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
-    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
+  DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -430,10 +430,7 @@ PROCEDURE load-recurring :
               NO-LOCK NO-ERROR.
 
           IF AVAIL vend THEN DO:
-            FIND FIRST terms WHERE terms.company EQ vend.company            /*Task# 11121306*/
-                AND terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
-            out-ap-inv.due-date = IF AVAIL terms THEN (DYNAMIC-FUNCTION("GetInvDueDate", date(out-ap-inv.inv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days ))
-                                   ELSE out-ap-inv.inv-date .
+            out-ap-inv.due-date = (DYNAMIC-FUNCTION("GetInvDueDate",date(out-ap-inv.inv-date) , vend.company, vend.terms )) .
           END.
 
           FOR EACH inp-ap-invl WHERE inp-ap-invl.i-no EQ inp-ap-inv.i-no NO-LOCK:
@@ -451,7 +448,7 @@ PROCEDURE load-recurring :
           VIEW-AS ALERT-BOX.
     END.
   END.
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

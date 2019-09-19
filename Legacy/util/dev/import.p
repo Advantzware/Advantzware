@@ -362,9 +362,9 @@ PROCEDURE pCreateNewInvoiceAP:
     DEFINE INPUT PARAMETER ipcInvDate AS CHARACTER.
     DEFINE OUTPUT PARAMETER opriAPInv AS ROWID.
     
-    DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
-    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
+    DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
     CREATE ap-inv.
     ASSIGN
@@ -416,13 +416,13 @@ PROCEDURE pCreateNewInvoiceAP:
                 ap-inv.disc-%    = terms.disc-rate
                 ap-inv.disc-days = terms.disc-days
                 .
-        ap-inv.due-date = IF AVAILABLE terms THEN DYNAMIC-FUNCTION("GetInvDueDate", date(ap-inv.inv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days )
-        ELSE ap-inv.inv-date.
+        ap-inv.due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(ap-inv.inv-date),vend.company ,vend.terms  ) .
+        
                                                    
     END.
     opriAPInv = ROWID(ap-inv).
     RELEASE ap-inv.
-    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 END PROCEDURE.
 
 PROCEDURE pCreateNewInvoiceAR:
@@ -437,12 +437,12 @@ PROCEDURE pCreateNewInvoiceAR:
     
     DEFINE VARIABLE iNextInvoiceNumber     AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNextInvoiceLinkNumber AS INTEGER NO-UNDO.
-    DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
 
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
 
-    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
+    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
     
     ASSIGN
         iNextInvoiceNumber     = 0
@@ -516,7 +516,7 @@ PROCEDURE pCreateNewInvoiceAR:
         IF AVAILABLE terms THEN 
             ASSIGN 
                 ar-inv.terms-d   = terms.dscr
-                ar-inv.due-date  = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days )
+                ar-inv.due-date  = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),cust.company , cust.terms )
                 ar-inv.disc-%    = terms.disc-rate
                 ar-inv.disc-days = terms.disc-days
                 .
@@ -524,7 +524,7 @@ PROCEDURE pCreateNewInvoiceAR:
     
     opriARInv = ROWID(ar-inv).
     RELEASE ar-inv.
-    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 END PROCEDURE.
 
 PROCEDURE pCreateNewInvoiceLineAP:

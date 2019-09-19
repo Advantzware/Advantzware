@@ -410,7 +410,7 @@ PROCEDURE local-assign-record :
     IF terms.dueOnMonth NE 0 AND terms.dueOnDay EQ 0 THEN do:
         RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
-        ASSIGN terms.dueOnDay = DYNAMIC-FUNCTION("GetMonthDay", terms.dueOnMonth ).
+        ASSIGN terms.dueOnDay = DYNAMIC-FUNCTION("GetNumberOfDaysInMonth", terms.dueOnMonth ).
                terms.dueOnDay:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(terms.dueOnDay) .
         THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs). 
     END.

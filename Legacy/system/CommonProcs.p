@@ -20,15 +20,8 @@
 
 /* ************************  Function Prototypes ********************** */
 
- FUNCTION GetMonthDay RETURNS INTEGER 
+ FUNCTION GetNumberOfDaysInMonth RETURNS INTEGER 
     (ipcMonth AS INTEGER) FORWARD.
-
- FUNCTION GetInvDueDate RETURNS DATE 
-    (ipdtInvDate AS DATE,
-     ipiMonth AS INTEGER ,
-     ipiDay AS INTEGER ,
-     ipiNetDay AS INTEGER) FORWARD.
-
 
 /* ***************************  Main Block  *************************** */
 /*Initialize Constants and Property Defaults*/
@@ -38,7 +31,7 @@
 
 /* ************************  Function Implementations ***************** */
 
-FUNCTION GetMonthDay RETURNS INTEGER 
+FUNCTION GetNumberOfDaysInMonth RETURNS INTEGER 
     ( ipcMonth AS INTEGER ):
     /*------------------------------------------------------------------------------
      Purpose: return day in a month
@@ -53,28 +46,6 @@ FUNCTION GetMonthDay RETURNS INTEGER
     ELSE iReturn = cDaya[2] + 1.
  
     RETURN iReturn .   
-		
-END FUNCTION.
-
-FUNCTION GetInvDueDate RETURNS DATE 
-    ( ipdtInvDate AS DATE,
-     ipiMonth AS INTEGER ,
-     ipiDay AS INTEGER ,
-     ipiNetDay AS INTEGER ):
-    /*------------------------------------------------------------------------------
-     Purpose: return due date on invoice 
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE dtReturn AS DATE NO-UNDO .
-
-    IF ipiMonth GT 0 AND ipdtInvDate  GT  DATE(string(ipiMonth,"99") + "/" + STRING(ipiDay,"99") + "/" + STRING(YEAR(TODAY),"9999"))   THEN
-        ASSIGN dtReturn = DATE(string(ipiMonth,"99") + "/" + STRING(ipiDay,"99") + "/" + STRING(YEAR(TODAY) + 1,"9999")).
-    ELSE IF ipiMonth GT 0  THEN
-        ASSIGN dtReturn = DATE(string(ipiMonth,"99") + "/" + STRING(ipiDay,"99") + "/" + STRING(YEAR(TODAY),"9999")).
-    ELSE
-        ASSIGN dtReturn = DATE(date(ipdtInvDate) + ipiNetDay).
- 
-    RETURN dtReturn .   
 		
 END FUNCTION.
 

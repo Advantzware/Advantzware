@@ -511,7 +511,7 @@ DO:
         IF ll-ans THEN .
         ELSE RETURN NO-APPLY.
     END.
-    {ar/invduedt.i}  /* recalc due-date */
+    RUN pInvDueDate .  /* recalc due-date */
     lv-due-calckt = YES.
     {&methods/lValidateError.i NO}
 END.
@@ -648,7 +648,7 @@ DO:
        RETURN NO-APPLY.
     END.
 
-    {ar/invduedt.i}  /* recalc due-date */
+    RUN pInvDueDate .  /* recalc due-date */
     lv-due-calckt = YES.
     {&methods/lValidateError.i NO}
 END.
@@ -1139,7 +1139,7 @@ PROCEDURE local-update-record :
     RUN valid-due-date NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     {&methods/lValidateError.i YES}
-    IF NOT lv-due-calckt THEN DO: {ar/invduedt.i}  /* recalc due-date */
+    IF NOT lv-due-calckt THEN DO: RUN pInvDueDate.  /* recalc due-date */
     END.
      FIND FIRST currency WHERE currency.company = g_company 
                           AND currency.c-code = ar-inv.curr-code[1]:SCREEN-VALUE 
@@ -1227,7 +1227,7 @@ PROCEDURE new-cust-no :
                               ar-inv.disc-%:SCREEN-VALUE = string(terms.disc-rate)
                               ar-inv.disc-days:SCREEN-VALUE = STRING(terms.disc-days)
                               .
-       {ar/invduedt.i}
+       RUN pInvDueDate .
     END.
   END.
 
@@ -1716,4 +1716,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInvDueDate V-table-Win 
+PROCEDURE pInvDueDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+
+DO WITH FRAME {&FRAME-NAME}:
+    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
+    ASSIGN ar-inv.due-date:SCREEN-VALUE = STRING( DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}),cocode ,ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} )).
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs). 
+END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 

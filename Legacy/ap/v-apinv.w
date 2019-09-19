@@ -1004,9 +1004,9 @@ PROCEDURE new-inv-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-date AS DATE NO-UNDO.
-  DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
-    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
+  DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
   DO WITH FRAME {&FRAME-NAME}:
     ll-date-warning = NO.
@@ -1019,16 +1019,12 @@ PROCEDURE new-inv-date :
     lv-date = DATE(ap-inv.inv-date:SCREEN-VALUE) NO-ERROR.
 
     IF NOT ERROR-STATUS:ERROR AND AVAIL vend THEN DO:
-      FIND FIRST terms NO-LOCK
-          WHERE terms.company EQ vend.company
-            AND terms.t-code  EQ vend.terms
-          NO-ERROR.
-
-      ap-inv.due-date:SCREEN-VALUE  = IF AVAIL terms THEN /*STRING(terms.net-day + lv-date)*/ string(DYNAMIC-FUNCTION("GetInvDueDate", date(lv-date),terms.dueOnMonth,terms.dueOnDay,terms.net-days ))
-                                      ELSE ap-inv.inv-date:SCREEN-VALUE.
+      
+      ap-inv.due-date:SCREEN-VALUE  = DYNAMIC-FUNCTION("GetInvDueDate", date(lv-date),cocode,vend.terms ).
+                                    
     END.
   END.
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs).
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
