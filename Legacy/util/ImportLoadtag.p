@@ -14,16 +14,18 @@
 
 DEFINE TEMP-TABLE ttImportLoadtag    
     FIELD company      AS CHARACTER 
+    /* Required */
     FIELD item-type    AS CHAR        FORMAT "x(2)" LABEL "Item Type" HELP "Required - RM or FG - size:2"
     FIELD i-no         AS CHARACTER   FORMAT "x(15)" LABEL "Item#" HELP "Required - Size:15"
     FIELD i-name       AS CHARACTER   FORMAT "x(30)" LABEL "Name" HELP "Required - Size:30"
     FIELD tag-no       AS CHARACTER   FORMAT "X(20)" LABEL "Tag#" HELP "Required - Size:20"
+    FIELD sts          AS CHARACTER   FORMAT "x" LABEL "Status" HELP "Required - Size:1 - one of 'PROBICDT'"
+    /* Optional */
     FIELD tag-date     AS DATE        FORMAT "99/99/9999" LABEL "Rcpt Date" HELP "Optional - Date"
     FIELD tag-time     AS INTEGER     LABEL "Rcpt Time" HELP "Optional - Integer"
     FIELD lot-no       AS CHARACTER   FORMAT "x(15)" LABEL "FG Lot#" HELP "Optional - Size:15"
-    FIELD sts          AS CHARACTER   FORMAT "x" LABEL "Status" HELP "Required - Size:1 - one of 'PROBICDT'"
-    FIELD location     AS CHARACTER   FORMAT "x(5)" LABEL "Warehouse" HELP "Required - Size:5"
-    FIELD loc-bin      AS CHARACTER   FORMAT "x(8)" LABEL "Bin" HELP "Required - Size:8"
+    FIELD location     AS CHARACTER   FORMAT "x(5)" LABEL "Warehouse" HELP "Optional - Size:5"
+    FIELD loc-bin      AS CHARACTER   FORMAT "x(8)" LABEL "Bin" HELP "Optional - Size:8"
     FIELD po-no        AS INTEGER     FORMAT ">>>>>9" LABEL "PO#" HELP "Optional Integer - Size:6"
     FIELD line         AS INTEGER     FORMAT "99" LABEL "PO Line" HELP "Optional Integer - Size:2"
     FIELD vend-tag     AS CHARACTER   FORMAT "x(20)" LABEL "Vendor Tag#" HELP "Optional - Size:20"
@@ -32,14 +34,14 @@ DEFINE TEMP-TABLE ttImportLoadtag
     FIELD shift        AS CHARACTER   FORMAT "x" LABEL "Shift" HELP "Optional - Size:1"
     FIELD crew         AS CHARACTER   FORMAT "x(5)" LABEL "Crew#" HELP "Optional - Size:5"
     FIELD ord-no       AS INTEGER     FORMAT ">>>>>9" LABEL "Order#" HELP "Optional Integer - Size:6"
-    FIELD qty-case     AS INTEGER     LABEL "Qty/Case" HELP "Required Integer"
-    FIELD case-bundle  AS INTEGER     LABEL "Case/Bundles-Pallet" HELP "Required Integer"
-    FIELD pallet-count AS INTEGER     LABEL "Pallet Count" HELP "Required Integer"
-    FIELD tot-cases    AS INTEGER     LABEL "Total Cases" HELP "Required Integer"
-    FIELD partial      AS INTEGER     FORMAT ">>>,>>9" HELP "Required Integer"
-    FIELD qty          AS DECIMAL     DECIMALS 6 FORMAT "->>>,>>>,>>9.9<<<<<" HELP "Required Decimal"
+    FIELD qty-case     AS INTEGER     LABEL "Qty/Case" HELP "Optional Integer"
+    FIELD case-bundle  AS INTEGER     LABEL "Case/Bundles-Pallet" HELP "Optional Integer"
+    FIELD pallet-count AS INTEGER     LABEL "Pallet Count" HELP "Optional Integer"
+    FIELD tot-cases    AS INTEGER     LABEL "Total Cases" HELP "Optional Integer"
+    FIELD partial      AS INTEGER     FORMAT ">>>,>>9" HELP "Optional Integer"
+    FIELD qty          AS DECIMAL     DECIMALS 6 FORMAT "->>>,>>>,>>9.9<<<<<" HELP "Optional Decimal"
     FIELD std-cost     AS DECIMAL     DECIMALS 4 FORMAT ">>>,>>9.99<<" LABEL "Costs" HELP "Optional Decimal"
-    FIELD cost-uom     AS CHARACTER   FORMAT "x(3)" LABEL "Cost UOM" HELP "Required - Size:3"
+    FIELD cost-uom     AS CHARACTER   FORMAT "x(3)" LABEL "Cost UOM" HELP "Optional - Size:3"
     FIELD pallet-no    AS CHARACTER   FORMAT "X(20)" LABEL "Pallet#" HELP "Optional - Size:20"
     FIELD unit-wt      AS DECIMAL     FORMAT ">>>,>>9.99<<" LABEL "Net Unit Wt" HELP "Optional - Decimal"
     FIELD tare-wt      AS DECIMAL     FORMAT ">>>,>>9.99<<" LABEL "Pallet Wt" HELP "Optional - Decimal"
@@ -165,45 +167,48 @@ PROCEDURE pProcessRecord PRIVATE:
         DO:
             iopiAdded = iopiAdded + 1.
             CREATE loadtag.
+            
+            ASSIGN 
+                loadtag.company      = ipbf-ttImportLoadtag.company
+                loadtag.item-type    = IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE 
+                loadtag.tag-no       = ipbf-ttImportLoadtag.tag-no
+                loadtag.i-name       = ipbf-ttImportLoadtag.i-name
+                loadtag.i-no         = ipbf-ttImportLoadtag.i-no
+                .
         END.
         
+        RUN pAssignValueC (ipbf-ttImportloadtag.cost-uom, iplIgnoreBlanks, INPUT-OUTPUT loadtag.cost-uom). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.crew, iplIgnoreBlanks, INPUT-OUTPUT loadtag.crew). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.cust-po-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.cust-po-no). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.job-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.job-no).
+        RUN pAssignValueC (ipbf-ttImportloadtag.loc-bin, iplIgnoreBlanks, INPUT-OUTPUT loadtag.loc-bin).
+        RUN pAssignValueC (ipbf-ttImportloadtag.location, iplIgnoreBlanks, INPUT-OUTPUT loadtag.loc).
+        RUN pAssignValueC (ipbf-ttImportloadtag.lot-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-char[2]). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.pallet-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.pallet-no). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.shift, iplIgnoreBlanks, INPUT-OUTPUT loadtag.shift). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.vend-tag, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-char[1]). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.blank-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.blank-no). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.case-bundle, iplIgnoreBlanks, INPUT-OUTPUT loadtag.case-bundle). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.form-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.form-no). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.job-no2, iplIgnoreBlanks, INPUT-OUTPUT loadtag.job-no2). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.line, iplIgnoreBlanks, INPUT-OUTPUT loadtag.line). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.ord-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.ord-no). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.pallet-count, iplIgnoreBlanks, INPUT-OUTPUT loadtag.pallet-count). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.partial, iplIgnoreBlanks, INPUT-OUTPUT loadtag.partial). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.po-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.po-no). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.qty-case, iplIgnoreBlanks, INPUT-OUTPUT loadtag.qty-case). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.tag-time, iplIgnoreBlanks, INPUT-OUTPUT loadtag.tag-time). 
+        RUN pAssignValueI (ipbf-ttImportloadtag.tot-cases, iplIgnoreBlanks, INPUT-OUTPUT loadtag.tot-cases). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.unit-wt, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-dec[1]). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.tare-wt, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-dec[2]). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.gross-wt, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-dec[3]). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.qty, iplIgnoreBlanks, INPUT-OUTPUT loadtag.qty). 
+        RUN pAssignValueD (ipbf-ttImportloadtag.std-cost, iplIgnoreBlanks, INPUT-OUTPUT loadtag.std-cost). 
+        RUN pAssignValueCToL (ipbf-ttImportloadtag.completed, "Y", iplIgnoreBlanks, INPUT-OUTPUT loadtag.completed). 
+        RUN pAssignValueCToL (ipbf-ttImportloadtag.is-case-tag, "R", iplIgnoreBlanks, INPUT-OUTPUT loadtag.is-case-tag). 
+        RUN pAssignValueDate (ipbf-ttImportloadtag.tag-date, iplIgnoreBlanks, INPUT-OUTPUT loadtag.tag-date). 
+
         ASSIGN
-            loadtag.blank-no     = ipbf-ttImportLoadtag.blank-no
-            loadtag.case-bundle  = ipbf-ttImportLoadtag.case-bundle
-            loadtag.company      = ipbf-ttImportLoadtag.company
-            loadtag.completed    = ipbf-ttImportLoadtag.completed
-            loadtag.cost-uom     = ipbf-ttImportLoadtag.cost-uom
-            loadtag.crew         = ipbf-ttImportLoadtag.crew
-            loadtag.cust-po-no   = ipbf-ttImportLoadtag.cust-po-no
-            loadtag.form-no      = ipbf-ttImportLoadtag.form-no
-            loadtag.i-name       = ipbf-ttImportLoadtag.i-name
-            loadtag.i-no         = ipbf-ttImportLoadtag.i-no
-            loadtag.is-case-tag  = ipbf-ttImportLoadtag.is-case-tag
-            loadtag.item-type    = IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE 
-            loadtag.job-no       = ipbf-ttImportLoadtag.job-no
-            loadtag.job-no2      = ipbf-ttImportLoadtag.job-no2
-            loadtag.line         = ipbf-ttImportLoadtag.line
-            loadtag.loc          = ipbf-ttImportLoadtag.location
-            loadtag.loc-bin      = ipbf-ttImportLoadtag.loc-bin
-            loadtag.misc-char[1] = ipbf-ttImportLoadtag.vend-tag
-            loadtag.misc-char[2] = ipbf-ttImportLoadtag.lot-no
-            loadtag.misc-dec[1]  = ipbf-ttImportLoadtag.unit-wt
-            loadtag.misc-dec[2]  = ipbf-ttImportLoadtag.tare-wt
-            loadtag.misc-dec[3]  = ipbf-ttImportLoadtag.gross-wt
-            loadtag.ord-no       = ipbf-ttImportLoadtag.ord-no
-            loadtag.pallet-count = ipbf-ttImportLoadtag.pallet-count
-            loadtag.pallet-no    = ipbf-ttImportLoadtag.pallet-no
-            loadtag.partial      = ipbf-ttImportLoadtag.partial
-            loadtag.po-no        = ipbf-ttImportLoadtag.po-no
-            loadtag.qty          = ipbf-ttImportLoadtag.qty
-            loadtag.qty-case     = ipbf-ttImportLoadtag.qty-case
-            loadtag.shift        = ipbf-ttImportLoadtag.shift
-            loadtag.std-cost     = ipbf-ttImportLoadtag.std-cost
-            loadtag.sts          = ipbf-ttImportLoadtag.sts
-            loadtag.tag-date     = ipbf-ttImportLoadtag.tag-date
-            loadtag.tag-no       = ipbf-ttImportLoadtag.tag-no
-            loadtag.tag-time     = ipbf-ttImportLoadtag.tag-time
-            loadtag.tot-cases    = ipbf-ttImportLoadtag.tot-cases
             loadtag.upd-date     = today
             loadtag.upd-time     = time
             .
