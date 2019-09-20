@@ -480,13 +480,23 @@
                                    OR job-hdr.std-mat-cost GT 0
                                    OR job-hdr.std-lab-cost GT 0
                                    OR job-hdr.std-fix-cost GT 0) THEN DO:
-                  ASSIGN itemfg.std-tot-cost = job-hdr.std-tot-cost
+                IF itemfg.prod-uom EQ "EA" THEN 
+                    ASSIGN itemfg.std-tot-cost = job-hdr.std-tot-cost / 1000
+                         itemfg.std-mat-cost = job-hdr.std-mat-cost / 1000
+                         itemfg.std-lab-cost = job-hdr.std-lab-cost / 1000
+                         itemfg.std-fix-cost = job-hdr.std-fix-cost / 1000
+                         itemfg.std-var-cost = job-hdr.std-var-cost / 1000
+                         .
+                ELSE 
+                    ASSIGN itemfg.std-tot-cost = job-hdr.std-tot-cost
                          itemfg.std-mat-cost = job-hdr.std-mat-cost
                          itemfg.std-lab-cost = job-hdr.std-lab-cost
                          itemfg.std-fix-cost = job-hdr.std-fix-cost
                          itemfg.std-var-cost = job-hdr.std-var-cost
                          .
               END.
+             
+                    
           END.
           ELSE DO:
               ASSIGN
