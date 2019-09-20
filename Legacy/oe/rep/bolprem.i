@@ -416,8 +416,15 @@ for each xxreport where xxreport.term-id eq v-term-id,
      XMLPage = NO.
      /* rstark 05181205 */
      
-     IF lGeneratecXML THEN 
-       run cxml/cxmlbol.p (INPUT oe-bolh.company, INPUT oe-bolh.bol-no).
+     IF lGeneratecXML THEN DO:
+        FOR EACH oe-boll 
+            WHERE oe-boll.company EQ oe-bolh.company 
+              AND oe-boll.b-no eq oe-bolh.b-no
+            BREAK BY oe-boll.ord-no:
+           IF FIRST-OF(oe-boll.ord-no) THEN
+             RUN cxml/cxmlbol.p (INPUT oe-bolh.company, INPUT oe-bolh.bol-no, INPUT oe-boll.ord-no).
+        END.
+     END.
      /* iCxmlOutput = 0 */
      
     {oe/rep/bolprem2.i} /* header */

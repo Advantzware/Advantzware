@@ -24,8 +24,9 @@
 
       
 /*used by bolpremcx.p, bolprempx.p and bolpremx.p */
-DEFINE  INPUT  PARAMETER   ipcCompany   AS CHARACTER NO-UNDO.
-DEFINE  INPUT  PARAMETER  ipiBolNo AS INTEGER  NO-UNDO.
+DEFINE  INPUT  PARAMETER  ipcCompany   AS CHARACTER NO-UNDO.
+DEFINE  INPUT  PARAMETER  ipiBolNo     AS INTEGER  NO-UNDO.
+DEFINE  INPUT  PARAMETER  ipiOrdNo     AS INTEGER NO-UNDO.
 DEFINE new shared VARIABLE cocode       AS CHARACTER NO-UNDO.
 
 cocode = ipcCompany.
@@ -157,7 +158,10 @@ FOR EACH oe-bolh NO-LOCK
 
     
     /* Create tt-boll */
-    FOR EACH oe-boll WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no:
+    FOR EACH oe-boll 
+        WHERE oe-boll.company EQ oe-bolh.company 
+          AND oe-boll.b-no EQ oe-bolh.b-no
+          AND oe-boll.ord-no EQ ipiOrdNo:
         IF ll-consol-bolls THEN 
         DO:
             IF (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
