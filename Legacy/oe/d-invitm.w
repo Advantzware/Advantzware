@@ -542,6 +542,8 @@ DO:
   DEF VAR xInvQtyPrev LIKE inv-line.inv-qty NO-UNDO.
   DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
   DEF BUFFER bf-oe-ordl FOR oe-ordl.
+  DEFINE BUFFER bfInv-Misc FOR inv-misc.
+  DEFINE VARIABLE cSman LIKE inv-line.sman EXTENT 3 NO-UNDO.
 
 
   DISABLE TRIGGERS FOR LOAD OF inv-line.
@@ -565,6 +567,12 @@ DO:
   upd-blok: DO TRANSACTION.
     lv-hld-po-no = inv-line.po-no.
     xInvQtyPrev = inv-line.inv-qty.
+
+    ASSIGN
+        cSman[1] = inv-line.sman[1]
+        cSman[2] = inv-line.sman[2]
+        cSman[3] = inv-line.sman[3] .
+
     DO WITH FRAME {&frame-name}:
       ASSIGN {&FIELDS-IN-QUERY-{&frame-name}}.
     END.
@@ -658,6 +666,29 @@ DO:
         END.
     END.
   END.
+
+  IF ip-type EQ "Update" AND (cSman[1] NE inv-line.sman[1] OR 
+                              cSman[2] NE inv-line.sman[2] OR
+                              cSman[3] NE inv-line.sman[3]) THEN do:
+      FOR EACH bfInv-Misc WHERE          
+          bfInv-Misc.company EQ cocode AND
+          bfInv-Misc.r-no eq inv-head.r-no EXCLUSIVE-LOCK:
+          
+          IF cSman[1] NE inv-line.sman[1] THEN
+              ASSIGN
+              bfInv-Misc.s-man[1] = inv-line.sman[1]
+              bfInv-Misc.s-pct[1] = inv-line.s-pct[1] .
+          IF cSman[2] NE inv-line.sman[2] THEN  
+              ASSIGN
+              bfInv-Misc.s-man[2] = inv-line.sman[2]
+              bfInv-Misc.s-pct[2] = inv-line.s-pct[2] .
+          IF cSman[3] NE inv-line.sman[3] THEN
+              ASSIGN
+              bfInv-Misc.s-man[3] = inv-line.sman[3]
+              bfInv-Misc.s-pct[3] = inv-line.s-pct[3] .
+      END.
+      RELEASE bfInv-Misc.
+  END. /* IF ip-type EQ "Update" THEN */
 
   SESSION:SET-WAIT-STATE("general").
 
