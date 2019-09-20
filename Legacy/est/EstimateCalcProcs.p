@@ -2770,7 +2770,7 @@ PROCEDURE pBuildCostSummary PRIVATE:
         FIRST estCostCategory NO-LOCK 
         WHERE estCostCategory.estCostCategoryID EQ estCostDetail.estCostCategoryID
         :
-        
+        RUN pAddCostSummary(estCostHeader.rec_key, estCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostHeader.quantityMaster / 1000).
         RUN pAddCostSummary(estCostForm.rec_key, estCostCategory.estCostGroupID, estCostDetail.estCostHeaderID, estCostDetail.costTotal, estCostForm.quantityFGOnForm / 1000).
         
         FIND FIRST estCostBlank NO-LOCK 
