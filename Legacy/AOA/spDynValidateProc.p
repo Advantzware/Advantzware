@@ -31,6 +31,91 @@ PROCEDURE dynValReturn:
 END PROCEDURE.
 
 /* create procedures in alphabetical order below here */
+PROCEDURE dynValAuditField:
+    DEFINE INPUT PARAMETER iphWidget1 AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphWidget2 AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cFieldLabel AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFields     AS CHARACTER NO-UNDO.
+
+    cFields = "All,All".
+    FOR EACH ASI._file NO-LOCK
+        WHERE ASI._file._Tbl-type EQ "T"
+          AND (iphWidget1:SCREEN-VALUE EQ "All"
+           OR ASI._file._file-name EQ iphWidget1:SCREEN-VALUE),
+        EACH ASI._field OF ASI._file NO-LOCK
+        BREAK BY ASI._field._field-name
+        :
+        IF FIRST-OF(ASI._field._field-name) THEN DO:
+            IF CAN-FIND(FIRST AuditHdr
+                        WHERE AuditHdr.AuditDB    EQ "ASI"
+                          AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN DO: 
+                ASSIGN
+                    cFieldLabel = IF ASI._field._Label NE ? THEN ASI._field._Label ELSE ""
+                    cFields     = cFields + ","
+                                + cFieldLabel + " ("
+                                + ASI._field._field-name  + "),"
+                                + ASI._field._field-name
+                                .
+            END. /* if can-find */
+        END. /* if first-of */
+    END. /* each _file */
+    ASSIGN
+        iphWidget2:LIST-ITEM-PAIRS = cFields
+        iphWidget2:SCREEN-VALUE    = "All"
+        .
+END PROCEDURE.
+
+PROCEDURE dynValAuditTable:
+    DEFINE INPUT PARAMETER iphWidget1 AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphWidget2 AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cTableLabel AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTables     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lTables     AS LOGICAL   NO-UNDO.
+    
+    ASSIGN
+        cTables = "All,All"
+        lTables = CAN-DO("LOG,TRACK",iphWidget1:SCREEN-VALUE) EQ NO
+        .
+    IF lTables THEN
+    FOR EACH ASI._file NO-LOCK
+        WHERE ASI._file._Tbl-type EQ "T"
+        :
+        IF CAN-FIND(FIRST AuditHdr
+                    WHERE AuditHdr.AuditDB    EQ "ASI"
+                      AND AuditHdr.AuditTable EQ ASI._file._file-name) THEN DO: 
+            ASSIGN
+                cTableLabel = IF ASI._file._file-label NE ? THEN ASI._file._file-label ELSE ""
+                cTables     = cTables + ","
+                            + cTableLabel + " ("
+                            + ASI._file._file-name  + "),"
+                            + ASI._file._file-name
+                            .
+        END. /* if can-find */
+    END. /* each _file */
+    IF iphWidget1:SCREEN-VALUE EQ "All" OR lTables EQ NO THEN
+    FOR EACH prgrms NO-LOCK
+        BY prgrms.mnemonic
+        BY prgrms.prgTitle
+        :
+        IF CAN-FIND(FIRST AuditHdr
+                    WHERE AuditHdr.AuditDB    EQ "ASI"
+                      AND AuditHdr.AuditTable EQ prgrms.prgmname) THEN DO:
+            cTables = cTables + "," + "["
+                      + prgrms.mnemonic + "] "
+                      + prgrms.prgTitle
+                      + " (" + prgrms.prgmname + "),"
+                      + prgrms.prgmname
+                      .
+        END. /* if can-find */
+    END. /* each prgrms */
+    ASSIGN
+        iphWidget2:LIST-ITEM-PAIRS = cTables
+        iphWidget2:SCREEN-VALUE    = "All"
+        .
+END PROCEDURE.
+
 PROCEDURE dynValCompany:
     {&defInputParam}
     RUN dynValReturn (iphWidget,

@@ -1015,6 +1015,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 &SCOPED-DEFINE key-phrase job-hdr.company EQ cocode

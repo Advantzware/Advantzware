@@ -58,16 +58,16 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "Quote#,Est#,Customer,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
+ASSIGN cTextListToSelect = "Quote#,Est#,Cust No,Customer Name,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
                                                "Qty,Price/M,Cost/M,GP$,GP%,Mat,DL,VO,FO" 
-       cFieldListToSelect = "quot,est,cust,part,date,rep,ext-price,ext-cost," +
+       cFieldListToSelect = "quot,est,cust,cust-name,part,date,rep,ext-price,ext-cost," +
                                         "qty,price,cost,gp,gp%,mat,dl,bo,fo"
-       cFieldLength = "8,8,30,30,10,25,14,14," + "7,10,10,10,7,11,11,11,11"
-       cFieldType = "i,i,c,c,c,c,i,i," + "i,i,i,i,i,i,i,i,ii" 
+       cFieldLength = "8,8,8,30,30,10,25,14,14," + "7,10,10,10,7,11,11,11,11"
+       cFieldType = "i,i,c,c,c,c,c,i,i," + "i,i,i,i,i,i,i,i,ii" 
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Quote#,Est#,Customer,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
+ASSIGN cTextListToDefault  = "Quote#,Est#,Cust No,Customer Name,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
                                                "Qty,Price/M,Cost/M,GP$,GP%".
 
 /* _UIB-CODE-BLOCK-END */
@@ -1466,7 +1466,8 @@ for each tt-report where tt-report.term-id eq "",
                     CASE cTmpField:             
                          WHEN "quot"              THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quotehd.q-no)  ELSE "".
                          WHEN "est"               THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quotehd.est-no) ELSE "".
-                         WHEN "cust"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.billto[1]) ELSE "".
+                         WHEN "cust"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.cust-no) ELSE "".
+                         WHEN "cust-name"         THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.billto[1]) ELSE "".
                          WHEN "part"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(v-dscr)  ELSE "".
                          WHEN "date"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.quo-date)  ELSE "".
                          WHEN "rep"               THEN cVarValue = if first-of(quoteitm.part-no) AND AVAIL sman THEN STRING(sman.sname)  ELSE "".
@@ -1552,7 +1553,8 @@ for each tt-report where tt-report.term-id eq "",
                     CASE cTmpField:             
                          WHEN "quot"              THEN cVarValue =  "".
                          WHEN "est"               THEN cVarValue =  "".
-                         WHEN "cust"              THEN cVarValue =  STRING(v-misc).
+                         WHEN "cust"              THEN cVarValue =  "".
+                         WHEN "cust-name"         THEN cVarValue =  STRING(v-misc).
                          WHEN "part"              THEN cVarValue =  STRING(quotechg.charge,"x(30)").
                          WHEN "date"              THEN cVarValue =   "".
                          WHEN "rep"               THEN cVarValue =  "".
@@ -1602,6 +1604,7 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "quot"              THEN cVarValue =  "".
                          WHEN "est"          THEN cVarValue = "".
                          WHEN "cust"             THEN cVarValue = "".
+                         WHEN "cust-name"        THEN cVarValue =  "".
                          WHEN "part"               THEN cVarValue = "".
                          WHEN "date"             THEN cVarValue = "".
                          WHEN "rep"                  THEN cVarValue = "".
@@ -1663,6 +1666,7 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "quot"              THEN cVarValue =  "".
                          WHEN "est"          THEN cVarValue = "".
                          WHEN "cust"             THEN cVarValue = "".
+                         WHEN "cust-name"        THEN cVarValue =  "".
                          WHEN "part"               THEN cVarValue = "".
                          WHEN "date"             THEN cVarValue = "".
                          WHEN "rep"                  THEN cVarValue = "".

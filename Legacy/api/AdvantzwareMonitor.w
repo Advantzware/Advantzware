@@ -38,16 +38,19 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{methods/defines/hndldefs.i}
+{methods/prgsecur.i}
 
 DEFINE VARIABLE hdStatus       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cColumnHandles AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDLC           AS CHARACTER NO-UNDO.
 
-/* Returns DLC path */
+/* Gets DLC path */
 GET-KEY-VALUE SECTION 'Startup' KEY 'DLC' VALUE cDLC.
 
 RUN api\AdvantzwareMonitorProcs.p PERSISTENT SET hdStatus (
-    INPUT cDLC
+    INPUT cDLC,
+    INPUT g_company
     ).
 
 /* _UIB-CODE-BLOCK-END */
@@ -164,9 +167,7 @@ DEFINE BROWSE BROWSE-10
       serverResource.port COLUMN-LABEL "Listening on port" FORMAT "x(20)":U
       serverResource.resourceStatus COLUMN-LABEL "Status" FORMAT "x(20)":U
       serverResource.statusRemarks COLUMN-LABEL "Remarks" FORMAT "x(40)":U
-            WIDTH 40
       serverResource.notified COLUMN-LABEL "Notified" FORMAT "yes/no":U
-            WIDTH 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 155 BY 14 ROW-HEIGHT-CHARS .67 FIT-LAST-COLUMN.
@@ -207,9 +208,9 @@ DEFINE FRAME DEFAULT-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Advantzware Service Resource Monitor version DEVEL"
+         TITLE              = "Advantzware Service Resource Monitor"
          HEIGHT             = 23.48
-         WIDTH              = 161.6
+         WIDTH              = 160
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.57
@@ -263,15 +264,15 @@ THEN C-Win:HIDDEN = no.
      _FldNameList[1]   > "_<CALC>"
 "resourceType() @ resourceType" "Resource Type" "X(32)" ? ? ? ? ? ? ? no ? no no "20.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.serverResource.name
-"name" "Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"serverResource.name" "Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.serverResource.port
-"port" "Listening on port" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"serverResource.port" "Listening on port" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.serverResource.resourceStatus
-"resourceStatus" "Status" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"serverResource.resourceStatus" "Status" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.serverResource.statusRemarks
-"statusRemarks" "Remarks" "x(40)" "character" ? ? ? ? ? ? no ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"serverResource.statusRemarks" "Remarks" "x(40)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.serverResource.notified
-"notified" "Notified" ? "logical" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"serverResource.notified" "Notified" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-10 */
 &ANALYZE-RESUME
@@ -287,10 +288,10 @@ THEN C-Win:HIDDEN = no.
 
 CREATE CONTROL-FRAME CtrlFrame ASSIGN
        FRAME           = FRAME DEFAULT-FRAME:HANDLE
-       ROW             = 1
+       ROW             = 1.38
        COLUMN          = 75
-       HEIGHT          = 4.76
-       WIDTH           = 20
+       HEIGHT          = 2.62
+       WIDTH           = 11
        WIDGET-ID       = 38
        HIDDEN          = yes
        SENSITIVE       = yes.
@@ -305,7 +306,7 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Advantzware Service Resource Monitor version DEVEL */
+ON END-ERROR OF C-Win /* Advantzware Service Resource Monitor */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -318,7 +319,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Advantzware Service Resource Monitor version DEVEL */
+ON WINDOW-CLOSE OF C-Win /* Advantzware Service Resource Monitor */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -520,6 +521,13 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+   FIND FIRST company NO-LOCK 
+        WHERE company.company EQ g_company
+        NO-ERROR .
+   IF AVAILABLE company THEN
+   {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
+                        + " - {&awversion}" + " - " 
+                        + STRING(company.name) + " - " + g_loc. 
   RUN enable_UI.
   RUN pInit.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN

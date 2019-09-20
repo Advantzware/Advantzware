@@ -427,11 +427,11 @@ DEFINE FRAME Corr
      eb.fr-out-m AT ROW 15.52 COL 124 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     "Description" VIEW-AS TEXT
+     "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.86 COL 36
      "%" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 3.86 COL 63
-     "Code" VIEW-AS TEXT
+     "Item #" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.86 COL 15
      "PS" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 3.86 COL 4

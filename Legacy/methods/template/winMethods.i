@@ -227,7 +227,7 @@ PROCEDURE Init-Options-Panel :
                        LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") = 0 THEN YES
                    ELSE NO
     misc_fields-button = IF b-prgrms.mfgroup = "" THEN NO ELSE YES
-    spec-note-button = LOOKUP("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh") > 0
+    spec-note-button = LOOKUP("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh,prep") > 0
     .
 
   &Scoped-define MENUITEM search

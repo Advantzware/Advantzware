@@ -58,7 +58,21 @@ DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
 DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
+DEF VAR lAccess AS LOG NO-UNDO.
+DEF VAR lAccessClose AS LOG NO-UNDO.
+DEF VAR cAccessList AS CHAR NO-UNDO.
+
 {methods/prgsecdt.i}
+
+RUN methods/prgsecur.p(INPUT "OEItmJob",
+                             INPUT "Update", /* based on run, create, update, delete or all */
+                             INPUT NO,    /* use the directory in addition to the program */
+                             INPUT NO,    /* Show a message if not authorized */
+                             INPUT NO,    /* Group overrides user security? */
+                             OUTPUT lAccess, /* Allowed? Yes/NO */
+                             OUTPUT lAccessClose, /* used in template/windows.i  */
+                             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -651,6 +665,8 @@ DO WITH FRAME Panel-Frame:
        btn-Save:LABEL EQ "&Save"       AND
        panel-state    NE "disable-all" AND
        panel-state    NE "add-only"    THEN btn-save:SENSITIVE = YES.
+
+    IF NOT lAccess THEN btn-rebuild:SENSITIVE = NO.
   END.
 
 END. /* DO WITH FRAME */
