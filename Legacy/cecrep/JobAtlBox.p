@@ -750,7 +750,7 @@ DO v-local-loop = 1 TO v-local-copies:
 
                k = v-tmp-lines + lv-got-return + 
                    IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-               IF k < 16 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
+               IF k < 18 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
                              ELSE "" .              
 
                IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
@@ -855,9 +855,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Notes5>" v-dept-note[5] FORMAT "x(100)" SKIP
               "<=Notes6>" v-dept-note[6] FORMAT "x(100)"  SKIP
               "<=Notes7>" v-dept-note[7] FORMAT "x(100)"  SKIP
-              "<=Notes7>" v-dept-note[8] FORMAT "x(100)"  SKIP
-              "<=Notes7>" v-dept-note[9] FORMAT "x(100)"  SKIP
-              "<=Notes7>" v-dept-note[10] FORMAT "x(100)"  SKIP .
+              "<=Notes8>" v-dept-note[8] FORMAT "x(100)"  SKIP
+              "<=Notes9>" v-dept-note[9] FORMAT "x(100)"  SKIP
+              "<=Notes10>" v-dept-note[10] FORMAT "x(100)"  SKIP .
            IF v-dept-note[11] NE "" THEN
              PUT "<=Notes11>" v-dept-note[11] FORMAT "x(100)"  SKIP .
            IF v-dept-note[12] NE "" THEN
@@ -956,7 +956,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingStart><R+5><RIGHT=C+6>Per Pallet:"
               "<=PackingStart><R+5><C9><#PalletCount>"
               "<=PackingStart><R+5><C15><#JobPallets>"
-              "<=PackingStart><FROM><RECT#ShippingEnd><|1>"
+              /*"<=PackingStart><FROM><RECT#ShippingEnd><|1>"*/
               "<=PackingStart><R+6><RIGHT=C+19># Pallets: ____________________ "
               "<=PackingStart><R+7><RIGHT=C+19>_____________________________ "
               "<=PackingStart><R+8><RIGHT=C+19>Units per Pallet: _______________ "
@@ -965,8 +965,6 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PatternImageStart><C+1><#PatternImageTR>"
               "<=PatternImageStart><R+10><#PatternImageBL>"
               "<=PatternImageStart><C+1><R+10><#PatternImageEnd>"
-              /*"<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAIL stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
-              "<=PatternImageTR><FROM><LINE#PatternImageEnd><|1>"*/
               "<=PatternImageTR><#ShippingStart>"
               "<=ShippingStart><C18><#ShippingTR>"
               "<=ShippingStart><R+10><#ShippingBL>"
