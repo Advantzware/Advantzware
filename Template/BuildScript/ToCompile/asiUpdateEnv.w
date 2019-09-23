@@ -4861,6 +4861,7 @@ PROCEDURE ipProcessAll :
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
     
     RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
+    RUN ipSetNewDbVersion IN THIS-PROCEDURE.
     
     RUN ipStatus ("Patch Application Complete").
 
@@ -5392,6 +5393,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetNewDbVersion C-Win
+PROCEDURE ipSetNewDbVersion:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:     This forces a lock between ENV version and DB version; 
+                this was not previously the case
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Set new DB version to " + ipcVer).
+    
+    FIND FIRST config EXCLUSIVE.
+    IF NOT AVAIL config THEN
+        CREATE config.
+    ASSIGN 
+        config.databaseVersion = ipcVer.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
 PROCEDURE ipStatus :
