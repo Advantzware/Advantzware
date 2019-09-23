@@ -88,6 +88,7 @@ DEF TEMP-TABLE ttModule LIKE module.
 DEF TEMP-TABLE ttLookups LIKE lookups.
 DEF TEMP-TABLE ttReftable LIKE reftable.
 DEF TEMP-TABLE ttSysCtrl LIKE sys-ctrl.
+DEF TEMP-TABLE ttSys-Ctrl LIKE sys-ctrl.
 DEF TEMP-TABLE ttSysCtrlShipto LIKE sys-ctrl-shipto.
 DEF TEMP-TABLE ttTranslation LIKE translation.
 DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
@@ -2690,16 +2691,18 @@ END PROCEDURE.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix163000 C-Win
-PROCEDURE ipDataFix163000:
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix1613010 C-Win
+PROCEDURE ipDataFix1613010:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 163000...").
-
-    RUN ipConvertVendorCosts.
+    RUN ipStatus ("  Data Fix 161300...").
     
+    RUN ipConvertVendorCosts.
+    RUN ipLoadOEAutoApproveNK1s.
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -4141,6 +4144,52 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadOEAutoApproveNK1s C-Win
+PROCEDURE ipLoadOEAutoApproveNK1s:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading OEAutoApprove NK1s").
+
+    &SCOPED-DEFINE tablename sys-ctrl
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        IF tt{&tablename}.module NE "val" THEN 
+            DELETE tt{&tablename}.
+    END.
+    
+    FOR EACH tt{&tablename}:
+        FOR EACH company:
+            FIND FIRST {&tablename} EXCLUSIVE WHERE 
+                {&tablename}.company EQ tt{&tablename}.company AND  
+                {&tablename}.name EQ tt{&tablename}.name  
+                NO-ERROR.
+            IF NOT AVAIL {&tablename} THEN 
+            DO:
+                CREATE {&tablename}.
+                BUFFER-COPY tt{&tablename} EXCEPT company TO {&tablename}
+                ASSIGN
+                    {&tablename}.company = company.company 
+                    {&tablename}.log-fld = FALSE.
+            END.
+        END.
+    END.
+    INPUT CLOSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadPrograms C-Win 
 PROCEDURE ipLoadPrograms :
