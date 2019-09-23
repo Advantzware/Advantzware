@@ -735,6 +735,7 @@ PROCEDURE pImport :
     UPDATE lImport AS LOGICAL.
     IF NOT lImport THEN RETURN.
 
+    SESSION:SET-WAIT-STATE("General").
     ASSIGN
         cDynamicTable = cDynamicTable + cDynamicSubject + "," + cDynamicParam
         oplRefresh    = YES
@@ -760,7 +761,6 @@ PROCEDURE pImport :
     EMPTY TEMP-TABLE ttDynSubjectWhere.
     CREATE ttDynSubjectWhere.
     
-    SESSION:SET-WAIT-STATE("General").
     DO idx = 1 TO NUM-ENTRIES(cDynamicTable):
         FIND FIRST ASI._file NO-LOCK
              WHERE ASI._file._file-name EQ ENTRY(idx,cDynamicTable)

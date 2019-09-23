@@ -925,6 +925,9 @@ def var v-msf as dec format  "->,>>>,>>9.9999" NO-UNDO.
 DEF VAR v-sqft LIKE itemfg.t-sqft NO-UNDO.
 DEF VAR v-compare-dt AS DATE NO-UNDO.
 DEF VAR lcXLLine AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 format header
        skip(1)
@@ -952,7 +955,7 @@ assign
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    excelheader = "Cust#,Customer Name,Customer Part#,FG Item#,Order#,Order Date,Due Date,BOL Date,On-Time,Prom Date,Date Change Reason,MSF,Weight,Trailer#".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1183,7 +1186,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

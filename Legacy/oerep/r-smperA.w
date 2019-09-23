@@ -389,6 +389,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&DISPLAYED-OBJECTS}.
+    END.
+
   SESSION:SET-WAIT-STATE ("general").
 
   assign rd-dest.

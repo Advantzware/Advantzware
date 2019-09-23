@@ -88,11 +88,13 @@ DEF TEMP-TABLE ttModule LIKE module.
 DEF TEMP-TABLE ttLookups LIKE lookups.
 DEF TEMP-TABLE ttReftable LIKE reftable.
 DEF TEMP-TABLE ttSysCtrl LIKE sys-ctrl.
+DEF TEMP-TABLE ttSys-Ctrl LIKE sys-ctrl.
 DEF TEMP-TABLE ttSysCtrlShipto LIKE sys-ctrl-shipto.
 DEF TEMP-TABLE ttTranslation LIKE translation.
 DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
+DEF TEMP-TABLE ttZmessage LIKE zMessage.
 
 DEF TEMP-TABLE ttPfFile
     FIELD ttfLine AS INT  
@@ -2689,16 +2691,18 @@ END PROCEDURE.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix163000 C-Win
-PROCEDURE ipDataFix163000:
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix1613010 C-Win
+PROCEDURE ipDataFix1613010:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 163000...").
-
-    RUN ipConvertVendorCosts.
+    RUN ipStatus ("  Data Fix 161300...").
     
+    RUN ipConvertVendorCosts.
+    RUN ipLoadOEAutoApproveNK1s.
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -3725,16 +3729,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Email codes").
 
     &SCOPED-DEFINE tablename emailcod
 
+    DEFINE BUFFER bemaildtl FOR emaildtl.
+    
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    DISABLE TRIGGERS FOR LOAD OF bemaildtl.
     
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
@@ -3743,7 +3750,8 @@ PROCEDURE ipLoadEmailCodes :
         FIND FIRST {&tablename} EXCLUSIVE WHERE 
             {&tablename}.emailcod EQ tt{&tablename}.emailcod
             NO-ERROR.
-        IF NOT AVAIL {&tablename} THEN DO:
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
@@ -3751,6 +3759,27 @@ PROCEDURE ipLoadEmailCodes :
     INPUT CLOSE.
         
     EMPTY TEMP-TABLE tt{&tablename}.
+    
+    /* 54067 Upon upgrade, add e-code for BOL to the new e-code for COC such that they are the same*/
+    FOR EACH emaildtl NO-LOCK WHERE 
+        emaildtl.emailcod = "r-bolprt.":
+        FIND FIRST bemaildtl NO-LOCK WHERE
+            bemaildtl.emailcod = "r-bolcert." AND 
+            bemaildtl.table_rec_key EQ emaildtl.table_rec_key
+            NO-ERROR.
+        IF NOT AVAIL bemaildtl THEN 
+        DO:
+            CREATE bemaildtl.
+            ASSIGN 
+                bemaildtl.emailcod = "r-bolcert."
+                bemaildtl.table_rec_key = emaildtl.table_rec_key
+                bemaildtl.rec_key = STRING(YEAR(TODAY),"9999")
+                                    + STRING(MONTH(TODAY),"99")
+                                    + STRING(DAY(TODAY),"99")
+                                    + STRING(TIME,"99999")
+                                    + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
+        END.
+    END.      
   
 END PROCEDURE.
 
@@ -4141,6 +4170,52 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadOEAutoApproveNK1s C-Win
+PROCEDURE ipLoadOEAutoApproveNK1s:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading OEAutoApprove NK1s").
+
+    &SCOPED-DEFINE tablename sys-ctrl
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        IF tt{&tablename}.module NE "val" THEN 
+            DELETE tt{&tablename}.
+    END.
+    
+    FOR EACH tt{&tablename}:
+        FOR EACH company:
+            FIND FIRST {&tablename} EXCLUSIVE WHERE 
+                {&tablename}.company EQ tt{&tablename}.company AND  
+                {&tablename}.name EQ tt{&tablename}.name  
+                NO-ERROR.
+            IF NOT AVAIL {&tablename} THEN 
+            DO:
+                CREATE {&tablename}.
+                BUFFER-COPY tt{&tablename} EXCEPT company TO {&tablename}
+                ASSIGN
+                    {&tablename}.company = company.company 
+                    {&tablename}.log-fld = FALSE.
+            END.
+        END.
+    END.
+    INPUT CLOSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadPrograms C-Win 
 PROCEDURE ipLoadPrograms :
 /*------------------------------------------------------------------------------
@@ -4510,6 +4585,59 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadZmessage C-Win
+PROCEDURE ipLoadZmessage:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading zMessage Records").
+
+    &SCOPED-DEFINE tablename zMessage
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.msgID EQ tt{&tablename}.msgID 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+        ELSE DO: /* Update fields except those controlled by user */
+            BUFFER-COPY tt{&tablename} EXCEPT 
+                currentTitle 
+                currMessage 
+                userSuppress 
+                displayOptions 
+                TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+
+    /* Delete records no longer used */
+    FOR EACH {&tablename} EXCLUSIVE WHERE 
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE 
+                    tt{&tablename}.msgID EQ {&tablename}.msgID):
+        DELETE {&tablename}.
+    END.
+        
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUserMenusToDatabase C-Win 
 PROCEDURE ipMoveUserMenusToDatabase :
@@ -5429,6 +5557,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadCueCard IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\cuecardtext.d") <> ? THEN
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\zMessage.d") <> ? THEN
+        RUN ipLoadZmessage IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.

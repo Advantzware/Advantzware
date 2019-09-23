@@ -123,7 +123,7 @@ DEFINE VARIABLE svTable AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 DEFINE VARIABLE svType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      LABEL "Type" 
      VIEW-AS COMBO-BOX INNER-LINES 8
-     LIST-ITEMS "All","CREATE","DELETE","UPDATE","LOG","TASK","TRACK","RESTORED" 
+     LIST-ITEMS "All" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 TOOLTIP "Select Audit Type Filter" NO-UNDO.
 
@@ -512,6 +512,9 @@ PROCEDURE pInitialize :
             hContainer = iphContainer
             svCompany:SCREEN-VALUE = DYNAMIC-FUNCTION('fGetCompany' IN hContainer)
             svCompany
+            svType:LIST-ITEMS   = "{AOA/includes/auditTypes.i}"
+            svType:SCREEN-VALUE = "All"
+            svType
             .
         APPLY "VALUE-CHANGED":U TO svStartDateOption.
         APPLY "VALUE-CHANGED":U TO svEndDateOption.                

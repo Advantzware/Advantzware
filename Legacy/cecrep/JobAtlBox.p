@@ -80,6 +80,8 @@ DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
 DEFINE        VARIABLE dSalesPrice   AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dPricePerMsf  AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dTotalup      AS DECIMAL   NO-UNDO.
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
 DEFINE BUFFER b-rt              FOR reftable.
@@ -118,6 +120,9 @@ END.
 
 v-job-cust = sys-ctrl.log-fld.
 s-prt-set-header = NO .
+
+FUNCTION getTotalUp RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
 ASSIGN
     v-line[1]      = CHR(95) + fill(CHR(95),40) + chr(95) + "  " +
@@ -348,8 +353,8 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=ItemStart><C+44><R+8><#ItemEnd>"
             "<=ItemTR><FROM><LINE#ItemEnd><|1>"
             "<=ItemStart><R+1><RIGHT=C+5>FG ID: <#FGItemID><RIGHT=C+27>Estimate: <#Estimate>"
-            "<=ItemStart><R+2><RIGHT=C+5>Name: <#FGItemName>" 
-            "<=ItemStart><R+3><RIGHT=C+5>Desc1: <#FGItemDesc1>"
+            "<=ItemStart><R+2><RIGHT=C+5>Name: <#FGItemName><RIGHT=C+27>Repeat: <FROM><R+.8><C+2><RECT> <R-.8>" 
+            "<=ItemStart><R+3><RIGHT=C+5>Desc1: <#FGItemDesc1><RIGHT=C+27>New: <FROM><R+.8><C+2><RECT> <R-.8>"
             "<=ItemStart><R+4><RIGHT=C+5>Desc2: <#FGItemDesc2>"
             "<=ItemStart><R+5><RIGHT=C+5>Style: <#Style><RIGHT=C+18>Tab: <#TabInOut>"
             "<=ItemStart><R+6><RIGHT=C+5>Size: <#Size><RIGHT=C+18>CAD#: <#CAD>"
@@ -378,7 +383,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=BoardStart><R+1.5><RIGHT=C+29.2>Sheets Received: __________"
               "<=BoardStart><R+2><RIGHT=C+5>Sheets: <#SheetsRequired>"
 /*              "<=BoardStart><R+2><RIGHT=C+20>Received: <#SheetsReceived>"*/
-            "<=BoardStart><R+2.5><RIGHT=C+29.2>Shortcuts: __________"
+            "<=BoardStart><R+2.5><RIGHT=C+29.2>Shortages: __________"
               "<=BoardStart><R+3><RIGHT=C+5>Size: <#SheetsSize>"
             "<=BoardStart><R+3.5><RIGHT=C+29.2>Mill Damages: __________"
               "<=BoardStart><R+4><RIGHT=C+5>Scores: <#Scores>"
@@ -390,6 +395,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=BoardStart><R+7><RIGHT=C+23>PO Due Date: <#PODueDate>"
               "<=BoardStart><R+8><RIGHT=C+5>Vendor: <#VendorCode>"
               "<=BoardStart><R+8><RIGHT=C+23>Price Per MSF: <#PricePerMSF>"
+              "<=DieStart><R+2><RIGHT=C+29><B>Total Outs:</B>"
               "<=DieStart><R+3><RIGHT=C+5>Imp.: <#Impressions>"
               "<=DieStart><R+4><RIGHT=C+6>Gross: "
               "<=DieStart><R+4><RIGHT=C+8>W: <#GrossWidth> "
@@ -397,15 +403,14 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=DieStart><R+4><RIGHT=C+21>Out: "
               "<=DieStart><R+4><RIGHT=C+23>W: <#OutW>"
               "<=DieStart><R+4><RIGHT=C+26>L: <#OutL>"
+              "<=DieStart><R+4><C61><#TotalUpGross>"
               "<=DieStart><R+5><RIGHT=C+6>Net: "
               "<=DieStart><R+5><RIGHT=C+8>W: <#NetWidth> "
               "<=DieStart><R+5><RIGHT=C+13>L: <#NetLength>"
-              "<=DieStart><R+5><RIGHT=C+21>Total Up: "
-              "<=DieStart><R+5><C56><#TotalUpGross>"
-              "<=DieStart><R+5><C59><#TotalUpNet>"
               "<=DieStart><R+6><RIGHT=C+6>Die: "
               "<=DieStart><R+6><RIGHT=C+8>W: <#DieWidth> "
               "<=DieStart><R+6><RIGHT=C+13>L: <#DieLength>"
+              "<=DieStart><R+6><C61><#TotalUpNet>"
               "<=DieStart><R+6><RIGHT=C+21>Up: "
               "<=DieStart><R+6><RIGHT=C+23>W: <#UpW>"
               "<=DieStart><R+6><RIGHT=C+26>L: <#UpL>"
@@ -458,8 +463,10 @@ DO v-local-loop = 1 TO v-local-copies:
             AND po-ordl.po-no EQ po-ord.po-no
             NO-LOCK NO-ERROR.
         IF AVAIL po-ordl THEN
-            ASSIGN cPoDueDate   = po-ordl.due-date.
-        ELSE ASSIGN cPoDueDate   = ? .
+            ASSIGN cPoDueDate   = po-ordl.due-date
+                   dPricePerMsf = po-ordl.cost .
+        ELSE ASSIGN cPoDueDate   = ? 
+                    dPricePerMsf = 0.
 
         IF v-vend-no NE "" THEN DO:
            v-qty-or-sup = v-qty-or-sup + trim(v-vend-no).
@@ -491,6 +498,8 @@ DO v-local-loop = 1 TO v-local-copies:
                            ELSE 0 .
               dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
           
+          dTotalup = getTotalUp() .
+
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
@@ -504,7 +513,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<FGColor=Blue><B>"
               "<=FGItemName>" IF AVAILABLE xeb THEN  xeb.part-dscr1 ELSE "" FORMAT "x(30)" 
               "</B><FGColor=Black>"
-              "<C+9><B>" IF reprint THEN "Repeat" ELSE "New" "</B>"
+              /*"<C+9><B>" IF reprint THEN "Repeat" ELSE "New" "</B>"*/
               "<=FGItemDesc1>" IF AVAILABLE xeb THEN  xeb.part-dscr2 ELSE "" FORMAT "x(30)" 
               "<=FGItemDesc2>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  bf-itemfg.part-dscr2 ELSE "" FORMAT "x(30)" 
               "<B>"
@@ -545,7 +554,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)"
               "<=PODueDate>" IF cPoDueDate NE ? THEN STRING(cPoDueDate) ELSE ""
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
-              "<=PricePerMSF>" STRING(xef.cost-msh,">>>>9.999")
+              "<=PricePerMSF>" STRING(dPricePerMsf,">>>>>9.999")
               "<B>"
               "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(15)"
               "</B>"
@@ -555,8 +564,10 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=GrossLength>" TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>>9.99")) FORMAT "x(8)"
               "<=OutL>" STRING(xef.n-out-l) FORMAT "x(3)"
               "<=OutW>" STRING(xef.n-out)   FORMAT "x(3)"
-              "<=TotalUpGross>" STRING(xef.spare-int-1)
-              "<=TotalUpNet>" STRING(xeb.num-up)   
+              "<B>"
+              "<=TotalUpGross>" STRING(dTotalup)
+              "<=TotalUpNet>" STRING(xeb.num-up) 
+              "</B>"
               "<=NetWidth>" TRIM(STRING({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) FORMAT "x(8)"
               "<=NetLength>" TRIM(STRING({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) FORMAT "x(8)"
               "<=DieWidth>" TRIM(STRING({sys/inc/k16v.i xef.trim-w},">>>>9.99")) FORMAT "x(8)"
@@ -739,7 +750,7 @@ DO v-local-loop = 1 TO v-local-copies:
 
                k = v-tmp-lines + lv-got-return + 
                    IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-               IF k < 16 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
+               IF k < 18 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
                              ELSE "" .              
 
                IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
@@ -844,9 +855,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Notes5>" v-dept-note[5] FORMAT "x(100)" SKIP
               "<=Notes6>" v-dept-note[6] FORMAT "x(100)"  SKIP
               "<=Notes7>" v-dept-note[7] FORMAT "x(100)"  SKIP
-              "<=Notes7>" v-dept-note[8] FORMAT "x(100)"  SKIP
-              "<=Notes7>" v-dept-note[9] FORMAT "x(100)"  SKIP
-              "<=Notes7>" v-dept-note[10] FORMAT "x(100)"  SKIP .
+              "<=Notes8>" v-dept-note[8] FORMAT "x(100)"  SKIP
+              "<=Notes9>" v-dept-note[9] FORMAT "x(100)"  SKIP
+              "<=Notes10>" v-dept-note[10] FORMAT "x(100)"  SKIP .
            IF v-dept-note[11] NE "" THEN
              PUT "<=Notes11>" v-dept-note[11] FORMAT "x(100)"  SKIP .
            IF v-dept-note[12] NE "" THEN
@@ -945,16 +956,15 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingStart><R+5><RIGHT=C+6>Per Pallet:"
               "<=PackingStart><R+5><C9><#PalletCount>"
               "<=PackingStart><R+5><C15><#JobPallets>"
-              "<=PackingStart><FROM><RECT#ShippingEnd><|1>"
+              /*"<=PackingStart><FROM><RECT#ShippingEnd><|1>"*/
               "<=PackingStart><R+6><RIGHT=C+19># Pallets: ____________________ "
-              "<=PackingStart><R+7><RIGHT=C+19>Units per Pallet: _______________ "
-              "<=PackingStart><R+8><RIGHT=C+19>Finish Count: _______________ "
+              "<=PackingStart><R+7><RIGHT=C+19>_____________________________ "
+              "<=PackingStart><R+8><RIGHT=C+19>Units per Pallet: _______________ "
+              "<=PackingStart><R+9><RIGHT=C+19>Finish Count: _______________ "
               "<=PackingTR><#PatternImageStart>"
               "<=PatternImageStart><C+1><#PatternImageTR>"
               "<=PatternImageStart><R+10><#PatternImageBL>"
               "<=PatternImageStart><C+1><R+10><#PatternImageEnd>"
-              /*"<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAIL stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
-              "<=PatternImageTR><FROM><LINE#PatternImageEnd><|1>"*/
               "<=PatternImageTR><#ShippingStart>"
               "<=ShippingStart><C18><#ShippingTR>"
               "<=ShippingStart><R+10><#ShippingBL>"
@@ -1207,5 +1217,29 @@ PROCEDURE stackImage:
             "<R-13>".
 END PROCEDURE.
 
-/* end ---------------------------------- copr. 1997  advanced software, inc. */
 
+/* ************************  Function Implementations ***************** */
+
+
+FUNCTION getTotalUp RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEF VAR opi-total-up AS INT NO-UNDO.
+
+IF AVAIL xef THEN
+opi-total-up = IF asi.xef.spare-int-1 = 0 THEN
+       INT(asi.xef.n-out) * INT(asi.xef.n-out-l) * int(asi.xef.n-out-d)
+    ELSE
+        xef.spare-int-1.
+ELSE
+    opi-total-up = 0.
+
+RETURN opi-total-up.   /* Function return value. */
+
+END FUNCTION.
+
+
+/* end ---------------------------------- copr. 1997  advanced software, inc. */

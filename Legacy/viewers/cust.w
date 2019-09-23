@@ -2453,10 +2453,7 @@ PROCEDURE local-update-record :
     oe-ord.stat = IF cust.cr-hold THEN "H" ELSE "A".
   END.
   IF NOT adm-new-record AND ls-prev-sman <> cust.sman  THEN DO:
-     MESSAGE "Update Sales Rep on Estimate, Quotes and Ship Tos ? " VIEW-AS ALERT-BOX QUESTION
-         BUTTON YES-NO UPDATE ll-ans AS LOG .
-     IF ll-ans THEN 
-         RUN update-sman.
+      RUN windows/w-updsmn.w (cust.cust-no).
   END.
 
   IF NOT adm-new-record AND (cOld-fob NE cust.fob-code OR  cOld-freight NE cust.frt-pay) THEN DO:
@@ -2578,8 +2575,8 @@ PROCEDURE update-sman :
        IF quotehd.sman <> cust.sman THEN quotehd.sman = cust.sman.
    END.
    SESSION:SET-WAIT-STATE("").
-   */
-   RUN windows/w-updsmn.w (cust.cust-no).
+   
+   RUN windows/w-updsmn.w (cust.cust-no). */
 
 END PROCEDURE.
 

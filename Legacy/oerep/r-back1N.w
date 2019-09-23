@@ -1719,7 +1719,7 @@ EMPTY TEMP-TABLE tt-report.
  /* if v-sort EQ "Item" then display with frame r-top-2.*/
 
   {oerep/r-back1N.i}
-MESSAGE "test " VIEW-AS ALERT-BOX ERROR.
+
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN

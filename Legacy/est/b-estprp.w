@@ -80,7 +80,8 @@ est-prep.code est-prep.qty est-prep.dscr est-prep.simon est-prep.cost ~
 est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-prep.s-num ~
 est-prep.b-num est-prep.code est-prep.qty est-prep.dscr est-prep.simon ~
-est-prep.cost est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz 
+est-prep.cost est-prep.mkup est-prep.spare-dec-1 est-prep.ml est-prep.amtz ~
+est-prep.orderID
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table est-prep
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table est-prep
 &Scoped-define QUERY-STRING-br_table FOR EACH est-prep WHERE est-prep.company = est.company ~
@@ -173,6 +174,7 @@ DEFINE BROWSE br_table
       est-prep.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>,>>9.99":U
       est-prep.ml FORMAT "M/L":U
       est-prep.amtz COLUMN-LABEL "Amort" FORMAT ">>9.99":U
+      est-prep.orderID COLUMN-LABEL "Order #" FORMAT "x(9)":U
   ENABLE
       est-prep.s-num
       est-prep.b-num
@@ -185,6 +187,7 @@ DEFINE BROWSE br_table
       est-prep.spare-dec-1
       est-prep.ml
       est-prep.amtz
+      est-prep.orderID
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 123 BY 7.86
@@ -293,6 +296,8 @@ ASSIGN
 "est-prep.ml" ? ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.est-prep.amtz
 "est-prep.amtz" "Amort" ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[12]   > ASI.est-prep.orderID
+"est-prep.orderID" "Order #" "x(9)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -540,6 +545,7 @@ PROCEDURE local-initialize :
       est-prep.spare-dec-1:READ-ONLY IN BROWSE {&browse-name} = YES
       est-prep.ml:READ-ONLY IN BROWSE {&browse-name} = YES
       est-prep.amtz:READ-ONLY IN BROWSE {&browse-name} = YES
+      est-prep.orderID:READ-ONLY IN BROWSE {&browse-name} = YES
       .
 
 END PROCEDURE.
@@ -624,7 +630,8 @@ PROCEDURE local-copy-record :
             ASSIGN
              b-est-prep.line  = li-line
              b-est-prep.s-num = eb.form-no
-             b-est-prep.b-num = eb.blank-no.
+             b-est-prep.b-num = eb.blank-no
+             b-est-prep.orderID = "" .
           END.
 
           lv-rowid = ROWID(b-est-prep).

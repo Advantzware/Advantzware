@@ -45,6 +45,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE onlyone AS LOGICAL NO-UNDO.
 DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
 DEF BUFFER b-usercomp FOR usercomp .
+DEF BUFFER c-usercomp FOR usercomp .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -358,10 +359,6 @@ DO:
   IF usercomp.loc = "" THEN
       GET FIRST locations.
 
-  IF usercomp.loc_default <> TRUE THEN DO:
-   MESSAGE "Please Select default Location.. " VIEW-AS ALERT-BOX.
-   RETURN NO-APPLY.
-  END.
   RUN Set-comp_loc.
   APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
@@ -386,6 +383,13 @@ END.
 ON VALUE-CHANGED OF companies IN FRAME DEFAULT-FRAME
 DO:
   {&OPEN-QUERY-locations}
+  FIND FIRST c-usercomp NO-LOCK WHERE 
+    c-usercomp.user_id EQ USERID("asi") AND 
+    c-usercomp.company EQ usercomp.company AND 
+    c-usercomp.loc_default EQ TRUE
+    NO-ERROR.
+  IF AVAIL c-usercomp THEN 
+    REPOSITION locations TO ROWID ROWID(c-usercomp).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -452,6 +456,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DISPLAY sysdate WITH FRAME {&FRAME-NAME}.
   {methods/enhance.i}
   {methods/nowait.i}
+  APPLY 'value-changed' TO BROWSE companies.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
   IF onlyone THEN

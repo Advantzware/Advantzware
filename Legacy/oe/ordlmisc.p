@@ -63,14 +63,15 @@ FOR EACH xeb
             xeb.stock-no EQ oe-ordl.i-no OR xeb.stock-no EQ "") OR
            xeb.est-type EQ 2 OR xeb.est-type EQ 6)
     NO-LOCK:
+    
 for each est-prep
     where est-prep.company eq xeb.company
       and est-prep.est-no  eq xeb.est-no
       and est-prep.s-num   eq xeb.form-no
       and (est-prep.b-num  eq xeb.blank-no or est-prep.b-num eq 0)
-      and est-prep.simon   eq "S"                         
-                    
-    no-lock:
+      and est-prep.simon   eq "S" 
+      AND est-prep.orderID EQ ""
+    EXCLUSIVE-LOCK:
 
   FIND LAST oe-ordm NO-LOCK
       WHERE oe-ordm.company EQ oe-ord.company
@@ -94,7 +95,8 @@ for each est-prep
    oe-ordm.est-no   = oe-ordl.est-no
    oe-ordm.bill     = "Y"
    oe-ordm.ord-i-no = oe-ordl.i-no
-   oe-ordm.ord-line = oe-ordl.line.
+   oe-ordm.ord-line = oe-ordl.line
+   oe-ordm.estPrepLine = est-prep.LINE .
   ASSIGN 
              oe-ordm.miscType = 1
              oe-ordm.estPrepEqty   = est-prep.eqty
@@ -124,7 +126,9 @@ for each est-prep
   END.
 
   RUN update-prep.
+  est-prep.orderID = string(oe-ord.ord-no) .
 end. /* each est-prep */
+RELEASE est-prep .
 
 for each ef OF xeb no-lock:
   do i = 1 to 5:

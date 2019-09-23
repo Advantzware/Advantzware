@@ -359,13 +359,13 @@ IF is-xprint-form THEN DO:
 
   IF rd-dest EQ 2 THEN DO:
      IF NOT lBussFormModle THEN do:
-        IF lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
+        IF ip-industry = "FOLD" AND lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
           PUT "<PREVIEW><LEFT=" + trim(string(dDecimalFoldValue)) + "mm><MODAL=NO>" FORMAT "x(120)".
         ELSE
             PUT "<PREVIEW><MODAL=NO>".
      END.
      ELSE do:
-         IF lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
+         IF ip-industry = "FOLD" AND lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
           PUT "<PREVIEW><LEFT=" + trim(string(dDecimalFoldValue)) + "mm>" FORMAT "x(120)".
         ELSE
           PUT "<PREVIEW>".
@@ -373,7 +373,7 @@ IF is-xprint-form THEN DO:
   END.
 
   ELSE IF rd-dest EQ 1 THEN do: 
-     IF lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
+     IF ip-industry = "FOLD" AND lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
        PUT "<PRINTER?><LEFT=" + trim(STRING(dDecimalFoldValue)) + "mm>" FORMAT "x(100)".
      ELSE 
          PUT "<PRINTER?>".

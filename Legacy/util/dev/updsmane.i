@@ -71,13 +71,13 @@ end.  /* end est*/
 
   
 
-IF tb_order THEN 
-      FOR EACH oe-ord WHERE oe-ord.company EQ cocode
-                     AND oe-ord.cust-no GE fcus
-                     AND oe-ord.cust-no LE tcus
-                     AND oe-ord.opened EQ YES,
-      first cust where cust.company eq oe-ord.company
-                   and cust.cust-no eq oe-ord.cust-no EXCLUSIVE-LOCK:
+IF tb_order THEN DO:
+  FOR EACH oe-ord WHERE oe-ord.company EQ cocode
+    AND oe-ord.cust-no GE fcus
+    AND oe-ord.cust-no LE tcus
+    AND oe-ord.opened EQ YES,
+    first cust where cust.company eq oe-ord.company
+    and cust.cust-no eq oe-ord.cust-no EXCLUSIVE-LOCK:
     
     v-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Updating Order " + string(oe-ord.ord-no).
 
@@ -97,7 +97,15 @@ IF tb_order THEN
             IF AVAIL sman THEN
                 oe-ord.sname[1] = sman.sNAME.
         END.
-   END.
+
+    FOR EACH oe-ordm
+          WHERE oe-ordm.company EQ cocode
+            AND oe-ordm.ord-no  EQ oe-ord.ord-no
+          EXCLUSIVE-LOCK:
+        IF oe-ordm.s-man[1] <> cust.sman  THEN oe-ordm.s-man[1] = cust.sman .
+    END.
+  END.
+END.
 
 
   IF tb_inv THEN 
@@ -118,6 +126,13 @@ IF tb_order THEN
             IF AVAIL sman THEN
                 inv-line.sname[1] = sman.sNAME.
       END.
+
+      FOR EACH inv-misc WHERE inv-misc.company = cocode 
+          AND inv-misc.r-no = inv-head.r-no EXCLUSIVE-LOCK:
+
+          IF inv-misc.s-man[1] <> cust.sman THEN
+              inv-misc.s-man[1] = cust.sman .
+      END.
   END.
  
 
@@ -132,3 +147,6 @@ IF tb_order THEN
        shipto.spare-char-1 = cust.sman .
       END.
   END.
+
+  RELEASE oe-ordm.
+  RELEASE inv-misc.

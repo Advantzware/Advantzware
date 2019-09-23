@@ -533,6 +533,16 @@ DO:
   run check-date.
   if v-invalid then return no-apply.
 
+  IF month(tran-date) NE MONTH(TODAY) THEN DO:
+      MESSAGE "The BOL posting date is not in the current month - " SKIP 
+          " Are you sure you want to post using this date ?" 
+          VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL  UPDATE lcheckflg as LOGICAL .
+          IF NOT lcheckflg THEN DO:
+              APPLY "entry" TO tran-date IN FRAME {&FRAME-NAME} .
+              RETURN NO-APPLY .
+          END.
+  END.
+
   IF invstatus-char EQ "One Bol Only" THEN
     ASSIGN END_bolnum = begin_bolnum
            END_bolnum:SCREEN-VALUE = begin_bolnum:SCREEN-VALUE.  

@@ -956,6 +956,9 @@ def var v-margin-tot as dec format "->>>,>>>,>>>,>>9.99".
 def var v-password like sys-ctrl.char-fld label "Please Enter Password".
 def var v-ext-cost as dec.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 format header
   "Order#  Est#         Job#     Date       Cust#    Name" skip
@@ -1038,7 +1041,7 @@ DO:
    ELSE
      excelheader = excelheader + "Item/Misc Chg,Description,Quantity,Cost/M,Price,UOM,Ext Price".
 
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1315,7 +1318,7 @@ DO:
     OUTPUT STREAM excel CLOSE.
 
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

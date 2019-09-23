@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -59,11 +59,12 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR statecod.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS statecod.description  
+&Scoped-Define ENABLED-FIELDS statecod.description statecod.countryCode 
 &Scoped-define ENABLED-TABLES statecod
 &Scoped-define FIRST-ENABLED-TABLE statecod
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS statecod.statecod statecod.description 
+&Scoped-Define DISPLAYED-FIELDS statecod.statecod statecod.description ~
+statecod.countryCode 
 &Scoped-define DISPLAYED-TABLES statecod
 &Scoped-define FIRST-DISPLAYED-TABLE statecod
 
@@ -103,7 +104,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 63 BY 3.81.
 
 
@@ -118,6 +119,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
           BGCOLOR 15 FONT 4
+     statecod.countryCode AT ROW 3.62 COL 23 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          FONT 4
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -130,7 +135,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: NOSWEAT.statecod
+   External Tables: asi.statecod
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -176,7 +181,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
