@@ -342,17 +342,8 @@ PROCEDURE ipRunReport :
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
 
     CREATE "Excel.Application" chExcelApplication.
-    IF SEARCH("template\PTjobCost.xlt") = ? THEN 
-    DO:
-        FILE-INFO:FILE-NAME = SEARCH("P:\ASI\Repositories\Advantzware\Resources\template\PTjobCost.xlt").
-    END.
-    ELSE 
-    DO:
-        FILE-INFO:FILE-NAME = SEARCH("template\PTjobCost.xlt").
-    END.
-    ASSIGN 
-        chFile = SEARCH(FILE-INFO:FULL-PATHNAME).
-  
+    RUN sys/ref/getFileFullPathName.p ("Template\PTJobCost.xlt", OUTPUT chFile).
+
     IF SEARCH (chFile) = ? THEN 
     DO:
         MESSAGE 
