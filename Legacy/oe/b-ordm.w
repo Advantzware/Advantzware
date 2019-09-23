@@ -1053,7 +1053,9 @@ PROCEDURE local-delete-record :
   FIND FIRST est-prep EXCLUSIVE-LOCK
       WHERE est-prep.company EQ oe-ord.company
       AND est-prep.est-no EQ oe-ord.est-no 
-      AND est-prep.CODE EQ oe-ordm.charge NO-ERROR .
+      AND est-prep.CODE EQ oe-ordm.charge
+      AND est-prep.orderID EQ STRING(oe-ordm.ord-no)
+      AND est-prep.LINE EQ oe-ordm.estPrepLine NO-ERROR .
 
   IF AVAIL est-prep THEN 
       ASSIGN est-prep.orderID = "" .

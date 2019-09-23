@@ -95,7 +95,8 @@ for each est-prep
    oe-ordm.est-no   = oe-ordl.est-no
    oe-ordm.bill     = "Y"
    oe-ordm.ord-i-no = oe-ordl.i-no
-   oe-ordm.ord-line = oe-ordl.line.
+   oe-ordm.ord-line = oe-ordl.line
+   oe-ordm.estPrepLine = est-prep.LINE .
   ASSIGN 
              oe-ordm.miscType = 1
              oe-ordm.estPrepEqty   = est-prep.eqty

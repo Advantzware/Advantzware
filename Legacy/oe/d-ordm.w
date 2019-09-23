@@ -1150,9 +1150,13 @@ PROCEDURE assgn-prep-info :
         FIND FIRST est-prep EXCLUSIVE-LOCK
             WHERE est-prep.company EQ oe-ord.company
             AND est-prep.est-no EQ oe-ord.est-no 
-            AND est-prep.CODE EQ oe-ordm.charge:SCREEN-VALUE NO-ERROR .
+            AND est-prep.CODE EQ oe-ordm.charge:SCREEN-VALUE
+            AND est-prep.orderID EQ "" NO-ERROR .
+       
         IF AVAIL est-prep AND est-prep.orderID EQ ""  THEN
-            ASSIGN est-prep.orderID = STRING(oe-ordm.ord-no) .
+            ASSIGN est-prep.orderID = STRING(oe-ordm.ord-no)
+            oe-ordm.estPrepLine = est-prep.LINE .
+       
         RELEASE est-prep .
       END.
     END.
@@ -2126,9 +2130,10 @@ PROCEDURE valid-est-charge :
          FIND FIRST est-prep NO-LOCK
           WHERE est-prep.company EQ oe-ord.company
             AND est-prep.est-no EQ oe-ord.est-no 
-            AND est-prep.CODE EQ oe-ordm.charge:SCREEN-VALUE NO-ERROR .
+            AND est-prep.CODE EQ oe-ordm.charge:SCREEN-VALUE 
+            AND est-prep.orderID EQ STRING(oe-ordm.ord-no) NO-ERROR .
 
-         IF AVAIL est-prep AND est-prep.orderID NE ""  THEN DO:
+         IF AVAIL est-prep AND est-prep.orderID NE "" THEN DO:
             MESSAGE TRIM(oe-ordm.charge:LABEL) + " is already used on order, try help ..."
                 VIEW-AS ALERT-BOX INFO.
             APPLY "entry" TO oe-ordm.charge .
