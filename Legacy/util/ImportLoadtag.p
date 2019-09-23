@@ -22,7 +22,6 @@ DEFINE TEMP-TABLE ttImportLoadtag
     FIELD sts          AS CHARACTER   FORMAT "x" LABEL "Status" HELP "Required - Size:1 - one of 'PROBICDT'"
     /* Optional */
     FIELD tag-date     AS DATE        FORMAT "99/99/9999" LABEL "Rcpt Date" HELP "Optional - Date"
-    FIELD tag-time     AS INTEGER     LABEL "Rcpt Time" HELP "Optional - Integer"
     FIELD lot-no       AS CHARACTER   FORMAT "x(15)" LABEL "FG Lot#" HELP "Optional - Size:15"
     FIELD location     AS CHARACTER   FORMAT "x(5)" LABEL "Warehouse" HELP "Optional - Size:5"
     FIELD loc-bin      AS CHARACTER   FORMAT "x(8)" LABEL "Bin" HELP "Optional - Size:8"
@@ -174,6 +173,7 @@ PROCEDURE pProcessRecord PRIVATE:
                 loadtag.tag-no       = ipbf-ttImportLoadtag.tag-no
                 loadtag.i-name       = ipbf-ttImportLoadtag.i-name
                 loadtag.i-no         = ipbf-ttImportLoadtag.i-no
+                loadtag.tag-time     = IF ipbf-ttImportLoadtag.tag-date NE ? THEN 0 ELSE ?
                 .
         END.
         
@@ -197,7 +197,6 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pAssignValueI (ipbf-ttImportloadtag.partial, iplIgnoreBlanks, INPUT-OUTPUT loadtag.partial). 
         RUN pAssignValueI (ipbf-ttImportloadtag.po-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.po-no). 
         RUN pAssignValueI (ipbf-ttImportloadtag.qty-case, iplIgnoreBlanks, INPUT-OUTPUT loadtag.qty-case). 
-        RUN pAssignValueI (ipbf-ttImportloadtag.tag-time, iplIgnoreBlanks, INPUT-OUTPUT loadtag.tag-time). 
         RUN pAssignValueI (ipbf-ttImportloadtag.tot-cases, iplIgnoreBlanks, INPUT-OUTPUT loadtag.tot-cases). 
         RUN pAssignValueD (ipbf-ttImportloadtag.unit-wt, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-dec[1]). 
         RUN pAssignValueD (ipbf-ttImportloadtag.tare-wt, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-dec[2]). 
