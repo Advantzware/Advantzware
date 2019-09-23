@@ -3729,16 +3729,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Email codes").
 
     &SCOPED-DEFINE tablename emailcod
 
+    DEFINE BUFFER bemaildtl FOR emaildtl.
+    
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    DISABLE TRIGGERS FOR LOAD OF bemaildtl.
     
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
@@ -3747,7 +3750,8 @@ PROCEDURE ipLoadEmailCodes :
         FIND FIRST {&tablename} EXCLUSIVE WHERE 
             {&tablename}.emailcod EQ tt{&tablename}.emailcod
             NO-ERROR.
-        IF NOT AVAIL {&tablename} THEN DO:
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
@@ -3755,6 +3759,27 @@ PROCEDURE ipLoadEmailCodes :
     INPUT CLOSE.
         
     EMPTY TEMP-TABLE tt{&tablename}.
+    
+    /* 54067 Upon upgrade, add e-code for BOL to the new e-code for COC such that they are the same*/
+    FOR EACH emaildtl NO-LOCK WHERE 
+        emaildtl.emailcod = "r-bolprt.":
+        FIND FIRST bemaildtl NO-LOCK WHERE
+            bemaildtl.emailcod = "r-bolcert." AND 
+            bemaildtl.table_rec_key EQ emaildtl.table_rec_key
+            NO-ERROR.
+        IF NOT AVAIL bemaildtl THEN 
+        DO:
+            CREATE bemaildtl.
+            ASSIGN 
+                bemaildtl.emailcod = "r-bolcert."
+                bemaildtl.table_rec_key = emaildtl.table_rec_key
+                bemaildtl.rec_key = STRING(YEAR(TODAY),"9999")
+                                    + STRING(MONTH(TODAY),"99")
+                                    + STRING(DAY(TODAY),"99")
+                                    + STRING(TIME,"99999")
+                                    + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
+        END.
+    END.      
   
 END PROCEDURE.
 
