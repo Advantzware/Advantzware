@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
+&SCOPED-DEFINE CommonFile_is_Running
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -399,11 +400,7 @@ PROCEDURE load-recurring :
 
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
-  DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
-    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
-
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF {&browse-name}:NUM-SELECTED-ROWS GT 0 THEN
       MESSAGE "This will select all highlighted recurring AP invoice entries, " SKIP
@@ -430,7 +427,7 @@ PROCEDURE load-recurring :
               NO-LOCK NO-ERROR.
 
           IF AVAIL vend THEN DO:
-            out-ap-inv.due-date = (DYNAMIC-FUNCTION("GetInvDueDate",date(out-ap-inv.inv-date) , vend.company, vend.terms )) .
+            out-ap-inv.due-date = (DYNAMIC-FUNCTION("Common_GetInvDueDate",date(out-ap-inv.inv-date) , vend.company, vend.terms )) .
           END.
 
           FOR EACH inp-ap-invl WHERE inp-ap-invl.i-no EQ inp-ap-inv.i-no NO-LOCK:
@@ -448,7 +445,7 @@ PROCEDURE load-recurring :
           VIEW-AS ALERT-BOX.
     END.
   END.
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

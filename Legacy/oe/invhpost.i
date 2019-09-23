@@ -1,7 +1,6 @@
 /* ------------------------------------------------- oe/invhpost.i 11/94 gb   */
 /* O/E Invoicing History Assigment of Fields                                 */
 /* -------------------------------------------------------------------------- */
-DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
 
 assign
   ar-inv.x-no           = v-xno
@@ -76,10 +75,9 @@ assign
      assign 
 	    ar-inv.disc-%    = terms.disc-rate
 	    ar-inv.disc-days = terms.disc-days.
-        RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-        THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
-        ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),cocode,inv-head.terms ).
-        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
+        
+        ar-inv.due-date  =  DYNAMIC-FUNCTION("Common_GetInvDueDate", date(ar-inv.inv-date),cocode,inv-head.terms ).
+        
   END.
 
 /***

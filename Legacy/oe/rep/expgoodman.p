@@ -20,7 +20,7 @@ DEF VAR v-tax-tot AS DEC NO-UNDO.
 DEF VAR v-misc-tax-tot AS DEC NO-UNDO.
 DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
 RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
 for each tt-report NO-LOCK where tt-report.term-id eq "",
     first inv-head where recid(inv-head) eq tt-report.rec-id no-lock,
@@ -89,7 +89,7 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
     if available terms THEN do:
        assign v-discount-amt = round( (v-misc-amt + v-item-total) * (terms.disc-rate / 100), 2)
               v-discount-date = IF v-discount-amt EQ 0 THEN ? ELSE inv-head.inv-date + terms.disc-days.
-              v-due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
+              v-due-date = DYNAMIC-FUNCTION("Common_GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
     END.
     ELSE
        ASSIGN v-due-date = inv-head.inv-date
@@ -180,5 +180,6 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
            PUT v-tax-tot FORM "->>>>>>>>>>>>>9.9999" "|" SKIP.
     END.
 end. /* each tt-report */
+
 
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).

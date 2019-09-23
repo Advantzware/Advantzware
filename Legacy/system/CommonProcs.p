@@ -20,7 +20,7 @@
 
 /* ************************  Function Prototypes ********************** */
 
- FUNCTION GetNumberOfDaysInMonth RETURNS INTEGER 
+ FUNCTION Common_GetNumberOfDaysInMonth RETURNS INTEGER 
     (ipcMonth AS INTEGER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
@@ -31,7 +31,7 @@
 
 /* ************************  Function Implementations ***************** */
 
-FUNCTION GetNumberOfDaysInMonth RETURNS INTEGER 
+FUNCTION Common_GetNumberOfDaysInMonth RETURNS INTEGER 
     ( ipcMonth AS INTEGER ):
     /*------------------------------------------------------------------------------
      Purpose: return day in a month

@@ -22,6 +22,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE CommonFile_is_Running
 
 /* Parameters Definitions ---                                           */
 
@@ -1004,10 +1005,7 @@ PROCEDURE new-inv-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-date AS DATE NO-UNDO.
-  DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
-    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
-
+ 
   DO WITH FRAME {&FRAME-NAME}:
     ll-date-warning = NO.
 
@@ -1020,11 +1018,11 @@ PROCEDURE new-inv-date :
 
     IF NOT ERROR-STATUS:ERROR AND AVAIL vend THEN DO:
       
-      ap-inv.due-date:SCREEN-VALUE  = DYNAMIC-FUNCTION("GetInvDueDate", date(lv-date),cocode,vend.terms ).
+      ap-inv.due-date:SCREEN-VALUE  = string(DYNAMIC-FUNCTION("Common_GetInvDueDate", date(lv-date),cocode,vend.terms )).
                                     
     END.
   END.
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

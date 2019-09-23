@@ -22,7 +22,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE CommonFile_is_Running
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -792,9 +792,6 @@ PROCEDURE build-ar-inv :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
-RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
  DO WHILE TRUE :
         FIND ar-inv WHERE ar-inv.x-no = v-ref-ar NO-LOCK NO-ERROR.
@@ -876,7 +873,7 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
                       no-lock no-error.
 
            if available terms then
-              ASSIGN ar-inv.due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),inv-head.company,inv-head.terms )
+              ASSIGN ar-inv.due-date = DYNAMIC-FUNCTION("Common_GetInvDueDate", date(ar-inv.inv-date),inv-head.company,inv-head.terms )
                      ar-inv.disc-%    = terms.disc-rate
                      ar-inv.disc-days = terms.disc-days.
 
@@ -892,7 +889,6 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
                                      AND currency.c-code = ar-inv.curr-code[1] NO-LOCK NO-ERROR.
            IF AVAIL currency THEN ar-inv.ex-rate = currency.ex-rate .  
            
-           THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

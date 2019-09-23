@@ -30,6 +30,8 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+/*&SCOPED-DEFINE UIB_is_Running*/
+&SCOPED-DEFINE CommonFile_is_Running
 
 /* Parameters Definitions ---                                           */
 

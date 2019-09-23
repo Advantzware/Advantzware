@@ -31,11 +31,13 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 &scoped-define proc-enable proc-enable
+&SCOPED-DEFINE CommonFile_is_Running
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 
 {custom/gcompany.i}
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -379,7 +381,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEFINE VARIABLE saveTermsCOD AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
+  
   saveTermsCOD = termsCOD.
 
   /* Dispatch standard ADM method.                             */
@@ -408,11 +410,8 @@ PROCEDURE local-assign-record :
     termsCOD = saveTermsCOD
     terms.cod = IF INT(termsCOD) EQ 1 THEN TRUE ELSE FALSE.
     IF terms.dueOnMonth NE 0 AND terms.dueOnDay EQ 0 THEN do:
-        RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
-        THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
-        ASSIGN terms.dueOnDay = DYNAMIC-FUNCTION("GetNumberOfDaysInMonth", terms.dueOnMonth ).
+        ASSIGN terms.dueOnDay = DYNAMIC-FUNCTION("Common_GetNumberOfDaysInMonth", terms.dueOnMonth ).
                terms.dueOnDay:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(terms.dueOnDay) .
-        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCommonProcs). 
     END.
   
   FIND CURRENT terms NO-LOCK.

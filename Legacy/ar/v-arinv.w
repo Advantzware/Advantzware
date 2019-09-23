@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 &SCOPED-DEFINE enable-arinv proc-enable
 &SCOPED-DEFINE create-more methods/viewers/create/ar-inv
+&SCOPED-DEFINE CommonFile_is_Running
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
 &Scoped-define NEW NEW GLOBAL
 &ENDIF
@@ -1725,13 +1726,10 @@ PROCEDURE pInvDueDate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+
 
 DO WITH FRAME {&FRAME-NAME}:
-    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
-    ASSIGN ar-inv.due-date:SCREEN-VALUE = STRING( DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}),cocode ,ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} )).
-    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs). 
+    ASSIGN ar-inv.due-date:SCREEN-VALUE = STRING( DYNAMIC-FUNCTION("Common_GetInvDueDate", date(ar-inv.inv-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}),cocode ,ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} )).
 END.
 
 

@@ -87,7 +87,7 @@ DEF VAR v-frt-tax AS DEC NO-UNDO.
 DEF VAR lv-inv-list AS CHAR NO-UNDO.
 DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
 RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
@@ -345,7 +345,7 @@ find first company where company.company eq cocode NO-LOCK.
         v-po-no = if avail inv-line then inv-line.po-no else "".
 
         
-        ASSIGN v-due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
+        ASSIGN v-due-date = DYNAMIC-FUNCTION("Common_GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
         
 
         assign v-tot-pallets = 0
@@ -659,5 +659,4 @@ find first company where company.company eq cocode NO-LOCK.
     end. /* each xinv-head */
 
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
-
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
