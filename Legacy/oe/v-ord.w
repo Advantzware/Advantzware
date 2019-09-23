@@ -3212,7 +3212,9 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       FIND FIRST est-prep EXCLUSIVE-LOCK
           WHERE est-prep.company EQ oe-ordl.company
             AND est-prep.est-no EQ oe-ordl.est-no 
-            AND est-prep.CODE EQ oe-ordm.charge NO-ERROR .
+            AND est-prep.CODE EQ oe-ordm.charge
+            AND est-prep.orderID EQ STRING(oe-ordm.ord-no)
+            AND est-prep.LINE EQ oe-ordm.estPrepLine NO-ERROR .
 
       IF oe-ord.stat = "N" OR oe-ord.stat = "A" OR oe-ord.stat = "H" THEN do:
         DELETE oe-ordm.
@@ -3384,7 +3386,9 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     FIND FIRST est-prep EXCLUSIVE-LOCK
         WHERE est-prep.company EQ oe-ordl.company
         AND est-prep.est-no EQ oe-ordl.est-no 
-        AND est-prep.CODE EQ oe-ordm.charge NO-ERROR .
+        AND est-prep.CODE EQ oe-ordm.charge 
+        AND est-prep.orderID EQ string(oe-ordm.ord-no)
+        AND est-prep.LINE EQ oe-ordm.estPrepLine NO-ERROR .
 
     IF INDEX("NAH",oe-ord.stat) GT 0 THEN do:
          DELETE oe-ordm.
