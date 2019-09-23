@@ -1699,7 +1699,9 @@ FOR EACH cust WHERE cust.company EQ cocode
                      tt-comm-calc.company = ar-cashl.company
                      tt-comm-calc.slsm[1] = cust.sman
                      tt-comm-calc.inv-no = ar-cashl.inv-no
-                     tt-comm-calc.inv-date = ar-cashl.inv-date
+                     tt-comm-calc.inv-date = ar-cashl.inv-date.
+                  IF AVAIL b-ar-invl THEN
+                   ASSIGN
                      tt-comm-calc.bol-no   = b-ar-invl.bol-no
                      tt-comm-calc.cost-uom = b-ar-invl.dscr[1]
                      tt-comm-calc.uom      = b-ar-invl.pr-uom
