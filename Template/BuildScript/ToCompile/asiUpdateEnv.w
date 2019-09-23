@@ -138,6 +138,16 @@ DEFINE TEMP-TABLE ttDuplicates
     FIELD cCompany    AS CHARACTER
     FIELD cItemType   AS CHARACTER
     . 
+    
+DEF TEMP-TABLE ttTemplateFiles
+    FIELD cFileName AS CHAR 
+    FIELD cLongName AS CHAR 
+    FIELD daModDate AS DATE.    
+
+DEF TEMP-TABLE ttResTemplateFiles
+    FIELD cFileName AS CHAR 
+    FIELD cLongName AS CHAR 
+    FIELD daModDate AS DATE.    
 
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
@@ -1700,6 +1710,110 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCleanTemplates C-Win
+PROCEDURE ipCleanTemplates:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+         
+    ------------------------------------------------------------------------------*/
+    DEF VAR cTgtEnv AS CHAR NO-UNDO.
+    DEF VAR icShortName AS CHAR NO-UNDO.
+    DEF VAR icLongName AS CHAR NO-UNDO.
+    DEF VAR idaModDate AS DATE NO-UNDO.
+    DEF VAR cTestFileName AS CHAR NO-UNDO.
+    DEF VAR cResDir AS CHAR NO-UNDO.
+    
+    RUN ipStatus ("  Cleaning /Template directories.").
+
+    ASSIGN 
+        cResDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources\Template"
+        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
+    
+    /* Build list of files in <root>\Template directory */
+    ASSIGN  
+        FILE-INFO:FILE-NAME = cTgtEnv + "\Template".
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN RETURN.
+    ELSE DO:
+        ASSIGN 
+            cTgtEnv = FILE-INFO:FULL-PATHNAME.
+        INPUT FROM OS-DIR (cTgtEnv).
+        REPEAT:
+            IMPORT 
+                icShortName
+                icLongName
+                idaModDate.
+            CREATE ttTemplateFiles.
+            ASSIGN 
+                ttTemplateFiles.cFileName = icShortName
+                ttTemplateFiles.cLongName = icLongName
+                ttTemplateFiles.daModDate = idaModDate.
+        END.
+    END.
+    
+    /* Build list of files in /Resources/Template */
+    ASSIGN  
+        FILE-INFO:FILE-NAME = cResDir.
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN RETURN.
+    ELSE 
+    DO:
+        ASSIGN 
+            cResDir = FILE-INFO:FULL-PATHNAME.
+        INPUT FROM OS-DIR (cResDir).
+        REPEAT:
+            IMPORT 
+                icShortName
+                icLongName
+                idaModDate.
+            CREATE ttResTemplateFiles.
+            ASSIGN 
+                ttResTemplateFiles.cFileName = icShortName
+                ttResTemplateFiles.cLongName = icLongName
+                ttResTemplateFiles.daModDate = idaModDate.
+        END.
+    END.
+    
+    /* Now compare the lists and remove the files in <root>\Template that have a match in /Resources */
+    FOR EACH ttTemplateFiles:
+        FIND FIRST ttResTemplateFiles NO-LOCK WHERE 
+            ttResTemplateFiles.cFileName EQ ttTemplateFiles.cFileName
+            NO-ERROR.
+        IF AVAIL ttResTemplateFiles 
+        AND ttResTemplateFiles.daModDate GE ttTemplateFiles.daModDate THEN DO:
+            OS-DELETE VALUE(ttTemplateFiles.cLongName).
+            DELETE ttTemplateFiles.
+        END.
+    END.
+    
+    /* Anything left are custom to this customer, and need to go to CustFiles */
+    OS-CREATE-DIR VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\CustFiles\Template").
+    
+    /* Note: try to clean up any NK1s that might reference the file while we're here */
+    FOR EACH ttTemplateFiles:
+        FIND FIRST sys-ctrl EXCLUSIVE WHERE 
+            sys-ctrl.char-fld EQ ttTemplateFiles.cLongName
+            NO-ERROR.
+        IF AVAIL sys-ctrl THEN DO:
+            ASSIGN 
+                sys-ctrl.char-fld = ".\CustFiles\Template\" + ttTemplateFiles.cFileName.
+        END.
+                     
+        OS-COPY VALUE(ttTemplateFiles.cLongName) VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\CustFiles\Template"). 
+        OS-DELETE VALUE(ttTemplateFiles.cLongName).
+        DELETE ttTemplateFiles.
+     END.
+     
+     /* Finally, remove the directory */
+     OS-DELETE VALUE(cTgtEnv) RECURSIVE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConfirmAdminUser C-Win 
 PROCEDURE ipConfirmAdminUser :
 /*------------------------------------------------------------------------------
@@ -2693,7 +2807,7 @@ END PROCEDURE.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix1613010 C-Win
-PROCEDURE ipDataFix1613010:
+PROCEDURE ipDataFix161300:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -2723,6 +2837,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadJasperData.
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
+    RUN ipCleanTemplates.
 
 END PROCEDURE.
 
