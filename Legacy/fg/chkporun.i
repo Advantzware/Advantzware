@@ -16,6 +16,7 @@
     DEFINE VARIABLE dRecQty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lOverUnder as LOGICAL no-undo.
+    DEFINE VARIABLE dCompQty AS DECIMAL NO-UNDO.
 
     DEFINE BUFFER xfg-rctd FOR fg-rctd.
 
@@ -74,12 +75,25 @@
                                    (IF AVAIL ITEM THEN item.s-dep ELSE 0),
                                     ld, output ld).
 
-           dRecQty = dRecQty + ld.
+           dRecQty = dRecQty + ld. 
         end.
 
-        if dRecQty gt po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)) THEN
+         dCompQty = po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)).
+
+         IF po-ordl.pr-qty-uom EQ "MSF" THEN
+              dCompQty = po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) .
+         ELSE IF po-ordl.pr-qty-uom NE po-ordl.cons-uom THEN
+             run sys/ref/convquom.p((po-ordl.cons-uom),po-ordl.pr-qty-uom ,
+                                (IF AVAIL ITEM THEN item.basis-w ELSE 0), 
+                                (IF AVAIL ITEM THEN po-ordl.s-len ELSE 0), 
+                                (IF AVAIL ITEM THEN po-ordl.s-wid ELSE 0),
+                                (IF AVAIL ITEM THEN item.s-dep ELSE 0),
+                                 dCompQty, output dCompQty).
+
+        if dRecQty gt dCompQty THEN
         do:          
-            message "This PO has a maximum permitted quantity of " string(po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)))
+           
+            message "This PO has a maximum permitted quantity of " string(dCompQty)
                  " (Including Overs allowed)"  VIEW-AS ALERT-BOX INFO .
             
                 APPLY "entry" TO fg-rctd.cases .
