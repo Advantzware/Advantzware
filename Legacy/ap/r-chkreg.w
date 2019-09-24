@@ -1362,7 +1362,7 @@ IF tb_APcheckFile THEN DO:
    PUT STREAM checkFile UNFORMATTED
     "D"
      STRING(INT(ap-sel.bank-code),"999")                         /* Bank Number    */
-     STRING(INT(REPLACE(bank.bk-act,"-","")), "9999999999")      /* Account Number */
+     STRING(REPLACE(bank.bk-act,"-",""), "x(14)")                /* Account Number */
      STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
      STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") 
                                                                  /* Amount         */ 
@@ -1742,6 +1742,57 @@ PROCEDURE run-report :
 /* ---------------------------------------------------- oe/invpost.p 10/94 gb */
 /* Invoicing  - Edit Register & Post Invoicing Transactions                   */
 /* -------------------------------------------------------------------------- */
+
+/* Start bank transmittal file generation */
+DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRecValue     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSysCtrlName  AS CHARACTER NO-UNDO INITIAL "BankTransmittalLocation".
+
+RUN sys/ref/nk1look.p (
+    INPUT  cocode,               /* Company Code */
+    INPUT  cSysCtrlName,         /* sys-ctrl name */
+    INPUT  "L",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+    INPUT  FALSE,                /* Use ship-to */
+    INPUT  FALSE,                /* ship-to vendor */
+    INPUT  "",                   /* ship-to vendor value */
+    INPUT  "",                   /* shi-id value */
+    OUTPUT cRecValue,
+    OUTPUT lRecFound
+    ).
+                      
+IF lRecFound AND LOGICAL(cRecValue) THEN DO:
+    RUN sys/ref/nk1look.p (
+        INPUT  cocode,               /* Company Code */
+        INPUT  cSysCtrlName,         /* sys-ctrl name */
+        INPUT  "C",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  FALSE,                /* Use ship-to */
+        INPUT  FALSE,                /* ship-to vendor */
+        INPUT  "",                   /* ship-to vendor value */
+        INPUT  "",                   /* shi-id value */
+        OUTPUT cRecValue,
+        OUTPUT lRecFound
+        ).
+    
+    ASSIGN
+        cFullFilePath = (IF cRecValue NE "" THEN
+                            cRecValue + "/"
+                         ELSE
+                            "") 
+                      + "PayablesAdvantage_" 
+                      + STRING(YEAR(TODAY),"9999")
+                      + STRING(MONTH(TODAY),"99")
+                      + STRING(DAY(TODAY),"99")
+                      + ".txt"
+        .
+    
+    RUN ap/APExportPayablesAdvFormat.p (
+        INPUT cocode, 
+        INPUT post-manual, 
+        INPUT cFullFilePath
+        ).
+END.
+/* End bank transmittal file generation */
 
 ASSIGN
 time_stamp = STRING(TIME, "hh:mmam")
