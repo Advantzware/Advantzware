@@ -46,11 +46,11 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i new shared}
 
-assign
- cocode = gcompany
- locode = gloc.
+ASSIGN
+    cocode = gcompany
+    locode = gloc.
 
-def var v-process as log no-undo.
+DEFINE VARIABLE v-process AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -82,70 +82,70 @@ btn-process btn-cancel
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-     LABEL "Ca&ncel" 
-     SIZE 18 BY 1.14.
+    LABEL "Ca&ncel" 
+    SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-     LABEL "&Start Process" 
-     SIZE 18 BY 1.14.
+    LABEL "&Start Process" 
+    SIZE 18 BY 1.14.
 
 DEFINE VARIABLE begin_order AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
-     LABEL "Beginning Order#" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+    LABEL "Beginning Order#" 
+    VIEW-AS FILL-IN 
+    SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_order AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
-     LABEL "Ending Order#" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+    LABEL "Ending Order#" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE purge_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Purge Orders Prior To" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+    LABEL "Purge Orders Prior To" 
+    VIEW-AS FILL-IN 
+    SIZE 16 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 89 BY 8.57.
+    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+    SIZE 89 BY 8.57.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     purge_date AT ROW 7.19 COL 44 COLON-ALIGNED
-     begin_order AT ROW 9.57 COL 27 COLON-ALIGNED HELP
-          "Enter Beginning Order Number"
-     end_order AT ROW 9.57 COL 63 COLON-ALIGNED HELP
-          "Enter Ending Order Number"
-     btn-process AT ROW 15.29 COL 21
-     btn-cancel AT ROW 15.29 COL 53
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 5.29 COL 5
-     "" VIEW-AS TEXT
-          SIZE 2.2 BY .95 AT ROW 1.95 COL 88
-          BGCOLOR 11 
-     RECT-17 AT ROW 4.81 COL 1
+    purge_date AT ROW 7.19 COL 44 COLON-ALIGNED
+    begin_order AT ROW 9.57 COL 27 COLON-ALIGNED HELP
+    "Enter Beginning Order Number"
+    end_order AT ROW 9.57 COL 63 COLON-ALIGNED HELP
+    "Enter Ending Order Number"
+    btn-process AT ROW 15.29 COL 21
+    btn-cancel AT ROW 15.29 COL 53
+    "Selection Parameters" VIEW-AS TEXT
+    SIZE 21 BY .62 AT ROW 5.29 COL 5
+    "" VIEW-AS TEXT
+    SIZE 2.2 BY .95 AT ROW 1.95 COL 88
+    BGCOLOR 11 
+    RECT-17 AT ROW 4.81 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 89.6 BY 17.52.
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 89.6 BY 17.52.
 
 DEFINE FRAME FRAME-B
-     "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
-          SIZE 84 BY .95 AT ROW 1.95 COL 4
-          BGCOLOR 11 FGCOLOR 12 FONT 5
-     "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
-          SIZE 76 BY .95 AT ROW 2.91 COL 8
-          BGCOLOR 11 FGCOLOR 12 FONT 5
+    "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
+    SIZE 84 BY .95 AT ROW 1.95 COL 4
+    BGCOLOR 11 FGCOLOR 12 FONT 5
+    "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
+    SIZE 76 BY .95 AT ROW 2.91 COL 8
+    BGCOLOR 11 FGCOLOR 12 FONT 5
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 89.2 BY 3.81
-         BGCOLOR 11 .
+    SIDE-LABELS NO-UNDERLINE THREE-D 
+    AT COL 1 ROW 1
+    SIZE 89.2 BY 3.81
+    BGCOLOR 11 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -162,30 +162,30 @@ DEFINE FRAME FRAME-B
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "Purge Orders"
-         HEIGHT             = 17.71
-         WIDTH              = 90.2
-         MAX-HEIGHT         = 19.76
-         MAX-WIDTH          = 98.2
-         VIRTUAL-HEIGHT     = 19.76
-         VIRTUAL-WIDTH      = 98.2
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+    CREATE WINDOW C-Win ASSIGN
+        HIDDEN             = YES
+        TITLE              = "Purge Orders"
+        HEIGHT             = 17.71
+        WIDTH              = 90.2
+        MAX-HEIGHT         = 19.76
+        MAX-WIDTH          = 98.2
+        VIRTUAL-HEIGHT     = 19.76
+        VIRTUAL-WIDTH      = 98.2
+        RESIZE             = YES
+        SCROLL-BARS        = NO
+        STATUS-AREA        = YES
+        BGCOLOR            = ?
+        FGCOLOR            = ?
+        KEEP-FRAME-Z-ORDER = YES
+        THREE-D            = YES
+        MESSAGE-AREA       = NO
+        SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -198,24 +198,25 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* REPARENT FRAME */
-ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
+ASSIGN 
+    FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
 ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
 
 ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+    btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
 
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+    THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -229,12 +230,13 @@ THEN C-Win:HIDDEN = no.
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Purge Orders */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
+    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+    DO:
+        /* This case occurs when the user presses the "Esc" key.
+           In a persistently run window, just ignore this.  If we did not, the
+           application would exit. */
+        IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -242,11 +244,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Purge Orders */
-DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
-END.
+    DO:
+        /* This event will close the window and terminate the procedure.  */
+        APPLY "CLOSE":U TO THIS-PROCEDURE.
+        RETURN NO-APPLY.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -255,9 +257,9 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
-    apply "close" to this-procedure.
-END.
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -266,9 +268,9 @@ END.
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-DO:
-    run run-process.
-END.
+    DO:
+        RUN run-process.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -288,7 +290,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
+    RUN disable_UI.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -297,22 +299,23 @@ PAUSE 0 BEFORE-HIDE.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     /* check security */
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
+    IF access-close THEN 
+    DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
 
-  FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
+    FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
 
-  purge_date = today.
+    purge_date = TODAY.
 
-  RUN enable_UI.
+    RUN enable_UI.
 
-  {methods/nowait.i}
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    {methods/nowait.i}
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,18 +326,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+    /*------------------------------------------------------------------------------
+      Purpose:     DISABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we clean-up the user-interface by deleting
+                   dynamic widgets we have created and/or hide 
+                   frames.  This procedure is usually called when
+                   we are ready to "clean-up" after running.
+    ------------------------------------------------------------------------------*/
+    /* Delete the WINDOW we created */
+    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+        THEN DELETE WIDGET C-Win.
+    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -342,23 +345,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY purge_date begin_order end_order 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 purge_date begin_order end_order btn-process btn-cancel 
-      WITH FRAME FRAME-A IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-  VIEW FRAME FRAME-B IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
-  VIEW C-Win.
+    /*------------------------------------------------------------------------------
+      Purpose:     ENABLE the User Interface
+      Parameters:  <none>
+      Notes:       Here we display/view/enable the widgets in the
+                   user-interface.  In addition, OPEN all queries
+                   associated with each FRAME and BROWSE.
+                   These statements here are based on the "Other 
+                   Settings" section of the widget Property Sheets.
+    ------------------------------------------------------------------------------*/
+    DISPLAY purge_date begin_order end_order 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    ENABLE RECT-17 purge_date begin_order end_order btn-process btn-cancel 
+        WITH FRAME FRAME-A IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+    VIEW FRAME FRAME-B IN WINDOW C-Win.
+    {&OPEN-BROWSERS-IN-QUERY-FRAME-B}
+    VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -366,247 +369,253 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-/***************************************************** util/cln-ord.p 5/96  */
-/****************************************************************************/
 
-def var v-post-date as date init today no-undo.
-def var v-first-ord like oe-ord.ord-no no-undo.
-def var v-last-ord like oe-ord.ord-no no-undo.
+    DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
+    DEFINE VARIABLE v-first-ord LIKE oe-ord.ord-no NO-UNDO.
+    DEFINE VARIABLE v-last-ord LIKE oe-ord.ord-no NO-UNDO.
 
-DEF BUFFER b-boll FOR oe-boll.
-DEF BUFFER b-rell FOR oe-rell.
+    DEFINE BUFFER b-boll FOR oe-boll.
+    DEFINE BUFFER b-rell FOR oe-rell.
+
+    DO WITH FRAME {&frame-name}:
+        ASSIGN
+            purge_date
+            begin_order
+            end_order.
+    END.
+
+    ASSIGN
+        v-post-date = purge_date
+        v-first-ord = begin_order
+        v-last-ord  = end_order
+        v-process   = NO.
+
+    MESSAGE 
+        "Are you sure you want to delete the orders within the selection parameters?"
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+
+    IF v-process THEN DO:
+        FOR EACH oe-ord NO-LOCK 
+            WHERE oe-ord.company  EQ cocode
+            AND oe-ord.ord-date LT v-post-date
+            AND oe-ord.ord-no   GE v-first-ord
+            AND oe-ord.ord-no   LE v-last-ord
+            USE-INDEX ordate
+            TRANSACTION:
+
+            FOR EACH oe-rel EXCLUSIVE WHERE 
+                oe-rel.company EQ cocode AND 
+                oe-rel.ord-no  EQ oe-ord.ord-no
+                USE-INDEX ord-item:
+                DELETE oe-rel.
+            END. /* oe-rel */
+
+            FOR EACH oe-rell EXCLUSIVE WHERE 
+                oe-rell.company EQ oe-ord.company AND 
+                oe-rell.ord-no  EQ oe-ord.ord-no
+                USE-INDEX ord-no:
+                DELETE oe-rell.
+            END. /* oe-rell */
+
+            FIND FIRST oe-relh EXCLUSIVE WHERE 
+                oe-relh.company EQ oe-ord.company AND 
+                oe-relh.ord-no EQ oe-ord.ord-no 
+                USE-INDEX order 
+                NO-ERROR.
+            IF NOT CAN-FIND(FIRST b-rell WHERE 
+                            b-rell.r-no EQ oe-relh.r-no) THEN
+                DELETE oe-relh.
+
+            FOR EACH oe-boll EXCLUSIVE WHERE 
+                oe-boll.company EQ oe-ord.company AND 
+                oe-boll.ord-no  EQ oe-ord.ord-no
+                USE-INDEX ord-no:
+                DELETE oe-boll.
+            END. /* oe-boll */
+
+            FIND FIRST oe-bolh EXCLUSIVE WHERE 
+                oe-bolh.company EQ oe-ord.company AND 
+                oe-bolh.b-no EQ oe-ord.ord-no 
+                USE-INDEX order-no
+                NO-ERROR.
+
+            IF AVAIL oe-bolh THEN FOR EACH inv-head EXCLUSIVE WHERE 
+                inv-head.company EQ cocode AND  
+                inv-head.bol-no EQ oe-bolh.bol-no
+                USE-INDEX bolno:
+
+                FOR EACH inv-line EXCLUSIVE WHERE 
+                    inv-line.r-no    EQ inv-head.r-no AND 
+                    inv-line.company EQ inv-head.company 
+                    USE-INDEX r-no:
+                    DELETE inv-line.
+                END. /* inv-line */
+
+                FOR EACH inv-misc EXCLUSIVE WHERE 
+                    inv-misc.r-no    EQ inv-head.r-no AND 
+                    inv-misc.company EQ inv-head.company
+                    USE-INDEX r-no:
+                    DELETE inv-misc.
+                END. /* inv-misc */
+
+                DELETE inv-head.
+            END. /* inv-head */
+
+            IF NOT CAN-FIND(FIRST b-boll WHERE 
+                            b-boll.b-no EQ oe-bolh.b-no) THEN 
+                DELETE oe-bolh.
 
 
-session:set-wait-state("General").
+            FOR EACH oe-ordl NO-LOCK WHERE 
+                oe-ordl.company EQ cocode AND 
+                oe-ordl.ord-no  EQ oe-ord.ord-no
+                USE-INDEX ord-no:
 
-do with frame {&frame-name}:
-  assign
-   purge_date
-   begin_order
-   end_order.
-end.
+                FOR EACH job EXCLUSIVE WHERE 
+                    job.company EQ cocode AND 
+                    job.job-no  EQ oe-ordl.job-no AND 
+                    job.job-no2 EQ oe-ordl.job-no2
+                    USE-INDEX job-no:
 
-session:set-wait-state("").
+                    RUN jc/jc-dall.p (RECID(job)).
 
-assign
- v-post-date = purge_date
- v-first-ord = begin_order
- v-last-ord  = end_order
- v-process   = no.
+                    FOR EACH job-hdr EXCLUSIVE WHERE 
+                        job-hdr.company EQ cocode AND 
+                        job-hdr.job     EQ job.job AND 
+                        job-hdr.job-no  EQ job.job-no AND 
+                        job-hdr.job-no2 EQ job.job-no2
+                        USE-INDEX job-no:
 
-message "Are you sure you want to delete the orders within the " +
-        "selection parameters?"
-        view-as alert-box question button yes-no update v-process.
+                        {util/dljobkey.i}
 
-if v-process then do:
-  for each oe-ord
-      where oe-ord.company  eq cocode
-        and oe-ord.ord-date lt v-post-date
-        and oe-ord.ord-no   ge v-first-ord
-        and oe-ord.ord-no   le v-last-ord
-      EXCLUSIVE transaction:
+                        DELETE job-hdr.
+                    END.
 
-    for each oe-rel
-        where oe-rel.company eq cocode
-          and oe-rel.ord-no  eq oe-ord.ord-no:
-        delete oe-rel.
-    end. /* oe-rell */
+                    FOR EACH job-mat EXCLUSIVE WHERE 
+                        job-mat.company EQ job.company AND 
+                        job-mat.job     EQ job.job AND 
+                        job-mat.job-no  EQ job.job-no AND 
+                        job-mat.job-no2 EQ job.job-no2
+                        USE-INDEX job:
+                        DELETE job-mat.
+                    END.
 
-    FOR EACH oe-rell
-        WHERE oe-rell.company EQ oe-ord.company
-          AND oe-rell.ord-no  EQ oe-ord.ord-no:
+                    FOR EACH job-mch EXCLUSIVE WHERE 
+                        job-mch.company EQ job.company AND 
+                        job-mch.job     EQ job.job AND 
+                        job-mch.job-no  EQ job.job-no AND 
+                        job-mch.job-no2 EQ job.job-no2
+                        USE-INDEX job:
+                        DELETE job-mch.
+                    END.
 
-      DELETE oe-rell.
+                    FOR EACH job-prep EXCLUSIVE WHERE 
+                        job-prep.company EQ job.company AND 
+                        job-prep.job     EQ job.job AND 
+                        job-prep.job-no  EQ job.job-no AND 
+                        job-prep.job-no2 EQ job.job-no2
+                        USE-INDEX prep-idx:
+                        DELETE job-prep.
+                    END.
 
-      FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-relh.r-no NO-ERROR.
-      IF NOT CAN-FIND(b-rell WHERE b-rell.r-no EQ oe-relh.r-no) THEN
-        DELETE oe-relh.
-    END. /* oe-rell */
+                    FOR EACH job-farm EXCLUSIVE WHERE 
+                        job-farm.company EQ job.company AND 
+                        job-farm.job-no  EQ job.job-no AND 
+                        job-farm.job-no2 EQ job.job-no2
+                        USE-INDEX job-no:
+                        DELETE job-farm.
+                    END.
 
-    FOR EACH oe-boll
-        WHERE oe-boll.company EQ oe-ord.company
-          AND oe-boll.ord-no  EQ oe-ord.ord-no:
+                    FOR EACH job-farm-rctd EXCLUSIVE WHERE 
+                        job-farm-rctd.company EQ job.company AND 
+                        job-farm-rctd.job-no  EQ job.job-no AND 
+                        job-farm-rctd.job-no2 EQ job.job-no2
+                        USE-INDEX job-farm-rctd:
+                        DELETE job-farm-rctd.
+                    END.
 
-      DELETE oe-boll.
+                    FOR EACH pc-prdd EXCLUSIVE WHERE 
+                        pc-prdd.company EQ cocode AND 
+                        pc-prdd.job     EQ job.job AND 
+                        pc-prdd.job-no  EQ job.job-no AND 
+                        pc-prdd.job-no2 EQ job.job-no2
+                        USE-INDEX job-no:
+                        DELETE pc-prdd.
+                    END.
 
-      FIND FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-bolh.b-no NO-ERROR.
-      IF NOT CAN-FIND(b-boll WHERE b-boll.b-no EQ oe-bolh.b-no) THEN DELETE oe-bolh.
-    END. /* oe-boll */
+                    FOR EACH fg-act EXCLUSIVE WHERE 
+                        fg-act.company EQ cocode AND 
+                        fg-act.job     EQ job.job AND 
+                        fg-act.job-no  EQ job.job-no AND 
+                        fg-act.job-no2 EQ job.job-no2
+                        USE-INDEX job-no:
+                        DELETE fg-act.
+                    END.
 
-    for each inv-head
-          where inv-head.company eq cocode
-            and  inv-head.bol-no eq oe-bolh.bol-no:
+                    FOR EACH mat-act EXCLUSIVE WHERE 
+                        mat-act.company EQ cocode AND 
+                        mat-act.job     EQ job.job AND 
+                        mat-act.job-no  EQ job.job-no AND 
+                        mat-act.job-no2 EQ job.job-no2
+                        USE-INDEX job:
+                        DELETE mat-act.
+                    END.
 
-        for each inv-line
-            where inv-line.company eq cocode
-              and inv-line.r-no    eq inv-head.r-no:
+                    FOR EACH mch-act EXCLUSIVE WHERE 
+                        mch-act.company EQ cocode AND 
+                        mch-act.job     EQ job.job AND 
+                        mch-act.job-no  EQ job.job-no AND 
+                        mch-act.job-no2 EQ job.job-no2
+                        USE-INDEX job-no:
+                        DELETE mch-act.
+                    END.
 
-          delete inv-line.
-        end. /* inv-line */
+                    FOR EACH misc-act EXCLUSIVE WHERE 
+                        misc-act.company EQ cocode AND 
+                        misc-act.job     EQ job.job AND 
+                        misc-act.job-no  EQ job.job-no AND 
+                        misc-act.job-no2 EQ job.job-no2
+                        USE-INDEX misc-idx:
+                        DELETE misc-act.
+                    END.
 
-        for each inv-misc
-            where inv-misc.company eq cocode
-              and inv-misc.r-no    eq inv-head.r-no:
+                    FOR EACH fg-bin EXCLUSIVE WHERE 
+                        fg-bin.company    EQ cocode AND 
+                        fg-bin.job-no     EQ job.job-no AND 
+                        fg-bin.job-no2    EQ job.job-no2 AND 
+                        fg-bin.i-no       NE "" AND 
+                        fg-bin.qty        EQ 0
+                        USE-INDEX job:
+                        /* Moved here so indexing ok on for each */
+                        IF TRIM(fg-bin.i-no) EQ "" THEN NEXT.
+                        DELETE fg-bin.
+                    END.
 
-          delete inv-misc.
-        end. /* inv-misc */
+                    IF job.exported THEN DO:
+                        job.stat = "X".
+                        RUN jc/kiwiexp2.p (RECID(job)).
+                    END.
 
-        delete inv-head.
-    end. /* inv-head */
+                    DELETE job.
+                END.
 
-    for each oe-ordl
-        where oe-ordl.company eq cocode
-          and oe-ordl.ord-no  eq oe-ord.ord-no
-        exclusive:
+                FIND CURRENT oe-ordl EXCLUSIVE.
+                DELETE oe-ordl.
+            END.
 
-      for each job
-          where job.company eq cocode
-            and job.job-no  eq oe-ordl.job-no
-            and job.job-no2 eq oe-ordl.job-no2
-          exclusive:
+            FIND CURRENT oe-ord EXCLUSIVE.
+            DELETE oe-ord.
+        END. /* oe-ord */
 
-        run jc/jc-dall.p (recid(job)).
+        MESSAGE 
+            TRIM(c-win:TITLE) + " Process Is Completed." 
+            VIEW-AS ALERT-BOX.
+        
+        APPLY "close" TO THIS-PROCEDURE.
+    
+    END.
 
-        for each job-hdr
-            where job-hdr.company eq cocode
-              and job-hdr.job     eq job.job
-              and job-hdr.job-no  eq job.job-no
-              and job-hdr.job-no2 eq job.job-no2
-            exclusive:
-
-          {util/dljobkey.i}
-
-          delete job-hdr.
-        end.
-
-        for each job-mat
-            where job-mat.company eq job.company
-              and job-mat.job     eq job.job
-              and job-mat.job-no  eq job.job-no
-              and job-mat.job-no2 eq job.job-no2
-            exclusive:
-
-          delete job-mat.
-        end.
-
-        for each job-mch
-            where job-mch.company eq job.company
-              and job-mch.job     eq job.job
-              and job-mch.job-no  eq job.job-no
-              and job-mch.job-no2 eq job.job-no2
-            exclusive:
-
-          delete job-mch.
-        end.
-
-        for each job-prep
-            where job-prep.company eq job.company
-              and job-prep.job     eq job.job
-              and job-prep.job-no  eq job.job-no
-              and job-prep.job-no2 eq job.job-no2
-            exclusive:
-
-          delete job-prep.
-        end.
-
-        FOR EACH job-farm
-            WHERE job-farm.company EQ job.company
-              AND job-farm.job-no  EQ job.job-no
-              AND job-farm.job-no2 EQ job.job-no2
-            EXCLUSIVE:
-          DELETE job-farm.
-        END.
-
-        FOR EACH job-farm-rctd
-            WHERE job-farm-rctd.company EQ job.company
-              AND job-farm-rctd.job-no  EQ job.job-no
-              AND job-farm-rctd.job-no2 EQ job.job-no2
-            EXCLUSIVE:
-          DELETE job-farm-rctd.
-        END.
-
-        for each pc-prdd
-            where pc-prdd.company eq cocode
-              and pc-prdd.job     eq job.job
-              and pc-prdd.job-no  eq job.job-no
-              and pc-prdd.job-no2 eq job.job-no2
-            exclusive:
-
-          delete pc-prdd.
-        end.
-
-        for each fg-act
-            where fg-act.company eq cocode
-              and fg-act.job     eq job.job
-              and fg-act.job-no  eq job.job-no
-              and fg-act.job-no2 eq job.job-no2
-            exclusive:
-
-          delete fg-act.
-        end.
-
-        for each mat-act
-            where mat-act.company eq cocode
-              and mat-act.job     eq job.job
-              and mat-act.job-no  eq job.job-no
-              and mat-act.job-no2 eq job.job-no2
-            exclusive:
-
-          delete mat-act.
-        end.
-
-        for each mch-act
-            where mch-act.company eq cocode
-              and mch-act.job     eq job.job
-              and mch-act.job-no  eq job.job-no
-              and mch-act.job-no2 eq job.job-no2
-            exclusive:
-
-          delete mch-act.
-        end.
-
-        for each misc-act
-            where misc-act.company eq cocode
-              and misc-act.job     eq job.job
-              and misc-act.job-no  eq job.job-no
-              and misc-act.job-no2 eq job.job-no2
-            exclusive:
-
-          delete misc-act.
-        end.
-
-        for each fg-bin
-            where fg-bin.company    eq cocode
-              and fg-bin.job-no     eq job.job-no
-              and fg-bin.job-no2    eq job.job-no2
-              and trim(fg-bin.i-no) ne ""    
-              and fg-bin.qty        eq 0
-            exclusive:
-
-          delete fg-bin.
-        end.
-
-        if job.exported then do:
-          job.stat = "X".
-          run jc/kiwiexp2.p (recid(job)).
-        end.
-
-        delete job.
-      end.
-
-      delete oe-ordl.
-    end.
-
-    delete oe-ord.
-  end. /* oe-ord */
-
-  message trim(c-win:title) + " Process Is Completed." view-as alert-box.
-  apply "close" to this-procedure.
-end.
-
-return no-apply.
-
-/* end ---------------------------------- copr. 2001  advanced software, inc. */
+    RETURN NO-APPLY.
 
 END PROCEDURE.
 
