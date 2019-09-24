@@ -438,17 +438,8 @@ PROCEDURE pInitializeExcel :
     DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
 
     CREATE "Excel.Application" gchExcelApplication.
-    IF SEARCH("template\JobProfitability.xltx") = ? THEN 
-    DO:
-        FILE-INFO:FILE-NAME = SEARCH("C:\Advantzware\v16\Resources\template\JobProfitability.xltx").
-    END.
-    ELSE 
-    DO:
-        FILE-INFO:FILE-NAME = SEARCH("template\JobProfitability.xltx").
-    END.
-    ASSIGN 
-        cFile = SEARCH(FILE-INFO:FULL-PATHNAME).
-  
+    RUN sys/ref/getFileFullPathName.p ("Template\PTJobProfitability.xlt", OUTPUT cFile).
+
     IF SEARCH (cFile) = ? THEN 
     DO:
         MESSAGE 
