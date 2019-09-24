@@ -82,8 +82,8 @@ DEFINE TEMP-TABLE tt-order NO-UNDO
     FIELD iLine         AS INTEGER
     FIELD dDate         AS DATE 
     FIELD cItem         AS CHARACTER
-    FIELD cstyle        AS CHARACTER
-    FIELD cstyledscr    AS CHARACTER
+    FIELD cProCat        AS CHARACTER
+    FIELD cProCatdscr    AS CHARACTER
     FIELD iBackLogQty   AS INTEGER
     FIELD dBackLogValue AS DECIMAL
     FIELD iOnHandQty    AS INTEGER 
@@ -94,12 +94,12 @@ DEFINE TEMP-TABLE tt-order NO-UNDO
 ASSIGN 
     cTextListToSelect  = "Sales Ord,Ord Date,Com Date,Item Description," + 
                             "PR CD,Order Qty,Made Qty,Shipped Qty,Bal/Run Qty,On-Hand Qty," +
-                            "Price Per,Total Value"
+                            "Price Per,Total Value,Customer #"
     cFieldListToSelect = "sales-ord,ord-date,com-date,item-dscr," + 
                             "pr-cd,ord-qty,made-qty,ship-qty,bal-qty,onhnd-qty," + 
-                            "prc-per,tot-val"
-    cFieldLength       = "9,10,10,30," + "5,12,12,12,12,12," + "17,14"
-    cFieldType         = "i,c,c,c," + "i,i,i,i,i,i," + "c,i" 
+                            "prc-per,tot-val,cust-no"
+    cFieldLength       = "9,10,10,30," + "5,12,12,12,12,12," + "17,14,10"
+    cFieldType         = "i,c,c,c," + "i,i,i,i,i,i," + "c,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1431,7 +1431,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE dGrTotValQty      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iCurrentYearMonth AS INTEGER   NO-UNDO .
     DEFINE VARIABLE iLastYearMonth    AS INTEGER   NO-UNDO .
-    DEFINE VARIABLE cStyle            AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cProCat            AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cDisplay          AS cha       NO-UNDO.
     DEFINE VARIABLE cExcelDisplay     AS cha       NO-UNDO.
     DEFINE VARIABLE hField            AS HANDLE    NO-UNDO.
@@ -1452,6 +1452,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
     DEFINE BUFFER b-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-period FOR period .
+    DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
     FORM HEADER
         "Order# Item#           Description                 Order Qty Shipped Qty  OnHand Qty Date    P.O. Number      Job Number"                 
@@ -1475,6 +1476,8 @@ PROCEDURE run-report :
 
         WITH NO-LABELS DOWN STREAM-IO WIDTH 132 FRAME itemx.
     EMPTY TEMP-TABLE tt-order .
+
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
     DEFINE VARIABLE cslist AS cha NO-UNDO.
     FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1502,7 +1505,7 @@ PROCEDURE run-report :
 
     IF tb_excel THEN 
     DO:
-        OUTPUT STREAM excel TO VALUE(fi_file).
+        OUTPUT STREAM excel TO VALUE(cFileName).
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
@@ -1604,13 +1607,13 @@ PROCEDURE run-report :
             v-job-no = TRIM(STRING(oe-ord.job-no) + "-" + STRING(oe-ord.job-no2)) .
             v-job-no = IF v-job-no EQ "-0" OR v-job-no EQ "-00" THEN "" ELSE TRIM(v-job-no)  .
                    
-            cStyle = itemfg.style .
+            cProCat = itemfg.procat .
             FIND FIRST eb NO-LOCK 
                 WHERE eb.company EQ cocode 
                 AND eb.est-no EQ oe-ordl.est-no 
                 AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
             IF AVAILABLE eb THEN
-                cStyle = eb.style .
+                cProCat = eb.procat .
 
             iMadeQty = producedQty(oe-ordl.i-no,oe-ordl.job-no,oe-ordl.job-no2) .
 
@@ -1652,7 +1655,7 @@ PROCEDURE run-report :
                     WHEN "ord-date"  THEN cVarValue = IF oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date,"99/99/9999") ELSE "" .
                     WHEN "com-date"  THEN cVarValue = IF oe-ord.due-date NE ? THEN STRING(oe-ord.due-date,"99/99/9999") ELSE "" .
                     WHEN "item-dscr" THEN cVarValue = STRING(v-dscr,"x(30)") .
-                    WHEN "pr-cd"     THEN cVarValue = STRING(cStyle,"x(6)") .
+                    WHEN "pr-cd"     THEN cVarValue = STRING(cProCat,"x(6)") .
                     WHEN "ord-qty"   THEN cVarValue = STRING(v-qty,"->>>,>>>,>>9") .
                     WHEN "made-qty"  THEN cVarValue = STRING(iMadeQty,"->>>,>>>,>>9") .
                     WHEN "ship-qty"  THEN cVarValue = STRING(v-inv-qty,"->>>,>>>,>>9")  .
@@ -1660,6 +1663,7 @@ PROCEDURE run-report :
                     WHEN "onhnd-qty" THEN cVarValue = STRING(v-q-onh,"->>,>>>,>>9").
                     WHEN "prc-per"   THEN cVarValue = STRING(cPricePer,"X(17)").
                     WHEN "tot-val"   THEN cVarValue = STRING(dOnHandvalue,"->>,>>>,>>9.99")  .
+                    WHEN "cust-no"   THEN cVarValue = STRING(cust.cust-no).
                                  
                 END CASE.
                 cExcelVarValue = cVarValue.
@@ -1700,8 +1704,8 @@ PROCEDURE run-report :
                 tt-order.iLine         = oe-ordl.LINE
                 tt-order.dDate         = oe-ord.ord-date
                 tt-order.cItem         = oe-ordl.i-no
-                tt-order.cstyle        = cStyle
-                tt-order.cstyledscr    = ""
+                tt-order.cProCat        = cProCat
+                tt-order.cProCatdscr    = ""
                 tt-order.iBackLogQty   = v-qty
                 tt-order.dBackLogValue = dBackLogvalue
                 tt-order.iOnHandQty    = v-q-onh
@@ -1736,6 +1740,7 @@ PROCEDURE run-report :
                 WHEN "onhnd-qty" THEN cVarValue = STRING(iTotOnHQty,"->>,>>>,>>9").
                 WHEN "prc-per"   THEN cVarValue = "".
                 WHEN "tot-val"   THEN cVarValue = STRING(dTotValQty,"->>,>>>,>>9.99")  .
+                WHEN "cust-no"   THEN cVarValue = "".
             END.
             cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
@@ -1775,6 +1780,7 @@ DO i = 1 TO NUM-ENTRIES(cSelectedlist):
         WHEN "onhnd-qty" THEN cVarValue = STRING(iGrTotOnHQty,"->>,>>>,>>9").
         WHEN "prc-per"   THEN cVarValue = "".
         WHEN "tot-val"   THEN cVarValue = STRING(dGrTotValQty,"->>,>>>,>>9.99")  .
+        WHEN "cust-no"   THEN cVarValue = "".
     END.
     cExcelVarValue = cVarValue.
     cDisplay = cDisplay + cVarValue +
@@ -1797,7 +1803,7 @@ FIND FIRST period
 
 IF AVAILABLE period THEN 
 DO:
-    RUN pPrintData ( YES,"****** RECAP BY STYLE NUMBER FOR " +  STRING(period.pnum) + "/" + STRING(period.yr) + " ******",period.pst,period.pend) .
+    RUN pPrintData ( YES,"****** RECAP BY CATEGORY NUMBER FOR " +  STRING(period.pnum) + "/" + STRING(period.yr) + " ******",period.pst,period.pend) .
 END.
 
 dtPreYearDate = DATE(MONTH(as-of-date),DAY(as-of-date),YEAR(as-of-date) - 1).
@@ -1815,7 +1821,7 @@ FIND FIRST bf-period NO-LOCK
 
 IF AVAILABLE bf-period THEN 
 DO:
-    RUN pPrintData ( YES,"****** RECAP BY STYLE NUMBER FOR " +  STRING(bf-period.pnum) + "/" + STRING(bf-period.yr) + " ******",bf-period.pst,bf-period.pend) .
+    RUN pPrintData ( YES,"****** RECAP BY CATEGORY NUMBER FOR " +  STRING(bf-period.pnum) + "/" + STRING(bf-period.yr) + " ******",bf-period.pst,bf-period.pend) .
 END.
 
 FIND FIRST bf-period NO-LOCK
@@ -1826,7 +1832,7 @@ FIND FIRST bf-period NO-LOCK
 
 IF AVAILABLE bf-period THEN 
 DO:
-    RUN pPrintData ( YES,"****** RECAP BY STYLE NUMBER FOR " +  STRING(bf-period.pnum) + "/" + STRING(bf-period.yr) + " ******",bf-period.pst,bf-period.pend) .
+    RUN pPrintData ( YES,"****** RECAP BY CATEGORY NUMBER FOR " +  STRING(bf-period.pnum) + "/" + STRING(bf-period.yr) + " ******",bf-period.pst,bf-period.pend) .
 END.
 
 
@@ -1835,7 +1841,7 @@ IF tb_excel THEN
 DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1890,21 +1896,22 @@ PROCEDURE pPrintData :
     PUT 
         SPACE(15) cPrintLabel FORMAT "x(100)" SKIP
         "                                                     BACK LOG     TOTAL VALUES " SKIP
-        "       STYLE#      DESCRIPTION                       BAL TO RUN   DOLLARS       "  SKIP 
+        "       PR CD#      DESCRIPTION                       BAL TO RUN   DOLLARS       "  SKIP 
         "       ----------- ------------------------------ ------------- --------------" SKIP.
       
     FOR EACH tt-order NO-LOCK
         WHERE tt-order.dDate GE dBegData
         AND  tt-order.dDate LE dEndData
-        BREAK BY tt-order.cStyle :
+        BREAK BY tt-order.cProCat :
 
-        FIND FIRST style NO-LOCK 
-            WHERE style.company EQ cocode 
-            AND style.style EQ tt-order.cStyle NO-ERROR .
+        FIND FIRST fgcat
+            WHERE fgcat.company EQ itemfg.company
+            AND fgcat.procat  EQ tt-order.cProCat
+            NO-LOCK NO-ERROR.
 
-        tt-order.cstyledscr =  IF AVAILABLE style THEN style.Dscr ELSE "" .
+        tt-order.cProCatdscr =  IF AVAILABLE fgcat THEN fgcat.dscr ELSE "" .
 
-        IF FIRST(tt-order.cStyle) THEN
+        IF FIRST(tt-order.cProCat) THEN
             ASSIGN iGrandTot = 0
                 dGrandTot = 0 
                 iSubTot   = 0
@@ -1916,12 +1923,12 @@ PROCEDURE pPrintData :
             PUT 
                 SPACE(15) cPrintLabel FORMAT "x(100)" SKIP
                 "                                                     BACK LOG     TOTAL VALUES " SKIP
-                "       STYLE#      DESCRIPTION                       BAL TO RUN   DOLLARS       "  SKIP 
+                "       PR CD#      DESCRIPTION                       BAL TO RUN   DOLLARS       "  SKIP 
                 "       ----------- ------------------------------ ------------- --------------" SKIP.
             iLineCount = 0 .
         END.
 
-        IF FIRST-OF(tt-order.cStyle) THEN
+        IF FIRST-OF(tt-order.cProCat) THEN
             ASSIGN
                 iSubTot = 0
                 dSubTot = 0 .
@@ -1931,17 +1938,17 @@ PROCEDURE pPrintData :
         iSubTot = iSubTot + tt-order.iBackLogQty .
         dSubTot = dSubTot + tt-order.dBackLogValue .
            
-        IF LAST-OF(tt-order.cStyle) THEN 
+        IF LAST-OF(tt-order.cProCat) THEN 
         DO:
-            PUT SPACE(7) tt-order.cStyle FORMAT "x(12)"
-                tt-order.cstyledscr  FORMAT "x(30)"
+            PUT SPACE(7) tt-order.cProCat FORMAT "x(12)"
+                tt-order.cProCatdscr  FORMAT "x(30)"
                 iSubTot FORMAT "->,>>>,>>>,>>9"
                 dSubTot FORMAT "->>>,>>>,>>9.99" SKIP .
             iLineCount = iLineCount + 1 .
         END.
            
 
-        IF LAST (tt-order.cStyle) THEN 
+        IF LAST (tt-order.cProCat) THEN 
         DO:
             PUT
                 "       ----------- ------------------------------ ------------- --------------" SKIP
@@ -1957,22 +1964,23 @@ PROCEDURE pPrintData :
     PUT 
         SPACE(15) cPrintLabel FORMAT "x(100)" SKIP
         "                                                        ON HAND   TOTAL VALUES" SKIP
-        "       STYLE#      DESCRIPTION                           BAANCE     DOLLARS   "  SKIP 
+        "       PR CD#      DESCRIPTION                           BAANCE     DOLLARS   "  SKIP 
         "       ----------- ------------------------------ ------------- --------------" SKIP.
 
       
     FOR EACH tt-order NO-LOCK
         WHERE tt-order.dDate GE dBegData
         AND  tt-order.dDate LE dEndData 
-        BREAK BY tt-order.cStyle :
+        BREAK BY tt-order.cProCat :
 
-        FIND FIRST style NO-LOCK 
-            WHERE style.company EQ cocode 
-            AND style.style EQ tt-order.cStyle NO-ERROR .
+        FIND FIRST fgcat
+            WHERE fgcat.company EQ itemfg.company
+            AND fgcat.procat  EQ tt-order.cProCat
+            NO-LOCK NO-ERROR.
 
-        tt-order.cstyledscr =  IF AVAILABLE style THEN style.Dscr ELSE "" .
-
-        IF FIRST(tt-order.cStyle) THEN
+        tt-order.cProCatdscr =  IF AVAILABLE fgcat THEN fgcat.dscr ELSE "" .
+        
+        IF FIRST(tt-order.cProCat) THEN
             ASSIGN iGrandTot = 0
                 dGrandTot = 0 
                 iSubTot   = 0
@@ -1984,12 +1992,12 @@ PROCEDURE pPrintData :
             PUT 
                 SPACE(15) cPrintLabel FORMAT "x(100)" SKIP
                 "                                                        ON HAND   TOTAL VALUES" SKIP
-                "       STYLE#      DESCRIPTION                           BAANCE     DOLLARS   "  SKIP 
+                "       PR CD#      DESCRIPTION                           BAANCE     DOLLARS   "  SKIP 
                 "       ----------- ------------------------------ ------------- --------------" SKIP.
             iLineCount = 0 .
         END.
            
-        IF FIRST-OF(tt-order.cStyle) THEN
+        IF FIRST-OF(tt-order.cProCat) THEN
             ASSIGN
                 iSubTot = 0
                 dSubTot = 0 .
@@ -1999,16 +2007,16 @@ PROCEDURE pPrintData :
         iSubTot = iSubTot + tt-order.iOnHandQty .
         dSubTot = dSubTot + tt-order.dOnHandValue .
 
-        IF LAST-OF(tt-order.cStyle) THEN 
+        IF LAST-OF(tt-order.cProCat) THEN 
         DO:
-            PUT SPACE(7) tt-order.cStyle FORMAT "x(12)"
-                tt-order.cstyledscr  FORMAT "x(30)"
+            PUT SPACE(7) tt-order.cProCat FORMAT "x(12)"
+                tt-order.cProCatdscr  FORMAT "x(30)"
                 iSubTot FORMAT "->,>>>,>>>,>>9"
                 dSubTot FORMAT "->>>,>>>,>>9.99" SKIP .
             iLineCount = iLineCount + 1 .
         END.
           
-        IF LAST (tt-order.cStyle) THEN 
+        IF LAST (tt-order.cProCat) THEN 
         DO:
             PUT
                 "       ----------- ------------------------------ ------------- --------------" SKIP
