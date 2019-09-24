@@ -42,10 +42,13 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
-DEFINE VARIABLE onlyone AS LOGICAL NO-UNDO.
-DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
-DEF BUFFER b-usercomp FOR usercomp .
-DEF BUFFER c-usercomp FOR usercomp .
+DEFINE VARIABLE onlyone    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE save-rowid AS ROWID   NO-UNDO.
+DEFINE BUFFER b-usercomp  FOR usercomp.
+DEFINE BUFFER c-usercomp  FOR usercomp.
+
+DEFINE TEMP-TABLE ttProcedure NO-UNDO
+    FIELD hProcedure AS HANDLE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -356,11 +359,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
 ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
-  IF usercomp.loc = "" THEN
-      GET FIRST locations.
-
-  RUN Set-comp_loc.
-  APPLY "CLOSE" TO THIS-PROCEDURE.
+    DEFINE VARIABLE lClose AS LOGICAL NO-UNDO.
+    
+    RUN pCloseProcedures (OUTPUT lClose).
+    IF lClose THEN DO:
+        IF usercomp.loc EQ "" THEN
+        GET FIRST locations.
+        RUN Set-comp_loc.
+        APPLY "CLOSE" TO THIS-PROCEDURE.
+    END. /* if close */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,13 +390,13 @@ END.
 ON VALUE-CHANGED OF companies IN FRAME DEFAULT-FRAME
 DO:
   {&OPEN-QUERY-locations}
-  FIND FIRST c-usercomp NO-LOCK WHERE 
-    c-usercomp.user_id EQ USERID("asi") AND 
-    c-usercomp.company EQ usercomp.company AND 
-    c-usercomp.loc_default EQ TRUE
-    NO-ERROR.
+  FIND FIRST c-usercomp NO-LOCK
+       WHERE c-usercomp.user_id     EQ USERID("ASI")
+         AND c-usercomp.company     EQ usercomp.company
+         AND c-usercomp.loc_default EQ TRUE
+       NO-ERROR.
   IF AVAIL c-usercomp THEN 
-    REPOSITION locations TO ROWID ROWID(c-usercomp).
+  REPOSITION locations TO ROWID ROWID(c-usercomp).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -511,6 +518,45 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCloseProcedures C-Win
+PROCEDURE pCloseProcedures:
+/*------------------------------------------------------------------------------
+ Purpose: close any open procedures
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplClose AS LOGICAL NO-UNDO INITIAL YES.
+    
+    DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttProcedure.
+    hProc = SESSION:FIRST-PROCEDURE.
+    DO WHILE VALID-HANDLE(hProc):
+        /* do not remove persist.p or any super procedures */
+        IF INDEX(hProc:FILE-NAME,"persist.") EQ 0 AND
+           NOT CAN-DO(SESSION:SUPER-PROCEDURES,STRING(hProc)) THEN DO: 
+            CREATE ttProcedure.
+            ttProcedure.hProcedure = hProc.
+        END. /* if index */
+        hProc = hProc:NEXT-SIBLING.
+    END. /* do while */
+    IF CAN-FIND(FIRST ttProcedure) THEN DO:
+        MESSAGE
+            "Changing Company/Location will CLOSE all currently OPEN Programs." SKIP(1)
+            "Continue?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+        UPDATE oplClose.
+        IF oplClose THEN
+        FOR EACH ttProcedure:
+            IF VALID-HANDLE(ttProcedure.hProcedure) THEN
+            DELETE PROCEDURE ttProcedure.hProcedure.
+        END. /* each ttprocedure */
+    END. /* if can-find */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-comp_loc C-Win 
 PROCEDURE Set-comp_loc :
 /*------------------------------------------------------------------------------
@@ -581,4 +627,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
