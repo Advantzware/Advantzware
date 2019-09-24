@@ -154,7 +154,9 @@ PROCEDURE ChangeSellPrice:
         DO:
             /*Remove all existing estCostDetails for commission and profit*/
             RUN pPurgeCostDetail(estCostHeader.estCostHeaderID, "commission").
-            RUN pPurgeCostDetail(estCostHeader.estCostHeaderID, "pProfit").          
+            RUN pPurgeCostDetail(estCostHeader.estCostHeaderID, "pProfit").
+            /*Reset the summary totals on the header, form, and items*/
+            RUN pResetCostTotals(estCostHeader.estCostHeaderID).          
             FOR EACH bf-estCostForm NO-LOCK
                 WHERE bf-estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID,
                 FIRST estCostBlank NO-LOCK 
@@ -168,7 +170,7 @@ PROCEDURE ChangeSellPrice:
                     dCommission = dNewPrice * estCostItem.commissionPct / 100
                     .
                 
-                /*Reset Totals for Form*/    
+                /*Recalculate Totals for Form*/    
                 RUN pCalcCostTotals(estCostHeader.estCostHeaderID, bf-estCostForm.estCostFormID, YES).  
                 
                 /*Add New Commission Cost*/
@@ -2730,8 +2732,6 @@ PROCEDURE pCalcCostTotals PRIVATE:
     
     DEFINE BUFFER bf-estCostDetail FOR estCostDetail.
     
-    IF iplFullReset THEN 
-        RUN pResetCostTotals(ipiEstCostHeaderID).
     FOR EACH bf-estCostDetail EXCLUSIVE-LOCK
         WHERE bf-estCostDetail.estCostHeaderID EQ ipiEstCostHeaderID
         AND (iplFullReset OR NOT bf-estCostDetail.hasBeenProcessed)
