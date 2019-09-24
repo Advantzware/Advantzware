@@ -141,6 +141,8 @@ PROCEDURE exportSnapshot:
     DEFINE INPUT PARAMETER ipcFGItemEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcWhseEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE lBinDups AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lMissingCost AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lMissingMSF AS LOGICAL NO-UNDO.
@@ -194,7 +196,7 @@ PROCEDURE exportSnapshot:
         END.            
     END.
     
-    OUTPUT STREAM sOutput TO VALUE(gcSnapshotFile).
+    OUTPUT STREAM sOutput TO VALUE(ipcFileName).
     FOR EACH ttSnapShot:
         EXPORT STREAM sOutput DELIMITER "," ttSnapShot.
     END.
@@ -719,7 +721,8 @@ PROCEDURE pCheckCountDups:
             PUT STREAM sOutput UNFORMATTED  
                 '="' ttDupTags.i-no '",'
                 '="' ttDupTags.tag '",'
-                '="' ttDupTags.transTypes '",'.              
+                '="' ttDupTags.transTypes '",'
+                SKIP.              
         END.
         OUTPUT CLOSE.
     
@@ -762,7 +765,7 @@ PROCEDURE pCheckMissingCostMSF:
         .
 END PROCEDURE.
 
-PROCEDURE pCreateTransfers:
+PROCEDURE pCreateTransferCounts:
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -778,7 +781,6 @@ PROCEDURE pCreateTransfers:
     /* Code placed here will execute PRIOR to standard behavior. */
     iNextRno = 0.
 
- 
     FOR EACH ttCycleCountCompare NO-LOCK 
         WHERE lNotScanned = FALSE 
         AND lLocationChanged
@@ -807,9 +809,8 @@ PROCEDURE pCreateTransfers:
             AND bf-rm-rctd.rita-code EQ "C"
             AND bf-rm-rctd.rct-date GE TODAY - 7
             NO-ERROR.    
-        /* The transfer should happen before the count */
-        IF AVAILABLE bf-rm-rctd AND bf-rm-rctd.qty NE rm-bin.qty THEN 
-            dTransDate = bf-rm-rctd.rct-date. 
+        
+
         FIND FIRST item WHERE item.company = rm-bin.company
             AND item.i-no = rm-bin.i-no NO-LOCK NO-ERROR.
         CREATE rm-rctd.
@@ -818,7 +819,7 @@ PROCEDURE pCreateTransfers:
             rm-rctd.loc        = rm-bin.loc
             rm-rctd.loc-bin    = rm-bin.loc-bin
             rm-rctd.company    = rm-bin.company
-            rm-rctd.rita-code  = "T"
+            rm-rctd.rita-code  = "C"
             rm-rctd.s-num      = 0
             rm-rctd.rct-date   = dTransDate
             rm-rctd.trans-time = TIME
@@ -826,9 +827,7 @@ PROCEDURE pCreateTransfers:
             rm-rctd.i-no       = rm-bin.i-no
             rm-rctd.i-name     = item.i-name
             rm-rctd.tag        = rm-bin.tag
-            rm-rctd.loc2       = ttCycleCountCompare.cScanLoc 
-            rm-rctd.loc-bin2   = ttCycleCountCompare.cScanLocBin
-            rm-rctd.tag2       = ttCycleCountCompare.cTag
+            rm-bin.po-no       = rm-bin.po-no
             lv-tag             = rm-bin.tag
             .
                                
@@ -843,6 +842,7 @@ PROCEDURE pCreateTransfers:
             rm-rctd.user-id  = USERID("nosweat")
             rm-rctd.upd-date = TODAY
             rm-rctd.upd-time = TIME.
+            
         IF AVAILABLE ITEM THEN 
         DO:
             rm-rctd.pur-uom = ITEM.cons-uom.
@@ -864,8 +864,7 @@ PROCEDURE pCreateTransfers:
             IF AVAILABLE rm-rcpth THEN 
             DO:
 
-                ASSIGN 
-                    rm-rctd.po-no   = rm-rcpth.po-no
+                ASSIGN                     
                     rm-rctd.po-line = MAX(rm-rcpth.po-line, 1)
                     rm-rctd.job-no  = rm-rcpth.job-no
                     rm-rctd.job-no2 = rm-rcpth.job-no2.
@@ -874,28 +873,8 @@ PROCEDURE pCreateTransfers:
             
             RELEASE rm-rdtlh.
         END.      
-        IF AVAILABLE bf-rm-rctd THEN DO: 
-          IF  bf-rm-rctd.qty EQ rm-bin.qty THEN DO:
-              /* Remove the count since only the transfer is needed */
-              FIND CURRENT bf-rm-rctd EXCLUSIVE-LOCK.
-              DELETE bf-rm-rctd.
-          END.
-          ELSE DO:
-              /* Recreate the count so it occurs after the transfer */
-              RUN sys/ref/asiseq.p (INPUT rm-bin.company, INPUT "rm_rcpt_seq", OUTPUT iNextRNo) NO-ERROR.
-              IF ERROR-STATUS:ERROR THEN
-                  MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
-                      VIEW-AS ALERT-BOX INFORMATION BUTTONS OK. 
-              CREATE rm-rctd.
-              BUFFER-COPY bf-rm-rctd EXCEPT rec_key TO rm-rctd 
-                    ASSIGN rm-rctd.r-no     = iNextRno 
-                           rm-rctd.rct-date = dTransDate
-                           .
-              FIND CURRENT bf-rm-rctd EXCLUSIVE-LOCK.
-              DELETE bf-rm-rctd.
-          END.
-            
-        END. 
+        
+
     END.  /* for each rm-bin*/
 
 
@@ -1063,7 +1042,7 @@ END PROCEDURE.
 PROCEDURE pGetCostMSF:
     /*------------------------------------------------------------------------------
      Purpose:
-     Notes:  Should be merged with fg/rep/fg-cst1N.i
+     Notes:  
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iprBinRow AS ROWID NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty AS DECIMAL NO-UNDO.
@@ -1097,7 +1076,7 @@ PROCEDURE pGetCostMSF:
         AND item.i-no EQ rm-bin.i-no
         NO-ERROR.
 
-    IF NOT AVAILABLE ITEM THEN NEXT.
+    IF NOT AVAILABLE ITEM THEN RETURN.
 
     IF TRIM(rm-bin.tag) EQ "" THEN
         FOR EACH rm-rcpth NO-LOCK
@@ -1273,8 +1252,8 @@ PROCEDURE pImportSnapShot PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-
-    INPUT STREAM sIn FROM VALUE(gcSnapshotFile).
+    DEFINE INPUT  PARAMETER ipcFileName AS CHARACTER NO-UNDO.
+    INPUT STREAM sIn FROM VALUE(ipcFileName).
     REPEAT: 
         CREATE ttSnapshot.
         IMPORT STREAM sIn DELIMITER "," ttSnapShot.
@@ -1311,12 +1290,15 @@ PROCEDURE postRM:
         RETURN.
 
     RUN pCreateZeroCount.
-    RUN pCreateTransfers.
-    RUN pPostTransfers.   
+    
+    RUN pCreateTransferCounts.
+    
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
         ipcBinStart, ipcBinEnd).
+        
     RUN pPostCounts (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
         ipcBinStart, ipcBinEnd).
+        
     MESSAGE "Posting Complete"
         VIEW-AS ALERT-BOX.
 END PROCEDURE.
@@ -1362,7 +1344,7 @@ PROCEDURE pPostCounts:
             AND rm-rctd.loc LE ipcWhseEnd
             AND rm-rctd.loc-bin GE ipcBinStart
             AND rm-rctd.loc-bin LE ipcBinEnd
-            AND rm-rctd.qty NE 0  
+            AND rm-rctd.qty GE 0  
             ,  
             FIRST item
             WHERE item.company EQ cocode
@@ -1378,7 +1360,14 @@ PROCEDURE pPostCounts:
                 item.q-onh      = 0
                 item.last-date  = rm-rctd.rct-date
                 .
-
+           FIND FIRST ttCycleCountCompare NO-LOCK /*Only one record per tag*/
+               WHERE ttCycleCountCompare.cCompany EQ rm-rctd.company
+                AND ttCycleCountCompare.cFGItemID EQ rm-rctd.i-no
+                AND ttCycleCountCompare.cTag      EQ rm-rctd.tag
+                NO-ERROR.
+            IF AVAIL ttCycleCountCompare THEN 
+              rm-rctd.cost = ttCycleCountCompare.dSysCost.
+              
             /** Find Bin & if not available then create it **/
             FIND FIRST rm-bin
                 WHERE rm-bin.company EQ cocode
@@ -1390,7 +1379,8 @@ PROCEDURE pPostCounts:
 
             IF NOT AVAILABLE rm-bin THEN 
             DO:
-                IF rm-rctd.cost EQ 0 THEN ASSIGN  
+                IF rm-rctd.cost EQ 0 THEN 
+                ASSIGN  
                         rm-rctd.cost     = IF v-avgcost THEN ITEM.avg-cost ELSE ITEM.last-cost
                         rm-rctd.cost-uom = ITEM.cons-uom.
                 CREATE rm-bin.
@@ -1572,10 +1562,11 @@ PROCEDURE reportComparison:
     DEFINE INPUT  PARAMETER iplSnapshotOnly AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInSnapshot AS LOGICAL NO-UNDO.
     DEFINE INPUT  PARAMETER iplDupsInScan AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSnapshotFile AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lChoosePost AS LOGICAL NO-UNDO.
         
     STATUS DEFAULT "Import Snapshot" .       
-    RUN pImportSnapshot.
+    RUN pImportSnapshot (INPUT ipcSnapshotFile).
     
     STATUS DEFAULT "Build Compare Table". 
     RUN pBuildCompareTable(ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
@@ -1611,12 +1602,12 @@ FUNCTION fGetAction RETURNS CHARACTER
 
     DEFINE VARIABLE cresult AS CHARACTER NO-UNDO.
     cResult = "Count Posted".
-    IF  ipcLocChanged THEN cResult = "Transfer auto-created".
+    IF  ipcLocChanged THEN cResult = "Count Posted, Count orig to 0".
         
     IF  iplQtyChanged THEN cResult = "Count Posted".
         
     IF  ipcLocChanged AND iplQtyChanged THEN 
-        cResult = "Transfer auto-created,Count Posted".
+        cResult = "Count Posted, Count orig to 0".
         
     /* Not in snapshot so just post count */
     IF  ipcLocChanged AND iplQtyChanged AND ipcLoc = "" THEN 
