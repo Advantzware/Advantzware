@@ -1145,7 +1145,7 @@ FOR EACH job-hdr NO-LOCK
                                     "<C2>" "<C12><b>Material: </b>" (IF AVAILABLE ITEM THEN ITEM.i-name ELSE "") FORMAT "x(30)" 
                                     "<C40><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C69><b>Cad Id: </b>" eb.cad-no FORMAT "x(12)" SKIP
                                     "<C12><b>Adhesive: </b>" eb.adhesive FORMAT "x(15)"  
-                                    "<C40><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C62><b>#Up:</b>" ef.n-cuts 
+                                    "<C40><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C62><b>#Up:</b>" eb.num-up 
                                     "<C69><b>Plate#: </b>" eb.plate-no FORMAT "x(12)" SKIP
                                     "<C40><b>Blank:</b>" eb.t-wid FORMAT ">>9.9999" SPACE(3) eb.t-len FORMAT ">>9.9999" SPACE(3) /*eb.t-sqin FORMAT ">>9.9999"*/
                                     "<C69>   <b>Die#: </b>" eb.die-no FORMAT "x(12)" SKIP .
@@ -1205,7 +1205,7 @@ FOR EACH job-hdr NO-LOCK
                                         ASSIGN
                                             dMRCrew = est-op.op-crew[1]
                                             dRunCrew = est-op.op-crew[2]
-                                            dRunWaste = est-op.op-waste .
+                                            dRunWaste = est-op.op-spoil .
                                     END.
 
                                   /*  FOR EACH mch-act                                                  */ 
