@@ -385,7 +385,7 @@ DEFINE VARIABLE v-job-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      BGCOLOR 14  NO-UNDO.
 
 DEFINE VARIABLE v-qoh AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
-     LABEL "Total" 
+     LABEL "QOH" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 14  NO-UNDO.
@@ -713,24 +713,25 @@ DO:
                                    AND b-oe-ordl.LINE    EQ oe-rell.LINE
                                  NO-LOCK NO-ERROR.
         IF AVAIL b-oe-ordl THEN do:
-            dRoundup = oe-rell.qty / b-oe-ordl.cases-unit .
+            dRoundup = oe-rell.qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
             {sys/inc/roundup.i dRoundup}
             iRelQtyPallet = iRelQtyPallet + dRoundup  .
         END.
         IF LAST-OF(oe-rell.LINE) THEN DO:
-            
             IF AVAIL b-oe-ordl THEN do:
-                v-job-qty = get-bal().
-                dRoundup = v-job-qty / b-oe-ordl.cases-unit .
+                 v-job-qty = b-oe-ordl.qty .
+               /* v-job-qty = get-bal().*/  /* Ticket# 22529 */
+                dRoundup = v-job-qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
                 {sys/inc/roundup.i dRoundup}
                 iJobPallets = dRoundup .
             END.
+            
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ oe-relh.company
                                   AND b-itemfg.i-no    EQ oe-rell.i-no
                               NO-LOCK NO-ERROR.
             IF AVAIL b-itemfg THEN do:
                 v-qoh = b-itemfg.q-onh.
-                dRoundup = v-qoh / b-itemfg.case-pall .
+                dRoundup = v-qoh / (b-itemfg.case-count * b-itemfg.case-pall) .
                 {sys/inc/roundup.i dRoundup}
                 iTotPallet = dRoundup . 
             END.
@@ -1790,23 +1791,25 @@ PROCEDURE display-qtys :
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
         IF AVAIL b-oe-ordl THEN do:
-            dRoundup = b-rell.qty / b-oe-ordl.cases-unit .
+            dRoundup = b-rell.qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
                 {sys/inc/roundup.i dRoundup}
             iRelQtyPallet = iRelQtyPallet + dRoundup .
         END.
         IF LAST-OF(b-rell.LINE) THEN DO:
             IF AVAIL b-oe-ordl THEN do:
-                v-job-qty = get-bal().
-                dRoundup = v-job-qty / b-oe-ordl.cases-unit .
+                v-job-qty = b-oe-ordl.qty .
+               /* v-job-qty = get-bal().*/ /*Ticket# 22529*/
+                dRoundup = v-job-qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
                 {sys/inc/roundup.i dRoundup}
                 iJobPallets = dRoundup .
             END.
+            
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ b-relh.company
                                 AND b-itemfg.i-no    EQ b-rell.i-no
                               NO-LOCK NO-ERROR.
             IF AVAIL b-itemfg THEN do:
                 v-qoh = b-itemfg.q-onh.
-                dRoundup = v-qoh / b-itemfg.case-pall .
+                dRoundup = v-qoh / (b-itemfg.case-count * b-itemfg.case-pall) .
                 {sys/inc/roundup.i dRoundup}
                 iTotPallet = dRoundup .
             END.
