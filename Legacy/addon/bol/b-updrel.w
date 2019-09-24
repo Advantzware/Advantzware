@@ -687,7 +687,7 @@ DO:
                                    AND b-oe-ordl.LINE    EQ oe-rell.LINE
                                  NO-LOCK NO-ERROR.
         IF AVAIL b-oe-ordl THEN do:
-            dRoundup = oe-rell.qty / b-oe-ordl.cases-unit .
+            dRoundup = oe-rell.qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
             {sys/inc/roundup.i dRoundup}
             iRelPallets = iRelPallets + dRoundup .
         END.
@@ -1772,7 +1772,7 @@ PROCEDURE display-qtys :
                                  NO-LOCK NO-ERROR.
 
         IF AVAIL b-oe-ordl THEN do:
-            dRoundup = b-rell.qty / b-oe-ordl.cases-unit .
+            dRoundup = b-rell.qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
             {sys/inc/roundup.i dRoundup}
             iRelPallets = iRelPallets + dRoundup .
         END.
@@ -1840,7 +1840,7 @@ PROCEDURE display-qtys-query :
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
         IF AVAIL b-oe-ordl THEN do: 
-            dRoundup = b-rell.qty / b-oe-ordl.cases-unit .
+            dRoundup = b-rell.qty / (b-oe-ordl.cas-cnt * b-oe-ordl.cases-unit) .
             {sys/inc/roundup.i dRoundup}
             iRelPallets = iRelPallets + dRoundup .
         END.
