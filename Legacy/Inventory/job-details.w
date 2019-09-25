@@ -43,11 +43,10 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {system/sysconst.i}
+{methods/defines/globdefs.i}
 
 DEFINE VARIABLE hdJobProcs        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cJobNo2ListItems  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFormNoListItems  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cBlankNoListItems AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
 
 RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
@@ -78,11 +77,10 @@ RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-31 RECT-32 rSelected btFGItems ~
+&Scoped-Define ENABLED-OBJECTS RECT-31 RECT-32 rSelected btExit btFGItems ~
 btMaterials btRoutings btnFirst btnPrevious btnNext btnLast 
-&Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 cbFormNo cbBlankNo ~
-fiJoblabel fiFormlabel fiBlankLabel fiStatusLabel fiStatus fiCreatedLabel ~
-fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
+&Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 fiJoblabel fiStatusLabel ~
+fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,9 +99,13 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-hdr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mch AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_smartssheader AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btExit 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     LABEL "" 
+     SIZE 11 BY 2.62.
+
 DEFINE BUTTON btFGItems 
      LABEL "FG Items" 
      SIZE 30 BY 2.52
@@ -139,30 +141,11 @@ DEFINE BUTTON btRoutings
      SIZE 30 BY 2.52
      FONT 37.
 
-DEFINE VARIABLE cbBlankNo AS INTEGER FORMAT "99":U INITIAL 0 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "0" 
-     DROP-DOWN-LIST
-     SIZE 9.8 BY 1
-     FONT 37 NO-UNDO.
-
-DEFINE VARIABLE cbFormNo AS INTEGER FORMAT "99":U INITIAL 0 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "0" 
-     DROP-DOWN-LIST
-     SIZE 9.8 BY 1
-     FONT 37 NO-UNDO.
-
 DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "00" 
      DROP-DOWN-LIST
      SIZE 9.8 BY 1
-     FONT 37 NO-UNDO.
-
-DEFINE VARIABLE fiBlankLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Blank #:" 
-     VIEW-AS FILL-IN 
-     SIZE 14.8 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiCreated AS CHARACTER FORMAT "X(256)":U 
@@ -193,11 +176,6 @@ DEFINE VARIABLE fiDue AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiDueLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Due:" 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     FONT 37 NO-UNDO.
-
-DEFINE VARIABLE fiFormlabel AS CHARACTER FORMAT "X(256)":U INITIAL "Form #:" 
-     VIEW-AS FILL-IN 
-     SIZE 14.2 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE fiJoblabel AS CHARACTER FORMAT "X(256)":U INITIAL "Job #:" 
@@ -237,34 +215,31 @@ DEFINE RECTANGLE rSelected
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiJobNo AT ROW 5.29 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cbJobNo2 AT ROW 5.33 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
-     cbFormNo AT ROW 5.33 COL 87.8 COLON-ALIGNED NO-LABEL WIDGET-ID 54
-     cbBlankNo AT ROW 5.33 COL 116.2 COLON-ALIGNED NO-LABEL WIDGET-ID 56
-     fiJoblabel AT ROW 5.43 COL 7.6 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     fiFormlabel AT ROW 5.43 COL 73.4 COLON-ALIGNED NO-LABEL WIDGET-ID 98
-     fiBlankLabel AT ROW 5.43 COL 101.2 COLON-ALIGNED NO-LABEL WIDGET-ID 96
-     fiStatusLabel AT ROW 5.43 COL 148 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     fiStatus AT ROW 5.43 COL 160.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     fiCreatedLabel AT ROW 7.67 COL 8 COLON-ALIGNED NO-LABEL WIDGET-ID 112
-     fiCreated AT ROW 7.67 COL 23.2 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     fiDueLabel AT ROW 7.67 COL 48.8 COLON-ALIGNED NO-LABEL WIDGET-ID 108
-     fiDue AT ROW 7.67 COL 58 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     fiCSRLabel AT ROW 7.67 COL 151.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     fiCSR AT ROW 7.67 COL 160.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
-     btFGItems AT ROW 10.81 COL 7.6 WIDGET-ID 118
-     btMaterials AT ROW 10.81 COL 39.2 WIDGET-ID 122
-     btRoutings AT ROW 10.81 COL 70.8 WIDGET-ID 120
-     btnFirst AT ROW 14.33 COL 192 WIDGET-ID 44
-     btnPrevious AT ROW 17.14 COL 192 WIDGET-ID 40
-     btnNext AT ROW 28.14 COL 192 WIDGET-ID 42
-     btnLast AT ROW 31 COL 192 WIDGET-ID 46
+     btExit AT ROW 1.91 COL 192 WIDGET-ID 126
+     fiJobNo AT ROW 2.43 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cbJobNo2 AT ROW 2.48 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     fiJoblabel AT ROW 2.57 COL 7.6 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     fiStatusLabel AT ROW 2.57 COL 143 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+     fiStatus AT ROW 2.57 COL 155.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     fiCreatedLabel AT ROW 4.81 COL 8 COLON-ALIGNED NO-LABEL WIDGET-ID 112
+     fiCreated AT ROW 4.81 COL 23.2 COLON-ALIGNED NO-LABEL WIDGET-ID 110
+     fiDueLabel AT ROW 4.81 COL 48.8 COLON-ALIGNED NO-LABEL WIDGET-ID 108
+     fiDue AT ROW 4.81 COL 58 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     fiCSRLabel AT ROW 4.81 COL 146.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     fiCSR AT ROW 4.81 COL 155.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+     btFGItems AT ROW 7.95 COL 7.6 WIDGET-ID 118
+     btMaterials AT ROW 7.95 COL 39.2 WIDGET-ID 122
+     btRoutings AT ROW 7.95 COL 70.8 WIDGET-ID 120
+     btnFirst AT ROW 11.48 COL 192 WIDGET-ID 44
+     btnPrevious AT ROW 14.29 COL 192 WIDGET-ID 40
+     btnNext AT ROW 27.95 COL 192 WIDGET-ID 42
+     btnLast AT ROW 30.81 COL 192 WIDGET-ID 46
      "-" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 5.62 COL 61.6 WIDGET-ID 86
+          SIZE 2 BY .62 AT ROW 2.76 COL 61.6 WIDGET-ID 86
           FONT 37
-     RECT-31 AT ROW 4.81 COL 6 WIDGET-ID 114
-     RECT-32 AT ROW 4.81 COL 146 WIDGET-ID 116
-     rSelected AT ROW 10.43 COL 6 WIDGET-ID 124
+     RECT-31 AT ROW 1.95 COL 6 WIDGET-ID 114
+     RECT-32 AT ROW 1.95 COL 141 WIDGET-ID 116
+     rSelected AT ROW 7.57 COL 6 WIDGET-ID 124
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -279,6 +254,7 @@ DEFINE FRAME F-Main
    Type: SmartWindow
    External Tables: ASI.job
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -328,13 +304,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* SETTINGS FOR COMBO-BOX cbBlankNo IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR COMBO-BOX cbFormNo IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cbJobNo2 IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiBlankLabel IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiCreated IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -347,8 +317,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiDue IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiDueLabel IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiFormlabel IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiJoblabel IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -391,6 +359,19 @@ DO:
      and its descendents to terminate properly on exit. */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btExit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit W-Win
+ON CHOOSE OF btExit IN FRAME F-Main
+DO:
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    
+    RETURN.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -516,30 +497,14 @@ PROCEDURE adm-create-objects :
 
   CASE adm-current-page: 
 
-    WHEN 0 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/smartssheader.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_smartssheader ).
-       RUN set-position IN h_smartssheader ( 1.24 , 3.80 ) NO-ERROR.
-       /* Size in UIB:  ( 3.14 , 200.00 ) */
-
-       /* Links to SmartObject h_smartssheader. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Header':U , h_smartssheader ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_smartssheader ,
-             fiJobNo:HANDLE IN FRAME F-Main , 'BEFORE':U ).
-    END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'inventory/b-job-hdr.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-job-hdr ).
-       RUN set-position IN h_b-job-hdr ( 14.33 , 7.40 ) NO-ERROR.
-       RUN set-size IN h_b-job-hdr ( 19.29 , 181.60 ) NO-ERROR.
+       RUN set-position IN h_b-job-hdr ( 11.48 , 7.40 ) NO-ERROR.
+       RUN set-size IN h_b-job-hdr ( 21.91 , 181.60 ) NO-ERROR.
 
        /* Links to SmartBrowser h_b-job-hdr. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_1':U , h_b-job-hdr ).
@@ -555,8 +520,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-job-mat ).
-       RUN set-position IN h_b-job-mat ( 14.29 , 7.40 ) NO-ERROR.
-       RUN set-size IN h_b-job-mat ( 19.33 , 181.60 ) NO-ERROR.
+       RUN set-position IN h_b-job-mat ( 11.48 , 7.40 ) NO-ERROR.
+       RUN set-size IN h_b-job-mat ( 21.91 , 181.60 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -575,8 +540,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-job-mch ).
-       RUN set-position IN h_b-job-mch ( 14.33 , 7.40 ) NO-ERROR.
-       RUN set-size IN h_b-job-mch ( 19.29 , 181.60 ) NO-ERROR.
+       RUN set-position IN h_b-job-mch ( 11.48 , 7.40 ) NO-ERROR.
+       RUN set-size IN h_b-job-mch ( 21.91 , 181.60 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -661,15 +626,37 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiJobNo cbJobNo2 cbFormNo cbBlankNo fiJoblabel fiFormlabel 
-          fiBlankLabel fiStatusLabel fiStatus fiCreatedLabel fiCreated 
-          fiDueLabel fiDue fiCSRLabel fiCSR 
+  DISPLAY fiJobNo cbJobNo2 fiJoblabel fiStatusLabel fiStatus fiCreatedLabel 
+          fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-31 RECT-32 rSelected btFGItems btMaterials btRoutings btnFirst 
-         btnPrevious btnNext btnLast 
+  ENABLE RECT-31 RECT-32 rSelected btExit btFGItems btMaterials btRoutings 
+         btnFirst btnPrevious btnNext btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+  
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+  
+    /* Code placed here will execute AFTER standard behavior.    */
+    FIND FIRST company NO-LOCK 
+         WHERE company.company EQ g_company NO-ERROR .
+    IF AVAILABLE company THEN            
+        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
+                             + STRING(company.name) + " - " + g_loc.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -731,38 +718,8 @@ PROCEDURE pInit :
     DEFINE INPUT PARAMETER ipiFormNo   AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiBlankNo  AS INTEGER   NO-UNDO.
 
-    DEFINE VARIABLE cCurrentPgmName AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE char-hdl        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE pHandle         AS HANDLE    NO-UNDO.
-    
     SESSION:SET-WAIT-STATE("GENERAL").   
     
-    ASSIGN
-        cCurrentPgmName = IF INDEX(THIS-PROCEDURE:NAME,"/") GT 0 THEN
-                              SUBSTRING(THIS-PROCEDURE:NAME, R-INDEX(THIS-PROCEDURE:NAME, "/") + 1)
-                          ELSE
-                              SUBSTRING(THIS-PROCEDURE:NAME, R-INDEX(THIS-PROCEDURE:NAME, "\") + 1)
-        cCurrentPgmName = SUBSTRING(cCurrentPgmName,1,INDEX(cCurrentPgmName,"."))
-        .
-
-    FIND FIRST prgrms NO-LOCK
-         WHERE prgrms.prgmName EQ cCurrentPgmName
-         NO-ERROR.
-    IF AVAILABLE prgrms THEN
-        {&WINDOW-NAME}:TITLE = prgrms.prgtitle.
-        
-    FIND FIRST company NO-LOCK 
-         WHERE company.company EQ ipcCompany NO-ERROR .
-    IF AVAILABLE company THEN DO:    
-        {methods\run_link.i 
-            "Header-TARGET" 
-            "UpdateHeaderDetails" 
-            "(STRING(company.name),ipcLocation,{&WINDOW-NAME}:TITLE)"}
-            
-        {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
-                             + STRING(company.name) + " - " + ipcLocation.                
-    END.    
-
     RUN pJobScan (
         ipcCompany,
         ipcJobNo,
@@ -836,11 +793,7 @@ PROCEDURE pJobScan :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN 
             cbJobNo2:LIST-ITEMS    = cJobno2ListItems
-            cbFormNo:LIST-ITEMS    = cFormnoListItems
-            cbBlankNo:LIST-ITEMS   = cBlanknoListItems
             cbJobNo2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
-            cbFormNo:SCREEN-VALUE  = STRING(ipiFormno,"99")
-            cbBlankNo:SCREEN-VALUE = STRING(ipiBlankno,"99")
             NO-ERROR.
     END.
     
@@ -928,31 +881,13 @@ PROCEDURE pUpdateComboBoxes :
     
     ASSIGN
         cJobno2ListItems  = ""
-        cFormnoListItems  = ""
-        cBlanknoListItems = ""
         .
         
     RUN GetSecondaryJobForJob IN hdJobProcs (
         ipcCompany,
         fiJobNo:SCREEN-VALUE,
         INPUT-OUTPUT cJobno2ListItems
-        ).
-    
-    DO iCount = 1 TO NUM-ENTRIES(cJobno2ListItems):
-        RUN GetFormnoForJob IN hdJobProcs (
-            ipcCompany,
-            fiJobNo:SCREEN-VALUE,
-            INTEGER(ENTRY(iCount, cJobno2ListItems)),
-            INPUT-OUTPUT cFormnoListItems
-            ).
-    
-        RUN GetBlanknoForJob IN hdJobProcs (
-            ipcCompany,
-            fiJobNo:SCREEN-VALUE,
-            INTEGER(ENTRY(iCount, cJobno2ListItems)),
-            INPUT-OUTPUT cBlanknoListItems
-            ).
-    END.
+        ).    
     
     IF cJobno2ListItems EQ "" THEN
         ASSIGN 
@@ -961,22 +896,6 @@ PROCEDURE pUpdateComboBoxes :
             cbJobNo2:SCREEN-VALUE = "00".
     ELSE
         cbJobNo2:LIST-ITEMS = cJobno2ListItems.
- 
-    IF cFormnoListItems EQ "" THEN
-        ASSIGN
-            cFormnoListItems      = "00"
-            cbFormNo:LIST-ITEMS   = cFormnoListItems 
-            cbFormNo:SCREEN-VALUE = "00".
-    ELSE
-        cbFormNo:LIST-ITEMS = cFormnoListItems.
-
-    IF cBlanknoListItems EQ "" THEN
-        ASSIGN
-            cBlanknoListItems      = "00"
-            cbBlankNo:LIST-ITEMS   = cBlanknoListItems
-            cbBlankNo:SCREEN-VALUE = "00".
-    ELSE
-        cbBlankNo:LIST-ITEMS = cBlanknoListItems.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
