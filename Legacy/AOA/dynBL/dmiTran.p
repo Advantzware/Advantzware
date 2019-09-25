@@ -45,7 +45,7 @@ PROCEDURE createTtblProdAce:
         /* check if valid entry to process */
         IF INDEX(dmiTrans.jobID,"n/f") NE 0 THEN NEXT.
         /* make sure job is in long format */
-        IF NUM-ENTRIES(dmiTrans.jobID,".") LT 2 THEN NEXT. 
+        IF NUM-ENTRIES(dmiTrans.jobID,".") LT 2 THEN NEXT.
         FIND FIRST mach NO-LOCK
              WHERE mach.spare-int-2 EQ dmiTrans.dmiID
              NO-ERROR.
