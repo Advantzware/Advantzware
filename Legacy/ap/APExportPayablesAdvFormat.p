@@ -14,7 +14,8 @@ DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplManual       AS LOGICAL   NO-UNDO.
 DEFINE INPUT PARAMETER ipcFullFilePath AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE iPaymentID AS INTEGER NO-UNDO.
+DEFINE VARIABLE iPaymentID    AS INTEGER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
 
 /* Header variables */
 DEFINE VARIABLE cHeaderRecordIdentifier           AS CHARACTER NO-UNDO.
@@ -53,6 +54,8 @@ DEFINE TEMP-TABLE ttPaymentData NO-UNDO
     .
 
 DEFINE STREAM bankFileStr.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 FUNCTION formatString RETURNS CHARACTER PRIVATE
     (ipcString   AS CHARACTER,
@@ -250,6 +253,8 @@ PUT STREAM bankFileStr UNFORMATTED
 
 OUTPUT STREAM bankFileStr CLOSE.
 
+DELETE OBJECT hdOutputProcs.
+
 PROCEDURE pPrintCheckHeaderRecords:
     DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiCheckNo   AS INTEGER   NO-UNDO.
@@ -338,7 +343,7 @@ PROCEDURE pPrintCheckHeaderRecords:
         formatString(cCheckMailInstruction,"CHARACTER",2)               /* Len - 2,  Start - 18,  End - 19  */
         formatString("","CHARACTER",2)                                  /* Len - 2,  Start - 20,  End - 21  */
         formatString(cCheckCurrencyType,"CHARACTER",3)                  /* Len - 3,  Start - 22,  End - 24  */
-        formatString(cCheckSerialNumber,"CHARACTER",10)                 /* Len - 10, Start - 25,  End - 34  */
+        formatString(cCheckSerialNumber,"INTEGER",10)                   /* Len - 10, Start - 25,  End - 34  */
         formatString(cCheckEffectiveDateofCheck,"DATE",8)               /* Len - 8,  Start - 35,  End - 42  */
         formatString(STRING(dCheckPaymentAmount),"DECIMAL",13)          /* Len - 13, Start - 43,  End - 55  */
         formatString(cCheckPayeeName1,"CHARACTER",35)                   /* Len - 35, Start - 56,  End - 90  */
@@ -541,7 +546,7 @@ PROCEDURE pPrintACHHeaderRecords:
         formatString(cACHVendorNumber,"CHARACTER",10)                   /* Len - 10, Start - 8,   End - 17  */
         formatString("","CHARACTER",4)                                  /* Len - 4,  Start - 18,  End - 21  */
         formatString(cACHCurrencyType,"CHARACTER",3)                    /* Len - 3,  Start - 22,  End - 24  */
-        formatString(cACHTraceNumber,"CHARACTER",10)                    /* Len - 10, Start - 25,  End - 34  */
+        formatString(cACHTraceNumber,"INTEGER",10)                      /* Len - 10, Start - 25,  End - 34  */
         formatString(cACHPaymentEffectiveDate,"DATE",8)                 /* Len - 8,  Start - 35,  End - 42  */
         formatString("","CHARACTER",3)                                  /* Len - 3,  Start - 43,  End - 45  */
         formatString(STRING(dACHPaymentAmount),"DECIMAL",10)            /* Len - 10, Start - 46,  End - 55  */
@@ -561,7 +566,7 @@ PROCEDURE pPrintACHHeaderRecords:
         formatString(cACHReceiverABA,"CHARACTER",9)                     /* Len - 9,  Start - 288, End - 296 */
         formatString("","CHARACTER",3)                                  /* Len - 3,  Start - 297, End - 299 */
         formatString(cACHReceiverAccountNumber,"CHARACTER",17)          /* Len - 17, Start - 300, End - 316 */
-        formatString(cACHTranCode,"CHARACTER",2)                        /* Len - 2,  Start - 317, End - 318 */
+        formatString(cACHTranCode,"INTEGER",2)                          /* Len - 2,  Start - 317, End - 318 */
         formatString(cACHType,"CHARACTER",3)                            /* Len - 3,  Start - 319, End - 321 */
         formatString(cACHDiscretionaryData,"CHARACTER",20)              /* Len - 20, Start - 322, End - 341 */
         formatString("","CHARACTER",9)                                  /* Len - 9,  Start - 342, End - 350 */
@@ -646,35 +651,11 @@ FUNCTION formatString RETURNS CHARACTER PRIVATE
     (ipcString    AS CHARACTER,
      ipcDataType  AS CHARACTER,
      ipiLength    AS INTEGER):
-    DEFINE VARIABLE cFormattedString AS CHARACTER NO-UNDO.
-     
-    CASE ipcDataType:
-        WHEN "CHARACTER" THEN
-            ASSIGN
-                cFormattedString = UPPER(ipcString)
-                cFormattedString = STRING(cFormattedString,"X(" + STRING(ipiLength) + ")")
-                .
-        WHEN "DECIMAL" THEN DO:
-            ASSIGN
-                cFormattedString = IF DECIMAL(ipcString) LT 0 THEN
-                                       STRING(DECIMAL(ipcString),"-" + FILL("9",ipiLength - 3) + ".99")
-                                   ELSE
-                                       STRING(DECIMAL(ipcString),FILL("9",ipiLength - 2) + ".99")
-                cFormattedString = REPLACE(cFormattedString,".","")
-                .
-        END.
-        WHEN "INTEGER" THEN
-            cFormattedString = IF DECIMAL(ipcString) LT 0 THEN
-                                   STRING(INTEGER(ipcString),"-" + FILL("9",ipiLength - 1))
-                               ELSE
-                                   STRING(INTEGER(ipcString),FILL("9",ipiLength)).
-        WHEN "DATE" THEN
-            cFormattedString = STRING(YEAR(DATE(ipcString)),"9999")
-                             + STRING(MONTH(DATE(ipcString)),"99")
-                             + STRING(DAY(DATE(ipcString)),"99").
-        WHEN "TIME" THEN
-            cFormattedString = REPLACE(ipcString, ":", "").
-    END CASE.
 
-    RETURN cFormattedString. 
+    RETURN DYNAMIC-FUNCTION (
+                             'Output_FixedFormatString' IN hdOutputProcs,
+                             INPUT ipcString,
+                             INPUT ipcDataType,
+                             INPUT ipiLength
+                            ). 
 END FUNCTION.
