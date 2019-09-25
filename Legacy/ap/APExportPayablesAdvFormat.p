@@ -10,9 +10,11 @@
     Created     : Tue Sep 24 18:31:30 EST 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER iplManual       AS LOGICAL   NO-UNDO.
-DEFINE INPUT PARAMETER ipcFullFilePath AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iplManual       AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcFullFilePath AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE iPaymentID    AS INTEGER NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE  NO-UNDO.
@@ -127,10 +129,13 @@ FOR EACH ap-sel NO-LOCK
             .
 END.
 
-IF NOT TEMP-TABLE ttPaymentData:HANDLE:HAS-RECORDS THEN
+IF NOT TEMP-TABLE ttPaymentData:HANDLE:HAS-RECORDS THEN DO:
+    ASSIGN
+        oplSuccess = FALSE
+        opcMessage = "No A/P Checks available for posting"
+        .
     RETURN.
-
-OUTPUT STREAM bankFileStr TO VALUE(ipcFullFilePath).
+END.
 
 FIND FIRST ttPaymentData NO-ERROR.
 IF AVAILABLE ttPaymentData THEN
@@ -138,9 +143,26 @@ IF AVAILABLE ttPaymentData THEN
          WHERE bank.company   EQ ttPaymentData.company
            AND bank.bank-code EQ ttPaymentData.bankCode
          NO-ERROR.
+IF NOT AVAILABLE bank THEN DO:
+    ASSIGN
+        oplSuccess = FALSE
+        opcMessage = "Bank Information not available"
+        .
+    RETURN. 
+END.
 
-IF AVAILABLE bank THEN
-    cHeaderSenderIdentificationNumber = STRING(bank.bk-act).
+IF bank.pay-type NE "PA" THEN DO:
+    ASSIGN
+        oplSuccess = FALSE
+        opcMessage = "Bank Code " + bank.bank-code
+                   + " does not allow payment type 'PA'"
+        .
+    RETURN.
+END.
+
+cHeaderSenderIdentificationNumber = STRING(bank.bk-act).
+
+OUTPUT STREAM bankFileStr TO VALUE(ipcFullFilePath).
     
 PUT STREAM bankFileStr UNFORMATTED
     formatString(cHeaderRecordIdentifier,"CHARACTER",3)            /* Len - 3,   Start - 1,  End - 3    */
@@ -255,6 +277,11 @@ OUTPUT STREAM bankFileStr CLOSE.
 
 DELETE OBJECT hdOutputProcs.
 
+ASSIGN
+    oplSuccess = TRUE
+    opcMessage = "Sucess"
+    .
+    
 PROCEDURE pPrintCheckHeaderRecords:
     DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiCheckNo   AS INTEGER   NO-UNDO.

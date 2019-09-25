@@ -149,6 +149,40 @@ FUNCTION fNK1ConfigFolder RETURNS CHARACTER
 		
 END FUNCTION.
 
+
+FUNCTION fNK1ConfigFolderBySysCtrlName RETURNS CHARACTER 
+	( ipcCompany AS CHARACTER, ipcSysCtrlName AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cConfigDir   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnChar  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS LOGICAL NO-UNDO.
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,  
+        ipcSysCtrlName, 
+        "C"       /* Character*/, 
+        INPUT NO  /* check by cust */, 
+        INPUT YES /* use cust not vendor */,
+        INPUT ""  /* cust */, 
+        INPUT ""  /* ship-to*/,
+        OUTPUT cReturnChar, 
+        OUTPUT lRecFound
+        ).
+        
+    IF lRecFound THEN 
+        cConfigDir = cReturnChar  .
+    ELSE 
+        cConfigDir  = ".\custfiles". /* this may need modification */
+        
+    cConfigDir = TRIM(cConfigDir, "\").
+    cResult = cConfigDir.
+    RETURN cResult.		
+END FUNCTION.
+
+
 FUNCTION fGetFtpCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER):
     /*------------------------------------------------------------------------------
@@ -780,7 +814,12 @@ PROCEDURE pExecFtp:
                              ipcFolder,
                              ipcFileSpec).
 
-    cCommandFile = fNK1configFolder(ipcCompany) + "\" + ftpScript.
+    /* this is a temporary code and may need to be removed */
+    if ipcFormat = "checktransfer" then 
+       cCommandFile = fNK1configFolderBySysCtrlName(ipcCompany, "BankTransmittalLocation") + "\" + ftpScript.
+    else
+       cCommandFile = fNK1configFolder(ipcCompany) + "\" + ftpScript.
+       
     RUN pWriteToFile (INPUT cCommandFile).
     RUN pExecuteCommand (YES /* silent */, FtpSoftware, cCommandFile, YES /* run cmd */, OUTPUT cFullCmd).
 END PROCEDURE.
