@@ -381,7 +381,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 ttCycleCountCompare.cSysLoc    = ttSnapshot.cSysLoc
                 ttCycleCountCompare.cSysLocBin = ttSnapshot.cSysLocBin
                 ttCycleCountCompare.dSysQty    = ttSnapshot.dSysQty
-                ttCycleCountCompare.lMatch     = (ttCycleCountCompare.dSysQty EQ ttCycleCountCompare.dScanQty)
+                ttCycleCountCompare.lMatch     = (ttCycleCountCompare.dSysQty EQ ttCycleCountCompare.dScanQty
+                                                    AND ttCycleCountCompare.cSysLoc EQ ttCycleCountCompare.cScanLoc
+                                                    AND ttCycleCountCompare.cSysLocBin EQ ttCycleCountCompare.cScanLocBin )
                 .
         END.   
         
@@ -810,7 +812,7 @@ PROCEDURE pCreateTransferCounts:
             AND bf-rm-rctd.rct-date GE TODAY - 7
             NO-ERROR.    
         
-
+        /* ttCycleCountCompare.cSysLoc/bin is the original location of the tag, so 0 that out */
         FIND FIRST item WHERE item.company = rm-bin.company
             AND item.i-no = rm-bin.i-no NO-LOCK NO-ERROR.
         CREATE rm-rctd.
@@ -823,11 +825,11 @@ PROCEDURE pCreateTransferCounts:
             rm-rctd.s-num      = 0
             rm-rctd.rct-date   = dTransDate
             rm-rctd.trans-time = TIME
-            rm-rctd.qty        = rm-bin.qty
+            rm-rctd.qty        = 0
             rm-rctd.i-no       = rm-bin.i-no
             rm-rctd.i-name     = item.i-name
             rm-rctd.tag        = rm-bin.tag
-            rm-bin.po-no       = rm-bin.po-no
+            rm-rctd.po-no      = STRING(rm-bin.po-no)
             lv-tag             = rm-bin.tag
             .
                                
@@ -842,7 +844,6 @@ PROCEDURE pCreateTransferCounts:
             rm-rctd.user-id  = USERID("nosweat")
             rm-rctd.upd-date = TODAY
             rm-rctd.upd-time = TIME.
-            
         IF AVAILABLE ITEM THEN 
         DO:
             rm-rctd.pur-uom = ITEM.cons-uom.
@@ -865,6 +866,7 @@ PROCEDURE pCreateTransferCounts:
             DO:
 
                 ASSIGN                     
+                    rm-rctd.po-no   = rm-rcpth.po-no
                     rm-rctd.po-line = MAX(rm-rcpth.po-line, 1)
                     rm-rctd.job-no  = rm-rcpth.job-no
                     rm-rctd.job-no2 = rm-rcpth.job-no2.
@@ -1486,15 +1488,7 @@ PROCEDURE pRemoveMatches:
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
         
     FOR EACH ttCycleCountCompare NO-LOCK 
-        WHERE (
-        ttCycleCountCompare.lMatch = TRUE
-        OR (
-        lLocationChanged
-        AND ttCycleCountCompare.cSysLoc GT ""
-        AND ttCycleCountCompare.cSysLocBin GT ""
-        AND ttCycleCountCompare.dScanQty EQ ttCycleCountCompare.dSysQty
-        )
-        )        
+        WHERE ttCycleCountCompare.lMatch = TRUE        
         AND ttCycleCountCompare.cFGItem     GE ipcFGItemStart
         AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
