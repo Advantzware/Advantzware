@@ -13,26 +13,198 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{system\VendorCostProcs.i}
 
 /*Constants*/
-DEFINE VARIABLE gcItemTypeFG     AS CHARACTER NO-UNDO INITIAL "FG".
-DEFINE VARIABLE gcItemTypeRM     AS CHARACTER NO-UNDO INITIAL "RM".
-DEFINE VARIABLE gdQuantityOffset AS DECIMAL   NO-UNDO INITIAL 0.000001.
-DEFINE VARIABLE gdQuantityMax    AS DECIMAL   NO-UNDO INITIAL 9999999.999999.
+DEFINE VARIABLE gcItemTypeFG        AS CHARACTER NO-UNDO INITIAL "FG".
+DEFINE VARIABLE gcItemTypeRM        AS CHARACTER NO-UNDO INITIAL "RM".
+DEFINE VARIABLE gdQuantityOffset    AS DECIMAL   NO-UNDO INITIAL 0.000001.
+DEFINE VARIABLE gdQuantityMax       AS DECIMAL   NO-UNDO INITIAL 9999999.999999.
+DEFINE VARIABLE gcScopeAll          AS CHARACTER NO-UNDO INITIAL "All".
+DEFINE VARIABLE gcScopeEffective    AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired".
+DEFINE VARIABLE gcScopeEstimated    AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - Estimated Only".
+DEFINE VARIABLE gcScopeNotEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - Not Estimated Only".
+DEFINE VARIABLE gcScopeList         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcScopeDefault      AS CHARACTER NO-UNDO.
 
 /*Settings Variables*/
-DEFINE VARIABLE glUseQtyFrom     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glUseQtyFrom        AS LOGICAL   NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
 
+FUNCTION GetValidScopes RETURNS CHARACTER 
+	(  ) FORWARD.
+
 
 
 /* ***************************  Main Block  *************************** */
-
+ASSIGN 
+    gcScopeList    = gcScopeAll + "," + gcScopeEffective + "," + gcScopeEstimated + "," + gcScopeNotEstimated
+    gcScopeDefault = gcScopeNotEstimated
+    .
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE BuildVendItemCosts:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given company, item, and item properties and quantity, build
+     the temp-table of vendITemCosts based on scope
+     Notes:
+     Syntax:
+         RUN BuildVendItemCosts(ipcCompany, ipcItemID, ipcItemType, ipcScope, iplIncludeBlankVendor,
+            ipdQuantity, ipcQuantityUOM, 
+            ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+            ipdBasisWeight, ipcBasisWeightUOM, 
+            OUTPUT TABLE ttVendItemCost,
+            OUTPUT oplError, OUTPUT opcMessage).
+            
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScope AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIncludeBlankVendor AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttVendItemCost.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+    
+    DEFINE VARIABLE lIncludeNonEffective AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIncludeExpired      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lEstimatedOnly       AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNotEstimatedOnly    AS LOGICAL NO-UNDO.
+    
+    
+    IF LOOKUP(ipcScope,gcScopeList) EQ 0 THEN 
+        ipcScope = gcScopeDefault.
+    CASE ipcScope:
+        WHEN gcScopeAll THEN  
+            ASSIGN 
+                lIncludeExpired      = YES
+                lIncludeNonEffective = YES
+                .
+        WHEN gcScopeEffective THEN 
+            ASSIGN
+                lIncludeExpired      = NO
+                lIncludeNonEffective = NO
+                . 
+        WHEN gcScopeEstimated THEN 
+            ASSIGN 
+                lIncludeExpired      = NO
+                lIncludeNonEffective = NO 
+                lEstimatedOnly       = YES 
+                .
+        WHEN gcScopeNotEstimated THEN 
+            ASSIGN 
+                lIncludeExpired      = NO 
+                lIncludeNonEffective = NO 
+                lEstimatedOnly       = NO
+                lNotEstimatedOnly    = YES
+                .
+    END CASE.
+    EMPTY TEMP-TABLE ttVendItemCost.
+    FOR EACH bf-vendItemCost NO-LOCK
+        WHERE bf-vendItemCost.company EQ ipcCompany
+        AND bf-vendItemCost.itemID EQ ipcItemID
+        AND bf-vendItemCost.itemType EQ ipcItemType
+        AND (bf-vendItemCost.effectiveDate LE TODAY OR lIncludeNonEffective)
+        AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001 OR lIncludeExpired)
+        AND (lEstimatedOnly AND bf-vendItemCost.estimateNo NE "" OR NOT lEstimatedOnly)
+        AND (lNotEstimatedOnly AND bf-vendItemCost.estimateNo EQ "" OR NOT lNotEstimatedOnly)
+        AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
+        :
+        CREATE ttVendItemCost.
+        BUFFER-COPY bf-vendItemCost TO ttVendItemCost.
+        ASSIGN 
+            ttVendItemCost.isExpired = bf-vendItemCost.expirationDate LT TODAY AND bf-vendItemCost.expirationDate NE ? AND bf-vendItemCost.expirationDate NE 01/01/0001
+            ttVendItemCost.isNotEffective = bf-vendItemCost.effectiveDate GT TODAY
+            ttVendItemCost.quantityTarget = ipdQuantity
+            ttVendItemCost.quantityTargetInVendorUOM = ipdQuantity
+            ttVendItemCost.quantityTargetUOM = ipcQuantityUOM
+            ttVendItemCost.dimLengthInVendorDimUOM = ipdDimLength
+            ttVendItemCost.dimWidthInVendorDimUOM = ipdDimWidth
+            ttVendItemCost.dimDepthInVendorDimUOM = ipdDimDepth
+            .
+        IF ttVendItemCost.isExpired  THEN 
+            ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + "Expired,".
+        IF ttVendItemCost.isNotEffective  THEN 
+            ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + "Not Yet Effective,".
+        
+        IF ttVendItemCost.quantityTargetUOM NE ttVendItemCost.vendorUOM THEN
+            RUN pConvertQuantity(ipcCompany, ipdQuantity, ttVendItemCost.quantityTargetUOM, ttVendItemCost.vendorUOM, 
+                ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
+                OUTPUT ttVendItemCost.quantityTargetInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
+        IF ipcDimUOM NE bf-vendItemCost.dimUOM THEN 
+        DO:
+            RUN pConvertDim(ipcCompany, ipdDimLength, ipcDimUOM, bf-vendItemCost.dimUOM, 
+                OUTPUT ttVendItemCost.dimLengthInVendorDimUOM, OUTPUT oplError, OUTPUT opcMessage).
+            IF NOT oplError THEN 
+                RUN pConvertDim(ipcCompany, ipdDimWidth, ipcDimUOM, bf-vendItemCost.dimUOM, 
+                    OUTPUT ttVendItemCost.dimWidthInVendorDimUOM, OUTPUT oplError, OUTPUT opcMessage).
+            IF NOT oplError THEN 
+                RUN pConvertDim(ipcCompany, ipdDimDepth, ipcDimUOM, bf-vendItemCost.dimUOM, 
+                    OUTPUT ttVendItemCost.dimDepthInVendorDimUOM, OUTPUT oplError, OUTPUT opcMessage).
+            IF oplError THEN RETURN.
+        END.
+        IF ttVendItemCost.quantityMaximumOrder NE 0 AND ttVendItemCost.quantityMaximumOrder LT ttVendItemCost.quantityTargetInVendorUOM THEN 
+            ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + 
+                "Order Quantity of " + STRING(ttVendItemCost.quantityTargetInVendorUOM) + 
+                " greater than maximum order quantity of " + STRING(ttVendItemCost.quantityMaximumOrder) + 
+                " " + ttVendItemCost.vendorUOM + ",".                 
+        IF ttVendItemCost.quantityMinimumOrder GT ttVendItemCost.quantityTargetInVendorUOM THEN 
+            ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + 
+                "Order Quantity of " + STRING(ttVendItemCost.quantityTargetInVendorUOM) + 
+                " less than minimum order quantity of " + STRING(ttVendItemCost.quantityMinimumOrder) + 
+                " " + ttVendItemCost.vendorUOM + ",".
+        IF ttVendItemCost.dimLengthInVendorDimUOM LT ttVendItemCost.dimLengthMinimum THEN 
+            ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + 
+                "Item length of " + STRING(ttVendItemCost.dimLengthInVendorDimUOM) + 
+                " less than minimum length of " + STRING(ttVendItemCost.dimLengthMinimum) + 
+                " " + ttVendItemCost.dimUOM + ",".
+        IF ttVendItemCost.dimLengthInVendorDimUOM GT ttVendItemCost.dimLengthMaximum THEN 
+            ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + 
+                "Item length of " + STRING(ttVendItemCost.dimLengthInVendorDimUOM) + 
+                " less than maximum length of " + STRING(ttVendItemCost.dimLengthMaximum) + 
+                " " + ttVendItemCost.dimUOM + ",".
+        IF ttVendItemCost.dimWidthInVendorDimUOM LT ttVendItemCost.dimWidthMinimum THEN 
+            ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + 
+                "Item width of " + STRING(ttVendItemCost.dimWidthInVendorDimUOM) + 
+                " less than minimum width of " + STRING(ttVendItemCost.dimWidthMinimum) + 
+                " " + ttVendItemCost.dimUOM + ",".
+        IF ttVendItemCost.dimWidthInVendorDimUOM GT ttVendItemCost.dimWidthMaximum THEN 
+            ttVendItemCost.reasonNotValid = ttVendItemCost.reasonNotValid + 
+                "Item width of " + STRING(ttVendItemCost.dimWidthInVendorDimUOM) + 
+                " less than maximum width of " + STRING(ttVendItemCost.dimWidthMaximum) + 
+                " " + ttVendItemCost.dimUOM + ",".
+        ttVendItemCost.reasonNotValid = TRIM(TRIM(ttVendItemCost.reasonNotValid,",")).
+        IF ttVendItemCost.reasonNotValid EQ "" THEN 
+            ttVendItemCost.isValid = YES.
+        IF ttVendItemCost.isValid THEN DO:
+            RUN pGetVendorCosts(BUFFER bf-vendItemCost, ttVendItemCost.quantityTargetInVendorUOM, 
+            ttVendItemCost.dimLengthInVendorDimUOM, ttVendItemCost.dimWidthInVendorDimUOM, ttVendItemCost.dimUOM, 
+            OUTPUT ttVendItemCost.costPerVendorUOM, OUTPUT ttVendItemCost.costSetup, OUTPUT ttVendItemCost.costPerVendorUOMUpcharge, OUTPUT ttVendItemCost.costTotal,
+            OUTPUT oplError, INPUT-OUTPUT opcMessage).
+            IF oplError THEN 
+                ASSIGN 
+                ttVendItemCost.isValid = NO 
+                ttVendItemCost.reasonNotValid = opcMessage
+                .
+        END.
+    END.   
+
+END PROCEDURE.
+
 PROCEDURE GetVendorCostNextBreak:
     /*------------------------------------------------------------------------------
      Purpose: Given a Item ID Vendor and Quantity, retrieve the next price break quantity
@@ -73,7 +245,7 @@ PROCEDURE GetVendorCostNextBreak:
 
     DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
     DEFINE VARIABLE dQuantityInVendorUOM AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMUpcharge AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMUpcharge  AS DECIMAL NO-UNDO.
     
     RUN pSetGlobalSettings(ipcCompany).
     RUN pGetVendItemCostBuffer(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, ipcCustomerID, ipcEstimateNo, ipiFormNo, ipiBlankNo, iplExactMatch,
@@ -82,7 +254,8 @@ PROCEDURE GetVendorCostNextBreak:
     DO:
         ASSIGN 
             opcCostUOM = bf-vendItemCost.vendorUOM.
-        IF opcCostUOM NE ipcQuantityUOM THEN DO: 
+        IF opcCostUOM NE ipcQuantityUOM THEN 
+        DO: 
             RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
                 ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
                 OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
@@ -91,8 +264,8 @@ PROCEDURE GetVendorCostNextBreak:
             dQuantityInVendorUOM = ipdQuantity. 
         
         RUN pGetCostsNextBreak(BUFFER bf-vendItemCost, dQuantityInVendorUOM, ipdDimLength, ipdDimWidth, ipcDimUOM,
-                OUTPUT opdCostPerUOMNextPriceBreak, OUTPUT opdCostSetupNextPriceBreak, OUTPUT dCostPerUOMUpcharge, OUTPUT opdCostTotalNextPriceBreak, OUTPUT opdQuantityNextPriceBreak, 
-                OUTPUT oplError, INPUT-OUTPUT opcMessage).
+            OUTPUT opdCostPerUOMNextPriceBreak, OUTPUT opdCostSetupNextPriceBreak, OUTPUT dCostPerUOMUpcharge, OUTPUT opdCostTotalNextPriceBreak, OUTPUT opdQuantityNextPriceBreak, 
+            OUTPUT oplError, INPUT-OUTPUT opcMessage).
         opdCostPerUOMNextPriceBreak = opdCostPerUOMNextPriceBreak + dCostPerUOMUpcharge.
         
     END.
@@ -135,7 +308,7 @@ PROCEDURE GetVendorCost:
 
     DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
     DEFINE VARIABLE dQuantityInVendorUOM AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostPerUOMUpcharge AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMUpcharge  AS DECIMAL NO-UNDO.
     
     RUN pSetGlobalSettings(ipcCompany).
     RUN pGetVendItemCostBuffer(ipcCompany, ipcItemID, ipcItemType, ipcVendorID, ipcCustomerID, ipcEstimateNo, ipiFormNo, ipiBlankNo, iplExactMatch,
@@ -144,7 +317,8 @@ PROCEDURE GetVendorCost:
     DO:
         ASSIGN 
             opcCostUOM = bf-vendItemCost.vendorUOM.
-        IF opcCostUOM NE ipcQuantityUOM THEN DO: 
+        IF opcCostUOM NE ipcQuantityUOM THEN 
+        DO: 
             RUN pConvertQuantity(ipcCompany, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
                 ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM,
                 OUTPUT dQuantityInVendorUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).
@@ -153,18 +327,18 @@ PROCEDURE GetVendorCost:
             dQuantityInVendorUOM = ipdQuantity. 
         
         RUN pGetVendorCosts(BUFFER bf-vendItemCost, dQuantityInVendorUOM, ipdDimLength, ipdDimWidth, ipcDimUOM, 
-                OUTPUT opdCostPerUOM, OUTPUT opdCostSetup, OUTPUT dCostPerUOMUpcharge, OUTPUT opdCostTotal,
-                OUTPUT oplError, INPUT-OUTPUT opcMessage).
+            OUTPUT opdCostPerUOM, OUTPUT opdCostSetup, OUTPUT dCostPerUOMUpcharge, OUTPUT opdCostTotal,
+            OUTPUT oplError, INPUT-OUTPUT opcMessage).
         opdCostPerUOM = opdCostPerUOM + dCostPerUOMUpcharge.
         
     END.
 END PROCEDURE.
 
 PROCEDURE GetVendorItem:
-/*------------------------------------------------------------------------------
- Purpose: Given Vendor Matching information, find the vendor Item ID
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Given Vendor Matching information, find the vendor Item ID
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
@@ -191,11 +365,11 @@ PROCEDURE GetVendorItem:
 END PROCEDURE.
 
 PROCEDURE GetVendorSizes:
-/*------------------------------------------------------------------------------
- Purpose: Given Vendor Matching information, find the effective size limitations
- for the vendor item
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Given Vendor Matching information, find the effective size limitations
+     for the vendor item
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
@@ -228,10 +402,10 @@ PROCEDURE GetVendorSizes:
 END PROCEDURE.
 
 PROCEDURE GetVendorUOM:
-/*------------------------------------------------------------------------------
- Purpose: Given Vendor Matching information, find the vendor UOM
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Given Vendor Matching information, find the vendor UOM
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
@@ -258,74 +432,74 @@ PROCEDURE GetVendorUOM:
 END PROCEDURE.
 
 PROCEDURE pConvertDim PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Converts a dimensional length to desired UOM
- Notes:
- Syntax:
-     RUN pConvertDim(ipcCompany, ipdDimLength, ipcDimUOM, ipbf-vendItemCost.dimUOM, 
-        OUTPUT dDimLengthInVendorDimUOM, OUTPUT oplError, OUTPUT iopcMessage).
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipdDimInFromUOM AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opdDimInToUOM AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose: Converts a dimensional length to desired UOM
+     Notes:
+     Syntax:
+         RUN pConvertDim(ipcCompany, ipdDimLength, ipcDimUOM, ipbf-vendItemCost.dimUOM, 
+            OUTPUT dDimLengthInVendorDimUOM, OUTPUT oplError, OUTPUT iopcMessage).
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimInFromUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDimInToUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
 
-/*Refactor - support for non IN uom as assumed now*/
-opdDimInToUOM = ipdDimInFromUOM.
+    /*Refactor - support for non IN uom as assumed now*/
+    opdDimInToUOM = ipdDimInFromUOM.
 
 END PROCEDURE.
 
 PROCEDURE pConvertQuantity PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:  Converts given value in given uom to desired UOM, based on additional
- item specs
- Notes:
- Syntax:
-     RUN pConvertQuantity(cCompany, dQtyInFromUOM, cFromUOM, cToUOM, 
-        dBasisWeight, cBasisWeightUOM, dLength, dWidth, dDepth, cDimUOM,
-        OUTPUT dQtyInToUOM, OUTPUT oplError, INPUT-OUTPUT iopcMessage).
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipdQtyInFromUOM AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
-DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opdQtyInToUOM AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
+    /*------------------------------------------------------------------------------
+     Purpose:  Converts given value in given uom to desired UOM, based on additional
+     item specs
+     Notes:
+     Syntax:
+         RUN pConvertQuantity(cCompany, dQtyInFromUOM, cFromUOM, cToUOM, 
+            dBasisWeight, cBasisWeightUOM, dLength, dWidth, dDepth, cDimUOM,
+            OUTPUT dQtyInToUOM, OUTPUT oplError, INPUT-OUTPUT iopcMessage).
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQtyInFromUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimLength AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimWidth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQtyInToUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE dBasisWeightInLbsPerMSF AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dDimLengthInIN AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dDimWidthInIN AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dDimDepthInIN AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dBasisWeightInLbsPerMSF AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimLengthInIN          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimWidthInIN           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimDepthInIN           AS DECIMAL NO-UNDO.
 
-/*Refactor handling of non-assumed UOMs of "IN" and "LBS/MSF" and handle error & message propagation*/
-ASSIGN 
-    dBasisWeightInLBSPerMSF = ipdBasisWeight
-    dDimLengthInIN = ipdDimLength
-    dDimWidthInIN = ipdDimWidth
-    dDimDepthInIN = ipdDimDepth
-    .
+    /*Refactor handling of non-assumed UOMs of "IN" and "LBS/MSF" and handle error & message propagation*/
+    ASSIGN 
+        dBasisWeightInLBSPerMSF = ipdBasisWeight
+        dDimLengthInIN          = ipdDimLength
+        dDimWidthInIN           = ipdDimWidth
+        dDimDepthInIN           = ipdDimDepth
+        .
 
-RUN custom/convquom.p(ipcCompany, ipcFromUOM, ipcToUOM, 
-                    dBasisWeightInLBSPerMSF, dDimLengthInIN, dDimWidthInIN, dDimDepthInIN,
-                    ipdQtyInFromUOM, OUTPUT opdQtyInToUOM).      
+    RUN custom/convquom.p(ipcCompany, ipcFromUOM, ipcToUOM, 
+        dBasisWeightInLBSPerMSF, dDimLengthInIN, dDimWidthInIN, dDimDepthInIN,
+        ipdQtyInFromUOM, OUTPUT opdQtyInToUOM).      
 
 END PROCEDURE.
 
 PROCEDURE pGetCostLevel PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Given a VendItemCostID and Target Quantity, return the Level ID that matches it
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Given a VendItemCostID and Target Quantity, return the Level ID that matches it
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiVendItemCostID AS INT64 NO-UNDO.
     DEFINE INPUT PARAMETER ipdQuantityTarget AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiVendItemCostLevelID AS INT64 NO-UNDO.
@@ -395,7 +569,7 @@ PROCEDURE pGetCostsForVendItemCostNextBreak PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
  
     DEFINE VARIABLE iVendCostLevelID AS INT64 NO-UNDO.
-    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    DEFINE BUFFER bf-vendItemCostLevel          FOR vendItemCostLevel.
     DEFINE BUFFER bfNextBreak-vendItemCostLevel FOR vendItemCostLevel.
     
     RUN pGetCostLevel(ipbf-vendItemCost.vendItemCostID, ipdQuantityInVendorUOM, OUTPUT iVendCostLevelID).
@@ -403,7 +577,8 @@ PROCEDURE pGetCostsForVendItemCostNextBreak PRIVATE:
         FIND FIRST bf-vendItemCostLevel NO-LOCK 
             WHERE bf-vendItemCostLevel.vendItemCostLevelID EQ iVendCostLevelID
             NO-ERROR.
-    IF AVAILABLE bf-vendItemCostLevel THEN DO:
+    IF AVAILABLE bf-vendItemCostLevel THEN 
+    DO:
         FIND FIRST bfNextBreak-vendItemCostLevel NO-LOCK
             WHERE bfNextBreak-vendItemCostLevel.vendItemCostID EQ bf-vendItemCostLevel.vendItemCostID
             AND bfNextBreak-vendItemCostLevel.quantityFrom GE bf-vendItemCostLevel.quantityTo + gdQuantityOffset
@@ -413,8 +588,8 @@ PROCEDURE pGetCostsForVendItemCostNextBreak PRIVATE:
                 opdCostPerUOMNextBreak = bfNextBreak-vendItemCostLevel.costPerUOM
                 opdCostSetupNextBreak  = bfNextBreak-vendItemCostLevel.costSetup
                 opdQuantityNextBreak   = bfNextBreak-vendItemCostLevel.quantityFrom
-                oplError      = NO
-                iopcMessage   = iopcMessage + " Next Price Break Available" 
+                oplError               = NO
+                iopcMessage            = iopcMessage + " Next Price Break Available" 
                 .  
         ELSE 
             ASSIGN 
@@ -476,12 +651,12 @@ PROCEDURE pGetUpchargeCostsForVendItemCost PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcMessage AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE dCostUpchargeOverLength  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dCostUpchargeOverWidth   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dCostUpchargeUnderLength AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dCostUpchargeUnderWidth  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dDimLengthInVendorDimUOM AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dDimWidthInVendorDimUOM  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostUpchargeOverLength  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostUpchargeOverWidth   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostUpchargeUnderLength AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostUpchargeUnderWidth  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimLengthInVendorDimUOM AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dDimWidthInVendorDimUOM  AS DECIMAL NO-UNDO.
 
     IF ipcDimUOM NE ipbf-vendItemCost.dimUOM THEN 
     DO:
@@ -595,14 +770,14 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                     NO-ERROR.
                 IF NOT AVAILABLE opbf-vendItemCost THEN 
                     FIND FIRST opbf-vendItemCost NO-LOCK /*Match with any customer - current functionality*/
-                        {&RequiredCriteria}
-                        AND opbf-vendItemCost.vendorID EQ ipcVendorID
-                        NO-ERROR.
+                    {&RequiredCriteria}
+                    AND opbf-vendItemCost.vendorID EQ ipcVendorID
+                    NO-ERROR.
                 IF NOT AVAILABLE opbf-vendItemCost THEN 
                     FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor*/
-                        {&RequiredCriteria}
-                        AND opbf-vendItemCost.vendorID EQ ""
-                        NO-ERROR.
+                    {&RequiredCriteria}
+                    AND opbf-vendItemCost.vendorID EQ ""
+                    NO-ERROR.
                 IF AVAILABLE opbf-vendItemCost THEN 
                     ASSIGN 
                         cMsgUsing = cMsgConstUsing + cMsgConstVend + (IF opbf-vendItemCost.vendorID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.vendorID)
@@ -707,8 +882,8 @@ PROCEDURE pRecalculateFromAndToForLevels PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiVendItemCostID AS INT64 NO-UNDO.
     
-    DEFINE           BUFFER bf-vendItemCost    FOR vendItemCost.
-    DEFINE           BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
     DEFINE VARIABLE dQtyNext AS DECIMAL NO-UNDO.
     
     FIND FIRST bf-vendItemCost NO-LOCK
@@ -789,4 +964,14 @@ END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION GetValidScopes RETURNS CHARACTER 
+	(  ):
+/*------------------------------------------------------------------------------
+ Purpose: returns the global property of valid scopes
+ Notes:
+------------------------------------------------------------------------------*/	
+	RETURN gcScopeList.
+		
+END FUNCTION.
 
