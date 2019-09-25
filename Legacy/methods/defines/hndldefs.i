@@ -16,6 +16,9 @@ DEFINE VARIABLE char-hdl     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE phandle      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE is-running   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE help-page    AS INTEGER   NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
+
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
 DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
@@ -28,6 +31,14 @@ RUN system/session.p  PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
 RUN system/TagProcs.p PERSISTENT SET hTags.
 SESSION:ADD-SUPER-PROCEDURE (hTags).
+&ENDIF
+
+&IF DEFINED(CommonFile_is_Running) NE 0 &THEN
+    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
+
+    RUN system/CommonProcs.p PERSISTENT SET hdCommonProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCommonProcs).
 &ENDIF
 
 {system/fSuperRunning.i}

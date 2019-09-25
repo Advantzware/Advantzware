@@ -9,6 +9,7 @@
 /* Note: inv-list-post runs twice. Once for report and once to post. */
 
 /* ***************************  Definitions  ***************************/
+&SCOPED-DEFINE CommonFile_is_Running
 
 /* Invoice Post Update GL.rpa */
 {aoa/tempTable/ttInvoicePostUpdateGL.i}

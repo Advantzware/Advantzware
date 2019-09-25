@@ -118,6 +118,10 @@ DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
 DEF VAR v-tot-tax AS DEC NO-UNDO.
+DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
+
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
 IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN lv-display-comp = YES.
@@ -378,10 +382,8 @@ assign
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
                 */
-        find first terms where terms.company = inv-head.company AND terms.t-code  = inv-head.terms
-		      	   no-lock no-error.
-        if available terms THEN assign v-due-date  = inv-head.inv-date + terms.net-days.
-        ELSE v-due-date = v-inv-date.
+        
+        ASSIGN v-due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
 
         assign v-tot-pallets = 0
                v-t-weight = 0.
@@ -761,4 +763,5 @@ assign
  
     end. /* each xinv-head */
 
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

@@ -30,12 +30,14 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&scoped-define proc-enable proc-enable
+&SCOPED-DEFINE CommonFile_is_Running
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 
 {custom/gcompany.i}
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -62,12 +64,12 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR terms.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS terms.dscr terms.disc-rate terms.disc-days ~
-terms.net-days 
+terms.net-days terms.dueOnMonth terms.dueOnDay
 &Scoped-define ENABLED-TABLES terms
 &Scoped-define FIRST-ENABLED-TABLE terms
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS terms.t-code terms.dscr terms.disc-rate ~
-terms.disc-days terms.net-days 
+terms.disc-days terms.net-days terms.dueOnMonth terms.dueOnDay
 &Scoped-define DISPLAYED-TABLES terms
 &Scoped-define FIRST-DISPLAYED-TABLE terms
 &Scoped-Define DISPLAYED-OBJECTS termsCOD 
@@ -139,8 +141,16 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
           BGCOLOR 15 FONT 4
-     termsCOD AT ROW 3.62 COL 33.4 HELP
+     termsCOD AT ROW 3.62 COL 16.4 HELP
           "Is Terms Code COD?"
+     terms.dueOnMonth AT ROW 3.62 COL 41.7 COLON-ALIGNED
+          VIEW-AS FILL-IN
+          SIZE 5 BY 1
+          BGCOLOR 15 FONT 4
+     terms.dueOnDay AT ROW 3.62 COL 64 COLON-ALIGNED
+          VIEW-AS FILL-IN
+          SIZE 5 BY 1
+          BGCOLOR 15 FONT 4
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -210,6 +220,10 @@ ASSIGN
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR TOGGLE-BOX termsCOD IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN terms.dueOnMonth IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN terms.dueOnDay IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -257,6 +271,25 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME terms.dueOnMonth
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL terms.dueOnMonth V-table-Win
+ON VALUE-CHANGED OF terms.dueOnMonth IN FRAME F-Main
+DO:
+  IF LASTKEY EQ -1 THEN Return .
+     {&methods/lValidateError.i YES}
+    IF INTEGER(terms.dueOnMonth:SCREEN-VALUE) GT 0 THEN do:
+        ASSIGN terms.net-days:SCREEN-VALUE = "999" .
+        DISABLE terms.net-days WITH FRAME {&FRAME-NAME} .
+    END.
+    ELSE DO:
+         ENABLE terms.net-days WITH FRAME {&FRAME-NAME} . 
+    END.
+     
+     {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -348,7 +381,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEFINE VARIABLE saveTermsCOD AS LOGICAL NO-UNDO.
-
+  
   saveTermsCOD = termsCOD.
 
   /* Dispatch standard ADM method.                             */
@@ -376,8 +409,12 @@ PROCEDURE local-assign-record :
   ASSIGN
     termsCOD = saveTermsCOD
     terms.cod = IF INT(termsCOD) EQ 1 THEN TRUE ELSE FALSE.
+    IF terms.dueOnMonth NE 0 AND terms.dueOnDay EQ 0 THEN do:
+        ASSIGN terms.dueOnDay = DYNAMIC-FUNCTION("Common_GetNumberOfDaysInMonth", terms.dueOnMonth ).
+               terms.dueOnDay:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(terms.dueOnDay) .
+    END.
+  
   FIND CURRENT terms NO-LOCK.
-
   DISABLE termsCOD WITH FRAME {&FRAME-NAME}.
   DISPLAY termsCOD WITH FRAME {&FRAME-NAME}.
 
@@ -463,6 +500,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:    
+    IF INTEGER(terms.dueOnMonth:SCREEN-VALUE) GT 0 THEN do:
+        ASSIGN terms.net-days:SCREEN-VALUE = "999" .
+        DISABLE terms.net-days WITH FRAME {&FRAME-NAME} .
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
