@@ -13,6 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{system\VendorCostProcs.i}
 DEFINE TEMP-TABLE ttDuplicates
     FIELD cItem       AS CHARACTER
     FIELD cVendor     AS CHARACTER
@@ -32,7 +33,7 @@ DEFINE VARIABLE ghVendorCost      AS HANDLE.
 
 /*Constants*/
 DEFINE VARIABLE gcCompany         AS CHARACTER NO-UNDO INITIAL '001'.
-DEFINE VARIABLE gcItemIDRM        AS CHARACTER NO-UNDO INITIAL ''.
+DEFINE VARIABLE gcItemIDRM        AS CHARACTER NO-UNDO INITIAL '200 C'.
 DEFINE VARIABLE gcItemIDFG        AS CHARACTER NO-UNDO INITIAL ''.
 DEFINE VARIABLE glRunAllCompanies AS LOGICAL   NO-UNDO INITIAL NO.
 DEFINE VARIABLE glRunAllFG        AS LOGICAL   NO-UNDO INITIAL YES.
@@ -60,11 +61,12 @@ RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.
 SESSION:ADD-SUPER-PROCEDURE (ghVendorCost).
 
 RUN pSetGlobalSettings(gcCompany). 
-IF glPurgeNew THEN RUN pPurgeAllNew.
-RUN pConvertLegacyToNew.
+//IF glPurgeNew THEN RUN pPurgeAllNew.
+//RUN pConvertLegacyToNew.
 
-RUN pTestSampleFG.
-RUN pTestSampleRM.
+//RUN pTestSampleFG.
+//RUN pTestSampleRM.
+RUN pGetVendorCostList(gcCompany).
 
 DELETE OBJECT ghSession.
 DELETE OBJECT ghOutput.
@@ -271,6 +273,42 @@ PROCEDURE pGetSettings PRIVATE:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
 
+
+END PROCEDURE.
+
+PROCEDURE pGetVendorCostList PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cItemID AS CHARACTER NO-UNDO INITIAL "200 C".
+    DEFINE VARIABLE cItemType AS CHARACTER NO-UNDO INITIAL "RM".
+    DEFINE VARIABLE cValidScopes AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iScopeEntry AS INTEGER NO-UNDO INITIAL 1.
+    DEFINE VARIABLE cScope AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dDimLength AS DECIMAL NO-UNDO INITIAL 56.
+    DEFINE VARIABLE dDimWidth AS DECIMAL NO-UNDO INITIAL 36.
+    DEFINE VARIABLE dDimDepth AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lIncludeBlankVendor AS LOGICAL NO-UNDO.
+    
+        
+    cValidScopes = DYNAMIC-FUNCTION("GetValidScopes").
+    cScope = ENTRY(iScopeEntry, cValidScopes).
+    RUN BuildVendItemCosts(ipcCompany, cItemID, cItemType, cScope, lIncludeBlankVendor,
+            10000, "EA", 
+            dDimLength, dDimWidth, dDimDepth, "IN",
+            dBasisWeight, "LBS/MSF", 
+            OUTPUT TABLE ttVendItemCost,
+            OUTPUT lError, OUTPUT cMessage).
+    FOR EACH ttVendItemCost
+        BY ttVendItemCost.costTotal:
+        DISPLAY ttVendItemCost.quantityTargetInVendorUOM ttVendItemCost.isValid ttVendItemCost.vendorID ttVendItemCost.costTotal ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM.
+    END.        
 
 END PROCEDURE.
 
