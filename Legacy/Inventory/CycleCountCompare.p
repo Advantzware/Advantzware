@@ -374,7 +374,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 ttCycleCountCompare.cSysLoc    = ttSnapshot.cSysLoc
                 ttCycleCountCompare.cSysLocBin = ttSnapshot.cSysLocBin
                 ttCycleCountCompare.dSysQty    = ttSnapshot.dSysQty
-                ttCycleCountCompare.lMatch     = (ttCycleCountCompare.dSysQty EQ ttCycleCountCompare.dScanQty)
+                ttCycleCountCompare.lMatch     = (ttCycleCountCompare.dSysQty EQ ttCycleCountCompare.dScanQty
+                                                    AND ttCycleCountCompare.cSysLoc EQ ttCycleCountCompare.cScanLoc
+                                                    AND ttCycleCountCompare.cSysLocBin EQ ttCycleCountCompare.cScanLocBin)
                 .
         END.   
         
@@ -730,7 +732,7 @@ END.
 
 END PROCEDURE.
 
-PROCEDURE pCreateTransfers:
+PROCEDURE pCreateTransferCounts:    
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -797,17 +799,19 @@ PROCEDURE pCreateTransfers:
             
         FIND FIRST itemfg WHERE itemfg.company = fg-bin.company
             AND itemfg.i-no = fg-bin.i-no NO-LOCK NO-ERROR.
+            
+        /* ttCycleCountCompare.cSysLoc & bin contain the original location for this tag, so create a count to 0 it out */
         CREATE fg-rctd.
         ASSIGN 
             fg-rctd.r-no       = iNextRno
             fg-rctd.loc        = fg-bin.loc
             fg-rctd.loc-bin    = fg-bin.loc-bin
             fg-rctd.company    = fg-bin.company
-            fg-rctd.rita-code  = "T"
+            fg-rctd.rita-code  = "C"
             fg-rctd.s-num      = 0
             fg-rctd.rct-date   = dTransDate
             fg-rctd.trans-time = iTransTime
-            fg-rctd.qty        = fg-bin.qty
+            fg-rctd.qty        = 0
             fg-rctd.qty-case   = (fg-bin.case-count)
             fg-rctd.cases-unit = (fg-bin.cases-unit)
             fg-rctd.i-no       = fg-bin.i-no
@@ -817,20 +821,15 @@ PROCEDURE pCreateTransfers:
             fg-rctd.po-no      = fg-bin.po-no
             fg-rctd.tag        = fg-bin.tag
             fg-rctd.cust-no    = fg-bin.cust-no
-            fg-rctd.loc2       = ttCycleCountCompare.cScanLoc 
-            fg-rctd.loc-bin2   = ttCycleCountCompare.cScanLocBin
-            fg-rctd.tag2       = ttCycleCountCompare.cTag
             fg-rctd.updated-by = "PhysCnt"
             .
                                
         ASSIGN 
-            fg-rctd.cases    = (TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0))
-            fg-rctd.partial  = (fg-bin.partial-count)
-            fg-rctd.t-qty    = (fg-bin.qty)
-            fg-rctd.ext-cost = fg-rctd.t-qty /
-                                  (IF fg-bin.pur-uom EQ "M" THEN 1000 ELSE 1) *
-                                  fg-bin.std-tot-cost
-            fg-rctd.cost     = fg-rctd.ext-cost / fg-rctd.t-qty
+            fg-rctd.cases    = 0
+            fg-rctd.partial  = 0
+            fg-rctd.t-qty    = 0
+            fg-rctd.ext-cost = 0
+            fg-rctd.cost     = 0
             fg-rctd.cost-uom = fg-bin.pur-uom
             .
        
@@ -1247,9 +1246,7 @@ PROCEDURE postFG:
     END.
 
     RUN pCreateZeroCount.
-    RUN pCreateTransfers.
-
-    RUN pPostTransfers.
+    RUN pCreateTransferCounts.
 
     RUN pRemoveMatches (ipcCompany, ipcFGItemStart, ipcFGItemEnd, ipcWhseStart,ipcWhseEnd, 
         ipcBinStart, ipcBinEnd).
@@ -1436,16 +1433,6 @@ PROCEDURE pPostCounts:
 
 END PROCEDURE.
 
-PROCEDURE pPostTransfers:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:  Modify for FG
-    ------------------------------------------------------------------------------*/
-    MESSAGE "Posting all transfers (all locations).  Press OK to continue."
-        VIEW-AS ALERT-BOX.
-    RUN fg/fgpstall.w (?, "T").
-
-END PROCEDURE.
 
 PROCEDURE pRemoveMatches:
     /*------------------------------------------------------------------------------
@@ -1461,15 +1448,7 @@ PROCEDURE pRemoveMatches:
     DEFINE INPUT  PARAMETER ipcBinEnd AS CHARACTER NO-UNDO.
         
     FOR EACH ttCycleCountCompare NO-LOCK 
-        WHERE (
-                ttCycleCountCompare.lMatch = TRUE
-                OR (
-                     lLocationChanged
-                     AND ttCycleCountCompare.cSysLoc GT ""
-                     AND ttCycleCountCompare.cSysLocBin GT ""
-                     AND ttCycleCountCompare.dScanQty EQ ttCycleCountCompare.dSysQty
-                   )
-              )        
+        WHERE ttCycleCountCompare.lMatch = TRUE                      
         AND ttCycleCountCompare.cFGItem     GE ipcFGItemStart
         AND ttCycleCountCompare.cFgItem     LE ipcFGItemEnd
         AND IF ttCycleCountCompare.cScanLoc GT "" THEN 
@@ -1576,12 +1555,12 @@ FUNCTION fGetAction RETURNS CHARACTER
 
     DEFINE VARIABLE cresult AS CHARACTER NO-UNDO.
     cResult = "Count Posted".
-    IF  ipcLocChanged THEN cResult = "Transfer auto-created".
+ //   IF  ipcLocChanged THEN cResult = "Zero count created for original location".
         
     IF  iplQtyChanged THEN cResult = "Count Posted".
         
-    IF  ipcLocChanged AND iplQtyChanged THEN 
-        cResult = "Transfer auto-created,Count Posted".
+    IF  ipcLocChanged /* AND iplQtyChanged */ THEN 
+        cResult = "Count Posted, zero count created for original location".
         
     /* Not in snapshot so just post count */
     IF  ipcLocChanged AND iplQtyChanged AND ipcLoc = "" THEN 

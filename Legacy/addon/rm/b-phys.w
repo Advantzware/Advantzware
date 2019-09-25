@@ -67,6 +67,7 @@ DO:
     cPhysCntSaveFile = cPhysCntSaveFile + STRING(_myconnection._MyConn-Id) + ".log".
 
 END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -93,9 +94,9 @@ END.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-rctd.tag rm-rctd.loc ~
 rm-rctd.loc-bin rm-rctd.rct-date rm-rctd.i-no rm-rctd.i-name rm-rctd.qty ~
-rm-rctd.user-id 
+rm-rctd.pur-uom rm-rctd.user-id 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.tag ~
-rm-rctd.loc rm-rctd.loc-bin rm-rctd.rct-date rm-rctd.qty 
+rm-rctd.loc rm-rctd.loc-bin rm-rctd.rct-date rm-rctd.qty rm-rctd.pur-uom 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table rm-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-rctd WHERE ~{&KEY-PHRASE} ~
@@ -172,12 +173,12 @@ DEFINE BROWSE Browser-Table
       rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U WIDTH 8
       rm-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 12
       rm-rctd.rct-date COLUMN-LABEL "Count Date" FORMAT "99/99/9999":U
-            WIDTH 14
       rm-rctd.i-no COLUMN-LABEL "RM Item#" FORMAT "x(10)":U WIDTH 13
       rm-rctd.i-name COLUMN-LABEL "RM Item Name" FORMAT "x(30)":U
             WIDTH 35
       rm-rctd.qty COLUMN-LABEL "Qty Counted" FORMAT "->>>>>>9.9<<<<<":U
             WIDTH 17
+      rm-rctd.pur-uom COLUMN-LABEL "UOM" FORMAT "x(3)":U
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U
   ENABLE
       rm-rctd.tag
@@ -185,6 +186,7 @@ DEFINE BROWSE Browser-Table
       rm-rctd.loc-bin
       rm-rctd.rct-date
       rm-rctd.qty
+      rm-rctd.pur-uom
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 136 BY 15.48
@@ -287,14 +289,16 @@ rm-rctd.rita-code = ""C"""
      _FldNameList[3]   > asi.rm-rctd.loc-bin
 "loc-bin" "Bin" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.rm-rctd.rct-date
-"rct-date" "Count Date" ? "date" ? ? ? ? ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rct-date" "Count Date" ? "date" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.i-no
 "i-no" "RM Item#" ? "character" ? ? ? ? ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.rm-rctd.i-name
 "i-name" "RM Item Name" ? "character" ? ? ? ? ? ? no ? no no "35" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.rm-rctd.qty
 "qty" "Qty Counted" ? "decimal" ? ? ? ? ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > asi.rm-rctd.user-id
+     _FldNameList[8]   > asi.rm-rctd.pur-uom
+"pur-uom" "UOM" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > asi.rm-rctd.user-id
 "user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -502,17 +506,36 @@ DO:
          RETURN NO-APPLY.
       END.
     END.
+    
     ASSIGN
       rm-rctd.i-no:SCREEN-VALUE = loadtag.i-no 
       rm-rctd.i-name:SCREEN-VALUE =  loadtag.i-name
       rm-rctd.loc:SCREEN-VALUE = loadtag.loc
-      rm-rctd.loc-bin:SCREEN-VALUE = loadtag.loc-bin.
+      rm-rctd.loc-bin:SCREEN-VALUE = loadtag.loc-bin
+      .
+    FIND FIRST ITEM NO-LOCK 
+        WHERE ITEM.company EQ g_company 
+          AND ITEM.i-no EQ loadtag.i-no
+        NO-ERROR.
+     IF rm-rctd.pur-uom:SCREEN-VALUE EQ "" AND AVAILABLE(item) THEN 
+      rm-rctd.pur-uom:SCREEN-VALUE = item.pur-uom.
+     
     RUN valid-loc-bin-tag (3) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     RUN new-bin .
 
     APPLY 'ENTRY':U TO rm-rctd.qty.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
+DO:
+  RUN new-bin.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -542,6 +565,17 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
+DO:
+   /* #46504 Don't change quantity when they modify the loc or bin */
+  /* RUN new-bin. */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME rm-rctd.loc-bin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
@@ -550,6 +584,17 @@ DO:
     RUN valid-loc-bin-tag (2) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
+DO:
+  /* #46504 Don't change quantity when they modify the loc or bin */
+  /* RUN new-bin. */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -591,31 +636,13 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.pur-uom Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF rm-rctd.pur-uom IN BROWSE Browser-Table /* RM PurUom */
 DO:
-   /* #46504 Don't change quantity when they modify the loc or bin */
-  /* RUN new-bin. */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
-DO:
-  /* #46504 Don't change quantity when they modify the loc or bin */
-  /* RUN new-bin. */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
-DO:
-  RUN new-bin.
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-uom NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -765,18 +792,30 @@ PROCEDURE local-assign-record :
     FIND FIRST item WHERE item.company EQ rm-rctd.company
         AND item.i-no    EQ rm-rctd.i-no NO-LOCK NO-ERROR.
     IF AVAIL item THEN rm-rctd.pur-uom = item.cons-uom.
-      
-    FOR EACH rm-rdtlh NO-LOCK 
-        WHERE rm-rdtlh.company EQ rm-rctd.company 
-        AND rm-rdtlh.tag EQ rm-rctd.tag 
-        AND rm-rdtlh.rita-code EQ "R",
-        EACH rm-rcpth NO-LOCK 
-        WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
-        AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
-        ASSIGN 
-            rm-rctd.po-no = rm-rcpth.po-no
-            rm-rctd.cost  = rm-rdtlh.cost
-            .
+    
+    /* Index requires loc and loc-bin but those may have changed for a count record */
+    FIND FIRST rm-bin 
+        WHERE rm-bin.company EQ cocode                         
+          AND rm-bin.i-no    EQ rm-rctd.i-no
+          AND rm-bin.tag     EQ rm-rctd.tag
+        NO-LOCK NO-ERROR.
+    IF AVAIL rm-bin THEN 
+        ASSIGN rm-rctd.po-no = STRING(rm-bin.po-no)
+               rm-rctd.cost  = rm-bin.cost
+               .
+    ELSE DO:
+        FOR EACH rm-rdtlh NO-LOCK 
+            WHERE rm-rdtlh.company EQ rm-rctd.company 
+            AND rm-rdtlh.tag EQ rm-rctd.tag 
+            AND rm-rdtlh.rita-code EQ "R",
+            EACH rm-rcpth NO-LOCK 
+            WHERE rm-rcpth.r-no EQ rm-rdtlh.r-no
+            AND rm-rcpth.rita-code EQ rm-rdtlh.rita-code:
+            ASSIGN 
+                rm-rctd.po-no = rm-rcpth.po-no
+                rm-rctd.cost  = rm-rdtlh.cost
+                .
+        END.
     END.
     ASSIGN
         rm-rctd.enteredBy = USERID("asi")
@@ -1002,6 +1041,11 @@ PROCEDURE new-bin :
   
 
   DO WITH FRAME {&FRAME-NAME}:
+      
+    /* Don't override what the user has entered */
+    IF INTEGER(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
+        RETURN.
+        
     FIND FIRST rm-bin WHERE rm-bin.company EQ cocode 
         AND rm-bin.loc     EQ rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}                         
         AND rm-bin.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1274,6 +1318,46 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom B-table-Win
+PROCEDURE valid-uom:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  DEF VAR lv-uom-list AS cha INIT ["EA,TON,MSF,MSH,LB,LF"] NO-UNDO.
+  DEF VAR lv-uom AS CHAR NO-UNDO.
+  DEF VAR lv-uom-help AS CHAR NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    lv-uom = rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}.
+                            
+    FIND FIRST ITEM
+        WHERE item.company EQ cocode
+          AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        NO-LOCK NO-ERROR.
+
+    IF AVAIL item THEN RUN sys/ref/uom-rm.p (INPUT item.mat-type, OUTPUT lv-uom-list).
+
+
+    lv-uom-help = "Must enter one of the following as the UOM: " + lv-uom-list.
+
+    IF INDEX(lv-uom-list,lv-uom) LE 0 THEN DO:
+      MESSAGE TRIM(lv-uom-help) + "..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO rm-rctd.pur-uom IN BROWSE {&BROWSE-NAME}.
+
+      RETURN ERROR.
+    END.
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
