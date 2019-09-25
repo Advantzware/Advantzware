@@ -206,14 +206,15 @@ FOR EACH APIOutbound NO-LOCK
     END.
 
     /* If all good then make the API call */
-    RUN api/CallOutBoundAPI.p (
-        INPUT  APIOutbound.apiOutboundID,
-        INPUT  lcRequestData,
-        INPUT  cParentProgram,
-        OUTPUT lcResponseData,
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
-        ).
+    IF APIOutbound.requestDataType NE "FTP" THEN
+        RUN api/CallOutBoundAPI.p (
+            INPUT  APIOutbound.apiOutboundID,
+            INPUT  lcRequestData,
+            INPUT  cParentProgram,
+            OUTPUT lcResponseData,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
 
     RUN api\CreateAPIOutboundEvent.p (
         INPUT  iplReTrigger,                /* Re-Trigger Event Flag - IF TRUE updates the existing APIOutboundEvent record */

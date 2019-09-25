@@ -126,8 +126,8 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE cbPayType AS CHARACTER FORMAT "X(256)":U 
      LABEL "Pay Type" 
-     VIEW-AS COMBO-BOX INNER-LINES 11
-     LIST-ITEMS "CK-Printed Check","PC-Payment Card","CC-Credit Card","DC-Debit Card","DD-Direct Deposit","BD-Direct Business Debit","WT-Wire Transfer","EP-Electronic Payment","ET-Electronic Transfer","VC-Virtual Currency","BC-Bitcoin" 
+     VIEW-AS COMBO-BOX INNER-LINES 12
+     LIST-ITEMS "CK-Printed Check","PC-Payment Card","CC-Credit Card","DC-Debit Card","DD-Direct Deposit","BD-Direct Business Debit","WT-Wire Transfer","EP-Electronic Payment","ET-Electronic Transfer","VC-Virtual Currency","BC-Bitcoin","PA-Payables Advantage" 
      DROP-DOWN-LIST
      SIZE 28 BY 1
      FONT 4 NO-UNDO.
@@ -535,7 +535,8 @@ PROCEDURE display-paytype :
       when "EP" then cbPayType:screen-value = "EP-Electronic Payment".
       when "ET" then cbPayType:screen-value = "ET-Electronic Transfer".
       when "VC" then cbPayType:screen-value = "VC-Virtual Currency".     
-      when "BC" then cbPayType:screen-value = "BC-Bitcoin".  
+      when "BC" then cbPayType:screen-value = "BC-Bitcoin".
+      WHEN "PA" THEN cbPayType:SCREEN-VALUE = "PA-Payables Advantage".  
     end case.
   END.
 
