@@ -1,1 +1,0 @@
-for /F %%a in (p:\wade\dirlist.txt) do diff -q P:\asi_gui10\pco1010\%%a P:\asi10test\patch\pco1010\%%a
