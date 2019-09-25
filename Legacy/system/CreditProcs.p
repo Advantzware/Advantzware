@@ -21,7 +21,7 @@
 /* ************************  Function Prototypes ********************** */
 
  
- FUNCTION Common_GetInvDueDate RETURNS DATE 
+ FUNCTION GetInvDueDate RETURNS DATE 
     (ipdtInvDate AS DATE,
      ipcCompany AS CHARACTER ,
      ipcTerms AS CHARACTER) FORWARD.
@@ -31,7 +31,7 @@
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE Common_GetTerms:
+PROCEDURE GetTerms:
     /*------------------------------------------------------------------------------
      Purpose: Calculates a given estReleaseID's Freight Cost
      Notes:
@@ -66,7 +66,7 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 
-FUNCTION Common_GetInvDueDate RETURNS DATE 
+FUNCTION GetInvDueDate RETURNS DATE 
     ( ipdtInvDate AS DATE,
      ipcCompany AS CHARACTER ,
      ipcTerms AS CHARACTER ):
@@ -81,7 +81,7 @@ FUNCTION Common_GetInvDueDate RETURNS DATE
     DEFINE VARIABLE dDiscRate   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lGetError      AS LOGICAL NO-UNDO.
 
-    RUN Common_GetTerms( ipcCompany,ipcTerms, OUTPUT iDueOnMonth,OUTPUT iDueOnDay,OUTPUT iNetDays,OUTPUT dDiscRate,OUTPUT lGetError) .
+    RUN GetTerms( ipcCompany,ipcTerms, OUTPUT iDueOnMonth,OUTPUT iDueOnDay,OUTPUT iNetDays,OUTPUT dDiscRate,OUTPUT lGetError) .
 
     IF NOT lGetError THEN do:
         IF iDueOnMonth GT 0 AND ipdtInvDate  GT  DATE(string(iDueOnMonth,"99") + "/" + STRING(iDueOnDay,"99") + "/" + STRING(YEAR(TODAY),"9999"))   THEN

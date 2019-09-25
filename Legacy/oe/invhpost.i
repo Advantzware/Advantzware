@@ -76,7 +76,7 @@ assign
 	    ar-inv.disc-%    = terms.disc-rate
 	    ar-inv.disc-days = terms.disc-days.
         
-        ar-inv.due-date  =  DYNAMIC-FUNCTION("Common_GetInvDueDate", date(ar-inv.inv-date),cocode,inv-head.terms ).
+        ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),cocode,inv-head.terms ).
         
   END.
 

@@ -383,7 +383,7 @@ assign
          view frame invhead-comp.  /* Print headers */
                 */
         
-        ASSIGN v-due-date = DYNAMIC-FUNCTION("Common_GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
+        ASSIGN v-due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
 
         assign v-tot-pallets = 0
                v-t-weight = 0.

@@ -246,7 +246,7 @@ PROCEDURE CREATE-ar-inv.
                       no-lock no-error.
 
            if available terms then
-              assign ar-inv.due-date = DYNAMIC-FUNCTION("Common_GetInvDueDate", date(ar-inv.inv-date),inv-head.company,inv-head.terms )
+              assign ar-inv.due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),inv-head.company,inv-head.terms )
                      ar-inv.disc-%    = terms.disc-rate
                      ar-inv.disc-days = terms.disc-days.
 

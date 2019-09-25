@@ -1018,7 +1018,7 @@ PROCEDURE new-inv-date :
 
     IF NOT ERROR-STATUS:ERROR AND AVAIL vend THEN DO:
       
-      ap-inv.due-date:SCREEN-VALUE  = string(DYNAMIC-FUNCTION("Common_GetInvDueDate", date(lv-date),cocode,vend.terms )).
+      ap-inv.due-date:SCREEN-VALUE  = string(DYNAMIC-FUNCTION("GetInvDueDate", date(lv-date),cocode,vend.terms )).
                                     
     END.
   END.

@@ -1729,7 +1729,7 @@ PROCEDURE pInvDueDate :
 
 
 DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN ar-inv.due-date:SCREEN-VALUE = STRING( DYNAMIC-FUNCTION("Common_GetInvDueDate", date(ar-inv.inv-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}),cocode ,ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} )).
+    ASSIGN ar-inv.due-date:SCREEN-VALUE = STRING( DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}),cocode ,ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} )).
 END.
 
 

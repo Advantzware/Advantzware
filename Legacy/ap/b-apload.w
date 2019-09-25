@@ -427,7 +427,7 @@ PROCEDURE load-recurring :
               NO-LOCK NO-ERROR.
 
           IF AVAIL vend THEN DO:
-            out-ap-inv.due-date = (DYNAMIC-FUNCTION("Common_GetInvDueDate",date(out-ap-inv.inv-date) , vend.company, vend.terms )) .
+            out-ap-inv.due-date = (DYNAMIC-FUNCTION("GetInvDueDate",date(out-ap-inv.inv-date) , vend.company, vend.terms )) .
           END.
 
           FOR EACH inp-ap-invl WHERE inp-ap-invl.i-no EQ inp-ap-inv.i-no NO-LOCK:

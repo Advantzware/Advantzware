@@ -413,7 +413,7 @@ PROCEDURE pCreateNewInvoiceAP:
                 ap-inv.disc-%    = terms.disc-rate
                 ap-inv.disc-days = terms.disc-days
                 .
-        ap-inv.due-date = DYNAMIC-FUNCTION("CommonGetInvDueDate", date(ap-inv.inv-date),vend.company ,vend.terms  ) .
+        ap-inv.due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(ap-inv.inv-date),vend.company ,vend.terms  ) .
         
                                                    
     END.
@@ -513,7 +513,7 @@ PROCEDURE pCreateNewInvoiceAR:
         IF AVAILABLE terms THEN 
             ASSIGN 
                 ar-inv.terms-d   = terms.dscr
-                ar-inv.due-date  = DYNAMIC-FUNCTION("Common_GetInvDueDate", date(ar-inv.inv-date),cust.company , cust.terms )
+                ar-inv.due-date  = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),cust.company , cust.terms )
                 ar-inv.disc-%    = terms.disc-rate
                 ar-inv.disc-days = terms.disc-days
                 .
