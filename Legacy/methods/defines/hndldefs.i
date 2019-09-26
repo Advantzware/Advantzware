@@ -19,7 +19,11 @@ DEFINE VARIABLE help-page    AS INTEGER   NO-UNDO.
 DEFINE {&NEW} SHARED VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
 DEFINE {&NEW} SHARED VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
 
-
+/* Note: normally, adding super procedures to the stack is done in asiLogin.w, procedure ipPreRun.
+   Use the construct below ONLY if you need to instantiate these from a developer environment that
+   does not use asiLogin as a starting procedure */
+   
+   
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
 DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
 DEFINE VARIABLE hTags    AS HANDLE NO-UNDO.
