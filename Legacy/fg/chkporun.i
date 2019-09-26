@@ -16,6 +16,7 @@
     DEFINE VARIABLE dRecQty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE ld AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lOverUnder as LOGICAL no-undo.
+    DEFINE VARIABLE dCompQty AS DECIMAL NO-UNDO.
 
     DEFINE BUFFER xfg-rctd FOR fg-rctd.
 
@@ -44,14 +45,6 @@
             NO-LOCK NO-ERROR.
 
         ld = INT(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}) .
-  
-        IF fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} NE po-ordl.cons-uom THEN
-          run sys/ref/convquom.p((fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}), po-ordl.cons-uom,
-                                (IF AVAIL ITEM THEN item.basis-w ELSE 0), 
-                                (IF AVAIL ITEM THEN po-ordl.s-len ELSE 0), 
-                                (IF AVAIL ITEM THEN po-ordl.s-wid ELSE 0),
-                                (IF AVAIL ITEM THEN item.s-dep ELSE 0),
-                                 ld, output ld).
 
         dRecQty = po-ordl.t-rec-qty + ld.
         
@@ -63,23 +56,24 @@
               and xfg-rctd.job-no    eq fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
               and xfg-rctd.job-no2   eq int(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
               AND RECID(xfg-rctd) <> RECID(fg-rctd)   NO-LOCK:
-
-           ld = xfg-rctd.t-qty .
-
-           IF xfg-rctd.pur-uom NE po-ordl.cons-uom THEN
-             run sys/ref/convquom.p(fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}, po-ordl.cons-uom,
-                                   (IF AVAIL ITEM THEN item.basis-w ELSE 0),
-                                   (IF AVAIL ITEM THEN po-ordl.s-len ELSE 0), 
-                                   (IF AVAIL ITEM THEN po-ordl.s-wid ELSE 0),
-                                   (IF AVAIL ITEM THEN item.s-dep ELSE 0),
-                                    ld, output ld).
-
-           dRecQty = dRecQty + ld.
+            dRecQty = dRecQty + xfg-rctd.t-qty. 
         end.
 
-        if dRecQty gt po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)) THEN
-        do:          
-            message "This PO has a maximum permitted quantity of " string(po-ordl.cons-qty * (1 + (po-ordl.over-pct / 100)))
+
+         dCompQty = po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)).
+ 
+         IF po-ordl.pr-qty-uom NE "EA" THEN
+             run sys/ref/convquom.p(po-ordl.pr-qty-uom , "EA" ,
+                                (IF AVAIL ITEM THEN item.basis-w ELSE 0), 
+                                (IF AVAIL ITEM THEN po-ordl.s-len ELSE 0), 
+                                (IF AVAIL ITEM THEN po-ordl.s-wid ELSE 0),
+                                (IF AVAIL ITEM THEN item.s-dep ELSE 0),
+                                 dCompQty, output dCompQty).
+
+        if dRecQty gt dCompQty THEN
+        do:         
+           
+            message "This PO has a maximum permitted quantity of " string(dCompQty)
                  " (Including Overs allowed)"  VIEW-AS ALERT-BOX INFO .
             
                 APPLY "entry" TO fg-rctd.cases .
