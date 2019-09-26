@@ -347,14 +347,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      put eb.part-no AT 8 FORM "x(21)" temp-trim-size   SKIP.
+      put eb.part-no AT 8 FORM "x(21)" SPACE temp-trim-size   SKIP.
     
       FIND FIRST style
           WHERE style.company EQ cocode
             AND style.style   EQ eb.style
           NO-LOCK NO-ERROR.
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.      
-      PUT eb.part-dscr1 AT 8 FORM "x(21)"
+      PUT eb.part-dscr1 AT 8 FORM "x(21)" SPACE
           style-dscr SKIP.
 
       DO i = 1 TO 6:
@@ -365,7 +365,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
     
       v-board = /*IF AVAIL ef THEN*/
-                  ef.board    + " - " + cAdder.
+                  ef.brd-dscr    + " - " + cAdder.
                   
                 /*ELSE "-"*/.
               
@@ -383,7 +383,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                        item.i-dscr.
       END.
       
-      PUT eb.part-dscr2  AT 8  FORM "x(21)"
+      PUT eb.part-dscr2  AT 8  FORM "x(21)" SPACE
           v-board  FORM "x(80)"   SKIP .
     
       put eb.i-coldscr   AT 30 SKIP.
