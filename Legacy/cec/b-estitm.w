@@ -5671,8 +5671,11 @@ PROCEDURE local-assign-record :
            ASSIGN box-design-hdr.box-image = lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
      END.
   END.
-
-  IF eb.pur-man THEN ef.nc = NO.
+  
+  IF eb.pur-man THEN
+  	assign ef.nc = NO
+	       eb.casNoCharge = NO
+	       eb.trNoCharge = NO.
   IF lCheckPurMan THEN DO:
       FIND FIRST bff-itemfg EXCLUSIVE-LOCK
            WHERE bff-itemfg.company EQ cocode
