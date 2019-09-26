@@ -20,7 +20,9 @@ DEF VAR li-col-po AS INT INIT 20 FORMAT ">9" NO-UNDO.
 DEF VAR li-col-amount AS INT INIT 30 FORMAT ">9" NO-UNDO.
 DEF VAR li-col-discount AS INT INIT 40 FORMAT ">9" NO-UNDO.
 DEF VAR li-col-net AS INT INIT 50 FORMAT ">9" NO-UNDO.
+DEFINE VARIABLE iCheckNo LIKE stnum NO-UNDO .
 
+iCheckNo = stnum .
 /*Function forwards*/
 FUNCTION formatDate RETURNS CHAR
   ( INPUT ip-date AS DATE)  FORWARD.
@@ -55,19 +57,19 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
             BY ap-chk.vend-no:
 
         ll = 0.
-        /*FOR EACH ap-sel                                          */
-        /*   WHERE ap-sel.company EQ cocode                        */
-        /*        AND ap-sel.vend-no EQ ap-chk.vend-no             */
-        /*        AND ap-sel.man-check EQ NO                       */
-        /*    NO-LOCK                                              */
-        /*    BREAK BY ap-sel.inv-no:                              */
-        /*                                                         */
-        /*    ll = ll + 1.                                         */
-        /*   IF ll EQ max-per-chk AND NOT LAST(ap-sel.inv-no) THEN */
-        /*        ASSIGN                                           */
-        /*            stnum = stnum + 1                            */
-        /*            ll = 0.                                      */
-        /*END. /*each ap-sel*/                                     */
+        FOR EACH ap-sel                                          
+           WHERE ap-sel.company EQ cocode                        
+                AND ap-sel.vend-no EQ ap-chk.vend-no             
+                AND ap-sel.man-check EQ NO                       
+            NO-LOCK                                              
+            BREAK BY ap-sel.inv-no:                              
+                                                                 
+            ll = ll + 1.                                         
+           IF ll EQ max-per-chk AND NOT LAST(ap-sel.inv-no) THEN 
+                ASSIGN                                           
+                    stnum = stnum + 1 
+                    ll = 0.                                      
+        END. /*each ap-sel*/                                     
         ASSIGN
             add1   = vend.r-add1
             add2   = vend.r-add2
@@ -145,11 +147,11 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
 
             IF LAST(ap-sel.inv-no) THEN DO:
                 REPEAT WHILE ll > 15 AND CAN-FIND(FIRST wrk-chk WHERE wrk-chk.vend-no EQ v-vend-no):
-                    RUN writeVoidedCheck(vend.remit,stnum).
+                    RUN writeVoidedCheck(vend.remit,iCheckNo).
                     ASSIGN
                         ll-void = YES
                         ll = ll - 15
-                        stnum = stnum + 1.
+                        iCheckNo = iCheckNo + 1 .
                     RUN writeRegisterSummary(YES,
                                              ?,
                                              0,
@@ -207,7 +209,7 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
                                     add2,
                                     csz,
 /*                                     lv-postal, */
-                                    stnum).
+                                    iCheckNo).
                 END. /* if last(ap-sel.inv-no)*/
                 RUN writeRegisterSummary(YES,
                                          ap-chk.check-date,
@@ -247,6 +249,7 @@ IF v-print-mode NE "ALIGN" THEN DO:         /* production mode */
                 IF lv-line-cnt <= 15 THEN /*PUT skip(14 - lv-line-cnt).*/ PAGE.               
                 ASSIGN
                     stnum  = stnum + 1
+                    iCheckNo = iCheckNo + 1
                     ctot   = 0
                     cdis   = 0
                     cgross = 0
