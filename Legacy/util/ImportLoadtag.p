@@ -18,9 +18,9 @@ DEFINE TEMP-TABLE ttImportLoadtag
     FIELD item-type    AS CHAR        FORMAT "x(2)" LABEL "Item Type" HELP "Required - RM or FG - size:2"
     FIELD i-no         AS CHARACTER   FORMAT "x(15)" LABEL "Item#" HELP "Required - Size:15"
     FIELD i-name       AS CHARACTER   FORMAT "x(30)" LABEL "Name" HELP "Required - Size:30"
-    FIELD tag-no       AS CHARACTER   FORMAT "X(20)" LABEL "Tag#" HELP "Required - Size:20"
-    FIELD sts          AS CHARACTER   FORMAT "x" LABEL "Status" HELP "Required - Size:1 - one of 'PROBICDT'"
+    FIELD tag-no       AS CHARACTER   FORMAT "X(20)" LABEL "Tag#" HELP "PREFIX numeric values with the # sign"
     /* Optional */
+    FIELD sts          AS CHARACTER   FORMAT "x(12)" LABEL "Status" HELP "Optional - Size:12"
     FIELD tag-date     AS DATE        FORMAT "99/99/9999" LABEL "Rcpt Date" HELP "Optional - Date"
     FIELD lot-no       AS CHARACTER   FORMAT "x(15)" LABEL "FG Lot#" HELP "Optional - Size:15"
     FIELD location     AS CHARACTER   FORMAT "x(5)" LABEL "Warehouse" HELP "Optional - Size:5"
@@ -170,7 +170,7 @@ PROCEDURE pProcessRecord PRIVATE:
             ASSIGN 
                 loadtag.company      = ipbf-ttImportLoadtag.company
                 loadtag.item-type    = IF ipbf-ttImportLoadtag.item-type EQ "RM" THEN TRUE ELSE FALSE 
-                loadtag.tag-no       = ipbf-ttImportLoadtag.tag-no
+                loadtag.tag-no       = IF SUBSTRING(ipbf-ttImportLoadtag.tag-no,1,1) EQ "#" THEN SUBSTRING(ipbf-ttImportLoadtag.tag-no,2) ELSE ipbf-ttImportLoadtag.tag-no 
                 loadtag.i-name       = ipbf-ttImportLoadtag.i-name
                 loadtag.i-no         = ipbf-ttImportLoadtag.i-no
                 loadtag.tag-time     = IF ipbf-ttImportLoadtag.tag-date NE ? THEN 0 ELSE ?
@@ -186,6 +186,7 @@ PROCEDURE pProcessRecord PRIVATE:
         RUN pAssignValueC (ipbf-ttImportloadtag.lot-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-char[2]). 
         RUN pAssignValueC (ipbf-ttImportloadtag.pallet-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.pallet-no). 
         RUN pAssignValueC (ipbf-ttImportloadtag.shift, iplIgnoreBlanks, INPUT-OUTPUT loadtag.shift). 
+        RUN pAssignValueC (ipbf-ttImportloadtag.sts, iplIgnoreBlanks, INPUT-OUTPUT loadtag.sts). 
         RUN pAssignValueC (ipbf-ttImportloadtag.vend-tag, iplIgnoreBlanks, INPUT-OUTPUT loadtag.misc-char[1]). 
         RUN pAssignValueI (ipbf-ttImportloadtag.blank-no, iplIgnoreBlanks, INPUT-OUTPUT loadtag.blank-no). 
         RUN pAssignValueI (ipbf-ttImportloadtag.case-bundle, iplIgnoreBlanks, INPUT-OUTPUT loadtag.case-bundle). 
