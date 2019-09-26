@@ -128,7 +128,7 @@ ASSIGN cTextListToSelect = "Trans. Date,Item,Description,Customer Part#," +
 ASSIGN cTextListToDefault  = "Trans. Date,Item,Description,Customer Part#," +
                            "Tag,Whse,Bin,Sell Value,Cost/M,Total Cost,Job#".
 
-RUN sys/ref/nk1look.p (INPUT cocode, "FGPostGL", "L" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "AdjustGL", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
