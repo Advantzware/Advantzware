@@ -291,6 +291,38 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME terms.dueOnDay
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL terms.dueOnDay V-table-Win
+ON VALUE-CHANGED OF terms.dueOnDay IN FRAME F-Main
+DO:
+  IF LASTKEY EQ -1 THEN Return .
+      
+     {&methods/lValidateError.i YES}
+         IF INTEGER(terms.dueOnMonth:SCREEN-VALUE) LE 0 THEN do:
+             ASSIGN terms.dueOnDay:SCREEN-VALUE = "" .
+         END.
+     {&methods/lValidateError.i NO}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME terms.dueOnDay
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL terms.dueOnDay V-table-Win
+ON LEAVE OF terms.dueOnDay IN FRAME F-Main
+DO:
+    DEFIN VARIABLE lCheckError AS LOGICAL NO-UNDO .
+    IF LASTKEY EQ -1 THEN Return .
+    RUN valid-day(OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -479,6 +511,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFIN VARIABLE lCheckError AS LOGICAL NO-UNDO .
    DO WITH FRAME {&FRAME-NAME}:
    {&methods/lValidateError.i YES}
     IF terms.t-code:SCREEN-VALUE EQ "CASH" AND adm-new-record 
@@ -489,6 +522,9 @@ PROCEDURE local-update-record :
      END.
     {&methods/lValidateError.i NO}
    END.
+
+   RUN valid-day(OUTPUT lCheckError) NO-ERROR.
+   IF lCheckError THEN RETURN NO-APPLY.
 
       /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -564,3 +600,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-day V-table-Win 
+PROCEDURE valid-day :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE iCountDayInMonth AS INTEGER NO-UNDO .
+
+    {&methods/lValidateError.i YES}
+     DO WITH FRAME {&FRAME-NAME}:
+         IF INTEGER(terms.dueOnMonth:SCREEN-VALUE) GT 0 THEN do:
+             iCountDayInMonth = DYNAMIC-FUNCTION("Common_GetNumberOfDaysInMonth", INTEGER(terms.dueOnMonth:SCREEN-VALUE) ).
+             IF integer(terms.dueOnDay:SCREEN-VALUE) GT iCountDayInMonth  THEN DO:
+                 MESSAGE "Day is not valid for this month" VIEW-AS ALERT-BOX INFO .
+                 oplReturnError = YES .
+             END.
+          END.
+          ELSE terms.dueOnDay:SCREEN-VALUE = "0" .
+     END.
+     {&methods/lValidateError.i NO}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
