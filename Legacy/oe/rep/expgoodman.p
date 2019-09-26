@@ -18,6 +18,9 @@ DEF VAR v-misc-desc AS CHAR FORMAT "X(40)" NO-UNDO.
 DEF VAR v-tax AS DEC NO-UNDO.
 DEF VAR v-tax-tot AS DEC NO-UNDO.
 DEF VAR v-misc-tax-tot AS DEC NO-UNDO.
+DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
 for each tt-report NO-LOCK where tt-report.term-id eq "",
     first inv-head where recid(inv-head) eq tt-report.rec-id no-lock,
@@ -179,3 +182,4 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
 end. /* each tt-report */
 
 
+THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).

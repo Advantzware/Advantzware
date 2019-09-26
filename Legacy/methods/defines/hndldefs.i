@@ -16,6 +16,8 @@ DEFINE VARIABLE char-hdl     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE phandle      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE is-running   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE help-page    AS INTEGER   NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE hdCommonProcs AS HANDLE NO-UNDO.
 
 /* Note: normally, adding super procedures to the stack is done in asiLogin.w, procedure ipPreRun.
    Use the construct below ONLY if you need to instantiate these from a developer environment that
@@ -36,9 +38,6 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
 &ENDIF
 
 &IF DEFINED(CommonFile_is_Running) NE 0 &THEN
-    DEF VAR hdCreditProcs AS HANDLE NO-UNDO.
-    DEF VAR hdCommonProcs AS HANDLE NO-UNDO.
-    
     RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 

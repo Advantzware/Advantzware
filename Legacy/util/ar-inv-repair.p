@@ -18,6 +18,9 @@ DEF VAR xx-amt LIKE inv-head.t-inv-rev       NO-UNDO.
 DEF VAR xx-cost1 AS DEC                      NO-UNDO.
 DEF VAR xx-cost2 AS DEC                      NO-UNDO.
 DEF VAR v-tot-inv-rev AS DEC                 NO-UNDO.
+DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
+RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
 
 DEFINE INPUT  PARAMETER ip-beg-date AS DATE       NO-UNDO.

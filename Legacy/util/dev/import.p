@@ -434,9 +434,13 @@ PROCEDURE pCreateNewInvoiceAR:
     
     DEFINE VARIABLE iNextInvoiceNumber     AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNextInvoiceLinkNumber AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
 
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
 
+    RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
+    
     ASSIGN
         iNextInvoiceNumber     = 0
         iNextInvoiceLinkNumber = 0.
@@ -517,6 +521,7 @@ PROCEDURE pCreateNewInvoiceAR:
     
     opriARInv = ROWID(ar-inv).
     RELEASE ar-inv.
+    THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 END PROCEDURE.
 
 PROCEDURE pCreateNewInvoiceLineAP:
