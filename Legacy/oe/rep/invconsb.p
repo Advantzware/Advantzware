@@ -118,9 +118,6 @@ DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
 DEF VAR v-tot-tax AS DEC NO-UNDO.
-DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
-RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
@@ -763,5 +760,4 @@ assign
  
     end. /* each xinv-head */
 
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

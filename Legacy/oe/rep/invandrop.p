@@ -85,9 +85,6 @@ DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
 DEF VAR v-frt-tax AS DEC NO-UNDO.
 DEF VAR lv-inv-list AS CHAR NO-UNDO.
-DEFINE VARIABLE hdCreditProcs AS HANDLE NO-UNDO.
-RUN system/CreditProcs.p PERSISTENT SET hdCreditProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdCreditProcs).
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
@@ -658,5 +655,4 @@ find first company where company.company eq cocode NO-LOCK.
  
     end. /* each xinv-head */
 
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdCreditProcs).
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
