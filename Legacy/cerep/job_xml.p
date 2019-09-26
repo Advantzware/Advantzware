@@ -1483,7 +1483,17 @@ FOR EACH job-hdr NO-LOCK
            RUN XMLOutput (lXMLOutput,'Dock_Appointment_Number',cDockAptmnt,'Col').
            RUN XMLOutput (lXMLOutput,'Dock_Appointment_Contact',cContact,'Col').
            RUN XMLOutput (lXMLOutput,'/TicketPrint','','Row').
-             
+
+           RUN XMLOutput (lXMLOutput,'DepartmentName','','Row').
+           FOR EACH wrk-op WHERE
+            wrk-op.s-num EQ job-hdr.frm 
+            BREAK BY wrk-op.dept BY wrk-op.pass DESC:
+               IF FIRST-OF(wrk-op.dept)  THEN DO:
+                   RUN XMLOutput (lXMLOutput,'Department',wrk-op.dept,'Col').
+                   RUN XMLOutput (lXMLOutput,'Pass',wrk-op.pass,'Col').
+               END.
+           END.
+        RUN XMLOutput (lXMLOutput,'/DepartmentName','','Row').
    END. /* last-of(eb.form-no) */
           
   END. /* each eb */
