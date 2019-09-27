@@ -1835,9 +1835,9 @@ PROCEDURE run-report :
 
 /* Start bank transmittal file generation */
     DEFINE VARIABLE cAPIID     AS CHARACTER NO-UNDO INITIAL "CheckTransfer".
-    DEFINE VARIABLE cClientID  AS CHARACTER NO-UNDO INITIAL "BankCode".
     DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO INITIAL "TransmitBankFile".
     DEFINE VARIABLE cArgValues AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBankCode  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iEventID   AS INTEGER   NO-UNDO.
@@ -1849,16 +1849,17 @@ PROCEDURE run-report :
             INPUT  cocode, 
             INPUT  post-manual, 
             INPUT  cBankTransmitFullFilePath + cBankTransmitFileName,
+            OUTPUT cBankCode,
             OUTPUT lSuccess,
             OUTPUT cMessage
             ) NO-ERROR.
         /* Call outbound API "CheckTransfer" to FTP the file */
-        IF NOT ERROR-STATUS:ERROR AND lSuccess THEN
+        IF NOT ERROR-STATUS:ERROR AND lSuccess AND cBankCode NE "" THEN DO:
             RUN api\PrepareAndCallOutboundRequest.p (
                 INPUT  cocode,                  /* Company Code (Mandatory) */
                 INPUT  g_loc,                   /* Location Code (Mandatory) */
-                INPUT  "CheckTransfer",         /* API ID (Mandatory) */
-                INPUT  cClientID,               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                INPUT  cAPIID,                  /* API ID (Mandatory) */
+                INPUT  cBankCode,               /* Client ID (Optional) - Pass empty in case to make request for all clients */
                 INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
                 INPUT  "LocalFileName,LocalFilePath", /* Comma separated list of table names for which data being sent (Mandatory) */
                 INPUT  cArgValues,              /* Comma separated list of Values for the respective key */
@@ -1870,6 +1871,10 @@ PROCEDURE run-report :
                 OUTPUT cMessage                 /* Status message */
                 ).
             
+            IF lSuccess THEN
+                MESSAGE "Initiated FTP transfer for check file " + cBankTransmitFullFilePath + cBankTransmitFileName
+                    ". View log files to check the transfer status." VIEW-AS ALERT-BOX.
+        END.    
     END.     
 /* End bank transmittal file generation */
 

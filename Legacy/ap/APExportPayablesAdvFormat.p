@@ -13,6 +13,7 @@
 DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER iplManual       AS LOGICAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcFullFilePath AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcBankCode     AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
 
@@ -160,7 +161,10 @@ IF bank.pay-type NE "PA" THEN DO:
     RETURN.
 END.
 
-cHeaderSenderIdentificationNumber = STRING(bank.bk-act).
+ASSIGN
+    cHeaderSenderIdentificationNumber = STRING(bank.bk-act)
+    opcBankCode                       = bank.bank-code
+    .
 
 OUTPUT STREAM bankFileStr TO VALUE(ipcFullFilePath).
     
