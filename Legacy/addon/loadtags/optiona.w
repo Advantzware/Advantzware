@@ -167,9 +167,6 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       btn_tag:HIDDEN IN FRAME F-Main           = TRUE.
-
-ASSIGN 
        btn_wip:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
