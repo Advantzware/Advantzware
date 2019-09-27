@@ -39,6 +39,7 @@ PROCEDURE createTtblProdAce:
         WHERE dmiTrans.startDate GE dtStartTransDate
           AND dmiTrans.startDate LE dtEndTransDate
           AND (dmiTrans.shift    EQ cShift OR cShift EQ "All")
+          AND dmiTrans.posted    EQ NO
         :
         /* check if valid entry to process */
         IF INDEX(dmiTrans.jobID,"Invalid WO") NE 0 THEN NEXT.
@@ -93,6 +94,8 @@ PROCEDURE createTtblProdAce:
         DO idx = 1 TO NUM-ENTRIES(dmiTrans.operator):
             ttblProdAce.prodAceOperator[idx] = ENTRY(idx,dmiTrans.operator).
         END. /* do idx */
+        RUN newEnd (ttblProdAce.prodAceDuration, ttblProdAce.prodAceStartDate, ttblProdAce.prodAceStartTime,
+                    OUTPUT ttblProdAce.prodAceEndDate, OUTPUT ttblProdAce.prodAceEndTime).
         DO TRANSACTION:
             FIND FIRST bDMITrans EXCLUSIVE-LOCK
                  WHERE ROWID(bDMITrans) EQ ROWID(dmiTrans).
