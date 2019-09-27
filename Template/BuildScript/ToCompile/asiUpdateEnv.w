@@ -6306,6 +6306,15 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
                     bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
                     bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.runCostXtra[iIndex]
                     bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setupsXtra[iIndex]
+                    /* Assignments from triggers */
+                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
+                    bf-vendItemCostLevel.createdID = USERID('ASI')
+                    bf-vendItemCostLevel.createdDate = DATE(TODAY)
+                    bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
+                                                                 + STRING(DAY(TODAY),"99")
+                                                                 + STRING(TIME,"99999")
+                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
+                    /* End trigger assignments */
                     .
             END. /*runQtyExtra ne 0*/
         END.  /*Do loop 2*/              
