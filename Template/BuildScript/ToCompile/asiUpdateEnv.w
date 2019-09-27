@@ -1721,7 +1721,8 @@ PROCEDURE ipCleanTemplates:
     DEF VAR cTgtEnv AS CHAR NO-UNDO.
     DEF VAR icShortName AS CHAR NO-UNDO.
     DEF VAR icLongName AS CHAR NO-UNDO.
-    DEF VAR idaModDate AS DATE NO-UNDO.
+    DEF VAR icType AS CHAR NO-UNDO.
+    DEF VAR daFileDate AS DATE NO-UNDO.
     DEF VAR cTestFileName AS CHAR NO-UNDO.
     DEF VAR cResDir AS CHAR NO-UNDO.
     
@@ -1743,12 +1744,14 @@ PROCEDURE ipCleanTemplates:
             IMPORT 
                 icShortName
                 icLongName
-                idaModDate.
+                icType.
+            ASSIGN 
+                FILE-INFO:FILE-NAME = icLongName.
             CREATE ttTemplateFiles.
             ASSIGN 
                 ttTemplateFiles.cFileName = icShortName
                 ttTemplateFiles.cLongName = icLongName
-                ttTemplateFiles.daModDate = idaModDate.
+                ttTemplateFiles.daModDate = FILE-INFO:FILE-MOD-DATE.
         END.
     END.
     
@@ -1765,12 +1768,14 @@ PROCEDURE ipCleanTemplates:
             IMPORT 
                 icShortName
                 icLongName
-                idaModDate.
+                icType.
+            ASSIGN 
+                FILE-INFO:FILE-NAME = icLongName.
             CREATE ttResTemplateFiles.
             ASSIGN 
                 ttResTemplateFiles.cFileName = icShortName
                 ttResTemplateFiles.cLongName = icLongName
-                ttResTemplateFiles.daModDate = idaModDate.
+                ttResTemplateFiles.daModDate = FILE-INFO:FILE-MOD-DATE.
         END.
     END.
     
