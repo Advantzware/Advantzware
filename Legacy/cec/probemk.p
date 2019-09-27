@@ -384,6 +384,14 @@ DO:
                 vmcl-cost = v-pct.
             {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 100007}
             mclean.rec-type = "profit".
+
+           IF cerunc EQ "Atlantic" THEN DO:
+               ASSIGN
+                   vmcl-desc = "Net Margin $"
+                   vmcl-cost = (probe.sell-price * (v-pct / 100)) * qty / 1000 .                
+                {cec/pr4-mcln.i vmcl-desc vmcl vmcl-cost 1000012}
+                    mclean.rec-type = "profit-$".
+           END.
         END.
 
         IF cerunc EQ "Fibre" THEN 

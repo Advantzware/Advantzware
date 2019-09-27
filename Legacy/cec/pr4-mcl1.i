@@ -133,6 +133,8 @@ ELSE DO:
      v-pct = ROUND(({1}.sell-price - {1}.full-cost) / {1}.sell-price * 100,2)
      vmcl-desc = "    Net Margin %".
 
+     dNetMarginDollar = est-summ.per-m .
+
   FIND FIRST est-summ
       WHERE est-summ.company  EQ probe.company
         AND est-summ.est-no   EQ probe.est-no
@@ -149,6 +151,25 @@ ELSE DO:
                         vmcl-desc.
   END.
   est-summ.per-m = v-pct.
+
+ IF cerunc EQ "Atlantic" THEN DO:
+     vmcl-desc = "Net Margin $".
+     FIND FIRST est-summ
+         WHERE est-summ.company  EQ probe.company
+         AND est-summ.est-no   EQ probe.est-no
+         AND est-summ.e-num    EQ probe.line
+         AND est-summ.summ-tot EQ STRING("profit$","x(20)")       +
+                                  STRING(v-form-no,"9999999999") +
+                                  vmcl-desc
+          NO-ERROR.
+     IF NOT AVAIL est-summ THEN DO:
+         {cec/est-summ.i vmcl-desc vmcl-cost}
+             est-summ.summ-tot = STRING("profit$","x(20)")       +
+                                 STRING(v-form-no,"9999999999") +
+                                 vmcl-desc.
+     END.
+     est-summ.per-m =  (dNetMarginDollar * qty / 1000)  .
+ END. 
 END.
 
 IF cerunc EQ "Fibre" THEN DO:
