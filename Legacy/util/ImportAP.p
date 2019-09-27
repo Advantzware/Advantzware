@@ -344,6 +344,9 @@ PROCEDURE pProcessRecord PRIVATE:
             ap-inv.disc-days = ipbf-ttImportAP.DiscountDays.
         IF ipbf-ttImportAP.Discount NE 0 THEN 
             ap-inv.disc-% = ipbf-ttImportAP.Discount.
+        /* Set receiver-no eq 0 so VU# won't try to create a manual check - 54241 - MYT */
+        ASSIGN 
+            ap-inv.receiver-no = "0".
     
     END. /*not available ap-inv*/
     RUN pCreateNewInvoiceLine (ROWID(ap-inv), OUTPUT riAPInvl).
