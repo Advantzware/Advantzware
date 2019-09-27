@@ -1405,6 +1405,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE lPrintActMatCost AS LOGICAL NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1492,6 +1493,8 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
+       IF LOOKUP(ttRptSelected.TextList, "Act Mat'l Cost") <> 0    THEN
+         ASSIGN lPrintActMatCost = YES .
  END.
 
 IF tb_excel THEN DO:
@@ -1612,11 +1615,13 @@ PROCEDURE pGetActMatCost :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipcJob AS CHARACTER NO-UNDO .
+DEFINE INPUT PARAMETER ipiJob2 AS INTEGER NO-UNDO .
 DEFINE OUTPUT PARAMETER opdActCost AS DECIMAL NO-UNDO .
 
 FIND FIRST job NO-LOCK
     WHERE job.company EQ cocode
-    AND job.job-no EQ ipcJob NO-ERROR .
+    AND job.job-no EQ ipcJob 
+    AND job.job-no2 EQ ipiJob2 NO-ERROR .
 
  IF AVAIL job THEN do:
      {jc/rep/job-summ.i}   /***  Get the Material Information ***/
