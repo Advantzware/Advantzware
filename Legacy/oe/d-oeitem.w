@@ -3988,9 +3988,7 @@ ASSIGN /*order specific overrides to FGMaster and core defaults*/
 
 ASSIGN
     itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", ""). 
-                         
-
- IF fgmaster-cha EQ "FGITEM" THEN
+ 
     ASSIGN
        itemfg.sell-uom   = oe-ordl.pr-uom:SCREEN-VALUE
        itemfg.prod-uom   = v-uom

@@ -1757,7 +1757,7 @@ PROCEDURE crt-itemfg :
   ASSIGN
   itemfg.taxable = fGetTaxable(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id , (IF AVAILABLE bf-itemfg THEN bf-itemfg.i-no ELSE ""))
   .
-  IF fgmaster-cha EQ "FGITEM" THEN
+  
   ASSIGN
   itemfg.sell-uom   = get-sv("oe-ordl.pr-uom")
   itemfg.prod-uom   = v-uom
