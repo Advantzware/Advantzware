@@ -60,10 +60,10 @@ DEFINE VARIABLE cMaterialType AS CHARACTER INITIAL "C,5,6,M,D" NO-UNDO .
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define FIELDS-IN-QUERY-Dialog-Frame estPacking.rmItemID ~
 estPacking.materialType estPacking.quantity estPacking.quantityPer ~
-estPacking.dimLength estPacking.dimWidth estPacking.dimDepth estPacking.noCharge
+estPacking.dimLength estPacking.dimWidth estPacking.dimDepth 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame estPacking.rmItemID ~
 estPacking.quantity estPacking.quantityPer estPacking.dimLength ~
-estPacking.dimWidth estPacking.noCharge
+estPacking.dimWidth 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame estPacking
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame estPacking
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame estPacking
@@ -72,13 +72,14 @@ estPacking.dimWidth estPacking.noCharge
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS estPacking.rmItemID estPacking.quantity ~
-estPacking.quantityPer estPacking.dimLength estPacking.dimWidth estPacking.noCharge
+estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
 &Scoped-define ENABLED-TABLES estPacking
 &Scoped-define FIRST-ENABLED-TABLE estPacking
-&Scoped-Define ENABLED-OBJECTS  Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
+&Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 ~
+RECT-39 
 &Scoped-Define DISPLAYED-FIELDS estPacking.rmItemID estPacking.materialType ~
 estPacking.quantity estPacking.quantityPer estPacking.dimLength ~
-estPacking.dimWidth estPacking.dimDepth estPacking.noCharge
+estPacking.dimWidth estPacking.dimDepth 
 &Scoped-define DISPLAYED-TABLES estPacking
 &Scoped-define FIRST-DISPLAYED-TABLE estPacking
 &Scoped-Define DISPLAYED-OBJECTS est-no iForm iBlank cCustPart cCase ~
@@ -99,7 +100,6 @@ FUNCTION fGetItemName RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetType Dialog-Frame 
 FUNCTION fGetType RETURNS CHARACTER
@@ -220,18 +220,18 @@ DEFINE FRAME Dialog-Frame
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      fi_mat-name AT ROW 4.62 COL 40.8 COLON-ALIGNED NO-LABEL
-     estPacking.materialType AT ROW 6.05 COL 22.2 COLON-ALIGNED
+     estPacking.materialType AT ROW 5.81 COL 22.2 COLON-ALIGNED
           LABEL "Type"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     fi_type-name AT ROW 6.05 COL 40.8 COLON-ALIGNED NO-LABEL
-     estPacking.quantity AT ROW 7.62 COL 22.2 COLON-ALIGNED
+     fi_type-name AT ROW 5.81 COL 40.8 COLON-ALIGNED NO-LABEL
+     estPacking.quantity AT ROW 7 COL 22.2 COLON-ALIGNED
           LABEL "Quantity" FORMAT ">>>,>>9.9<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 1
-     estPacking.quantityPer AT ROW 7.62 COL 49 COLON-ALIGNED
+     estPacking.quantityPer AT ROW 7.1 COL 49 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEM-PAIRS "Case","C",
                      "Pallet","P",
@@ -239,22 +239,17 @@ DEFINE FRAME Dialog-Frame
           DROP-DOWN-LIST
           SIZE 12 BY 1
           BGCOLOR 15 FONT 1
-     estPacking.noCharge AT ROW 7.62 COL 67.2 COLON-ALIGNED
-          LABEL "NC" FORMAT "C/N"
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
-          BGCOLOR 15 FONT 1
      estPacking.dimLength AT ROW 4.62 COL 83.8 COLON-ALIGNED
           LABEL "Length" FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estPacking.dimWidth AT ROW 6.05 COL 83.8 COLON-ALIGNED
+     estPacking.dimWidth AT ROW 5.81 COL 83.8 COLON-ALIGNED
           LABEL "Width" FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
-     estPacking.dimDepth AT ROW 7.62 COL 83.8 COLON-ALIGNED
+     estPacking.dimDepth AT ROW 7.1 COL 83.8 COLON-ALIGNED
           LABEL "Depth" FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -262,6 +257,13 @@ DEFINE FRAME Dialog-Frame
      Btn_OK AT ROW 10.33 COL 88.2
      Btn_Done AT ROW 10.62 COL 89.2
      Btn_Cancel AT ROW 10.33 COL 97.2
+     estPacking.costOverridePerUOM AT ROW 8.29 COL 22.4 COLON-ALIGNED WIDGET-ID 318
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     estPacking.noCharge AT ROW 8.29 COL 49 COLON-ALIGNED WIDGET-ID 320
+          LABEL "NC" FORMAT "Y/N"
+          VIEW-AS FILL-IN 
+          SIZE 5.6 BY 1
      RECT-21 AT ROW 10.1 COL 87.2
      RECT-38 AT ROW 1.14 COL 1.2
      RECT-39 AT ROW 4.1 COL 1.2 WIDGET-ID 2
@@ -302,40 +304,51 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN cCase IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cCustPart IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN estPacking.costOverridePerUOM IN FRAME Dialog-Frame
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       estPacking.costOverridePerUOM:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
+/* SETTINGS FOR FILL-IN cPallet IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN estPacking.dimDepth IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN estPacking.dimLength IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estPacking.dimWidth IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN est-no IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_mat-name IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_type-name IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN iBlank IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN iForm IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN estPacking.materialType IN FRAME Dialog-Frame
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN estPacking.noCharge IN FRAME Dialog-Frame
+   NO-DISPLAY NO-ENABLE EXP-LABEL EXP-FORMAT                            */
+ASSIGN 
+       estPacking.noCharge:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
 /* SETTINGS FOR FILL-IN estPacking.quantity IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
+ASSIGN 
+       RECT-39:HIDDEN IN FRAME Dialog-Frame           = TRUE.
+
 /* SETTINGS FOR FILL-IN estPacking.rmItemID IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN estPacking.noCharge IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN est-no IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
-/* SETTINGS FOR FILL-IN iForm IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
-/* SETTINGS FOR FILL-IN iBlank IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
-/* SETTINGS FOR FILL-IN cCustPart IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
-/* SETTINGS FOR FILL-IN cCase IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
-/* SETTINGS FOR FILL-IN cPallet IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-     
+
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
@@ -663,7 +676,7 @@ PROCEDURE create-item :
         DO:
             DISPLAY  estPacking.rmItemID estPacking.quantity
                 estPacking.dimDepth estPacking.dimWidth estPacking.dimLength
-                estPacking.quantity estPacking.noCharge. 
+                estPacking.quantity. 
             ASSIGN 
                 lv-item-recid = RECID(estPacking).
             ll-new-record = YES.
@@ -723,7 +736,7 @@ PROCEDURE display-item :
             estPacking.rmItemID estPacking.quantity
             estPacking.dimLength estPacking.dimWidth estPacking.dimDepth  
             fi_mat-name est-no cCustPart cCase iForm iBlank cPallet 
-            fi_type-name estPacking.noCharge
+            fi_type-name
             WITH FRAME Dialog-Frame.
     END.
 
@@ -757,11 +770,11 @@ PROCEDURE enable_UI :
   IF AVAILABLE estPacking THEN 
     DISPLAY estPacking.rmItemID estPacking.materialType estPacking.quantity 
           estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
-          estPacking.dimDepth estPacking.noCharge
+          estPacking.dimDepth 
       WITH FRAME Dialog-Frame.
-  ENABLE estPacking.rmItemID estPacking.noCharge
-         estPacking.quantity estPacking.quantityPer estPacking.dimLength 
-         estPacking.dimWidth Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
+  ENABLE estPacking.rmItemID estPacking.quantity estPacking.quantityPer 
+         estPacking.dimLength estPacking.dimWidth Btn_OK Btn_Done Btn_Cancel 
+         RECT-21 RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -866,7 +879,6 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetType Dialog-Frame 
 FUNCTION fGetType RETURNS CHARACTER

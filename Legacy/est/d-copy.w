@@ -439,6 +439,7 @@ PROCEDURE do-copy :
                           eb.chg-method eb.weight-m eb.carrier eb.carr-dscr
                           eb.dest-code eb.fr-out-c eb.fr-out-m
                           eb.spare-char-3 eb.spare-char-4 eb.spare-int-3
+                          eb.casNoCharge eb.trNoCharge
                           TO io-eb.
 
     IF ip-ok THEN
@@ -495,7 +496,8 @@ PROCEDURE do-copy :
           io-eb.div-wid   = eb.div-wid
           io-eb.div-up    = eb.div-up
           io-eb.spare-char-4 = eb.spare-char-4
-          io-eb.cas-wt    = eb.cas-wt.
+          io-eb.cas-wt    = eb.cas-wt
+          io-eb.casNoCharge = eb.casNoCharge.
 
          IF eb.est-type LT 5 THEN
          DO:
@@ -540,7 +542,8 @@ PROCEDURE do-copy :
           io-eb.tr-dep     = eb.tr-dep
           io-eb.tr-cas     = eb.tr-cas
           io-eb.stacks     = eb.stacks
-          io-eb.stack-code = eb.stack-code.
+          io-eb.stack-code = eb.stack-code
+          io-eb.trNoCharge = eb.trNoCharge.
       
        IF tb_freight THEN
          ASSIGN

@@ -39,8 +39,9 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
           iCaseMult = 1.
       c-qty = c-qty * iCaseMult.
 
-      if xeb.cas-cost ne 0 then c-cost = c-qty * xeb.cas-cost.
-      else
+      IF xeb.casNoCharge THEN c-cost = 0.
+      ELSE IF xeb.cas-cost ne 0 then c-cost = c-qty * xeb.cas-cost.
+      ELSE 
 	  if available e-item then
       DO:
          EMPTY TEMP-TABLE tt-ei.
@@ -130,7 +131,8 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
       if p-qty > integer(p-qty) then p-qty = integer(p-qty) + 1.
       else p-qty = integer(p-qty).
 
-      IF xeb.tr-cost GT 0 THEN p-cost = xeb.tr-cost * p-qty.
+      IF xeb.trNoCharge THEN p-cost = 0.
+      ELSE IF xeb.tr-cost GT 0 THEN p-cost = xeb.tr-cost * p-qty.
       else
 	  if available e-item then
       DO:

@@ -3161,7 +3161,10 @@ PROCEDURE copy-2-form-zero :
            bf-eb.cas-wt    = eb.cas-wt
            bf-eb.tr-len    = eb.tr-len
            bf-eb.tr-wid    = eb.tr-wid
-           bf-eb.tr-dep    = eb.tr-dep.
+           bf-eb.tr-dep    = eb.tr-dep
+           bf-eb.casNoCharge = eb.casNoCharge
+           bf-eb.trNoCharge = eb.trNoCharge
+            .
 
   RETURN.
 

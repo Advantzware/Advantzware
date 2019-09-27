@@ -72,8 +72,8 @@ ELSE
           iCaseMult = 1.
       c-qty = c-qty * iCaseMult.
 
-      IF xeb.cas-cost GT 0 THEN c-cost = xeb.cas-cost * c-qty.
-      
+      IF xeb.casNoCharge THEN c-cost = 0.
+      ELSE IF xeb.cas-cost GT 0 THEN c-cost = xeb.cas-cost * c-qty.      
       ELSE DO:
         {est/matcost.i c-qty c-cost case}
 
@@ -253,8 +253,8 @@ ELSE
                     /* ce-ctrl.avg-palwt was previosly used. */
       {sys/inc/roundup.i p-qty}
 
-      IF xeb.tr-cost GT 0 THEN p-cost = xeb.tr-cost * p-qty.
-      
+      IF xeb.trNoCharge THEN p-cost = 0.
+      ELSE IF xeb.tr-cost GT 0 THEN p-cost = xeb.tr-cost * p-qty.
       ELSE DO:
         {est/matcost.i p-qty p-cost pallet}
 

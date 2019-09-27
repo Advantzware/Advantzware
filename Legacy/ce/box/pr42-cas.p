@@ -110,8 +110,8 @@ for each cas where cas.typ = 1 by cas.snum by cas.bnum with no-labels no-box:
 
    v-setup = 0.
 
-   IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
-      
+   IF xeb.casNoCharge THEN cas.cost = 0.
+   ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
    ELSE DO:
      {est/matcost.i cas.t-qty cas.cost 1}
 
@@ -331,8 +331,8 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
 
    v-setup = 0.
 
-   IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
-      
+   IF xeb.casNoCharge THEN cas.cost = 0.
+   ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
    ELSE DO:
      {est/matcost.i cas.t-qty cas.cost 2}
 
@@ -435,8 +435,8 @@ for each cas where cas.typ = 3 by cas.snum by cas.bnum with no-labels no-box:
 
    v-setup = 0.
 
-   IF xeb.tr-cost GT 0 THEN cas.cost = xeb.tr-cost * cas.qty.
-      
+   IF xeb.trNoCharge THEN cas.cost = 0.
+   ELSE IF xeb.tr-cost GT 0 THEN cas.cost = xeb.tr-cost * cas.qty.
    ELSE DO:
      {est/matcost.i cas.t-qty cas.cost 3}
 

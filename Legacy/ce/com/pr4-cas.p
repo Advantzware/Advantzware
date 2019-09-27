@@ -274,8 +274,8 @@ for each cas where cas.typ eq 1
          and item.i-no eq xeb.cas-no
        no-lock no-error.
 
-   IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
-      
+   IF xeb.casNoCharge THEN cas.cost = 0.
+   ELSE IF xeb.cas-cost GT 0 THEN cas.cost = xeb.cas-cost * cas.qty.
    ELSE DO:
      cas.t-qty = 0.
 
@@ -777,8 +777,8 @@ for each cas where cas.typ eq 3
      cas.t-qty = cas.t-qty + xcas.qty.
    END.
 
-   IF xeb.tr-cost GT 0 THEN cas.cost = xeb.tr-cost * cas.qty.
-
+   IF xeb.trNoCharge THEN cas.cost = 0.
+   ELSE IF xeb.tr-cost GT 0 THEN cas.cost = xeb.tr-cost * cas.qty.
    ELSE DO:
      {est/matcost.i cas.t-qty cas.cost 3}
 

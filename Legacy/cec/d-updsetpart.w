@@ -915,7 +915,10 @@ PROCEDURE UpdateSetUnitize :
             eb.carr-dscr = bf-eb.carr-dscr
             eb.dest-code = bf-eb.dest-code
             eb.fr-out-c = bf-eb.fr-out-c
-            eb.fr-out-m = bf-eb.fr-out-m.
+            eb.fr-out-m = bf-eb.fr-out-m
+            eb.casNoCharge = bf-eb.casNoCharge
+            eb.trNoCharge = bf-eb.trNoCharge
+            .
 
 
   END.
