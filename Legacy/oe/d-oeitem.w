@@ -3982,17 +3982,11 @@ ASSIGN /*order specific overrides to FGMaster and core defaults*/
 
  itemfg.cust-no    = oe-ord.cust-no
  itemfg.cust-name  = oe-ord.cust-name
- itemfg.pur-uom    = oe-ordl.pr-uom:SCREEN-VALUE 
  itemfg.part-no    = oe-ordl.part-no:screen-value
-  .
-
-ASSIGN
-    itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", ""). 
- 
-    ASSIGN
-       itemfg.sell-uom   = oe-ordl.pr-uom:SCREEN-VALUE
-       itemfg.prod-uom   = v-uom
-       itemfg.alloc      = IF AVAIL xeb AND xeb.est-type LE 4 THEN v-allocf ELSE v-alloc.
+ itemfg.taxable = fGetTaxable(itemfg.company, (IF AVAIL cust THEN cust.cust-no ELSE ""),"", "") 
+ itemfg.sell-uom   = oe-ordl.pr-uom:SCREEN-VALUE
+ itemfg.alloc      = IF AVAIL xeb AND xeb.est-type LE 4 THEN v-allocf ELSE v-alloc
+ .
    
 
  IF v-graphic-char NE "" THEN 
