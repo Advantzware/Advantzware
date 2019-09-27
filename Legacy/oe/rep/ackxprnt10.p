@@ -261,7 +261,7 @@ find first company where company.company eq cocode no-lock no-error.
         put v-line FORM ">>>9" SPACE(3)
                 oe-ordl.i-no  SPACE(2)             
                 oe-ordl.i-name SPACE(2)
-                dQty SPACE(2)
+                oe-ordl.qty /*dQty*/ SPACE(2)
                 oe-ordl.price  FORM "->,>>>,>>9.99<<<<" SPACE(5)
                 oe-ordl.pr-uom  SKIP
             .

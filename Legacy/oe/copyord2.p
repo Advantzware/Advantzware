@@ -1159,10 +1159,18 @@ PROCEDURE copyOrder :
 
   END.
   
+  next-oe-ordm:
   FOR EACH oe-ordm
       WHERE oe-ordm.company EQ oe-ord.company
         AND oe-ordm.ord-no EQ oe-ord.ord-no
       NO-LOCK:
+
+      FIND FIRST est-prep NO-LOCK
+          WHERE est-prep.company EQ oe-ord.company
+            AND est-prep.est-no EQ oe-ord.est-no 
+            AND est-prep.CODE EQ oe-ordm.charge NO-ERROR .
+
+      IF AVAIL est-prep AND est-prep.orderId NE "" THEN NEXT next-oe-ordm .
 
     CREATE b-oe-ordm.
     BUFFER-COPY oe-ordm EXCEPT rec_key TO b-oe-ordm

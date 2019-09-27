@@ -784,9 +784,11 @@ PROCEDURE updatesPending :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE BUFFER ttblJob FOR ttblJob.
+  
   SESSION:SET-WAIT-STATE('General').
   OUTPUT TO VALUE('{&updates}\' + ID + '\updatesPending.dat') APPEND.
-  FOR EACH ttblJob NO-LOCK WHERE ttblJob.sbStatus EQ YES:
+  FOR EACH ttblJob WHERE ttblJob.sbStatus EQ YES:
     EXPORT {&FIELDS-IN-QUERY-{&BROWSE-NAME}}.
   END. /* each ttbljob */
   OUTPUT CLOSE.

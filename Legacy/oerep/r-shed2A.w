@@ -1349,6 +1349,9 @@ DEF VAR v-qtyOHt    AS INT  FORMAT "->>,>>>,>>9" NO-UNDO EXTENT 2.
 
 /* gdm - 01290902 */
 DEF VAR v-custflg AS LOG NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      lv-slsmn-info FORMAT "x(30)"
@@ -1406,7 +1409,7 @@ FORM HEADER
       v-custflg = tgl_custpart.  
 
   IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
 
     IF v-sort EQ "N" THEN DO:
 
@@ -1466,7 +1469,7 @@ FORM HEADER
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

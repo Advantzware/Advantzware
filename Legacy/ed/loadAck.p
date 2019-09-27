@@ -27,6 +27,9 @@ DEFINE VARIABLE cSubFolderName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReturnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cEdiFileLine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAsiFileName AS CHARACTER NO-UNDO.
+
+
 DEFINE BUFFER bf-Eddoc FOR eddoc.
 /* Default location if NK1 not defined */
 DEFINE VARIABLE cLogfolder     AS CHARACTER NO-UNDO 
@@ -70,7 +73,8 @@ RUN sys/ref/nk1look.p (INPUT edco.company, "EDILogs", "C" /* Character*/,
     INPUT "" /* ship-to*/,
     OUTPUT cReturnChar, 
     OUTPUT lRecFound).
-IF lRecFound THEN
+/* if it doesn't contain custfiles, then they set it incorrectly */
+IF lRecFound AND INDEX(cReturnChar, "custfiles") GT 0 THEN
     cSentFolder = cReturnChar  .
 
 OS-COMMAND SILENT VALUE("dir /s/b " + '"' + cLogfolder + "\" + "*.filename " + '"' + " > c:\temp\list.txt" ).
@@ -88,12 +92,12 @@ REPEAT:
  
     iPos = R-INDEX(cReferenceFile, ".").
     cEdiFileName = SUBSTRING(cReferenceFile, 1, iPos - 1).
-    
+
     OS-COMMAND SILENT VALUE("dir /s/b " + '"' + cPath + "\" + "*.log " + '"' + " > c:\temp\loglist.txt" ).
     
     /* Read through list of log under folder cPath files */
     INPUT stream sLog from c:\temp\loglist.txt.
-     
+
     IMPORT STREAM sLog UNFORMATTED cLogFileName.
     cLogFile = cLogFileName. 
     INPUT stream sLog close.
@@ -135,10 +139,12 @@ REPEAT:
                 ELSE
                     cMDNStatus = "NAK".
             END.
-                     
+            IF cLogInput begins "Filename:" then 
+               cAsiFileName = substring(cLogInput, 11).
+
         END.  /* Repeat */
     END.  /* if logfile found */
-    
+   
     /* Read through the EDI file sent to obtain the Advantzware Invoice number and update status  */
     RUN getInvoiceNumbersInfile.
  
@@ -184,10 +190,12 @@ OUTPUT STREAM sLog CLOSE.
 PROCEDURE getInvoiceNumbersInFile:
     DEFINE VARIABLE iInvoiceNum AS INTEGER NO-UNDO.
 
-    IF SEARCH(cSentFolder +  cEdiFileName) EQ ? THEN
+    
+    IF SEARCH(cSentFolder +  cAsiFileName) EQ ? THEN
       RETURN.
 
-    INPUT stream sEDIFile from value(cSentFolder +  cEdiFileName).
+
+    INPUT stream sEDIFile from value(cSentFolder +  cAsiFileName).
     REPEAT:
         IMPORT STREAM sEDIFile UNFORMATTED cEdiFileLine.
         cEdiFileLine = TRIM(cEdiFileLine, "~~").

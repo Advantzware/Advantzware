@@ -58,16 +58,16 @@ DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
-ASSIGN cTextListToSelect = "Quote#,Est#,Customer,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
+ASSIGN cTextListToSelect = "Quote#,Est#,Cust No,Customer Name,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
                                                "Qty,Price/M,Cost/M,GP$,GP%,Mat,DL,VO,FO" 
-       cFieldListToSelect = "quot,est,cust,part,date,rep,ext-price,ext-cost," +
+       cFieldListToSelect = "quot,est,cust,cust-name,part,date,rep,ext-price,ext-cost," +
                                         "qty,price,cost,gp,gp%,mat,dl,bo,fo"
-       cFieldLength = "8,8,30,30,10,25,14,14," + "7,10,10,10,7,11,11,11,11"
-       cFieldType = "i,i,c,c,c,c,i,i," + "i,i,i,i,i,i,i,i,ii" 
+       cFieldLength = "8,8,8,30,30,10,25,14,14," + "7,10,10,10,7,11,11,11,11"
+       cFieldType = "i,i,c,c,c,c,c,i,i," + "i,i,i,i,i,i,i,i,ii" 
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Quote#,Est#,Customer,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
+ASSIGN cTextListToDefault  = "Quote#,Est#,Cust No,Customer Name,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
                                                "Qty,Price/M,Cost/M,GP$,GP%".
 
 /* _UIB-CODE-BLOCK-END */
@@ -1038,8 +1038,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1070,13 +1069,8 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
-
+  {sys/ref/SelColCorrect.i}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1286,8 +1280,10 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 {sys/form/r-top5DL3.f} 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
@@ -1356,7 +1352,7 @@ display "" with frame r-top.
 
 
 IF tb_excel THEN do:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 SESSION:SET-WAIT-STATE ("general").
@@ -1470,7 +1466,8 @@ for each tt-report where tt-report.term-id eq "",
                     CASE cTmpField:             
                          WHEN "quot"              THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quotehd.q-no)  ELSE "".
                          WHEN "est"               THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quotehd.est-no) ELSE "".
-                         WHEN "cust"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.billto[1]) ELSE "".
+                         WHEN "cust"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.cust-no) ELSE "".
+                         WHEN "cust-name"         THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.billto[1]) ELSE "".
                          WHEN "part"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(v-dscr)  ELSE "".
                          WHEN "date"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.quo-date)  ELSE "".
                          WHEN "rep"               THEN cVarValue = if first-of(quoteitm.part-no) AND AVAIL sman THEN STRING(sman.sname)  ELSE "".
@@ -1556,7 +1553,8 @@ for each tt-report where tt-report.term-id eq "",
                     CASE cTmpField:             
                          WHEN "quot"              THEN cVarValue =  "".
                          WHEN "est"               THEN cVarValue =  "".
-                         WHEN "cust"              THEN cVarValue =  STRING(v-misc).
+                         WHEN "cust"              THEN cVarValue =  "".
+                         WHEN "cust-name"         THEN cVarValue =  STRING(v-misc).
                          WHEN "part"              THEN cVarValue =  STRING(quotechg.charge,"x(30)").
                          WHEN "date"              THEN cVarValue =   "".
                          WHEN "rep"               THEN cVarValue =  "".
@@ -1606,6 +1604,7 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "quot"              THEN cVarValue =  "".
                          WHEN "est"          THEN cVarValue = "".
                          WHEN "cust"             THEN cVarValue = "".
+                         WHEN "cust-name"        THEN cVarValue =  "".
                          WHEN "part"               THEN cVarValue = "".
                          WHEN "date"             THEN cVarValue = "".
                          WHEN "rep"                  THEN cVarValue = "".
@@ -1667,6 +1666,7 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "quot"              THEN cVarValue =  "".
                          WHEN "est"          THEN cVarValue = "".
                          WHEN "cust"             THEN cVarValue = "".
+                         WHEN "cust-name"        THEN cVarValue =  "".
                          WHEN "part"               THEN cVarValue = "".
                          WHEN "date"             THEN cVarValue = "".
                          WHEN "rep"                  THEN cVarValue = "".
@@ -1703,7 +1703,7 @@ end.
 IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

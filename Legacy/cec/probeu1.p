@@ -36,7 +36,7 @@ v-total-list = "Commission on GM,Commission on SP,    Commission %,"
              + "FULL COST,FULL COST PER ROLL,Margin on Fact Cost,"
              + "    Fact Margin %,Net Margin,    Net Margin %,"
              + "Available Margin,    Available Margin %,Matching Markup,    Matching Markup %,"
-             + "SELLING PRICE,SELLING PRICE PER ROLL,OVERALL".
+             + "SELLING PRICE,SELLING PRICE PER ROLL,OVERALL,Net Margin $".
 
 DEF TEMP-TABLE w-probe NO-UNDO FIELD w-rowid AS ROWID.
 

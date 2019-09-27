@@ -1112,6 +1112,9 @@ def var v-pal as DEC NO-UNDO.
 DEF VAR li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
 DEF VAR li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form oe-ordl.part-no    column-label "CUST PART #"
                         format "x(15)"
@@ -1132,7 +1135,7 @@ form oe-ordl.part-no    column-label "CUST PART #"
     with frame itemx1 no-box down STREAM-IO width 132.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "CUST PART #,PO #,QUANTITY ORDERED,QUANTITY SHIPPED,"
               + "QUANTITY ON HAND,SELLING PRICE,TOTAL VALUE,# OF PALLETS,"
               + "FG ITEM #".
@@ -1351,7 +1354,7 @@ FOR EACH ttCustList
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

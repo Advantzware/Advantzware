@@ -382,7 +382,9 @@ IF AVAIL bf-quoteqty THEN
             gchWorkSheet:Range("L" + STRING(iLine + 1)):VALUE = STRING(bf-quotechg.prep-qty)
             gchWorkSheet:Range("M" + STRING(iLine + 1)):VALUE = "EA"
             gchWorkSheet:Range("N" + STRING(iLine + 1)):VALUE = STRING(bf-quotechg.cost)
+            gchWorkSheet:Range("O" + STRING(iLine + 1)):VALUE = STRING((bf-quotechg.prep-qty * bf-quotechg.cost) * (bf-quotechg.amtz / 100 ))
             .
+   
         IF iLine GT 1 THEN DO:
             gchWorkSheet = gchExcelApplication:Sheets:item(1).
             RUN AddBorders(INPUT "B" + STRING(39 + iLine) + ":H" + STRING(39 + iLine)).

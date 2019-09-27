@@ -810,6 +810,9 @@ PROCEDURE run-report :
 
 DEF VAR ll AS LOG NO-UNDO.
 DEF VAR v-tr-num AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
 
@@ -828,7 +831,7 @@ def var v-excel-hdr       as   char init
 "Run#,Post Date,Ref Date,AP Description,Amount" no-undo.
 
 if tb_excel then do:
-  output stream s-temp to value(fi_file).
+  output stream s-temp to value(cFileName).
   put stream s-temp unformatted v-excel-hdr skip.
 end.
 
@@ -950,7 +953,7 @@ if td-show-parm then run show-param.
   IF tb_excel THEN DO:
     OUTPUT STREAM s-temp close.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

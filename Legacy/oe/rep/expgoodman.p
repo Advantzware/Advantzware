@@ -83,10 +83,11 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
 		 terms.t-code  = inv-head.terms
 		 no-lock no-error.
 
-    if available terms then
-       assign v-due-date  = inv-head.inv-date + terms.net-days
-              v-discount-amt = round( (v-misc-amt + v-item-total) * (terms.disc-rate / 100), 2)
+    if available terms THEN do:
+       assign v-discount-amt = round( (v-misc-amt + v-item-total) * (terms.disc-rate / 100), 2)
               v-discount-date = IF v-discount-amt EQ 0 THEN ? ELSE inv-head.inv-date + terms.disc-days.
+              v-due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
+    END.
     ELSE
        ASSIGN v-due-date = inv-head.inv-date
               v-discount-amt = 0
@@ -176,3 +177,5 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
            PUT v-tax-tot FORM "->>>>>>>>>>>>>9.9999" "|" SKIP.
     END.
 end. /* each tt-report */
+
+

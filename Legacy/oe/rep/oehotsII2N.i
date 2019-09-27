@@ -271,7 +271,7 @@ IF AVAIL itemfg THEN DO:
                          WHEN "cat"   THEN cVarValue = STRING(itemfg.procat,"x(5)") .
                          WHEN "po"  THEN cVarValue = STRING(w-ord.po-num,"x(15)") .
                          WHEN "order"   THEN cVarValue = STRING(w-ord.ord-no,">>>>>>9") .
-                         WHEN "sales"  THEN cVarValue = STRING(w-ord.price,"->>>,>>9.99") .
+                         WHEN "sales"  THEN cVarValue = STRING(w-ord.price,"->>>,>>9.999999") .
 
                          WHEN "rel-qty"  THEN cVarValue = STRING(w-ord.rel-qty,"->>,>>>,>>9") .
                          WHEN "rel-date"   THEN cVarValue = IF w-ord.rel-date NE ? THEN STRING(date(w-ord.rel-date),"99/99/99") ELSE "" .

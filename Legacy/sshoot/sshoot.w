@@ -36,6 +36,18 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{custom/gcompany.i}
+{custom/gloc.i}
+
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cNewSshootMenu AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT gcompany, "SSVersion", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cNewSshootMenu = cRtnChar NO-ERROR.
 
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
@@ -56,7 +68,7 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-11 btn-rm btn-fg btn-bol btn-tag ~
-btn-wip btn-close 
+btn-wip btn-phyCnt btn-close 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -87,6 +99,11 @@ DEFINE BUTTON btn-fg
      SIZE 35 BY 2
      FONT 6.
 
+DEFINE BUTTON btn-phyCnt 
+     LABEL "New Physical Count Scan" 
+     SIZE 35 BY 2
+     FONT 6.
+
 DEFINE BUTTON btn-rm 
      LABEL "&Material" 
      SIZE 35 BY 2
@@ -104,7 +121,7 @@ DEFINE BUTTON btn-wip
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 37 BY 10.95 .
+     SIZE 37 BY 13.01 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -115,12 +132,13 @@ DEFINE FRAME DEFAULT-FRAME
      btn-bol AT ROW 5.52 COL 2
      btn-tag AT ROW 7.67 COL 2
      btn-wip AT ROW 9.81 COL 2 WIDGET-ID 2
-     btn-close AT ROW 11.95 COL 2
+     btn-phyCnt AT ROW 11.95 COL 2 WIDGET-ID 4
+     btn-close AT ROW 14.29 COL 2
      RECT-11 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 37.2 BY 13.27.
+         SIZE 37.2 BY 15.57.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -140,11 +158,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Sharp Shooter Menu"
-         HEIGHT             = 13.27
+         HEIGHT             = 15.57
          WIDTH              = 37.2
-         MAX-HEIGHT         = 14.43
+         MAX-HEIGHT         = 16.43
          MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 14.43
+         VIRTUAL-HEIGHT     = 16.43
          VIRTUAL-WIDTH      = 80
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -178,6 +196,10 @@ ASSIGN
 
 ASSIGN 
        btn-fg:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-phyCnt:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
 ASSIGN 
@@ -265,6 +287,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
          
+&Scoped-define SELF-NAME btn-phyCnt
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-phyCnt C-Win
+ON CHOOSE OF btn-phyCnt IN FRAME DEFAULT-FRAME /* New Physical Count Scan */
+DO:
+   RUN inventory/phy-menu.w (
+       g_company, 
+       g_loc
+       ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-rm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rm C-Win
@@ -328,6 +362,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {&WINDOW-NAME}:Y = 20.
   RUN enable_UI.
   {methods/nowait.i}
+
+  IF cNewSshootMenu EQ "New" THEN
+      ASSIGN btn-phyCnt:SENSITIVE = YES
+      btn-phyCnt:HIDDEN = NO.
+  ELSE 
+      ASSIGN btn-phyCnt:SENSITIVE = NO
+          btn-phyCnt:HIDDEN = YES.
+
   APPLY "entry" TO btn-rm.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -370,7 +412,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE RECT-11 btn-rm btn-fg btn-bol btn-tag btn-wip btn-close 
+  ENABLE RECT-11 btn-rm btn-fg btn-bol btn-tag btn-wip btn-phyCnt btn-close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

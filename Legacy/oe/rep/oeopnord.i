@@ -79,7 +79,7 @@
    {sys/inc/outprint.i VALUE(lines-per-page)}
 
    IF tb_excel THEN DO:
-      OUTPUT STREAM st-excel TO VALUE(fi_file).
+      OUTPUT STREAM st-excel TO VALUE(cFileName).
       PUT STREAM st-excel UNFORMATTED
           "Rel Date,Ord Date,Order #,Customer P.O. #,Item,Routing,Rel #,"
           "Ven PO#,Brd Rcpt,Qty Order,Qty Comp,Qty Onhand,Qty Shipd,STATUS" 

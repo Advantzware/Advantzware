@@ -32,7 +32,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&scoped-define item_spec prep-spec
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_prep
 
@@ -88,6 +88,8 @@ DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_prep AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_prep-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -334,6 +336,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 61.5 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/prep.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
@@ -345,14 +355,31 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_prep ( 4.81 , 4.00 ) NO-ERROR.
        RUN set-size IN h_prep ( 19.52 , 144.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 69.5 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
+       /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
        /* Links to SmartNavBrowser h_prep. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_prep ).
        RUN add-link IN adm-broker-hdl ( h_prep , 'Record':U , THIS-PROCEDURE ).
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_prep , 'export-xl':U , h_export ).
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( h_prep , 'attachprep':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
+             h_import , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_prep ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
@@ -489,6 +516,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR char-hdl AS CHAR NO-UNDO.
+ RUN util/dev/impPrep.p . 
+ RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'import-target':U, OUTPUT char-hdl).
+ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN local-open-query IN h_prep .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :

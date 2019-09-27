@@ -736,7 +736,9 @@ DEF VAR lv-rc-seq   LIKE dept.fc NO-UNDO.
 DEF VAR ld-msf      AS   DEC NO-UNDO.
 DEF VAR li-up       AS   INT NO-UNDO.
 DEF VAR lv-out      AS   CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -760,7 +762,7 @@ IF td-show-parm THEN RUN show-param.
 RUN est/rc-seq.p (OUTPUT lv-rc-seq).
 
   IF tb_excel THEN DO:
-    OUTPUT STREAM st-excell TO VALUE(fi_file).
+    OUTPUT STREAM st-excell TO VALUE(cFileName).
 
     PUT STREAM st-excell UNFORMATTED v-hdr SKIP.
   END.
@@ -935,7 +937,7 @@ SESSION:SET-WAIT-STATE("").
 IF tb_excel THEN DO:
   OUTPUT STREAM st-excell CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 

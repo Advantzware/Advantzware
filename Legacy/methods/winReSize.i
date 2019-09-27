@@ -37,7 +37,8 @@ PROCEDURE winReSize:
       &ENDIF
     END. /* if browse type */
     &IF DEFINED(browseOnly) EQ 0 &THEN
-      ELSE currentWidget:ROW = currentWidget:ROW + ipRowDiff.
+      ELSE IF currentWidget:PRIVATE-DATA NE "NoWinReSize" THEN
+           currentWidget:ROW = currentWidget:ROW + ipRowDiff.
     &ENDIF
     currentWidget = currentWidget:NEXT-SIBLING.
   END.

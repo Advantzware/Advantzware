@@ -1343,6 +1343,9 @@ def var v-printed   as   LOG NO-UNDO.
 
 DEF VAR li-tqty AS INT NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
         "        "
@@ -1415,7 +1418,7 @@ IF td-show-parm THEN
    RUN show-param.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    excelheader = "Cust #,Item #,Cust PO #,Job #,Qty Ordered,"
                + "Trans Date,C,Qty,Qty On Hand,Balance Remaining,Selling Price,Total Value".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1692,7 +1695,7 @@ END. /* each cust */
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1750,6 +1753,9 @@ DEF VAR v-shp       AS CHAR FORMAT "x(10)" NO-UNDO.
 DEF VAR excelheader AS CHAR                NO-UNDO.
 
 DEF BUFFER bf-fg-rcpth FOR fg-rcpth.
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
 FORM HEADER 
         "        "
@@ -1830,7 +1836,7 @@ IF td-show-parm THEN
    RUN show-param.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName2).
    excelheader = "Cust #,Item #,Cust PO #,Job #,Qty Ordered,"
                + "Trans Date,C,Qty,Qty On Hand,Balance Remaining,Selling Price,Total Value,"
                + "Last Ship Date,Days Since Last Shipment".
@@ -2159,7 +2165,7 @@ END. /* each cust */
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

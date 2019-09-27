@@ -358,15 +358,26 @@ is-xprint-form = (ip-industry EQ "Corr") OR
 IF is-xprint-form THEN DO:
 
   IF rd-dest EQ 2 THEN DO:
-     IF NOT lBussFormModle THEN
-       PUT "<PREVIEW><MODAL=NO>".
-     ELSE
-       PUT "<PREVIEW>".
+     IF NOT lBussFormModle THEN do:
+        IF ip-industry = "FOLD" AND lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
+          PUT "<PREVIEW><LEFT=" + trim(string(dDecimalFoldValue)) + "mm><MODAL=NO>" FORMAT "x(120)".
+        ELSE
+            PUT "<PREVIEW><MODAL=NO>".
+     END.
+     ELSE do:
+         IF ip-industry = "FOLD" AND lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
+          PUT "<PREVIEW><LEFT=" + trim(string(dDecimalFoldValue)) + "mm>" FORMAT "x(120)".
+        ELSE
+          PUT "<PREVIEW>".
+     END.
   END.
 
-  ELSE IF rd-dest EQ 1 THEN 
-    PUT "<PRINTER?>".
-
+  ELSE IF rd-dest EQ 1 THEN do: 
+     IF ip-industry = "FOLD" AND lv-format-f EQ "McLean" AND dDecimalFoldValue > 0 THEN
+       PUT "<PRINTER?><LEFT=" + trim(STRING(dDecimalFoldValue)) + "mm>" FORMAT "x(100)".
+     ELSE 
+         PUT "<PRINTER?>".
+  END.
   ELSE IF rd-dest eq  4 THEN do:
 
     ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
@@ -381,7 +392,11 @@ IF is-xprint-form THEN DO:
        (ip-industry = "FOLD" AND 
        can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC-Hybrid,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,McLean,Dee,Badger',lv-format-f)) THEN 
       PUT UNFORMATTED "<OLANDSCAPE>".
-    
+
+    IF dDecimalFoldValue > 0 AND ip-industry = "FOLD" AND can-do ('McLean',lv-format-f) THEN do: 
+      PUT "<PRINT=NO><PDF-LEFT=1mm><PDF-TOP=2mm><LEFT=" + trim(string(dDecimalFoldValue)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+    END.
+    ELSE
     PUT "<PRINT=NO><PDF-LEFT=1mm><PDF-TOP=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
   
   END.

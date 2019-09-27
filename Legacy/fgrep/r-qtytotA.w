@@ -909,7 +909,9 @@ def var v-sumdet as logical format "Summary/Detail" initial yes no-undo.
 DEF VAR v-qty LIKE itemfg.q-onh NO-UNDO.
 DEF VAR v-ext LIKE tot-val NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 FORM header
      skip(1)
      "CUSTOMER        NAME                              SELLING   QUANTITY IN PROGRESS OPEN ORDERS          PTD      LAST YR       ORDER#"
@@ -955,7 +957,7 @@ assign
  v-sumdet  = tb_summary.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
   IF v-sumdet THEN
     excelheader = "ITEM #,DESCRIPTION,SELLING PRICE,"
@@ -1159,7 +1161,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

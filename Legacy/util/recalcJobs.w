@@ -38,14 +38,14 @@ FIELD job-no2 LIKE job.job-no2
 FIELD i-no LIKE job-hdr.i-no
 FIELD frm LIKE job-hdr.frm
 FIELD blank-no LIKE job-hdr.blank-no
-FIELD std-fix-cost-before LIKE job.std-fix-cost
-FIELD std-lab-cost-before LIKE job.std-lab-cost
-FIELD std-mat-cost-before LIKE job.std-mat-cost
-FIELD std-var-cost-before LIKE job.std-var-cost
-FIELD std-fix-cost-after LIKE job.std-fix-cost
-FIELD std-lab-cost-after LIKE job.std-lab-cost
-FIELD std-mat-cost-after LIKE job.std-mat-cost
-FIELD std-var-cost-after LIKE job.std-var-cost
+FIELD std-fix-cost-before LIKE job.std-fix-cost column-label "Before-Std-Fix-Cost"
+FIELD std-lab-cost-before LIKE job.std-lab-cost column-label "Before-Std-lab-Cost"
+FIELD std-mat-cost-before LIKE job.std-mat-cost column-label "Before-Std-Mat-Cost"
+FIELD std-var-cost-before LIKE job.std-var-cost column-label "Before-Std-Var-Cost"
+FIELD std-fix-cost-after LIKE job.std-fix-cost column-label "After-Std-Fix-Cost"
+FIELD std-lab-cost-after LIKE job.std-lab-cost column-label "After-Std-lab-Cost"
+FIELD std-mat-cost-after LIKE job.std-mat-cost column-label "After-Std-Mat-Cost"
+FIELD std-var-cost-after LIKE job.std-var-cost column-label "After-Std-Var-Cost"
 INDEX i1 job-no job-no2
 .
 DEFINE BUFFER bf-job-hdr FOR job-hdr.

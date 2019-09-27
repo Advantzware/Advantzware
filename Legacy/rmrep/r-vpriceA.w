@@ -845,6 +845,7 @@ def var time_stamp as ch.
 def var v-max like e-item-vend.run-qty[1] init 9999999.
 def var doblank as log.
 DEF VAR yy AS CHAR.
+DEFINE VARIABLE cFileName LIKE v-excel-file NO-UNDO .
 
 form
   item.i-no column-label "Item Number"
@@ -858,7 +859,6 @@ form
   e-item-vend.run-qty[3] column-label "Up To!Quantity"
   e-item-vend.run-cost[3] column-label "Cost"
   with frame f-minor down stream-io width 132.
-
 
 assign
  str-tit2 = c-win:title
@@ -878,6 +878,8 @@ assign
 
 if td-show-parm then run show-param.
 
+RUN sys/ref/ExcelNameExt.p (INPUT v-excel-file,OUTPUT cFileName) .
+
 SESSION:SET-WAIT-STATE ("general").
 
   display "" with frame r-top.
@@ -885,7 +887,7 @@ SESSION:SET-WAIT-STATE ("general").
   IF tb_excel THEN
   DO:
 
-   OUTPUT STREAM st-excel TO VALUE(v-excel-file).
+   OUTPUT STREAM st-excel TO VALUE(cFileName).
 
    PUT STREAM st-excel
        "Item Number,"
@@ -1119,7 +1121,7 @@ IF tb_excel THEN
 DO:
   OUTPUT STREAM st-excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-excel-file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -883,6 +883,9 @@ DEF VAR v-width   LIKE job-mat.wid NO-UNDO.
 DEF VAR v-length  LIKE job-mat.len NO-UNDO. 
 
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header v-hdr skip with frame r-top WIDTH 200.
 
@@ -914,7 +917,7 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "JOB#,S,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF".
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -931,7 +934,7 @@ display "" with frame r-top.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

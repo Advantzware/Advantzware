@@ -74,6 +74,7 @@ DEFINE VARIABLE lv-last-show-job-no AS CHARACTER NO-UNDO.
 DEFINE VARIABLE liPrevJob AS INTEGER NO-UNDO.
 DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-whereamI AS CHARACTER . 
+DEFINE VARIABLE v-rec-key-list AS CHAR NO-UNDO.
 
 ASSIGN v-whereamI = PROGRAM-NAME(3).
 IF v-whereamI MATCHES "*jcinq/w-jobinq*"  THEN
@@ -666,6 +667,8 @@ DO:
 
    RUN dept-image-proc.
 
+   RUN paper-clip-image-proc(INPUT job.rec_key).
+
     IF AVAIL job-hdr THEN
     DO:
        ASSIGN
@@ -1012,6 +1015,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+{methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 &SCOPED-DEFINE key-phrase job-hdr.company EQ cocode
@@ -1812,6 +1817,49 @@ PROCEDURE spec-image-proc :
 
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE paper-clip-image-proc B-table-Win 
+PROCEDURE paper-clip-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
+   
+   DEF VAR v-i-no AS CHAR NO-UNDO.
+   DEF VAR v-est-no AS cha NO-UNDO.
+   DEF VAR v-att AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   {sys/ref/attachlogic.i}
+  
+   IF v-est-no <> "" AND v-i-no <> "" THEN
+      v-att = CAN-FIND(FIRST asi.attach WHERE
+              attach.company = cocode and
+              (LOOKUP(attach.rec_key,v-rec-key-list) gt 0 AND
+              (trim(attach.est-no) = trim(v-est-no)) or 
+               (index(v-i-no,attach.i-no) > 0))).
+   ELSE
+      IF v-est-no <> "" /*AND v-i-no EQ ""*/ THEN
+         v-att = CAN-FIND(FIRST asi.attach WHERE
+              attach.company = cocode and
+              (LOOKUP(attach.rec_key,v-rec-key-list) gt 0 AND
+              (trim(attach.est-no) = trim(v-est-no)))).
+   ELSE
+      IF v-est-no EQ "" AND v-i-no <> "" THEN
+         v-att = CAN-FIND(FIRST asi.attach WHERE
+              attach.company = cocode and
+              (index(v-i-no,attach.i-no) > 0)).
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

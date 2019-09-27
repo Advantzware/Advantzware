@@ -490,10 +490,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             /*"N/C"        TO 80*/  SKIP.
       
         ELSE
-            IF INDEX("TML",xqchg.bill) GT 0 THEN
-                PUT "<C20>" xqchg.charge       
-                    /*   "Time & Materials" AT 45  */
-                    "<C54>" lv-chg-amt /*xqchg.amt*/   SKIP.
+            IF INDEX("TML",xqchg.bill) GT 0 THEN do:
+                PUT "<C20>" xqchg.charge                       
+		"<C42>" xqchg.prep-qty FORMAT ">>>>>>>9" SPACE(1)  
+                space(7)
+                xqchg.spare-dec-1 FORMAT "->>,>>9.99" space(2)
+                "EA " SPACE(2)
+                lv-chg-amt SKIP .
+	    END.
 
             ELSE
                 IF xqchg.bill EQ "W" THEN
@@ -568,10 +572,14 @@ FOR EACH xqchg OF xquo NO-LOCK
         /* "N/C"        TO 80 */ SKIP.
       
     ELSE
-        IF INDEX("TML",xqchg.bill) GT 0 THEN
-            PUT "<C20>" xqchg.charge  
-                "<C54>" lv-chg-amt            
-                "<C65>EA"          SKIP.
+        IF INDEX("TML",xqchg.bill) GT 0 THEN DO:
+            PUT "<C20>" xqchg.charge 
+		"<C42>" xqchg.prep-qty FORMAT ">>>>>>>9" SPACE(1) 
+                 space(7)
+                xqchg.spare-dec-1 FORMAT "->>,>>9.99" space(2)
+                "EA " SPACE(2)
+                 lv-chg-amt          SKIP.
+         END.
      
         ELSE
             IF xqchg.bill EQ "W" THEN

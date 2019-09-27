@@ -2285,6 +2285,9 @@ def var v-disp-actnum   like account.actnum.
 def var v-disp-amt      as   dec format ">>,>>>,>>9.99cr".
 def var v-disp-job      like work-gl.job-no.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form
     pc-prdd.m-code column-label "MACH"
@@ -2341,7 +2344,7 @@ form v-disp-actnum  label "G/L ACCOUNT NUMBER"
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:                                    
-  OUTPUT STREAM excel TO VALUE(fi_file).                        /*Task# 02101407*/                  
+  OUTPUT STREAM excel TO VALUE(cFileName).                        /*Task# 02101407*/                  
   excelheader = "MACH,DESCRIPT,DP,DATE,SH,JOB #,"
               + "S,B,P,ITEM #,ITEM DESCRIPTION,CODE,"
               + "HOURS,START,STOP,CR,RUN QTY,WASTE,C".
@@ -2539,7 +2542,7 @@ END. /* each work-job */
 IF tb_excel THEN DO:
       OUTPUT STREAM excel CLOSE.
       IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

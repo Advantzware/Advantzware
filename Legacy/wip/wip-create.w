@@ -60,6 +60,8 @@ DEFINE VARIABLE hdJobProcs        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdBrowseQuery     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdBrowseBuffer    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdNumericKeyBoard AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdJobDetails      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdJobDetailsWin   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lCreated          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobno2ListItems  AS CHARACTER NO-UNDO.
@@ -120,11 +122,10 @@ DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
     ~{&OPEN-QUERY-br-table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bt-exit RECT-26 rSelected ls-tag btInfo ~
-btnNumPad btnKeyboard ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine ~
-bt-create btCreated btOH btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ~
-ls-total-run-qty ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious ~
-btnNext btnLast 
+&Scoped-Define ENABLED-OBJECTS bt-exit RECT-26 rSelected ls-tag btnNumPad ~
+btnKeyboard ls-jobno cb-jobno2 cb-formno cb-blankno cb-machine bt-create ~
+btCreated btOH btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ls-total-run-qty ~
+ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS ls-tag ls-jobno cb-jobno2 cb-formno ~
 cb-blankno cb-machine fiRMItem fiSizeLabel fiSize fiUOMLabel fiUOM ~
 ls-total-run-qty ls-qty-per-tag ls-num-tags 
@@ -154,7 +155,7 @@ DEFINE BUTTON bt-create
      FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "" 
      SIZE 9.6 BY 2.29 TOOLTIP "Exit".
 
@@ -174,9 +175,9 @@ DEFINE BUTTON btCreated
      SIZE 17.6 BY 2 TOOLTIP "Filter Created Tags"
      FONT 37.
 
-DEFINE BUTTON btInfo 
-     IMAGE-UP FILE "Graphics/32x32/inactive.ico":U NO-CONVERT-3D-COLORS
-     LABEL "Info" 
+DEFINE BUTTON btJobDetails 
+     IMAGE-UP FILE "Graphics/32x32/form.ico":U
+     LABEL "" 
      SIZE 9.6 BY 2.29 TOOLTIP "Job Details".
 
 DEFINE BUTTON btnDelete 
@@ -357,7 +358,7 @@ DEFINE BROWSE br-table
 DEFINE FRAME F-Main
      bt-exit AT ROW 2.19 COL 192 WIDGET-ID 84
      ls-tag AT ROW 1.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     btInfo AT ROW 2.19 COL 164 WIDGET-ID 134
+     btJobDetails AT ROW 2.19 COL 164 WIDGET-ID 154
      btnNumPad AT ROW 2.38 COL 178.6 WIDGET-ID 120
      btnKeyboard AT ROW 3.62 COL 15 WIDGET-ID 132
      ls-jobno AT ROW 3.71 COL 33 COLON-ALIGNED NO-LABEL WIDGET-ID 10
@@ -391,29 +392,29 @@ DEFINE FRAME F-Main
      "Machine/Op:" VIEW-AS TEXT
           SIZE 18.8 BY 1.33 AT ROW 6 COL 4.2 WIDGET-ID 92
           FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
-          FONT 36
-     "Qty/Tag:" VIEW-AS TEXT
-          SIZE 13.4 BY 1.33 AT ROW 8.38 COL 44.6 WIDGET-ID 96
-          FONT 36
-     "#Tags:" VIEW-AS TEXT
-          SIZE 11 BY 1.33 AT ROW 8.38 COL 86 WIDGET-ID 104
-          FONT 36
      "RM or WIP Tag:" VIEW-AS TEXT
           SIZE 23 BY 1.33 AT ROW 1.71 COL 9.6 WIDGET-ID 86
           FONT 36
      "(optional)" VIEW-AS TEXT
           SIZE 16.8 BY .95 AT ROW 1.91 COL 101.2 WIDGET-ID 90
           FONT 36
-     "Blank #:" VIEW-AS TEXT
-          SIZE 14 BY 1.33 AT ROW 3.81 COL 115.2 WIDGET-ID 58
+     "Run Qty:" VIEW-AS TEXT
+          SIZE 13 BY 1.33 AT ROW 8.43 COL 4 WIDGET-ID 100
+          FONT 36
+     "Form #:" VIEW-AS TEXT
+          SIZE 13.8 BY 1.33 AT ROW 3.86 COL 88 WIDGET-ID 48
+          FONT 36
+     "Qty/Tag:" VIEW-AS TEXT
+          SIZE 13.4 BY 1.33 AT ROW 8.38 COL 44.6 WIDGET-ID 96
           FONT 36
      "Job #:" VIEW-AS TEXT
           SIZE 11 BY 1.33 AT ROW 3.62 COL 23 WIDGET-ID 12
           FONT 36
-     "Run Qty:" VIEW-AS TEXT
-          SIZE 13 BY 1.33 AT ROW 8.43 COL 4 WIDGET-ID 100
+     "Blank #:" VIEW-AS TEXT
+          SIZE 14 BY 1.33 AT ROW 3.81 COL 115.2 WIDGET-ID 58
+          FONT 36
+     "#Tags:" VIEW-AS TEXT
+          SIZE 11 BY 1.33 AT ROW 8.38 COL 86 WIDGET-ID 104
           FONT 36
      RECT-26 AT ROW 5.62 COL 2.2 WIDGET-ID 18
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 118
@@ -487,6 +488,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON bt-adjust-qty IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bt-print-selected IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btJobDetails IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnDelete IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -562,13 +565,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Create WIP */
-DO:
-    IF VALID-HANDLE(hdInventoryProcs) THEN
-        DELETE OBJECT hdInventoryProcs.
-
-    IF VALID-HANDLE(hdOutputProcs) THEN
-        DELETE OBJECT hdOutputProcs.
-    
+DO:    
     /* This ADM code must be left here in order for the SmartWindow
        and its descendents to terminate properly on exit. */
 
@@ -706,14 +703,18 @@ DO:
         OUTPUT lCreated, 
         OUTPUT cMessage
         ).
-                   
+    
+    IF NOT lCreated THEN
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+                       
     RUN rebuildTempTable(
         ipcCompany,
         cFormattedJobno,
         cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}).               
+        cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).               
  
 END.
 
@@ -727,7 +728,21 @@ ON CHOOSE OF bt-exit IN FRAME F-Main
 DO:
     IF VALID-HANDLE(hKeyboard) THEN
         DELETE OBJECT hKeyboard.
-    APPLY "CLOSE":U TO THIS-PROCEDURE.    
+
+    IF VALID-HANDLE(hdInventoryProcs) THEN
+        DELETE OBJECT hdInventoryProcs.
+
+    IF VALID-HANDLE(hdOutputProcs) THEN
+        DELETE OBJECT hdOutputProcs.
+
+    IF VALID-HANDLE(hdJobDetailsWin) THEN
+        APPLY "WINDOW-CLOSE" TO hdJobDetailsWin.
+
+    IF VALID-HANDLE(hdJobDetails) THEN
+        DELETE OBJECT hdInventoryProcs.
+
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    
     RETURN.
 END.
 
@@ -812,6 +827,45 @@ DO:
     RUN pHighlightButton (
         INPUT gcStatusStockInitial
         ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btJobDetails
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btJobDetails W-Win
+ON CHOOSE OF btJobDetails IN FRAME F-Main
+DO:
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+
+    IF NOT VALID-HANDLE(hdJobDetails) THEN DO:         
+        RUN inventory/job-details.w PERSISTENT SET hdJobDetails.
+
+        RUN dispatch IN hdJobDetails (
+            INPUT 'initialize':U
+            ) NO-ERROR.
+        
+        hdJobDetailsWin = hdJobDetails:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdJobDetails) AND
+        VALID-HANDLE(hdJobDetailsWin) THEN DO:        
+        RUN pInit IN hdJobDetails (
+            INPUT ipcCompany,
+            INPUT ipcLocation,
+            INPUT ls-jobno:SCREEN-VALUE,
+            INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+            INPUT INTEGER(cb-formno:SCREEN-VALUE),
+            INPUT INTEGER(cb-blankno:SCREEN-VALUE)
+            ) NO-ERROR.            
+
+        IF hdJobDetailsWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdJobDetailsWin:WINDOW-STATE = 3.
+        
+        hdJobDetailsWin:MOVE-TO-TOP().
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1067,15 +1121,29 @@ DO:
     
     IF cValidateJobno EQ ls-jobno:SCREEN-VALUE THEN
         RETURN.
-         
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    {&OPEN-BROWSERS-IN-QUERY-F-Main} 
+    
+    SESSION:SET-WAIT-STATE("GENERAL").     
+    
     RUN disableCreate.
 
     ASSIGN 
-        cJobno2ListItems  = ""
-        cFormnoListItems  = ""
-        cBlanknoListitems = ""
-        cMachineListItems = ""
-        cMessage          = "".
+        cJobno2ListItems       = ""
+        cFormnoListItems       = ""
+        cBlanknoListitems      = ""
+        cMachineListItems      = ""
+        cMessage               = ""
+        fiRMItem:SCREEN-VALUE  = ""
+        fiSize:SCREEN-VALUE    = ""
+        fiUOM:SCREEN-VALUE     = ""        
+        btAll:LABEL            = "All - 0"
+        btCreated:LABEL        = "Cr - 0"
+        btOH:LABEL             = "OH - 0"
+        btJobDetails:SENSITIVE = FALSE
+        .
         
     RUN JobParser IN hdJobProcs (
         SELF:SCREEN-VALUE,
@@ -1099,6 +1167,7 @@ DO:
                               ).
 
     IF cMessage NE "" THEN DO:
+        SESSION:SET-WAIT-STATE("").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
@@ -1106,21 +1175,37 @@ DO:
     RUN updateComboBoxes.
 
     IF lParse THEN
-        ASSIGN
-            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) GT 0 THEN 
-                                          cJobNo2
-                                      ELSE
-                                          ENTRY(1,cJobno2ListItems)
-            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,STRING(cFormNo,"99")) GT 0 THEN 
-                                          cFormNo
-                                      ELSE
-                                          ENTRY(1,cFormnoListItems)
-            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) GT 0 THEN 
-                                          cBlankNo
-                                      ELSE
-                                          ENTRY(1,cBlanknoListitems)
-            cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
-            .
+        IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) LE 0 OR
+           INDEX(cFormnoListItems,STRING(cFormNo,"99")) LE 0 OR
+           INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) LE 0 THEN DO:
+            MESSAGE "Invalid Job Scan , please scan a valid Job Number." 
+                VIEW-AS ALERT-BOX ERROR.
+            
+            ASSIGN
+                cFormattedJobNo         = ""
+                cValidateJobno          = ""
+                SELF:SCREEN-VALUE       = ""
+                cb-jobno2:LIST-ITEMS    = "00"
+                cb-formno:LIST-ITEMS    = "00"
+                cb-blankno:LIST-ITEMS   = "00"
+                cb-machine:LIST-ITEMS   = ""
+                cb-jobno2:SCREEN-VALUE  = "00"
+                cb-formno:SCREEN-VALUE  = "00"
+                cb-blankno:SCREEN-VALUE = "00"
+                cb-machine:SCREEN-VALUE = ""
+                .           
+            
+            SESSION:SET-WAIT-STATE("").
+            
+            RETURN NO-APPLY.
+        END.
+        ELSE
+            ASSIGN
+                cb-jobno2:SCREEN-VALUE  = cJobNo2
+                cb-formno:SCREEN-VALUE  = cFormNo
+                cb-blankno:SCREEN-VALUE = cBlankNo
+                cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
+                .
     ELSE
         ASSIGN 
             cb-jobno2:SCREEN-VALUE  = ENTRY(1,cJobno2ListItems)
@@ -1144,23 +1229,32 @@ DO:
 
     /* Additional validation to check if job still doesn't exist. 
        In this case machine code is passed empty to check if job is valid*/
-    RUN ValidateJob IN hdJobProcs (
-        INPUT ipcCompany,
-        INPUT cFormattedJobno,
-        INPUT "", /* Blank Machine code */
-        INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
-        INPUT INTEGER(cb-formno:SCREEN-VALUE),
-        INPUT INTEGER(cb-blankno:SCREEN-VALUE),
-        OUTPUT lValidJob
-        ).
+    IF NOT lValidJob THEN
+        RUN ValidateJob IN hdJobProcs (
+            INPUT ipcCompany,
+            INPUT cFormattedJobno,
+            INPUT "", /* Blank Machine code */
+            INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+            INPUT INTEGER(cb-formno:SCREEN-VALUE),
+            INPUT INTEGER(cb-blankno:SCREEN-VALUE),
+            OUTPUT lValidJob
+            ).
     
     IF NOT lValidJob THEN DO:
         MESSAGE "Invalid Job Number " SELF:SCREEN-VALUE 
-        ", please enter a valid Job Number." 
+            ", please enter a valid Job Number." 
             VIEW-AS ALERT-BOX ERROR.
-        SELF:SCREEN-VALUE = "".
+        
+        ASSIGN
+            SELF:SCREEN-VALUE = ""
+            cValidateJobno    = ""
+            .
+        
+        RETURN NO-APPLY.
     END.
-                        
+
+    btJobDetails:SENSITIVE = TRUE.
+                            
     cValidateJobno = ls-jobno:SCREEN-VALUE.    
                            
     RUN rebuildTempTable (
@@ -1170,8 +1264,9 @@ DO:
         INPUT cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         INPUT cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        ).
-    
+        ).    
+
+    SESSION:SET-WAIT-STATE("").        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1248,7 +1343,16 @@ ON LEAVE OF ls-tag IN FRAME F-Main
 DO:
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
-            
+    
+    ASSIGN
+        fiRMItem:SCREEN-VALUE = ""
+        fiSize:SCREEN-VALUE   = ""
+        fiUOM:SCREEN-VALUE    = ""
+        btAll:LABEL           = "All - 0"
+        btCreated:LABEL       = "Cr - 0"
+        btOH:LABEL            = "OH - 0"        
+        .
+                        
     RUN tagScan(SELF:SCREEN-VALUE).  
         
     RUN rebuildTempTable(
@@ -1452,7 +1556,7 @@ PROCEDURE enable_UI :
           fiSizeLabel fiSize fiUOMLabel fiUOM ls-total-run-qty ls-qty-per-tag 
           ls-num-tags 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE bt-exit RECT-26 rSelected ls-tag btInfo btnNumPad btnKeyboard ls-jobno 
+  ENABLE bt-exit RECT-26 rSelected ls-tag btnNumPad btnKeyboard ls-jobno 
          cb-jobno2 cb-formno cb-blankno cb-machine bt-create btCreated btOH 
          btAll btnNumPad-2 btnNumPad-1 btnNumPad-3 ls-total-run-qty 
          ls-qty-per-tag ls-num-tags br-table btnFirst btnPrevious btnNext 
@@ -2022,7 +2126,8 @@ PROCEDURE tagScan :
     DEFINE VARIABLE iFormNo     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lValidInv   AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE lValidJob   AS LOGICAL   NO-UNDO.
+
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -2073,8 +2178,20 @@ PROCEDURE tagScan :
             OUTPUT lValidInv
             ).
         
-        IF lValidInv THEN
-            RUN enableCreate.
+        IF lValidInv THEN DO:
+            RUN ValidateJob IN hdJobProcs (
+                INPUT ipcCompany,
+                INPUT cFormattedJobno,
+                INPUT cb-machine:SCREEN-VALUE,
+                INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+                INPUT INTEGER(cb-formno:SCREEN-VALUE),
+                INPUT INTEGER(cb-blankno:SCREEN-VALUE),
+                OUTPUT lValidJob
+                ).
+            
+            IF lValidJob THEN            
+                RUN enableCreate.
+        END.
     END.
     
     IF NOT lValidInv THEN DO:

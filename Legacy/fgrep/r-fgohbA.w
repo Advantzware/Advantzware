@@ -1576,6 +1576,9 @@ PROCEDURE run-report :
 
 {sys/form/r-topw.f}
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 form header
      "        "
      "               "
@@ -1891,7 +1894,7 @@ ASSIGN
     excel-header-var-3  = "" .
 
 assign
-  v-file         = fi_file
+  v-file         = cFileName
   v-excel        = tb_excel
   v-runexcel     = tb_runexcel.
 
@@ -2015,7 +2018,7 @@ ELSE
                ELSE VIEW FRAME r-top1.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
 
    IF v-rct-date = TRUE AND v-prt-cpn = TRUE THEN DO:
       EXPORT STREAM excel DELIMITER ","   
@@ -2393,7 +2396,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE ("").

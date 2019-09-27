@@ -12,6 +12,7 @@ DEFINE VARIABLE cObjectName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrgmName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReturnValues AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUserID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hFocus        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lDeveloper    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lResponse     AS LOGICAL   NO-UNDO.
@@ -26,6 +27,7 @@ IF KEYLABEL(LASTKEY) EQ "CTRL-P" THEN
 ELSE
 IF KEYLABEL(LASTKEY) EQ "F1" THEN DO: /* F1 function key */
     ASSIGN
+        hFocus      = FOCUS:HANDLE
         cFrameDB    = FRAME-DB
         cFrameFile  = FRAME-FILE
         cFrameField = FRAME-FIELD
@@ -179,8 +181,10 @@ PROCEDURE pRunDynLookup:
         OUTPUT rRecID
         ).
     IF rRecID NE ? THEN DO:
-        IF ipiSubjectID NE 0 THEN
-        FOCUS:SCREEN-VALUE = cLookupField.
+        IF ipiSubjectID NE 0 THEN DO:
+            IF VALID-HANDLE(hFocus) THEN
+            hFocus:SCREEN-VALUE = cLookupField.
+        END. /* if subjectid */
         ELSE
         DO TRANSACTION:
             IF NOT AVAILABLE dynLookup THEN DO:

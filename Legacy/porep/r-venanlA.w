@@ -1105,6 +1105,9 @@ def var v-date like b-date#.
 
 def var detail-flag# as logical no-undo format "Detail/Summary" init yes.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM header
   SKIP(1)
@@ -1182,7 +1185,7 @@ END.
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Vendor#,".
   IF detail-flag# THEN
      excelheader = excelheader + "Item#,".
@@ -1223,7 +1226,7 @@ END.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE ("").

@@ -264,6 +264,19 @@ FOR each report
        THEN ASSIGN v-fob = "Origin".
        ELSE ASSIGN v-fob = "Destination".
 
+       IF v-soldto-addr[1] EQ "" THEN
+           ASSIGN v-soldto-addr[1] = v-soldto-addr[2]
+                  v-soldto-addr[2] = "" .
+       IF v-soldto-addr[2] EQ "" THEN
+           ASSIGN v-soldto-addr[2] = v-addr3 
+                  v-addr3 = "" .
+       IF v-shipto-addr[1] EQ "" THEN
+           ASSIGN v-shipto-addr[1] = v-shipto-addr[2]
+                  v-shipto-addr[2] = "" .
+       IF v-shipto-addr[2] EQ "" THEN
+           ASSIGN v-shipto-addr[2] = v-sold-addr3
+                  v-sold-addr3 = "" .
+       
      FIND FIRST carrier WHERE carrier.company = ar-inv.company 
                           AND carrier.carrier = ar-inv.carrier NO-LOCK NO-ERROR.
      IF AVAIL carrier 

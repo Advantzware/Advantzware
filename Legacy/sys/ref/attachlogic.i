@@ -6,8 +6,12 @@
     DEF BUFFER bf2-oe-ordl FOR oe-ordl.
     DEF BUFFER bf2-itemfg FOR itemfg.
     DEF BUFFER bf3-oe-ordl FOR oe-ordl.
+    DEF BUFFER bf2-job FOR job.
+    DEF BUFFER bf2-job-hdr FOR job-hdr .
 
     FIND FIRST bf2-est WHERE bf2-est.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+    FIND FIRST bf2-job WHERE bf2-job.rec_key = ip-rec_key NO-LOCK NO-ERROR.
+
     IF AVAIL bf2-est THEN DO:
         ASSIGN
             v-est-no = bf2-est.est-no
@@ -27,6 +31,27 @@
             END.
         END.
     END.
+    ELSE IF AVAIL bf2-job THEN DO:
+        ASSIGN
+            v-est-no = bf2-job.est-no
+            v-rec-key-list = bf2-job.rec_key.
+        FOR EACH bf2-job-hdr fields(i-no) WHERE
+            bf2-job-hdr.company = bf2-job.company AND
+            bf2-job-hdr.job = bf2-job.job AND
+            bf2-job-hdr.job-no = bf2-job.job-no NO-LOCK :
+            IF bf2-job-hdr.i-no <> "" THEN DO:
+                v-i-no = v-i-no + bf2-job-hdr.i-no + ",".
+                FIND FIRST bf2-itemfg WHERE
+                    bf2-itemfg.company EQ bf2-job-hdr.company AND
+                    bf2-itemfg.i-no    EQ bf2-job-hdr.i-no
+                    NO-LOCK NO-ERROR.
+
+                IF AVAIL bf2-itemfg AND LOOKUP(bf2-itemfg.rec_key,v-rec-key-list) EQ 0 THEN
+                    v-rec-key-list = v-rec-key-list + "," + bf2-itemfg.rec_key.
+            END.
+        END.
+
+    END.  /* avail bf-job */
     ELSE DO:
         FIND FIRST bf2-oe-ord WHERE
             bf2-oe-ord.rec_key EQ ip-rec_key

@@ -1081,6 +1081,9 @@ def var v-hld-qty      as   dec.
 def var str-tit4       like str-tit3.
 def var v-loc          like oe-boll.loc.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 SESSION:SET-WAIT-STATE("general").
 
@@ -1122,7 +1125,7 @@ assign
  v-tloc       = END_whse.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Item #,Description,Ordered/Bal to Ship,Quantity On Hand,"
               + "Required " + STRING(v-date,"99/99/9999") + "/Variance,"
               + "Next 14 Days/Variance,Next 14 Days/Variance,Beyond/Variance,"
@@ -1351,7 +1354,7 @@ EMPTY TEMP-TABLE tt-report.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE("").

@@ -245,6 +245,19 @@
       end.
     end.
 
+    IF lPrintActMatCost THEN
+        for each tt-report2
+           where tt-report2.term-id eq ""
+            BREAK by tt-report2.key-05 :
+
+        IF FIRST-OF(tt-report2.key-05) THEN
+            RUN pGetActMatCost(SUBSTRING(tt-report2.key-05,1,6), INTEGER(SUBSTRING(tt-report2.key-05,7,2)) , OUTPUT dActMatCost) .
+        ELSE dActMatCost = 0 .
+             
+      tt-report2.key-06 = STRING(dActMatCost) .
+
+    END.
+
     for each tt-report2
         where tt-report2.term-id eq ""
 
@@ -502,33 +515,7 @@
             and cust.cust-no eq v-cust-no
           no-lock no-error.
 
-     /* DISPLAY cust.name         WHEN AVAIL cust
-              w-data.inv-no
-              w-data.i-no
-              w-data.job-no
-              v-brdc[1]         WHEN v-cost2
-              v-brdc[2]         WHEN v-cost2
-              v-brdc[3]         WHEN v-cost2
-              v-brdc[4]         WHEN v-cost2
-              v-brdc[5]         WHEN v-cost2
-              v-amt[2].
-      DOWN.
-
-      IF tb_excel THEN DO:  
-          PUT STREAM excel UNFORMATTED
-              '"' (IF AVAIL cust THEN cust.name ELSE "") '",'
-              '"' w-data.inv-no '",' 
-              '"' w-data.i-no '",' 
-              '"' w-data.job-no '",'
-              '"' (IF v-cost2 THEN v-brdc[1] ELSE 0) '",'
-              '"' (IF v-cost2 THEN v-brdc[2] ELSE 0) '",'
-              '"' (IF v-cost2 THEN v-brdc[3] ELSE 0) '",'
-              '"' (IF v-cost2 THEN v-brdc[4] ELSE 0) '",'
-              '"' (IF v-cost2 THEN v-brdc[5] ELSE 0) '",'
-              '"' v-amt[2] '",'
-              SKIP.
-      END.*/
-      RUN pGetActMatCost(v-job-no , OUTPUT dActMatCost) .
+     
       
       ASSIGN cDisplay = ""
                     cTmpField = ""
@@ -550,7 +537,7 @@
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-brdc[4],"->>>,>>9.99") ELSE "" .         
                           WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[5],"->>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[2],"->>>,>>>,>>9.99<<") .
-                          WHEN "act-mat-cost" THEN cVarValue = string(dActMatCost,"->,>>>,>>9.99") .
+                          WHEN "act-mat-cost" THEN cVarValue = string(decimal(tt-report2.key-06),"->,>>>,>>9.99") .
                           
                           
                      END CASE.

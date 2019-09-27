@@ -95,7 +95,7 @@ ASSIGN cTextListToSelect = "Qty on Hand,Customer Name,Item Code,Description,Cat,
                            "Order #,Sales,Rel Qty,Rel Date,Rel#,Prom Date,Style"
        cFieldListToSelect = "qty-hand,cust-name,item,desc,cat,po," +
                             "order,sales,rel-qty,rel-date,rel,pro-date,style"
-       cFieldLength = "12,30,15,30,5,15," + "7,11,11,8,10,9,6"
+       cFieldLength = "12,30,15,30,5,15," + "7,15,11,8,10,9,6"
        cFieldType = "i,c,c,c,c,c," + "i,i,i,c,i,c,c" 
     .
 
@@ -1457,8 +1457,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1489,12 +1488,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1735,6 +1729,9 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN rd_print = "Item Name"
        tb_po-no = YES
@@ -1783,7 +1780,7 @@ DEF VAR cslist AS cha NO-UNDO.
 IF tb_excel THEN DO:
    OUTPUT STREAM st-excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -231,6 +231,7 @@ DEF STREAM sTest1.
 
 DEF BUFFER b-f-rc FOR fg-rcpth.
 DEF BUFFER b-f-rd FOR fg-rdtlh.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1119,6 +1120,7 @@ DO:
                     INPUT begin_cust-no,
                     INPUT end_cust-no).
   END.
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
   RUN run-report. 
 
   STATUS DEFAULT "Processing Complete". 
@@ -2642,7 +2644,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF v-cost THEN DO:
     IF tb_excel THEN DO:
-        OUTPUT STREAM excel TO VALUE(fi_file).
+        OUTPUT STREAM excel TO VALUE(cFileName).
         excelheader = "Salesperson,Customer,Item #,Description," + TRIM(v-label[1]) + " "
                       + TRIM(v-label[6]) + "," + TRIM(v-label[2]) + " " + TRIM(v-label[7])
                       + "," + TRIM(v-label[3]) + " " + TRIM(v-label[8]) + ","
@@ -2656,7 +2658,7 @@ IF v-cost THEN DO:
 END.
 ELSE DO:
     IF tb_excel THEN DO:
-        OUTPUT STREAM excel TO VALUE(fi_file).
+        OUTPUT STREAM excel TO VALUE(cFileName).
         excelheader = "Salesperson,Customer,Item #,Description," + TRIM(v-label[1]) + " "
                       + TRIM(v-label[6]) + "," + TRIM(v-label[2]) + " " + TRIM(v-label[7])
                       + "," + TRIM(v-label[3]) + " " + TRIM(v-label[8]) + ","
@@ -3004,7 +3006,7 @@ END.
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE ("").
@@ -3621,7 +3623,7 @@ FOR EACH tt-items.
         end_loc-bin,
         end_slm,
         end_whse,
-        fi_file,
+        cFileName,
         lbl_show,
         lbl_show2,
         lbl_sort,

@@ -68,8 +68,9 @@ ASSIGN
  eb.dep       = 0
  eb.procat    = IF AVAIL bb THEN bb.procat ELSE ""
  eb.flute     = ef.flute
- eb.test      = ef.test.
-
+ eb.test      = ef.test
+ eb.casNoCharge = YES
+ eb.trNoCharge  = YES .
 
 RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
 IF cPackCodeOverride GT "" THEN 

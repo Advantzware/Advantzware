@@ -779,6 +779,7 @@ DEF VAR v_head     AS CHAR NO-UNDO.
 DEF VAR v_numlw    AS CHAR NO-UNDO.
 DEF VAR v_col-pass AS CHAR NO-UNDO.
 DEF VAR v_coater   AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 head[1] =
 " =============================  R  A  T  E  S  =============================  "
@@ -793,6 +794,8 @@ head[3] = "==========  Printing Press  =========" .
 {sys/ref/mmtx2.f}
 {sys/ref/mmty.f}
 {sys/ref/mach.i}
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 format
   "Code:" to 7 mach.m-code
@@ -881,7 +884,7 @@ sho-stds = tb_show-stds.
 
 /* gdm - 10130802 */
 IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED
         "Company Name,Warehouse - Descr,Code,Loc,Feed,Desc,Dept,Run Spoil. %,Sequence," 
         "MR Waste,Rigid,Fold,Corr,Therm,LABOR Rate1,Rate2,Rate3,Default," 
@@ -1177,7 +1180,7 @@ END.
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
     OUTPUT CLOSE.

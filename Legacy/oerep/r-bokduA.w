@@ -804,7 +804,9 @@ DEF VAR style-var AS CHAR NO-UNDO.
 DEF VAR v-change AS LOG NO-UNDO.
 DEF BUFFER bf-oe-ordl FOR oe-ordl .
 DEF BUFFER bf-itemfg FOR itemfg .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form oe-ordl.req-date  column-label "Due Date"             format "99/99/99"
      oe-ord.cust-no    column-label "Customer"
@@ -836,7 +838,7 @@ assign
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Due Date,Customer,Item Name,Style,Test,Adder,Adder,Adder,"
               + "Ord Qty,Price/M,Ext Price,MSF".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1000,7 +1002,7 @@ display "" with frame r-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

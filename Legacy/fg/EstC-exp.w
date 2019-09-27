@@ -55,6 +55,11 @@ DEFINE BUFFER bf-eb FOR eb.
 DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
+DEFINE VARIABLE cTitle AS CHARACTER NO-UNDO.
+IF ipcIndustry EQ "F" THEN
+    cTitle = "Export Folding Estimate To Excel".
+ELSE cTitle = "Export Corrugated Estimate To Excel".
+
 ASSIGN cTextListToSelect = "Estimate#,Est Date,Cust #,Ship To,Cust Part#,Item Description,FG Item#,Qty,Style,Board," +
                            "Caliper,Category,Box L,Box W,Box D,Qty/Set,Colors,Coating,Form#,Blank#,W#Up," +
                            "L#Up,# Up,Die Inches,Inks/Form,Passes/Form,Coatings/Form,Coat Passes/Form,Purch/Manuf," +
@@ -85,10 +90,10 @@ ASSIGN cTextListToSelect = "Estimate#,Est Date,Cust #,Ship To,Cust Part#,Item De
 &Scoped-define FRAME-NAME rd-fgexp
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_est end_est ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_est end_est begin_cust-no end_cust-no ~
 sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file ~
 btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_est end_est sl_avail sl_selected ~
+&Scoped-Define DISPLAYED-OBJECTS begin_est end_est begin_cust-no end_cust-no sl_avail sl_selected ~
 tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -158,13 +163,23 @@ DEFINE BUTTON btn_Up
      LABEL "Move Up" 
      SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_est AS CHARACTER FORMAT "x(15)" 
+DEFINE VARIABLE begin_est AS INTEGER FORMAT ">>>>>>>>" 
      LABEL "From Estimate" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
-DEFINE VARIABLE end_est AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz" 
+DEFINE VARIABLE end_est AS INTEGER FORMAT ">>>>>>>>" INITIAL "99999999" 
      LABEL "To Estimate" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
+DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "x(15)" 
+     LABEL "From Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
+DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz" 
+     LABEL "To Customer#" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
@@ -214,6 +229,10 @@ DEFINE FRAME rd-fgexp
           "Enter Beginning Estimate Number" WIDGET-ID 142
      end_est AT ROW 3.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Estimate #" WIDGET-ID 144
+     begin_cust-no AT ROW 4.95 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 142
+     end_cust-no AT ROW 4.95 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Customer #" WIDGET-ID 144
      sl_avail AT ROW 12.24 COL 9 NO-LABEL WIDGET-ID 26
      Btn_Add AT ROW 12.24 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
@@ -243,7 +262,7 @@ DEFINE FRAME rd-fgexp
      SPACE(2.39) SKIP(2.08)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Export Folding Estimate To Excel" WIDGET-ID 100.
+         TITLE cTitle WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -273,6 +292,14 @@ ASSIGN
 
 ASSIGN 
        end_est:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
+       begin_cust-no:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
+       end_cust-no:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 ASSIGN 
@@ -339,6 +366,22 @@ DEFINE VARIABLE rEbRec AS RECID NO-UNDO.
            end.
            return no-apply.
        end.  /* itemfg*/
+       when "begin_cust-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-cust.w (cocode, ls-cur-val, output char-val).
+           if char-val <> "" then do:
+               lw-focus:screen-value = ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* cust-no */
+       when "end_cust-no" then do:
+           ls-cur-val = lw-focus:screen-value.
+           run windows/l-cust.w (cocode, ls-cur-val, output char-val).
+           if char-val <> "" then do:
+               lw-focus:screen-value = ENTRY(1,char-val).
+           end.
+           return no-apply.
+       end.  /* cust-no*/
 
 END CASE.
 END.
@@ -367,6 +410,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no rd-fgexp
+ON LEAVE OF begin_cust-no IN FRAME rd-fgexp /* From Customer */
+DO:
+   assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel rd-fgexp
@@ -469,6 +521,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME end_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no rd-fgexp
+ON LEAVE OF end_cust-no IN FRAME rd-fgexp /* To Customer */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgexp
@@ -675,8 +736,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -698,12 +758,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS: /* task 08191414 */
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -722,9 +777,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_est end_est sl_avail sl_selected tb_excel tb_runExcel fi_file 
+          begin_cust-no end_cust-no
       WITH FRAME rd-fgexp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_est end_est sl_avail Btn_Add sl_selected 
-         Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_est end_est begin_cust-no end_cust-no sl_avail
+         Btn_Add sl_selected Btn_Remove btn_Up btn_down tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
   VIEW FRAME rd-fgexp.
   {&OPEN-BROWSERS-IN-QUERY-rd-fgexp}
@@ -805,27 +861,31 @@ DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF BUFFER b-est FOR est.
 DEF BUFFER bf-eb FOR eb .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
+IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
 RUN util/rjust.p (INPUT-OUTPUT begin_est,8).
 RUN util/rjust.p (INPUT-OUTPUT end_est,8).
 
 FOR EACH b-est WHERE b-est.company = gcompany
-    AND b-est.est-no >= begin_est
-    AND b-est.est-no <= end_est
+    AND int(b-est.est-no) >= begin_est
+    AND int(b-est.est-no) <= end_est
     AND (IF ipcIndustry EQ "F" THEN b-est.est-type < 5 ELSE b-est.est-type >= 5) NO-LOCK,
     EACH bf-eb WHERE bf-eb.company = gcompany
-    AND bf-eb.est-no = b-est.est-no NO-LOCK BY bf-eb.form-no :
+    AND bf-eb.est-no = b-est.est-no 
+    AND bf-eb.cust-no GE begin_cust-no
+    AND bf-eb.cust-no LE end_cust-no NO-LOCK BY bf-eb.form-no :
 
     IF INT(b-est.est-no) GT INT(end_est)
     OR INT(b-est.est-no) LT INT(begin_est) THEN 
         NEXT.
-  
+   
     v-excel-detail-lines = "".
 
     FOR EACH ttRptSelected:
@@ -867,7 +927,7 @@ END.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

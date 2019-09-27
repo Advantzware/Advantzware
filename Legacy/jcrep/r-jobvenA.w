@@ -858,6 +858,9 @@ def var v-fg-qty  as   dec.
 def var v-cost    as   dec.
 def var v-diff    like rm-rdtlh.qty.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header skip(1)
             " P&P QTY"              to 105
@@ -900,7 +903,7 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "CUST #,CUST NAME,JOB #,FG ITEM,QUANTITY,PRICE,UOM,VENDOR NAME,INVOICE,"
               + "INV QTY,REC QTY,P & P QTY PRODUCED,DIFF,VEND $ W/O SETUP,$ PER SHEET".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1289,7 +1292,7 @@ display "" with frame r-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

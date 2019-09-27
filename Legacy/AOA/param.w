@@ -265,7 +265,7 @@ DEFINE FRAME F-Main
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME viewFrame
-     btnCombo-Box AT ROW 24.33 COL 24 HELP
+     btnCombo-Box AT ROW 25.05 COL 24 HELP
           "Create New COMBO-BOX" WIDGET-ID 190
      dynParam.paramID AT ROW 1.24 COL 20 COLON-ALIGNED WIDGET-ID 166
           VIEW-AS FILL-IN 
@@ -297,93 +297,93 @@ DEFINE FRAME viewFrame
           BGCOLOR 15 
      dynParam.action AT ROW 7.19 COL 45 NO-LABEL WIDGET-ID 186
           VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION" 
-          SIZE 27 BY 9.52
-     dynParam.dataType AT ROW 9.57 COL 20 COLON-ALIGNED WIDGET-ID 182
+          LIST-ITEMS "NO:DISABLE","NO:ENABLE","NO:LOW","NO:HI","YES:DISABLE","YES:ENABLE","YES:LOW","YES:HI","CALENDAR","DATEPICKLIST","EMAIL","HORIZONTAL","VERTICAL","START DESCRIPTION","END DESCRIPTION","LIST-ITEM-PAIRS" 
+          SIZE 27 BY 10.24
+     dynParam.dataType AT ROW 10.52 COL 20 COLON-ALIGNED WIDGET-ID 182
           VIEW-AS COMBO-BOX INNER-LINES 6
           LIST-ITEMS "Character","Date","DateTime","Decimal","Integer","Logical" 
           DROP-DOWN-LIST
           SIZE 16 BY 1
-     dynParam.viewAs AT ROW 10.76 COL 20 COLON-ALIGNED WIDGET-ID 184
+     dynParam.viewAs AT ROW 11.71 COL 20 COLON-ALIGNED WIDGET-ID 184
           VIEW-AS COMBO-BOX INNER-LINES 6
           LIST-ITEMS "Combo-Box","Editor","Fill-In","Radio-Set","Selection-List","Toggle-Box" 
           DROP-DOWN-LIST
           SIZE 22 BY 1
-     dynParam.innerLines AT ROW 11.95 COL 20 COLON-ALIGNED WIDGET-ID 160
+     dynParam.innerLines AT ROW 12.91 COL 20 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
           BGCOLOR 15 
-     dynParam.paramWidth AT ROW 13.14 COL 20 COLON-ALIGNED WIDGET-ID 174
+     dynParam.paramWidth AT ROW 14.1 COL 20 COLON-ALIGNED WIDGET-ID 174
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     btnEditor AT ROW 24.33 COL 32 HELP
+     btnEditor AT ROW 25.05 COL 32 HELP
           "Create New EDITOR" WIDGET-ID 192
-     dynParam.paramHeight AT ROW 14.33 COL 20 COLON-ALIGNED WIDGET-ID 164
+     dynParam.paramHeight AT ROW 15.29 COL 20 COLON-ALIGNED WIDGET-ID 164
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     dynParam.initialValue AT ROW 15.76 COL 20 COLON-ALIGNED WIDGET-ID 158
+     dynParam.initialValue AT ROW 16.48 COL 20 COLON-ALIGNED WIDGET-ID 158
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     dynParam.initialItems AT ROW 16.95 COL 20 COLON-ALIGNED WIDGET-ID 154 FORMAT "x(256)"
+     dynParam.initialItems AT ROW 17.67 COL 20 COLON-ALIGNED WIDGET-ID 154 FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
           BGCOLOR 15 
-     btnFill-In AT ROW 24.33 COL 40 HELP
-          "Create New FILL-IN" WIDGET-ID 194
-     dynParam.initializeProc AT ROW 18.14 COL 20 COLON-ALIGNED WIDGET-ID 296
+     dynParam.initializeProc AT ROW 18.86 COL 20 COLON-ALIGNED WIDGET-ID 296
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     btnRadio-Set AT ROW 24.33 COL 48 HELP
-          "Create New RADIO-SET" WIDGET-ID 196
+     dynParam.validateProc AT ROW 20.05 COL 20 COLON-ALIGNED WIDGET-ID 298
+          VIEW-AS COMBO-BOX SORT INNER-LINES 100
+          LIST-ITEMS "Item 1" 
+          DROP-DOWN-LIST
+          SIZE 50 BY 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 76 ROW 1.95
-         SIZE 83 BY 26
+         AT COL 76 ROW 1
+         SIZE 83 BY 26.95
          FGCOLOR 1  WIDGET-ID 1500.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     dynParam.validateProc AT ROW 19.33 COL 20 COLON-ALIGNED WIDGET-ID 298
-          VIEW-AS COMBO-BOX SORT INNER-LINES 100
-          LIST-ITEMS "Item 1" 
-          DROP-DOWN-LIST
-          SIZE 50 BY 1
-     dynParam.descriptionProc AT ROW 20.52 COL 20 COLON-ALIGNED WIDGET-ID 300
+     btnFill-In AT ROW 25.05 COL 40 HELP
+          "Create New FILL-IN" WIDGET-ID 194
+     dynParam.descriptionProc AT ROW 21.24 COL 20 COLON-ALIGNED WIDGET-ID 300
           LABEL "Descript Procedure"
           VIEW-AS COMBO-BOX SORT INNER-LINES 100
           LIST-ITEMS "Item 1" 
           DROP-DOWN-LIST
           SIZE 50 BY 1
-     btnSelection-List AT ROW 24.33 COL 56 HELP
+     btnRadio-Set AT ROW 25.05 COL 48 HELP
+          "Create New RADIO-SET" WIDGET-ID 196
+     btnSelection-List AT ROW 25.05 COL 56 HELP
           "Create New SELECTION-LIST" WIDGET-ID 198
-     btnToggle-Box AT ROW 24.33 COL 64 HELP
+     btnToggle-Box AT ROW 25.05 COL 64 HELP
           "Create New TOGGLE-BOX" WIDGET-ID 200
-     btnUpdate AT ROW 21.95 COL 23 HELP
+     btnUpdate AT ROW 22.67 COL 23 HELP
           "Update/Save" WIDGET-ID 128
-     btnCancel AT ROW 21.95 COL 63 HELP
+     btnCancel AT ROW 22.67 COL 63 HELP
           "Cancel" WIDGET-ID 120
-     btnAdd AT ROW 21.95 COL 31 HELP
+     btnAdd AT ROW 22.67 COL 31 HELP
           "Add" WIDGET-ID 118
-     btnCopy AT ROW 21.95 COL 39 HELP
+     btnCopy AT ROW 22.67 COL 39 HELP
           "Copy" WIDGET-ID 122
-     btnDelete AT ROW 21.95 COL 47 HELP
+     btnDelete AT ROW 22.67 COL 47 HELP
           "Delete" WIDGET-ID 124
-     btnReset AT ROW 21.95 COL 55 HELP
+     btnReset AT ROW 22.67 COL 55 HELP
           "Reset" WIDGET-ID 126
      "Action:" VIEW-AS TEXT
           SIZE 7 BY 1 AT ROW 8.38 COL 37 WIDGET-ID 188
-     RECT-PANEL AT ROW 21.71 COL 22 WIDGET-ID 130
+     RECT-PANEL AT ROW 22.43 COL 22 WIDGET-ID 130
      RECT-PARAMBUILDER AT ROW 1.24 COL 73 WIDGET-ID 284
-     RECT-9 AT ROW 24.1 COL 22 WIDGET-ID 288
+     RECT-9 AT ROW 24.81 COL 22 WIDGET-ID 288
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 76 ROW 1.95
-         SIZE 83 BY 26
+         AT COL 76 ROW 1
+         SIZE 83 BY 26.95
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 1500.
 
@@ -443,10 +443,11 @@ ASSIGN FRAME viewFrame:FRAME = FRAME F-Main:HANDLE.
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME viewFrame:MOVE-AFTER-TAB-ITEM (dynParamBrowse:HANDLE IN FRAME F-Main)
+ASSIGN XXTABVALXX = FRAME viewFrame:MOVE-AFTER-TAB-ITEM (searchBar:HANDLE IN FRAME F-Main)
+       XXTABVALXX = FRAME viewFrame:MOVE-BEFORE-TAB-ITEM (dynParamBrowse:HANDLE IN FRAME F-Main)
 /* END-ASSIGN-TABS */.
 
-/* BROWSE-TAB dynParamBrowse searchBar F-Main */
+/* BROWSE-TAB dynParamBrowse viewFrame F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 26.95

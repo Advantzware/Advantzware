@@ -983,8 +983,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1007,12 +1006,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS: /* task 08191414 */
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1382,6 +1376,9 @@ DEFINE VARIABLE facct LIKE gltrans.actnum  LABEL "  From Account Number" NO-UNDO
 DEFINE VARIABLE op AS CHARACTER FORMAT "x" INITIAL "S" LABEL "  S)ummary or D)etail?" NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE acct-hdr-printed AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM  account.actnum FORMAT "x(75)" open-amt to 131
       WITH FRAME r-cmon DOWN STREAM-IO WIDTH 132 NO-LABELS NO-BOX NO-UNDERLINE.
@@ -1446,7 +1443,7 @@ IF AVAILABLE period THEN
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   /*excelheader = "Account Number,Account Description,Run #,Journal,"
               + "Reference, , ,Date,Amount,Balance, ".*/
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -2076,7 +2073,7 @@ IF tb_excel THEN DO:
 
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

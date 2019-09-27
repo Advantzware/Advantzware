@@ -22,6 +22,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE CommonFile_is_Running
 
 /* Parameters Definitions ---                                           */
 
@@ -1004,8 +1005,7 @@ PROCEDURE new-inv-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-date AS DATE NO-UNDO.
-
-
+ 
   DO WITH FRAME {&FRAME-NAME}:
     ll-date-warning = NO.
 
@@ -1017,16 +1017,12 @@ PROCEDURE new-inv-date :
     lv-date = DATE(ap-inv.inv-date:SCREEN-VALUE) NO-ERROR.
 
     IF NOT ERROR-STATUS:ERROR AND AVAIL vend THEN DO:
-      FIND FIRST terms NO-LOCK
-          WHERE terms.company EQ vend.company
-            AND terms.t-code  EQ vend.terms
-          NO-ERROR.
-
-      ap-inv.due-date:SCREEN-VALUE  = IF AVAIL terms THEN STRING(terms.net-day + lv-date)
-                                      ELSE ap-inv.inv-date:SCREEN-VALUE.
+      
+      ap-inv.due-date:SCREEN-VALUE  = string(DYNAMIC-FUNCTION("GetInvDueDate", date(lv-date),cocode,vend.terms )).
+                                    
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

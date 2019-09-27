@@ -71,10 +71,14 @@ assign
   find first terms where terms.company = cocode and
 			 terms.t-code  = inv-head.terms
 			 no-lock no-error.
-  if available terms then
-     assign ar-inv.due-date  = ar-inv.inv-date + terms.net-days
+  if available terms THEN do:
+     assign 
 	    ar-inv.disc-%    = terms.disc-rate
 	    ar-inv.disc-days = terms.disc-days.
+        
+        ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),cocode,inv-head.terms ).
+        
+  END.
 
 /***
 assign oe-ord.stat = "P"

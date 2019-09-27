@@ -25,14 +25,14 @@ PUT "<|10><R4><C50><#3><FROM><R8><C80><RECT>" SKIP
 PUT "<|10><R23><C1><#4><FROM><R27><C80><RECT>" SKIP
     "<R25><C1><FROM><R25><C80><LINE>" SKIP    
     "<R23><C11><FROM><R27><C11><LINE>" SKIP
-    "<R23><C22><FROM><R27><C22><LINE>" SKIP
+    "<R23><C21.5><FROM><R27><C21.5><LINE>" SKIP
     "<R23><C38><FROM><R27><C38><LINE>" SKIP
     "<R23><C52><FROM><R27><C52><LINE>" SKIP
     "<R23><C70><FROM><R27><C70><LINE>" SKIP
     .
 PUT "<FArial><=4><R+1> Quote Date         FOB                     Ship Via                                  Terms                      Sales Person                       Over-Under %" SKIP
     "<FCourier New><=4><R+3> " v-quo-date FORM "99/99/9999" space(2)
-    cust.fob-code FORM "x(11)" SPACE(2)
+    cust.fob-code FORM "x(11)" SPACE(1)
     carrier.dscr FORM "x(20)" SPACE(1)
     terms.dscr FORM "x(15)" space(1) sman.sname space(2) v-over-under SKIP.
 

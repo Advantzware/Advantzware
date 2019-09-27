@@ -1227,7 +1227,8 @@ PROCEDURE valid-tag :
         FIND FIRST bf-rm-rctd NO-LOCK
             WHERE bf-rm-rctd.company = cocode 
             AND bf-rm-rctd.rita-code = "T" 
-            AND bf-rm-rctd.tag = rm-rctd.tag:SCREEN-VALUE 
+            AND bf-rm-rctd.tag NE ""
+            AND bf-rm-rctd.tag = rm-rctd.tag:SCREEN-VALUE
             AND RECID(bf-rm-rctd) <> RECID(rm-rctd)  NO-ERROR.
         IF AVAILABLE bf-rm-rctd THEN 
         DO:

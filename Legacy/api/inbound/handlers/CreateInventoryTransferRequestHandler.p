@@ -18,9 +18,11 @@ DEFINE INPUT  PARAMETER iplcResponseDataStructure AS LONGCHAR   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRequestedBy            AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRecordSource           AS CHARACTER  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcNotes                  AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcUsername               AS CHARACTER  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplcResponseData          AS LONGCHAR   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess                AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage                AS CHARACTER  NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAPIInboundEvent        AS CHARACTER  NO-UNDO.
 
 DEFINE VARIABLE hdttRequestData         AS HANDLE     NO-UNDO. 
 DEFINE VARIABLE hdJSONProcs             AS HANDLE     NO-UNDO.
@@ -58,7 +60,9 @@ IF NOT oplSuccess THEN DO:
         INPUT NOW,
         INPUT ipcRequestedBy,
         INPUT ipcRecordSource,
-        INPUT ipcNotes
+        INPUT ipcNotes,
+        INPUT  "", /* PayloadID */
+        OUTPUT opcAPIInboundEvent
         ).
 
    RETURN.
@@ -79,8 +83,10 @@ FOR EACH ttRequest:
            cPrimaryID = ttRequest.FieldValue.
         WHEN "ItemType" THEN
            cItemType = ttRequest.FieldValue.
-        WHEN "Requestedby" THEN
+        WHEN "Requester" THEN
            ipcRequestedBy = ttRequest.FieldValue.
+        WHEN "RequesterNotes" THEN
+           ipcNotes = ttRequest.FieldValue.
     END CASE.
 END.
 
@@ -92,14 +98,15 @@ RUN api\inbound\CreateInventoryTransfer.p (
     INPUT  cInventoryStockIDTag,
     INPUT  cPrimaryID,
     INPUT  cItemType,
+    INPUT  ipcUserName, 
     OUTPUT oplSuccess,
     OUTPUT opcMessage
     ).
 
 IF NOT oplSuccess THEN
 DO:
-   ASSIGN 
-       oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
+   oplcResponseData  = '~{"response_code": 400,"response_message":"' + opcMessage + '"}'.   
+   
    /* Log the request to APIInboundEvent */
    RUN api\CreateAPIInboundEvent.p (
        INPUT ipcRoute,
@@ -110,7 +117,9 @@ DO:
        INPUT NOW,
        INPUT ipcRequestedBy,
        INPUT ipcRecordSource,
-       INPUT ipcNotes
+       INPUT ipcNotes,
+       INPUT  "", /* PayloadID */
+       OUTPUT opcAPIInboundEvent
        ).
    
    RETURN.  
@@ -131,7 +140,9 @@ RUN api\CreateAPIInboundEvent.p (
     INPUT NOW,
     INPUT ipcRequestedBy,
     INPUT ipcRecordSource,
-    INPUT ipcNotes
+    INPUT ipcNotes,
+    INPUT  "", /* PayloadID */
+    OUTPUT opcAPIInboundEvent
     ).
     
 DELETE PROCEDURE hdJSONProcs.

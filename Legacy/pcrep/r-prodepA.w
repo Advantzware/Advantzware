@@ -1032,6 +1032,9 @@ def var dpt-qty-ton as dec format ">>,>>9.99" no-undo.
 def var mch-qty-msf as dec format ">>,>>9.99" no-undo.
 def var shf-qty-msf as dec format ">>,>>9.99" no-undo.
 def var dpt-qty-msf as dec format ">>,>>9.99" no-undo.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      hdr-tit format "x(145)" skip
@@ -1082,7 +1085,7 @@ assign
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    excelheader = "Mach Code,Job#,-,Shift,MR Stnd,MR Act,MR Eff%," + 
                  "Run Hrs Stnd,Run Hrs Act,Run Hrs Eff%," +
                  "MR/Run Hrs Stnd,MR/Run Hrs Act,MR/Run Hrs Eff%," +
@@ -1105,7 +1108,7 @@ RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE ("").

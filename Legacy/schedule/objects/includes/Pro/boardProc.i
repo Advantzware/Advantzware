@@ -1588,6 +1588,7 @@ PROCEDURE saveScenario :
       ttblJob.liveUpdate
       ttblJob.lagTime
       ttblJob.jobToolTip
+      ttblJob.jobMchID
       .
   END.
   OUTPUT CLOSE.

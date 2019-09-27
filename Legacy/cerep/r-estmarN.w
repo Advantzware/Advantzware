@@ -1109,8 +1109,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1141,12 +1140,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1349,7 +1343,7 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
@@ -1362,6 +1356,7 @@ ASSIGN
  fest = FILL(" ",8 - LENGTH(TRIM(begin_est))) + TRIM(begin_est)
  test = FILL(" ",8 - LENGTH(TRIM(end_est))) + TRIM(end_est).
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1392,7 +1387,7 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/outprint.i  VALUE(lines-per-page)}
 
 IF tb_excel THEN do:
-  OUTPUT STREAM st-excel TO VALUE(fi_file).
+  OUTPUT STREAM st-excel TO VALUE(cFileName).
   PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
    /*   ",,,,Carton,Die,,,Carton,,,,,,FOB Variable Profit Margins,,,,,," +
       ",Total,Total,Total,Delivered"

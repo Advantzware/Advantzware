@@ -523,7 +523,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          .
 
   if company.yend-per then do :
-     MESSAGE "This fical year is already closed. " VIEW-AS ALERT-BOX ERROR.
+     MESSAGE "This fiscal year is already closed. " VIEW-AS ALERT-BOX ERROR.
      return.
   END.
   find first period where period.company eq cocode

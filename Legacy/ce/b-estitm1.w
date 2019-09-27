@@ -939,6 +939,14 @@ DO:
             IF NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
             THEN RETURN NO-APPLY.
         END.
+        ELSE IF CAN-FIND(cust WHERE cust.company = gcompany AND
+                       cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} AND 
+                       cust.ACTIVE EQ "I" ) 
+            THEN DO:
+               MESSAGE "Customer is Inactive. Please select a Active Customer ..."
+                   VIEW-AS ALERT-BOX INFORMATION .
+               RETURN NO-APPLY .
+        END.
 
         RUN valid-cust-user NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -4435,12 +4443,16 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE rEfRow AS ROWID       NO-UNDO.
   DEFINE VARIABLE rEbRow AS ROWID       NO-UNDO.
   DEF VAR old-cat-no LIKE eb.procat NO-UNDO.
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
   
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
 
     RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    RUN valid-cust-no(OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
 
      /*IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
          RUN fg/GetItemfgActInact.p(INPUT g_company,
@@ -5728,6 +5740,37 @@ PROCEDURE valid-procat :
       APPLY "entry" TO eb.procat IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no B-table-Win 
+PROCEDURE valid-cust-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST cust NO-LOCK
+          WHERE cust.company = gcompany 
+          AND cust.cust-no = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-ERROR .
+      
+      IF NOT AVAIL cust THEN DO:
+          MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
+          oplReturnError = YES .
+      END.
+      ELSE IF AVAIL cust AND cust.ACTIVE EQ "I" THEN DO:
+          MESSAGE "Customer is Inactive. Please select a Active Customer ..." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO eb.cust-no IN BROWSE {&browse-name}.
+          oplReturnError = YES .
+      END.
   END.
 
 END PROCEDURE.

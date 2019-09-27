@@ -4699,9 +4699,9 @@ DO WITH FRAME {&FRAME-NAME}:
          begin_i-no:SCREEN-VALUE = v-frstitem
          end_i-no:SCREEN-VALUE   = v-lastitem.    
 
-      APPLY "VALUE-CHANGED" TO end_i-no.
-      APPLY "VALUE-CHANGED" TO begin_i-no.
       APPLY "LEAVE" TO end_i-no.
+      RUN check-release(0) .
+      RUN check-release(1) .
       IF v-lncnt EQ 1 THEN
           oplCheckBar = YES . 
       IF v-lncnt GT 1 THEN

@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: viewers/APIOutBound.w
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -65,9 +66,8 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR APIOutbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS APIOutbound.apiID APIOutbound.clientID ~
-APIOutbound.userName APIOutbound.password APIOutbound.requestHandler ~
-APIOutbound.responseHandler 
+&Scoped-Define ENABLED-FIELDS APIOutbound.userName APIOutbound.password ~
+APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define ENABLED-TABLES APIOutbound
 &Scoped-define FIRST-ENABLED-TABLE APIOutbound
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 edEndPoint ~
@@ -82,7 +82,7 @@ cbRequestVerb cbRequestDataType tgSSLEnabled cbAuthType edRequestData
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define ADM-CREATE-FIELDS APIOutbound.apiID 
+&Scoped-define ADM-CREATE-FIELDS APIOutbound.apiID APIOutbound.clientID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -120,15 +120,15 @@ DEFINE VARIABLE cbAuthType AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "none","basic" 
      DROP-DOWN-LIST
      SIZE 16 BY 1
-     BGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE cbRequestDataType AS CHARACTER FORMAT "X(256)":U 
      LABEL "Request Data Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "JSON","XML" 
+     LIST-ITEMS "JSON","XML","FTP" 
      DROP-DOWN-LIST
-     SIZE 16 BY 1
-     BGCOLOR 15  NO-UNDO.
+     SIZE 17 BY 1
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE cbRequestVerb AS CHARACTER FORMAT "X(256)":U 
      LABEL "Request Verb" 
@@ -136,104 +136,109 @@ DEFINE VARIABLE cbRequestVerb AS CHARACTER FORMAT "X(256)":U
      LIST-ITEMS "POST","GET" 
      DROP-DOWN-LIST
      SIZE 16 BY 1
-     BGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE edEndPoint AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 120 BY 2.38
-     BGCOLOR 15  NO-UNDO.
+     SIZE 132 BY 2.38
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE edRequestData AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 120 BY 4
-     BGCOLOR 15  NO-UNDO.
+     SIZE 132 BY 4
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 162.8 BY 1 NO-UNDO.
+     SIZE 154.8 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 163 BY 6.43.
+     SIZE 155 BY 5.91.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 163 BY 2.62.
+     SIZE 154.8 BY 1.91.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 163 BY 1.91.
+     SIZE 155 BY 1.91.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 163 BY 5.19.
+     SIZE 155 BY 5.19.
+
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 157 BY 18.57.
 
 DEFINE VARIABLE tgActive AS LOGICAL INITIAL no 
      LABEL "Active" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.2 BY .81
-     BGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE tgSSLEnabled AS LOGICAL INITIAL no 
      LABEL "Enable SSL" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY .81
-     BGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiMessage AT ROW 1.14 COL 1.2 COLON-ALIGNED NO-LABEL WIDGET-ID 52
-     APIOutbound.apiID AT ROW 3.1 COL 19 COLON-ALIGNED WIDGET-ID 2
+     fiMessage AT ROW 1.24 COL 2.2 NO-LABEL WIDGET-ID 52
+     APIOutbound.apiID AT ROW 2.91 COL 21 COLON-ALIGNED WIDGET-ID 2
           LABEL "API ID"
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
-          BGCOLOR 15 
-     APIOutbound.clientID AT ROW 3.1 COL 78.8 COLON-ALIGNED WIDGET-ID 6
+          BGCOLOR 3 FGCOLOR 15 
+     APIOutbound.clientID AT ROW 2.91 COL 78 COLON-ALIGNED WIDGET-ID 6
           LABEL "Client ID"
           VIEW-AS FILL-IN 
-          SIZE 30.2 BY 1
-          BGCOLOR 15 
-     tgActive AT ROW 3.14 COL 121.2 WIDGET-ID 28
-     edEndPoint AT ROW 4.48 COL 21 NO-LABEL WIDGET-ID 34
-     cbRequestVerb AT ROW 7.24 COL 19 COLON-ALIGNED WIDGET-ID 42
-     cbRequestDataType AT ROW 7.29 COL 79 COLON-ALIGNED WIDGET-ID 40
-     tgSSLEnabled AT ROW 7.48 COL 121.2 WIDGET-ID 38
-     APIOutbound.userName AT ROW 10.19 COL 19 COLON-ALIGNED WIDGET-ID 24
+          SIZE 40.4 BY 1
+          BGCOLOR 3 FGCOLOR 15 
+     tgActive AT ROW 2.91 COL 126.6 WIDGET-ID 28
+     edEndPoint AT ROW 4.29 COL 23 NO-LABEL WIDGET-ID 34
+     cbRequestVerb AT ROW 7.05 COL 21 COLON-ALIGNED WIDGET-ID 42
+     cbRequestDataType AT ROW 7.19 COL 92 COLON-ALIGNED WIDGET-ID 40
+     tgSSLEnabled AT ROW 7.19 COL 114 WIDGET-ID 38
+     APIOutbound.userName AT ROW 9.33 COL 21 COLON-ALIGNED WIDGET-ID 24
           LABEL "Username"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
-          BGCOLOR 15 
-     APIOutbound.password AT ROW 10.19 COL 69 COLON-ALIGNED WIDGET-ID 14
+          BGCOLOR 15 FGCOLOR 0 
+     APIOutbound.password AT ROW 9.33 COL 78 COLON-ALIGNED WIDGET-ID 14 PASSWORD-FIELD 
           LABEL "Password"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
-          BGCOLOR 15 
-     cbAuthType AT ROW 10.19 COL 132.8 COLON-ALIGNED WIDGET-ID 32
-     APIOutbound.requestHandler AT ROW 13.29 COL 23.4 COLON-ALIGNED WIDGET-ID 18
-          LABEL "Request Handler" FORMAT "x(40)"
+          BGCOLOR 15 FGCOLOR 0 
+     cbAuthType AT ROW 9.33 COL 137 COLON-ALIGNED WIDGET-ID 32
+     APIOutbound.requestHandler AT ROW 11.95 COL 21 COLON-ALIGNED WIDGET-ID 18
+          LABEL "Request Handler" FORMAT "x(256)"
           VIEW-AS FILL-IN 
-          SIZE 55.6 BY 1
-          BGCOLOR 15 
-     APIOutbound.responseHandler AT ROW 13.29 COL 104 COLON-ALIGNED WIDGET-ID 22
-          LABEL "Response Handler" FORMAT "x(40)"
+          SIZE 54 BY 1
+          BGCOLOR 15 FGCOLOR 0 
+     APIOutbound.responseHandler AT ROW 11.95 COL 98.6 COLON-ALIGNED WIDGET-ID 22
+          LABEL "Response Handler" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 55 BY 1
-          BGCOLOR 15 
-     edRequestData AT ROW 15.91 COL 21 NO-LABEL WIDGET-ID 48
+          BGCOLOR 15 FGCOLOR 0 
+     edRequestData AT ROW 14.57 COL 23 NO-LABEL WIDGET-ID 48
      "Request Data:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 16.76 COL 4 WIDGET-ID 50
+          SIZE 16 BY .62 AT ROW 14.81 COL 6 WIDGET-ID 50
      "End Point:" VIEW-AS TEXT
-          SIZE 11.6 BY .62 AT ROW 4.48 COL 9.4 WIDGET-ID 36
-     RECT-1 AT ROW 2.38 COL 3 WIDGET-ID 26
-     RECT-2 AT ROW 9.43 COL 3.2 WIDGET-ID 30
-     RECT-3 AT ROW 12.81 COL 3 WIDGET-ID 44
-     RECT-4 AT ROW 15.38 COL 3 WIDGET-ID 46
+          SIZE 11.6 BY .62 AT ROW 4.33 COL 10 WIDGET-ID 36
+     RECT-1 AT ROW 2.48 COL 2 WIDGET-ID 26
+     RECT-2 AT ROW 8.86 COL 2 WIDGET-ID 30
+     RECT-3 AT ROW 11.48 COL 2 WIDGET-ID 44
+     RECT-4 AT ROW 14.05 COL 2 WIDGET-ID 46
+     RECT-7 AT ROW 1 COL 1 WIDGET-ID 54
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 9 FONT 6 WIDGET-ID 100.
+         FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -263,8 +268,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 20.1
-         WIDTH              = 166.2.
+         HEIGHT             = 18.57
+         WIDTH              = 157.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -292,7 +297,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN APIOutbound.apiID IN FRAME F-Main
-   1 EXP-LABEL                                                          */
+   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR COMBO-BOX cbAuthType IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cbRequestDataType IN FRAME F-Main
@@ -300,7 +305,7 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX cbRequestVerb IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIOutbound.clientID IN FRAME F-Main
-   EXP-LABEL                                                            */
+   NO-ENABLE 1 EXP-LABEL                                                */
 ASSIGN 
        edEndPoint:READ-ONLY IN FRAME F-Main        = TRUE.
 
@@ -308,9 +313,11 @@ ASSIGN
        edRequestData:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiMessage IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN APIOutbound.password IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIOutbound.requestHandler IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN APIOutbound.responseHandler IN FRAME F-Main
@@ -453,12 +460,18 @@ PROCEDURE local-delete-record :
     {custom/askdel.i}
     
     FOR EACH APIOutboundDetail EXCLUSIVE-LOCK
-       WHERE APIOutboundDetail.apiID = APIOutbound.apiID:
+        WHERE APIOutboundDetail.apiOutboundID EQ APIOutbound.apiOutboundID:
         DELETE APIOutboundDetail.
     END.
+    
+    FOR EACH APIOutboundTrigger EXCLUSIVE-LOCK
+        WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID:
+        DELETE APIOutboundTrigger.
+    END.
+        
     /* Dispatch standard ADM method.                             */    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-        
+            
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pUpdateMessageText (
         "Record deleted successfully!",    /* Message Text */
@@ -554,7 +567,10 @@ PROCEDURE local-update-record :
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+    
+    IF RETURN-VALUE = "ADM-ERROR":U THEN 
+        RETURN "ADM-ERROR":U.
+    
     /* Code placed here will execute AFTER standard behavior.    */        
     cMessage = IF adm-new-record THEN 
                    "Record created successfully!"
@@ -739,7 +755,9 @@ PROCEDURE pUpdateFields :
 
     IF AVAILABLE APIOutbound THEN    
         ASSIGN
+            APIOutbound.company         = g_company
             APIOutbound.isActive        = tgActive:CHECKED
+            APIOutbound.isSSLEnabled    = tgSSLEnabled:CHECKED
             APIOutbound.endPoint        = edEndPoint:SCREEN-VALUE
             APIOutbound.requestVerb     = cbRequestVerb:SCREEN-VALUE
             APIOutbound.requestDataType = cbRequestDataType:SCREEN-VALUE

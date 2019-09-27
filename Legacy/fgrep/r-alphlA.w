@@ -1202,6 +1202,9 @@ def var v-qty-onh     like itemfg.q-onh.
 DEF VAR v-status      AS CHAR NO-UNDO FORMAT "x(1)".
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header skip(1)
             v-page-break format "x(132)"
@@ -1304,7 +1307,7 @@ SESSION:SET-WAIT-STATE ("general").
                    "          COST" else "         VALUE".
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "FG ITEM#,DESCRIPTION,PROD CAT,UOM," + TRIM(v-label1[1]) +
                 " " + TRIM(v-label1[2]) + ",SELLING PRICE,ON HAND,ON ORDER," +
                 "CUSTOMER ORDERS,QTY AVAIL,TOTAL " + TRIM(v-label2).
@@ -1526,7 +1529,7 @@ END.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

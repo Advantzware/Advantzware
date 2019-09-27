@@ -1052,6 +1052,9 @@ DEF VAR lv-industries AS CHAR INIT ",1,2,X" NO-UNDO.
 DEF VAR lv-ind-list AS CHAR INIT "Both,Folding,Corrugated,eXclude" NO-UNDO.
 DEF VAR lv-shifts AS CHAR NO-UNDO.
 def var tot-scrap-pct as dec format '->>>9.99' no-undo.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
      lv-sort FORMAT "x(200)"
@@ -1102,7 +1105,7 @@ if td-show-parm then run show-param.
 VIEW FRAME r-top.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    IF tb_msf THEN
       excelheader = rd_sort + ",Mach Code,Description,Quantity,MSF,Qty Hr,Run Hrs,MR Hours," + 
                     "D/T,Total Charge,Total Hours,STD Hours," +
@@ -1124,7 +1127,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
    END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

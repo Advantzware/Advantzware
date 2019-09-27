@@ -1279,6 +1279,9 @@ def var v-sort as log format "Yes/No" init no.
 def var detailed as log format "Yes/No" init no.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form skip(1)
      cust.cust-no
@@ -1333,7 +1336,7 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   IF NOT detailed THEN
      excelheader = "Cust No,Name,Type,Active,Address 1,Address 2,City,State,Zip,"
                  + "Tel. #,Contact,SalesRep Code,SalesRep Name,Disc%,Price Level,Tax Resale ID#,Exp.".
@@ -1372,7 +1375,7 @@ STATUS DEFAULT "".
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1398,6 +1401,10 @@ PROCEDURE run-report-contact :
    DEF VAR lSelected AS LOG INIT YES NO-UNDO.
    def var fcust as ch init "".
    def var tcust like fcust init "zzzzzzzz".
+   DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+   RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
+
  ASSIGN  
    lSelected  = tb_cust-list
    fcust    = begin_cust-no
@@ -1446,7 +1453,7 @@ PROCEDURE run-report-contact :
    IF tb_excel THEN DO:
       OUTPUT STREAM excel CLOSE.
       IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
    END.
 
    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1470,6 +1477,10 @@ PROCEDURE run-report-invoice :
    DEF VAR lSelected AS LOG INIT YES NO-UNDO.
    def var fcust as ch init "".
    def var tcust like fcust init "zzzzzzzz".
+   DEFINE VARIABLE cFileName3 LIKE fi_file NO-UNDO .
+
+   RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName3) .
+
  ASSIGN  
    lSelected  = tb_cust-list
    fcust    = begin_cust-no
@@ -1518,7 +1529,7 @@ PROCEDURE run-report-invoice :
    IF tb_excel THEN DO:
       OUTPUT STREAM excel CLOSE.
       IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName3)).
    END.
 
    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

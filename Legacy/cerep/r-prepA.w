@@ -55,7 +55,7 @@ DEF VAR v_exclhdr2 AS CHAR                NO-UNDO.
 DEF VAR v_custnum  AS CHAR FORMAT "x(35)" NO-UNDO.
 DEF VAR v_ML       AS CHAR INIT "M"       NO-UNDO.
 DEF VAR v_dfault   AS CHAR INIT "Y"       NO-UNDO.
-
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 /* gdm - 10130803 */
 DEF STREAM excel.
 
@@ -386,8 +386,10 @@ DO:
     v_exclhdr1 = "Code,Desc.,Customer Name,Warehouse,Bin Location,Disposal Date,Last Used Date,Markup,Cost,M/L,Amtz,M Type,Use w/ Est,UOM,SIMON,C Type,Account No,Cad #,File #"
     v_exclhdr2 = "Code,Description,Markup,Cost,M/L,Amtz,Mat'l Type,Use in all E,UOM,SIMON,Account No".
 
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
   IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+      OUTPUT STREAM excel TO VALUE(cFileName).
 
       IF tb_cust-name 
         THEN
@@ -873,8 +875,9 @@ END.
 
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
+    
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 
@@ -897,6 +900,7 @@ PROCEDURE run-report-sum :
   Notes:       
 ------------------------------------------------------------------------------*/
 def var ii like i no-undo.
+
 
 {sys/form/r-top.f}
 
@@ -957,7 +961,7 @@ END.
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 

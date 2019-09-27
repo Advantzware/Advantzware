@@ -1161,8 +1161,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1193,12 +1192,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1401,7 +1395,7 @@ DEFINE VARIABLE cVendorTag AS CHARACTER NO-UNDO .
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-
+DEFINE VARIABLE cFileName LIKE v-excel-file NO-UNDO .
 
 form item.procat LABEL "Category"
      rm-rcpth.i-no label "ITEM"
@@ -1418,6 +1412,7 @@ form item.procat LABEL "Category"
 
 find first ap-ctrl where ap-ctrl.company eq cocode no-lock.
 
+RUN sys/ref/ExcelNameExt.p (INPUT v-excel-file,OUTPUT cFileName) .
 assign
  str-tit2 = c-win:TITLE + " Detail"
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1473,7 +1468,7 @@ display "" with frame r-top.
 
 IF tb_excel THEN 
 DO:
-   OUTPUT STREAM excel TO VALUE(v-excel-file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
   /* ASSIGN 
       excelheader = "CATEGORY,ITEM,DESCRIPTION,TAG#,LINEAL FEET,MSF,WEIGHT,COST VALUE".  */
    PUT STREAM excel UNFORMATTED excelheader SKIP.
@@ -1715,7 +1710,7 @@ IF tb_excel THEN
 DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-excel-file)).
+   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

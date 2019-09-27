@@ -43,6 +43,8 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
+DEFINE STREAM excel.
+
 DEF VAR lv-sort-by AS CHAR INIT "trans-date" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "TR Date" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
@@ -1294,6 +1296,95 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-excelheader        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
+    DEFINE BUFFER b-itemfg FOR itemfg.
+
+    DEFINE VARIABLE list-name    AS cha NO-UNDO.
+    DEFINE VARIABLE lv-pdf-file  AS cha NO-UNDO.
+    DEFINE VARIABLE ls-mail-file AS cha NO-UNDO.
+    DEFINE VARIABLE cFileName AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-FgHist.csv"  NO-UNDO .
+
+
+    v-excelheader = "FG Item#,Vendor PO#,PO Ln,Job#,Bol#,TR Date,Tr Time,TR Code,Cust#,Warehouse,Bin,Quantity,Tag#,Cost,Units," +
+                    "Qty/Unit,Pallets,Units/Pallet,Partial,Qty/Pallet,FG Lot#,Lbs / 100,Posted By,UOM for Cost,BOL Cust,Posted,Vendor," +
+                    "Name,Before Qty,Change,Adjustment Reason:,Scanned By,Scan Date".
+    SESSION:SET-WAIT-STATE ("general").
+
+    RUN sys/ref/ExcelNameExt.p (INPUT "c:~\tmp~\r-FgHist.csv",OUTPUT cFileName) .
+
+    OUTPUT STREAM excel TO VALUE(cFileName).
+    IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
+
+
+    FOR EACH fg-rcpth OF itemfg NO-LOCK,
+        EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
+        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK
+        BY fg-rcpth.i-no
+        BY fg-rcpth.job-no 
+        BY fg-rcpth.job-no2:
+        
+        FIND FIRST oe-bolh
+            WHERE oe-bolh.company EQ cocode
+            AND oe-bolh.b-no    EQ fg-rcpth.b-no NO-LOCK NO-ERROR.
+
+        PUT STREAM excel UNFORMATTED
+
+            '"' STRING(fg-rcpth.i-no)                                                           '",'                           
+            '"' STRING(fg-rcpth.po-no)                                                          '",'
+            '"' STRING(fg-rcpth.po-line)                                                        '",'
+            '"' STRING(fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2))                        '",' 
+            '"' IF AVAIL oe-bolh THEN STRING(oe-bolh.bol-no) ELSE ""                            '",'
+            '"' STRING(fg-rcpth.trans-date)                                                     '",'
+            '"' STRING(fg-rdtlh.trans-time,'HH:MM')                                             '",'
+            '"' STRING(fg-rcpth.rita-code)                                                      '",'
+            '"' STRING(fg-rdtlh.cust-no)                                                        '",'
+            '"' STRING(fg-rdtlh.loc)                                                            '",'
+            '"' STRING(fg-rdtlh.loc-bin)                                                        '",'
+            '"' STRING(fg-rdtlh.qty)                                                            '",'
+            '"' STRING(fg-rdtlh.tag)                                                            '",'
+            '"' STRING(fg-rdtlh.cost)                                                           '",'
+            '"' STRING(fg-rdtlh.cases)                                                          '",'
+            '"' STRING(fg-rdtlh.qty-case)                                                       '",'
+            '"' get-pallet-info (output li-qty-pal)                                             '",'
+            '"' STRING(fg-rdtlh.stacks-unit)                                                    '",'
+            '"' STRING(fg-rdtlh.partial)                                                        '",'
+            '"' STRING(li-qty-pal)                                                              '",'
+            '"' STRING(fg-rdtlh.stack-code)                                                     '",'
+            '"' STRING(fg-rdtlh.tot-wt)                                                         '",'
+            '"' STRING(fg-rdtlh.user-id)                                                        '",'
+            '"' STRING(fg-rcpth.pur-uom)                                                        '",'
+            '"' display-ship()                                                                  '",'
+            '"' STRING(fg-rcpth.post-date)                                                      '",'
+            '"' STRING(fg-rcpth.vend-no)                                                        '",'
+            '"' get-vend-info ()                                                                '",'
+            '"' get-fg-qty (1)                                                                  '",'
+            '"' get-fg-qty (2)                                                                  '",'
+            '"' IF fg-rdtlh.reject-code[1] NE ? THEN STRING(fg-rdtlh.reject-code[1]) ELSE ""    '",'
+            '"' STRING(fg-rdtlh.enteredBy)                                                      '",'
+            '"' fg-rdtlh.enteredDT FORMAT "99/99/9999"                        '",'
+            SKIP.                                                                    
+        
+    END.
+
+   OUTPUT STREAM excel CLOSE.
+   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+   
+    
+    SESSION:SET-WAIT-STATE ("").
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

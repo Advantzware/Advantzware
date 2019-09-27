@@ -28,7 +28,7 @@ DEFINE TEMP-TABLE ttImportBankReconl
 {ap/reconcil.i NEW}
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
-
+DEFINE VARIABLE glInitialized AS LOGICAL.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -117,8 +117,10 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
-    RUN ap/reconcil.p.
-
+    IF NOT glInitialized THEN DO: 
+        RUN ap/reconcil.p.
+        glInitialized = YES.
+    END.
     FIND FIRST reconcile EXCLUSIVE-LOCK
         WHERE reconcile.tt-number = ipbf-ttImportBankReconl.CheckJrl
           AND reconcile.tt-amt = DEC(ipbf-ttImportBankReconl.Amount)  NO-ERROR.

@@ -931,6 +931,9 @@ def var cnt as integer.
 DEFINE VARIABLE includeEStatus AS LOGICAL NO-UNDO.
 DEFINE VARIABLE colCnt AS INTEGER NO-UNDO INIT 2.
 DEFINE VARIABLE labelCnt AS INTEGER NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  str-tit2 = c-win:title
@@ -956,7 +959,7 @@ assign
 if tb_show-parm then run show-param.
 
 IF tb_excel THEN
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
 SESSION:SET-WAIT-STATE ("generl").
 
@@ -1172,7 +1175,7 @@ end.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

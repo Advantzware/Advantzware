@@ -424,6 +424,7 @@ FOR EACH report
             ELSE IF cCertFormat NE "CCC3" THEN
                 gchWorkSheet:Range("B13"):VALUE = itemfg.part-no .
 
+            
         ASSIGN
             gchWorkSheet:Range("B14"):VALUE = IF AVAIL eb THEN eb.spc-no ELSE ""
             gchWorkSheet:Range("B15"):VALUE = IF AVAIL style THEN style.dscr ELSE ""
@@ -469,6 +470,9 @@ FOR EACH report
                gchWorkSheet:Range("B35"):VALUE = "Yes".
            ELSE IF cCertFormat EQ "CCC4"  THEN
                 gchWorkSheet:Range("B35"):VALUE = "N/A".
+
+           IF cCertFormat EQ "CCC4" THEN
+                gchWorkSheet:Range("B36"):VALUE = itemfg.i-no .
 
         /*Get Notes*/
         iNoteLine = 1.

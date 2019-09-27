@@ -40,7 +40,7 @@ v-total-list = "Commission on GM,Commission on SP,    Commission %,"
              + "FULL COST,FULL COST PER ROLL,Margin on Fact Cost,"
              + "    Fact Margin %,Net Margin,    Net Margin %,"
              + "Available Margin,    Available Margin %,Matching Markup,    Matching Markup %,"
-             + "SELLING PRICE,SELLING PRICE PER ROLL,OVERALL".
+             + "SELLING PRICE,SELLING PRICE PER ROLL,OVERALL,Net Margin $".
 
 form day_str v-module tim_str to 79  skip(1)
      with frame hdr page-top STREAM-IO width 80 no-labels no-box.
@@ -194,7 +194,7 @@ assign
  vmcl = 1.
  vhld = vmcl.
 
-IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 /*cerunc NE "Protagon"*/ THEN
+IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 /*cerunc NE "Protagon"*/ THEN
    PUT "<P9>" "Individual Part #" FORMAT "x(30)".
 ELSE
    PUT "<P9>" "Individual Part # Description                     Qty/Set".
@@ -214,7 +214,7 @@ do v = vmcl to vhld + vhld-last:
   END.
 end.
 
-IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 /*cerunc NE "Protagon"*/ THEN
+IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 /*cerunc NE "Protagon"*/ THEN
    PUT SKIP SPACE(30).
 ELSE
    PUT SKIP SPACE(57).
@@ -229,7 +229,7 @@ do v = vmcl to vhld + vhld-last:
   END.
 end.
 
-IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 /*cerunc NE "Protagon"*/ THEN
+IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 /*cerunc NE "Protagon"*/ THEN
    put SKIP fill("-",30) format "x(30)".
 ELSE
    put SKIP fill("-",57) format "x(57)".
@@ -245,7 +245,7 @@ do v = vmcl to vhld + vhld-last:
 end.
 
 put skip.
-IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 /*cerunc NE "Protagon"*/ THEN
+IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 /*cerunc NE "Protagon"*/ THEN
 DO:
 
     for each ef
@@ -271,7 +271,7 @@ DO:
           if v ge vhld + vhld-last then next mclean-loop.
         end.
     
-        IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 THEN
+        IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 THEN
            put eb.part-no format "x(30)".
         ELSE
            PUT eb.part-no format "x(18)"
@@ -281,7 +281,7 @@ DO:
         do v = vmcl to vhld + vhld-last:
            if mclean.cost[v] ne 0 then
            DO:
-              IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 THEN
+              IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 THEN
                 IF cerunc-dec EQ 0 THEN
                     put mclean.cost[v].
                 ELSE
@@ -293,7 +293,7 @@ DO:
                     put mclean.cost[v] / 1000 FORMAT "->,>>>,>>>.99".
            END.
         end.
-        IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc = "Protagon"*/ THEN /*05171201*/
+        IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") NE 0 /*cerunc = "Protagon"*/ THEN /*05171201*/
             PUT SKIP eb.part-dscr2 AT 19 FORMAT "X(30)".
         put skip.
       end.
@@ -372,7 +372,7 @@ ELSE DO: /* Protagon */
 
     END.
 END.
-IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 THEN
+IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 THEN
 DO:
    IF cerunc-dec EQ 0 THEN
       put SKIP fill("",31) format "x(31)".
@@ -397,7 +397,7 @@ do v = vmcl to vhld + vhld-last:
   END.
 end.
 
-IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 THEN
+IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") EQ 0 THEN
    put SKIP "Set Total Price" format "x(30)".
 ELSE
    put SKIP "Set Total Price" format "x(57)".

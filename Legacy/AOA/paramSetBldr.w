@@ -789,6 +789,7 @@ PROCEDURE pViewAs :
             ipdCol,
             ipdRow,
             dParamWidth,
+            CAN-DO(cAction,"LIST-ITEM-PAIRS"),
             cInitialItems,
             dynParam.paramFormat,
             cInitialValue,

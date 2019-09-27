@@ -1060,6 +1060,9 @@ def var v-print-cust as LOGICAL NO-UNDO.
 DEF VAR v-tag-print AS CHAR FORMAT "x(5)"  NO-UNDO.
 
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form
     cust.cust-no column-label "CUSTOMER!   ID"
@@ -1098,7 +1101,7 @@ assign
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "CUSTOMER ID,TYPE,JOB NUMBER,TAG NUMBER,P.O. NUMBER,"
               + "FG ITEM NUMBER,DESCRIPTION,QUANTITY ON-HAND,SELL PRICE,TOTAL VALUE".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1214,7 +1217,7 @@ display "" with frame r-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

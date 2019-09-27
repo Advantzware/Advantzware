@@ -1127,6 +1127,7 @@ DEF VAR cIName AS CHAR NO-UNDO.
 DEF BUFFER bf-itemfg FOR itemfg.
 DEF BUFFER bf-job-hdr FOR job-hdr.
 DEF BUFFER bf-cust FOR cust.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
     {custom/statusMsg.i "'Processing...'"} 
 
@@ -1166,6 +1167,7 @@ form rm-rcpth.trans-date format "99/99/99" label "DATE"
      skip
     with frame itemy no-box down stream-io width 150.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 150}
@@ -1220,7 +1222,7 @@ SESSION:SET-WAIT-STATE ("general").
    EMPTY TEMP-TABLE tt-report.
 
    IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+      OUTPUT STREAM excel TO VALUE(cFileName).
       IF tb_issue-detail THEN 
         EXPORT STREAM excel DELIMITER "," 
              "DATE"
@@ -1442,7 +1444,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 

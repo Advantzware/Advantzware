@@ -22,7 +22,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE CommonFile_is_Running
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -792,6 +792,7 @@ PROCEDURE build-ar-inv :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
  DO WHILE TRUE :
         FIND ar-inv WHERE ar-inv.x-no = v-ref-ar NO-LOCK NO-ERROR.
         IF AVAILABLE ar-inv THEN 
@@ -872,7 +873,7 @@ PROCEDURE build-ar-inv :
                       no-lock no-error.
 
            if available terms then
-              assign ar-inv.due-date  = ar-inv.inv-date + terms.net-days
+              ASSIGN ar-inv.due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(ar-inv.inv-date),inv-head.company,inv-head.terms )
                      ar-inv.disc-%    = terms.disc-rate
                      ar-inv.disc-days = terms.disc-days.
 
@@ -888,7 +889,6 @@ PROCEDURE build-ar-inv :
                                      AND currency.c-code = ar-inv.curr-code[1] NO-LOCK NO-ERROR.
            IF AVAIL currency THEN ar-inv.ex-rate = currency.ex-rate .  
            
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

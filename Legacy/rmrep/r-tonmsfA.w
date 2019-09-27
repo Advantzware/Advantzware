@@ -985,6 +985,9 @@ DEF VAR v-vend-no    AS CHAR NO-UNDO.
 DEF VAR v-export     AS LOGICAL NO-UNDO.
 DEF VAR v-excel-hdr  AS CHAR NO-UNDO.
 DEF VAR v-exp-name   AS CHAR FORMAT "x(40)" INIT "c:\tmp\r-tonsmsf.csv" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {custom/statusMsg.i "'Processing...'"} 
 
@@ -1027,7 +1030,7 @@ assign
              (if tb_adjustments then "A" else "") +
              (if tb_counts      then "C" else "")
    v-export = tb_excel
-   v-exp-name = fi_file.
+   v-exp-name = cFileName.
 
 {sys/inc/print1.i}
 

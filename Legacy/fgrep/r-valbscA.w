@@ -1013,6 +1013,9 @@ DEFINE VARIABLE li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.   
 DEFINE VARIABLE  cSlsRep     AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 FORM HEADER
      SKIP(1)
      "Sales Rep:" v-sman v-sname
@@ -1158,7 +1161,7 @@ IF tb_detail THEN VIEW FRAME r-top2.
              ELSE VIEW FRAME r-top1.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   IF tb_detail THEN
     excelheader = "CUST#,FG ITEM#,CUSTOMER PART#,DESCRIPTION,CUST PO#,JOB#,"
                 + "ORDERED QUANTITY,SHIPPED QUANTITY,ON-HAND QUANTITY,"
@@ -1615,7 +1618,7 @@ END.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

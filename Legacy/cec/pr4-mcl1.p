@@ -23,6 +23,7 @@ def var v-yld as dec.
 DEF VAR li AS INT NO-UNDO.
 def var v-prf-s as dec NO-UNDO.
 def var v-pct-s as dec NO-UNDO.
+DEFINE VARIABLE dNetMarginDollar AS DECIMAL NO-UNDO .
 
 {sys/inc/cerun.i C}
 

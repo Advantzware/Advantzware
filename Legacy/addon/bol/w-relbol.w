@@ -82,7 +82,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24
+         SIZE 150 BY 26
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -119,7 +119,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Release Scan and Create BOL"
-         HEIGHT             = 16.24
+         HEIGHT             = 16.94
          WIDTH              = 116.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -312,7 +312,7 @@ PROCEDURE adm-create-objects :
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 14.05 , 117.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 14.85 , 117.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -337,7 +337,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-relbol ).
-       RUN set-position IN h_p-relbol ( 15.05 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_p-relbol ( 15.85 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-relbol ( 1.76 , 71.00 ) NO-ERROR.
 
        /* Links to SmartObject h_b-relbol. */

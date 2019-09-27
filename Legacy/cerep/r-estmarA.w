@@ -934,9 +934,7 @@ DEF VAR ld-price LIKE probe.sell-price NO-UNDO.
 DEF VAR ld-mar AS DEC FORMAT "->>,>>>,>>9.99" EXTENT 7 NO-UNDO.
 DEF VAR ld-pct AS DEC NO-UNDO.
 DEF VAR k_frac AS DEC INIT "6.25" NO-UNDO.
-
-
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 ASSIGN
  str-tit2 = TRIM(c-win:TITLE) + ""
@@ -949,8 +947,10 @@ ASSIGN
 
 {sys/inc/outprint.i  VALUE(lines-per-page)}
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 IF tb_excel THEN do:
-  OUTPUT STREAM st-excel TO VALUE(fi_file).
+  OUTPUT STREAM st-excel TO VALUE(cFileName).
   PUT STREAM st-excel UNFORMATTED
       ",,,,Carton,Die,,,Carton,,,,,,,,,,,," +
       ",Total,Total,Total,Delivered"

@@ -71,13 +71,13 @@ end.  /* end est*/
 
   
 
-IF tb_order THEN 
-      FOR EACH oe-ord WHERE oe-ord.company EQ cocode
-                     AND oe-ord.cust-no GE fcus
-                     AND oe-ord.cust-no LE tcus
-                     AND oe-ord.opened EQ YES,
-      first cust where cust.company eq oe-ord.company
-                   and cust.cust-no eq oe-ord.cust-no EXCLUSIVE-LOCK:
+IF tb_order THEN DO:
+  FOR EACH oe-ord WHERE oe-ord.company EQ cocode
+    AND oe-ord.cust-no GE fcus
+    AND oe-ord.cust-no LE tcus
+    AND oe-ord.opened EQ YES,
+    first cust where cust.company eq oe-ord.company
+    and cust.cust-no eq oe-ord.cust-no EXCLUSIVE-LOCK:
     
     v-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Updating Order " + string(oe-ord.ord-no).
 
@@ -97,7 +97,15 @@ IF tb_order THEN
             IF AVAIL sman THEN
                 oe-ord.sname[1] = sman.sNAME.
         END.
-   END.
+
+    FOR EACH oe-ordm
+          WHERE oe-ordm.company EQ cocode
+            AND oe-ordm.ord-no  EQ oe-ord.ord-no
+          EXCLUSIVE-LOCK:
+        IF oe-ordm.s-man[1] <> cust.sman  THEN oe-ordm.s-man[1] = cust.sman .
+    END.
+  END.
+END.
 
 
   IF tb_inv THEN 
@@ -109,14 +117,21 @@ IF tb_order THEN
      first cust where cust.company eq cocode
                    and cust.cust-no eq inv-head.cust-no EXCLUSIVE-LOCK:
          v-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Updating Invoice " + string(inv-head.inv-no).
-      IF inv-line.sman[1] <> cust.sman  THEN do:
-       inv-line.sman[1] = cust.sman .
-        FIND FIRST sman
-                WHERE sman.company EQ cocode
-                AND sman.sman    EQ cust.sman
-                NO-LOCK NO-ERROR.
+       FIND FIRST sman NO-LOCK
+           WHERE sman.company EQ cocode
+           AND sman.sman    EQ cust.sman
+        NO-ERROR.
+      IF (inv-line.sman[1] <> cust.sman) OR (AVAIL sman AND sman.sNAME NE inv-line.sname[1]) THEN do:
+         inv-line.sman[1] = cust.sman .
             IF AVAIL sman THEN
                 inv-line.sname[1] = sman.sNAME.
+      END.
+
+      FOR EACH inv-misc WHERE inv-misc.company = cocode 
+          AND inv-misc.r-no = inv-head.r-no EXCLUSIVE-LOCK:
+
+          IF inv-misc.s-man[1] <> cust.sman THEN
+              inv-misc.s-man[1] = cust.sman .
       END.
   END.
  
@@ -132,3 +147,6 @@ IF tb_order THEN
        shipto.spare-char-1 = cust.sman .
       END.
   END.
+
+  RELEASE oe-ordm.
+  RELEASE inv-misc.

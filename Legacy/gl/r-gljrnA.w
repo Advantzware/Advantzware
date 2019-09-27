@@ -1120,6 +1120,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 DEF VAR v-excel-hdr AS   CHAR.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 {sys/inc/print1.i}
 
   {sys/inc/outprint.i VALUE(lines-per-page)}
@@ -1162,7 +1165,7 @@ SESSION:SET-WAIT-STATE ("general").
     v-postable = NO.
 
     IF tb_excel THEN DO:
-        OUTPUT STREAM s-temp TO VALUE(fi_file).
+        OUTPUT STREAM s-temp TO VALUE(cFileName).
         PUT STREAM s-temp UNFORMATTED 
             STRING(TODAY) + str-tit     SKIP
             time_stamp    + str-tit2    SKIP
@@ -1181,7 +1184,7 @@ SESSION:SET-WAIT-STATE ("general").
     IF tb_excel THEN DO:
         OUTPUT STREAM s-temp close.
         IF tb_runExcel THEN
-            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
