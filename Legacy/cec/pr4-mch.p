@@ -431,5 +431,8 @@ PUT "TOTAL  OPERATIONS        "
 
 IF vmclean THEN op-tot[4] = op-tot[4] *
         (qtty[k] * xeb.quantityPerSet / 1000 * v-sqft-fac).
-
+        
+IF VALID-HANDLE(hFreightProcs) THEN 
+     DELETE OBJECT hFreightProcs.
+    
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

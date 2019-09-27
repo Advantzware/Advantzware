@@ -142,7 +142,15 @@ DO:
     RUN getUseJobQty IN hProc (OUTPUT gvlQtyFromJob).    
 
 END.
- 
+hProc = SESSION:FIRST-PROCEDURE.
+ DO WHILE VALID-HANDLE(hProc):
+    IF INDEX(hProc:FILE-NAME, "recalcJobs") GT 0 THEN
+        LEAVE. /* found it. */
+    hProc = hProc:NEXT-SIBLING.
+END.
+IF VALID-HANDLE(hProc) AND INDEX(hProc:FILE-NAME, "recalcJobs") GT 0 THEN 
+        gvlNoPrompt = TRUE.
+        
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
     AND sys-ctrl.name    EQ "JOBCARDF"

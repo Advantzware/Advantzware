@@ -426,6 +426,7 @@ DEFINE VARIABLE dQty AS DECIMAL NO-UNDO.
                     AND job-hdr.job     EQ job.job
                     AND job-hdr.job-no  EQ job.job-no
                     AND job-hdr.job-no2 EQ job.job-no2   
+                    AND job-hdr.opened
                     NO-ERROR.
           
                 IF NOT AVAIL job-hdr THEN 
