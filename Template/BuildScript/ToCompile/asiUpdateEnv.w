@@ -4302,6 +4302,7 @@ PROCEDURE ipLoadOEAutoApproveNK1s:
     &SCOPED-DEFINE tablename sys-ctrl
 
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    DISABLE TRIGGERS FOR DUMP OF {&tablename}.
 
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
