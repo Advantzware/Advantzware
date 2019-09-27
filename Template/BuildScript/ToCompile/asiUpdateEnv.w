@@ -6160,6 +6160,7 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
             bf-vendItemCost.vendorUOM        = CAPS(ipbf-e-itemfg.std-uom) 
             bf-vendItemCost.useQuantityFrom  = glUseQtyFrom
             /* Assignments from triggers */
+            bf-vendItemCost.vendItemCostID = NEXT-VALUE(vendItemCostID_seq,ASI)
             bf-vendItemCost.createdID = USERID('ASI')
             bf-vendItemCost.createdDate = DATE(TODAY)
             bf-vendItemCost.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
@@ -6184,6 +6185,7 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
                     bf-vendItemCostLevel.costPerUOM     = ipbf-e-itemfg-vend.run-cost[iIndex]
                     bf-vendItemCostLevel.costSetup      = ipbf-e-itemfg-vend.setups[iIndex]
                     /* Assignments from triggers */
+                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
                     bf-vendItemCostLevel.createdID = USERID('ASI')
                     bf-vendItemCostLevel.createdDate = DATE(TODAY)
                     bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
@@ -6260,6 +6262,7 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
             bf-vendItemCost.vendorItemID         = ipbf-e-item-vend.vend-item
             bf-vendItemCost.vendorUOM            = CAPS(ipbf-e-item.std-uom) 
             /* Assignments from triggers */
+            bf-vendItemCost.vendItemCostID = NEXT-VALUE(vendItemCostID_seq,ASI)
             bf-vendItemCost.createdID = USERID('ASI')
             bf-vendItemCost.createdDate = DATE(TODAY)
             bf-vendItemCost.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
@@ -6283,6 +6286,7 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
                     bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.run-cost[iIndex]
                     bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setups[iIndex]
                     /* Assignments from triggers */
+                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
                     bf-vendItemCostLevel.createdID = USERID('ASI')
                     bf-vendItemCostLevel.createdDate = DATE(TODAY)
                     bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
