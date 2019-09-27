@@ -77,7 +77,7 @@ DEFINE QUERY external_tables FOR ap-inv.
 ap-inv.due-date ap-inv.tax-gr ap-inv.disc-% ap-inv.disc-days ap-inv.tax-amt 
 &Scoped-define ENABLED-TABLES ap-inv
 &Scoped-define FIRST-ENABLED-TABLE ap-inv
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
+&Scoped-Define ENABLED-OBJECTS btTags RECT-1 RECT-5 
 &Scoped-Define DISPLAYED-FIELDS ap-inv.vend-no ap-inv.inv-no ~
 ap-inv.inv-date ap-inv.due-date ap-inv.tax-gr ap-inv.disc-% ~
 ap-inv.disc-days ap-inv.stat ap-inv.tax-amt ap-inv.net ap-inv.paid ~
@@ -126,6 +126,11 @@ DEFINE BUTTON btn-exrate
      LABEL "ExRate" 
      SIZE 15 BY 1.14.
 
+DEFINE BUTTON btTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.4 BY 1.05.
+
 DEFINE VARIABLE cb_freq AS CHARACTER FORMAT "X(256)":U 
      LABEL "Frequency" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -158,6 +163,7 @@ DEFINE VARIABLE tg_overwrite-tax AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btTags AT ROW 2.43 COL 76.4 WIDGET-ID 12
      ap-inv.vend-no AT ROW 1.24 COL 17 COLON-ALIGNED
           LABEL "Vendor#"
           VIEW-AS FILL-IN 
@@ -355,6 +361,18 @@ END.
 ON CHOOSE OF btn-exrate IN FRAME F-Main /* ExRate */
 DO:
   RUN windows/d-exrate.w ("ap-inv", RECID(ap-inv)).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTags V-table-Win
+ON CHOOSE OF btTags IN FRAME F-Main
+DO:
+    IF AVAILABLE ap-inv THEN
+        RUN sys/ref/dlgTagVwr.w (ap-inv.rec_key,"HOLD","").  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -664,7 +682,10 @@ PROCEDURE hold-ap :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bf-ap-inv FOR ap-inv.
+  DEFINE BUFFER bf-ap-inv FOR ap-inv.
+  DEFINE VARIABLE hdTagProcs AS HANDLE NO-UNDO.
+  
+  RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
   {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -678,18 +699,27 @@ PROCEDURE hold-ap :
          message "Are you sure you wish to " +
             trim(string(ap-inv.stat eq "H","release/hold")) + " this Vendor Invoice?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO update choice AS LOG.
-         if choice then do:  
+         if choice then do:
             find bf-ap-inv where recid(bf-ap-inv) eq recid(ap-inv) no-error.
-            bf-ap-inv.stat = if bf-ap-inv.stat eq "H" then "R" else "H".    
+            IF bf-ap-inv.stat EQ "H" THEN DO:
+                RUN ClearTagsHold IN hdTagProcs (
+                    INPUT bf-ap-inv.REC_KEY
+                    ).
+            END.                        
+
+            bf-ap-inv.stat = if bf-ap-inv.stat eq "H" then "R" else "H".  
          END.
 
          FIND CURRENT ap-inv NO-LOCK NO-ERROR.
          IF AVAIL ap-inv THEN DISP ap-inv.stat WITH FRAME {&FRAME-NAME}.
       END.
    END.
+   
+   IF VALID-HANDLE(hdTagProcs) THEN
+       DELETE OBJECT hdTagProcs.
+       
    {&methods/lValidateError.i NO}
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
