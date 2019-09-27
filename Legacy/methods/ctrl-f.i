@@ -8,6 +8,8 @@ DEFINE VARIABLE cCtrlFPrgmName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFUserID       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFSessionParam AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCtrlFSessionValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCtrlFieldLabel    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCtrlTableLabel    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hCtrlFTable        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lCtrlFResponse     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCtrlFRunAudit     AS LOGICAL   NO-UNDO.
@@ -59,20 +61,22 @@ ELSE DO:
              WHERE ASI._field._field-name EQ FRAME-FIELD
              NO-ERROR. 
         ASSIGN
+            cCtrlFieldLabel  = IF AVAILABLE ASI._field AND ASI._field._Label      NE ? THEN ASI._field._Label      ELSE "" 
+            cCtrlTableLabel  = IF AVAILABLE ASI._file  AND ASI._file._file-label  NE ? THEN ASI._file._file-label  ELSE ""
             cCtrlFErrorMsg   = CHR(10) + CHR(10) + cCtrlFErrorMsg
             cCtrlFObjectName = "Database: " + FRAME-DB + CHR(10) 
                              + "Table: " + FRAME-FILE + " - "
-                             + (IF AVAILABLE ASI._file THEN ASI._file._Desc ELSE "") + CHR(10)
+                             + cCtrlTableLabel + CHR(10)
                              + "Field: " + FRAME-FIELD
                              + (IF FRAME-INDEX NE 0 THEN "["
                              + STRING(FRAME-INDEX) + "]" ELSE "") + " - "
-                             + (IF AVAILABLE ASI._field AND ASI._field._Label NE ? THEN ASI._field._Label ELSE "")
+                             + cCtrlFieldLabel
                              + CHR(10) + CHR(10)
                              + "Audit Key: " + cCtrlFSessionValue
                              .
         MESSAGE
             cCtrlFObjectName
             cCtrlFErrorMsg
-        VIEW-AS ALERT-BOX TITLE "CTRL-F Field View".
+        VIEW-AS ALERT-BOX TITLE "CTRL-F Field View (" + cCtrlFPrgmName + ")".
     END. /* else */
 END. /* else */

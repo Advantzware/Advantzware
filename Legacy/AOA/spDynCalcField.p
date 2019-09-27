@@ -98,6 +98,13 @@ PROCEDURE calcStringTime:
     opcCalcValue = STRING(ipiTime,"hh:mm:ss am").
 END PROCEDURE.
 	
+PROCEDURE calcTimeString:
+    DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+    opcCalcValue = STRING(ipiTime,"hh:mm:ss").
+END PROCEDURE.
+    
 PROCEDURE spDynCalcField:
     DEFINE INPUT  PARAMETER iphQuery     AS HANDLE    NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCalcProc  AS CHARACTER NO-UNDO.
@@ -150,6 +157,10 @@ PROCEDURE spDynCalcField:
             INTEGER(ENTRY(2,ipcCalcParam,"|")),
             OUTPUT opcCalcValue).
         WHEN "calcStringTime" THEN
+        RUN VALUE(ipcCalcProc) (
+            INTEGER(ipcCalcParam),
+            OUTPUT opcCalcValue).
+        WHEN "calcTimeString" THEN
         RUN VALUE(ipcCalcProc) (
             INTEGER(ipcCalcParam),
             OUTPUT opcCalcValue).
