@@ -4367,6 +4367,7 @@ PROCEDURE ipLoadPrograms :
                 tt{&tablename}.can_create
                 tt{&tablename}.can_update
                 tt{&tablename}.can_delete
+                tt{&tablename}.subjectID
                 TO {&tablename}.
         END.
     END.
