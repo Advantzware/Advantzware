@@ -1494,7 +1494,7 @@ FOR EACH job-hdr NO-LOCK
                IF FIRST-OF(wrk-op.dept) THEN
                     iTotalPass = 0 .
 
-               iTotalPass =  iTotalPass + wrk-op.pass . 
+               iTotalPass =  iTotalPass + 1 . 
                IF LAST-OF(wrk-op.dept)  THEN DO:
                    RUN XMLOutput (lXMLOutput,'Department',wrk-op.dept,'Col').
                    RUN XMLOutput (lXMLOutput,'Pass',iTotalPass,'Col').
