@@ -65,7 +65,7 @@ DEFINE BUTTON Btn_case AUTO-GO
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_fg AUTO-GO 
-     LABEL "Finished Goods"     /*Task# 11111305*/
+     LABEL "Finished Goods" 
      SIZE 34 BY 1.91
      BGCOLOR 8 .
 
@@ -114,6 +114,9 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       Btn_wip:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
