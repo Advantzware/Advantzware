@@ -65,10 +65,10 @@ ASSIGN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-process fiDate rsOpen fiStartJob ~
-fiEndJob rsPurge btn-cancel eHelp 
+&Scoped-Define ENABLED-OBJECTS fiDate rsOpen fiStartJob fiEndJob rsPurge ~
+btn-process btn-cancel eHelp 
 &Scoped-Define DISPLAYED-OBJECTS fiText-2 fiDate rsOpen fiStartJob fiEndJob ~
-rsPurge fiText1 eHelp 
+fiText-3 rsPurge fiText1 eHelp 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -88,7 +88,7 @@ DEFINE BUTTON btn-cancel
      LABEL "Exit" 
      SIZE 18 BY 1.14.
 
-DEFINE BUTTON btn-process  NO-FOCUS
+DEFINE BUTTON btn-process 
      LABEL "Start Purge" 
      SIZE 18 BY 1.14.
 
@@ -101,12 +101,12 @@ DEFINE VARIABLE fiDate AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiEndJob AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+DEFINE VARIABLE fiEndJob AS CHARACTER FORMAT "X(8)":U 
      LABEL "TO" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiStartJob AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+DEFINE VARIABLE fiStartJob AS CHARACTER FORMAT "X(8)":U 
      LABEL "(Optional) Job Range - FROM" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
@@ -114,6 +114,10 @@ DEFINE VARIABLE fiStartJob AS INTEGER FORMAT ">>>>>>9":U INITIAL 0
 DEFINE VARIABLE fiText-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Purge all jobs and related records where:" 
      VIEW-AS FILL-IN 
      SIZE 52 BY .95 NO-UNDO.
+
+DEFINE VARIABLE fiText-3 AS CHARACTER FORMAT "X(256)":U INITIAL "(F1 to look up)" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY .95 NO-UNDO.
 
 DEFINE VARIABLE fiText1 AS CHARACTER FORMAT "X(256)":U INITIAL "Help/Notes on this function:" 
      VIEW-AS FILL-IN 
@@ -137,21 +141,23 @@ DEFINE VARIABLE rsPurge AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btn-process AT ROW 6.48 COL 75
      fiText-2 AT ROW 1.48 COL 2 NO-LABEL NO-TAB-STOP 
      fiDate AT ROW 2.67 COL 39 COLON-ALIGNED
      rsOpen AT ROW 4.1 COL 6 NO-LABEL
      fiStartJob AT ROW 5.29 COL 39 COLON-ALIGNED
      fiEndJob AT ROW 5.29 COL 58 COLON-ALIGNED
+     fiText-3 AT ROW 5.29 COL 74 NO-LABEL NO-TAB-STOP 
      rsPurge AT ROW 6.71 COL 6 NO-LABEL
-     btn-cancel AT ROW 8.14 COL 75
+     btn-process AT ROW 7.19 COL 75
+     btn-cancel AT ROW 8.86 COL 75
      fiText1 AT ROW 9.33 COL 2 NO-LABEL NO-TAB-STOP 
      eHelp AT ROW 10.29 COL 1 NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 99.8 BY 24.14
-         FONT 5.
+         FONT 5
+         DEFAULT-BUTTON btn-cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -204,16 +210,17 @@ ASSIGN
                 "ribbon-button".
 
 ASSIGN 
-       btn-process:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-ASSIGN 
        eHelp:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiText-2 IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
 ASSIGN 
        fiText-2:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiText-3 IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L                                                    */
+ASSIGN 
+       fiText-3:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiText1 IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L                                                    */
@@ -273,10 +280,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME DEFAULT-FRAME /* Start Purge */
 DO:
-    DEF VAR cStartJob AS CHAR NO-UNDO.
-    DEF VAR cEndJob AS CHAR NO-UNDO.
     DEF VAR lSuccess AS LOG NO-UNDO.
     DEF VAR cMessage AS CHAR NO-UNDO.
+
+    /* Validate that start job is LE end job, if entered */
+    IF fiStartJob:SCREEN-VALUE NE "" 
+        AND fiEndJob:SCREEN-VALUE NE "" 
+        AND TRIM(fiStartJob:SCREEN-VALUE) GT TRIM(fiEndJob:SCREEN-VALUE) THEN 
+    DO:
+        MESSAGE 
+            "Start job is less than end job. Please correct."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
 
     MESSAGE 
         "Are you sure you want to " + TRIM(c-win:TITLE) +
@@ -288,20 +304,17 @@ DO:
     
     DYNAMIC-FUNCTION ("fStartPurge", "job").
      
-    ASSIGN 
-        cStartJob = FILL(" ", 6 - INT(LENGTH(fiStartJob:SCREEN-VALUE))) + fiStartJob:SCREEN-VALUE
-        cEndJob =   FILL(" ", 6 - INT(LENGTH(fiEndJob:SCREEN-VALUE))) + fiEndJob:SCREEN-VALUE.
-
+      
     /* Optimize these to use the best index given entered values */
     IF rsOpen:SCREEN-VALUE EQ "C" THEN DO:  /* Closed jobs only, use close-date for index */
         FOR EACH job NO-LOCK WHERE 
             job.company EQ cocode AND 
             job.close-date LT DATE(fiDate:SCREEN-VALUE)
             USE-INDEX close-date:
-            IF (INTEGER(fiStartJob:SCREEN-VALUE) NE 0    /* Specific for job range entered */
-                OR INTEGER(fiEndJob:SCREEN-VALUE) NE 0) 
-                AND (job.job-no LT cStartJob /* Job no outside of range specified */
-                OR job.job-no GT cEndJob) THEN 
+            IF (fiStartJob:SCREEN-VALUE NE ""    /* Specific for job range entered */
+                    OR fiEndJob:SCREEN-VALUE NE "") 
+                AND (TRIM(job.job-no) LT TRIM(fiStartJob:SCREEN-VALUE) /* Job no outside of range specified */
+                    OR TRIM(job.job-no) GT TRIM(fiEndJob:SCREEN-VALUE)) THEN 
                 NEXT.
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
@@ -314,11 +327,11 @@ DO:
         FOR EACH job NO-LOCK WHERE 
             job.company EQ cocode AND 
             job.create-date LT DATE(fiDate:SCREEN-VALUE):
-            IF (INTEGER(fiStartJob:SCREEN-VALUE) NE 0    /* Specific for job range entered */
-                OR INTEGER(fiEndJob:SCREEN-VALUE) NE 0) 
-                AND (job.job-no LT cStartJob /* Job no outside of range specified */
-                OR job.job-no GT cEndJob) THEN 
-                NEXT.
+            IF (fiStartJob:SCREEN-VALUE NE ""    /* Specific for job range entered */
+                OR fiEndJob:SCREEN-VALUE NE "") 
+            AND (TRIM(job.job-no) LT TRIM(fiStartJob:SCREEN-VALUE) /* Job no outside of range specified */
+                OR TRIM(job.job-no) GT TRIM(fiEndJob:SCREEN-VALUE)) THEN 
+            NEXT.
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
                 RUN purge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).
@@ -334,6 +347,42 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiStartJob
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartJob C-Win
+ON LEAVE OF fiStartJob IN FRAME DEFAULT-FRAME /* (Optional) Job Range - FROM */
+OR LEAVE OF fiEndJob
+DO:
+    CASE SELF:NAME: 
+        WHEN 'fiStartJob' THEN DO:
+            IF SELF:SCREEN-VALUE NE ""
+            AND fiEndJob:SCREEN-VALUE EQ "" THEN ASSIGN 
+                fiEndJob:SCREEN-VALUE = "zzzzzzzz". 
+            IF SELF:SCREEN-VALUE NE "" 
+            AND fiEndJob:SCREEN-VALUE NE "" 
+            AND TRIM(SELF:SCREEN-VALUE) GT TRIM(fiEndJob:SCREEN-VALUE) THEN DO:
+                MESSAGE 
+                    "Start job is less than end job. Please correct."
+                    VIEW-AS ALERT-BOX WARNING.
+            END.  
+        END.
+        WHEN 'fiEndJob' THEN DO:
+            IF SELF:SCREEN-VALUE NE "" 
+                AND fiStartJob:SCREEN-VALUE NE "" 
+                AND TRIM(SELF:SCREEN-VALUE) LT TRIM(fiStartJob:SCREEN-VALUE) THEN 
+            DO:
+                MESSAGE 
+                    "Start job is less than end job. Please correct."
+                    VIEW-AS ALERT-BOX WARNING.
+            END.  
+        END.
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME rsOpen
@@ -430,9 +479,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiText-2 fiDate rsOpen fiStartJob fiEndJob rsPurge fiText1 eHelp 
+  DISPLAY fiText-2 fiDate rsOpen fiStartJob fiEndJob fiText-3 rsPurge fiText1 
+          eHelp 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btn-process fiDate rsOpen fiStartJob fiEndJob rsPurge btn-cancel eHelp 
+  ENABLE fiDate rsOpen fiStartJob fiEndJob rsPurge btn-process btn-cancel eHelp 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -452,7 +502,8 @@ PROCEDURE pSetup :
             cOutDir = DYNAMIC-FUNCTION ("fGetPurgeDir", "job") 
             eHelp:SCREEN-VALUE = "- This process will purge all jobs and related records based on the parameters you choose below. " + CHR(10) + CHR(10) +
                                  "- Selecting the 'Closed and Open' option will take longer 'per job' than the 'Closed' option, as these records are found differently." + CHR(10) + CHR(10) +
-                                 "- It is not necessary to select a job number range, but if you do, this will be combined with the date option; choose both accordingly." + CHR(10) + CHR(10) +
+                                 "- It is not necessary to select a job number range, but if you do, this will be combined with the date option; choose both accordingly." + CHR(10) + 
+                                 "(Using a wide job range can significantly slow the operation)" + CHR(10) + CHR(10) +
                                  "- Selecting the 'Simulate' option will NOT delete any records; it will provide a list of records which 'would be' deleted if the 'Purge' option were chosen. " +
                                  "List generation is approximately 5 times faster than the actual purge." + CHR(10) + CHR(10) +
                                  "- A folder containing the log of deletions, and files enabling you to recover from this " +
