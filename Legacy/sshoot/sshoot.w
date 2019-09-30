@@ -43,14 +43,14 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cNewSshootMenu AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT gcompany, "SSVersion", "C" /* Logical */, NO /* check by cust */, 
+{methods/defines/globdefs.i}
+{methods/defines/hndldefs.i}
+
+RUN sys/ref/nk1look.p (INPUT g_company, "SSVersion", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cNewSshootMenu = cRtnChar NO-ERROR.
-
-{methods/defines/globdefs.i}
-{methods/defines/hndldefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
