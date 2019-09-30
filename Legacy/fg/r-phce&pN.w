@@ -599,11 +599,14 @@ DO:
   */
 
   IF lCreatGlAccount THEN DO:
-     RUN fg/d-fginvp.w (OUTPUT tran-date, OUTPUT tran-period).
+     RUN fg/d-fginvp.w (OUTPUT tran-date, OUTPUT tran-period).     
      IF tran-date = ? THEN RETURN NO-APPLY.
   END.
   ASSIGN post-date = tran-date
-         v-post-date = tran-date.
+         v-post-date = tran-date
+         uperiod = tran-period
+         udate   = tran-date
+         .
 
   /* gdm - 12050809*/
   ASSIGN
@@ -1035,7 +1038,7 @@ postit:
 
     {fg/fg-cpost.i}
 
-    if v-gl then do:
+    if v-gl AND uperiod GT 0 then do:
       /** GET next G/L TRANS. POSTING # **/
       /* gdm - 11050906 */
       REPEAT:
