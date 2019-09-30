@@ -31,8 +31,11 @@
 32 "Vendor Lookup" yes "System" "AP" "_default" 0 "Custom" "Grid" "" "" "FOR EACH vend WHERE vend.company EQ [[company]]" "201906245913403528046" 0
 33 "Material Type Lookup" yes "System" "NS" "_default" 0 "Custom" "Grid" "" "" "FOR EACH mat" "201906245924203528066" 0
 34 "Product Category Lookup" yes "System" "RM" "_default" 0 "Custom" "Grid" "" "" "FOR EACH procat WHERE procat.company EQ [[company]]" "201906245938903528079" 0
+35 "Export AR Invoices" yes "System" "AR" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\expARInv.p" "FOR" "201908128141603621258" 0
 36 "Purchase Order Lookup" yes "System" "PO" "_default" 0 "Custom" "Grid" "" "" "FOR EACH po-ordl WHERE po-ordl.company EQ [[company]]" "201906245991403528161" 0
 37 "CAD Lookup" yes "System" "FG" "_default" 0 "Custom" "Grid" "" "" "FOR EACH itemfg WHERE itemfg.company EQ [[company]] AND itemfg.cad-no GT """" USE-INDEX cad-no" "201906246090703528216" 0
 38 "BOL Lookup" yes "System" "OE" "_default" 0 "Custom" "Grid" "" "" "FOR EACH oe-bolh WHERE oe-bolh.company EQ [[company]]" "201906246130703528251" 0
 39 "Invoice Lookup" yes "System" "OE" "_default" 0 "Custom" "Grid" "" "" "FOR EACH inv-head WHERE inv-head.company EQ [[company]] USE-INDEX inv-no" "201906246250503528319" 0
 40 "Web Order Hold" yes "System" "OE" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\webOrderHold.p" "FOR" "201906247471203528450" 0
+41 "Company Lookup" yes "System" "GL" "_default" 0 "Custom" "Grid" "" "" "FOR EACH company" "201908135278603621311" 0
+42 "RM Item Lookup By Job" yes "System" "RM" "_default" 0 "Custom" "HTML" "" "" "FOR EACH loadtag WHERE loadtag.job-no EQ ""202840"" AND loadtag.company EQ ""001""" "201908157675203731674" 0

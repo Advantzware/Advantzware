@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:  
+  File: browsers/APIOutBound.w
 
   Description: from BROWSER.W - Basic SmartBrowser Object Template
 
@@ -37,9 +37,16 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/gcompany.i}
+{custom/globdefs.i}
+{sys/inc/var.i NEW SHARED}
+{sys/inc/varasgn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -54,7 +61,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -68,8 +75,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FIELDS-IN-QUERY-br_table APIOutbound.apiID APIOutbound.clientID APIOutbound.authType APIOutbound.requestDataType APIOutbound.requestVerb APIOutbound.isActive   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutbound WHERE     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.isActive      ELSE         NOT APIOutbound.isActive)     NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.isActive      ELSE         NOT APIOutbound.isActive)     NO-LOCK     ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br_table FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND     APIOutbound.company EQ g_company AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.isActive EQ YES      ELSE         APIOutbound.isActive EQ NO)     NO-LOCK     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND     APIOutbound.company EQ g_company AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.isActive EQ YES      ELSE         APIOutbound.isActive EQ NO)     NO-LOCK     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table APIOutbound
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutbound
 
@@ -138,9 +145,9 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btGo 
-     LABEL "Go" 
+     LABEL "GO" 
      SIZE 15 BY 1.14
-     FONT 35.
+     FONT 6.
 
 DEFINE VARIABLE cbRequestDataType AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -170,8 +177,8 @@ DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID" 
      VIEW-AS FILL-IN 
-     SIZE 9.4 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
+     SIZE 25 BY .81
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiClientID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -180,23 +187,23 @@ DEFINE VARIABLE fiClientID AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE fiClientIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Client ID" 
      VIEW-AS FILL-IN 
-     SIZE 12.4 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
+     SIZE 22 BY .81
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiRequestDataTypeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Data Type" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
+     SIZE 27 BY .81
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiRequestVerbLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Verb" 
      VIEW-AS FILL-IN 
-     SIZE 19 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
+     SIZE 21 BY .81
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Status" 
      VIEW-AS FILL-IN 
-     SIZE 9.8 BY 1
-     FGCOLOR 9 FONT 35 NO-UNDO.
+     SIZE 16 BY .81
+     FGCOLOR 1 FONT 6 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -222,29 +229,29 @@ DEFINE BROWSE br_table
             WIDTH 20.8
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 166 BY 18.1
-         BGCOLOR 15  ROW-HEIGHT-CHARS .57 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS SIZE 157.6 BY 20
+         BGCOLOR 15  FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiAPIIDLabel AT ROW 1.14 COL 10 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fiClientIDLabel AT ROW 1.14 COL 38.6 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fiRequestDataTypeLabel AT ROW 1.14 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiRequestVerbLabel AT ROW 1.14 COL 97 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     fiStatusLabel AT ROW 1.14 COL 126.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     fiAPIId AT ROW 2.19 COL 4.4 NO-LABEL WIDGET-ID 2
-     fiClientID AT ROW 2.19 COL 33.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     cbRequestDataType AT ROW 2.19 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     cbRequestVerb AT ROW 2.19 COL 96.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cbStatus AT ROW 2.19 COL 123 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     btGo AT ROW 3.86 COL 4 WIDGET-ID 24
-     br_table AT ROW 5.52 COL 1
+     fiAPIIDLabel AT ROW 1 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     fiClientIDLabel AT ROW 1 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     fiRequestDataTypeLabel AT ROW 1 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiRequestVerbLabel AT ROW 1 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     fiStatusLabel AT ROW 1 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     fiAPIId AT ROW 1.95 COL 5 NO-LABEL WIDGET-ID 2
+     fiClientID AT ROW 1.95 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     cbRequestDataType AT ROW 1.95 COL 62.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     cbRequestVerb AT ROW 1.95 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cbStatus AT ROW 1.95 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     btGo AT ROW 3.14 COL 5 WIDGET-ID 24
+     br_table AT ROW 4.33 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8  WIDGET-ID 100.
+         BGCOLOR 8 FGCOLOR 1  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -273,8 +280,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 22.81
-         WIDTH              = 166.8.
+         HEIGHT             = 23.33
+         WIDTH              = 157.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -297,24 +304,72 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table btGo F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       br_table:PRIVATE-DATA IN FRAME F-Main           = 
+                "2".
+
+ASSIGN 
+       btGo:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
+ASSIGN 
+       cbRequestDataType:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
+ASSIGN 
+       cbRequestVerb:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
+ASSIGN 
+       cbStatus:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
 /* SETTINGS FOR FILL-IN fiAPIId IN FRAME F-Main
    ALIGN-L                                                              */
+ASSIGN 
+       fiAPIId:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
 /* SETTINGS FOR FILL-IN fiAPIIDLabel IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiAPIIDLabel:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
+ASSIGN 
+       fiClientID:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
 /* SETTINGS FOR FILL-IN fiClientIDLabel IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiClientIDLabel:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
 /* SETTINGS FOR FILL-IN fiRequestDataTypeLabel IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiRequestDataTypeLabel:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
 /* SETTINGS FOR FILL-IN fiRequestVerbLabel IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiRequestVerbLabel:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
 /* SETTINGS FOR FILL-IN fiStatusLabel IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       fiStatusLabel:PRIVATE-DATA IN FRAME F-Main     = 
+                "NoWinReSize".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -324,7 +379,8 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE
+OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND
+    APIOutbound.company EQ g_company AND
     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN
         TRUE
      ELSE
@@ -344,9 +400,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE
     (IF cbStatus:SCREEN-VALUE EQ "All" THEN
         TRUE
      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN
-        APIOutbound.isActive
+        APIOutbound.isActive EQ YES
      ELSE
-        NOT APIOutbound.isActive)
+        APIOutbound.isActive EQ NO)
     NO-LOCK
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
@@ -375,8 +431,8 @@ ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
     DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-        
-    {methods/run_link.i "CONTAINER-SOURCE" "SELECT-PAGE" "(2)"}.
+
+    {methods/run_link.i "CONTAINER-SOURCE" "SELECT-PAGE" "(2)"}.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -409,9 +465,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    
+    /* This ADM trigger code must be preserved in order to notify other
+       objects when the browser's current row changes. */    
+    {src/adm/template/brschnge.i}
+    {methods/template/local/setvalue.i}
+    
+    RUN pDeptPenImageProc.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -420,7 +482,7 @@ END.
 
 &Scoped-define SELF-NAME btGo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGo B-table-Win
-ON CHOOSE OF btGo IN FRAME F-Main /* Go */
+ON CHOOSE OF btGo IN FRAME F-Main /* GO */
 DO:
     RUN dispatch ('open-query').
 END.
@@ -435,10 +497,12 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -505,6 +569,61 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    &IF INDEX("{&NORECKEY}","{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}") = 0 &THEN
+        {methods/template/local/setvalue.i}
+        RUN pDeptPenImageProc.
+    &ENDIF
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeptPenImageProc B-table-Win 
+PROCEDURE pDeptPenImageProc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSpec    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+ 
+    FIND FIRST notes NO-LOCK
+         WHERE notes.rec_key = APIOutbound.rec_key
+         NO-ERROR.
+ 
+    IF AVAILABLE notes THEN
+        lSpec = TRUE.
+    ELSE 
+        lSpec = FALSE.
+ 
+    RUN get-link-handle IN adm-broker-hdl (
+        THIS-PROCEDURE, 
+        'attach-target':U, 
+        OUTPUT char-hdl
+        ).
+ 
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+       RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT lSpec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
 PROCEDURE pInit :
 /*------------------------------------------------------------------------------
@@ -540,6 +659,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-focus B-table-Win 
+PROCEDURE set-focus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    APPLY "ENTRY" TO BROWSE {&BROWSE-NAME}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -555,6 +687,21 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE value-changed-proc B-table-Win 
+PROCEDURE value-changed-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DO WITH FRAME {&FRAME-NAME}:
+        APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+     END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

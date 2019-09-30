@@ -924,6 +924,9 @@ def var v-t-rem         like v-job-qty extent 2 NO-UNDO.
 def var v-t-msf         as   dec format "->>,>>9.9999" extent 2 NO-UNDO.
 def var v-label-01      as   char format "x(15)" NO-UNDO.
 DEF VAR excelheader     AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
      "Machine:"
@@ -990,7 +993,7 @@ assign
     {sys/inc/outprint.i value(lines-per-page)}
 
     IF tb_excel THEN DO:
-       OUTPUT STREAM excel TO VALUE(fi_file).
+       OUTPUT STREAM excel TO VALUE(cFileName).
        excelheader = "MACHINE,PROMISED/JOB DATE,CUSTOMER,CUSTOMER PART #,JOB #,"
                    + "TOTAL KICKS,KICKS REMAINING,MSF BALANCE,SHEET SIZE,"
                    + "BOARD RECEIVED".
@@ -1219,7 +1222,7 @@ assign
     IF tb_excel THEN DO:
        OUTPUT STREAM excel CLOSE.
        IF tb_runExcel THEN
-          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+          OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
     END.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

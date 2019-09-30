@@ -1190,8 +1190,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1222,12 +1221,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1475,6 +1469,9 @@ DEFINE VARIABLE cCustName AS CHARACTER NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {custom/statusMsg.i "'Processing...'"} 
 
@@ -1515,7 +1512,7 @@ assign
              (if tb_adjustments then "A" else "") +
              (if tb_counts      then "C" else "")
    v-export = tb_excel
-   v-exp-name = fi_file.
+   v-exp-name = cFileName.
 
 
 DEF VAR cslist AS cha NO-UNDO.
@@ -1551,7 +1548,7 @@ if td-show-parm then run show-param.
 
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM s-excel TO VALUE(TRIM(fi_file)).
+  OUTPUT STREAM s-excel TO VALUE(TRIM(cFileName)).
   PUT STREAM s-excel UNFORMATTED excelheader SKIP.
 END. 
 

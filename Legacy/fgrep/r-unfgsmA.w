@@ -1104,6 +1104,9 @@ def var v-hld-qty      as   dec.
 def var str-tit4       like str-tit3.
 def var v-loc          like oe-boll.loc.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 &Scoped-define where-phrase where oe-ordl.company eq cocode  ~
                               and oe-ordl.i-no    ge v-fitem ~
@@ -1131,7 +1134,7 @@ assign
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "FG Item#,Description,Ordered,Shipped,Balance To Ship,"
               + "Issued BOL,On Hand,Available,Open PO,Net Variance".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1326,7 +1329,7 @@ END.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

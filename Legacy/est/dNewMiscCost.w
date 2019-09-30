@@ -100,7 +100,7 @@ DEFINE VARIABLE ilogic           AS LOG     NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS quantity cVendor cVendorItem ~
+&Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cVendor cVendorItem ~
 cCostUom cItemDscr1 dSuCost1 dEaCost1 iQtyPer1 cCostType1 cMatLab1 ~
 cItemDscr2 dSuCost2 dEaCost2 iQtyPer2 cCostType2 cMatLab2 cItemDscr3 ~
 dSuCost3 dEaCost3 iQtyPer3 cCostType3 cMatLab3 cItemDscr4 dSuCost4 dEaCost4 ~
@@ -465,7 +465,7 @@ DEFINE FRAME D-Dialog
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
-         TITLE "New Miscellaneous Product Estimate - Cost Details "
+         TITLE "Miscellaneous Product Estimate - Cost Details "
          CANCEL-BUTTON Btn_Cancel.
 
 
@@ -530,7 +530,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
-ON WINDOW-CLOSE OF FRAME D-Dialog /* New Miscellaneous Product Estimate - Cost Details  */
+ON WINDOW-CLOSE OF FRAME D-Dialog /* Miscellaneous Product Estimate - Cost Details  */
 DO:  
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
         APPLY "END-ERROR":U TO SELF.
@@ -835,168 +835,6 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME dEaCost1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost1 D-Dialog
-ON VALUE-CHANGED OF dEaCost1 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost1:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost1:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost1 D-Dialog
-ON ENTRY OF dEaCost1 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost1:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost1:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost2 D-Dialog
-ON VALUE-CHANGED OF dEaCost2 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost2:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost2:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost2 D-Dialog
-ON ENTRY OF dEaCost2 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost2:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost2:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost3
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost3 D-Dialog
-ON VALUE-CHANGED OF dEaCost3 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost3:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost3:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost3
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost3 D-Dialog
-ON ENTRY OF dEaCost3 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost3:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost3:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost4
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost4 D-Dialog
-ON VALUE-CHANGED OF dEaCost4 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost4:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost4:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost4
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost4 D-Dialog
-ON ENTRY OF dEaCost4 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost4:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost4:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost5
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost5 D-Dialog
-ON VALUE-CHANGED OF dEaCost5 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost5:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost5:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME dEaCost5
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dEaCost5 D-Dialog
-ON ENTRY OF dEaCost5 IN FRAME D-Dialog
-DO: 
-        IF LASTKEY NE -1 THEN 
-        DO:
-            
-            IF decimal(dSuCost5:SCREEN-VALUE) EQ  0 THEN 
-                dEaCost5:SCREEN-VALUE = "0" .
-            ASSIGN {&self-name}.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-    
-
 
 &UNDEFINE SELF-NAME
 
@@ -1096,7 +934,7 @@ PROCEDURE enable_UI :
           cCostType4 cMatLab4 cItemDscr5 dSuCost5 dEaCost5 iQtyPer5 cCostType5 
           cMatLab5 iForm iBlank est-no cust-name ship-name 
       WITH FRAME D-Dialog.
-  ENABLE quantity cVendor cVendorItem cCostUom cItemDscr1 
+  ENABLE quantity cCustNo ship-to cVendor cVendorItem cCostUom cItemDscr1 
          dSuCost1 dEaCost1 iQtyPer1 cCostType1 cMatLab1 cItemDscr2 dSuCost2 
          dEaCost2 iQtyPer2 cCostType2 cMatLab2 cItemDscr3 dSuCost3 dEaCost3 
          iQtyPer3 cCostType3 cMatLab3 cItemDscr4 dSuCost4 dEaCost4 iQtyPer4 
@@ -1527,49 +1365,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records D-Dialog  _ADM-SEND-RECORDS
-PROCEDURE send-records :
-/*------------------------------------------------------------------------------
-  Purpose:     Send record ROWID's for all tables used by
-               this file.
-  Parameters:  see template/snd-head.i
-------------------------------------------------------------------------------*/
-
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartDialog, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend-no D-Dialog 
-PROCEDURE valid-vend-no :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF cVendor:SCREEN-VALUE NE "" AND
-            NOT CAN-FIND(FIRST vend
-            WHERE vend.company  EQ gcompany
-            AND vend.vend-no    EQ cVendor:SCREEN-VALUE )  THEN 
-        DO:
-            MESSAGE "Invalid Vendor, try help..." VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO cVendor .
-            oplOutError = YES .
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayValue D-Dialog 
 PROCEDURE pDisplayValue :
 /*------------------------------------------------------------------------------
@@ -1657,56 +1452,56 @@ PROCEDURE pDisplayValue :
                iQtyPer4:SCREEN-VALUE   = STRING(ef.misQtyPer[4])
                iQtyPer5:SCREEN-VALUE   = STRING(ef.misQtyPer[5]) .
 
-           IF ef.mis-matf[1] NE 0 THEN DO:
+           IF ef.mis-matf[1] NE 0 OR ef.mis-matm[1] NE 0 THEN DO:
               dSuCost1:SCREEN-VALUE = string(ef.mis-matf[1]).
               dEaCost1:SCREEN-VALUE = STRING( (ef.mis-matm[1] / ef.misQtyPer[1] ) / 1000) .
               cMatLab1:SCREEN-VALUE   = "M" .
            END.
-           ELSE IF ef.mis-labf[1] GT 0 THEN DO:
+           ELSE IF ef.mis-labf[1] GT 0 OR ef.mis-labm[1] NE 0 THEN DO:
               dSuCost1:SCREEN-VALUE = string(ef.mis-labf[1]).
               dEaCost1:SCREEN-VALUE = STRING( (ef.mis-labm[1] / ef.misQtyPer[1] ) / 1000) .
               cMatLab1:SCREEN-VALUE   = "L" .
            END.
 
-           IF ef.mis-matf[2] NE 0 THEN DO:
+           IF ef.mis-matf[2] NE 0 OR ef.mis-matm[2] NE 0 THEN DO:
               dSuCost2:SCREEN-VALUE = string(ef.mis-matf[2]).
               dEaCost2:SCREEN-VALUE = STRING( (ef.mis-matm[2] / ef.misQtyPer[2] ) / 1000) .
               cMatLab2:SCREEN-VALUE   = "M" .
            END.
-           ELSE IF ef.mis-labf[2] GT 0 THEN DO:
+           ELSE IF ef.mis-labf[2] GT 0 OR ef.mis-labm[2] NE 0 THEN DO:
               dSuCost2:SCREEN-VALUE = string(ef.mis-labf[2]).
               dEaCost2:SCREEN-VALUE = STRING( (ef.mis-labm[2] / ef.misQtyPer[2] ) / 1000) .
               cMatLab2:SCREEN-VALUE   = "L" .
            END.
 
-           IF ef.mis-matf[3] NE 0 THEN DO:
+           IF ef.mis-matf[3] NE 0 OR ef.mis-matm[3] NE 0 THEN DO:
               dSuCost3:SCREEN-VALUE = string(ef.mis-matf[3]).
               dEaCost3:SCREEN-VALUE = STRING( (ef.mis-matm[3] / ef.misQtyPer[3] ) / 1000) .
               cMatLab3:SCREEN-VALUE   = "M" .
            END.
-           ELSE IF ef.mis-labf[3] GT 0 THEN DO:
+           ELSE IF ef.mis-labf[3] GT 0 OR ef.mis-labm[3] NE 0 THEN DO:
               dSuCost3:SCREEN-VALUE = string(ef.mis-labf[3]).
               dEaCost3:SCREEN-VALUE = STRING( (ef.mis-labm[3] / ef.misQtyPer[3] ) / 1000) .
               cMatLab3:SCREEN-VALUE   = "L" .
            END.
 
-           IF ef.mis-matf[4] NE 0 THEN DO:
+           IF ef.mis-matf[4] NE 0 OR ef.mis-matm[4] NE 0 THEN DO:
               dSuCost4:SCREEN-VALUE = string(ef.mis-matf[4]).
               dEaCost4:SCREEN-VALUE = STRING( (ef.mis-matm[4] / ef.misQtyPer[4] ) / 1000) .
               cMatLab4:SCREEN-VALUE   = "M" .
            END.
-           ELSE IF ef.mis-labf[4] GT 0 THEN DO:
+           ELSE IF ef.mis-labf[4] GT 0 OR ef.mis-labm[4] NE 0 THEN DO:
               dSuCost4:SCREEN-VALUE = string(ef.mis-labf[4]).
               dEaCost4:SCREEN-VALUE = STRING( (ef.mis-labm[4] / ef.misQtyPer[4] ) / 1000) .
               cMatLab4:SCREEN-VALUE   = "L" .
            END.
 
-           IF ef.mis-matf[5] NE 0 THEN DO:
+           IF ef.mis-matf[5] NE 0 OR ef.mis-matm[5] NE 0 THEN DO:
               dSuCost5:SCREEN-VALUE = string(ef.mis-matf[5]).
               dEaCost5:SCREEN-VALUE = STRING( (ef.mis-matm[5] / ef.misQtyPer[5] ) / 1000) .
               cMatLab5:SCREEN-VALUE   = "M" .
            END.
-           ELSE IF ef.mis-labf[5] GT 0 THEN DO:
+           ELSE IF ef.mis-labf[5] GT 0 OR ef.mis-labm[5] NE 0 THEN DO:
               dSuCost5:SCREEN-VALUE = string(ef.mis-labf[5]).
               dEaCost5:SCREEN-VALUE = STRING( (ef.mis-labm[5] / ef.misQtyPer[5] ) / 1000) .
               cMatLab5:SCREEN-VALUE   = "L" .
@@ -1744,4 +1539,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records D-Dialog  _ADM-SEND-RECORDS
+PROCEDURE send-records :
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
+
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartDialog, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend-no D-Dialog 
+PROCEDURE valid-vend-no :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+
+    DO WITH FRAME {&FRAME-NAME}:
+        IF cVendor:SCREEN-VALUE NE "" AND
+            NOT CAN-FIND(FIRST vend
+            WHERE vend.company  EQ gcompany
+            AND vend.vend-no    EQ cVendor:SCREEN-VALUE )  THEN 
+        DO:
+            MESSAGE "Invalid Vendor, try help..." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cVendor .
+            oplOutError = YES .
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 

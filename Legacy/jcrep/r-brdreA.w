@@ -951,6 +951,9 @@ def var v-fg-qty  like v-rm-qty NO-UNDO.
 def var v-diff    like v-rm-qty extent 2 NO-UNDO.
 def var v-waste   AS DECIMAL  format "->>>,>>9.99" NO-UNDO.
 DEFINE VARIABLE cOrdStat  AS   CHARACTER FORMAT "!"          INITIAL "O" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  str-tit2 = c-win:title
@@ -980,7 +983,7 @@ for each tt-report where tt-report.term-id eq "":
 end.
 
 IF tb_excel THEN do:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   EXPORT STREAM excel DELIMITER "," 
       " "
       " "
@@ -1398,7 +1401,7 @@ IF tb_excel THEN
 IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 

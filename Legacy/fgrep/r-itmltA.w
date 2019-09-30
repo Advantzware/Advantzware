@@ -1122,6 +1122,10 @@ DEF VAR dscr2 AS CHAR NO-UNDO.
 DEF VAR ino AS CHAR NO-UNDO.
 DEF VAR cutpart AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 form itemfg.i-no label "ITEM #"
      itemfg.i-name label "NAME"
      itemfg.procat column-label "PROD!CAT"
@@ -1156,7 +1160,7 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "FG ITEM #,NAME,PROD CAT,UOM,CUST. #,CUST NAME,QUANTITY ON HAND,"
               + "CUST PART#,DESC LINE 1,DESC LINE 2".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1184,7 +1188,7 @@ display "" with frame r-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

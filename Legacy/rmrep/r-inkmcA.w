@@ -940,7 +940,9 @@ def var v-t-lbs   as   dec format "->,>>>,>>>,>>9.99" extent 3.
 def var v-set     as   char.
 def var v-date    like job.start-date.
 DEF VAR excelheader AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
@@ -964,7 +966,7 @@ assign
 
     IF tb_excel THEN DO:
 
-          OUTPUT STREAM excel TO VALUE(fi_file).
+          OUTPUT STREAM excel TO VALUE(cFileName).
           excelheader = "JOB#,FORM,CUSTOMER,NAME,FG ITEM#,BOARD,ADDER 1," +
                         "ADDER 2,DUE DATE,PCT COV,QTY SHEETS,INK CODE QTY LBS".                        
 
@@ -1140,7 +1142,7 @@ SESSION:SET-WAIT-STATE ("").
  IF tb_excel THEN DO:
          OUTPUT STREAM excel CLOSE.
          IF tb_runExcel THEN
-             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
      END.
 
 /* END ---------------------------------- copr. 2001  Advanced Software, Inc. */

@@ -958,6 +958,10 @@ def var v-ttl-rate as decimal no-undo.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF VAR fcust AS CHAR NO-UNDO .
 DEF VAR tcust AS CHAR NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 {custom/statusMsg.i " 'Processing...  '"}
 
     ASSIGN
@@ -996,7 +1000,7 @@ ASSIGN
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     excelHeader = 'GL Acct#,Description,Customer,Cust Name,Inv#,PO#,Customer Lot#,Item#,Item Desc,Run#,Date,Amount'.
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
   END. /* if tb_excel */
@@ -1380,7 +1384,7 @@ END.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-  OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
+  OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

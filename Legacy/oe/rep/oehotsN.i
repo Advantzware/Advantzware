@@ -41,7 +41,7 @@
      WITH FRAME pg-head NO-BOX PAGE-TOP NO-LABEL STREAM-IO WIDTH 200.
 
    IF tb_excel THEN DO:
-      OUTPUT STREAM st-excel TO VALUE(fi_file).
+      OUTPUT STREAM st-excel TO VALUE(cFileName).
       PUT STREAM st-excel UNFORMATTED
          /*"Date,Due,Ordered,Item,Cust PO#,Order#,R#,Ven,PO#,Brd Rcpt,Routing,Q-Order,Q-Comp,Q-Onhand,Ship City,"
          (IF rd_lComments THEN "Comment,Customer" ELSE "Style,Test,Customer")*/

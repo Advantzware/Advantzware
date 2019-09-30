@@ -735,6 +735,7 @@ PROCEDURE pImport :
     UPDATE lImport AS LOGICAL.
     IF NOT lImport THEN RETURN.
 
+    SESSION:SET-WAIT-STATE("General").
     ASSIGN
         cDynamicTable = cDynamicTable + cDynamicSubject + "," + cDynamicParam
         oplRefresh    = YES
@@ -870,6 +871,10 @@ PROCEDURE pImport :
                     IF NOT CAN-FIND(FIRST dynSubject
                                     WHERE dynSubject.subjectID EQ ttDynSubjectColumn.subjectID) THEN
                     NEXT.
+                    IF CAN-FIND(FIRST dynSubjectColumn
+                                WHERE dynSubjectColumn.subjectID EQ ttDynSubjectColumn.subjectID
+                                  AND dynSubjectColumn.fieldName EQ ttDynSubjectColumn.fieldName) THEN
+                    NEXT.
                     CREATE dynSubjectColumn.
                     BUFFER-COPY ttDynSubjectColumn TO dynSubjectColumn.
                     RELEASE dynSubjectColumn.
@@ -878,6 +883,10 @@ PROCEDURE pImport :
                     IMPORT ttDynSubjectParamSet.
                     IF NOT CAN-FIND(FIRST dynSubject
                                     WHERE dynSubject.subjectID EQ ttDynSubjectParamSet.subjectID) THEN
+                    NEXT.
+                    IF CAN-FIND(FIRST dynSubjectParamSet
+                                WHERE dynSubjectParamSet.subjectID  EQ ttDynSubjectParamSet.subjectID
+                                  AND dynSubjectParamSet.paramSetID EQ ttDynSubjectParamSet.paramSetID) THEN
                     NEXT.
                     CREATE dynSubjectParamSet.
                     BUFFER-COPY ttDynSubjectParamSet TO dynSubjectParamSet.
@@ -888,6 +897,10 @@ PROCEDURE pImport :
                     IF NOT CAN-FIND(FIRST dynSubject
                                     WHERE dynSubject.subjectID EQ ttDynSubjectTable.subjectID) THEN
                     NEXT.
+                    IF CAN-FIND(FIRST dynSubjectTable
+                                WHERE dynSubjectTable.subjectID EQ ttDynSubjectTable.subjectID
+                                  AND dynSubjectTable.tableName EQ ttDynSubjectTable.tableName) THEN
+                    NEXT.
                     CREATE dynSubjectTable.
                     BUFFER-COPY ttDynSubjectTable TO dynSubjectTable.
                     RELEASE dynSubjectTable.
@@ -896,6 +909,11 @@ PROCEDURE pImport :
                     IMPORT ttDynSubjectWhere.
                     IF NOT CAN-FIND(FIRST dynSubject
                                     WHERE dynSubject.subjectID EQ ttDynSubjectWhere.subjectID) THEN
+                    NEXT.
+                    IF CAN-FIND(FIRST dynSubjectWhere
+                                WHERE dynSubjectWhere.subjectID EQ ttDynSubjectWhere.subjectID
+                                  AND dynSubjectWhere.tableName EQ ttDynSubjectWhere.tableName
+                                  AND dynSubjectWhere.sortOrder EQ ttDynSubjectWhere.sortOrder) THEN
                     NEXT.
                     CREATE dynSubjectWhere.
                     BUFFER-COPY ttDynSubjectWhere TO dynSubjectWhere.
@@ -906,6 +924,7 @@ PROCEDURE pImport :
         INPUT CLOSE.
     END. /* do idx */
     RUN pInit.
+    SESSION:SET-WAIT-STATE("").
     MESSAGE
         "Dynamic Table Import Complete"
     VIEW-AS ALERT-BOX.

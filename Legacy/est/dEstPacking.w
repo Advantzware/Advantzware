@@ -60,10 +60,10 @@ DEFINE VARIABLE cMaterialType AS CHARACTER INITIAL "C,5,6,M,D" NO-UNDO .
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define FIELDS-IN-QUERY-Dialog-Frame estPacking.rmItemID ~
 estPacking.materialType estPacking.quantity estPacking.quantityPer ~
-estPacking.dimLength estPacking.dimWidth estPacking.dimDepth 
+estPacking.dimLength estPacking.dimWidth estPacking.dimDepth estPacking.noCharge
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame estPacking.rmItemID ~
 estPacking.quantity estPacking.quantityPer estPacking.dimLength ~
-estPacking.dimWidth 
+estPacking.dimWidth estPacking.noCharge
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame estPacking
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame estPacking
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame estPacking
@@ -72,13 +72,13 @@ estPacking.dimWidth
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS estPacking.rmItemID estPacking.quantity ~
-estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
+estPacking.quantityPer estPacking.dimLength estPacking.dimWidth estPacking.noCharge
 &Scoped-define ENABLED-TABLES estPacking
 &Scoped-define FIRST-ENABLED-TABLE estPacking
 &Scoped-Define ENABLED-OBJECTS  Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
 &Scoped-Define DISPLAYED-FIELDS estPacking.rmItemID estPacking.materialType ~
 estPacking.quantity estPacking.quantityPer estPacking.dimLength ~
-estPacking.dimWidth estPacking.dimDepth 
+estPacking.dimWidth estPacking.dimDepth estPacking.noCharge
 &Scoped-define DISPLAYED-TABLES estPacking
 &Scoped-define FIRST-DISPLAYED-TABLE estPacking
 &Scoped-Define DISPLAYED-OBJECTS est-no iForm iBlank cCustPart cCase ~
@@ -231,13 +231,18 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 1
-     estPacking.quantityPer AT ROW 7.62 COL 50 COLON-ALIGNED
+     estPacking.quantityPer AT ROW 7.62 COL 49 COLON-ALIGNED
           VIEW-AS COMBO-BOX INNER-LINES 3
           LIST-ITEM-PAIRS "Case","C",
                      "Pallet","P",
                      "Lot","L"
           DROP-DOWN-LIST
           SIZE 12 BY 1
+          BGCOLOR 15 FONT 1
+     estPacking.noCharge AT ROW 7.62 COL 67.2 COLON-ALIGNED
+          LABEL "NC" FORMAT "C/N"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1
           BGCOLOR 15 FONT 1
      estPacking.dimLength AT ROW 4.62 COL 83.8 COLON-ALIGNED
           LABEL "Length" FORMAT ">9.9999"
@@ -312,6 +317,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN estPacking.quantity IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN estPacking.rmItemID IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN estPacking.noCharge IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN est-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
@@ -649,13 +656,14 @@ PROCEDURE create-item :
             estPacking.estimateNo   = eb.est-no
             estPacking.FormNo       = eb.form-no
             estPacking.BlankNo      = eb.blank-No
-            estPacking.quantityPer  = "C"  .
+            estPacking.quantityPer  = "C" 
+            estPacking.noCharge     = NO .
 
         IF AVAILABLE estPacking THEN 
         DO:
             DISPLAY  estPacking.rmItemID estPacking.quantity
                 estPacking.dimDepth estPacking.dimWidth estPacking.dimLength
-                estPacking.quantity   . 
+                estPacking.quantity estPacking.noCharge. 
             ASSIGN 
                 lv-item-recid = RECID(estPacking).
             ll-new-record = YES.
@@ -712,10 +720,10 @@ PROCEDURE display-item :
                 cPallet   = eb.tr-no .
 
         DISPLAY estPacking.quantity estPacking.quantityPer 
-            estPacking.rmItemID estPacking.quantity 
+            estPacking.rmItemID estPacking.quantity
             estPacking.dimLength estPacking.dimWidth estPacking.dimDepth  
             fi_mat-name est-no cCustPart cCase iForm iBlank cPallet 
-            fi_type-name
+            fi_type-name estPacking.noCharge
             WITH FRAME Dialog-Frame.
     END.
 
@@ -749,9 +757,9 @@ PROCEDURE enable_UI :
   IF AVAILABLE estPacking THEN 
     DISPLAY estPacking.rmItemID estPacking.materialType estPacking.quantity 
           estPacking.quantityPer estPacking.dimLength estPacking.dimWidth 
-          estPacking.dimDepth 
+          estPacking.dimDepth estPacking.noCharge
       WITH FRAME Dialog-Frame.
-  ENABLE estPacking.rmItemID 
+  ENABLE estPacking.rmItemID estPacking.noCharge
          estPacking.quantity estPacking.quantityPer estPacking.dimLength 
          estPacking.dimWidth Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 RECT-39 
       WITH FRAME Dialog-Frame.

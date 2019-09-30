@@ -3096,6 +3096,9 @@ PROCEDURE run-report :
 /* raw materials costs - category sub menu                                    */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  fco    = cocode
@@ -3108,7 +3111,7 @@ assign
  dor    = tb_real
  detail = tb_detailed
  v-export = tb_excel
- v-exp-name = fi_file.
+ v-exp-name = cFileName.
 
 {sys/inc/print1.i}
 

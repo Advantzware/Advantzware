@@ -84,14 +84,16 @@ DEFINE TEMP-TABLE tt-report NO-UNDO
 
 ASSIGN cTextListToSelect  = "Job#,FG Item#,Estimate#,Order#,Customer#,Start Date,Close Date," +
                             "Status,Customer Part,Job Qty,Ord Qty,Prod.Qty,On Hand Qty," +
-                            "Shipped Qty,Invoice Qty,WIP Qty,O/U%,Cust Sales Rep,Job Hold Reason"
+                            "Shipped Qty,Invoice Qty,WIP Qty,O/U%,Cust Sales Rep,Job Hold Reason," +
+                            "Created Date,Due Date,User ID"
 
        cFieldListToSelect = "job,job-hdr.i-no,job-hdr.est-no,job-hdr.ord-no,job-hdr.cust-no,start-date,close-date," +
                             "job.stat,cust-part,job-qty,ord-qty,prod-qty,oh-qty," +
-                            "ship-qty,inv-qty,wip-qty,ou-pct,sales-rep,job-hold"
+                            "ship-qty,inv-qty,wip-qty,ou-pct,sales-rep,job-hold," +
+                            "create-date,due-date,job.user-id"
                             
-        cFieldLength = "10,15,9,6,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15"
-           cFieldType = "c,c,c,i,c,c,c," + "c,c,i,i,i,i," + "i,i,i,i,c,c"
+        cFieldLength = "10,15,9,6,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15," + "12,10,10"
+           cFieldType = "c,c,c,i,c,c,c," + "c,c,i,i,i,i," + "i,i,i,i,c,c," + "c,c,c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -839,8 +841,9 @@ PROCEDURE DisplaySelectionList2 :
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
-
+  
   {sys/ref/SelColCorrect.i}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1193,6 +1196,8 @@ IF tb_excel THEN
                   WHEN "close-date" THEN cVarValue = IF job.close-date NE ? THEN STRING(job.close-date) ELSE "" .
                   WHEN "sales-rep" THEN cVarValue = IF AVAIL cust THEN STRING(cust.sman) ELSE "".
                   WHEN "job-hold" THEN cVarValue = STRING(vHoldReason).
+                  WHEN "create-date" THEN cVarValue = IF job.create-date NE ? THEN STRING(job.create-date) ELSE "" .
+                  WHEN "due-date" THEN cVarValue = IF job.due-date NE ? THEN STRING(job.due-date) ELSE ""  .
              END CASE.
 
              cExcelVarValue = cVarValue.

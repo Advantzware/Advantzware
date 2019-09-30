@@ -978,6 +978,9 @@ def var v-m-list  as   char format "x(61)" NO-UNDO.
 def var v-factor  as   DEC NO-UNDO.
 def var v-first   as   log extent 2 NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
      skip
@@ -1019,7 +1022,7 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "MACHINE,START/DUE DATE,CUSTOMER,CUSTOMER PART #,JOB #,"
               + "JOB QTY,BOARD,SHEET SIZE,VENDOR,BOARD RECEIVED,GL/ST,"
               + "FG SHIPPED".
@@ -1473,7 +1476,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

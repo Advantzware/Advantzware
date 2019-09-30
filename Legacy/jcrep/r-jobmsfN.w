@@ -1040,8 +1040,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1072,12 +1071,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+ {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1325,6 +1319,9 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(190)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(190)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(190)" NO-UNDO.
+DEFINE VARIABLE cFileName LIKE exp-name NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT exp-name,OUTPUT cFileName) .
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}. 
@@ -1369,7 +1366,7 @@ ASSIGN
  v-fdat     = begin_date
  v-tdat     = end_date  
  v-export   = tb_exp-exel
- v-exp-name = exp-name
+ v-exp-name = cFileName
 
  v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
               TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
@@ -1408,7 +1405,7 @@ DEF VAR cslist AS cha NO-UNDO.
 SESSION:SET-WAIT-STATE ("general").
 
 IF tb_exp-exel THEN DO:
-  OUTPUT STREAM s-temp TO VALUE(exp-name).
+  OUTPUT STREAM s-temp TO VALUE(cFileName).
  /* excelheader = "FG Item#,Mach#,Charge,Start Date,End Date,Total Time,"
               + "Job#,Run Qty,Waste,Shift,SQF". */
   PUT STREAM s-temp UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1869,7 +1866,7 @@ SESSION:SET-WAIT-STATE("").
 IF v-export THEN DO:
   OUTPUT STREAM s-temp CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(exp-name)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).  

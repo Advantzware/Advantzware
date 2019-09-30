@@ -15,6 +15,8 @@
 /* ***************************  Definitions  ************************** */
 {Inventory/ttInventory.i SHARED}
 {custom/formtext.i NEW}
+{fg/invrecpt.i NEW}
+{fg/fgPostBatch.i}
 
 DEFINE VARIABLE giLengthUniquePrefix       AS INTEGER   INITIAL 20.
 DEFINE VARIABLE giLengthAlias              AS INTEGER   INITIAL 25.
@@ -3374,7 +3376,7 @@ PROCEDURE GetRMLoadTagDetails:
         oplValidTag = FALSE.
         RETURN.
     END.
-    
+
     FOR EACH rm-rcpth NO-LOCK
          WHERE rm-rcpth.company   EQ loadtag.company
            AND rm-rcpth.i-no      EQ loadtag.i-no
@@ -3397,6 +3399,48 @@ PROCEDURE GetRMLoadTagDetails:
             LEAVE.
         END.
     END.
+END PROCEDURE.
+
+PROCEDURE PostFinishedGoodsForUser :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcTransType AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcUsername  AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER ioplSuccess  AS LOGICAL   NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopcMessage  AS CHARACTER NO-UNDO.
+
+ /* Create  workfile records for the finished goods being posted */
+    RUN fg/fgRecsByUser.p (
+        INPUT ipcCompany,
+        INPUT ipcTransType, 
+        INPUT ipcUsername, 
+        INPUT TABLE w-fg-rctd BY-reference
+        ).
+    
+    RUN fg/fgpostBatch.p ( 
+        INPUT TODAY,       /* Post date      */
+        INPUT NO,          /* tg-recalc-cost */
+        INPUT ipcTransType,         /* Transfer  */
+        INPUT NO,          /* Send fg emails */
+        INPUT YES,
+        INPUT TABLE w-fg-rctd BY-reference,
+        INPUT TABLE tt-fgemail BY-reference,
+        INPUT TABLE tt-email BY-reference,
+        INPUT TABLE tt-inv BY-reference
+        )NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+       ASSIGN
+           iopcMessage = ERROR-STATUS:GET-MESSAGE(1)
+           ioplSuccess = NO
+           .
+       RETURN.
+    END.
+   
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
@@ -3642,12 +3686,12 @@ FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     
     FOR EACH ttBrowseInventory
-            WHERE IF ipcInventoryStatus EQ "" THEN
-                      TRUE
-                  ELSE
-                      ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus:
-        iCount = iCount + 1.    
-    END.        
-   
-    RETURN iCount.   
-END FUNCTION.        
+        WHERE (IF ipcInventoryStatus EQ "" THEN
+                   TRUE
+               ELSE
+                   ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
+        iCount = iCount + 1.
+    END.
+    
+    RETURN iCount.
+END FUNCTION.    

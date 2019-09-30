@@ -14,7 +14,7 @@ DEFINE        VARIABLE v-ink-3          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-4          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-5          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-6          AS cha     FORM "X(30)" NO-UNDO.
-DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 16 NO-UNDO.
+DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 18 NO-UNDO.
 DEFINE        VARIABLE v-spec-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
 DEFINE        VARIABLE v-deptnote       AS cha     NO-UNDO.
 DEFINE        VARIABLE v-dept-length    AS DECIMAL NO-UNDO.
@@ -55,6 +55,7 @@ DEFINE            VARIABLE v-note-length  AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-die-loc      AS cha       FORM "x(15)" NO-UNDO.
 DEFINE            VARIABLE v-plate-loc    AS CHARACTER FORM "X(8)" NO-UNDO.
 DEFINE            VARIABLE cImagePath     AS CHARACTER FORMAT "x(100)" NO-UNDO.
+DEFINE            VARIABLE cPoDueDate      LIKE po-ordl.due-date NO-UNDO.
 
 {custom/notesdef.i}
 {cecrep/jc-prem.i}
@@ -79,6 +80,8 @@ DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
 DEFINE        VARIABLE dSalesPrice   AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dPricePerMsf  AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dTotalup      AS DECIMAL   NO-UNDO.
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
 DEFINE BUFFER b-rt              FOR reftable.
@@ -117,6 +120,9 @@ END.
 
 v-job-cust = sys-ctrl.log-fld.
 s-prt-set-header = NO .
+
+FUNCTION getTotalUp RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
 ASSIGN
     v-line[1]      = CHR(95) + fill(CHR(95),40) + chr(95) + "  " +
@@ -347,16 +353,18 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=ItemStart><C+44><R+8><#ItemEnd>"
             "<=ItemTR><FROM><LINE#ItemEnd><|1>"
             "<=ItemStart><R+1><RIGHT=C+5>FG ID: <#FGItemID><RIGHT=C+27>Estimate: <#Estimate>"
-            "<=ItemStart><R+2><RIGHT=C+5>Name: <#FGItemName>"
-            "<=ItemStart><R+3><RIGHT=C+5>Desc1: <#FGItemDesc1>"
+            "<=ItemStart><R+2><RIGHT=C+5>Name: <#FGItemName><RIGHT=C+27>Repeat: <FROM><R+.8><C+2><RECT> <R-.8>" 
+            "<=ItemStart><R+3><RIGHT=C+5>Desc1: <#FGItemDesc1><RIGHT=C+27>New: <FROM><R+.8><C+2><RECT> <R-.8>"
             "<=ItemStart><R+4><RIGHT=C+5>Desc2: <#FGItemDesc2>"
             "<=ItemStart><R+5><RIGHT=C+5>Style: <#Style><RIGHT=C+18>Tab: <#TabInOut>"
             "<=ItemStart><R+6><RIGHT=C+5>Size: <#Size><RIGHT=C+18>CAD#: <#CAD>"
+            "<=ItemStart><R+7><RIGHT=C+5>Glue: <FROM><R+.8><C+2><RECT> <R-.8><RIGHT=C+17>Stitch: <FROM><R+.8><C+2><RECT> <R-.8>"
             "<=ItemTR><#OrderStart>"
             "<=OrderStart><C108><#OrderTR>"
             "<=OrderStart><R+8><#OrderBL>"
             "<=OrderStart><C108><R+8><#OrderEnd>"
             "<=OrderStart><R+0.5><RIGHT=C+10>Job Card printed: <#Printed>"
+            "<=OrderStart><R+1><RIGHT=C+25>Sell Price/EA: <#SellPrice>"
             "<=OrderStart><R+2><RIGHT=C+10>Our Order #: <#OrderNum>"
             "<=OrderStart><R+3><RIGHT=C+10>Customer PO: <#CustomerPO>"
             "<=OrderStart><R+4><RIGHT=C+10>Order Quantity: <#OrderQuantity>"
@@ -371,18 +379,23 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=QuantityStart><R+5><RIGHT=C+10>Set Quantity: <#SetQuantity> "
             "<=QuantityStart><R+6><RIGHT=C+10>Parts Per Set: <#QtyPerSet>"
             "<=BoardStart><R+1><RIGHT=C+5>Board: <#Board>"
+            "<=BoardStart><R+.6><RIGHT=C+23>MSF: <#SheetsMSF>"
+            "<=BoardStart><R+1.5><RIGHT=C+29.2>Sheets Received: __________"
               "<=BoardStart><R+2><RIGHT=C+5>Sheets: <#SheetsRequired>"
 /*              "<=BoardStart><R+2><RIGHT=C+20>Received: <#SheetsReceived>"*/
+            "<=BoardStart><R+2.5><RIGHT=C+29.2>Shortages: __________"
               "<=BoardStart><R+3><RIGHT=C+5>Size: <#SheetsSize>"
-              "<=BoardStart><R+3><RIGHT=C+23>MSF: <#SheetsMSF>"
+            "<=BoardStart><R+3.5><RIGHT=C+29.2>Mill Damages: __________"
               "<=BoardStart><R+4><RIGHT=C+5>Scores: <#Scores>"
+            "<=BoardStart><R+4.4><RIGHT=C+29.2>Prod Damages: __________"
               "<=BoardStart><R+5><RIGHT=C+5>Adders:"
               "<=BoardStart><R+5><C6><#Adders1><C20><#Adders2>"
               "<=BoardStart><R+6><C6><#Adders3><C20><#Adders4>"
               "<=BoardStart><R+7><RIGHT=C+5>PO: <#VendorPO>"
-              "<=BoardStart><R+7><RIGHT=C+20>Vendor: <#VendorCode>"
-              "<=DieStart><R+1><RIGHT=C+5>Die#: <#Die>"
-              "<=DieStart><R+2><RIGHT=C+5>Die Loc.: <#DieLocation>"
+              "<=BoardStart><R+7><RIGHT=C+23>PO Due Date: <#PODueDate>"
+              "<=BoardStart><R+8><RIGHT=C+5>Vendor: <#VendorCode>"
+              "<=BoardStart><R+8><RIGHT=C+23>Price Per MSF: <#PricePerMSF>"
+              "<=DieStart><R+2><RIGHT=C+29><B>Total Outs:</B>"
               "<=DieStart><R+3><RIGHT=C+5>Imp.: <#Impressions>"
               "<=DieStart><R+4><RIGHT=C+6>Gross: "
               "<=DieStart><R+4><RIGHT=C+8>W: <#GrossWidth> "
@@ -390,12 +403,14 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=DieStart><R+4><RIGHT=C+21>Out: "
               "<=DieStart><R+4><RIGHT=C+23>W: <#OutW>"
               "<=DieStart><R+4><RIGHT=C+26>L: <#OutL>"
+              "<=DieStart><R+4><C61><#TotalUpGross>"
               "<=DieStart><R+5><RIGHT=C+6>Net: "
               "<=DieStart><R+5><RIGHT=C+8>W: <#NetWidth> "
               "<=DieStart><R+5><RIGHT=C+13>L: <#NetLength>"
               "<=DieStart><R+6><RIGHT=C+6>Die: "
               "<=DieStart><R+6><RIGHT=C+8>W: <#DieWidth> "
               "<=DieStart><R+6><RIGHT=C+13>L: <#DieLength>"
+              "<=DieStart><R+6><C61><#TotalUpNet>"
               "<=DieStart><R+6><RIGHT=C+21>Up: "
               "<=DieStart><R+6><RIGHT=C+23>W: <#UpW>"
               "<=DieStart><R+6><RIGHT=C+26>L: <#UpL>"
@@ -404,7 +419,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=DieStart><R+7><RIGHT=C+13>L: <#BlankLength>"
               "<=DieStart><R+7><RIGHT=C+21>Sq Ft: <#SqFeet>"
               "<=DieTR><#PrintStart>"
-              "<=PrintStart><R+1><RIGHT=C+10>Plate#: <#Plate>"
+              "<=PrintStart><R+1><RIGHT=C+10>Plate#: <#Plate><RIGHT=C+14.5>Die#: <#Die><RIGHT=C+15.5>Die Loc.: <#DieLocation>"
               "<=PrintStart><R+2><RIGHT=C+10>Plate Loc.: <#PlateLocation>"
               "<=PrintStart><R+3><RIGHT=C+10>Color Desc/Cert.: <#InkDescription>"
                . 
@@ -443,6 +458,16 @@ DO v-local-loop = 1 TO v-local-copies:
          v-vend-no    = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
          v-qty-or-sup = "Supplier: ".
 
+        IF AVAIL po-ord THEN
+            FIND FIRST po-ordl WHERE po-ordl.company EQ po-ord.company
+            AND po-ordl.po-no EQ po-ord.po-no
+            NO-LOCK NO-ERROR.
+        IF AVAIL po-ordl THEN
+            ASSIGN cPoDueDate   = po-ordl.due-date
+                   dPricePerMsf = po-ordl.cost .
+        ELSE ASSIGN cPoDueDate   = ? 
+                    dPricePerMsf = 0.
+
         IF v-vend-no NE "" THEN DO:
            v-qty-or-sup = v-qty-or-sup + trim(v-vend-no).
            IF v-po-no NE 0 THEN v-qty-or-sup = v-qty-or-sup + " PO#:" +
@@ -473,6 +498,8 @@ DO v-local-loop = 1 TO v-local-copies:
                            ELSE 0 .
               dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
           
+          dTotalup = getTotalUp() .
+
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
               "</B><FGColor=Black>"
@@ -486,6 +513,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<FGColor=Blue><B>"
               "<=FGItemName>" IF AVAILABLE xeb THEN  xeb.part-dscr1 ELSE "" FORMAT "x(30)" 
               "</B><FGColor=Black>"
+              /*"<C+9><B>" IF reprint THEN "Repeat" ELSE "New" "</B>"*/
               "<=FGItemDesc1>" IF AVAILABLE xeb THEN  xeb.part-dscr2 ELSE "" FORMAT "x(30)" 
               "<=FGItemDesc2>" IF AVAILABLE xeb AND AVAILABLE bf-itemfg THEN  bf-itemfg.part-dscr2 ELSE "" FORMAT "x(30)" 
               "<B>"
@@ -498,6 +526,7 @@ DO v-local-loop = 1 TO v-local-copies:
                       trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
               "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
               "<=Printed><B>" TODAY  "</B>"
+              "<=SellPrice><B>" (IF AVAILABLE xoe-ordl THEN dSalesPrice ELSE 0) FORMAT ">>>>>>>>9.99<<<" "</B>"
               "<=OrderNum>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-no) ELSE "" 
               "<=CustomerPO>" IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE "" FORMAT "x(15)"
               "<FGColor=Blue><B>"
@@ -522,8 +551,10 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  string(string(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"
               "<=Adders3>" IF LENGTH(xef.adder[9]) GT 10 THEN  string(string(xef.adder[9],"x(17)") + "...") ELSE xef.adder[9]  FORMAT "x(20)"
               "<=Adders4>" IF LENGTH(xef.adder[10]) GT 10 THEN  string(string(xef.adder[10],"x(17)") + "...") ELSE xef.adder[10]  FORMAT "x(20)"
-              "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" 
+              "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)"
+              "<=PODueDate>" IF cPoDueDate NE ? THEN STRING(cPoDueDate) ELSE ""
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
+              "<=PricePerMSF>" STRING(dPricePerMsf,">>>>>9.999")
               "<B>"
               "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(15)"
               "</B>"
@@ -533,6 +564,10 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=GrossLength>" TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>>9.99")) FORMAT "x(8)"
               "<=OutL>" STRING(xef.n-out-l) FORMAT "x(3)"
               "<=OutW>" STRING(xef.n-out)   FORMAT "x(3)"
+              "<B>"
+              "<=TotalUpGross>" STRING(dTotalup)
+              "<=TotalUpNet>" STRING(xeb.num-up) 
+              "</B>"
               "<=NetWidth>" TRIM(STRING({sys/inc/k16v.i xef.nsh-wid},">>>>9.99")) FORMAT "x(8)"
               "<=NetLength>" TRIM(STRING({sys/inc/k16v.i xef.nsh-len},">>>>9.99")) FORMAT "x(8)"
               "<=DieWidth>" TRIM(STRING({sys/inc/k16v.i xef.trim-w},">>>>9.99")) FORMAT "x(8)"
@@ -545,7 +580,7 @@ DO v-local-loop = 1 TO v-local-copies:
                                   else string(xeb.t-sqin / 144,">>>>>>9.9999") FORMAT "x(12)"
                                   
               "<B>"
-              "<=Plate>" IF AVAILABLE xeb THEN xeb.plate-no ELSE "" FORMAT "x(15)" 
+              "<=Plate>" IF AVAILABLE xeb THEN xeb.plate-no ELSE "" FORMAT "x(15)"
               "</B>"
               "<=PlateLocation>" v-plate-loc FORMAT "x(20)" 
               "<=InkDescription>" IF AVAILABLE xeb THEN xeb.i-coldscr ELSE "" FORMAT "x(30)"
@@ -715,7 +750,7 @@ DO v-local-loop = 1 TO v-local-copies:
 
                k = v-tmp-lines + lv-got-return + 
                    IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-               IF k < 16 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
+               IF k < 18 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
                              ELSE "" .              
 
                IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
@@ -771,35 +806,38 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+5><#Notes4>"
               "<=NotesStart><C+1><R+6><#Notes5>"
               "<=NotesStart><C+1><R+7><#Notes6>"
-              "<=NotesStart><C+1><R+8><#Notes7>" .
-           k = 8 .
-          IF v-dept-note[8] NE "" THEN do:
-              k = k + 1 .
-              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes8>" FORMAT "x(100)" .
-          END.
-          IF v-dept-note[9] NE "" THEN do:
-              k = k + 1 .
-              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes9>" FORMAT "x(100)".
-          END.
-          IF v-dept-note[10] NE "" THEN do:
-              k = k + 1 .
-              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes10>" FORMAT "x(100)" .
-          END.
+              "<=NotesStart><C+1><R+8><#Notes7>"
+              "<=NotesStart><C+1><R+9><#Notes8>"
+              "<=NotesStart><C+1><R+10><#Notes9>"
+              "<=NotesStart><C+1><R+11><#Notes10>" .
+           k = 11 .
           IF v-dept-note[11] NE "" THEN do:
               k = k + 1 .
               PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes11>" FORMAT "x(100)" .
           END.
           IF v-dept-note[12] NE "" THEN do:
               k = k + 1 .
-              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes12>" FORMAT "x(100)" .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes12>" FORMAT "x(100)".
           END.
-          IF v-dept-note[12] NE "" THEN do:
+          IF v-dept-note[13] NE "" THEN do:
               k = k + 1 .
-              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes13>" FORMAT "x(100)".
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes13>" FORMAT "x(100)" .
           END.
           IF v-dept-note[14] NE "" THEN do:
               k = k + 1 .
               PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes14>" FORMAT "x(100)" .
+          END.
+          IF v-dept-note[15] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes15>" FORMAT "x(100)" .
+          END.
+          IF v-dept-note[16] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes16>" FORMAT "x(100)".
+          END.
+          IF v-dept-note[17] NE "" THEN do:
+              k = k + 1 .
+              PUT "<=NotesStart><C+1><R+" + STRING(k) + "><#Notes17>" FORMAT "x(100)" .
           END.
           PUT  
               "<=NotesStart><C+1><R+" + STRING(k + 1) + "><B>Spec Notes</B><#SpecNotes>" FORMAT "x(100)"
@@ -816,13 +854,10 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Notes4>" v-dept-note[4] FORMAT "x(100)" SKIP
               "<=Notes5>" v-dept-note[5] FORMAT "x(100)" SKIP
               "<=Notes6>" v-dept-note[6] FORMAT "x(100)"  SKIP
-              "<=Notes7>" v-dept-note[7] FORMAT "x(100)"  SKIP .
-           IF v-dept-note[8] NE "" THEN
-             PUT "<=Notes8>" v-dept-note[8] FORMAT "x(100)"  SKIP .
-           IF v-dept-note[9] NE "" THEN
-             PUT "<=Notes9>" v-dept-note[9] FORMAT "x(100)"  SKIP .
-           IF v-dept-note[10] NE "" THEN
-             PUT "<=Notes10>" v-dept-note[10] FORMAT "x(100)"  SKIP .
+              "<=Notes7>" v-dept-note[7] FORMAT "x(100)"  SKIP
+              "<=Notes8>" v-dept-note[8] FORMAT "x(100)"  SKIP
+              "<=Notes9>" v-dept-note[9] FORMAT "x(100)"  SKIP
+              "<=Notes10>" v-dept-note[10] FORMAT "x(100)"  SKIP .
            IF v-dept-note[11] NE "" THEN
              PUT "<=Notes11>" v-dept-note[11] FORMAT "x(100)"  SKIP .
            IF v-dept-note[12] NE "" THEN
@@ -831,6 +866,12 @@ DO v-local-loop = 1 TO v-local-copies:
              PUT "<=Notes13>" v-dept-note[13] FORMAT "x(100)"  SKIP .
            IF v-dept-note[14] NE "" THEN
              PUT "<=Notes14>" v-dept-note[14] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[15] NE "" THEN
+             PUT "<=Notes15>" v-dept-note[15] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[16] NE "" THEN
+             PUT "<=Notes16>" v-dept-note[16] FORMAT "x(100)"  SKIP .
+           IF v-dept-note[17] NE "" THEN
+             PUT "<=Notes17>" v-dept-note[17] FORMAT "x(100)"  SKIP .
            PUT  
               "<=SpecNotes1>" v-spec-note[1] FORMAT "x(100)" SKIP
               "<=SpecNotes2>" v-spec-note[2] FORMAT "x(100)" SKIP
@@ -915,17 +956,15 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingStart><R+5><RIGHT=C+6>Per Pallet:"
               "<=PackingStart><R+5><C9><#PalletCount>"
               "<=PackingStart><R+5><C15><#JobPallets>"
-              "<=PackingStart><FROM><RECT#ShippingEnd><|1>"
-              "<=PackingStart><R+6><RIGHT=C+6>Layers: <#Layers>"
-              "<=PackingStart><R+7><RIGHT=C+6>Stacks: <#Stacks>"
-              "<=PackingStart><R+8><RIGHT=C+6>Pattern: <#PatternCode>"
-              "<=PackingStart><R+9><C+1><#Pattern>"
+              /*"<=PackingStart><FROM><RECT#ShippingEnd><|1>"*/
+              "<=PackingStart><R+6><RIGHT=C+19># Pallets: ____________________ "
+              "<=PackingStart><R+7><RIGHT=C+19>_____________________________ "
+              "<=PackingStart><R+8><RIGHT=C+19>Units per Pallet: _______________ "
+              "<=PackingStart><R+9><RIGHT=C+19>Finish Count: _______________ "
               "<=PackingTR><#PatternImageStart>"
               "<=PatternImageStart><C+1><#PatternImageTR>"
               "<=PatternImageStart><R+10><#PatternImageBL>"
               "<=PatternImageStart><C+1><R+10><#PatternImageEnd>"
-              /*"<=PatternImageStart><R+.3><C+.3><#PatternImage><=PatternImageEnd><IMAGE#PatternImage=" + (IF AVAIL stackPattern THEN stackPattern.stackImage ELSE "") + "><=PatternImage>" FORMAT "x(300)" 
-              "<=PatternImageTR><FROM><LINE#PatternImageEnd><|1>"*/
               "<=PatternImageTR><#ShippingStart>"
               "<=ShippingStart><C18><#ShippingTR>"
               "<=ShippingStart><R+10><#ShippingBL>"
@@ -959,10 +998,6 @@ DO v-local-loop = 1 TO v-local-copies:
               "</B>"
               "<=JobCases>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)"
               "<=JobPallets>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)"
-              "<=Layers>" IF AVAILABLE xeb THEN STRING(xeb.tr-cas) ELSE "" FORMAT "x(4)"
-              "<=Stacks>" IF AVAILABLE xeb THEN STRING(xeb.stacks) ELSE "" FORMAT "x(6)"
-              "<=PatternCode>" IF AVAILABLE xeb THEN STRING(xeb.stack-code) ELSE "" FORMAT "x(3)"
-              "<=Pattern>" IF AVAILABLE xeb AND AVAILABLE stackPattern THEN stackPattern.stackDescription ELSE "" FORMAT "x(30)"
               "<=ShipTo>" v-shipto  FORMAT "x(10)"
               "<=ShipName>" IF AVAILABLE shipto THEN shipto.ship-name ELSE "" FORMAT "x(30)"
               "<=ShipAdd1>" IF AVAILABLE shipto THEN shipto.ship-addr[1] ELSE "" FORMAT "x(30)"
@@ -985,11 +1020,6 @@ DO v-local-loop = 1 TO v-local-copies:
                                xoe-ordl.price, OUTPUT dSalesPrice ).
                   ELSE dSalesPrice = xoe-ordl.price .
               END.
-
-              PUT "<||3><R47.2><C62><FROM><C108><LINE><||3>" SKIP
-                  "<C64><R-0.5> <B>Sell Price/M:</B> "  (IF AVAILABLE xoe-ordl THEN dSalesPrice ELSE 0) FORMAT ">>>>>>>>9.99<<<" 
-                  .
-  
        PAGE.
 
             ls-fgitem-img = bf-itemfg.box-image.
@@ -1187,5 +1217,29 @@ PROCEDURE stackImage:
             "<R-13>".
 END PROCEDURE.
 
-/* end ---------------------------------- copr. 1997  advanced software, inc. */
 
+/* ************************  Function Implementations ***************** */
+
+
+FUNCTION getTotalUp RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEF VAR opi-total-up AS INT NO-UNDO.
+
+IF AVAIL xef THEN
+opi-total-up = IF asi.xef.spare-int-1 = 0 THEN
+       INT(asi.xef.n-out) * INT(asi.xef.n-out-l) * int(asi.xef.n-out-d)
+    ELSE
+        xef.spare-int-1.
+ELSE
+    opi-total-up = 0.
+
+RETURN opi-total-up.   /* Function return value. */
+
+END FUNCTION.
+
+
+/* end ---------------------------------- copr. 1997  advanced software, inc. */

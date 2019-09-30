@@ -880,10 +880,10 @@ PROCEDURE create-order-lines.
                           oe-ordl.cust-no,
                           oe-ordl.part-no,
                           oe-ordl.i-no,
-                          OUTPUT oe-ordl.price,
-                          OUTPUT oe-ordl.pr-uom,
-                          OUTPUT oe-ordl.qty,
-                          OUTPUT lv-q-no,
+                          INPUT-OUTPUT oe-ordl.price,
+                          INPUT-OUTPUT oe-ordl.pr-uom,
+                          INPUT-OUTPUT oe-ordl.qty,
+                          INPUT-OUTPUT lv-q-no,
                           OUTPUT lcChoice).
 
        IF lv-q-no NE 0 THEN DO:

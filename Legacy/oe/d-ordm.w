@@ -44,6 +44,7 @@ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lv-new-recid    AS RECID     NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE char-hdl        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ilogic          AS LOGICAL   NO-UNDO .
 
 DEFINE NEW SHARED VARIABLE v-misc          AS LOGICAL   INIT NO NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-fr-tax        LIKE oe-ctrl.f-tax NO-UNDO.
@@ -77,14 +78,15 @@ oe-ordm.ord-line oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] ~
 oe-ordm.s-comm[1] oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] ~
 oe-ordm.s-man[3] oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax ~
 oe-ordm.spare-char-1 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 ~
-oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no 
+oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame oe-ordm.charge ~
 oe-ordm.amt oe-ordm.actnum oe-ordm.dscr oe-ordm.po-no oe-ordm.cost ~
 oe-ordm.ord-i-no oe-ordm.ord-line oe-ordm.po-no-po oe-ordm.s-man[1] ~
 oe-ordm.s-pct[1] oe-ordm.s-comm[1] oe-ordm.s-man[2] oe-ordm.s-pct[2] ~
 oe-ordm.s-comm[2] oe-ordm.s-man[3] oe-ordm.s-pct[3] oe-ordm.s-comm[3] ~
 oe-ordm.tax oe-ordm.spare-char-1 oe-ordm.bill oe-ordm.spare-int-1 ~
-oe-ordm.spare-char-2 oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no 
+oe-ordm.spare-char-2 oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no ~
+oe-ordm.ord-no 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame oe-ordm
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame oe-ordm
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH oe-ordm ~
@@ -103,7 +105,7 @@ oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] oe-ordm.s-comm[1] ~
 oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] oe-ordm.s-man[3] ~
 oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax oe-ordm.spare-char-1 ~
 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no ~
-oe-ordm.form-no oe-ordm.blank-no 
+oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
 &Scoped-define ENABLED-TABLES oe-ordm
 &Scoped-define FIRST-ENABLED-TABLE oe-ordm
 &Scoped-Define ENABLED-OBJECTS Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
@@ -113,7 +115,7 @@ oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] oe-ordm.s-comm[1] ~
 oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] oe-ordm.s-man[3] ~
 oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax oe-ordm.spare-char-1 ~
 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no ~
-oe-ordm.form-no oe-ordm.blank-no 
+oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
 &Scoped-define DISPLAYED-TABLES oe-ordm
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordm
 
@@ -286,37 +288,44 @@ DEFINE FRAME Dialog-Frame
     VIEW-AS FILL-IN 
     SIZE 6.4 BY 1
     BGCOLOR 15 FONT 1
-    oe-ordm.spare-int-1 AT ROW 10.57 COL 29.8 COLON-ALIGNED
-    LABEL "Line" FORMAT "->,>>>,>>9"
-    VIEW-AS FILL-IN 
-    SIZE 8 BY 1
-    BGCOLOR 15 FONT 1
+   
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
     SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
     FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
-    oe-ordm.spare-char-2 AT ROW 10.57 COL 65.8 COLON-ALIGNED
+    oe-ordm.spare-char-2 AT ROW 10.57 COL 29.8  COLON-ALIGNED
     LABEL "FG Item Code" FORMAT "x(15)"
     VIEW-AS FILL-IN 
     SIZE 24.2 BY 1
     BGCOLOR 15 FONT 1
-    oe-ordm.est-no AT ROW 10.57 COL 102.8 COLON-ALIGNED
+    oe-ordm.est-no AT ROW 10.57 COL 65.8  COLON-ALIGNED
     LABEL "Estimate" FORMAT "x(12)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
-    oe-ordm.form-no AT ROW 11.67 COL 29.8 COLON-ALIGNED
+    oe-ordm.form-no AT ROW 10.57 COL 102.8 COLON-ALIGNED
     LABEL "S" FORMAT ">9"
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
     BGCOLOR 15 FONT 1
-    oe-ordm.blank-no AT ROW 11.67 COL 65.8 COLON-ALIGNED
+    oe-ordm.blank-no AT ROW 11.67 COL 29.8 COLON-ALIGNED
     LABEL "B" FORMAT ">9"
     VIEW-AS FILL-IN 
     SIZE 8 BY 1
     BGCOLOR 15 FONT 1
+    oe-ordm.ord-no AT ROW 11.67 COL 65.8 COLON-ALIGNED
+    LABEL "Order/Line# " FORMAT ">>>>>>>>"
+    VIEW-AS FILL-IN 
+    SIZE 11 BY 1
+    BGCOLOR 15 FONT 1
+    oe-ordm.spare-int-1 AT ROW 11.67 COL 77.8 COLON-ALIGNED
+    NO-LABEL FORMAT "->,>>>,>>9"
+    VIEW-AS FILL-IN
+    SIZE 5 BY 1
+    BGCOLOR 15 FONT 1
+    
     Btn_OK AT ROW 14.4 COL 110
     Btn_Done AT ROW 14.6 COL 112
     Btn_Cancel AT ROW 14.4 COL 120
@@ -365,7 +374,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordm.bill IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordm.blank-no IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
+   EXP-LABEL EXP-FORMAT                                                 */ 
+/* SETTINGS FOR FILL-IN oe-ordm.ord-no IN FRAME Dialog-Frame
+   EXP-LABEL EXP-FORMAT                                                 */ 
 /* SETTINGS FOR FILL-IN oe-ordm.charge IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordm.cost IN FRAME Dialog-Frame
@@ -407,7 +418,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordm.spare-char-2 IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordm.spare-int-1 IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */
+    EXP-FORMAT                                                          */
 /* SETTINGS FOR FILL-IN oe-ordm.tax IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -583,6 +594,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
     DO:
         DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
         DEFINE VARIABLE ld-prev-amt LIKE oe-ordm.amt NO-UNDO.
+        DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
 
         DO WITH FRAME {&FRAME-NAME}:
             ld-prev-amt = oe-ordm.amt.
@@ -602,6 +614,9 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             RUN valid-est (oe-ordm.est-no:HANDLE IN FRAME {&FRAME-NAME}) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY .
         END.
+
+        RUN valid-est-charge (OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
 
         RUN valid-actnum NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -688,11 +703,15 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.charge Dialog-Frame
 ON LEAVE OF oe-ordm.charge IN FRAME Dialog-Frame /* Charge */
     DO:
+       DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 
         AND SELF:SCREEN-VALUE NE oe-ordm.charge THEN 
         DO:
             RUN valid-charge (FOCUS) NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+            RUN valid-est-charge (OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
         END.
     END.
 
@@ -1126,9 +1145,25 @@ PROCEDURE assgn-prep-info :
         RELEASE prep.
     END.
 
+    IF ip-type EQ "add"  OR ip-type EQ "copy" THEN do:
+      DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST est-prep EXCLUSIVE-LOCK
+            WHERE est-prep.company EQ oe-ord.company
+            AND est-prep.est-no EQ oe-ord.est-no 
+            AND est-prep.CODE EQ oe-ordm.charge:SCREEN-VALUE
+            AND est-prep.orderID EQ "" NO-ERROR .
+       
+        IF AVAIL est-prep AND est-prep.orderID EQ ""  THEN
+            ASSIGN est-prep.orderID = STRING(oe-ordm.ord-no)
+            oe-ordm.estPrepLine = est-prep.LINE .
+       
+        RELEASE est-prep .
+      END.
+    END.
+
     RELEASE prep.
     RELEASE reftable.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1227,7 +1262,8 @@ PROCEDURE create-item :
         IF AVAILABLE bf-ordl THEN
             ASSIGN
                 oe-ordm.ord-i-no = bf-ordl.job-no
-                oe-ordm.ord-line = bf-ordl.job-no2 .
+                oe-ordm.ord-line = bf-ordl.job-no2
+                oe-ordm.spare-int-1 = bf-ordl.LINE  .
         
     END.
     FIND CURRENT oe-ordm NO-LOCK NO-ERROR.   
@@ -1326,16 +1362,16 @@ PROCEDURE display-item :
           PARAMs:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
     IF AVAILABLE oe-ordm  THEN 
     DO:
-        
         DISPLAY  oe-ordm.charge oe-ordm.amt 
             oe-ordm.actnum oe-ordm.dscr oe-ordm.po-no oe-ordm.cost oe-ordm.ord-i-no 
             oe-ordm.ord-line oe-ordm.po-no-po oe-ordm.s-man[1] oe-ordm.s-pct[1] 
             oe-ordm.s-comm[1] oe-ordm.s-man[2] oe-ordm.s-pct[2] oe-ordm.s-comm[2] 
             oe-ordm.s-man[3] oe-ordm.s-pct[3] oe-ordm.s-comm[3] oe-ordm.tax 
             oe-ordm.spare-char-1 oe-ordm.bill oe-ordm.spare-int-1 oe-ordm.spare-char-2 
-            oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no  
+            oe-ordm.est-no oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
             WITH FRAME Dialog-Frame.
     END.
 
@@ -1375,7 +1411,7 @@ PROCEDURE enable_UI :
             oe-ordm.s-pct[2] oe-ordm.s-comm[2] oe-ordm.s-man[3] oe-ordm.s-pct[3] 
             oe-ordm.s-comm[3] oe-ordm.tax oe-ordm.spare-char-1 oe-ordm.bill 
             oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no 
-            oe-ordm.form-no oe-ordm.blank-no 
+            oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no 
             WITH FRAME Dialog-Frame.
     ENABLE oe-ordm.charge oe-ordm.amt oe-ordm.actnum oe-ordm.dscr oe-ordm.po-no 
         oe-ordm.cost oe-ordm.ord-i-no oe-ordm.ord-line oe-ordm.po-no-po 
@@ -1383,8 +1419,8 @@ PROCEDURE enable_UI :
         oe-ordm.s-pct[2] oe-ordm.s-comm[2] oe-ordm.s-man[3] oe-ordm.s-pct[3] 
         oe-ordm.s-comm[3] oe-ordm.tax oe-ordm.spare-char-1 oe-ordm.bill 
         oe-ordm.spare-int-1 oe-ordm.spare-char-2 oe-ordm.est-no 
-        oe-ordm.form-no oe-ordm.blank-no Btn_OK Btn_Done Btn_Cancel RECT-21 
-        RECT-38 
+        oe-ordm.form-no oe-ordm.blank-no oe-ordm.ord-no  
+         Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
         WITH FRAME Dialog-Frame.
     VIEW FRAME Dialog-Frame.
     {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -2071,6 +2107,38 @@ PROCEDURE valid-tax-gr :
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-ordm.spare-char-1.
             RETURN ERROR.
+        END.
+    END.
+
+    {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-est-charge Dialog-Frame 
+PROCEDURE valid-est-charge :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        IF ip-type EQ "add"  OR ip-type EQ "copy" THEN do:
+         FIND FIRST est-prep NO-LOCK
+          WHERE est-prep.company EQ oe-ord.company
+            AND est-prep.est-no EQ oe-ord.est-no 
+            AND est-prep.CODE EQ oe-ordm.charge:SCREEN-VALUE 
+            AND est-prep.orderID EQ STRING(oe-ordm.ord-no) NO-ERROR .
+
+         IF AVAIL est-prep AND est-prep.orderID NE "" THEN DO:
+            MESSAGE TRIM(oe-ordm.charge:LABEL) + " is already used on order, try help ..."
+                VIEW-AS ALERT-BOX INFO.
+            APPLY "entry" TO oe-ordm.charge .
+            oplReturnError = YES .
+         END.
         END.
     END.
 

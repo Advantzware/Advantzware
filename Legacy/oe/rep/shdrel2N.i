@@ -15,6 +15,10 @@ DEF VAR v-sb AS cha NO-UNDO.
 DEF VAR v-routing AS cha NO-UNDO.
 DEFINE  VARIABLE cShip-date AS CHARACTER NO-UNDO.
 DEFINE BUFFER bf-oe-rell FOR oe-rell .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 {sys/form/r-top5DL2.f}
 
    /* form header 
@@ -206,7 +210,7 @@ END.
           END.
       END.*/
 
-    OUTPUT STREAM excel TO VALUE(fi_file).
+    OUTPUT STREAM excel TO VALUE(cFileName).
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
   END.
 
@@ -728,5 +732,5 @@ END.
   IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END.

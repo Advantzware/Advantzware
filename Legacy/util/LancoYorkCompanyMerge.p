@@ -6,7 +6,7 @@
     Description : Based on BV's DataUtilityProcs.p but HIGHLY modified for LY 
     Author(s)   : MYT
     Created     : Sat June 1, 2019
-    Notes       :
+    Notes       : Final (production) version committed Sun, Sep 8, 2019
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */

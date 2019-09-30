@@ -1929,6 +1929,9 @@ DEF VAR lv-job-qty AS DEC NO-UNDO.
 DEF VAR lv-rec-qty AS DEC NO-UNDO.
 DEF VAR v-job# AS cha NO-UNDO.
 DEF VAR s-b-line AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE v-excel-file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT v-excel-file,OUTPUT cFileName) .
 
 FORMAT HEADER
        SKIP(1)
@@ -2002,7 +2005,7 @@ END.
 OUTPUT CLOSE.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM st-excel TO VALUE(v-excel-file).
+   OUTPUT STREAM st-excel TO VALUE(cFileName).
    PUT STREAM st-excel
        "Due Date,"
        "Cust#   ,"        
@@ -2037,7 +2040,7 @@ IF tb_excel THEN
 DO:
   OUTPUT STREAM st-excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-excel-file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

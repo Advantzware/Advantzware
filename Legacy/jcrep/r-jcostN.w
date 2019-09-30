@@ -1332,8 +1332,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cTmpList AS CHARACTER NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1356,12 +1355,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS: /* task 08191414 */
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) EQ 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+ {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -2092,6 +2086,9 @@ DEFINE VARIABLE c1 AS CHARACTER INITIAL "" NO-UNDO.
 DEFINE VARIABLE c2 AS CHARACTER INITIAL "" NO-UNDO.
 DEFINE VARIABLE dFrt AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {sys/form/r-top5DL3.f} 
 
@@ -2165,7 +2162,7 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 IF td-show-parm THEN RUN show-param.
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    /*IF NOT tgl_SumTot THEN
    DO:
       IF NOT tb_sep_board THEN
@@ -2388,7 +2385,7 @@ END. /* IF tgl_SumTot */
 
 IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel THEN OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    IF tb_runExcel THEN OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

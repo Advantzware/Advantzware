@@ -389,6 +389,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&DISPLAYED-OBJECTS}.
+    END.
+
   SESSION:SET-WAIT-STATE ("general").
 
   assign rd-dest.
@@ -781,6 +785,7 @@ def var cnt as int.
 def var v-exclude as log.
 def var v-pct as dec format "99.99".
 def var v-misc as log.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 
@@ -803,6 +808,8 @@ format w-sman-no    column-label "No"
 
     with no-box frame itemx down stream-io width 132.
 
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 assign
  fdate      = today
  tdate      = today
@@ -824,7 +831,7 @@ EMPTY TEMP-TABLE w-data.
 
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = 
   "No,Sales Rep Name,Daily Sq Ft/M,Amount,PTD Sq Ft/M,Amount,YTD Sq Ft/M,Amount".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1009,7 +1016,7 @@ display "" with frame r-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

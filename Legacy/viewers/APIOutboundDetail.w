@@ -71,14 +71,16 @@ APIOutboundDetail.parentID
 &Scoped-define FIRST-ENABLED-TABLE APIOutboundDetail
 &Scoped-Define ENABLED-OBJECTS edData 
 &Scoped-Define DISPLAYED-FIELDS APIOutboundDetail.apiID ~
-APIOutboundDetail.detailID APIOutboundDetail.parentID 
+APIOutboundDetail.clientID APIOutboundDetail.detailID ~
+APIOutboundDetail.parentID 
 &Scoped-define DISPLAYED-TABLES APIOutboundDetail
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutboundDetail
 &Scoped-Define DISPLAYED-OBJECTS edData 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define ADM-CREATE-FIELDS APIOutboundDetail.apiID 
+&Scoped-define ADM-ASSIGN-FIELDS APIOutboundDetail.apiID ~
+APIOutboundDetail.clientID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -115,32 +117,41 @@ DEFINE VARIABLE edData AS CHARACTER
      SIZE 101 BY 4
      BGCOLOR 15  NO-UNDO.
 
+DEFINE RECTANGLE RECT-6
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 116 BY 10.24.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     APIOutboundDetail.apiID AT ROW 1.95 COL 29 COLON-ALIGNED WIDGET-ID 2
+     APIOutboundDetail.apiID AT ROW 1.24 COL 13 COLON-ALIGNED WIDGET-ID 2
           LABEL "API ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 34 BY 1
+          SIZE 40.4 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     APIOutboundDetail.detailID AT ROW 3.86 COL 29 COLON-ALIGNED WIDGET-ID 4
+     APIOutboundDetail.clientID AT ROW 1.24 COL 73 COLON-ALIGNED WIDGET-ID 14
+          VIEW-AS FILL-IN 
+          SIZE 40.4 BY 1
+          BGCOLOR 3 FGCOLOR 15 
+     APIOutboundDetail.detailID AT ROW 3.14 COL 13 COLON-ALIGNED WIDGET-ID 4
           LABEL "Detail ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 34 BY 1
+          SIZE 40.4 BY 1
           BGCOLOR 15 
-     APIOutboundDetail.parentID AT ROW 5.81 COL 29.2 COLON-ALIGNED WIDGET-ID 6
+     APIOutboundDetail.parentID AT ROW 5.1 COL 13.2 COLON-ALIGNED WIDGET-ID 6
           LABEL "Parent ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 33.8 BY 1
+          SIZE 40.4 BY 1
           BGCOLOR 15 
-     edData AT ROW 7.67 COL 31 NO-LABEL WIDGET-ID 8
+     edData AT ROW 6.95 COL 15 NO-LABEL WIDGET-ID 8
      "Data:" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 7.71 COL 24 WIDGET-ID 10
+          SIZE 7 BY .62 AT ROW 6.95 COL 8 WIDGET-ID 10
+     RECT-6 AT ROW 1 COL 1 WIDGET-ID 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 9 FONT 6 WIDGET-ID 100.
+         FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -170,8 +181,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 11.38
-         WIDTH              = 156.4.
+         HEIGHT             = 10.24
+         WIDTH              = 116.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -199,10 +210,12 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN APIOutboundDetail.apiID IN FRAME F-Main
-   NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
+   NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 ASSIGN 
        APIOutboundDetail.apiID:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR FILL-IN APIOutboundDetail.clientID IN FRAME F-Main
+   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN APIOutboundDetail.detailID IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 ASSIGN 
@@ -210,6 +223,8 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN APIOutboundDetail.parentID IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR RECTANGLE RECT-6 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -333,6 +348,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    {custom/askdel.i}
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
 PROCEDURE local-disable-fields :
 /*------------------------------------------------------------------------------
@@ -385,6 +420,49 @@ PROCEDURE local-enable-fields :
 
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pEnableFields.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValidParent AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutboundDetail FOR APIOutboundDetail.
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+    END.           
+    
+    lValidParent = IF AVAILABLE APIOutbound
+                       AND APIOutbound.apiID EQ APIOutboundDetail.parentID:SCREEN-VALUE THEN
+                       TRUE
+                   ELSE
+                       FALSE.
+    
+    IF NOT lValidParent THEN
+        lValidParent = CAN-FIND(
+                       FIRST bf-APIOutboundDetail
+                       WHERE bf-APIOutboundDetail.apiOutboundID EQ APIOutbound.apiOutboundID
+                         AND bf-APIOutboundDetail.detailID      EQ APIOutboundDetail.parentID:SCREEN-VALUE
+                       ).
+
+    IF NOT lValidParent THEN DO:
+        MESSAGE "Invalid parent ID value [" APIOutboundDetail.parentID:SCREEN-VALUE
+                "], please enter a valid Parent ID" VIEW-AS ALERT-BOX ERROR.
+        RETURN ERROR.
+    END.
+                       
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -454,7 +532,10 @@ PROCEDURE pSetDefaults :
    edData:SCREEN-VALUE = "".
    
    IF AVAILABLE APIOutbound THEN
-       APIOutboundDetail.apiID:SCREEN-VALUE = APIOutbound.apiID.
+       ASSIGN
+           APIOutboundDetail.apiID:SCREEN-VALUE    = APIOutbound.apiID
+           APIOutboundDetail.clientID:SCREEN-VALUE = APIOutbound.clientID
+           .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -471,7 +552,11 @@ PROCEDURE pUpdateFields :
     END.
 
     IF AVAILABLE APIOutboundDetail THEN        
-        APIOutboundDetail.data = edData:SCREEN-VALUE.    
+        ASSIGN
+            APIOutboundDetail.company       = APIOutbound.company
+            APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID
+            APIOutboundDetail.data          = edData:SCREEN-VALUE
+            .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

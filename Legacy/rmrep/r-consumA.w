@@ -997,7 +997,7 @@ def var v-val like v-value extent 3.
 def var v-first as log extent 3.
 DEF VAR v-mattype AS cha NO-UNDO.
 DEF VAR v-msf-qty AS DEC NO-UNDO.
-
+DEFINE VARIABLE cFileName LIKE v-excel-file NO-UNDO .
 
 form item.procat LABEL "Category"
      rm-rcpth.i-no label "ITEM"
@@ -1014,6 +1014,7 @@ form item.procat LABEL "Category"
 
 find first ap-ctrl where ap-ctrl.company eq cocode no-lock.
 
+RUN sys/ref/ExcelNameExt.p (INPUT v-excel-file,OUTPUT cFileName) .
 assign
  str-tit2 = c-win:TITLE + IF rd-summary = "S" THEN " Summary" ELSE " Detail"
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1045,7 +1046,7 @@ display "" with frame r-top.
 
 IF tb_excel THEN 
 DO:
-   OUTPUT STREAM excel TO VALUE(v-excel-file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    ASSIGN 
       excelheader = "CATEGORY,ITEM,DESCRIPTION,TAG#,LINEAL FEET,MSF,WEIGHT,COST VALUE".  
    PUT STREAM excel UNFORMATTED excelheader SKIP.
@@ -1221,7 +1222,7 @@ IF tb_excel THEN
 DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-excel-file)).
+   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

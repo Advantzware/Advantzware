@@ -1038,7 +1038,7 @@ DO:
   
   RUN GetSelectionList.
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN DO:
+  IF NOT AVAIL ttCustList AND (tb_cust-list OR ou-cust-int EQ 2) THEN DO:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
@@ -1535,6 +1535,7 @@ ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List *
 DO:
   ASSIGN {&self-name}.
   EMPTY TEMP-TABLE ttCustList.
+  
   RUN SetCustRange(INPUT tb_cust-list).
 END.
 
@@ -1780,13 +1781,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
 
-   IF ou-log AND ou-cust-int = 0 THEN DO:
+   IF ou-log AND (ou-cust-int = 0 OR ou-cust-int EQ 2) THEN DO:
+       
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No"
         tb_cust-list = NO
         .
+       IF ou-cust-int EQ 2 THEN
+       tb_cust-list:LABEL IN FRAME {&FRAME-NAME} = "Exclude Customer List".
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
@@ -1954,7 +1958,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
+  
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
@@ -1986,13 +1990,8 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
-
+  {sys/ref/SelColCorrect.i}
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2187,7 +2186,10 @@ DEFINE VARIABLE lExcludeComponents AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO . 
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2270,6 +2272,9 @@ ASSIGN
 
     END.
 
+IF ou-cust-int EQ 2 THEN
+    lselected = NO .
+
 IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
@@ -2287,7 +2292,7 @@ IF td-show-parm THEN RUN show-param.
 
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -2302,7 +2307,7 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2379,6 +2384,9 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO. /* 02/05/07 01100718 */
 DEF BUFFER bitemfg FOR itemfg.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFileName2 LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
 ASSIGN
  li1   = MONTH(TODAY) + 1
@@ -2460,6 +2468,9 @@ ASSIGN
 
  END.
 
+ IF ou-cust-int EQ 2 THEN
+    lselected = NO .
+
 IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN  v-cust[1] = ttCustList.cust-no .
@@ -2476,7 +2487,7 @@ IF td-show-parm THEN RUN show-param.
 
 IF tb_excel THEN 
 DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName2).
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -2498,7 +2509,7 @@ cFieldListToSelect = REPLACE(cFieldListToSelect, "itemfg.q-ono", "v-q-ono").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName2)).
 END.
 cFieldListToSelect = cOrigList.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2521,6 +2532,7 @@ PROCEDURE SetCustRange :
   DEFINE INPUT PARAMETER iplChecked AS LOGICAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
+    IF ou-cust-int NE 2 THEN
       ASSIGN
         begin_cust:SENSITIVE = NOT iplChecked
         end_cust:SENSITIVE = NOT iplChecked
@@ -2528,6 +2540,7 @@ PROCEDURE SetCustRange :
         end_cust:VISIBLE = NOT iplChecked
         btnCustList:SENSITIVE = iplChecked
        .
+    ELSE btnCustList:SENSITIVE = iplChecked .
   END.
 
 END PROCEDURE.

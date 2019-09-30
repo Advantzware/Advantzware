@@ -1,5 +1,4 @@
 
-SESSION:SET-WAIT-STATE ("general").
 
 DEF VAR lv-stat LIKE job.stat NO-UNDO.
 
@@ -17,4 +16,3 @@ FOR EACH job-mat
   IF LAST(job-mat.job) AND job.stat EQ "A" THEN job.stat = "L".
 END.
 
-SESSION:SET-WAIT-STATE ("").

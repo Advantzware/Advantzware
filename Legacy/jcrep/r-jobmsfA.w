@@ -917,6 +917,9 @@ DEF VAR v-hdr       AS   CHAR NO-UNDO.
 DEF VAR v-hdr-exp   AS   CHAR NO-UNDO.
 DEF VAR v-comma     AS   CHAR FORMAT "x" INIT "," NO-UNDO.
 DEF VAR excelheader AS   CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE exp-name NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT exp-name,OUTPUT cFileName) .
 
 FORM HEADER SKIP(1)
             ENTRY(01,v-hdr)     FORMAT "x(15)"
@@ -957,7 +960,7 @@ ASSIGN
  v-fdat     = begin_date
  v-tdat     = end_date  
  v-export   = tb_exp-exel
- v-exp-name = exp-name
+ v-exp-name = cFileName
 
  v-fjob     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
               TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
@@ -971,7 +974,7 @@ ASSIGN
 SESSION:SET-WAIT-STATE ("general").
 
 IF tb_exp-exel THEN DO:
-  OUTPUT STREAM s-temp TO VALUE(exp-name).
+  OUTPUT STREAM s-temp TO VALUE(cFileName).
   excelheader = "FG Item#,Mach#,Charge,Start Date,End Date,Total Time,"
               + "Job#,Run Qty,Waste,Shift,SQF".
   PUT STREAM s-temp UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1254,7 +1257,7 @@ SESSION:SET-WAIT-STATE("").
 IF v-export THEN DO:
   OUTPUT STREAM s-temp CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(exp-name)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).  

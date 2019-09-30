@@ -323,10 +323,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
       end.
 
       assign v-terms = oe-ord.terms-d
-             v-frt-terms = if cust.frt-pay eq "P" then "Prepaid"
-                           else if cust.frt-pay eq "B" then "Bill"
-                           else if cust.frt-pay eq "C" then "Collect"
-                           else if cust.frt-pay eq "T" then "Third Party"
+             v-frt-terms = if oe-bolh.frt-pay eq "P" then "Prepaid"
+                           else if oe-bolh.frt-pay eq "B" then "Bill"
+                           else if oe-bolh.frt-pay eq "C" then "Collect"
+                           else if oe-bolh.frt-pay eq "T" then "Third Party"
                            else ""
              v-zone = cust.del-zone.
              
@@ -416,8 +416,15 @@ for each xxreport where xxreport.term-id eq v-term-id,
      XMLPage = NO.
      /* rstark 05181205 */
      
-     IF lGeneratecXML THEN 
-       run cxml/cxmlbol.p (INPUT oe-bolh.company, INPUT oe-bolh.bol-no).
+     IF lGeneratecXML THEN DO:
+        FOR EACH oe-boll 
+            WHERE oe-boll.company EQ oe-bolh.company 
+              AND oe-boll.b-no eq oe-bolh.b-no
+            BREAK BY oe-boll.ord-no:
+           IF FIRST-OF(oe-boll.ord-no) THEN
+             RUN cxml/cxmlbol.p (INPUT oe-bolh.company, INPUT oe-bolh.bol-no, INPUT oe-boll.ord-no).
+        END.
+     END.
      /* iCxmlOutput = 0 */
      
     {oe/rep/bolprem2.i} /* header */

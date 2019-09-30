@@ -22,6 +22,7 @@
 "APIOutbound" yes yes yes no
 "APIOutboundDetail" yes yes yes no
 "APIOutboundEvent" yes yes yes no
+"APIOutboundTrigger" yes yes yes no
 "ar-cash" yes yes yes yes
 "ar-cashl" yes yes yes yes
 "ar-ctrl" yes yes yes yes

@@ -465,6 +465,10 @@ DO:
 
   DEF VAR v-valid AS LOG NO-UNDO.
 
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN {&DISPLAYED-OBJECTS}.
+  END.
+
   run run-report(OUTPUT v-valid). 
   STATUS DEFAULT "Processing Complete".
 
@@ -950,6 +954,7 @@ def var v-mtype as char format "x(47)".
 def var v-procat    like item.procat    no-undo.
 def var v-amt       as   dec extent 2   no-undo.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 form itemfg.i-no        column-label "FG Item#"
      po-ordl.po-no      column-label "P.O.#"
@@ -968,7 +973,7 @@ FORM HEADER
 
     WITH FRAME r-top.
 
-
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 SESSION:SET-WAIT-STATE ("general").
 
 assign
@@ -982,7 +987,7 @@ assign
  fitm    = begin_i-no
  titm    = end_i-no
  v-mtype = "".
-
+ 
 do with frame {&frame-name}:          
   do i = 1 to select-mat:num-items:
     if select-mat:is-selected(i) then
@@ -1012,9 +1017,9 @@ end.
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
-
+ 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "FG Item#,P.O.#,PO Item#,G/L Account,Amt Invoiced".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
@@ -1179,7 +1184,7 @@ if td-show-parm then run show-param.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE ("").

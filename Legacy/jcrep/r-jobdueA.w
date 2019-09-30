@@ -1018,6 +1018,9 @@ def var v-dc      as   char format "x(7)" NO-UNDO.
 def var v-pr      as   char format "x(7)" NO-UNDO.
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {custom/statusMsg.i " 'Processing...   '"}
 
@@ -1095,7 +1098,7 @@ ASSIGN
 
 
 IF tb_excel THEN DO:
-          OUTPUT STREAM excel TO VALUE(fi_file).
+          OUTPUT STREAM excel TO VALUE(cFileName).
           excelheader = "CUSTOMER,JOB#,S,B,DIE#" .
           IF tb_plate THEN
               excelheader = excelheader + ",Plate#".
@@ -1449,7 +1452,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

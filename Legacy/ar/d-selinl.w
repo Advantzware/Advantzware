@@ -393,24 +393,12 @@ PROCEDURE build-table :
      tt-inv.net      = ar-invl.amt
      lv-num-rec      = lv-num-rec + 1.
 
-    /* Posted needed to utilize index so search with both posted = yes and posted = no */
      FOR EACH b-cashl
-        WHERE b-cashl.company     EQ ar-invl.company
-          AND b-cashl.posted      EQ NO
+        WHERE b-cashl.company     EQ ar-invl.company          
           AND b-cashl.cust-no     EQ ar-invl.cust-no
           AND b-cashl.inv-no      EQ ar-invl.inv-no 
           AND b-cashl.invoiceLine EQ ar-invl.line
           AND b-cashl.invoiceXNo  EQ ar-invl.x-no           
-        :
-        tt-inv.paid = tt-inv.paid + (b-cashl.amt-paid * -1).
-     END.
-     FOR EACH b-cashl 
-        WHERE b-cashl.company     EQ ar-invl.company
-          AND b-cashl.posted      EQ YES
-          AND b-cashl.cust-no     EQ ar-invl.cust-no
-          AND b-cashl.inv-no      EQ ar-invl.inv-no 
-          AND b-cashl.invoiceLine EQ ar-invl.line
-          AND b-cashl.invoiceXNo  EQ ar-invl.x-no             
         :
         tt-inv.paid = tt-inv.paid + (b-cashl.amt-paid * -1).
      END.

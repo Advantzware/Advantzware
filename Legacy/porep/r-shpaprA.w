@@ -976,6 +976,9 @@ DEF VAR lv-label AS CHAR EXTENT 2 NO-UNDO.
 DEF VAR ll-sub AS LOG NO-UNDO.
 DEF VAR lv-under AS CHAR FORMAT "x(5)" INIT "_____" EXTENT 2 NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
      lv-label[1]                            FORMAT "x(20)" 
@@ -1044,7 +1047,7 @@ assign tot-cons-qty = 0
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
 
   IF rd_break EQ "Vendor#" THEN
      excelheader = "Vendor,".
@@ -1476,7 +1479,7 @@ VIEW frame r-top.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -118,31 +118,31 @@ DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS users.showCueCards users.positionMnemonic ~
 users.showMnemonic users.menuSize users.userLanguage users.user_name ~
-users.phone-cnty users.fax-cnty users.image_filename users.user_program[1] ~
+users.phone-cnty users.mobile users.image_filename users.user_program[1] ~
 users.user_program[2] users.user_program[3] users.track_usage ~
-users.use_colors users.use_fonts users.developer users.isLocked ~
-users.userImage[1] users.showMenuImages 
+users.use_colors users.use_fonts users.developer users.isLocked users.isManager ~
+users.userImage[1] users.showMenuImages users.manager users.department
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
 &Scoped-Define DISPLAYED-FIELDS users.showCueCards users.positionMnemonic ~
 users.showMnemonic users.menuSize users.userLanguage users.user_id ~
-users.user_name users.userAlias users.phone-cnty users.phone users.fax-cnty ~
+users.user_name users.userAlias users.phone-cnty users.phone users.mobile ~
 users.fax users.image_filename users.user_program[1] users.user_program[2] ~
 users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
-users.developer users.securityLevel users.isActive users.isLocked ~
-users.userImage[1] users.showMenuImages 
+users.developer users.securityLevel users.isActive users.isLocked users.isManager ~
+users.userImage[1] users.showMenuImages users.manager users.department
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
 &Scoped-Define DISPLAYED-OBJECTS fiPassword cbUserType fi_phone-area ~
-lv-phone-num fi_fax-area lv-fax-num slEnvironments slDatabases slModes 
+lv-phone-num slEnvironments slDatabases slModes 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELDS,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS users.user_id 
 &Scoped-define ADM-ASSIGN-FIELDS users.phone-cnty fi_phone-area ~
-lv-phone-num users.fax-cnty fi_fax-area lv-fax-num users.image_filename 
+lv-phone-num users.mobile users.image_filename 
 &Scoped-define DISPLAY-FIELDS users.phone-cnty fi_phone-area lv-phone-num ~
-users.fax-cnty fi_fax-area lv-fax-num users.image_filename 
+users.mobile users.image_filename 
 &Scoped-define F1 colorChoice-0 colorChoice-1 colorChoice-2 colorChoice-3 ~
 colorChoice-4 colorChoice-5 colorChoice-6 colorChoice-7 colorChoice-8 ~
 colorChoice-9 colorChoice-10 colorChoice-11 colorChoice-12 colorChoice-13 ~
@@ -227,19 +227,9 @@ DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(999)":U
      SIZE 37 BY 1
      BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE fi_fax-area AS CHARACTER FORMAT "xxx":U 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1
-     BGCOLOR 15 FONT 4 NO-UNDO.
-
 DEFINE VARIABLE fi_phone-area AS CHARACTER FORMAT "xxx":U 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
-     BGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE lv-fax-num AS CHARACTER FORMAT "xxx-xxxx":U 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1
      BGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE VARIABLE lv-phone-num AS CHARACTER FORMAT "xxx-xxxx":U 
@@ -393,32 +383,6 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     users.showCueCards AT ROW 16 COL 54 WIDGET-ID 532
-          VIEW-AS TOGGLE-BOX
-          SIZE 20 BY .81
-     users.positionMnemonic AT ROW 16.71 COL 66 NO-LABEL WIDGET-ID 126
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Begin", "Begin":U,
-"End", "End":U
-          SIZE 17 BY 1
-     users.showMnemonic AT ROW 16.71 COL 23 NO-LABEL WIDGET-ID 120
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "None", "None":U,
-"All", "All":U,
-"Programs Only", "Program":U
-          SIZE 33 BY 1
-     users.menuSize AT ROW 13.62 COL 65 COLON-ALIGNED WIDGET-ID 112
-          VIEW-AS COMBO-BOX INNER-LINES 3
-          LIST-ITEMS "Small","Medium","Large" 
-          DROP-DOWN-LIST
-          SIZE 16 BY 1
-     users.userLanguage AT ROW 14.81 COL 52 COLON-ALIGNED WIDGET-ID 114
-          VIEW-AS COMBO-BOX INNER-LINES 10
-          LIST-ITEM-PAIRS "Englist","EN"
-          DROP-DOWN-LIST
-          SIZE 29 BY 1
      users.user_id AT ROW 1.24 COL 21 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
@@ -434,6 +398,11 @@ DEFINE FRAME F-Main
           SIZE 37 BY 1
           BGCOLOR 15 FONT 4
      fiPassword AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 80
+     users.department AT ROW 2.43 COL 80 COLON-ALIGNED
+          LABEL "Dept"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
+          BGCOLOR 15
      cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
      bChgPwd AT ROW 2.43 COL 61 WIDGET-ID 82 NO-TAB-STOP 
      users.phone-cnty AT ROW 3.62 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 12
@@ -447,13 +416,27 @@ DEFINE FRAME F-Main
           SIZE 4 BY 1
           BGCOLOR 15  NO-TAB-STOP 
      lv-phone-num AT ROW 3.62 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     users.fax-cnty AT ROW 4.81 COL 30 COLON-ALIGNED HELP
-          "" NO-LABEL WIDGET-ID 18 FORMAT "x(8)"
+     users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
+          LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
+          SIZE 8 BY 1
           BGCOLOR 15 FONT 4
-     fi_fax-area AT ROW 4.81 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     lv-fax-num AT ROW 4.81 COL 59 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     users.isActive AT ROW 3.62 COL 112 WIDGET-ID 90
+          LABEL "Active?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY 1
+     users.isManager AT ROW 3.62 COL 112 WIDGET-ID 90
+          LABEL "Manager?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY 1
+     users.isLocked AT ROW 3.62 COL 128 WIDGET-ID 88
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY 1
+     users.mobile AT ROW 4.81 COL 21 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 18 FORMAT "x(10)"
+          VIEW-AS FILL-IN 
+          SIZE 46 BY 1
+          BGCOLOR 15 FONT 4
      users.fax AT ROW 4.81 COL 77 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
           VIEW-AS FILL-IN 
@@ -487,48 +470,67 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
           BGCOLOR 15 FONT 4
+     users.userImage[1] AT ROW 10.76 COL 21 COLON-ALIGNED WIDGET-ID 116
+          LABEL "User Image" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 48 BY 1
+          BGCOLOR 15 
      users.track_usage AT ROW 11.95 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 19.8 BY 1
      users.use_colors AT ROW 12.91 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY 1
+     users.manager AT ROW 12.95 COL 65 COLON-ALIGNED
+          LABEL "Manager"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15
      users.use_fonts AT ROW 13.86 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 26.2 BY 1
+     users.menuSize AT ROW 13.95 COL 65 COLON-ALIGNED WIDGET-ID 112
+          VIEW-AS COMBO-BOX INNER-LINES 3
+          LIST-ITEMS "Small","Medium","Large" 
+          DROP-DOWN-LIST
+          SIZE 16 BY 1
      users.developer AT ROW 14.81 COL 23
           VIEW-AS TOGGLE-BOX
           SIZE 16.8 BY 1
-     users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
-          LABEL "Security Level" FORMAT ">999"
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-          BGCOLOR 15 FONT 4
-     users.isActive AT ROW 3.62 COL 112 WIDGET-ID 90
-          LABEL "Active?"
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.2 BY 1
-     users.isLocked AT ROW 3.62 COL 128 WIDGET-ID 88
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.2 BY 1
-     bDefaults AT ROW 5.52 COL 118 WIDGET-ID 104
-     slEnvironments AT ROW 11.71 COL 108 NO-LABEL WIDGET-ID 50
-     bAll1 AT ROW 11.95 COL 97 WIDGET-ID 64
-     bNone1 AT ROW 12.67 COL 97 WIDGET-ID 66
-     slDatabases AT ROW 14.33 COL 108 NO-LABEL WIDGET-ID 52
-     bAll2 AT ROW 14.81 COL 97 WIDGET-ID 68
-     bNone2 AT ROW 15.52 COL 97 WIDGET-ID 70
-     slModes AT ROW 6.95 COL 108 NO-LABEL WIDGET-ID 54
-     bAll3 AT ROW 7.43 COL 97 WIDGET-ID 72
-     bNone3 AT ROW 8.14 COL 97 WIDGET-ID 74
-     users.userImage[1] AT ROW 10.76 COL 21 COLON-ALIGNED WIDGET-ID 116
-          LABEL "User Image" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 48 BY 1
-          BGCOLOR 15 
+     users.userLanguage AT ROW 14.95 COL 52 COLON-ALIGNED WIDGET-ID 114
+          VIEW-AS COMBO-BOX INNER-LINES 10
+          LIST-ITEM-PAIRS "Englist","EN"
+          DROP-DOWN-LIST
+          SIZE 29 BY 1
      users.showMenuImages AT ROW 15.76 COL 23 WIDGET-ID 528
           VIEW-AS TOGGLE-BOX
           SIZE 22 BY 1
+     users.showCueCards AT ROW 16 COL 54 WIDGET-ID 532
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY .81
+     users.showMnemonic AT ROW 16.71 COL 23 NO-LABEL WIDGET-ID 120
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "None", "None":U,
+"All", "All":U,
+"Programs Only", "Program":U
+          SIZE 33 BY 1
+     users.positionMnemonic AT ROW 16.71 COL 66 NO-LABEL WIDGET-ID 126
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Begin", "Begin":U,
+"End", "End":U
+          SIZE 17 BY 1
+     bDefaults AT ROW 5.52 COL 118 WIDGET-ID 104
+     bAll3 AT ROW 7.43 COL 97 WIDGET-ID 72
+     bNone3 AT ROW 8.14 COL 97 WIDGET-ID 74
+     slModes AT ROW 6.95 COL 108 NO-LABEL WIDGET-ID 54
+     bAll1 AT ROW 11.95 COL 97 WIDGET-ID 64
+     bNone1 AT ROW 12.67 COL 97 WIDGET-ID 66
+     slEnvironments AT ROW 11.71 COL 108 NO-LABEL WIDGET-ID 50
+     bAll2 AT ROW 14.81 COL 97 WIDGET-ID 68
+     bNone2 AT ROW 15.52 COL 97 WIDGET-ID 70
+     slDatabases AT ROW 14.33 COL 108 NO-LABEL WIDGET-ID 52
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
@@ -552,12 +554,6 @@ DEFINE FRAME F-Main
           FONT 4
      "(#)" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 3.62 COL 56 WIDGET-ID 106
-          BGCOLOR 15 
-     "(#)" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 4.81 COL 56 WIDGET-ID 110
-          BGCOLOR 15 
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 108
           BGCOLOR 15 
      "3" VIEW-AS TEXT
           SIZE 2 BY .62 AT ROW 18.14 COL 38 WIDGET-ID 512
@@ -583,8 +579,8 @@ DEFINE FRAME F-Main
      "?" VIEW-AS TEXT
           SIZE 2 BY .76 AT ROW 19.57 COL 48 WIDGET-ID 522
           FGCOLOR 0 FONT 6
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 4.81 COL 17 WIDGET-ID 94
+     "Mobile:" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 4.81 COL 15.6 WIDGET-ID 94
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
      cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
      colorChoice-0 AT ROW 18.86 COL 53 WIDGET-ID 472
@@ -797,7 +793,7 @@ ASSIGN
 ASSIGN 
        users.fax:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR FILL-IN users.fax-cnty IN FRAME F-Main
+/* SETTINGS FOR FILL-IN users.mobile IN FRAME F-Main
    2 4 EXP-LABEL EXP-FORMAT EXP-HELP                                    */
 /* SETTINGS FOR RECTANGLE FGColor-1 IN FRAME F-Main
    NO-ENABLE 6                                                          */
@@ -816,8 +812,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fiPassword IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fi_fax-area IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN fi_phone-area IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN users.image_filename IN FRAME F-Main
@@ -827,8 +821,6 @@ ASSIGN
 ASSIGN 
        users.isActive:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR FILL-IN lv-fax-num IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN lv-phone-num IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN users.phone IN FRAME F-Main
@@ -866,6 +858,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN users.user_program[3] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN users.manager IN FRAME F-Main
+   NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN users.department IN FRAME F-Main
+   NO-ENABLE 1 EXP-LABEL                                                */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1261,6 +1257,65 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME users.department
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.department V-table-Win
+ON HELP OF users.department IN FRAME F-Main /* Department */
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        g_company, 
+        "dept", /* lookup field */
+        0,   /* Subject ID */
+        "",  /* User ID */
+        0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+    
+    IF lookupField NE "" THEN 
+    DO:
+        users.department:SCREEN-VALUE = lookupField.
+    
+        APPLY "LEAVE" TO SELF.
+    END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME users.manager
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.manager V-table-Win
+ON HELP OF users.manager IN FRAME F-Main /* Manager */
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        g_company, 
+        "users-manager", /* lookup field */
+        0,   /* Subject ID */
+        "",  /* User ID */
+        0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+    
+    IF lookupField NE "" THEN 
+    DO:
+        users.manager:SCREEN-VALUE = lookupField.
+    
+        APPLY "LEAVE" TO SELF.
+    END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1651,8 +1706,6 @@ PROCEDURE local-add-record :
         fiPassword:SENSITIVE = TRUE
         fi_phone-area:SCREEN-VALUE = ""
         lv-phone-num:SCREEN-VALUE = ""
-        fi_fax-area:SCREEN-VALUE = ""
-        lv-fax-num:SCREEN-VALUE = ""
         cbUserType:SCREEN-VALUE = "Full User"
         users.securityLevel:SCREEN-VALUE = "100".
         
@@ -1692,13 +1745,13 @@ PROCEDURE local-cancel-record :
     DISABLE 
         users.user_id
         users.user_name
+        users.manager
+        users.department
         users.userAlias
         users.securityLevel
         fiPassword
         fi_phone-area 
         lv-phone-num 
-        fi_fax-area 
-        lv-fax-num 
         cbUserType
         slEnvironments
         slDatabases
@@ -1804,27 +1857,6 @@ PROCEDURE local-delete-record :
         DELETE usrx.
     END.
    
-    FOR EACH reftable EXCLUSIVE WHERE
-        reftable.reftable EQ "users.phone-no" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
-    FOR EACH reftable EXCLUSIVE WHERE
-        reftable.reftable EQ "users.fax-no" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
-    FOR EACH reftable EXCLUSIVE WHERE
-        reftable.reftable EQ "users.phone-cnty" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
-    FOR EACH reftable EXCLUSIVE WHERE
-        reftable.reftable EQ "users.fax-cnty" AND
-        reftable.company EQ users.user_id:
-        DELETE reftable.
-    END.
-    
     FIND ttUsers EXCLUSIVE WHERE
         ttUsers.ttfPdbname = "*" AND
         ttUsers.ttfUserID = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -1901,8 +1933,6 @@ PROCEDURE local-display-fields :
         ASSIGN 
             fi_phone-area:screen-value = substring(users.phone,1,3)
             lv-phone-num:screen-value = substring(users.phone,4)
-            fi_fax-area:screen-value = substring(users.fax,1,3)
-            lv-fax-num:screen-value = substring(users.fax,4)
             cbUserType:screen-value = users.userType
             slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
             slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
@@ -2250,7 +2280,7 @@ PROCEDURE local-update-record :
 /*            users.dbList = slDatabases:SCREEN-VALUE    */
 /*            users.modeList = slModes:SCREEN-VALUE      */
             users.phone = fi_phone-area:screen-value + lv-phone-num
-            users.fax = fi_fax-area:screen-value + lv-fax-num
+            /*users.fax = fi_fax-area:screen-value + lv-fax-num*/
             rThisUser = ROWID(users)
             users.menuFGColor[1] = FGColor-1:BGCOLOR
             users.menuFGColor[2] = FGColor-2:BGCOLOR
@@ -2276,8 +2306,6 @@ PROCEDURE local-update-record :
         fiPassword
         fi_phone-area 
         lv-phone-num 
-        fi_fax-area 
-        lv-fax-num 
         cbUserType
         users.userAlias
         users.securityLevel
@@ -2373,6 +2401,9 @@ PROCEDURE proc-enable :
         users.developer:SENSITIVE     = lSuperAdmin 
         users.userAlias:SENSITIVE     = lAdmin
         users.securityLevel:SENSITIVE = lAdmin
+        users.isManager:SENSITIVE     = lAdmin
+        users.manager:SENSITIVE       = lAdmin
+        users.department:SENSITIVE    = lAdmin
         users.isLocked:SENSITIVE      = lAdmin
         cbUserType:SENSITIVE          = lAdmin
         slEnvironments:SENSITIVE      = lAdmin
@@ -2394,8 +2425,6 @@ PROCEDURE proc-enable :
         bChgPwd
         fi_phone-area 
         lv-phone-num 
-        fi_fax-area 
-        lv-fax-num 
             WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.

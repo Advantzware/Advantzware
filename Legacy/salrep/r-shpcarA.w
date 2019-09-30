@@ -909,6 +909,9 @@ SESSION:SET-WAIT-STATE ("general").
  def var v-tot-cost  as   dec format "->>>>>>>9.99" extent 3 NO-UNDO.
  def var v-head      as   character format "x(132)" extent 3 NO-UNDO.
  DEF VAR v-current-page AS INT NO-UNDO.
+ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
  {custom/statusMsg.i "'Processing...'"} 
 
@@ -945,7 +948,7 @@ SESSION:SET-WAIT-STATE ("general").
     {sys/inc/outprint.i value(lines-per-page)}
 
     IF tb_excel THEN DO:
-       OUTPUT STREAM excel TO VALUE(fi_file).
+       OUTPUT STREAM excel TO VALUE(cFileName).
        /*PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.*/
     END.
 
@@ -1358,7 +1361,7 @@ SESSION:SET-WAIT-STATE ("general").
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

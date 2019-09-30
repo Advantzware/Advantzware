@@ -968,6 +968,10 @@ def var v-custown as logical format "Y/N" initial "N" NO-UNDO.
 def var v-print as logical initial "N" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
 form
     itemfg.i-no column-label " ITEM!NUMBER"
     itemfg.i-name label "DESCRIPTION"   format "x(15)"
@@ -982,7 +986,7 @@ form
 with no-box frame itemx down STREAM-IO width 132.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "FG ITEM NUMBER,DESCRIPTION,CUSTOMER ID,BEGINNING BALANCE,"
               + "ITEM COST,QUANTITY PRODUCED,QUANTITY SHIPPED,QUANTITY ADJUSTED,"
               + "QUANTITY ON-HAND,TOTAL VALUE".
@@ -1124,7 +1128,7 @@ FOR each fg-bin where fg-bin.company = itemfg.company and
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

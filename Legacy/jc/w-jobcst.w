@@ -137,6 +137,7 @@ DEFINE VARIABLE h_w-jobesf AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-jobest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-jobfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_optonote AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -365,6 +366,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/attach.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_attach ).
+       RUN set-position IN h_attach ( 1.00 , 30.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-capacityPage.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -423,6 +432,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartObject h_attach. */
+       RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'attach':U , h_attach ).
 
        /* Links to SmartViewer h_expxls. */
        RUN add-link IN adm-broker-hdl ( h_expxls , 'sort-data':U , THIS-PROCEDURE ).
@@ -1253,6 +1265,20 @@ PROCEDURE send-page-data :
   ASSIGN pcPageFrom = STRING(li-cur-page) .
   RETURN.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_att W-Win 
+PROCEDURE select_att :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/select_att.i}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

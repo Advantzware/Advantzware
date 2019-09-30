@@ -1239,10 +1239,13 @@ PROCEDURE ipPreRun :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lOK      AS LOGICAL INITIAL TRUE NO-UNDO.
-    DEFINE VARIABLE lExit    AS LOGICAL INITIAL TRUE NO-UNDO.
-    DEFINE VARIABLE hSession AS HANDLE               NO-UNDO.
-    DEFINE VARIABLE hTags    AS HANDLE               NO-UNDO.
+    DEFINE VARIABLE lOK AS LOGICAL INITIAL TRUE NO-UNDO.
+    DEFINE VARIABLE lExit AS LOGICAL INITIAL TRUE NO-UNDO.
+    DEFINE VARIABLE hSession AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hTags AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hCommonProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hCreditProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hPurgeProcs AS HANDLE NO-UNDO.
 
     ASSIGN
         iPos = LOOKUP(cbEnvironment,cEnvironmentList)
@@ -1254,7 +1257,8 @@ PROCEDURE ipPreRun :
     /* Here the format for both is 16070400 */
 
     IF iDbLevel GT 16050000
-    AND USERID(LDBNAME(1)) NE "asi" THEN DO:
+    AND USERID(LDBNAME(1)) NE "asi" THEN 
+    DO:
         RUN epCheckPwdExpire IN hPreRun (INPUT-OUTPUT lOK).
         IF NOT lOK THEN QUIT.
         RUN epCheckUserLocked IN hPreRun (INPUT-OUTPUT lOK).
@@ -1262,15 +1266,38 @@ PROCEDURE ipPreRun :
     END.
 
     IF NOT VALID-HANDLE(hSession)
-    AND iEnvLevel GE 16071600 THEN DO:
-        RUN system\session.p PERSISTENT SET hSession.
+    AND iEnvLevel GE 16071600 THEN 
+    DO:
+        RUN system/session.p PERSISTENT SET hSession.
         SESSION:ADD-SUPER-PROCEDURE (hSession).
     END.
     
     IF NOT VALID-HANDLE(hTags) 
-    AND iEnvLevel GE 16080000 THEN DO:
-        RUN system\TagProcs.p PERSISTENT SET hTags.
+    AND iEnvLevel GE 16080000 THEN 
+    DO:
+        RUN system/TagProcs.p PERSISTENT SET hTags.
         SESSION:ADD-SUPER-PROCEDURE (hTags).
+    END.
+    
+    IF NOT VALID-HANDLE(hCommonProcs) 
+    AND iEnvLevel GE 16120000 THEN 
+    DO:
+        RUN system/commonProcs.p PERSISTENT SET hCommonProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hCommonProcs).
+    END.
+    
+    IF NOT VALID-HANDLE(hCreditProcs) 
+    AND iEnvLevel GE 16120000 THEN 
+    DO:
+        RUN system/creditProcs.p PERSISTENT SET hCreditProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hCreditProcs).
+    END.
+    
+    IF NOT VALID-HANDLE(hPurgeProcs) 
+    AND iEnvLevel GE 16120000 THEN 
+    DO:
+        RUN system/purgeProcs.p PERSISTENT SET hPurgeProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hPurgeProcs).
     END.
     
     IF NOT VALID-HANDLE(persistent-handle) THEN
@@ -1285,7 +1312,7 @@ PROCEDURE ipPreRun :
         IF lExit THEN QUIT.
     END.
 
-    IF cbMode = "Touchscreen" THEN 
+    IF cbMode EQ "Touchscreen" THEN 
         RUN epTouchLogin in hPreRun (OUTPUT tslogin-log).
 
     RUN epUserRecordCheck IN hPreRun (OUTPUT lOK, OUTPUT g_track_usage).

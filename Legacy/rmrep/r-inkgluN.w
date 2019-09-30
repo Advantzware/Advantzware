@@ -107,9 +107,9 @@ DEF TEMP-TABLE tt-wax-coats
    FIELD procat            LIKE itemfg.procat
    FIELD m-code     LIKE mach.m-code FORMAT "x(6)"
    FIELD qty-iss        AS DEC FORMAT "->,>>>,>>>,>>9.9<<<<" 
-   FIELD v-board    AS DECIMAL 
+   FIELD v-board    AS DECIMAL .
 
-    .
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 
 FORM tt-wax-coats.trans-date LABEL "Issue Date"
      tt-wax-coats.job-no     LABEL "   Job #"
@@ -719,6 +719,7 @@ DO:
   IF v-valid THEN
   DO:
      SESSION:SET-WAIT-STATE("general").
+     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
      run run-report. 
      STATUS DEFAULT "Processing Complete". 
      SESSION:SET-WAIT-STATE("").
@@ -1203,8 +1204,7 @@ PROCEDURE DisplaySelectionList2 :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  DEF VAR cTmpList AS cha NO-UNDO.
-
+  
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
@@ -1235,12 +1235,7 @@ PROCEDURE DisplaySelectionList2 :
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
 
-  cTmpList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-
-   DO iCount = 1 TO sl_selected:NUM-ITEMS:
-       IF LOOKUP(ENTRY(iCount,cTmpList), cTextListToSelect) = 0 THEN
-        ldummy = sl_selected:DELETE(ENTRY(iCount,cTmpList)).
-  END.
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 
@@ -1496,7 +1491,7 @@ ASSIGN
    v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
    v-export   = tb_excel
-   v-exp-name = fi_file
+   v-exp-name = cFileName
    v-fCat     = begin_cat
    v-tCat     = END_cat
    v-mtype    = "".
@@ -2056,7 +2051,7 @@ END.
 IF v-export THEN DO:
    OUTPUT STREAM s-temp CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2125,7 +2120,7 @@ ASSIGN
    v-tjob     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
               TRIM(end_job-no)   + STRING(INT(end_job-no2),"99")
    v-export   = tb_excel
-   v-exp-name = fi_file
+   v-exp-name = cFileName
    v-fCat     = begin_cat
    v-tCat     = END_cat
    v-mtype    = "".
@@ -2482,7 +2477,7 @@ END.
 IF v-export THEN DO:
    OUTPUT STREAM s-temp CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

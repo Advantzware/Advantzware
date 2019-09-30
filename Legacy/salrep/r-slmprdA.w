@@ -907,6 +907,9 @@ DEF VAR lv-format-2 AS CHAR NO-UNDO.
 DEF VAR lv-format-3 AS CHAR NO-UNDO.
 
 DEF BUFFER b-ar-invl FOR ar-invl.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form w-data1.w-sman-no  column-label "No"
      sman.sname         column-label "Name" format "x(17)"
@@ -971,7 +974,7 @@ ELSE
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "No,Salesrep Name,Daily Sq Ft/M,Daily Amount,Daily $/MSF,"
               + "PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,YTD Amount,"
               + "YTD $/MSF".
@@ -993,7 +996,7 @@ EMPTY TEMP-TABLE w-data1.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

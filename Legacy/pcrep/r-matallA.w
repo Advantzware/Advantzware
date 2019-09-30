@@ -839,6 +839,9 @@ def var only-shrt as logical format "Y/N" init yes no-undo.
 def var detail as logical format "Y/N" no-undo.
 def var show-est as logical format "Y/N" no-undo.
 DEF VAR excelheader AS CHAR NO-UNDO. 
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form
     item.i-no column-label "ITEM #"
@@ -876,7 +879,7 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "ITEM #,DESCRIPTION, ,PROD CAT,UOM,QUANTITY ON HAND,"
               + "QUANTITY COMMITTED,QUANTITY AVAILABLE,QUANTITY ON ORDER,"
               + "QUANTITY PENDING,QUANTITY ISSUED,CURRENT SHORTAGE,FUTURE SHORTAGE".
@@ -1004,7 +1007,7 @@ for each item where item.company eq cocode and
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 

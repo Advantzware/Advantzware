@@ -726,6 +726,9 @@ DEF VAR viLoop AS INT NO-UNDO.
 DEF VAR var-first-of AS LOG NO-UNDO.
 DEF VAR var-print-four-spaces AS LOG NO-UNDO.
 DEF VAR carr-mtrx-printed AS LOG NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 assign
  str-tit2 = c-win:title
@@ -744,7 +747,7 @@ assign
 {sys/inc/outprint.i  value(lines-per-page) }
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Company,Location,Carrier,Desc.".
   IF detailed THEN
      excelheader = excelheader
@@ -885,7 +888,7 @@ end.
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

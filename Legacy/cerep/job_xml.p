@@ -304,6 +304,7 @@ DEF VAR lv-cad-image-list AS cha NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOG NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cXMlFinalDest AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTotalPass AS INTEGER NO-UNDO .
 RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -1483,7 +1484,23 @@ FOR EACH job-hdr NO-LOCK
            RUN XMLOutput (lXMLOutput,'Dock_Appointment_Number',cDockAptmnt,'Col').
            RUN XMLOutput (lXMLOutput,'Dock_Appointment_Contact',cContact,'Col').
            RUN XMLOutput (lXMLOutput,'/TicketPrint','','Row').
-             
+
+           RUN XMLOutput (lXMLOutput,'DepartmentName','','Row').
+          
+           FOR EACH wrk-op WHERE
+            wrk-op.s-num EQ job-hdr.frm 
+            BREAK BY wrk-op.dept BY wrk-op.pass DESC:
+
+               IF FIRST-OF(wrk-op.dept) THEN
+                    iTotalPass = 0 .
+
+               iTotalPass =  iTotalPass + wrk-op.pass . 
+               IF LAST-OF(wrk-op.dept)  THEN DO:
+                   RUN XMLOutput (lXMLOutput,'Department',wrk-op.dept,'Col').
+                   RUN XMLOutput (lXMLOutput,'Pass',iTotalPass,'Col').
+               END.
+           END.
+        RUN XMLOutput (lXMLOutput,'/DepartmentName','','Row').
    END. /* last-of(eb.form-no) */
           
   END. /* each eb */

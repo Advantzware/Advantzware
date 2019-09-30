@@ -34,9 +34,8 @@ DEFINE TEMP-TABLE ttHTMLFields NO-UNDO
         INDEX ttHTMLFields IS PRIMARY fieldType
         .
 
-
-
 /* ************************  Function Implementations ***************** */
+
 FUNCTION fHTMLFieldValue RETURNS CHARACTER
     (ipcTable       AS CHARACTER,
      ipcFieldLabel  AS CHARACTER,
@@ -396,6 +395,8 @@ IF AVAILABLE module AND
    module.expire-date GE TODAY AND 
    htmlPageLocation NE "" THEN
 RUN pHTMLPages.
+
+RUN pLoadSBJob.
 
 RUN pLogEntry ("SaveEnd", STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss")).
 
@@ -844,6 +845,33 @@ PROCEDURE pHTMLPages:
             OUTPUT CLOSE.
         END. /* if first-of */
     END.
+END PROCEDURE.
+
+PROCEDURE pLoadSBJob:
+    /* restark */
+    DEFINE VARIABLE xxxID AS CHARACTER NO-UNDO.
+    xxxID = ID.
+    IF INDEX(xxxID,"ASI/") NE 0 THEN
+    xxxID = REPLACE(xxxID,"ASI/","").
+
+    /* remove non-existant sbjob records */
+    FOR EACH sbJob EXCLUSIVE-LOCK
+        WHERE sbJob.sbName EQ xxxID
+        :
+        IF NOT CAN-FIND(FIRST ttblJob
+                        WHERE ttblJob.jobMchID EQ sbJob.job-mchID) AND
+           NOT CAN-FIND(FIRST pendingJob
+                        WHERE pendingJob.jobMchID EQ sbJob.job-mchID) THEN
+        DELETE sbJob.
+    END. /* each sbjob */
+
+    FOR EACH ttblJob:
+        {{&includes}/pLoadSBJob.i "ttblJob"}
+    END. /* each ttbljob */
+
+    FOR EACH pendingJob:
+        {{&includes}/pLoadSBJob.i "pendingJob"}
+    END. /* each pendingjob */
 END PROCEDURE.
 
 PROCEDURE pLogEntry:

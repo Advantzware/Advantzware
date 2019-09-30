@@ -1421,6 +1421,9 @@ DEF VAR lv-type   AS   CHAR NO-UNDO.
 DEF VAR li-seq AS INT NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lv-quotes AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {sys/form/r-topw.f}
 
@@ -1468,7 +1471,7 @@ assign
 {sys/inc/outprint.i value(lines-per-page)}
 
 IF tb_excel THEN DO:
-   OUTPUT STREAM excel TO VALUE(fi_file).
+   OUTPUT STREAM excel TO VALUE(cFileName).
    excelheader = "Customer,Customer/Item Name,Ship-To,Invoice Number,Invoice Date,"
                + "FG Item,Order Number,Qty Shipped,Unit Price,UOM,Invoice Amt,"
                + (IF v-sort1 EQ "O" THEN "ORDER QTY. TOTALS,ORDER AMT. TOTALS,"
@@ -2030,7 +2033,7 @@ FOR EACH ttCustList
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

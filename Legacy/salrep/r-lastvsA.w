@@ -1219,6 +1219,9 @@ DEF VAR lv-r-no   LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type   AS   CHAR NO-UNDO.
 DEF VARIABLE excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 ASSIGN
  str-tit2 = c-win:title
@@ -1318,7 +1321,7 @@ if not v-ytd then tdate[1] = v-date.
 if td-show-parm then run show-param.
 
 IF tb_excel THEN DO:
-          OUTPUT STREAM excel TO VALUE(fi_file).
+          OUTPUT STREAM excel TO VALUE(cFileName).
           excelheader = "Customer, Name/City/St,Sales Rep,This Year Sales," +
                         "This Year MSf,Last Year sales,Last Year MSF," +
                         "Sales Difference, %-OF LYR sales,".
@@ -1341,7 +1344,7 @@ SESSION:SET-WAIT-STATE ("").
   IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

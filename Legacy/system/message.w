@@ -308,7 +308,7 @@ PROCEDURE adm-create-objects :
                 RUN init-object IN THIS-PROCEDURE (
                     INPUT  'adm/objects/folder.w':U ,
                     INPUT  FRAME F-Main:HANDLE ,
-                    INPUT  'FOLDER-LABELS = ':U + 'Browse Message|View Message' + ',
+                    INPUT  'FOLDER-LABELS = ':U + 'Brws Message|View Message' + ',
                      FOLDER-TAB-TYPE = 1':U ,
                     OUTPUT h_folder ).
                 RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -334,7 +334,7 @@ PROCEDURE adm-create-objects :
                 /* Size in UIB:  ( 1.81 , 7.80 ) */*/
 
                 RUN init-object IN THIS-PROCEDURE (
-                    INPUT  'util/b-message.w':U ,
+                    INPUT  'system/b-message.w':U ,
                     INPUT  FRAME F-Main:HANDLE ,
                     INPUT  'Layout = ':U ,
                     OUTPUT h_b-message ).
@@ -354,7 +354,7 @@ PROCEDURE adm-create-objects :
         WHEN 2 THEN 
             DO:
                 RUN init-object IN THIS-PROCEDURE (
-                    INPUT  'util/v-message.w':U ,
+                    INPUT  'system/v-message.w':U ,
                     INPUT  FRAME F-Main:HANDLE ,
                     INPUT  'Layout = ':U ,
                     OUTPUT h_v-message ).

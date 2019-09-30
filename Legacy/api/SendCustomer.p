@@ -13,17 +13,21 @@
     {api/ttArgs.i}
     {api/CommonAPIProcs.i}
     
-    DEFINE INPUT        PARAMETER TABLE               FOR ttArgs.
-    DEFINE INPUT        PARAMETER ipcRequestHandler   AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData    AS LONGCHAR  NO-UNDO.
-    DEFINE OUTPUT       PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER TABLE                   FOR ttArgs.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundTriggerID AS INTEGER   NO-UNDO.    
+    DEFINE INPUT        PARAMETER ipcRequestHandler       AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData        AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cCalcAddress AS CHARACTER NO-UNDO.
     
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
             INPUT TABLE  ttArgs,
+            INPUT ipiAPIOutboundID,
+            INPUT ipiAPIOutboundTriggerID,
             INPUT-OUTPUT ioplcRequestData,
             OUTPUT oplSuccess,
             OUTPUT opcMessage

@@ -1145,6 +1145,9 @@ def var str_buffa as cha no-undo.
 def var v-comma as cha init "," no-undo.
 def var excelheader as cha no-undo.
 DEF VAR ld-cost AS DEC NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form header
      "        "
@@ -1263,7 +1266,7 @@ if td-show-parm then run show-param.
 DISPLAY with frame r-top.
 
 if tb_excel then do:
-  output stream excel to value(fi_file).
+  output stream excel to value(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 end.
 
@@ -1276,7 +1279,7 @@ OUTPUT CLOSE.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 SESSION:SET-WAIT-STATE ("").

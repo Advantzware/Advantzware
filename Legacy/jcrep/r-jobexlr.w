@@ -803,6 +803,8 @@ PROCEDURE DisplaySelectionList2 :
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
       ldummy = sl_avail:DELETE(sl_selected:ENTRY(iCount)).
   END.
+  
+  {sys/ref/SelColCorrect.i}
 
 END PROCEDURE.
 

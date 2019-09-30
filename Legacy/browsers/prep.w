@@ -345,8 +345,10 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+      
   APPLY 'entry' TO BROWSE {&browse-name}.
 
+  RUN spec-book-image-proc .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,6 +414,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lcPrepFrom AS CHAR NO-UNDO.
+DEFINE VARIABLE lcPrepTo   AS CHAR NO-UNDO.
+
+ASSIGN
+    lcPrepFrom = prep.code
+    lcPrepTo = lcPrepFrom.
+
+    RUN fg/rd-PrepExp.w (lcPrepFrom,
+                       lcPrepTo).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -426,6 +450,8 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
   APPLY 'value-changed' TO BROWSE {&browse-name}.
+
+  RUN spec-book-image-proc .
 
 END PROCEDURE.
 
@@ -449,6 +475,30 @@ PROCEDURE send-records :
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
+PROCEDURE spec-book-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   IF AVAIL prep THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = prep.rec_key AND
+               notes.note_type = "S") .
+   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachprep-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN Spec-Book-Image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

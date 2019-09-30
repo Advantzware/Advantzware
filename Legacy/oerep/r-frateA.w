@@ -940,6 +940,9 @@ DEF VAR v-pallets AS INT NO-UNDO.
 DEF VAR v-qty-pal AS DEC NO-UNDO.
 DEF VAR v-frate AS DEC EXTENT 2 NO-UNDO.
 DEF VAR v-frt-chg AS DEC NO-UNDO.
+DEFINE VARIABLE cFileName LIKE v-excel-file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT v-excel-file,OUTPUT cFileName) .
 
 assign
  str-tit2 = c-win:title
@@ -967,7 +970,7 @@ display "" with frame r-top.
 IF tb_excel THEN
 DO:
 
-   OUTPUT STREAM st-excel TO VALUE(v-excel-file).
+   OUTPUT STREAM st-excel TO VALUE(cFileName).
 
    PUT STREAM st-excel
        "Invoice#,"
@@ -1145,7 +1148,7 @@ IF tb_excel THEN
 DO:
   OUTPUT STREAM st-excel CLOSE.
   IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(v-excel-file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

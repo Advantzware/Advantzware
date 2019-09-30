@@ -625,6 +625,7 @@
 "" "w-usrprt." "Batch Procedure Maintenance" yes 12/31/19 "ASI"
 "" "w-void." "Void AP Checks" yes 12/31/19 "ASI"
 "" "wedshtr." "EDI Ship Notices (856)" yes 12/31/19 "ASI"
+"" "WIP" "Work In Progress" no 12/31/2999 "ASI"
 "" "wQuery." "Query Builder" yes 12/31/19 "ASI"
 "" "xref." "Cross References" yes 12/31/19 "ASI"
 "" "zipcode." "Zip Codes" yes 12/31/19 "ASI"

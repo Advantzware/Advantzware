@@ -496,14 +496,14 @@ end.
       SKIP.
 
    PUT {1}
-     "Autorisè Par ________________________________"       at 2
+     "Authorised by ________________________________"       at 2
      "TVQ:"                 to 66   
      v-tax[2]               to 80   format ">>,>>>,>>9.99"
      v-username FORM "x(30)" at 2
      "GRAND TOTAL:"         to 66  
      v-po-tot[2]            to 80   format ">>,>>>,>>9.99".
    PUT {1} SKIP(1)
-     "Vèrifiè Par _________________________________"       at 2.
+     "Verified by _________________________________"       at 2.
 
    /*PUT {1}*/
    /*  "<B>FUNDS payable in " + string(cCurCode,"x(3)") +  ".</B>" AT 59 FORMAT "x(200)" .*/

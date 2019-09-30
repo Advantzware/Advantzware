@@ -114,6 +114,8 @@ DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE iFGUnderOver AS INTEGER NO-UNDO.
+
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
                        INPUT "L",
@@ -147,6 +149,19 @@ RUN sys/ref/nk1look.p (INPUT cocode,
 IF lFound THEN
     iFgEmails = INTEGER(cFgEmails) NO-ERROR.
 lFgEmails = (IF iFgEmails EQ 1 THEN YES ELSE NO).
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "FGUnderOver",
+                       INPUT "I",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cFGSetAssembly,
+                       OUTPUT lFound).
+IF lFound THEN
+    iFGUnderOver = integer(cFGSetAssembly) NO-ERROR .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -945,6 +960,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fg-rctd.partial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.partial Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF fg-rctd.partial IN BROWSE Browser-Table /* Partial */
+DO:
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+  RUN valid-over-qty(OUTPUT lCheckError).
+  IF lCheckError THEN RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &Scoped-define SELF-NAME fg-rctd.partial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.partial Browser-Table _BROWSE-COLUMN B-table-Win
@@ -1563,7 +1591,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
     IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
        RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                               v-rec-qty, OUTPUT v-rec-qty).
-    IF v-rec-qty GT (po-ordl.ord-qty * 
+    IF iFGUnderOver EQ 0 AND v-rec-qty GT (po-ordl.ord-qty * 
                     (1 + (po-ordl.over-pct / 100)))
        AND NOT lv-overrun-checked
     THEN DO:
@@ -1722,8 +1750,8 @@ PROCEDURE get-matrix-all :
           RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
           IF NOT ll-ea THEN
             RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
-                                   v-rec-qty, OUTPUT v-rec-qty).
-         IF v-rec-qty GT (po-ordl.ord-qty * 
+                                   v-rec-qty, OUTPUT v-rec-qty).  
+         IF iFGUnderOver EQ 0 AND v-rec-qty GT (po-ordl.ord-qty * 
                     (1 + (po-ordl.over-pct / 100)))
             AND NOT lv-overrun-checked
           THEN DO:
@@ -2429,6 +2457,9 @@ PROCEDURE local-update-record :
      NOT lv-new-job-ran THEN RUN new-job-no.
 
   RUN validate-record(OUTPUT op-error).
+  IF op-error THEN RETURN NO-APPLY.
+
+  RUN valid-over-qty(OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
 
   /* Dispatch standard ADM method.                             */
@@ -3576,6 +3607,31 @@ PROCEDURE validate-record :
       op-error = YES.
       LEAVE.
    END. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-over-qty B-table-Win 
+PROCEDURE valid-over-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-uom-list AS cha NO-UNDO.
+  DEF VAR lv-uom AS CHAR NO-UNDO.
+  DEF VAR lv-uom-help AS CHAR NO-UNDO.
+
+  DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      IF iFGUnderOver EQ 1 AND fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE ""  THEN do:
+          {fg/chkporun.i}
+      END.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

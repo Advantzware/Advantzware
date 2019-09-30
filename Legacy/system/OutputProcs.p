@@ -42,6 +42,11 @@ FUNCTION FormatString RETURNS CHARACTER
     (ipcString AS CHARACTER,
     ipiCharacters AS INTEGER) FORWARD.
 
+FUNCTION Output_FixedFormatString RETURNS CHARACTER
+    (ipcString   AS CHARACTER,
+     ipcDataType AS CHARACTER,
+     ipiLength   AS INTEGER) FORWARD.
+
 /* ***************************  Main Block  *************************** */
 /*Initialize Constants and Property Defaults*/
 ASSIGN 
@@ -559,4 +564,41 @@ FUNCTION FormatString RETURNS CHARACTER
     
     RETURN cReturn.
         
+END FUNCTION.
+
+FUNCTION Output_FixedFormatString RETURNS CHARACTER
+    (ipcString    AS CHARACTER,
+     ipcDataType  AS CHARACTER,
+     ipiLength    AS INTEGER):
+    DEFINE VARIABLE cFormattedString AS CHARACTER NO-UNDO.
+     
+    CASE ipcDataType:
+        WHEN "CHARACTER" THEN
+            ASSIGN
+                cFormattedString = UPPER(ipcString)
+                cFormattedString = STRING(cFormattedString,"X(" + STRING(ipiLength) + ")")
+                .
+        WHEN "DECIMAL" THEN DO:
+            ASSIGN
+                cFormattedString = IF DECIMAL(ipcString) LT 0 THEN
+                                       STRING(DECIMAL(ipcString),"-" + FILL("9",ipiLength - 3) + ".99")
+                                   ELSE
+                                       STRING(DECIMAL(ipcString),FILL("9",ipiLength - 2) + ".99")
+                cFormattedString = REPLACE(cFormattedString,".","")
+                .
+        END.
+        WHEN "INTEGER" THEN
+            cFormattedString = IF DECIMAL(ipcString) LT 0 THEN
+                                   STRING(INTEGER(ipcString),"-" + FILL("9",ipiLength - 1))
+                               ELSE
+                                   STRING(INTEGER(ipcString),FILL("9",ipiLength)).
+        WHEN "DATE" THEN
+            cFormattedString = STRING(YEAR(DATE(ipcString)),"9999")
+                             + STRING(MONTH(DATE(ipcString)),"99")
+                             + STRING(DAY(DATE(ipcString)),"99").
+        WHEN "TIME" THEN
+            cFormattedString = REPLACE(ipcString, ":", "").
+    END CASE.
+
+    RETURN cFormattedString. 
 END FUNCTION.

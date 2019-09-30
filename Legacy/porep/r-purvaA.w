@@ -1228,6 +1228,9 @@ DEFINE VARIABLE receiptDate AS DATE NO-UNDO.
 DEFINE VARIABLE DueDate AS DATE NO-UNDO.
 DEF VAR v-moa-cols AS LOG NO-UNDO.
 DEF VAR ld-dim-charge AS DEC NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form po-ord.po-no          column-label "PO #" space(2)
      po-ord.vend-no        column-label "Vendor #" space(2)
@@ -1289,8 +1292,8 @@ display "" with frame r-top.
 
 SESSION:SET-WAIT-STATE ("general").
 
-IF tb_excel AND fi_file NE '' THEN DO:
-  OUTPUT STREAM st-excel TO VALUE(fi_file).
+IF tb_excel AND cFileName NE '' THEN DO:
+  OUTPUT STREAM st-excel TO VALUE(cFileName).
   excelheader = "PO #,Vendor #".
   IF tb_adder THEN
      excelheader = excelheader + "/Adders".
@@ -1588,7 +1591,7 @@ DO WITH FRAME main:
      FOR EACH temp-adder:
          PUT SPACE(8) temp-adder.adder SKIP.
      END.
-  IF tb_excel AND fi_file NE '' THEN
+  IF tb_excel AND cFileName NE '' THEN
   DO:
      PUT STREAM st-excel UNFORMATTED
        '"' po-ord.po-no '",'
@@ -1624,7 +1627,7 @@ do:
           v-sub-vend to 91
           v-sub-bght to 105
           v-sub-diff to 120 skip(1).
-  IF tb_excel AND fi_file NE '' THEN
+  IF tb_excel AND cFileName NE '' THEN
   PUT STREAM st-excel UNFORMATTED
     SKIP(1)
     '"",'
@@ -1654,7 +1657,7 @@ end.
           v-grand-bght to 105
           v-grand-diff to 120 skip(1).
 
-  IF tb_excel AND fi_file NE '' THEN
+  IF tb_excel AND cFileName NE '' THEN
   PUT STREAM st-excel UNFORMATTED
     SKIP(1)
     '"",'
@@ -1673,7 +1676,7 @@ end.
          v-grand-vend = 0
          v-grand-bght = 0.
 
-IF tb_excel AND fi_file NE '' THEN
+IF tb_excel AND cFileName NE '' THEN
    OUTPUT STREAM st-excel CLOSE.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE ("").
