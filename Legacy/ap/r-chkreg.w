@@ -157,13 +157,13 @@ END.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd_sort tb_prt-acc ~
-tb_void rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile lv-ornt ~
-rd-dest lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
-btn-ok btn-cancel 
+tb_void rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile ~
+fiTransmitFile lv-ornt rd-dest lines-per-page lv-font-no td-show-parm ~
+tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period lbl_sort rd_sort ~
 tb_prt-acc tb_void rd_print-apfile tb_APcheckFile fi_CheckFile ~
-tbTransmitFile fiTransmitFile lv-ornt rd-dest lines-per-page lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+tbTransmitFile lv-ornt rd-dest lines-per-page lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -187,7 +187,7 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE fiTransmitFile AS CHARACTER FORMAT "X(50)" 
+DEFINE VARIABLE fiTransmitFile AS CHARACTER FORMAT "X(100)" 
      VIEW-AS FILL-IN 
      SIZE 54 BY .81
      BGCOLOR 15 FGCOLOR 9 .
@@ -407,8 +407,9 @@ ASSIGN
                 "ribbon-button".
 
 /* SETTINGS FOR FILL-IN fiTransmitFile IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY                                                           */
 ASSIGN 
+       fiTransmitFile:READ-ONLY IN FRAME FRAME-A        = TRUE
        fiTransmitFile:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -1074,6 +1075,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                   + STRING(YEAR(TODAY),"9999")
                                   + STRING(MONTH(TODAY),"99")
                                   + STRING(DAY(TODAY),"99")
+                                  + REPLACE(STRING(TIME,"hh:mm:ss"), ":", "")
                                   + ".txt"
         fiTransmitFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cBankTransmitFullFilePath 
                                                            + cBankTransmitFileName
@@ -1347,14 +1349,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tran-date tran-period lbl_sort rd_sort tb_prt-acc tb_void 
-          rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile 
-          fiTransmitFile lv-ornt rd-dest lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile lv-ornt 
+          rd-dest lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tran-date rd_sort tb_prt-acc tb_void rd_print-apfile 
-         tb_APcheckFile fi_CheckFile tbTransmitFile lv-ornt rd-dest 
-         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
-         btn-ok btn-cancel 
+         tb_APcheckFile fi_CheckFile tbTransmitFile fiTransmitFile lv-ornt 
+         rd-dest lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
+         fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1834,17 +1836,27 @@ PROCEDURE run-report :
 /* -------------------------------------------------------------------------- */
 
 /* Start bank transmittal file generation */
-    DEFINE VARIABLE cAPIID     AS CHARACTER NO-UNDO INITIAL "CheckTransfer".
-    DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO INITIAL "TransmitBankFile".
-    DEFINE VARIABLE cArgValues AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBankCode  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iEventID   AS INTEGER   NO-UNDO.
-        
+    DEFINE VARIABLE cAPIID          AS CHARACTER NO-UNDO INITIAL "CheckTransfer".
+    DEFINE VARIABLE cTriggerID      AS CHARACTER NO-UNDO INITIAL "TransmitBankFile".
+    DEFINE VARIABLE cFTPType        AS CHARACTER NO-UNDO INITIAL "Generic".
+    DEFINE VARIABLE cFTPCode        AS CHARACTER NO-UNDO INITIAL "CheckTransfer". 
+    DEFINE VARIABLE cFTPPartner     AS CHARACTER NO-UNDO.       
+    DEFINE VARIABLE cFTPScriptFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cArgValues      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBankCode       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iEventID        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hdFTPProcs      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lcResponseXML   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcRequestData   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cNotesMessage   AS CHARACTER NO-UNDO.
+    
+    RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
+    
     IF tbTransmitFile:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
         cArgValues = cBankTransmitFileName + "," + cBankTransmitFullFilePath.
-        /* Creating bank trasmit file */
+        /* Step 1. Creating bank trasmit file */
         RUN ap/APExportPayablesAdvFormat.p (
             INPUT  cocode, 
             INPUT  post-manual, 
@@ -1853,8 +1865,16 @@ PROCEDURE run-report :
             OUTPUT lSuccess,
             OUTPUT cMessage
             ) NO-ERROR.
+            
         /* Call outbound API "CheckTransfer" to FTP the file */
         IF NOT ERROR-STATUS:ERROR AND lSuccess AND cBankCode NE "" THEN DO:
+            cFTPPartner = cBankCode.
+            
+            /* Copy the file generated to lcRequestData, which in turn will be saved to APIOutbound Request Data */
+            COPY-LOB FROM FILE cBankTransmitFullFilePath + cBankTransmitFileName TO lcRequestData.
+            
+            /* Step 2. Call to "CheckTransfer" API with "TransmitBankFile" trigger. This will initiate the 
+               FTP transfer for the check file generated. Once executed an Outbound Event record will be generated */
             RUN api\PrepareAndCallOutboundRequest.p (
                 INPUT  cocode,                  /* Company Code (Mandatory) */
                 INPUT  g_loc,                   /* Location Code (Mandatory) */
@@ -1863,19 +1883,56 @@ PROCEDURE run-report :
                 INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
                 INPUT  "LocalFileName,LocalFilePath", /* Comma separated list of table names for which data being sent (Mandatory) */
                 INPUT  cArgValues,              /* Comma separated list of Values for the respective key */
-                INPUT  "FTPTransfer",           /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  cBankCode,               /* Primary ID for which API is called for (Mandatory) */   
                 INPUT  "FTP File Transfer",     /* Event's description (Optional) */
                 INPUT  FALSE,                   /* Re-trigger flag (Mandatory) - Pass TRUE to re-trigger an Outbound Event, Pass FALSE for new API call */
                 OUTPUT iEventID,                /* Outbound Event ID generated */
                 OUTPUT lSuccess,                /* Success/Failure flag */
                 OUTPUT cMessage                 /* Status message */
                 ).
-            
-            IF lSuccess THEN
-                MESSAGE "Initiated FTP transfer for check file " + cBankTransmitFullFilePath + cBankTransmitFileName
-                    ". View log files to check the transfer status." VIEW-AS ALERT-BOX.
-        END.    
-    END.     
+                        
+            IF lSuccess THEN DO:
+                /* Step 3. Fetch the file name of the script from ftpConfig, in which FTP file transfer status is available */
+                RUN FTP_GetScriptName IN hdFTPProcs (
+                    INPUT  cocode,
+                    INPUT  cFTPType,
+                    INPUT  cFTPCode,
+                    INPUT  cFTPPartner,
+                    INPUT  cBankTransmitSysCtrlName,
+                    OUTPUT cFTPScriptFile
+                    ).
+                
+                /* Step 4. Reading the FTP transfer status xml */
+                RUN FTP_GetResponse IN hdFTPProcs (
+                    INPUT  cFTPScriptFile,
+                    OUTPUT lcResponseXML,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).
+                
+                cNotesMessage = IF lSuccess THEN
+                                    "FTP Transfer Status - SUCCESS - Check file transferred successfully"
+                                ELSE
+                                    "FTP Transfer Status - SUCCESS - " + cMessage
+                                .
+                                
+                /* Step 5. Update the Outbound event's request data, response data, error message and transfer status */
+                RUN api/UpdateAPIOutboundEvent.p (
+                    INPUT iEventID,
+                    INPUT lcRequestData,
+                    INPUT lcResponseXML,    
+                    INPUT cNotesMessage,                                                                       
+                    INPUT lSuccess,
+                    INPUT cMessage
+                    ).
+                    
+                MESSAGE "FTP transfer for check file " + cBankTransmitFullFilePath + cBankTransmitFileName
+                    "is " + TRIM(STRING(lSuccess, "successful/failed")) + ". View log files for more information." VIEW-AS ALERT-BOX.
+            END.
+        END.           
+    END.
+
+    DELETE OBJECT hdFTPProcs.    
 /* End bank transmittal file generation */
 
 ASSIGN
