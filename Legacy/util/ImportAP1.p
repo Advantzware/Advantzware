@@ -17,36 +17,35 @@
 DEFINE TEMP-TABLE ttImportAP1
     FIELD Company         AS CHARACTER FORMAT "x(3)"
     FIELD Location        AS CHARACTER 
-    FIELD VendorID        AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Vendor ID" HELP "Required - Must be valid - Size:10"
-    FIELD VendorName      AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Vendor Name" HELP "Optional - Character"
-    FIELD LinePONumber1    AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "PO #1" HELP "Optional - INTEGER"
-    FIELD LinePONumber2   AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "PO #2" HELP "Optional - INTEGER"
-    FIELD LinePONumber3   AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "PO #3" HELP "Optional - INTEGER"
-    FIELD LinePONumber4   AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "PO #4" HELP "Optional - INTEGER"
-    FIELD InvoiceNo       AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Invoice #" HELP "Required - Size:20"
-    FIELD InvoiceDate     AS DATE      FORMAT "99/99/99" COLUMN-LABEL "Inv Date" HELP "Defaults to Today - Date"
-    FIELD TotalAmount     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "$ Total Amount" HELP "Optional - Decimal"
-    FIELD Tax             AS CHARACTER   FORMAT "X(20)" COLUMN-LABEL "Tax #" HELP "Required - Size:20"
-    FIELD VendorTerms     AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor Terms" HELP "Optional - Character"
-    FIELD APClerkAssigned AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "AP Clerk Assigned" HELP "Optional - Character"
-    FIELD LineAccount1     AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Accnt #1" HELP "Defaults to Vendor GL Account - Size:20"
-    FIELD LineQuantity1    AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity1" HELP "Defaults to 1 - Decimal"
-    FIELD LinePrice1       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price1" HELP "Defaults to Line Amount - Decimal"
-    FIELD LineAccount2    AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Accnt #2" HELP "Defaults to Vendor GL Account - Size:20"
-    FIELD LineQuantity2   AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 2" HELP "Defaults to 1 - Decimal"
-    FIELD LinePrice2     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 2" HELP "Defaults to Line Amount - Decimal"
-    FIELD LineAccount3    AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Accnt #3" HELP "Defaults to Vendor GL Account - Size:20"
-    FIELD LineQuantity3   AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 3" HELP "Defaults to 1 - Decimal"
-    FIELD LinePrice3      AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 3" HELP "Defaults to Line Amount - Decimal"
-    FIELD LineAccount4    AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Accnt #4" HELP "Defaults to Vendor GL Account - Size:20"
-    FIELD LineQuantity4   AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 4" HELP "Defaults to 1 - Decimal"
-    FIELD LinePrice4      AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 4" HELP "Defaults to Line Amount - Decimal"
+    FIELD VendorID        AS CHARACTER FORMAT "x(10)"           COLUMN-LABEL "Vendor ID"         HELP "Required - Must be valid - Size:10"
+    FIELD VendorName      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "Vendor Name"       HELP "Optional - Character"
+    FIELD LinePONumber1   AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #1"             HELP "Optional - INTEGER"
+    FIELD LinePONumber2   AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #2"             HELP "Optional - INTEGER"
+    FIELD LinePONumber3   AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #3"             HELP "Optional - INTEGER"
+    FIELD LinePONumber4   AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #4"             HELP "Optional - INTEGER"
+    FIELD InvoiceNo       AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "Invoice #"         HELP "Required - Size:20"
+    FIELD InvoiceDate     AS DATE      FORMAT "99/99/99"        COLUMN-LABEL "Inv Date"          HELP "Defaults to Today - Date"
+    FIELD TotalAmount     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "$ Total Amount"    HELP "Optional - Decimal"
+    FIELD Tax             AS CHARACTER FORMAT "X(20)"           COLUMN-LABEL "Tax #"             HELP "Required - Size:20"
+    FIELD VendorTerms     AS CHARACTER FORMAT "x(8)"            COLUMN-LABEL "Vendor Terms"      HELP "Optional - Character"
+    FIELD APClerkAssigned AS CHARACTER FORMAT "x(8)"            COLUMN-LABEL "AP Clerk Assigned" HELP "Optional - Character"
+    FIELD LineAccount1    AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #1"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity1   AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity1"         HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice1      AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price1"            HELP "Defaults to Line Amount - Decimal"
+    FIELD LineAccount2    AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #2"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity2   AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 2"        HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice2      AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 2"           HELP "Defaults to Line Amount - Decimal"
+    FIELD LineAccount3    AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #3"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity3   AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 3"        HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice3      AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 3"           HELP "Defaults to Line Amount - Decimal"
+    FIELD LineAccount4    AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #4"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity4   AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 4"        HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice4      AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 4"           HELP "Defaults to Line Amount - Decimal"
     .
     
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-
-DEFINE VARIABLE hdTagProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdTagProcs    AS HANDLE  NO-UNDO.
 
 RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
 
@@ -60,15 +59,16 @@ RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
  /*This Includes Procedures with the expected parameters.  Includes pInitialize, pAddRecord, pProcessImport*/
 {util/ImportProcs.i &ImportTempTable = "ttImportAP1"}
 
+/* FG Item Receipt quantity and price validation */
 PROCEDURE pValidateFGItemRecieptQtyPrice:
-    DEFINE INPUT        PARAMETER ipriAPInvl     AS ROWID     NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipiPoNo        AS INTEGER   NO-UNDO. 
-    DEFINE INPUT        PARAMETER ipiPoLine      AS INTEGER   NO-UNDO.
-    DEFINE INPUT        PARAMETER ipdQuantity    AS INTEGER   NO-UNDO. 
-    DEFINE INPUT        PARAMETER ipdPrice       AS INTEGER   NO-UNDO. 
-    DEFINE OUTPUT       PARAMETER oplHold        AS LOGICAL   NO-UNDO.    
-    DEFINE INPUT-OUTPUT PARAMETER opcHoldNote    AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipriAPInvl   AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiPoNo      AS INTEGER   NO-UNDO. 
+    DEFINE INPUT        PARAMETER ipiPoLine    AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdQuantity  AS INTEGER   NO-UNDO. 
+    DEFINE INPUT        PARAMETER ipdPrice     AS INTEGER   NO-UNDO. 
+    DEFINE INPUT-OUTPUT PARAMETER ioplHold     AS LOGICAL   NO-UNDO.    
+    DEFINE INPUT-OUTPUT PARAMETER iopcHoldNote AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dQuantity   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lQtyMatch   AS LOGICAL   NO-UNDO.
@@ -132,39 +132,40 @@ PROCEDURE pValidateFGItemRecieptQtyPrice:
 
     IF NOT lQtyMatch THEN
         ASSIGN
-            oplHold     = YES
+            ioplHold    = YES
             cMessage    = "PO # " + STRING(ipiPoNo)  + 
                           "-" + STRING(po-ordl.line) + " Quantity (" + STRING(ipdQuantity) + 
                           ") does not match"
-            opcHoldNote = IF opcHoldNote EQ '' THEN
+            iopcHoldNote = IF iopcHoldNote EQ '' THEN
                               cMessage
                           ELSE
-                              opcHoldNote + "|" + cMessage
+                              iopcHoldNote + "|" + cMessage
             .
         
     IF NOT lPriceMatch THEN
         ASSIGN
-            oplHold      = YES
+            ioplHold     = YES
             cMessage     = "PO # " + STRING(ipiPoNo) + 
                            "-" + STRING(po-ordl.line) + " Price (" + STRING(ipdPrice)  + 
                            ") does not match"
-            opcHoldNote  = IF opcHoldNote EQ '' THEN
+            iopcHoldNote = IF iopcHoldNote EQ '' THEN
                                cMessage
                            ELSE
-                               opcHoldNote + "|" + cMessage
+                               iopcHoldNote + "|" + cMessage
             .
     
 END PROCEDURE.
 
+/* RM Item Receipt quantity and price validation */
 PROCEDURE pValidateRMItemRecieptQtyPrice:
-    DEFINE INPUT        PARAMETER ipriAPInvl     AS ROWID     NO-UNDO.
-    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT        PARAMETER ipiPoNo        AS INTEGER   NO-UNDO. 
-    DEFINE INPUT        PARAMETER ipiPoLine      AS INTEGER   NO-UNDO.
-    DEFINE INPUT        PARAMETER ipdQuantity    AS INTEGER   NO-UNDO. 
-    DEFINE INPUT        PARAMETER ipdPrice       AS INTEGER   NO-UNDO. 
-    DEFINE OUTPUT       PARAMETER oplHold        AS LOGICAL   NO-UNDO.    
-    DEFINE INPUT-OUTPUT PARAMETER opcHoldNote    AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipriAPInvl   AS ROWID     NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiPoNo      AS INTEGER   NO-UNDO. 
+    DEFINE INPUT        PARAMETER ipiPoLine    AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipdQuantity  AS DECIMAL   NO-UNDO. 
+    DEFINE INPUT        PARAMETER ipdPrice     AS DECIMAL   NO-UNDO. 
+    DEFINE INPUT-OUTPUT PARAMETER ioplHold     AS LOGICAL   NO-UNDO.    
+    DEFINE INPUT-OUTPUT PARAMETER iopcHoldNote AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dQuantity   AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lQtyMatch   AS LOGICAL   NO-UNDO.
@@ -208,6 +209,7 @@ PROCEDURE pValidateRMItemRecieptQtyPrice:
         dQuantity = dQuantity + rm-rdtlh.qty.
         
         IF dQuantity EQ ipdQuantity THEN DO:
+       
             IF rm-rdtlh.cost EQ ipdPrice THEN
                 lPriceMatch = TRUE.
                 
@@ -222,84 +224,85 @@ PROCEDURE pValidateRMItemRecieptQtyPrice:
 
     IF NOT lQtyMatch THEN
         ASSIGN
-            oplHold     = YES
+            ioplHold    = YES
             cMessage    = "PO # " + STRING(ipiPoNo)  + 
                           "-" + STRING(po-ordl.line,"999") + ", Quantity " + STRING(ipdQuantity) + 
                           " does not match"
-            opcHoldNote = IF opcHoldNote EQ '' THEN
+            iopcHoldNote = IF iopcHoldNote EQ '' THEN
                               cMessage
                           ELSE
-                             opcHoldNote + "|" + cMessage
+                             iopcHoldNote + "|" + cMessage
             .
         
     IF NOT lPriceMatch THEN
         ASSIGN
-            oplHold      = YES
+            ioplHold     = YES
             cMessage     = "PO # " + STRING(ipiPoNo) + 
                            "-" + STRING(po-ordl.line,"999") + ", Price " + STRING(ipdPrice)  + 
                            " does not match"
-            opcHoldNote  = IF opcHoldNote EQ '' THEN
+            iopcHoldNote = IF iopcHoldNote EQ '' THEN
                                cMessage
                            ELSE
-                               opcHoldNote + "|" + cMessage
+                               iopcHoldNote + "|" + cMessage
             .
     
 END PROCEDURE.
 
-PROCEDURE pFetchPOLineDetails:
+/* Validates PO Number and Account Number */
+PROCEDURE pValidatePoAccountNumber:
     DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipiPoNo        AS INTEGER   NO-UNDO. 
+    DEFINE INPUT        PARAMETER ipiPoLine      AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER ipiLineAccount AS CHARACTER NO-UNDO. 
     DEFINE INPUT        PARAMETER ipdQuantity    AS DECIMAL   NO-UNDO. 
     DEFINE INPUT        PARAMETER ipdPrice       AS DECIMAL   NO-UNDO. 
-    DEFINE OUTPUT       PARAMETER oplHold        AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT       PARAMETER opiPoLine      AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplHold       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplItemType    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER opcHoldNote    AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcHoldNote   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-       
+        
     FIND FIRST po-ord NO-LOCK
          WHERE po-ord.company EQ ipcCompany
            AND po-ord.po-no   EQ ipiPONo
          NO-ERROR.
     IF NOT AVAILABLE po-ord THEN DO:
         ASSIGN
-            oplHold      = YES            
+            ioplHold      = YES            
             cMessage     = "PO # (" + STRING(ipiPoNo) + 
                            ") is not available"
-            opcHoldNote  = IF opcHoldNote EQ '' THEN
+            iopcHoldNote  = IF iopcHoldNote EQ '' THEN
                                cMessage
                            ELSE
-                               opcHoldNote + "|" + cMessage
+                               iopcHoldNote + "|" + cMessage
             .
+
         RETURN.            
     END.
                 
     FIND FIRST po-ordl NO-LOCK
          WHERE po-ordl.company EQ po-ord.company
            AND po-ordl.po-no   EQ po-ord.po-no
+           AND po-ordl.line    EQ ipiPoLine
            AND po-ordl.actnum  EQ ipiLineAccount
          NO-ERROR.    
     IF AVAILABLE po-ordl THEN        
-        ASSIGN
-            opiPoLine   = po-ordl.line
-            oplItemType = po-ordl.item-type
-            .
+        oplItemType = po-ordl.item-type.
     ELSE
         ASSIGN
-            oplHold      = YES
+            ioplHold      = YES
             cMessage     = "PO # " + STRING(ipiPoNo) + 
                            ", Account Number " + ipiLineAccount  + 
                            " does not match"
-            opcHoldNote  = IF opcHoldNote EQ '' THEN
+            iopcHoldNote  = IF iopcHoldNote EQ '' THEN
                                cMessage
                            ELSE
-                               opcHoldNote + "|" + cMessage
+                               iopcHoldNote + "|" + cMessage
             .
     
 END PROCEDURE.
 
+/* Creates Invoicelines */
 PROCEDURE pCreateInvoiceLine:
     DEFINE INPUT  PARAMETER ipriapinv      AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPoNo        AS INTEGER   NO-UNDO. 
@@ -308,17 +311,17 @@ PROCEDURE pCreateInvoiceLine:
     DEFINE INPUT  PARAMETER ipdQuantity    AS DECIMAL   NO-UNDO. 
     DEFINE INPUT  PARAMETER ipdPrice       AS DECIMAL   NO-UNDO. 
     DEFINE INPUT  PARAMETER ipdTotalAmount AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER ipriAPInvl     AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriAPInvl     AS ROWID     NO-UNDO.
 
     RUN pCreateNewInvoiceLine (
         INPUT  ipriapinv, 
         INPUT  ipiPoNo,
         INPUT  ipiPoLine,
-        OUTPUT ipriAPInvl
+        OUTPUT opriAPInvl
         ).
         
     FIND ap-invl EXCLUSIVE-LOCK 
-        WHERE ROWID(ap-invl) EQ ipriAPInvl
+        WHERE ROWID(ap-invl) EQ opriAPInvl
         NO-ERROR.
     IF NOT AVAILABLE ap-invl THEN
         RETURN ERROR.
@@ -333,127 +336,171 @@ PROCEDURE pCreateInvoiceLine:
         .
 END PROCEDURE.
 
+/* Validates Key Fields */
 PROCEDURE pValidate PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Validates a given Import Record for key fields
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttImportAP1 FOR ttImportAP1.
-    DEFINE INPUT  PARAMETER iplUpdateDuplicates AS LOGICAL NO-UNDO.
-    DEFINE INPUT  PARAMETER iplFieldValidation  AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplValid            AS LOGICAL NO-UNDO.
+    
+    DEFINE INPUT  PARAMETER iplUpdateDuplicates AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplFieldValidation  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid            AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote             AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hdValidator   AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE iLinePONumber AS INTEGER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE hdValidator     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cPOLineDetails  AS CHARACTER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE lInvLineAvail   AS LOGICAL   NO-UNDO EXTENT 4.      
+    DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lDuplicateLines AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bf-ttImportAP1 FOR ttImportAP1.
      
     RUN util/Validate.p PERSISTENT SET hdValidator.
+    
+    oplValid = YES.
+    
+    RUN pFetchInvoiceDetails (
+        BUFFER ipbf-ttImportAP1,
+        OUTPUT cPOLineDetails[1],
+        OUTPUT cPOLineDetails[2],
+        OUTPUT cPOLineDetails[3],
+        OUTPUT cPOLineDetails[4]
+        ).
   
-    ASSIGN
-        iLinePONumber[1] = ipbf-ttImportAP1.LinePONumber1
-        iLinePONumber[2] = ipbf-ttImportAP1.LinePONumber2
-        iLinePONumber[3] = ipbf-ttImportAP1.LinePONumber3
-        iLinePONumber[4] = ipbf-ttImportAP1.LinePONumber4
-        oplValid         = YES
-        .
-  
-    IF oplValid THEN 
-    DO:
-        IF ipbf-ttImportAP1.Company EQ '' THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Key Field Blank: Company".
+    IF ipbf-ttImportAP1.Company EQ '' THEN DO:
+        ASSIGN 
+            oplValid = NO
+            opcNote  = "Key Field Blank: Company"
+            .
+        RETURN.
     END.
-    IF oplValid THEN 
-    DO:
-        IF ipbf-ttImportAP1.VendorID EQ '' THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Key Field Blank: VendorID".
-    END.
-    IF oplValid THEN 
-    DO:
-        IF ipbf-ttImportAP1.InvoiceNo EQ '' THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Key Field Blank: Invoice#".
-    END.
-    IF oplValid THEN 
-    DO:
-        IF ipbf-ttImportAP1.InvoiceDate EQ ? THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Key Field Blank: InvoiceDate#".
-    END.
-    IF oplValid THEN 
-    DO:
-        FIND FIRST vend NO-LOCK 
-             WHERE vend.company EQ ipbf-ttImportAP1.Company
-               AND vend.vend-no EQ ipbf-ttImportAP1.VendorID
-             NO-ERROR. 
-        IF NOT AVAILABLE vend THEN 
-            ASSIGN 
-                oplValid = NO 
-                opcNote  = "Key Field Invalid: VendorID"
-                .
-    END.
-
-    IF oplValid THEN 
-    DO: 
-        FIND FIRST bf-ttImportAP1 NO-LOCK 
-            WHERE bf-ttImportAP1.Company EQ ipbf-ttImportAP1.Company
-              AND bf-ttImportAP1.VendorID EQ ipbf-ttImportAP1.VendorID
-              AND bf-ttImportAP1.InvoiceNo EQ ipbf-ttImportAP1.InvoiceNo
-              AND bf-ttImportAP1.LinePONumber1 EQ ipbf-ttImportAP1.LinePONumber1 
-              AND ROWID(bf-ttImportAP1) NE ROWID(ipbf-ttImportAP1)
-            NO-ERROR.
-        IF AVAILABLE bf-ttImportAP1 THEN 
-            ASSIGN 
-                oplValid = NO 
-                opcNote  = "Duplicate Record in Import File"
-                .
-    END.
-    IF oplValid THEN 
-    DO:
-        FIND FIRST ap-inv NO-LOCK 
-            WHERE ap-inv.company EQ ipbf-ttImportAP1.Company
-            AND ap-inv.vend-no EQ ipbf-ttImportAP1.VendorID
-            AND ap-inv.inv-no EQ ipbf-ttImportAP1.InvoiceNo
-            NO-ERROR .
-        IF AVAILABLE ap-inv THEN 
-            FIND FIRST ap-invl NO-LOCK 
-                WHERE ap-invl.company EQ ap-inv.company
-                AND ap-invl.i-no EQ ap-inv.i-no
-                AND ap-invl.po-no EQ ipbf-ttImportAP1.LinePONumber1
-/*                 AND ap-invl.po-line EQ ipbf-ttImportAP1.LinePOLine */
-                NO-ERROR.
-        IF AVAILABLE ap-inv AND AVAILABLE ap-invl THEN 
-        DO:
-            IF NOT iplUpdateDuplicates THEN 
-                ASSIGN 
-                    oplValid = NO
-                    opcNote  = "Duplicate Exists:  Will be skipped"
-                    .
-            ELSE
-                ASSIGN 
-                    opcNote = "Update record - All fields to be overwritten"
-                    .        
-        END.
-        ELSE IF AVAILABLE ap-inv AND NOT AVAILABLE ap-invl THEN 
-                ASSIGN 
-                    opcNote = "Add record - New Line to Existing Invoice"
-                    .
-            ELSE 
-                ASSIGN 
-                    opcNote = "Add record"
-                    .
-        
+ 
+    IF ipbf-ttImportAP1.VendorID EQ '' THEN DO:
+        ASSIGN 
+            oplValid = NO
+            opcNote  = "Key Field Blank: VendorID"
+            .        
+        RETURN.
     END.
     
+    IF ipbf-ttImportAP1.InvoiceNo EQ '' THEN DO:
+        ASSIGN 
+            oplValid = NO
+            opcNote  = "Key Field Blank: Invoice#"
+            .
+        RETURN.
+    END.
+    
+    IF ipbf-ttImportAP1.InvoiceDate EQ ? THEN DO:
+        ASSIGN 
+            oplValid = NO
+            opcNote  = "Key Field Blank: InvoiceDate#"
+            .
+       RETURN.
+    END.
+    
+    FIND FIRST vend NO-LOCK 
+         WHERE vend.company EQ ipbf-ttImportAP1.Company
+           AND vend.vend-no EQ ipbf-ttImportAP1.VendorID
+         NO-ERROR. 
+    IF NOT AVAILABLE vend THEN DO:
+        ASSIGN 
+            oplValid = NO 
+            opcNote  = "Key Field Invalid: VendorID"
+            .
+        RETURN.
+    END.
+
+    FIND FIRST bf-ttImportAP1 NO-LOCK 
+        WHERE bf-ttImportAP1.Company       EQ ipbf-ttImportAP1.Company
+          AND bf-ttImportAP1.VendorID      EQ ipbf-ttImportAP1.VendorID
+          AND bf-ttImportAP1.InvoiceNo     EQ ipbf-ttImportAP1.InvoiceNo
+          AND bf-ttImportAP1.LinePONumber1 EQ ipbf-ttImportAP1.LinePONumber1
+          AND bf-ttImportAP1.LineAccount1  EQ ipbf-ttImportAP1.LineAccount1
+          AND bf-ttImportAP1.LinePONumber2 EQ ipbf-ttImportAP1.LinePONumber2
+          AND bf-ttImportAP1.LineAccount2  EQ ipbf-ttImportAP1.LineAccount2
+          AND bf-ttImportAP1.LinePONumber3 EQ ipbf-ttImportAP1.LinePONumber3
+          AND bf-ttImportAP1.LineAccount3  EQ ipbf-ttImportAP1.LineAccount3
+          AND bf-ttImportAP1.LinePONumber4 EQ ipbf-ttImportAP1.LinePONumber4
+          AND bf-ttImportAP1.LineAccount4  EQ ipbf-ttImportAP1.LineAccount4
+          AND ROWID(bf-ttImportAP1)        NE ROWID(ipbf-ttImportAP1)
+        NO-ERROR.        
+    IF AVAILABLE bf-ttImportAP1 THEN DO:
+        ASSIGN 
+            oplValid = NO 
+            opcNote  = "Duplicate Record in Import File"
+            .
+        RETURN.
+    END.
+
+    FIND FIRST ap-inv NO-LOCK 
+        WHERE ap-inv.company EQ ipbf-ttImportAP1.Company
+          AND ap-inv.vend-no EQ ipbf-ttImportAP1.VendorID
+          AND ap-inv.inv-no  EQ ipbf-ttImportAP1.InvoiceNo
+        NO-ERROR.
+    IF NOT AVAILABLE ap-inv THEN DO:   
+        ASSIGN 
+            opcNote = "Add record"
+            .
+        RETURN.
+    END.
+    
+    /* Additional validation to check if PO lines are existing in invoice.
+       If atleast one PO line is not existing in invoice then create invoice line */ 
+    DO iIndex = 1 TO 4:
+        IF cPOLineDetails[iIndex] NE "" THEN DO:
+            IF AVAILABLE ap-inv THEN DO:
+                FIND FIRST ap-invl NO-LOCK 
+                    WHERE ap-invl.company EQ ap-inv.company
+                      AND ap-invl.i-no    EQ ap-inv.i-no
+                      AND ap-invl.po-no   EQ INTEGER(ENTRY(1,cPOLineDetails[iIndex]))
+                      AND ap-invl.po-line EQ iIndex
+                    NO-ERROR.
+                IF AVAILABLE ap-invl THEN 
+                DO:
+                    IF NOT iplUpdateDuplicates THEN 
+                        ASSIGN
+                            lDuplicateLines       = IF iIndex GT 1 THEN
+                                                        lInvLineAvail[iIndex - 1] AND lDuplicateLines
+                                                    ELSE
+                                                        TRUE
+                            lInvLineAvail[iIndex] = TRUE 
+                            opcNote               = "Add record - Duplicate Line(s) Exists in Invoice"
+                            .
+                    ELSE
+                        ASSIGN 
+                            opcNote = "Update record - All fields to be overwritten"
+                            .
+                END.
+                ELSE  
+                    ASSIGN
+                        lInvLineAvail[iIndex] = FALSE 
+                        opcNote               = IF iIndex GT 1 AND lDuplicateLines THEN
+                                                    "Add record - Duplicate Line(s) Exists in Invoice"
+                                                ELSE
+                                                    "Add record - New Line to Existing Invoice"
+                        lDuplicateLines       = FALSE
+                        .
+            END.
+        END.
+    END.    
+    
+    IF lDuplicateLines THEN DO:
+        ASSIGN
+            oplValid = FALSE
+            opcNote  = "Duplicate Lines - Will be skipped"
+            .
+        RETURN.
+    END.
+    
+    ASSIGN
+        opcNote = "Add record"
+        .           
 END PROCEDURE.
 
+/* Creates New Invoice */
 PROCEDURE pCreateNewInvoice:
     /*------------------------------------------------------------------------------
      Purpose: Creates a new AP invoice, setting defaults based on key values
@@ -525,6 +572,7 @@ PROCEDURE pCreateNewInvoice:
 
 END PROCEDURE.
 
+/* Creates InvoiceLines */
 PROCEDURE pCreateNewInvoiceLine:
     /*------------------------------------------------------------------------------
         Purpose: Creates a new AP invoice line, setting defaults based on key values
@@ -563,25 +611,13 @@ PROCEDURE pCreateNewInvoiceLine:
          WHERE po-ordl.po-no EQ ipiPONo
            AND po-ordl.line  EQ ipiPOLine
          NO-ERROR.
-                         
-    FIND LAST bf-ap-invl NO-LOCK 
-         WHERE bf-ap-invl.company EQ ap-inv.company
-           AND bf-ap-invl.vend-no EQ ap-inv.vend-no
-           AND bf-ap-invl.po-no   EQ ipiPONo
-         USE-INDEX i-no 
-         NO-ERROR.    
-                    
+                      
     CREATE ap-invl.
     ASSIGN
         ap-invl.i-no       = ap-inv.i-no
         ap-invl.company    = ap-inv.company
         ap-invl.vend-no    = ap-inv.vend-no
-        ap-invl.line       = IF NOT AVAILABLE bf-ap-invl AND ipiPOLine EQ 0 THEN 
-                                 (ipiPONo * 1000) + 1 
-                             ELSE IF AVAILABLE bf-ap-invl AND ipiPOLine EQ 0 THEN 
-                                 bf-ap-invl.line + 1
-                             ELSE 
-                                 (ipiPONo * 1000) + ipiPOLine
+        ap-invl.line       = (ipiPONo * 1000) + ipiPOLine
         ap-invl.actnum     = cAccount
         ap-invl.loc        = ap-inv.loc
         ap-invl.period     = ap-inv.period
@@ -595,22 +631,22 @@ PROCEDURE pCreateNewInvoiceLine:
 
 END PROCEDURE.
 
-
+/* Processes a loaded record */
 PROCEDURE pProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Processes an import record, incrementing the "opiAdded" variable
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttImportAP1 FOR ttImportAP1.
-    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+   
+    DEFINE INPUT        PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiAdded      AS INTEGER NO-UNDO.
 
     DEFINE VARIABLE riAPInv    AS ROWID     NO-UNDO. 
     DEFINE VARIABLE riAPInvl   AS ROWID     NO-UNDO. 
     DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cHoldNote  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lHold      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iPOLine    AS INTEGER   NO-UNDO.  
     DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
 
     DEFINE VARIABLE cPOLineDetails AS CHARACTER NO-UNDO EXTENT 4.
@@ -620,7 +656,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE dLinePrice     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lItemType      AS LOGICAL   NO-UNDO.
     
-    FIND FIRST ap-inv NO-LOCK
+    FIND FIRST ap-inv EXCLUSIVE-LOCK
          WHERE ap-inv.company EQ ipbf-ttImportAP1.Company
            AND ap-inv.inv-no  EQ ipbf-ttImportAP1.InvoiceNo
            AND ap-inv.vend-no EQ ipbf-ttImportAP1.VendorID
@@ -699,52 +735,62 @@ PROCEDURE pProcessRecord PRIVATE:
                                     0.01
                 NO-ERROR.
                 
-            RUN pFetchPOLineDetails (
+            RUN pValidatePoAccountNumber (
                 INPUT  ipbf-ttImportAP1.Company,
                 INPUT  iLinePONumber,
+                INPUT  iIndex,
                 INPUT  cLineAccount,
                 INPUT  dLineQuantity,
                 INPUT  dLinePrice,
-                OUTPUT lHold,
-                OUTPUT iPOLine,
+                INPUT-OUTPUT lHold,
                 OUTPUT lItemtype,
                 INPUT-OUTPUT cHoldNote
                 ).
-
-            RUN pCreateInvoiceLine (
-                INPUT  ROWID(ap-inv),
-                INPUT  iLinePONumber,
-                INPUT  iPOLine,
-                INPUT  cLineAccount,
-                INPUT  dLineQuantity,
-                INPUT  dLinePrice,
-                INPUT  ipbf-ttImportAP1.TotalAmount,
-                OUTPUT riAPInvl
-                ) NO-ERROR.
             
-            IF NOT ERROR-STATUS:ERROR THEN DO:
-                IF NOT lItemType THEN
-                    RUN pValidateFGItemRecieptQtyPrice (
-                        INPUT        riAPInvl,
-                        INPUT        ipbf-ttImportAP1.Company,
-                        INPUT        iLinePONumber,
-                        INPUT        iPoLine,
-                        INPUT        dLineQuantity,
-                        INPUT        dLinePrice,
-                        OUTPUT       lHold,
-                        INPUT-OUTPUT cHoldNote
-                        ).
-                ELSE
-                    RUN pValidateRMItemRecieptQtyPrice (
-                        INPUT        riAPInvl,
-                        INPUT        ipbf-ttImportAP1.Company,
-                        INPUT        iLinePONumber,
-                        INPUT        iPoLine,
-                        INPUT        dLineQuantity,
-                        INPUT        dLinePrice,
-                        OUTPUT       lHold,
-                        INPUT-OUTPUT cHoldNote
-                        ).                    
+            IF AVAILABLE ap-inv THEN DO:
+                FIND FIRST ap-invl NO-LOCK 
+                    WHERE ap-invl.company EQ ap-inv.company
+                      AND ap-invl.i-no    EQ ap-inv.i-no
+                      AND ap-invl.po-no   EQ iLinePONumber
+                      AND ap-invl.po-line EQ iIndex
+                    NO-ERROR.
+                IF NOT AVAILABLE ap-invl THEN DO:
+                    RUN pCreateInvoiceLine (
+                        INPUT  ROWID(ap-inv),
+                        INPUT  iLinePONumber,
+                        INPUT  iIndex,
+                        INPUT  cLineAccount,
+                        INPUT  dLineQuantity,
+                        INPUT  dLinePrice,
+                        INPUT  ipbf-ttImportAP1.TotalAmount,
+                        OUTPUT riAPInvl
+                        ) NO-ERROR.
+                    
+                    IF NOT ERROR-STATUS:ERROR THEN DO:
+                        IF NOT lItemType THEN
+                            RUN pValidateFGItemRecieptQtyPrice (
+                                INPUT        riAPInvl,
+                                INPUT        ipbf-ttImportAP1.Company,
+                                INPUT        iLinePONumber,
+                                INPUT        iIndex,
+                                INPUT        dLineQuantity,
+                                INPUT        dLinePrice,
+                                INPUT-OUTPUT lHold,
+                                INPUT-OUTPUT cHoldNote
+                                ).
+                        ELSE
+                            RUN pValidateRMItemRecieptQtyPrice (
+                                INPUT        riAPInvl,
+                                INPUT        ipbf-ttImportAP1.Company,
+                                INPUT        iLinePONumber,
+                                INPUT        iIndex,
+                                INPUT        dLineQuantity,
+                                INPUT        dLinePrice,
+                                INPUT-OUTPUT lHold,
+                                INPUT-OUTPUT cHoldNote
+                                ).                    
+                    END.
+                END.
             END.
         END.
     END.
@@ -773,16 +819,19 @@ PROCEDURE pProcessRecord PRIVATE:
                     
     iopiAdded = iopiAdded + 1.
                                                            
-    RUN pRecalculateInvoiceHeader (ROWID(ap-inv), NO).   
+    RUN pRecalculateInvoiceHeader (
+        INPUT ROWID(ap-inv), 
+        INPUT NO
+        ).   
 
 END PROCEDURE.
 
 PROCEDURE pFetchInvoiceDetails:
     DEFINE PARAMETER BUFFER ipbf-ttImportAP1 FOR ttImportAP1.
-    DEFINE OUTPUT PARAMETER ipcPOLineDetails1 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER ipcPOLineDetails2 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER ipcPOLineDetails3 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER ipcPOLineDetails4 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPOLineDetails1 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPOLineDetails2 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPOLineDetails3 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPOLineDetails4 AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cPOLineDetails1 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOLineDetails2 AS CHARACTER NO-UNDO.
@@ -801,21 +850,21 @@ PROCEDURE pFetchInvoiceDetails:
        ipbf-ttImportAP1.LinePONumber3 EQ 0 AND
        ipbf-ttImportAP1.LinePONumber4 EQ 0 THEN DO:
         ASSIGN
-            ipcPOLineDetails1 = (IF cPOLineDetails1 NE "" THEN
+            opcPOLineDetails1 = (IF cPOLineDetails1 NE "" THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails1
                                  ELSE IF ipbf-ttImportAP1.LinePONumber1 NE 0 THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber1) + "," + ",1,0.01"
                                  ELSE
                                      "") 
-            ipcPOLineDetails2 = (IF cPOLineDetails2 NE "" THEN
+            opcPOLineDetails2 = (IF cPOLineDetails2 NE "" THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails2
                                  ELSE
                                      "") 
-            ipcPOLineDetails3 = (IF cPOLineDetails3 NE "" THEN
+            opcPOLineDetails3 = (IF cPOLineDetails3 NE "" THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails3
                                  ELSE
                                      "") 
-            ipcPOLineDetails4 = (IF cPOLineDetails4 NE "" THEN
+            opcPOLineDetails4 = (IF cPOLineDetails4 NE "" THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails4
                                  ELSE
                                      "")
@@ -827,25 +876,25 @@ PROCEDURE pFetchInvoiceDetails:
         ipbf-ttImportAP1.LinePONumber3 NE 0 OR
         ipbf-ttImportAP1.LinePONumber4 NE 0) THEN DO:
         ASSIGN
-            ipcPOLineDetails1 = (IF cPOLineDetails1 NE "" THEN
+            opcPOLineDetails1 = (IF cPOLineDetails1 NE "" THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails1
                                  ELSE IF ipbf-ttImportAP1.LinePONumber1 NE 0 THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber1) + "," + ",1,0.01"
                                  ELSE
                                      "") 
-            ipcPOLineDetails2 = (IF cPOLineDetails2 NE "" THEN
+            opcPOLineDetails2 = (IF cPOLineDetails2 NE "" THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber2) + "," + cPOLineDetails2
                                  ELSE IF ipbf-ttImportAP1.LinePONumber2 NE 0 THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber2) + "," + ",1,0.01"
                                  ELSE
                                      "") 
-            ipcPOLineDetails3 = (IF cPOLineDetails3 NE "" THEN
+            opcPOLineDetails3 = (IF cPOLineDetails3 NE "" THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber3) + "," + cPOLineDetails3
                                  ELSE IF ipbf-ttImportAP1.LinePONumber3 NE 0 THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber3) + "," + ",1,0.01"
                                  ELSE
                                      "") 
-            ipcPOLineDetails4 = (IF cPOLineDetails4 NE "" THEN
+            opcPOLineDetails4 = (IF cPOLineDetails4 NE "" THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber4) + "," + cPOLineDetails4
                                  ELSE IF ipbf-ttImportAP1.LinePONumber4 NE 0 THEN
                                      STRING(ipbf-ttImportAP1.LinePONumber4) + "," + ",1,0.01"
