@@ -1262,28 +1262,26 @@ PROCEDURE pAssignValues :
                         reftable.val[1] = 99999999.00 .    
                 END.
             END.
-
-            
-                IF dSuCost1 GT 0 AND cCostType1 EQ "N" THEN
-                    ASSIGN
-                    dCalValueSetup = dSuCost1 
-                    dCalValueCost = dEaCost1 * iQtyPer1 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
-                IF dSuCost2 GT 0 AND cCostType2 EQ "N" THEN
-                    ASSIGN
-                    dCalValueSetup = dCalValueSetup + dSuCost2 
+            IF cCostType1 EQ "N" THEN
+                ASSIGN 
+                    dCalValueSetup = dCalValueSetup + dSuCost1
+                    dCalValueCost = dCalValueCost + dEaCost1 * iQtyPer1 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
+            IF cCostType2 EQ "N" THEN
+                ASSIGN 
+                    dCalValueSetup = dCalValueSetup + dSuCost2
                     dCalValueCost = dCalValueCost + dEaCost2 * iQtyPer2 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
-                IF dSuCost3 GT 0 AND cCostType3 EQ "N" THEN
-                    ASSIGN
-                    dCalValueSetup = dCalValueSetup + dSuCost3 
-                    dCalValueCost = dCalValueCost + dEaCost3 * iQtyPer3 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
-                IF dSuCost4 GT 0 AND cCostType4 EQ "N" THEN
-                    ASSIGN
-                    dCalValueSetup = dCalValueSetup + dSuCost4 
+            IF cCostType3 EQ "N" THEN
+                ASSIGN 
+                    dCalValueSetup = dCalValueSetup + dSuCost3
+                    dCalValueCost = dCalValueCost + dEaCost3 * iQtyPer3 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).                
+            IF cCostType4 EQ "N" THEN
+                ASSIGN 
+                    dCalValueSetup = dCalValueSetup + dSuCost4
                     dCalValueCost = dCalValueCost + dEaCost4 * iQtyPer4 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
-                IF dSuCost5 GT 0 AND cCostType5 EQ "N" THEN
-                    ASSIGN
-                    dCalValueSetup = dCalValueSetup + dSuCost5 
-                    dCalValueCost = dCalValueCost + dEaCost5 * iQtyPer5 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).
+            IF cCostType5 EQ "N" THEN
+                ASSIGN 
+                    dCalValueSetup = dCalValueSetup + dSuCost5
+                    dCalValueCost = dCalValueCost + dEaCost5 * iQtyPer5 * ( IF cCostUom EQ "M" THEN 1000  ELSE 1).            
            
 
             FIND FIRST bff-e-itemfg-vend EXCLUSIVE-LOCK

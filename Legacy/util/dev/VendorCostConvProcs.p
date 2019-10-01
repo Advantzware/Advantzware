@@ -223,6 +223,7 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
         iFormNo = MAX(ipbf-e-itemfg-vend.form-no,1)
         iBlankNo = MAX(ipbf-e-itemfg-vend.blank-no,1)
         .
+        
     IF CAN-FIND(FIRST bf-vendItemCost
         WHERE bf-vendItemCost.company EQ ipbf-e-itemfg-vend.company
         AND bf-vendItemCost.itemID EQ ipbf-e-itemfg-vend.i-no
@@ -259,6 +260,7 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
             bf-vendItemCost.effectiveDate    = gdDefaultEffective
             bf-vendItemCost.expirationDate   = gdDefaultExpiration
             .
+
         IF ipbf-e-itemfg.std-uom NE "" THEN                         
             cUOM = CAPS(ipbf-e-itemfg.std-uom).
         ELSE IF ipbf-e-itemfg-vend.std-uom NE "" THEN 
@@ -289,6 +291,7 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
         END.  /*Do loop 1*/      
         RUN RecalculateFromAndTo IN ghVendorCost (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).    
         RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost, cAppendNote).    
+
     END. /*Not duplicate*/
     RELEASE bf-vendItemCost.
 
@@ -312,6 +315,7 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUOM AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAppendNote AS CHARACTER NO-UNDO.
+
         
     IF CAN-FIND(FIRST bf-vendItemCost
         WHERE bf-vendItemCost.company EQ ipbf-e-item-vend.company
@@ -354,7 +358,7 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
                 cAppendNote = " but blank UOM entered as default of EA"
                 .
         bf-vendItemCost.vendorUOM = cUOM.
-        
+
         DO iIndex = 1 TO 26:
             bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-item-vend.roll-w[iIndex] NE 0 
                                                     THEN ipbf-e-item-vend.roll-w[iIndex] 
@@ -386,6 +390,7 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
         END.  /*Do loop 2*/
         RUN RecalculateFromAndTo IN ghVendorCost (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).    
         RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost, cAppendNote). 
+
     END. /*Not duplicate*/
     RELEASE bf-vendItemCost.
 

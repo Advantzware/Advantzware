@@ -1756,21 +1756,17 @@ PROCEDURE pUpdateRecord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
-   DEFINE VARIABLE rwRowid2 AS ROWID NO-UNDO .
-   
-   DEFINE VARIABLE lCancelBtn AS LOGICAL NO-UNDO .
-   rwRowid2 = ROWID(ar-inv) .
-    RUN ar/d-repstin.w ("update" ,ROWID(ar-inv), ROWID(ar-invl), OUTPUT rwRowid, OUTPUT lCancelBtn).
+    DEFINE VARIABLE rwRowid    AS ROWID   NO-UNDO.
+    DEFINE VARIABLE rwRowid2   AS ROWID   NO-UNDO.   
+    DEFINE VARIABLE lCancelBtn AS LOGICAL NO-UNDO.
 
-    IF NOT lCancelBtn THEN do:
-       RUN dispatch ("open-query").
-
+    rwRowid2 = ROWID(ar-inv).
+    RUN ar/d-repstin.w ("update", ROWID(ar-inv), ROWID(ar-invl), OUTPUT rwRowid, OUTPUT lCancelBtn).
+    IF NOT lCancelBtn THEN DO:
+        RUN dispatch ("open-query").
         DO WITH FRAME {&FRAME-NAME}:
-            REPOSITION {&browse-name} TO ROWID rwRowid   .
-            
-        END.
-        
+            REPOSITION {&BROWSE-NAME} TO ROWID rwRowid2.            
+        END.        
     END.
 
 END PROCEDURE.
