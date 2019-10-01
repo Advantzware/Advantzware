@@ -101,12 +101,12 @@ DEFINE VARIABLE fiDate AS DATE FORMAT "99/99/9999":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiEndJob AS CHARACTER FORMAT "X(8)":U 
+DEFINE VARIABLE fiEndJob AS CHARACTER FORMAT "X(6)":U 
      LABEL "TO" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiStartJob AS CHARACTER FORMAT "X(8)":U 
+DEFINE VARIABLE fiStartJob AS CHARACTER FORMAT "X(6)":U 
      LABEL "(Optional) Job Range - FROM" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
@@ -286,7 +286,7 @@ DO:
     /* Validate that start job is LE end job, if entered */
     IF fiStartJob:SCREEN-VALUE NE "" 
         AND fiEndJob:SCREEN-VALUE NE "" 
-        AND TRIM(fiStartJob:SCREEN-VALUE) GT TRIM(fiEndJob:SCREEN-VALUE) THEN 
+        AND fiStartJob:SCREEN-VALUE GT fiEndJob:SCREEN-VALUE THEN 
     DO:
         MESSAGE 
             "Start job is less than end job. Please correct."
@@ -311,12 +311,16 @@ DO:
             job.company EQ cocode AND 
             job.close-date LT DATE(fiDate:SCREEN-VALUE)
             USE-INDEX close-date:
-            IF (fiStartJob:SCREEN-VALUE NE ""    /* Specific for job range entered */
-                    OR fiEndJob:SCREEN-VALUE NE "") 
-                AND (TRIM(job.job-no) LT TRIM(fiStartJob:SCREEN-VALUE) /* Job no outside of range specified */
-                    OR TRIM(job.job-no) GT TRIM(fiEndJob:SCREEN-VALUE)) THEN 
-                NEXT.
+                
+            IF fiEndJob:SCREEN-VALUE NE "" THEN  DO: 
+                IF (job.job-no LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
+                    OR job.job-no GT fiEndJob:SCREEN-VALUE)
+                AND TRIM(job.job-no) NE "" THEN 
+                    NEXT.
+            END.
+            
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
+            
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
                 RUN purge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).
             ELSE 
@@ -326,13 +330,19 @@ DO:
     ELSE DO: /* Closed and open jobs, full table scan */
         FOR EACH job NO-LOCK WHERE 
             job.company EQ cocode AND 
-            job.create-date LT DATE(fiDate:SCREEN-VALUE):
-            IF (fiStartJob:SCREEN-VALUE NE ""    /* Specific for job range entered */
-                OR fiEndJob:SCREEN-VALUE NE "") 
-            AND (TRIM(job.job-no) LT TRIM(fiStartJob:SCREEN-VALUE) /* Job no outside of range specified */
-                OR TRIM(job.job-no) GT TRIM(fiEndJob:SCREEN-VALUE)) THEN 
-            NEXT.
+            (job.create-date LT DATE(fiDate:SCREEN-VALUE)
+            OR job.create-date EQ ?)
+            :
+            
+            IF fiEndJob:SCREEN-VALUE NE "" THEN DO: 
+                IF (job.job-no LT fiStartJob:SCREEN-VALUE /* Job no outside of range specified */
+                    OR job.job-no GT fiEndJob:SCREEN-VALUE)
+                AND TRIM(job.job-no) NE "" THEN 
+                    NEXT.
+            END.
+            
             STATUS DEFAULT "Purging job #" + job.job-no + "-" + STRING(job.job-no2,"99") + "...".
+            
             IF rsPurge:SCREEN-VALUE EQ "P" THEN 
                 RUN purge ("job", ROWID(job), OUTPUT lSuccess, OUTPUT cMessage).
             ELSE 
@@ -358,19 +368,23 @@ DO:
         WHEN 'fiStartJob' THEN DO:
             IF SELF:SCREEN-VALUE NE ""
             AND fiEndJob:SCREEN-VALUE EQ "" THEN ASSIGN 
-                fiEndJob:SCREEN-VALUE = "zzzzzzzz". 
+                fiEndJob:SCREEN-VALUE = "zzzzzz". 
+            ASSIGN 
+                SELF:SCREEN-VALUE = FILL(" ", 6 - INT(LENGTH(TRIM(SELF:SCREEN-VALUE)))) + TRIM(SELF:SCREEN-VALUE).
             IF SELF:SCREEN-VALUE NE "" 
             AND fiEndJob:SCREEN-VALUE NE "" 
-            AND TRIM(SELF:SCREEN-VALUE) GT TRIM(fiEndJob:SCREEN-VALUE) THEN DO:
+            AND SELF:SCREEN-VALUE GT fiEndJob:SCREEN-VALUE THEN DO:
                 MESSAGE 
                     "Start job is less than end job. Please correct."
                     VIEW-AS ALERT-BOX WARNING.
             END.  
         END.
         WHEN 'fiEndJob' THEN DO:
+            ASSIGN 
+                SELF:SCREEN-VALUE = FILL(" ", 6 - INT(LENGTH(TRIM(SELF:SCREEN-VALUE)))) + TRIM(SELF:SCREEN-VALUE).
             IF SELF:SCREEN-VALUE NE "" 
                 AND fiStartJob:SCREEN-VALUE NE "" 
-                AND TRIM(SELF:SCREEN-VALUE) LT TRIM(fiStartJob:SCREEN-VALUE) THEN 
+                AND SELF:SCREEN-VALUE LT fiStartJob:SCREEN-VALUE THEN 
             DO:
                 MESSAGE 
                     "Start job is less than end job. Please correct."
@@ -378,11 +392,11 @@ DO:
             END.  
         END.
     END CASE.
+        
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define SELF-NAME rsOpen
@@ -438,6 +452,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}
     
     RUN pSetup.
+    fiDate:SCREEN-VALUE = STRING(TODAY - 1095). /* Start at 3 years, user can change */    
+    APPLY 'entry' TO fiDate.
   
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -508,8 +524,7 @@ PROCEDURE pSetup :
                                  "List generation is approximately 5 times faster than the actual purge." + CHR(10) + CHR(10) +
                                  "- A folder containing the log of deletions, and files enabling you to recover from this " +
                                  "operation will be stored in: " + cOutDir + "\." + CHR(10) + CHR(10) + 
-                                 "- This program cannot be interrupted once you choose the Start Purge button." + CHR(10)
-            fiDate:SCREEN-VALUE = STRING(TODAY - 1095). /* Start at 3 years, user can change */    
+                                 "- This program cannot be interrupted once you choose the Start Purge button." + CHR(10).
         APPLY "entry" TO fiDate.
     END.
 
