@@ -2819,7 +2819,7 @@ PROCEDURE ipDataFix161300:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 161300...").
     
-    RUN ipConvertVendorCosts.
+    /* RUN ipConvertVendorCosts. */
     RUN ipLoadOEAutoApproveNK1s.
 
 END PROCEDURE.
