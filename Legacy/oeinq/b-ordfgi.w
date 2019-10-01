@@ -456,6 +456,7 @@ DEFINE BROWSE Browser-Table
                       DROP-DOWN-LIST 
       fg-rdtlh.enteredBy COLUMN-LABEL "Scanned By" FORMAT "x(12)":U
       fg-rdtlh.enteredDT COLUMN-LABEL "Scan Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
+	  fg-rdtlh.receiver-no COLUMN-LABEL "Receiver Number" FORMAT "x(20)":U
   ENABLE
       fg-rcpth.i-no
       fg-rcpth.po-no
