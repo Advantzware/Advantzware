@@ -91,10 +91,11 @@ PROCEDURE pAddConvertedProcessed PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttProcessed FOR ttProcessed.
     DEFINE PARAMETER BUFFER ipbf-vendItemCost FOR vendItemCost.
+    DEFINE INPUT PARAMETER ipcAppendNote AS CHARACTER NO-UNDO.
     
     BUFFER-COPY ipbf-vendItemCost TO ipbf-ttProcessed.
     ASSIGN 
-        ipbf-ttProcessed.Note = "Successfully converted"
+        ipbf-ttProcessed.Note = "Successfully converted" + ipcAppendNote
         ipbf-ttProcessed.imported = YES
         giCountConverted = giCountConverted + 1
         .
@@ -213,7 +214,16 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
     DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAppendNote AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iFormNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iBlankNo AS INTEGER NO-UNDO.
     
+    ASSIGN 
+        iFormNo = MAX(ipbf-e-itemfg-vend.form-no,1)
+        iBlankNo = MAX(ipbf-e-itemfg-vend.blank-no,1)
+        .
+        
     IF CAN-FIND(FIRST bf-vendItemCost
         WHERE bf-vendItemCost.company EQ ipbf-e-itemfg-vend.company
         AND bf-vendItemCost.itemID EQ ipbf-e-itemfg-vend.i-no
@@ -221,8 +231,8 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
         AND bf-vendItemCost.vendorID EQ ipbf-e-itemfg-vend.vend-no
         AND bf-vendItemCost.customerID EQ ipbf-e-itemfg-vend.cust-no
         AND bf-vendItemCost.estimateNo EQ ipbf-e-itemfg-vend.est-no
-        AND bf-vendItemCost.formNo EQ ipbf-e-itemfg-vend.form-no
-        AND bf-vendItemCost.blankNo EQ ipbf-e-itemfg-vend.blank-no)
+        AND bf-vendItemCost.formNo EQ iFormNo
+        AND bf-vendItemCost.blankNo EQ iBlankNo)
         THEN 
     DO:
         RUN pAddErrorProcessedFG(BUFFER ipbf-ttProcessed, BUFFER ipbf-e-itemfg-vend, BUFFER ipbf-e-itemfg, "Duplicate already converted").
@@ -231,7 +241,6 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
     DO:
         CREATE bf-vendItemCost.
         ASSIGN  
-            giCountConverted                 = giCountConverted + 1
             opiVendItemCostID                = bf-vendItemCost.vendItemCostID
             bf-vendItemCost.company          = ipbf-e-itemfg-vend.company
             bf-vendItemCost.itemID           = ipbf-e-itemfg-vend.i-no
@@ -239,19 +248,29 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
             bf-vendItemCost.vendorID         = ipbf-e-itemfg-vend.vend-no
             bf-vendItemCost.customerID       = ipbf-e-itemfg-vend.cust-no
             bf-vendItemCost.estimateNo       = ipbf-e-itemfg-vend.est-no
-            bf-vendItemCost.formNo           = ipbf-e-itemfg-vend.form-no
-            bf-vendItemCost.blankNo          = ipbf-e-itemfg-vend.blank-no
+            bf-vendItemCost.formNo           = iFormNo
+            bf-vendItemCost.blankNo          = iBlankNo
             bf-vendItemCost.dimWidthMinimum  = ipbf-e-itemfg-vend.roll-w[27]
             bf-vendItemCost.dimWidthMaximum  = ipbf-e-itemfg-vend.roll-w[28]
             bf-vendItemCost.dimLengthMinimum = ipbf-e-itemfg-vend.roll-w[29]
             bf-vendItemCost.dimLengthMaximum = ipbf-e-itemfg-vend.roll-w[30]
             bf-vendItemCost.dimUOM           = "IN"
             bf-vendItemCost.vendorItemID     = ipbf-e-itemfg-vend.vend-item
-            bf-vendItemCost.vendorUOM        = CAPS(ipbf-e-itemfg.std-uom) 
             bf-vendItemCost.useQuantityFrom  = glUseQtyFrom
             bf-vendItemCost.effectiveDate    = gdDefaultEffective
             bf-vendItemCost.expirationDate   = gdDefaultExpiration
             .
+
+        IF ipbf-e-itemfg.std-uom NE "" THEN                         
+            cUOM = CAPS(ipbf-e-itemfg.std-uom).
+        ELSE IF ipbf-e-itemfg-vend.std-uom NE "" THEN 
+            cUOM = CAPS(ipbf-e-itemfg-vend.std-uom).
+        ELSE
+            ASSIGN 
+                cUOM = "EA"
+                cAppendNote = " but blank UOM entered as default of EA"
+                .
+        bf-vendItemCost.vendorUOM = cUOM.
         
         DO iIndex = 1 TO 26:
             bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-itemfg-vend.roll-w[iIndex] NE 0 
@@ -271,7 +290,8 @@ PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
             END. /*run-qty ne 0*/
         END.  /*Do loop 1*/      
         RUN RecalculateFromAndTo IN ghVendorCost (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).    
-        RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost).    
+        RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost, cAppendNote).    
+
     END. /*Not duplicate*/
     RELEASE bf-vendItemCost.
 
@@ -293,6 +313,9 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
     DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAppendNote AS CHARACTER NO-UNDO.
+
         
     IF CAN-FIND(FIRST bf-vendItemCost
         WHERE bf-vendItemCost.company EQ ipbf-e-item-vend.company
@@ -322,10 +345,20 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
             bf-vendItemCost.dimLengthUnderCharge = ipbf-e-item-vend.underLengthCost
             bf-vendItemCost.dimUOM               = "IN"
             bf-vendItemCost.vendorItemID         = ipbf-e-item-vend.vend-item
-            bf-vendItemCost.vendorUOM            = CAPS(ipbf-e-item.std-uom) 
             bf-vendItemCost.effectiveDate        = gdDefaultEffective
             bf-vendItemCost.expirationDate       = gdDefaultExpiration
             .
+        IF ipbf-e-item.std-uom NE "" THEN                         
+            cUOM = CAPS(ipbf-e-item.std-uom).
+        ELSE IF ipbf-e-item-vend.std-uom NE "" THEN 
+            cUOM = CAPS(ipbf-e-item-vend.std-uom).
+        ELSE
+            ASSIGN 
+                cUOM = "EA"
+                cAppendNote = " but blank UOM entered as default of EA"
+                .
+        bf-vendItemCost.vendorUOM = cUOM.
+
         DO iIndex = 1 TO 26:
             bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-item-vend.roll-w[iIndex] NE 0 
                                                     THEN ipbf-e-item-vend.roll-w[iIndex] 
@@ -356,7 +389,8 @@ PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
             END. /*runQtyExtra ne 0*/
         END.  /*Do loop 2*/
         RUN RecalculateFromAndTo IN ghVendorCost (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).    
-        RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost). 
+        RUN pAddConvertedProcessed(BUFFER ipbf-ttProcessed, BUFFER bf-vendItemCost, cAppendNote). 
+
     END. /*Not duplicate*/
     RELEASE bf-vendItemCost.
 
@@ -389,17 +423,17 @@ PROCEDURE pProcessFG PRIVATE:
         
         CREATE ttProcessed.
         giCountProcessed = giCountProcessed + 1.
-        IF e-itemfg-vend.i-no EQ "" THEN DO:
+        IF e-itemfg-vend.i-no EQ "" AND e-itemfg-vend.est-no EQ "" THEN DO:
             RUN pAddErrorProcessedFG(BUFFER ttProcessed, BUFFER e-itemfg-vend, BUFFER e-itemfg, "Blank FG Item ID").
             NEXT.
         END.
-        ELSE DO:
+        ELSE IF e-itemfg-vend.i-no NE "" THEN DO:
             FIND FIRST itemfg NO-LOCK 
                 WHERE itemfg.company EQ e-itemfg-vend.company
                 AND itemfg.i-no EQ e-itemfg-vend.i-no
                 NO-ERROR.
             IF NOT AVAILABLE itemfg THEN DO:
-                RUN pAddErrorProcessedFG(BUFFER ttProcessed, BUFFER e-itemfg-vend, BUFFER e-itemfg, "Invalide FG Item ID: " + e-itemfg-vend.i-no).                
+                RUN pAddErrorProcessedFG(BUFFER ttProcessed, BUFFER e-itemfg-vend, BUFFER e-itemfg, "Invalid FG Item ID: " + e-itemfg-vend.i-no).                
             END.
         END.            
         IF e-itemfg-vend.vend-no NE "" THEN DO:
@@ -414,7 +448,7 @@ PROCEDURE pProcessFG PRIVATE:
                 END.  
             END.
             ELSE DO: 
-                RUN pAddErrorProcessedFG(BUFFER ttProcessed, BUFFER e-itemfg-vend, BUFFER e-itemfg, "Vendor Invalid: " + e-itemfg-vend.vend-no).
+                RUN pAddErrorProcessedFG(BUFFER ttProcessed, BUFFER e-itemfg-vend, BUFFER e-itemfg, "Vendor Invalid: " + TRIM(e-itemfg-vend.vend-no)).
                 NEXT.
             END.
                 
@@ -490,7 +524,7 @@ PROCEDURE pProcessRM PRIVATE:
                 END.  
             END.
             ELSE DO:
-                RUN pAddErrorProcessedRM(BUFFER ttProcessed, BUFFER e-item-vend, BUFFER e-item, "Vendor Invalid: " + e-item-vend.vend-no).
+                RUN pAddErrorProcessedRM(BUFFER ttProcessed, BUFFER e-item-vend, BUFFER e-item, "Vendor Invalid: " + TRIM(e-item-vend.vend-no)).
                 NEXT.
             END.
                 

@@ -381,7 +381,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
             gcTimeString = STRING(MTIME, "HH:MM:SS")
             fiOutputFolder:SCREEN-VALUE = "c:\tmp"
-            fiOutputFile:SCREEN-VALUE  = "FGHistory_Purge_" 
+            fiOutputFile:SCREEN-VALUE  = "VendorCostConv_" 
                                               + STRING(DAY(TODAY), "99") 
                                               + STRING(MONTH(TODAY), "99") 
                                               + STRING(YEAR(TODAY), "9999") + "_" 
