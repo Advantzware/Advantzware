@@ -102,10 +102,12 @@
             oplSuccess = FALSE
             opcMessage = ERROR-STATUS:GET-MESSAGE(1)
             .
+            
+        RETURN.
     END.
                 
     ASSIGN   
-        opcMessage = "File " + cFilePath 
-                   + "/" + cFileName + " transferred successfully"
+        opcMessage = "Check file " + cFilePath 
+                   + "/" + cFileName + " created successfully"
         oplSuccess = TRUE
         .

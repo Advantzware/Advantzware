@@ -951,7 +951,7 @@ PROCEDURE RecalculateFromAndTo:
         NO-ERROR.
     IF AVAILABLE bf-vendItemCost THEN 
     DO: 
-        RUN pRecalculateFromAndToForLevels(BUFFER bf-vendItemCost).
+        RUN pRecalculateFromAndToForLevels(bf-vendItemCost.vendItemCostID).
         opcMessage = "Successfully recalculated all from and to quantities for vendor item cost".
     END.
     ELSE 
