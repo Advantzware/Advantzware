@@ -83,36 +83,36 @@ IF AVAILABLE users THEN ASSIGN
 
 &SCOPED-DEFINE key-phrase TRUE
 
-&SCOPED-DEFINE for-each1                          ~
-    FOR EACH vendItemCost                               ~
-        WHERE {&key-phrase}                       ~
-          AND vendItemCost.company            EQ cocode ~
-          AND (vendItemCost.itemType          BEGINS fi_hotkey OR fi_hotkey EQ "ALL") ~
-          AND vendItemCost.vendorID           BEGINS fi_vend-no ~
-          AND (IF fi_i-no BEGINS '*'     THEN vendItemCost.itemID MATCHES (fi_i-no + "*") ~
-              ELSE vendItemCost.itemID BEGINS fi_i-no) ~
-          AND (IF trim(fi_est-no) BEGINS '*'    THEN trim(vendItemCost.estimateNo) MATCHES (trim(fi_est-no) + "*") ~
-              ELSE trim(vendItemCost.estimateNo)       BEGINS trim(fi_est-no)) ~
-          AND ( tb_in-exp OR vendItemCost.expirationDate GE TODAY) ~
-          AND ( tb_fut-eff OR vendItemCost.effectiveDate LE TODAY) 
+&SCOPED-DEFINE for-each1 ~
+    FOR EACH vendItemCost ~
+        WHERE {&key-phrase} ~
+          AND vendItemCost.company   EQ cocode ~
+          AND (vendItemCost.itemType BEGINS fi_hotkey OR fi_hotkey EQ "ALL") ~
+          AND vendItemCost.vendorID  BEGINS fi_vend-no ~
+          AND (IF fi_i-no BEGINS '*' THEN vendItemCost.itemID MATCHES (fi_i-no + "*") ~
+               ELSE vendItemCost.itemID BEGINS fi_i-no) ~
+          AND (IF TRIM(fi_est-no) BEGINS '*' THEN TRIM(vendItemCost.estimateNo) MATCHES (TRIM(fi_est-no) + "*") ~
+               ELSE TRIM(vendItemCost.estimateNo) BEGINS TRIM(fi_est-no)) ~
+          AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
+          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) 
 
 &SCOPED-DEFINE for-eachblank ~
     FOR EACH vendItemCost ~
-        WHERE  vendItemCost.company            EQ cocode ~
-         AND ( tb_in-exp OR vendItemCost.expirationDate GE TODAY) ~
-         AND ( tb_fut-eff OR vendItemCost.effectiveDate LE TODAY) ~
-         AND {&key-phrase} 
-        
+        WHERE vendItemCost.company EQ cocode ~
+          AND (tb_in-est  OR vendItemCost.estimateNo     EQ "") ~
+          AND (tb_in-exp  OR vendItemCost.expirationDate GE TODAY) ~
+          AND (tb_fut-eff OR vendItemCost.effectiveDate  LE TODAY) ~
+          AND {&key-phrase} 
 
 &SCOPED-DEFINE sortby-log                                                                                                                                  ~
-    IF lv-sort-by EQ "itemType"      THEN vendItemCost.itemType ELSE ~
-    IF lv-sort-by EQ "itemID"        THEN vendItemCost.itemID ELSE ~
-    IF lv-sort-by EQ "vendorID"      THEN vendItemCost.vendorID ELSE ~
-    IF lv-sort-by EQ "customerID"    THEN vendItemCost.customerID ELSE ~
-    IF lv-sort-by EQ "estimateNo"    THEN vendItemCost.estimateNo ELSE ~
-    IF lv-sort-by EQ "effectiveDate" THEN STRING(YEAR(vendItemCost.effectiveDate),"9999") + STRING(MONTH(vendItemCost.effectiveDate),"99") + STRING(DAY(vendItemCost.effectiveDate),"99") ELSE ~
-    IF lv-sort-by EQ "expirationDate" THEN STRING(YEAR(vendItemCost.expirationDate),"9999") + STRING(MONTH(vendItemCost.expirationDate),"99") + STRING(DAY(vendItemCost.expirationDate),"99")  ELSE ""
-    
+    IF lv-sort-by EQ "itemType"       THEN vendItemCost.itemType ELSE ~
+    IF lv-sort-by EQ "itemID"         THEN vendItemCost.itemID ELSE ~
+    IF lv-sort-by EQ "vendorID"       THEN vendItemCost.vendorID ELSE ~
+    IF lv-sort-by EQ "customerID"     THEN vendItemCost.customerID ELSE ~
+    IF lv-sort-by EQ "estimateNo"     THEN vendItemCost.estimateNo ELSE ~
+    IF lv-sort-by EQ "effectiveDate"  THEN STRING(YEAR(vendItemCost.effectiveDate), "9999") + STRING(MONTH(vendItemCost.effectiveDate), "99") + STRING(DAY(vendItemCost.effectiveDate), "99") ELSE ~
+    IF lv-sort-by EQ "expirationDate" THEN STRING(YEAR(vendItemCost.expirationDate),"9999") + STRING(MONTH(vendItemCost.expirationDate),"99") + STRING(DAY(vendItemCost.expirationDate),"99") ELSE ""
 
 &SCOPED-DEFINE sortby BY vendItemCost.itemID
 
@@ -275,7 +275,7 @@ DEFINE VARIABLE fi_vend-no AS CHARACTER FORMAT "X(10)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tb_in-est AS LOGICAL INITIAL no 
-     LABEL "Include Estimated" 
+     LABEL "Include Estimate" 
      VIEW-AS TOGGLE-BOX
      SIZE 22.6 BY 1 NO-UNDO.
 
@@ -339,14 +339,14 @@ DEFINE FRAME F-Main
      btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
      btn_show AT ROW 3.62 COL 15.2 WIDGET-ID 10
      fi_sort-by AT ROW 3.62 COL 56 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     Browser-Table AT ROW 4.86 COL 2.4 HELP
+     Browser-Table AT ROW 4.86 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Click on Column Title to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 94 WIDGET-ID 14
+          SIZE 29 BY .95 AT ROW 3.62 COL 94 WIDGET-ID 14
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 
+         BGCOLOR 8 FGCOLOR 1
          DEFAULT-BUTTON btn_go WIDGET-ID 100.
 
 
@@ -390,9 +390,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -427,7 +424,6 @@ ASSIGN
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-
 
 /* Setting information for Queries and Browse Widgets fields            */
 
@@ -481,21 +477,7 @@ _Query            is NOT OPENED
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
-
-
-
 /* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME F-Main
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main B-table-Win
-ON HELP OF FRAME F-Main
-DO:
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fi_vend-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_vend-no B-table-Win
@@ -508,7 +490,6 @@ DO:
 
   RUN system/openlookup.p (g_company, "vend-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
           IF cMainField <> "" THEN fi_vend-no:SCREEN-VALUE = cMainField. 
-    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -519,9 +500,9 @@ END.
 ON HELP OF fi_i-no IN FRAME F-Main
 DO:
 
-  DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+  DEFINE VARIABLE cMainField  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cAllFields  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recRecordID AS RECID     NO-UNDO.
 
   IF fi_hotkey:SCREEN-VALUE EQ "FG" THEN do:
       RUN system/openlookup.p (g_company, "i-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
@@ -531,8 +512,12 @@ DO:
       RUN system/openlookup.p (g_company, "item", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
       IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
   END.
-
-    
+  ELSE DO:
+      MESSAGE 
+        "Please Select Item Type: FG/RM"
+      VIEW-AS ALERT-BOX WARNING.
+      APPLY "ENTRY":U TO fi_hotkey.
+  END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -554,8 +539,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
@@ -597,26 +580,25 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-        /*RUN startSearch.*/
-        DEFINE VARIABLE lh-column     AS HANDLE NO-UNDO.
-        DEFINE VARIABLE lv-column-nam AS CHARACTER   NO-UNDO.
-        DEFINE VARIABLE lv-column-lab AS CHARACTER   NO-UNDO.
+    /*RUN startSearch.*/
+    DEFINE VARIABLE lh-column     AS HANDLE NO-UNDO.
+    DEFINE VARIABLE lv-column-nam AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE lv-column-lab AS CHARACTER   NO-UNDO.
 
+    ASSIGN
+        lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+        lv-column-nam = lh-column:NAME
+        lv-column-lab = lh-column:LABEL.
+
+    IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+    ELSE
         ASSIGN
-            lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
-            lv-column-nam = lh-column:NAME
-            lv-column-lab = lh-column:LABEL.
+            lv-sort-by     = lv-column-nam
+            lv-sort-by-lab = lv-column-lab.
 
-        IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-        ELSE
-            ASSIGN
-                lv-sort-by     = lv-column-nam
-                lv-sort-by-lab = lv-column-lab.
-
-        APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-        RUN dispatch ("open-query").
-  
-    END.
+    APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+    RUN dispatch ("open-query").
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1208,14 +1190,15 @@ PROCEDURE set-defaults :
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fi_vend-no:SCREEN-VALUE   = ""
-            fi_hotkey:SCREEN-VALUE    = "ALL"
-            fi_i-no:SCREEN-VALUE      = ""
-            fi_est-no:SCREEN-VALUE    = "" 
-            fi_vend-no                = ""
-            fi_hotkey                 = ""
-            fi_i-no                   = ""
-            fi_est-no                 = ""  .     
+            fi_vend-no:SCREEN-VALUE = ""
+            fi_hotkey:SCREEN-VALUE  = "ALL"
+            fi_i-no:SCREEN-VALUE    = ""
+            fi_est-no:SCREEN-VALUE  = "" 
+            fi_vend-no
+            fi_hotkey
+            fi_i-no
+            fi_est-no
+            .     
     END.
 
 END PROCEDURE.

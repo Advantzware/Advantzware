@@ -410,6 +410,7 @@ PROCEDURE reopen-query :
 
   RUN dispatch ('open-query').
 
+  IF ipRowidLevel NE ? THEN
   DO WITH FRAME {&FRAME-NAME}:
     REPOSITION {&browse-name} TO ROWID ipRowidLevel NO-ERROR.
   END.
