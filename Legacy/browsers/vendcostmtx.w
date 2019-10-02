@@ -514,6 +514,30 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
+ON HELP OF fi_i-no IN FRAME F-Main
+DO:
+
+  DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+
+  IF fi_hotkey:SCREEN-VALUE EQ "FG" THEN do:
+      RUN system/openlookup.p (g_company, "i-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+      IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
+  END.
+  ELSE IF fi_hotkey:SCREEN-VALUE EQ "RM" THEN DO:
+      RUN system/openlookup.p (g_company, "item", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+      IF cMainField <> "" THEN fi_i-no:SCREEN-VALUE = cMainField. 
+  END.
+
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME fi_est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_est-no B-table-Win
 ON HELP OF fi_est-no IN FRAME F-Main
@@ -1321,8 +1345,8 @@ FUNCTION fGetLevel RETURNS CHARACTER
 
        IF ipiLevel EQ j THEN
            ASSIGN 
-           lc-result = string(vendItemCostLevel.quantityFrom ) + "-" + string(vendItemCostLevel.quantityTo) 
-                       + ":" + string(vendItemCostLevel.costPerUOM) + "/" + vendItemCost.vendorUOM .
+           lc-result = "Up To "  + trim(string(vendItemCostLevel.quantityTo)) 
+                       + " @ $" + trim(string(vendItemCostLevel.costPerUOM)) + "/" + vendItemCost.vendorUOM .
        j = j + 1 .
    END.
 

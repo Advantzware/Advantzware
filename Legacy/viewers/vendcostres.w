@@ -79,20 +79,57 @@ DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR vendItemCost.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS vendItemCost.itemType vendItemCost.vendorUOM ~
-vendItemCost.itemID vendItemCost.vendorID vendItemCost.customerID ~
-vendItemCost.estimateNo vendItemCost.formNo vendItemCost.blankNo ~
-vendItemCost.vendorItemID vendItemCost.effectiveDate ~
-vendItemCost.expirationDate 
+&Scoped-Define ENABLED-FIELDS vendItemCost.dimWidthMinimum ~
+vendItemCost.dimWidthMaximum vendItemCost.validWidth[1] ~
+vendItemCost.validWidth[11] vendItemCost.dimLengthMinimum ~
+vendItemCost.dimLengthMaximum vendItemCost.validWidth[2] ~
+vendItemCost.validWidth[12] vendItemCost.validWidth[3] ~
+vendItemCost.validWidth[13] vendItemCost.validWidth[4] ~
+vendItemCost.validWidth[14] vendItemCost.dimWidthUnder ~
+vendItemCost.dimWidthOver vendItemCost.validWidth[5] ~
+vendItemCost.validWidth[15] vendItemCost.dimLengthUnder ~
+vendItemCost.dimLengthOver vendItemCost.validWidth[6] ~
+vendItemCost.validWidth[16] vendItemCost.validWidth[7] ~
+vendItemCost.validWidth[17] vendItemCost.quantityMinimumOrder ~
+vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
+vendItemCost.quantityMaximumOrder vendItemCost.validWidth[9] ~
+vendItemCost.validWidth[19] vendItemCost.validWidth[10] ~
+vendItemCost.validWidth[20] 
 &Scoped-define ENABLED-TABLES vendItemCost
 &Scoped-define FIRST-ENABLED-TABLE vendItemCost
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 RECT-6 Btn_multi
-&Scoped-Define DISPLAYED-FIELDS vendItemCost.itemType ~
-vendItemCost.vendorUOM vendItemCost.itemID vendItemCost.vendorID ~
-vendItemCost.customerID vendItemCost.estimateNo vendItemCost.formNo ~
-vendItemCost.blankNo vendItemCost.vendorItemID vendItemCost.effectiveDate ~
-vendItemCost.expirationDate vendItemCost.createdDate vendItemCost.createdID ~
-vendItemCost.updatedID vendItemCost.updatedDate 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 RECT-6 
+&Scoped-Define DISPLAYED-FIELDS vendItemCost.itemType vendItemCost.itemID ~
+vendItemCost.dimWidthMinimum vendItemCost.dimWidthMaximum ~
+vendItemCost.validLength[11] vendItemCost.validWidth[1] ~
+vendItemCost.validWidth[11] vendItemCost.validLength[1] ~
+vendItemCost.vendorID vendItemCost.dimLengthMinimum ~
+vendItemCost.dimLengthMaximum vendItemCost.validWidth[2] ~
+vendItemCost.validWidth[12] vendItemCost.validLength[2] ~
+vendItemCost.validLength[12] vendItemCost.customerID ~
+vendItemCost.validWidth[3] vendItemCost.validWidth[13] ~
+vendItemCost.validLength[3] vendItemCost.validLength[13] ~
+vendItemCost.estimateNo vendItemCost.formNo vendItemCost.blankNo ~
+vendItemCost.validWidth[4] vendItemCost.validWidth[14] ~
+vendItemCost.validLength[4] vendItemCost.validLength[14] ~
+vendItemCost.vendorItemID vendItemCost.dimWidthUnder ~
+vendItemCost.dimWidthOver vendItemCost.validWidth[5] ~
+vendItemCost.validWidth[15] vendItemCost.validLength[5] ~
+vendItemCost.validLength[15] vendItemCost.effectiveDate ~
+vendItemCost.dimLengthUnder vendItemCost.dimLengthOver ~
+vendItemCost.validWidth[6] vendItemCost.validWidth[16] ~
+vendItemCost.validLength[6] vendItemCost.validLength[16] ~
+vendItemCost.expirationDate vendItemCost.validWidth[7] ~
+vendItemCost.validWidth[17] vendItemCost.validLength[7] ~
+vendItemCost.validLength[17] vendItemCost.quantityMinimumOrder ~
+vendItemCost.validWidth[8] vendItemCost.validWidth[18] ~
+vendItemCost.validLength[8] vendItemCost.validLength[18] ~
+vendItemCost.createdDate vendItemCost.createdID ~
+vendItemCost.quantityMaximumOrder vendItemCost.validWidth[9] ~
+vendItemCost.validWidth[19] vendItemCost.validLength[9] ~
+vendItemCost.validLength[19] vendItemCost.updatedID ~
+vendItemCost.updatedDate vendItemCost.validWidth[10] ~
+vendItemCost.validWidth[20] vendItemCost.validLength[10] ~
+vendItemCost.validLength[20] 
 &Scoped-define DISPLAYED-TABLES vendItemCost
 &Scoped-define FIRST-DISPLAYED-TABLE vendItemCost
 
@@ -101,11 +138,11 @@ vendItemCost.updatedID vendItemCost.updatedDate
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS vendItemCost.itemID vendItemCost.vendorID ~
 vendItemCost.customerID vendItemCost.estimateNo 
-&Scoped-define ADM-ASSIGN-FIELDS vendItemCost.vendorUOM vendItemCost.itemID ~
-vendItemCost.vendorID vendItemCost.customerID vendItemCost.estimateNo ~
-vendItemCost.formNo vendItemCost.blankNo vendItemCost.vendorItemID ~
-vendItemCost.effectiveDate vendItemCost.expirationDate ~
-vendItemCost.createdDate vendItemCost.createdID vendItemCost.updatedID ~
+&Scoped-define ADM-ASSIGN-FIELDS vendItemCost.itemID vendItemCost.vendorID ~
+vendItemCost.customerID vendItemCost.estimateNo vendItemCost.formNo ~
+vendItemCost.blankNo vendItemCost.vendorItemID vendItemCost.effectiveDate ~
+vendItemCost.expirationDate vendItemCost.createdDate vendItemCost.createdID ~
+vendItemCost.quantityMaximumOrder vendItemCost.updatedID ~
 vendItemCost.updatedDate 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -151,11 +188,6 @@ DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 93 BY 14.57.
 
-DEFINE BUTTON Btn_multi 
-     LABEL "&Update Add Multiple" 
-     SIZE 26 BY 1.29
-     FONT 4 .
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -166,19 +198,83 @@ DEFINE FRAME F-Main
                      "RM","RM"
           DROP-DOWN-LIST
           SIZE 9 BY 1
-     vendItemCost.vendorUOM AT ROW 2.62 COL 86 COLON-ALIGNED
-          LABEL "Cost and Quantity UOM"
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
      vendItemCost.itemID AT ROW 3.52 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
+     vendItemCost.dimWidthMinimum FORMAT ">>,>>9.9999" AT ROW 4.29 COL 55.8  COLON-ALIGNED NO-LABEL WIDGET-ID 38
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     vendItemCost.dimWidthMaximum FORMAT ">>,>>9.9999" AT ROW 4.29 COL 69.8 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     vendItemCost.dimLengthMinimum FORMAT ">>,>>9.9999" AT ROW 5.48 COL 55.8 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     vendItemCost.dimLengthMaximum FORMAT ">>,>>9.9999" AT ROW 5.48 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+    vendItemCost.dimWidthUnder FORMAT ">>,>>9.9999" AT ROW 8.52 COL 55.8 COLON-ALIGNED NO-LABEL WIDGET-ID 42
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     vendItemCost.dimWidthOver FORMAT ">>,>>9.9999" AT ROW 8.52 COL 69.8 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     vendItemCost.dimLengthUnder FORMAT ">>,>>9.9999" AT ROW 9.62 COL 55.8 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     vendItemCost.dimLengthOver FORMAT ">>,>>9.9999" AT ROW 9.62 COL 69.8 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     vendItemCost.quantityMinimumOrder AT ROW 11.38 COL 68.8 COLON-ALIGNED WIDGET-ID 46
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     vendItemCost.quantityMaximumOrder AT ROW 12.81 COL 68.8 COLON-ALIGNED WIDGET-ID 44
+          LABEL "Max Order Qty"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     vendItemCost.validLength[11] AT ROW 4.38 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[1] AT ROW 4.43 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[11] AT ROW 4.43 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[1] AT ROW 4.43 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      vendItemCost.vendorID AT ROW 4.67 COL 15 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     
+     vendItemCost.validWidth[2] AT ROW 5.48 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[12] AT ROW 5.48 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[2] AT ROW 5.48 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[12] AT ROW 5.48 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      vendItemCost.customerID AT ROW 5.81 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     vendItemCost.validWidth[3] AT ROW 6.52 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[13] AT ROW 6.52 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[3] AT ROW 6.52 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[13] AT ROW 6.52 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      vendItemCost.estimateNo AT ROW 7.05 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
@@ -190,24 +286,113 @@ DEFINE FRAME F-Main
           LABEL "B"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
+     vendItemCost.validWidth[4] AT ROW 7.57 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[14] AT ROW 7.57 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     vendItemCost.validLength[4] AT ROW 7.57 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[14] AT ROW 7.57 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      vendItemCost.vendorItemID AT ROW 8.24 COL 15 COLON-ALIGNED
           LABEL "vend Item"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
+     
+     vendItemCost.validWidth[5] AT ROW 8.62 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[15] AT ROW 8.62 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[5] AT ROW 8.62 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[15] AT ROW 8.62 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      vendItemCost.effectiveDate AT ROW 9.43 COL 15 COLON-ALIGNED
           LABEL "Effective"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
+     
+     vendItemCost.validWidth[6] AT ROW 9.67 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[16] AT ROW 9.67 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[6] AT ROW 9.67 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[16] AT ROW 9.67 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      vendItemCost.expirationDate AT ROW 10.67 COL 15 COLON-ALIGNED
           LABEL "Expires"
           VIEW-AS FILL-IN 
           SIZE 19.6 BY 1
+     vendItemCost.validWidth[7] AT ROW 10.71 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[17] AT ROW 10.71 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[7] AT ROW 10.71 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[17] AT ROW 10.71 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     
+     vendItemCost.validWidth[8] AT ROW 11.76 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     vendItemCost.validWidth[18] AT ROW 11.76 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[8] AT ROW 11.76 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[18] AT ROW 11.76 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      vendItemCost.createdDate AT ROW 11.91 COL 15 COLON-ALIGNED
           LABEL "Created"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      vendItemCost.createdID AT ROW 11.91 COL 35.8 COLON-ALIGNED
           LABEL "By"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[9] AT ROW 12.81 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[19] AT ROW 12.81 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[9] AT ROW 12.81 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[19] AT ROW 12.81 COL 127 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      vendItemCost.updatedID AT ROW 13.19 COL 35.8 COLON-ALIGNED
@@ -218,11 +403,49 @@ DEFINE FRAME F-Main
           LABEL "Updated"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     vendItemCost.validWidth[10] AT ROW 13.86 COL 85 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validWidth[20] AT ROW 13.86 COL 99 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[10] AT ROW 13.86 COL 113 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     vendItemCost.validLength[20] AT ROW 13.86 COL 127 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     "Valid Width" VIEW-AS TEXT
+          SIZE 14.6 BY .62 AT ROW 3.68 COL 94.4 WIDGET-ID 50
+     "Under" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 7.71 COL 59.0 WIDGET-ID 12
+     "Upcharge" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 7.71 COL 72.8 WIDGET-ID 14
+     "Restrictions" VIEW-AS TEXT
+          SIZE 16.4 BY .62 AT ROW 1.91 COL 57.8 WIDGET-ID 8
      "Vendor Item Cost Details" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 1.43 COL 5
-     "Cost Levels" VIEW-AS TEXT
-          SIZE 16.4 BY .62 AT ROW 1.91 COL 57.8 WIDGET-ID 8
-     Btn_multi AT ROW 15.05 COL 112.4
+     "L:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 5.57 COL 53.8 WIDGET-ID 22
+     "W:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 4.62 COL 53.6 WIDGET-ID 20
+     "Max" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.67 COL 72.8 WIDGET-ID 26
+     "Min" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.67 COL 59.0 WIDGET-ID 24
+     "L:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 9.62 COL 53.8 WIDGET-ID 18
+     "W:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 8.67 COL 53.8 WIDGET-ID 16
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     "Valid Length" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 3.68 COL 121 WIDGET-ID 48
      RECT-1 AT ROW 1.1 COL 1.8
      RECT-5 AT ROW 1.57 COL 2.8
      RECT-6 AT ROW 2.14 COL 50 WIDGET-ID 4
@@ -289,33 +512,91 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN vendItemCost.blankNo IN FRAME F-Main
-   2 EXP-LABEL                                                          */
+   NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.createdDate IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.createdID IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.customerID IN FRAME F-Main
-   1 2                                                                  */
+   NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN vendItemCost.effectiveDate IN FRAME F-Main
-   2 EXP-LABEL                                                          */
+   NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.estimateNo IN FRAME F-Main
-   1 2                                                                  */
+   NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN vendItemCost.expirationDate IN FRAME F-Main
-   2 EXP-LABEL                                                          */
+   NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.formNo IN FRAME F-Main
-   2 EXP-LABEL                                                          */
+   NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.itemID IN FRAME F-Main
-   1 2                                                                  */
+   NO-ENABLE 1 2                                                        */
+/* SETTINGS FOR COMBO-BOX vendItemCost.itemType IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.quantityMaximumOrder IN FRAME F-Main
+   2 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN vendItemCost.updatedDate IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN vendItemCost.updatedID IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[10] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[11] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[12] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[13] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[14] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[15] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[16] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[17] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[18] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[19] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[1] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[20] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[2] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[3] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[4] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[5] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[6] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[7] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[8] IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN vendItemCost.validLength[9] IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN vendItemCost.vendorID IN FRAME F-Main
-   1 2                                                                  */
+   NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR FILL-IN vendItemCost.vendorItemID IN FRAME F-Main
-   2 EXP-LABEL                                                          */
-/* SETTINGS FOR FILL-IN vendItemCost.vendorUOM IN FRAME F-Main
-   2 EXP-LABEL                                                          */
+   NO-ENABLE 2 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN vendItemCost.dimWidthMinimum IN FRAME F-Main
+   NO-ENABLE  EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.dimWidthMaximum IN FRAME F-Main
+   NO-ENABLE  EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.dimLengthMinimum IN FRAME F-Main
+   NO-ENABLE  EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.dimLengthMaximum IN FRAME F-Main
+   NO-ENABLE  EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.dimWidthUnder IN FRAME F-Main
+   NO-ENABLE  EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.dimWidthOver IN FRAME F-Main
+   NO-ENABLE  EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.dimLengthUnder IN FRAME F-Main
+   NO-ENABLE  EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN vendItemCost.dimLengthOver IN FRAME F-Main
+   NO-ENABLE  EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -381,7 +662,7 @@ DO:
              IF cMainField <> "" THEN vendItemCost.itemID:SCREEN-VALUE = cMainField. 
         END.
         ELSE DO:  /* finished good */
-            RUN system/openlookup.p (g_company, "itemfg", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
+            RUN system/openlookup.p (g_company, "i-no", 0, "", 0, OUTPUT cAllFields, OUTPUT cMainField, OUTPUT recRecordID).
              IF cMainField <> "" THEN vendItemCost.itemID:SCREEN-VALUE = cMainField. 
         END.
     END.
@@ -410,158 +691,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME vendItemCost.customerID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.customerID V-table-Win
-ON LEAVE OF vendItemCost.customerID IN FRAME F-Main /* Customer */
-DO:
-    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-   
-   IF LASTKEY <> -1 AND vendItemCost.customerID:SCREEN-VALUE <> "" THEN do:
-      RUN valid-cust-no ( OUTPUT lCheckError) NO-ERROR.
-      IF lCheckError THEN RETURN NO-APPLY.
-   END.
- 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME vendItemCost.estimateNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.estimateNo V-table-Win
-ON LEAVE OF vendItemCost.estimateNo IN FRAME F-Main /* Estimate */
-DO:
-   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-
-   IF LASTKEY <> -1 AND vendItemCost.estimateNo:SCREEN-VALUE NE "" THEN do:
-       RUN valid-estimate(OUTPUT lCheckError)  NO-ERROR.
-       IF lCheckError THEN RETURN NO-APPLY.
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME vendItemCost.expirationDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.expirationDate V-table-Win
-ON LEAVE OF vendItemCost.expirationDate IN FRAME F-Main /* Expires */
-DO:
-     DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-   IF LASTKEY <> -1 THEN DO:
-      RUN valid-expdate ( OUTPUT lCheckError) NO-ERROR.
-      IF lCheckError THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME vendItemCost.itemID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.itemID V-table-Win
-ON LEAVE OF vendItemCost.itemID IN FRAME F-Main /* Item ID */
-DO:
-    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-   IF LASTKEY <> -1 THEN DO:
-       RUN valid-i-no( OUTPUT lCheckError) NO-ERROR.
-       IF lCheckError THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME vendItemCost.itemType
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.itemType V-table-Win
-ON LEAVE OF vendItemCost.itemType IN FRAME F-Main /* Item Type */
-DO: 
-        IF LASTKEY <> -1 THEN DO:
-         IF LOOKUP(vendItemCost.itemType:SCREEN-VALUE,"RM,FG") EQ 0  THEN DO:
-             MESSAGE "Item Type must be RM or FG" VIEW-AS ALERT-BOX ERROR .
-             APPLY "entry" TO vendItemCost.itemType .
-             RETURN NO-APPLY.
-         END.
-        END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.itemType V-table-Win
-ON VALUE-CHANGED OF vendItemCost.itemType IN FRAME F-Main /* Item Type */
-DO:
-    IF LENGTH(vendItemCost.itemType:SCREEN-VALUE) GE 2 THEN DO:
-        IF LOOKUP(vendItemCost.itemType:SCREEN-VALUE,"RM,FG") EQ 0  THEN DO:
-             MESSAGE "Item Type must be RM or FG" VIEW-AS ALERT-BOX ERROR .
-             APPLY "entry" TO vendItemCost.itemType .
-             RETURN NO-APPLY.
-         END.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME vendItemCost.vendorID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.vendorID V-table-Win
-ON LEAVE OF vendItemCost.vendorID IN FRAME F-Main /* Vendor */
-DO:
-    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-    IF LASTKEY <> -1 THEN DO:
-        RUN valid-vend-no( OUTPUT lCheckError) NO-ERROR.
-        IF lCheckError THEN RETURN NO-APPLY.
-    END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME vendItemCost.vendorUOM
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.vendorUOM V-table-Win
-ON LEAVE OF vendItemCost.vendorUOM IN FRAME F-Main /* Cost and Quantity UOM */
-DO:
-    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-    IF LASTKEY <> -1 THEN DO:
-        RUN valid-uom( OUTPUT lCheckError) NO-ERROR.
-        IF lCheckError THEN RETURN NO-APPLY.
-    END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME Btn_multi
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_multi B-table-Win
-ON CHOOSE OF Btn_multi IN FRAME F-Main /* Add update multi */
-DO:
-   DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .
-    IF AVAIL vendItemCost THEN do:
-        RUN viewers/dVendCostLevelM.w (ROWID(vendItemCost),"update") .
-        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
-        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
-           FIND LAST  bf-vendItemCostLevel NO-LOCK
-               WHERE bf-vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID NO-ERROR .
-            IF AVAIL bf-vendItemCostLevel THEN
-                RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost),ROWID(bf-vendItemCostLevel)).
-        END.
-    END.
-   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 
 &UNDEFINE SELF-NAME
 
@@ -773,37 +902,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
-PROCEDURE local-delete-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-    IF NOT adm-new-record THEN DO:
-    {custom/askdel.i}
-    END.
-
-    FOR EACH vendItemCostLevel EXCLUSIVE-LOCK
-            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
-            BY vendItemCostLevel.vendItemCostLevelID :
-        DELETE vendItemCostLevel .
-    END.
-
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-    /* Code placed here will execute AFTER standard behavior.    */
-    
-    /* task 10301314  */
-        FIND CURRENT vendItemCost NO-LOCK NO-ERROR .
-        IF NOT AVAIL vendItemCost THEN
-            FIND FIRST vendItemCost WHERE vendItemCost.company = cocode NO-LOCK NO-ERROR.
-        RUN local-display-fields.
-        {methods/template/local/deleteAfter.i}       /* task 10301314  */
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -837,31 +935,9 @@ PROCEDURE local-update-record :
     DEFINE VARIABLE lNewRecord AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-    DEFINE VARIABLE rdRowidLevel AS ROWID NO-UNDO .
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
-    RUN valid-i-no( OUTPUT lCheckError) NO-ERROR.
-       IF lCheckError THEN RETURN NO-APPLY.
-
-
-    RUN valid-vend-no( OUTPUT lCheckError) NO-ERROR.
-    IF lCheckError THEN RETURN NO-APPLY.
-
-    IF vendItemCost.customerID:SCREEN-VALUE <> "" THEN do:
-        RUN valid-cust-no ( OUTPUT lCheckError) NO-ERROR.
-        IF lCheckError THEN RETURN NO-APPLY.
-    END.
-
-    IF vendItemCost.estimateNo:SCREEN-VALUE NE "" THEN do:
-        RUN valid-estimate(OUTPUT lCheckError)  NO-ERROR.
-        IF lCheckError THEN RETURN NO-APPLY.
-    END.
-
-    RUN valid-uom( OUTPUT lCheckError) NO-ERROR.
-    IF lCheckError THEN RETURN NO-APPLY.
-
-    RUN valid-expdate ( OUTPUT lCheckError) NO-ERROR.
-    IF lCheckError THEN RETURN NO-APPLY.
+   
   END.
  
   disable all with frame {&frame-name}.
@@ -872,14 +948,9 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN set-panel (0).
+  /*RUN set-panel (0).*/
 
-  IF lNewRecord THEN do:
-      RUN viewers/dVendCostLevel.w(ROWID(vendItemCost),lv-rowid,"Create",OUTPUT rdRowidLevel) .
-      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
-      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-            RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), rdRowidLevel).
-  END.
+  
   adm-adding-record = NO .
   
 
@@ -943,9 +1014,9 @@ PROCEDURE set-panel :
   DEF INPUT PARAM ip-switch AS INT NO-UNDO.
 
   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
-    ENABLE Btn_multi .
+
   END.
 
 END PROCEDURE.
@@ -973,262 +1044,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no V-table-Win 
-PROCEDURE valid-cust-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  {methods/lValidateError.i YES}
-  IF NOT CAN-FIND(FIRST cust WHERE cust.company = g_company
-                      AND cust.cust-no = vendItemCost.customerID:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-  THEN DO:
-      MESSAGE "Invalid Customer#. Try Help." VIEW-AS ALERT-BOX ERROR.
-      RETURN ERROR.
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-custtype V-table-Win 
-PROCEDURE valid-custtype :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  {methods/lValidateError.i YES}
-  IF NOT CAN-FIND(FIRST custype WHERE custype.company = g_company
-                      AND custype.custype = vendItemCost.itemID:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-  THEN DO:
-      MESSAGE "Invalid Type#. Try Help." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO vendItemCost.itemID.
-      RETURN ERROR.
-  END.
 
 
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-entry V-table-Win 
-PROCEDURE valid-entry :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  {methods/lValidateError.i YES}
-   
-   IF adm-new-record THEN 
-    FIND FIRST bf-vendItemCost NO-LOCK 
-      WHERE bf-vendItemCost.company EQ g_company
-        AND bf-vendItemCost.vendorID EQ vendItemCost.vendorID:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-vendItemCost.customerID EQ vendItemCost.customerID:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-vendItemCost.itemType EQ vendItemCost.itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-vendItemCost.estimateNo EQ vendItemCost.estimateNo:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-vendItemCost.itemID EQ vendItemCost.itemID:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-        AND bf-vendItemCost.effectiveDate EQ date(vendItemCost.effectiveDate:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-        NO-ERROR .
-
-  IF AVAIL bf-vendItemCost THEN DO:
-      MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO vendItemCost.customerID.
-      RETURN ERROR.
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-estimate V-table-Win 
-PROCEDURE valid-estimate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcReturnError AS LOGICAL NO-UNDO .
-    DEF VAR lv-msg AS CHAR NO-UNDO.
-
-    {methods/lValidateError.i YES}
-    lv-msg = "".
-    DO WITH FRAME {&FRAME-NAME}:
-            IF NOT CAN-FIND(FIRST eb WHERE 
-                            eb.company EQ cocode AND 
-                            trim(eb.est-no) EQ trim(vendItemCost.estimateNo:SCREEN-VALUE)) THEN 
-                lv-msg = TRIM(vendItemCost.estimateNo:LABEL) + " " + vendItemCost.estimateNo:SCREEN-VALUE +  " is invalid, try help".
-        
-        IF lv-msg NE "" THEN DO:
-            MESSAGE 
-                TRIM(lv-msg)
-                VIEW-AS ALERT-BOX INFO BUTTONS OK.
-            APPLY "entry" TO vendItemCost.estimateNo .
-            opcReturnError = YES .
-        END.
-    END.
-    {methods/lValidateError.i NO}
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-expdate V-table-Win 
-PROCEDURE valid-expdate :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
-
-  {methods/lValidateError.i YES}
-  IF DATE(vendItemCost.expirationDate:SCREEN-VALUE in frame {&frame-name}) LT DATE(vendItemCost.effectiveDate:SCREEN-VALUE in frame {&frame-name}) THEN DO:
-          MESSAGE "Expiration date should be greater than Effective Date." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO vendItemCost.effectiveDate.
-          oplReturnError = YES .
-      END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no V-table-Win 
-PROCEDURE valid-i-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
-
-  {methods/lValidateError.i YES}
-
-  IF vendItemCost.itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "FG"
-      AND NOT CAN-FIND(FIRST itemfg WHERE itemfg.company = g_company
-                       AND itemfg.i-no = vendItemCost.itemID:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-  THEN DO:
-      MESSAGE "Invalid Item#. Try Help." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO vendItemCost.itemID.
-      oplReturnError = YES .
-  END.
-  ELSE IF vendItemCost.itemType:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "RM"
-      AND NOT CAN-FIND(FIRST ITEM WHERE ITEM.company = g_company
-                      AND ITEM.i-no = vendItemCost.itemID:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-  THEN DO:
-      MESSAGE "Invalid Item ID#. Try Help." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO vendItemCost.itemID.
-      oplReturnError = YES .
-  END. 
-
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom V-table-Win 
-PROCEDURE valid-uom :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
-  DEFINE VARIABLE cUom AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lValid AS LOGICAL NO-UNDO .
-  DEFINE VARIABLE cValidMessage AS CHARACTER NO-UNDO .
-  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-  
-{&methods/lValidateError.i YES}
-  
-  DO WITH FRAME {&FRAME-NAME}:
-
-      IF vendItemCost.itemType:SCREEN-VALUE EQ "RM" THEN do:
-          FIND FIRST ITEM NO-LOCK
-              WHERE ITEM.company EQ cocode
-                AND ITEM.i-no EQ  vendItemCost.itemID:SCREEN-VALUE NO-ERROR.
-          IF AVAIL ITEM THEN
-              RUN sys/ref/uom-rm.p  (ITEM.mat-type, output uom-list).
-      END.
-      ELSE DO:
-          RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list).
-      END.
-
-
-      cUom = vendItemCost.vendorUOM:SCREEN-VALUE.
-
-      RUN pIsValidUOM IN hdValidator (cUom, YES, OUTPUT lValid, OUTPUT cValidMessage).
-      IF NOT lValid THEN DO:
-          MESSAGE  cValidMessage
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
-          oplReturnError = YES .
-          lCheckError = YES .
-          APPLY "entry" TO vendItemCost.vendorUOM .
-      END.
-
-      RUN pIsValidFromList IN hdValidator ("Uom", cUom, uom-list, OUTPUT lValid, OUTPUT cValidMessage). 
-      
-      IF NOT lValid AND NOT lCheckError THEN DO:
-          MESSAGE  cValidMessage
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
-          oplReturnError = YES .
-          APPLY "entry" TO vendItemCost.vendorUOM .
-      END.
-   END.
-   
-{&methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-vend-no V-table-Win 
-PROCEDURE valid-vend-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opcReturnError AS LOGICAL NO-UNDO .
-    DEF VAR lv-msg AS CHAR NO-UNDO.
-
-    {methods/lValidateError.i YES}
-    lv-msg = "".
-    DO WITH FRAME {&FRAME-NAME}:
-            IF NOT CAN-FIND(FIRST vend WHERE 
-                            vend.company EQ cocode AND 
-                            vend.vend-no EQ vendItemCost.vendorID:SCREEN-VALUE) THEN 
-                lv-msg = TRIM(vendItemCost.vendorID:LABEL) + " " + vendItemCost.vendorID:SCREEN-VALUE +  " is invalid, try help".
-        
-        IF lv-msg NE "" THEN DO:
-            MESSAGE 
-                TRIM(lv-msg)
-                VIEW-AS ALERT-BOX INFO BUTTONS OK.
-            APPLY "entry" TO vendItemCost.vendorID .
-            opcReturnError = YES .
-        END.
-    END.
-    {methods/lValidateError.i NO}
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 

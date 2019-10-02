@@ -78,12 +78,12 @@ DEFINE QUERY external_tables FOR vendItemCost.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table vendItemCostLevel.quantityFrom vendItemCostLevel.quantityTo vendItemCostLevel.costPerUom vendItemCostLevel.costSetup vendItemCostLevel.costDeviation   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table vendItemCostLevel.quantityFrom   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table    
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table vendItemCostLevel
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table vendItemCostLevel
 &Scoped-define SELF-NAME Browser-Table
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID NO-LOCK
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID NO-LOCK.
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID NO-LOCK BY vendItemCostLevel.quantityBase
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID NO-LOCK  BY vendItemCostLevel.quantityBase.
 &Scoped-define TABLES-IN-QUERY-Browser-Table vendItemCostLevel
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table vendItemCostLevel
 
@@ -118,16 +118,16 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      vendItemCostLevel.quantityFrom COLUMN-LABEL "From" FORMAT "->>>>9.9":U WIDTH 8
-      vendItemCostLevel.quantityTo COLUMN-LABEL "To*" FORMAT "->>>>9.9":U WIDTH 9
-      vendItemCostLevel.costPerUom COLUMN-LABEL "Cost" FORMAT "->>>>9.9":U WIDTH 9
-      vendItemCostLevel.costSetup COLUMN-LABEL "Setup" FORMAT "->>>>9.9":U WIDTH 8
-      vendItemCostLevel.costDeviation COLUMN-LABEL "Dev" FORMAT "->>>>9.9":U WIDTH 8
+      vendItemCostLevel.quantityFrom COLUMN-LABEL "From" FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.quantityTo COLUMN-LABEL "To*" FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.costPerUom COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.99":U WIDTH 15
+      vendItemCostLevel.costSetup COLUMN-LABEL "Setup" FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.costDeviation COLUMN-LABEL "Devi" FORMAT "->>>>>>9.9<":U WIDTH 15
   
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-ROW-MARKERS SEPARATORS SIZE 51 BY 10.91
-         FONT 2 .
+    WITH NO-ASSIGN NO-ROW-MARKERS SEPARATORS SIZE 86 BY 10.91
+         FONT 2 ROW-HEIGHT-CHARS .76 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -200,7 +200,9 @@ ASSIGN
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "7".
+                "7"
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE
+       Browser-Table:COLUMN-RESIZABLE IN FRAME F-Main       = TRUE.
 
 
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -212,7 +214,7 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH vendItemCostLevel WHERE vendItemCostLevel.rec_key EQ vendItemCost.rec_key NO-LOCK.
+OPEN QUERY {&SELF-NAME} FOR EACH vendItemCostLevel WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID NO-LOCK  BY vendItemCostLevel.quantityBase.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,,"
@@ -251,10 +253,10 @@ ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
    
    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-   IF AVAIL vendItemCost THEN do:
-       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),"update") .
+   IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
+       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"update",OUTPUT lv-rowid) .
        
-       RUN reopen-query (ROWID(vendItemCost)).
+       RUN reopen-query (ROWID(vendItemCost),ROWID(vendItemCostLevel)).
    END.
    
 END.
@@ -400,12 +402,17 @@ PROCEDURE reopen-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+  DEFINE INPUT PARAMETER ipRowidLevel AS ROWID NO-UNDO.
 
   FIND FIRST vendItemCost NO-LOCK
       WHERE vendItemCost.company EQ cocode 
         AND rowid(vendItemCost) EQ ip-rowid NO-ERROR .
 
   RUN dispatch ('open-query').
+
+  DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ipRowidLevel NO-ERROR.
+  END.
 
 END PROCEDURE.
 
@@ -426,6 +433,36 @@ PROCEDURE local-row-available :
 
   /* Code placed here will execute AFTER standard behavior.    */
  /* RUN ebfgBuild. /* found in custom/b-ebfg.i */*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE rwRowidLevel AS ROWID NO-UNDO .
+
+     RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ IF AVAIL vendItemCost THEN
+     RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+
+ DELETE OBJECT hVendorCostProcs.
+IF AVAIL vendItemCost THEN
+    RUN reopen-query (ROWID(vendItemCost),rwRowidLevel).
 
 END PROCEDURE.
 
@@ -469,6 +506,86 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyRecord B-table-Win 
+PROCEDURE pCopyRecord :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+    IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
+
+       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"Copy",OUTPUT rwRowid) .
+       
+       RUN reopen-query (ROWID(vendItemCost),rwRowid).
+   END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddRecord B-table-Win 
+PROCEDURE pAddRecord :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+    DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+    DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+    IF AVAIL vendItemCost  THEN do:
+       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),lv-rowid,"Create", OUTPUT rwRowid) .
+       
+       RUN reopen-query (ROWID(vendItemCost),rwRowid).
+   END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+    IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
+       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"Update",OUTPUT rwRowid) .
+       
+       RUN reopen-query (ROWID(vendItemCost),rwRowid).
+   END.
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewRecord B-table-Win 
+PROCEDURE pViewRecord :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+    IF AVAIL vendItemCost THEN do:
+       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"view",OUTPUT rwRowid) .
+       
+       /*RUN reopen-query (ROWID(vendItemCost)).*/
+   END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
