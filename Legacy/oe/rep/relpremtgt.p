@@ -6,7 +6,7 @@ DEFINE TEMP-TABLE ttReleasesToPrint NO-UNDO
     FIELD SessionID   AS CHARACTER
         .
 
-{oe/rep/relpremx.i "oe-relh.r-no"}
+{oe/rep/relpremtgt.i "oe-relh.r-no"}
 PROCEDURE right-just:
 DEFINE INPUT  PARAMETER ip-total-len AS INTEGER     NO-UNDO.
 DEFINE INPUT  PARAMETER ip-first-len AS INTEGER     NO-UNDO.
@@ -16,7 +16,7 @@ DEFINE OUTPUT PARAMETER op-final-result AS CHARACTER   NO-UNDO.
 
 DEF VAR i AS INT.
 DEF VAR j AS INT.
-DEF VAR i-2nd-len AS INT. 
+DEF VAR i-2nd-len AS INT.
 
 ip-first-value = ip-first-value + " ".
 i-2nd-len = ip-total-len - ip-first-len.
