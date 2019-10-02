@@ -2256,7 +2256,7 @@ ASSIGN
  lPrintQtyUom  = logical(tb_print-qty-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
 
-IF LOOKUP(v-relprint,"Hopx,ACPI,RFC,Fibrex,Accord,Metro,Carded,Loylang,PremierX,PremTarget,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 AND
+IF LOOKUP(v-relprint,"Hopx,ACPI,RFC,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 AND
    LOOKUP(s-print-what-item,"I,S") > 0 THEN 
    ASSIGN s-print-loc-from = begin_loc
           s-print-loc-to = END_loc
@@ -2517,11 +2517,6 @@ PROCEDURE set-report :
     lines-per-page = 75
     is-xprint-form = YES  . /*60*/
   
-  ELSE IF v-relprint EQ "PremTarget" THEN
-   ASSIGN
-    lv-program     = "oe/rep/relpremtgt.p"
-    lines-per-page = 75
-    is-xprint-form = YES  . /*60*/
   ELSE IF v-relprint EQ "Lakeside" THEN
    ASSIGN
     lv-program     = "oe/rep/relkside.p"
