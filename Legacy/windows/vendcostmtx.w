@@ -267,10 +267,11 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-    {sys/inc/var.i new shared}
-    ASSIGN
-     cocode = g_company
-     locode = g_loc.
+{sys/inc/var.i new shared}
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -401,7 +402,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_venditemcost-2 ).
-       RUN set-position IN h_venditemcost-2 ( 5.05 , 5.00 ) NO-ERROR.
+       RUN set-position IN h_venditemcost-2 ( 5.00 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 16.19 , 142.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -425,7 +426,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 21.48 , 5.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 22.20 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -435,7 +436,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 21.48 , 70 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 22.20 , 91 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -480,7 +481,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_VendItemCostRes ).
-       RUN set-position IN h_VendItemCostRes ( 5.05 , 5.00 ) NO-ERROR.
+       RUN set-position IN h_VendItemCostRes ( 5.05 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 16.19 , 142.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
