@@ -93,6 +93,10 @@ DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-impcom AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-massdel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-vendcostvalue AS HANDLE NO-UNDO .
+DEFINE VARIABLE h_p-updsav2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_VendItemCostRes AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updsavRes AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-navicoRes AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -112,7 +116,7 @@ DEFINE FRAME OPTIONS-FRAME
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 46 ROW 2.91
+         AT COL 67 ROW 2.91
          SIZE 105 BY 1.43
          BGCOLOR 15 .
 
@@ -332,10 +336,10 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|View' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Vendor Cost|Restrictions' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
@@ -410,7 +414,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_b-vendcostvalue ).
-       RUN set-position IN h_b-vendcostvalue ( 7.80 , 58.60 ) NO-ERROR.
+       RUN set-position IN h_b-vendcostvalue ( 7.80 , 56.60 ) NO-ERROR.
        /* Size in UIB:  ( 16.19 , 142.00 ) */
 
 
@@ -434,6 +438,16 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-updsav ( 21.48 , 70 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-updbtn.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsav2 ).
+       RUN set-position IN h_p-updsav2 ( 18.91 , 56.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsav2 ( 1.56 , 50.00 ) NO-ERROR.
+
       
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -444,6 +458,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_venditemcost-2 ).
        RUN add-link IN adm-broker-hdl ( h_venditemcost , 'Record':U , h_b-vendcostvalue ).
        RUN add-link IN adm-broker-hdl ( h_venditemcost-2 , 'reopen':U , h_b-vendcostvalue ).
+       RUN add-link IN adm-broker-hdl (  h_p-updsav2  , 'TableIO':U , h_b-vendcostvalue) .
        
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_venditemcost-2 ,
@@ -453,6 +468,43 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
+
+    WHEN 3 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/vendcostres.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Key-Name = ,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
+             OUTPUT h_VendItemCostRes ).
+       RUN set-position IN h_VendItemCostRes ( 5.05 , 5.00 ) NO-ERROR.
+       /* Size in UIB:  ( 16.19 , 142.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'p-updcan.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updsavRes ).
+       RUN set-position IN h_p-updsavRes ( 21.88 , 60.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsavRes ( 1.76 , 31.00 ) NO-ERROR.
+       
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartViewer h_venditemcost-2. */
+       RUN add-link IN adm-broker-hdl ( h_venditemcost , 'Record':U , h_VendItemCostRes ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsavRes , 'TableIO':U , h_VendItemCostRes ).
+       
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_VendItemCostRes ,
+             h_folder , 'AFTER':U ).
+      
+    END. /* Page 3 */
 
   END CASE.
   /* Select a Startup page. */

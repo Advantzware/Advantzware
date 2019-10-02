@@ -65,8 +65,14 @@ DEFINE TEMP-TABLE tt-eb LIKE eb
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
 
+ASSIGN cocode = g_company .
+
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
+DEFINE VARIABLE lCeBorwser AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE iCeBrowse AS INTEGER NO-UNDO .
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -79,6 +85,12 @@ ASSIGN
   v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 
 &SCOPED-DEFINE yellowColumnsName l-est-look
+
+RUN sys/ref/nk1look.p (INPUT cocode, "cebrowse", "I" /* Integer */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iCeBrowse = INTEGER(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -385,6 +397,8 @@ or return of lv-search
 DO:
     assign rd-sort 
            lv-search.
+    IF lv-search NE "" THEN
+         lCeBorwser = NO .
     
     &scoped-define IAMWHAT Search
     &scoped-define where-statement begins lv-search 
@@ -450,6 +464,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     lv-search:SCREEN-VALUE = ip-cur-val.
+    lCeBorwser = YES .
     
     ASSIGN rd-sort 
            lv-search NO-ERROR.
@@ -571,6 +586,10 @@ PROCEDURE pBuildSearch :
     DEFINE VARIABLE cCust AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cCustPart AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE iDisplayRow AS INTEGER NO-UNDO .
+    IF lCeBorwser THEN
+        iDisplayRow = iCeBrowse .
+    ELSE iDisplayRow = 1000 . 
 
  DO WITH FRAME {&FRAME-NAME}:
     ASSIGN rd-sort.   
@@ -578,8 +597,12 @@ PROCEDURE pBuildSearch :
         ASSIGN cEstNo = lv-search .
     ELSE IF rd-sort EQ 2 THEN
         ASSIGN cCust = lv-search .
-    ELSE IF rd-sort EQ 3 THEN
+    ELSE IF rd-sort EQ 3 THEN do:
         ASSIGN cCustNo = lv-search .
+        IF lCeBorwser THEN
+            iDisplayRow = iCeBrowse .
+        ELSE iDisplayRow = 200 . 
+    END.
     ELSE IF rd-sort EQ 4 THEN
         ASSIGN cCustPart = lv-search .
   
@@ -602,7 +625,7 @@ PROCEDURE pBuildSearch :
             ASSIGN tt-eb.cust-name = IF AVAIL cust THEN cust.NAME ELSE "" .
             ASSIGN 
                 iCount = iCount + 1 .
-            IF iCount GE 1000 THEN LEAVE .
+            IF iCount GE iDisplayRow THEN LEAVE .
         END.
     END.
     ELSE IF rd-sort EQ 2 THEN DO: 
@@ -619,7 +642,7 @@ PROCEDURE pBuildSearch :
             ASSIGN tt-eb.cust-name = IF AVAIL cust THEN cust.NAME ELSE "" .
             ASSIGN 
                 iCount = iCount + 1 .
-            IF iCount GE 1000 THEN LEAVE .
+            IF iCount GE iDisplayRow THEN LEAVE .
         END.
     END.
     ELSE IF rd-sort EQ 3 THEN DO:
@@ -637,7 +660,7 @@ PROCEDURE pBuildSearch :
             ASSIGN tt-eb.cust-name =  cust.NAME  .
             ASSIGN 
                 iCount = iCount + 1 .
-            IF iCount GE 200 THEN LEAVE .
+            IF iCount GE iDisplayRow THEN LEAVE .
         END.
     END.
     ELSE IF rd-sort EQ 4 THEN DO: 
@@ -654,7 +677,7 @@ PROCEDURE pBuildSearch :
             ASSIGN tt-eb.cust-name = IF AVAIL cust THEN cust.NAME ELSE "" .
             ASSIGN 
                 iCount = iCount + 1 .
-            IF iCount GE 1000 THEN LEAVE .
+            IF iCount GE iDisplayRow THEN LEAVE .
         END.
     END.
  END.
