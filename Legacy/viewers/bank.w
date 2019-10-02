@@ -30,7 +30,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+&Scoped-define enable-proc enable-proc
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -570,6 +570,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN disable-proc.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -613,6 +633,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN disable-proc.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -626,13 +665,14 @@ DEF VAR ll-ans AS LOG NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-actnum (bank.actnum:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
   END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  RUN disable-proc.
 
 END PROCEDURE.
 
@@ -700,6 +740,40 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-proc V-table-Win 
+PROCEDURE enable-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    ENABLE cbPayType .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-proc V-table-Win 
+PROCEDURE disable-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE cbPayType .
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
