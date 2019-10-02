@@ -26,7 +26,7 @@ DEFINE TEMP-TABLE ttImportAP1
     FIELD InvoiceNo       AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "Invoice #"         HELP "Required - Size:20"
     FIELD InvoiceDate     AS DATE      FORMAT "99/99/99"        COLUMN-LABEL "Inv Date"          HELP "Defaults to Today - Date"
     FIELD TotalAmount     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "$ Total Amount"    HELP "Optional - Decimal"
-    FIELD Tax             AS CHARACTER FORMAT "X(20)"           COLUMN-LABEL "Tax #"             HELP "Required - Size:20"
+    FIELD Tax             AS CHARACTER FORMAT "X(20)"           COLUMN-LABEL "Tax #"             HELP "Optional - Size:20"
     FIELD VendorTerms     AS CHARACTER FORMAT "x(8)"            COLUMN-LABEL "Vendor Terms"      HELP "Optional - Character"
     FIELD APClerkAssigned AS CHARACTER FORMAT "x(8)"            COLUMN-LABEL "AP Clerk Assigned" HELP "Optional - Character"
     FIELD LineAccount1    AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #1"       HELP "Defaults to Vendor GL Account - Size:20"
@@ -60,7 +60,7 @@ RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
 {util/ImportProcs.i &ImportTempTable = "ttImportAP1"}
 
 /* FG Item Receipt quantity and price validation */
-PROCEDURE pValidateFGItemRecieptQtyPrice:
+PROCEDURE pValidateFGItemReceiptQtyPrice:
     DEFINE INPUT        PARAMETER ipriAPInvl   AS ROWID     NO-UNDO.
     DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipiPoNo      AS INTEGER   NO-UNDO. 
@@ -74,6 +74,7 @@ PROCEDURE pValidateFGItemRecieptQtyPrice:
     DEFINE VARIABLE lQtyMatch   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPriceMatch AS LOGICAL   NO-UNDO INITIAL TRUE.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostFromHistory       AS DECIMAL   NO-UNDO.
     
     FIND FIRST po-ord NO-LOCK
          WHERE po-ord.company EQ ipcCompany
@@ -110,26 +111,40 @@ PROCEDURE pValidateFGItemRecieptQtyPrice:
                           WHERE ap-invl.i-no EQ INT(SUBSTR(fg-rdtlh.receiver-no,1,10))
                             AND ap-invl.line EQ (po-ordl.po-no * 1000) + po-ordl.line
                          ):
-        dQuantity = dQuantity + fg-rdtlh.qty.
-        
-        IF dQuantity EQ ipdQuantity THEN DO:
-            IF fg-rdtlh.cost EQ ipdPrice THEN
-                lPriceMatch = TRUE.
-            ELSE
-                lPriceMatch = FALSE.
-                
-            ASSIGN
-                lQtyMatch            = TRUE
-                fg-rdtlh.receiver-no = (STRING(ap-invl.i-no,"9999999999") +
-                                        STRING(ipdQuantity,"-9999999999.99999"))
-                .           
-            LEAVE.
-        END.
-        
+        ASSIGN 
+            dQuantity = dQuantity + fg-rdtlh.qty
+            dCostFromHistory = fg-rdtlh.cost
+            .
         IF dQuantity GT ipdQuantity THEN
             LEAVE.        
     END.
-
+    IF dQuantity EQ ipdQuantity THEN DO:
+        IF dCostFromHistory EQ ipdPrice THEN
+            lPriceMatch = TRUE.
+        ELSE
+            lPriceMatch = FALSE.
+            
+        ASSIGN
+            lQtyMatch            = TRUE.
+        FOR EACH fg-rcpth NO-LOCK
+            WHERE fg-rcpth.company   EQ ipcCompany
+             AND fg-rcpth.i-no      EQ po-ordl.i-no
+             AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+             AND fg-rcpth.rita-code EQ "R"
+           USE-INDEX item-po,
+           EACH fg-rdtlh EXCLUSIVE-LOCK
+           WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+             AND NOT CAN-FIND(
+                          FIRST ap-invl 
+                          WHERE ap-invl.i-no EQ INT(SUBSTR(fg-rdtlh.receiver-no,1,10))
+                            AND ap-invl.line EQ (po-ordl.po-no * 1000) + po-ordl.line
+                         ):
+            fg-rdtlh.receiver-no = (STRING(ap-invl.i-no,"9999999999") +
+                                    STRING(ipdQuantity,"-9999999999.99999")).           
+            
+        END.
+    END.
     IF NOT lQtyMatch THEN
         ASSIGN
             ioplHold    = YES
@@ -157,7 +172,7 @@ PROCEDURE pValidateFGItemRecieptQtyPrice:
 END PROCEDURE.
 
 /* RM Item Receipt quantity and price validation */
-PROCEDURE pValidateRMItemRecieptQtyPrice:
+PROCEDURE pValidateRMItemReceiptQtyPrice:
     DEFINE INPUT        PARAMETER ipriAPInvl   AS ROWID     NO-UNDO.
     DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipiPoNo      AS INTEGER   NO-UNDO. 
@@ -684,21 +699,20 @@ PROCEDURE pProcessRecord PRIVATE:
              WHERE terms.company EQ ipbf-ttImportAP1.company
                AND terms.dscr    EQ ipbf-ttImportAP1.VendorTerms
              NO-ERROR.
-        
-        FIND FIRST vend NO-LOCK
-             WHERE vend.company EQ ipbf-ttImportAP1.company
-               AND vend.vend-no EQ ipbf-ttImportAP1.VendorID                   
-             NO-ERROR.
-        IF AVAILABLE vend THEN DO:
-            IF AVAILABLE terms AND vend.terms EQ terms.t-code THEN
-                ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
-            ELSE DO:
+        IF AVAILABLE terms THEN
+            ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
+        ELSE DO:
+            FIND FIRST vend NO-LOCK
+                 WHERE vend.company EQ ipbf-ttImportAP1.company
+                   AND vend.vend-no EQ ipbf-ttImportAP1.VendorID                   
+                 NO-ERROR.
+            IF AVAILABLE vend THEN DO:
                 FIND FIRST terms NO-LOCK
                      WHERE terms.company EQ vend.company
                        AND terms.t-code  EQ vend.terms
                      NO-ERROR.
                 IF AVAILABLE terms THEN
-                    ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
+            ap-inv.due-date = (terms.net-day + ipbf-ttImportAP1.InvoiceDate).
             END.    
         END.
     END.
@@ -762,13 +776,13 @@ PROCEDURE pProcessRecord PRIVATE:
                         INPUT  cLineAccount,
                         INPUT  dLineQuantity,
                         INPUT  dLinePrice,
-                        INPUT  ipbf-ttImportAP1.TotalAmount,
+                        INPUT  dLineQuantity * dLinePrice,
                         OUTPUT riAPInvl
                         ) NO-ERROR.
                     
                     IF NOT ERROR-STATUS:ERROR THEN DO:
                         IF NOT lItemType THEN
-                            RUN pValidateFGItemRecieptQtyPrice (
+                            RUN pValidateFGItemReceiptQtyPrice (
                                 INPUT        riAPInvl,
                                 INPUT        ipbf-ttImportAP1.Company,
                                 INPUT        iLinePONumber,
@@ -779,7 +793,7 @@ PROCEDURE pProcessRecord PRIVATE:
                                 INPUT-OUTPUT cHoldNote
                                 ).
                         ELSE
-                            RUN pValidateRMItemRecieptQtyPrice (
+                            RUN pValidateRMItemReceiptQtyPrice (
                                 INPUT        riAPInvl,
                                 INPUT        ipbf-ttImportAP1.Company,
                                 INPUT        iLinePONumber,
