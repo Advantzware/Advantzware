@@ -149,6 +149,40 @@ FUNCTION fNK1ConfigFolder RETURNS CHARACTER
 		
 END FUNCTION.
 
+
+FUNCTION fNK1ConfigFolderBySysCtrlName RETURNS CHARACTER 
+	( ipcCompany AS CHARACTER, ipcSysCtrlName AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cConfigDir   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResult      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnChar  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS LOGICAL NO-UNDO.
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,  
+        ipcSysCtrlName, 
+        "C"       /* Character*/, 
+        INPUT NO  /* check by cust */, 
+        INPUT YES /* use cust not vendor */,
+        INPUT ""  /* cust */, 
+        INPUT ""  /* ship-to*/,
+        OUTPUT cReturnChar, 
+        OUTPUT lRecFound
+        ).
+        
+    IF lRecFound THEN 
+        cConfigDir = cReturnChar  .
+    ELSE 
+        cConfigDir  = ".\custfiles". /* this may need modification */
+        
+    cConfigDir = TRIM(cConfigDir, "\").
+    cResult = cConfigDir.
+    RETURN cResult.		
+END FUNCTION.
+
+
 FUNCTION fGetFtpCmd RETURNS CHARACTER 
     (ipcSoftware AS CHARACTER):
     /*------------------------------------------------------------------------------
@@ -780,7 +814,82 @@ PROCEDURE pExecFtp:
                              ipcFolder,
                              ipcFileSpec).
 
-    cCommandFile = fNK1configFolder(ipcCompany) + "\" + ftpScript.
+    /* this is a temporary code and may need to be removed */
+    if ipcFormat = "checktransfer" then 
+       cCommandFile = fNK1configFolderBySysCtrlName(ipcCompany, "BankTransmittalLocation") + "\" + ftpScript.
+    else
+       cCommandFile = fNK1configFolder(ipcCompany) + "\" + ftpScript.
+       
     RUN pWriteToFile (INPUT cCommandFile).
     RUN pExecuteCommand (YES /* silent */, FtpSoftware, cCommandFile, YES /* run cmd */, OUTPUT cFullCmd).
+END PROCEDURE.
+
+PROCEDURE FTP_GetScriptName:
+    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFTPType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFTPCode        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFTPPartnerCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcSysCtrlName    AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcScriptFilePath AS CHARACTER NO-UNDO.    
+    
+    FIND FIRST ftpConfig NO-LOCK
+        WHERE ftpConfig.ediType EQ ipcFTPType
+          AND ftpConfig.ftpCode EQ ipcFTPCode
+          AND ftpConfig.partner EQ ipcFTPPartnerCode
+        NO-ERROR.        
+    IF AVAIL ftpConfig THEN
+        opcScriptFilePath = ftpConfig.ftpScript.
+        
+    opcScriptFilePath = fNK1configFolderBySysCtrlName(
+                            ipcCompany, 
+                            ipcSysCtrlName) 
+                      + "\" + opcScriptFilePath
+                      + ".xml".
+END PROCEDURE.
+
+PROCEDURE FTP_GetResponse:
+    DEFINE INPUT  PARAMETER ipcResponseFile AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplcResponseXML AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+        
+    DEFINE VARIABLE cLine                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFailureMessageStart AS LOGICAL NO-UNDO.
+    
+    FILE-INFO:FILE-NAME = ipcResponseFile.
+    
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN DO:
+        ASSIGN
+            opcMessage = "Response XML File " + ipcResponseFile + " does not exist"
+            oplSuccess = FALSE
+            .
+        RETURN.    
+    END.
+    
+    COPY-LOB FROM FILE ipcResponseFile TO oplcResponseXML.
+    
+    INPUT FROM VALUE(ipcResponseFile).
+    REPEAT:
+        IMPORT UNFORMATTED cLine.
+    
+        IF INDEX(cLine, "<message>") > 0 THEN
+            opcMessage = opcMessage + TRIM(cLine) + "~n".
+        
+        IF INDEX(cLine, "<failure>") > 0 THEN
+            oplSuccess = FALSE.
+        
+        IF INDEX(cLine, "result") > 0 THEN
+            oplSuccess = IF INDEX(cLine, "true") > 0 THEN
+                             TRUE
+                         ELSE IF INDEX(cLine, "false") > 0 THEN
+                             FALSE
+                         ELSE
+                             FALSE.
+    END.
+    INPUT CLOSE.
+    
+    ASSIGN
+        opcMessage = REPLACE(opcMessage, "<message>", "")
+        opcMessage = REPLACE(opcMessage, "</message>", "")
+        .
 END PROCEDURE.

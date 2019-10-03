@@ -703,13 +703,13 @@ DEFINE FRAME fold
           SIZE 5 BY .62 AT ROW 3.38 COL 2
      "%" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 3.38 COL 56
-     "Description" VIEW-AS TEXT
+     "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.38 COL 28
      "Freight Charge" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 12.19 COL 76
           FGCOLOR 9 
-     "Code" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 3.38 COL 9
+     "Item #" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.38 COL 9
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -2879,6 +2879,7 @@ PROCEDURE local-assign-record :
                 ASSIGN
                     b-eb.cas-no   = eb.cas-no
                     b-eb.cas-cost = eb.cas-cost
+                    b-eb.casNoCharge = eb.casNoCharge
                     b-eb.cas-cnt  = eb.cas-cnt
                     b-eb.cas-len  = eb.cas-len
                     b-eb.cas-wid  = eb.cas-wid
@@ -2887,6 +2888,7 @@ PROCEDURE local-assign-record :
                     b-eb.cas-wt   = eb.cas-wt
                     b-eb.tr-no    = eb.tr-no
                     b-eb.tr-cost  = eb.tr-cost
+                    b-eb.trNoCharge = eb.trNoCharge
                     b-eb.tr-cnt   = eb.tr-cnt
                     b-eb.tr-len   = eb.tr-len
                     b-eb.tr-wid   = eb.tr-wid

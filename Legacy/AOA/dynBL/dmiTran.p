@@ -39,13 +39,14 @@ PROCEDURE createTtblProdAce:
         WHERE dmiTrans.startDate GE dtStartTransDate
           AND dmiTrans.startDate LE dtEndTransDate
           AND (dmiTrans.shift    EQ cShift OR cShift EQ "All")
+          AND dmiTrans.posted    EQ NO
         :
         /* check if valid entry to process */
         IF INDEX(dmiTrans.jobID,"Invalid WO") NE 0 THEN NEXT.
         /* check if valid entry to process */
         IF INDEX(dmiTrans.jobID,"n/f") NE 0 THEN NEXT.
         /* make sure job is in long format */
-        IF NUM-ENTRIES(ENTRY(2,dmiTrans.jobID),".") LT 2 THEN NEXT.
+        IF NUM-ENTRIES(dmiTrans.jobID,".") LT 2 THEN NEXT.
         FIND FIRST mach NO-LOCK
              WHERE mach.spare-int-2 EQ dmiTrans.dmiID
              NO-ERROR.
@@ -81,7 +82,6 @@ PROCEDURE createTtblProdAce:
             ttblProdAce.prodAceQtyDue        = dmiTrans.qtyDue
             ttblProdAce.prodAceState         = cState
             ttblProdAce.prodAceChargeCode    = cChargeCode
-            ttblProdAce.prodAceOperator      = dmiTrans.operator
             ttblProdAce.prodAceDuration      = dmiTrans.downTime + dmiTrans.runTime
             ttblProdAce.prodAceRunComplete   = ttblProdAce.prodAceState EQ "RUN" AND
                                                CAN-FIND(FIRST dmiJobStatus
@@ -91,6 +91,11 @@ PROCEDURE createTtblProdAce:
                                                           AND dmiJobStatus.runID       EQ ttblProdAce.prodAceSeq
                                                           AND dmiJobStatus.jobStatus   EQ "C")
             .
+        DO idx = 1 TO NUM-ENTRIES(dmiTrans.operator):
+            ttblProdAce.prodAceOperator[idx] = ENTRY(idx,dmiTrans.operator).
+        END. /* do idx */
+        RUN newEnd (ttblProdAce.prodAceDuration, ttblProdAce.prodAceStartDate, ttblProdAce.prodAceStartTime,
+                    OUTPUT ttblProdAce.prodAceEndDate, OUTPUT ttblProdAce.prodAceEndTime).
         DO TRANSACTION:
             FIND FIRST bDMITrans EXCLUSIVE-LOCK
                  WHERE ROWID(bDMITrans) EQ ROWID(dmiTrans).

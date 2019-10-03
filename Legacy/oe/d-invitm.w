@@ -1247,6 +1247,8 @@ PROCEDURE display-item :
           inv-line.s-pct[3] inv-line.comm-amt[3] inv-line.t-price inv-line.tax fi_comm-lbl
           WITH FRAME Dialog-Frame.
 
+     RUN new-s-man (1).
+
      FIND FIRST oe-bolh WHERE oe-bolh.company = inv-line.company AND
                               oe-bolh.b-no = inv-line.b-no NO-LOCK NO-ERROR.
      IF AVAIL oe-bolh THEN lv-bolno = string(oe-bolh.bol-no,">>>>>>>9").

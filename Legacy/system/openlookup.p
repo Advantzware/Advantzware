@@ -179,11 +179,11 @@ CASE ip-lookupField:
            /* List of fields which are required in the query */
            INPUT "apiID,endPoint,isSSLEnabled,authType,requestVerb,clientID,isActive", 
            /* List of fields which should be displayed in the browse */ 
-           INPUT "apiID,endPoint,isSSLEnabled,authType,requestVerb,clientID,isActive",
+           INPUT "apiID,clientID,endPoint,isSSLEnabled,authType,requestVerb,isActive",
            /* List of field labels to override the default database field label */
-           INPUT "",
+           INPUT "API ID,Client ID, EndPoint, SSL Enabled, Auth Type, Request Verb, Active",
            /* List of field formats to override the default database field format */
-           INPUT "X(30),X(60)",
+           INPUT "X(30),X(30),X(60)",
            /* List of browse column width values to override the default column width in browse */
            INPUT "",
            /* List of fields for which field level search is enabled */
@@ -191,9 +191,50 @@ CASE ip-lookupField:
            /* List of fields for which sorting is enabled */
            INPUT "apiID",
            /* Where clause to select specific records */
-           INPUT "" ,
+           INPUT "APIOutbound.company EQ '" + ip-company + "'" ,
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
-           INPUT "apiID",
+           INPUT "apiID,clientID",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal
+           ).
+    WHEN "triggerID" THEN 
+        RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Outbound API Triggers",
+           /* The source field for which the lookup screen is called for */
+           INPUT "triggerID",
+           /* DB Table from which data is to be fetched */
+           INPUT "APIOutboundTrigger",
+           /* List of fields which are required in the query */
+           INPUT "triggerID,description,apiID,clientID,isActive", 
+           /* List of fields which should be displayed in the browse */ 
+           INPUT "triggerID,description,apiID,clientID,isActive",
+           /* List of field labels to override the default database field label */
+           INPUT "Trigger ID, Description,API ID,Client ID, Active",
+           /* List of field formats to override the default database field format */
+           INPUT "X(32),X(60)",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT "",
+           /* List of fields for which field level search is enabled */
+           INPUT "triggerID,apiID,clientID,isActive",
+           /* List of fields for which sorting is enabled */
+           INPUT "triggerID",
+           /* Where clause to select specific records */
+           INPUT "APIOutboundTrigger.company EQ '" + ip-company + "'" ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "triggerID,apiID,clientID",
            /* Max record limit to prevent run away query */
            INPUT iRecordLimit,
            /* dynamic subject id */
@@ -404,6 +445,166 @@ CASE ip-lookupField:
            INPUT ip-userid,
            /* dynamic parameter value id */
            INPUT ip-paramValueID,           
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal) NO-ERROR.
+     WHEN "dept" THEN
+       RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Department Information",
+           /* The source field for which the lookup screen is called for */
+           INPUT "code",
+           /* DB Table from which data is to be fetched */
+           INPUT "dept",
+           /* List of fields which are required in the query */
+           INPUT "code,dscr", 
+           /* List of fields which should be displayed in the browse */ 
+           INPUT "code,dscr",
+           /* List of field labels to override the default database field label */
+           INPUT ",",
+           /* List of field formats to override the default database field format */
+           INPUT ",",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT ",",
+           /* List of fields for which field level search is enabled */
+           INPUT "code,dscr",
+           /* List of fields for which sorting is enabled */
+           INPUT "code,dscr",
+           /* Where clause to select specific records */
+           INPUT "" ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "code,dscr",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal) NO-ERROR.
+     WHEN "users-manager" THEN
+       RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Users Manager Information",
+           /* The source field for which the lookup screen is called for */
+           INPUT "user_id",
+           /* DB Table from which data is to be fetched */
+           INPUT "users",
+           /* List of fields which are required in the query */
+           INPUT "user_id,user_name,phone,userType,isManager", 
+           /* List of fields which should be displayed in the browse */ 
+           INPUT "user_id,user_name,phone,userType,isManager",
+           /* List of field labels to override the default database field label */
+           INPUT ",",
+           /* List of field formats to override the default database field format */
+           INPUT ",",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT ",",
+           /* List of fields for which field level search is enabled */
+           INPUT "user_id,user_name,phone,userType",
+           /* List of fields for which sorting is enabled */
+           INPUT "user_id,user_name,phone,userType",
+           /* Where clause to select specific records */
+           INPUT "users.isManager EQ Yes " ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "user_id,user_name",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,           
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal) NO-ERROR.
+     WHEN "item" THEN
+       RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Raw Material Information",
+           /* The source field for which the lookup screen is called for */
+           INPUT "i-no",
+           /* DB Table from which data is to be fetched */
+           INPUT "item",
+           /* List of fields which are required in the query */
+           INPUT "company,i-no,i-name,i-dscr,i-code,mat-type,procat,cost-type",
+           /* List of fields which should be displayed in the browse */
+           INPUT "i-no,i-name,i-dscr,i-code,mat-type,procat,cost-type",
+           /* List of field labels to override the default database field label */
+           INPUT "Item #,Item Name,Description,Real,Material Type,Category,Cost Type",
+           /* List of field formats to override the default database field format */
+           INPUT ",,,",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT "20,40,,",
+           /* List of fields for which field level search is enabled */
+           INPUT "i-no,i-name,i-dscr,i-code,mat-type,procat,cost-type",
+           /* List of fields for which sorting is enabled */
+           INPUT "i-no,i-name,i-dscr,i-code,mat-type,procat,cost-type",
+           /* Where clause to select specific records */
+           INPUT "item.company EQ '" + ip-company + "' " ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "i-no,i-name,i-dscr,i-code,mat-type,procat,cost-type",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,
+           /* Pipe separated list of return field values as output based on previous input list */
+           OUTPUT op-returnFields,
+           /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */
+           OUTPUT op-lookupField,
+           /* RecID of the row selected when a row is selected in the browse */
+           OUTPUT op-recVal) NO-ERROR.
+     WHEN "itemfg" THEN
+       RUN windows\l-lookup.w
+           (/* Title of the lookup screen */
+           INPUT "Finished Good Item",
+           /* The source field for which the lookup screen is called for */
+           INPUT "i-no",
+           /* DB Table from which data is to be fetched */
+           INPUT "itemfg",
+           /* List of fields which are required in the query */
+           INPUT "company,i-no,i-name,part-dscr1,cust-no,est-no,style,procat,i-code,part-no,stat",
+           /* List of fields which should be displayed in the browse */
+           INPUT "i-no,i-name,part-dscr1,cust-no,est-no,style,procat,i-code,part-no,stat",
+           /* List of field labels to override the default database field label */
+           INPUT "Item #,Item Name",
+           /* List of field formats to override the default database field format */
+           INPUT "",
+           /* List of browse column width values to override the default column width in browse */
+           INPUT "20,,35,10,,,,,18",
+           /* List of fields for which field level search is enabled */
+           INPUT "i-no,i-name,part-dscr1,cust-no,est-no,style,procat,i-code,part-no,stat",
+           /* List of fields for which sorting is enabled */
+           INPUT "i-no,i-name,part-dscr1,cust-no,est-no,style,procat,i-code,part-no,stat",
+           /* Where clause to select specific records */
+           INPUT "itemfg.company EQ '" + ip-company + "' " ,
+           /* List of fields for which the value is required to be returned when a row is selected in the browse */
+           INPUT "i-no,i-name,part-dscr1,cust-no,est-no,style,procat,i-code,part-no,stat",
+           /* Max record limit to prevent run away query */
+           INPUT iRecordLimit,
+           /* dynamic subject id */
+           INPUT ip-subjectID,
+           /* dynamic user id */
+           INPUT ip-userid,
+           /* dynamic parameter value id */
+           INPUT ip-paramValueID,
            /* Pipe separated list of return field values as output based on previous input list */
            OUTPUT op-returnFields,
            /* Single return value which is to be returned from the lookup - this will populate in the field from where the lookup was opened */

@@ -8,6 +8,7 @@
 "r-acknow." "O-U-4 Acknowledgement" "0411200601572505" "Customer,Cust,ShipTo"
 "R-Ageinv." "I-R-12 Aged Inventory Report" "0726200501015409" "Customer,Cust"
 "R-ARAged." "A-R-5 Aged Receivables" "1230200501419682" "Customer,Cust"
+"R-BolCert." "O-S-3 Print BOL Certificate" "201909194807703964255" ""
 "R-BolPrt." "O-S-3 Print Bill of Lading" "0822200501036264" "Customer,Cust,ShipTo"
 "R-BOLPST." "O-S-5 BOL Post/Invoice Create" "0305200903644515" "Customer,Cust"
 "R-Cusinv." "I-L-12 Customer Inventory Repo" "0726200501015408" "Customer,Cust"

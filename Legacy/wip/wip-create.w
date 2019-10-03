@@ -155,7 +155,7 @@ DEFINE BUTTON bt-create
      FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "" 
      SIZE 9.6 BY 2.29 TOOLTIP "Exit".
 
@@ -703,14 +703,18 @@ DO:
         OUTPUT lCreated, 
         OUTPUT cMessage
         ).
-                   
+    
+    IF NOT lCreated THEN
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+                       
     RUN rebuildTempTable(
         ipcCompany,
         cFormattedJobno,
         cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME},                         
         cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME},
         cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-        cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}).               
+        cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        ).               
  
 END.
 
@@ -1118,6 +1122,10 @@ DO:
     IF cValidateJobno EQ ls-jobno:SCREEN-VALUE THEN
         RETURN.
     
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    {&OPEN-BROWSERS-IN-QUERY-F-Main} 
+    
     SESSION:SET-WAIT-STATE("GENERAL").     
     
     RUN disableCreate.
@@ -1128,6 +1136,12 @@ DO:
         cBlanknoListitems      = ""
         cMachineListItems      = ""
         cMessage               = ""
+        fiRMItem:SCREEN-VALUE  = ""
+        fiSize:SCREEN-VALUE    = ""
+        fiUOM:SCREEN-VALUE     = ""        
+        btAll:LABEL            = "All - 0"
+        btCreated:LABEL        = "Cr - 0"
+        btOH:LABEL             = "OH - 0"
         btJobDetails:SENSITIVE = FALSE
         .
         
@@ -1161,21 +1175,37 @@ DO:
     RUN updateComboBoxes.
 
     IF lParse THEN
-        ASSIGN
-            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) GT 0 THEN 
-                                          cJobNo2
-                                      ELSE
-                                          ENTRY(1,cJobno2ListItems)
-            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,STRING(cFormNo,"99")) GT 0 THEN 
-                                          cFormNo
-                                      ELSE
-                                          ENTRY(1,cFormnoListItems)
-            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) GT 0 THEN 
-                                          cBlankNo
-                                      ELSE
-                                          ENTRY(1,cBlanknoListitems)
-            cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
-            .
+        IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) LE 0 OR
+           INDEX(cFormnoListItems,STRING(cFormNo,"99")) LE 0 OR
+           INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) LE 0 THEN DO:
+            MESSAGE "Invalid Job Scan , please scan a valid Job Number." 
+                VIEW-AS ALERT-BOX ERROR.
+            
+            ASSIGN
+                cFormattedJobNo         = ""
+                cValidateJobno          = ""
+                SELF:SCREEN-VALUE       = ""
+                cb-jobno2:LIST-ITEMS    = "00"
+                cb-formno:LIST-ITEMS    = "00"
+                cb-blankno:LIST-ITEMS   = "00"
+                cb-machine:LIST-ITEMS   = ""
+                cb-jobno2:SCREEN-VALUE  = "00"
+                cb-formno:SCREEN-VALUE  = "00"
+                cb-blankno:SCREEN-VALUE = "00"
+                cb-machine:SCREEN-VALUE = ""
+                .           
+            
+            SESSION:SET-WAIT-STATE("").
+            
+            RETURN NO-APPLY.
+        END.
+        ELSE
+            ASSIGN
+                cb-jobno2:SCREEN-VALUE  = cJobNo2
+                cb-formno:SCREEN-VALUE  = cFormNo
+                cb-blankno:SCREEN-VALUE = cBlankNo
+                cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
+                .
     ELSE
         ASSIGN 
             cb-jobno2:SCREEN-VALUE  = ENTRY(1,cJobno2ListItems)
@@ -1199,24 +1229,31 @@ DO:
 
     /* Additional validation to check if job still doesn't exist. 
        In this case machine code is passed empty to check if job is valid*/
-    RUN ValidateJob IN hdJobProcs (
-        INPUT ipcCompany,
-        INPUT cFormattedJobno,
-        INPUT "", /* Blank Machine code */
-        INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
-        INPUT INTEGER(cb-formno:SCREEN-VALUE),
-        INPUT INTEGER(cb-blankno:SCREEN-VALUE),
-        OUTPUT lValidJob
-        ).
+    IF NOT lValidJob THEN
+        RUN ValidateJob IN hdJobProcs (
+            INPUT ipcCompany,
+            INPUT cFormattedJobno,
+            INPUT "", /* Blank Machine code */
+            INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+            INPUT INTEGER(cb-formno:SCREEN-VALUE),
+            INPUT INTEGER(cb-blankno:SCREEN-VALUE),
+            OUTPUT lValidJob
+            ).
     
     IF NOT lValidJob THEN DO:
         MESSAGE "Invalid Job Number " SELF:SCREEN-VALUE 
-        ", please enter a valid Job Number." 
+            ", please enter a valid Job Number." 
             VIEW-AS ALERT-BOX ERROR.
-        SELF:SCREEN-VALUE = "".
+        
+        ASSIGN
+            SELF:SCREEN-VALUE = ""
+            cValidateJobno    = ""
+            .
+        
+        RETURN NO-APPLY.
     END.
-    ELSE
-        btJobDetails:SENSITIVE = TRUE.
+
+    btJobDetails:SENSITIVE = TRUE.
                             
     cValidateJobno = ls-jobno:SCREEN-VALUE.    
                            
@@ -1306,7 +1343,16 @@ ON LEAVE OF ls-tag IN FRAME F-Main
 DO:
     IF SELF:SCREEN-VALUE EQ "" THEN
         RETURN.
-            
+    
+    ASSIGN
+        fiRMItem:SCREEN-VALUE = ""
+        fiSize:SCREEN-VALUE   = ""
+        fiUOM:SCREEN-VALUE    = ""
+        btAll:LABEL           = "All - 0"
+        btCreated:LABEL       = "Cr - 0"
+        btOH:LABEL            = "OH - 0"        
+        .
+                        
     RUN tagScan(SELF:SCREEN-VALUE).  
         
     RUN rebuildTempTable(
@@ -2080,7 +2126,8 @@ PROCEDURE tagScan :
     DEFINE VARIABLE iFormNo     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lValidInv   AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE lValidJob   AS LOGICAL   NO-UNDO.
+
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -2131,8 +2178,20 @@ PROCEDURE tagScan :
             OUTPUT lValidInv
             ).
         
-        IF lValidInv THEN
-            RUN enableCreate.
+        IF lValidInv THEN DO:
+            RUN ValidateJob IN hdJobProcs (
+                INPUT ipcCompany,
+                INPUT cFormattedJobno,
+                INPUT cb-machine:SCREEN-VALUE,
+                INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+                INPUT INTEGER(cb-formno:SCREEN-VALUE),
+                INPUT INTEGER(cb-blankno:SCREEN-VALUE),
+                OUTPUT lValidJob
+                ).
+            
+            IF lValidJob THEN            
+                RUN enableCreate.
+        END.
     END.
     
     IF NOT lValidInv THEN DO:

@@ -341,10 +341,9 @@ find first company where company.company eq cocode NO-LOCK.
             no-lock no-error.
         v-po-no = if avail inv-line then inv-line.po-no else "".
 
-        find first terms where terms.company = inv-head.company AND terms.t-code  = inv-head.terms
-		      	   no-lock no-error.
-        if available terms THEN assign v-due-date  = inv-head.inv-date + terms.net-days.
-        ELSE v-due-date = v-inv-date.
+        
+        ASSIGN v-due-date = DYNAMIC-FUNCTION("GetInvDueDate", date(inv-head.inv-date),inv-head.company,inv-head.terms ).
+        
 
         assign v-tot-pallets = 0
                v-t-weight = 0.

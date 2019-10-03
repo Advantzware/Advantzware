@@ -166,7 +166,11 @@ DEF TEMP-TABLE tt-fg-bin NO-UNDO
      IF tran-date = ? THEN RETURN NO-APPLY.
   END.
   ASSIGN post-date = tran-date
-         v-post-date = tran-date.
+         v-post-date = tran-date
+         uperiod = tran-period
+         udate   = tran-date
+         v-gl    = tg_account
+         .
 
 
   IF NOT tg_show-inv THEN

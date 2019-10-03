@@ -247,7 +247,7 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
-    
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .    
     
 ASSIGN cTextListToSelect = "Rep,Rep Name,Customer Name,Item #,Description,Cost,Sell Value $," +
                            "Days,Cust Part #,Last Ship,Qty1,Qty2,Qty3,Qty4,Qty5," +
@@ -1187,6 +1187,7 @@ DO:
                     INPUT begin_cust-no,
                     INPUT end_cust-no).
   END.
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
   RUN run-report. 
 
 
@@ -2933,7 +2934,7 @@ DEF VAR cslist AS cha NO-UNDO.
 
  DISPLAY WITH FRAME r-top .
  IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
  END.
 
@@ -3366,7 +3367,7 @@ END.
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 SESSION:SET-WAIT-STATE ("").
@@ -3985,7 +3986,7 @@ FOR EACH tt-items.
         end_loc-bin,
         end_slm,
         end_whse,
-        fi_file,
+        cFileName,
         lbl_show,
         lbl_sort,
         lines-per-page,

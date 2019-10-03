@@ -110,7 +110,7 @@
             leave.
           end.
         end.
-        if v-skip-pct THEN 
+        if v-skip-pct and avail bmclean THEN 
            put trim(mclean.descr) + " - " +
               trim(string(bmclean.cost[vmcl],"->>>9.99%")) format "x(30)".
         

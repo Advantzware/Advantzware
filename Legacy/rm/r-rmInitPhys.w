@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: jcrep\r-jobsum.w
+  File: rm\r-rminitPhys.w
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -24,8 +24,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE list-name AS cha NO-UNDO.
-
+DEFINE VARIABLE cSnapshotFolder AS CHARACTER NO-UNDO INIT ".\custfiles".
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lOverwriteFile AS LOGICAL NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -67,9 +68,10 @@ ASSIGN
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse ~
-btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiFromWhse fiToWhse 
+&Scoped-Define ENABLED-OBJECTS RECT-7 fiFromItem fiEndItem fiFromWhse ~
+fiToWhse fiSnapshotName btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiFromItem fiEndItem fiFromWhse fiToWhse ~
+fiSnapshotFolder fiSnapshotName 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -93,25 +95,34 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U 
+     LABEL "To Item" 
+     VIEW-AS FILL-IN 
+     SIZE 32 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiFromItem AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Item" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U 
-     LABEL "To Warehouse" 
-     VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiFromWhse AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Warehouse" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U 
-     LABEL "To Item" 
+DEFINE VARIABLE fiSnapshotFolder AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1 NO-UNDO.
+     SIZE 28 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiSnapshotName AS CHARACTER FORMAT "X(256)":U INITIAL "invSnapShotRM.csv" 
+     LABEL "Snapshot File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 37 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiToWhse AS CHARACTER FORMAT "X(256)":U 
+     LABEL "To Warehouse" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -121,15 +132,20 @@ DEFINE RECTANGLE RECT-7
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiFromItem AT ROW 3.81 COL 19 COLON-ALIGNED WIDGET-ID 26
-     fiEndItem AT ROW 3.86 COL 62 COLON-ALIGNED WIDGET-ID 28
-     fiFromWhse AT ROW 4.81 COL 19 COLON-ALIGNED WIDGET-ID 14
-     fiToWhse AT ROW 4.81 COL 62 COLON-ALIGNED WIDGET-ID 16
+     fiFromItem AT ROW 3.86 COL 23 COLON-ALIGNED WIDGET-ID 26
+     fiEndItem AT ROW 3.91 COL 66 COLON-ALIGNED WIDGET-ID 28
+     fiFromWhse AT ROW 4.86 COL 23 COLON-ALIGNED WIDGET-ID 14
+     fiToWhse AT ROW 4.86 COL 66 COLON-ALIGNED WIDGET-ID 16
+     fiSnapshotFolder AT ROW 6.24 COL 42 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     fiSnapshotName AT ROW 7.43 COL 23 COLON-ALIGNED WIDGET-ID 30
      btn-ok AT ROW 11 COL 22
      btn-cancel AT ROW 11 COL 54
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
+     "Snapshot folder:" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 6.48 COL 25 WIDGET-ID 32
+          FGCOLOR 12 
      RECT-7 AT ROW 1.05 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -196,6 +212,11 @@ ASSIGN
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+/* SETTINGS FOR FILL-IN fiSnapshotFolder IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiSnapshotFolder:READ-ONLY IN FRAME FRAME-A        = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -233,9 +254,11 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-A FRAME-A
-ON HELP OF FRAME frame-a /* RM Physical Analysis  Posting */
-    DO:
+
+&Scoped-define SELF-NAME FRAME-A
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-A C-Win
+ON HELP OF FRAME FRAME-A
+DO:
         DEFINE VARIABLE recid-val AS RECID     NO-UNDO.
         DEFINE VARIABLE char-val  AS CHARACTER NO-UNDO. 
         DEFINE VARIABLE ll-tag#   AS LOG       NO-UNDO.
@@ -272,6 +295,7 @@ ON HELP OF FRAME frame-a /* RM Physical Analysis  Posting */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
@@ -290,7 +314,20 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+  
+  FILE-INFO:FILE-NAME = cSnapshotFolder + "\" + fiSnapshotName NO-ERROR.
+  IF FILE-INFO:FULL-PATHNAME NE ? THEN DO:
+          MESSAGE 'File already exists, do you want to overwrite it?'
+          VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lOverwriteFile.
+          IF NOT lOverwriteFile THEN 
+            RETURN.       
+  END.
+  ELSE DO:
+    /* Make sure file can be written */
+    OUTPUT TO VALUE(cSnapshotFolder + "\" + fiSnapshotName).
+    OUTPUT CLOSE.
+  END.
+  
   RUN run-report. 
   MESSAGE "Initialize Complete"
   VIEW-AS ALERT-BOX.  
@@ -338,10 +375,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-
-
   END.
-
+  
+  ASSIGN 
+    fiSnapshotName:SCREEN-VALUE IN FRAME {&frame-name} = "invSnapShotRM" 
+        + STRING(YEAR(TODAY), "9999")
+        + STRING(MONTH(TODAY), "99")
+        + STRING(DAY(TODAY), "99")
+        + "-"
+        + SUBSTRING(STRING(time, "HH:MM"), 1, 2)
+        + SUBSTRING(STRING(time, "HH:MM"), 4, 2)
+        + ".csv"
+    fiSnapShotFolder:SCREEN-VALUE  IN FRAME {&frame-name} = cSnapshotFolder
+    .
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -382,9 +428,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFromItem fiEndItem fiFromWhse fiToWhse 
+  DISPLAY fiFromItem fiEndItem fiFromWhse fiToWhse fiSnapshotFolder 
+          fiSnapshotName 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse btn-ok btn-cancel 
+  ENABLE RECT-7 fiFromItem fiEndItem fiFromWhse fiToWhse fiSnapshotName btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -443,7 +491,9 @@ SESSION:SET-WAIT-STATE ("general").
       input fiFromItem, 
       input fiEndItem,  
       input fiFromWhse,   
-      input fiToWhse)  .  
+      input fiToWhse,
+      input cSnapshotFolder + "\" + fiSnapshotName
+      )  .  
       
     delete object h.  
     

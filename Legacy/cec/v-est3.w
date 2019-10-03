@@ -91,28 +91,30 @@ END.
 DEFINE QUERY external_tables FOR est, eb.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS eb.i-col eb.i-pass eb.i-coat eb.i-coat-p ~
-eb.i-coldscr eb.i-ps[1] eb.i-code[1] eb.i-dscr[1] eb.i-%[1] eb.i-ps[2] ~
-eb.i-code[2] eb.i-dscr[2] eb.i-%[2] eb.i-ps[3] eb.i-code[3] eb.i-dscr[3] ~
-eb.i-%[3] eb.i-ps[4] eb.i-code[4] eb.i-dscr[4] eb.i-%[4] eb.i-ps[5] ~
-eb.i-code[5] eb.i-dscr[5] eb.i-%[5] eb.i-ps[6] eb.i-code[6] eb.i-dscr[6] ~
-eb.i-%[6] eb.i-ps[7] eb.i-code[7] eb.i-dscr[7] eb.i-%[7] eb.i-ps[8] ~
-eb.i-code[8] eb.i-dscr[8] eb.i-%[8] eb.i-ps[9] eb.i-code[9] eb.i-dscr[9] ~
-eb.i-%[9] eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] eb.i-%[10] 
+eb.casNoCharge eb.i-coldscr eb.i-ps[1] eb.i-code[1] eb.i-dscr[1] eb.i-%[1] ~
+eb.i-ps[2] eb.i-code[2] eb.i-dscr[2] eb.i-%[2] eb.trNoCharge eb.i-ps[3] ~
+eb.i-code[3] eb.i-dscr[3] eb.i-%[3] eb.i-ps[4] eb.i-code[4] eb.i-dscr[4] ~
+eb.i-%[4] eb.i-ps[5] eb.i-code[5] eb.i-dscr[5] eb.i-%[5] eb.i-ps[6] ~
+eb.i-code[6] eb.i-dscr[6] eb.i-%[6] eb.i-ps[7] eb.i-code[7] eb.i-dscr[7] ~
+eb.i-%[7] eb.i-ps[8] eb.i-code[8] eb.i-dscr[8] eb.i-%[8] eb.i-ps[9] ~
+eb.i-code[9] eb.i-dscr[9] eb.i-%[9] eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] ~
+eb.i-%[10] 
 &Scoped-define ENABLED-TABLES eb
 &Scoped-define FIRST-ENABLED-TABLE eb
-&Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 RECT-28 RECT-29 btn_misc-est
+&Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 RECT-28 RECT-29 btn_misc-est 
 &Scoped-Define DISPLAYED-FIELDS eb.cas-no eb.cas-len eb.i-col eb.i-pass ~
-eb.i-coat eb.i-coat-p eb.cas-cost eb.cas-wid eb.i-coldscr eb.cas-cnt ~
-eb.cas-dep eb.cas-pal eb.cas-wt eb.i-ps[1] eb.i-code[1] eb.i-dscr[1] ~
-eb.i-%[1] eb.tr-no eb.tr-len eb.i-ps[2] eb.i-code[2] eb.i-dscr[2] eb.i-%[2] ~
-eb.tr-cost eb.tr-wid eb.i-ps[3] eb.i-code[3] eb.i-dscr[3] eb.i-%[3] ~
-eb.tr-cnt eb.tr-dep eb.i-ps[4] eb.i-code[4] eb.i-dscr[4] eb.i-%[4] ~
-eb.tr-cas eb.i-ps[5] eb.i-code[5] eb.i-dscr[5] eb.i-%[5] eb.stacks ~
-eb.i-ps[6] eb.i-code[6] eb.i-dscr[6] eb.i-%[6] eb.stack-code eb.i-ps[7] ~
-eb.i-code[7] eb.i-dscr[7] eb.i-%[7] eb.i-ps[8] eb.i-code[8] eb.i-dscr[8] ~
-eb.i-%[8] eb.chg-method eb.i-ps[9] eb.i-code[9] eb.i-dscr[9] eb.i-%[9] ~
-eb.weight-m eb.carrier eb.carr-dscr eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] ~
-eb.i-%[10] eb.dest-code eb.fr-out-c eb.fr-out-m 
+eb.i-coat eb.i-coat-p eb.cas-cost eb.cas-wid eb.casNoCharge eb.i-coldscr ~
+eb.cas-cnt eb.cas-dep eb.cas-pal eb.cas-wt eb.i-ps[1] eb.i-code[1] ~
+eb.i-dscr[1] eb.i-%[1] eb.tr-no eb.tr-len eb.i-ps[2] eb.i-code[2] ~
+eb.i-dscr[2] eb.i-%[2] eb.tr-cost eb.tr-wid eb.trNoCharge eb.i-ps[3] ~
+eb.i-code[3] eb.i-dscr[3] eb.i-%[3] eb.tr-cnt eb.tr-dep eb.i-ps[4] ~
+eb.i-code[4] eb.i-dscr[4] eb.i-%[4] eb.tr-cas eb.i-ps[5] eb.i-code[5] ~
+eb.i-dscr[5] eb.i-%[5] eb.stacks eb.i-ps[6] eb.i-code[6] eb.i-dscr[6] ~
+eb.i-%[6] eb.stack-code eb.i-ps[7] eb.i-code[7] eb.i-dscr[7] eb.i-%[7] ~
+eb.i-ps[8] eb.i-code[8] eb.i-dscr[8] eb.i-%[8] eb.chg-method eb.i-ps[9] ~
+eb.i-code[9] eb.i-dscr[9] eb.i-%[9] eb.weight-m eb.carrier eb.carr-dscr ~
+eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] eb.i-%[10] eb.dest-code eb.fr-out-c ~
+eb.fr-out-m 
 &Scoped-define DISPLAYED-TABLES eb
 &Scoped-define FIRST-DISPLAYED-TABLE eb
 
@@ -120,10 +122,10 @@ eb.i-%[10] eb.dest-code eb.fr-out-c eb.fr-out-m
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS eb.cas-no eb.cas-len eb.cas-cost ~
-eb.cas-wid eb.cas-cnt eb.cas-dep eb.cas-pal eb.cas-wt eb.tr-no eb.tr-len ~
-eb.tr-cost eb.tr-wid eb.tr-cnt eb.tr-dep eb.tr-cas eb.stacks eb.stack-code ~
-eb.chg-method eb.weight-m eb.carrier eb.carr-dscr eb.dest-code eb.fr-out-c ~
-eb.fr-out-m 
+eb.cas-wid eb.casNoCharge eb.cas-cnt eb.cas-dep eb.cas-pal eb.cas-wt ~
+eb.tr-no eb.tr-len eb.tr-cost eb.tr-wid eb.trNoCharge eb.tr-cnt eb.tr-dep ~
+eb.tr-cas eb.stacks eb.stack-code eb.chg-method eb.weight-m eb.carrier ~
+eb.carr-dscr eb.dest-code eb.fr-out-c eb.fr-out-m 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -155,6 +157,10 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btn_misc-est 
+     LABEL "Releases" 
+     SIZE 17 BY 1.
+
 DEFINE IMAGE stackImage
      FILENAME "adeicon/blank":U
      STRETCH-TO-FIT
@@ -175,10 +181,6 @@ DEFINE RECTANGLE RECT-28
 DEFINE RECTANGLE RECT-29
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 74 BY 4.29.
-
-DEFINE BUTTON btn_misc-est 
-     LABEL "Releases" 
-     SIZE 17 BY 1.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -209,11 +211,15 @@ DEFINE FRAME Corr
      eb.cas-cost AT ROW 2.19 COL 89 COLON-ALIGNED
           LABEL "Cost/Ea"
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 10 BY 1
      eb.cas-wid AT ROW 2.19 COL 125 COLON-ALIGNED
           LABEL "Unit Width" FORMAT ">9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+     eb.casNoCharge AT ROW 2.24 COL 106.4 COLON-ALIGNED
+          LABEL "NC" FORMAT "Y/N"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1
      eb.i-coldscr AT ROW 2.43 COL 9 COLON-ALIGNED NO-LABEL FORMAT "x(40)"
           VIEW-AS FILL-IN 
           SIZE 56 BY 1
@@ -239,7 +245,7 @@ DEFINE FRAME Corr
      eb.i-code[1] AT ROW 4.57 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[1] AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[1] AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[1] AT ROW 4.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -259,7 +265,7 @@ DEFINE FRAME Corr
      eb.i-code[2] AT ROW 5.57 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[2] AT ROW 5.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[2] AT ROW 5.57 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[2] AT ROW 5.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -267,17 +273,15 @@ DEFINE FRAME Corr
           SIZE 7 BY 1
      eb.tr-cost AT ROW 6.48 COL 89 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 10 BY 1
      eb.tr-wid AT ROW 6.48 COL 125 COLON-ALIGNED
           LABEL "Width" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     eb.i-ps[3] AT ROW 6.57 COL 2 COLON-ALIGNED NO-LABEL
+     eb.trNoCharge AT ROW 6.52 COL 106.8 COLON-ALIGNED
+          LABEL "NC" FORMAT "Y/N"
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     eb.i-code[3] AT ROW 6.57 COL 10 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
+          SIZE 4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -285,7 +289,13 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
-     eb.i-dscr[3] AT ROW 6.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-ps[3] AT ROW 6.57 COL 2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
+     eb.i-code[3] AT ROW 6.57 COL 10 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     eb.i-dscr[3] AT ROW 6.57 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[3] AT ROW 6.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -303,7 +313,7 @@ DEFINE FRAME Corr
      eb.i-code[4] AT ROW 7.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[4] AT ROW 7.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[4] AT ROW 7.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[4] AT ROW 7.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -318,7 +328,7 @@ DEFINE FRAME Corr
      eb.i-code[5] AT ROW 8.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[5] AT ROW 8.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[5] AT ROW 8.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[5] AT ROW 8.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -334,7 +344,7 @@ DEFINE FRAME Corr
      eb.i-code[6] AT ROW 9.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[6] AT ROW 9.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[6] AT ROW 9.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[6] AT ROW 9.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -350,7 +360,7 @@ DEFINE FRAME Corr
      eb.i-code[7] AT ROW 10.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[7] AT ROW 10.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[7] AT ROW 10.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[7] AT ROW 10.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -362,12 +372,6 @@ DEFINE FRAME Corr
      eb.i-code[8] AT ROW 11.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[8] AT ROW 11.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
-          VIEW-AS FILL-IN 
-          SIZE 28 BY 1
-     eb.i-%[8] AT ROW 11.67 COL 59 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -375,6 +379,12 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
+     eb.i-dscr[8] AT ROW 11.67 COL 30 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 28 BY 1
+     eb.i-%[8] AT ROW 11.67 COL 59 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
      eb.chg-method AT ROW 11.71 COL 91 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
@@ -383,13 +393,14 @@ DEFINE FRAME Corr
 "Bill", "B":U,
 "Third Party", "T":U
           SIZE 52 BY .95
+     btn_misc-est AT ROW 12.62 COL 120
      eb.i-ps[9] AT ROW 12.67 COL 2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
      eb.i-code[9] AT ROW 12.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[9] AT ROW 12.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[9] AT ROW 12.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[9] AT ROW 12.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -410,7 +421,7 @@ DEFINE FRAME Corr
      eb.i-code[10] AT ROW 13.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[10] AT ROW 13.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[10] AT ROW 13.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[10] AT ROW 13.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -427,11 +438,11 @@ DEFINE FRAME Corr
      eb.fr-out-m AT ROW 15.52 COL 124 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     "Description" VIEW-AS TEXT
+     "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.86 COL 36
      "%" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 3.86 COL 63
-     "Code" VIEW-AS TEXT
+     "Item #" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.86 COL 15
      "PS" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 3.86 COL 4
@@ -439,7 +450,6 @@ DEFINE FRAME Corr
           SIZE 18 BY .62 AT ROW 11.71 COL 73
           FGCOLOR 9 
      stackImage AT ROW 8.38 COL 122
-     btn_misc-est AT ROW 12.61 COL 120 
      RECT-26 AT ROW 1 COL 1
      RECT-27 AT ROW 11.48 COL 71
      RECT-28 AT ROW 5.29 COL 71
@@ -526,6 +536,8 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN eb.cas-wt IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN eb.casNoCharge IN FRAME Corr
+   2 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR RADIO-SET eb.chg-method IN FRAME Corr
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN eb.dest-code IN FRAME Corr
@@ -563,6 +575,8 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN eb.tr-wid IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
+/* SETTINGS FOR FILL-IN eb.trNoCharge IN FRAME Corr
+   2 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN eb.weight-m IN FRAME Corr
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -578,7 +592,7 @@ ASSIGN
 */  /* FRAME Corr */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -756,6 +770,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn_misc-est
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_misc-est V-table-Win
+ON CHOOSE OF btn_misc-est IN FRAME Corr /* Releases */
+DO: 
+  IF AVAIL eb THEN
+   RUN Est/EstReleases.w (INPUT ROWID(eb)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME eb.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.carrier V-table-Win
 ON LEAVE OF eb.carrier IN FRAME Corr /* Carrier */
@@ -919,6 +945,19 @@ DO:
     RUN valid-cas-wt NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.casNoCharge
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.casNoCharge V-table-Win
+ON VALUE-CHANGED OF eb.casNoCharge IN FRAME Corr /* NC */
+DO:
+  IF eb.casNoCharge:SCREEN-VALUE EQ "N" THEN
+      ASSIGN eb.cas-cost:SCREEN-VALUE = "0.00".
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1365,7 +1404,6 @@ DO:
        END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1389,12 +1427,13 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_misc-est
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_misc-est V-table-Win
-ON CHOOSE OF btn_misc-est IN FRAME Corr
-DO: 
-  IF AVAIL eb THEN
-   RUN Est/EstReleases.w (INPUT ROWID(eb)) .
+&Scoped-define SELF-NAME eb.trNoCharge
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.trNoCharge V-table-Win
+ON VALUE-CHANGED OF eb.trNoCharge IN FRAME Corr /* NC */
+DO:
+  IF eb.trNoCharge:SCREEN-VALUE EQ "N" THEN
+      ASSIGN eb.tr-cost:SCREEN-VALUE = "0.00".
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1788,6 +1827,7 @@ PROCEDURE local-assign-record :
         ASSIGN
          b-eb.cas-no   = eb.cas-no
          b-eb.cas-cost = eb.cas-cost
+         b-eb.casNoCharge = eb.casNoCharge
          b-eb.cas-cnt  = eb.cas-cnt
          b-eb.cas-len  = eb.cas-len
          b-eb.cas-wid  = eb.cas-wid
@@ -1796,11 +1836,14 @@ PROCEDURE local-assign-record :
          b-eb.cas-wt   = eb.cas-wt
          b-eb.tr-no    = eb.tr-no
          b-eb.tr-cost  = eb.tr-cost
+         b-eb.trNoCharge = eb.trNoCharge
          b-eb.tr-cnt   = eb.tr-cnt
          b-eb.tr-len   = eb.tr-len
          b-eb.tr-wid   = eb.tr-wid
          b-eb.tr-dep   = eb.tr-dep
-         b-eb.tr-cas   = eb.tr-cas.
+         b-eb.tr-cas   = eb.tr-cas
+         b-eb.casNoCharge   = eb.casNoCharge
+         b-eb.trNoCharge = eb.trNoCharge .
       END.
     END.
   END.
@@ -1838,6 +1881,7 @@ PROCEDURE local-assign-record :
             ASSIGN
              bf-eb.cas-no   = eb.cas-no
              bf-eb.cas-cost = eb.cas-cost
+             bf-eb.casNoCharge = eb.casNoCharge
              bf-eb.cas-cnt  = eb.cas-cnt
              bf-eb.cas-len  = eb.cas-len
              bf-eb.cas-wid  = eb.cas-wid
@@ -1846,11 +1890,14 @@ PROCEDURE local-assign-record :
              bf-eb.cas-wt   = eb.cas-wt
              bf-eb.tr-no    = eb.tr-no
              bf-eb.tr-cost  = eb.tr-cost
+             bf-eb.trNoCharge = eb.trNoCharge
              bf-eb.tr-cnt   = eb.tr-cnt
              bf-eb.tr-len   = eb.tr-len
              bf-eb.tr-wid   = eb.tr-wid
              bf-eb.tr-dep   = eb.tr-dep
-             bf-eb.tr-cas   = eb.tr-cas.
+             bf-eb.tr-cas   = eb.tr-cas
+             bf-eb.casNoCharge = eb.casNoCharge
+             bf-eb.trNoCharge  = eb.trNoCharge .
           RELEASE bf-eb.
       END.
 
@@ -1867,7 +1914,6 @@ PROCEDURE local-assign-record :
 {&methods/lValidateError.i NO}
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1959,8 +2005,8 @@ PROCEDURE local-display-fields :
   /* don't display any value if not unitized */
   IF eb.form-no = 0 AND NOT eb.pur-man THEN
    ASSIGN eb.cas-no:SCREEN-VALUE = ""
-            eb.cas-cost:SCREEN-VALUE = "0"
-            eb.cas-cnt:SCREEN-VALUE  = "0"
+            eb.cas-cost:SCREEN-VALUE = "0"          
+            eb.cas-cnt:SCREEN-VALUE  = "0"           
             eb.cas-pal:SCREEN-VALUE  = "0"
             eb.cas-len:SCREEN-VALUE = "0"
             eb.cas-wid:SCREEN-VALUE = "0"
@@ -2153,13 +2199,14 @@ PROCEDURE local-update-record :
           eb.chg-method
           eb.stacks
           eb.stack-code
+          eb.casNoCharge
+          eb.trNoCharge
       WITH FRAME {&FRAME-NAME}.
 
   RUN release-shared-buffers.
 {&methods/lValidateError.i NO}
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2560,7 +2607,6 @@ END.
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2862,10 +2908,10 @@ PROCEDURE update-ink :
   disable eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
           eb.cas-dep eb.cas-pal eb.cas-wt
           eb.tr-no eb.tr-cost eb.tr-cnt eb.tr-len eb.tr-wid eb.tr-dep
-          eb.tr-cas
+          eb.tr-cas eb.casNoCharge
           eb.carrier eb.carr-dscr eb.weight-m eb.dest-code
           eb.fr-out-c eb.fr-out-m eb.chg-method
-          eb.stacks eb.stack-code
+          eb.stacks eb.stack-code eb.trNoCharge
           with frame {&frame-name}.
 
 END PROCEDURE.
@@ -2889,9 +2935,9 @@ PROCEDURE update-pack :
 
   IF ll-update-pack THEN DO:
     ENABLE eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
-           eb.cas-dep eb.cas-pal eb.cas-wt
+           eb.cas-dep eb.cas-pal eb.cas-wt eb.casNoCharge
            eb.tr-no eb.tr-cost /*eb.tr-cnt*/ eb.tr-len eb.tr-wid eb.tr-dep
-           eb.tr-cas
+           eb.tr-cas eb.trNoCharge
            eb.carrier eb.weight-m eb.dest-code
            eb.fr-out-c eb.fr-out-m eb.chg-method
            eb.stacks eb.stack-code

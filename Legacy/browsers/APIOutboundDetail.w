@@ -72,11 +72,11 @@ DEFINE QUERY external_tables FOR APIOutbound.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundDetail.apiID APIOutboundDetail.detailID APIOutboundDetail.parentID   
+&Scoped-define FIELDS-IN-QUERY-br_table APIOutboundDetail.apiID APIOutboundDetail.clientID APIOutboundDetail.detailID APIOutboundDetail.parentID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiID = APIOutbound.apiID NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiID = APIOutbound.apiID NO-LOCK     ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE     APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table APIOutboundDetail
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutboundDetail
 
@@ -151,11 +151,12 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       APIOutboundDetail.apiID COLUMN-LABEL "API ID" FORMAT "x(32)":U
+      APIOutboundDetail.clientID COLUMN-LABEL "API ID" FORMAT "x(32)":U
       APIOutboundDetail.detailID COLUMN-LABEL "Detail ID" FORMAT "x(32)":U
       APIOutboundDetail.parentID COLUMN-LABEL "Parent ID" FORMAT "x(32)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 112 BY 6.71 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS SIZE 125 BY 6.71 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -196,7 +197,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 6.71
-         WIDTH              = 112.
+         WIDTH              = 125.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -234,7 +235,7 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundDetail WHERE
-    APIOutboundDetail.apiID = APIOutbound.apiID NO-LOCK
+    APIOutboundDetail.apiOutboundID = APIOutbound.apiOutboundID NO-LOCK
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"

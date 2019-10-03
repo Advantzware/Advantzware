@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
+&SCOPED-DEFINE CommonFile_is_Running
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -399,8 +400,7 @@ PROCEDURE load-recurring :
 
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
-
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF {&browse-name}:NUM-SELECTED-ROWS GT 0 THEN
       MESSAGE "This will select all highlighted recurring AP invoice entries, " SKIP
@@ -427,11 +427,7 @@ PROCEDURE load-recurring :
               NO-LOCK NO-ERROR.
 
           IF AVAIL vend THEN DO:
-            FIND FIRST terms WHERE terms.company EQ vend.company            /*Task# 11121306*/
-                AND terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
-            out-ap-inv.due-date = out-ap-inv.inv-date +                     
-                                  (IF AVAIL terms THEN terms.net-days
-                                   ELSE 0).
+            out-ap-inv.due-date = (DYNAMIC-FUNCTION("GetInvDueDate",date(out-ap-inv.inv-date) , vend.company, vend.terms )) .
           END.
 
           FOR EACH inp-ap-invl WHERE inp-ap-invl.i-no EQ inp-ap-inv.i-no NO-LOCK:

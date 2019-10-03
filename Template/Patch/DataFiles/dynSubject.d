@@ -38,4 +38,6 @@
 39 "Invoice Lookup" yes "System" "OE" "_default" 0 "Custom" "Grid" "" "" "FOR EACH inv-head WHERE inv-head.company EQ [[company]] USE-INDEX inv-no" "201906246250503528319" 0
 40 "Web Order Hold" yes "System" "OE" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\webOrderHold.p" "FOR" "201906247471203528450" 0
 41 "Company Lookup" yes "System" "GL" "_default" 0 "Custom" "Grid" "" "" "FOR EACH company" "201908135278603621311" 0
-42 "RM Item Lookup By Job" yes "System" "RM" "_default" 0 "Custom" "HTML" "" "" "FOR EACH loadtag WHERE loadtag.job-no EQ ""202840"" AND loadtag.company EQ ""001""" "201908157675203731674" 0
+42 "RM Item Lookup By Job" yes "System" "RM" "_default" 0 "Custom" "Grid" "" "" "FOR EACH loadtag WHERE loadtag.job-no EQ ""202840"" AND loadtag.company EQ ""001""" "201908157675203731674" 0
+43 "Tax Group Lookup" yes "System" "AP" "_default" 0 "Custom" "Grid" "" "" "FOR EACH stax WHERE stax.company EQ [[company]]" "201908306723803782573" 0
+44 "DMI Transactions Post to TS" yes "System" "TS" "_default" 0 "Custom" "Grid" "" "AOA\dynBL\dmiTran.p" "FOR" "201909107563803782671" 0

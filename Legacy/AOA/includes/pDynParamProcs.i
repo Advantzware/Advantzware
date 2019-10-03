@@ -153,7 +153,9 @@ PROCEDURE pParamValidate :
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE cErrorMsg  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParamName AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cParamName AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bttDynAction FOR ttDynAction.
 
     /* check and run action procedures */
     RUN pParamAction (iphWidget).

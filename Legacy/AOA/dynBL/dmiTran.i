@@ -6,6 +6,7 @@
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE iJobMchID         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE jobMchRowID       AS ROWID     NO-UNDO.
 DEFINE VARIABLE lvProdAceOperator AS CHARACTER NO-UNDO EXTENT 10.
 
@@ -213,8 +214,13 @@ PROCEDURE prodAceDetail :
         IF NOT AVAILABLE pendingJob THEN NEXT.
         jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
       END. /* not avail ttbljob */
-      &ENDIF
       FIND job-mch NO-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
+      &ELSE
+      iJobMchID = INTEGER(ENTRY(2,ttblProdAce.prodAceJob,".")).
+      FIND FIRST job-mch NO-LOCK
+           WHERE job-mch.job-mchID EQ iJobMchID
+           NO-ERROR.
+      &ENDIF
       IF NOT AVAILABLE job-mch THEN NEXT.
     END. /* first-of job */
     CREATE machtran.
@@ -276,10 +282,12 @@ PROCEDURE prodAceSummary :
         buffProdAce.prodAceTranRunQty    = buffProdAce.prodAceTranRunQty + ttblProdAce.prodAceTranRunQty
         buffProdAce.prodAceTranRejectQty = buffProdAce.prodAceTranRejectQty + ttblProdAce.prodAceTranRejectQty
         buffProdAce.prodAceDuration      = buffProdAce.prodAceDuration + ttblProdAce.prodAceDuration
-        buffProdAce.prodAceEndDate       = ttblProdAce.prodAceEndDate
-        buffProdAce.prodAceEndTime       = ttblProdAce.prodAceEndTime
+/*        buffProdAce.prodAceEndDate       = ttblProdAce.prodAceEndDate*/
+/*        buffProdAce.prodAceEndTime       = ttblProdAce.prodAceEndTime*/
         ttblProdAce.deleteFlag           = YES
         .
+      RUN newEnd (buffProdAce.prodAceDuration, buffProdAce.prodAceStartDate, buffProdAce.prodAceStartTime,
+                  OUTPUT buffProdAce.prodAceEndDate, OUTPUT buffProdAce.prodAceEndTime).
     END. /* avail buffprodAce */
   END. /* each ttblProdAce */
 
@@ -395,11 +403,13 @@ PROCEDURE prodAceSummary :
         buffProdAce.prodAceTranRunQty    = buffProdAce.prodAceTranRunQty + ttblProdAce.prodAceTranRunQty
         buffProdAce.prodAceTranRejectQty = buffProdAce.prodAceTranRejectQty + ttblProdAce.prodAceTranRejectQty
         buffProdAce.prodAceDuration      = buffProdAce.prodAceDuration + ttblProdAce.prodAceDuration
-        buffProdAce.prodAceEndDate       = ttblProdAce.prodAceEndDate
-        buffProdAce.prodAceEndTime       = ttblProdAce.prodAceEndTime
+/*        buffProdAce.prodAceEndDate       = ttblProdAce.prodAceEndDate*/
+/*        buffProdAce.prodAceEndTime       = ttblProdAce.prodAceEndTime*/
         buffProdAce.prodAceRunComplete   = ttblProdAce.prodAceRunComplete
         ttblProdAce.deleteFlag           = YES
         .
+      RUN newEnd (buffProdAce.prodAceDuration, buffProdAce.prodAceStartDate, buffProdAce.prodAceStartTime,
+                  OUTPUT buffProdAce.prodAceEndDate, OUTPUT buffProdAce.prodAceEndTime).
     END. /* avail buffprodAce */
   END. /* each ttblProdAce */
 
@@ -456,8 +466,13 @@ PROCEDURE prodAceSummary :
         IF NOT AVAILABLE pendingJob THEN NEXT.
         jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
       END. /* not avail ttbljob */
-      &ENDIF
       FIND job-mch NO-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
+      &ELSE
+      iJobMchID = INTEGER(ENTRY(2,ttblProdAce.prodAceJob,".")).
+      FIND FIRST job-mch NO-LOCK
+           WHERE job-mch.job-mchID EQ iJobMchID
+           NO-ERROR.
+      &ENDIF
       IF NOT AVAILABLE job-mch THEN NEXT.
     END. /* first-of job */
 

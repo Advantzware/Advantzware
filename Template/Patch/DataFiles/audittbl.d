@@ -16,13 +16,13 @@
 "ap-payl" yes yes yes yes
 "ap-sel" yes yes yes yes
 "aphist" yes yes yes yes
-"APIInbound" yes yes yes no
-"APIInboundDetail" yes yes yes no
-"APIInboundEvent" yes yes yes no
-"APIOutbound" yes yes yes no
-"APIOutboundDetail" yes yes yes no
-"APIOutboundEvent" yes yes yes no
-"APIOutboundTrigger" yes yes yes no
+"APIInbound" yes yes yes yes
+"APIInboundDetail" yes yes yes yes
+"APIInboundEvent" yes yes yes yes
+"APIOutbound" yes yes yes yes
+"APIOutboundDetail" yes yes yes yes
+"APIOutboundEvent" yes yes yes yes
+"APIOutboundTrigger" yes yes yes yes
 "ar-cash" yes yes yes yes
 "ar-cashl" yes yes yes yes
 "ar-ctrl" yes yes yes yes
@@ -118,6 +118,7 @@
 "ef" yes yes yes yes
 "ef-nsh" yes yes yes yes
 "emailcod" yes yes yes yes
+"emailConfig" yes yes yes yes
 "emaildtl" yes yes yes yes
 "emailntf" yes yes yes yes
 "emp" yes yes yes yes
@@ -336,6 +337,7 @@
 "sbStatus" yes yes yes yes
 "scores" yes yes yes yes
 "scoreType" yes yes yes yes
+"serverResource" yes yes yes yes
 "shift" yes yes yes yes
 "shifts" yes yes yes yes
 "shift_break" yes yes yes yes

@@ -90,6 +90,12 @@ DEF VAR cDevice AS CHAR NO-UNDO.
 DEFINE VARIABLE cApCheckTextFile AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cApCheckCsvFile AS CHARACTER NO-UNDO .
 
+DEFINE VARIABLE lBankTransmitRecFound     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cBankTransmitRecValue     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBankTransmitFullFilePath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBankTransmitFileName     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBankTransmitSysCtrlName  AS CHARACTER NO-UNDO INITIAL "BankTransmittalLocation".
+
 DEF STREAM excel.
 DEFINE STREAM ap-excel.
 
@@ -151,13 +157,13 @@ END.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date rd_sort tb_prt-acc ~
-tb_void rd_print-apfile tb_APcheckFile fi_CheckFile lv-ornt rd-dest ~
-lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+tb_void rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile ~
+fiTransmitFile lv-ornt rd-dest lines-per-page lv-font-no td-show-parm ~
+tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period lbl_sort rd_sort ~
-tb_prt-acc tb_void rd_print-apfile tb_APcheckFile fi_CheckFile lv-ornt ~
-rd-dest lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
-tb_runExcel fi_file 
+tb_prt-acc tb_void rd_print-apfile tb_APcheckFile fi_CheckFile ~
+tbTransmitFile lv-ornt rd-dest lines-per-page lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -181,9 +187,14 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE fiTransmitFile AS CHARACTER FORMAT "X(100)" 
+     VIEW-AS FILL-IN 
+     SIZE 54 BY .81
+     BGCOLOR 15 FGCOLOR 9 .
+
 DEFINE VARIABLE fi_CheckFile AS CHARACTER FORMAT "X(50)" 
      VIEW-AS FILL-IN 
-     SIZE 46 BY 1
+     SIZE 45 BY .81
      BGCOLOR 15 FGCOLOR 9 .
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-chkreg.csv" 
@@ -251,11 +262,16 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Automatic"
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 7.38.
+     SIZE 94 BY 7.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 10.48.
+     SIZE 94 BY 10.71.
+
+DEFINE VARIABLE tbTransmitFile AS LOGICAL INITIAL no 
+     LABEL "Transmit File" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_APcheckFile AS LOGICAL INITIAL no 
      LABEL "Create AP Check File?" 
@@ -301,8 +317,11 @@ DEFINE FRAME FRAME-A
      tb_void AT ROW 7.67 COL 20
      rd_print-apfile AT ROW 8.86 COL 54 NO-LABEL WIDGET-ID 6
      tb_APcheckFile AT ROW 8.95 COL 20.2 WIDGET-ID 4
-     fi_CheckFile AT ROW 10.05 COL 44 COLON-ALIGNED HELP
+     fi_CheckFile AT ROW 9.71 COL 45 COLON-ALIGNED HELP
           "Enter File Name" NO-LABEL WIDGET-ID 2
+     tbTransmitFile AT ROW 10.48 COL 20.2 WIDGET-ID 12
+     fiTransmitFile AT ROW 10.67 COL 36 COLON-ALIGNED HELP
+          "Enter File Name" NO-LABEL WIDGET-ID 10
      lv-ornt AT ROW 12.1 COL 29 NO-LABEL
      rd-dest AT ROW 13 COL 8 NO-LABEL
      lines-per-page AT ROW 13.24 COL 82 COLON-ALIGNED
@@ -320,7 +339,7 @@ DEFINE FRAME FRAME-A
           BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 12.05 COL 3
-     RECT-6 AT ROW 11.57 COL 1
+     RECT-6 AT ROW 11.95 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -386,6 +405,13 @@ ASSIGN
 ASSIGN 
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
+
+/* SETTINGS FOR FILL-IN fiTransmitFile IN FRAME FRAME-A
+   NO-DISPLAY                                                           */
+ASSIGN 
+       fiTransmitFile:READ-ONLY IN FRAME FRAME-A        = TRUE
+       fiTransmitFile:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        fi_CheckFile:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -599,6 +625,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiTransmitFile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTransmitFile C-Win
+ON LEAVE OF fiTransmitFile IN FRAME FRAME-A
+DO:
+     ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fi_CheckFile
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_CheckFile C-Win
 ON LEAVE OF fi_CheckFile IN FRAME FRAME-A
@@ -695,6 +732,10 @@ END.
 ON VALUE-CHANGED OF rd_print-apfile IN FRAME FRAME-A
 DO:
   ASSIGN {&self-name}.
+  IF rd_print-apfile:SCREEN-VALUE EQ "Text" THEN
+    fi_CheckFile:SCREEN-VALUE = cApCheckTextFile.
+  ELSE
+    fi_CheckFile:SCREEN-VALUE = cApCheckCsvFile.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,15 +752,12 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME rd_print-apfile
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_print-apfile C-Win
-ON VALUE-CHANGED OF rd_print-apfile IN FRAME FRAME-A
+
+&Scoped-define SELF-NAME tbTransmitFile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbTransmitFile C-Win
+ON VALUE-CHANGED OF tbTransmitFile IN FRAME FRAME-A /* Transmit File */
 DO:
-  ASSIGN {&self-name}.
-  IF rd_print-apfile:SCREEN-VALUE EQ "Text" THEN
-    fi_CheckFile:SCREEN-VALUE = cApCheckTextFile.
-  ELSE
-    fi_CheckFile:SCREEN-VALUE = cApCheckCsvFile.
+    fiTransmitFile:HIDDEN = NOT SELF:CHECKED.     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -887,6 +925,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   /* gdm - 05210901 */
   ASSIGN tb_APcheckFile:HIDDEN IN FRAME {&FRAME-NAME} = YES
          fi_CheckFile:HIDDEN IN FRAME {&FRAME-NAME}  = YES
+         fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = YES
          rd_print-apfile:HIDDEN IN FRAME {&FRAME-NAME} = YES .
 
   FIND FIRST sys-ctrl NO-LOCK 
@@ -989,7 +1028,59 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_APcheckFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No" .
   END.
   /* gdm - 05210901 end */
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  cocode,                   /* Company Code */
+        INPUT  cBankTransmitSysCtrlName, /* sys-ctrl name */
+        INPUT  "L",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  FALSE,                    /* Use ship-to */
+        INPUT  FALSE,                    /* ship-to vendor */
+        INPUT  "",                       /* ship-to vendor value */
+        INPUT  "",                       /* shi-id value */
+        OUTPUT cBankTransmitRecValue,
+        OUTPUT lBankTransmitRecFound
+        ).
+    
+    fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME} = lBankTransmitRecFound.
+                          
+    IF lBankTransmitRecFound AND LOGICAL(cBankTransmitRecValue) THEN DO:
+        RUN sys/ref/nk1look.p (
+            INPUT  cocode,                   /* Company Code */
+            INPUT  cBankTransmitSysCtrlName, /* sys-ctrl name */
+            INPUT  "C",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+            INPUT  FALSE,                    /* Use ship-to */
+            INPUT  FALSE,                    /* ship-to vendor */
+            INPUT  "",                       /* ship-to vendor value */
+            INPUT  "",                       /* shi-id value */
+            OUTPUT cBankTransmitRecValue,
+            OUTPUT lBankTransmitRecFound
+            ).
+        
+        ASSIGN
+            tbTransmitFile:CHECKED IN FRAME {&FRAME-NAME} = TRUE
+            fiTransmitFile:HIDDEN IN FRAME {&FRAME-NAME}  = FALSE
+            cBankTransmitFullFilePath = (IF cBankTransmitRecValue NE "" THEN
+                                             cBankTransmitRecValue + "/"
+                                         ELSE
+                                             "C:/Tmp/") 
+            .
+    END.
 
+    ASSIGN
+        cBankTransmitFullFilePath = (IF cBankTransmitFullFilePath NE "" THEN
+                                         cBankTransmitFullFilePath
+                                     ELSE
+                                         "C:/Tmp/")
+        cBankTransmitFileName     = "PayablesAdvantage_" 
+                                  + STRING(YEAR(TODAY),"9999")
+                                  + STRING(MONTH(TODAY),"99")
+                                  + STRING(DAY(TODAY),"99")
+                                  + REPLACE(STRING(TIME,"hh:mm:ss"), ":", "")
+                                  + ".txt"
+        fiTransmitFile:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cBankTransmitFullFilePath 
+                                                           + cBankTransmitFileName
+        .
+                
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1258,13 +1349,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tran-date tran-period lbl_sort rd_sort tb_prt-acc tb_void 
-          rd_print-apfile tb_APcheckFile fi_CheckFile lv-ornt rd-dest 
-          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          rd_print-apfile tb_APcheckFile fi_CheckFile tbTransmitFile lv-ornt 
+          rd-dest lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
           tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tran-date rd_sort tb_prt-acc tb_void rd_print-apfile 
-         tb_APcheckFile fi_CheckFile lv-ornt rd-dest lines-per-page lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         tb_APcheckFile fi_CheckFile tbTransmitFile fiTransmitFile lv-ornt 
+         rd-dest lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel 
+         fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1362,7 +1454,7 @@ IF tb_APcheckFile THEN DO:
    PUT STREAM checkFile UNFORMATTED
     "D"
      STRING(INT(ap-sel.bank-code),"999")                         /* Bank Number    */
-     STRING(INT(REPLACE(bank.bk-act,"-","")), "9999999999")      /* Account Number */
+     STRING(REPLACE(bank.bk-act,"-",""), "x(14)")                /* Account Number */
      STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
      STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") 
                                                                  /* Amount         */ 
@@ -1742,6 +1834,106 @@ PROCEDURE run-report :
 /* ---------------------------------------------------- oe/invpost.p 10/94 gb */
 /* Invoicing  - Edit Register & Post Invoicing Transactions                   */
 /* -------------------------------------------------------------------------- */
+
+/* Start bank transmittal file generation */
+    DEFINE VARIABLE cAPIID          AS CHARACTER NO-UNDO INITIAL "CheckTransfer".
+    DEFINE VARIABLE cTriggerID      AS CHARACTER NO-UNDO INITIAL "TransmitBankFile".
+    DEFINE VARIABLE cFTPType        AS CHARACTER NO-UNDO INITIAL "Generic".
+    DEFINE VARIABLE cFTPCode        AS CHARACTER NO-UNDO INITIAL "CheckTransfer". 
+    DEFINE VARIABLE cFTPPartner     AS CHARACTER NO-UNDO.       
+    DEFINE VARIABLE cFTPScriptFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cArgValues      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBankCode       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iEventID        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hdFTPProcs      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lcResponseXML   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcRequestData   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cNotesMessage   AS CHARACTER NO-UNDO.
+    
+    RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
+    
+    IF tbTransmitFile:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+        cArgValues = cBankTransmitFileName + "," + cBankTransmitFullFilePath.
+        /* Step 1. Creating bank trasmit file */
+        RUN ap/APExportPayablesAdvFormat.p (
+            INPUT  cocode, 
+            INPUT  post-manual, 
+            INPUT  cBankTransmitFullFilePath + cBankTransmitFileName,
+            OUTPUT cBankCode,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ) NO-ERROR.
+            
+        /* Call outbound API "CheckTransfer" to FTP the file */
+        IF NOT ERROR-STATUS:ERROR AND lSuccess AND cBankCode NE "" THEN DO:
+            cFTPPartner = cBankCode.
+            
+            /* Copy the file generated to lcRequestData, which in turn will be saved to APIOutbound Request Data */
+            COPY-LOB FROM FILE cBankTransmitFullFilePath + cBankTransmitFileName TO lcRequestData.
+            
+            /* Step 2. Call to "CheckTransfer" API with "TransmitBankFile" trigger. This will initiate the 
+               FTP transfer for the check file generated. Once executed an Outbound Event record will be generated */
+            RUN api\PrepareAndCallOutboundRequest.p (
+                INPUT  cocode,                  /* Company Code (Mandatory) */
+                INPUT  g_loc,                   /* Location Code (Mandatory) */
+                INPUT  cAPIID,                  /* API ID (Mandatory) */
+                INPUT  cBankCode,               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+                INPUT  "LocalFileName,LocalFilePath", /* Comma separated list of table names for which data being sent (Mandatory) */
+                INPUT  cArgValues,              /* Comma separated list of Values for the respective key */
+                INPUT  cBankCode,               /* Primary ID for which API is called for (Mandatory) */   
+                INPUT  "FTP File Transfer",     /* Event's description (Optional) */
+                INPUT  FALSE,                   /* Re-trigger flag (Mandatory) - Pass TRUE to re-trigger an Outbound Event, Pass FALSE for new API call */
+                OUTPUT iEventID,                /* Outbound Event ID generated */
+                OUTPUT lSuccess,                /* Success/Failure flag */
+                OUTPUT cMessage                 /* Status message */
+                ).
+                        
+            IF lSuccess THEN DO:
+                /* Step 3. Fetch the file name of the script from ftpConfig, in which FTP file transfer status is available */
+                RUN FTP_GetScriptName IN hdFTPProcs (
+                    INPUT  cocode,
+                    INPUT  cFTPType,
+                    INPUT  cFTPCode,
+                    INPUT  cFTPPartner,
+                    INPUT  cBankTransmitSysCtrlName,
+                    OUTPUT cFTPScriptFile
+                    ).
+                
+                /* Step 4. Reading the FTP transfer status xml */
+                RUN FTP_GetResponse IN hdFTPProcs (
+                    INPUT  cFTPScriptFile,
+                    OUTPUT lcResponseXML,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).
+                
+                cNotesMessage = IF lSuccess THEN
+                                    "FTP Transfer Status - SUCCESS - Check file transferred successfully"
+                                ELSE
+                                    "FTP Transfer Status - SUCCESS - " + cMessage
+                                .
+                                
+                /* Step 5. Update the Outbound event's request data, response data, error message and transfer status */
+                RUN api/UpdateAPIOutboundEvent.p (
+                    INPUT iEventID,
+                    INPUT lcRequestData,
+                    INPUT lcResponseXML,    
+                    INPUT cNotesMessage,                                                                       
+                    INPUT lSuccess,
+                    INPUT cMessage
+                    ).
+                    
+                MESSAGE "FTP transfer for check file " + cBankTransmitFullFilePath + cBankTransmitFileName
+                    "is " + TRIM(STRING(lSuccess, "successful/failed")) + ". View log files for more information." VIEW-AS ALERT-BOX.
+            END.
+        END.           
+    END.
+
+    DELETE OBJECT hdFTPProcs.    
+/* End bank transmittal file generation */
 
 ASSIGN
 time_stamp = STRING(TIME, "hh:mmam")

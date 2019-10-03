@@ -55,7 +55,6 @@ FUNCTION UseReleasesForFreightAndWarehousing RETURNS LOGICAL
 
 
 /* ***************************  Main Block  *************************** */
-RUN inventory\InventoryProcs.p PERSISTENT SET ghInventoryProcs.
 
 
 /* **********************  Internal Procedures  *********************** */
@@ -78,6 +77,8 @@ PROCEDURE CalcFreightForEstRelease:
     DEFINE VARIABLE dMSF         AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalWeight AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lValidEstRel AS LOGICAL NO-UNDO.
+    
+    RUN inventory\InventoryProcs.p PERSISTENT SET ghInventoryProcs.
     
     lValidEstRel = NO.
     FOR FIRST bf-estRelease EXCLUSIVE-LOCK   
@@ -102,7 +103,7 @@ PROCEDURE CalcFreightForEstRelease:
             oplError   = YES
             opcMessage = "Invalid estReleaseID " + STRING(ipiEstReleaseID)
             .
-
+    DELETE OBJECT ghInventoryProcs.
 END PROCEDURE.
 PROCEDURE CalcStorageAndHandlingForEstRelease:
     /*------------------------------------------------------------------------------
@@ -119,6 +120,7 @@ PROCEDURE CalcStorageAndHandlingForEstRelease:
     DEFINE VARIABLE dSubUnits AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPartial  AS DECIMAL NO-UNDO.
     
+    RUN inventory\InventoryProcs.p PERSISTENT SET ghInventoryProcs.
 
     FIND FIRST bf-estRelease EXCLUSIVE-LOCK   
         WHERE bf-estRelease.estReleaseID EQ ipiEstReleaseID
@@ -136,7 +138,7 @@ PROCEDURE CalcStorageAndHandlingForEstRelease:
             oplError   = YES
             opcMessage = "Invalid estReleaseID " + STRING(ipiEstReleaseID)
             .
-
+    DELETE OBJECT ghInventoryProcs.
 END PROCEDURE.
 
 PROCEDURE GetFreightForCarrierZone:
@@ -878,6 +880,8 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
     DEFINE VARIABLE dSubUnits       AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dPartial        AS DECIMAL   NO-UNDO.
     
+    RUN inventory\InventoryProcs.p PERSISTENT SET ghInventoryProcs.
+    
     ASSIGN 
         ipbf-estRelease.customerID              = ipbf-eb.cust-no
         ipbf-estRelease.shipToID                = ipbf-eb.ship-id
@@ -973,7 +977,7 @@ PROCEDURE pUpdateEstReleaseFromEstBlank PRIVATE:
         
         ipbf-estRelease.weightTotalPerEach = ipbf-estRelease.weightNetPerEach + ipbf-estRelease.weightTarePerEach.
     END.    
-    
+    DELETE OBJECT ghInventoryProcs.
         
 END PROCEDURE.
 

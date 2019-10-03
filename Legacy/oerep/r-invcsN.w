@@ -1404,6 +1404,10 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5L3.f}
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE lPrintActMatCost AS LOGICAL NO-UNDO .
+
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 form cust.name            COLUMN-LABEL "Customer Name"
      w-data.inv-no
@@ -1489,10 +1493,12 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
+       IF LOOKUP(ttRptSelected.TextList, "Act Mat'l Cost") <> 0    THEN
+         ASSIGN lPrintActMatCost = YES .
  END.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1501,7 +1507,7 @@ END.
 {sys/inc/outprint.i value(lines-per-page)}
 /*
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel TO VALUE(fi_file).
+  OUTPUT STREAM excel TO VALUE(cFileName).
   excelheader = "Customer Name,Invoice#,FG Item#,Job#,Mat'l Cost," +
                 "Labor Cost,FixOH Cost,VarOH Cost,Total Cost,Sales Amt".
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1516,7 +1522,7 @@ VIEW FRAME r-top.
  IF tb_excel THEN DO:
      OUTPUT STREAM excel CLOSE.
      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
  END.
 
 
@@ -1609,11 +1615,13 @@ PROCEDURE pGetActMatCost :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipcJob AS CHARACTER NO-UNDO .
+DEFINE INPUT PARAMETER ipiJob2 AS INTEGER NO-UNDO .
 DEFINE OUTPUT PARAMETER opdActCost AS DECIMAL NO-UNDO .
 
 FIND FIRST job NO-LOCK
     WHERE job.company EQ cocode
-    AND job.job-no EQ ipcJob NO-ERROR .
+    AND job.job-no EQ ipcJob 
+    AND job.job-no2 EQ ipiJob2 NO-ERROR .
 
  IF AVAIL job THEN do:
      {jc/rep/job-summ.i}   /***  Get the Material Information ***/

@@ -674,45 +674,43 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              END.
           
 
-              IF w-bin.w-cust-qty GT 0 THEN
-                 lv-tot-cust-qty = w-bin.w-cust-qty.
-              IF w-bin.w-uom NE "" THEN
-                lv-save-cust-uom = caps(trim(w-bin.w-uom)).
-              RUN right-just (INPUT 11, 
-                  INPUT 8,
-                  INPUT trim(STRING(lv-tot-cust-qty, "->>>>>>>>")),
-                  INPUT lv-save-cust-uom,
-                  OUTPUT v-cust-value).
-                  
-              IF NOT sw AND lv-tot-cust-qty GT 0 THEN DO:
-                  /* Customer order qty and UOM should print before tags */
-                  display {2}
-                     v-cust-value
-                    with frame rel-mid.
-                  DOWN WITH FRAME rel-mid.                  
-                  ASSIGN 
-                    lv-tot-cust-qty = 0
-                    lv-save-cust-uom = "" 
-                    v-cq = YES
-                    v-printline = v-printline + 1
-                    .
-              END.
-                 RUN right-just 
+                RUN right-just 
                   (INPUT 11, 
                   INPUT 8,
                   INPUT trim(STRING(v-tot-rqty, "->>>>>>>>")),
                   INPUT "EA",
-                  OUTPUT v-tot-rqty-a).             
+                  OUTPUT v-tot-rqty-a).
+
               display {2}
                      w-bin.w-ord-col
+/*                      w-oe-rell.ord-no when FIRST(w-bin.w-date-time) @ w-oe-rell.ord-no */
                      w-bin.w-par
                      v-bin
                      w-bin.w-units
-                     w-bin.w-unit-count 
-                     v-tot-rqty-a  @ v-cust-value  
-                     // v-cust-value WHEN lv-tot-cust-qty GT 0 AND sw EQ NO
-                    with frame rel-mid.
-              
+                     w-bin.w-unit-count
+                     v-tot-rqty-a WHEN sw = NO @ v-cust-value
+/*                      v-rs WHEN sw = NO */
+              with frame rel-mid.
+              IF w-bin.w-cust-qty GT 0 THEN
+                 lv-tot-cust-qty = w-bin.w-cust-qty.
+              IF w-bin.w-uom NE "" THEN
+                lv-save-cust-uom = caps(trim(w-bin.w-uom)).
+              IF lv-tot-cust-qty GT 0 AND sw = YES /*AND v-cq = NO*/ THEN DO:
+                  RUN right-just (INPUT 11, 
+                    INPUT 8,
+                    INPUT trim(STRING(lv-tot-cust-qty, "->>>>>>>>")),
+                    INPUT lv-save-cust-uom,
+                    OUTPUT v-cust-value).
+                  DISPLAY {2}
+                     v-cust-value 
+                            
+                     WITH FRAME rel-mid.
+            
+                  ASSIGN 
+                    lv-tot-cust-qty = 0
+                    lv-save-cust-uom = "" 
+                    v-cq = YES.
+              END.
 
             ASSIGN
                 sw = YES

@@ -20,7 +20,7 @@
 22 "System" "Exception Only" 3.1 23 yes "" yes "201906138090803524370"
 23 "System" "Customer Inventory Misc" 5.48 119 yes "" yes "201906145278603524386"
 24 "System" "Use Defined Customer List" 2.86 33 yes "" yes "201906145471503524413"
-25 "System" "Audit History Parameters" 8.33 102 yes "" yes "201906175555403524467"
+25 "System" "Audit History Parameters" 8.33 93 yes "" yes "201906175555403524467"
 26 "System" "Sales Rep Range" 5.48 70 yes "Sales Reps" yes "201906177937603524526"
 27 "System" "Cash Receipt Sales Rep Name" 5.48 73 yes "" yes "201906178031303524547"
 28 "System" "Location" 2.86 22 yes "" yes "201906186371303524604"
@@ -52,3 +52,4 @@
 54 "System" "Use Ship Date" 2.86 21 yes "" yes "201906213890003527439"
 56 "System" "Company Range" 5.48 68 yes "Company" yes "201908128044103621250"
 57 "System" "Purge" 3.1 14 yes "" yes "201908128107303621256"
+60 "System" "Shifts" 6.43 35 yes "" yes "201909107516303782669"

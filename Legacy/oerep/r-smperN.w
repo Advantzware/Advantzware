@@ -461,6 +461,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN {&DISPLAYED-OBJECTS}.
+  END.
+
   SESSION:SET-WAIT-STATE ("general").
 
   assign rd-dest.
@@ -1508,7 +1512,7 @@ display "" with frame r-top.
           v-gtot-ytd-amt = 0.
 
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel CLOSE.
+  OUTPUT STREAM excel CLOSE.  
   IF tb_runExcel THEN
     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.

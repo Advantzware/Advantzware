@@ -1145,7 +1145,7 @@ FOR EACH job-hdr NO-LOCK
                                     "<C2>" "<C12><b>Material: </b>" (IF AVAILABLE ITEM THEN ITEM.i-name ELSE "") FORMAT "x(30)" 
                                     "<C40><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C69><b>Cad Id: </b>" eb.cad-no FORMAT "x(12)" SKIP
                                     "<C12><b>Adhesive: </b>" eb.adhesive FORMAT "x(15)"  
-                                    "<C40><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C62><b>#Up:</b>" ef.n-cuts 
+                                    "<C40><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C62><b>#Up:</b>" eb.num-up 
                                     "<C69><b>Plate#: </b>" eb.plate-no FORMAT "x(12)" SKIP
                                     "<C40><b>Blank:</b>" eb.t-wid FORMAT ">>9.9999" SPACE(3) eb.t-len FORMAT ">>9.9999" SPACE(3) /*eb.t-sqin FORMAT ">>9.9999"*/
                                     "<C69>   <b>Die#: </b>" eb.die-no FORMAT "x(12)" SKIP .
@@ -1195,26 +1195,39 @@ FOR EACH job-hdr NO-LOCK
                                          WHERE mach.company EQ cocode
                                            AND mach.m-code EQ wrk-op.m-code NO-ERROR .
 
-                                    FOR EACH mch-act
-                                        WHERE mch-act.company EQ mach.company
-                                        AND mch-act.m-code  EQ mach.m-code
-                                        AND mch-act.job-no  EQ bf-jobhdr.job-no
-                                        AND mch-act.job-no2  EQ bf-jobhdr.job-no2
-                                        USE-INDEX operation,
-                                        FIRST job-code WHERE job-code.code EQ mch-act.code NO-LOCK
-                                        TRANSACTION:
+                                    FOR EACH est-op WHERE est-op.company = cocode
+                                        AND est-op.est-no = eb.est-no
+                                        AND est-op.s-num eq eb.form-no
+                                        AND est-op.m-code EQ mach.m-code
+                                        AND est-op.line < 500
+                                        NO-LOCK:
 
-                                        IF job-code.cat EQ "MR" THEN
-                                            ASSIGN
-                                                dMRWaste = dMRWaste + mch-act.waste
-                                                dMRCrew  = dMRCrew + mch-act.crew .
-                                        ELSE 
-                                            ASSIGN
-                                                dRunCrew  = dRunCrew + mch-act.crew
-                                                dRunWaste = dRunWaste + mch-act.waste .
+                                        ASSIGN
+                                            dMRCrew = est-op.op-crew[1]
+                                            dRunCrew = est-op.op-crew[2]
+                                            dRunWaste = est-op.op-spoil .
                                     END.
 
-     
+                                  /*  FOR EACH mch-act                                                  */ 
+                                  /*      WHERE mch-act.company EQ mach.company                         */ 
+                                  /*      AND mch-act.m-code  EQ mach.m-code                            */ 
+                                  /*      AND mch-act.job-no  EQ bf-jobhdr.job-no                       */ 
+                                  /*      AND mch-act.job-no2  EQ bf-jobhdr.job-no2                     */ 
+                                  /*      USE-INDEX operation,                                          */ 
+                                  /*      FIRST job-code WHERE job-code.code EQ mch-act.code NO-LOCK    */ 
+                                  /*      TRANSACTION:                                                  */ 
+                                  /*                                                                    */ 
+                                  /*      IF job-code.cat EQ "MR" THEN                                  */ 
+                                  /*          ASSIGN                                                    */ 
+                                  /*              dMRWaste = dMRWaste + mch-act.waste                   */ 
+                                  /*              dMRCrew  = dMRCrew + mch-act.crew .                   */ 
+                                  /*      ELSE                                                          */ 
+                                  /*          ASSIGN                                                    */ 
+                                  /*              dRunCrew  = dRunCrew + mch-act.crew                   */ 
+                                  /*              dRunWaste = dRunWaste + mch-act.waste .               */ 
+                                  /*  END.                                                              */ 
+                                  
+                                  
                                     IF s-prt-mstandard THEN 
                                     DO:
                                         dBeginQty = (wrk-op.speed[wrk-op.s-num] * wrk-op.run-hr[wrk-op.s-num]) + (wrk-op.mr-waste[wrk-op.s-num]) .

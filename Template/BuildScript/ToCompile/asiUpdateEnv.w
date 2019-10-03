@@ -75,6 +75,7 @@ ASSIGN
 DEF STREAM s1.
 DEF STREAM s2.
 DEF STREAM apiFiles.
+DEF STREAM sOutput.
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
@@ -87,11 +88,13 @@ DEF TEMP-TABLE ttModule LIKE module.
 DEF TEMP-TABLE ttLookups LIKE lookups.
 DEF TEMP-TABLE ttReftable LIKE reftable.
 DEF TEMP-TABLE ttSysCtrl LIKE sys-ctrl.
+DEF TEMP-TABLE ttSys-Ctrl LIKE sys-ctrl.
 DEF TEMP-TABLE ttSysCtrlShipto LIKE sys-ctrl-shipto.
 DEF TEMP-TABLE ttTranslation LIKE translation.
 DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
+DEF TEMP-TABLE ttZmessage LIKE zMessage.
 
 DEF TEMP-TABLE ttPfFile
     FIELD ttfLine AS INT  
@@ -123,7 +126,28 @@ DEF TEMP-TABLE ttUsers
     FIELD ttfenvlist AS CHAR
     FIELD ttfdblist AS CHAR
     FIELD ttfmodelist AS CHAR.
- 
+
+DEFINE TEMP-TABLE ttDuplicates
+    FIELD cItem       AS CHARACTER
+    FIELD cVendor     AS CHARACTER
+    FIELD cCustomer   AS CHARACTER 
+    FIELD cEstimateNo AS CHARACTER
+    FIELD iForm       AS INTEGER
+    FIELD iBlank      AS INTEGER
+    FIELD dEQty       AS DECIMAL
+    FIELD cCompany    AS CHARACTER
+    FIELD cItemType   AS CHARACTER
+    . 
+    
+DEF TEMP-TABLE ttTemplateFiles
+    FIELD cFileName AS CHAR 
+    FIELD cLongName AS CHAR 
+    FIELD daModDate AS DATE.    
+
+DEF TEMP-TABLE ttResTemplateFiles
+    FIELD cFileName AS CHAR 
+    FIELD cLongName AS CHAR 
+    FIELD daModDate AS DATE.    
 
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
@@ -155,6 +179,9 @@ DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR delCtr AS INT NO-UNDO.
 DEF VAR dupCtr AS INT NO-UNDO.
 DEF VAR hPreRun AS HANDLE.
+DEF VAR giCountCreated    AS INTEGER   NO-UNDO.
+DEF VAR giCountDuplicate  AS INTEGER   NO-UNDO.
+DEF VAR glUseQtyFrom      AS LOGICAL   NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR iCurrVerExt AS INT NO-UNDO.
@@ -241,6 +268,12 @@ FUNCTION fIntVer RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD formatForCSV C-Win 
+FUNCTION FormatForCSV RETURNS CHARACTER 
+    (ipcValue AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -1677,6 +1710,115 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCleanTemplates C-Win
+PROCEDURE ipCleanTemplates:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+         
+    ------------------------------------------------------------------------------*/
+    DEF VAR cTgtEnv AS CHAR NO-UNDO.
+    DEF VAR icShortName AS CHAR NO-UNDO.
+    DEF VAR icLongName AS CHAR NO-UNDO.
+    DEF VAR icType AS CHAR NO-UNDO.
+    DEF VAR daFileDate AS DATE NO-UNDO.
+    DEF VAR cTestFileName AS CHAR NO-UNDO.
+    DEF VAR cResDir AS CHAR NO-UNDO.
+    
+    RUN ipStatus ("  Cleaning /Template directories.").
+
+    ASSIGN 
+        cResDir = cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources\Template"
+        cTgtEnv = cEnvDir + "\" + fiEnvironment:{&SV}.
+    
+    /* Build list of files in <root>\Template directory */
+    ASSIGN  
+        FILE-INFO:FILE-NAME = cTgtEnv + "\Template".
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN RETURN.
+    ELSE DO:
+        ASSIGN 
+            cTgtEnv = FILE-INFO:FULL-PATHNAME.
+        INPUT FROM OS-DIR (cTgtEnv).
+        REPEAT:
+            IMPORT 
+                icShortName
+                icLongName
+                icType.
+            ASSIGN 
+                FILE-INFO:FILE-NAME = icLongName.
+            CREATE ttTemplateFiles.
+            ASSIGN 
+                ttTemplateFiles.cFileName = icShortName
+                ttTemplateFiles.cLongName = icLongName
+                ttTemplateFiles.daModDate = FILE-INFO:FILE-MOD-DATE.
+        END.
+    END.
+    
+    /* Build list of files in /Resources/Template */
+    ASSIGN  
+        FILE-INFO:FILE-NAME = cResDir.
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN RETURN.
+    ELSE 
+    DO:
+        ASSIGN 
+            cResDir = FILE-INFO:FULL-PATHNAME.
+        INPUT FROM OS-DIR (cResDir).
+        REPEAT:
+            IMPORT 
+                icShortName
+                icLongName
+                icType.
+            ASSIGN 
+                FILE-INFO:FILE-NAME = icLongName.
+            CREATE ttResTemplateFiles.
+            ASSIGN 
+                ttResTemplateFiles.cFileName = icShortName
+                ttResTemplateFiles.cLongName = icLongName
+                ttResTemplateFiles.daModDate = FILE-INFO:FILE-MOD-DATE.
+        END.
+    END.
+    
+    /* Now compare the lists and remove the files in <root>\Template that have a match in /Resources */
+    FOR EACH ttTemplateFiles:
+        FIND FIRST ttResTemplateFiles NO-LOCK WHERE 
+            ttResTemplateFiles.cFileName EQ ttTemplateFiles.cFileName
+            NO-ERROR.
+        IF AVAIL ttResTemplateFiles 
+        AND ttResTemplateFiles.daModDate GE ttTemplateFiles.daModDate THEN DO:
+            OS-DELETE VALUE(ttTemplateFiles.cLongName).
+            DELETE ttTemplateFiles.
+        END.
+    END.
+    
+    /* Anything left are custom to this customer, and need to go to CustFiles */
+    OS-CREATE-DIR VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\CustFiles\Template").
+    
+    /* Note: try to clean up any NK1s that might reference the file while we're here */
+    FOR EACH ttTemplateFiles:
+        FIND FIRST sys-ctrl EXCLUSIVE WHERE 
+            sys-ctrl.char-fld EQ ttTemplateFiles.cLongName
+            NO-ERROR.
+        IF AVAIL sys-ctrl THEN DO:
+            ASSIGN 
+                sys-ctrl.char-fld = ".\CustFiles\Template\" + ttTemplateFiles.cFileName.
+        END.
+                     
+        OS-COPY VALUE(ttTemplateFiles.cLongName) VALUE(cEnvDir + "\" + fiEnvironment:{&SV} + "\CustFiles\Template"). 
+        OS-DELETE VALUE(ttTemplateFiles.cLongName).
+        DELETE ttTemplateFiles.
+     END.
+     
+     /* Finally, remove the directory */
+     OS-DELETE VALUE(cTgtEnv) RECURSIVE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConfirmAdminUser C-Win 
 PROCEDURE ipConfirmAdminUser :
 /*------------------------------------------------------------------------------
@@ -1970,6 +2112,40 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertVendorCosts C-Win
+PROCEDURE ipConvertVendorCosts:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Converting vendor cost records").
+
+    DEFINE VARIABLE iVendCostItemID AS INT64 NO-UNDO.
+
+    FOR EACH e-item-vend NO-LOCK, 
+        FIRST e-item NO-LOCK 
+        WHERE e-item.company EQ e-item-vend.company
+        AND e-item.i-no EQ e-item-vend.i-no:
+        RUN pCreateVendItemCostFromEItemVend(BUFFER e-item-vend, BUFFER e-item, OUTPUT iVendCostItemID).
+    END. /*each e-item-vend*/
+    
+    FOR EACH e-itemfg NO-LOCK, 
+        EACH e-itemfg-vend NO-LOCK 
+        WHERE e-itemfg-vend.company EQ e-itemfg.company
+        AND e-itemfg-vend.i-no EQ e-itemfg.i-no:
+        RUN pCreateVendItemCostFromEItemFgVend(BUFFER e-itemfg-vend, BUFFER e-itemfg, OUTPUT iVendCostItemID).
+    END. /*each e-item-vend*/
+
+    RUN TempTableToCSV(TEMP-TABLE ttDuplicates:HANDLE, "C:\tmp\DuplicateVendCosts.csv", TRUE /* Export Header */).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvQtyPerSet C-Win 
 PROCEDURE ipConvQtyPerSet :
 /*------------------------------------------------------------------------------
@@ -2248,6 +2424,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161000.
     IF fIntVer(cThisEntry) LT 16120000 THEN 
         RUN ipDataFix161200.
+    IF fIntVer(cThisEntry) LT 16130000 THEN 
+        RUN ipDataFix161300.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2631,6 +2809,26 @@ END PROCEDURE.
 
 
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix1613010 C-Win
+PROCEDURE ipDataFix161300:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 161300...").
+    
+    /* RUN ipConvertVendorCosts. */
+    RUN ipLoadOEAutoApproveNK1s.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
     /*------------------------------------------------------------------------------
@@ -2644,6 +2842,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipLoadJasperData.
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
+    RUN ipCleanTemplates.
 
 END PROCEDURE.
 
@@ -3650,16 +3849,19 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Loading Email codes").
 
     &SCOPED-DEFINE tablename emailcod
 
+    DEFINE BUFFER bemaildtl FOR emaildtl.
+    
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    DISABLE TRIGGERS FOR LOAD OF bemaildtl.
     
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
@@ -3668,7 +3870,8 @@ PROCEDURE ipLoadEmailCodes :
         FIND FIRST {&tablename} EXCLUSIVE WHERE 
             {&tablename}.emailcod EQ tt{&tablename}.emailcod
             NO-ERROR.
-        IF NOT AVAIL {&tablename} THEN DO:
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
         END.
@@ -3676,6 +3879,27 @@ PROCEDURE ipLoadEmailCodes :
     INPUT CLOSE.
         
     EMPTY TEMP-TABLE tt{&tablename}.
+    
+    /* 54067 Upon upgrade, add e-code for BOL to the new e-code for COC such that they are the same*/
+    FOR EACH emaildtl NO-LOCK WHERE 
+        emaildtl.emailcod = "r-bolprt.":
+        FIND FIRST bemaildtl NO-LOCK WHERE
+            bemaildtl.emailcod = "r-bolcert." AND 
+            bemaildtl.table_rec_key EQ emaildtl.table_rec_key
+            NO-ERROR.
+        IF NOT AVAIL bemaildtl THEN 
+        DO:
+            CREATE bemaildtl.
+            ASSIGN 
+                bemaildtl.emailcod = "r-bolcert."
+                bemaildtl.table_rec_key = emaildtl.table_rec_key
+                bemaildtl.rec_key = STRING(YEAR(TODAY),"9999")
+                                    + STRING(MONTH(TODAY),"99")
+                                    + STRING(DAY(TODAY),"99")
+                                    + STRING(TIME,"99999")
+                                    + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999").
+        END.
+    END.      
   
 END PROCEDURE.
 
@@ -4066,6 +4290,53 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadOEAutoApproveNK1s C-Win
+PROCEDURE ipLoadOEAutoApproveNK1s:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading OEAutoApprove NK1s").
+
+    &SCOPED-DEFINE tablename sys-ctrl
+
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    DISABLE TRIGGERS FOR DUMP OF {&tablename}.
+
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        IF tt{&tablename}.module NE "val" THEN 
+            DELETE tt{&tablename}.
+    END.
+    
+    FOR EACH tt{&tablename}:
+        FOR EACH company:
+            FIND FIRST {&tablename} EXCLUSIVE WHERE 
+                {&tablename}.company EQ tt{&tablename}.company AND  
+                {&tablename}.name EQ tt{&tablename}.name  
+                NO-ERROR.
+            IF NOT AVAIL {&tablename} THEN 
+            DO:
+                CREATE {&tablename}.
+                BUFFER-COPY tt{&tablename} EXCEPT company TO {&tablename}
+                ASSIGN
+                    {&tablename}.company = company.company 
+                    {&tablename}.log-fld = FALSE.
+            END.
+        END.
+    END.
+    INPUT CLOSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadPrograms C-Win 
 PROCEDURE ipLoadPrograms :
 /*------------------------------------------------------------------------------
@@ -4102,6 +4373,7 @@ PROCEDURE ipLoadPrograms :
                 tt{&tablename}.can_create
                 tt{&tablename}.can_update
                 tt{&tablename}.can_delete
+                tt{&tablename}.subjectID
                 TO {&tablename}.
         END.
     END.
@@ -4436,6 +4708,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadZmessage C-Win
+PROCEDURE ipLoadZmessage:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading zMessage Records").
+
+    &SCOPED-DEFINE tablename zMessage
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.msgID EQ tt{&tablename}.msgID 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+        ELSE DO: /* Update fields except those controlled by user */
+            BUFFER-COPY tt{&tablename} EXCEPT 
+                currentTitle 
+                currMessage 
+                userSuppress 
+                displayOptions 
+                TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+
+    /* Delete records no longer used */
+    FOR EACH {&tablename} EXCLUSIVE WHERE 
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE 
+                    tt{&tablename}.msgID EQ {&tablename}.msgID):
+        DELETE {&tablename}.
+    END.
+        
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipMoveUserMenusToDatabase C-Win 
 PROCEDURE ipMoveUserMenusToDatabase :
 /*------------------------------------------------------------------------------
@@ -4658,6 +4983,7 @@ PROCEDURE ipProcessAll :
         rStatusBar:WIDTH = MIN(75,(iopiStatus / 100) * 75).
     
     RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
+    RUN ipSetNewDbVersion IN THIS-PROCEDURE.
     
     RUN ipStatus ("Patch Application Complete").
 
@@ -5190,6 +5516,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetNewDbVersion C-Win
+PROCEDURE ipSetNewDbVersion:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:     This forces a lock between ENV version and DB version; 
+                this was not previously the case
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Set new DB version to " + ipcVer).
+    
+    FIND FIRST config EXCLUSIVE.
+    IF NOT AVAIL config THEN
+        CREATE config.
+    ASSIGN 
+        config.databaseVersion = ipcVer.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
 PROCEDURE ipStatus :
 /*------------------------------------------------------------------------------
@@ -5354,6 +5703,8 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadCueCard IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\cuecardtext.d") <> ? THEN
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
+    IF SEARCH(cUpdDataDir + "\zMessage.d") <> ? THEN
+        RUN ipLoadZmessage IN THIS-PROCEDURE.
 
     ASSIGN 
         lSuccess = TRUE.
@@ -5720,9 +6071,9 @@ PROCEDURE ipWriteIniFile :
                 .
             /* #53853 New 'mode': AutoLogout */
             IF ttIniFile.cVarName EQ "modeList"
-            AND LOOKUP("AutoLogout",ttIniFile.cVarName) EQ 0 THEN ASSIGN 
-                ttIniFile.cVarName= ttIniFile.cVarName + ",AutoLogout". 
-            IF ttIniFile.cVarValue EQ "pgmList"
+            AND LOOKUP("AutoLogout",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
+                ttIniFile.cVarName= ttIniFile.cVarValue + ",AutoLogout". 
+            IF ttIniFile.cVarName EQ "pgmList"
             AND LOOKUP("userControl/monitor.w",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
                 ttIniFile.cVarValue = ttIniFile.cVarValue + ",userControl/monitor.w". 
             PUT UNFORMATTED ttIniFile.cVarName + "=" + ttIniFile.cVarValue + CHR(10).
@@ -5734,6 +6085,318 @@ PROCEDURE ipWriteIniFile :
     ASSIGN 
         lSuccess = TRUE.
     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateVendItemCostFromEItemfgVend C-Win 
+PROCEDURE pCreateVendItemCostFromEItemfgVend PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: given an e-item-vend buffer, create vendItemCost record
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-e-itemfg-vend FOR e-itemfg-vend.
+    DEFINE PARAMETER BUFFER ipbf-e-itemfg      FOR e-itemfg.
+    DEFINE OUTPUT PARAMETER opiVendItemCostID AS INT64.
+    
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
+    
+    DISABLE TRIGGERS FOR LOAD OF bf-vendItemCost.
+    DISABLE TRIGGERS FOR LOAD OF bf-vendItemCostLevel.
+    DISABLE TRIGGERS FOR LOAD OF rec_key.
+    
+    FIND FIRST sys-ctrl WHERE
+        sys-ctrl.company EQ company.company AND 
+        sys-ctrl.name EQ "VendCostMatrix"
+        NO-ERROR.
+    IF AVAIL sys-ctrl THEN ASSIGN 
+        glUseQtyFrom = sys-ctrl.log-fld.
+    ELSE ASSIGN 
+        glUseQtyFrom = FALSE.
+        
+    IF CAN-FIND(FIRST bf-vendItemCost
+        WHERE bf-vendItemCost.company EQ ipbf-e-itemfg-vend.company
+        AND bf-vendItemCost.itemID EQ ipbf-e-itemfg-vend.i-no
+        AND bf-vendItemCost.itemType EQ "FG"
+        AND bf-vendItemCost.vendorID EQ ipbf-e-itemfg-vend.vend-no
+        AND bf-vendItemCost.customerID EQ ipbf-e-itemfg-vend.cust-no
+        AND bf-vendItemCost.estimateNo EQ ipbf-e-itemfg-vend.est-no
+        AND bf-vendItemCost.formNo EQ ipbf-e-itemfg-vend.form-no
+        AND bf-vendItemCost.blankNo EQ ipbf-e-itemfg-vend.blank-no)
+        THEN 
+    DO:
+        giCountDuplicate = giCountDuplicate + 1.
+        CREATE ttDuplicates.
+        ASSIGN 
+            ttDuplicates.cCompany    = ipbf-e-itemfg-vend.company
+            ttDuplicates.cItem       = ipbf-e-itemfg-vend.i-no
+            ttDuplicates.cItemType   = "FG"
+            ttDuplicates.cVendor     = ipbf-e-itemfg-vend.vend-no
+            ttDuplicates.cEstimateNo = ipbf-e-itemfg-vend.est-no
+            ttDuplicates.iForm       = ipbf-e-itemfg-vend.form-no
+            ttDuplicates.iBlank      = ipbf-e-itemfg-vend.blank-no
+            ttDuplicates.cCustomer   = ipbf-e-itemfg-vend.cust-no
+            ttDuplicates.dEQty       = ipbf-e-itemfg-vend.eqty
+            .
+    END.
+    ELSE 
+    DO:
+        CREATE bf-vendItemCost.
+        ASSIGN  
+            giCountCreated                   = giCountCreated + 1
+            opiVendItemCostID                = bf-vendItemCost.vendItemCostID
+            bf-vendItemCost.company          = ipbf-e-itemfg-vend.company
+            bf-vendItemCost.itemID           = ipbf-e-itemfg-vend.i-no
+            bf-vendItemCost.itemType         = "FG"
+            bf-vendItemCost.vendorID         = ipbf-e-itemfg-vend.vend-no
+            bf-vendItemCost.customerID       = ipbf-e-itemfg-vend.cust-no
+            bf-vendItemCost.estimateNo       = ipbf-e-itemfg-vend.est-no
+            bf-vendItemCost.formNo           = ipbf-e-itemfg-vend.form-no
+            bf-vendItemCost.blankNo          = ipbf-e-itemfg-vend.blank-no
+            bf-vendItemCost.dimWidthMinimum  = ipbf-e-itemfg-vend.roll-w[27]
+            bf-vendItemCost.dimWidthMaximum  = ipbf-e-itemfg-vend.roll-w[28]
+            bf-vendItemCost.dimLengthMinimum = ipbf-e-itemfg-vend.roll-w[29]
+            bf-vendItemCost.dimLengthMaximum = ipbf-e-itemfg-vend.roll-w[30]
+            bf-vendItemCost.dimUOM           = "IN"
+            bf-vendItemCost.vendorItemID     = ipbf-e-itemfg-vend.vend-item
+            bf-vendItemCost.vendorUOM        = CAPS(ipbf-e-itemfg.std-uom) 
+            bf-vendItemCost.useQuantityFrom  = glUseQtyFrom
+            /* Assignments from triggers */
+            bf-vendItemCost.vendItemCostID = NEXT-VALUE(vendItemCostID_seq,ASI)
+            bf-vendItemCost.createdID = USERID('ASI')
+            bf-vendItemCost.createdDate = DATE(TODAY)
+            bf-vendItemCost.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
+                                                                 + STRING(DAY(TODAY),"99")
+                                                                 + STRING(TIME,"99999")
+                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
+            /* End trigger assignments */
+            .
+        
+        DO iIndex = 1 TO 26:
+            bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-itemfg-vend.roll-w[iIndex] NE 0 
+                THEN ipbf-e-itemfg-vend.roll-w[iIndex] 
+                ELSE ipbf-e-itemfg.roll-w[iIndex].
+        END.
+        DO iIndex = 1 TO 10:
+            IF ipbf-e-itemfg-vend.run-qty[iIndex] NE 0 THEN 
+            DO:
+                CREATE bf-vendItemCostLevel.
+                ASSIGN 
+                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
+                    bf-vendItemCostLevel.quantityBase   = ipbf-e-itemfg-vend.run-qty[iIndex]
+                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-itemfg-vend.run-cost[iIndex]
+                    bf-vendItemCostLevel.costSetup      = ipbf-e-itemfg-vend.setups[iIndex]
+                    /* Assignments from triggers */
+                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
+                    bf-vendItemCostLevel.createdID = USERID('ASI')
+                    bf-vendItemCostLevel.createdDate = DATE(TODAY)
+                    bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
+                                                                 + STRING(DAY(TODAY),"99")
+                                                                 + STRING(TIME,"99999")
+                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
+                    /* End trigger assignments */
+                    .
+            END. /*run-qty ne 0*/
+        END.  /*Do loop 1*/              
+    END. /*Not duplicate*/
+    RELEASE bf-vendItemCost.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateVendItemCostFromEItemVend C-Win 
+PROCEDURE pCreateVendItemCostFromEItemVend PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: given an e-item-vend buffer, create vendItemCost record
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-e-item-vend FOR e-item-vend.
+    DEFINE PARAMETER BUFFER ipbf-e-item      FOR e-item.
+    DEFINE OUTPUT PARAMETER opiVendItemCostID AS INT64.
+    
+    DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
+    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+    
+    DISABLE TRIGGERS FOR LOAD OF bf-vendItemCost.
+    DISABLE TRIGGERS FOR LOAD OF bf-vendItemCostLevel.
+    DISABLE TRIGGERS FOR LOAD OF rec_key.
+
+    DEFINE VARIABLE iIndex   AS INTEGER NO-UNDO.
+        
+    IF CAN-FIND(FIRST bf-vendItemCost
+        WHERE bf-vendItemCost.company EQ ipbf-e-item-vend.company
+        AND bf-vendItemCost.itemID EQ ipbf-e-item-vend.i-no
+        AND bf-vendItemCost.itemType EQ "RM"
+        AND bf-vendItemCost.vendorID EQ ipbf-e-item-vend.vend-no)
+        THEN 
+    DO:
+        giCountDuplicate = giCountDuplicate + 1.
+        CREATE ttDuplicates.
+        ASSIGN 
+            ttDuplicates.cCompany  = ipbf-e-item-vend.company
+            ttDuplicates.cItem     = ipbf-e-item-vend.i-no
+            ttDuplicates.cItemType = "RM"
+            ttDuplicates.cVendor   = ipbf-e-item-vend.vend-no
+            .
+    END.
+    ELSE 
+    DO:
+        CREATE bf-vendItemCost.
+        ASSIGN  
+            giCountCreated                       = giCountCreated + 1
+            opiVendItemCostID                    = bf-vendItemCost.vendItemCostID
+            bf-vendItemCost.company              = ipbf-e-item-vend.company
+            bf-vendItemCost.itemID               = ipbf-e-item-vend.i-no
+            bf-vendItemCost.itemType             = "RM"
+            bf-vendItemCost.vendorID             = ipbf-e-item-vend.vend-no
+            bf-vendItemCost.dimWidthMinimum      = ipbf-e-item-vend.roll-w[27]
+            bf-vendItemCost.dimWidthMaximum      = ipbf-e-item-vend.roll-w[28]
+            bf-vendItemCost.dimLengthMinimum     = ipbf-e-item-vend.roll-w[29]
+            bf-vendItemCost.dimLengthMaximum     = ipbf-e-item-vend.roll-w[30]
+            bf-vendItemCost.dimWidthUnder        = ipbf-e-item-vend.underWidth
+            bf-vendItemCost.dimWidthUnderCharge  = ipbf-e-item-vend.underWidthCost
+            bf-vendItemCost.dimLengthUnder       = ipbf-e-item-vend.underLength
+            bf-vendItemCost.dimLengthUnderCharge = ipbf-e-item-vend.underLengthCost
+            bf-vendItemCost.dimUOM               = "IN"
+            bf-vendItemCost.vendorItemID         = ipbf-e-item-vend.vend-item
+            bf-vendItemCost.vendorUOM            = CAPS(ipbf-e-item.std-uom) 
+            /* Assignments from triggers */
+            bf-vendItemCost.vendItemCostID = NEXT-VALUE(vendItemCostID_seq,ASI)
+            bf-vendItemCost.createdID = USERID('ASI')
+            bf-vendItemCost.createdDate = DATE(TODAY)
+            bf-vendItemCost.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
+                                                                 + STRING(DAY(TODAY),"99")
+                                                                 + STRING(TIME,"99999")
+                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
+            /* End trigger assignments */
+            .
+        DO iIndex = 1 TO 26:
+            bf-vendItemCost.validWidth[iIndex] = IF ipbf-e-item-vend.roll-w[iIndex] NE 0 
+                THEN ipbf-e-item-vend.roll-w[iIndex] 
+                ELSE ipbf-e-item.roll-w[iIndex].
+        END.
+        DO iIndex = 1 TO 10:
+            IF ipbf-e-item-vend.run-qty[iIndex] NE 0 THEN 
+            DO:
+                CREATE bf-vendItemCostLevel.
+                ASSIGN 
+                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
+                    bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
+                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.run-cost[iIndex]
+                    bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setups[iIndex]
+                    /* Assignments from triggers */
+                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
+                    bf-vendItemCostLevel.createdID = USERID('ASI')
+                    bf-vendItemCostLevel.createdDate = DATE(TODAY)
+                    bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
+                                                                 + STRING(DAY(TODAY),"99")
+                                                                 + STRING(TIME,"99999")
+                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
+                    /* End trigger assignments */
+                    .
+            END. /*run-qty ne 0*/
+        END.  /*Do loop 1*/              
+        DO iIndex = 1 TO 10:
+            IF ipbf-e-item-vend.runQtyXtra[iIndex] NE 0 THEN 
+            DO:
+                CREATE bf-vendItemCostLevel.
+                ASSIGN 
+                    bf-vendItemCostLevel.vendItemCostID = opiVendItemCostID
+                    bf-vendItemCostLevel.quantityBase   = ipbf-e-item-vend.run-qty[iIndex]
+                    bf-vendItemCostLevel.costPerUOM     = ipbf-e-item-vend.runCostXtra[iIndex]
+                    bf-vendItemCostLevel.costSetup      = ipbf-e-item-vend.setupsXtra[iIndex]
+                    /* Assignments from triggers */
+                    bf-vendItemCostLevel.vendItemCostLevelID = NEXT-VALUE(vendItemCostLevelID_seq,ASI)
+                    bf-vendItemCostLevel.createdID = USERID('ASI')
+                    bf-vendItemCostLevel.createdDate = DATE(TODAY)
+                    bf-vendItemCostLevel.rec_key = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99")
+                                                                 + STRING(DAY(TODAY),"99")
+                                                                 + STRING(TIME,"99999")
+                                                                 + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")      
+                    /* End trigger assignments */
+                    .
+            END. /*runQtyExtra ne 0*/
+        END.  /*Do loop 2*/              
+    END. /*Not duplicate*/
+    RELEASE bf-vendItemCost.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE TempTableToCSV C-Win 
+PROCEDURE TempTableToCSV:
+    /*------------------------------------------------------------------------------ 
+     Purpose: Exports the contents of any temp-table into CSV    
+     Notes: 
+    ------------------------------------------------------------------------------*/ 
+    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
+  
+    DEFINE VARIABLE hQuery  AS HANDLE    NO-UNDO. 
+    DEFINE VARIABLE hBuffer AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iIndex  AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE eIndex  AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
+        
+    ASSIGN
+        cTTName = iphTT:NAME
+        hBuffer = iphTT:DEFAULT-BUFFER-HANDLE
+        .
+
+    IF iplHeader THEN 
+    DO:
+        OUTPUT STREAM sOutput to VALUE(ipcFileName). 
+        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN 
+            DO:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                    PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + STRING(eIndex) + 
+                        (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '' ELSE ',').
+                END.
+            END.
+            ELSE
+                PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + 
+                    (IF iIndex NE hBuffer:NUM-FIELDS THEN "," ELSE ""). 
+        END. 
+        PUT STREAM sOutput UNFORMATTED SKIP. 
+    END.
+    ELSE 
+        OUTPUT STREAM sOutput to VALUE(ipcFileName) APPEND. 
+        
+    CREATE QUERY hQuery. 
+    hQuery:SET-BUFFERS (hBuffer). 
+    hQuery:QUERY-PREPARE("FOR EACH " + cTTName). 
+    hQuery:QUERY-OPEN().
+    REPEAT:   
+        hQuery:GET-NEXT().   
+        IF hQuery:QUERY-OFF-END THEN LEAVE.   
+        DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+            IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN 
+            DO:
+                DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
+                    PUT STREAM sOutput UNFORMATTED  
+                        '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE(eIndex)) 
+                        (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '"' ELSE '",').
+                END.
+            END.
+            ELSE
+                PUT STREAM sOutput UNFORMATTED  
+                    '"' FormatForCSV(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE) 
+                    (IF iIndex NE hBuffer:NUM-FIELDS THEN '",' ELSE '"'). 
+        END. 
+        PUT STREAM sOutput UNFORMATTED SKIP. 
+    END. 
+    OUTPUT STREAM sOutput CLOSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5797,4 +6460,27 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION formatForCSV C-Win 
+FUNCTION FormatForCSV RETURNS CHARACTER 
+    ( ipcValue AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Fixes the input character value and returns a CSV friendly text
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cInvalidChars AS CHARACTER NO-UNDO INITIAL "~",#".
+    DEFINE VARIABLE cReplaceChars AS CHARACTER NO-UNDO INITIAL "'',". 
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
+    
+ 
+    DO iCount = 1 TO NUM-ENTRIES(cInvalidChars):
+        ipcValue = REPLACE(ipcValue,ENTRY(iCount,cInvalidChars),ENTRY(iCount,cReplaceChars)).
+    END.
+    RETURN ipcValue.   
+        
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 

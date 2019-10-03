@@ -132,7 +132,7 @@ DEFINE BUTTON bt-change
      FONT 37.
 
 DEFINE BUTTON bt-exit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "" 
      SIZE 9.6 BY 2.29.
 
@@ -142,7 +142,7 @@ DEFINE BUTTON bt-post
      FONT 37.
 
 DEFINE BUTTON btnFirst 
-     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
      LABEL "First" 
      SIZE 9.6 BY 2.29 TOOLTIP "First".
 
@@ -152,32 +152,32 @@ DEFINE BUTTON btnKeyboard
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btnKeyboard-2 
-     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U
      LABEL "Keyboard" 
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btnKeyboard-3 
-     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U
      LABEL "Keyboard" 
      SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
 
 DEFINE BUTTON btnLast 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U
      LABEL "Last" 
      SIZE 9.6 BY 2.29 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "Graphics/32x32/navigate_down.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_down.ico":U
      LABEL "Next" 
      SIZE 9.6 BY 2.29 TOOLTIP "Next".
 
 DEFINE BUTTON btnNumPad 
-     IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/numeric_keypad.ico":U
      LABEL "NumPad" 
      SIZE 8 BY 1.91 TOOLTIP "Numeric Keypad".
 
 DEFINE BUTTON btnPrevious 
-     IMAGE-UP FILE "Graphics/32x32/navigate_up.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/navigate_up.ico":U
      LABEL "Previous" 
      SIZE 9.6 BY 2.29 TOOLTIP "Previous".
 
@@ -530,6 +530,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-exit W-Win
 ON CHOOSE OF bt-exit IN FRAME F-Main
 DO:
+    IF VALID-HANDLE(hdInventoryProcs) THEN
+        DELETE OBJECT hdInventoryProcs.
+        
+    IF VALID-HANDLE(hdJobProcs) THEN
+        DELETE OBJECT hdJobProcs.
+        
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     
     RETURN.
@@ -741,14 +747,19 @@ DO:
     IF VALID-HANDLE(hKeyboard) THEN
         DELETE OBJECT hKeyboard.
 
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    {&OPEN-BROWSERS-IN-QUERY-F-Main} 
+
     ASSIGN 
         ls-order:SCREEN-VALUE = ""
         ls-cust:SCREEN-VALUE  = ""
         ls-item:SCREEN-VALUE  = ""
-        cJobno2ListItems  = ""
-        cFormnoListItems  = ""
-        cBlanknoListitems = ""
-        cMessage          = "".            
+        cJobno2ListItems      = ""
+        cFormnoListItems      = ""
+        cBlanknoListitems     = ""
+        cMessage              = ""
+        .            
     
     RUN JobParser IN hdJobProcs (
         SELF:SCREEN-VALUE,
@@ -822,21 +833,32 @@ DO:
     ELSE
         cb-blankno:LIST-ITEMS = cBlanknoListItems.
 
-    IF lParse THEN
-        ASSIGN
-            cb-jobno2:SCREEN-VALUE  = IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) GT 0 THEN 
-                                          cJobNo2
-                                      ELSE
-                                          ENTRY(1,cJobno2ListItems)
-            cb-formno:SCREEN-VALUE  = IF INDEX(cFormnoListItems,STRING(cFormNo,"99")) GT 0 THEN 
-                                          cFormNo
-                                      ELSE
-                                          ENTRY(1,cFormnoListItems)
-            cb-blankno:SCREEN-VALUE = IF INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) GT 0 THEN 
-                                          cBlankNo
-                                      ELSE
-                                          ENTRY(1,cBlanknoListitems)
-            .
+    IF lParse THEN DO:
+        IF INDEX(cJobno2ListItems,STRING(cJobNo2,"99")) LE 0 OR
+           INDEX(cFormnoListItems,STRING(cFormNo,"99")) LE 0 OR
+           INDEX(cBlanknoListitems,STRING(cBlankNo,"99")) LE 0 THEN DO:
+            MESSAGE "Invalid Job Scan, please scan a valid Job Number." 
+                VIEW-AS ALERT-BOX ERROR.
+            
+            ASSIGN
+                cFormattedJobNo         = ""
+                SELF:SCREEN-VALUE       = ""
+                cb-jobno2:LIST-ITEMS    = "00"
+                cb-formno:LIST-ITEMS    = "00"
+                cb-blankno:LIST-ITEMS   = "00"
+                cb-jobno2:SCREEN-VALUE  = "00"
+                cb-formno:SCREEN-VALUE  = "00"
+                cb-blankno:SCREEN-VALUE = "00"
+                .           
+                        
+            RETURN NO-APPLY.
+        END.        
+            ASSIGN
+                cb-jobno2:SCREEN-VALUE  = cJobNo2
+                cb-formno:SCREEN-VALUE  = cFormNo
+                cb-blankno:SCREEN-VALUE = cBlankNo
+                .
+    END.
            
     RUN ValidateJob IN hdJobProcs (
         INPUT ipcCompany,
@@ -848,26 +870,34 @@ DO:
         OUTPUT lValidJob
         ).
                        
-    IF NOT lValidJob THEN 
+    IF NOT lValidJob THEN DO:
         ASSIGN 
             cb-jobno2:SCREEN-VALUE  = ENTRY(1,cJobno2ListItems)
             cb-formno:SCREEN-VALUE  = ENTRY(1,cFormnoListItems)
-            cb-blankno:SCREEN-VALUE = ENTRY(1,cBlanknoListItems).
+            cb-blankno:SCREEN-VALUE = ENTRY(1,cBlanknoListItems)
+            .
     
-    /* Additional validation to check if job still doesn't exist */
-    RUN ValidateJob IN hdJobProcs (
-        INPUT ipcCompany,
-        INPUT cFormattedJobno,
-        INPUT "", /* Blank Machine code */
-        INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
-        INPUT INTEGER(cb-formno:SCREEN-VALUE),
-        INPUT INTEGER(cb-blankno:SCREEN-VALUE),
-        OUTPUT lValidJob
-        ).
+        /* Additional validation to check if job still doesn't exist */
+        RUN ValidateJob IN hdJobProcs (
+            INPUT ipcCompany,
+            INPUT cFormattedJobno,
+            INPUT "", /* Blank Machine code */
+            INPUT INTEGER(cb-jobno2:SCREEN-VALUE),
+            INPUT INTEGER(cb-formno:SCREEN-VALUE),
+            INPUT INTEGER(cb-blankno:SCREEN-VALUE),
+            OUTPUT lValidJob
+            ).
+    END.
     
-    IF NOT lValidJob THEN
-        MESSAGE "Invalid Job No!" 
+    IF NOT lValidJob THEN DO:
+        MESSAGE "Invalid Job Number " SELF:SCREEN-VALUE 
+            ", please enter a valid Job Number." 
             VIEW-AS ALERT-BOX ERROR.
+        
+        SELF:SCREEN-VALUE = "".
+        
+        RETURN NO-APPLY.
+    END.
     
     RUN updateJobDetails.
     
@@ -1444,10 +1474,14 @@ PROCEDURE tagScan :
     DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lValidInv   AS LOGICAL   NO-UNDO.
     
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     ASSIGN
-        ls-tag:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ipcStockIDAlias
-        ls-location:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
-        cMessage = "".
+        ls-tag:SCREEN-VALUE      = ipcStockIDAlias
+        ls-location:SCREEN-VALUE = ""
+        cMessage                 = ""
+        .
     
     RUN pGetInventoryStockJobDetails IN hdInventoryProcs (
         ipcCompany,

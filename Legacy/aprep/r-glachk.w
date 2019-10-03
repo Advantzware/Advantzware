@@ -67,6 +67,7 @@ DEF TEMP-TABLE tt-report2 LIKE tt-report.
 DEFINE BUFFER b-tt-report FOR tt-report.
 
 DEFINE STREAM excel.
+DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 
 DEF VAR v-frt-acct LIKE ap-ctrl.freight NO-UNDO.
 FIND FIRST ap-ctrl WHERE ap-ctrl.company = cocode NO-LOCK NO-WAIT NO-ERROR.
@@ -487,14 +488,15 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+  
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
   IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
   END. 
 
   case rd-dest:
@@ -1114,9 +1116,6 @@ DEF VAR v-sub-acount LIKE ap-payl.amt-paid NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR vcount AS INT NO-UNDO.
 DEF VAR v-vend-name LIKE vend.NAME NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-
-RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 {custom/statusMsg.i " 'Processing... '"}
 

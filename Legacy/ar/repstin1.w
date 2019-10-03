@@ -113,7 +113,7 @@ ar-invl.s-pct[3] ar-invl.s-comm[3]
      ar-inv.inv-no GE fi_inv-no AND (ar-inv.inv-no LE end_inv-no OR end_inv-no EQ 0 ) AND ar-inv.inv-date GE begin_inv-date AND ~
      ar-inv.inv-date LE end_inv-date AND ar-inv.cust-no GE begin_cust-no AND   ~
      (ar-inv.cust-no LE end_cust-no OR end_cust-no EQ "")    NO-LOCK , ~
-FIRST ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no  ~
+EACH ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no  ~
      AND (ar-invl.sman[1] GE begin_sman) AND (ar-invl.sman[1] LE end_sman OR end_sman EQ "") NO-LOCK    ~
     BY ar-invl.inv-no BY ar-invl.LINE ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH  ~
@@ -121,7 +121,7 @@ FIRST ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no  ~
      ar-inv.inv-no GE fi_inv-no AND (ar-inv.inv-no LE end_inv-no OR end_inv-no EQ 0 ) AND ar-inv.inv-date GE begin_inv-date AND ~
      ar-inv.inv-date LE end_inv-date AND ar-inv.cust-no GE begin_cust-no AND   ~
      (ar-inv.cust-no LE end_cust-no OR end_cust-no EQ "")    NO-LOCK , ~
-FIRST ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no   ~
+EACH ar-invl WHERE ar-invl.x-no EQ ar-inv.x-no   ~
      AND (ar-invl.sman[1] GE begin_sman) AND (ar-invl.sman[1] LE end_sman OR end_sman EQ "") NO-LOCK    ~
     BY ar-invl.inv-no BY ar-invl.LINE ~{&SORTBY-PHRASE} .
 &Scoped-define TABLES-IN-QUERY-br_table ar-inv ar-invl
@@ -1756,21 +1756,17 @@ PROCEDURE pUpdateRecord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
-   DEFINE VARIABLE rwRowid2 AS ROWID NO-UNDO .
-   
-   DEFINE VARIABLE lCancelBtn AS LOGICAL NO-UNDO .
-   rwRowid2 = ROWID(ar-inv) .
-    RUN ar/d-repstin.w ("update" ,ROWID(ar-inv), ROWID(ar-invl), OUTPUT rwRowid, OUTPUT lCancelBtn).
+    DEFINE VARIABLE rwRowid    AS ROWID   NO-UNDO.
+    DEFINE VARIABLE rwRowid2   AS ROWID   NO-UNDO.   
+    DEFINE VARIABLE lCancelBtn AS LOGICAL NO-UNDO.
 
-    IF NOT lCancelBtn THEN do:
-       RUN dispatch ("open-query").
-
+    rwRowid2 = ROWID(ar-inv).
+    RUN ar/d-repstin.w ("update", ROWID(ar-inv), ROWID(ar-invl), OUTPUT rwRowid, OUTPUT lCancelBtn).
+    IF NOT lCancelBtn THEN DO:
+        RUN dispatch ("open-query").
         DO WITH FRAME {&FRAME-NAME}:
-            REPOSITION {&browse-name} TO ROWID rwRowid   .
-            
-        END.
-        
+            REPOSITION {&BROWSE-NAME} TO ROWID rwRowid2.            
+        END.        
     END.
 
 END PROCEDURE.

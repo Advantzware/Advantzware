@@ -137,7 +137,6 @@
 "updcust.r" "AR" "AF1" "Update Customer Fields" "" 900
 "updestink.r" "CE" "E" "Update Estimate Inks via Raw Goods" "" 900
 "updFgShp.r" "FG" "IF" "Ship Method Default by Case or Pallet" "" 900
-"UpdFGUnt.r" "FG" "IF1" "Update FG Qty/Case and Units/Pallet" "" 900
 "UpdFlute.r" "CE" "EC" "To Replace Flute Code throughout System" "" 900
 "UpdHistUnitQty.r" "FG" "IF1" "Update History Unit Qty UpdHistUntQty.r" "" 900
 "updovun.r" "OP" "OU1" "Underrun/Overrun Transfer to Line Item via Header" "" 900
@@ -179,3 +178,5 @@ Save Button Will Save Changes." 1000
 "setTaxStat.r" "UTIL" "" "Set Tax Status Globally" "" 900
 "fghispur.r" "UTIL" "" "FG History Purge by Job" "This utility will delete all fg-rcpth, fg-rdtlh and fg-rctd records for a given range of item number, txn date, txn type, and job number.
 Note that this function does NOT create summary transactions; use with EXTREME caution." 900
+"wLockTransMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 0
+"recalcJobs.r" "SA" "NR" "Recalc Jobs" "" 900

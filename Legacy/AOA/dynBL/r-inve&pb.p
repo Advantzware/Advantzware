@@ -10,6 +10,7 @@
 /* Temp-Table Definitions ---                                           */
 
 &Scoped-define ttTempTable ttInvoicePostUpdateGL 
+&SCOPED-DEFINE CommonFile_is_Running
 {aoa/tempTable/ttInvoicePostUpdateGL.i}
 
 {sys/ref/CustList.i NEW}

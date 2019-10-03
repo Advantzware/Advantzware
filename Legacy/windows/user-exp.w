@@ -67,11 +67,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "User ID,User Name,Phone,Email,Temp File Path,Box Image Path,Label File Path," +
-                           "Fax,Track Usage,Use Def Colors,Use Def Fonts,Use Ctrl Accel,Developer,Internal/External" 
-                           
-                         
+                           "Fax,Track Usage,Use Def Colors,Use Def Fonts,Use Ctrl Accel,Developer,Internal/External," +
+                           "IsManager,Dept,Manager,Mobile"
       cFieldListToSelect = "user_id,user_name,phone-no,image_filename,temp-file,image-path,label-path," +
-                           "fax-no,track_usage,use_colors,use_fonts,use_ctrl_keys,developer,internal-user" 
+                           "fax-no,track_usage,use_colors,use_fonts,use_ctrl_keys,developer,internal-user," +
+                           "isManager,department,manager,mobile" 
                            .
 {sys/inc/ttRptSel.i}
     ASSIGN cTextListToDefault  = "User ID,User Name,Phone,Email,Temp File Path,Box Image Path,Label File Path" .
@@ -844,12 +844,13 @@ PROCEDURE run-report :
 DEF VAR v-excelheader AS CHAR NO-UNDO.
 DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
 DEF BUFFER b-users FOR users.
-
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
-IF tb_excel THEN OUTPUT STREAM excel TO VALUE(fi_file).
+IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
 IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 
 FOR EACH b-users WHERE /*b-users.company = gcompany
@@ -877,7 +878,7 @@ END.
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
    IF tb_runExcel THEN
-      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -998,6 +999,15 @@ FUNCTION getValue-estf RETURNS CHARACTER
         WHEN "user_id"  THEN DO:
             lc-return = STRING(ipb-users.user_id) .
         END.
+        WHEN "department"  THEN DO:
+            lc-return = STRING(ipb-users.department) .
+        END.
+        WHEN "mobile"  THEN DO:
+            lc-return = STRING(ipb-users.mobile) .
+        END.
+        WHEN "manager"  THEN DO:
+            lc-return = STRING(ipb-users.manager) .
+        END.
         WHEN "user_name"  THEN DO:
             lc-return = STRING(ipb-users.user_name) .
         END.
@@ -1019,17 +1029,14 @@ FUNCTION getValue-estf RETURNS CHARACTER
         WHEN "developer"  THEN DO:
             lc-return = STRING(ipb-users.developer) .
         END.
+        WHEN "isManager"  THEN DO:
+                lc-return = STRING(ipb-users.isManager) .
+        END.
         WHEN "internal-user"  THEN DO:
             lc-return = STRING(ipb-users.internal-user) .
         END.
         WHEN "phone-no"  THEN DO:
-            FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.phone-no" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
-          IF AVAIL reftable  AND reftable.CODE <> "" THEN
-          lc-return = "(" + STRING(SUBSTRING(reftable.CODE,1,3) + ")" + string(SUBSTRING(reftable.CODE,4),"xxx-xxxx") ) .
-          ELSE lc-return = "" .
+            lc-return = "(" + STRING(SUBSTRING(ipb-users.phone,1,3) + ")" + string(SUBSTRING(ipb-users.phone,4),"xxx-xxxx") ) .
         END.
         WHEN "temp-file"  THEN DO:
             lc-return = STRING(ipb-users.user_program[2]) .
@@ -1041,13 +1048,7 @@ FUNCTION getValue-estf RETURNS CHARACTER
             lc-return = STRING(ipb-users.user_program[3]) .
         END.
         WHEN "fax-no"  THEN DO:
-            FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.fax-no" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
-             IF AVAIL reftable AND reftable.CODE <> "" THEN
-            lc-return = "(" + STRING(SUBSTRING(reftable.CODE,1,3) + ")" + string(SUBSTRING(reftable.CODE,4),"xxx-xxxx")) .
-            ELSE lc-return = "" .
+            lc-return = "(" + STRING(SUBSTRING(ipb-users.fax,1,3) + ")" + string(SUBSTRING(ipb-users.fax,4),"xxx-xxxx") ) .
         END.
         /*OTHERWISE DO:
             IF INDEX(ipc-field,".") > 0 THEN DO:

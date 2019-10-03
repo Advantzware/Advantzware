@@ -16,7 +16,7 @@ DEFINE OUTPUT PARAMETER op-final-result AS CHARACTER   NO-UNDO.
 
 DEF VAR i AS INT.
 DEF VAR j AS INT.
-DEF VAR i-2nd-len AS INT.
+DEF VAR i-2nd-len AS INT. 
 
 ip-first-value = ip-first-value + " ".
 i-2nd-len = ip-total-len - ip-first-len.

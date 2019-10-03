@@ -33,7 +33,7 @@
     
    IF tb_excel THEN DO:
       OUTPUT STREAM st-excel
-           TO VALUE(fi_file).
+           TO VALUE(cFileName).
       PUT STREAM st-excel UNFORMATTED
           "Quantity on Hand,Customer Name,Item Code,Description,FG Category," 
           "PO Number,Order Number, Sales Value, Release Qty, Release Date, "

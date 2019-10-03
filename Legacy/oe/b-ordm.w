@@ -1050,6 +1050,18 @@ PROCEDURE local-delete-record :
     {custom/askdel.i}
   END.
 
+  FIND FIRST est-prep EXCLUSIVE-LOCK
+      WHERE est-prep.company EQ oe-ord.company
+      AND est-prep.est-no EQ oe-ord.est-no 
+      AND est-prep.CODE EQ oe-ordm.charge
+      AND est-prep.orderID EQ STRING(oe-ordm.ord-no)
+      AND est-prep.LINE EQ oe-ordm.estPrepLine NO-ERROR .
+
+  IF AVAIL est-prep THEN 
+      ASSIGN est-prep.orderID = "" .
+  
+  FIND CURRENT est-prep NO-LOCK NO-ERROR .
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 

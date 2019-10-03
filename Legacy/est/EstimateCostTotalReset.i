@@ -25,7 +25,10 @@
         ipbf-{&TableName}.costTotalMaterial = 0
         ipbf-{&TableName}.costTotalFactory = 0 
         ipbf-{&TableName}.costTotalNonFactory = 0 
+        ipbf-{&TableName}.costTotalFull = 0
         ipbf-{&TableName}.netProfit = 0
+        ipbf-{&TableName}.profitPctGross = 0
+        ipbf-{&TableName}.profitPctNet = 0
         .
     FIND CURRENT ipbf-{&TableName} NO-LOCK.
 

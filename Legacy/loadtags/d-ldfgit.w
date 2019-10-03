@@ -65,7 +65,7 @@ DEFINE BUTTON Btn_case AUTO-GO
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_fg AUTO-GO 
-     LABEL "Finished Goods"     /*Task# 11111305*/
+     LABEL "Finished Goods" 
      SIZE 34 BY 1.91
      BGCOLOR 8 .
 
@@ -114,6 +114,9 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       Btn_wip:HIDDEN IN FRAME Dialog-Frame           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -236,7 +239,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_fg Btn_rm Btn_case Btn_wip 
+  ENABLE Btn_fg Btn_rm Btn_case /* Btn_wip */
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

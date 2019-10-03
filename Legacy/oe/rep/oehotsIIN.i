@@ -32,7 +32,7 @@
      WITH FRAME pg-head NO-BOX PAGE-TOP NO-LABEL STREAM-IO WIDTH 200.
    
    IF tb_excel THEN DO:
-     OUTPUT STREAM st-excel TO VALUE(fi_file).
+     OUTPUT STREAM st-excel TO VALUE(cFileName).
      PUT STREAM st-excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
    END.
 
