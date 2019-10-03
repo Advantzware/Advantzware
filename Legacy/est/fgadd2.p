@@ -167,11 +167,7 @@ do on error undo:
        itemfg.isaset      = no 
        itemfg.pur-man     = bf-eb.form-no GT 0 AND bf-eb.pur-man
        itemfg.alloc       = bf-eb.set-is-assembled
-       .
-
-        IF fgmaster-log THEN
-            itemfg.stocked = YES.
-        ELSE itemfg.stocked = NO.
+       .        
 
        /* Create an itemfg-loc for the default warehouse */
        RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
