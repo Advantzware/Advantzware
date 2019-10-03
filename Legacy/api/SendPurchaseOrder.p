@@ -38,6 +38,7 @@
     DEFINE VARIABLE cPoNO              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoType            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoStatus          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoStatusExt       AS CHARACTER NO-UNDO.   /* Will store the extension of the PO Status. Eg: "Open", Delete */
     DEFINE VARIABLE cPoDate            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendorID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cVendorName        AS CHARACTER NO-UNDO.
@@ -190,6 +191,10 @@
             cPoNO              = STRING(po-ord.po-no)
             cPoType            = STRING(po-ord.type)
             cPoStatus          = STRING(po-ord.stat)
+            cPoStatusExt       = IF po-ord.stat EQ "H" THEN
+                                     "Delete"
+                                 ELSE
+                                     "Open"
             cPoDate            = STRING(po-ord.po-date)
             cVendorID          = STRING(po-ord.vend-no)
             cContact           = STRING(po-ord.contact)
@@ -438,6 +443,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poNO", cPoNO).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poType", cPoType).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poStatus", cPoStatus).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poStatusExt", cPoStatusExt).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poDate", cPoDate).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorID", cVendorID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "vendorName", cVendorName).
