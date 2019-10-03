@@ -31,6 +31,8 @@ DEFINE VARIABLE lValidCompany    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cQuery           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValidTag        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidItem       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cItemTypeFG      AS CHARACTER NO-UNDO INITIAL "FG".
+DEFINE VARIABLE cItemTypeRM      AS CHARACTER NO-UNDO INITIAL "RM".
 
 /* The below code is added as APIInboundEvent.rec_key will be populated in the APIInboundEvent's 
    create trigger, only if session.p is running persistently, else will be populated with empty value. 
@@ -124,9 +126,9 @@ END.
 IF lValidTag THEN DO:
     FIND FIRST loadtag NO-LOCK
          WHERE loadtag.company   EQ ipcCompany
-           AND (IF ipcItemType    EQ "FG" THEN
+           AND (IF ipcItemType   EQ cItemTypeFG THEN
                     loadtag.item-type EQ NO
-                ELSE IF ipcItemType EQ "RM" THEN
+                ELSE IF ipcItemType   EQ cItemTypeRM THEN
                     loadtag.item-type EQ YES
                 ELSE
                     FALSE)
@@ -146,7 +148,7 @@ END.
  
 /* Validate  Primary ID */
 IF lValidItem THEN DO:
-    IF ipcItemType EQ "RM" THEN DO:
+    IF ipcItemType EQ cItemTypeRM THEN DO:
         FIND FIRST item NO-LOCK
              WHERE item.company EQ ipcCompany
                AND item.i-no    EQ ipcPrimaryID
@@ -162,7 +164,7 @@ IF lValidItem THEN DO:
              RETURN.
          END.
     END.
-    ELSE IF ipcItemType EQ "FG" THEN DO:
+    ELSE IF ipcItemType EQ cItemTypeFG THEN DO:
         FIND FIRST itemfg NO-LOCK
              WHERE itemfg.company EQ ipcCompany
                AND itemfg.i-no    EQ ipcPrimaryID
@@ -206,7 +208,7 @@ IF NOT oplSuccess THEN
     RETURN.
     
 /* Writes response data to temp table*/
-IF ipcItemType EQ "FG" THEN DO: 
+IF ipcItemType EQ cItemTypeFG THEN DO: 
     FOR EACH fg-bin NO-LOCK 
         WHERE fg-bin.company  EQ ipcCompany
           AND (IF lValidTag  THEN fg-bin.tag     EQ ipcInventoryStockID ELSE fg-bin.tag     GE "")
@@ -245,7 +247,7 @@ IF ipcItemType EQ "FG" THEN DO:
             .
     END.
 END.
-ELSE IF ipcItemType EQ "RM" THEN DO: 
+ELSE IF ipcItemType EQ cItemTypeRM THEN DO: 
     FOR EACH rm-bin NO-LOCK 
         WHERE rm-bin.company  EQ ipcCompany
           AND (IF lValidLoc  THEN rm-bin.loc     EQ ipcWarehouseID      ELSE rm-bin.loc     GE "")

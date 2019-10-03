@@ -157,7 +157,7 @@ ASSIGN
     lcConcatResponseData  = TRIM(lcConcatResponseData,",") 
     oplcResponseData      = '~{"response_code":200,"response_message":"' + opcMessage + '","response_data":[' + lcConcatResponseData + ']}'
     .
-MESSAGE STRING(oplcResponseData) VIEW-AS ALERT-BOX.
+
 /* Log the request to APIInboundEvent */
 RUN api\CreateAPIInboundEvent.p (
     INPUT  ipcRoute,
