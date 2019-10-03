@@ -107,7 +107,7 @@ itemfg.spare-char-4 itemfg.stackHeight itemfg.unitLength itemfg.unitWidth ~
 itemfg.unitHeight itemfg.std-mat-cost itemfg.std-lab-cost ~
 itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom ~
-itemfg.palletVolume itemfg.poStatus
+itemfg.palletVolume itemfg.poStatus itemfg.quantityPartial
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight RECT-10 RECT-8 RECT-9 ~
@@ -127,7 +127,7 @@ itemfg.unitLength itemfg.unitWidth itemfg.unitHeight itemfg.std-mat-cost ~
 itemfg.std-lab-cost itemfg.std-var-cost itemfg.std-fix-cost ~
 itemfg.spare-dec-1 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost ~
 itemfg.prod-uom itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate ~
-itemfg.palletVolume itemfg.poStatus
+itemfg.palletVolume itemfg.poStatus itemfg.quantityPartial
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tg-Freeze-weight fi_type-dscr 
@@ -135,7 +135,7 @@ itemfg.palletVolume itemfg.poStatus
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS itemfg.exempt-disc tb_taxable itemfg.stat 
-&Scoped-define DISPLAY-FIELD itemfg.exempt-disc tb_taxable itemfg.stat 
+&Scoped-define DISPLAY-FIELD itemfg.exempt-disc tb_taxable iCount itemfg.stat 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -195,6 +195,11 @@ DEFINE VARIABLE tb_taxable AS LOGICAL INITIAL no
      LABEL "Taxable?" 
      VIEW-AS TOGGLE-BOX
      SIZE 15 BY 1 NO-UNDO.
+
+DEFINE VARIABLE iCount AS INTEGER 
+     LABEL "Count" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tg-Freeze-weight AS LOGICAL INITIAL no 
      LABEL "" 
@@ -391,9 +396,9 @@ DEFINE FRAME F-Main
      itemfg.cc-code AT ROW 8.52 COL 128.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13.8 BY .95
-     itemfg.prod-code AT ROW 9.48 COL 128.4 COLON-ALIGNED HELP
+     itemfg.quantityPartial AT ROW 9.48 COL 128.4 COLON-ALIGNED HELP
           ""
-          LABEL "Prod Code" FORMAT "X(6)"
+          LABEL "Partial" FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 13.8 BY 1
      itemfg.prod-notes AT ROW 10.52 COL 114 COLON-ALIGNED
@@ -410,11 +415,12 @@ DEFINE FRAME F-Main
      itemfg.trNo AT ROW 12.67 COL 85 COLON-ALIGNED
           LABEL "Pallet #" FORMAT "x(10)"
           VIEW-AS FILL-IN 
-          SIZE 19 BY 1
-     itemfg.spare-char-4 AT ROW 12.67 COL 124.6 COLON-ALIGNED
+          SIZE 14 BY 1
+     iCount AT ROW 12.67 COL 101
+     itemfg.spare-char-4 AT ROW 12.67 COL 126.6 COLON-ALIGNED
           LABEL "Zone" FORMAT "x(12)"
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 15 BY 1
      itemfg.stackHeight AT ROW 13.86 COL 85 COLON-ALIGNED
           LABEL "Stack Height" FORMAT "->>>>>9"
           VIEW-AS FILL-IN 
@@ -480,10 +486,15 @@ DEFINE FRAME F-Main
           LABEL "Modified Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     itemfg.palletVolume AT ROW 15.05 COL 102 COLON-ALIGNED
+     itemfg.palletVolume AT ROW 15.05 COL 100 COLON-ALIGNED
           LABEL "Std. Pallet Volume (in3)"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
+     itemfg.prod-code AT ROW 15.05 COL 128.4 COLON-ALIGNED HELP
+          ""
+          LABEL "Prod Code" FORMAT "X(6)"
+          VIEW-AS FILL-IN 
+          SIZE 13.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -617,6 +628,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.prod-code IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN itemfg.quantityPartial IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN itemfg.prod-notes IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.prod-uom IN FRAME F-Main
@@ -659,6 +672,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX tb_taxable IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR TOGGLE-BOX iCount IN FRAME F-Main
+   NO-ENABLE EXP-FORMAT EXP-LABEL                                       */
 /* SETTINGS FOR FILL-IN itemfg.total-std-cost IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.trNo IN FRAME F-Main
@@ -867,8 +882,37 @@ DO:
     END.
 
 /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
+
+&Scoped-define SELF-NAME itemfg.case-count
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.case-count V-table-Win
+ON VALUE-CHANGED OF itemfg.case-count IN FRAME F-Main /* Count */
+DO:
+         RUN pCalCount .
+END.
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME itemfg.case-pall
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.case-pall V-table-Win
+ON VALUE-CHANGED OF itemfg.case-pall IN FRAME F-Main /* Count */
+DO:
+         RUN pCalCount .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME itemfg.quantityPartial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.quantityPartial V-table-Win
+ON VALUE-CHANGED OF itemfg.quantityPartial IN FRAME F-Main /* Count */
+DO:
+         RUN pCalCount .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME itemfg.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.cust-no V-table-Win
@@ -1585,7 +1629,7 @@ PROCEDURE enable-itemfg-field :
 
     DO WITH FRAME {&frame-name}:
         ENABLE ALL.
-
+        DISABLE iCount .
         ASSIGN
             old-est-no      = IF AVAILABLE itemfg THEN itemfg.est-no ELSE ""
             lv-puruom       = ""
@@ -1975,7 +2019,7 @@ PROCEDURE local-display-fields :
     IF AVAILABLE itemfg AND NOT adm-new-record THEN 
     DO:
         tb_taxable = itemfg.taxable.
-
+        
 
     END.
 
@@ -1992,10 +2036,11 @@ PROCEDURE local-display-fields :
             AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
         IF AVAILABLE cust AND cust.name <> itemfg.cust-name THEN
             itemfg.cust-name:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cust.name.
-
+     
         ASSIGN 
             tg-freeze-weight:CHECKED = (IF itemfg.spare-int-1 = 1 THEN TRUE ELSE FALSE).
         RUN SetPurMan(itemfg.isaset).
+        RUN pCalCount .
     END. /* avail itemfg */
 
     RUN new-type.
@@ -3078,3 +3123,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalCount V-table-Win 
+PROCEDURE pCalCount :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        iCount:SCREEN-VALUE = STRING((integer(itemfg.case-count:SCREEN-VALUE) * integer(itemfg.case-pall:SCREEN-VALUE) )
+             + integer(itemfg.quantityPartial:SCREEN-VALUE)) .
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+ 

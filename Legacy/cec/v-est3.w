@@ -114,7 +114,7 @@ eb.i-%[6] eb.stack-code eb.i-ps[7] eb.i-code[7] eb.i-dscr[7] eb.i-%[7] ~
 eb.i-ps[8] eb.i-code[8] eb.i-dscr[8] eb.i-%[8] eb.chg-method eb.i-ps[9] ~
 eb.i-code[9] eb.i-dscr[9] eb.i-%[9] eb.weight-m eb.carrier eb.carr-dscr ~
 eb.i-ps[10] eb.i-code[10] eb.i-dscr[10] eb.i-%[10] eb.dest-code eb.fr-out-c ~
-eb.fr-out-m 
+eb.fr-out-m eb.quantityPartial
 &Scoped-define DISPLAYED-TABLES eb
 &Scoped-define FIRST-DISPLAYED-TABLE eb
 
@@ -125,7 +125,7 @@ eb.fr-out-m
 eb.cas-wid eb.casNoCharge eb.cas-cnt eb.cas-dep eb.cas-pal eb.cas-wt ~
 eb.tr-no eb.tr-len eb.tr-cost eb.tr-wid eb.trNoCharge eb.tr-cnt eb.tr-dep ~
 eb.tr-cas eb.stacks eb.stack-code eb.chg-method eb.weight-m eb.carrier ~
-eb.carr-dscr eb.dest-code eb.fr-out-c eb.fr-out-m 
+eb.carr-dscr eb.dest-code eb.fr-out-c eb.fr-out-m eb.quantityPartial
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -190,7 +190,7 @@ DEFINE FRAME Corr
           LABEL "Packing Code"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.cas-len AT ROW 1.24 COL 125 COLON-ALIGNED
+     eb.cas-len AT ROW 1.24 COL 128 COLON-ALIGNED
           LABEL "Unit Length" FORMAT ">9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -212,7 +212,7 @@ DEFINE FRAME Corr
           LABEL "Cost/Ea"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     eb.cas-wid AT ROW 2.19 COL 125 COLON-ALIGNED
+     eb.cas-wid AT ROW 2.19 COL 128 COLON-ALIGNED
           LABEL "Unit Width" FORMAT ">9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -227,18 +227,22 @@ DEFINE FRAME Corr
           LABEL "Boxes/Code"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.cas-dep AT ROW 3.14 COL 125 COLON-ALIGNED
+     eb.cas-dep AT ROW 3.14 COL 128 COLON-ALIGNED
           LABEL "Unit Depth" FORMAT ">9.99"
           VIEW-AS FILL-IN 
           SIZE 14 BY .95
      eb.cas-pal AT ROW 4.1 COL 89 COLON-ALIGNED
           LABEL "Bundles/Pallet" FORMAT ">>>9"
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-     eb.cas-wt AT ROW 4.1 COL 125 COLON-ALIGNED
+          SIZE 7 BY 1
+     eb.quantityPartial AT ROW 4.1 COL 106.4 COLON-ALIGNED
+          LABEL "Partial" FORMAT ">>>9"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
+     eb.cas-wt AT ROW 4.1 COL 132 COLON-ALIGNED
           LABEL "Wt/PackCode"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 10 BY 1
      eb.i-ps[1] AT ROW 4.57 COL 2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
@@ -531,6 +535,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.cas-no IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN eb.cas-pal IN FRAME Corr
+   NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */ 
+/* SETTINGS FOR FILL-IN eb.quantityPartial IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN eb.cas-wid IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
@@ -809,6 +815,16 @@ END.
 &Scoped-define SELF-NAME eb.cas-cnt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cas-cnt V-table-Win
 ON VALUE-CHANGED OF eb.cas-cnt IN FRAME Corr /* Boxes/Code */
+DO:
+  RUN calc-tr-cnt.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME eb.quantityPartial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.quantityPartial V-table-Win
+ON VALUE-CHANGED OF eb.quantityPartial IN FRAME Corr /* Partial */
 DO:
   RUN calc-tr-cnt.
 END.
@@ -1524,7 +1540,7 @@ PROCEDURE calc-tr-cnt :
     IF DEC(eb.cas-cnt:SCREEN-VALUE) NE 0 THEN
       ASSIGN
        eb.tr-cnt:SCREEN-VALUE = STRING(DEC(eb.cas-cnt:SCREEN-VALUE) *
-                                       DEC(eb.cas-pal:SCREEN-VALUE))
+                                       DEC(eb.cas-pal:SCREEN-VALUE) + INTEGER(eb.quantityPartial:SCREEN-VALUE))
        eb.cas-wt:SCREEN-VALUE = "0".
   END.
 
@@ -1795,9 +1811,9 @@ PROCEDURE local-assign-record :
                                eb.stacks, INPUT-OUTPUT eb.tr-cas).
     END.
 
-    ASSIGN
-     eb.cas-pal = eb.stacks * eb.tr-cas
-     eb.tr-cnt  = eb.cas-cnt * eb.cas-pal.
+    /*ASSIGN                                */
+    /* eb.cas-pal = eb.stacks * eb.tr-cas   */
+    /* eb.tr-cnt  = eb.cas-cnt * eb.cas-pal.*/
    
      RUN cec/UpdFgEc.p(INPUT eb.company, INPUT ROWID(eb)) .
 
@@ -1843,7 +1859,8 @@ PROCEDURE local-assign-record :
          b-eb.tr-dep   = eb.tr-dep
          b-eb.tr-cas   = eb.tr-cas
          b-eb.casNoCharge   = eb.casNoCharge
-         b-eb.trNoCharge = eb.trNoCharge .
+         b-eb.trNoCharge = eb.trNoCharge 
+         b-eb.quantityPartial = eb.quantityPartial.
       END.
     END.
   END.
@@ -1897,7 +1914,8 @@ PROCEDURE local-assign-record :
              bf-eb.tr-dep   = eb.tr-dep
              bf-eb.tr-cas   = eb.tr-cas
              bf-eb.casNoCharge = eb.casNoCharge
-             bf-eb.trNoCharge  = eb.trNoCharge .
+             bf-eb.trNoCharge  = eb.trNoCharge 
+             bf-eb.quantityPartial = eb.quantityPartial.
           RELEASE bf-eb.
       END.
 
@@ -2026,7 +2044,8 @@ PROCEDURE local-display-fields :
             eb.carr-dscr:SCREEN-VALUE  = ""
             eb.dest-code:SCREEN-VALUE  = ""
             eb.fr-out-c:SCREEN-VALUE  = "0"
-            eb.fr-out-m:SCREEN-VALUE  = "0".
+            eb.fr-out-m:SCREEN-VALUE  = "0"
+            eb.quantityPartial:SCREEN-VALUE = "0".
 
   RELEASE xest.
   RELEASE xeb. 
@@ -2201,6 +2220,7 @@ PROCEDURE local-update-record :
           eb.stack-code
           eb.casNoCharge
           eb.trNoCharge
+          eb.quantityPartial
       WITH FRAME {&FRAME-NAME}.
 
   RUN release-shared-buffers.
@@ -2729,7 +2749,8 @@ PROCEDURE set-pack :
          b-eb.tr-cnt   = 0
          b-eb.tr-len   = 0
          b-eb.tr-wid   = 0
-         b-eb.tr-dep   = 0.
+         b-eb.tr-dep   = 0
+         b-eb.quantityPartial = 0.
       END.
 
       FIND CURRENT eb NO-LOCK.
@@ -2906,7 +2927,7 @@ PROCEDURE update-ink :
 ------------------------------------------------------------------------------*/
 
   disable eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
-          eb.cas-dep eb.cas-pal eb.cas-wt
+          eb.cas-dep eb.cas-pal eb.cas-wt eb.quantityPartial
           eb.tr-no eb.tr-cost eb.tr-cnt eb.tr-len eb.tr-wid eb.tr-dep
           eb.tr-cas eb.casNoCharge
           eb.carrier eb.carr-dscr eb.weight-m eb.dest-code
@@ -2935,8 +2956,8 @@ PROCEDURE update-pack :
 
   IF ll-update-pack THEN DO:
     ENABLE eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
-           eb.cas-dep eb.cas-pal eb.cas-wt eb.casNoCharge
-           eb.tr-no eb.tr-cost /*eb.tr-cnt*/ eb.tr-len eb.tr-wid eb.tr-dep
+           eb.cas-dep eb.cas-pal eb.cas-wt eb.casNoCharge eb.quantityPartial
+           eb.tr-no eb.tr-cost eb.tr-cnt eb.tr-len eb.tr-wid eb.tr-dep
            eb.tr-cas eb.trNoCharge
            eb.carrier eb.weight-m eb.dest-code
            eb.fr-out-c eb.fr-out-m eb.chg-method
