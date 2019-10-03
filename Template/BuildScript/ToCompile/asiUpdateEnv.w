@@ -6072,7 +6072,7 @@ PROCEDURE ipWriteIniFile :
             /* #53853 New 'mode': AutoLogout */
             IF ttIniFile.cVarName EQ "modeList"
             AND LOOKUP("AutoLogout",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
-                ttIniFile.cVarName= ttIniFile.cVarValue + ",AutoLogout". 
+                ttIniFile.cVarValue = ttIniFile.cVarValue + ",AutoLogout". 
             IF ttIniFile.cVarName EQ "pgmList"
             AND LOOKUP("userControl/monitor.w",ttIniFile.cVarValue) EQ 0 THEN ASSIGN 
                 ttIniFile.cVarValue = ttIniFile.cVarValue + ",userControl/monitor.w". 
