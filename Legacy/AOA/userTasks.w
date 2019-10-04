@@ -73,6 +73,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD securityLevel    LIKE dynParamValue.securityLevel
     FIELD externalForm     LIKE dynParamValue.externalForm
     FIELD recordLimit      LIKE dynParamValue.recordLimit
+    FIELD lastRunDateTime  LIKE dynParamValue.lastRunDateTime
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
         INDEX mnemonic IS PRIMARY mnemonic paramTitle paramValueID user-id
@@ -98,7 +99,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
 &Scoped-define INTERNAL-TABLES ttDynParamValue
 
 /* Definitions for BROWSE browseParamValue                              */
-&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.externalForm   
+&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
 &Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
@@ -112,15 +113,15 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     ~{&OPEN-QUERY-browseParamValue}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS searchBar btnSubjctAttr browseParamValue ~
-btnOutputFormat btnScheduleTask btnRunTask btnCopyTask btnDeleteTask ~
+&Scoped-Define ENABLED-OBJECTS btnRunTask searchBar btnSubjctAttr ~
+browseParamValue btnOutputFormat btnScheduleTask btnCopyTask btnDeleteTask ~
 btnRestoreDefaults btnSortMove 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
 /* taskObjects,List-2,List-3,List-4,List-5,List-6                       */
-&Scoped-define taskObjects btnSubjctAttr btnOutputFormat btnScheduleTask ~
-btnRunTask btnCopyTask btnDeleteTask 
+&Scoped-define taskObjects btnRunTask btnSubjctAttr btnOutputFormat ~
+btnScheduleTask btnCopyTask btnDeleteTask 
 &Scoped-define List-3 browseParamValue 
 &Scoped-define List-4 browseParamValue 
 
@@ -183,6 +184,12 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 10 BY 11.91.
 
+DEFINE VARIABLE filterDescrip AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
+     VIEW-AS COMBO-BOX SORT INNER-LINES 50
+     LIST-ITEMS "<All>" 
+     DROP-DOWN-LIST
+     SIZE 32 BY 1 TOOLTIP "Select Report" NO-UNDO.
+
 DEFINE VARIABLE filterModule AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
      VIEW-AS COMBO-BOX SORT INNER-LINES 50
      LIST-ITEMS "<All>" 
@@ -194,12 +201,6 @@ DEFINE VARIABLE filterPrgmName AS CHARACTER FORMAT "X(256)":U INITIAL "<All>"
      LIST-ITEMS "<All>" 
      DROP-DOWN-LIST
      SIZE 32 BY 1 TOOLTIP "Select Module" NO-UNDO.
-
-DEFINE VARIABLE filterDescrip AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
-     VIEW-AS COMBO-BOX SORT INNER-LINES 50
-     LIST-ITEMS "<All>" 
-     DROP-DOWN-LIST
-     SIZE 32 BY 1 TOOLTIP "Select Report" NO-UNDO.
 
 DEFINE VARIABLE filterUser AS CHARACTER FORMAT "X(256)":U INITIAL "<All>" 
      VIEW-AS COMBO-BOX SORT INNER-LINES 50
@@ -226,6 +227,7 @@ ttDynParamValue.outputFormat
 ttDynParamValue.prgmName LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
 ttDynParamValue.mnemonic LABEL-BGCOLOR 14
+ttDynParamValue.lastRunDateTime LABEL-BGCOLOR 14
 ttDynParamValue.externalForm
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -236,6 +238,8 @@ ttDynParamValue.externalForm
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnRunTask AT ROW 13.86 COL 27 HELP
+          "Run Task" WIDGET-ID 250
      searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
      btnSubjctAttr AT ROW 21.48 COL 27 HELP
@@ -245,8 +249,6 @@ DEFINE FRAME F-Main
           "Run Now" WIDGET-ID 256
      btnScheduleTask AT ROW 23.38 COL 27 HELP
           "Schedule Task" WIDGET-ID 252
-     btnRunTask AT ROW 13.86 COL 27 HELP
-          "Run Task" WIDGET-ID 250
      btnCopyTask AT ROW 15.76 COL 27 HELP
           "Copy Task" WIDGET-ID 258
      btnDeleteTask AT ROW 17.67 COL 27 HELP
@@ -338,7 +340,7 @@ ASSIGN FRAME filterFrame:FRAME = FRAME F-Main:HANDLE.
 
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB browseParamValue btnSubjctAttr F-Main */
+/* BROWSE-TAB browseParamValue filterFrame F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 26.95
@@ -367,11 +369,11 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME filterFrame
                                                                         */
+/* SETTINGS FOR COMBO-BOX filterDescrip IN FRAME filterFrame
+   ALIGN-L                                                              */
 /* SETTINGS FOR COMBO-BOX filterModule IN FRAME filterFrame
    ALIGN-L                                                              */
 /* SETTINGS FOR COMBO-BOX filterPrgmName IN FRAME filterFrame
-   ALIGN-L                                                              */
-/* SETTINGS FOR COMBO-BOX filterDescrip IN FRAME filterFrame
    ALIGN-L                                                              */
 /* SETTINGS FOR COMBO-BOX filterUser IN FRAME filterFrame
    ALIGN-L                                                              */
@@ -599,6 +601,23 @@ END.
 
 
 &Scoped-define FRAME-NAME filterFrame
+&Scoped-define SELF-NAME filterDescrip
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterDescrip s-object
+ON VALUE-CHANGED OF filterDescrip IN FRAME filterFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        cParamDescrip = {&SELF-NAME}
+        .
+    IF cParamDescrip EQ "<All>" THEN
+    cParamDescrip = "".
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME filterModule
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterModule s-object
 ON VALUE-CHANGED OF filterModule IN FRAME filterFrame
@@ -626,23 +645,6 @@ DO:
         .
     IF cPrgmName EQ "<All>" THEN
     cPrgmName = "".
-    RUN pReopenBrowse.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME filterDescrip
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterDescrip s-object
-ON VALUE-CHANGED OF filterDescrip IN FRAME filterFrame
-DO:
-    ASSIGN
-        {&SELF-NAME}
-        cParamDescrip = {&SELF-NAME}
-        .
-    IF cParamDescrip EQ "<All>" THEN
-    cParamDescrip = "".
     RUN pReopenBrowse.
 END.
 
@@ -700,6 +702,7 @@ END.
 {methods/sortByProc.i "pByProgTitle" "ttDynParamValue.paramDescription"}
 {methods/sortByProc.i "pByParamDescription" "ttDynParamValue.ParamDescription"}
 {methods/sortByProc.i "pByUserID" "ttDynParamValue.user-id"}
+{methods/sortByProc.i "pLastRunDateTime" "ttDynParamValue.lastRunDateTime"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -815,7 +818,7 @@ PROCEDURE pDeleteTask :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cMsg AS CHARACTER NO-UNDO.
 
-    cMsg = "Deleted Selected Task?".
+    cMsg = "Delete Selected Task?".
     FIND FIRST Task NO-LOCK
          WHERE Task.subjectID    EQ ttDynParamValue.subjectID
            AND Task.user-id      EQ ttDynParamValue.user-id
@@ -873,6 +876,7 @@ PROCEDURE pGetParamValue :
             ttDynParamValue.outputFormat     = dynParamValue.outputFormat
             ttDynParamValue.securityLevel    = dynParamValue.securityLevel
             ttDynParamValue.externalForm     = dynParamValue.externalForm
+            ttDynParamValue.lastRunDateTime  = dynParamValue.lastRunDateTime
             ttDynParamValue.paramValueRowID  = ROWID(dynParamValue)
             ttDynParamValue.allData          = ttDynParamValue.mnemonic + "|"
                                              + ttDynParamValue.paramDescription + "|"
@@ -970,6 +974,8 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     CASE cColumnLabel:
+        WHEN "lastRunDateTime" THEN
+        RUN pLastRunDateTime.
         WHEN "mnemonic" THEN
         RUN pBymnemonic.
         WHEN "paramDescription" THEN

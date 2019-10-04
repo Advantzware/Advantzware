@@ -15,7 +15,6 @@ IF rRowID NE ? THEN DO:
     DO TRANSACTION:
         FIND FIRST dynParamValue EXCLUSIVE-LOCK
              WHERE ROWID(dynParamValue) EQ rRowID.
-        IF AVAILABLE dynParamValue THEN
         DO jdx = 1 TO NUM-ENTRIES(ipcParamValue,"|"):
             ASSIGN
                 cParamName  = ENTRY(1,ENTRY(jdx,ipcParamValue,"|"),"^")
@@ -28,6 +27,7 @@ IF rRowID NE ? THEN DO:
                 LEAVE.
             END. /* do idx */
         END. /* do jdx */
+        dynParamValue.lastRunDateTime = NOW.
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* do trans */
     RUN AOA/Jasper.p (
