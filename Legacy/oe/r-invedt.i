@@ -287,6 +287,7 @@
                 '"' inv-line.po-no    '",' 
                 '"' inv-line.i-no     '",' 
                 '"' inv-line.i-name   '",' 
+                '"' cItemFgCat        '",'
                 '"' inv-line.qty      '",' 
                 '"' inv-line.inv-qty  '",' 
                 '"' inv-line.ship-qty '",' 

@@ -1078,12 +1078,12 @@ IF tb_excel THEN DO:
         
         IF tb_cost THEN DO:
             PUT STREAM excel UNFORMATTED 
-             'Order#,Order PO Number,Item,Description,Order,Quantities Invoiced,Shipped,Price,UOM,Extended Cost,Extended Price, Margin%,'
+             'Order#,Order PO Number,Item,Description,FG Category,Order,Quantities Invoiced,Shipped,Price,UOM,Extended Cost,Extended Price, Margin%,'
               + 'Charge,Description,Customer PO#,Cost,Price,Margin%,'.
         END.
         ELSE DO:
             PUT STREAM excel UNFORMATTED 
-             'Order#,Order PO Number,Item,Description,Order,Quantities Invoiced,Shipped,Price,UOM,Extended Price,'
+             'Order#,Order PO Number,Item,Description,FG Category,Order,Quantities Invoiced,Shipped,Price,UOM,Extended Price,'
               + 'Charge,Description,Customer PO#,Price,'.
         END.
 
