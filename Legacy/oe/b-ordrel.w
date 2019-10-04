@@ -106,7 +106,7 @@ DEFINE VARIABLE oeBolPrompt-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE clvtext AS CHARACTER NO-UNDO .
-
+DEFINE VARIABLE lUpdateReleaseItem AS LOGICAL NO-UNDO.
 
 RUN sys/ref/s-codes.p (OUTPUT lv-s-codes, OUTPUT lv-s-dscrs).
 
@@ -159,6 +159,15 @@ RUN methods/prgsecur.p
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+RUN methods/prgsecur.p
+    (INPUT "p-ordrel.",
+     INPUT "Update", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lUpdateReleaseItem, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 RUN sys/ref/nk1look.p (cocode, "oeDateChange", "L", NO, NO, "", "", 
                           OUTPUT v-rtn-char, OUTPUT v-rec-found).
@@ -702,22 +711,23 @@ ASSIGN
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
- DEFINE VARIABLE lCheckInquiry AS LOGICAL NO-UNDO .
+ DEFINE VARIABLE lCheckInquiry AS LOGICAL NO-UNDO . 
+ IF lUpdateReleaseItem THEN do:
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"inquiry-rel-source", OUTPUT char-hdl) NO-ERROR.
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+         lCheckInquiry = YES .
 
- RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"inquiry-rel-source", OUTPUT char-hdl) NO-ERROR.
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-      lCheckInquiry = YES .
-     
- IF LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
-     RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
-     RUN reopen-query .
-     RUN repo-query (ROWID(oe-rel)).
- END.
- ELSE DO:
-     RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "view", OUTPUT lv-rowid) .
-     RUN reopen-query .
-     RUN repo-query (ROWID(oe-rel)).
- END.
+     IF LOOKUP(oe-rel.stat,"A,B,P,Z,C") EQ 0 AND oe-ordl.opened EQ YES AND oe-ordl.stat NE 'C' AND NOT lCheckInquiry  THEN do:
+         RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "update", OUTPUT lv-rowid) .
+         RUN reopen-query .
+         RUN repo-query (ROWID(oe-rel)).
+     END.
+     ELSE DO:
+         RUN oe/d-ordrel.w (ROWID(oe-rel),ROWID(oe-ordl), "view", OUTPUT lv-rowid) .
+         RUN reopen-query .
+         RUN repo-query (ROWID(oe-rel)).
+     END.
+ END.  /* allow update */
 END.
 
 /* _UIB-CODE-BLOCK-END */

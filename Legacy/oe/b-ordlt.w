@@ -90,6 +90,9 @@ DEFINE VARIABLE oeBolPrompt-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE clvtext AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lUpdateOrderItem AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 
 &SCOPED-DEFINE SORTBY-PHRASE BY oe-ordl.set-hdr-line BY oe-ordl.line
 
@@ -117,6 +120,16 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLPrompt", "C" /* Logical */, NO /* che
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     oeBolPrompt-char = cRtnChar NO-ERROR. 
+
+RUN methods/prgsecur.p
+    (INPUT "vp-oeitm.",
+     INPUT "Update", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lUpdateOrderItem, /* Allowed? Yes/NO */
+     OUTPUT lAccessClose, /* used in template/windows.i  */
+     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -472,7 +485,7 @@ DO:
     DEFINE VARIABLE char-hdl AS cha NO-UNDO.
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"update-target",OUTPUT char-hdl).
     
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND lUpdateOrderItem THEN 
         RUN update-item IN WIDGET-HANDLE(char-hdl).
     
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"dtl-view-target",OUTPUT char-hdl).
