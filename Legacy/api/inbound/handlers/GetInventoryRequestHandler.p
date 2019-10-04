@@ -10,7 +10,7 @@
     Created     : Tue July 05 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-{api/inbound/ttfgbin.i}
+{api/inbound/ttItem.i}
 {api/inbound/ttRequest.i}
 
 DEFINE INPUT  PARAMETER ipcRoute                  AS CHARACTER  NO-UNDO.
@@ -102,7 +102,7 @@ RUN api\inbound\GetInventoryDetails.p (
     INPUT  cItemType,
     OUTPUT oplSuccess,
     OUTPUT opcMessage,
-    OUTPUT TABLE ttfgbin
+    OUTPUT TABLE ttItem
     ).
          
 IF NOT oplSuccess THEN
@@ -127,25 +127,35 @@ DO:
 END.
 
 /* Prepares response using response data from API Inbound configuration*/
-FOR EACH ttfgbin NO-LOCK:
+FOR EACH ttItem NO-LOCK:
     ASSIGN
-        lcResponseData       = iplcResponseDataStructure
-        lcResponseData       = REPLACE(lcResponseData, "fg-bin.tag", ttfgbin.InventoryStockID)
-        lcResponseData       = REPLACE(lcResponseData, "fg-bin.i-no", ttfgbin.PrimaryID)
-        lcResponseData       = REPLACE(lcResponseData, "loadtag.misc-char[1]", ttfgbin.StockIDAlias)
-        lcResponseData       = REPLACE(lcResponseData, "fg-bin.qty", STRING(ttfgbin.Quantity))
-        lcResponseData       = REPLACE(lcResponseData, "fg-bin.pur-uom", ttfgbin.QuantityUOM)
-        lcResponseData       = REPLACE(lcResponseData, "fg-bin.cases-unit", STRING(ttfgbin.QuantityPerSubUnit))
-        lcResponseData       = REPLACE(lcResponseData, "fg-bin.case-count", STRING(ttfgbin.QuantitySubUnitsPerUnit))
-        lcResponseData       = REPLACE(lcResponseData, "fg-bin.partial-total", STRING(ttfgbin.QuantityPartial))
-        lcConcatResponseData = lcConcatResponseData + "," + lcResponseData
+        lcResponseData           = iplcResponseDataStructure
+        ttItem.InventoryStockID  = REPLACE(ttItem.InventoryStockID,'"','\"')
+        ttItem.PrimaryID         = REPLACE(ttItem.PrimaryID,'"','\"')
+        ttItem.StockIDAlias      = REPLACE(ttItem.StockIDAlias,'"','\"')
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.loc", ttItem.WarehouseID)
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.loc-bin", ttItem.LocationID)
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.i-no", ttItem.PrimaryID)
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.tag", ttItem.InventoryStockID)
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.qty", STRING(ttItem.Quantity))
+        lcResponseData           = REPLACE(lcResponseData, "ItemType", ttItem.ItemType)
+        lcResponseData           = REPLACE(lcResponseData, "loadtag.misc-char[1]", ttItem.StockIDAlias)
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.pur-uom", ttItem.QuantityUOM)
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.cases-unit", STRING(ttItem.QuantityPerSubUnit))
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.case-count", STRING(ttItem.QuantitySubUnitsPerUnit))
+        lcResponseData           = REPLACE(lcResponseData, "fg-bin.partial-total", STRING(ttItem.QuantityPartial))
+        lcConcatResponseData     = lcConcatResponseData + "," + lcResponseData
         .
 END.
 
 ASSIGN
+    lcConcatResponseData  = IF lcConcatResponseData NE "" THEN
+                                lcConcatResponseData  
+                            ELSE
+                                '~"No data"'
+    opcMessage            = "Success"
     lcConcatResponseData  = TRIM(lcConcatResponseData,",") 
-    oplcResponseData = '~{"response_code":200,"response_message":"This is InventoryStock response message","response_data":[' + lcConcatResponseData + ']}'
-    opcMessage = "Success"
+    oplcResponseData      = '~{"response_code":200,"response_message":"' + opcMessage + '","response_data":[' + lcConcatResponseData + ']}'
     .
 
 /* Log the request to APIInboundEvent */
@@ -162,7 +172,7 @@ RUN api\CreateAPIInboundEvent.p (
     INPUT  "", /* PayloadID */
     OUTPUT opcAPIInboundEvent
     ).
-    
+  
 DELETE PROCEDURE hdJSONProcs.
 
                                                       
