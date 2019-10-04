@@ -69,7 +69,7 @@ CD ..
 CD Updates
 
 :: Copy files/dirs from Patch to "regular" directories
-XCOPY /S /Y .\*.zip ..\Backups\PatchFiles > NUL
+XCOPY /Y .\*.zip ..\Backups\PatchFiles > NUL
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
 XCOPY /S /Y .\Documentation\DBDict\*.* ..\Documentation\DBDict > NUL
 XCOPY /S /Y .\Install\ReportWriter\*.* ..\Install\ReportWriter > NUL
