@@ -5,6 +5,7 @@
  def var ftax as dec no-undo.
  DEFINE VARIABLE dLineTax AS DECIMAL NO-UNDO .
  DEFINE VARIABLE dLinefTax AS DECIMAL NO-UNDO .
+ DEFINE BUFFER bff-ar-invl FOR ar-invl .
 
  if not avail cust then
     find first cust where cust.company eq g_company
@@ -21,12 +22,12 @@
 tax = 0.
 ftax = 0.
 
-FOR EACH ar-invl WHERE ar-invl.x-no = {1}.x-no NO-LOCK :
+FOR EACH bff-ar-invl WHERE bff-ar-invl.x-no = {1}.x-no NO-LOCK :
     
-   if {1}.tax-code ne "" and ar-invl.tax eq yes Then DO:
+   if {1}.tax-code ne "" and bff-ar-invl.tax eq yes Then DO:
      run ar/calctax2.p ({1}.tax-code,
                        no,
-                       ar-invl.amt,
+                       bff-ar-invl.amt,
                        cust.company,
                        "", /* item */
                        OUTPUT dLineTax).
