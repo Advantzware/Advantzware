@@ -540,7 +540,7 @@ FOR EACH job-hdr NO-LOCK
       BREAK BY job-mch.job-no
             BY job-mch.job-no2
             BY job-mch.frm
-            BY job-mch.blank-no
+/*            BY job-mch.blank-no*/
             BY job-mch.line
       :
     IF est.est-type EQ 3 OR est.est-type EQ 4 OR
