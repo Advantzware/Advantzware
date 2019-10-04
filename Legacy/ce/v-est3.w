@@ -132,7 +132,7 @@ eb.unitno[7] eb.unitno[8] eb.unitno[9] eb.unitno[10] eb.unitno[11] eb.unitno[12]
 eb.unitno[13] eb.unitno[14] eb.unitno[15] eb.unitno[16] eb.unitno[17] ~
 eb.side[1] eb.side[2] eb.side[3] eb.side[4] eb.side[5] eb.side[6] eb.side[7] ~
 eb.side[8] eb.side[9] eb.side[10] eb.side[11] eb.side[12] eb.side[13] eb.side[14] ~
-eb.side[15] eb.side[16] eb.side[17] 
+eb.side[15] eb.side[16] eb.side[17] eb.quantityPartial
 &Scoped-define DISPLAYED-TABLES eb
 &Scoped-define FIRST-DISPLAYED-TABLE eb
 &Scoped-Define DISPLAYED-OBJECTS FILL-IN-1  f-lp-dep f-div-dep ~
@@ -626,21 +626,27 @@ DEFINE FRAME fold
           "" NO-LABEL WIDGET-ID 42 FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
-     eb.cas-wt AT ROW 6.19 COL 129 COLON-ALIGNED
-          LABEL "Weight/Unit"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
+     
      eb.cas-cost AT ROW 5.14 COL 87 COLON-ALIGNED
           LABEL "Cost/Ea"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.cas-cnt AT ROW 5.1 COL 125 COLON-ALIGNED FORMAT ">>>,>>>"
-          LABEL "Boxes/Code"
+    eb.cas-wt AT ROW 5.1 COL 122 COLON-ALIGNED
+          LABEL "Weight/Unit"
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 13 BY 1
+     
      eb.cas-pal AT ROW 6.14 COL 87 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+     eb.cas-cnt AT ROW 6.19 COL 122 COLON-ALIGNED FORMAT ">>>,>>>"
+          LABEL "Boxes/Code"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     eb.quantityPartial AT ROW 6.19 COL 145 COLON-ALIGNED FORMAT ">>>>>"
+          LABEL "Partial"
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
      eb.tr-no AT ROW 7.91 COL 88 COLON-ALIGNED
           LABEL "Pallet #"
           VIEW-AS FILL-IN 
@@ -801,6 +807,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.carrier IN FRAME fold
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN eb.cas-cnt IN FRAME fold
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN eb.quantityPartial IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.cas-cost IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
@@ -1281,6 +1289,16 @@ END.
 &Scoped-define SELF-NAME eb.cas-cnt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cas-cnt V-table-Win
 ON VALUE-CHANGED OF eb.cas-cnt IN FRAME fold /* Boxes/Code */
+DO:
+  RUN calc-tr-cnt.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME eb.quantityPartial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.quantityPartial V-table-Win
+ON VALUE-CHANGED OF eb.quantityPartial IN FRAME fold /* Boxes/Code */
 DO:
   RUN calc-tr-cnt.
 END.
@@ -2338,7 +2356,7 @@ PROCEDURE calc-tr-cnt :
     IF DEC(eb.cas-cnt:SCREEN-VALUE) NE 0 THEN
       ASSIGN
        eb.tr-cnt:SCREEN-VALUE = STRING(DEC(eb.cas-cnt:SCREEN-VALUE) *
-                                       DEC(eb.cas-pal:SCREEN-VALUE))
+                                       DEC(eb.cas-pal:SCREEN-VALUE) + INTEGER(eb.quantityPartial:SCREEN-VALUE) )
        eb.cas-wt:SCREEN-VALUE = "0".
   END.
 
@@ -2791,7 +2809,7 @@ PROCEDURE local-assign-record :
     DO WITH FRAME {&frame-name} :
         ASSIGN 
             eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
-            eb.cas-dep eb.cas-pal eb.cas-wt
+            eb.cas-dep eb.cas-pal eb.quantityPartial eb.cas-wt
             eb.tr-no
             eb.tr-cost eb.tr-cnt eb.tr-len eb.tr-wid eb.tr-dep
             eb.tr-cas 
@@ -2892,7 +2910,8 @@ PROCEDURE local-assign-record :
                     b-eb.tr-cnt   = eb.tr-cnt
                     b-eb.tr-len   = eb.tr-len
                     b-eb.tr-wid   = eb.tr-wid
-                    b-eb.tr-dep   = eb.tr-dep.
+                    b-eb.tr-dep   = eb.tr-dep
+                    b-eb.quantityPartial = eb.quantityPartial.
             END.
         END.
     END.
@@ -3884,7 +3903,8 @@ PROCEDURE set-pack :
          b-eb.tr-cnt   = 0
          b-eb.tr-len   = 0
          b-eb.tr-wid   = 0
-         b-eb.tr-dep   = 0.
+         b-eb.tr-dep   = 0
+         b-eb.quantityPartial = 0.
       END.
 
       FIND CURRENT eb NO-LOCK.
@@ -3966,7 +3986,7 @@ PROCEDURE unit-calc :
   if eb.tr-cas = 0 then eb.tr-cas:screen-value in frame {&frame-name} = "1".
 
  enable   eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
-          eb.cas-dep 
+          eb.cas-dep eb.quantityPartial
           eb.layer-pad eb.lp-len eb.lp-wid eb.lp-up f-lp-dep
           eb.divider eb.div-len eb.div-wid eb.div-up f-div-dep
           eb.cas-pal eb.cas-wt
@@ -4044,6 +4064,7 @@ PROCEDURE update-ink :
     DISABLE eb.cas-no
             eb.cas-cost
             eb.cas-cnt
+            eb.quantityPartial
             eb.cas-len
             eb.cas-wid
             eb.cas-dep
@@ -4088,7 +4109,7 @@ PROCEDURE update-pack :
 
   IF ll-update-pack THEN DO:
     enable eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
-           eb.cas-dep eb.cas-pal eb.cas-wt
+           eb.cas-dep eb.cas-pal eb.cas-wt eb.quantityPartial
            eb.layer-pad eb.lp-len eb.lp-wid  eb.lp-up f-lp-dep
            eb.divider eb.div-len eb.div-wid  eb.div-up f-div-dep 
            eb.tr-no eb.tr-cost eb.tr-cnt eb.tr-len eb.tr-wid eb.tr-dep

@@ -94,7 +94,7 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Spec Note 3 Group,Spec Note 3 Title,Spec Note 3 Note [Large]," +
                             "Spec Note 4 Group,Spec Note 4 Title,Spec Note 4 Note [Large]," +
                             "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large]," +
-                            "Setup By UserId,Setup Date,Modified By,Modified Date"
+                            "Setup By UserId,Setup Date,Modified By,Modified Date,Pallet Quantity"
             cFieldListToSelect = "i-no,i-name,part-no,cust-no,cust-name," +
                             "est-no,style,procat,procat-desc,part-dscr1,part-dscr2,part-dscr3,i-code," +
                             "die-no,plate-no,upc-no,cad-no,spc-no,stocked," +
@@ -125,7 +125,7 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "spc-grp3,spc-title3,spc-note3," +
                             "spc-grp4,spc-title4,spc-note4," +
                             "spc-grp5,spc-title5,spc-note5," +
-                            "setupBy,setupDate,modifiedBy,modifiedDate"
+                            "setupBy,setupDate,modifiedBy,modifiedDate,pallet-qty"
 /*         cFieldListToSelect = "itemfg.i-no,itemfg.i-name,itemfg.part-no,itemfg.cust-no," +                 */
 /*                             "itemfg.est-no,itemfg.style,itemfg.procat,itemfg.part-dscr1,itemfg.i-code," + */
 /*                             "itemfg.cad-no,itemfg.spc-no,itemfg.stocked,itemfg.q-onh"                     */
@@ -1574,7 +1574,7 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
 
     FOR EACH ttRptSelected:
 
-        IF LOOKUP(ttRptSelected.FieldList,"col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,cat1,cat2,cat3,brd-cd,brd-nam,calp,cas-cd,cas-nam,cas-qt,skid-cd,skid-nam,skid-qt,spec-cod1,spc-grp1,spc-title1,spc-note1,spc-grp2,spc-title2,spc-note2,spc-grp3,spc-title3,spc-note3,spc-grp4,spc-title4,spc-note4,spc-grp5,spc-title5,spc-note5") = 0 THEN
+        IF LOOKUP(ttRptSelected.FieldList,"col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,cat1,cat2,cat3,brd-cd,brd-nam,calp,cas-cd,cas-nam,cas-qt,skid-cd,skid-nam,skid-qt,spec-cod1,spc-grp1,spc-title1,spc-note1,spc-grp2,spc-title2,spc-note2,spc-grp3,spc-title3,spc-note3,spc-grp4,spc-title4,spc-note4,spc-grp5,spc-title5,spc-note5,pallet-qty") = 0 THEN
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue-itemfg(BUFFER b-itemfg,ttRptSelected.FieldList)).
         
@@ -1661,6 +1661,9 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecTitle[5]).
             WHEN "spc-note5" THEN                                                              
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecNote[5]).
+            WHEN "pallet-qty" THEN                                                              
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING((b-itemfg.case-count * b-itemfg.case-pall ) + b-itemfg.quantityPartial)).
+                
           END CASE.  
         END.
     END.
