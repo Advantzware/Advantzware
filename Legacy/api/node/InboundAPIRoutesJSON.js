@@ -41,4 +41,9 @@ router.post('/createinventorystockaliasforpo', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
+//This will create BOL 
+router.post('/createbilloflading', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
 module.exports = router;

@@ -16,6 +16,7 @@
 DEFINE VARIABLE hdOeValidate AS HANDLE.
 {custom/globdefs.i}     /*Refactor - hate this*/
 {sys/inc/var.i SHARED}  /*Refactor - hate this*/
+{oe/relcheck.i NEW} /* temp-table definitions */
 DEFINE VARIABLE glUseTransCust      AS LOGICAL   NO-UNDO. /* how to set cust no on release */
 /*DEFINE VARIABLE glCheckCredit       AS LOGICAL   NO-UNDO. /* check credit hold */*/
 DEFINE VARIABLE gcDefaultLocMethod  AS CHARACTER NO-UNDO. /* how to get default loc */
@@ -1191,6 +1192,978 @@ PROCEDURE pSetActualReleaseLocation PRIVATE:
            .
 END PROCEDURE.
 
+/* Post Releases */
+PROCEDURE OrderProcsPostReleases: 
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserName  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess   AS LOGICAL   NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiBOLID     AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE cRtnCharBol  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFoundBol AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnCharRel  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFoundRel AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lException   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRelPost     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRelPost     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iRelPost     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cBOLDate     AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        oplSuccess = YES
+        opiBOLID   = 0
+        .
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, 
+        INPUT "RELPOST", 
+        INPUT "L" /* Logical */, 
+        INPUT YES /* check by cust */, 
+        INPUT YES /* use cust NOT vENDOr */, 
+        INPUT "" /* cust */,
+        INPUT "" /* ship-to*/,
+        OUTPUT cRtnCharRel, 
+        OUTPUT lRecFoundRel
+        ).
+    IF lRecFoundRel THEN
+       lRelPost = LOGICAL(cRtnCharRel) NO-ERROR.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, 
+        INPUT "RELPOST", 
+        INPUT "C" /* Character */, 
+        INPUT YES /* check by cust */, 
+        INPUT YES /* use cust not vendor */, 
+        INPUT "" /* cust */,
+        INPUT "" /* ship-to*/,
+        OUTPUT cRtnCharRel, 
+        OUTPUT lRecFoundRel
+        ).
+        
+    IF lRecFoundRel THEN
+        cRelPost = cRtnCharBol NO-ERROR. 
+        
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, 
+        INPUT "RELPOST", 
+        INPUT "I" /* Integer */, 
+        INPUT YES /* check by cust */, 
+        INPUT YES /* use cust NOT vENDOr */, 
+        INPUT "" /* cust */,
+        INPUT "" /* ship-to*/,
+        OUTPUT cRtnCharRel, 
+        OUTPUT lRecFoundRel
+        ).
+            
+    IF lRecFoundRel THEN
+        iRelPost = INT(cRtnCharRel) NO-ERROR. 
+     
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,
+        INPUT "BOLDATE",
+        INPUT "C" /* Character */,
+        INPUT YES /* check by cust */,
+        INPUT YES /* use cust NOT vENDOr */,
+        INPUT "" /* cust */,
+        INPUT "" /* ship-to*/,
+        OUTPUT cRtnCharBol,
+        OUTPUT lRecFoundBol
+        ).
+    IF lRecFoundBol THEN
+       cBOLDate = sys-ctrl.char-fld NO-ERROR.
+     
+    FIND FIRST oe-relh NO-LOCK
+         WHERE oe-relh.company  EQ ipcCompany
+           AND oe-relh.release# EQ ipiReleaseID
+           AND NOT oe-relh.posted  
+           AND oe-relh.printed
+         NO-ERROR.
+    IF AVAILABLE oe-relh AND CAN-FIND(FIRST oe-rell
+                                      WHERE oe-rell.company EQ oe-relh.company
+                                        AND oe-rell.r-no    EQ oe-relh.r-no
+                                      USE-INDEX r-no) THEN DO:
+     
+        /* Validates releases data */
+        RUN pOrderProcsRelCheck (
+            INPUT  ipcCompany,
+            INPUT  ipiReleaseID, 
+            INPUT  iRelPost,
+            OUTPUT lException,
+            OUTPUT opcMessage
+            ).
+        IF lException THEN DO:
+            oplSuccess = NO.
+            RETURN.
+        END.
+        IF opiBOLID NE 0 THEN
+            FIND FIRST oe-bolh NO-LOCK
+                 WHERE oe-bolh.company EQ oe-relh.company
+                   AND oe-bolh.bol-no  EQ  opiBOLID
+                 NO-ERROR.
+            IF NOT AVAILABLE oe-bolh   OR 
+                cRelPost EQ "BOL/REL"  THEN
+                
+                DO TRANSACTION:
+                    /* Creates BOL */
+                    RUN pOrderProcsCreateBOL (
+                        INPUT ipcCompany,
+                        INPUT ipiReleaseID, 
+                        INPUT cRelPost,
+                        INPUT iRelPost,
+                        INPUT lRelPost,
+                        INPUT cBOLDate,
+                        INPUT ipcUserName,
+                        INPUT-OUTPUT opiBOLID
+                        ).
+                END.
+        FIND FIRST oe-rell NO-LOCK
+             WHERE oe-rell.company EQ oe-relh.company
+               AND oe-rell.r-no    EQ oe-relh.r-no
+               AND oe-rell.s-code  EQ "I"
+             USE-INDEX r-no NO-ERROR.
+    
+        cRelPost = IF AVAILABLE oe-rell THEN 
+                       "Invoice" 
+                   ELSE 
+                       cRelPost.
+        
+        FIND FIRST oe-bolh NO-LOCK
+             WHERE oe-bolh.bol-no EQ opiBOLID
+             NO-ERROR.
+        
+        IF NOT AVAILABLE oe-bolh THEN DO:
+            ASSIGN 
+                opcMessage = "BOL is not created"
+                oplSuccess = NO
+                .
+
+            RETURN.
+        END.
+        
+        /* Posts release */
+        RUN pOrderProcsPostRelease (
+            INPUT ipcCompany,
+            INPUT ipiReleaseID
+            ).
+        
+        /* Creates BOL Lines */
+        RUN pOrderProcsCreateBOLLines (
+            INPUT ipcCompany,
+            INPUT ipiReleaseID,
+            INPUT opiBOLID
+            ).
+            
+        FOR EACH oe-rell WHERE oe-rell.company EQ oe-relh.company
+                           AND oe-rell.r-no    EQ oe-relh.r-no
+                         USE-INDEX r-no
+                         NO-LOCK,
+            EACH oe-ordl WHERE oe-ordl.company EQ oe-relh.company
+                           AND oe-ordl.ord-no EQ oe-rell.ord-no
+                         EXCLUSIVE-LOCK:
+            
+            RUN oe/ordlsqty.p (
+                INPUT ROWID(oe-ordl),
+                OUTPUT oe-ordl.inv-qty,
+                OUTPUT oe-ordl.ship-qty
+                ).
+            
+            IF oe-rell.link-no EQ 0 THEN DO:
+                FIND FIRST oe-rel
+                     WHERE oe-rel.company  EQ oe-rell.company
+                       AND oe-rel.ord-no   EQ oe-rell.ord-no
+                       AND oe-rel.line     EQ oe-rell.line
+                       AND oe-rel.i-no     EQ oe-rell.i-no
+                       AND oe-rel.ship-id  EQ oe-relh.ship-id
+                       AND oe-rel.link-no  EQ 0
+                     NO-ERROR.
+            
+                IF NOT AVAILABLE oe-rel THEN
+                    FIND FIRST oe-rel
+                         WHERE oe-rel.company  EQ oe-rell.company
+                           AND oe-rel.ord-no   EQ oe-rell.ord-no
+                           AND oe-rel.line     EQ oe-rell.line
+                           AND oe-rel.i-no     EQ oe-rell.i-no
+                           AND oe-rel.link-no  EQ 0
+                         NO-ERROR.
+            END.            
+            ELSE
+                FIND FIRST oe-rel
+                     WHERE oe-rel.r-no EQ oe-rell.link-no
+                     USE-INDEX seq-no NO-ERROR.
+            
+            IF AVAILABLE oe-rel THEN DO:
+                RUN oe/custxship.p (
+                    INPUT oe-relh.company,
+                    INPUT oe-relh.cust-no,
+                    INPUT oe-relh.ship-id,
+                    BUFFER shipto
+                    ).
+            
+                IF AVAILABLE shipto AND AVAILABLE oe-rel THEN
+                    ASSIGN
+                        oe-rel.ship-addr[1] = shipto.ship-addr[1]
+                        oe-rel.ship-addr[2] = shipto.ship-addr[2]
+                        oe-rel.ship-city    = shipto.ship-city
+                        oe-rel.ship-state   = shipto.ship-state
+                        oe-rel.ship-zip     = shipto.ship-zip
+                        .
+            END.
+        END.
+        
+    END.
+    
+END PROCEDURE.
+
+PROCEDURE pOrderProcsRelCheck PRIVATE:
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiRelPost   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplException AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER buf-oe-relh FOR oe-relh.
+    DEFINE BUFFER buf-oe-rell FOR oe-rell.
+    
+    FIND FIRST oe-relh NO-LOCK 
+         WHERE oe-relh.release# EQ ipiReleaseID
+         NO-ERROR.
+                         
+    IF AVAILABLE oe-relh THEN DO:
+        FIND FIRST buf-oe-relh EXCLUSIVE-LOCK
+             WHERE ROWID(buf-oe-relh) EQ ROWID(oe-relh) 
+             NO-WAIT NO-ERROR.
+        
+        FOR EACH oe-rell NO-LOCK
+            WHERE oe-rell.company EQ oe-relh.company
+              AND oe-rell.r-no    EQ oe-relh.r-no
+            USE-INDEX r-no:
+            
+            FIND buf-oe-rell EXCLUSIVE-LOCK
+                 WHERE ROWID(buf-oe-rell) EQ ROWID(oe-rell) 
+                 NO-WAIT NO-ERROR.
+
+            IF NOT AVAILABLE buf-oe-relh OR NOT AVAILABLE buf-oe-rell THEN DO:
+                CREATE tt-except.
+                BUFFER-COPY oe-rell TO tt-except.
+                tt-except.reason = 1.
+                LEAVE.
+            END.
+            FIND FIRST buf-oe-rell NO-LOCK 
+                 WHERE ROWID(buf-oe-rell) EQ ROWID(oe-rell) 
+                 NO-ERROR.
+        END.
+        FIND FIRST buf-oe-relh NO-LOCK
+             WHERE ROWID(buf-oe-relh) EQ ROWID(oe-relh)  
+             NO-ERROR.
+        IF ipiRelPost EQ 1 AND
+            NOT CAN-FIND(FIRST tt-except
+                         WHERE tt-except.company EQ oe-relh.company
+                           AND tt-except.r-no    EQ oe-relh.r-no) THEN DO:
+                
+            FOR EACH tt-fg-bin:
+                tt-fg-bin.qty = 0.
+            END.
+            
+            FOR EACH oe-rell NO-LOCK
+                WHERE oe-rell.company EQ oe-relh.company
+                  AND oe-rell.r-no    EQ oe-relh.r-no
+                USE-INDEX r-no,
+            FIRST oe-ord NO-LOCK
+            WHERE oe-ord.company EQ oe-rell.company
+              AND oe-ord.ord-no  EQ oe-rell.ord-no
+              AND oe-ord.type    NE "T"
+            BREAK BY oe-rell.i-no
+                  BY oe-rell.job-no
+                  BY oe-rell.job-no2
+                  BY oe-rell.loc
+                  BY oe-rell.loc-bin
+                  BY oe-rell.tag:
+                    
+                FIND FIRST tt-fg-bin
+                     WHERE tt-fg-bin.company EQ oe-rell.company
+                       AND tt-fg-bin.i-no    EQ oe-rell.i-no
+                       AND tt-fg-bin.job-no  EQ oe-rell.job-no
+                       AND tt-fg-bin.job-no2 EQ oe-rell.job-no2
+                       AND tt-fg-bin.loc     EQ oe-rell.loc
+                       AND tt-fg-bin.loc-bin EQ oe-rell.loc-bin
+                       AND tt-fg-bin.tag     EQ oe-rell.tag
+                    NO-ERROR.
+                IF NOT AVAILABLE tt-fg-bin THEN DO:
+                    CREATE tt-fg-bin.
+                    ASSIGN
+                        tt-fg-bin.company = oe-rell.company
+                        tt-fg-bin.i-no    = oe-rell.i-no
+                        tt-fg-bin.job-no  = oe-rell.job-no
+                        tt-fg-bin.job-no2 = oe-rell.job-no2
+                        tt-fg-bin.loc     = oe-rell.loc
+                        tt-fg-bin.loc-bin = oe-rell.loc-bin
+                        tt-fg-bin.tag     = oe-rell.tag
+                        .
+                    FOR EACH oe-bolh NO-LOCK
+                        WHERE oe-bolh.company EQ tt-fg-bin.company
+                          AND oe-bolh.posted  EQ NO
+                          AND oe-bolh.deleted EQ NO
+                        USE-INDEX post,
+                        EACH oe-boll NO-LOCK
+                        WHERE oe-boll.b-no  EQ oe-bolh.b-no
+                          AND oe-boll.i-no    EQ tt-fg-bin.i-no
+                          AND oe-boll.job-no  EQ tt-fg-bin.job-no
+                          AND oe-boll.job-no2 EQ tt-fg-bin.job-no2
+                          AND oe-boll.loc     EQ tt-fg-bin.loc
+                          AND oe-boll.loc-bin EQ tt-fg-bin.loc-bin
+                          AND oe-boll.tag     EQ tt-fg-bin.tag
+                        USE-INDEX b-no2:
+                            tt-fg-bin.qty = tt-fg-bin.qty + oe-boll.qty.
+                    END.
+                END.
+                tt-fg-bin.qty = tt-fg-bin.qty + oe-rell.qty.
+                        
+                IF LAST-OF(oe-rell.tag) THEN DO:
+                    FIND FIRST fg-bin NO-LOCK 
+                        WHERE fg-bin.company EQ oe-rell.company
+                          AND fg-bin.i-no    EQ oe-rell.i-no
+                          AND fg-bin.job-no  EQ oe-rell.job-no
+                          AND fg-bin.job-no2 EQ oe-rell.job-no2
+                          AND fg-bin.loc     EQ oe-rell.loc
+                          AND fg-bin.loc-bin EQ oe-rell.loc-bin
+                          AND fg-bin.tag     EQ oe-rell.tag
+                        NO-ERROR.
+                
+                    IF (NOT AVAILABLE fg-bin OR fg-bin.qty LT tt-fg-bin.qty) AND
+                        oe-rell.tag EQ "" THEN DO:
+                        CREATE tt-except.
+                        BUFFER-COPY oe-rell TO tt-except.
+                        tt-except.reason = 2.
+                    END.
+                END.
+            END.
+        END.
+        FIND FIRST tt-except NO-LOCK
+             WHERE tt-except.company EQ oe-relh.company
+               AND tt-except.r-no    EQ oe-relh.r-no
+             NO-ERROR.
+        IF AVAILABLE tt-except THEN DO:
+            ASSIGN
+                opcMessage = IF tt-except.reason EQ 1 THEN
+                                 "Release is not available"
+                             ELSE IF tt-except.reason EQ 2 THEN
+                                 "Quantity is not available"
+                             ELSE
+                                 "Exception occured"  
+                oplException = YES
+                .
+        END.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pOrderProcsCreateBOL PRIVATE:
+    DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcRelpost   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiRelPost   AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplRelPost   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcBolPost   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcUserName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiBOLNo    AS INTEGER   NO-UNDO.  
+    
+    DEFINE VARIABLE cFRTPay  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFOBCode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFRTList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFOBList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iRellctr AS INTEGER   NO-UNDO.
+
+    ASSIGN 
+        iRellctr = 0 
+        cFRTList = "" 
+        cFOBList = ""
+        .
+              
+    FIND FIRST oe-relh NO-LOCK
+         WHERE oe-relh.release# EQ ipiReleaseID
+         NO-ERROR.
+    
+    IF AVAILABLE oe-relh THEN
+        RUN pOrderProcsNewBOL (
+            INPUT ipcCompany, 
+            OUTPUT iopiBOLNo
+            ).
+    
+    FOR EACH oe-rell NO-LOCK
+        WHERE oe-rell.r-no EQ oe-relh.r-no
+        USE-INDEX r-no:
+        IF oe-rell.lot-no <> "" THEN
+            ASSIGN 
+                cFRTList = (IF LOOKUP(oe-rell.frt-pay,cFRTList) = 0 THEN 
+                                cFRTList + "," + oe-rell.frt-pay 
+                            ELSE 
+                                cFRTList)
+                cFOBList = (IF LOOKUP(oe-rell.fob-code,cFOBList) = 0 THEN 
+                                cFOBList + "," + oe-rell.fob-code 
+                            ELSE 
+                                cFOBList)
+                .                
+    END.    
+     
+    IF length(cFRTList) > 0 THEN
+        cFRTList = SUBSTR(cFRTList,2).
+    IF length(cFOBList) > 0 THEN
+        cFOBList = SUBSTR(cFOBList,2).
+    
+    IF NUM-ENTRIES(cFRTList) > 1 THEN
+       iRellctr = NUM-ENTRIES(cFRTList).
+    ELSE
+       IF NUM-ENTRIES(cFOBList) > 1 THEN
+           iRellctr = NUM-ENTRIES(cFOBList).
+    
+    /* get first order fOR release */
+    FIND FIRST oe-rell NO-LOCK
+         WHERE oe-rell.r-no EQ oe-relh.r-no
+         USE-INDEX r-no NO-ERROR.
+    
+    FIND FIRST oe-ord NO-LOCK 
+         WHERE oe-ord.company EQ oe-relh.company
+           AND oe-ord.ord-no  EQ oe-rell.ord-no
+         NO-ERROR.
+    
+    ASSIGN 
+        cFRTPay = (IF cFRTList <> "" THEN 
+                       SUBSTR(cFRTList,1,1) 
+                   ELSE 
+                       "")
+        cFOBCode = (IF cFOBList <> "" THEN 
+                       SUBSTR(cFOBList,1,1) 
+                    ELSE 
+                        "")
+        .
+        
+    IF oe-rell.lot-no <> "" THEN DO:   
+        ASSIGN 
+            cFRTPay = (IF cFRTPay = "" THEN 
+                           oe-rell.frt-pay 
+                       ELSE 
+                           cFRTPay)
+            cFOBCode = (IF cFOBCode = "" THEN 
+                           oe-rell.fob-code 
+                        ELSE 
+                           cFOBCode)
+            .
+        
+        IF cFRTPay = "P" THEN 
+            cFRTPay = "Prepaid". 
+        ELSE IF cFRTPay = "C" THEN 
+            cFRTPay = "Collect".
+        ELSE IF cFRTPay = "B" THEN 
+            cFRTPay = "Bill". 
+        ELSE IF cFRTPay = "T" THEN 
+            cFRTPay = "ThirdParty".
+    
+        IF cFOBCode = "O" THEN 
+            cFOBCode = "Origin". 
+        ELSE IF cFOBCode = "D" THEN 
+            cFOBCode = "Destination".
+    
+        IF iRellctr > 1 THEN DO:
+            IF NOT CAN-DO("P,C,B,T",substr(cFRTPay,1,1)) THEN
+                cFRTPay =  oe-rell.frt-pay.
+
+            IF NOT CAN-DO("O,D",substr(cFOBCode,1,1)) THEN 
+                cFOBCode = oe-rell.fob-code.
+        END.
+        IF length(cFRTPay) > 1 THEN
+           cFRTPay =  SUBSTR(cFRTPay,1,1).
+        IF length(cFOBCode) > 1 THEN
+           cFOBCode =  SUBSTR(cFOBCode,1,1).
+    END.
+    RELEASE reftable.
+    
+    FOR EACH oe-bolh EXCLUSIVE-LOCK
+        WHERE oe-bolh.company  EQ oe-relh.company
+          AND oe-bolh.release# EQ oe-relh.release#
+          AND NOT CAN-FIND(FIRST oe-boll WHERE oe-boll.company EQ oe-bolh.company 
+                                           AND oe-boll.b-no    EQ oe-bolh.b-no):      
+        DELETE oe-bolh.    
+    END.
+  
+    x = 1.
+    FIND LAST oe-bolh NO-LOCK
+         USE-INDEX b-no NO-ERROR.
+    IF AVAILABLE oe-bolh THEN 
+        x = oe-bolh.b-no + 1.
+  
+    CREATE oe-bolh.
+    ASSIGN
+        oe-bolh.company  = oe-relh.company
+        oe-bolh.loc      = locode
+        oe-bolh.b-no     = x
+        oe-bolh.bol-no   = iopiBOLNo
+        oe-bolh.release# = oe-relh.release#
+        oe-bolh.bol-date = IF ipcBolPost EQ "Current" THEN 
+                               TODAY 
+                           ELSE 
+                               oe-relh.rel-date
+        oe-bolh.cust-no  = oe-relh.cust-no
+        oe-bolh.ship-no  = oe-relh.ship-no
+        oe-bolh.ship-id  = oe-relh.ship-id
+        oe-bolh.carrier  = oe-relh.carrier
+        oe-bolh.stat     = STRING(iplRelPost AND ipcRelPost  BEGINS "BOL","H/R")
+        oe-bolh.b-ord-no = oe-relh.b-ord-no
+        oe-bolh.rel-date = oe-relh.rel-date
+        oe-bolh.r-no     = oe-relh.r-no
+        oe-bolh.posted   = no
+        oe-bolh.printed  = no
+        oe-bolh.deleted  = no
+        oe-bolh.frt-pay  = IF cFRTPay <> "" THEN 
+                               cFRTPay 
+                           ELSE IF AVAILABLE oe-ord THEN 
+                               oe-ord.frt-pay 
+                           ELSE 
+                               ""
+        oe-bolh.trailer  = oe-relh.trailer
+        oe-bolh.upd-date = TODAY
+        oe-bolh.upd-time = TIME
+        oe-bolh.user-id  = ipcUserName
+        .
+  
+    IF cFOBCode <> "" THEN DO:
+        FIND FIRST reftable NO-LOCK 
+             WHERE reftable.reftable EQ "oe-bolh.lot-no" 
+               AND reftable.rec_key  EQ oe-bolh.rec_key
+             USE-INDEX rec_key
+             NO-ERROR.
+        IF NOT AVAILABLE reftable THEN DO:
+            CREATE reftable.
+            ASSIGN 
+                reftable.reftable = "oe-bolh.lot-no" 
+                reftable.rec_key  = oe-bolh.rec_key
+                reftable.code     = cFOBCode
+                .
+        END.         
+        RELEASE reftable.
+    END.
+  
+    RUN oe/custxship.p (
+        INPUT oe-bolh.company,
+        INPUT oe-bolh.cust-no,
+        INPUT oe-bolh.ship-id,
+        BUFFER shipto
+        ).
+  
+    IF NOT AVAILABLE shipto THEN
+        FIND FIRST shipto
+            WHERE shipto.company EQ ipcCompany
+              AND shipto.cust-no EQ oe-bolh.cust-no
+            NO-LOCK NO-ERROR.
+  
+    IF AVAILABLE shipto THEN DO:
+        ASSIGN
+            oe-bolh.ship-no      = shipto.ship-no
+            oe-bolh.ship-id      = shipto.ship-id
+            oe-bolh.ship-i[1]    = shipto.notes[1]
+            oe-bolh.ship-i[2]    = shipto.notes[2]
+            oe-bolh.ship-i[3]    = shipto.notes[3]
+            oe-bolh.ship-i[4]    = shipto.notes[4].            
+            oe-bolh.cust-no = IF shipto.bill THEN 
+                                  shipto.ship-id
+                              ELSE
+                                  oe-bolh.cust-no
+            .
+    END.
+    
+    IF oe-relh.ship-i[1] NE "" OR oe-relh.ship-i[2] NE "" OR
+       oe-relh.ship-i[3] NE "" OR oe-relh.ship-i[4] NE "" THEN DO:
+        ASSIGN
+            oe-bolh.ship-i[1] = oe-relh.ship-i[1]
+            oe-bolh.ship-i[2] = oe-relh.ship-i[2]
+            oe-bolh.ship-i[3] = oe-relh.ship-i[3]
+            oe-bolh.ship-i[4] = oe-relh.ship-i[4]
+            .
+        RUN pCopyShipNote (
+            INPUT oe-relh.rec_key, 
+            INPUT oe-bolh.rec_key
+            ).
+    END.
+END PROCEDURE.
+
+PROCEDURE pOrderProcsNewBOL PRIVATE:
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiBOLNo   AS INTEGER   NO-UNDO.
+   
+    DEFINE VARIABLE cFRTPay  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFOBCode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFRTList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFOBList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iRellctr AS INTEGER   NO-UNDO.
+    
+    FIND FIRST oe-ctrl EXCLUSIVE-LOCK
+         WHERE oe-ctrl.company EQ ipcCompany 
+         NO-ERROR.
+    
+    DO WHILE TRUE:
+        ASSIGN
+            opiBOLNo      = oe-ctrl.n-bol
+            oe-ctrl.n-bol = opiBOLNo + 1
+            .
+       
+        IF oe-ctrl.n-bol GT 99999999 THEN 
+            oe-ctrl.n-bol = 1.
+        
+        FIND FIRST oe-bolh NO-LOCK
+             WHERE oe-bolh.company EQ ipcCompany
+               AND oe-bolh.bol-no  EQ opiBOLNo
+             USE-INDEX bol-no NO-ERROR.
+        IF NOT AVAILABLE oe-bolh THEN
+            LEAVE.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBOLID     AS INTEGER   NO-UNDO.
+
+    DO TRANSACTION:
+        FIND FIRST oe-relh NO-LOCK
+             WHERE oe-relh.release# EQ ipiReleaseID
+             NO-ERROR.
+             
+        /* get first Order for release */
+        FIND FIRST oe-rell NO-LOCK
+             WHERE oe-rell.r-no EQ oe-relh.r-no 
+             USE-INDEX r-no 
+             NO-ERROR.
+        
+        FIND FIRST oe-ord NO-LOCK
+             WHERE oe-ord.company EQ oe-relh.company
+               AND oe-ord.ord-no  EQ oe-rell.ord-no
+             NO-ERROR.
+        
+        /* Creates records in oe-boll table */
+        RUN pOrderProcsMakeBOLLs (
+            INPUT ipcCompany,
+            INPUT ipiReleaseID,
+            INPUT ipiBOLID
+            ).
+
+        FIND FIRST oe-bolh 
+             WHERE oe-bolh.bol-no EQ ipiBOLID
+             NO-ERROR.
+
+        FOR EACH  oe-boll EXCLUSIVE-LOCK 
+            WHERE oe-boll.company EQ oe-bolh.company
+              AND oe-boll.b-no    EQ oe-bolh.b-no:
+              
+            RUN oe/calcBolWeight.p (
+                INPUT ROWID(oe-boll), 
+                OUTPUT oe-boll.weight
+                ).
+           
+        END.
+        
+        RUN oe/palcal2.p (
+            INPUT ROWID(oe-bolh), 
+            OUTPUT oe-bolh.tot-pallets
+            ).
+    
+        RUN oe/bolhtots.p (
+            INPUT ROWID(oe-bolh)
+            ).
+      
+        RUN oe/calcBolFrt.p (
+            INPUT ROWID(oe-bolh), 
+            OUTPUT oe-bolh.freight
+            ).
+      
+        IF oe-bolh.freight EQ ? THEN 
+            oe-bolh.freight = 0.
+      
+        IF oe-rell.link-no NE 0 THEN
+            FIND FIRST oe-rel 
+                 WHERE oe-rel.r-no EQ oe-rell.link-no
+                 USE-INDEX seq-no NO-ERROR.
+      
+        IF NOT AVAILABLE oe-rel THEN
+            FIND FIRST oe-rel
+                 WHERE oe-rel.company  EQ oe-relh.company
+                   AND oe-rel.ord-no   EQ oe-rell.ord-no
+                   AND oe-rel.liNE     EQ oe-rell.liNE
+                   AND oe-rel.i-no     EQ oe-rell.i-no
+                   AND oe-rel.ship-id  EQ oe-relh.ship-id
+                   AND oe-rel.rel-date LE oe-relh.rel-date
+                   AND oe-rel.rel-no   EQ 0
+                   AND oe-rel.b-ord-no EQ 0
+                   AND oe-rel.link-no  EQ 0
+                 USE-INDEX ord-item NO-ERROR.
+      
+        IF NOT AVAILABLE oe-rel THEN
+            FIND FIRST oe-rel
+                 WHERE oe-rel.company  EQ oe-relh.company
+                   AND oe-rel.ord-no   EQ oe-rell.ord-no
+                   AND oe-rel.liNE     EQ oe-rell.liNE
+                   AND oe-rel.i-no     EQ oe-rell.i-no
+                   AND oe-rel.rel-date LE oe-relh.rel-date
+                   AND oe-rel.rel-no   EQ 0
+                   AND oe-rel.b-ord-no EQ 0
+                   AND oe-rel.link-no  EQ 0
+                 USE-INDEX ord-item NO-ERROR.
+      
+        IF AVAILABLE oe-rel THEN
+            RUN oe/rel-stat.p (
+                INPUT ROWID(oe-rel), 
+                OUTPUT oe-rel.stat
+                ).
+    END.
+END PROCEDURE.
+
+PROCEDURE pOrderProcsMakeBOLLs PRIVATE:
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiReleaseID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBOLID     AS INTEGER   NO-UNDO.
+        
+    DEFINE VARIABLE iBOLLine        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iBOLQty         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cBOLPrint       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lBOLWeight      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnBOLPrint    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFoundBOLPrint  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnBOLWeight   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFoundBOLWeight AS LOGICAL   NO-UNDO.
+
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, 
+        INPUT "BOLPRINT", 
+        INPUT "C" /* Logical */, 
+        INPUT YES /* check by cust */, 
+        INPUT YES /* use cust NOT vendor */, 
+        INPUT "" /* cust */,
+        INPUT "" /* ship-to*/,
+        OUTPUT cRtnBOLPrint, 
+        OUTPUT lFoundBOLPrint
+        ).
+    IF lFoundBOLPrint THEN
+        cBOLPrint = cRtnBOLPrint NO-ERROR. 
+                
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany, 
+        INPUT "BOLWeight", 
+        INPUT "L" /* Logical */, 
+        INPUT YES /* check by cust */, 
+        INPUT YES /* use cust NOT vendor */, 
+        INPUT "" /* cust */,
+        INPUT "" /* ship-to*/,
+        OUTPUT cRtnBOLWeight, 
+        OUTPUT lFoundBOLWeight
+        ).
+        
+    IF lFoundBOLWeight THEN
+        lBOLWeight = LOGICAL(cRtnBOLWeight) NO-ERROR.
+    
+    FIND FIRST oe-relh NO-LOCK
+         WHERE oe-relh.release# EQ ipiReleaseID 
+         NO-ERROR.
+         
+    FIND FIRST oe-bolh NO-LOCK
+         WHERE oe-bolh.bol-no EQ ipiBOLID
+         NO-ERROR.
+         
+    FOR EACH oe-rell
+        WHERE oe-rell.company EQ oe-relh.company
+          AND oe-rell.r-no    EQ oe-relh.r-no
+        USE-INDEX r-no NO-LOCK
+        BREAK 
+        BY oe-rell.ord-no
+        BY oe-rell.i-no
+        BY SUBSTR(oe-rell.rec_key,5,4)
+        BY SUBSTR(oe-rell.rec_key,1,4)
+        BY SUBSTR(oe-rell.rec_key,10,100):
+    
+        FIND FIRST oe-boll NO-LOCK
+            WHERE oe-boll.company EQ oe-bolh.company
+              AND oe-boll.b-no    EQ oe-bolh.b-no
+              AND oe-boll.i-no    EQ oe-rell.i-no
+              AND oe-boll.ord-no  EQ oe-rell.ord-no
+            USE-INDEX b-no NO-ERROR.
+        
+        IF AVAILABLE oe-boll THEN 
+            iBOLLine = oe-boll.bol-line.        
+        ELSE DO:
+            FIND LAST oe-boll NO-LOCK
+                WHERE oe-boll.company EQ oe-bolh.company
+                  AND oe-boll.b-no    EQ oe-bolh.b-no
+                USE-INDEX bol-line NO-ERROR.
+            iBOLLine  = (IF AVAILABLE oe-boll THEN 
+                             oe-boll.bol-line 
+                         ELSE 0) + 1.
+        END.
+
+        CREATE oe-boll.
+        ASSIGN
+            oe-boll.company  = oe-bolh.company
+            oe-boll.b-no     = oe-bolh.b-no
+            oe-boll.bol-no   = oe-bolh.bol-no
+            oe-boll.bol-line = iBOLLine
+            oe-boll.ord-no   = oe-rell.ord-no
+            oe-boll.rel-no   = oe-rell.rel-no
+            oe-boll.b-ord-no = oe-rell.b-ord-no
+            oe-boll.po-no    = oe-rell.po-no
+            oe-boll.loc-bin  = oe-rell.loc-bin
+            oe-boll.loc      = oe-rell.loc
+            oe-boll.r-no     = oe-rell.r-no
+            oe-boll.i-no     = oe-rell.i-no
+            oe-boll.line     = oe-rell.line
+            oe-boll.tag      = oe-rell.tag
+            oe-boll.job-no   = oe-rell.job-no
+            oe-boll.job-no2  = oe-rell.job-no2
+            oe-boll.cust-no  = oe-rell.cust-no
+            oe-boll.cases    = oe-rell.cases
+            oe-boll.qty-case = oe-rell.qty-case
+            oe-boll.partial  = oe-rell.partial
+            oe-boll.s-code   = oe-rell.s-code
+            oe-boll.qty      = oe-rell.qty
+            oe-boll.lot-no   = oe-rell.lot-no
+            oe-boll.sell-price = oe-rell.sell-price
+            oe-boll.zeroPrice = oe-rell.zeroPrice
+            oe-boll.enteredBy = oe-rell.enteredBy
+            oe-boll.enteredDT = oe-rell.enteredDT
+            .
+               
+        IF oe-boll.loc-bin EQ "" THEN 
+            oe-boll.loc-bin = cBOLPrint.
+       
+        iBOLQty  = iBOLQty  + oe-boll.qty.
+        
+        FIND FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ cocode
+              AND itemfg.i-no    EQ oe-rell.i-no
+            NO-ERROR.
+        
+        IF AVAILABLE itemfg  AND
+           oe-boll.qty-case  EQ 0 AND
+           itemfg.case-count NE 0 THEN DO:
+           
+            oe-boll.qty-case = itemfg.case-count.
+        
+            IF oe-boll.qty-case NE 0 THEN
+                oe-boll.cases = TRUNC((oe-boll.qty - oe-boll.partial) / oe-boll.qty-case,0).
+        END.
+
+        IF LAST-OF(oe-rell.i-no) THEN DO: 
+            {oe/oe-bolpc.i ALL}
+        END.
+        
+        IF AVAILABLE itemfg THEN
+            ASSIGN
+                oe-boll.weight = ((((oe-boll.cases * oe-boll.qty-case) +
+                                 oe-boll.partial) / 100) * itemfg.weight-100)
+                oe-bolh.tot-wt = oe-bolh.tot-wt + oe-boll.weight
+                .
+ 
+        IF lBOLWeight AND
+           TRIM(oe-rell.tag) NE "" THEN 
+            FIND FIRST loadtag NO-LOCK 
+                 WHERE loadtag.company   EQ ipcCompany
+                   AND loadtag.item-type EQ NO
+                   AND loadtag.tag-no    EQ oe-rell.tag 
+                 NO-ERROR.
+                 
+        IF AVAILABLE loadtag THEN
+            ASSIGN oe-boll.weight = ((oe-rell.cases * loadtag.misc-dec[1]) +
+                                     loadtag.misc-dec[3]).
+        IF oe-boll.qty LT 0 THEN 
+            oe-boll.tag = "".
+    END. /* each oe-rell */
+
+    RUN oe/calcBolFrt.p (
+        INPUT ROWID(oe-bolh), 
+        OUTPUT oe-bolh.freight
+        ).
+               
+END PROCEDURE.
+
+
+PROCEDURE pOrderProcsPostRelease PRIVATE:
+    DEFINE INPUT PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiReleaseID AS INTEGER NO-UNDO.
+    
+    FIND FIRST oe-relh EXCLUSIVE-LOCK
+         WHERE oe-relh.release# EQ ipiReleaseID
+         NO-WAIT NO-ERROR. 
+
+    FOR EACH  oe-rell
+        WHERE oe-rell.company EQ ipcCompany
+          AND oe-rell.r-no    EQ oe-relh.r-no
+        USE-INDEX r-no:
+        FIND FIRST itemfg
+              WHERE itemfg.company EQ ipcCompany
+                AND itemfg.i-no    EQ oe-rell.i-no
+              USE-INDEX i-no NO-ERROR.
+        
+        IF NOT AVAILABLE itemfg THEN
+            RETURN.
+
+        FIND FIRST oe-ord NO-LOCK
+             WHERE oe-ord.company EQ ipcCompany
+               AND oe-ord.ord-no  EQ oe-rell.ord-no  /* used be oe-relh.ord-no */
+             NO-ERROR.
+
+        IF NOT AVAILABLE oe-ord OR
+           (AVAILABLE oe-ord AND oe-ord.inv-no NE 0 AND oe-ord.stat EQ "X") THEN
+            RETURN.
+        ELSE DO:
+            ASSIGN
+                oe-rell.printed = yes
+                oe-rell.posted  = yes
+                .
+            
+            IF (oe-rell.s-code EQ "S" OR oe-rell.s-code EQ "B") AND
+                NOT oe-relh.deleted THEN DO:
+                itemfg.q-rel = itemfg.q-rel + oe-rell.qty.
+                RUN fg/chkfgloc.p (INPUT oe-rell.i-no, INPUT oe-rell.loc).
+                FIND FIRST itemfg-loc EXCLUSIVE-LOCK 
+                     WHERE itemfg-loc.company EQ ipcCompany
+                       AND itemfg-loc.i-no    EQ oe-rell.i-no
+                       AND itemfg-loc.loc     EQ oe-rell.loc
+                     NO-ERROR.
+                IF AVAILABLE itemfg-loc THEN
+                    itemfg-loc.q-rel = itemfg-loc.q-rel + oe-rell.qty.            
+            END.            
+            
+            RELEASE itemfg.
+            FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
+            
+            IF AVAILABLE oe-ord THEN
+                FIND FIRST oe-ordl
+                     WHERE oe-ordl.company EQ ipcCompany
+                       AND oe-ordl.ord-no  EQ oe-ord.ord-no
+                       AND oe-ordl.i-no    EQ oe-rell.i-no
+                       AND oe-ordl.line    EQ oe-rell.line
+                     USE-INDEX ord-no NO-ERROR.
+            ELSE 
+                RETURN.
+            
+            IF AVAILABLE oe-ordl AND 
+                     NOT oe-relh.deleted AND 
+                         oe-rell.s-code NE "I" THEN
+                oe-ordl.t-rel-qty = oe-ordl.t-rel-qty + oe-rell.qty.
+            
+            RELEASE oe-ordl.
+            
+            RUN oe/upschrel.p (
+                INPUT ROWID(oe-rell)
+                ).
+        END. /* ELSE DO: */
+    END. /* each oe-rell */
+
+    IF AVAILABLE oe-relh THEN
+        oe-relh.posted = YES.
+
+    RELEASE oe-relh.
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fGetSettingJobCreate RETURNS LOGICAL PRIVATE
@@ -1198,7 +2171,7 @@ FUNCTION fGetSettingJobCreate RETURNS LOGICAL PRIVATE
     /*------------------------------------------------------------------------------
      Purpose: Returns the setting for NK1 Jobcreat
      Notes:
-    ------------------------------------------------------------------------------*/	
+    ------------------------------------------------------------------------------*/    
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     
@@ -1206,6 +2179,6 @@ FUNCTION fGetSettingJobCreate RETURNS LOGICAL PRIVATE
         OUTPUT cReturn, OUTPUT lFound).
         
     RETURN lFound AND cReturn EQ "YES".
-		
+        
 END FUNCTION.
 
