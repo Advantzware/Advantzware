@@ -52,18 +52,28 @@ DEL /Q 7z.* > NUL
 DEL /Q convusr.* > NUL
 CLS
 
-:: Move to Updates dir
-CD ..\..\Updates
+:: Build some directories that may or may not already exist
+CD ..\..
+MKDIR Documentation > NUL
+CD Documentation
+MKDIR DBDict > NUL
+CD ..
+MKDIR Install > NUL
+CD Install
+MKDIR ReportWriter > NUL
+CD ..
+MKDIR Backups > NUL
+CD Backups
+MKDIR PatchFiles
+CD ..
+CD Updates
 
 :: Copy files/dirs from Patch to "regular" directories
-MKDIR ..\Documentation\DBDict > NUL
-MKDIR ..\Install\ReportWriter > NUL
-MKDIR ..\Backups\PatchFiles > NUL
 XCOPY /S /Y .\*.zip ..\Backups\PatchFiles > NUL
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
-XCOPY /S /Y .\DBDict\*.* ..\Documentation\DBDict > NUL
+XCOPY /S /Y .\Documentation\DBDict\*.* ..\Documentation\DBDict > NUL
 XCOPY /S /Y .\Install\ReportWriter\*.* ..\Install\ReportWriter > NUL
-XCOPY /S /Y .\ReleaseNotes\*.* ..\Documentation\ReleaseNotes > NUL
+XCOPY /S /Y .\Documentation\ReleaseNotes\*.* ..\Documentation\ReleaseNotes > NUL
 XCOPY /S /Y .\Structure\*.* ..\Databases\Structure > NUL
 IF NOT EXIST ..\Admin\EnvAdmin\updateHist.txt (
     COPY /Y .\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL
