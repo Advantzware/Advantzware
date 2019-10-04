@@ -60,11 +60,7 @@ assign
  itemfg.pur-man    = xeb.pur-man     
  itemfg.alloc      = NOT xeb.set-is-assembled
  itemfg.setupDate  = TODAY.
-
-  IF fgmaster-log THEN
-      itemfg.stocked = YES.
-  ELSE itemfg.stocked = NO.
-
+  
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
  {oe/fgfreighta.i xeb}

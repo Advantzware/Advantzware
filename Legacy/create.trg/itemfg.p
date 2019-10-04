@@ -89,7 +89,6 @@ IF AVAILABLE b-{&TABLENAME} THEN DO:
         {&TABLENAME}.procat         = b-{&TABLENAME}.procat
         {&TABLENAME}.class          = b-{&TABLENAME}.class
         {&TABLENAME}.sell-uom       = b-{&TABLENAME}.sell-uom
-        {&TABLENAME}.stocked        = b-{&TABLENAME}.stocked
         {&TABLENAME}.prod-uom       = b-{&TABLENAME}.prod-uom
         {&TABLENAME}.pur-uom        = b-{&TABLENAME}.pur-uom
         {&TABLENAME}.curr-code[1]   = b-{&TABLENAME}.curr-code[1]
