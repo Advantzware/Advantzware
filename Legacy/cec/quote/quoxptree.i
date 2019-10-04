@@ -193,7 +193,7 @@ FOR EACH xqitm OF xquo NO-LOCK
          v-board = ""
          adder-print = NO.
 
-       IF (NOT logSetPrinting OR NOT s-print-comp) AND s-print-2nd-dscr THEN
+       IF s-print-2nd-dscr THEN
          IF v-boardDescription EQ 'Est' THEN
            v-board = IF AVAIL ef THEN ef.brd-dscr ELSE "".
          ELSE

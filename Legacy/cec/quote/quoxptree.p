@@ -193,7 +193,8 @@ find first est where est.company = xquo.company
   ASSIGN
      v-first-q-no = xquo.q-no
      v-line-total = 0
-     v-printline = 0.
+     v-printline = 0
+     v-boardDescription = "Quote" .
 
 PUT "<Farial>". 
 
