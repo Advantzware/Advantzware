@@ -11,8 +11,8 @@ FUNCTION fFormatValue RETURNS CHARACTER (iphTable AS HANDLE, ipcField AS CHARACT
         /* error raised if invalid format for field value */
         IF ERROR-STATUS:NUM-MESSAGES NE 0 OR iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN 
         cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(ipiExtent).
-        
-        cStr = LEFT-TRIM(TRIM(cStr)).
+        /* cannot exceed index field limit of 1970 bytes */
+        cStr = LEFT-TRIM(TRIM(SUBSTRING(cStr,1,1970))).
     END. /* if rowid */
     
     RETURN cStr.
