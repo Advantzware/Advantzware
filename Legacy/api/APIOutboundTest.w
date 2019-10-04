@@ -672,7 +672,8 @@ DO:
                 STRING(ROWID(itemfg))
                 ).
         END.
-        WHEN "SendPurchaseOrder" THEN DO:
+        WHEN "SendPurchaseOrder" OR
+        WHEN "SendPurchaseOrderStatus" THEN DO:
             FIND FIRST po-ord NO-LOCK
                  WHERE po-ord.company EQ cCompany
                    AND po-ord.po-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE) NO-ERROR.
@@ -686,6 +687,29 @@ DO:
                 "po-ord",
                 STRING(ROWID(po-ord))
                 ).
+        END.
+        WHEN "SendPurchaseOrderLineStatus" THEN DO:
+            IF INDEX(fiPrimaryKey:SCREEN-VALUE,"-") GT 0 THEN DO:
+                FIND FIRST po-ordl NO-LOCK
+                     WHERE po-ordl.company EQ cCompany
+                       AND po-ordl.po-no   EQ INTEGER(ENTRY(1,fiPrimaryKey:SCREEN-VALUE,"-"))
+                       AND po-ordl.line    EQ INTEGER(ENTRY(2,fiPrimaryKey:SCREEN-VALUE,"-"))
+                       NO-ERROR.
+                IF NOT AVAILABLE po-ordl THEN DO:    
+                    MESSAGE "Invalid Purchase Order Number and Line" VIEW-AS ALERT-BOX ERROR.
+                    RETURN.
+                END.
+
+                RUN pCreateArgs (
+                    "ROWID",
+                    "po-ordl",
+                    STRING(ROWID(po-ordl))
+                    ).
+            END.
+            ELSE DO:
+                MESSAGE "Invalid Purchase Order and Line" VIEW-AS ALERT-BOX ERROR.    
+                RETURN.
+            END.    
         END.
         WHEN "SendRelease" THEN DO:
             FIND FIRST oe-relh NO-LOCK
@@ -820,11 +844,25 @@ DO:
                 OUTPUT recVal
                 ). 
         END.
-        WHEN "SendPurchaseOrder" THEN DO:
+        WHEN "SendPurchaseOrder" OR
+        WHEN "SendPurchaseOrderStatus" THEN DO:        
             /* Purchase Order lookup */
             RUN system/openlookup.p (
                 cCompany, 
                 "po-no", /* lookup field */
+                0,   /* Subject ID */
+                "",  /* User ID */
+                0,   /* Param value ID */
+                OUTPUT returnFields, 
+                OUTPUT lookupField, 
+                OUTPUT recVal
+                ). 
+        END.
+        WHEN "SendPurchaseOrderLineStatus" THEN DO:        
+            /* Purchase Order lookup */
+            RUN system/openlookup.p (
+                cCompany, 
+                "po-line", /* lookup field */
                 0,   /* Subject ID */
                 "",  /* User ID */
                 0,   /* Param value ID */
@@ -849,7 +887,11 @@ DO:
     END CASE.
 
     IF lookupField NE "" THEN DO:
-        fiPrimaryKey:SCREEN-VALUE   = ENTRY(1,lookupField).
+        IF fiAPIID:SCREEN-VALUE EQ "SendPurchaseOrderLineStatus" THEN
+            fiPrimaryKey:SCREEN-VALUE = ENTRY(2,returnFields,"|") 
+                                      + "-" + ENTRY(4,returnFields,"|").
+        ELSE
+            fiPrimaryKey:SCREEN-VALUE = ENTRY(1,lookupField).
         
         APPLY "CHOOSE" TO btUpdateRequest.
     END.
