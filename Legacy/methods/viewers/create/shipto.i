@@ -42,6 +42,8 @@ FOR EACH bf-shipto
   END.
 END.
 
-IF cust.sort EQ "Y" THEN shipto.tax-code = cust.tax-gr.
+ASSIGN
+ shipto.tax-code = cust.tax-gr
+ shipto.tax-mandatory = IF cust.sort EQ "Y" THEN TRUE ELSE FALSE .
 
 
