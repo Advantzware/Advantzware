@@ -46,4 +46,9 @@ router.post('/createbilloflading', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
+//This will get purchase orders 
+router.post('/getpurchaseorder', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
 module.exports = router;
